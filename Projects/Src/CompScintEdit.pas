@@ -65,7 +65,7 @@ type
      from the container }
   TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
     ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
-    ccUnfoldLine, ccFoldLine);
+    ccUnfoldLine, ccFoldLine, ccToggleLinesComment);
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -364,6 +364,7 @@ begin
   AddComplexCommand(ShortCut(VK_ESCAPE, []), ccSimplifySelection);
   AddComplexCommand(ShortCut(VK_OEM_6, [ssShift, ssCtrl]), ccUnfoldLine);
   AddComplexCommand(ShortCut(VK_OEM_4, [ssShift, ssCtrl]), ccFoldLine);
+  AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment);
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

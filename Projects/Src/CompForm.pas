@@ -1,4 +1,4 @@
-unit CompForm;
+﻿unit CompForm;
 
 {
   Inno Setup
@@ -1111,6 +1111,78 @@ end;
 
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+
+  procedure ToggleLinesComment(const AMemo: TCompScintEdit);
+  begin
+    { Based on SciTE 5.50's SciTEBase::StartBlockComment }
+
+    var Selection := AMemo.Selection;
+    var CaretPosition := AMemo.CaretPosition;
+    // checking if caret is located in _beginning_ of selected block
+    var MoveCaret := CaretPosition < Selection.EndPos;
+    var SelStartLine := AMemo.GetLineFromPosition(Selection.StartPos);
+    var SelEndLine := AMemo.GetLineFromPosition(Selection.EndPos);
+    var Lines := SelEndLine - SelStartLine;
+    var FirstSelLineStart := AMemo.GetPositionFromLine(SelStartLine);
+    // "caret return" is part of the last selected line
+    if (Lines > 0) and (Selection.EndPos = AMemo.GetPositionFromLine(SelEndLine)) then
+      Dec(SelEndLine);
+    { We rely on the styler to identify [Code] section lines, but we
+      may be searching into areas that haven't been styled yet }
+    AMemo.StyleNeeded(Selection.EndPos);
+    AMemo.BeginUndoAction;
+    var LastLongCommentLength := 0;
+    for var I := SelStartLine to SelEndLine do begin
+      var LineIndent := AMemo.GetLineIndentPosition(I);
+      var LineEnd := AMemo.GetLineEndPosition(I);
+      var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
+      // empty lines are not commented
+      if LineBuf = '' then
+        Continue;
+      var Comment: String;
+      if LineBuf.StartsWith('//') or
+         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
+        Comment := '//'
+      else
+        Comment := ';';
+      var LongComment := Comment + ' ';
+      LastLongCommentLength := Length(LongComment);
+      var RawLongComment := AMemo.ConvertStringToRawString(LongComment);
+      if LineBuf.StartsWith(Comment) then begin
+        var CommentLength := Length(Comment);
+        if LineBuf.StartsWith(LongComment) then begin
+          // Removing comment with space after it.
+          CommentLength := Length(LongComment);
+        end;
+        AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
+        AMemo.SelText := '';
+        if I = SelStartLine then // is this the first selected line?
+          Dec(Selection.StartPos, CommentLength);
+        Dec(Selection.EndPos, CommentLength); // every iteration
+        Continue;
+      end;
+      if I = SelStartLine then // is this the first selected line?
+        Inc(Selection.StartPos, Length(LongComment));
+      Inc(Selection.EndPos, Length(LongComment)); // every iteration
+      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, RawLongComment);
+    end;
+    // after uncommenting selection may promote itself to the lines
+    // before the first initially selected line;
+    // another problem - if only comment symbol was selected;
+    if Selection.StartPos < FirstSelLineStart then begin
+      if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
+        Selection.EndPos := FirstSelLineStart;
+      Selection.StartPos := FirstSelLineStart;
+    end;
+    if MoveCaret then begin
+      // moving caret to the beginning of selected block
+      AMemo.CaretPosition := Selection.EndPos;
+      AMemo.Call(SCI_SETCURRENTPOS, Selection.StartPos, 0);
+    end else
+      AMemo.Selection := Selection;
+    AMemo.EndUndoAction;
+  end;
+
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TCompScintEdit;
@@ -1167,6 +1239,8 @@ begin
             FActiveMemo.SetEmptySelection;
           FActiveMemo.ScrollCaretIntoView;
         end;
+      ccToggleLinesComment:
+        ToggleLinesComment(FActiveMemo);
       else if ComplexCommand <> ccNone then
         raise Exception.Create('Unknown ComplexCommand');
     end;
@@ -2306,7 +2380,7 @@ begin
   end;
   sHeader := Format('%s - %s', [sHeader, DateTimeToStr(Now())]);
 
-  { Based on Scintilla 2.22's SciTEWin::Print }
+  { Based on SciTE 2.22's SciTEWin::Print }
   
   ZeroMemory(@pdlg, SizeOf(pdlg));
   pdlg.lStructSize := SizeOf(pdlg);

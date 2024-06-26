@@ -3138,6 +3138,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
 </tr>
 <tr>
+  <td>Toggle lines comment.</td><td>Ctrl+/</td>
+</tr>
+<tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
