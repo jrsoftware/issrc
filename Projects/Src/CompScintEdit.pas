@@ -226,13 +226,7 @@ begin
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
 
-  AssignCmdKey('C', [ssCtrl], SCI_COPYALLOWLINE);
-  AssignCmdKey(SCK_INSERT, [ssCtrl], SCI_COPYALLOWLINE);
-  AssignCmdKey('X', [ssCtrl], SCI_CUTALLOWLINE);
-  AssignCmdKey(SCK_DELETE, [ssShift], SCI_CUTALLOWLINE);
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
-  AssignCmdKey(SCK_UP, [ssAlt], SCI_MOVESELECTEDLINESUP);
-  AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
   
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
@@ -337,6 +331,15 @@ begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
     Call(SCI_RESETALLCMDKEYS, Ord(FKeyMappingType = kmtVSCode), 0);
+    if FKeyMappingType = kmtDefault then begin
+      { Take some compatible improvements from the VSCode map }
+      AssignCmdKey('C', [ssCtrl], SCI_COPYALLOWLINE);
+      AssignCmdKey(SCK_INSERT, [ssCtrl], SCI_COPYALLOWLINE);
+      AssignCmdKey('X', [ssCtrl], SCI_CUTALLOWLINE);
+      AssignCmdKey(SCK_DELETE, [ssShift], SCI_CUTALLOWLINE);
+      AssignCmdKey(SCK_UP, [ssAlt], SCI_MOVESELECTEDLINESUP);
+      AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
+    end;
     Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
     UpdateComplexCommands;
   end;
