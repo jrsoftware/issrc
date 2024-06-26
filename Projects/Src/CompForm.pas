@@ -557,7 +557,7 @@ type
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
     procedure UpdateMarginsIcons;
-    procedure UpdateMarginsAndSquigglyWidths;
+    procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
@@ -900,7 +900,7 @@ begin
   FActiveMemo.Visible := True;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
-  UpdateMarginsAndSquigglyWidths;
+  UpdateMarginsAndSquigglyAndCaretWidths;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1050,7 +1050,7 @@ end;
 procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateMarginsAndSquigglyWidths;
+  UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateMarginsIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
@@ -1177,7 +1177,7 @@ procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
   if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
     { About #9, as Wikipedia explains: "The most known and common tab is a
-      horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
+      horizontal tabulation â€¦ and may be referred to as Ctrl+I." Ctrl+I is
       (just like in Visual Studio Code) our alternative code completion character
       because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
       the Delphi keymap for the forward button. So that's why we handle #9 here.
@@ -3678,7 +3678,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.UpdateMarginsAndSquigglyWidths;
+procedure TCompileForm.UpdateMarginsAndSquigglyAndCaretWidths;
 { Update the width of our two margins. Note: the width of the line numbers
   margin is fully handled by TScintEdit. Should be called at startup and after
   DPI change. }
@@ -3688,10 +3688,11 @@ begin
   var FolderMarkersWidth := ToCurrentPPI(14); { 1 pixel margin on boths side of the icon }
   var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
   var SquigglyWidth := ToCurrentPPI(100); { 100 = 1 pixel }
+  var CaretWidth := ToCurrentPPI(2);
 
   for var Memo in FMemos do
-    Memo.UpdateMarginsAndSquigglyWidths(IconMarkersWidth, BaseChangeHistoryWidth,
-      FolderMarkersWidth, LeftBlankMarginWidth, 0, SquigglyWidth);
+    Memo.UpdateMarginsAndSquigglyAndCaretWidths(IconMarkersWidth, BaseChangeHistoryWidth,
+      FolderMarkersWidth, LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth);
 end;
 
 procedure TCompileForm.SplitPanelMouseMove(Sender: TObject;
@@ -3900,7 +3901,7 @@ begin
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
     SyncEditorOptions;
-    UpdateMarginsAndSquigglyWidths;
+    UpdateMarginsAndSquigglyAndCaretWidths;
     UpdateNewMainFileButtons;
     UpdateOccurrenceIndicators(FActiveMemo);
     UpdateKeyMapping;

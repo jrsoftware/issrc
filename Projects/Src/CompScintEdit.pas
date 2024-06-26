@@ -100,9 +100,9 @@ type
     function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
-    procedure UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
+    procedure UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
       BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
-      RightBlankMarginWidth, SquigglyWidth: Integer);
+      RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
     property KeyMappingType: TCompScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
@@ -215,7 +215,6 @@ begin
             Later SCI_GETSTYLEDTEXTFULL was also added but we don't use it at
             the time of writing. }
 
-  Call(SCI_SETCARETWIDTH, 2, 0);
   Call(SCI_AUTOCSETAUTOHIDE, 0, 0);
   Call(SCI_AUTOCSETCANCELATSTART, 0, 0);
   Call(SCI_AUTOCSETDROPRESTOFWORD, 1, 0);
@@ -234,7 +233,7 @@ begin
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
   AssignCmdKey(SCK_UP, [ssAlt], SCI_MOVESELECTEDLINESUP);
   AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
-
+  
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
@@ -417,9 +416,9 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMarginsAndSquigglyWidths(const IconMarkersWidth,
+procedure TCompScintEdit.UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
-  RightBlankMarginWidth, SquigglyWidth: Integer);
+  RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
 
@@ -442,6 +441,8 @@ begin
   Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
 
   Call(SCI_INDICSETSTROKEWIDTH, minSquiggly, SquigglyWidth);
+
+  Call(SCI_SETCARETWIDTH, CaretWidth, 0);
 end;
 
 procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
