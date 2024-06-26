@@ -341,6 +341,8 @@ begin
       AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
     end;
     Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
+    ClearCmdKey('/', [ssCtrl]);
+    ClearCmdKey('\', [ssCtrl]);
     UpdateComplexCommands;
   end;
 end;
@@ -349,6 +351,9 @@ procedure TCompScintEdit.UpdateComplexCommands;
 begin
   FComplexCommands.Clear;
   FComplexCommandsReversed.Clear;
+
+  { VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [, VK_OEM_2 is /
+    See https://code.visualstudio.com/docs/getstarted/keybindings#_keyboard-layouts }
 
   if FKeyMappingType = kmtVSCode then begin
     { Use freed Ctrl+D and Ctrl+Shift+L }
@@ -364,6 +369,7 @@ begin
   AddComplexCommand(ShortCut(VK_ESCAPE, []), ccSimplifySelection);
   AddComplexCommand(ShortCut(VK_OEM_6, [ssShift, ssCtrl]), ccUnfoldLine);
   AddComplexCommand(ShortCut(VK_OEM_4, [ssShift, ssCtrl]), ccFoldLine);
+  { Use freed Ctrl+/ }
   AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment);
 end;
 

@@ -3189,12 +3189,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
 </tr>
 <tr>
-  <td>Go to previous word part. Shift extends selection.</td><td>Ctrl+/</td>
-</tr>
-<tr>
-  <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
-</tr>
-<tr>
   <td>Scroll up.</td><td>Ctrl+Up</td>
 </tr>
 <tr>
