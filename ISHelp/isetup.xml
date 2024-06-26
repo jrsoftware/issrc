@@ -3270,16 +3270,16 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Add the next occurrence of the current word or selected text as an additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
+  <td>Add next occurrence of current word or selected text as additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
 </tr>
 <tr>
-  <td>Select all occurrences of the current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or Ctrl+F2</td>
+  <td>Select all occurrences of current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or Ctrl+F2</td>
 </tr>
 <tr>
-  <td>Select all matches of the last find text (also works when a find dialog is open).</td><td>Alt+Enter</td>
+  <td>Select all matches of last find text (also works when find dialog is open).</td><td>Alt+Enter</td>
 </tr>
 <tr>
-  <td>Revert multiple selections into a single one or a single selection into an empty one.</td><td>Esc</td>
+  <td>Revert multiple selections into single one or single selection into empty one.</td><td>Esc</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
