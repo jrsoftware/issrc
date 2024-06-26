@@ -337,7 +337,7 @@ begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
     Call(SCI_RESETALLCMDKEYS, Ord(FKeyMappingType = kmtVSCode), 0);
-    Call(SCI_SETMOUSEVSCODE, Ord(FKeyMappingType = kmtVSCode), 0);
+    Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
     UpdateComplexCommands;
   end;
 end;
