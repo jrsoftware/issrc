@@ -7389,12 +7389,9 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
 
     var OutputReader := TCreateProcessOutputReader.Create(SignCommandLog, NativeInt(Self));
     try
-      var InheritHandles: Boolean;
-      var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
-
-      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
-      if InheritHandles then
-        dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
+      var InheritHandles := True;
+      var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE or CREATE_NO_WINDOW;
+      OutputReader.UpdateStartupInfo(StartupInfo);
 
       if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, InheritHandles,
          dwCreationFlags, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin

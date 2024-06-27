@@ -2874,10 +2874,13 @@ end;</pre></example>
         <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
 <p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
-<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p></description>
+<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
+<p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TOnLog is defined as:</p>
-<p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p></remarks>
+<p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
+<p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
+<p>Error will be True if setting up output redirection or reading the output failed, or if the output size exceeded 10mb. There is no further output after an error.</p></remarks>
         <example><pre>var
   Line: String;
 
@@ -2893,7 +2896,11 @@ end;
 function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
 begin
   Line := '';
-  ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  try
+    ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  except
+    Log(GetExceptionMessage);
+  end;
   Result := Line;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link></p></seealso>
