@@ -1132,7 +1132,8 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
 
   procedure ToggleLinesComment(const AMemo: TCompScintEdit);
   begin
-    { Based on SciTE 5.50's SciTEBase::StartBlockComment }
+    { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
+      for the main selection }
 
     var Selection := AMemo.Selection;
     var CaretPosition := AMemo.CaretPosition;
@@ -1149,55 +1150,58 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
       may be searching into areas that haven't been styled yet }
     AMemo.StyleNeeded(Selection.EndPos);
     AMemo.BeginUndoAction;
-    var LastLongCommentLength := 0;
-    for var I := SelStartLine to SelEndLine do begin
-      var LineIndent := AMemo.GetLineIndentPosition(I);
-      var LineEnd := AMemo.GetLineEndPosition(I);
-      var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
-      // empty lines are not commented
-      if LineBuf = '' then
-        Continue;
-      var Comment: String;
-      if LineBuf.StartsWith('//') or
-         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
-        Comment := '//'
-      else
-        Comment := ';';
-      var LongComment := Comment + ' ';
-      LastLongCommentLength := Length(LongComment);
-      if LineBuf.StartsWith(Comment) then begin
-        var CommentLength := Length(Comment);
-        if LineBuf.StartsWith(LongComment) then begin
-          // Removing comment with space after it.
-          CommentLength := Length(LongComment);
+    try
+      var LastLongCommentLength := 0;
+      for var I := SelStartLine to SelEndLine do begin
+        var LineIndent := AMemo.GetLineIndentPosition(I);
+        var LineEnd := AMemo.GetLineEndPosition(I);
+        var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
+        // empty lines are not commented
+        if LineBuf = '' then
+          Continue;
+        var Comment: String;
+        if LineBuf.StartsWith('//') or
+           (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
+          Comment := '//'
+        else
+          Comment := ';';
+        var LongComment := Comment + ' ';
+        LastLongCommentLength := Length(LongComment);
+        if LineBuf.StartsWith(Comment) then begin
+          var CommentLength := Length(Comment);
+          if LineBuf.StartsWith(LongComment) then begin
+            // Removing comment with space after it.
+            CommentLength := Length(LongComment);
+          end;
+          AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
+          AMemo.SelText := '';
+          if I = SelStartLine then // is this the first selected line?
+            Dec(Selection.StartPos, CommentLength);
+          Dec(Selection.EndPos, CommentLength); // every iteration
+          Continue;
         end;
-        AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
-        AMemo.SelText := '';
         if I = SelStartLine then // is this the first selected line?
-          Dec(Selection.StartPos, CommentLength);
-        Dec(Selection.EndPos, CommentLength); // every iteration
-        Continue;
+          Inc(Selection.StartPos, Length(LongComment));
+        Inc(Selection.EndPos, Length(LongComment)); // every iteration
+        AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
       end;
-      if I = SelStartLine then // is this the first selected line?
-        Inc(Selection.StartPos, Length(LongComment));
-      Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
+      // after uncommenting selection may promote itself to the lines
+      // before the first initially selected line;
+      // another problem - if only comment symbol was selected;
+      if Selection.StartPos < FirstSelLineStart then begin
+        if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
+          Selection.EndPos := FirstSelLineStart;
+        Selection.StartPos := FirstSelLineStart;
+      end;
+      if MoveCaret then begin
+        // moving caret to the beginning of selected block
+        AMemo.CaretPosition := Selection.EndPos;
+        AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
+      end else
+        AMemo.Selection := Selection;
+    finally
+      AMemo.EndUndoAction;
     end;
-    // after uncommenting selection may promote itself to the lines
-    // before the first initially selected line;
-    // another problem - if only comment symbol was selected;
-    if Selection.StartPos < FirstSelLineStart then begin
-      if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
-        Selection.EndPos := FirstSelLineStart;
-      Selection.StartPos := FirstSelLineStart;
-    end;
-    if MoveCaret then begin
-      // moving caret to the beginning of selected block
-      AMemo.CaretPosition := Selection.EndPos;
-      AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
-    end else
-      AMemo.Selection := Selection;
-    AMemo.EndUndoAction;
   end;
 
 begin
