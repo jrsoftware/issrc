@@ -3569,7 +3569,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
 
   procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
-    const SelectionRanges, IndicatorRanges: TScintRangeList);
+    const Selections, IndicatorRanges: TScintRangeList);
   begin
     if TScintEdit.RawStringIsBlank(TextToFind) then
       Exit;
@@ -3592,7 +3592,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
         styling for either the main selection or any additional selection. Does
         not account for an indicator overlapping more than 1 selection. }
       var OverlappingSelection: TScintRange;
-      if SelectionRanges.Overlaps(FoundRange, OverlappingSelection) then begin
+      if Selections.Overlaps(FoundRange, OverlappingSelection) then begin
         if FoundRange.StartPos < OverlappingSelection.StartPos then
           IndicatorRanges.Add(TScintRange.Create(FoundRange.StartPos, OverlappingSelection.StartPos));
         if FoundRange.EndPos > OverlappingSelection.EndPos then
@@ -3614,17 +3614,17 @@ begin
                            AMemo.GetLineFromPosition(MainSelection.EndPos);
 
   var IndicatorRanges: TScintRangeList := nil;
-  var SelectionRanges: TScintRangeList := nil;
+  var Selections: TScintRangeList := nil;
   try
     IndicatorRanges := TScintRangeList.Create;
-    SelectionRanges := TScintRangeList.Create;
+    Selections := TScintRangeList.Create;
 
     if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and MainSelSingleLine then begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        AMemo.GetSelections(SelectionRanges); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelectionRanges, IndicatorRanges);
+        AMemo.GetSelections(Selections); { Gets any additional selections as well }
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, Selections, IndicatorRanges);
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
@@ -3632,13 +3632,13 @@ begin
     IndicatorRanges.Clear;
     if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
       var TextToIndicate := AMemo.RawMainSelText;
-      if SelectionRanges.Count = 0 then { If 0 then we didn't already call GetSelections above}
-        AMemo.GetSelections(SelectionRanges);
-      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);
+      if Selections.Count = 0 then { If 0 then we didn't already call GetSelections above}
+        AMemo.GetSelections(Selections);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, Selections, IndicatorRanges);
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minSelTextOccurrence);
   finally
-    SelectionRanges.Free;
+    Selections.Free;
     IndicatorRanges.Free;
   end;
 end;
