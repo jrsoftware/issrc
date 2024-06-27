@@ -263,7 +263,6 @@ type
     function GetIndicatorAtPosition(const IndicatorNumber: TScintIndicatorNumber;
       const Pos: Integer): Boolean;
     function GetLineEndPosition(const Line: Integer): Integer;
-    function GetLineEndPositionWithEnding(const Line: Integer): Integer;
     function GetLineFromPosition(const Pos: Integer): Integer;
     function GetLineIndentation(const Line: Integer): Integer;
     function GetLineIndentPosition(const Line: Integer): Integer;
@@ -285,14 +284,12 @@ type
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
-    procedure InsertText(const Pos: Integer; const S: String);
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
     function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
-    procedure RawInsertText(const Pos: Integer; const S: TScintRawString);
     function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
@@ -985,13 +982,6 @@ begin
   Result := Call(SCI_GETLINEENDPOSITION, Line, 0);
 end;
 
-function TScintEdit.GetLineEndPositionWithEnding(const Line: Integer): Integer;
-{ Returns the position at the end of the line, including any line end characters. }
-begin
-  Result := GetPositionFromLine(Line);
-  Inc(Result, Call(SCI_LINELENGTH, Line, 0));
-end;
-
 function TScintEdit.GetLineFromPosition(const Pos: Integer): Integer;
 begin
   Result := Call(SCI_LINEFROMPOSITION, Pos, 0);
@@ -1275,11 +1265,6 @@ begin
     System.SetCodePage(RawByteString(S), FCodePage, False);
 end;
 
-procedure TScintEdit.InsertText(const Pos: Integer; const S: String);
-begin
-  RawInsertText(Pos, ConvertStringToRawString(S));
-end;
-
 function TScintEdit.IsPositionInViewVertically(const Pos: Integer): Boolean;
 var
   P: TPoint;
@@ -1378,12 +1363,6 @@ end;
 procedure TScintEdit.PasteFromClipboard;
 begin
   Call(SCI_PASTE, 0, 0);
-end;
-
-procedure TScintEdit.RawInsertText(const Pos: Integer;
-  const S: TScintRawString);
-begin
-  CallStr(SCI_INSERTTEXT, Pos, S);
 end;
 
 function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;

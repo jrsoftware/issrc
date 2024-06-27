@@ -1142,7 +1142,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
       Dec(SelEndLine);
     { We rely on the styler to identify [Code] section lines, but we
       may be searching into areas that haven't been styled yet }
-    AMemo.StyleNeeded(AMemo.GetLineEndPositionWithEnding(SelEndLine));
+    AMemo.StyleNeeded(Selection.EndPos);
     AMemo.BeginUndoAction;
     var LastLongCommentLength := 0;
     for var I := SelStartLine to SelEndLine do begin
@@ -1176,7 +1176,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
       if I = SelStartLine then // is this the first selected line?
         Inc(Selection.StartPos, Length(LongComment));
       Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.InsertText(LineIndent, LongComment);
+      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
     end;
     // after uncommenting selection may promote itself to the lines
     // before the first initially selected line;
