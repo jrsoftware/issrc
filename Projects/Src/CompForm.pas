@@ -67,6 +67,7 @@ type
   TFindResults = TObjectList<TFindResult>;
 
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
+  TKeyMappedMenus = TDictionary<TShortCut, TToolButton>;
 
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -455,6 +456,7 @@ type
     FSynchingZoom: Boolean;
     FNavStacks: TCompScintEditNavStacks;
     FCurrentNavItem: TCompScintEditNavItem;
+    FKeyMappedMenus: TKeyMappedMenus;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
@@ -960,6 +962,8 @@ begin
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
 
+  FKeyMappedMenus := TKeyMappedMenus.Create;
+
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
@@ -1024,6 +1028,7 @@ begin
     GlobalFree(FDevNames);
 
   FNavStacks.Free;
+  FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
   FMenuDarkBackgroundBrush.Free;
   FMenuDarkHotOrSelectedBrush.Free;
@@ -1227,24 +1232,30 @@ begin
     end;
   end else begin
     var AShortCut := ShortCut(Key, Shift);
-    var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
-    if ComplexCommand <> ccNone then begin
-      Key := 0;
-      case ComplexCommand of
-        ccSelectNextOccurrence:
-          ESelectNextOccurrenceClick(Self);
-        ccSelectAllOccurrences:
-          ESelectAllOccurrencesClick(Self);
-        ccSelectAllFindMatches:
-          ESelectAllFindMatchesClick(Self);
-        ccUnfoldLine, ccFoldLine:
-          FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
-        ccSimplifySelection:
-          SimplifySelection(FActiveMemo);
-        ccToggleLinesComment:
-          ToggleLinesComment(FActiveMemo);
-        else
-          raise Exception.Create('Unknown ComplexCommand');
+    { Check if the memo keymap wants us to handle the shortcut but first check
+      the menu keymap didn't already claim the same shortcut. Other shortcuts
+      (which are always same and not set by the menu keymap) are assumed to
+      never conflict. }
+    if not FKeyMappedMenus.ContainsKey(AShortCut) then begin
+      var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
+      if ComplexCommand <> ccNone then begin
+        Key := 0;
+        case ComplexCommand of
+          ccSelectNextOccurrence:
+            ESelectNextOccurrenceClick(Self);
+          ccSelectAllOccurrences:
+            ESelectAllOccurrencesClick(Self);
+          ccSelectAllFindMatches:
+            ESelectAllFindMatchesClick(Self);
+          ccUnfoldLine, ccFoldLine:
+            FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
+          ccSimplifySelection:
+            SimplifySelection(FActiveMemo);
+          ccToggleLinesComment:
+            ToggleLinesComment(FActiveMemo);
+          else
+            raise Exception.Create('Unknown ComplexCommand');
+        end;
       end;
     end;
   end;
@@ -5593,6 +5604,8 @@ begin
     KMM(RTerminate, VK_F2, [ssCtrl], VK_F5, [ssShift], TerminateButton),
     KMM(REvaluate, VK_F7, [ssCtrl], VK_F9, [ssShift])];
 
+  FKeyMappedMenus.Clear;
+
   for var KeyMappedMenu in KeyMappedMenus do begin
     var ShortCut := KeyMappedMenu.Value.Key;
     var ToolButton := KeyMappedMenu.Value.Value;
@@ -5601,6 +5614,7 @@ begin
       var MenuItem := KeyMappedMenu.Key;
       ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
     end;
+    FKeyMappedMenus.Add(ShortCut, ToolButton);
   end;
 
   { Set fake shortcuts on any duplicates of the above in popup menus }
@@ -5631,7 +5645,9 @@ begin
   end;
 
   BackNavButton.Hint := Format('Back (%s)', [ShortCutToText(FBackNavButtonShortCut)]);
+  FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [ShortCutToText(FForwardNavButtonShortCut)]);
+  FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
 procedure TCompileForm.UpdateTheme;

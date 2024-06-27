@@ -3270,7 +3270,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add next occurrence of current word or selected text as additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
 </tr>
 <tr>
-  <td>Select all occurrences of current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or Ctrl+F2</td>
+  <td>Select all occurrences of current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or (only if classic menu keys are not active) Ctrl+F2</td>
 </tr>
 <tr>
   <td>Select all matches of last find text (also works when find dialog is open).</td><td>Alt+Enter</td>
