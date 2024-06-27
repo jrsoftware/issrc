@@ -1,4 +1,4 @@
-﻿unit CompForm;
+unit CompForm;
 
 {
   Inno Setup
@@ -1254,7 +1254,7 @@ procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
   if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
     { About #9, as Wikipedia explains: "The most known and common tab is a
-      horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
+      horizontal tabulation <..> and may be referred to as Ctrl+I." Ctrl+I is
       (just like in Visual Studio Code) our alternative code completion character
       because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
       the Delphi keymap for the forward button. So that's why we handle #9 here.
