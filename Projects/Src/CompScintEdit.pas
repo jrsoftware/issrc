@@ -199,8 +199,6 @@ begin
   inherited;
 
   { Some notes about future Scintilla versions:
-    -Does it at some point become possible to change mouse shortcut Ctrl+Click
-     to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
