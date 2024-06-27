@@ -306,7 +306,8 @@ end;
 function TCompScintEdit.GetComplexCommand(
   const ShortCut: TShortCut): TCompScintComplexCommand;
 begin
-  if not FComplexCommands.TryGetValue(ShortCut, Result) then
+  if not FComplexCommands.TryGetValue(ShortCut, Result) or
+     (ReadOnly and (Result = ccToggleLinesComment)) then
     Result := ccNone;
 end;
 
@@ -370,7 +371,7 @@ begin
   AddComplexCommand(ShortCut(VK_OEM_6, [ssShift, ssCtrl]), ccUnfoldLine);
   AddComplexCommand(ShortCut(VK_OEM_4, [ssShift, ssCtrl]), ccFoldLine);
   { Use freed Ctrl+/ }
-  AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment);
+  AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment); { Also see GetComplexCommand for ReadOnly check }
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

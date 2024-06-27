@@ -1078,16 +1078,18 @@ procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   var AShortCut := ShortCut(Key, Shift);
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
-    Key := 0;
+    Key := 0; { Intentionally only done when BStopCompile is enabled to allow to memo to process it instead }
     BStopCompileClick(Self)
   end else if (AShortCut = FBackNavButtonShortCut) or
               ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
-    BackNavButtonClick(Self);
+    if BackNavButton.Enabled then
+      BackNavButtonClick(Self);
   end else if (AShortCut = FForwardNavButtonShortCut) or
               ((FForwardNavButtonShortCut2 <> 0) and (AShortCut = FForwardNavButtonShortCut2)) then begin
     Key := 0;
-    ForwardNavButtonClick(Self);
+    if ForwardNavButton.Enabled then
+      ForwardNavButtonClick(Self);
   end else if (AShortCut >= FFirstTabSelectShortCut) and (AShortCut <= FLastTabSelectShortCut) then begin
     Key := 0;
     if MemosTabSet.Visible then begin
