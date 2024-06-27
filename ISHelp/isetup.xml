@@ -3116,7 +3116,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
 
-<p>If the Visual Studio Code column is empty then the shortcut for this command is the same as listed in the Classic column.</p>
+<p><u>If the Visual Studio Code column is empty then the shortcut for this command is the same as listed in the Classic column.</u></p>
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
