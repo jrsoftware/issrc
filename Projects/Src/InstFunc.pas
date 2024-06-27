@@ -953,9 +953,9 @@ begin
 
     if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
       OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
-      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
-      if InheritHandles then
-        dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
+      OutputReader.UpdateStartupInfo(StartupInfo);
+      InheritHandles := True;
+      dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
     end;
 
     Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,

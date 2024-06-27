@@ -676,9 +676,9 @@ begin
 
     if Log and Assigned(LogProc) and WaitUntilTerminated then begin
       OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
-      OutputReader.UpdateStartupInfo(StartupInfo, InheritHandles);
-      if InheritHandles then
-        dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
+      OutputReader.UpdateStartupInfo(StartupInfo);
+      InheritHandles := True;
+      dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
     end;
 
     Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,

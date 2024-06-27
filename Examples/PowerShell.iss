@@ -59,7 +59,11 @@ end;
 function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
 begin
   Line := '';
-  ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  try
+    ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  except
+    Log(GetExceptionMessage);
+  end;
   Result := Line;
 end;
 
