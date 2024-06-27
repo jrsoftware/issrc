@@ -1206,6 +1206,105 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
     end;
   end;
 
+  procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
+  begin
+    { Does not handle virtual space. Does not try to keep the main selection. }
+
+    var Selections := TScintCaretAndAnchorList.Create;
+    try
+      AMemo.GetSelections(Selections);
+      for var I := 0 to Selections.Count-1 do begin
+        var Selection := Selections[I];
+        var LineCaret := AMemo.GetLineFromPosition(Selection.CaretPos);
+        var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
+        if LineCaret = LineAnchor then begin
+          { Add selection with same caret and anchor offsets one line up or down }
+          var NewLine := LineCaret + IfThen(Up, -1, 1);;
+          if (NewLine < 0) or (NewLine >= AMemo.Lines.Count) then
+            Continue { Already at the top or bottom, can't add }
+          else begin
+            var LineCaretStartPos := AMemo.GetPositionFromLine(LineCaret);
+            var NewSelection: TScintCaretAndAnchor;
+            NewSelection.CaretPos := AMemo.GetPositionFromLine(NewLine) + Selection.CaretPos - LineCaretStartPos;
+            NewSelection.AnchorPos := AMemo.GetPositionFromLine(NewLine) + Selection.AnchorPos - LineCaretStartPos;
+            var MaxPos := AMemo.GetLineEndPosition(NewLine);
+            if NewSelection.CaretPos > MaxPos then
+              NewSelection.CaretPos := MaxPos;
+            if NewSelection.AnchorPos > MaxPos then
+              NewSelection.AnchorPos := MaxPos;
+            { AddSelection trims selections except for the main selection so
+              we need to check that ourselves unfortunately. Not doing a check
+              gives a problem when you AddCursor two times starting with an
+              empty single selection. The result will be 4 cursors, with 2 of
+              them in the same place. The check below fixes this but not
+              other cases when there's only partial overlap and Scintilla still
+              behaves weird. }
+            var MainSelection := AMemo.Selection;
+            if not NewSelection.Range.Within(AMemo.Selection) then
+              AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
+          end;
+        end else begin
+          { Extend multiline selection up or down. This is not the same as
+            LineExtendUp/Down because those can shrink instead of extend. }
+          var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
+          if Up then begin
+            var LineStart, StartPos: Integer;
+            { Does it start at the caret or the anchor? }
+            if CaretBeforeAnchor then begin
+              LineStart := LineCaret;
+              StartPos := Selection.CaretPos
+            end else begin
+              LineStart := LineAnchor;
+              StartPos := Selection.AnchorPos;
+            end;
+            var NewStartPos: Integer;
+            { Go up one line or to the start of the document }
+            if LineStart > 0 then begin
+              var LineStartStartPos := AMemo.GetPositionFromLine(LineStart);
+              NewStartPos := AMemo.GetPositionFromLine(LineStart-1) + StartPos - LineStartStartPos;
+              var MaxPos := AMemo.GetLineEndPosition(LineStart-1);
+              if NewStartPos > MaxPos then
+                NewStartPos := MaxPos;
+            end else
+              NewStartPos := 0;
+            { Move the caret or the anchor up }
+            if CaretBeforeAnchor then
+              AMemo.SelectionCaretPosition[I] := NewStartPos
+            else
+              AMemo.SelectionAnchorPosition[I] := NewStartPos;
+          end else begin
+            var LineEnd, EndPos: Integer;
+            { Does it end at the caret or the anchor? }
+            if not CaretBeforeAnchor then begin
+              LineEnd := LineCaret;
+              EndPos := Selection.CaretPos
+            end else begin
+              LineEnd := LineAnchor;
+              EndPos := Selection.AnchorPos;
+            end;
+            var NewEndPos: Integer;
+            { Go down one line or to the end of the document }
+            if LineEnd < AMemo.Lines.Count-1 then begin
+              var LineEndStartPos := AMemo.GetPositionFromLine(LineEnd);
+              NewEndPos := AMemo.GetPositionFromLine(LineEnd+1) + EndPos - LineEndStartPos;
+              var MaxPos := AMemo.GetLineEndPosition(LineEnd+1);
+              if NewEndPos > MaxPos then
+                NewEndPos := MaxPos;
+            end else
+              NewEndPos := AMemo.GetPositionFromLine(AMemo.Lines.Count);
+            { Move the caret or the anchor down }
+            if not CaretBeforeAnchor then
+              AMemo.SelectionCaretPosition[I] := NewEndPos
+            else
+              AMemo.SelectionAnchorPosition[I] := NewEndPos;
+          end;
+        end;
+      end;
+    finally
+      Selections.Free;
+    end;
+  end;
+
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TCompScintEdit;
@@ -1259,6 +1358,8 @@ begin
             SimplifySelection(FActiveMemo);
           ccToggleLinesComment:
             ToggleLinesComment(FActiveMemo);
+          ccAddCursorUp, ccAddCursorDown:
+            AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
           else
             raise Exception.Create('Unknown ComplexCommand');
         end;

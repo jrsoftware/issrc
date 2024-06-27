@@ -67,6 +67,12 @@ type
     function Overlaps(const ARange: TScintRange;
       var AOverlappingRange: TScintRange): Boolean;
   end;
+  TScintCaretAndAnchor = record
+    CaretPos, AnchorPos: Integer;
+    constructor Create(const ACaretPos, AAnchorPos: Integer);
+    function Range: TScintRange;
+  end;
+  TScintCaretAndAnchorList = class(TList<TScintCaretAndAnchor>);
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -278,7 +284,8 @@ type
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
-    procedure GetSelections(const RangeList: TScintRangeList);
+    procedure GetSelections(const RangeList: TScintRangeList); overload;
+    procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -1176,6 +1183,16 @@ begin
     var StartPos := Call(SCI_GETSELECTIONNSTART, I, 0);
     var EndPos := Call(SCI_GETSELECTIONNEND, I, 0);
     RangeList.Add(TScintRange.Create(StartPos, EndPos));
+  end;
+end;
+
+procedure TScintEdit.GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList);
+begin
+  CaretAndAnchorList.Clear;
+  for var I := 0 to SelectionCount-1 do begin
+    var CaretPos := Call(SCI_GETSELECTIONNCARET, I, 0);
+    var AnchorPos := Call(SCI_GETSELECTIONNANCHOR, I, 0);
+    CaretAndAnchorList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
   end;
 end;
 
@@ -2772,6 +2789,25 @@ begin
     end;
   end;
   Result := False;
+end;
+
+{ TScintCaretAndAnchor }
+
+constructor TScintCaretAndAnchor.Create(const ACaretPos, AAnchorPos: Integer);
+begin
+  CaretPos := ACaretPos;
+  AnchorPos := AAnchorPos;
+end;
+
+function TScintCaretAndAnchor.Range: TScintRange;
+begin
+  if CaretPos <= AnchorPos then begin
+    Result.StartPos := CaretPos;
+    Result.EndPos := AnchorPos;
+  end else begin
+    Result.StartPos := AnchorPos;
+    Result.EndPos := CaretPos;
+  end;
 end;
 
 end.

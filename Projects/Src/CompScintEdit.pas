@@ -65,7 +65,8 @@ type
      from the container }
   TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
     ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
-    ccUnfoldLine, ccFoldLine, ccToggleLinesComment);
+    ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
+    ccAddCursorDown);
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -370,6 +371,8 @@ begin
   AddComplexCommand(ShortCut(VK_ESCAPE, []), ccSimplifySelection);
   AddComplexCommand(ShortCut(VK_OEM_6, [ssShift, ssCtrl]), ccUnfoldLine);
   AddComplexCommand(ShortCut(VK_OEM_4, [ssShift, ssCtrl]), ccFoldLine);
+  AddComplexCommand(ShortCut(VK_UP, [ssCtrl, ssAlt]), ccAddCursorUp);
+  AddComplexCommand(ShortCut(VK_DOWN, [ssCtrl, ssAlt]), ccAddCursorDown);
   { Use freed Ctrl+/ }
   AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment); { Also see GetComplexCommand for ReadOnly check }
 end;
