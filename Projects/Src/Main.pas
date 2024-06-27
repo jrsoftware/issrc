@@ -3921,10 +3921,12 @@ begin
       DisableFsRedir := ShouldDisableFsRedirForRunEntry(RunEntry);
       if not(roSkipIfDoesntExist in RunEntry.Options) or
          NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
+        var OutputParams: TOutputParams;
+        if GetLogActive and (roLogOutput in RunEntry.Options) then
+          OutputParams.SetLogData(RunExecLog, 0);
         if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
            ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
-           Wait, RunEntry.ShowCmd, ProcessMessagesProc, GetLogActive and (roLogOutput in RunEntry.Options),
-           RunExecLog, 0, ErrorCode) then
+           Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputParams, ErrorCode) then
           raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
             SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
             ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));

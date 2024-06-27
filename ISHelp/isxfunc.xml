@@ -1651,7 +1651,8 @@ begin
     // handle failure if necessary; ResultCode contains the error code
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
+        <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
 <link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
       </function>
       <function>
@@ -2868,6 +2869,43 @@ end;</pre></example>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
         <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
       </function>
+<function>
+        <name>ExecAndCaptureOutput</name>
+        <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
+        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+<p>Program output from the stdout and stderr streams is captured. This is different from <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> which merges the streams.</p>
+<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>An exception will be raised if there was an error setting up output redirection (which should be very rare). The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
+        <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
+<p>TExecOutput is defined as:</p>
+<pre>
+  TExecOutput = record
+    StdOut: TArrayOfString;
+    StdErr: TArrayOfString;
+    Error: Boolean;
+  end;
+</pre>
+<p>Error will be True if an exception was raised or if there was an error reading the output (which should be very rare) or if the total output size exceeded 10mb. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p></remarks>
+        <example><pre>var
+  ResultCode: Integer;
+  Output: TExecOutput;
+
+begin
+  try
+    // Get the system configuration
+    Result := ExecAndCaptureOutput(ExpandConst('{cmd}', 'systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+  except
+    Result := False
+    Log(GetExceptionMessage);
+  end;
+
+  if Result then begin
+    // Do something with Output.StdOut
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link></p></seealso>
+      </function>
       <function>
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
@@ -2903,7 +2941,8 @@ begin
   end;
   Result := Line;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_Exec">Exec</link></p></seealso>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link></p></seealso>
       </function>
     </subcategory>
   </category>
