@@ -1272,7 +1272,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
           var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
           var Down := not Up;
           var LineStartOrEnd, StartOrEndPos, VirtualSpace: Integer;
-          { Does it start (up) or end (down) at the caret or the anchor? }
+          { Does it start (when going up) or end (when going down) at the caret or the anchor? }
           if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
             LineStartOrEnd := LineCaret;
             StartOrEndPos := Selection.CaretPos;
@@ -1284,7 +1284,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
           end;
           var NewStartOrEndPos: Integer;
           var NewVirtualSpace := 0;
-          { Go up one line or to the start of the document }
+          { Go up or down one line or to the start or end of the document }
           if (Up and (LineStartOrEnd > 0)) or (Down and  (LineStartOrEnd < AMemo.Lines.Count-1))  then begin
             var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineStartOrEnd), StartOrEndPos) + VirtualSpace;
             var OtherLine := LineStartOrEnd + IfThen(Up, -1, 1);
