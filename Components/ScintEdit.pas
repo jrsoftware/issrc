@@ -67,6 +67,12 @@ type
     function Overlaps(const ARange: TScintRange;
       var AOverlappingRange: TScintRange): Boolean;
   end;
+  TScintCaretAndAnchor = record
+    CaretPos, AnchorPos: Integer;
+    constructor Create(const ACaretPos, AAnchorPos: Integer);
+    function Range: TScintRange;
+  end;
+  TScintCaretAndAnchorList = class(TList<TScintCaretAndAnchor>);
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -163,6 +169,7 @@ type
     procedure SetCaretColumn(const Value: Integer);
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
+    procedure SetCaretPositionWithSelectFromAnchor(const Value: Integer);
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetChangeHistory(const Value: TScintChangeHistory);
     procedure SetFillSelectionToEdge(const Value: Boolean);
@@ -223,6 +230,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
+    procedure AddSelection(const CaretPos, AnchorPos: Integer);
     procedure AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
       const Command: TScintCommand); overload;
     procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
@@ -256,10 +264,12 @@ type
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
+    procedure FoldLine(const Line: Integer; const Fold: Boolean);
     function FormatRange(const Draw: Boolean;
       const RangeToFormat: PScintRangeToFormat): Integer;
     procedure ForceModifiedState;
-    function GetCharAtPosition(const Pos: Integer): AnsiChar;
+    function GetByteAtPosition(const Pos: Integer): AnsiChar;
+    function GetCharacterCount(const StartPos, EndPos: Integer): Integer;
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -279,9 +289,12 @@ type
     function GetPositionFromPoint(const P: TPoint;
       const CharPosition, CloseOnly: Boolean): Integer;
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
+    function GetPositionRelative(const Pos, CharacterCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
-    procedure GetSelections(const RangeList: TScintRangeList);
+    procedure GetSelections(const RangeList: TScintRangeList); overload;
+    procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
+    procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -338,6 +351,7 @@ type
     property CaretColumnExpandedForTabs: Integer read GetCaretColumnExpandedForTabs;
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
+    property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Integer read FEffectiveCodePage;
     property FoldFlags: TScintFoldFlags write SetFoldFlags;
@@ -547,6 +561,14 @@ procedure TScintEdit.AddMarker(const Line: Integer;
 begin
   FLines.CheckIndexRange(Line);
   Call(SCI_MARKERADD, Line, Marker);
+end;
+
+procedure TScintEdit.AddSelection(const CaretPos, AnchorPos: Integer);
+{ Adds a new selection as the main selection retaining all other selections as
+  additional selections without scrolling the caret into view. The first
+  selection should be added with SetSingleSelection. }
+begin
+  Call(SCI_ADDSELECTION, CaretPos, AnchorPos);
 end;
 
 procedure TScintEdit.ApplyOptions;
@@ -848,6 +870,19 @@ begin
     Options, MatchRange);
 end;
 
+procedure TScintEdit.FoldLine(const Line: Integer; const Fold: Boolean);
+begin
+  FLines.CheckIndexRange(Line);
+  { If the line is not part of a fold the following will return False }
+  var Folded := Call(SCI_GETFOLDEXPANDED, Line, 0) = 0;
+  if Fold <> Folded then begin
+    { If the line is not part of a fold the following will do nothing
+      and else if the line is not the header Scintilla will lookup the
+      header for us }
+    Call(SCI_TOGGLEFOLD, Line, 0);
+  end;
+end;
+
 procedure TScintEdit.ForceModifiedState;
 begin
   if not FForceModified then begin
@@ -879,6 +914,11 @@ begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
 end;
 
+function TScintEdit.GetByteAtPosition(const Pos: Integer): AnsiChar;
+begin
+  Result := AnsiChar(Call(SCI_GETCHARAT, Pos, 0));
+end;
+
 function TScintEdit.GetCaretColumn: Integer;
 begin
   Result := GetColumnFromPosition(GetCaretPosition);
@@ -902,12 +942,13 @@ end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
 begin
-  Result := Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, GetMainSelection, 0);
+  Result := GetSelectionCaretVirtualSpace(GetMainSelection);
 end;
 
-function TScintEdit.GetCharAtPosition(const Pos: Integer): AnsiChar;
+function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
 begin
-  Result := AnsiChar(Call(SCI_GETCHARAT, Pos, 0));
+  CheckPosRange(StartPos, EndPos);
+  Result := Call(SCI_COUNTCHARACTERS, StartPos, EndPos);
 end;
 
 function TScintEdit.GetColumnFromPosition(const Pos: Integer): Integer;
@@ -959,6 +1000,7 @@ begin
 end;
 
 function TScintEdit.GetLineEndPosition(const Line: Integer): Integer;
+{ Returns the position at the end of the line, before any line end characters. }
 begin
   FLines.CheckIndexRange(Line);
   Result := Call(SCI_GETLINEENDPOSITION, Line, 0);
@@ -1071,6 +1113,12 @@ begin
   Result := Call(SCI_BRACEMATCH, Pos, 0);
 end;
 
+function TScintEdit.GetPositionRelative(const Pos,
+  CharacterCount: Integer): Integer;
+begin
+  Result := Call(SCI_POSITIONRELATIVE, Pos, CharacterCount);
+end;
+
 function TScintEdit.GetRawMainSelText: TScintRawString;
 begin
   var MainSel := MainSelection;
@@ -1158,6 +1206,27 @@ begin
     var StartPos := Call(SCI_GETSELECTIONNSTART, I, 0);
     var EndPos := Call(SCI_GETSELECTIONNEND, I, 0);
     RangeList.Add(TScintRange.Create(StartPos, EndPos));
+  end;
+end;
+
+procedure TScintEdit.GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList);
+begin
+  CaretAndAnchorList.Clear;
+  for var I := 0 to SelectionCount-1 do begin
+    var CaretPos := GetSelectionCaretPosition(I);
+    var AnchorPos := GetSelectionAnchorPosition(I);
+    CaretAndAnchorList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
+  end;
+end;
+
+procedure TScintEdit.GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList);
+begin
+  GetSelections(CaretAndAnchorList);
+  VirtualSpacesList.Clear;
+  for var I := 0 to SelectionCount-1 do begin
+    var CaretPos := GetSelectionCaretVirtualSpace(I);
+    var AnchorPos := GetSelectionAnchorVirtualSpace(I);
+    VirtualSpacesList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
   end;
 end;
 
@@ -1543,7 +1612,15 @@ begin
   ChooseCaretX;
 end;
 
+procedure TScintEdit.SetCaretPositionWithSelectFromAnchor(const Value: Integer);
+{ Sets the caret position and creates a selection between the anchor and the
+  caret position without scrolling the caret into view. }
+begin
+  Call(SCI_SETCURRENTPOS, Value, 0);
+end;
+
 procedure TScintEdit.SetCaretVirtualSpace(const Value: Integer);
+{ Also sets the anchor's virtual space! }
 var
   Pos, LineEndPos, MainSel: Integer;
 begin
@@ -1553,8 +1630,8 @@ begin
   LineEndPos := GetLineEndPosition(GetLineFromPosition(Pos));
   if (Pos = LineEndPos) or (Value = 0) then begin
     MainSel := GetMainSelection;
-    Call(SCI_SETSELECTIONNANCHORVIRTUALSPACE, MainSel, Value);
-    Call(SCI_SETSELECTIONNCARETVIRTUALSPACE, MainSel, Value);
+    SetSelectionAnchorPosition(MainSel, Value);
+    SetSelectionCaretPosition(MainSel, Value);
     ChooseCaretX;
   end;
 end;
@@ -2769,6 +2846,25 @@ begin
     end;
   end;
   Result := False;
+end;
+
+{ TScintCaretAndAnchor }
+
+constructor TScintCaretAndAnchor.Create(const ACaretPos, AAnchorPos: Integer);
+begin
+  CaretPos := ACaretPos;
+  AnchorPos := AAnchorPos;
+end;
+
+function TScintCaretAndAnchor.Range: TScintRange;
+begin
+  if CaretPos <= AnchorPos then begin
+    Result.StartPos := CaretPos;
+    Result.EndPos := AnchorPos;
+  end else begin
+    Result.StartPos := AnchorPos;
+    Result.EndPos := CaretPos;
+  end;
 end;
 
 end.

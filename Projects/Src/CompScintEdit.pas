@@ -12,7 +12,8 @@ unit CompScintEdit;
 interface
 
 uses
-  Windows, Graphics, Classes, Generics.Collections, ScintInt, ScintEdit, ModernColors;
+  Windows, Graphics, Classes, Menus, Generics.Collections,
+  ScintInt, ScintEdit, ModernColors;
 
 const
   { Memo margin numbers }
@@ -56,22 +57,48 @@ type
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
   TCompScintIndicatorNumber = 0..minMax;
 
+ { Keymaps - Note: Scintilla's default keymap is the same or at least nearly
+   the same as Visual Studio's }
+  TCompScintKeyMappingType = (kmtDefault, kmtVSCode);
+
+ { Commands which require more than 1 parameterless SCI_XXXXX and need help
+   from the container }
+  TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
+    ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
+    ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
+    ccAddCursorDown);
+
   TCompScintEdit = class(TScintEdit)
   private
-    FUseFolding: Boolean;
-    FTheme: TTheme;
-    FOpeningFile: Boolean;
-    FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
-    FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
-    FIndicatorHash: array[TCompScintIndicatorNumber] of String;
-    procedure SetUseFolding(const Value: Boolean);
+    type
+      TCompScintComplexCommands = TDictionary<TShortCut, TCompScintComplexCommand>;
+      TCompScintComplexCommandsReversed = TDictionary<TCompScintComplexCommand, TShortCut>;
+    var
+      FKeyMappingType: TCompScintKeyMappingType;
+      FComplexCommands: TCompScintComplexCommands;
+      FComplexCommandsReversed: TCompScintComplexCommandsReversed;
+      FUseFolding: Boolean;
+      FTheme: TTheme;
+      FOpeningFile: Boolean;
+      FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
+      FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
+      FIndicatorHash: array[TCompScintIndicatorNumber] of String;
+      procedure AddComplexCommand(const ShortCut: TShortCut;
+        Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean = False);
+      procedure SetUseFolding(const Value: Boolean);
+      procedure SetKeyMappingType(const Value: TCompScintKeyMappingType);
+      procedure UpdateComplexCommands;
   protected
     procedure CreateWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
+    function GetComplexCommand(const ShortCut: TShortCut): TCompScintComplexCommand;
+    function GetComplexCommandShortCut(const Command: TCompScintComplexCommand): TShortCut;
+    function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TCompScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
@@ -79,6 +106,7 @@ type
       RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
+    property KeyMappingType: TCompScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
     property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
@@ -143,14 +171,28 @@ type
 implementation
 
 uses
-  MD5, IsscintInt;
+  SysUtils, MD5, IsscintInt;
   
 { TCompScintEdit }
 
 constructor TCompScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
+
+  FComplexCommands := TCompScintComplexCommands.Create;
+  FComplexCommandsReversed := TCompScintComplexCommandsReversed.Create;
+
+  FKeyMappingType := kmtDefault;
+  UpdateComplexCommands;
   FUseFolding := True;
+end;
+
+destructor TCompScintEdit.Destroy;
+begin
+  FComplexCommandsReversed.Free;
+  FComplexCommands.Free;
+  
+  inherited;
 end;
 
 procedure TCompScintEdit.CreateWnd;
@@ -158,8 +200,6 @@ begin
   inherited;
 
   { Some notes about future Scintilla versions:
-    -Does it at some point become possible to change mouse shortcut Ctrl+Click
-     to Alt+Click? And Alt+Shift+Drag instead of Alt+Drag for rect select?
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
@@ -185,13 +225,7 @@ begin
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
 
-  AssignCmdKey('C', [ssCtrl], SCI_COPYALLOWLINE);
-  AssignCmdKey(SCK_INSERT, [ssCtrl], SCI_COPYALLOWLINE);
-  AssignCmdKey('X', [ssCtrl], SCI_CUTALLOWLINE);
-  AssignCmdKey(SCK_DELETE, [ssShift], SCI_CUTALLOWLINE);
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
-  AssignCmdKey(SCK_UP, [ssAlt], SCI_MOVESELECTEDLINESUP);
-  AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
   
   Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
 
@@ -256,6 +290,91 @@ begin
   Call(SCI_MARKERDEFINE, mlmStep, SC_MARK_BACKFORE);
   Call(SCI_MARKERSETFORE, mlmStep, clWhite);
   Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TCompScintEdit.AddComplexCommand(const ShortCut: TShortCut;
+  Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean);
+begin
+  if Command = ccNone then
+    raise Exception.Create('Command = ccNone');
+  FComplexCommands.Add(ShortCut, Command);
+  if not AlternativeShortCut then
+    FComplexCommandsReversed.Add(Command, ShortCut);
+end;
+
+function TCompScintEdit.GetComplexCommand(
+  const ShortCut: TShortCut): TCompScintComplexCommand;
+begin
+  if not FComplexCommands.TryGetValue(ShortCut, Result) or
+     (ReadOnly and (Result = ccToggleLinesComment)) then
+    Result := ccNone;
+end;
+
+function TCompScintEdit.GetComplexCommandShortCut(
+  const Command: TCompScintComplexCommand): TShortCut;
+begin
+  Result := FComplexCommandsReversed[Command];
+end;
+
+function TCompScintEdit.GetRectExtendShiftState(
+  const Desired: Boolean): TShiftState;
+begin
+  Result := [ssShift, ssAlt];
+  if ((FKeyMappingType = kmtVSCode) and Desired) or
+     ((FKeyMappingType <> kmtVSCode) and not Desired) then
+    Include(Result, ssCtrl);
+end;
+
+procedure TCompScintEdit.SetKeyMappingType(
+  const Value: TCompScintKeyMappingType);
+begin
+  if FKeyMappingType <> Value then begin
+    FKeyMappingType := Value;
+    Call(SCI_RESETALLCMDKEYS, Ord(FKeyMappingType = kmtVSCode), 0);
+    if FKeyMappingType = kmtDefault then begin
+      { Take some compatible improvements from the VSCode map }
+      AssignCmdKey('C', [ssCtrl], SCI_COPYALLOWLINE);
+      AssignCmdKey(SCK_INSERT, [ssCtrl], SCI_COPYALLOWLINE);
+      AssignCmdKey('X', [ssCtrl], SCI_CUTALLOWLINE);
+      AssignCmdKey(SCK_DELETE, [ssShift], SCI_CUTALLOWLINE);
+      AssignCmdKey(SCK_UP, [ssAlt], SCI_MOVESELECTEDLINESUP);
+      AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
+    end;
+    Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
+    ClearCmdKey('/', [ssCtrl]);
+    ClearCmdKey('\', [ssCtrl]);
+    UpdateComplexCommands;
+  end;
+end;
+
+procedure TCompScintEdit.UpdateComplexCommands;
+begin
+  FComplexCommands.Clear;
+  FComplexCommandsReversed.Clear;
+
+  { Normally VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [, and VK_OEM_2 is /
+    See CompFunc's NewShortcutToText for how it's is handled when they are different.
+    Note: all VK_OEM shortcuts must have a menu item so the user can see what the
+    shortcut is for their kayboard layout. }
+
+  if FKeyMappingType = kmtVSCode then begin
+    { Use freed Ctrl+D and Ctrl+Shift+L }
+    AddComplexCommand(ShortCut(KeyToKeyCode('D'), [ssCtrl]), ccSelectNextOccurrence);
+    AddComplexCommand(ShortCut(KeyToKeyCode('L'), [ssShift, ssCtrl]), ccSelectAllOccurrences);
+    AddComplexCommand(ShortCut(VK_F2, [ssCtrl]), ccSelectAllOccurrences, True);
+  end else begin
+    AddComplexCommand(ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]), ccSelectNextOccurrence);
+    AddComplexCommand(ShortCut(VK_OEM_1, [ssShift, ssAlt]), ccSelectAllOccurrences);
+  end;
+
+  AddComplexCommand(ShortCut(VK_RETURN, [ssAlt]), ccSelectAllFindMatches);
+  AddComplexCommand(ShortCut(VK_ESCAPE, []), ccSimplifySelection);
+  AddComplexCommand(ShortCut(VK_OEM_6, [ssShift, ssCtrl]), ccUnfoldLine);
+  AddComplexCommand(ShortCut(VK_OEM_4, [ssShift, ssCtrl]), ccFoldLine);
+  AddComplexCommand(ShortCut(VK_UP, [ssCtrl, ssAlt]), ccAddCursorUp);
+  AddComplexCommand(ShortCut(VK_DOWN, [ssCtrl, ssAlt]), ccAddCursorDown);
+  { Use freed Ctrl+/ }
+  AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment); { Also see GetComplexCommand for ReadOnly check }
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

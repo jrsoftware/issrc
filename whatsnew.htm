@@ -35,8 +35,10 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>The editor component used by the Compiler IDE has been updated from an old version of Scintilla to the latest version.</p>
 <p>Multiple selection editing has been improved:</p>
 <ul>
-  <li>Added shortcut to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+.).</li>
-  <li>Added shortcut to select all occurrences of the current word or selected text (Shift+Alt+;).</li>
+  <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+.).</li>
+  <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+;).</li>
+  <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the Find (Ctrl+F) and Replace (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
+  <li>Added shortcuts to add a cursor or selection up or down (Alt+Shift+Up and Alt+Shift+Down). For multi-line selections this extends the selection up or down and never shrinks.</li>
   <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click).</li>
   <li>Added shortcut to remove a selection by clicking it (Ctrl+Click).</li>
   <li>Multiple selection now works over Left, Right, Up, Down, Home and End navigation and selection commands.</li>
@@ -48,12 +50,14 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 <p>Other editor changes:</p>
 <ul>
-  <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing. Enabled by default.</li>
+  <li>Added support for Visual Studio Code-style keyboard and mouse shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
+  <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
   <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications.</li>
   <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
   <li>The editor can now be scrolled horizontally instead of vertically by holding the Shift key while rotating the mouse wheel. Horizontal scroll wheels are now also supported.</li>
   <li>Cut (Ctrl+X or Shift+Delete) and Copy (Ctrl+C or Ctrl+Insert) now cut or copy the entire line if there's no selection, consistent with most other modern editors.</li>
   <li>Added shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
+  <li>Added shortcut and menu item to toggle lines comment (Ctrl+/).</li>
   <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
 </ul>
 <p>Other changes:</p>
@@ -61,10 +65,10 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Shortcuts Alt+Left and Alt+Right now always navigate back and forward even if Visual Studio-style shortcuts have been activated.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or Ctrl+I alternatives must be used.</li>
   <li>Moved the list of recently opened files into a new <i>Open Recent</i> submenu of the <i>Files</i> menu.</li>
   <li>Added shortcuts to select a tab (Ctrl+1 through Ctrl+9).</li>
-  <li>Added new <i>Word Wrap</i> menu item in the <i>View</i> menu (Alt+Z).</li>
+  <li>Added new <i>Word Wrap</i> menu item to the <i>View</i> menu (Alt+Z).</li>
   <li>Added shortcut to the <i>Options</i> menu item in the <i>Tools</i> menu (Ctrl+,).</li>
   <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>  
-  <li>Minor tweaks and documentation improvements.</li>
+  <li>Various tweaks and documentation improvements.</li>
 </ul>
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov and John Stevenson for their contributions.</p>

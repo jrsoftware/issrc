@@ -67,6 +67,7 @@ type
   TFindResults = TObjectList<TFindResult>;
 
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
+  TKeyMappedMenus = TDictionary<TShortCut, TToolButton>;
 
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -237,6 +238,11 @@ type
     RDeleteBreakPoints2: TMenuItem;
     N24: TMenuItem;
     VWordWrap: TMenuItem;
+    N25: TMenuItem;
+    ESelectAllFindMatches: TMenuItem;
+    EToggleLinesComment: TMenuItem;
+    EFoldLine: TMenuItem;
+    EUnfoldLine: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -355,6 +361,9 @@ type
     procedure BreakPointsPopupMenuClick(Sender: TObject);
     procedure FClearRecentClick(Sender: TObject);
     procedure VWordWrapClick(Sender: TObject);
+    procedure ESelectAllFindMatchesClick(Sender: TObject);
+    procedure EToggleLinesCommentClick(Sender: TObject);
+    procedure EFoldOrUnfoldLineClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -394,6 +403,7 @@ type
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
       KeyMappingType: TKeyMappingType;
+      MemoKeyMappingType: TCompScintKeyMappingType;
       ThemeType: TThemeType;
       ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
@@ -451,10 +461,10 @@ type
     FSynchingZoom: Boolean;
     FNavStacks: TCompScintEditNavStacks;
     FCurrentNavItem: TCompScintEditNavItem;
+    FKeyMappedMenus: TKeyMappedMenus;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
-    FSelectNextOccurrenceShortCut, FSelectAllOccurrencesShortCut: TShortCut;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
@@ -778,6 +788,9 @@ constructor TCompileForm.Create(AOwner: TComponent);
       I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
+      I := Ini.ReadInteger('Options', 'MemoKeyMappingType', Ord(GetDefaultMemoKeyMappingType));
+      if (I >= 0) and (I <= Ord(High(TCompScintKeyMappingType))) then
+        FOptions.MemoKeyMappingType := TCompScintKeyMappingType(I);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
@@ -852,10 +865,6 @@ begin
   SetFakeShortCut(ECopy, Ord('C'), [ssCtrl]);
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
-  FSelectNextOccurrenceShortCut := ShortCut(VK_OEM_PERIOD, [ssShift, ssAlt]);
-  SetFakeShortCut(ESelectNextOccurrence, FSelectNextOccurrenceShortCut);
-  FSelectAllOccurrencesShortCut := ShortCut(VK_OEM_1, [ssShift, ssAlt]);
-  SetFakeShortCut(ESelectAllOccurrences, FSelectAllOccurrencesShortCut);
   SetFakeShortCut(EDelete, VK_DELETE, []);
   SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
@@ -958,6 +967,8 @@ begin
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
 
+  FKeyMappedMenus := TKeyMappedMenus.Create;
+
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
@@ -1022,6 +1033,7 @@ begin
     GlobalFree(FDevNames);
 
   FNavStacks.Free;
+  FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
   FMenuDarkBackgroundBrush.Free;
   FMenuDarkHotOrSelectedBrush.Free;
@@ -1070,29 +1082,9 @@ procedure TCompileForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   var AShortCut := ShortCut(Key, Shift);
-  if AShortCut = VK_ESCAPE then begin
-    Key := 0;
-    if BStopCompile.Enabled then
-      BStopCompileClick(Self)
-    else begin
-      { The built in Esc (SCI_CANCEL) simply drops all additional selections
-        and does not empty the main selection, It doesn't matter if Esc is
-        pressed once or twice. Implement our own behaviour, same as VSCode.
-        Also see https://github.com/microsoft/vscode/issues/118835. }
-      if FActiveMemo.SelectionCount > 1 then
-        FActiveMemo.RemoveAdditionalSelections
-      else if not FActiveMemo.SelEmpty then
-        FActiveMemo.SetEmptySelection;
-      FActiveMemo.ScrollCaretIntoView;
-    end;
-  end else if AShortCut = FSelectNextOccurrenceShortCut then begin
-    Key := 0;
-    if ESelectNextOccurrence.Enabled then
-      ESelectNextOccurrenceClick(Self);
-  end else if AShortCut = FSelectAllOccurrencesShortCut then begin
-    Key := 0;
-    if ESelectAllOccurrences.Enabled then
-      ESelectAllOccurrencesClick(Self);
+  if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
+    Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
+    BStopCompileClick(Self)
   end else if (AShortCut = FBackNavButtonShortCut) or
               ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
@@ -1131,18 +1123,143 @@ end;
 
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+
+  procedure SimplifySelection(const AMemo: TCompScintEdit);
+  begin
+    { The built in Esc (SCI_CANCEL) simply drops all additional selections
+      and does not empty the main selection, It doesn't matter if Esc is
+      pressed once or twice. Implement our own behaviour, same as VSCode.
+      Also see https://github.com/microsoft/vscode/issues/118835. }
+    if AMemo.SelectionCount > 1 then
+      AMemo.RemoveAdditionalSelections
+    else if not AMemo.SelEmpty then
+     AMemo.SetEmptySelection;
+    AMemo.ScrollCaretIntoView;
+  end;
+
+  procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
+  begin
+    { Does not try to keep the main selection. }
+
+    var Selections: TScintCaretAndAnchorList := nil;
+    var VirtualSpaces: TScintCaretAndAnchorList := nil;
+    try
+      Selections := TScintCaretAndAnchorList.Create;
+      VirtualSpaces := TScintCaretAndAnchorList.Create;
+      { Get all the virtual spaces as well before we start doing modifications }
+      AMemo.GetSelections(Selections, VirtualSpaces);
+      for var I := 0 to Selections.Count-1 do begin
+        var Selection := Selections[I];
+        var LineCaret := AMemo.GetLineFromPosition(Selection.CaretPos);
+        var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
+        if LineCaret = LineAnchor then begin
+          { Add selection with same caret and anchor offsets one line up or down. }
+          var OtherLine := LineCaret + IfThen(Up, -1, 1);;
+          if (OtherLine < 0) or (OtherLine >= AMemo.Lines.Count) then
+            Continue { Already at the top or bottom, can't add }
+          else begin
+            var LineStartPos := AMemo.GetPositionFromLine(LineCaret);
+            var CaretCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.CaretPos) + VirtualSpaces[I].CaretPos;
+            var AnchorCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.AnchorPos) + VirtualSpaces[I].AnchorPos;
+            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
+            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
+            var NewCaretCharacterCount := CaretCharacterCount;
+            var NewCaretVirtualSpace := 0;
+            var NewAnchorCharacterCount := AnchorCharacterCount;
+            var NewAnchorVirtualSpace := 0;
+            if NewCaretCharacterCount > MaxCharacterCount then begin
+              NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
+              NewCaretCharacterCount := MaxCharacterCount;
+            end;
+            if NewAnchorCharacterCount > MaxCharacterCount then begin
+              NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
+              NewAnchorCharacterCount := MaxCharacterCount;
+            end;
+            var NewSelection: TScintCaretAndAnchor;
+            NewSelection.CaretPos := AMemo.GetPositionRelative(OtherLineStart, NewCaretCharacterCount);
+            NewSelection.AnchorPos := AMemo.GetPositionRelative(OtherLineStart, NewAnchorCharacterCount);
+            { AddSelection trims selections except for the main selection so
+              we need to check that ourselves unfortunately. Not doing a check
+              gives a problem when you AddCursor two times starting with an
+              empty single selection. The result will be 4 cursors, with 2 of
+              them in the same place. The check below fixes this but not
+              other cases when there's only partial overlap and Scintilla still
+              behaves weird. The check also doesn't handle virtual space which
+              is why we ultimately don't set virtual space: it leads to duplicate
+              selections. }
+            var MainSelection := AMemo.Selection;
+            if not NewSelection.Range.Within(AMemo.Selection) then begin
+              AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
+              { if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then begin
+                var MainSel := AMemo.MainSelection;
+                AMemo.SelectionCaretVirtualSpace[MainSel] := NewCaretVirtualSpace;
+                AMemo.SelectionAnchorVirtualSpace[MainSel] := NewAnchorVirtualSpace;
+              end; }
+            end;
+          end;
+        end else begin
+          { Extend multiline selection up or down. This is not the same as
+            LineExtendUp/Down because those can shrink instead of extend. }
+          var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
+          var Down := not Up;
+          var LineStartOrEnd, StartOrEndPos, VirtualSpace: Integer;
+          { Does it start (when going up) or end (when going down) at the caret or the anchor? }
+          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
+            LineStartOrEnd := LineCaret;
+            StartOrEndPos := Selection.CaretPos;
+            VirtualSpace := VirtualSpaces[I].CaretPos;
+          end else begin
+            LineStartOrEnd := LineAnchor;
+            StartOrEndPos := Selection.AnchorPos;
+            VirtualSpace := VirtualSpaces[I].AnchorPos;
+          end;
+          var NewStartOrEndPos: Integer;
+          var NewVirtualSpace := 0;
+          { Go up or down one line or to the start or end of the document }
+          if (Up and (LineStartOrEnd > 0)) or (Down and  (LineStartOrEnd < AMemo.Lines.Count-1))  then begin
+            var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineStartOrEnd), StartOrEndPos) + VirtualSpace;
+            var OtherLine := LineStartOrEnd + IfThen(Up, -1, 1);
+            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
+            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
+            var NewCharacterCount := CharacterCount;
+            if NewCharacterCount > MaxCharacterCount then begin
+              NewVirtualSpace := NewCharacterCount - MaxCharacterCount;
+              NewCharacterCount := MaxCharacterCount;
+            end;
+            NewStartOrEndPos := AMemo.GetPositionRelative(OtherLineStart, NewCharacterCount);
+          end else
+            NewStartOrEndPos := IfThen(Up, 0, AMemo.GetPositionFromLine(AMemo.Lines.Count));
+          { Move the caret or the anchor up or down to extend the selection }
+          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
+            AMemo.SelectionCaretPosition[I] := NewStartOrEndPos;
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+              AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
+          end else begin
+            AMemo.SelectionAnchorPosition[I] := NewStartOrEndPos;
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+              AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
+          end;
+        end;
+      end;
+    finally
+      VirtualSpaces.Free;
+      Selections.Free;
+    end;
+  end;
+
 begin
-  if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) and
-     { Versions with Shift+Alt are special rectangular select shortcuts so don't break those }
-     not (Shift * [ssShift, ssAlt] = [ssShift, ssAlt]) then begin
-    var Memo := Sender as TScintEdit;
-    if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
-       { Allow left/right/etc. navigation with rectangular selection, see
-         https://sourceforge.net/p/scintilla/feature-requests/1275/ and
-         https://sourceforge.net/p/scintilla/bugs/2412/#cb37
-         Notepad++ calls this "Enable Column Selection to Multi-editing" which
-         is on by default and in VSCode and VS it's also on by default. }
-      Memo.SelectionMode := ssmStream;
+  if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
+    var Memo := Sender as TCompScintEdit;
+     { Make sure we don't break the special rectangular select shortcuts }
+    if Shift * [ssShift, ssAlt, ssCtrl] <> Memo.GetRectExtendShiftState(True) then begin
+      if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+         { Allow left/right/etc. navigation with rectangular selection, see
+           https://sourceforge.net/p/scintilla/feature-requests/1275/ and
+           https://sourceforge.net/p/scintilla/bugs/2412/#cb37
+           Notepad++ calls this "Enable Column Selection to Multi-editing" which
+           is on by default and in VSCode and VS it's also on by default. }
+        Memo.SelectionMode := ssmStream;
+      end;
     end;
   end;
 
@@ -1160,6 +1277,38 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
+  end else begin
+    var AShortCut := ShortCut(Key, Shift);
+    { Check if the memo keymap wants us to handle the shortcut but first check
+      the menu keymap didn't already claim the same shortcut. Other shortcuts
+      (which are always same and not set by the menu keymap) are assumed to
+      never conflict. }
+    if not FKeyMappedMenus.ContainsKey(AShortCut) then begin
+      var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
+      if ComplexCommand <> ccNone then begin
+        Key := 0;
+        case ComplexCommand of
+          ccSelectNextOccurrence:
+            ESelectNextOccurrenceClick(Self);
+          ccSelectAllOccurrences:
+            ESelectAllOccurrencesClick(Self);
+          ccSelectAllFindMatches:
+            ESelectAllFindMatchesClick(Self);
+          ccFoldLine:
+            EFoldOrUnfoldLineClick(EFoldLine);
+          ccUnfoldLine:
+            EFoldOrUnfoldLineClick(EUnfoldLine);
+          ccSimplifySelection:
+            SimplifySelection(FActiveMemo);
+          ccToggleLinesComment:
+            EToggleLinesCommentClick(Self); //GetCompexCommand already checked ReadOnly for us
+          ccAddCursorUp, ccAddCursorDown:
+            AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
+          else
+            raise Exception.Create('Unknown ComplexCommand');
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -1167,7 +1316,7 @@ procedure TCompileForm.MemoKeyPress(Sender: TObject; var Key: Char);
 begin
   if ((Key = #9) or (Key = ' ')) and (GetKeyState(VK_CONTROL) < 0) then begin
     { About #9, as Wikipedia explains: "The most known and common tab is a
-      horizontal tabulation … and may be referred to as Ctrl+I." Ctrl+I is
+      horizontal tabulation <..> and may be referred to as Ctrl+I." Ctrl+I is
       (just like in Visual Studio Code) our alternative code completion character
       because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
       the Delphi keymap for the forward button. So that's why we handle #9 here.
@@ -2092,6 +2241,16 @@ begin
     Memo.TabWidth := FOptions.TabWidth;
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
+    Memo.KeyMappingType := FOptions.MemoKeyMappingType;
+    if Memo = FMainMemo then begin
+      SetFakeShortCut(ESelectNextOccurrence,  FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence));
+      SetFakeShortCut(ESelectAllOccurrences, FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences));
+      SetFakeShortCut(ESelectAllFindMatches, FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches));
+      SetFakeShortCut(EFoldLine, FMainMemo.GetComplexCommandShortCut(ccFoldLine));
+      SetFakeShortCut(EUnfoldLine, FMainMemo.GetComplexCommandShortCut(ccUnfoldLine));
+      SetFakeShortCut(EToggleLinesComment, FMainMemo.GetComplexCommandShortCut(ccToggleLinesComment));
+    end;
+
     Memo.UseFolding := FOptions.UseFolding;
     Memo.WordWrap := FOptions.WordWrap;
 
@@ -2285,7 +2444,7 @@ begin
   end;
   sHeader := Format('%s - %s', [sHeader, DateTimeToStr(Now())]);
 
-  { Based on Scintilla 5.50's SciTEWin::Print }
+  { Based on SciTE 5.50's SciTEWin::Print }
   
   ZeroMemory(@pdlg, SizeOf(pdlg));
   pdlg.lStructSize := SizeOf(pdlg);
@@ -2556,12 +2715,18 @@ begin
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;
   ESelectAllOccurrences.Enabled := MemoHasFocus;
+  ESelectAllFindMatches.Enabled := MemoHasFocus and (FLastFindText <> '');
   EFind.Enabled := MemoHasFocus;
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EFoldLine.Visible := FOptions.UseFolding;
+  EFoldLine.Enabled := MemoHasFocus;
+  EUnfoldLine.Visible := EFoldLine.Visible;
+  EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EToggleLinesComment.Enabled := not MemoIsReadOnly;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -2604,6 +2769,7 @@ end;
 
 procedure TCompileForm.ESelectAllOccurrencesClick(Sender: TObject);
 begin
+  { Might be called even if ESelectAllOccurrences.Enabled would be False in EMenuClick }
   var Options := GetSelTextOccurrenceFindOptions;
   if FActiveMemo.SelEmpty then begin
     var Range := FActiveMemo.WordAtCursorRange;
@@ -2617,11 +2783,123 @@ end;
 
 procedure TCompileForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
+  { Might be called even if ESelectNextOccurrence.Enabled would be False in EMenuClick }
+
   { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
     know whether this is the 'first' SelectNext or not. Then, if first it would
     do what SelectAll does to choose a FindOptions. And if next it would reuse
     that. This is what VSCode does. }
   FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
+end;
+
+procedure TCompileForm.EToggleLinesCommentClick(Sender: TObject);
+begin
+  var AMemo := FActiveMemo;
+
+  { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
+    for the main selection }
+
+  var Selection := AMemo.Selection;
+  var CaretPosition := AMemo.CaretPosition;
+  // checking if caret is located in _beginning_ of selected block
+  var MoveCaret := CaretPosition < Selection.EndPos;
+  var SelStartLine := AMemo.GetLineFromPosition(Selection.StartPos);
+  var SelEndLine := AMemo.GetLineFromPosition(Selection.EndPos);
+  var Lines := SelEndLine - SelStartLine;
+  var FirstSelLineStart := AMemo.GetPositionFromLine(SelStartLine);
+  // "caret return" is part of the last selected line
+  if (Lines > 0) and (Selection.EndPos = AMemo.GetPositionFromLine(SelEndLine)) then
+    Dec(SelEndLine);
+  { We rely on the styler to identify [Code] section lines, but we
+    may be searching into areas that haven't been styled yet }
+  AMemo.StyleNeeded(Selection.EndPos);
+  AMemo.BeginUndoAction;
+  try
+    var LastLongCommentLength := 0;
+    for var I := SelStartLine to SelEndLine do begin
+      var LineIndent := AMemo.GetLineIndentPosition(I);
+      var LineEnd := AMemo.GetLineEndPosition(I);
+      var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
+      // empty lines are not commented
+      if LineBuf = '' then
+        Continue;
+      var Comment: String;
+      if LineBuf.StartsWith('//') or
+         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
+        Comment := '//'
+      else
+        Comment := ';';
+      var LongComment := Comment + ' ';
+      LastLongCommentLength := Length(LongComment);
+      if LineBuf.StartsWith(Comment) then begin
+        var CommentLength := Length(Comment);
+        if LineBuf.StartsWith(LongComment) then begin
+          // Removing comment with space after it.
+          CommentLength := Length(LongComment);
+        end;
+        AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
+        AMemo.SelText := '';
+        if I = SelStartLine then // is this the first selected line?
+          Dec(Selection.StartPos, CommentLength);
+        Dec(Selection.EndPos, CommentLength); // every iteration
+        Continue;
+      end;
+      if I = SelStartLine then // is this the first selected line?
+        Inc(Selection.StartPos, Length(LongComment));
+      Inc(Selection.EndPos, Length(LongComment)); // every iteration
+      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
+    end;
+    // after uncommenting selection may promote itself to the lines
+    // before the first initially selected line;
+    // another problem - if only comment symbol was selected;
+    if Selection.StartPos < FirstSelLineStart then begin
+      if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
+        Selection.EndPos := FirstSelLineStart;
+      Selection.StartPos := FirstSelLineStart;
+    end;
+    if MoveCaret then begin
+      // moving caret to the beginning of selected block
+      AMemo.CaretPosition := Selection.EndPos;
+      AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
+    end else
+      AMemo.Selection := Selection;
+  finally
+    AMemo.EndUndoAction;
+  end;
+end;
+
+procedure TCompileForm.ESelectAllFindMatchesClick(Sender: TObject);
+begin
+  { Might be called even if ESelectAllFindMatches.Enabled would be False in EMenuClick }
+  if FLastFindText <> ''  then begin
+    var StartPos := 0;
+    var EndPos := FActiveMemo.RawTextLength;
+    var FoundRange: TScintRange;
+    var ClosestSelection := -1;
+    var ClosestSelectionDistance := 0; { Silence compiler }
+    var CaretPos := FActiveMemo.CaretPosition;
+
+    while (StartPos < EndPos) and
+          FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
+            FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
+      if StartPos = 0 then
+        FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
+      else
+        FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
+
+      var Distance := Abs(CaretPos-FoundRange.EndPos);
+      if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
+        ClosestSelection := FActiveMemo.SelectionCount-1;
+        ClosestSelectionDistance := Distance;
+      end;
+
+      StartPos := FoundRange.EndPos;
+    end;
+    if ClosestSelection <> -1 then begin
+      FActiveMemo.MainSelection := ClosestSelection;
+      FActiveMemo.ScrollCaretIntoView;
+    end;
+  end;
 end;
 
 procedure TCompileForm.ECompleteWordClick(Sender: TObject);
@@ -3122,6 +3400,45 @@ begin
     Dlg.FindText := FLastFindText;
 end;
 
+const
+  OldFindReplaceWndProcProp = 'OldFindReplaceWndProc';
+
+function FindReplaceWndProc(Wnd: HWND; Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; stdcall;
+
+  function CallDefWndProc: LRESULT;
+  begin
+    Result := CallWindowProc(Pointer(GetProp(Wnd, OldFindReplaceWndProcProp)), Wnd,
+      Msg, WParam, LParam);
+  end;
+
+begin
+  case Msg of
+    WM_MENUCHAR:
+      if LoWord(wParam) = VK_RETURN then begin
+        var hwndCtl := GetDlgItem(Wnd, idOk);
+        if (hWndCtl <> 0) and IsWindowEnabled(hWndCtl) then
+          PostMessage(Wnd, WM_COMMAND, MakeWParam(idOk, BN_CLICKED), Windows.LPARAM(hWndCtl));
+      end;
+    WM_NCDESTROY:
+      begin
+        Result := CallDefWndProc;
+        RemoveProp(Wnd, OldFindReplaceWndProcProp);
+        Exit;
+      end;
+   end;
+   Result := CallDefWndProc;
+end;
+
+procedure ExecuteFindDialogAllowingAltEnter(const FindDialog: TFindDialog);
+begin
+  var DoHook := FindDialog.Handle = 0;
+  FindDialog.Execute;
+  if DoHook then begin
+    SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, GetWindowLong(FindDialog.Handle, GWL_WNDPROC));
+    SetWindowLong(FindDialog.Handle, GWL_WNDPROC, IntPtr(@FindReplaceWndProc));
+  end;
+end;
+
 procedure TCompileForm.EFindClick(Sender: TObject);
 begin
   ReplaceDialog.CloseDialog;
@@ -3131,7 +3448,7 @@ begin
     FindDialog.Options := FindDialog.Options + [frDown]
   else
     FindDialog.Options := FindDialog.Options - [frDown];
-  FindDialog.Execute;
+  ExecuteFindDialogAllowingAltEnter(FindDialog);
 end;
 
 procedure TCompileForm.EFindInFilesClick(Sender: TObject);
@@ -3151,6 +3468,11 @@ begin
       FLastFindOptions := FLastFindOptions - [frDown];
     FindNext(False);
   end;
+end;
+
+procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
+begin
+  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.FindNext(const ReverseDirection: Boolean);
@@ -3192,7 +3514,12 @@ begin
   { Save a copy of the current text so that InitializeFindText doesn't
     mess up the operation of Edit | Find Next }
   StoreLastFindOptions(Sender);
-  FindNext(GetKeyState(VK_SHIFT) < 0);
+  if GetKeyState(VK_MENU) < 0 then begin
+    { Alt+Enter was used to close the dialog }
+    (Sender as TFindDialog).CloseDialog;
+    ESelectAllFindMatchesClick(Self); { Uses the copy made above }
+  end else
+    FindNext(GetKeyState(VK_SHIFT) < 0);
 end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
@@ -3294,7 +3621,7 @@ begin
     InitializeFindText(ReplaceDialog);
     ReplaceDialog.ReplaceText := FLastReplaceText;
   end;
-  ReplaceDialog.Execute;
+  ExecuteFindDialogAllowingAltEnter(ReplaceDialog);
 end;
 
 procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
@@ -3349,7 +3676,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
 
   procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
-    const SelectionRanges, IndicatorRanges: TScintRangeList);
+    const Selections, IndicatorRanges: TScintRangeList);
   begin
     if TScintEdit.RawStringIsBlank(TextToFind) then
       Exit;
@@ -3372,7 +3699,7 @@ procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
         styling for either the main selection or any additional selection. Does
         not account for an indicator overlapping more than 1 selection. }
       var OverlappingSelection: TScintRange;
-      if SelectionRanges.Overlaps(FoundRange, OverlappingSelection) then begin
+      if Selections.Overlaps(FoundRange, OverlappingSelection) then begin
         if FoundRange.StartPos < OverlappingSelection.StartPos then
           IndicatorRanges.Add(TScintRange.Create(FoundRange.StartPos, OverlappingSelection.StartPos));
         if FoundRange.EndPos > OverlappingSelection.EndPos then
@@ -3394,17 +3721,17 @@ begin
                            AMemo.GetLineFromPosition(MainSelection.EndPos);
 
   var IndicatorRanges: TScintRangeList := nil;
-  var SelectionRanges: TScintRangeList := nil;
+  var Selections: TScintRangeList := nil;
   try
     IndicatorRanges := TScintRangeList.Create;
-    SelectionRanges := TScintRangeList.Create;
+    Selections := TScintRangeList.Create;
 
     if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and MainSelSingleLine then begin
       var Word := AMemo.WordAtCursorRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        AMemo.GetSelections(SelectionRanges); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, SelectionRanges, IndicatorRanges);
+        AMemo.GetSelections(Selections); { Gets any additional selections as well }
+        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, Selections, IndicatorRanges);
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
@@ -3412,13 +3739,13 @@ begin
     IndicatorRanges.Clear;
     if FOptions.HighlightSelTextOccurrences and MainSelNotEmpty and MainSelSingleLine then begin
       var TextToIndicate := AMemo.RawMainSelText;
-      if SelectionRanges.Count = 0 then { If 0 then we didn't already call GetSelections above}
-        AMemo.GetSelections(SelectionRanges);
-      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions,SelectionRanges, IndicatorRanges);
+      if Selections.Count = 0 then { If 0 then we didn't already call GetSelections above}
+        AMemo.GetSelections(Selections);
+      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, Selections, IndicatorRanges);
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minSelTextOccurrence);
   finally
-    SelectionRanges.Free;
+    Selections.Free;
     IndicatorRanges.Free;
   end;
 end;
@@ -3727,6 +4054,7 @@ begin
     OptionsForm.ShowPreprocessorOutputCheck.Checked := FOptions.ShowPreprocessorOutput;
     OptionsForm.OpenIncludedFilesCheck.Checked := FOptions.OpenIncludedFiles;
     OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
+    OptionsForm.MemoKeyMappingComboBox.ItemIndex := Ord(FOptions.MemoKeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
     OptionsForm.FontPanel.Font.Assign(FMainMemo.Font);
     OptionsForm.FontPanel.ParentBackground := False;
@@ -3759,6 +4087,7 @@ begin
     FOptions.ShowPreprocessorOutput := OptionsForm.ShowPreprocessorOutputCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
+    FOptions.MemoKeyMappingType := TCompScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
@@ -3806,6 +4135,7 @@ begin
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
+      Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
@@ -4309,7 +4639,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       Pos := AMemo.CaretPosition;
-      C := AMemo.GetCharAtPosition(Pos);
+      C := AMemo.GetByteAtPosition(Pos);
       if C in ['(', '[', '{'] then begin
         MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then begin
@@ -4319,7 +4649,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
       end;
       if Pos > 0 then begin
         Pos := AMemo.GetPositionBefore(Pos);
-        C := AMemo.GetCharAtPosition(Pos);
+        C := AMemo.GetByteAtPosition(Pos);
         if C in [')', ']', '}'] then begin
           MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
           if MatchPos >= 0 then begin
@@ -4425,7 +4755,7 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
       I := FActiveMemo.GetPositionBefore(I);
       if I < LinePos then
         Exit;  { shouldn't get here }
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C > ' ' then
         Exit;
     end;
@@ -4470,7 +4800,7 @@ begin
       Exit;
   end;
 
-  case FActiveMemo.GetCharAtPosition(WordStartPos) of
+  case FActiveMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
         if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
@@ -4500,7 +4830,7 @@ begin
           I := FActiveMemo.GetPositionBefore(WordStartPos);
           if I < LinePos then
             Exit;
-          if FActiveMemo.GetCharAtPosition(I) > ' ' then
+          if FActiveMemo.GetByteAtPosition(I) > ' ' then
             Exit;
           PrevWordEndPos := I;
           PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
@@ -4528,7 +4858,7 @@ begin
             I := FActiveMemo.GetPositionBefore(I);
             if I < LinePos then
               Exit;  { shouldn't get here }
-            C := FActiveMemo.GetCharAtPosition(I);
+            C := FActiveMemo.GetByteAtPosition(I);
 
             if IsParamSection and (C in [';', ':']) and
                FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
@@ -4693,9 +5023,9 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     while I < LineEndPos do begin
       if (I > Pos) and (BraceLevel = 0) then
         Break;
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C = '{' then begin
-        if FActiveMemo.GetCharAtPosition(I + 1) = '{' then
+        if FActiveMemo.GetByteAtPosition(I + 1) = '{' then
           Inc(I)
         else begin
           if BraceLevel = 0 then
@@ -5387,14 +5717,17 @@ begin
     KMM(RTerminate, VK_F2, [ssCtrl], VK_F5, [ssShift], TerminateButton),
     KMM(REvaluate, VK_F7, [ssCtrl], VK_F9, [ssShift])];
 
+  FKeyMappedMenus.Clear;
+
   for var KeyMappedMenu in KeyMappedMenus do begin
     var ShortCut := KeyMappedMenu.Value.Key;
     var ToolButton := KeyMappedMenu.Value.Value;
     KeyMappedMenu.Key.ShortCut := ShortCut;
     if ToolButton <> nil then begin
       var MenuItem := KeyMappedMenu.Key;
-      ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
+      ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), NewShortCutToText(ShortCut)]);
     end;
+    FKeyMappedMenus.Add(ShortCut, ToolButton);
   end;
 
   { Set fake shortcuts on any duplicates of the above in popup menus }
@@ -5423,8 +5756,10 @@ begin
     raise Exception.Create('Unknown FOptions.KeyMappingType');
   end;
 
-  BackNavButton.Hint := Format('Back (%s)', [ShortCutToText(FBackNavButtonShortCut)]);
-  ForwardNavButton.Hint := Format('Forward (%s)', [ShortCutToText(FForwardNavButtonShortCut)]);
+  BackNavButton.Hint := Format('Back (%s)', [NewShortCutToText(FBackNavButtonShortCut)]);
+  FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
+  ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
+  FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
 procedure TCompileForm.UpdateTheme;
@@ -5614,6 +5949,8 @@ begin
           //NM(EFindNext, 'unused\find-arrow-right-2'),
           //NM(EFindPrevious, 'unused\find-arrow-left-2'),
           NM(EReplace, 'replace'),
+          NM(EFoldLine, 'symbol-remove'),
+          NM(EUnfoldLine, 'symbol-add'),
           NM(ECompleteWord, 'letter-a-arrow-right-2'),
           NM(VZoomIn, 'zoom-in'),
           NM(VZoomOut, 'zoom-out'),

@@ -43,6 +43,7 @@ function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 function GetDefaultKeyMappingType: TKeyMappingType;
+function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure ClearMRUList(const MRUList: TStringList; const Section: String);
@@ -55,6 +56,7 @@ procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
 procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure DeleteBreakPointLines(const AFilename: String);
+function NewShortCutToText(const ShortCut: TShortCut): String;
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
   const Shift: TShiftState); overload;
@@ -78,7 +80,7 @@ implementation
 
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils,
-  Messages, DwmApi,
+  Messages, DwmApi, Consts,
   CmnFunc2, PathFunc, FileClass, NewUxTheme,
   CompForm, CompMsgs, CompTypes;
 
@@ -277,6 +279,11 @@ begin
   Result := kmtDelphi;
 end;
 
+function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
+begin
+  Result := kmtDefault;
+end;
+
 procedure OpenDonateSite;
 begin
   ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isdonate.php', nil,
@@ -462,13 +469,95 @@ begin
   end;
 end;
 
+function NewShortCutToText(const ShortCut: TShortCut): String;
+{ This function is better than Delphi's ShortCutToText function because it works
+  for dead keys. A dead key is a key which waits for the user to press another
+  key so it can be combined. For example `+e=è. Pressing space after a dead key
+  produces the dead key char itself. For example `+space=`. }
+const
+  { List of chars ShortCutToText knows about and doesn't rely on Win32's
+  GetKeyNameText for, taken from Vcl.Menus.pas }
+  OKKeys = [$08, $09, $0D, $1B, $20..$28, $2D..$2E, $30..$39, $41..$5A, $70..$87];
+begin
+  Result := '';
+
+  var Key := LoByte(Word(ShortCut));
+  if not (Key in OKKeys) then begin
+    { ShortCutToText will use Win32's GetKeyNameText for this key and if it's
+      a dead key this gives long names like 'ACCENT CIRCONFLEXE' instead of a
+      short name like '^'. Long names are not what we want so handle these dead
+      keys ourselves and use ToUnicode instead of GetKeyNameText to find the
+      short name. For non-dead keys we always call ShortCutToText even if
+      ToUnicode might work as well. }
+    var ScanCode := MapVirtualKey(Key, MAPVK_VK_TO_VSC);
+    if ScanCode <> 0 then begin
+      var KeyboardState: TKeyboardState;
+      GetKeyboardState(KeyboardState);
+      const TempSize = 64; { Same as Vcl.Touch.Keyboard.pas }
+      var TempStr: String;
+      SetLength(TempStr, TempSize);
+      ZeroMemory(@TempStr[1], TempSize * SizeOf(Char));
+      var Size := ToUnicode(Key, ScanCode, KeyboardState, @TempStr[1], TempSize, 0);
+      if Size = -1 then begin
+        { This was a dead key, now stored in TempStr. Add space to get the dead
+          key char itself. }
+        ScanCode := MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
+        if ScanCode <> 0 then begin
+          Size := ToUnicode(VK_SPACE, ScanCode, KeyboardState, @TempStr[1], TempSize, 0);
+          if Size = 1 then begin
+            var Name := TempStr[1];
+            if ShortCut and scShift <> 0 then Result := Result + SmkcShift;
+            if ShortCut and scCtrl <> 0 then Result := Result + SmkcCtrl;
+            if ShortCut and scAlt <> 0 then Result := Result + SmkcAlt;
+            Result := Result + Name;
+          end;
+        end;
+      end;
+    end else begin
+      { This virtual key has no scan code meaning it's impossible to enter with
+        the current keyboard layout (for example French AZERTY + VK_OEM_MINUS).
+        We can just exit because calling ShortCutToText is pointless. }
+      Exit;
+    end;
+  end;
+
+  if Result = '' then
+    Result := ShortCutToText(ShortCut);
+
+  { Example CompForm test code:
+    SetFakeShortCut(HDonate, ShortCut(VK_OEM_1, []));
+    SetFakeShortCut(HShortcutsDoc, ShortCut(VK_OEM_PLUS, []));
+    SetFakeShortCut(HDoc, ShortCut(VK_OEM_COMMA, []));
+    SetFakeShortCut(HExamples, ShortCut(VK_OEM_MINUS, []));
+    SetFakeShortCut(HFaq, ShortCut(VK_OEM_PERIOD, []));
+    SetFakeShortCut(HMailingList, ShortCut(VK_OEM_2, []));
+    SetFakeShortCut(HWhatsNew, ShortCut(VK_OEM_3, []));
+    SetFakeShortCut(HWebsite, ShortCut(VK_OEM_4, []));
+    SetFakeShortCut(HISPPDoc, ShortCut(VK_OEM_5, []));
+    SetFakeShortCut(HAbout, ShortCut(VK_OEM_6, []));
+    SetFakeShortCut(TAddRemovePrograms, ShortCut(VK_OEM_7, []));
+
+    Without our dead key handling this produces for example:
+    -US International + VK_OEM_3: "GRAVE"
+    -French AZERTY + VK_OEM_7: "ACCENT CIRCONFLEXE"
+
+    To add a keyboard layout follow the instructions at
+    https://www.thewindowsclub.com/add-or-remove-keyboard-layout-in-windows-11
+    and then switch to the language using the task bar's language bar.
+
+    Also see https://code.visualstudio.com/docs/getstarted/keybindings#_keyboard-layouts }
+end;
+
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 begin
   var Caption := MenuItem.Caption;
   var P := Pos(#9, Caption);
   if P <> 0 then
     Delete(Caption, P, MaxInt);
-  MenuItem.Caption := Caption + #9 + S;
+  if S <> '' then
+    MenuItem.Caption := Caption + #9 + S
+  else
+    MenuItem.Caption := Caption;
 end;
 
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
@@ -479,7 +568,7 @@ end;
 
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut);
 begin
-  SetFakeShortCutText(MenuItem, ShortCutToText(ShortCut));
+  SetFakeShortCutText(MenuItem, NewShortCutToText(ShortCut));
 end;
 
 procedure SaveTextToFile(const Filename: String;
