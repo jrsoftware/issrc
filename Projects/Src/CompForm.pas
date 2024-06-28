@@ -2310,12 +2310,9 @@ begin
 
     Memo.KeyMappingType := FOptions.MemoKeyMappingType;
     if Memo = FMainMemo then begin
-      var ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence);
-      SetFakeShortCut(ESelectNextOccurrence, ShortCut);
-      ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences);
-      SetFakeShortCut(ESelectAllOccurrences, ShortCut);
-      ShortCut := FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches);
-      SetFakeShortCut(ESelectAllFindMatches, ShortCut);
+      SetFakeShortCut(ESelectNextOccurrence,  FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence));
+      SetFakeShortCut(ESelectAllOccurrences, FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences));
+      SetFakeShortCut(ESelectAllFindMatches, FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches));
     end;
 
     Memo.UseFolding := FOptions.UseFolding;
