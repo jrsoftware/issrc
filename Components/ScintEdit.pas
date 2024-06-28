@@ -941,7 +941,7 @@ end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
 begin
-  Result := Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, GetMainSelection, 0);
+  Result := GetSelectionCaretVirtualSpace(GetMainSelection);
 end;
 
 function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
@@ -1212,8 +1212,8 @@ procedure TScintEdit.GetSelections(const CaretAndAnchorList: TScintCaretAndAncho
 begin
   CaretAndAnchorList.Clear;
   for var I := 0 to SelectionCount-1 do begin
-    var CaretPos := Call(SCI_GETSELECTIONNCARET, I, 0);
-    var AnchorPos := Call(SCI_GETSELECTIONNANCHOR, I, 0);
+    var CaretPos := GetSelectionCaretPosition(I);
+    var AnchorPos := GetSelectionAnchorPosition(I);
     CaretAndAnchorList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
   end;
 end;
@@ -1608,6 +1608,7 @@ begin
 end;
 
 procedure TScintEdit.SetCaretVirtualSpace(const Value: Integer);
+{ Also sets the anchor's virtual space! }
 var
   Pos, LineEndPos, MainSel: Integer;
 begin
@@ -1617,8 +1618,8 @@ begin
   LineEndPos := GetLineEndPosition(GetLineFromPosition(Pos));
   if (Pos = LineEndPos) or (Value = 0) then begin
     MainSel := GetMainSelection;
-    Call(SCI_SETSELECTIONNANCHORVIRTUALSPACE, MainSel, Value);
-    Call(SCI_SETSELECTIONNCARETVIRTUALSPACE, MainSel, Value);
+    SetSelectionAnchorPosition(MainSel, Value);
+    SetSelectionCaretPosition(MainSel, Value);
     ChooseCaretX;
   end;
 end;
