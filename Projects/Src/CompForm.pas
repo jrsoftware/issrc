@@ -1261,7 +1261,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
             { Go up one line or to the start of the document }
             if LineStart > 0 then begin
               var LineStartStartPos := AMemo.GetPositionFromLine(LineStart);
-              NewStartPos := AMemo.GetPositionFromLine(LineStart-1) + StartPos - LineStartStartPos;
+              NewStartPos := AMemo.GetPositionRelative(AMemo.GetPositionFromLine(LineStart-1), AMemo.GetCharacterCount(LineStartStartPos, StartPos));
               var MaxPos := AMemo.GetLineEndPosition(LineStart-1);
               if NewStartPos > MaxPos then
                 NewStartPos := MaxPos;
@@ -1286,7 +1286,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
             { Go down one line or to the end of the document }
             if LineEnd < AMemo.Lines.Count-1 then begin
               var LineEndStartPos := AMemo.GetPositionFromLine(LineEnd);
-              NewEndPos := AMemo.GetPositionFromLine(LineEnd+1) + EndPos - LineEndStartPos;
+              NewEndPos := AMemo.GetPositionRelative(AMemo.GetPositionFromLine(LineEnd+1), AMemo.GetCharacterCount(LineEndStartPos, EndPos));
               var MaxPos := AMemo.GetLineEndPosition(LineEnd+1);
               if NewEndPos > MaxPos then
                 NewEndPos := MaxPos;
@@ -4633,7 +4633,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       Pos := AMemo.CaretPosition;
-      C := AMemo.GetCharAtPosition(Pos);
+      C := AMemo.GetByteAtPosition(Pos);
       if C in ['(', '[', '{'] then begin
         MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then begin
@@ -4643,7 +4643,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
       end;
       if Pos > 0 then begin
         Pos := AMemo.GetPositionBefore(Pos);
-        C := AMemo.GetCharAtPosition(Pos);
+        C := AMemo.GetByteAtPosition(Pos);
         if C in [')', ']', '}'] then begin
           MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
           if MatchPos >= 0 then begin
@@ -4749,7 +4749,7 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
       I := FActiveMemo.GetPositionBefore(I);
       if I < LinePos then
         Exit;  { shouldn't get here }
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C > ' ' then
         Exit;
     end;
@@ -4794,7 +4794,7 @@ begin
       Exit;
   end;
 
-  case FActiveMemo.GetCharAtPosition(WordStartPos) of
+  case FActiveMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
         if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
@@ -4824,7 +4824,7 @@ begin
           I := FActiveMemo.GetPositionBefore(WordStartPos);
           if I < LinePos then
             Exit;
-          if FActiveMemo.GetCharAtPosition(I) > ' ' then
+          if FActiveMemo.GetByteAtPosition(I) > ' ' then
             Exit;
           PrevWordEndPos := I;
           PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
@@ -4852,7 +4852,7 @@ begin
             I := FActiveMemo.GetPositionBefore(I);
             if I < LinePos then
               Exit;  { shouldn't get here }
-            C := FActiveMemo.GetCharAtPosition(I);
+            C := FActiveMemo.GetByteAtPosition(I);
 
             if IsParamSection and (C in [';', ':']) and
                FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
@@ -5017,9 +5017,9 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     while I < LineEndPos do begin
       if (I > Pos) and (BraceLevel = 0) then
         Break;
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C = '{' then begin
-        if FActiveMemo.GetCharAtPosition(I + 1) = '{' then
+        if FActiveMemo.GetByteAtPosition(I + 1) = '{' then
           Inc(I)
         else begin
           if BraceLevel = 0 then

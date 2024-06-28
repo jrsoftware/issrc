@@ -262,7 +262,8 @@ type
     function FormatRange(const Draw: Boolean;
       const RangeToFormat: PScintRangeToFormat): Integer;
     procedure ForceModifiedState;
-    function GetCharAtPosition(const Pos: Integer): AnsiChar;
+    function GetByteAtPosition(const Pos: Integer): AnsiChar;
+    function GetCharacterCount(const StartPos, EndPos: Integer): Integer;
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -282,6 +283,7 @@ type
     function GetPositionFromPoint(const P: TPoint;
       const CharPosition, CloseOnly: Boolean): Integer;
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
+    function GetPositionRelative(const Pos, CharacterCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
@@ -903,6 +905,11 @@ begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
 end;
 
+function TScintEdit.GetByteAtPosition(const Pos: Integer): AnsiChar;
+begin
+  Result := AnsiChar(Call(SCI_GETCHARAT, Pos, 0));
+end;
+
 function TScintEdit.GetCaretColumn: Integer;
 begin
   Result := GetColumnFromPosition(GetCaretPosition);
@@ -929,9 +936,10 @@ begin
   Result := Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, GetMainSelection, 0);
 end;
 
-function TScintEdit.GetCharAtPosition(const Pos: Integer): AnsiChar;
+function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
 begin
-  Result := AnsiChar(Call(SCI_GETCHARAT, Pos, 0));
+  CheckPosRange(StartPos, EndPos);
+  Result := Call(SCI_COUNTCHARACTERS, StartPos, EndPos);
 end;
 
 function TScintEdit.GetColumnFromPosition(const Pos: Integer): Integer;
@@ -1094,6 +1102,12 @@ end;
 function TScintEdit.GetPositionOfMatchingBrace(const Pos: Integer): Integer;
 begin
   Result := Call(SCI_BRACEMATCH, Pos, 0);
+end;
+
+function TScintEdit.GetPositionRelative(const Pos,
+  CharacterCount: Integer): Integer;
+begin
+  Result := Call(SCI_POSITIONRELATIVE, Pos, CharacterCount);
 end;
 
 function TScintEdit.GetRawMainSelText: TScintRawString;
