@@ -512,6 +512,14 @@ object CompileForm: TCompileForm
       object N13: TMenuItem
         Caption = '-'
       end
+      object EFoldLine: TMenuItem
+        Caption = 'Fol&d Line'
+        OnClick = EFoldOrUnfoldLineClick
+      end
+      object EUnfoldLine: TMenuItem
+        Caption = '&Unfold Line'
+        OnClick = EFoldOrUnfoldLineClick
+      end
       object EGoto: TMenuItem
         Caption = '&Go to Line...'
         ShortCut = 16455
@@ -523,6 +531,10 @@ object CompileForm: TCompileForm
       object ECompleteWord: TMenuItem
         Caption = 'Complete &Word'
         OnClick = ECompleteWordClick
+      end
+      object EToggleLinesComment: TMenuItem
+        Caption = 'Toggle Lines Comment'
+        OnClick = EToggleLinesCommentClick
       end
     end
     object VMenu: TMenuItem

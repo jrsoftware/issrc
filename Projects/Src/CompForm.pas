@@ -240,6 +240,9 @@ type
     VWordWrap: TMenuItem;
     N25: TMenuItem;
     ESelectAllFindMatches: TMenuItem;
+    EToggleLinesComment: TMenuItem;
+    EFoldLine: TMenuItem;
+    EUnfoldLine: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -359,6 +362,8 @@ type
     procedure FClearRecentClick(Sender: TObject);
     procedure VWordWrapClick(Sender: TObject);
     procedure ESelectAllFindMatchesClick(Sender: TObject);
+    procedure EToggleLinesCommentClick(Sender: TObject);
+    procedure EFoldOrUnfoldLineClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -1132,80 +1137,6 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
     AMemo.ScrollCaretIntoView;
   end;
 
-  procedure ToggleLinesComment(const AMemo: TCompScintEdit);
-  begin
-    { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
-      for the main selection }
-
-    var Selection := AMemo.Selection;
-    var CaretPosition := AMemo.CaretPosition;
-    // checking if caret is located in _beginning_ of selected block
-    var MoveCaret := CaretPosition < Selection.EndPos;
-    var SelStartLine := AMemo.GetLineFromPosition(Selection.StartPos);
-    var SelEndLine := AMemo.GetLineFromPosition(Selection.EndPos);
-    var Lines := SelEndLine - SelStartLine;
-    var FirstSelLineStart := AMemo.GetPositionFromLine(SelStartLine);
-    // "caret return" is part of the last selected line
-    if (Lines > 0) and (Selection.EndPos = AMemo.GetPositionFromLine(SelEndLine)) then
-      Dec(SelEndLine);
-    { We rely on the styler to identify [Code] section lines, but we
-      may be searching into areas that haven't been styled yet }
-    AMemo.StyleNeeded(Selection.EndPos);
-    AMemo.BeginUndoAction;
-    try
-      var LastLongCommentLength := 0;
-      for var I := SelStartLine to SelEndLine do begin
-        var LineIndent := AMemo.GetLineIndentPosition(I);
-        var LineEnd := AMemo.GetLineEndPosition(I);
-        var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
-        // empty lines are not commented
-        if LineBuf = '' then
-          Continue;
-        var Comment: String;
-        if LineBuf.StartsWith('//') or
-           (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
-          Comment := '//'
-        else
-          Comment := ';';
-        var LongComment := Comment + ' ';
-        LastLongCommentLength := Length(LongComment);
-        if LineBuf.StartsWith(Comment) then begin
-          var CommentLength := Length(Comment);
-          if LineBuf.StartsWith(LongComment) then begin
-            // Removing comment with space after it.
-            CommentLength := Length(LongComment);
-          end;
-          AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
-          AMemo.SelText := '';
-          if I = SelStartLine then // is this the first selected line?
-            Dec(Selection.StartPos, CommentLength);
-          Dec(Selection.EndPos, CommentLength); // every iteration
-          Continue;
-        end;
-        if I = SelStartLine then // is this the first selected line?
-          Inc(Selection.StartPos, Length(LongComment));
-        Inc(Selection.EndPos, Length(LongComment)); // every iteration
-        AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
-      end;
-      // after uncommenting selection may promote itself to the lines
-      // before the first initially selected line;
-      // another problem - if only comment symbol was selected;
-      if Selection.StartPos < FirstSelLineStart then begin
-        if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
-          Selection.EndPos := FirstSelLineStart;
-        Selection.StartPos := FirstSelLineStart;
-      end;
-      if MoveCaret then begin
-        // moving caret to the beginning of selected block
-        AMemo.CaretPosition := Selection.EndPos;
-        AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
-      end else
-        AMemo.Selection := Selection;
-    finally
-      AMemo.EndUndoAction;
-    end;
-  end;
-
   procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
   begin
     { Does not try to keep the main selection. }
@@ -1363,12 +1294,14 @@ begin
             ESelectAllOccurrencesClick(Self);
           ccSelectAllFindMatches:
             ESelectAllFindMatchesClick(Self);
-          ccUnfoldLine, ccFoldLine:
-            FActiveMemo.FoldLine(FActiveMemo.CaretLine, ComplexCommand = ccFoldLine);
+          ccFoldLine:
+            EFoldOrUnfoldLineClick(EFoldLine);
+          ccUnfoldLine:
+            EFoldOrUnfoldLineClick(EUnfoldLine);
           ccSimplifySelection:
             SimplifySelection(FActiveMemo);
           ccToggleLinesComment:
-            ToggleLinesComment(FActiveMemo);
+            EToggleLinesCommentClick(Self); //GetCompexCommand already checked ReadOnly for us
           ccAddCursorUp, ccAddCursorDown:
             AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
           else
@@ -2313,6 +2246,9 @@ begin
       SetFakeShortCut(ESelectNextOccurrence,  FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence));
       SetFakeShortCut(ESelectAllOccurrences, FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences));
       SetFakeShortCut(ESelectAllFindMatches, FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches));
+      SetFakeShortCut(EFoldLine, FMainMemo.GetComplexCommandShortCut(ccFoldLine));
+      SetFakeShortCut(EUnfoldLine, FMainMemo.GetComplexCommandShortCut(ccUnfoldLine));
+      SetFakeShortCut(EToggleLinesComment, FMainMemo.GetComplexCommandShortCut(ccToggleLinesComment));
     end;
 
     Memo.UseFolding := FOptions.UseFolding;
@@ -2808,8 +2744,13 @@ begin
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EFoldLine.Visible := FOptions.UseFolding;
+  EFoldLine.Enabled := MemoHasFocus;
+  EUnfoldLine.Visible := EFoldLine.Visible;
+  EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EToggleLinesComment.Enabled := not MemoIsReadOnly;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -2873,6 +2814,82 @@ begin
     do what SelectAll does to choose a FindOptions. And if next it would reuse
     that. This is what VSCode does. }
   FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
+end;
+
+procedure TCompileForm.EToggleLinesCommentClick(Sender: TObject);
+begin
+  var AMemo := FActiveMemo;
+
+  { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
+    for the main selection }
+
+  var Selection := AMemo.Selection;
+  var CaretPosition := AMemo.CaretPosition;
+  // checking if caret is located in _beginning_ of selected block
+  var MoveCaret := CaretPosition < Selection.EndPos;
+  var SelStartLine := AMemo.GetLineFromPosition(Selection.StartPos);
+  var SelEndLine := AMemo.GetLineFromPosition(Selection.EndPos);
+  var Lines := SelEndLine - SelStartLine;
+  var FirstSelLineStart := AMemo.GetPositionFromLine(SelStartLine);
+  // "caret return" is part of the last selected line
+  if (Lines > 0) and (Selection.EndPos = AMemo.GetPositionFromLine(SelEndLine)) then
+    Dec(SelEndLine);
+  { We rely on the styler to identify [Code] section lines, but we
+    may be searching into areas that haven't been styled yet }
+  AMemo.StyleNeeded(Selection.EndPos);
+  AMemo.BeginUndoAction;
+  try
+    var LastLongCommentLength := 0;
+    for var I := SelStartLine to SelEndLine do begin
+      var LineIndent := AMemo.GetLineIndentPosition(I);
+      var LineEnd := AMemo.GetLineEndPosition(I);
+      var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
+      // empty lines are not commented
+      if LineBuf = '' then
+        Continue;
+      var Comment: String;
+      if LineBuf.StartsWith('//') or
+         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
+        Comment := '//'
+      else
+        Comment := ';';
+      var LongComment := Comment + ' ';
+      LastLongCommentLength := Length(LongComment);
+      if LineBuf.StartsWith(Comment) then begin
+        var CommentLength := Length(Comment);
+        if LineBuf.StartsWith(LongComment) then begin
+          // Removing comment with space after it.
+          CommentLength := Length(LongComment);
+        end;
+        AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
+        AMemo.SelText := '';
+        if I = SelStartLine then // is this the first selected line?
+          Dec(Selection.StartPos, CommentLength);
+        Dec(Selection.EndPos, CommentLength); // every iteration
+        Continue;
+      end;
+      if I = SelStartLine then // is this the first selected line?
+        Inc(Selection.StartPos, Length(LongComment));
+      Inc(Selection.EndPos, Length(LongComment)); // every iteration
+      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
+    end;
+    // after uncommenting selection may promote itself to the lines
+    // before the first initially selected line;
+    // another problem - if only comment symbol was selected;
+    if Selection.StartPos < FirstSelLineStart then begin
+      if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
+        Selection.EndPos := FirstSelLineStart;
+      Selection.StartPos := FirstSelLineStart;
+    end;
+    if MoveCaret then begin
+      // moving caret to the beginning of selected block
+      AMemo.CaretPosition := Selection.EndPos;
+      AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
+    end else
+      AMemo.Selection := Selection;
+  finally
+    AMemo.EndUndoAction;
+  end;
 end;
 
 procedure TCompileForm.ESelectAllFindMatchesClick(Sender: TObject);
@@ -3475,6 +3492,11 @@ begin
       FLastFindOptions := FLastFindOptions - [frDown];
     FindNext(False);
   end;
+end;
+
+procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
+begin
+  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.FindNext(const ReverseDirection: Boolean);
@@ -5727,7 +5749,7 @@ begin
     KeyMappedMenu.Key.ShortCut := ShortCut;
     if ToolButton <> nil then begin
       var MenuItem := KeyMappedMenu.Key;
-      ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), ShortCutToText(ShortCut)]);
+      ToolButton.Hint := Format('%s (%s)', [RemoveAccelChar(MenuItem.Caption), NewShortCutToText(ShortCut)]);
     end;
     FKeyMappedMenus.Add(ShortCut, ToolButton);
   end;
@@ -5758,9 +5780,9 @@ begin
     raise Exception.Create('Unknown FOptions.KeyMappingType');
   end;
 
-  BackNavButton.Hint := Format('Back (%s)', [ShortCutToText(FBackNavButtonShortCut)]);
+  BackNavButton.Hint := Format('Back (%s)', [NewShortCutToText(FBackNavButtonShortCut)]);
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
-  ForwardNavButton.Hint := Format('Forward (%s)', [ShortCutToText(FForwardNavButtonShortCut)]);
+  ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
