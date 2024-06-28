@@ -3252,7 +3252,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
-  <td>Add additional caret or selection.</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
+  <td>Add additional cursor or selection.</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
 </tr>
 <tr>
   <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td><td>Alt+Click</td>
@@ -3262,6 +3262,12 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td><td>Alt+TripleClick</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection up.</td><td>Alt+Shift+Up</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection down.</td><td>Alt+Shift+Down</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
