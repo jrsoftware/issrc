@@ -154,7 +154,9 @@ type
     class function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
+    function GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
+    function GetSelectionCaretVirtualSpace(Selection: Integer): Integer;
     function GetSelectionCount: Integer;
     function GetSelectionMode: TScintSelectionMode;
     function GetSelText: String;
@@ -180,8 +182,12 @@ type
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
     procedure SetSelection(const Value: TScintRange);
-    procedure SetSelectionAnchorPosition(Selection: Integer; const AnchorPos: Integer);
-    procedure SetSelectionCaretPosition(Selection: Integer; const CaretPos: Integer);
+    procedure SetSelectionAnchorPosition(Selection: Integer; const Value: Integer);
+    procedure SetSelectionAnchorVirtualSpace(Selection: Integer;
+      const Value: Integer);
+    procedure SetSelectionCaretPosition(Selection: Integer; const Value: Integer);
+    procedure SetSelectionCaretVirtualSpace(Selection: Integer;
+      const Value: Integer);
     procedure SetSelectionMode(const Value: TScintSelectionMode);
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
@@ -364,7 +370,9 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Selection: TScintRange read GetSelection write SetSelection;
     property SelectionAnchorPosition[Selection: Integer]: Integer read GetSelectionAnchorPosition write SetSelectionAnchorPosition;
+    property SelectionAnchorVirtualSpace[Selection: Integer]: Integer read GetSelectionAnchorVirtualSpace write SetSelectionAnchorVirtualSpace;
     property SelectionCaretPosition[Selection: Integer]: Integer read GetSelectionCaretPosition write SetSelectionCaretPosition;
+    property SelectionCaretVirtualSpace[Selection: Integer]: Integer read GetSelectionCaretVirtualSpace write SetSelectionCaretVirtualSpace;
     property SelectionCount: Integer read GetSelectionCount;
     property SelectionMode: TScintSelectionMode read GetSelectionMode write SetSelectionMode;
     property SelText: String read GetSelText write SetSelText;
@@ -1215,9 +1223,19 @@ begin
   Result := Call(SCI_GETSELECTIONNANCHOR, Selection, 0);
 end;
 
+function TScintEdit.GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNANCHORVIRTUALSPACE, Selection, 0);
+end;
+
 function TScintEdit.GetSelectionCaretPosition(Selection: Integer): Integer;
 begin
   Result := Call(SCI_GETSELECTIONNCARET, Selection, 0);
+end;
+
+function TScintEdit.GetSelectionCaretVirtualSpace(Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNCARETVIRTUALSPACE, Selection, 0);
 end;
 
 function TScintEdit.GetSelectionCount: Integer;
@@ -1770,15 +1788,27 @@ begin
 end;
 
 procedure TScintEdit.SetSelectionAnchorPosition(Selection: Integer;
-  const AnchorPos: Integer);
+  const Value: Integer);
 begin
-  Call(SCI_SETSELECTIONNANCHOR, Selection, AnchorPos);
+  Call(SCI_SETSELECTIONNANCHOR, Selection, Value);
+end;
+
+procedure TScintEdit.SetSelectionAnchorVirtualSpace(Selection: Integer;
+  const Value: Integer);
+begin
+  Call(SCI_SETSELECTIONNANCHORVIRTUALSPACE, Selection, Value);
 end;
 
 procedure TScintEdit.SetSelectionCaretPosition(Selection: Integer;
-  const CaretPos: Integer);
+  const Value: Integer);
 begin
-  Call(SCI_SETSELECTIONNCARET, Selection, CaretPos);
+  Call(SCI_SETSELECTIONNCARET, Selection, Value);
+end;
+
+procedure TScintEdit.SetSelectionCaretVirtualSpace(Selection: Integer;
+  const Value: Integer);
+begin
+  Call(SCI_SETSELECTIONNCARETVIRTUALSPACE, Selection, Value);
 end;
 
 procedure TScintEdit.SetSelectionMode(const Value: TScintSelectionMode);
