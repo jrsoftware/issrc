@@ -5973,6 +5973,8 @@ begin
           //NM(EFindNext, 'unused\find-arrow-right-2'),
           //NM(EFindPrevious, 'unused\find-arrow-left-2'),
           NM(EReplace, 'replace'),
+          NM(EFoldLine, 'symbol-remove'),
+          NM(EUnfoldLine, 'symbol-add'),
           NM(ECompleteWord, 'letter-a-arrow-right-2'),
           NM(VZoomIn, 'zoom-in'),
           NM(VZoomOut, 'zoom-out'),
