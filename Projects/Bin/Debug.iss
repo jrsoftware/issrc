@@ -12,7 +12,7 @@ AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
 UseSetupLdr=0
 OutputDir=.
-AppVersion=1.2.3        
+AppVersion=1.2.3
 OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
