@@ -1248,55 +1248,78 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
             LineExtendUp/Down because those can shrink instead of extend. }
           var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
           if Up then begin
-            var LineStart, StartPos: Integer;
+            var LineStart, StartPos, VirtualSpace: Integer;
             { Does it start at the caret or the anchor? }
             if CaretBeforeAnchor then begin
               LineStart := LineCaret;
-              StartPos := Selection.CaretPos
+              StartPos := Selection.CaretPos;
+              VirtualSpace := AMemo.SelectionCaretVirtualSpace[I];
             end else begin
               LineStart := LineAnchor;
               StartPos := Selection.AnchorPos;
+              VirtualSpace := AMemo.SelectionAnchorVirtualSpace[I];
             end;
             var NewStartPos: Integer;
+            var NewVirtualSpace := 0;
             { Go up one line or to the start of the document }
             if LineStart > 0 then begin
-              var LineStartStartPos := AMemo.GetPositionFromLine(LineStart);
-              NewStartPos := AMemo.GetPositionRelative(AMemo.GetPositionFromLine(LineStart-1), AMemo.GetCharacterCount(LineStartStartPos, StartPos));
-              var MaxPos := AMemo.GetLineEndPosition(LineStart-1);
-              if NewStartPos > MaxPos then
-                NewStartPos := MaxPos;
+              var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineStart), StartPos) + VirtualSpace;
+              var PrevLineStart := AMemo.GetPositionFromLine(LineStart-1);
+              var MaxCharacterCount := AMemo.GetCharacterCount(PrevLineStart, AMemo.GetLineEndPosition(LineStart-1));
+              var NewCharacterCount := CharacterCount;
+              if NewCharacterCount > MaxCharacterCount then begin
+                NewVirtualSpace := NewCharacterCount - MaxCharacterCount;
+                NewCharacterCount := MaxCharacterCount;
+              end;
+              NewStartPos := AMemo.GetPositionRelative(PrevLineStart, NewCharacterCount);
             end else
               NewStartPos := 0;
             { Move the caret or the anchor up }
-            if CaretBeforeAnchor then
-              AMemo.SelectionCaretPosition[I] := NewStartPos
-            else
+            if CaretBeforeAnchor then begin
+              AMemo.SelectionCaretPosition[I] := NewStartPos;
+              if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+                AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
+            end else begin
               AMemo.SelectionAnchorPosition[I] := NewStartPos;
-          end else begin
-            var LineEnd, EndPos: Integer;
+              if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+                AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
+            end;          end else begin
+            var LineEnd, EndPos, VirtualSpace: Integer;
             { Does it end at the caret or the anchor? }
             if not CaretBeforeAnchor then begin
               LineEnd := LineCaret;
-              EndPos := Selection.CaretPos
+              EndPos := Selection.CaretPos;
+              VirtualSpace := AMemo.SelectionCaretVirtualSpace[I];
             end else begin
               LineEnd := LineAnchor;
               EndPos := Selection.AnchorPos;
+              VirtualSpace := AMemo.SelectionAnchorVirtualSpace[I];
             end;
             var NewEndPos: Integer;
+            var NewVirtualSpace := 0;
             { Go down one line or to the end of the document }
             if LineEnd < AMemo.Lines.Count-1 then begin
-              var LineEndStartPos := AMemo.GetPositionFromLine(LineEnd);
-              NewEndPos := AMemo.GetPositionRelative(AMemo.GetPositionFromLine(LineEnd+1), AMemo.GetCharacterCount(LineEndStartPos, EndPos));
-              var MaxPos := AMemo.GetLineEndPosition(LineEnd+1);
-              if NewEndPos > MaxPos then
-                NewEndPos := MaxPos;
+              var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineEnd), EndPos) + VirtualSpace;
+              var NextLineStart := AMemo.GetPositionFromLine(LineEnd+1);
+              var MaxCharacterCount := AMemo.GetCharacterCount(NextLineStart, AMemo.GetLineEndPosition(LineEnd+1));
+              var NewCharacterCount := CharacterCount;
+              if NewCharacterCount > MaxCharacterCount then begin
+                NewVirtualSpace := NewCharacterCount - MaxCharacterCount;
+                NewCharacterCount := MaxCharacterCount;
+              end;
+              NewEndPos := AMemo.GetPositionRelative(NextLineStart, NewCharacterCount);
             end else
               NewEndPos := AMemo.GetPositionFromLine(AMemo.Lines.Count);
             { Move the caret or the anchor down }
-            if not CaretBeforeAnchor then
-              AMemo.SelectionCaretPosition[I] := NewEndPos
-            else
+            if not CaretBeforeAnchor then begin
+              AMemo.SelectionCaretPosition[I] := NewEndPos;
+              if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+                AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
+            end else begin
               AMemo.SelectionAnchorPosition[I] := NewEndPos;
+              if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+                AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
+            end;
           end;
         end;
       end;
