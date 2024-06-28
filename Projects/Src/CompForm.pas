@@ -5429,20 +5429,19 @@ begin
   { The Nav buttons have no corresponding menu item and also no ShortCut property
     so they need special handling }
 
+  FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
+  FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
+
   case FOptions.KeyMappingType of
     kmtDelphi:
       begin
-        FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
         FBackNavButtonShortCut2 := 0;
-        FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
         FForwardNavButtonShortCut2 := 0;
       end;
     kmtVisualStudio:
       begin
-        FBackNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl]);
-        FBackNavButtonShortCut2 := ShortCut(VK_LEFT, [ssAlt]);
-        FForwardNavButtonShortCut := ShortCut(VK_OEM_MINUS, [ssCtrl, ssShift]);
-        FForwardNavButtonShortCut2 := ShortCut(VK_RIGHT, [ssAlt]);
+        FBackNavButtonShortCut2 := ShortCut(VK_OEM_MINUS, [ssCtrl]);
+        FForwardNavButtonShortCut2 := ShortCut(VK_OEM_MINUS, [ssCtrl, ssShift]);
       end;
   else
     raise Exception.Create('Unknown FOptions.KeyMappingType');
