@@ -294,6 +294,7 @@ type
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
     procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
+    procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -1215,6 +1216,17 @@ begin
     var CaretPos := GetSelectionCaretPosition(I);
     var AnchorPos := GetSelectionAnchorPosition(I);
     CaretAndAnchorList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
+  end;
+end;
+
+procedure TScintEdit.GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList);
+begin
+  GetSelections(CaretAndAnchorList);
+  VirtualSpacesList.Clear;
+  for var I := 0 to SelectionCount-1 do begin
+    var CaretPos := GetSelectionCaretVirtualSpace(I);
+    var AnchorPos := GetSelectionAnchorVirtualSpace(I);
+    VirtualSpacesList.Add(TScintCaretAndAnchor.Create(CaretPos, AnchorPos));
   end;
 end;
 
