@@ -1,4 +1,4 @@
-unit CompForm;
+﻿unit CompForm;
 
 {
   Inno Setup
@@ -2244,7 +2244,8 @@ procedure TCompileForm.FPrintClick(Sender: TObject);
         FActiveMemo.Theme := OldTheme;
       FActiveMemo.UpdateThemeColorsAndStyleAttributes;
     end;
-    PrintTheme.Free;
+    if PrintTheme <> FTheme then
+      PrintTheme.Free;
     PrintStyler.Free;
   end;
 
@@ -2256,8 +2257,6 @@ var
   HeaderMemo: TCompScintFileEdit;
   FileTitle, S: String;
   pdlg: TPrintDlg;
-  crange: TScintRange;
-  startPos, endPos: Integer;
   hdc: Windows.HDC;
   rectMargins, rectPhysMargins, rectSetup, rcw: TRect;
   ptPage, ptDpi: TPoint;
@@ -2286,7 +2285,7 @@ begin
   end;
   sHeader := Format('%s - %s', [sHeader, DateTimeToStr(Now())]);
 
-  { Based on Scintilla 2.22's SciTEWin::Print }
+  { Based on Scintilla 5.50's SciTEWin::Print }
   
   ZeroMemory(@pdlg, SizeOf(pdlg));
   pdlg.lStructSize := SizeOf(pdlg);
@@ -2303,21 +2302,11 @@ begin
   pdlg.hDevNames := FDevNames;
 
   // See if a range has been selected
-  crange := FActiveMemo.Selection;
-  startPos := crange.StartPos;
-  endPos := crange.EndPos;
-
-  if startPos = endPos then
+  var rangeSelection := FActiveMemo.Selection;
+  if rangeSelection.StartPos = rangeSelection.EndPos then
     pdlg.Flags := pdlg.Flags or PD_NOSELECTION
   else
     pdlg.Flags := pdlg.Flags or PD_SELECTION;
-
-(*
-  if (!showDialog) {
-    // Don't display dialog box, just use the default printer and options
-    pdlg.Flags |= PD_RETURNDEFAULT;
-  }
-*)
 
   if not PrintDlg(pdlg) then
     Exit;
@@ -2328,7 +2317,9 @@ begin
   OldTheme := nil;
   try
     if FTheme.Dark then
-      SetupNonDarkPrintStyler(PrintStyler, PrintTheme, OldStyler, OldTheme);
+      SetupNonDarkPrintStyler(PrintStyler, PrintTheme, OldStyler, OldTheme)
+    else
+      PrintTheme := FTheme;
 
     FDevMode := pdlg.hDevMode;
     FDevNames := pdlg.hDevNames;
@@ -2436,25 +2427,10 @@ begin
       Exit;
     end;
 
-    lengthDoc := FActiveMemo.GetRawTextLength;
-    lengthDocMax := lengthDoc;
-    lengthPrinted := 0;
-
-    // Requested to print selection
-    if (pdlg.Flags and PD_SELECTION) <> 0 then begin
-      if startPos > endPos then begin
-        lengthPrinted := endPos;
-        lengthDoc := startPos;
-      end else begin
-        lengthPrinted := startPos;
-        lengthDoc := endPos;
-      end;
-
-      if lengthPrinted < 0 then
-        lengthPrinted := 0;
-      if lengthDoc > lengthDocMax then
-        lengthDoc := lengthDocMax;
-    end;
+    lengthDocMax := FActiveMemo.GetRawTextLength;
+    // PD_SELECTION -> requested to print selection.
+    lengthDoc := IfThen((pdlg.Flags and PD_SELECTION) <> 0, rangeSelection.EndPos, lengthDocMax);
+    lengthPrinted := IfThen((pdlg.Flags and PD_SELECTION) <> 0, rangeSelection.StartPos, 0);
 
     // We must subtract the physical margins from the printable area
     frPrint.hdc := hdc;
@@ -2482,8 +2458,8 @@ begin
       if printPage then begin
         StartPage(hdc);
 
-        SetTextColor(hdc, clBlack);
-        SetBkColor(hdc, clWhite);
+        SetTextColor(hdc, PrintTheme.Colors[tcFore]);
+        SetBkColor(hdc, PrintTheme.Colors[tcBack]);
         SelectObject(hdc, fontHeader);
         ta := SetTextAlign(hdc, TA_BOTTOM);
         rcw := Rect(frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight div 2,
@@ -2492,7 +2468,7 @@ begin
         ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.top - headerLineHeight div 2,
                    ETO_OPAQUE, rcw, sHeader, Length(sHeader), nil);
         SetTextAlign(hdc, ta);
-        pen := CreatePen(0, 1, clBlack);
+        pen := CreatePen(0, 1, GetTextColor(hdc));
         penOld := SelectObject(hdc, pen);
         MoveToEx(hdc, frPrint.rc.left, frPrint.rc.top - headerLineHeight div 4, nil);
         LineTo(hdc, frPrint.rc.right, frPrint.rc.top - headerLineHeight div 4);
@@ -2506,8 +2482,8 @@ begin
       lengthPrinted := FActiveMemo.FormatRange(printPage, @frPrint);
 
       if printPage then begin
-        SetTextColor(hdc, clBlack);
-        SetBkColor(hdc, clWhite);
+        SetTextColor(hdc, PrintTheme.Colors[tcFore]);
+        SetBkColor(hdc, PrintTheme.Colors[tcBack]);
         SelectObject(hdc, fontFooter);
         ta := SetTextAlign(hdc, TA_TOP);
         rcw := Rect(frPrint.rc.left, frPrint.rc.bottom + footerLineHeight div 2,
@@ -2515,7 +2491,7 @@ begin
         ExtTextOut(hdc, frPrint.rc.left + 5, frPrint.rc.bottom + footerLineHeight div 2,
                    ETO_OPAQUE, rcw, sFooter, Length(sFooter), nil);
         SetTextAlign(hdc, ta);
-        pen := CreatePen(0, 1, clBlack);
+        pen := CreatePen(0, 1, GetTextColor(hdc));
         penOld := SelectObject(hdc, pen);
         MoveToEx(hdc, frPrint.rc.left, frPrint.rc.bottom + footerLineHeight div 4, nil);
         LineTo(hdc, frPrint.rc.right, frPrint.rc.bottom + footerLineHeight div 4);
