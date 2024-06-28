@@ -533,7 +533,7 @@ object CompileForm: TCompileForm
         OnClick = ECompleteWordClick
       end
       object EToggleLinesComment: TMenuItem
-        Caption = 'Toggle Lines Comment'
+        Caption = 'Toggle Line Comment'
         OnClick = EToggleLinesCommentClick
       end
     end
