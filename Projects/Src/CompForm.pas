@@ -1206,6 +1206,113 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
     end;
   end;
 
+  procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
+  begin
+    { Does not try to keep the main selection. }
+
+    var Selections := TScintCaretAndAnchorList.Create;
+    try
+      AMemo.GetSelections(Selections);
+      for var I := 0 to Selections.Count-1 do begin
+        var Selection := Selections[I];
+        var LineCaret := AMemo.GetLineFromPosition(Selection.CaretPos);
+        var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
+        if LineCaret = LineAnchor then begin
+          { Add selection with same caret and anchor offsets one line up or down.
+            Does not support virtual space: AddSelection is used to add the
+            selection and this trims other selections before we can set the
+            virtual space of the added selection. }
+          var OtherLine := LineCaret + IfThen(Up, -1, 1);;
+          if (OtherLine < 0) or (OtherLine >= AMemo.Lines.Count) then
+            Continue { Already at the top or bottom, can't add }
+          else begin
+            var LineStartPos := AMemo.GetPositionFromLine(LineCaret);
+            var CaretCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.CaretPos) { + AMemo.SelectionCaretVirtualSpace[I]};
+            var AnchorCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.AnchorPos) { + AMemo.SelectionAnchorVirtualSpace[I]};
+            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
+            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
+            var NewCaretCharacterCount := CaretCharacterCount;
+            //var NewCaretVirtualSpace := 0;
+            var NewAnchorCharacterCount := AnchorCharacterCount;
+            //var NewAnchorVirtualSpace := 0;
+            if NewCaretCharacterCount > MaxCharacterCount then begin
+              //NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
+              NewCaretCharacterCount := MaxCharacterCount;
+            end;
+            if NewAnchorCharacterCount > MaxCharacterCount then begin
+              //NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
+              NewAnchorCharacterCount := MaxCharacterCount;
+            end;
+            var NewSelection: TScintCaretAndAnchor;
+            NewSelection.CaretPos := AMemo.GetPositionRelative(OtherLineStart, NewCaretCharacterCount);
+            NewSelection.AnchorPos := AMemo.GetPositionRelative(OtherLineStart, NewAnchorCharacterCount);
+            { AddSelection trims selections except for the main selection so
+              we need to check that ourselves unfortunately. Not doing a check
+              gives a problem when you AddCursor two times starting with an
+              empty single selection. The result will be 4 cursors, with 2 of
+              them in the same place. The check below fixes this but not
+              other cases when there's only partial overlap and Scintilla still
+              behaves weird. }
+            var MainSelection := AMemo.Selection;
+            if not NewSelection.Range.Within(AMemo.Selection) then begin
+              AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
+              { if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then begin
+                var MainSel := AMemo.MainSelection;
+                AMemo.SelectionCaretVirtualSpace[MainSel] := NewCaretVirtualSpace;
+                AMemo.SelectionAnchorVirtualSpace[MainSel] := NewAnchorVirtualSpace;
+              end; }
+            end;
+          end;
+        end else begin
+          { Extend multiline selection up or down. This is not the same as
+            LineExtendUp/Down because those can shrink instead of extend.
+            Supports virtual space. }
+          var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
+          var Down := not Up;
+          var LineStartOrEnd, StartOrEndPos, VirtualSpace: Integer;
+          { Does it start (up) or end (down) at the caret or the anchor? }
+          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
+            LineStartOrEnd := LineCaret;
+            StartOrEndPos := Selection.CaretPos;
+            VirtualSpace := AMemo.SelectionCaretVirtualSpace[I];
+          end else begin
+            LineStartOrEnd := LineAnchor;
+            StartOrEndPos := Selection.AnchorPos;
+            VirtualSpace := AMemo.SelectionAnchorVirtualSpace[I];
+          end;
+          var NewStartOrEndPos: Integer;
+          var NewVirtualSpace := 0;
+          { Go up one line or to the start of the document }
+          if (Up and (LineStartOrEnd > 0)) or (Down and  (LineStartOrEnd < AMemo.Lines.Count-1))  then begin
+            var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineStartOrEnd), StartOrEndPos) + VirtualSpace;
+            var OtherLine := LineStartOrEnd + IfThen(Up, -1, 1);
+            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
+            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
+            var NewCharacterCount := CharacterCount;
+            if NewCharacterCount > MaxCharacterCount then begin
+              NewVirtualSpace := NewCharacterCount - MaxCharacterCount;
+              NewCharacterCount := MaxCharacterCount;
+            end;
+            NewStartOrEndPos := AMemo.GetPositionRelative(OtherLineStart, NewCharacterCount);
+          end else
+            NewStartOrEndPos := IfThen(Up, 0, AMemo.GetPositionFromLine(AMemo.Lines.Count));
+          { Move the caret or the anchor up or down to extend the selection }
+          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
+            AMemo.SelectionCaretPosition[I] := NewStartOrEndPos;
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+              AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
+          end else begin
+            AMemo.SelectionAnchorPosition[I] := NewStartOrEndPos;
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+              AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
+          end;
+        end;
+      end;
+    finally
+      Selections.Free;
+    end;
+  end;
+
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TCompScintEdit;
@@ -1259,6 +1366,8 @@ begin
             SimplifySelection(FActiveMemo);
           ccToggleLinesComment:
             ToggleLinesComment(FActiveMemo);
+          ccAddCursorUp, ccAddCursorDown:
+            AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
           else
             raise Exception.Create('Unknown ComplexCommand');
         end;
@@ -4532,7 +4641,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       Pos := AMemo.CaretPosition;
-      C := AMemo.GetCharAtPosition(Pos);
+      C := AMemo.GetByteAtPosition(Pos);
       if C in ['(', '[', '{'] then begin
         MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then begin
@@ -4542,7 +4651,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
       end;
       if Pos > 0 then begin
         Pos := AMemo.GetPositionBefore(Pos);
-        C := AMemo.GetCharAtPosition(Pos);
+        C := AMemo.GetByteAtPosition(Pos);
         if C in [')', ']', '}'] then begin
           MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
           if MatchPos >= 0 then begin
@@ -4648,7 +4757,7 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
       I := FActiveMemo.GetPositionBefore(I);
       if I < LinePos then
         Exit;  { shouldn't get here }
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C > ' ' then
         Exit;
     end;
@@ -4693,7 +4802,7 @@ begin
       Exit;
   end;
 
-  case FActiveMemo.GetCharAtPosition(WordStartPos) of
+  case FActiveMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
         if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
@@ -4723,7 +4832,7 @@ begin
           I := FActiveMemo.GetPositionBefore(WordStartPos);
           if I < LinePos then
             Exit;
-          if FActiveMemo.GetCharAtPosition(I) > ' ' then
+          if FActiveMemo.GetByteAtPosition(I) > ' ' then
             Exit;
           PrevWordEndPos := I;
           PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
@@ -4751,7 +4860,7 @@ begin
             I := FActiveMemo.GetPositionBefore(I);
             if I < LinePos then
               Exit;  { shouldn't get here }
-            C := FActiveMemo.GetCharAtPosition(I);
+            C := FActiveMemo.GetByteAtPosition(I);
 
             if IsParamSection and (C in [';', ':']) and
                FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
@@ -4916,9 +5025,9 @@ procedure TCompileForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     while I < LineEndPos do begin
       if (I > Pos) and (BraceLevel = 0) then
         Break;
-      C := FActiveMemo.GetCharAtPosition(I);
+      C := FActiveMemo.GetByteAtPosition(I);
       if C = '{' then begin
-        if FActiveMemo.GetCharAtPosition(I + 1) = '{' then
+        if FActiveMemo.GetByteAtPosition(I + 1) = '{' then
           Inc(I)
         else begin
           if BraceLevel = 0 then
