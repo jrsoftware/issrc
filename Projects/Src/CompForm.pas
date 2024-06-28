@@ -1208,7 +1208,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
 
   procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
   begin
-    { Does not handle virtual space. Does not try to keep the main selection. }
+    { Does not try to keep the main selection. }
 
     var Selections := TScintCaretAndAnchorList.Create;
     try
@@ -1218,20 +1218,34 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
         var LineCaret := AMemo.GetLineFromPosition(Selection.CaretPos);
         var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
         if LineCaret = LineAnchor then begin
-          { Add selection with same caret and anchor offsets one line up or down }
-          var NewLine := LineCaret + IfThen(Up, -1, 1);;
-          if (NewLine < 0) or (NewLine >= AMemo.Lines.Count) then
+          { Add selection with same caret and anchor offsets one line up or down.
+            Does not support virtual space: AddSelection is used to add the
+            selection and this trims other selections before we can set the
+            virtual space of the added selection. }
+          var OtherLine := LineCaret + IfThen(Up, -1, 1);;
+          if (OtherLine < 0) or (OtherLine >= AMemo.Lines.Count) then
             Continue { Already at the top or bottom, can't add }
           else begin
-            var LineCaretStartPos := AMemo.GetPositionFromLine(LineCaret);
+            var LineStartPos := AMemo.GetPositionFromLine(LineCaret);
+            var CaretCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.CaretPos) { + AMemo.SelectionCaretVirtualSpace[I]};
+            var AnchorCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.AnchorPos) { + AMemo.SelectionAnchorVirtualSpace[I]};
+            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
+            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
+            var NewCaretCharacterCount := CaretCharacterCount;
+            //var NewCaretVirtualSpace := 0;
+            var NewAnchorCharacterCount := AnchorCharacterCount;
+            //var NewAnchorVirtualSpace := 0;
+            if NewCaretCharacterCount > MaxCharacterCount then begin
+              //NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
+              NewCaretCharacterCount := MaxCharacterCount;
+            end;
+            if NewAnchorCharacterCount > MaxCharacterCount then begin
+              //NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
+              NewAnchorCharacterCount := MaxCharacterCount;
+            end;
             var NewSelection: TScintCaretAndAnchor;
-            NewSelection.CaretPos := AMemo.GetPositionFromLine(NewLine) + Selection.CaretPos - LineCaretStartPos;
-            NewSelection.AnchorPos := AMemo.GetPositionFromLine(NewLine) + Selection.AnchorPos - LineCaretStartPos;
-            var MaxPos := AMemo.GetLineEndPosition(NewLine);
-            if NewSelection.CaretPos > MaxPos then
-              NewSelection.CaretPos := MaxPos;
-            if NewSelection.AnchorPos > MaxPos then
-              NewSelection.AnchorPos := MaxPos;
+            NewSelection.CaretPos := AMemo.GetPositionRelative(OtherLineStart, NewCaretCharacterCount);
+            NewSelection.AnchorPos := AMemo.GetPositionRelative(OtherLineStart, NewAnchorCharacterCount);
             { AddSelection trims selections except for the main selection so
               we need to check that ourselves unfortunately. Not doing a check
               gives a problem when you AddCursor two times starting with an
@@ -1240,8 +1254,14 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
               other cases when there's only partial overlap and Scintilla still
               behaves weird. }
             var MainSelection := AMemo.Selection;
-            if not NewSelection.Range.Within(AMemo.Selection) then
+            if not NewSelection.Range.Within(AMemo.Selection) then begin
               AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
+              { if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then begin
+                var MainSel := AMemo.MainSelection;
+                AMemo.SelectionCaretVirtualSpace[MainSel] := NewCaretVirtualSpace;
+                AMemo.SelectionAnchorVirtualSpace[MainSel] := NewAnchorVirtualSpace;
+              end; }
+            end;
           end;
         end else begin
           { Extend multiline selection up or down. This is not the same as
@@ -1278,11 +1298,11 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
           { Move the caret or the anchor up or down to extend the selection }
           if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
             AMemo.SelectionCaretPosition[I] := NewStartOrEndPos;
-            if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
               AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
           end else begin
             AMemo.SelectionAnchorPosition[I] := NewStartOrEndPos;
-            if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) then
+            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
               AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
           end;
         end;
