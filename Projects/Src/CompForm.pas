@@ -466,6 +466,11 @@ type
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
+    FStartCallTipWord: Integer;
+    FCurrentCallTipWord: String;
+    FFunctionDefinition: AnsiString;
+    FLastPosCallTip: Integer;
+    FBraceCount: Integer;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -503,6 +508,8 @@ type
     function InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     procedure InitiateAutoComplete(const Key: AnsiChar);
+    procedure InitiateCallTip;
+    procedure ContinueCallTip;
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
@@ -1276,6 +1283,11 @@ begin
         KLink.fIndexOnFail := True;
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
+    end;
+  end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    if not FActiveMemo.CallTipActive then begin
+      FBraceCount := 1;
+      InitiateCallTip;
     end;
   end else begin
     var AShortCut := ShortCut(Key, Shift);
@@ -4911,6 +4923,140 @@ begin
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
+function GetCurrentLine(const AMemo: TCompScintEdit): String;
+begin
+  var Line := AMemo.CaretLine;
+  Result := AMemo.GetTextRange(AMemo.GetPositionFromLine(Line), AMemo.GetPositionFromLine(Line+1));
+end;
+
+function GetCaretInLine(const AMemo: TCompScintEdit): Integer;
+begin
+  var Caret := AMemo.CaretPosition;
+  var Line := AMemo.GetLineFromPosition(Caret);
+  var LineStart := AMemo.GetPositionFromLine(Line);
+  Result := Caret - LineStart;
+end;
+
+procedure TCompileForm.InitiateCallTip;
+
+  function IsASpace(const C: Char): Boolean;
+  begin
+    Result := (C = ' ') or ((C >= #9) and (C <= #13));
+  end;
+
+  function GetNearestWord(const WordStart: String): AnsiString;
+  begin
+    Result := 'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;';
+  end;
+
+begin
+  { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
+    SciTEBase::FillFunctionDefinition, without support for multiple calltips }
+
+  { StartAutoComplete }
+
+  FCurrentCallTipWord := '';
+  var Line := GetCurrentLine(FActiveMemo);
+  var Current := GetCaretInLine(FActiveMemo);
+  var Pos := FActiveMemo.CaretPosition;
+  var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
+
+  {$ZEROBASEDSTRINGS ON}
+  repeat
+    var Braces := 0;
+		while ((Current > 0) and ((Braces <> 0) or not (Line[Current-1] = '('))) do begin
+			if Line[Current-1] = '(' then
+			  Dec(Braces)
+			else if Line[Current-1] = ')' then
+				Inc(Braces);
+			Dec(Current);
+			Dec(Pos);
+    end;
+    if Current > 0 then begin
+      Dec(Current);
+      Dec(Pos);
+    end else
+      Break;
+    while (Current > 0) and IsASpace(Line[Current-1]) do begin
+      Dec(Current);
+      Dec(Pos);
+    end
+  until not ((Current > 0) and not CharInSet(Line[Current-1], CalltipWordCharacters));
+  {$ZEROBASEDSTRINGS OFF}
+  if Current <= 0 then
+    Exit;
+
+	FStartCalltipWord := Current - 1;
+  {$ZEROBASEDSTRINGS ON}
+	while (FStartCalltipWord > 0) and CharInSet(Line[FStartCalltipWord-1], CalltipWordCharacters) do
+    Dec(FStartCallTipWord);
+  {$ZEROBASEDSTRINGS OFF}
+
+  SetLength(Line, Current);
+  FCurrentCallTipWord := Line.Substring(FStartCallTipWord); { Substring is zero-based }
+
+  FFunctionDefinition := '';
+
+  { FillFunctionDefinition }
+
+  FLastPosCallTip := Pos;
+
+  // Should get current api definition
+  var Word := GetNearestWord(FCurrentCallTipWord);
+  if Word <> '' then begin
+    FFunctionDefinition := Word;
+    FActiveMemo.ShowCallTip(FLastPosCallTip - Length(FCurrentCallTipWord), FFunctionDefinition);
+    ContinueCallTip;
+  end;
+end;
+
+procedure TCompileForm.ContinueCallTip;
+begin
+  { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
+
+	var Line := GetCurrentLine(FActiveMemo);
+	var Current := GetCaretInLine(FActiveMemo);
+
+	var Braces := 0;
+	var Commas := 0;
+	for var I := FStartCalltipWord to Current-1 do begin
+    {$ZEROBASEDSTRINGS ON}
+		if Line[I] = '(' then
+      Inc(Braces)
+		else if (Line[I] = '(') and (Braces > 0) then
+			Dec(Braces)
+		else if (Braces = 1) and (Line[I] = ',') then
+			Inc(Commas);
+    {$ZEROBASEDSTRINGS OFF}
+	end;
+
+  {$ZEROBASEDSTRINGS ON}
+	var StartHighlight := 0;
+  var FunctionDefinitionLength := Length(FFunctionDefinition);
+	while (StartHighlight < FunctionDefinitionLength) and not (FFunctionDefinition[StartHighlight] = '(') do
+		Inc(StartHighlight);
+	if (StartHighlight < FunctionDefinitionLength) and (FFunctionDefinition[StartHighlight] = '(') then
+		Inc(StartHighlight);
+	while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
+		if FFunctionDefinition[StartHighlight] = ';' then
+			Dec(Commas);
+		// If it reached the end of the argument list it means that the user typed in more
+		// arguments than the ones listed in the calltip
+		if FFunctionDefinition[StartHighlight] = ')' then
+			Commas := 0
+		else
+			Inc(StartHighlight);
+	end;
+	if (StartHighlight < FunctionDefinitionLength) and (FFunctionDefinition[StartHighlight] = ';') then
+		Inc(StartHighlight);
+	var EndHighlight := StartHighlight;
+	while (EndHighlight < FunctionDefinitionLength) and not (FFunctionDefinition[EndHighlight] = ';') and not (FFunctionDefinition[endHighlight] = ')') do
+		Inc(EndHighlight);
+  {$ZEROBASEDSTRINGS OFF}
+
+	FActiveMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
+end;
+
 procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
   function LineIsBlank(const Line: Integer): Boolean;
@@ -4921,7 +5067,6 @@ procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
 var
   NewLine, PreviousLine, NewIndent, PreviousIndent: Integer;
-  RestartAutoComplete: Boolean;
 begin
   if FOptions.AutoIndent and (Ch = FActiveMemo.LineEndingString[Length(FActiveMemo.LineEndingString)]) then begin
     { Add to the new line any (remaining) indentation from the previous line }
@@ -4947,17 +5092,50 @@ begin
       end;
     end;
   end;
+  
+  { Based on SciTE 5.50's SciTEBase::CharAdded but with a altered interaction
+    between calltips and autocomplete }
 
-  case Ch of
-    'A'..'Z', 'a'..'z', '_', '#', '{', '[':
-      if FOptions.AutoComplete then
+  var DoAutoComplete := False;
+
+  if FActiveMemo.CallTipActive then begin
+    if Ch = ')' then begin
+      Dec(FBraceCount);
+      if FBraceCount < 1 then
+        FActiveMemo.CancelCallTip
+      else
+        InitiateCallTip;
+    end else if Ch = '(' then  begin
+      Inc(FBraceCount);
+      InitiateCallTip;
+    end else
+      ContinueCallTip;
+  end else if FActiveMemo.AutoCompleteActive then begin
+    if Ch = '(' then begin
+      Inc(FBraceCount);
+      InitiateCallTip;
+    end else if Ch = ')' then
+      Dec(FBraceCount)
+    else
+      DoAutoComplete := True;
+  end else if Ch = '(' then begin
+    FBraceCount := 1;
+    InitiateCallTip;
+  end else
+    DoAutoComplete := True;
+
+  if DoAutoComplete then begin
+    case Ch of
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[':
+        if FOptions.AutoComplete then
+          InitiateAutoComplete(Ch);
+    else
+      var RestartAutoComplete := (Ch in [' ', '.']) and
+        (FOptions.AutoComplete or FActiveMemo.AutoCompleteActive);
+      FActiveMemo.CancelAutoComplete;
+      if RestartAutoComplete then
         InitiateAutoComplete(Ch);
-  else
-    RestartAutoComplete := (Ch in [' ', '.']) and
-      (FOptions.AutoComplete or FActiveMemo.AutoCompleteActive);
-    FActiveMemo.CancelAutoComplete;
-    if RestartAutoComplete then
-      InitiateAutoComplete(Ch);
+    end;
   end;
 end;
 

@@ -465,6 +465,10 @@ begin
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
 
+    Call(SCI_CALLTIPSETFORE, FTheme.Colors[tcFore], 0);
+    Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcBack], 0);
+    Call(SCI_CALLTIPSETFOREHLT, FTheme.Colors[tcBlue], 0);
+
     var SelBackColor := FTheme.Colors[tcSelBack];
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
