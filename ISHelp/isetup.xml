@@ -3140,6 +3140,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
 </tr>
 <tr>
+  <td>Toggle lines comment.</td><td>Ctrl+/</td>
+</tr>
+<tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
@@ -3305,7 +3308,13 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Fold or unfold all lines.</td><td>Ctrl+Shift+Click in folding margin</td>
+  <td>Fold line.</td><td>Ctrl+Shift+[</td>
+</tr>
+<tr>
+  <td>Unfold line.</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
+  <td>Fold or unfold all.</td><td>Ctrl+Shift+Click in folding margin</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
