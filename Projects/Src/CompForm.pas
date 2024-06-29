@@ -4941,20 +4941,9 @@ begin
       end;
       if PreviousLine >= 0 then begin
         PreviousIndent := FActiveMemo.GetLineIndentation(PreviousLine);
-        { If virtual space is enabled, and tabs are not being used for
-          indentation (typing in virtual space doesn't create tabs), then we
-          don't actually have to set any indentation if the new line is
-          empty; we can just move the caret out into virtual space. }
-        if (svsUserAccessible in FActiveMemo.VirtualSpaceOptions) and
-           not FActiveMemo.UseTabCharacter and
-           (FActiveMemo.Lines.RawLineLengths[NewLine] = 0) then begin
-          FActiveMemo.CaretVirtualSpace := PreviousIndent;
-        end
-        else begin
-          FActiveMemo.SetLineIndentation(NewLine, NewIndent + PreviousIndent);
-          FActiveMemo.CaretPosition := FActiveMemo.GetPositionFromLineExpandedColumn(NewLine,
-            PreviousIndent);
-        end;
+        FActiveMemo.SetLineIndentation(NewLine, NewIndent + PreviousIndent);
+        FActiveMemo.CaretPosition := FActiveMemo.GetPositionFromLineExpandedColumn(NewLine,
+          PreviousIndent);
       end;
     end;
   end;
