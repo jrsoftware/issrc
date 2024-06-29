@@ -1318,10 +1318,10 @@ begin
     { About #9, as Wikipedia explains: "The most known and common tab is a
       horizontal tabulation <..> and may be referred to as Ctrl+I." Ctrl+I is
       (just like in Visual Studio Code) our alternative code completion character
-      because Ctrl+Space is used by the Chinese IME and Alt+Right is used by
-      the Delphi keymap for the forward button. So that's why we handle #9 here.
-      Doesn't mean Ctrl+Tab doesn't work: it doesnt trigger KeyPress, even if it
-      wasn't a menu shortcut for Next Tab (which it is). }
+      because Ctrl+Space is used by the Chinese IME and Alt+Right is used for the
+      forward button. So that's why we handle #9 here. Doesn't mean Ctrl+Tab
+      doesn't work: it doesnt trigger KeyPress, even if it wasn't a menu
+      shortcut for Next Tab (which it is). }
     InitiateAutoComplete(#0);
     Key := #0;
   end else if (Key <= #31) or (Key = #127) then begin
