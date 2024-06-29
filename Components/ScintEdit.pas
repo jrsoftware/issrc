@@ -1630,8 +1630,8 @@ begin
   LineEndPos := GetLineEndPosition(GetLineFromPosition(Pos));
   if (Pos = LineEndPos) or (Value = 0) then begin
     MainSel := GetMainSelection;
-    SetSelectionAnchorPosition(MainSel, Value);
-    SetSelectionCaretPosition(MainSel, Value);
+    SetSelectionAnchorVirtualSpace(MainSel, Value);
+    SetSelectionCaretVirtualSpace(MainSel, Value);
     ChooseCaretX;
   end;
 end;
