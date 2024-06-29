@@ -3308,13 +3308,13 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Fold line.</td><td>Ctrl+Shift+[</td>
+  <td>Fold section.</td><td>Ctrl+Shift+[</td>
 </tr>
 <tr>
-  <td>Unfold line.</td><td>Ctrl+Shift+]</td>
+  <td>Unfold section.</td><td>Ctrl+Shift+]</td>
 </tr>
 <tr>
-  <td>Fold or unfold all.</td><td>Ctrl+Shift+Click in folding margin</td>
+  <td>Fold or unfold all sections.</td><td>Ctrl+Shift+Click in folding margin</td>
 </tr>
 <tr>
   <td>&nbsp;</td>

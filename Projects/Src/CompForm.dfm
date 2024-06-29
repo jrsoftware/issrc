@@ -513,11 +513,11 @@ object CompileForm: TCompileForm
         Caption = '-'
       end
       object EFoldLine: TMenuItem
-        Caption = 'Fol&d Line'
+        Caption = 'Fol&d Section'
         OnClick = EFoldOrUnfoldLineClick
       end
       object EUnfoldLine: TMenuItem
-        Caption = '&Unfold Line'
+        Caption = '&Unfold Section'
         OnClick = EFoldOrUnfoldLineClick
       end
       object EGoto: TMenuItem
