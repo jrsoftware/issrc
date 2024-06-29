@@ -1286,7 +1286,8 @@ begin
     if not FKeyMappedMenus.ContainsKey(AShortCut) then begin
       var ComplexCommand := FActiveMemo.GetComplexCommand(AShortCut);
       if ComplexCommand <> ccNone then begin
-        Key := 0;
+        if Key <> VK_ESCAPE then { Allow Scintilla to see Esc }
+          Key := 0;
         case ComplexCommand of
           ccSelectNextOccurrence:
             ESelectNextOccurrenceClick(Self);
