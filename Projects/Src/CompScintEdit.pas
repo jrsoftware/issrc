@@ -465,6 +465,9 @@ begin
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
 
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST, FTheme.Colors[tcFore] or (SC_ALPHA_OPAQUE shl 24));
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcBack] or (SC_ALPHA_OPAQUE shl 24));
+
     var SelBackColor := FTheme.Colors[tcSelBack];
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
