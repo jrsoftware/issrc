@@ -140,7 +140,9 @@ type
     function GetCaretColumn: Integer;
     function GetCaretColumnExpandedForTabs: Integer;
     function GetCaretLine: Integer;
+    function GetCaretLineText: String;
     function GetCaretPosition: Integer;
+    function GetCaretPositionInLine: Integer;
     function GetCaretVirtualSpace: Integer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
@@ -149,6 +151,7 @@ type
     function GetLinesInWindow: Integer;
     function GetMainSelText: String;
     function GetModified: Boolean;
+    function GetRawCaretLineText: TScintRawString;
     function GetRawMainSelText: TScintRawString;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
@@ -360,7 +363,9 @@ type
     property CaretColumn: Integer read GetCaretColumn write SetCaretColumn;
     property CaretColumnExpandedForTabs: Integer read GetCaretColumnExpandedForTabs;
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
+    property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
+    property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Integer read FEffectiveCodePage;
@@ -374,6 +379,7 @@ type
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
     property MainSelText: String read GetMainSelText write SetMainSelText;
     property Modified: Boolean read GetModified;
+    property RawCaretLineText: TScintRawString read GetRawCaretLineText;
     property RawMainSelText: TScintRawString read GetRawMainSelText write SetRawMainSelText;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
@@ -961,9 +967,21 @@ begin
   Result := GetLineFromPosition(GetCaretPosition);
 end;
 
+function TScintEdit.GetCaretLineText: String;
+begin
+  Result := ConvertRawStringToString(GetRawCaretLineText);
+end;
+
 function TScintEdit.GetCaretPosition: Integer;
 begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
+end;
+
+function TScintEdit.GetCaretPositionInLine: Integer;
+begin
+  var Caret := CaretPosition;
+  var LineStart := GetPositionFromLine(GetLineFromPosition(Caret));
+  Result := Caret - LineStart;
 end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
@@ -1143,6 +1161,12 @@ function TScintEdit.GetPositionRelative(const Pos,
   CharacterCount: Integer): Integer;
 begin
   Result := Call(SCI_POSITIONRELATIVE, Pos, CharacterCount);
+end;
+
+function TScintEdit.GetRawCaretLineText: TScintRawString;
+begin
+  var Line := CaretLine;
+  Result := GetRawTextRange(GetPositionFromLine(Line), GetPositionFromLine(Line+1));
 end;
 
 function TScintEdit.GetRawMainSelText: TScintRawString;

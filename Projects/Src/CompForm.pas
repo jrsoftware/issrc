@@ -4934,20 +4934,6 @@ begin
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
-function GetCurrentLine(const AMemo: TCompScintEdit): String;
-begin
-  var Line := AMemo.CaretLine;
-  Result := AMemo.GetTextRange(AMemo.GetPositionFromLine(Line), AMemo.GetPositionFromLine(Line+1));
-end;
-
-function GetCaretInLine(const AMemo: TCompScintEdit): Integer;
-begin
-  var Caret := AMemo.CaretPosition;
-  var Line := AMemo.GetLineFromPosition(Caret);
-  var LineStart := AMemo.GetPositionFromLine(Line);
-  Result := Caret - LineStart;
-end;
-
 procedure TCompileForm.InitiateCallTip;
 
   function IsASpace(const C: Char): Boolean;
@@ -4967,8 +4953,8 @@ begin
   { StartAutoComplete }
 
   FCurrentCallTipWord := '';
-  var Line := GetCurrentLine(FActiveMemo);
-  var Current := GetCaretInLine(FActiveMemo);
+  var Line := FActiveMemo.CaretLineText;
+  var Current := FActiveMemo.CaretPositionInLine;
   var Pos := FActiveMemo.CaretPosition;
   var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
 
@@ -5025,8 +5011,8 @@ procedure TCompileForm.ContinueCallTip;
 begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
-	var Line := GetCurrentLine(FActiveMemo);
-	var Current := GetCaretInLine(FActiveMemo);
+	var Line := FActiveMemo.CaretLineText;
+	var Current := FActiveMemo.CaretPositionInLine;
 
 	var Braces := 0;
 	var Commas := 0;
