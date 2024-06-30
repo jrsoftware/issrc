@@ -173,6 +173,7 @@ type
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetChangeHistory(const Value: TScintChangeHistory);
     procedure SetFillSelectionToEdge(const Value: Boolean);
+    procedure SetFoldFlags(const Value: TScintFoldFlags);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
     procedure SetLineNumbers(const Value: Boolean);
     procedure SetMainSelection(const Value: Integer);
@@ -210,7 +211,6 @@ type
     procedure WMEraseBkgnd(var Message: TMessage); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMMouseWheel(var Message: TMessage); message WM_MOUSEWHEEL;
-    procedure SetFoldFlags(const Value: TScintFoldFlags);
   protected
     procedure Change(const AInserting: Boolean; const AStartPos, ALength,
       ALinesDelta: Integer); virtual;
