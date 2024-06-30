@@ -114,6 +114,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
+    class function IsCommentStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
@@ -1526,6 +1527,11 @@ begin
     StyleConstsUntilChars([], stDefault, BraceLevel);
     CommitStyle(stDefault);
   end;
+end;
+
+class function TInnoSetupStyler.IsCommentStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := (Style = Ord(stComment));
 end;
 
 class function TInnoSetupStyler.IsParamSection(

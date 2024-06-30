@@ -4950,6 +4950,15 @@ procedure TCompileForm.InitiateCallTip;
   end;
 
 begin
+  var Pos := FActiveMemo.CaretPosition;
+
+  { We rely on the styler to identify [Code] section lines and comments, but we
+    may be searching into areas that haven't been styled yet }
+  FActiveMemo.StyleNeeded(FActiveMemo.CaretPosition);
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
+     (FMemosStyler.IsCommentStyle(FActiveMemo.GetStyleAtPosition(FActiveMemo.GetPositionBefore(Pos)))) then
+    Exit;
+
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
     SciTEBase::FillFunctionDefinition, without support for multiple calltips }
 
@@ -4958,7 +4967,6 @@ begin
   FCurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
-  var Pos := FActiveMemo.CaretPosition;
   var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
