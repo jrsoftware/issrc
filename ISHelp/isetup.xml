@@ -3326,7 +3326,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Fillup complete word.</td><td>Tab or Enter or<br />Space for ISPP directives or Flags and Type parameters or<br />\ for constants or<br />: for constants and section parameters or<br />] for sections or<br />= for section directives</td>
 </tr>
 <tr>
-  <td>Cancel complete word.</td><td>Esc</td>
+  <td>Trigger parameter hints.</td><td>Ctrl+Shift+Space</td>
+</tr>
+<tr>
+  <td>Cancel complete word and parameter hints.</td><td>Esc</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
