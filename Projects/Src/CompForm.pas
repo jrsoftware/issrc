@@ -1275,9 +1275,11 @@ begin
         Memo.SelectionMode := ssmStream;
       end;
     end;
+    { Key is not cleared to allow Scintilla to do the actual handling }
   end;
 
   if Key = VK_F1 then begin
+    Key := 0;
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
@@ -1292,6 +1294,7 @@ begin
       end;
     end;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    Key := 0;
     if not FActiveMemo.CallTipActive then begin
       FBraceCount := 1;
       InitiateCallTip;
