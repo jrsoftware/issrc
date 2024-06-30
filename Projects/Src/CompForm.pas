@@ -407,6 +407,7 @@ type
       ThemeType: TThemeType;
       ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
+      ShowCaretPosition: Boolean;
     end;
     FOptionsLoaded: Boolean;
     FTheme: TTheme;
@@ -801,6 +802,12 @@ constructor TCompileForm.Create(AOwner: TComponent);
       for Memo in FMemos do
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
+
+      { Debug options }
+      FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
+      if FOptions.ShowCaretPosition then
+        StatusBar.Panels[spCaretPos].Width := StatusBar.Panels[spCaretPos].Width * 2;
+
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
@@ -4429,8 +4436,11 @@ end;
 procedure TCompileForm.UpdateCaretPosPanelAndBackNavStack;
 begin
   { Update panel }
-  StatusBar.Panels[spCaretPos].Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
+  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  if FOptions.ShowCaretPosition then
+    Text := Format('%5d:%s', [FActiveMemo.CaretPosition, Text]);
+  StatusBar.Panels[spCaretPos].Text := Text;
 
   { Update NavStacks.Back if needed and remember new position }
   var NewNavItem := TCompScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
