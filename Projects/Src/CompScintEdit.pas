@@ -218,8 +218,8 @@ begin
   Call(SCI_AUTOCSETCANCELATSTART, 0, 0);
   Call(SCI_AUTOCSETDROPRESTOFWORD, 1, 0);
   Call(SCI_AUTOCSETIGNORECASE, 1, 0);
+  Call(SCI_AUTOCSETOPTIONS, SC_AUTOCOMPLETE_FIXED_SIZE, 0); { Removes the ugly WS_THICKFRAME header at the cost of resizability }
   Call(SCI_AUTOCSETMAXHEIGHT, 12, 0);
-  Call(SCI_AUTOCSETMULTI, SC_MULTIAUTOC_EACH, 0);
 
   Call(SCI_SETMULTIPLESELECTION, 1, 0);
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
@@ -464,6 +464,9 @@ begin
   if FTheme <> nil then begin { Always True at the moment }
     Font.Color := FTheme.Colors[tcFore];
     Color := FTheme.Colors[tcBack];
+
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST, FTheme.Colors[tcFore] or (SC_ALPHA_OPAQUE shl 24));
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcBack] or (SC_ALPHA_OPAQUE shl 24));
 
     Call(SCI_CALLTIPSETFORE, FTheme.Colors[tcFore], 0);
     Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcBack], 0);
