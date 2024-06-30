@@ -2131,7 +2131,7 @@ begin
     FProgress := 0;
     FProgressMax := 0;
 
-    FActiveMemo.CancelAutoComplete;
+    FActiveMemo.CancelAutoCompleteAndCallTip;
     FActiveMemo.Cursor := crAppStart;
     FActiveMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
     CompilerOutputList.Cursor := crAppStart;
@@ -3001,7 +3001,7 @@ begin
       FIgnoreTabSetClick := False;
     end;
     VPreviousTabClick(Self);
-    Memo.CancelAutoComplete;
+    Memo.CancelAutoCompleteAndCallTip;
     Memo.Visible := False;
   end else if TabIndex < MemosTabset.TabIndex then
     MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
@@ -3393,7 +3393,7 @@ begin
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;
     ActiveControl := NewActiveMemo;
-    OldActiveMemo.CancelAutoComplete;
+    OldActiveMemo.CancelAutoCompleteAndCallTip;
     OldActiveMemo.Visible := False;
 
     UpdateSaveMenuItemAndButton;

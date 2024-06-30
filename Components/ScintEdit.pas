@@ -243,6 +243,7 @@ type
     function CallStr(Msg: Cardinal; WParam: Longint;
       const LParamStr: TScintRawString): Longint;
     procedure CancelAutoComplete;
+    procedure CancelAutoCompleteAndCallTip;
     procedure CancelCallTip;
     function CanRedo: Boolean;
     function CanUndo: Boolean;
@@ -652,6 +653,12 @@ end;
 procedure TScintEdit.CancelAutoComplete;
 begin
   Call(SCI_AUTOCCANCEL, 0, 0);
+end;
+
+procedure TScintEdit.CancelAutoCompleteAndCallTip;
+begin
+  CancelAutoComplete;
+  CancelCallTip;
 end;
 
 procedure TScintEdit.CancelCallTip;
