@@ -1531,7 +1531,7 @@ end;
 
 class function TInnoSetupStyler.IsCommentStyle(const Style: TScintStyleNumber): Boolean;
 begin
-  Result := (Style = Ord(stComment));
+  Result := Style = Ord(stComment);
 end;
 
 class function TInnoSetupStyler.IsParamSection(
@@ -1542,7 +1542,7 @@ end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
 begin
-  Result := (Style = Ord(stSymbol));
+  Result := Style = Ord(stSymbol);
 end;
 
 function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
