@@ -4948,11 +4948,6 @@ procedure TCompileForm.InitiateCallTip;
     Result := (C = ' ') or ((C >= #9) and (C <= #13));
   end;
 
-  function GetNearestWord(const WordStart: String): AnsiString;
-  begin
-    Result := 'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;';
-  end;
-
 begin
   var Pos := FActiveMemo.CaretPosition;
 
@@ -5014,7 +5009,7 @@ begin
   FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word := GetNearestWord(FCallTipState.CurrentCallTipWord);
+  var Word := FMemosStyler.ScriptFunction[FCallTipState.CurrentCallTipWord];
   if Word <> '' then begin
     FCallTipState.FunctionDefinition := Word;
     FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);

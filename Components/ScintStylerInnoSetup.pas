@@ -14,7 +14,8 @@ unit ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, ScintEdit, ModernColors;
+  SysUtils, Classes, Graphics, Generics.Collections,
+  ScintEdit, ModernColors;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -56,12 +57,15 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
+  TFunctionDefinitionsByName = TDictionary<String, AnsiString>;
+
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
+    FScriptFunctionsByName: TFunctionDefinitionsByName;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -70,7 +74,10 @@ type
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
     procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
-     const Flags: array of TScintRawString); overload;
+     const Flags: array of TScintRawString);
+    procedure BuildFunctionDefinitionsByName(
+      const FunctionDefinitionsByName: TFunctionDefinitionsByName;
+      const FunctionDefinitions: array of AnsiString);
     procedure BuildISPPDirectivesWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
@@ -96,6 +103,7 @@ type
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
+    function GetScriptFunction(Name: String): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -106,6 +114,7 @@ type
     procedure StyleNeeded; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
     class function IsCommentStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
@@ -116,6 +125,7 @@ type
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
+    property ScriptFunction[Name: String]: AnsiString read GetScriptFunction;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -123,7 +133,8 @@ type
 implementation
 
 uses
-  TypInfo, MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
+  TypInfo, Generics.Defaults,
+  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -604,6 +615,10 @@ const
     'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
     'UninstallNeedRestart(): Boolean;'];
 
+  ScriptFunctions: array of AnsiString = [
+    'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
+    'SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;'];
+
 const
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -697,6 +712,15 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
+
+  FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
+  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptFunctions);
+end;
+
+destructor TInnoSetupStyler.Destroy;
+begin
+  FScriptFunctionsByName.Free;
+  inherited;
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -820,6 +844,19 @@ begin
   end;
 end;
 
+procedure TInnoSetupStyler.BuildFunctionDefinitionsByName(
+  const FunctionDefinitionsByName: TFunctionDefinitionsByName;
+  const FunctionDefinitions: array of AnsiString);
+begin
+  FunctionDefinitionsByName.Clear;
+  for var FunctionDefinition in FunctionDefinitions do begin
+    var P := Pos(AnsiString('('), FunctionDefinition);
+    if P <= 1 then
+      raise Exception.CreateFmt('Bad FunctionDefinition: %s', [FunctionDefinition]);
+    FunctionDefinitionsByName.Add(String(Copy(FunctionDefinition, 1, P-1)), FunctionDefinition);
+  end;
+end;
+
 procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
 begin
   var SL :=TStringList.Create;
@@ -834,7 +871,7 @@ end;
 
 procedure TInnoSetupStyler.BuildConstantsWordList;
 begin
-  var SL :=TStringList.Create;
+  var SL := TStringList.Create;
   try
     for var I := 0 to High(Constants) do
       SL.Add('{' + Constants[I] + '}');
@@ -925,6 +962,12 @@ end;
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
 begin
   Result := FKeywordsWordList[Section];
+end;
+
+function TInnoSetupStyler.GetScriptFunction(Name: String): AnsiString;
+begin
+  if not FScriptFunctionsByName.TryGetValue(Name, Result) then
+    Result := '';
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(
