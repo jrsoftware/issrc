@@ -73,9 +73,9 @@ type
      const Flags: array of TScintRawString); overload;
     procedure BuildISPPDirectivesWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
-      const EnumTypeInfo: Pointer); overload;
-    procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
-      const Parameters: array of TScintRawString); overload;
+      const Parameters: array of TScintRawString);
+    procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
+      const EnumTypeInfo: Pointer);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -160,7 +160,7 @@ const
     (Name: 'UninstallDelete'; Value: scUninstallDelete),
     (Name: 'UninstallRun'; Value: scUninstallRun));
 
-  ComponentsSectionParameters: array[0..8] of TScintRawString = (
+  ComponentsSectionParameters: array of TScintRawString = [
     'Check',
     'Description',
     'ExtraDiskSpaceRequired',
@@ -169,17 +169,17 @@ const
     'MinVersion',
     'Name',
     'OnlyBelowVersion',
-    'Types');
+    'Types'];
 
-  ComponentsSectionFlags: array[0..5] of TScintRawString = (
+  ComponentsSectionFlags: array of TScintRawString = [
     'checkablealone',
     'disablenouninstallwarning',
     'dontinheritcheck',
     'exclusive',
     'fixed',
-    'restart');
+    'restart'];
 
-  DeleteSectionParameters: array[0..9] of TScintRawString = (
+  DeleteSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'BeforeInstall',
     'Check',
@@ -189,14 +189,14 @@ const
     'Name',
     'OnlyBelowVersion',
     'Tasks',
-    'Type');
+    'Type'];
 
-  DeleteSectionTypes: array[0..2] of TScintRawString = (
+  DeleteSectionTypes: array of TScintRawString = [
     'files',
     'filesandordirs',
-    'dirifempty');
+    'dirifempty'];
 
-  DirsSectionParameters: array[0..11] of TScintRawString = (
+  DirsSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'Attribs',
     'BeforeInstall',
@@ -208,16 +208,16 @@ const
     'Name',
     'OnlyBelowVersion',
     'Permissions',
-    'Tasks');
+    'Tasks'];
 
-  DirsSectionFlags: array[0..4] of TScintRawString = (
+  DirsSectionFlags: array of TScintRawString = [
     'deleteafterinstall',
     'setntfscompression',
     'uninsalwaysuninstall',
     'uninsneveruninstall',
-    'unsetntfscompression');
+    'unsetntfscompression'];
 
-  FilesSectionParameters: array[0..18] of TScintRawString = (
+  FilesSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'Attribs',
     'BeforeInstall',
@@ -236,9 +236,9 @@ const
     'Permissions',
     'Source',
     'StrongAssemblyName',
-    'Tasks');
+    'Tasks'];
 
-  FilesSectionFlags: array[0..40] of TScintRawString = (
+  FilesSectionFlags: array of TScintRawString = [
     '32bit',
     '64bit',
     'allowunsafefiles',
@@ -279,9 +279,9 @@ const
     'uninsremovereadonly',
     'uninsrestartdelete',
     'uninsneveruninstall',
-    'unsetntfscompression');
+    'unsetntfscompression'];
 
-  IconsSectionParameters: array[0..18] of TScintRawString = (
+  IconsSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'AppUserModelID',
     'AppUserModelToastActivatorCLSID',
@@ -300,9 +300,9 @@ const
     'OnlyBelowVersion',
     'Parameters',
     'Tasks',
-    'WorkingDir');
+    'WorkingDir'];
 
-  IconsSectionFlags: array[0..9] of TScintRawString = (
+  IconsSectionFlags: array of TScintRawString = [
     'closeonexit',
     'createonlyiffileexists',
     'dontcloseonexit',
@@ -312,9 +312,9 @@ const
     'runmaximized',
     'runminimized',
     'uninsneveruninstall',
-    'useapppaths');
+    'useapppaths'];
 
-  INISectionParameters: array[0..12] of TScintRawString = (
+  INISectionParameters: array of TScintRawString = [
     'AfterInstall',
     'BeforeInstall',
     'Check',
@@ -327,22 +327,22 @@ const
     'OnlyBelowVersion',
     'Section',
     'String',
-    'Tasks');
+    'Tasks'];
 
-  INISectionFlags: array[0..3] of TScintRawString = (
+  INISectionFlags: array of TScintRawString = [
     'createkeyifdoesntexist',
     'uninsdeleteentry',
     'uninsdeletesection',
-    'uninsdeletesectionifempty');
+    'uninsdeletesectionifempty'];
 
-  LanguagesSectionParameters: array[0..4] of TScintRawString = (
+  LanguagesSectionParameters: array of TScintRawString = [
     'InfoAfterFile',
     'InfoBeforeFile',
     'LicenseFile',
     'MessagesFile',
-    'Name');
+    'Name'];
 
-  RegistrySectionParameters: array[0..14] of TScintRawString = (
+  RegistrySectionParameters: array of TScintRawString = [
     'AfterInstall',
     'BeforeInstall',
     'Check',
@@ -357,9 +357,9 @@ const
     'Tasks',
     'ValueData',
     'ValueName',
-    'ValueType');
+    'ValueType'];
 
-  RegistrySectionFlags: array[0..9] of TScintRawString = (
+  RegistrySectionFlags: array of TScintRawString = [
     'createvalueifdoesntexist',
     'deletekey',
     'deletevalue',
@@ -369,9 +369,9 @@ const
     'uninsclearvalue',
     'uninsdeletekey',
     'uninsdeletekeyifempty',
-    'uninsdeletevalue');
+    'uninsdeletevalue'];
 
-  RunSectionParameters: array[0..14] of TScintRawString = (
+  RunSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'BeforeInstall',
     'Check',
@@ -386,9 +386,9 @@ const
     'StatusMsg',
     'Tasks',
     'Verb',
-    'WorkingDir');
+    'WorkingDir'];
 
-  RunSectionFlags: array[0..18] of TScintRawString = (
+  RunSectionFlags: array of TScintRawString = [
     '32bit',
     '64bit',
     'dontlogparameters',
@@ -407,9 +407,9 @@ const
     'skipifsilent',
     'unchecked',
     'waituntilidle',
-    'waituntilterminated');
+    'waituntilterminated'];
 
-  UninstallRunSectionParameters: array[0..13] of TScintRawString = (
+  UninstallRunSectionParameters: array of TScintRawString = [
     'AfterInstall',
     'BeforeInstall',
     'Check',
@@ -423,9 +423,9 @@ const
     'RunOnceId',
     'Tasks',
     'Verb',
-    'WorkingDir');
+    'WorkingDir'];
 
-  UninstallRunSectionFlags: array[0..13] of TScintRawString = (
+  UninstallRunSectionFlags: array of TScintRawString = [
     '32bit',
     '64bit',
     'dontlogparameters',
@@ -439,9 +439,9 @@ const
     'shellexec',
     'skipifdoesntexist',
     'waituntilidle',
-    'waituntilterminated');
+    'waituntilterminated'];
 
-  TasksSectionParameters: array[0..8] of TScintRawString = (
+  TasksSectionParameters: array of TScintRawString = [
     'Check',
     'Components',
     'Description',
@@ -450,27 +450,27 @@ const
     'Languages',
     'MinVersion',
     'Name',
-    'OnlyBelowVersion');
+    'OnlyBelowVersion'];
 
-  TasksSectionFlags: array[0..5] of TScintRawString = (
+  TasksSectionFlags: array of TScintRawString = [
     'checkablealone',
     'checkedonce',
     'dontinheritcheck',
     'exclusive',
     'restart',
-    'unchecked');
+    'unchecked'];
 
-  TypesSectionParameters: array[0..6] of TScintRawString = (
+  TypesSectionParameters: array of TScintRawString = [
     'Check',
     'Description',
     'Flags',
     'Languages',
     'MinVersion',
     'Name',
-    'OnlyBelowVersion');
+    'OnlyBelowVersion'];
 
-  TypesSectionFlags: array[0..0] of TScintRawString = (
-    'iscustom');
+  TypesSectionFlags: array of TScintRawString = [
+    'iscustom'];
 
 type
   TISPPDirective = record
@@ -506,15 +506,17 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
-   ConstantsWithParam: array[0..5] of TScintRawString = (
+   { The following and some others below are not used by StyleNeeded and therefore
+     simply of type String instead of TScintRawString }
+   ConstantsWithParam: array of String = [
     'cm',
     'code',
     'drive',
     'ini',
     'param',
-    'reg');
+    'reg'];
 
-   Constants: array[0..59] of TScintRawString = (
+   Constants: array of String = [
     { #emit and #file handled separately - also doesnt include constants with non words chars }
     '{',
     'ap',
@@ -575,9 +577,9 @@ const
     'userinfoorg',
     'userinfoserial',
     'username',
-    'log');
+    'log'];
 
-  EventFunctions: array[0..22] of TScintRawString = (
+  EventFunctions: array of String = [
     'InitializeSetup(): Boolean;', { The () is needed for the function/procedure detection }
     'InitializeWizard;',
     'DeinitializeSetup;',
@@ -600,7 +602,7 @@ const
     'InitializeUninstallProgressForm;',
     'DeinitializeUninstall;',
     'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
-    'UninstallNeedRestart(): Boolean;');
+    'UninstallNeedRestart(): Boolean;'];
 
 const
   inSquiggly = 0;
@@ -676,11 +678,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
-    BuildKeywordsWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
     BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
     BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
     BuildKeywordsWordList(scRun, RunSectionParameters);
-    BuildKeywordsWordList(scSetup, TypeInfo(TSetupSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective));
     BuildKeywordsWordList(scTasks, TasksSectionParameters);
     BuildKeywordsWordList(scTypes, TypesSectionParameters);
     BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
@@ -779,19 +781,6 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildKeywordsWordList(
-  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
-begin
-  var SL := TStringList.Create;
-  try
-    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      SL.Add(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint));
-    FKeywordsWordList[Section] := BuildWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
-procedure TInnoSetupStyler.BuildKeywordsWordList(
   const Section: TInnoSetupStylerSection;
   const Parameters: array of TScintRawString);
 begin
@@ -799,6 +788,19 @@ begin
   try
     for var I := 0 to High(Parameters) do
       SL.Add(String(Parameters[I]));
+    FKeywordsWordList[Section] := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildKeywordsWordListFromTypeInfo(
+  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
+begin
+  var SL := TStringList.Create;
+  try
+    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
+      SL.Add(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint));
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -835,13 +837,13 @@ begin
   var SL :=TStringList.Create;
   try
     for var I := 0 to High(Constants) do
-      SL.Add('{' + String(Constants[I]) + '}');
+      SL.Add('{' + Constants[I] + '}');
     if ISPPInstalled then begin
       SL.Add('{#');
       SL.Add('{#file ');
     end;
     for var I := 0 to High(ConstantsWithParam) do
-      SL.Add('{' + String(ConstantsWithParam[I]));
+      SL.Add('{' + ConstantsWithParam[I]);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -856,7 +858,7 @@ begin
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
     for var I := 0 to High(EventFunctions) do begin
-      var S := String(EventFunctions[I]);
+      var S := EventFunctions[I];
       if Pos('):', S) <> 0 then
         SLFunctions.Add(StringReplace(S, '()', '', []))
       else
