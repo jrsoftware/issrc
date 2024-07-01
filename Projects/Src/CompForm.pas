@@ -69,6 +69,14 @@ type
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
   TKeyMappedMenus = TDictionary<TShortCut, TToolButton>;
 
+  TCallTipState = record
+    StartCallTipWord: Integer;
+    CurrentCallTipWord: String;
+    FunctionDefinition: AnsiString;
+    LastPosCallTip: Integer;
+    BraceCount: Integer;
+  end;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -467,11 +475,7 @@ type
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
-    FStartCallTipWord: Integer;
-    FCurrentCallTipWord: String;
-    FFunctionDefinition: AnsiString;
-    FLastPosCallTip: Integer;
-    FBraceCount: Integer;
+    FCallTipState: TCallTipState;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -1296,7 +1300,7 @@ begin
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
     if not FActiveMemo.CallTipActive then begin
-      FBraceCount := 1;
+      FCallTipState.BraceCount := 1;
       InitiateCallTip;
     end;
   end else begin
@@ -4964,7 +4968,7 @@ begin
 
   { StartAutoComplete }
 
-  FCurrentCallTipWord := '';
+  FCallTipState.CurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
   var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
@@ -4994,26 +4998,26 @@ begin
   if Current <= 0 then
     Exit;
 
-	FStartCalltipWord := Current - 1;
+	FCallTipState.StartCalltipWord := Current - 1;
   {$ZEROBASEDSTRINGS ON}
-	while (FStartCalltipWord > 0) and CharInSet(Line[FStartCalltipWord-1], CalltipWordCharacters) do
-    Dec(FStartCallTipWord);
+	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
+    Dec(FCallTipState.StartCallTipWord);
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
-  FCurrentCallTipWord := Line.Substring(FStartCallTipWord); { Substring is zero-based }
+  FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
-  FFunctionDefinition := '';
+  FCallTipState.FunctionDefinition := '';
 
   { FillFunctionDefinition }
 
-  FLastPosCallTip := Pos;
+  FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word := GetNearestWord(FCurrentCallTipWord);
+  var Word := GetNearestWord(FCallTipState.CurrentCallTipWord);
   if Word <> '' then begin
-    FFunctionDefinition := Word;
-    FActiveMemo.ShowCallTip(FLastPosCallTip - Length(FCurrentCallTipWord), FFunctionDefinition);
+    FCallTipState.FunctionDefinition := Word;
+    FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
     ContinueCallTip;
   end;
 end;
@@ -5027,7 +5031,7 @@ begin
 
 	var Braces := 0;
 	var Commas := 0;
-	for var I := FStartCalltipWord to Current-1 do begin
+	for var I := FCallTipState.StartCalltipWord to Current-1 do begin
     {$ZEROBASEDSTRINGS ON}
 		if Line[I] = '(' then
       Inc(Braces)
@@ -5040,25 +5044,26 @@ begin
 
   {$ZEROBASEDSTRINGS ON}
 	var StartHighlight := 0;
-  var FunctionDefinitionLength := Length(FFunctionDefinition);
-	while (StartHighlight < FunctionDefinitionLength) and not (FFunctionDefinition[StartHighlight] = '(') do
+  var FunctionDefinition := FCallTipState.FunctionDefinition;
+  var FunctionDefinitionLength := Length(FunctionDefinition);
+	while (StartHighlight < FunctionDefinitionLength) and not (FunctionDefinition[StartHighlight] = '(') do
 		Inc(StartHighlight);
-	if (StartHighlight < FunctionDefinitionLength) and (FFunctionDefinition[StartHighlight] = '(') then
+	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
 		Inc(StartHighlight);
 	while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
-		if FFunctionDefinition[StartHighlight] = ';' then
+		if FunctionDefinition[StartHighlight] = ';' then
 			Dec(Commas);
 		// If it reached the end of the argument list it means that the user typed in more
 		// arguments than the ones listed in the calltip
-		if FFunctionDefinition[StartHighlight] = ')' then
+		if FunctionDefinition[StartHighlight] = ')' then
 			Commas := 0
 		else
 			Inc(StartHighlight);
 	end;
-	if (StartHighlight < FunctionDefinitionLength) and (FFunctionDefinition[StartHighlight] = ';') then
+	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = ';') then
 		Inc(StartHighlight);
 	var EndHighlight := StartHighlight;
-	while (EndHighlight < FunctionDefinitionLength) and not (FFunctionDefinition[EndHighlight] = ';') and not (FFunctionDefinition[endHighlight] = ')') do
+	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] = ';') and not (FunctionDefinition[endHighlight] = ')') do
 		Inc(EndHighlight);
   {$ZEROBASEDSTRINGS OFF}
 
@@ -5108,26 +5113,26 @@ begin
 
   if FActiveMemo.CallTipActive then begin
     if Ch = ')' then begin
-      Dec(FBraceCount);
-      if FBraceCount < 1 then
+      Dec(FCallTipState.BraceCount);
+      if FCallTipState.BraceCount < 1 then
         FActiveMemo.CancelCallTip
       else
         InitiateCallTip;
     end else if Ch = '(' then  begin
-      Inc(FBraceCount);
+      Inc(FCallTipState.BraceCount);
       InitiateCallTip;
     end else
       ContinueCallTip;
   end else if FActiveMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
-      Inc(FBraceCount);
+      Inc(FCallTipState.BraceCount);
       InitiateCallTip;
     end else if Ch = ')' then
-      Dec(FBraceCount)
+      Dec(FCallTipState.BraceCount)
     else
       DoAutoComplete := True;
   end else if Ch = '(' then begin
-    FBraceCount := 1;
+    FCallTipState.BraceCount := 1;
     InitiateCallTip;
   end else
     DoAutoComplete := True;
