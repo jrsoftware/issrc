@@ -598,7 +598,7 @@ const
     'GetCustomSetupExitCode(): Integer;',
     'PrepareToInstall(var NeedsRestart: Boolean): String;',
     'RegisterExtraCloseApplicationsResources;',
-    'InitializeUninstall(: Boolean;',
+    'InitializeUninstall(): Boolean;',
     'InitializeUninstallProgressForm;',
     'DeinitializeUninstall;',
     'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
