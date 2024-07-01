@@ -7,8 +7,6 @@
   External EXE-based LZMA encoder
   Built on Visual Studio 2005 SP1
 
-  $jrsoftware: issrc/Projects/lzma2/Encoder/islzma_exe.c,v 1.2 2010/03/24 19:55:40 jr Exp $
-
   Structures and functions in this file are derived from
   LZMA.pas revision 1.49.2.3.
 

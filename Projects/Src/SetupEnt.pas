@@ -7,8 +7,6 @@ unit SetupEnt;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for handling records with embedded long strings
-
-  $jrsoftware: issrc/Projects/SetupEnt.pas,v 1.6 2009/05/27 10:03:49 mlaan Exp $
 }
 
 interface

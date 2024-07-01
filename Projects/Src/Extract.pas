@@ -7,8 +7,6 @@ unit Extract;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TFileExtractor class
-
-  $jrsoftware: issrc/Projects/Extract.pas,v 1.30 2010/03/13 18:51:37 jr Exp $
 }
 
 interface

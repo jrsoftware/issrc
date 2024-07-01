@@ -7,8 +7,6 @@ unit Compress;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Abstract compression classes, and some generic compression-related functions
-
-  $jrsoftware: issrc/Projects/Compress.pas,v 1.14 2010/09/07 03:09:36 jr Exp $
 }
 
 interface
