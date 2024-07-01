@@ -90,8 +90,8 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const OutputParams: TOutputParams;
+  var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
@@ -905,8 +905,8 @@ end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const OutputParams: TOutputParams;
+  var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -951,8 +951,8 @@ begin
     var InheritHandles := False;
     var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
 
-    if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
-      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
+    if OutputParams.Enabled and (Wait = ewWaitUntilTerminated) then begin
+      OutputReader := TCreateProcessOutputReader.Create(OutputParams);
       OutputReader.UpdateStartupInfo(StartupInfo);
       InheritHandles := True;
       dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;

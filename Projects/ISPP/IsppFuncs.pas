@@ -632,8 +632,8 @@ end;
 
 function Exec(const Filename, Params: String; WorkingDir: String;
   const WaitUntilTerminated: Boolean; const ShowCmd: Integer;
-  const Preprocessor: TPreprocessor; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const Preprocessor: TPreprocessor; const OutputParams: TOutputParams;
+  var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   WorkingDirP: PChar;
@@ -674,8 +674,8 @@ begin
     var InheritHandles := False;
     var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
 
-    if Log and Assigned(LogProc) and WaitUntilTerminated then begin
-      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
+    if OutputParams.Enabled and WaitUntilTerminated then begin
+      OutputReader := TCreateProcessOutputReader.Create(OutputParams);
       OutputReader.UpdateStartupInfo(StartupInfo);
       InheritHandles := True;
       dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
@@ -750,9 +750,10 @@ begin
       if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
       if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
       var Preprocessor := TPreprocessor(Ext);
+      var OutputParams := TOutputParams.WithLogData(ExecLog, NativeInt(Preprocessor));
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
-        ShowCmd, Preprocessor, True, ExecLog, NativeInt(Preprocessor), ResultCode);
+        ShowCmd, Preprocessor, OutputParams, ResultCode);
       if not WaitUntilTerminated then
         MakeBool(ResPtr^, Success)
       else
@@ -799,9 +800,10 @@ begin
       var Data: TExecAndGetFirstLineLogData;
       Data.Preprocessor := TPreprocessor(Ext);
       Data.Line := '';
+      var OutputParams := TOutputParams.WithLogData(ExecAndGetFirstLineLog, NativeInt(@Data));
       var ResultCode: Integer;
       var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
-        SW_SHOWNORMAL, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
+        SW_SHOWNORMAL, Data.Preprocessor, OutputParams, ResultCode);
       if Success then
         MakeStr(ResPtr^, Data.Line)
       else begin

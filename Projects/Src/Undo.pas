@@ -814,10 +814,12 @@ begin
                   Log('Running Exec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
+                  var OutputParams: TOutputParams;
+                  if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
+                    OutputParams.SetLogData(RunExecLog, 0);
                   if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                      CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                     ShowCmd, ProcessMessagesProc, GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0),
-                     RunExecLog, 0, ErrorCode) then begin
+                     ShowCmd, ProcessMessagesProc, OutputParams, ErrorCode) then begin
                     LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                     Result := False;
                   end

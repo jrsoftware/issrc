@@ -116,7 +116,14 @@ begin
   RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
 
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
-  
+
+  RegisterType('TExecOutput',
+    'record' +
+    '  StdOut: TArrayOfString;' +
+    '  StdErr: TArrayOfString;' +
+    '  Error: Boolean;' +
+    'end');
+
   RegisterType('TFindRec',
     'record' +
     '  Name: String;' +

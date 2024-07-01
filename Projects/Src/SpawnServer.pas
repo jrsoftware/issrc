@@ -379,8 +379,9 @@ begin
           TExecWait(EWait), EShowCmd, ProcessMessagesProc, FResultCode);
       end
       else begin
+        var OutputParams: TOutputParams;
         ExecResult := InstExec(EDisableFsRedir <> 0, EFilename, EParams, EWorkingDir,
-          TExecWait(EWait), EShowCmd, ProcessMessagesProc, False, nil, 0, FResultCode);
+          TExecWait(EWait), EShowCmd, ProcessMessagesProc, OutputParams, FResultCode);
       end;
       if ExecResult then
         FCallStatus := SPAWN_STATUS_RETURNED_TRUE
