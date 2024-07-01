@@ -519,7 +519,7 @@ const
    Constants: array of String = [
     { #emit and #file handled separately - also doesnt include constants with non words chars }
     '{',
-    'ap',
+    'app',
     'win',
     'sys',
     'sysnative',
