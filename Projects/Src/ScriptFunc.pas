@@ -2,7 +2,7 @@ unit ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -11,33 +11,12 @@ unit ScriptFunc;
 
 interface
 
-const
+type
+  TScriptFuncTableID = (sftScriptDlg, sftNewDisk);
+  TScriptFuncTable = array of AnsiString;
 
-  { ScriptDlg }
-  ScriptDlgTable: array [0..14] of AnsiString =
-  (
-    'function PageFromID(const ID: Integer): TWizardPage;',
-    'function PageIndexFromID(const ID: Integer): Integer;',
-    'function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;',
-    'function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;',
-    'function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;',
-    'function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;',
-    'function CreateInputFilePage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;',
-    'function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;',
-    'function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;',
-    'function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;',
-    'function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;',
-    'function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;',
-    'function ScaleX(X: Integer): Integer;',
-    'function ScaleY(Y: Integer): Integer;',
-    'function CreateCustomForm: TSetupForm;'
-  );
-
-  { NewDisk }
-  NewDiskTable: array [0..0] of AnsiString =
-  (
-    'function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;'
-  );
+var
+  ScriptFuncTables: array [TScriptFuncTableID] of TScriptFuncTable;
 
   { BrowseFunc }
   BrowseFuncTable: array [0..3] of AnsiString =
@@ -373,18 +352,18 @@ const
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;'
   );
 
-function RemoveScriptFunctionHeader(const FunctionDefinition: AnsiString): AnsiString;
-function ExtractScriptFunctionWithoutHeaderName(const FunctionDefinitionWithoutHeader: AnsiString): AnsiString;
-function ExtractScriptFunctionName(const FunctionDefinition: AnsiString): AnsiString;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
+function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
+function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
 implementation
 
 uses
   SysUtils, AnsiStrings;
 
-function RemoveScriptFunctionHeader(const FunctionDefinition: AnsiString): AnsiString;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
 begin
-  Result := FunctionDefinition;
+  Result := ScriptFunc;
 
   var H1: AnsiString := 'function ';
   var H2: AnsiString := 'procedure ';
@@ -397,9 +376,9 @@ begin
     raise Exception.CreateFmt('Invalid FunctionDefinition: %s', [Result]);
 end;
 
-function ExtractScriptFunctionWithoutHeaderName(const FunctionDefinitionWithoutHeader: AnsiString): AnsiString;
+function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 begin
-  Result := FunctionDefinitionWithoutHeader;
+  Result := ScriptFuncWithoutHeader;
 
   var C1: AnsiString := '(';
   var C2: AnsiString := ':';
@@ -416,9 +395,37 @@ begin
   Delete(Result, P, Maxint);
 end;
 
-function ExtractScriptFunctionName(const FunctionDefinition: AnsiString): AnsiString;
+function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 begin
-  Result := ExtractScriptFunctionWithoutHeaderName(RemoveScriptFunctionHeader(FunctionDefinition));
+  Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
+
+initialization
+
+  { ScriptDlg }
+  ScriptFuncTables[sftScriptDlg] :=
+  [
+    'function PageFromID(const ID: Integer): TWizardPage;',
+    'function PageIndexFromID(const ID: Integer): Integer;',
+    'function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;',
+    'function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;',
+    'function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;',
+    'function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;',
+    'function CreateInputFilePage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;',
+    'function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;',
+    'function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;',
+    'function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;',
+    'function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;',
+    'function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;',
+    'function ScaleX(X: Integer): Integer;',
+    'function ScaleY(Y: Integer): Integer;',
+    'function CreateCustomForm: TSetupForm;'
+  ];
+
+  { NewDisk }
+  ScriptFuncTables[sftNewDisk] :=
+  [
+    'function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;'
+  ];
 
 end.

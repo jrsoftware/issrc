@@ -15,7 +15,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Generics.Collections,
-  ScintEdit, ModernColors;
+  ScintEdit, ModernColors, ScriptFunc;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -77,7 +77,7 @@ type
      const Flags: array of TScintRawString);
     procedure BuildFunctionDefinitionsByName(
       const FunctionDefinitionsByName: TFunctionDefinitionsByName;
-      const FunctionDefinitions: array of AnsiString);
+      const ScriptFuncTable: TScriptFuncTable);
     procedure BuildISPPDirectivesWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
@@ -134,8 +134,7 @@ implementation
 
 uses
   TypInfo, Generics.Defaults,
-  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives,
-  ScriptFunc;
+  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -711,7 +710,8 @@ begin
   BuildSectionsWordList;
 
   FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
-  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptDlgTable);
+  for var ScriptFuncTable in ScriptFuncTables do
+    BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptFuncTable);
 end;
 
 destructor TInnoSetupStyler.Destroy;
@@ -843,13 +843,12 @@ end;
 
 procedure TInnoSetupStyler.BuildFunctionDefinitionsByName(
   const FunctionDefinitionsByName: TFunctionDefinitionsByName;
-  const FunctionDefinitions: array of AnsiString);
+  const ScriptFuncTable: TScriptFuncTable);
 begin
-  FunctionDefinitionsByName.Clear;
-  for var FunctionDefinition in FunctionDefinitions do begin
-    var FunctionDefinitionWithoutHeader := RemoveScriptFunctionHeader(FunctionDefinition);
-    var Name := ExtractScriptFunctionWithoutHeaderName(FunctionDefinitionWithoutHeader);
-    FunctionDefinitionsByName.Add(String(Name), FunctionDefinitionWithoutHeader);
+  for var ScriptFunc in ScriptFuncTable do begin
+    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
+    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    FunctionDefinitionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
   end;
 end;
 

@@ -38,11 +38,9 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
   end;
 
   procedure RegisterFunctionTable(const FunctionTable: array of tbtstring);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
-      ScriptCompiler.AddFunction(FunctionTable[I]);
+    for var Func in FunctionTable do
+      ScriptCompiler.AddFunction(Func);
   end;
 
   procedure RegisterDelphiFunctionTable(const FunctionTable: array of tbtstring);
@@ -144,8 +142,8 @@ begin
   RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
   RegisterType('TOnLog', 'procedure(const S: String; const Error, FirstLine: Boolean);');
 
-  RegisterFunctionTable(ScriptDlgTable);
-  RegisterFunctionTable(NewDiskTable);
+  for var ScriptFuncTable in ScriptFuncTables do
+    RegisterFunctionTable(ScriptFuncTable);
   RegisterFunctionTable(BrowseFuncTable);
   RegisterFunctionTable(CmnFuncTable);
   RegisterFunctionTable(CmnFunc2Table);

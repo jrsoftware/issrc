@@ -2027,17 +2027,15 @@ procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 
   procedure RegisterFunctionTable(const FunctionTable: array of AnsiString;
     const ProcPtr: TPSProcPtr);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
-      ScriptInterpreter.RegisterFunctionName(ExtractScriptFunctionName(FunctionTable[I]),
+    for var Func in FunctionTable do
+      ScriptInterpreter.RegisterFunctionName(ExtractScriptFuncName(Func),
         ProcPtr, nil, nil);
   end;
 
 begin
-  RegisterFunctionTable(ScriptDlgTable, @ScriptDlgProc);
-  RegisterFunctionTable(NewDiskTable, @NewDiskProc);
+  RegisterFunctionTable(ScriptFuncTables[sftScriptDlg], @ScriptDlgProc);
+  RegisterFunctionTable(ScriptFuncTables[sftNewDisk], @NewDiskProc);
   RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
   RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
   RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
