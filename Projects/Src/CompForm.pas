@@ -5030,7 +5030,7 @@ begin
     {$ZEROBASEDSTRINGS ON}
 		if Line[I] = '(' then
       Inc(Braces)
-		else if (Line[I] = '(') and (Braces > 0) then
+		else if (Line[I] = ')') and (Braces > 0) then
 			Dec(Braces)
 		else if (Braces = 1) and (Line[I] = ',') then
 			Inc(Commas);
@@ -5058,7 +5058,7 @@ begin
 	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = ';') then
 		Inc(StartHighlight);
 	var EndHighlight := StartHighlight;
-	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] = ';') and not (FunctionDefinition[endHighlight] = ')') do
+	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] = ';') and not (FunctionDefinition[EndHighlight] = ')') do
 		Inc(EndHighlight);
   {$ZEROBASEDSTRINGS OFF}
 
