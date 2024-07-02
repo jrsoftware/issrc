@@ -134,7 +134,8 @@ implementation
 
 uses
   TypInfo, Generics.Defaults,
-  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
+  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives,
+  ScriptFunc;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -615,10 +616,6 @@ const
     'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
     'UninstallNeedRestart(): Boolean;'];
 
-  ScriptFunctions: array of AnsiString = [
-    'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;',
-    'SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;'];
-
 const
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -714,7 +711,7 @@ begin
   BuildSectionsWordList;
 
   FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
-  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptFunctions);
+  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptDlgTable);
 end;
 
 destructor TInnoSetupStyler.Destroy;
@@ -850,10 +847,9 @@ procedure TInnoSetupStyler.BuildFunctionDefinitionsByName(
 begin
   FunctionDefinitionsByName.Clear;
   for var FunctionDefinition in FunctionDefinitions do begin
-    var P := Pos(AnsiString('('), FunctionDefinition);
-    if P <= 1 then
-      raise Exception.CreateFmt('Bad FunctionDefinition: %s', [FunctionDefinition]);
-    FunctionDefinitionsByName.Add(String(Copy(FunctionDefinition, 1, P-1)), FunctionDefinition);
+    var FunctionDefinitionWithoutHeader := RemoveScriptFunctionHeader(FunctionDefinition);
+    var Name := ExtractScriptFunctionWithoutHeaderName(FunctionDefinitionWithoutHeader);
+    FunctionDefinitionsByName.Add(String(Name), FunctionDefinitionWithoutHeader);
   end;
 end;
 

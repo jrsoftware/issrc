@@ -2025,34 +2025,13 @@ end;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 
-  function ExtractName(const S: String): String;
-  var
-    P: Integer;
-  begin
-    Result := S;
-
-    if CompareText(Copy(Result, 1, Length('function')), 'function') = 0 then
-      Delete(Result, 1, Length('function'))
-    else if CompareText(Copy(Result, 1, Length('procedure')), 'procedure') = 0 then
-      Delete(Result, 1, Length('procedure'));
-
-    P := Pos('(', Result);
-    if P = 0 then
-      P := Pos(':', Result);
-    if P = 0 then
-      P := Pos(';', Result);
-    Delete(Result, P, Maxint);
-
-    Result := Trim(Result);
-  end;
-
   procedure RegisterFunctionTable(const FunctionTable: array of AnsiString;
     const ProcPtr: TPSProcPtr);
   var
     I: Integer;
   begin
     for I := Low(FunctionTable) to High(FunctionTable) do
-      ScriptInterpreter.RegisterFunctionName(AnsiString(ExtractName(String(FunctionTable[I]))),
+      ScriptInterpreter.RegisterFunctionName(ExtractScriptFunctionName(FunctionTable[I]),
         ProcPtr, nil, nil);
   end;
 

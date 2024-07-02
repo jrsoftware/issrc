@@ -373,6 +373,52 @@ const
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;'
   );
 
+function RemoveScriptFunctionHeader(const FunctionDefinition: AnsiString): AnsiString;
+function ExtractScriptFunctionWithoutHeaderName(const FunctionDefinitionWithoutHeader: AnsiString): AnsiString;
+function ExtractScriptFunctionName(const FunctionDefinition: AnsiString): AnsiString;
+
 implementation
+
+uses
+  SysUtils, AnsiStrings;
+
+function RemoveScriptFunctionHeader(const FunctionDefinition: AnsiString): AnsiString;
+begin
+  Result := FunctionDefinition;
+
+  var H1: AnsiString := 'function ';
+  var H2: AnsiString := 'procedure ';
+
+  if CompareText(Copy(Result, 1, Length(H1)), H1) = 0 then
+    Delete(Result, 1, Length(H1))
+  else if CompareText(Copy(Result, 1, Length(H2)), H2) = 0 then
+    Delete(Result, 1, Length(H2))
+  else
+    raise Exception.CreateFmt('Invalid FunctionDefinition: %s', [Result]);
+end;
+
+function ExtractScriptFunctionWithoutHeaderName(const FunctionDefinitionWithoutHeader: AnsiString): AnsiString;
+begin
+  Result := FunctionDefinitionWithoutHeader;
+
+  var C1: AnsiString := '(';
+  var C2: AnsiString := ':';
+  var C3: AnsiString := ';';
+
+  var P := Pos(C1, Result);
+  if P = 0 then
+    P := Pos(C2, Result);
+  if P = 0 then
+    P := Pos(C3, Result);
+  if P = 0 then
+    raise Exception.CreateFmt('Invalid FunctionDefinitionWithoutHeader: %s', [Result]);
+
+  Delete(Result, P, Maxint);
+end;
+
+function ExtractScriptFunctionName(const FunctionDefinition: AnsiString): AnsiString;
+begin
+  Result := ExtractScriptFunctionWithoutHeaderName(RemoveScriptFunctionHeader(FunctionDefinition));
+end;
 
 end.
