@@ -396,6 +396,7 @@ type
       PauseOnDebuggerExceptions: Boolean;
       RunAsDifferentUser: Boolean;
       AutoAutoComplete: Boolean;
+      AutoCallTips: Boolean;
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
@@ -782,6 +783,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoAutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
+      FOptions.AutoCallTips := Ini.ReadBool('Options', 'AutoCallTips', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
@@ -4147,6 +4149,7 @@ begin
       Ini.WriteBool('Options', 'PauseOnDebuggerExceptions', FOptions.PauseOnDebuggerExceptions);
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
       Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoAutoComplete);
+      Ini.WriteBool('Options', 'AutoCallTips', FOptions.AutoCallTips);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
@@ -5111,24 +5114,27 @@ begin
       Dec(FCallTipState.BraceCount);
       if FCallTipState.BraceCount < 1 then
         FActiveMemo.CancelCallTip
-      else
+      else if FOptions.AutoCallTips then
         InitiateCallTip;
-    end else if Ch = '(' then  begin
+    end else if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
-      InitiateCallTip;
+      if FOptions.AutoCallTips then
+        InitiateCallTip;
     end else
       ContinueCallTip;
   end else if FActiveMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
-      InitiateCallTip;
+      if FOptions.AutoCallTips then
+        InitiateCallTip;
     end else if Ch = ')' then
       Dec(FCallTipState.BraceCount)
     else
       DoAutoComplete := True;
   end else if Ch = '(' then begin
     FCallTipState.BraceCount := 1;
-    InitiateCallTip;
+    if FOptions.AutoCallTips then
+      InitiateCallTip;
   end else
     DoAutoComplete := True;
 

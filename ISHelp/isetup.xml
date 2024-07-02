@@ -3120,7 +3120,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout <i>Toggle Line Comment</i>'s shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
 
 <table>
 <tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
@@ -3320,16 +3320,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Ctrl+I</td>
+  <td>Invoke autocomplete.</td><td>Ctrl+Space or Ctrl+I</td>
 </tr>
 <tr>
-  <td>Fillup complete word.</td><td>Tab or Enter or<br />Space for ISPP directives or Flags and Type parameters or<br />\ for constants or<br />: for constants and section parameters or<br />] for sections or<br />= for section directives</td>
+  <td>Select autocompletion.</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Trigger parameter hints.</td><td>Ctrl+Shift+Space</td>
+  <td>Fillup autocompletion.</td><td>Space for ISPP directives and Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
 </tr>
 <tr>
-  <td>Cancel complete word and parameter hints.</td><td>Esc</td>
+  <td>Invoke parameter hint.</td><td>Ctrl+Shift+Space</td>
+</tr>
+<tr>
+  <td>Cancel autocomplete or parameter hint.</td><td>Esc</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
