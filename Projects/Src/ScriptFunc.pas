@@ -6,7 +6,7 @@ unit ScriptFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions
+  Script support functions (listings)
 }
 
 interface

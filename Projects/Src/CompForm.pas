@@ -71,10 +71,12 @@ type
 
   TCallTipState = record
     StartCallTipWord: Integer;
-    CurrentCallTipWord: String;
     FunctionDefinition: AnsiString;
-    LastPosCallTip: Integer;
     BraceCount: Integer;
+    //the following don't need to be in here if support for multiple calltips isn't added ultimately
+    CurrentCallTipWord: String;
+    LastPosCallTip: Integer;
+    ClassFunction: Boolean;
   end;
 
   TCompileForm = class(TUIStateForm)
@@ -5000,6 +5002,7 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
+  FCallTipState.ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
@@ -5012,7 +5015,11 @@ begin
   FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word := FMemosStyler.ScriptFunction[FCallTipState.CurrentCallTipWord];
+  var Word: AnsiString;
+  if not FCallTipState.ClassFunction then
+    Word := FMemosStyler.ScriptFunction[FCallTipState.CurrentCallTipWord]
+  else
+    Word := '';
   if Word <> '' then begin
     FCallTipState.FunctionDefinition := Word;
     FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
