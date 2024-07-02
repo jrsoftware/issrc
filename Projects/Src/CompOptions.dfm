@@ -164,7 +164,7 @@ object OptionsForm: TOptionsForm
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
-    object AutoCompleteCheck: TCheckBox
+    object AutoAutoCompleteCheck: TCheckBox
       Left = 8
       Top = 16
       Width = 265

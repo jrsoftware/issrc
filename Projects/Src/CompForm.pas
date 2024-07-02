@@ -395,7 +395,7 @@ type
       UndoAfterSave: Boolean;
       PauseOnDebuggerExceptions: Boolean;
       RunAsDifferentUser: Boolean;
-      AutoComplete: Boolean;
+      AutoAutoComplete: Boolean;
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
@@ -781,7 +781,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', True);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
-      FOptions.AutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
+      FOptions.AutoAutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
@@ -4067,7 +4067,7 @@ begin
     OptionsForm.UndoAfterSaveCheck.Checked := FOptions.UndoAfterSave;
     OptionsForm.PauseOnDebuggerExceptionsCheck.Checked := FOptions.PauseOnDebuggerExceptions;
     OptionsForm.RunAsDifferentUserCheck.Checked := FOptions.RunAsDifferentUser;
-    OptionsForm.AutoCompleteCheck.Checked := FOptions.AutoComplete;
+    OptionsForm.AutoAutoCompleteCheck.Checked := FOptions.AutoAutoComplete;
     OptionsForm.UseSynHighCheck.Checked := FOptions.UseSyntaxHighlighting;
     OptionsForm.ColorizeCompilerOutputCheck.Checked := FOptions.ColorizeCompilerOutput;
     OptionsForm.UnderlineErrorsCheck.Checked := FOptions.UnderlineErrors;
@@ -4100,7 +4100,7 @@ begin
     FOptions.UndoAfterSave := OptionsForm.UndoAfterSaveCheck.Checked;
     FOptions.PauseOnDebuggerExceptions := OptionsForm.PauseOnDebuggerExceptionsCheck.Checked;
     FOptions.RunAsDifferentUser := OptionsForm.RunAsDifferentUserCheck.Checked;
-    FOptions.AutoComplete := OptionsForm.AutoCompleteCheck.Checked;
+    FOptions.AutoAutoComplete := OptionsForm.AutoAutoCompleteCheck.Checked;
     FOptions.UseSyntaxHighlighting := OptionsForm.UseSynHighCheck.Checked;
     FOptions.ColorizeCompilerOutput := OptionsForm.ColorizeCompilerOutputCheck.Checked;
     FOptions.UnderlineErrors := OptionsForm.UnderlineErrorsCheck.Checked;
@@ -4146,7 +4146,7 @@ begin
       Ini.WriteBool('Options', 'UndoAfterSave', FOptions.UndoAfterSave);
       Ini.WriteBool('Options', 'PauseOnDebuggerExceptions', FOptions.PauseOnDebuggerExceptions);
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
-      Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoComplete);
+      Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoAutoComplete);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
@@ -5135,11 +5135,11 @@ begin
   if DoAutoComplete then begin
     case Ch of
       'A'..'Z', 'a'..'z', '_', '#', '{', '[':
-        if not FActiveMemo.AutoCompleteActive and FOptions.AutoComplete then
+        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
           InitiateAutoComplete(Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
-        (FOptions.AutoComplete or FActiveMemo.AutoCompleteActive);
+        (FOptions.AutoAutoComplete or FActiveMemo.AutoCompleteActive);
       FActiveMemo.CancelAutoComplete;
       if RestartAutoComplete then
         InitiateAutoComplete(Ch);

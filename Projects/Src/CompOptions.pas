@@ -43,7 +43,7 @@ type
     AutoIndentCheck: TCheckBox;
     IndentationGuidesCheck: TCheckBox;
     UseTabCharacterCheck: TCheckBox;
-    AutoCompleteCheck: TCheckBox;
+    AutoAutoCompleteCheck: TCheckBox;
     UnderlineErrorsCheck: TCheckBox;
     GutterLineNumbersCheck: TCheckBox;
     ColorizeCompilerOutputCheck: TCheckBox;
