@@ -21,7 +21,7 @@ procedure InitializeSpawnClient(const AServerWnd: HWND);
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const OutputParams: TOutputParams;
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: Integer): Boolean;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
@@ -138,14 +138,14 @@ end;
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const OutputParams: TOutputParams;
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: Integer): Boolean;
 var
   M: TMemoryStream;
 begin
   if not RunAsOriginalUser or not SpawnServerPresent then begin
     Result := InstExec(DisableFsRedir, Filename, Params, WorkingDir,
-      Wait, ShowCmd, ProcessMessagesProc, OutputParams, ResultCode);
+      Wait, ShowCmd, ProcessMessagesProc, OutputReader, ResultCode);
     Exit;
   end;
 

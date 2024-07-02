@@ -3921,17 +3921,21 @@ begin
       DisableFsRedir := ShouldDisableFsRedirForRunEntry(RunEntry);
       if not(roSkipIfDoesntExist in RunEntry.Options) or
          NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
-        var OutputParams: TOutputParams;
-        if GetLogActive and (roLogOutput in RunEntry.Options) then
-          OutputParams.SetLogData(RunExecLog, 0);
-        if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
-           ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
-           Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputParams, ErrorCode) then
-          raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
-            SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-            ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
-        if Wait = ewWaitUntilTerminated then
-          Log(Format('Process exit code: %u', [ErrorCode]));
+        var OutputReader: TCreateProcessOutputReader := nil;
+        try
+          if GetLogActive and (roLogOutput in RunEntry.Options) then
+            OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
+             ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
+             Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
+            raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
+              SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+              ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
+          if Wait = ewWaitUntilTerminated then
+            Log(Format('Process exit code: %u', [ErrorCode]));
+        finally
+          OutputReader.Free;
+        end;
       end
       else
         Log('File doesn''t exist. Skipping.');

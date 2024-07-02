@@ -2885,7 +2885,7 @@ end;</pre></example>
     Error: Boolean;
   end;
 </pre>
-<p>Error will be True if an exception was raised or if there was an error reading the output (which should be very rare) or if the total output size exceeded 10mb. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p></remarks>
+<p>Error will be True if there was an error reading the output (which should be very rare) or if the total output size exceeded 10mb. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p></remarks>
         <example><pre>var
   ResultCode: Integer;
   Output: TExecOutput;

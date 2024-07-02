@@ -821,24 +821,26 @@ begin
   OnLog(S, Error, FirstLine);
 end;
 
-procedure ExecAndCaptureFinalize(StackData: Pointer; const OutputParams: TOutputParams);
+procedure ExecAndCaptureFinalize(StackData: Pointer; const OutputReader: TCreateProcessOutputReader);
 begin
   var I: Integer;
   { StdOut - 0 }
   var Item := NewTPSVariantRecordIFC(StackData, 0);
-  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, OutputParams.OutList.Count);
-  for I := 0 to OutputParams.OutList.Count - 1 do
-    VNSetString(PSGetArrayField(Item, I), OutputParams.OutList[I]);
+  var List := OutputReader.CaptureOutList;
+  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
+  for I := 0 to List.Count - 1 do
+    VNSetString(PSGetArrayField(Item, I), List[I]);
 
   { StdErr - 1 }
   Item := NewTPSVariantRecordIFC(StackData, 1);
-  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, OutputParams.ErrList.Count);
-  for I := 0 to OutputParams.ErrList.Count - 1 do
-    VNSetString(PSGetArrayField(Item, I), OutputParams.ErrList[I]);
+  List := OutputReader.CaptureErrList;
+  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
+  for I := 0 to List.Count - 1 do
+    VNSetString(PSGetArrayField(Item, I), List[I]);
 
   { Error - 2 }
   Item := NewTPSVariantRecordIFC(StackData, 2);
-  VNSetInt(Item, OutputParams.Error.ToInteger);
+  VNSetInt(Item, OutputReader.CaptureError.ToInteger);
 end;
 
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -924,46 +926,47 @@ begin
   end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') or
               (Proc.Name = 'EXECANDLOGOUTPUT') or (Proc.Name = 'EXECANDCAPTUREOUTPUT') then begin
     var RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
-    var OutputParams: TOutputParams;
     var Method: TMethod;
-    if Proc.Name = 'EXECANDLOGOUTPUT' then begin
-      var P: PPSVariantProcPtr := Stack.Items[PStart-7];
-      { ProcNo 0 means nil was passed by the script }
-      if P.ProcNo <> 0 then begin
-        Method := Caller.GetProcAsMethod(P.ProcNo); { This is a TOnLog }
-        OutputParams.SetLogData(ExecAndLogOutputLogCustom, NativeInt(@Method));
-      end else if GetLogActive then
-        OutputParams.SetLogData(ExecAndLogOutputLog, 0);
-    end else if Proc.Name = 'EXECANDCAPTUREOUTPUT' then begin
-      OutputParams.SetCaptureData(ExecAndLogOutputLog);
-      var Item := NewTPSVariantRecordIFC(Stack[PStart-7], 2);
-      VNSetInt(Item, 1);
-    end;
-    var ExecWait := TExecWait(Stack.GetInt(PStart-5));
-    if IsUninstaller and RunAsOriginalUser then
-      NoUninstallFuncError(Proc.Name)
-    else if OutputParams.Enabled and (ExecWait <> ewWaitUntilTerminated) then
-      InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
+    var OutputReader: TCreateProcessOutputReader := nil;
+    try
+      if Proc.Name = 'EXECANDLOGOUTPUT' then begin
+        var P: PPSVariantProcPtr := Stack.Items[PStart-7];
+        { ProcNo 0 means nil was passed by the script }
+        if P.ProcNo <> 0 then begin
+          Method := Caller.GetProcAsMethod(P.ProcNo); { This is a TOnLog }
+          OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLogCustom, NativeInt(@Method));
+        end else if GetLogActive then
+          OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0);
+      end else if Proc.Name = 'EXECANDCAPTUREOUTPUT' then
+        OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0, omCapture);
+      var ExecWait := TExecWait(Stack.GetInt(PStart-5));
+      if IsUninstaller and RunAsOriginalUser then
+        NoUninstallFuncError(Proc.Name)
+      else if (OutputReader <> nil) and (ExecWait <> ewWaitUntilTerminated) then
+        InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
 
-    Filename := Stack.GetString(PStart-1);
-    if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
-      { Disable windows so the user can't utilize our UI during the InstExec
-        call }
-      WindowDisabler := TWindowDisabler.Create;
-      try
-        Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
-          ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
-          Stack.GetString(PStart-3), ExecWait,
-          Stack.GetInt(PStart-4), ProcessMessagesProc, OutputParams, ResultCode));
-      finally
-        WindowDisabler.Free;
+      Filename := Stack.GetString(PStart-1);
+      if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
+        { Disable windows so the user can't utilize our UI during the InstExec
+          call }
+        WindowDisabler := TWindowDisabler.Create;
+        try
+          Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
+            ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
+            Stack.GetString(PStart-3), ExecWait,
+            Stack.GetInt(PStart-4), ProcessMessagesProc, OutputReader, ResultCode));
+        finally
+          WindowDisabler.Free;
+        end;
+        Stack.SetInt(PStart-6, ResultCode);
+        if Proc.Name = 'EXECANDCAPTUREOUTPUT' then
+          ExecAndCaptureFinalize(Stack[PStart-7], OutputReader);
+      end else begin
+        Stack.SetBool(PStart, False);
+        Stack.SetInt(PStart-6, ERROR_ACCESS_DENIED);
       end;
-      Stack.SetInt(PStart-6, ResultCode);
-      if Proc.Name = 'EXECANDCAPTUREOUTPUT' then
-        ExecAndCaptureFinalize(Stack[PStart-7], OutputParams);
-    end else begin
-      Stack.SetBool(PStart, False);
-      Stack.SetInt(PStart-6, ERROR_ACCESS_DENIED);
+    finally
+      OutputReader.Free;
     end;
   end else if (Proc.Name = 'SHELLEXEC') or (Proc.Name = 'SHELLEXECASORIGINALUSER') then begin
     var RunAsOriginalUser := Proc.Name = 'SHELLEXECASORIGINALUSER';

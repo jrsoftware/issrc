@@ -7386,8 +7386,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
     StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOWNORMAL);
 
-    var OutputParams := TOutputParams.WithLogData(SignCommandLog, NativeInt(Self));
-    var OutputReader := TCreateProcessOutputReader.Create(OutputParams);
+    var OutputReader := TCreateProcessOutputReader.Create(SignCommandLog, NativeInt(Self));
     try
       var InheritHandles := True;
       var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE or CREATE_NO_WINDOW;

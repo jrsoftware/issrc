@@ -36,21 +36,6 @@ type
   TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
   TOutputMode = (omLog, omCapture);
 
-  TOutputParams = record
-    Enabled: Boolean;
-    Mode: TOutputMode;
-    LogProc: TLogProc;
-    LogProcData: NativeInt;
-    OutList: TStringList;
-    ErrList: TStringList;
-    Error: Boolean;
-    class operator Initialize(out Dest: TOutputParams);
-    class operator Finalize (var Dest: TOutputParams);
-    class function WithLogData(const ALogProc: TLogProc; ALogProcData: NativeInt): TOutputParams; static;
-    procedure SetLogData(const ALogProc: TLogProc; ALogProcData: NativeInt);
-    procedure SetCaptureData(const ALogProc: TLogProc);
-  end;
-
   TCreateProcessOutputReader = class
   private
     FOKToRead: Boolean;
@@ -68,18 +53,24 @@ type
     FNextLineIsFirstLine: Boolean;
     FLastLogErrorMessage: String;
     FMode: TOutputMode;
-    FOutputParams: ^TOutputParams;
+    FCaptureOutList: TStringList;
+    FCaptureErrList: TStringList;
+    FCaptureError: Boolean;
     procedure CloseAndClearHandle(var Handle: THandle);
     procedure LogErrorFmt(const S: String; const Args: array of const);
-    function PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes): Boolean;
     procedure DoRead(var PipeRead: THandle; var Buffer: AnsiString; const LastRead: Boolean);
+    function GetCaptureOutList: TStringList;
+    function GetCaptureErrList: TStringList;
   public
-    constructor Create(const OutputParams: TOutputParams);
+    constructor Create(const ALogProc: TLogProc; const ALogProcData: NativeInt; AMode: TOutputMode = omLog);
     destructor Destroy; override;
     procedure UpdateStartupInfo(var StartupInfo: TStartupInfo);
     procedure NotifyCreateProcessDone;
     procedure Read(const LastRead: Boolean);
     property MaxTotalBytesToRead: Cardinal read FMaxTotalBytesToRead write FMaxTotalBytesToRead;
+    property CaptureOutList: TStringList read GetCaptureOutList;
+    property CaptureErrList: TStringList read GetCaptureErrList;
+    property CaptureError: Boolean read FCaptureError;
   end;
 
   TRegView = (rvDefault, rv32Bit, rv64Bit);
@@ -1617,79 +1608,34 @@ begin
     Result := 0;
 end;
 
-{ TOutputParams }
-
-class operator TOutputParams.Initialize(out Dest: TOutputParams);
-begin
-  Dest.Enabled := False;
-  Dest.Mode := omLog;
-  Dest.LogProc := nil;
-  Dest.LogProcData := 0;
-  Dest.OutList := nil;
-  Dest.ErrList := nil;
-  Dest.Error := False;
-end;
-
-class operator TOutputParams.Finalize (var Dest: TOutputParams);
-begin
-  if Dest.OutList <> nil then
-    Dest.OutList.Free;
-
-  if Dest.ErrList <> nil then
-    Dest.ErrList.Free;
-end;
-
-class function TOutputParams.WithLogData(const ALogProc: TLogProc;
-  ALogProcData: NativeInt): TOutputParams;
-begin
-  Result.SetLogData(ALogProc, ALogProcData);
-end;
-
-procedure TOutputParams.SetLogData(const ALogProc: TLogProc; ALogProcData: NativeInt);
-begin
-  if not Assigned(ALogProc) then
-    raise Exception.Create('ALogProc is required');
-
-  Enabled := True;
-  Mode := omLog;
-  LogProc := ALogProc;
-  LogProcData := ALogProcData;
-end;
-
-procedure TOutputParams.SetCaptureData(const ALogProc: TLogProc);
-begin
-  if not Assigned(ALogProc) then
-    raise Exception.Create('ALogProc is required');
-
-  if Assigned(OutList) or Assigned(ErrList) then
-    raise Exception.Create('Output lists already assigned');
-
-  Enabled := True;
-  Mode := omCapture;
-  LogProc := ALogProc;
-  LogProcData := 0;
-  OutList := TStringList.Create;
-  ErrList := TStringList.Create;
-  Error := False;
-end;
-
 { TCreateProcessOutputReader }
 
-constructor TCreateProcessOutputReader.Create(const OutputParams: TOutputParams);
-begin
-  if not Assigned(OutputParams.LogProc) then
-    raise Exception.Create('LogProc is required');
+constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
+  const ALogProcData: NativeInt; AMode: TOutputMode = omLog);
 
-  if OutputParams.Mode = omCapture then begin
-    if (not Assigned(OutputParams.OutList) or not Assigned(OutputParams.ErrList)) then
-      raise Exception.Create('OutList and ErrList are required');
-
-    FOutputParams := @OutputParams;
+  function PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes): Boolean;
+  begin
+    Result := False;
+    if not CreatePipe(Read, Write, @SecurityAttr, 0) then
+      LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
+    else if not SetHandleInformation(Read, HANDLE_FLAG_INHERIT, 0) then
+      LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError])
+    else
+      Result := True;
   end;
 
-  FMode := OutputParams.Mode;
-  FLogProc := OutputParams.LogProc;
-  FLogProcData := OutputParams.LogProcData;
+begin
+  if not Assigned(ALogProc) then
+    raise Exception.Create('ALogProc is required');
+
+  if AMode = omCapture then begin
+    FCaptureOutList := TStringList.Create;
+    FCaptureErrList := TStringList.Create;
+  end;
+
+  FMode := AMode;
+  FLogProc := ALogProc;
+  FLogProcData := ALogProcData;
   FNextLineIsFirstLine := True;
 
   var SecurityAttributes: TSecurityAttributes;
@@ -1731,6 +1677,8 @@ begin
   CloseAndClearHandle(FStdOutPipeWrite);
   CloseAndClearHandle(FStdErrPipeRead);
   CloseAndClearHandle(FStdErrPipeWrite);
+  FCaptureOutList.Free;
+  FCaptureErrList.Free;
   inherited;
 end;
 
@@ -1748,18 +1696,23 @@ begin
   FLogProc('OutputReader: ' + FLastLogErrorMessage, True, False, FLogProcData);
 
   if FMode = omCapture then
-    FOutputParams^.Error := True;
+    FCaptureError := True;
 end;
 
-function TCreateProcessOutputReader.PipeCreate(var Read, Write: THandle;
-  SecurityAttr: TSecurityAttributes): Boolean;
+function TCreateProcessOutputReader.GetCaptureOutList: TStringList;
 begin
-  if not CreatePipe(Read, Write, @SecurityAttr, 0) then
-    LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
-  else if not SetHandleInformation(Read, HANDLE_FLAG_INHERIT, 0) then
-    LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError]);
+  if not Assigned(FCaptureOutList) then
+    raise Exception.Create('FCaptureOutList not set');
 
-  Result := GetLastError = 0;
+  Result := FCaptureOutList;
+end;
+
+function TCreateProcessOutputReader.GetCaptureErrList: TStringList;
+begin
+  if not Assigned(FCaptureErrList) then
+    raise Exception.Create('FCaptureErrList not set');
+
+  Result := FCaptureErrList;
 end;
 
 procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo);
@@ -1813,9 +1766,9 @@ procedure TCreateProcessOutputReader.DoRead(var PipeRead: THandle;
       FLogProc(UTF8ToString(S), False, FNextLineIsFirstLine, FLogProcData);
       FNextLineIsFirstLine := False;
     end else if PipeRead = FStdOutPipeRead then
-      FOutputParams^.OutList.Add(UTF8ToString(S))
+      FCaptureOutList.Add(UTF8ToString(S))
     else
-      FOutputParams^.ErrList.Add(UTF8ToString(S));
+      FCaptureErrList.Add(UTF8ToString(S));
   end;
 
 begin
