@@ -5101,7 +5101,7 @@ begin
     end;
   end;
   
-  { Based on SciTE 5.50's SciTEBase::CharAdded but with a altered interaction
+  { Based on SciTE 5.50's SciTEBase::CharAdded but with an altered interaction
     between calltips and autocomplete }
 
   var DoAutoComplete := False;
@@ -5135,7 +5135,7 @@ begin
   if DoAutoComplete then begin
     case Ch of
       'A'..'Z', 'a'..'z', '_', '#', '{', '[':
-        if FOptions.AutoComplete then
+        if not FActiveMemo.AutoCompleteActive and FOptions.AutoComplete then
           InitiateAutoComplete(Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
