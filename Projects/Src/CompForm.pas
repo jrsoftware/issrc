@@ -5063,7 +5063,7 @@ begin
 	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
 		Inc(StartHighlight);
 	while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
-		if FunctionDefinition[StartHighlight] = ';' then
+		if FunctionDefinition[StartHighlight] in [',', ';'] then
 			Dec(Commas);
 		// If it reached the end of the argument list it means that the user typed in more
 		// arguments than the ones listed in the calltip
@@ -5072,10 +5072,10 @@ begin
 		else
 			Inc(StartHighlight);
 	end;
-	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = ';') then
+	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] in [',', ';']) then
 		Inc(StartHighlight);
 	var EndHighlight := StartHighlight;
-	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] = ';') and not (FunctionDefinition[EndHighlight] = ')') do
+	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] in [',', ';']) and not (FunctionDefinition[EndHighlight] = ')') do
 		Inc(EndHighlight);
   {$ZEROBASEDSTRINGS OFF}
 
