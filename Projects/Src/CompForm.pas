@@ -4878,10 +4878,14 @@ begin
             end;
           end;
 
-          { If no event function found, check for script functions }
+          { If no event function was found then autocomplete script functions if
+            the current word has no dot before it }
           if WordList = '' then begin
-            WordList := FMemosStyler.ScriptFunctionsWordList;
-            FActiveMemo.SetAutoCompleteFillupChars('(')
+            I := FActiveMemo.GetPositionBefore(WordStartPos);
+            if not ((I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) = '.')) then begin
+              WordList := FMemosStyler.ScriptFunctionsWordList;
+              FActiveMemo.SetAutoCompleteFillupChars('(')
+            end;
           end;
 
           if WordList = '' then
