@@ -864,22 +864,22 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CompareText</name>
-        <prototype>function CompareText(const S1, S2: string): Integer;</prototype>
+        <prototype>function CompareText(const S1, S2: String): Integer;</prototype>
         <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>CompareStr</name>
-        <prototype>function CompareStr(const S1, S2: string): Integer;</prototype>
+        <prototype>function CompareStr(const S1, S2: String): Integer;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
       </function>
       <function>
         <name>SameText</name>
-        <prototype>function SameText(const S1, S2: string): Boolean;</prototype>
+        <prototype>function SameText(const S1, S2: String): Boolean;</prototype>
         <description><p>Compares the strings S1 and S2 and returns True if they are equal. The SameText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>SameStr</name>
-        <prototype>function SameStr(const S1, S2: string): Boolean;</prototype>
+        <prototype>function SameStr(const S1, S2: String): Boolean;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is True if they are equal.</p></description>
       </function>
       <function>
@@ -896,7 +896,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Format</name>
-        <prototype>function Format(const Format: string; const Args: array of const): string;</prototype>
+        <prototype>function Format(const Format: String; const Args: array of const): String;</prototype>
         <description><p>Formats the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
 <p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
         <example><pre>var
@@ -918,46 +918,46 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Trim</name>
-        <prototype>function Trim(const S: string): String;</prototype>
+        <prototype>function Trim(const S: String): String;</prototype>
         <description><p>Trims leading and trailing spaces and control characters from the given string S.</p></description>
       </function>
       <function>
         <name>TrimLeft</name>
-        <prototype>function TrimLeft(const S: string): String;</prototype>
+        <prototype>function TrimLeft(const S: String): String;</prototype>
         <description><p>Trims leading spaces and control characters from the given string S.</p></description>
       </function>
       <function>
         <name>TrimRight</name>
-        <prototype>function TrimRight(const S: string): String;</prototype>
+        <prototype>function TrimRight(const S: String): String;</prototype>
         <description><p>Trims trailing spaces and control characters from the given string S.</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>StrToIntDef</name>
-        <prototype>function StrToIntDef(s: string; def: Longint): Longint;</prototype>
+        <prototype>function StrToIntDef(s: String; def: Longint): Longint;</prototype>
         <description><p>The StrToInt function converts the string passed in S into a number. If S does not represent a valid number, StrToInt returns the number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt</name>
-        <prototype>function StrToInt(s: string): Longint;</prototype>
+        <prototype>function StrToInt(s: String): Longint;</prototype>
         <description><p>The StrToInt function converts the string passed in S into a number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToInt64Def</name>
-        <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
+        <prototype>function StrToInt64Def(s: String; def: Int64): Int64;</prototype>
         <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
-        <prototype>function StrToInt64(s: string): Int64;</prototype>
+        <prototype>function StrToInt64(s: String): Int64;</prototype>
         <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToFloat</name>
-        <prototype>function StrToFloat(s: string): Extended;</prototype>
+        <prototype>function StrToFloat(s: String): Extended;</prototype>
         <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot.</p></description>
       </function>
       <function>
@@ -1025,32 +1025,32 @@ end;</pre></example>
       </function>
       <function>
         <name>ChangeFileExt</name>
-        <prototype>function ChangeFileExt(const FileName, Extension: string): String;</prototype>
+        <prototype>function ChangeFileExt(const FileName, Extension: String): String;</prototype>
         <description><p>Takes the file name passed in FileName and changes the extension of the file name to the extension passed in Extension.</p></description>
       </function>
       <function>
         <name>ExtractFileExt</name>
-        <prototype>function ExtractFileExt(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileExt(const FileName: String): String;</prototype>
         <description><p>Extracts the extension part of the given file name. The resulting string includes the period character that separates the name and extension parts. The resulting string is empty if the given filename has no extension.</p></description>
       </function>
       <function>
         <name>ExtractFileDir</name>
-        <prototype>function ExtractFileDir(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFilePath</name>
-        <prototype>function ExtractFilePath(const FileName: string): String;</prototype>
+        <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFileName</name>
-        <prototype>function ExtractFileName(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileName(const FileName: String): String;</prototype>
         <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of FileName, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to FileName if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFileDrive</name>
-        <prototype>function ExtractFileDrive(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileDrive(const FileName: String): String;</prototype>
         <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in the FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
       </function>
       <function>
@@ -1067,12 +1067,12 @@ end;</pre></example>
       </function>
       <function>
         <name>ExpandFileName</name>
-        <prototype>function ExpandFileName(const FileName: string): String;</prototype>
+        <prototype>function ExpandFileName(const FileName: String): String;</prototype>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
         <name>ExpandUNCFileName</name>
-        <prototype>function ExpandUNCFileName(const FileName: string): String;</prototype>
+        <prototype>function ExpandUNCFileName(const FileName: String): String;</prototype>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
     </subcategory>
@@ -1397,7 +1397,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>FileSearch</name>
-        <prototype>function FileSearch(const Name, DirList: string): String;</prototype>
+        <prototype>function FileSearch(const Name, DirList: String): String;</prototype>
         <description><p>Searches through the directories passed in DirList for a file named Name. DirList should be directory names separated by semicolons. If FileSearch locates a file matching Name, it returns a string containing a fully-qualified path name for that file. If no matching file exists, FileSearch returns an empty string.</p></description>
       </function>
       <function>
@@ -1491,7 +1491,7 @@ end;</pre></example>
       </function>
       <function>
         <name>SetCurrentDir</name>
-        <prototype>function SetCurrentDir(const Dir: string): Boolean;</prototype>
+        <prototype>function SetCurrentDir(const Dir: String): Boolean;</prototype>
         <description><p>Sets the current directory. The return value is True if the current directory was successfully changed, or False if an error occurred.</p></description>
       </function>
       <function>
@@ -1764,7 +1764,7 @@ end;</pre></example>
 <p>For basic authentication use <link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link>.</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
-<p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
         <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
 <link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
@@ -1773,7 +1773,7 @@ end;</pre></example>
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
         <example><pre>
 [Code]
-function OnDownloadProgress(const Url, Filename: string; const Progress, ProgressMax: Int64): Boolean;
+function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
 begin
   if ProgressMax &lt;&gt; 0 then
     Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
@@ -1819,7 +1819,7 @@ end;</pre>
     <subcategory>
       <function>
         <name>RenameFile</name>
-        <prototype>function RenameFile(const OldName, NewName: string): Boolean;</prototype>
+        <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
       </function>
       <function>
@@ -1829,7 +1829,7 @@ end;</pre>
       </function>
       <function>
         <name>DeleteFile</name>
-        <prototype>function DeleteFile(const FileName: string): Boolean;</prototype>
+        <prototype>function DeleteFile(const FileName: String): Boolean;</prototype>
         <description><p>Erases the file named by FileName from the disk.<br />If the file cannot be deleted or does not exist, the function returns False.</p></description>
       </function>
       <function>
@@ -1903,17 +1903,17 @@ end;</pre>
     <subcategory>
       <function>
         <name>CreateDir</name>
-        <prototype>function CreateDir(const Dir: string): Boolean;</prototype>
+        <prototype>function CreateDir(const Dir: String): Boolean;</prototype>
         <description><p>Creates a new directory. The return value is True if a new directory was successfully created, or False if an error occurred.</p></description>
       </function>
       <function>
         <name>ForceDirectories</name>
-        <prototype>function ForceDirectories(Dir: string): Boolean;</prototype>
+        <prototype>function ForceDirectories(Dir: String): Boolean;</prototype>
         <description><p>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>RemoveDir</name>
-        <prototype>function RemoveDir(const Dir: string): Boolean;</prototype>
+        <prototype>function RemoveDir(const Dir: String): Boolean;</prototype>
         <description><p>Deletes an existing empty directory. The return value is True if the empty directory was successfully deleted, or False if an error occurred.</p></description>
       </function>
       <function>
@@ -2810,12 +2810,12 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CreateOleObject</name>
-        <prototype>function CreateOleObject(const ClassName: string): Variant;</prototype>
+        <prototype>function CreateOleObject(const ClassName: String): Variant;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>GetActiveOleObject</name>
-        <prototype>function GetActiveOleObject(const ClassName: string): Variant;</prototype>
+        <prototype>function GetActiveOleObject(const ClassName: String): Variant;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
