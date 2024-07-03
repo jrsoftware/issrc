@@ -2026,38 +2026,54 @@ end;
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 
   procedure RegisterFunctionTable(const FunctionTable: array of AnsiString;
-    const ProcPtr: TPSProcPtr);
+    const ProcPtr: TPSProcPtr; var Count: Integer);
   begin
     for var Func in FunctionTable do
       ScriptInterpreter.RegisterFunctionName(ExtractScriptFuncName(Func),
         ProcPtr, nil, nil);
+    Inc(Count);
+  end;
+
+  procedure RegisterDelphiFunction(ProcPtr: Pointer; const Name: AnsiString;
+    var Count: Integer);
+  begin
+    ScriptInterpreter.RegisterDelphiFunction(ProcPtr, Name, cdRegister);
+    Inc(Count);
   end;
 
 begin
-  RegisterFunctionTable(ScriptFuncTables[sftScriptDlg], @ScriptDlgProc);
-  RegisterFunctionTable(ScriptFuncTables[sftNewDisk], @NewDiskProc);
-  RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
-  RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
-  RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
-  RegisterFunctionTable(InstallTable, @InstallProc);
-  RegisterFunctionTable(InstFuncTable, @InstFuncProc);
-  RegisterFunctionTable(InstFnc2Table, @InstFnc2Proc);
-  RegisterFunctionTable(MainTable, @MainProc);
-  RegisterFunctionTable(MsgsTable, @MsgsProc);
-  RegisterFunctionTable(SystemTable, @SystemProc);
-  RegisterFunctionTable(SysUtilsTable, @SysUtilsProc);
-  RegisterFunctionTable(VerInfoTable, @VerInfoProc);
-  RegisterFunctionTable(WindowsTable, @WindowsProc);
-  RegisterFunctionTable(Ole2Table, @Ole2Proc);
-  RegisterFunctionTable(LoggingTable, @LoggingProc);
-  RegisterFunctionTable(OtherTable, @OtherProc);
+  { The following should register all tables in ScriptFuncTables }
+  var Count := 0;
+  RegisterFunctionTable(ScriptFuncTables[sftScriptDlg], @ScriptDlgProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftNewDisk], @NewDiskProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftBrowseFunc], @BrowseFuncProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc], @CmnFuncProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc2], @CmnFunc2Proc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftInstall], @InstallProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftInstFunc], @InstFuncProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftInstFnc2], @InstFnc2Proc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftMain], @MainProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftMsgs], @MsgsProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftSystem], @SystemProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftSysUtils], @SysUtilsProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftVerInfo], @VerInfoProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftWindows], @WindowsProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftOle2], @Ole2Proc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftLogging], @LoggingProc, Count);
+  RegisterFunctionTable(ScriptFuncTables[sftOther], @OtherProc, Count);
+  if Count <> Length(ScriptFuncTables) then
+    raise Exception.Create('Count <> Length(ScriptFuncTables)');
 
-  ScriptInterpreter.RegisterDelphiFunction(@_FindFirst, 'FindFirst', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FindNext, 'FindNext', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FindClose, 'FindClose', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@Format, 'Format', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
+  { The following should register all functions in ScriptDelphiFuncTable }
+  Count := 0;
+  RegisterDelphiFunction(@_FindFirst, 'FindFirst', Count);
+  RegisterDelphiFunction(@_FindNext, 'FindNext', Count);
+  RegisterDelphiFunction(@_FindClose, 'FindClose', Count);
+  RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', Count);
+  RegisterDelphiFunction(@Format, 'Format', Count);
+  RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', Count);
+  if Count <> Length(ScriptDelphiFuncTable) then
+    raise Exception.Create('Count <> Length(ScriptDelphiFuncTable)');
 end;
 
 procedure FreeASMInliners;

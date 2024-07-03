@@ -712,6 +712,7 @@ begin
   FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   for var ScriptFuncTable in ScriptFuncTables do
     BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptFuncTable);
+  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptDelphiFuncTable);
 end;
 
 destructor TInnoSetupStyler.Destroy;

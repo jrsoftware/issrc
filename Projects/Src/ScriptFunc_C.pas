@@ -144,27 +144,11 @@ begin
 
   for var ScriptFuncTable in ScriptFuncTables do
     RegisterFunctionTable(ScriptFuncTable);
-  RegisterFunctionTable(BrowseFuncTable);
-  RegisterFunctionTable(CmnFuncTable);
-  RegisterFunctionTable(CmnFunc2Table);
+  RegisterDelphiFunctionTable(ScriptDelphiFuncTable);
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
-  RegisterFunctionTable(InstallTable);
-  RegisterFunctionTable(InstFuncTable);
-  RegisterFunctionTable(InstFnc2Table);
-  RegisterFunctionTable(MainTable);
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
   ObsoleteFunctionWarnings.Add('IsX64', Format(SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs, ['IsX64', 'IsX64OS', 'IsX64Compatible', 'Architecture Identifiers']));
-  RegisterFunctionTable(MsgsTable);
-  RegisterDelphiFunctionTable(MsgsDelphiTable);
-  RegisterFunctionTable(SystemTable);
-  RegisterFunctionTable(SysUtilsTable);
-  RegisterDelphiFunctionTable(SysUtilsDelphiTable);
-  RegisterFunctionTable(VerInfoTable);
-  RegisterFunctionTable(WindowsTable);
-  RegisterFunctionTable(Ole2Table);
-  RegisterFunctionTable(LoggingTable);
-  RegisterFunctionTable(OtherTable);
 
   RegisterConst('MaxInt', MaxInt);
 
