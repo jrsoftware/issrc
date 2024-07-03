@@ -51,7 +51,7 @@ type
     FReadOutBuffer: AnsiString;
     FReadErrBuffer: AnsiString;
     FNextLineIsFirstLine: Boolean;
-    FLastLogErrorMessage: String;
+    FRedirectionError: String;
     FMode: TOutputMode;
     FCaptureOutList: TStringList;
     FCaptureErrList: TStringList;
@@ -1613,13 +1613,18 @@ end;
 constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
   const ALogProcData: NativeInt; AMode: TOutputMode = omLog);
 
+  procedure SetRedirectionError(const S: String; const Args: array of const);
+  begin
+    FRedirectionError := Format(S, Args);
+  end;
+
   function PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes): Boolean;
   begin
     Result := False;
     if not CreatePipe(Read, Write, @SecurityAttr, 0) then
-      LogErrorFmt('CreatePipe failed (%d).', [GetLastError])
+      SetRedirectionError('CreatePipe failed (%d).', [GetLastError])
     else if not SetHandleInformation(Read, HANDLE_FLAG_INHERIT, 0) then
-      LogErrorFmt('SetHandleInformation failed (%d).', [GetLastError])
+      SetRedirectionError('SetHandleInformation failed (%d).', [GetLastError])
     else
       Result := True;
   end;
@@ -1647,7 +1652,7 @@ begin
     FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
     OPEN_EXISTING, 0, 0);
   if NulDevice = INVALID_HANDLE_VALUE then
-    LogErrorFmt('CreateFile failed (%d).', [GetLastError])
+    SetRedirectionError('CreateFile failed (%d).', [GetLastError])
   else begin
     FStdInNulDevice := NulDevice;
     var PipeRead, PipeWrite: THandle;
@@ -1668,6 +1673,9 @@ begin
       end;
     end;
   end;
+
+  if not FOKToRead then
+    raise Exception.Create(Format('Output redirection error: %s', [FRedirectionError]));
 end;
 
 destructor TCreateProcessOutputReader.Destroy;
@@ -1692,8 +1700,7 @@ end;
 
 procedure TCreateProcessOutputReader.LogErrorFmt(const S: String; const Args: array of const);
 begin
-  FLastLogErrorMessage := Format(S, Args);
-  FLogProc('OutputReader: ' + FLastLogErrorMessage, True, False, FLogProcData);
+  FLogProc('OutputReader: ' + Format(S, Args), True, False, FLogProcData);
 
   if FMode = omCapture then
     FCaptureError := True;
@@ -1717,9 +1724,6 @@ end;
 
 procedure TCreateProcessOutputReader.UpdateStartupInfo(var StartupInfo: TStartupInfo);
 begin
-  if not FOKToRead then
-    raise Exception.Create(Format('Output redirection error: %s', [FLastLogErrorMessage]));
-
   StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
   StartupInfo.hStdInput := FStdInNulDevice;
   StartupInfo.hStdOutput := FStdOutPipeWrite;
@@ -1789,9 +1793,11 @@ begin
       var BytesRead: DWORD;
       FOKToRead := ReadFile(PipeRead, Buffer[TotalBytesHave+1],
         TotalBytesAvail, BytesRead, nil);
-      if not FOKToRead then
-        LogErrorFmt('ReadFile failed (%d).', [GetLastError])
-      else if BytesRead > 0 then begin
+      if not FOKToRead then begin
+        LogErrorFmt('ReadFile failed (%d).', [GetLastError]);
+        { Restore back to original size }
+        SetLength(Buffer, TotalBytesHave);
+      end else if BytesRead > 0 then begin
         { Correct length if less bytes were read than requested }
         SetLength(Buffer, TotalBytesHave+BytesRead);
 
