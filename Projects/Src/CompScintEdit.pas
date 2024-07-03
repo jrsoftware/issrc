@@ -470,7 +470,7 @@ begin
     Color := FTheme.Colors[tcBack];
 
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST, FTheme.Colors[tcFore] or (SC_ALPHA_OPAQUE shl 24));
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcBack] or (SC_ALPHA_OPAQUE shl 24));
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcIntelliBack] or (SC_ALPHA_OPAQUE shl 24));
     var Options := Call(SCI_AUTOCGETOPTIONS, 0, 0);
     if FTheme.Dark then
       Options := Options or SC_AUTOCOMPLETE_DARK_MODE
@@ -479,7 +479,7 @@ begin
     Call(SCI_AUTOCSETOPTIONS, Options, 0);
 
     Call(SCI_CALLTIPSETFORE, FTheme.Colors[tcFore], 0);
-    Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcBack], 0);
+    Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcIntelliBack], 0);
     Call(SCI_CALLTIPSETFOREHLT, FTheme.Colors[tcBlue], 0);
 
     var SelBackColor := FTheme.Colors[tcSelBack];
