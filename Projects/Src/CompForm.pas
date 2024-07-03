@@ -4825,7 +4825,7 @@ begin
   WordEndPos := FActiveMemo.GetWordEndPosition(CaretPos, True);
   CharsBefore := CaretPos - WordStartPos;
 
-  { Don't start autocompletion after a character is typed if there are any
+  { Don't auto start autocompletion after a character is typed if there are any
     word characters adjacent to the character }
   if Key <> #0 then begin
     if CharsBefore > 1 then
@@ -4860,9 +4860,9 @@ begin
         if Section = scCode then begin
           WordList := '';
 
-          { Autocomplete event functions if the previous word on the line is 'function' or 'procedure',
-            exactly 1 space exists between it and the current word and no non-whitespace characters
-            exist before it on the line }
+          { Autocomplete event functions if the current word on the line has
+            exactly 1 space before it which has the word 'function' or
+            'procedure' before it which has only whitespace before it }
           I := FActiveMemo.GetPositionBefore(WordStartPos);
           if (I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) <= ' ') then begin
             var FunctionWordEndPos := I;
@@ -4889,9 +4889,9 @@ begin
         end else begin
           IsParamSection := FMemosStyler.IsParamSection(Section);
 
-          { Only allow autocompletion if no non-whitespace characters exist before
-            the current word on the line, or after the last ';' or 'Flags:' or 'Type:' in parameterized
-            sections }
+          { Autocomplete if the current word on the line has only whitespace
+            before it, or else also: after the last ';' or after 'Flags:' or
+            'Type:' in parameterized sections }
           FoundSemicolon := False;
           FoundFlagsOrType := False;
           FoundDot := False;
