@@ -31,6 +31,7 @@ var
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
 
+function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
@@ -40,12 +41,19 @@ implementation
 uses
   SysUtils, AnsiStrings;
 
+function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
+begin
+  const C: AnsiString = '(';
+
+  Result := Pos(C, ScriptFunc) <> 0;
+end;
+
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
 begin
   Result := ScriptFunc;
 
-  var H1: AnsiString := 'function ';
-  var H2: AnsiString := 'procedure ';
+  const H1: AnsiString = 'function ';
+  const H2: AnsiString = 'procedure ';
 
   if CompareText(Copy(Result, 1, Length(H1)), H1) = 0 then
     Delete(Result, 1, Length(H1))
@@ -59,9 +67,9 @@ function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiS
 begin
   Result := ScriptFuncWithoutHeader;
 
-  var C1: AnsiString := '(';
-  var C2: AnsiString := ':';
-  var C3: AnsiString := ';';
+  const C1: AnsiString = '(';
+  const C2: AnsiString = ':';
+  const C3: AnsiString = ';';
 
   var P := Pos(C1, Result);
   if P = 0 then

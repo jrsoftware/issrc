@@ -8,7 +8,7 @@ unit ScintStylerInnoSetup;
 
   TInnoSetupStyler: styler for Inno Setup scripts
   
-  Requires LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
+  Requires ScriptFunc+LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
 }
 
 interface
@@ -65,7 +65,7 @@ type
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
-    FScriptFunctionsByName: TFunctionDefinitionsByName;
+    FScriptFunctionsByName: TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -847,9 +847,11 @@ procedure TInnoSetupStyler.BuildFunctionDefinitionsByName(
   const ScriptFuncTable: TScriptFuncTable);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
-    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
-    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
-    FunctionDefinitionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
+    if ScriptFuncHasParameters(ScriptFunc) then begin
+      var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
+      var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+      FunctionDefinitionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
+    end;
   end;
 end;
 
