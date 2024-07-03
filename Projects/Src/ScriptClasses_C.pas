@@ -72,9 +72,9 @@ begin
   Cl.AddTypeS('TCheckItemOperation', '(coUncheck, coCheck, coCheckWithChildren)');
   with Cl.AddClassN(Cl.FindClass('TCustomListBox'), 'TNewCheckListBox') do
   begin
-    RegisterMethod('function AddCheckBox(const ACaption, ASubItem: string; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer');
-    RegisterMethod('function AddGroup(const ACaption, ASubItem: string; ALevel: Byte; AObject: TObject): Integer');
-    RegisterMethod('function AddRadioButton(const ACaption, ASubItem: string; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer');
+    RegisterMethod('function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer');
+    RegisterMethod('function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer');
+    RegisterMethod('function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer');
     RegisterMethod('function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean');
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Checked', 'Boolean Integer', iptrw);
