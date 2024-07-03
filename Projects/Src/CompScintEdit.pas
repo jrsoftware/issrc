@@ -220,6 +220,8 @@ begin
   Call(SCI_AUTOCSETIGNORECASE, 1, 0);
   Call(SCI_AUTOCSETOPTIONS, SC_AUTOCOMPLETE_FIXED_SIZE, 0); { Removes the ugly WS_THICKFRAME header at the cost of resizability }
   Call(SCI_AUTOCSETMAXHEIGHT, 12, 0);
+  Call(SCI_AUTOCSETMINWIDTH, 50, 0);
+  Call(SCI_AUTOCSETMAXWIDTH, 50, 0);
 
   { Same color as AutoComplete's border color, works well for both dark and light themes }
   var BorderColor := ColorToRGB(clWindowFrame);
