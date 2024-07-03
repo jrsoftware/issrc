@@ -116,7 +116,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
-    class function IsCommentStyle(const Style: TScintStyleNumber): Boolean;
+    class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
@@ -1540,9 +1540,9 @@ begin
   end;
 end;
 
-class function TInnoSetupStyler.IsCommentStyle(const Style: TScintStyleNumber): Boolean;
+class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
 begin
-  Result := Style = Ord(stComment);
+  Result := Style in [Ord(stComment), Ord(stPascalString)];
 end;
 
 class function TInnoSetupStyler.IsParamSection(

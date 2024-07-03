@@ -4971,7 +4971,7 @@ begin
     may be searching into areas that haven't been styled yet }
   FActiveMemo.StyleNeeded(FActiveMemo.CaretPosition);
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
-     (FMemosStyler.IsCommentStyle(FActiveMemo.GetStyleAtPosition(FActiveMemo.GetPositionBefore(Pos)))) then
+     (FMemosStyler.IsCommentOrPascalStringStyle(FActiveMemo.GetStyleAtPosition(FActiveMemo.GetPositionBefore(Pos)))) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
