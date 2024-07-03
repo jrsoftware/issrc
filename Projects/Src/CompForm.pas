@@ -4778,7 +4778,7 @@ end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
-  function CheckWhiteSpace(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  function OnlyWhiteSpaceBeforeWord(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   var
     I: Integer;
     C: AnsiChar;
@@ -4799,13 +4799,12 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
 var
   CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore,
-    PrevWordStartPos, PrevWordEndPos, I, LangNamePos: Integer;
+    I, LangNamePos: Integer;
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
   FoundSemicolon, FoundFlagsOrType, FoundDot: Boolean;
   C: AnsiChar;
-  S: String;
 begin
   if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
     Exit;
@@ -4838,7 +4837,7 @@ begin
   case FActiveMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
-        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.ISPPDirectivesWordList;
         FActiveMemo.SetAutoCompleteFillupChars(' ');
@@ -4850,7 +4849,7 @@ begin
       end;
     '[':
       begin
-        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.SectionsWordList;
         FActiveMemo.SetAutoCompleteFillupChars('');
@@ -4859,26 +4858,34 @@ begin
       begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
-          { Only allow autocompletion if the previous word on the line is 'function' or 'procedure',
+          WordList := '';
+
+          { Autocomplete event functions if the previous word on the line is 'function' or 'procedure',
             exactly 1 space exists between it and the current word and no non-whitespace characters
             exist before it on the line }
           I := FActiveMemo.GetPositionBefore(WordStartPos);
-          if I < LinePos then
+          if (I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) <= ' ') then begin
+            var FunctionWordEndPos := I;
+            var FunctionWordStartPos := FActiveMemo.GetWordStartPosition(FunctionWordEndPos, True);
+            if OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, FunctionWordStartPos) then begin
+              var FunctionWord := FActiveMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
+              if SameText(FunctionWord, 'procedure') then
+                WordList := FMemosStyler.EventFunctionsWordList[True]
+              else if SameText(FunctionWord, 'function') then
+                WordList := FMemosStyler.EventFunctionsWordList[False];
+              if WordList <> '' then
+                FActiveMemo.SetAutoCompleteFillupChars('');
+            end;
+          end;
+
+          { If no event function found, check for script functions }
+          if WordList = '' then begin
+            WordList := 'MsgBox'#9'SuppressibleMsgBox';
+            FActiveMemo.SetAutoCompleteFillupChars('(')
+          end;
+
+          if WordList = '' then
             Exit;
-          if FActiveMemo.GetByteAtPosition(I) > ' ' then
-            Exit;
-          PrevWordEndPos := I;
-          PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
-          S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
-          if SameText(S, 'procedure') then
-            WordList := FMemosStyler.EventFunctionsWordList[True]
-          else if SameText(S, 'function') then
-            WordList := FMemosStyler.EventFunctionsWordList[False]
-          else
-            Exit;
-          if not CheckWhiteSpace(FActiveMemo, LinePos, PrevWordStartPos) then
-            Exit;
-          FActiveMemo.SetAutoCompleteFillupChars('');
         end else begin
           IsParamSection := FMemosStyler.IsParamSection(Section);
 
@@ -4899,11 +4906,11 @@ begin
                FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
               FoundSemicolon := C = ';';
               if not FoundSemicolon then begin
-                PrevWordEndPos := I;
-                PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
-                S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
-                FoundFlagsOrType := SameText(S, 'Flags') or
-                                    ((Section in [scInstallDelete, scUninstallDelete]) and SameText(S, 'Type'));
+                var ParameterWordEndPos := I;
+                var ParameterWordStartPos := FActiveMemo.GetWordStartPosition(ParameterWordEndPos, True);
+                var ParameterWord := FActiveMemo.GetTextRange(ParameterWordStartPos,ParameterWordEndPos);
+                FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
+                                    ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
                 FoundFlagsOrType := False;
               Break;
