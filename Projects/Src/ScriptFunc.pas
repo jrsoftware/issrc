@@ -27,7 +27,7 @@ var
     'function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;',
     'function FindNext(var FindRec: TFindRec): Boolean;',
     'procedure FindClose(var FindRec: TFindRec);',
-    'function Format(const Format: string; const Args: array of const): string;',
+    'function Format(const Format: String; const Args: array of const): String;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
 
@@ -149,7 +149,7 @@ initialization
     'function GetEnv(const EnvVar: String): String;',
     'function GetCmdTail: String;',
     'function ParamCount: Integer;',
-    'function ParamStr(Index: Integer): string;',
+    'function ParamStr(Index: Integer): String;',
     'function AddBackslash(const S: String): String;',
     'function RemoveBackslash(const S: String): String;',
     'function RemoveBackslashUnlessRoot(const S: String): String;',
@@ -217,7 +217,7 @@ initialization
     'function DelTree(const Path: String; const IsDir, DeleteFiles, DeleteSubdirsAlso: Boolean): Boolean;',
     'function GenerateUniqueName(Path: String; const Extension: String): String;',
     'function GetComputerNameString: String;',
-    //function GetFileDateTime(const Filename: string; var DateTime: TFileTime): Boolean;
+    //function GetFileDateTime(const Filename: String; var DateTime: TFileTime): Boolean;
     'function GetMD5OfFile(const Filename: String): String;',
     'function GetMD5OfString(const S: AnsiString): String;',
     'function GetMD5OfUnicodeString(const S: String): String;',
@@ -247,7 +247,7 @@ initialization
     //procedure RestartComputer;
     'procedure RestartReplace(const TempFile, DestFile: String);',
     //procedure Win32ErrorMsg(const FunctionName: String);
-    'function ForceDirectories(Dir: string): Boolean;'
+    'function ForceDirectories(Dir: String): Boolean;'
   ];
 
   { InstFnc2 }
@@ -283,14 +283,14 @@ initialization
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
-    'function IsArm32Compatible: Boolean',
-    'function IsArm64: Boolean',
-    'function IsX64: Boolean',
-    'function IsX64OS: Boolean',
-    'function IsX64Compatible: Boolean',
-    'function IsX86: Boolean',
-    'function IsX86OS: Boolean',
-    'function IsX86Compatible: Boolean',
+    'function IsArm32Compatible: Boolean;',
+    'function IsArm64: Boolean;',
+    'function IsX64: Boolean;',
+    'function IsX64OS: Boolean;',
+    'function IsX64Compatible: Boolean;',
+    'function IsX86: Boolean;',
+    'function IsX86OS: Boolean;',
+    'function IsX86Compatible: Boolean;',
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;'
@@ -318,29 +318,29 @@ initialization
   ScriptFuncTables[sftSysUtils] :=
   [
     'procedure Beep;',
-    'function Trim(const S: string): string;',
-    'function TrimLeft(const S: string): string;',
-    'function TrimRight(const S: string): string;',
-    'function GetCurrentDir: string;',
-    'function SetCurrentDir(const Dir: string): Boolean;',
-    'function ExpandFileName(const FileName: string): string;',
-    'function ExpandUNCFileName(const FileName: string): string;',
-    'function ExtractRelativePath(const BaseName, DestName: string): string;',
-    'function ExtractFileDir(const FileName: string): string;',
-    'function ExtractFileDrive(const FileName: string): string;',
-    'function ExtractFileExt(const FileName: string): string;',
-    'function ExtractFileName(const FileName: string): string;',
-    'function ExtractFilePath(const FileName: string): string;',
-    'function ChangeFileExt(const FileName, Extension: string): string;',
-    'function FileSearch(const Name, DirList: string): string;',
-    'function RenameFile(const OldName, NewName: string): Boolean;',
-    'function DeleteFile(const FileName: string): Boolean;',
-    'function CreateDir(const Dir: string): Boolean;',
-    'function RemoveDir(const Dir: string): Boolean;',
-    'function CompareStr(const S1, S2: string): Integer;',
-    'function CompareText(const S1, S2: string): Integer;',
-    'function SameStr(const S1, S2: string): Boolean;',
-    'function SameText(const S1, S2: string): Boolean;',
+    'function Trim(const S: String): String;',
+    'function TrimLeft(const S: String): String;',
+    'function TrimRight(const S: String): String;',
+    'function GetCurrentDir: String;',
+    'function SetCurrentDir(const Dir: String): Boolean;',
+    'function ExpandFileName(const FileName: String): String;',
+    'function ExpandUNCFileName(const FileName: String): String;',
+    'function ExtractRelativePath(const BaseName, DestName: String): String;',
+    'function ExtractFileDir(const FileName: String): String;',
+    'function ExtractFileDrive(const FileName: String): String;',
+    'function ExtractFileExt(const FileName: String): String;',
+    'function ExtractFileName(const FileName: String): String;',
+    'function ExtractFilePath(const FileName: String): String;',
+    'function ChangeFileExt(const FileName, Extension: String): String;',
+    'function FileSearch(const Name, DirList: String): String;',
+    'function RenameFile(const OldName, NewName: String): Boolean;',
+    'function DeleteFile(const FileName: String): Boolean;',
+    'function CreateDir(const Dir: String): Boolean;',
+    'function RemoveDir(const Dir: String): Boolean;',
+    'function CompareStr(const S1, S2: String): Integer;',
+    'function CompareText(const S1, S2: String): Integer;',
+    'function SameStr(const S1, S2: String): Boolean;',
+    'function SameText(const S1, S2: String): Boolean;',
     'function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;',
     'function SysErrorMessage(ErrorCode: Integer): String;'
   ];
