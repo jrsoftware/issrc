@@ -87,6 +87,16 @@ begin
   Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
 
+{$IFDEF DEBUG}
+function IsCleanScriptFunc(const ScriptFunc: AnsiString): Boolean;
+begin
+  const GoodTerminator: AnsiString = ';';
+  const BadType: AnsiString = 'string';
+
+  Result := (Pos(GoodTerminator, ScriptFunc) <> 0) and (Pos(BadType, ScriptFunc) = 0);
+end;
+{$ENDIF}
+
 initialization
 
   { ScriptDlg }
@@ -437,8 +447,14 @@ initialization
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;'
   ];
 
-  for var ScriptFuncTable in ScriptFuncTables do
+  {$IFDEF DEBUG}
+  for var ScriptFuncTable in ScriptFuncTables do begin
     if Length(ScriptFuncTable) = 0 then
       raise Exception.Create('Length(ScriptFuncTable) = 0');
+    for var AScriptFunc in ScriptFuncTable do
+      if not IsCleanScriptFunc(AScriptFunc) then
+        raise Exception.CreateFmt('not IsCleanScriptFunc: %s', [AScriptFunc]);
+  end;
+  {$ENDIF}
 
 end.
