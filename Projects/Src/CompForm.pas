@@ -4880,7 +4880,7 @@ begin
 
           { If no event function found, check for script functions }
           if WordList = '' then begin
-            WordList := 'MsgBox'#9'SuppressibleMsgBox';
+            WordList := FMemosStyler.ScriptFunctionsWordList;
             FActiveMemo.SetAutoCompleteFillupChars('(')
           end;
 
@@ -5024,7 +5024,7 @@ begin
   // Should get current api definition
   var Word: AnsiString;
   if not FCallTipState.ClassFunction then
-    Word := FMemosStyler.ScriptFunction[FCallTipState.CurrentCallTipWord]
+    Word := FMemosStyler.ScriptFunctionDefinition[FCallTipState.CurrentCallTipWord]
   else
     Word := '';
   if Word <> '' then begin

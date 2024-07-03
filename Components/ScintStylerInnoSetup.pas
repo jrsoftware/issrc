@@ -66,6 +66,7 @@ type
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
     FScriptFunctionsByName: TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
+    FScriptFunctionsWordList: AnsiString; { Has all functions }
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -75,14 +76,13 @@ type
     procedure BuildEventFunctionsWordList;
     procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
      const Flags: array of TScintRawString);
-    procedure BuildFunctionDefinitionsByName(
-      const FunctionDefinitionsByName: TFunctionDefinitionsByName;
-      const ScriptFuncTable: TScriptFuncTable);
     procedure BuildISPPDirectivesWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
       const EnumTypeInfo: Pointer);
+    procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptFuncTable;
+      const SL: TStringList);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -91,6 +91,7 @@ type
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
+    function GetScriptFunctionDefinition(Name: String): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
@@ -103,7 +104,6 @@ type
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
-    function GetScriptFunction(Name: String): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -125,7 +125,8 @@ type
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
-    property ScriptFunction[Name: String]: AnsiString read GetScriptFunction;
+    property ScriptFunctionDefinition[Name: String]: AnsiString read GetScriptFunctionDefinition;
+    property ScriptFunctionsWordList: AnsiString read FScriptFunctionsWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -528,7 +529,8 @@ const
     'reg'];
 
    Constants: array of String = [
-    { #emit and #file handled separately - also doesnt include constants with non words chars }
+    { #emit and #file handled separately by BuildConstantsWordList.
+      Also doesnt include constants with non words chars. }
     '{',
     'app',
     'win',
@@ -710,9 +712,15 @@ begin
   BuildSectionsWordList;
 
   FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
-  for var ScriptFuncTable in ScriptFuncTables do
-    BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptFuncTable);
-  BuildFunctionDefinitionsByName(FScriptFunctionsByName, ScriptDelphiFuncTable);
+  var SL := TStringList.Create;
+  try
+    for var ScriptFuncTable in ScriptFuncTables do
+      BuildScriptFunctionsLists(ScriptFuncTable, SL);
+    BuildScriptFunctionsLists(ScriptDelphiFuncTable, SL);
+    FScriptFunctionsWordList := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
 end;
 
 destructor TInnoSetupStyler.Destroy;
@@ -832,7 +840,7 @@ end;
 procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
   const Flags: array of TScintRawString);
 begin
-  var SL :=TStringList.Create;
+  var SL := TStringList.Create;
   try
     for var I := 0 to High(Flags) do
       SL.Add(String(Flags[I]));
@@ -842,16 +850,15 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildFunctionDefinitionsByName(
-  const FunctionDefinitionsByName: TFunctionDefinitionsByName;
-  const ScriptFuncTable: TScriptFuncTable);
+procedure TInnoSetupStyler.BuildScriptFunctionsLists(
+  const ScriptFuncTable: TScriptFuncTable; const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
-    if ScriptFuncHasParameters(ScriptFunc) then begin
-      var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
-      var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
-      FunctionDefinitionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-    end;
+    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
+    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    if ScriptFuncHasParameters(ScriptFunc) then
+      FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
+    SL.Add(String(ScriptFuncName));
   end;
 end;
 
@@ -962,7 +969,7 @@ begin
   Result := FKeywordsWordList[Section];
 end;
 
-function TInnoSetupStyler.GetScriptFunction(Name: String): AnsiString;
+function TInnoSetupStyler.GetScriptFunctionDefinition(Name: String): AnsiString;
 begin
   if not FScriptFunctionsByName.TryGetValue(Name, Result) then
     Result := '';
