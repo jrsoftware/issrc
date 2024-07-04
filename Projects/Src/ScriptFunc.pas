@@ -36,7 +36,22 @@ var
     TPSExec.RegisterStandardProc }
   ROPSScriptFuncTable: TScriptFuncTable =
   [
-    'function IntToStr(I: Int64): String;'
+    'function StrToIntDef(S: String; Def: LongInt): LongInt;',
+    'function StrToInt(S: String): LongInt;',
+    'function StrToInt64Def(S: String; Def: Int64): Int64;',
+    'function StrToInt64(S: String): Int64;',
+    'function StrToFloat(S: String): Extended;',
+    'function IntToStr(I: Int64): String;',
+    'function FloatToStr(E: Extended): String;',
+    'function Copy(S: AnyString; Index, Count: Integer): String;',
+    'function Length(S: AnyString): LongInt;',
+    'function Lowercase(S: AnyString): String;',
+    'function Uppercase(S: AnyString): String;',
+    'function AnsiLowercase(S: AnyString): String;',
+    'function AnsiUppercase(S: AnyString): String;',
+    'function StringOfChar(C: Char; I : LongInt): String;',
+    'procedure Delete(var S: AnyString; Index, Count: Integer)',
+    'procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer)'
   ];
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
@@ -99,9 +114,11 @@ end;
 function IsCleanScriptFunc(const ScriptFunc: AnsiString): Boolean;
 begin
   const GoodTerminator: AnsiString = ';';
-  const BadType: AnsiString = 'string';
+  const BadType1: AnsiString = 'string';
+  const BadType2: AnsiString = 'Longint';
 
-  Result := (Pos(GoodTerminator, ScriptFunc) <> 0) and (Pos(BadType, ScriptFunc) = 0);
+  Result := (Pos(GoodTerminator, ScriptFunc) <> 0) and
+            (Pos(BadType1, ScriptFunc) = 0) and (Pos(BadType2, ScriptFunc) = 0);
 end;
 
 procedure CheckIsCleanScriptFuncTable(const ScriptFuncTable: TScriptFuncTable);
@@ -164,12 +181,12 @@ initialization
     'function DirExists(const Name: String): Boolean;',
     'function FileOrDirExists(const Name: String): Boolean;',
     'function GetIniString(const Section, Key, Default, Filename: String): String;',
-    'function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;',
+    'function GetIniInt(const Section, Key: String; const Default, Min, Max: LongInt; const Filename: String): LongInt;',
     'function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;',
     'function IniKeyExists(const Section, Key, Filename: String): Boolean;',
     'function IsIniSectionEmpty(const Section, Filename: String): Boolean;',
     'function SetIniString(const Section, Key, Value, Filename: String): Boolean;',
-    'function SetIniInt(const Section, Key: String; const Value: Longint; const Filename: String): Boolean;',
+    'function SetIniInt(const Section, Key: String; const Value: LongInt; const Filename: String): Boolean;',
     'function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;',
     'procedure DeleteIniEntry(const Section, Key, Filename: String);',
     'procedure DeleteIniSection(const Section, Filename: String);',
@@ -395,16 +412,16 @@ initialization
     'procedure Sleep(const Milliseconds: LongInt);',
     'function FindWindowByClassName(const ClassName: String): HWND;',
     'function FindWindowByWindowName(const WindowName: String): HWND;',
-    'function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Longint;',
-    'function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;',
-    'function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;',
-    'function RegisterWindowMessage(const Name: String): Longint;',
-    'function SendBroadcastMessage(const Msg, WParam, LParam: Longint): Longint;',
-    'function PostBroadcastMessage(const Msg, WParam, LParam: Longint): Boolean;',
-    'function SendBroadcastNotifyMessage(const Msg, WParam, LParam: Longint): Boolean;',
-    'function LoadDLL(const DLLName: String; var ErrorCode: Integer): Longint;',
-    'function CallDLLProc(const DLLHandle: Longint; const ProcName: String; const Param1, Param2: Longint; var Result: Longint): Boolean;',
-    'function FreeDLL(const DLLHandle: Longint): Boolean;',
+    'function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): LongInt;',
+    'function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;',
+    'function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;',
+    'function RegisterWindowMessage(const Name: String): LongInt;',
+    'function SendBroadcastMessage(const Msg, WParam, LParam: LongInt): LongInt;',
+    'function PostBroadcastMessage(const Msg, WParam, LParam: LongInt): Boolean;',
+    'function SendBroadcastNotifyMessage(const Msg, WParam, LParam: LongInt): Boolean;',
+    'function LoadDLL(const DLLName: String; var ErrorCode: Integer): LongInt;',
+    'function CallDLLProc(const DLLHandle: LongInt; const ProcName: String; const Param1, Param2: LongInt; var Result: LongInt): Boolean;',
+    'function FreeDLL(const DLLHandle: LongInt): Boolean;',
     'procedure CreateMutex(const Name: String);',
     'procedure OemToCharBuff(var S: AnsiString);',
     'procedure CharToOemBuff(var S: AnsiString);'
@@ -439,8 +456,8 @@ initialization
     'function UninstallSilent: Boolean;',
     'function CurrentFilename: String;',
     'function CurrentSourceFilename: String;',
-    'function CastStringToInteger(var S: String): Longint;',
-    'function CastIntegerToString(const L: Longint): String;',
+    'function CastStringToInteger(var S: String): LongInt;',
+    'function CastIntegerToString(const L: LongInt): String;',
     'procedure Abort;',
     'function GetExceptionMessage: String;',
     'procedure RaiseException(const Msg: String);',
