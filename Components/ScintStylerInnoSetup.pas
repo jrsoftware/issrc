@@ -716,7 +716,8 @@ begin
   try
     for var ScriptFuncTable in ScriptFuncTables do
       BuildScriptFunctionsLists(ScriptFuncTable, SL);
-    BuildScriptFunctionsLists(ScriptDelphiFuncTable, SL);
+    BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
+    BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
     FScriptFunctionsWordList := BuildWordList(SL);
   finally
     SL.Free;

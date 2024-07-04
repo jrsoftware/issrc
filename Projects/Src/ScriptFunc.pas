@@ -6,7 +6,7 @@ unit ScriptFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (listings)
+  Script support functions (listings - used by Compil32, ISCmplr, and Setup)
 }
 
 interface
@@ -21,7 +21,7 @@ type
 var
   ScriptFuncTables: array [TScriptFuncTableID] of TScriptFuncTable;
 
-  ScriptDelphiFuncTable: TScriptFuncTable =
+  DelphiScriptFuncTable: TScriptFuncTable =
   [
     'function FmtMessage(const S: String; const Args: array of String): String;',
     'function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;',
@@ -29,6 +29,14 @@ var
     'procedure FindClose(var FindRec: TFindRec);',
     'function Format(const Format: String; const Args: array of const): String;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
+  ];
+
+  { These are just for Compil32 and should not be used by ISCmplr or Setup because
+    they're already registered by TPSPascalCompiler.DefineStandardProcedures and
+    TPSExec.RegisterStandardProc }
+  ROPSScriptFuncTable: TScriptFuncTable =
+  [
+    'function IntToStr(I: Int64): String;'
   ];
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
@@ -94,6 +102,15 @@ begin
   const BadType: AnsiString = 'string';
 
   Result := (Pos(GoodTerminator, ScriptFunc) <> 0) and (Pos(BadType, ScriptFunc) = 0);
+end;
+
+procedure CheckIsCleanScriptFuncTable(const ScriptFuncTable: TScriptFuncTable);
+begin
+  if Length(ScriptFuncTable) = 0 then
+    raise Exception.Create('Length(ScriptFuncTable) = 0');
+  for var AScriptFunc in ScriptFuncTable do
+    if not IsCleanScriptFunc(AScriptFunc) then
+      raise Exception.CreateFmt('not IsCleanScriptFunc: %s', [AScriptFunc]);
 end;
 {$ENDIF}
 
@@ -448,13 +465,10 @@ initialization
   ];
 
   {$IFDEF DEBUG}
-  for var ScriptFuncTable in ScriptFuncTables do begin
-    if Length(ScriptFuncTable) = 0 then
-      raise Exception.Create('Length(ScriptFuncTable) = 0');
-    for var AScriptFunc in ScriptFuncTable do
-      if not IsCleanScriptFunc(AScriptFunc) then
-        raise Exception.CreateFmt('not IsCleanScriptFunc: %s', [AScriptFunc]);
-  end;
+  for var ScriptFuncTable in ScriptFuncTables do
+    CheckIsCleanScriptFuncTable(ScriptFuncTable);
+  CheckIsCleanScriptFuncTable(DelphiScriptFuncTable);
+  CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
   {$ENDIF}
 
 end.

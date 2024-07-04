@@ -2,11 +2,11 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (compile time)
+  Script support functions (compile time - used by ISCmplr)
 }
 
 interface
@@ -144,7 +144,7 @@ begin
 
   for var ScriptFuncTable in ScriptFuncTables do
     RegisterFunctionTable(ScriptFuncTable);
-  RegisterDelphiFunctionTable(ScriptDelphiFuncTable);
+  RegisterDelphiFunctionTable(DelphiScriptFuncTable);
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));

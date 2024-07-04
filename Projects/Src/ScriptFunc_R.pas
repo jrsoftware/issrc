@@ -6,7 +6,7 @@ unit ScriptFunc_R;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (run time)
+  Script support functions (run time - used by Setup)
 }
 
 interface
@@ -2086,8 +2086,8 @@ begin
   RegisterDelphiFunction(@Format, 'Format');
   RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx');
   {$IFDEF DEBUG}
-  if Count <> Length(ScriptDelphiFuncTable) then
-    raise Exception.Create('Count <> Length(ScriptDelphiFuncTable)');
+  if Count <> Length(DelphiScriptFuncTable) then
+    raise Exception.Create('Count <> Length(DelphiScriptFuncTable)');
   {$ENDIF}
 end;
 
