@@ -31,6 +31,8 @@
 
 <p>Parameter type <tt>AnyString</tt> means both <tt>String</tt> and <tt>AnsiString</tt> can be used.</p>
 
+<p>Parameter type <tt>Array</tt> means any array type can be used.</p>
+
 <xsl:for-each select="isxfunc//category">
 <xsl:call-template name="category"/>
 </xsl:for-each>

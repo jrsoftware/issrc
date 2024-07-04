@@ -51,8 +51,50 @@ var
     'function AnsiUppercase(S: AnyString): String;',
     'function StringOfChar(C: Char; I : LongInt): String;',
     'procedure Delete(var S: AnyString; Index, Count: Integer)',
-    'procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer)'
+    'procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer)',
+    'function Pos(SubStr, S: AnyString): Integer;',
+    'function GetArrayLength(var Arr: Array): LongInt;',
+    'procedure SetArrayLength(var Arr: Array; I: LongInt);',
+    'function Trim(const S: AnyString): AnyString;',
+    'function Null: Variant;',
+    'function Unassigned: Variant;',
+    'function VarIsEmpty(const V: Variant): Boolean;',
+    'function VarIsClear(const V: Variant): Boolean;',
+    'function VarIsNull(const V: Variant): Boolean;',
+    'function VarType(const V: Variant): TVarType;',
+    'function VarArrayGet(var S: Variant; I: Integer): Variant;',
+    'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);'
   ];
+
+  { Undocumented ROPS functions: 
+  [
+    'function StrGet(var S: string; I: Integer): Char;',
+    'function StrGet2(S: string; I: Integer): Char;',
+    'procedure StrSet(C: Char; I: Integer; var S: string);',
+    'function WStrGet(var S: AnyString; I: Integer): WideChar;',
+    'procedure WStrSet(C: AnyString; I: Integer; var S: AnyString);',
+    'function Sin(E: Extended): Extended;',
+    'function Cos(E: Extended): Extended;',
+    'function Sqrt(E: Extended): Extended;',
+    'function Round(E: Extended): LongInt;',
+    'function Trunc(E: Extended): LongInt;',
+    'function Int(E: Extended): Extended;',
+    'function Pi: Extended;',
+    'function Abs(E: Extended): Extended;',
+    'function PadL(S: AnyString; I: LongInt): AnyString;',
+    'function PadR(S: AnyString; I: LongInt): AnyString;',
+    'function PadZ(S: AnyString; I: LongInt): AnyString;',
+    'function Replicate(C: Char; I: LongInt): String;',
+    'procedure RaiseLastException;',
+    'procedure RaiseException(Ex: TIFException; Param: String);',
+    'function ExceptionType: TIFException;',
+    'function ExceptionParam: String;',
+    'function ExceptionProc: Cardinal;',
+    'function ExceptionPos: Cardinal;',
+    'function ExceptionToString(er: TIFException; Param: string): String;',
+    'function Int64ToStr(I: Int64): String;',
+  ]
+  }
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
@@ -362,7 +404,6 @@ initialization
   ScriptFuncTables[sftSysUtils] :=
   [
     'procedure Beep;',
-    'function Trim(const S: String): String;',
     'function TrimLeft(const S: String): String;',
     'function TrimRight(const S: String): String;',
     'function GetCurrentDir: String;',

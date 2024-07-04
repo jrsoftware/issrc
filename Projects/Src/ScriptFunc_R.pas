@@ -1356,8 +1356,6 @@ begin
 
   if Proc.Name = 'BEEP' then begin
     Beep;
-  end else if Proc.Name = 'TRIM' then begin
-    Stack.SetString(PStart, Trim(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'TRIMLEFT' then begin
     Stack.SetString(PStart, TrimLeft(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'TRIMRIGHT' then begin

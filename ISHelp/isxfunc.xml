@@ -842,7 +842,7 @@ end;</pre></example>
       </function>
       <function>
         <name>Pos</name>
-        <prototype>function Pos(SubStr, S: String): Integer;</prototype>
+        <prototype>function Pos(SubStr, S: AnyString): Integer;</prototype>
         <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
       </function>
       <function>
@@ -918,7 +918,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Trim</name>
-        <prototype>function Trim(const S: String): String;</prototype>
+        <prototype>function Trim(const S: AnyString): AnyString;</prototype>
         <description><p>Trims leading and trailing spaces and control characters from the given string S.</p></description>
       </function>
       <function>
@@ -1300,7 +1300,7 @@ end;
 const
   varEmpty    = $0000;
   varNull     = $0001;
-  varSmallint = $0002;
+  varSmallInt = $0002;
   varInteger  = $0003;
   varSingle   = $0004;
   varDouble   = $0005;
@@ -1313,12 +1313,28 @@ const
   varVariant  = $000C;
   varUnknown  = $000D;
   varByte     = $0011;
+  varWord     = $0012;
+  varLongWord = $0013;
+  varInt64    = $0014;
+  varStrArg   = $0048;
   varString   = $0100;
+  varAny      = $0101;
+  varUString  = $0102;
   varTypeMask = $0FFF;
   varArray    = $2000;
   varByRef    = $4000;
 </pre>
 </description>
+      </function>
+      <function>
+        <name>VarArrayGet</name>
+        <prototype>function VarArrayGet(var S: Variant; I: Integer): Variant;</prototype>
+        <description><p>Returns the specified element of the specified variant array.</p></description>
+      </function>
+      <function>
+        <name>VarArraySet</name>
+        <prototype>procedure VarArraySet(C: Variant; I: Integer; var S: Variant);</prototype>
+        <description><p>Sets the specified element of the specified variant array.</p></description>
       </function>
     </subcategory>
   </category>
