@@ -2885,7 +2885,8 @@ end;</pre></example>
     Error: Boolean;
   end;
 </pre>
-<p>Error will be True if there was an error reading the output (which should be very rare) or if the total output size exceeded 10mb. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p></remarks>
+<p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre>var
   ResultCode: Integer;
   Output: TExecOutput;
@@ -2918,7 +2919,8 @@ end;</pre></example>
 <p>TOnLog is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
 <p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
-<p>Error will be True if reading the output failed (which should be very rare), or if the output size exceeded 10mb. There is no further output after an error.</p></remarks>
+<p>Error will be True if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre>var
   Line: String;
 

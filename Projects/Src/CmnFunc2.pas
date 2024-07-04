@@ -40,7 +40,9 @@ type
   private
     FOKToRead: Boolean;
     FMaxTotalBytesToRead: Cardinal;
+    FMaxTotalLinesToRead: Cardinal;
     FTotalBytesRead: Cardinal;
+    FTotalLinesRead: Cardinal;
     FStdInNulDevice: THandle;
     FStdOutPipeRead: THandle;
     FStdOutPipeWrite: THandle;
@@ -51,7 +53,6 @@ type
     FReadOutBuffer: AnsiString;
     FReadErrBuffer: AnsiString;
     FNextLineIsFirstLine: Boolean;
-    FRedirectionError: String;
     FMode: TOutputMode;
     FCaptureOutList: TStringList;
     FCaptureErrList: TStringList;
@@ -67,7 +68,6 @@ type
     procedure UpdateStartupInfo(var StartupInfo: TStartupInfo);
     procedure NotifyCreateProcessDone;
     procedure Read(const LastRead: Boolean);
-    property MaxTotalBytesToRead: Cardinal read FMaxTotalBytesToRead write FMaxTotalBytesToRead;
     property CaptureOutList: TStringList read GetCaptureOutList;
     property CaptureErrList: TStringList read GetCaptureErrList;
     property CaptureError: Boolean read FCaptureError;
@@ -1613,20 +1613,17 @@ end;
 constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
   const ALogProcData: NativeInt; AMode: TOutputMode = omLog);
 
-  procedure SetRedirectionError(const S: String; const Args: array of const);
+  procedure PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes);
   begin
-    FRedirectionError := Format(S, Args);
-  end;
+    var TempReadPipe, TempWritePipe: THandle;
+    if not CreatePipe(TempReadPipe, TempWritePipe, @SecurityAttr, 0) then
+      raise Exception.CreateFmt('Output redirection error: CreatePipe failed (%d)', [GetLastError]);
 
-  function PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes): Boolean;
-  begin
-    Result := False;
-    if not CreatePipe(Read, Write, @SecurityAttr, 0) then
-      SetRedirectionError('CreatePipe failed (%d).', [GetLastError])
-    else if not SetHandleInformation(Read, HANDLE_FLAG_INHERIT, 0) then
-      SetRedirectionError('SetHandleInformation failed (%d).', [GetLastError])
-    else
-      Result := True;
+    if not SetHandleInformation(TempReadPipe, HANDLE_FLAG_INHERIT, 0) then
+      raise Exception.CreateFmt('Output redirection error: SetHandleInformation failed (%d)', [GetLastError]);
+
+    Read := TempReadPipe;
+    Write := TempWritePipe;
   end;
 
 begin
@@ -1652,30 +1649,17 @@ begin
     FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
     OPEN_EXISTING, 0, 0);
   if NulDevice = INVALID_HANDLE_VALUE then
-    SetRedirectionError('CreateFile failed (%d).', [GetLastError])
-  else begin
-    FStdInNulDevice := NulDevice;
-    var PipeRead, PipeWrite: THandle;
-    if PipeCreate(PipeRead, PipeWrite, SecurityAttributes) then
-    begin
-      FStdOutPipeRead := PipeRead;
-      FStdOutPipeWrite := PipeWrite;
+    raise Exception.CreateFmt('Output redirection error: CreateFile failed (%d)', [GetLastError]);
 
-      if FMode = omLog then begin
-        FOkToRead := True;
-        FMaxTotalBytesToRead := 10*1024*1024;
-      end
-      else if PipeCreate(PipeRead, PipeWrite, SecurityAttributes) then begin
-        FStdErrPipeRead := PipeRead;
-        FStdErrPipeWrite := PipeWrite;
-        FOkToRead := True;
-        FMaxTotalBytesToRead := 10*1024*1024;
-      end;
-    end;
-  end;
+  FStdInNulDevice := NulDevice;
+  PipeCreate(FStdOutPipeRead, FStdOutPipeWrite, SecurityAttributes);
 
-  if not FOKToRead then
-    raise Exception.Create(Format('Output redirection error: %s', [FRedirectionError]));
+  if FMode = omCapture then
+    PipeCreate(FStdErrPipeRead, FStdErrPipeWrite, SecurityAttributes);
+
+  FOkToRead := True;
+  FMaxTotalBytesToRead := 10*1000*1000;
+  FMaxTotalLinesToRead := 1000*1000;
 end;
 
 destructor TCreateProcessOutputReader.Destroy;
@@ -1797,7 +1781,7 @@ begin
         LogErrorFmt('ReadFile failed (%d).', [GetLastError]);
         { Restore back to original size }
         SetLength(Buffer, TotalBytesHave);
-      end else if BytesRead > 0 then begin
+      end else begin
         { Correct length if less bytes were read than requested }
         SetLength(Buffer, TotalBytesHave+BytesRead);
 
@@ -1805,6 +1789,7 @@ begin
         var P := FindNewLine(Buffer, LastRead);
         while P <> 0 do begin
           LogLine(Copy(Buffer, 1, P-1));
+          Inc(FTotalLinesRead);
           if (Buffer[P] = #13) and (P < Length(Buffer)) and (Buffer[P+1] = #10) then
             Inc(P);
           Delete(Buffer, 1, P);
@@ -1812,7 +1797,8 @@ begin
         end;
 
         Inc(FTotalBytesRead, BytesRead);
-        if FTotalBytesRead >= FMaxTotalBytesToRead then begin
+        if (FTotalBytesRead >= FMaxTotalBytesToRead) or
+           (FTotalLinesRead >= FMaxTotalLinesToRead) then begin
           { Read limit reached: break the pipe, throw away the incomplete line, and log an error }
           FOKToRead := False;
           if FMode = omLog then
@@ -1821,7 +1807,11 @@ begin
             FReadOutBuffer := '';
             FReadErrBuffer := '';
           end;
-          LogErrorFmt('Maximum output length (%d) reached, ignoring remainder.', [FMaxTotalBytesToRead]);
+
+          if FTotalBytesRead >= FMaxTotalBytesToRead then
+            LogErrorFmt('Maximum output length (%d) reached, ignoring remainder.', [FMaxTotalBytesToRead])
+          else
+            LogErrorFmt('Maximum output lines (%d) reached, ignoring remainder.', [FMaxTotalLinesToRead]);
         end;
       end;
     end;
