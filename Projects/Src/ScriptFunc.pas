@@ -19,7 +19,7 @@ type
   TScriptFuncTable = array of AnsiString;
 
 var
-  ScriptFuncTables: array [TScriptFuncTableID] of TScriptFuncTable;
+  ScriptFuncTables: array [TScriptFuncTableID] of TScriptFuncTable; { Initialized below }
 
   DelphiScriptFuncTable: TScriptFuncTable =
   [
