@@ -12,4 +12,4 @@
 
 <p>The <i>CodeClasses.iss</i> example script in the "Examples" subdirectory in your Inno Setup directory shows how to use these classes.</p>
 
-<p>Note: you may find it useful to also refer to the Delphi Visual Component Library (VCL) Help files by Embarcadero Technologies, since the classes below are mostly simple wrappers around the VCL classes Inno Setup uses internally. See <extlink href="http://docwiki.embarcadero.com/RADStudio/Rio/en/VCL">http://docwiki.embarcadero.com/RADStudio/Rio/en/VCL</extlink>.</p>
+<p>Note: you may find it useful to also refer to the Delphi Visual Component Library (VCL) Help files by Embarcadero Technologies, since the classes below are mostly simple wrappers around the VCL classes Inno Setup uses internally. See <extlink href="http://docwiki.embarcadero.com/RADStudio/Alexandria/en/VCL">http://docwiki.embarcadero.com/RADStudio/Alexandria/en/VCL</extlink>.</p>
