@@ -1,8 +1,6 @@
 /*
   islzma.h, by Jordan Russell for Inno Setup
   This file is public domain (like the LZMA SDK)
-
-  $jrsoftware: issrc/Projects/lzma2/Encoder/islzma.h,v 1.2 2010/03/24 19:55:40 jr Exp $
 */
 
 struct LZMAEncoderProps {

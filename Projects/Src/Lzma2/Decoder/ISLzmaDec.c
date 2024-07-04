@@ -3,8 +3,6 @@
   This file is public domain (like the LZMA SDK)
 
   LzmaDec.c + additional helper functions used by LZMADecomp.pas
-
-  $jrsoftware: issrc/Projects/lzma2/Decoder/ISLzmaDec.c,v 1.3 2010/03/14 20:31:27 jr Exp $
 */
 
 #include "../C/LzmaDec.c"

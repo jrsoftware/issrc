@@ -7,8 +7,6 @@ unit ArcFour;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to ISCrypt.dll (ARCFOUR encryption/decryption)
-
-  $jrsoftware: issrc/Projects/ArcFour.pas,v 1.2 2004/04/26 19:11:23 jr Exp $
 }
 
 interface

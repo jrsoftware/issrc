@@ -32,8 +32,8 @@ branches and make pull requests. In detail:
 6. Make sure that your changes adhere to the current coding conventions used
    throughout the project - indentation, accurate comments, etc.
 
-   Do not make mass whitespace, copyright date or $jrsoftware$ tag changes to
-   files. The only time is it ok to make such changes is when you already needed
+   Do not make mass whitespace or copyright date changes to files nor anything
+   similar. The only time is it ok to make such changes is when you already needed
    to change the file to implement your feature, change, or fix.
 
 7. Commit your changes to your topic branch.
