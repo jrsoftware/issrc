@@ -1127,7 +1127,7 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
     <subcategory>
       <function>
         <name>SetLength</name>
-        <prototype>procedure SetLength(var S: String; L: LongInt);</prototype>
+        <prototype>procedure SetLength(var S: AnyString; L: LongInt);</prototype>
         <description><p>Sets the length of a string.</p></description>
       </function>
       <function>

@@ -45,6 +45,7 @@ var
     'function FloatToStr(E: Extended): String;',
     'function Copy(S: AnyString; Index, Count: Integer): String;',
     'function Length(S: AnyString): LongInt;',
+    'procedure SetLength(var S: AnyString; L: LongInt);',
     'function Lowercase(S: AnyString): String;',
     'function Uppercase(S: AnyString): String;',
     'function AnsiLowercase(S: AnyString): String;',
@@ -63,7 +64,16 @@ var
     'function VarIsNull(const V: Variant): Boolean;',
     'function VarType(const V: Variant): TVarType;',
     'function VarArrayGet(var S: Variant; I: Integer): Variant;',
-    'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);'
+    'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);',
+    'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
+    { Special functions: undocumented but listing anyway }
+    'function Low(var X): Int64;',
+    'function High(var X): Int64;',
+    'procedure Dec(var X: Ordinal);',
+    'procedure Inc(var X: Ordinal);',
+    'procedure Include(var S: Set; I: Ordinal);',
+    'procedure Exclude(var S: Set; I: Ordinal);',
+    'function SizeOf(var X): LongInt;'
   ];
 
   { Undocumented ROPS functions: 
