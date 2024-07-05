@@ -4908,7 +4908,8 @@ begin
             the current word has no dot before it }
           if WordList = '' then begin
             I := FActiveMemo.GetPositionBefore(WordStartPos);
-            if not ((I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) = '.')) then begin
+            var ClassFunction := (I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) = '.');
+            if not ClassFunction then begin
               WordList := FMemosStyler.ScriptWordList;
               FActiveMemo.SetAutoCompleteFillupChars('(')
             end;
@@ -4993,9 +4994,6 @@ procedure TCompileForm.InitiateCallTip;
 begin
   var Pos := FActiveMemo.CaretPosition;
 
-  { We rely on the styler to identify [Code] section lines and comments, but we
-    may be searching into areas that haven't been styled yet }
-  FActiveMemo.StyleNeeded(FActiveMemo.CaretPosition);
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
      (FMemosStyler.IsCommentOrPascalStringStyle(FActiveMemo.GetStyleAtPosition(FActiveMemo.GetPositionBefore(Pos)))) then
     Exit;
