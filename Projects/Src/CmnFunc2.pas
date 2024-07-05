@@ -1655,9 +1655,14 @@ begin
     FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
     OPEN_EXISTING, 0, 0);
   if NulDevice = INVALID_HANDLE_VALUE then
-    raise Exception.CreateFmt('Output redirection error: CreateFile failed (%d)', [GetLastError]);
+    { In case the NUL device is missing (which it inexplicably seems to
+      be for some users, per web search), don't treat it as a fatal
+      error. Just leave FStdInNulDevice at 0. It's not ideal, but the
+      child process likely won't even attempt to access stdin anyway. }
+    LogErrorFmt('Failed to open NUL device (%d). Will pass NULL handle for stdin.', [GetLastError])
+  else
+    FStdInNulDevice := NulDevice;
 
-  FStdInNulDevice := NulDevice;
   PipeCreate(FStdOutPipeRead, FStdOutPipeWrite, SecurityAttributes);
 
   if FMode = omCapture then
