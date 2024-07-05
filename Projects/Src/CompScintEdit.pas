@@ -258,14 +258,14 @@ begin
   Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
 
   { Set up the gutter column with change history. Note: width of the column is
-    set up by UpdateMarginsAndSquigglyWidths. Also see
+    set up by UpdateMarginsAndSquigglyAndCaretWidths. Also see
     https://scintilla.org/ChangeHistory.html }
   Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINMASKN, mmChangeHistory, SC_MASK_HISTORY);
   Call(SCI_SETMARGINCURSORN, mmChangeHistory, SC_CURSORARROW);
 
   { Set up the gutter column with folding markers. Note: width of the column is
-    set up by UpdateMarginsAndSquigglyWidths. }
+    set up by UpdateMarginsAndSquigglyAndCaretWidths. }
   Call(SCI_SETMARGINTYPEN, mmFolding, SC_MARGIN_SYMBOL);
   Call(SCI_SETMARGINMASKN, mmFolding, LPARAM(SC_MASK_FOLDERS));
   Call(SCI_SETMARGINCURSORN, mmFolding, SC_CURSORARROW);
@@ -382,7 +382,7 @@ begin
   if FUseFolding <> Value then begin
     FUseFolding := Value;
     { If FUseFolding is True then caller must set the margin width using
-      UpdateMarginsAndSquigglyWidths else we set it to 0 now }
+      UpdateMarginsAndSquigglyAndCaretWidths else we set it to 0 now }
     if not FUseFolding then begin
       Call(SCI_FOLDALL, SC_FOLDACTION_EXPAND, 0);
       Call(SCI_SETMARGINWIDTHN, 3, 0);
