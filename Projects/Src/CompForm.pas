@@ -515,6 +515,8 @@ type
     function InitializeMainMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
     function InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+    function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+      const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure InitiateCallTip;
     procedure ContinueCallTip;
@@ -4802,6 +4804,13 @@ begin
   Memo.ReportCaretPositionToStyler := True;
 end;
 
+function TCompileForm.InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+  const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
+begin
+  Result := (PositionBeforeWordStartPos >= WordStartLinePos) and
+            not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
+end;
+
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
   function OnlyWhiteSpaceBeforeWord(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
@@ -4825,7 +4834,7 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
 var
   CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore,
-    I, LangNamePos: Integer;
+    LangNamePos: Integer;
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
@@ -4884,14 +4893,17 @@ begin
       begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
+          var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
+          if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
+            Exit;
+
           WordList := '';
 
           { Autocomplete event functions if the current word on the line has
             exactly 1 space before it which has the word 'function' or
             'procedure' before it which has only whitespace before it }
-          I := FActiveMemo.GetPositionBefore(WordStartPos);
-          if (I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) <= ' ') then begin
-            var FunctionWordEndPos := I;
+          if (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
+            var FunctionWordEndPos := PositionBeforeWordStartPos;
             var FunctionWordStartPos := FActiveMemo.GetWordStartPosition(FunctionWordEndPos, True);
             if OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, FunctionWordStartPos) then begin
               var FunctionWord := FActiveMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
@@ -4907,8 +4919,7 @@ begin
           { If no event function was found then autocomplete script functions if
             the current word has no dot before it }
           if WordList = '' then begin
-            I := FActiveMemo.GetPositionBefore(WordStartPos);
-            var ClassFunction := (I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) = '.');
+            var ClassFunction := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
             if not ClassFunction then begin
               WordList := FMemosStyler.ScriptWordList;
               FActiveMemo.SetAutoCompleteFillupChars('(')
@@ -4926,7 +4937,7 @@ begin
           FoundSemicolon := False;
           FoundFlagsOrType := False;
           FoundDot := False;
-          I := WordStartPos;
+          var I := WordStartPos;
           while I > LinePos do begin
             I := FActiveMemo.GetPositionBefore(I);
             if I < LinePos then
@@ -4995,7 +5006,9 @@ begin
   var Pos := FActiveMemo.CaretPosition;
 
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
-     (FMemosStyler.IsCommentOrPascalStringStyle(FActiveMemo.GetStyleAtPosition(FActiveMemo.GetPositionBefore(Pos)))) then
+     not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
+      FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
+      FActiveMemo.GetPositionBefore(Pos)) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
