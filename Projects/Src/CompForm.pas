@@ -238,9 +238,9 @@ type
     VReopenTabs2: TMenuItem;
     NavPopupMenu: TMenuItem;
     N23: TMenuItem;
-    LightMarkersImageCollection: TImageCollection;
-    DarkMarkersImageCollection: TImageCollection;
-    ThemedMarkersVirtualImageList: TVirtualImageList;
+    LightMarkersAndACImageCollection: TImageCollection;
+    DarkMarkersAndACImageCollection: TImageCollection;
+    ThemedMarkersAndACVirtualImageList: TVirtualImageList;
     ESelectNextOccurrence: TMenuItem;
     ESelectAllOccurrences: TMenuItem;
     BreakPointsPopupMenu: TMenuItem;
@@ -578,7 +578,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
-    procedure UpdateMarginsIcons;
+    procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
@@ -725,7 +725,7 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := BodyPanel;
-  Memo.SetAutoCompleteSeparator(InnoSetupStylerWordListSeparator);
+  Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.Visible := False;
@@ -981,7 +981,7 @@ begin
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
 
-  ThemedMarkersVirtualImageList.AutoFill := True;
+  ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
 
@@ -1083,7 +1083,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
   UpdateMarginsAndSquigglyAndCaretWidths;
-  UpdateMarginsIcons;
+  UpdateMarginsAndAutoCompleteIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
@@ -3812,11 +3812,11 @@ begin
   inherited;
 end;
 
-procedure TCompileForm.UpdateMarginsIcons;
+procedure TCompileForm.UpdateMarginsAndAutoCompleteIcons;
 { Should be called at startup and after theme and DPI changes }
 
 type
-  TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
+  TMarkerOrACBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
 
   procedure SwapRedBlue(const pvBits: PByte; Width, Height: Integer);
   begin
@@ -3830,8 +3830,8 @@ type
     end;
   end;
 
-  procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
-    const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
+  procedure AddMarkerOrACBitmap(const MarkerOrACBitmaps: TMarkerOrACBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
+    const MarkerNumberOrACType: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
   begin
     { Prepare a bitmap and select it }
     var pvBits: Pointer;
@@ -3852,7 +3852,7 @@ type
       var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
       Bitmap2.pvBits := pvBits;
-      MarkerBitmaps.Add(Marker, Bitmap2);
+      MarkerOrACBitmaps.Add(MarkerNumberOrACType, Bitmap2);
     end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
@@ -3860,48 +3860,74 @@ type
   end;
 
 type
-  TNamedMarker = TPair<Integer, String>;
+  TMarkerNumberOrACType = TPair<Integer, String>;
 
-  function NM(const Marker: Integer; const Name: String): TNamedMarker;
+  function NNT(const MarkerNumberOrACType: Integer; const Name: String): TMarkerNumberOrACType;
   begin
-    Result := TNamedMarker.Create(Marker, Name); { This is a record so no need to free }
+    Result := TMarkerNumberOrACType.Create(MarkerNumberOrACType, Name); { This is a record so no need to free }
   end;
 
 begin
-  var ImageList := ThemedMarkersVirtualImageList;
+  var ImageList := ThemedMarkersAndACVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
     try
-      var MarkerBitmaps := TMarkerBitmaps.Create([doOwnsValues]);
-      var BkBrush := TBrush.Create;
+      var MarkerBitmaps: TMarkerOrACBitmaps := nil;
+      var MarkerBkBrush: TBrush := nil;
+      var AutoCompleteBitmaps: TMarkerOrACBitmaps := nil;
+      var AutoCompleteBkBrush: TBrush := nil;
       try
-        BkBrush.Color := FTheme.Colors[tcMarginBack];
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32); { This is a record so no need to free }
 
-        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
+        MarkerBitmaps := TMarkerOrACBitmaps.Create([doOwnsValues]);
+        MarkerBkBrush := TBrush.Create;
+        MarkerBkBrush.Color := FTheme.Colors[tcMarginBack];
 
         var NamedMarkers := [
-            NM(mimHasEntry, 'debug-stop-filled'),
-            NM(mimEntryProcessed, 'debug-stop-filled_2'),
-            NM(mimBreakpoint, 'debug-breakpoint-filled'),
-            NM(mimBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-            NM(mimBreakpointGood, 'debug-breakpoint-filled-ok-2'),
-            NM(mimStep, 'symbol-arrow-right'),
-            NM(mimBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right'),
-            NM(SC_MARKNUM_FOLDER, 'symbol-add'),
-            NM(SC_MARKNUM_FOLDEROPEN, 'symbol-remove')];
+          NNT(mmiHasEntry, 'markers\debug-stop-filled'),
+          NNT(mmiEntryProcessed, 'markers\debug-stop-filled_2'),
+          NNT(mmiBreakpoint, 'markers\debug-breakpoint-filled'),
+          NNT(mmiBreakpointBad, 'markers\debug-breakpoint-filled-cancel-2'),
+          NNT(mmiBreakpointGood, 'markers\debug-breakpoint-filled-ok-2'),
+          NNT(mmiStep, 'markers\symbol-arrow-right'),
+          NNT(mmiBreakpointStep, 'markers\debug-breakpoint-filled-ok2-symbol-arrow-right'),
+          NNT(SC_MARKNUM_FOLDER, 'markers\symbol-add'),
+          NNT(SC_MARKNUM_FOLDEROPEN, 'markers\symbol-remove')];
 
         for var NamedMarker in NamedMarkers do
-          AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
+          AddMarkerOrAcBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, MarkerBkBrush, ImageList, NamedMarker.Value);
+
+        AutoCompleteBitmaps := TMarkerOrACBitmaps.Create([doOwnsValues]);
+        AutoCompleteBkBrush := TBrush.Create;
+        AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
+
+        var NamedTypes := [
+          NNT(awtFunction, 'ac\functions'),
+          NNT(awtType, 'ac\types'),
+          NNT(awtVariable, 'ac\variables'),
+          NNT(awtConstant, 'ac\constant-filled'),
+          NNT(awtClass, 'ac\class-filled'),
+          NNT(awtInterface, 'ac\interface-filled'),
+          NNT(awtMethod, 'ac\method-filled'),
+          NNT(awtProperty, 'ac\properties-filled'),
+          NNT(awtObject, 'ac\object-filled')];
+
+        for var NamedType in NamedTypes do
+          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
 
         for var Memo in FMemos do begin
           Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);
           Memo.Call(SCI_RGBAIMAGESETHEIGHT, ImageList.Height, 0);
           for var MarkerBitmap in MarkerBitmaps do
             Memo.Call(SCI_MARKERDEFINERGBAIMAGE, MarkerBitmap.Key, LPARAM(MarkerBitmap.Value.pvBits));
+          for var AutoCompleteBitmap in AutoCompleteBitmaps do
+            Memo.Call(SCI_REGISTERRGBAIMAGE, AutoCompleteBitmap.Key, LPARAM(AutoCompleteBitmap.Value.pvBits));
         end;
       finally
-        BkBrush.Free;
+        AutoCompleteBkBrush.Free;
+        AutoCompleteBitmaps.Free;
+        MarkerBkBrush.Free;
         MarkerBitmaps.Free;
       end;
     finally
@@ -4883,7 +4909,7 @@ begin
           if WordList = '' then begin
             I := FActiveMemo.GetPositionBefore(WordStartPos);
             if not ((I >= LinePos) and (FActiveMemo.GetByteAtPosition(I) = '.')) then begin
-              WordList := FMemosStyler.ScriptFunctionsWordList;
+              WordList := FMemosStyler.ScriptWordList;
               FActiveMemo.SetAutoCompleteFillupChars('(')
             end;
           end;
@@ -5976,14 +6002,14 @@ begin
 
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := DarkToolBarImageCollection;
-    ThemedMarkersVirtualImageList.ImageCollection := DarkMarkersImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := DarkMarkersAndACImageCollection;
   end else begin
     ThemedToolbarVirtualImageList.ImageCollection := LightToolBarImageCollection;
-    ThemedMarkersVirtualImageList.ImageCollection := LightMarkersImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := LightMarkersAndACImageCollection;
   end;
 
   UpdateBevel1Visibility;
-  UpdateMarginsIcons;
+  UpdateMarginsAndAutoCompleteIcons;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -7288,18 +7314,18 @@ begin
   NewMarker := -1;
   if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
     if AMemo.LineState = nil then
-      NewMarker := mimBreakpoint
+      NewMarker := mmiBreakpoint
     else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
-      NewMarker := IfThen(StepLine, mimBreakpointStep, mimBreakpointGood)
+      NewMarker := IfThen(StepLine, mmiBreakpointStep, mmiBreakpointGood)
     else
-      NewMarker := mimBreakpointBad;
+      NewMarker := mmiBreakpointBad;
   end else if StepLine then
-    NewMarker := mimStep
+    NewMarker := mmiStep
   else begin
     if Line < AMemo.LineStateCount then begin
       case AMemo.LineState[Line] of
-        lnHasEntry: NewMarker := mimHasEntry;
-        lnEntryProcessed: NewMarker := mimEntryProcessed;
+        lnHasEntry: NewMarker := mmiHasEntry;
+        lnEntryProcessed: NewMarker := mmiEntryProcessed;
       end;
     end;
   end;
@@ -7316,7 +7342,7 @@ begin
     AMemo.AddMarker(Line, mlmStep)
   else if AMemo.ErrorLine = Line then
     AMemo.AddMarker(Line, mlmError)
-  else if NewMarker = mimBreakpointBad then
+  else if NewMarker = mmiBreakpointBad then
     AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 

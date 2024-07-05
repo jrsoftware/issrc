@@ -22,15 +22,15 @@ const
   mmChangeHistory = 2;
   mmFolding = 3;
 
-  { Memo icon and line marker numbers }
-  mimHasEntry = 0;        { grey dot }
-  mimEntryProcessed = 1;  { green dot }
-  mimBreakpoint = 2;      { stop sign }
-  mimBreakpointGood = 3;  { stop sign + check }
-  mimBreakpointBad = 4;   { stop sign + X }
-  mimStep = 5;            { blue arrow }
-  mimBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
-  mimMask = $7F;
+  { Memo marker icon and line marker numbers }
+  mmiHasEntry = 0;        { grey dot }
+  mmiEntryProcessed = 1;  { green dot }
+  mmiBreakpoint = 2;      { stop sign }
+  mmiBreakpointGood = 3;  { stop sign + check }
+  mmiBreakpointBad = 4;   { stop sign + X }
+  mmiStep = 5;            { blue arrow }
+  mmiBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
+  mmiMask = $7F;
 
   mlmError = 10;          { maroon line highlight }
   mlmBreakpointBad = 11;  { ugly olive line highlight }
@@ -259,7 +259,7 @@ begin
 
   { Set up the gutter column with breakpoint etc symbols }
   Call(SCI_SETMARGINTYPEN, mmIcons, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, mmIcons, mimMask);
+  Call(SCI_SETMARGINMASKN, mmIcons, mmiMask);
   Call(SCI_SETMARGINSENSITIVEN, mmIcons, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
 

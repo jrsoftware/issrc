@@ -332,7 +332,7 @@ type
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
-    procedure SetAutoCompleteSeparator(const C: AnsiChar);
+    procedure SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
@@ -931,11 +931,6 @@ begin
     CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
-function TScintEdit.GetMainSelText: String;
-begin
-  Result := ConvertRawStringToString(GetRawMainSelText);
-end;
-
 function TScintEdit.GetAutoCompleteActive: Boolean;
 begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
@@ -1080,6 +1075,11 @@ end;
 function TScintEdit.GetMainSelection: Integer;
 begin
   Result := Call(SCI_GETMAINSELECTION, 0, 0);
+end;
+
+function TScintEdit.GetMainSelText: String;
+begin
+  Result := ConvertRawStringToString(GetRawMainSelText);
 end;
 
 function TScintEdit.GetMarkers(const Line: Integer): TScintMarkerNumbers;
@@ -1640,9 +1640,10 @@ begin
   CallStr(SCI_AUTOCSELECT, 0, S);
 end;
 
-procedure TScintEdit.SetAutoCompleteSeparator(const C: AnsiChar);
+procedure TScintEdit.SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
 begin
-  Call(SCI_AUTOCSETSEPARATOR, WParam(C), 0);
+  Call(SCI_AUTOCSETSEPARATOR, WParam(Separator), 0);
+  Call(SCI_AUTOCSETTYPESEPARATOR, WParam(TypeSeparator), 0);
 end;
 
 procedure TScintEdit.SetAutoCompleteStopChars(const StopChars: AnsiString);

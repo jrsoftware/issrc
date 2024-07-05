@@ -16,12 +16,12 @@ type
     sftCmnFunc2, sftInstall, sftInstFunc, sftInstFnc2, sftMain, sftMsgs,
     sftSystem, sftSysUtils, sftVerInfo, sftWindows, sftOle2, sftLogging,
     sftOther);
-  TScriptFuncTable = array of AnsiString;
+  TScriptTable = array of AnsiString;
 
 var
-  ScriptFuncTables: array [TScriptFuncTableID] of TScriptFuncTable; { Initialized below }
+  ScriptFuncTables: array [TScriptFuncTableID] of TScriptTable; { Initialized below }
 
-  DelphiScriptFuncTable: TScriptFuncTable =
+  DelphiScriptFuncTable: TScriptTable =
   [
     'function FmtMessage(const S: String; const Args: array of String): String;',
     'function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;',
@@ -34,7 +34,7 @@ var
   { These are just for Compil32 and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
     TPSExec.RegisterStandardProc }
-  ROPSScriptFuncTable: TScriptFuncTable =
+  ROPSScriptFuncTable: TScriptTable =
   [
     'function StrToIntDef(S: String; Def: LongInt): LongInt;',
     'function StrToInt(S: String): LongInt;',
@@ -76,7 +76,7 @@ var
     'function SizeOf(var X): LongInt;'
   ];
 
-  { Undocumented ROPS functions: 
+  { ROPSUndocumentedScriptFuncTable: TScriptTable =
   [
     'function StrGet(var S: String; I: Integer): Char;',
     'function StrGet2(S: String; I: Integer): Char;',
@@ -102,9 +102,26 @@ var
     'function ExceptionProc: Cardinal;',
     'function ExceptionPos: Cardinal;',
     'function ExceptionToString(er: TIFException; Param: String): String;',
-    'function Int64ToStr(I: Int64): String;',
-  ]
-  }
+    'function Int64ToStr(I: Int64): String;'
+  ]; }
+
+  { Just for Compil32 }
+  ScriptConstsTable: TScriptTable = [
+    { Ours - ScriptClasses_C }
+    'clHotLight'
+  ];
+
+  { Just for Compil32 }
+  ScriptTypesTable: TScriptTable = [
+  ];
+
+  { Just for Compil32 }
+  ScriptVariablesTable: TScriptTable = [
+    { Ours - ScriptClasses_C }
+    'WizardForm',
+    'MainForm',
+    'UninstallProgressForm'
+  ];
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
@@ -173,7 +190,7 @@ begin
             (Pos(BadType1, ScriptFunc) = 0) and (Pos(BadType2, ScriptFunc) = 0);
 end;
 
-procedure CheckIsCleanScriptFuncTable(const ScriptFuncTable: TScriptFuncTable);
+procedure CheckIsCleanScriptFuncTable(const ScriptFuncTable: TScriptTable);
 begin
   if Length(ScriptFuncTable) = 0 then
     raise Exception.Create('Length(ScriptFuncTable) = 0');

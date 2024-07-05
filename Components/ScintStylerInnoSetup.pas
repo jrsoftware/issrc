@@ -19,6 +19,18 @@ uses
 
 const
   InnoSetupStylerWordListSeparator = #9;
+  InnoSetupStylerWordListTypeSeparator = '?';
+
+  { AutoComplete word types }
+  awtFunction = 0;
+  awtType = 1;
+  awtVariable = 2;
+  awtConstant = 3;
+  awtClass = 4;
+  awtInterface = 5;
+  awtMethod = 6;
+  awtProperty = 7;
+  awtObject = 8;
 
 type
   TInnoSetupStylerSection = (
@@ -66,9 +78,11 @@ type
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
     FScriptFunctionsByName: TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
-    FScriptFunctionsWordList: AnsiString; { Has all functions }
+    FScriptWordList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
+    procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
+      const Typ: Integer = -1);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -81,7 +95,7 @@ type
       const Parameters: array of TScintRawString);
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
       const EnumTypeInfo: Pointer);
-    procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptFuncTable;
+    procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const SL: TStringList);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
@@ -126,7 +140,7 @@ type
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptFunctionDefinition[Name: String]: AnsiString read GetScriptFunctionDefinition;
-    property ScriptFunctionsWordList: AnsiString read FScriptFunctionsWordList;
+    property ScriptWordList: AnsiString read FScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -702,6 +716,27 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scUninstallRun, UninstallRunSectionParameters);
   end;
 
+  procedure BuildScriptLists;
+  begin
+    { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete) }
+    var SL := TStringList.Create;
+    try
+      for var ScriptFuncTable in ScriptFuncTables do
+        BuildScriptFunctionsLists(ScriptFuncTable, SL);
+      BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
+      BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
+      for var S in ScriptConstsTable do
+        AddWordToList(SL, S, awtConstant);
+      for var S in ScriptTypesTable do
+        AddWordToList(SL, S, awtType);
+      for var S in ScriptVariablesTable do
+        AddWordToList(SL, S, awtVariable);
+      FScriptWordList := BuildWordList(SL);
+    finally
+      SL.Free;
+    end;
+  end;
+
 begin
   inherited;
   BuildConstantsWordList;
@@ -710,18 +745,8 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
-
   FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
-  var SL := TStringList.Create;
-  try
-    for var ScriptFuncTable in ScriptFuncTables do
-      BuildScriptFunctionsLists(ScriptFuncTable, SL);
-    BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
-    BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
-    FScriptFunctionsWordList := BuildWordList(SL);
-  finally
-    SL.Free;
-  end;
+  BuildScriptLists;
 end;
 
 destructor TInnoSetupStyler.Destroy;
@@ -736,6 +761,15 @@ begin
     ApplyStyleByteIndicators([inPendingSquiggly], StartIndex, EndIndex)
   else
     ApplyStyleByteIndicators([inSquiggly], StartIndex, EndIndex);
+end;
+
+procedure TInnoSetupStyler.AddWordToList(const SL: TStringList;
+  const Word: AnsiString; const Typ: Integer);
+begin
+  if Typ >= 0 then
+    SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
+  else
+    SL.Add(String(Word));
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -852,20 +886,20 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildScriptFunctionsLists(
-  const ScriptFuncTable: TScriptFuncTable; const SL: TStringList);
+  const ScriptFuncTable: TScriptTable; const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
     var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
     var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
     if ScriptFuncHasParameters(ScriptFunc) then
       FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-    SL.Add(String(ScriptFuncName));
+    AddWordToList(SL, ScriptFuncName, awtFunction);
   end;
 end;
 
 procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
 begin
-  var SL :=TStringList.Create;
+  var SL := TStringList.Create;
   try
     for var I := 0 to High(ISPPDirectives) do
       SL.Add('#' + String(ISPPDirectives[I].Name));
