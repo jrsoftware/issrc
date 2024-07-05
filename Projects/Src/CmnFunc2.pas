@@ -1786,14 +1786,15 @@ begin
         SetLength(Buffer, TotalBytesHave+BytesRead);
 
         { Check for completed lines thanks to the new data }
-        var P := FindNewLine(Buffer, LastRead);
-        while P <> 0 do begin
+        while FTotalLinesRead < FMaxTotalLinesToRead do begin
+          var P := FindNewLine(Buffer, LastRead);
+          if P = 0 then
+            Break;
           LogLine(Copy(Buffer, 1, P-1));
           Inc(FTotalLinesRead);
           if (Buffer[P] = #13) and (P < Length(Buffer)) and (Buffer[P+1] = #10) then
             Inc(P);
           Delete(Buffer, 1, P);
-          P := FindNewLine(Buffer, LastRead);
         end;
 
         Inc(FTotalBytesRead, BytesRead);
