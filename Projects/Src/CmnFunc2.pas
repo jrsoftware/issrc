@@ -1615,15 +1615,21 @@ constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
 
   procedure PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes);
   begin
+    { CreatePipe docs say no assumptions should be made about the output
+      parameter contents (the two handles) when it fails. So specify local
+      variables for the output parameters, and only copy the handles into
+      the "var" parameters when CreatePipe is successful. That way, if it
+      does fail, the "var" parameters will still have their original 0
+      values (which is important because the destructor closes all
+      non-zero handles). }
     var TempReadPipe, TempWritePipe: THandle;
     if not CreatePipe(TempReadPipe, TempWritePipe, @SecurityAttr, 0) then
       raise Exception.CreateFmt('Output redirection error: CreatePipe failed (%d)', [GetLastError]);
+    Read := TempReadPipe;
+    Write := TempWritePipe;
 
     if not SetHandleInformation(TempReadPipe, HANDLE_FLAG_INHERIT, 0) then
       raise Exception.CreateFmt('Output redirection error: SetHandleInformation failed (%d)', [GetLastError]);
-
-    Read := TempReadPipe;
-    Write := TempWritePipe;
   end;
 
 begin
