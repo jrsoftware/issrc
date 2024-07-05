@@ -727,6 +727,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
       for var S in ScriptConstsTable do
         AddWordToList(SL, S, awtConstant);
+      for var S in ScriptInterfacesTable do
+        AddWordToList(SL, S, awtInterface);
       for var S in ScriptTypesTable do
         AddWordToList(SL, S, awtType);
       for var S in ScriptVariablesTable do

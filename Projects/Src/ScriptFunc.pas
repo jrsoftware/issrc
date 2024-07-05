@@ -7,6 +7,8 @@ unit ScriptFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions (listings - used by Compil32, ISCmplr, and Setup)
+
+  Script constants, types, etc (listings - used by Compil32)
 }
 
 interface
@@ -30,6 +32,8 @@ var
     'function Format(const Format: String; const Args: array of const): String;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
+
+{$IFDEF COMPIL32PROJ}
 
   { These are just for Compil32 and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
@@ -105,23 +109,35 @@ var
     'function Int64ToStr(I: Int64): String;'
   ]; }
 
-  { Just for Compil32 }
+  { All of the following are also just for Compil32 }
+
   ScriptConstsTable: TScriptTable = [
+    { ROPS }
+    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble', 'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean', 'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord', 'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray', 'varByRef', 'varUString',
     { Ours - ScriptClasses_C }
     'clHotLight'
   ];
 
-  { Just for Compil32 }
-  ScriptTypesTable: TScriptTable = [
+  ScriptInterfacesTable: TScriptTable = [
+    { ROPS }
+    'IUnknown',
+    'Interface'
   ];
 
-  { Just for Compil32 }
+  ScriptTypesTable: TScriptTable = [
+    { ROPS }
+    'TVarType'
+    //undocumented: TIFException
+  ];
+
   ScriptVariablesTable: TScriptTable = [
     { Ours - ScriptClasses_C }
     'WizardForm',
     'MainForm',
     'UninstallProgressForm'
   ];
+
+{$ENDIF}
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
@@ -179,6 +195,7 @@ begin
   Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
 
+{$IFDEF COMPIL32PROJ}
 {$IFDEF DEBUG}
 function IsCleanScriptFunc(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -198,6 +215,7 @@ begin
     if not IsCleanScriptFunc(AScriptFunc) then
       raise Exception.CreateFmt('not IsCleanScriptFunc: %s', [AScriptFunc]);
 end;
+{$ENDIF}
 {$ENDIF}
 
 initialization
@@ -549,11 +567,13 @@ initialization
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;'
   ];
 
+  {$IFDEF COMPIL32PROJ}
   {$IFDEF DEBUG}
   for var ScriptFuncTable in ScriptFuncTables do
     CheckIsCleanScriptFuncTable(ScriptFuncTable);
   CheckIsCleanScriptFuncTable(DelphiScriptFuncTable);
   CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
+  {$ENDIF}
   {$ENDIF}
 
 end.
