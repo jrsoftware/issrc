@@ -1611,7 +1611,7 @@ end;
 constructor TCreateProcessOutputReader.Create(const ALogProc: TLogProc;
   const ALogProcData: NativeInt; AMode: TOutputMode = omLog);
 
-  procedure PipeCreate(var Read, Write: THandle; SecurityAttr: TSecurityAttributes);
+  procedure CreatePipeAndSetHandleInformation(var Read, Write: THandle; SecurityAttr: TSecurityAttributes);
   begin
     { CreatePipe docs say no assumptions should be made about the output
       parameter contents (the two handles) when it fails. So specify local
@@ -1659,10 +1659,10 @@ begin
   if NulDevice <> INVALID_HANDLE_VALUE then
     FStdInNulDevice := NulDevice;
 
-  PipeCreate(FStdOutPipeRead, FStdOutPipeWrite, SecurityAttributes);
+  CreatePipeAndSetHandleInformation(FStdOutPipeRead, FStdOutPipeWrite, SecurityAttributes);
 
   if FMode = omCapture then
-    PipeCreate(FStdErrPipeRead, FStdErrPipeWrite, SecurityAttributes);
+    CreatePipeAndSetHandleInformation(FStdErrPipeRead, FStdErrPipeWrite, SecurityAttributes);
 
   FOkToRead := True;
   FMaxTotalBytesToRead := 10*1000*1000;
