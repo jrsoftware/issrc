@@ -7367,10 +7367,6 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
 
   procedure InternalSignCommand(const AFormattedCommand: String;
     const Delay: Cardinal);
-  var
-    StartupInfo: TStartupInfo;
-    ProcessInfo: TProcessInformation;
-    LastError, ExitCode: DWORD;
   begin
     {Also see IsppFuncs' Exec }
 
@@ -7382,6 +7378,9 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
 
     LastSignCommandStartTick := GetTickCount;
 
+    var StartupInfo: TStartupInfo;
+    var ProcessInfo: TProcessInformation;
+    var LastError, ExitCode: DWORD;
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;

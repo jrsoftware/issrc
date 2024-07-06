@@ -90,8 +90,8 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
+  var ResultCode: Integer): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
@@ -905,8 +905,8 @@ end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
+  var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -946,35 +946,29 @@ begin
   if WorkingDir = '' then
     WorkingDir := GetSystemDir;
 
-  var OutputReader: TCreateProcessOutputReader := nil;
-  try
-    var InheritHandles := False;
-    var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+  var InheritHandles := False;
+  var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
 
-    if Log and Assigned(LogProc) and (Wait = ewWaitUntilTerminated) then begin
-      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
-      OutputReader.UpdateStartupInfo(StartupInfo);
-      InheritHandles := True;
-      dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
-    end;
-
-    Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
-      InheritHandles, dwCreationFlags, nil, PChar(WorkingDir),
-      StartupInfo, ProcessInfo);
-    if not Result then begin
-      ResultCode := GetLastError;
-      Exit;
-    end;
-
-    { Don't need the thread handle, so close it now }
-    CloseHandle(ProcessInfo.hThread);
-    if OutputReader <> nil then
-      OutputReader.NotifyCreateProcessDone;
-    HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
-      OutputReader, ResultCode);
-  finally
-    OutputReader.Free;
+  if (OutputReader <> nil) and (Wait = ewWaitUntilTerminated) then begin
+    OutputReader.UpdateStartupInfo(StartupInfo);
+    InheritHandles := True;
+    dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
   end;
+
+  Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
+    InheritHandles, dwCreationFlags, nil, PChar(WorkingDir),
+    StartupInfo, ProcessInfo);
+  if not Result then begin
+    ResultCode := GetLastError;
+    Exit;
+  end;
+
+  { Don't need the thread handle, so close it now }
+  CloseHandle(ProcessInfo.hThread);
+  if OutputReader <> nil then
+    OutputReader.NotifyCreateProcessDone;
+  HandleProcessWait(ProcessInfo.hProcess, Wait, ProcessMessagesProc,
+    OutputReader, ResultCode);
 end;
 
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
