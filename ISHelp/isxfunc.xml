@@ -1667,7 +1667,8 @@ begin
     // handle failure if necessary; ResultCode contains the error code
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
+        <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
 <link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
       </function>
       <function>
@@ -2884,6 +2885,43 @@ end;</pre></example>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
         <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
       </function>
+<function>
+        <name>ExecAndCaptureOutput</name>
+        <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
+        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+<p>Program output from the stdout and stderr streams is captured. This is different from <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> which merges the streams.</p>
+<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
+        <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
+<p>TExecOutput is defined as:</p>
+<pre>
+  TExecOutput = record
+    StdOut: TArrayOfString;
+    StdErr: TArrayOfString;
+    Error: Boolean;
+  end;
+</pre>
+<p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
+        <example><pre>var
+  ResultCode: Integer;
+  Output: TExecOutput;
+begin
+  try
+    // Get the system configuration
+    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/k systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+  except
+    Result := False;
+    Log(GetExceptionMessage);
+  end;
+
+  if Result then begin
+    // Do something with the Output.StdOut array of string
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link></p></seealso>
+      </function>
       <function>
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
@@ -2896,7 +2934,8 @@ end;</pre></example>
 <p>TOnLog is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
 <p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
-<p>Error will be True if setting up output redirection or reading the output failed, or if the output size exceeded 10mb. There is no further output after an error.</p></remarks>
+<p>Error will be True if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre>var
   Line: String;
 
@@ -2919,7 +2958,8 @@ begin
   end;
   Result := Line;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_Exec">Exec</link></p></seealso>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link></p></seealso>
       </function>
     </subcategory>
   </category>
