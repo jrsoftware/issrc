@@ -23582,7 +23582,7 @@ object CompileForm: TCompileForm
           end>
       end
       item
-        Name = 'ac\functions'
+        Name = 'unused\functions'
         SourceImages = <
           item
             Image.Data = {
@@ -25931,7 +25931,7 @@ object CompileForm: TCompileForm
           end>
       end
       item
-        Name = 'ac\functions'
+        Name = 'unused\functions'
         SourceImages = <
           item
             Image.Data = {

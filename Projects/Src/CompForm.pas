@@ -3905,13 +3905,12 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
-          NNT(awtFunction, 'ac\functions'),
+          NNT(awtFunction, 'ac\method-filled'),
           NNT(awtType, 'ac\types'),
           NNT(awtVariable, 'ac\variables'),
           NNT(awtConstant, 'ac\constant-filled'),
           NNT(awtClass, 'ac\class-filled'),
           NNT(awtInterface, 'ac\interface-filled'),
-          NNT(awtMethod, 'ac\method-filled'),
           NNT(awtProperty, 'ac\properties-filled'),
           NNT(awtObject, 'ac\object-filled')];
 

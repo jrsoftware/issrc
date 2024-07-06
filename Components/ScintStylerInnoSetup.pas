@@ -28,9 +28,8 @@ const
   awtConstant = 3;
   awtClass = 4;
   awtInterface = 5;
-  awtMethod = 6;
-  awtProperty = 7;
-  awtObject = 8;
+  awtProperty = 6;
+  awtObject = 7;
 
 type
   TInnoSetupStylerSection = (
