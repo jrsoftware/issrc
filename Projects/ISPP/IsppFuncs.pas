@@ -632,8 +632,8 @@ end;
 
 function Exec(const Filename, Params: String; WorkingDir: String;
   const WaitUntilTerminated: Boolean; const ShowCmd: Integer;
-  const Preprocessor: TPreprocessor; const Log: Boolean; const LogProc: TLogProc;
-  const LogProcData: NativeInt; var ResultCode: Integer): Boolean;
+  const Preprocessor: TPreprocessor; const OutputReader: TCreateProcessOutputReader;
+  var ResultCode: Integer): Boolean;
 var
   CmdLine: String;
   WorkingDirP: PChar;
@@ -668,57 +668,51 @@ begin
     WorkingDirP := PChar(WorkingDir)
   else
     WorkingDirP := nil;
-    
-  var OutputReader: TCreateProcessOutputReader := nil;
+
+  var InheritHandles := False;
+  var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+
+  if (OutputReader <> nil) and WaitUntilTerminated then begin
+    OutputReader.UpdateStartupInfo(StartupInfo);
+    InheritHandles := True;
+    dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
+  end;
+
+  Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
+    dwCreationFlags, nil, WorkingDirP, StartupInfo, ProcessInfo);
+  if not Result then begin
+    ResultCode := GetLastError;
+    Exit;
+  end;
+
+  { Don't need the thread handle, so close it now }
+  CloseHandle(ProcessInfo.hThread);
+  if OutputReader <> nil then
+    OutputReader.NotifyCreateProcessDone;
+
   try
-    var InheritHandles := False;
-    var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
-
-    if Log and Assigned(LogProc) and WaitUntilTerminated then begin
-      OutputReader := TCreateProcessOutputReader.Create(LogProc, LogProcData);
-      OutputReader.UpdateStartupInfo(StartupInfo);
-      InheritHandles := True;
-      dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
-    end;
-
-    Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
-      dwCreationFlags, nil, WorkingDirP, StartupInfo, ProcessInfo);
-    if not Result then begin
-      ResultCode := GetLastError;
-      Exit;
-    end;
-    
-    { Don't need the thread handle, so close it now }
-    CloseHandle(ProcessInfo.hThread);
-    if OutputReader <> nil then
-      OutputReader.NotifyCreateProcessDone;
-      
-    try
-      if WaitUntilTerminated then begin
-        while True do begin
-          case WaitForSingleObject(ProcessInfo.hProcess, 50) of
-            WAIT_OBJECT_0: Break;
-            WAIT_TIMEOUT:
-              begin
-                if OutputReader <> nil then
-                  OutputReader.Read(False);
-                Preprocessor.CallIdleProc; { Doesn't allow an Abort }
-              end;
-          else
-            Preprocessor.RaiseError('Exec: WaitForSingleObject failed');
-          end;
+    if WaitUntilTerminated then begin
+      while True do begin
+        case WaitForSingleObject(ProcessInfo.hProcess, 50) of
+          WAIT_OBJECT_0: Break;
+          WAIT_TIMEOUT:
+            begin
+              if OutputReader <> nil then
+                OutputReader.Read(False);
+              Preprocessor.CallIdleProc; { Doesn't allow an Abort }
+            end;
+        else
+          Preprocessor.RaiseError('Exec: WaitForSingleObject failed');
         end;
-        if OutputReader <> nil then
-          OutputReader.Read(True);
       end;
-      { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
-      if not GetExitCodeProcess(ProcessInfo.hProcess, DWORD(ResultCode)) then
-        ResultCode := -1;  { just in case }
-    finally
-      CloseHandle(ProcessInfo.hProcess);
+      if OutputReader <> nil then
+        OutputReader.Read(True);
     end;
+    { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
+    if not GetExitCodeProcess(ProcessInfo.hProcess, DWORD(ResultCode)) then
+      ResultCode := -1;  { just in case }
   finally
-    OutputReader.Free;
+    CloseHandle(ProcessInfo.hProcess);
   end;
 end;
 
@@ -751,12 +745,17 @@ begin
       if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
       var Preprocessor := TPreprocessor(Ext);
       var ResultCode: Integer;
-      var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
-        ShowCmd, Preprocessor, True, ExecLog, NativeInt(Preprocessor), ResultCode);
-      if not WaitUntilTerminated then
-        MakeBool(ResPtr^, Success)
-      else
-        MakeInt(ResPtr^, ResultCode);
+      var OutputReader := TCreateProcessOutputReader.Create(ExecLog, NativeInt(Preprocessor));
+      try
+        var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, WaitUntilTerminated,
+          ShowCmd, Preprocessor, OutputReader, ResultCode);
+        if not WaitUntilTerminated then
+          MakeBool(ResPtr^, Success)
+        else
+          MakeInt(ResPtr^, ResultCode);
+      finally
+        OutputReader.Free;
+      end;
     end;
   except
     on E: Exception do
@@ -800,13 +799,18 @@ begin
       Data.Preprocessor := TPreprocessor(Ext);
       Data.Line := '';
       var ResultCode: Integer;
-      var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
-        SW_SHOWNORMAL, Data.Preprocessor, True, ExecAndGetFirstLineLog, NativeInt(@Data), ResultCode);
-      if Success then
-        MakeStr(ResPtr^, Data.Line)
-      else begin
-        Data.Preprocessor.WarningMsg('CreateProcess failed (%d).', [ResultCode]);
-        ResPtr^.Typ := evNull;
+      var OutputReader := TCreateProcessOutputReader.Create(ExecAndGetFirstLineLog, NativeInt(@Data));
+      try
+        var Success := Exec(Get(0).AsStr, ParamsS, WorkingDir, True,
+          SW_SHOWNORMAL, Data.Preprocessor, OutputReader, ResultCode);
+        if Success then
+          MakeStr(ResPtr^, Data.Line)
+        else begin
+          Data.Preprocessor.WarningMsg('CreateProcess failed (%d).', [ResultCode]);
+          ResPtr^.Typ := evNull;
+        end;
+      finally
+        OutputReader.Free;
       end;
     end;
   except

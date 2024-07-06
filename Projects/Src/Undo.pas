@@ -814,16 +814,22 @@ begin
                   Log('Running Exec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                    NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
-                  if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
-                     CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                     ShowCmd, ProcessMessagesProc, GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0),
-                     RunExecLog, 0, ErrorCode) then begin
-                    LogFmt('CreateProcess failed (%d).', [ErrorCode]);
-                    Result := False;
-                  end
-                  else begin
-                    if Wait = ewWaitUntilTerminated then
-                      LogFmt('Process exit code: %u', [ErrorCode]);
+                  var OutputReader: TCreateProcessOutputReader := nil;
+                  try
+                    if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
+                      OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+                    if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
+                       CurRecData[0], CurRecData[1], CurRecData[2], Wait,
+                       ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
+                      LogFmt('CreateProcess failed (%d).', [ErrorCode]);
+                      Result := False;
+                    end
+                    else begin
+                      if Wait = ewWaitUntilTerminated then
+                        LogFmt('Process exit code: %u', [ErrorCode]);
+                    end;
+                  finally
+                    OutputReader.Free;
                   end;
                 end else
                   Log('File doesn''t exist. Skipping.');
