@@ -36,7 +36,7 @@ type
   TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
   TOutputMode = (omLog, omCapture);
 
-  TCreateProcessOutputReaderData = record
+  TCreateProcessOutputReaderPipe = record
     OKToRead: Boolean;
     PipeRead, PipeWrite: THandle;
     Buffer: AnsiString;
@@ -50,8 +50,8 @@ type
     FTotalBytesRead: Cardinal;
     FTotalLinesRead: Cardinal;
     FStdInNulDevice: THandle;
-    FStdOut: TCreateProcessOutputReaderData;
-    FStdErr: TCreateProcessOutputReaderData;
+    FStdOut: TCreateProcessOutputReaderPipe;
+    FStdErr: TCreateProcessOutputReaderPipe;
     FLogProc: TLogProc;
     FLogProcData: NativeInt;
     FNextLineIsFirstLine: Boolean;
@@ -1736,14 +1736,15 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
     Result := 0;
   end;
 
-  procedure LogLine(const Data: TCreateProcessOutputReaderData; const S: AnsiString);
+  procedure LogLine(const CaptureList: TStringList; const S: AnsiString);
   begin
     var UTF8S := UTF8ToString(S);
-    if FMode = omLog then begin
+    if CaptureList <> nil then
+      CaptureList.Add(UTF8S)
+    else begin
       FLogProc(UTF8S, False, FNextLineIsFirstLine, FLogProcData);
       FNextLineIsFirstLine := False;
-    end else
-      Data.CaptureList.Add(UTF8S);
+    end;
   end;
 
   function SharedLimitReached: Boolean;
@@ -1752,22 +1753,22 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
               (FTotalLinesRead >= FMaxTotalLinesToRead);
   end;
 
-  procedure DoRead(var Data: TCreateProcessOutputReaderData; const LastRead: Boolean);
+  procedure DoRead(var Pipe: TCreateProcessOutputReaderPipe; const LastRead: Boolean);
   begin
-    if Data.OKToRead then begin
+    if Pipe.OKToRead then begin
 
       if SharedLimitReached then begin
         { The other pipe reached the shared limit which was handled and logged.
           So don't read from this pipe but instead close it and exit silently. }
-        Data.OKToRead := False;
-        Data.Buffer := '';
-        CloseAndClearHandle(Data.PipeRead);
+        Pipe.OKToRead := False;
+        Pipe.Buffer := '';
+        CloseAndClearHandle(Pipe.PipeRead);
         Exit;
       end;
 
       var TotalBytesAvail: DWORD;
-      Data.OKToRead := PeekNamedPipe(Data.PipeRead, nil, 0, nil, @TotalBytesAvail, nil);
-      if not Data.OKToRead then begin
+      Pipe.OKToRead := PeekNamedPipe(Pipe.PipeRead, nil, 0, nil, @TotalBytesAvail, nil);
+      if not Pipe.OKToRead then begin
         var LastError := GetLastError;
         if LastError <> ERROR_BROKEN_PIPE then
           HandleAndLogErrorFmt('PeekNamedPipe failed (%d).', [LastError]);
@@ -1775,37 +1776,37 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         { Don't read more than our read limit }
         if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
           TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
-        { Append newly available data to the incomplete line we might already have }
-        var TotalBytesHave: DWORD := Length(Data.Buffer);
-        SetLength(Data.Buffer, TotalBytesHave+TotalBytesAvail);
+        { Append newly available Pipe to the incomplete line we might already have }
+        var TotalBytesHave: DWORD := Length(Pipe.Buffer);
+        SetLength(Pipe.Buffer, TotalBytesHave+TotalBytesAvail);
         var BytesRead: DWORD;
-        Data.OKToRead := ReadFile(Data.PipeRead, Data.Buffer[TotalBytesHave+1],
+        Pipe.OKToRead := ReadFile(Pipe.PipeRead, Pipe.Buffer[TotalBytesHave+1],
           TotalBytesAvail, BytesRead, nil);
-        if not Data.OKToRead then begin
+        if not Pipe.OKToRead then begin
           HandleAndLogErrorFmt('ReadFile failed (%d).', [GetLastError]);
           { Restore back to original size }
-          SetLength(Data.Buffer, TotalBytesHave);
+          SetLength(Pipe.Buffer, TotalBytesHave);
         end else begin
           { Correct length if less bytes were read than requested }
-          SetLength(Data.Buffer, TotalBytesHave+BytesRead);
+          SetLength(Pipe.Buffer, TotalBytesHave+BytesRead);
 
-          { Check for completed lines thanks to the new data }
+          { Check for completed lines thanks to the new Pipe }
           while FTotalLinesRead < FMaxTotalLinesToRead do begin
-            var P := FindNewLine(Data.Buffer, LastRead);
+            var P := FindNewLine(Pipe.Buffer, LastRead);
             if P = 0 then
               Break;
-            LogLine(Data, Copy(Data.Buffer, 1, P-1));
+            LogLine(Pipe.CaptureList, Copy(Pipe.Buffer, 1, P-1));
             Inc(FTotalLinesRead);
-            if (Data.Buffer[P] = #13) and (P < Length(Data.Buffer)) and (Data.Buffer[P+1] = #10) then
+            if (Pipe.Buffer[P] = #13) and (P < Length(Pipe.Buffer)) and (Pipe.Buffer[P+1] = #10) then
               Inc(P);
-            Delete(Data.Buffer, 1, P);
+            Delete(Pipe.Buffer, 1, P);
           end;
 
           Inc(FTotalBytesRead, BytesRead);
           if SharedLimitReached then begin
             { Read limit reached: break the pipe, throw away the incomplete line, and log an error }
-            Data.OKToRead := False;
-            Data.Buffer := '';
+            Pipe.OKToRead := False;
+            Pipe.Buffer := '';
             if FTotalBytesRead >= FMaxTotalBytesToRead then
               HandleAndLogErrorFmt('Maximum output length (%d) reached, ignoring remainder.', [FMaxTotalBytesToRead])
             else
@@ -1815,12 +1816,12 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
       end;
 
       { Unblock the child process's write, and cause further writes to fail immediately }
-      if not Data.OkToRead then
-        CloseAndClearHandle(Data.PipeRead);
+      if not Pipe.OkToRead then
+        CloseAndClearHandle(Pipe.PipeRead);
     end;
 
-    if LastRead and (Data.Buffer <> '') then
-      LogLine(Data, Data.Buffer);
+    if LastRead and (Pipe.Buffer <> '') then
+      LogLine(Pipe.CaptureList, Pipe.Buffer);
   end;
   
 begin
