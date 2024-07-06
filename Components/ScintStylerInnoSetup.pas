@@ -30,6 +30,7 @@ const
   awtInterface = 5;
   awtProperty = 6;
   awtObject = 7;
+  awtEvent = 8;
 
 type
   TInnoSetupStylerSection = (
@@ -931,9 +932,9 @@ begin
       var WasFunction: Boolean;
       var S := RemoveScriptFuncHeader(EventFunctions[I], WasFunction);
       if WasFunction then
-        AddWordToList(SLFunctions, S)
+        AddWordToList(SLFunctions, S, awtEvent)
       else
-        AddWordToList(SLProcedures, S);
+        AddWordToList(SLProcedures, S, awtEvent);
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);

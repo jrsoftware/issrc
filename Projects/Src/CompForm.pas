@@ -3912,7 +3912,8 @@ begin
           NNT(awtClass, 'ac\class-filled'),
           NNT(awtInterface, 'ac\interface-filled'),
           NNT(awtProperty, 'ac\properties-filled'),
-          NNT(awtObject, 'ac\object-filled')];
+          NNT(awtObject, 'ac\object-filled'),
+          NNT(awtEvent, 'ac\event-filled')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
