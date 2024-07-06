@@ -109,6 +109,34 @@ var
     'function Int64ToStr(I: Int64): String;'
   ]; }
 
+  { All of the following are also just for Compil32 }
+
+  ScriptConstsTable: TScriptTable = [
+    { ROPS }
+    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble', 'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean', 'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord', 'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray', 'varByRef', 'varUString',
+    { Ours - ScriptClasses_C }
+    'clHotLight'
+  ];
+
+  ScriptInterfacesTable: TScriptTable = [
+    { ROPS }
+    'IUnknown',
+    'Interface'
+  ];
+
+  ScriptTypesTable: TScriptTable = [
+    { ROPS }
+    'TVarType'
+    //undocumented: TIFException
+  ];
+
+  ScriptVariablesTable: TScriptTable = [
+    { Ours - ScriptClasses_C }
+    'WizardForm',
+    'MainForm',
+    'UninstallProgressForm'
+  ];
+
 {$ENDIF}
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
