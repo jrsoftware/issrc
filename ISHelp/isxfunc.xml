@@ -2890,18 +2890,17 @@ end;</pre></example>
         <example><pre>var
   ResultCode: Integer;
   Output: TExecOutput;
-
 begin
   try
     // Get the system configuration
-    Result := ExecAndCaptureOutput(ExpandConst('{cmd}', 'systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/k systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
   except
-    Result := False
+    Result := False;
     Log(GetExceptionMessage);
   end;
 
   if Result then begin
-    // Do something with Output.StdOut
+    // Do something with the Output.StdOut array of string
   end;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link><br />

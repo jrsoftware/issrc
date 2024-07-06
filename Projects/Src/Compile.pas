@@ -7379,8 +7379,6 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     LastSignCommandStartTick := GetTickCount;
 
     var StartupInfo: TStartupInfo;
-    var ProcessInfo: TProcessInformation;
-    var LastError, ExitCode: DWORD;
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
@@ -7392,9 +7390,10 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
       var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE or CREATE_NO_WINDOW;
       OutputReader.UpdateStartupInfo(StartupInfo);
 
+      var ProcessInfo: TProcessInformation;
       if not CreateProcess(nil, PChar(AFormattedCommand), nil, nil, InheritHandles,
          dwCreationFlags, nil, PChar(CompilerDir), StartupInfo, ProcessInfo) then begin
-        LastError := GetLastError;
+        var LastError := GetLastError;
         AbortCompileFmt(SCompilerSignToolCreateProcessFailed, [LastError,
           Win32ErrorString(LastError)]);
       end;
@@ -7417,6 +7416,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
           end;
         end;
         OutputReader.Read(True);
+        var ExitCode: DWORD;
         if not GetExitCodeProcess(ProcessInfo.hProcess, ExitCode) then
           AbortCompile('Sign: GetExitCodeProcess failed');
         if ExitCode <> 0 then

@@ -823,19 +823,18 @@ end;
 
 procedure ExecAndCaptureFinalize(StackData: Pointer; const OutputReader: TCreateProcessOutputReader);
 begin
-  var I: Integer;
   { StdOut - 0 }
   var Item := NewTPSVariantRecordIFC(StackData, 0);
   var List := OutputReader.CaptureOutList;
   PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
-  for I := 0 to List.Count - 1 do
+  for var I := 0 to List.Count - 1 do
     VNSetString(PSGetArrayField(Item, I), List[I]);
 
   { StdErr - 1 }
   Item := NewTPSVariantRecordIFC(StackData, 1);
   List := OutputReader.CaptureErrList;
   PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
-  for I := 0 to List.Count - 1 do
+  for var I := 0 to List.Count - 1 do
     VNSetString(PSGetArrayField(Item, I), List[I]);
 
   { Error - 2 }
