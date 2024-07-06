@@ -112,7 +112,8 @@ var
 {$ENDIF}
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString; overload;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out WasFunction: Boolean): AnsiString; overload;
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
@@ -130,12 +131,20 @@ end;
 
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
 begin
+  var Dummy: Boolean;
+  Result := RemoveScriptFuncHeader(ScriptFunc, Dummy);
+end;
+
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out WasFunction: Boolean): AnsiString;
+begin
   Result := ScriptFunc;
 
   const H1: AnsiString = 'function ';
   const H2: AnsiString = 'procedure ';
 
-  if CompareText(Copy(Result, 1, Length(H1)), H1) = 0 then
+  WasFunction := CompareText(Copy(Result, 1, Length(H1)), H1) = 0;
+
+  if WasFunction then
     Delete(Result, 1, Length(H1))
   else if CompareText(Copy(Result, 1, Length(H2)), H2) = 0 then
     Delete(Result, 1, Length(H2))
