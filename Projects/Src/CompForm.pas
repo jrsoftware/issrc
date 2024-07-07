@@ -3901,15 +3901,21 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
-          NNT(awtFunction, 'ac\method-filled'),
-          NNT(awtType, 'ac\types'),
-          NNT(awtVariable, 'ac\variables'),
-          NNT(awtConstant, 'ac\constant-filled'),
-          NNT(awtClass, 'ac\class-filled'),
-          NNT(awtInterface, 'ac\interface-filled'),
-          NNT(awtProperty, 'ac\properties-filled'),
-          NNT(awtObject, 'ac\object-filled'),
-          NNT(awtEvent, 'ac\event-filled')];
+          NNT(awtScriptFunction, 'ac\method-filled'),
+          NNT(awtScriptType, 'ac\types'),
+          NNT(awtScriptVariable, 'ac\variables'),
+          NNT(awtScriptConstant, 'ac\constant-filled'),
+          NNT(awtScriptClass, 'ac\class-filled'),
+          NNT(awtScriptInterface, 'ac\interface-filled'),
+          NNT(awtScriptProperty, 'ac\properties-filled'),
+          NNT(awtScriptObject, 'ac\object-filled'),
+          NNT(awtScriptEvent, 'ac\event-filled'),
+          NNT(awtSection, 'ac\structure-filled'),
+          NNT(awtParameter, 'ac\xml-filled'),
+          NNT(awtDirective, 'ac\xml-filled'),
+          NNT(awtFlag, 'ac\values'),
+          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
+          NNT(awtConstant, 'ac\constant-filled_2')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);

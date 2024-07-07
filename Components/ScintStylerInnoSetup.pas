@@ -22,15 +22,21 @@ const
   InnoSetupStylerWordListTypeSeparator = '?';
 
   { AutoComplete word types }
-  awtFunction = 0;
-  awtType = 1;
-  awtVariable = 2;
-  awtConstant = 3;
-  awtClass = 4;
-  awtInterface = 5;
-  awtProperty = 6;
-  awtObject = 7;
-  awtEvent = 8;
+  awtScriptFunction = 0;
+  awtScriptType = 1;
+  awtScriptVariable = 2;
+  awtScriptConstant = 3;
+  awtScriptClass = 4;
+  awtScriptInterface = 5;
+  awtScriptProperty = 6;
+  awtScriptObject = 7;
+  awtScriptEvent = 8;
+  awtSection = 9;
+  awtParameter = 10;
+  awtDirective = 11;
+  awtFlag = 12;
+  awtPreprocessorDirective = 13;
+  awtConstant = 14;
 
 type
   TInnoSetupStylerSection = (
@@ -82,7 +88,7 @@ type
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
-      const Typ: Integer = -1);
+      const Typ: Integer);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -832,7 +838,7 @@ begin
   var SL := TStringList.Create;
   try
     for var Section in SectionMap do
-      AddWordToList(SL, '[' + Section.Name + ']');
+      AddWordToList(SL, '[' + Section.Name + ']', awtSection);
     FSectionsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -846,7 +852,7 @@ begin
   var SL :=TStringList.Create;
   try
     for var I := 0 to High(Parameters) do
-      AddWordToList(SL, Parameters[I]);
+      AddWordToList(SL, Parameters[I], awtParameter);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -859,7 +865,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint)));
+      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint)), awtDirective);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -872,7 +878,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(Flags) do
-      AddWordToList(SL, Flags[I]);
+      AddWordToList(SL, Flags[I], awtFlag);
     FFlagsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -887,7 +893,7 @@ begin
     var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
     if ScriptFuncHasParameters(ScriptFunc) then
       FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-    AddWordToList(SL, ScriptFuncName, awtFunction);
+    AddWordToList(SL, ScriptFuncName, awtScriptFunction);
   end;
 end;
 
@@ -896,7 +902,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(ISPPDirectives) do
-      AddWordToList(SL, '#' + ISPPDirectives[I].Name);
+      AddWordToList(SL, '#' + ISPPDirectives[I].Name, awtPreprocessorDirective);
     FISPPDirectivesWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -908,13 +914,13 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(Constants) do
-      AddWordToList(SL, '{' + Constants[I] + '}');
+      AddWordToList(SL, '{' + Constants[I] + '}', awtConstant);
     if ISPPInstalled then begin
-      AddWordToList(SL, '{#');
-      AddWordToList(SL, '{#file ');
+      AddWordToList(SL, '{#', awtConstant);
+      AddWordToList(SL, '{#file ', awtConstant);
     end;
     for var I := 0 to High(ConstantsWithParam) do
-      AddWordToList(SL, '{' + ConstantsWithParam[I]);
+      AddWordToList(SL, '{' + ConstantsWithParam[I], awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -932,9 +938,9 @@ begin
       var WasFunction: Boolean;
       var S := RemoveScriptFuncHeader(EventFunctions[I], WasFunction);
       if WasFunction then
-        AddWordToList(SLFunctions, S, awtEvent)
+        AddWordToList(SLFunctions, S, awtScriptEvent)
       else
-        AddWordToList(SLProcedures, S, awtEvent);
+        AddWordToList(SLProcedures, S, awtScriptEvent);
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);
