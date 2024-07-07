@@ -1770,8 +1770,10 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
       Pipe.OKToRead := PeekNamedPipe(Pipe.PipeRead, nil, 0, nil, @TotalBytesAvail, nil);
       if not Pipe.OKToRead then begin
         var LastError := GetLastError;
-        if LastError <> ERROR_BROKEN_PIPE then
+        if LastError <> ERROR_BROKEN_PIPE then begin
+          Pipe.Buffer := '';
           HandleAndLogErrorFmt('PeekNamedPipe failed (%d).', [LastError]);
+        end;
       end else if TotalBytesAvail > 0 then begin
         { Don't read more than our read limit }
         if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
@@ -1783,9 +1785,14 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         Pipe.OKToRead := ReadFile(Pipe.PipeRead, Pipe.Buffer[TotalBytesHave+1],
           TotalBytesAvail, BytesRead, nil);
         if not Pipe.OKToRead then begin
-          HandleAndLogErrorFmt('ReadFile failed (%d).', [GetLastError]);
-          { Restore back to original size }
-          SetLength(Pipe.Buffer, TotalBytesHave);
+          var LastError := GetLastError;
+          if LastError <> ERROR_BROKEN_PIPE then begin
+            Pipe.Buffer := '';
+            HandleAndLogErrorFmt('ReadFile failed (%d).', [LastError]);
+          end else begin
+            { Restore back to original size }
+            SetLength(Pipe.Buffer, TotalBytesHave);
+          end;
         end else begin
           { Correct length if less bytes were read than requested }
           SetLength(Pipe.Buffer, TotalBytesHave+BytesRead);
