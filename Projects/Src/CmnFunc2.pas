@@ -1778,7 +1778,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         { Don't read more than our read limit }
         if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
           TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
-        { Append newly available Pipe to the incomplete line we might already have }
+        { Append newly available data to the incomplete line we might already have }
         var TotalBytesHave: DWORD := Length(Pipe.Buffer);
         SetLength(Pipe.Buffer, TotalBytesHave+TotalBytesAvail);
         var BytesRead: DWORD;
@@ -1797,7 +1797,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
           { Correct length if less bytes were read than requested }
           SetLength(Pipe.Buffer, TotalBytesHave+BytesRead);
 
-          { Check for completed lines thanks to the new Pipe }
+          { Check for completed lines thanks to the new data }
           while FTotalLinesRead < FMaxTotalLinesToRead do begin
             var P := FindNewLine(Pipe.Buffer, LastRead);
             if P = 0 then
@@ -1827,8 +1827,18 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         CloseAndClearHandle(Pipe.PipeRead);
     end;
 
-    if LastRead and (Pipe.Buffer <> '') then
+    if LastRead and (Pipe.Buffer <> '') then begin
+      var N := Length(Pipe.Buffer);
+      if Pipe.Buffer[N] = #13 then begin
+        { See FindNewLine: the buffer could end with a final #13 which has not yet
+          been handled. Handle it same as a final #13#10 would have been already
+          so log two lines, the second being empty. }
+        Delete(Pipe.Buffer, N, 1);
+        LogLine(Pipe.CaptureList, Pipe.Buffer);
+        Pipe.Buffer := ''; { Will be logged below }
+      end;
       LogLine(Pipe.CaptureList, Pipe.Buffer);
+    end;
   end;
   
 begin
