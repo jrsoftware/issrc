@@ -1830,12 +1830,9 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
     if LastRead and (Pipe.Buffer <> '') then begin
       var N := Length(Pipe.Buffer);
       if Pipe.Buffer[N] = #13 then begin
-        { See FindNewLine: the buffer could end with a final #13 which has not yet
-          been handled. Handle it same as a final #13#10 would have been already
-          so log two lines, the second being empty. }
+        { See FindNewLine: the buffer could end with a final #13 which needs to
+          be stripped still }
         Delete(Pipe.Buffer, N, 1);
-        LogLine(Pipe.CaptureList, Pipe.Buffer);
-        Pipe.Buffer := ''; { Will be logged below }
       end;
       LogLine(Pipe.CaptureList, Pipe.Buffer);
     end;
