@@ -8,16 +8,35 @@ unit ScintStylerInnoSetup;
 
   TInnoSetupStyler: styler for Inno Setup scripts
   
-  Requires LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
+  Requires ScriptFunc+LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
 }
 
 interface
 
 uses
-  SysUtils, Classes, Graphics, ScintEdit, ModernColors;
+  SysUtils, Classes, Graphics, Generics.Collections,
+  ScintEdit, ModernColors, ScriptFunc;
 
 const
   InnoSetupStylerWordListSeparator = #9;
+  InnoSetupStylerWordListTypeSeparator = '?';
+
+  { AutoComplete word types }
+  awtScriptFunction = 0;
+  awtScriptType = 1;
+  awtScriptVariable = 2;
+  awtScriptConstant = 3;
+  awtScriptClass = 4;
+  awtScriptInterface = 5;
+  awtScriptProperty = 6;
+  awtScriptObject = 7;
+  awtScriptEvent = 8;
+  awtSection = 9;
+  awtParameter = 10;
+  awtDirective = 11;
+  awtFlag = 12;
+  awtPreprocessorDirective = 13;
+  awtConstant = 14;
 
 type
   TInnoSetupStylerSection = (
@@ -45,13 +64,6 @@ type
     scUninstallRun);
 
   { Internally-used types }
-  TSectionMapEntry = record
-    Name: TScintRawString;
-    Value: TInnoSetupStylerSection;
-  end;
-  TInnoSetupStylerParamInfo = record
-    Name: TScintRawString;
-  end;
   TInnoSetupStylerSpanState = (spNone, spBraceComment, spStarComment);
 
   { Starts at 1 instead of 0 to make sure ApplyStyle doesn't overwrite already applied stDefault
@@ -63,26 +75,34 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
+  TFunctionDefinitionsByName = TDictionary<String, AnsiString>;
+
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
+    FScriptFunctionsByName: TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
+    FScriptWordList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
+    procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
+      const Typ: Integer);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
     procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
-     const Flags: array of TInnoSetupStylerParamInfo); overload;
+     const Flags: array of TScintRawString);
     procedure BuildISPPDirectivesWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
-      const EnumTypeInfo: Pointer); overload;
-    procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
-      const Parameters: array of TInnoSetupStylerParamInfo); overload;
+      const Parameters: array of TScintRawString);
+    procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
+      const EnumTypeInfo: Pointer);
+    procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
+      const SL: TStringList);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -91,9 +111,10 @@ type
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
+    function GetScriptFunctionDefinition(Name: String): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
-    procedure HandleParameterSection(const ValidParameters: array of TInnoSetupStylerParamInfo);
+    procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
       const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
     procedure PreStyleInlineISPPDirectives;
@@ -113,7 +134,9 @@ type
     procedure StyleNeeded; override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
+    class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
@@ -122,6 +145,8 @@ type
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
+    property ScriptFunctionDefinition[Name: String]: AnsiString read GetScriptFunctionDefinition;
+    property ScriptWordList: AnsiString read FScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -129,7 +154,8 @@ type
 implementation
 
 uses
-  TypInfo, MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
+  TypInfo, Generics.Defaults,
+  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -139,338 +165,344 @@ type
     OpenCompilerDirectivesCount: ShortInt;
   end;
 
+type
+  TSectionMapItem = record
+    Name: TScintRawString;
+    Section: TInnoSetupStylerSection;
+  end;
+
 const
-  SectionMap: array[0..17] of TSectionMapEntry = (
-    (Name: 'Code'; Value: scCode),
-    (Name: 'Components'; Value: scComponents),
-    (Name: 'CustomMessages'; Value: scCustomMessages),
-    (Name: 'Dirs'; Value: scDirs),
-    (Name: 'Files'; Value: scFiles),
-    (Name: 'Icons'; Value: scIcons),
-    (Name: 'INI'; Value: scINI),
-    (Name: 'InstallDelete'; Value: scInstallDelete),
-    (Name: 'LangOptions'; Value: scLangOptions),
-    (Name: 'Languages'; Value: scLanguages),
-    (Name: 'Messages'; Value: scMessages),
-    (Name: 'Registry'; Value: scRegistry),
-    (Name: 'Run'; Value: scRun),
-    (Name: 'Setup'; Value: scSetup),
-    (Name: 'Tasks'; Value: scTasks),
-    (Name: 'Types'; Value: scTypes),
-    (Name: 'UninstallDelete'; Value: scUninstallDelete),
-    (Name: 'UninstallRun'; Value: scUninstallRun));
+  SectionMap: array[0..17] of TSectionMapItem = (
+    (Name: 'Code'; Section: scCode),
+    (Name: 'Components'; Section: scComponents),
+    (Name: 'CustomMessages'; Section: scCustomMessages),
+    (Name: 'Dirs'; Section: scDirs),
+    (Name: 'Files'; Section: scFiles),
+    (Name: 'Icons'; Section: scIcons),
+    (Name: 'INI'; Section: scINI),
+    (Name: 'InstallDelete'; Section: scInstallDelete),
+    (Name: 'LangOptions'; Section: scLangOptions),
+    (Name: 'Languages'; Section: scLanguages),
+    (Name: 'Messages'; Section: scMessages),
+    (Name: 'Registry'; Section: scRegistry),
+    (Name: 'Run'; Section: scRun),
+    (Name: 'Setup'; Section: scSetup),
+    (Name: 'Tasks'; Section: scTasks),
+    (Name: 'Types'; Section: scTypes),
+    (Name: 'UninstallDelete'; Section: scUninstallDelete),
+    (Name: 'UninstallRun'; Section: scUninstallRun));
 
-  ComponentsSectionParameters: array[0..8] of TInnoSetupStylerParamInfo = (
-    (Name: 'Check'),
-    (Name: 'Description'),
-    (Name: 'ExtraDiskSpaceRequired'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Types'));
+  ComponentsSectionParameters: array of TScintRawString = [
+    'Check',
+    'Description',
+    'ExtraDiskSpaceRequired',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion',
+    'Types'];
 
-  ComponentsSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
-    (Name: 'checkablealone'),
-    (Name: 'disablenouninstallwarning'),
-    (Name: 'dontinheritcheck'),
-    (Name: 'exclusive'),
-    (Name: 'fixed'),
-    (Name: 'restart'));
+  ComponentsSectionFlags: array of TScintRawString = [
+    'checkablealone',
+    'disablenouninstallwarning',
+    'dontinheritcheck',
+    'exclusive',
+    'fixed',
+    'restart'];
 
-  DeleteSectionParameters: array[0..9] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Tasks'),
-    (Name: 'Type'));
+  DeleteSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion',
+    'Tasks',
+    'Type'];
 
-  DeleteSectionTypes: array[0..2] of TInnoSetupStylerParamInfo = (
-    (Name: 'files'),
-    (Name: 'filesandordirs'),
-    (Name: 'dirifempty'));
+  DeleteSectionTypes: array of TScintRawString = [
+    'files',
+    'filesandordirs',
+    'dirifempty'];
 
-  DirsSectionParameters: array[0..11] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'Attribs'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Permissions'),
-    (Name: 'Tasks'));
+  DirsSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'Attribs',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion',
+    'Permissions',
+    'Tasks'];
 
-  DirsSectionFlags: array[0..4] of TInnoSetupStylerParamInfo = (
-    (Name: 'deleteafterinstall'),
-    (Name: 'setntfscompression'),
-    (Name: 'uninsalwaysuninstall'),
-    (Name: 'uninsneveruninstall'),
-    (Name: 'unsetntfscompression'));
+  DirsSectionFlags: array of TScintRawString = [
+    'deleteafterinstall',
+    'setntfscompression',
+    'uninsalwaysuninstall',
+    'uninsneveruninstall',
+    'unsetntfscompression'];
 
-  FilesSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'Attribs'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'CopyMode'),
-    (Name: 'DestDir'),
-    (Name: 'DestName'),
-    (Name: 'Excludes'),
-    (Name: 'ExternalSize'),
-    (Name: 'Flags'),
-    (Name: 'FontInstall'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Permissions'),
-    (Name: 'Source'),
-    (Name: 'StrongAssemblyName'),
-    (Name: 'Tasks'));
+  FilesSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'Attribs',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'CopyMode',
+    'DestDir',
+    'DestName',
+    'Excludes',
+    'ExternalSize',
+    'Flags',
+    'FontInstall',
+    'Languages',
+    'MinVersion',
+    'OnlyBelowVersion',
+    'Permissions',
+    'Source',
+    'StrongAssemblyName',
+    'Tasks'];
 
-  FilesSectionFlags: array[0..40] of TInnoSetupStylerParamInfo = (
-    (Name: '32bit'),
-    (Name: '64bit'),
-    (Name: 'allowunsafefiles'),
-    (Name: 'comparetimestamp'),
-    (Name: 'confirmoverwrite'),
-    (Name: 'createallsubdirs'),
-    (Name: 'deleteafterinstall'),
-    (Name: 'dontcopy'),
-    (Name: 'dontverifychecksum'),
-    (Name: 'external'),
-    (Name: 'fontisnttruetype'),
-    (Name: 'gacinstall'),
-    (Name: 'ignoreversion'),
-    (Name: 'isreadme'),
-    (Name: 'nocompression'),
-    (Name: 'noencryption'),
-    (Name: 'noregerror'),
-    (Name: 'onlyifdestfileexists'),
-    (Name: 'onlyifdoesntexist'),
-    (Name: 'overwritereadonly'),
-    (Name: 'promptifolder'),
-    (Name: 'recursesubdirs'),
-    (Name: 'regserver'),
-    (Name: 'regtypelib'),
-    (Name: 'replacesameversion'),
-    (Name: 'restartreplace'),
-    (Name: 'setntfscompression'),
-    (Name: 'sharedfile'),
-    (Name: 'sign'),
-    (Name: 'signcheck'),
-    (Name: 'signonce'),
-    (Name: 'skipifsourcedoesntexist'),
-    (Name: 'solidbreak'),
-    (Name: 'sortfilesbyextension'),
-    (Name: 'sortfilesbyname'),
-    (Name: 'touch'),
-    (Name: 'uninsnosharedfileprompt'),
-    (Name: 'uninsremovereadonly'),
-    (Name: 'uninsrestartdelete'),
-    (Name: 'uninsneveruninstall'),
-    (Name: 'unsetntfscompression'));
+  FilesSectionFlags: array of TScintRawString = [
+    '32bit',
+    '64bit',
+    'allowunsafefiles',
+    'comparetimestamp',
+    'confirmoverwrite',
+    'createallsubdirs',
+    'deleteafterinstall',
+    'dontcopy',
+    'dontverifychecksum',
+    'external',
+    'fontisnttruetype',
+    'gacinstall',
+    'ignoreversion',
+    'isreadme',
+    'nocompression',
+    'noencryption',
+    'noregerror',
+    'onlyifdestfileexists',
+    'onlyifdoesntexist',
+    'overwritereadonly',
+    'promptifolder',
+    'recursesubdirs',
+    'regserver',
+    'regtypelib',
+    'replacesameversion',
+    'restartreplace',
+    'setntfscompression',
+    'sharedfile',
+    'sign',
+    'signcheck',
+    'signonce',
+    'skipifsourcedoesntexist',
+    'solidbreak',
+    'sortfilesbyextension',
+    'sortfilesbyname',
+    'touch',
+    'uninsnosharedfileprompt',
+    'uninsremovereadonly',
+    'uninsrestartdelete',
+    'uninsneveruninstall',
+    'unsetntfscompression'];
 
-  IconsSectionParameters: array[0..18] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'AppUserModelID'),
-    (Name: 'AppUserModelToastActivatorCLSID'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Comment'),
-    (Name: 'Components'),
-    (Name: 'Filename'),
-    (Name: 'Flags'),
-    (Name: 'HotKey'),
-    (Name: 'IconFilename'),
-    (Name: 'IconIndex'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Parameters'),
-    (Name: 'Tasks'),
-    (Name: 'WorkingDir'));
+  IconsSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'AppUserModelID',
+    'AppUserModelToastActivatorCLSID',
+    'BeforeInstall',
+    'Check',
+    'Comment',
+    'Components',
+    'Filename',
+    'Flags',
+    'HotKey',
+    'IconFilename',
+    'IconIndex',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion',
+    'Parameters',
+    'Tasks',
+    'WorkingDir'];
 
-  IconsSectionFlags: array[0..9] of TInnoSetupStylerParamInfo = (
-    (Name: 'closeonexit'),
-    (Name: 'createonlyiffileexists'),
-    (Name: 'dontcloseonexit'),
-    (Name: 'excludefromshowinnewinstall'),
-    (Name: 'foldershortcut'),
-    (Name: 'preventpinning'),
-    (Name: 'runmaximized'),
-    (Name: 'runminimized'),
-    (Name: 'uninsneveruninstall'),
-    (Name: 'useapppaths'));
+  IconsSectionFlags: array of TScintRawString = [
+    'closeonexit',
+    'createonlyiffileexists',
+    'dontcloseonexit',
+    'excludefromshowinnewinstall',
+    'foldershortcut',
+    'preventpinning',
+    'runmaximized',
+    'runminimized',
+    'uninsneveruninstall',
+    'useapppaths'];
 
-  INISectionParameters: array[0..12] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Filename'),
-    (Name: 'Flags'),
-    (Name: 'Key'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Section'),
-    (Name: 'String'),
-    (Name: 'Tasks'));
+  INISectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Filename',
+    'Flags',
+    'Key',
+    'Languages',
+    'MinVersion',
+    'OnlyBelowVersion',
+    'Section',
+    'String',
+    'Tasks'];
 
-  INISectionFlags: array[0..3] of TInnoSetupStylerParamInfo = (
-    (Name: 'createkeyifdoesntexist'),
-    (Name: 'uninsdeleteentry'),
-    (Name: 'uninsdeletesection'),
-    (Name: 'uninsdeletesectionifempty'));
+  INISectionFlags: array of TScintRawString = [
+    'createkeyifdoesntexist',
+    'uninsdeleteentry',
+    'uninsdeletesection',
+    'uninsdeletesectionifempty'];
 
-  LanguagesSectionParameters: array[0..4] of TInnoSetupStylerParamInfo = (
-    (Name: 'InfoAfterFile'),
-    (Name: 'InfoBeforeFile'),
-    (Name: 'LicenseFile'),
-    (Name: 'MessagesFile'),
-    (Name: 'Name'));
+  LanguagesSectionParameters: array of TScintRawString = [
+    'InfoAfterFile',
+    'InfoBeforeFile',
+    'LicenseFile',
+    'MessagesFile',
+    'Name'];
 
-  RegistrySectionParameters: array[0..14] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Permissions'),
-    (Name: 'Root'),
-    (Name: 'Subkey'),
-    (Name: 'Tasks'),
-    (Name: 'ValueData'),
-    (Name: 'ValueName'),
-    (Name: 'ValueType'));
+  RegistrySectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'OnlyBelowVersion',
+    'Permissions',
+    'Root',
+    'Subkey',
+    'Tasks',
+    'ValueData',
+    'ValueName',
+    'ValueType'];
 
-  RegistrySectionFlags: array[0..9] of TInnoSetupStylerParamInfo = (
-    (Name: 'createvalueifdoesntexist'),
-    (Name: 'deletekey'),
-    (Name: 'deletevalue'),
-    (Name: 'dontcreatekey'),
-    (Name: 'noerror'),
-    (Name: 'preservestringtype'),
-    (Name: 'uninsclearvalue'),
-    (Name: 'uninsdeletekey'),
-    (Name: 'uninsdeletekeyifempty'),
-    (Name: 'uninsdeletevalue'));
+  RegistrySectionFlags: array of TScintRawString = [
+    'createvalueifdoesntexist',
+    'deletekey',
+    'deletevalue',
+    'dontcreatekey',
+    'noerror',
+    'preservestringtype',
+    'uninsclearvalue',
+    'uninsdeletekey',
+    'uninsdeletekeyifempty',
+    'uninsdeletevalue'];
 
-  RunSectionParameters: array[0..14] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Description'),
-    (Name: 'Filename'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Parameters'),
-    (Name: 'StatusMsg'),
-    (Name: 'Tasks'),
-    (Name: 'Verb'),
-    (Name: 'WorkingDir'));
+  RunSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Description',
+    'Filename',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'OnlyBelowVersion',
+    'Parameters',
+    'StatusMsg',
+    'Tasks',
+    'Verb',
+    'WorkingDir'];
 
-  RunSectionFlags: array[0..18] of TInnoSetupStylerParamInfo = (
-    (Name: '32bit'),
-    (Name: '64bit'),
-    (Name: 'dontlogparameters'),
-    (Name: 'hidewizard'),
-    (Name: 'logoutput'),
-    (Name: 'nowait'),
-    (Name: 'postinstall'),
-    (Name: 'runascurrentuser'),
-    (Name: 'runasoriginaluser'),
-    (Name: 'runhidden'),
-    (Name: 'runmaximized'),
-    (Name: 'runminimized'),
-    (Name: 'shellexec'),
-    (Name: 'skipifdoesntexist'),
-    (Name: 'skipifnotsilent'),
-    (Name: 'skipifsilent'),
-    (Name: 'unchecked'),
-    (Name: 'waituntilidle'),
-    (Name: 'waituntilterminated'));
+  RunSectionFlags: array of TScintRawString = [
+    '32bit',
+    '64bit',
+    'dontlogparameters',
+    'hidewizard',
+    'logoutput',
+    'nowait',
+    'postinstall',
+    'runascurrentuser',
+    'runasoriginaluser',
+    'runhidden',
+    'runmaximized',
+    'runminimized',
+    'shellexec',
+    'skipifdoesntexist',
+    'skipifnotsilent',
+    'skipifsilent',
+    'unchecked',
+    'waituntilidle',
+    'waituntilterminated'];
 
-  UninstallRunSectionParameters: array[0..13] of TInnoSetupStylerParamInfo = (
-    (Name: 'AfterInstall'),
-    (Name: 'BeforeInstall'),
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Filename'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'OnlyBelowVersion'),
-    (Name: 'Parameters'),
-    (Name: 'RunOnceId'),
-    (Name: 'Tasks'),
-    (Name: 'Verb'),
-    (Name: 'WorkingDir'));
+  UninstallRunSectionParameters: array of TScintRawString = [
+    'AfterInstall',
+    'BeforeInstall',
+    'Check',
+    'Components',
+    'Filename',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'OnlyBelowVersion',
+    'Parameters',
+    'RunOnceId',
+    'Tasks',
+    'Verb',
+    'WorkingDir'];
 
-  UninstallRunSectionFlags: array[0..13] of TInnoSetupStylerParamInfo = (
-    (Name: '32bit'),
-    (Name: '64bit'),
-    (Name: 'dontlogparameters'),
-    (Name: 'hidewizard'),
-    (Name: 'logoutput'),
-    (Name: 'nowait'),
-    (Name: 'runascurrentuser'),
-    (Name: 'runhidden'),
-    (Name: 'runmaximized'),
-    (Name: 'runminimized'),
-    (Name: 'shellexec'),
-    (Name: 'skipifdoesntexist'),
-    (Name: 'waituntilidle'),
-    (Name: 'waituntilterminated'));
+  UninstallRunSectionFlags: array of TScintRawString = [
+    '32bit',
+    '64bit',
+    'dontlogparameters',
+    'hidewizard',
+    'logoutput',
+    'nowait',
+    'runascurrentuser',
+    'runhidden',
+    'runmaximized',
+    'runminimized',
+    'shellexec',
+    'skipifdoesntexist',
+    'waituntilidle',
+    'waituntilterminated'];
 
-  TasksSectionParameters: array[0..8] of TInnoSetupStylerParamInfo = (
-    (Name: 'Check'),
-    (Name: 'Components'),
-    (Name: 'Description'),
-    (Name: 'Flags'),
-    (Name: 'GroupDescription'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'));
+  TasksSectionParameters: array of TScintRawString = [
+    'Check',
+    'Components',
+    'Description',
+    'Flags',
+    'GroupDescription',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion'];
 
-  TasksSectionFlags: array[0..5] of TInnoSetupStylerParamInfo = (
-    (Name: 'checkablealone'),
-    (Name: 'checkedonce'),
-    (Name: 'dontinheritcheck'),
-    (Name: 'exclusive'),
-    (Name: 'restart'),
-    (Name: 'unchecked'));
+  TasksSectionFlags: array of TScintRawString = [
+    'checkablealone',
+    'checkedonce',
+    'dontinheritcheck',
+    'exclusive',
+    'restart',
+    'unchecked'];
 
-  TypesSectionParameters: array[0..6] of TInnoSetupStylerParamInfo = (
-    (Name: 'Check'),
-    (Name: 'Description'),
-    (Name: 'Flags'),
-    (Name: 'Languages'),
-    (Name: 'MinVersion'),
-    (Name: 'Name'),
-    (Name: 'OnlyBelowVersion'));
+  TypesSectionParameters: array of TScintRawString = [
+    'Check',
+    'Description',
+    'Flags',
+    'Languages',
+    'MinVersion',
+    'Name',
+    'OnlyBelowVersion'];
 
-  TypesSectionFlags: array[0..0] of TInnoSetupStylerParamInfo = (
-    (Name: 'iscustom'));
+  TypesSectionFlags: array of TScintRawString = [
+    'iscustom'];
 
 type
   TISPPDirective = record
@@ -506,101 +538,104 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
-   ConstantsWithParam: array[0..5] of TInnoSetupStylerParamInfo = (
-    (Name: 'cm'),
-    (Name: 'code'),
-    (Name: 'drive'),
-    (Name: 'ini'),
-    (Name: 'param'),
-    (Name: 'reg'));
+   { The following and some others below are not used by StyleNeeded and therefore
+     simply of type AnsiString instead of TScintRawString }
+   ConstantsWithParam: array of AnsiString = [
+    'cm',
+    'code',
+    'drive',
+    'ini',
+    'param',
+    'reg'];
 
-   Constants: array[0..59] of TInnoSetupStylerParamInfo = (
-    { #emit and #file handled separately - also doesnt include constants with non words chars }
-    (Name: '{'),
-    (Name: 'app'),
-    (Name: 'win'),
-    (Name: 'sys'),
-    (Name: 'sysnative'),
-    (Name: 'syswow64'),
-    (Name: 'src'),
-    (Name: 'sd'),
-    (Name: 'commonpf'),
-    (Name: 'commoncf'),
-    (Name: 'tmp'),
-    (Name: 'commonfonts'),
-    (Name: 'dao'),
-    (Name: 'dotnet11'),
-    (Name: 'dotnet20'),
-    (Name: 'dotnet40'),
-    (Name: 'group'),
-    (Name: 'localappdata'),
-    (Name: 'userappdata'),
-    (Name: 'commonappdata'),
-    (Name: 'usercf'),
-    (Name: 'userdesktop'),
-    (Name: 'commondesktop'),
-    (Name: 'userdocs'),
-    (Name: 'commondocs'),
-    (Name: 'userfavorites'),
-    (Name: 'userfonts'),
-    (Name: 'userpf'),
-    (Name: 'userprograms'),
-    (Name: 'commonprograms'),
-    (Name: 'usersavedgames'),
-    (Name: 'userstartmenu'),
-    (Name: 'commonstartmenu'),
-    (Name: 'userstartup'),
-    (Name: 'commonstartup'),
-    (Name: 'usertemplates'),
-    (Name: 'commontemplates'),
-    (Name: 'autoappdata'),
-    (Name: 'autocf'),
-    (Name: 'autodesktop'),
-    (Name: 'autodocs'),
-    (Name: 'autofonts'),
-    (Name: 'autopf'),
-    (Name: 'autoprograms'),
-    (Name: 'autostartmenu'),
-    (Name: 'cmd'),
-    (Name: 'computername'),
-    (Name: 'groupname'),
-    (Name: 'hwnd'),
-    (Name: 'wizardhwnd'),
-    (Name: 'language'),
-    (Name: 'srcexe'),
-    (Name: 'uninstallexe'),
-    (Name: 'sysuserinfoname'),
-    (Name: 'sysuserinfoorg'),
-    (Name: 'userinfoname'),
-    (Name: 'userinfoorg'),
-    (Name: 'userinfoserial'),
-    (Name: 'username'),
-    (Name: 'log'));
+   Constants: array of AnsiString = [
+    { #emit and #file handled separately by BuildConstantsWordList.
+      Also doesnt include constants with non words chars. }
+    '{',
+    'app',
+    'win',
+    'sys',
+    'sysnative',
+    'syswow64',
+    'src',
+    'sd',
+    'commonpf',
+    'commoncf',
+    'tmp',
+    'commonfonts',
+    'dao',
+    'dotnet11',
+    'dotnet20',
+    'dotnet40',
+    'group',
+    'localappdata',
+    'userappdata',
+    'commonappdata',
+    'usercf',
+    'userdesktop',
+    'commondesktop',
+    'userdocs',
+    'commondocs',
+    'userfavorites',
+    'userfonts',
+    'userpf',
+    'userprograms',
+    'commonprograms',
+    'usersavedgames',
+    'userstartmenu',
+    'commonstartmenu',
+    'userstartup',
+    'commonstartup',
+    'usertemplates',
+    'commontemplates',
+    'autoappdata',
+    'autocf',
+    'autodesktop',
+    'autodocs',
+    'autofonts',
+    'autopf',
+    'autoprograms',
+    'autostartmenu',
+    'cmd',
+    'computername',
+    'groupname',
+    'hwnd',
+    'wizardhwnd',
+    'language',
+    'srcexe',
+    'uninstallexe',
+    'sysuserinfoname',
+    'sysuserinfoorg',
+    'userinfoname',
+    'userinfoorg',
+    'userinfoserial',
+    'username',
+    'log'];
 
-  EventFunctions: array[0..22] of TInnoSetupStylerParamInfo = (
-    (Name: 'InitializeSetup(): Boolean;'), { The () is needed for the function/procedure detection }
-    (Name: 'InitializeWizard;'),
-    (Name: 'DeinitializeSetup;'),
-    (Name: 'CurStepChanged(CurStep: TSetupStep);'),
-    (Name: 'CurInstallProgressChanged(CurProgress, MaxProgress: Integer);'),
-    (Name: 'NextButtonClick(CurPageID: Integer): Boolean;'),
-    (Name: 'BackButtonClick(CurPageID: Integer): Boolean;'),
-    (Name: 'CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);'),
-    (Name: 'ShouldSkipPage(PageID: Integer): Boolean;'),
-    (Name: 'CurPageChanged(CurPageID: Integer);'),
-    (Name: 'CheckPassword(Password: String): Boolean;'),
-    (Name: 'NeedRestart(): Boolean;'),
-    (Name: 'UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;'),
-    (Name: 'RegisterPreviousData(PreviousDataKey: Integer);'),
-    (Name: 'CheckSerial(Serial: String): Boolean;'),
-    (Name: 'GetCustomSetupExitCode(): Integer;'),
-    (Name: 'PrepareToInstall(var NeedsRestart: Boolean): String;'),
-    (Name: 'RegisterExtraCloseApplicationsResources;'),
-    (Name: 'InitializeUninstall(): Boolean;'),
-    (Name: 'InitializeUninstallProgressForm;'),
-    (Name: 'DeinitializeUninstall;'),
-    (Name: 'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);'),
-    (Name: 'UninstallNeedRestart(): Boolean;'));
+  EventFunctions: array of AnsiString = [
+    'function InitializeSetup: Boolean;',
+    'procedure InitializeWizard;',
+    'procedure DeinitializeSetup;',
+    'procedure CurStepChanged(CurStep: TSetupStep);',
+    'procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);',
+    'function NextButtonClick(CurPageID: Integer): Boolean;',
+    'function BackButtonClick(CurPageID: Integer): Boolean;',
+    'procedure CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);',
+    'function ShouldSkipPage(PageID: Integer): Boolean;',
+    'procedure CurPageChanged(CurPageID: Integer);',
+    'function CheckPassword(Password: String): Boolean;',
+    'function NeedRestart: Boolean;',
+    'function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;',
+    'procedure RegisterPreviousData(PreviousDataKey: Integer);',
+    'function CheckSerial(Serial: String): Boolean;',
+    'function GetCustomSetupExitCode: Integer;',
+    'function PrepareToInstall(var NeedsRestart: Boolean): String;',
+    'procedure RegisterExtraCloseApplicationsResources;',
+    'function InitializeUninstall: Boolean;',
+    'procedure InitializeUninstallProgressForm;',
+    'procedure DeinitializeUninstall;',
+    'procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
+    'function UninstallNeedRestart: Boolean;'];
 
 const
   inSquiggly = 0;
@@ -646,22 +681,6 @@ begin
   Result := True;
 end;
 
-function MapSectionNameString(const S: TScintRawString): TInnoSetupStylerSection;
-var
-  I: Integer;
-begin
-  if (S <> '') and (S[1] = '_') then
-    Result := scThirdParty
-  else begin
-    Result := scUnknown;
-    for I := Low(SectionMap) to High(SectionMap) do
-      if SameRawText(S, SectionMap[I].Name) then begin
-        Result := SectionMap[I].Value;
-        Break;
-      end;
-  end;
-end;
-
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
@@ -692,15 +711,30 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
-    BuildKeywordsWordList(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
     BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
     BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
     BuildKeywordsWordList(scRun, RunSectionParameters);
-    BuildKeywordsWordList(scSetup, TypeInfo(TSetupSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective));
     BuildKeywordsWordList(scTasks, TasksSectionParameters);
     BuildKeywordsWordList(scTypes, TypesSectionParameters);
     BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
     BuildKeywordsWordList(scUninstallRun, UninstallRunSectionParameters);
+  end;
+
+  procedure BuildScriptLists;
+  begin
+    { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete) }
+    var SL := TStringList.Create;
+    try
+      for var ScriptFuncTable in ScriptFuncTables do
+        BuildScriptFunctionsLists(ScriptFuncTable, SL);
+      BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
+      BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
+      FScriptWordList := BuildWordList(SL);
+    finally
+      SL.Free;
+    end;
   end;
 
 begin
@@ -711,6 +745,14 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
+  FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
+  BuildScriptLists;
+end;
+
+destructor TInnoSetupStyler.Destroy;
+begin
+  FScriptFunctionsByName.Free;
+  inherited;
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
@@ -719,6 +761,15 @@ begin
     ApplyStyleByteIndicators([inPendingSquiggly], StartIndex, EndIndex)
   else
     ApplyStyleByteIndicators([inSquiggly], StartIndex, EndIndex);
+end;
+
+procedure TInnoSetupStyler.AddWordToList(const SL: TStringList;
+  const Word: AnsiString; const Typ: Integer);
+begin
+  if Typ >= 0 then
+    SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
+  else
+    SL.Add(String(Word));
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -783,14 +834,11 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildSectionsWordList;
-var
-  SL: TStringList;
-  I: Integer;
 begin
-  SL := TStringList.Create;
+  var SL := TStringList.Create;
   try
-    for I := 0 to High(SectionMap) do
-      SL.Add('[' + String(SectionMap[I].Name) + ']');
+    for var Section in SectionMap do
+      AddWordToList(SL, '[' + Section.Name + ']', awtSection);
     FSectionsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -798,32 +846,26 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildKeywordsWordList(
-  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
-var
-  SL: TStringList;
-  I: Integer;
+  const Section: TInnoSetupStylerSection;
+  const Parameters: array of TScintRawString);
 begin
-  SL := TStringList.Create;
+  var SL :=TStringList.Create;
   try
-    for I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      SL.Add(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint));
+    for var I := 0 to High(Parameters) do
+      AddWordToList(SL, Parameters[I], awtParameter);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
   end;
 end;
 
-procedure TInnoSetupStyler.BuildKeywordsWordList(
-  const Section: TInnoSetupStylerSection;
-  const Parameters: array of TInnoSetupStylerParamInfo);
-var
-  SL: TStringList;
-  I: Integer;
+procedure TInnoSetupStyler.BuildKeywordsWordListFromTypeInfo(
+  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
 begin
-  SL := TStringList.Create;
+  var SL := TStringList.Create;
   try
-    for I := 0 to High(Parameters) do
-      SL.Add(String(Parameters[I].Name));
+    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
+      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint)), awtDirective);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -831,30 +873,36 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
-  const Flags: array of TInnoSetupStylerParamInfo);
-var
-  SL: TStringList;
-  I: Integer;
+  const Flags: array of TScintRawString);
 begin
-  SL := TStringList.Create;
+  var SL := TStringList.Create;
   try
-    for I := 0 to High(Flags) do
-      SL.Add(String(Flags[I].Name));
+    for var I := 0 to High(Flags) do
+      AddWordToList(SL, Flags[I], awtFlag);
     FFlagsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
   end;
 end;
 
-procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
-var
-  SL: TStringList;
-  I: Integer;
+procedure TInnoSetupStyler.BuildScriptFunctionsLists(
+  const ScriptFuncTable: TScriptTable; const SL: TStringList);
 begin
-  SL := TStringList.Create;
+  for var ScriptFunc in ScriptFuncTable do begin
+    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
+    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    if ScriptFuncHasParameters(ScriptFunc) then
+      FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
+    AddWordToList(SL, ScriptFuncName, awtScriptFunction);
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
+begin
+  var SL := TStringList.Create;
   try
-    for I := 0 to High(ISPPDirectives) do
-      SL.Add('#' + String(ISPPDirectives[I].Name));
+    for var I := 0 to High(ISPPDirectives) do
+      AddWordToList(SL, '#' + ISPPDirectives[I].Name, awtPreprocessorDirective);
     FISPPDirectivesWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -862,20 +910,17 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildConstantsWordList;
-var
-  SL: TStringList;
-  I: Integer;
 begin
-  SL := TStringList.Create;
+  var SL := TStringList.Create;
   try
-    for I := 0 to High(Constants) do
-      SL.Add('{' + String(Constants[I].Name) + '}');
+    for var I := 0 to High(Constants) do
+      AddWordToList(SL, '{' + Constants[I] + '}', awtConstant);
     if ISPPInstalled then begin
-      SL.Add('{#');
-      SL.Add('{#file ');
+      AddWordToList(SL, '{#', awtConstant);
+      AddWordToList(SL, '{#file ', awtConstant);
     end;
-    for I := 0 to High(ConstantsWithParam) do
-      SL.Add('{' + String(ConstantsWithParam[I].Name));
+    for var I := 0 to High(ConstantsWithParam) do
+      AddWordToList(SL, '{' + ConstantsWithParam[I], awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -883,22 +928,19 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildEventFunctionsWordList;
-var
-  SLFunctions, SLProcedures: TStringList;
-  S: String;
-  I: Integer;
 begin
-  SLFunctions := nil;
-  SLProcedures := nil;
+  var SLFunctions: TStringList := nil;
+  var SLProcedures: TStringList := nil;
   try
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
-    for I := 0 to High(EventFunctions) do begin
-      S := String(EventFunctions[I].Name);
-      if Pos('):', S) <> 0 then
-        SLFunctions.Add(StringReplace(S, '()', '', []))
+    for var I := 0 to High(EventFunctions) do begin
+      var WasFunction: Boolean;
+      var S := RemoveScriptFuncHeader(EventFunctions[I], WasFunction);
+      if WasFunction then
+        AddWordToList(SLFunctions, S, awtScriptEvent)
       else
-        SLProcedures.Add(S);
+        AddWordToList(SLProcedures, S, awtScriptEvent);
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);
@@ -961,6 +1003,12 @@ end;
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
 begin
   Result := FKeywordsWordList[Section];
+end;
+
+function TInnoSetupStyler.GetScriptFunctionDefinition(Name: String): AnsiString;
+begin
+  if not FScriptFunctionsByName.TryGetValue(Name, Result) then
+    Result := '';
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(
@@ -1373,7 +1421,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.HandleParameterSection(
-  const ValidParameters: array of TInnoSetupStylerParamInfo);
+  const ValidParameters: array of TScintRawString);
 var
   ParamsSpecified: set of 0..31;
   S: TScintRawString;
@@ -1391,7 +1439,7 @@ begin
     ValidName := False;
     DuplicateName := False;
     for I := Low(ValidParameters) to High(ValidParameters) do
-      if SameRawText(S, ValidParameters[I].Name) then begin
+      if SameRawText(S, ValidParameters[I]) then begin
         ValidName := True;
         DuplicateName := (I in ParamsSpecified);
         Include(ParamsSpecified, I);
@@ -1528,6 +1576,11 @@ begin
   end;
 end;
 
+class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := Style in [Ord(stComment), Ord(stPascalString)];
+end;
+
 class function TInnoSetupStyler.IsParamSection(
   const Section: TInnoSetupStylerSection): Boolean;
 begin
@@ -1536,7 +1589,7 @@ end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
 begin
-  Result := (Style = Ord(stSymbol));
+  Result := Style = Ord(stSymbol);
 end;
 
 function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
@@ -1672,6 +1725,21 @@ begin
 end;
 
 procedure TInnoSetupStyler.StyleNeeded;
+
+  function MapSectionNameString(const S: TScintRawString): TInnoSetupStylerSection;
+  begin
+    if (S <> '') and (S[1] = '_') then
+      Result := scThirdParty
+    else begin
+      Result := scUnknown;
+      for var Section in SectionMap do
+        if SameRawText(S, Section.Name) then begin
+          Result := Section.Section;
+          Break;
+        end;
+    end;
+  end;
+
 var
   NewLineState: TInnoSetupStylerLineState;
   Section, NewSection: TInnoSetupStylerSection;

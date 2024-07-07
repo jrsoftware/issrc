@@ -22,15 +22,15 @@ const
   mmChangeHistory = 2;
   mmFolding = 3;
 
-  { Memo icon and line marker numbers }
-  mimHasEntry = 0;        { grey dot }
-  mimEntryProcessed = 1;  { green dot }
-  mimBreakpoint = 2;      { stop sign }
-  mimBreakpointGood = 3;  { stop sign + check }
-  mimBreakpointBad = 4;   { stop sign + X }
-  mimStep = 5;            { blue arrow }
-  mimBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
-  mimMask = $7F;
+  { Memo marker icon and line marker numbers }
+  mmiHasEntry = 0;        { grey dot }
+  mmiEntryProcessed = 1;  { green dot }
+  mmiBreakpoint = 2;      { stop sign }
+  mmiBreakpointGood = 3;  { stop sign + check }
+  mmiBreakpointBad = 4;   { stop sign + X }
+  mmiStep = 5;            { blue arrow }
+  mmiBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
+  mmiMask = $7F;
 
   mlmError = 10;          { maroon line highlight }
   mlmBreakpointBad = 11;  { ugly olive line highlight }
@@ -220,6 +220,12 @@ begin
   Call(SCI_AUTOCSETIGNORECASE, 1, 0);
   Call(SCI_AUTOCSETOPTIONS, SC_AUTOCOMPLETE_FIXED_SIZE, 0); { Removes the ugly WS_THICKFRAME header at the cost of resizability }
   Call(SCI_AUTOCSETMAXHEIGHT, 12, 0);
+  Call(SCI_AUTOCSETMINWIDTH, 50, 0);
+  Call(SCI_AUTOCSETMAXWIDTH, 50, 0);
+
+  { Same color as AutoComplete's border color, works well for both dark and light themes }
+  var BorderColor := ColorToRGB(clWindowFrame);
+  Call(SCI_CALLTIPSETFOREBORDER, BorderColor, BorderColor);
 
   Call(SCI_SETMULTIPLESELECTION, 1, 0);
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
@@ -253,7 +259,7 @@ begin
 
   { Set up the gutter column with breakpoint etc symbols }
   Call(SCI_SETMARGINTYPEN, mmIcons, SC_MARGIN_SYMBOL);
-  Call(SCI_SETMARGINMASKN, mmIcons, mimMask);
+  Call(SCI_SETMARGINMASKN, mmIcons, mmiMask);
   Call(SCI_SETMARGINSENSITIVEN, mmIcons, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
 
@@ -466,13 +472,17 @@ begin
     Color := FTheme.Colors[tcBack];
 
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST, FTheme.Colors[tcFore] or (SC_ALPHA_OPAQUE shl 24));
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcBack] or (SC_ALPHA_OPAQUE shl 24));
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcIntelliBack] or (SC_ALPHA_OPAQUE shl 24));
     var Options := Call(SCI_AUTOCGETOPTIONS, 0, 0);
     if FTheme.Dark then
       Options := Options or SC_AUTOCOMPLETE_DARK_MODE
     else
       Options := Options and not SC_AUTOCOMPLETE_DARK_MODE;
     Call(SCI_AUTOCSETOPTIONS, Options, 0);
+
+    Call(SCI_CALLTIPSETFORE, FTheme.Colors[tcFore], 0);
+    Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcIntelliBack], 0);
+    Call(SCI_CALLTIPSETFOREHLT, FTheme.Colors[tcBlue], 0);
 
     var SelBackColor := FTheme.Colors[tcSelBack];
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);

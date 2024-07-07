@@ -6,7 +6,7 @@ unit ScriptFunc_R;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (run time)
+  Script support functions (run time - used by Setup)
 }
 
 interface
@@ -1383,8 +1383,6 @@ begin
 
   if Proc.Name = 'BEEP' then begin
     Beep;
-  end else if Proc.Name = 'TRIM' then begin
-    Stack.SetString(PStart, Trim(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'TRIMLEFT' then begin
     Stack.SetString(PStart, TrimLeft(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'TRIMRIGHT' then begin
@@ -2051,63 +2049,71 @@ end;
 {---}
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
-
-  function ExtractName(const S: String): String;
-  var
-    P: Integer;
-  begin
-    Result := S;
-
-    if CompareText(Copy(Result, 1, Length('function')), 'function') = 0 then
-      Delete(Result, 1, Length('function'))
-    else if CompareText(Copy(Result, 1, Length('procedure')), 'procedure') = 0 then
-      Delete(Result, 1, Length('procedure'));
-
-    P := Pos('(', Result);
-    if P = 0 then
-      P := Pos(':', Result);
-    if P = 0 then
-      P := Pos(';', Result);
-    Delete(Result, P, Maxint);
-
-    Result := Trim(Result);
-  end;
+{$IFDEF DEBUG}
+var
+  Count: Integer;
+{$ENDIF}
 
   procedure RegisterFunctionTable(const FunctionTable: array of AnsiString;
     const ProcPtr: TPSProcPtr);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
-      ScriptInterpreter.RegisterFunctionName(AnsiString(ExtractName(String(FunctionTable[I]))),
+    for var Func in FunctionTable do
+      ScriptInterpreter.RegisterFunctionName(ExtractScriptFuncName(Func),
         ProcPtr, nil, nil);
+    {$IFDEF DEBUG}
+    Inc(Count);
+    {$ENDIF}
+  end;
+
+  procedure RegisterDelphiFunction(ProcPtr: Pointer; const Name: AnsiString);
+  begin
+    ScriptInterpreter.RegisterDelphiFunction(ProcPtr, Name, cdRegister);
+    {$IFDEF DEBUG}
+    Inc(Count);
+    {$ENDIF}
   end;
 
 begin
-  RegisterFunctionTable(ScriptDlgTable, @ScriptDlgProc);
-  RegisterFunctionTable(NewDiskTable, @NewDiskProc);
-  RegisterFunctionTable(BrowseFuncTable, @BrowseFuncProc);
-  RegisterFunctionTable(CmnFuncTable, @CmnFuncProc);
-  RegisterFunctionTable(CmnFunc2Table, @CmnFunc2Proc);
-  RegisterFunctionTable(InstallTable, @InstallProc);
-  RegisterFunctionTable(InstFuncTable, @InstFuncProc);
-  RegisterFunctionTable(InstFnc2Table, @InstFnc2Proc);
-  RegisterFunctionTable(MainTable, @MainProc);
-  RegisterFunctionTable(MsgsTable, @MsgsProc);
-  RegisterFunctionTable(SystemTable, @SystemProc);
-  RegisterFunctionTable(SysUtilsTable, @SysUtilsProc);
-  RegisterFunctionTable(VerInfoTable, @VerInfoProc);
-  RegisterFunctionTable(WindowsTable, @WindowsProc);
-  RegisterFunctionTable(Ole2Table, @Ole2Proc);
-  RegisterFunctionTable(LoggingTable, @LoggingProc);
-  RegisterFunctionTable(OtherTable, @OtherProc);
+  { The following should register all tables in ScriptFuncTables }
+  {$IFDEF DEBUG}
+  Count := 0;
+  {$ENDIF}
+  RegisterFunctionTable(ScriptFuncTables[sftScriptDlg], @ScriptDlgProc);
+  RegisterFunctionTable(ScriptFuncTables[sftNewDisk], @NewDiskProc);
+  RegisterFunctionTable(ScriptFuncTables[sftBrowseFunc], @BrowseFuncProc);
+  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc], @CmnFuncProc);
+  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc2], @CmnFunc2Proc);
+  RegisterFunctionTable(ScriptFuncTables[sftInstall], @InstallProc);
+  RegisterFunctionTable(ScriptFuncTables[sftInstFunc], @InstFuncProc);
+  RegisterFunctionTable(ScriptFuncTables[sftInstFnc2], @InstFnc2Proc);
+  RegisterFunctionTable(ScriptFuncTables[sftMain], @MainProc);
+  RegisterFunctionTable(ScriptFuncTables[sftMsgs], @MsgsProc);
+  RegisterFunctionTable(ScriptFuncTables[sftSystem], @SystemProc);
+  RegisterFunctionTable(ScriptFuncTables[sftSysUtils], @SysUtilsProc);
+  RegisterFunctionTable(ScriptFuncTables[sftVerInfo], @VerInfoProc);
+  RegisterFunctionTable(ScriptFuncTables[sftWindows], @WindowsProc);
+  RegisterFunctionTable(ScriptFuncTables[sftOle2], @Ole2Proc);
+  RegisterFunctionTable(ScriptFuncTables[sftLogging], @LoggingProc);
+  RegisterFunctionTable(ScriptFuncTables[sftOther], @OtherProc);
+  {$IFDEF DEBUG}
+  if Count <> Length(ScriptFuncTables) then
+    raise Exception.Create('Count <> Length(ScriptFuncTables)');
+  {$ENDIF}
 
-  ScriptInterpreter.RegisterDelphiFunction(@_FindFirst, 'FindFirst', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FindNext, 'FindNext', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FindClose, 'FindClose', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_FmtMessage, 'FmtMessage', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@Format, 'Format', cdRegister);
-  ScriptInterpreter.RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx', cdRegister); 
+  { The following should register all functions in ScriptDelphiFuncTable }
+  {$IFDEF DEBUG}
+  Count := 0;
+  {$ENDIF}
+  RegisterDelphiFunction(@_FindFirst, 'FindFirst');
+  RegisterDelphiFunction(@_FindNext, 'FindNext');
+  RegisterDelphiFunction(@_FindClose, 'FindClose');
+  RegisterDelphiFunction(@_FmtMessage, 'FmtMessage');
+  RegisterDelphiFunction(@Format, 'Format');
+  RegisterDelphiFunction(@_GetWindowsVersionEx, 'GetWindowsVersionEx');
+  {$IFDEF DEBUG}
+  if Count <> Length(DelphiScriptFuncTable) then
+    raise Exception.Create('Count <> Length(DelphiScriptFuncTable)');
+  {$ENDIF}
 end;
 
 procedure FreeASMInliners;

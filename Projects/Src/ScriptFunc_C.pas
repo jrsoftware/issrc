@@ -2,11 +2,11 @@ unit ScriptFunc_C;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (compile time)
+  Script support functions (compile time - used by ISCmplr)
 }
 
 interface
@@ -38,11 +38,9 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
   end;
 
   procedure RegisterFunctionTable(const FunctionTable: array of tbtstring);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
-      ScriptCompiler.AddFunction(FunctionTable[I]);
+    for var Func in FunctionTable do
+      ScriptCompiler.AddFunction(Func);
   end;
 
   procedure RegisterDelphiFunctionTable(const FunctionTable: array of tbtstring);
@@ -151,29 +149,13 @@ begin
   RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
   RegisterType('TOnLog', 'procedure(const S: String; const Error, FirstLine: Boolean);');
 
-  RegisterFunctionTable(ScriptDlgTable);
-  RegisterFunctionTable(NewDiskTable);
-  RegisterFunctionTable(BrowseFuncTable);
-  RegisterFunctionTable(CmnFuncTable);
-  RegisterFunctionTable(CmnFunc2Table);
+  for var ScriptFuncTable in ScriptFuncTables do
+    RegisterFunctionTable(ScriptFuncTable);
+  RegisterDelphiFunctionTable(DelphiScriptFuncTable);
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
-  RegisterFunctionTable(InstallTable);
-  RegisterFunctionTable(InstFuncTable);
-  RegisterFunctionTable(InstFnc2Table);
-  RegisterFunctionTable(MainTable);
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
   ObsoleteFunctionWarnings.Add('IsX64', Format(SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs, ['IsX64', 'IsX64OS', 'IsX64Compatible', 'Architecture Identifiers']));
-  RegisterFunctionTable(MsgsTable);
-  RegisterDelphiFunctionTable(MsgsDelphiTable);
-  RegisterFunctionTable(SystemTable);
-  RegisterFunctionTable(SysUtilsTable);
-  RegisterDelphiFunctionTable(SysUtilsDelphiTable);
-  RegisterFunctionTable(VerInfoTable);
-  RegisterFunctionTable(WindowsTable);
-  RegisterFunctionTable(Ole2Table);
-  RegisterFunctionTable(LoggingTable);
-  RegisterFunctionTable(OtherTable);
 
   RegisterConst('MaxInt', MaxInt);
 

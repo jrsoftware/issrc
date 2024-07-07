@@ -130,14 +130,19 @@ type
     FUseStyleAttributes: Boolean;
     FUseTabCharacter: Boolean;
     FVirtualSpaceOptions: TScintVirtualSpaceOptions;
+    FWordChars: AnsiString;
+    FWordCharsAsSet: TSysCharSet;
     FWordWrap: Boolean;
     procedure ApplyOptions;
     procedure ForwardMessage(const Message: TMessage);
     function GetAutoCompleteActive: Boolean;
+    function GetCallTipActive: Boolean;
     function GetCaretColumn: Integer;
     function GetCaretColumnExpandedForTabs: Integer;
     function GetCaretLine: Integer;
+    function GetCaretLineText: String;
     function GetCaretPosition: Integer;
+    function GetCaretPositionInLine: Integer;
     function GetCaretVirtualSpace: Integer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
@@ -146,6 +151,7 @@ type
     function GetLinesInWindow: Integer;
     function GetMainSelText: String;
     function GetModified: Boolean;
+    function GetRawCaretLineText: TScintRawString;
     function GetRawMainSelText: TScintRawString;
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
@@ -240,6 +246,8 @@ type
     function CallStr(Msg: Cardinal; WParam: Longint;
       const LParamStr: TScintRawString): Longint;
     procedure CancelAutoComplete;
+    procedure CancelAutoCompleteAndCallTip;
+    procedure CancelCallTip;
     function CanRedo: Boolean;
     function CanUndo: Boolean;
     procedure ChooseCaretX;
@@ -322,11 +330,12 @@ type
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
-    procedure SetAutoCompleteSeparator(const C: AnsiChar);
+    procedure SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
+    procedure SetCallTipHighlight(HighlightStart, HighlightEnd: Integer);
     procedure SetDefaultWordChars;
     procedure SetEmptySelection;
     procedure SetEmptySelections;
@@ -338,6 +347,7 @@ type
     procedure SettingChange(const Message: TMessage);
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
+    procedure ShowCallTip(const Pos: Integer; const Definition: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
     procedure SysColorChange(const Message: TMessage);
     procedure Undo;
@@ -347,10 +357,13 @@ type
     procedure ZoomIn;
     procedure ZoomOut;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
+    property CallTipActive: Boolean read GetCallTipActive;
     property CaretColumn: Integer read GetCaretColumn write SetCaretColumn;
     property CaretColumnExpandedForTabs: Integer read GetCaretColumnExpandedForTabs;
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
+    property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
+    property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Integer read FEffectiveCodePage;
@@ -364,6 +377,7 @@ type
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
     property MainSelText: String read GetMainSelText write SetMainSelText;
     property Modified: Boolean read GetModified;
+    property RawCaretLineText: TScintRawString read GetRawCaretLineText;
     property RawMainSelText: TScintRawString read GetRawMainSelText write SetRawMainSelText;
     property RawSelText: TScintRawString read GetRawSelText write SetRawSelText;
     property RawText: TScintRawString read GetRawText write SetRawText;
@@ -379,6 +393,8 @@ type
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
     property TopLine: Integer read GetTopLine write SetTopLine;
+    property WordChars: AnsiString read FWordChars;
+    property WordCharsAsSet: TSysCharSet read FWordCharsAsSet;
   published
     property AcceptDroppedFiles: Boolean read FAcceptDroppedFiles write SetAcceptDroppedFiles
       default False;
@@ -645,6 +661,17 @@ begin
   Call(SCI_AUTOCCANCEL, 0, 0);
 end;
 
+procedure TScintEdit.CancelAutoCompleteAndCallTip;
+begin
+  CancelAutoComplete;
+  CancelCallTip;
+end;
+
+procedure TScintEdit.CancelCallTip;
+begin
+  Call(SCI_CALLTIPCANCEL, 0, 0);
+end;
+
 function TScintEdit.CanRedo: Boolean;
 begin
   Result := Call(SCI_CANREDO, 0, 0) <> 0;
@@ -904,11 +931,6 @@ begin
     CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
 end;
 
-function TScintEdit.GetMainSelText: String;
-begin
-  Result := ConvertRawStringToString(GetRawMainSelText);
-end;
-
 function TScintEdit.GetAutoCompleteActive: Boolean;
 begin
   Result := Call(SCI_AUTOCACTIVE, 0, 0) <> 0;
@@ -917,6 +939,11 @@ end;
 function TScintEdit.GetByteAtPosition(const Pos: Integer): AnsiChar;
 begin
   Result := AnsiChar(Call(SCI_GETCHARAT, Pos, 0));
+end;
+
+function TScintEdit.GetCallTipActive: Boolean;
+begin
+  Result := Call(SCI_CALLTIPACTIVE, 0, 0) <> 0;
 end;
 
 function TScintEdit.GetCaretColumn: Integer;
@@ -935,9 +962,21 @@ begin
   Result := GetLineFromPosition(GetCaretPosition);
 end;
 
+function TScintEdit.GetCaretLineText: String;
+begin
+  Result := ConvertRawStringToString(GetRawCaretLineText);
+end;
+
 function TScintEdit.GetCaretPosition: Integer;
 begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
+end;
+
+function TScintEdit.GetCaretPositionInLine: Integer;
+begin
+  var Caret := CaretPosition;
+  var LineStart := GetPositionFromLine(GetLineFromPosition(Caret));
+  Result := Caret - LineStart;
 end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
@@ -1038,6 +1077,11 @@ begin
   Result := Call(SCI_GETMAINSELECTION, 0, 0);
 end;
 
+function TScintEdit.GetMainSelText: String;
+begin
+  Result := ConvertRawStringToString(GetRawMainSelText);
+end;
+
 function TScintEdit.GetMarkers(const Line: Integer): TScintMarkerNumbers;
 begin
   FLines.CheckIndexRange(Line);
@@ -1117,6 +1161,12 @@ function TScintEdit.GetPositionRelative(const Pos,
   CharacterCount: Integer): Integer;
 begin
   Result := Call(SCI_POSITIONRELATIVE, Pos, CharacterCount);
+end;
+
+function TScintEdit.GetRawCaretLineText: TScintRawString;
+begin
+  var Line := CaretLine;
+  Result := GetRawTextRange(GetPositionFromLine(Line), GetPositionFromLine(Line+1));
 end;
 
 function TScintEdit.GetRawMainSelText: TScintRawString;
@@ -1580,9 +1630,10 @@ begin
   CallStr(SCI_AUTOCSELECT, 0, S);
 end;
 
-procedure TScintEdit.SetAutoCompleteSeparator(const C: AnsiChar);
+procedure TScintEdit.SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
 begin
-  Call(SCI_AUTOCSETSEPARATOR, WParam(C), 0);
+  Call(SCI_AUTOCSETSEPARATOR, WParam(Separator), 0);
+  Call(SCI_AUTOCSETTYPESEPARATOR, WParam(TypeSeparator), 0);
 end;
 
 procedure TScintEdit.SetAutoCompleteStopChars(const StopChars: AnsiString);
@@ -1593,6 +1644,11 @@ end;
 procedure TScintEdit.SetBraceHighlighting(const Pos1, Pos2: Integer);
 begin
   Call(SCI_BRACEHIGHLIGHT, Pos1, Pos2);
+end;
+
+procedure TScintEdit.SetCallTipHighlight(HighlightStart, HighlightEnd: Integer);
+begin
+  Call(SCI_CALLTIPSETHLT, HighlightStart, HighlightEnd);
 end;
 
 procedure TScintEdit.SetCaretColumn(const Value: Integer);
@@ -1910,6 +1966,10 @@ end;
 
 procedure TScintEdit.SetWordChars(const S: AnsiString);
 begin
+  FWordChars := S;
+  FWordCharsAsSet := [];
+  for var C in S do
+    Include(FWordCharsAsSet, C);
   CallStr(SCI_SETWORDCHARS, 0, S);
 end;
 
@@ -1930,6 +1990,12 @@ procedure TScintEdit.ShowAutoComplete(const CharsEntered: Integer;
   const WordList: AnsiString);
 begin
   Call(SCI_AUTOCSHOW, CharsEntered, LPARAM(PAnsiChar(WordList)));
+end;
+
+procedure TScintEdit.ShowCallTip(const Pos: Integer;
+  const Definition: AnsiString);
+begin
+  Call(SCI_CALLTIPSHOW, Pos, LPARAM(PAnsiChar(Definition)));
 end;
 
 procedure TScintEdit.StyleNeeded(const EndPos: Integer);

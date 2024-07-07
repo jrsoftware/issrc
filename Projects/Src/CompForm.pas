@@ -69,6 +69,12 @@ type
   TMenuBitmaps = TDictionary<TMenuItem, HBITMAP>;
   TKeyMappedMenus = TDictionary<TShortCut, TToolButton>;
 
+  TCallTipState = record
+    StartCallTipWord: Integer;
+    FunctionDefinition: AnsiString;
+    BraceCount: Integer;
+  end;
+
   TCompileForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -228,9 +234,9 @@ type
     VReopenTabs2: TMenuItem;
     NavPopupMenu: TMenuItem;
     N23: TMenuItem;
-    LightMarkersImageCollection: TImageCollection;
-    DarkMarkersImageCollection: TImageCollection;
-    ThemedMarkersVirtualImageList: TVirtualImageList;
+    LightMarkersAndACImageCollection: TImageCollection;
+    DarkMarkersAndACImageCollection: TImageCollection;
+    ThemedMarkersAndACVirtualImageList: TVirtualImageList;
     ESelectNextOccurrence: TMenuItem;
     ESelectAllOccurrences: TMenuItem;
     BreakPointsPopupMenu: TMenuItem;
@@ -387,7 +393,8 @@ type
       UndoAfterSave: Boolean;
       PauseOnDebuggerExceptions: Boolean;
       RunAsDifferentUser: Boolean;
-      AutoComplete: Boolean;
+      AutoAutoComplete: Boolean;
+      AutoCallTips: Boolean;
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
       UnderlineErrors: Boolean;
@@ -467,6 +474,7 @@ type
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
+    FCallTipState: TCallTipState;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -503,7 +511,11 @@ type
     function InitializeMainMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
     function InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
     function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+    function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+      const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
     procedure InitiateAutoComplete(const Key: AnsiChar);
+    procedure InitiateCallTip;
+    procedure ContinueCallTip;
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
@@ -564,7 +576,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
-    procedure UpdateMarginsIcons;
+    procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
@@ -711,7 +723,7 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := BodyPanel;
-  Memo.SetAutoCompleteSeparator(InnoSetupStylerWordListSeparator);
+  Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.Visible := False;
@@ -770,7 +782,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', True);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
-      FOptions.AutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
+      FOptions.AutoAutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
+      FOptions.AutoCallTips := Ini.ReadBool('Options', 'AutoCallTips', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
       FOptions.UnderlineErrors := Ini.ReadBool('Options', 'UnderlineErrors', True);
@@ -966,7 +979,7 @@ begin
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
 
-  ThemedMarkersVirtualImageList.AutoFill := True;
+  ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
 
@@ -1068,7 +1081,7 @@ procedure TCompileForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
   UpdateMarginsAndSquigglyAndCaretWidths;
-  UpdateMarginsIcons;
+  UpdateMarginsAndAutoCompleteIcons;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
@@ -1268,9 +1281,11 @@ begin
         Memo.SelectionMode := ssmStream;
       end;
     end;
+    { Key is not cleared to allow Scintilla to do the actual handling }
   end;
 
   if Key = VK_F1 then begin
+    Key := 0;
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
@@ -1283,6 +1298,12 @@ begin
         KLink.fIndexOnFail := True;
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
+    end;
+  end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    Key := 0;
+    if not FActiveMemo.CallTipActive then begin
+      FCallTipState.BraceCount := 1;
+      InitiateCallTip;
     end;
   end else begin
     var AShortCut := ShortCut(Key, Shift);
@@ -2119,7 +2140,7 @@ begin
     FProgress := 0;
     FProgressMax := 0;
 
-    FActiveMemo.CancelAutoComplete;
+    FActiveMemo.CancelAutoCompleteAndCallTip;
     FActiveMemo.Cursor := crAppStart;
     FActiveMemo.SetCursorID(999);  { hack to keep it from overriding Cursor }
     CompilerOutputList.Cursor := crAppStart;
@@ -2989,7 +3010,7 @@ begin
       FIgnoreTabSetClick := False;
     end;
     VPreviousTabClick(Self);
-    Memo.CancelAutoComplete;
+    Memo.CancelAutoCompleteAndCallTip;
     Memo.Visible := False;
   end else if TabIndex < MemosTabset.TabIndex then
     MemosTabSet.TabIndex := MemosTabset.TabIndex-1; { Reselect old selected tab }
@@ -3381,7 +3402,7 @@ begin
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;
     ActiveControl := NewActiveMemo;
-    OldActiveMemo.CancelAutoComplete;
+    OldActiveMemo.CancelAutoCompleteAndCallTip;
     OldActiveMemo.Visible := False;
 
     UpdateSaveMenuItemAndButton;
@@ -3789,11 +3810,11 @@ begin
   inherited;
 end;
 
-procedure TCompileForm.UpdateMarginsIcons;
+procedure TCompileForm.UpdateMarginsAndAutoCompleteIcons;
 { Should be called at startup and after theme and DPI changes }
 
 type
-  TMarkerBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
+  TMarkerOrACBitmaps = TObjectDictionary<Integer, TBitmapWithBits>;
 
   procedure SwapRedBlue(const pvBits: PByte; Width, Height: Integer);
   begin
@@ -3807,8 +3828,8 @@ type
     end;
   end;
 
-  procedure AddMarkerBitmap(const MarkerBitmaps: TMarkerBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
-    const Marker: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
+  procedure AddMarkerOrACBitmap(const MarkerOrACBitmaps: TMarkerOrACBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
+    const MarkerNumberOrACType: Integer; const BkBrush: TBrush; const ImageList: TVirtualImageList; const ImageName: String);
   begin
     { Prepare a bitmap and select it }
     var pvBits: Pointer;
@@ -3829,7 +3850,7 @@ type
       var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
       Bitmap2.pvBits := pvBits;
-      MarkerBitmaps.Add(Marker, Bitmap2);
+      MarkerOrACBitmaps.Add(MarkerNumberOrACType, Bitmap2);
     end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
@@ -3837,48 +3858,80 @@ type
   end;
 
 type
-  TNamedMarker = TPair<Integer, String>;
+  TMarkerNumberOrACType = TPair<Integer, String>;
 
-  function NM(const Marker: Integer; const Name: String): TNamedMarker;
+  function NNT(const MarkerNumberOrACType: Integer; const Name: String): TMarkerNumberOrACType;
   begin
-    Result := TNamedMarker.Create(Marker, Name); { This is a record so no need to free }
+    Result := TMarkerNumberOrACType.Create(MarkerNumberOrACType, Name); { This is a record so no need to free }
   end;
 
 begin
-  var ImageList := ThemedMarkersVirtualImageList;
+  var ImageList := ThemedMarkersAndACVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
     try
-      var MarkerBitmaps := TMarkerBitmaps.Create([doOwnsValues]);
-      var BkBrush := TBrush.Create;
+      var MarkerBitmaps: TMarkerOrACBitmaps := nil;
+      var MarkerBkBrush: TBrush := nil;
+      var AutoCompleteBitmaps: TMarkerOrACBitmaps := nil;
+      var AutoCompleteBkBrush: TBrush := nil;
       try
-        BkBrush.Color := FTheme.Colors[tcMarginBack];
+        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32); { This is a record so no need to free }
 
-        var BitmapInfo := CreateBitmapInfo(ImageList.Width, -ImageList.Height, 32);
+        MarkerBitmaps := TMarkerOrACBitmaps.Create([doOwnsValues]);
+        MarkerBkBrush := TBrush.Create;
+        MarkerBkBrush.Color := FTheme.Colors[tcMarginBack];
 
         var NamedMarkers := [
-            NM(mimHasEntry, 'debug-stop-filled'),
-            NM(mimEntryProcessed, 'debug-stop-filled_2'),
-            NM(mimBreakpoint, 'debug-breakpoint-filled'),
-            NM(mimBreakpointBad, 'debug-breakpoint-filled-cancel-2'),
-            NM(mimBreakpointGood, 'debug-breakpoint-filled-ok-2'),
-            NM(mimStep, 'symbol-arrow-right'),
-            NM(mimBreakpointStep, 'debug-breakpoint-filled-ok2-symbol-arrow-right'),
-            NM(SC_MARKNUM_FOLDER, 'symbol-add'),
-            NM(SC_MARKNUM_FOLDEROPEN, 'symbol-remove')];
+          NNT(mmiHasEntry, 'markers\debug-stop-filled'),
+          NNT(mmiEntryProcessed, 'markers\debug-stop-filled_2'),
+          NNT(mmiBreakpoint, 'markers\debug-breakpoint-filled'),
+          NNT(mmiBreakpointBad, 'markers\debug-breakpoint-filled-cancel-2'),
+          NNT(mmiBreakpointGood, 'markers\debug-breakpoint-filled-ok-2'),
+          NNT(mmiStep, 'markers\symbol-arrow-right'),
+          NNT(mmiBreakpointStep, 'markers\debug-breakpoint-filled-ok2-symbol-arrow-right'),
+          NNT(SC_MARKNUM_FOLDER, 'markers\symbol-add'),
+          NNT(SC_MARKNUM_FOLDEROPEN, 'markers\symbol-remove')];
 
         for var NamedMarker in NamedMarkers do
-          AddMarkerBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, BkBrush, ImageList, NamedMarker.Value);
+          AddMarkerOrAcBitmap(MarkerBitmaps, DC, BitmapInfo, NamedMarker.Key, MarkerBkBrush, ImageList, NamedMarker.Value);
+
+        AutoCompleteBitmaps := TMarkerOrACBitmaps.Create([doOwnsValues]);
+        AutoCompleteBkBrush := TBrush.Create;
+        AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
+
+        var NamedTypes := [
+          NNT(awtScriptFunction, 'ac\method-filled'),
+          NNT(awtScriptType, 'ac\types'),
+          NNT(awtScriptVariable, 'ac\variables'),
+          NNT(awtScriptConstant, 'ac\constant-filled'),
+          NNT(awtScriptClass, 'ac\class-filled'),
+          NNT(awtScriptInterface, 'ac\interface-filled'),
+          NNT(awtScriptProperty, 'ac\properties-filled'),
+          NNT(awtScriptObject, 'ac\object-filled'),
+          NNT(awtScriptEvent, 'ac\event-filled'),
+          NNT(awtSection, 'ac\structure-filled'),
+          NNT(awtParameter, 'ac\xml-filled'),
+          NNT(awtDirective, 'ac\xml-filled'),
+          NNT(awtFlag, 'ac\values'),
+          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
+          NNT(awtConstant, 'ac\constant-filled_2')];
+
+        for var NamedType in NamedTypes do
+          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
 
         for var Memo in FMemos do begin
           Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);
           Memo.Call(SCI_RGBAIMAGESETHEIGHT, ImageList.Height, 0);
           for var MarkerBitmap in MarkerBitmaps do
             Memo.Call(SCI_MARKERDEFINERGBAIMAGE, MarkerBitmap.Key, LPARAM(MarkerBitmap.Value.pvBits));
+          for var AutoCompleteBitmap in AutoCompleteBitmaps do
+            Memo.Call(SCI_REGISTERRGBAIMAGE, AutoCompleteBitmap.Key, LPARAM(AutoCompleteBitmap.Value.pvBits));
         end;
       finally
-        BkBrush.Free;
+        AutoCompleteBkBrush.Free;
+        AutoCompleteBitmaps.Free;
+        MarkerBkBrush.Free;
         MarkerBitmaps.Free;
       end;
     finally
@@ -4048,7 +4101,7 @@ begin
     OptionsForm.UndoAfterSaveCheck.Checked := FOptions.UndoAfterSave;
     OptionsForm.PauseOnDebuggerExceptionsCheck.Checked := FOptions.PauseOnDebuggerExceptions;
     OptionsForm.RunAsDifferentUserCheck.Checked := FOptions.RunAsDifferentUser;
-    OptionsForm.AutoCompleteCheck.Checked := FOptions.AutoComplete;
+    OptionsForm.AutoAutoCompleteCheck.Checked := FOptions.AutoAutoComplete;
     OptionsForm.UseSynHighCheck.Checked := FOptions.UseSyntaxHighlighting;
     OptionsForm.ColorizeCompilerOutputCheck.Checked := FOptions.ColorizeCompilerOutput;
     OptionsForm.UnderlineErrorsCheck.Checked := FOptions.UnderlineErrors;
@@ -4081,7 +4134,7 @@ begin
     FOptions.UndoAfterSave := OptionsForm.UndoAfterSaveCheck.Checked;
     FOptions.PauseOnDebuggerExceptions := OptionsForm.PauseOnDebuggerExceptionsCheck.Checked;
     FOptions.RunAsDifferentUser := OptionsForm.RunAsDifferentUserCheck.Checked;
-    FOptions.AutoComplete := OptionsForm.AutoCompleteCheck.Checked;
+    FOptions.AutoAutoComplete := OptionsForm.AutoAutoCompleteCheck.Checked;
     FOptions.UseSyntaxHighlighting := OptionsForm.UseSynHighCheck.Checked;
     FOptions.ColorizeCompilerOutput := OptionsForm.ColorizeCompilerOutputCheck.Checked;
     FOptions.UnderlineErrors := OptionsForm.UnderlineErrorsCheck.Checked;
@@ -4127,7 +4180,8 @@ begin
       Ini.WriteBool('Options', 'UndoAfterSave', FOptions.UndoAfterSave);
       Ini.WriteBool('Options', 'PauseOnDebuggerExceptions', FOptions.PauseOnDebuggerExceptions);
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
-      Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoComplete);
+      Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoAutoComplete);
+      Ini.WriteBool('Options', 'AutoCallTips', FOptions.AutoCallTips);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
       Ini.WriteBool('Options', 'UnderlineErrors', FOptions.UnderlineErrors);
@@ -4752,9 +4806,16 @@ begin
   Memo.ReportCaretPositionToStyler := True;
 end;
 
+function TCompileForm.InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+  const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
+begin
+  Result := (PositionBeforeWordStartPos >= WordStartLinePos) and
+            not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
+end;
+
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
-  function CheckWhiteSpace(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  function OnlyWhiteSpaceBeforeWord(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   var
     I: Integer;
     C: AnsiChar;
@@ -4775,13 +4836,12 @@ procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
 var
   CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore,
-    PrevWordStartPos, PrevWordEndPos, I, LangNamePos: Integer;
+    LangNamePos: Integer;
   Section: TInnoSetupStylerSection;
   IsParamSection: Boolean;
   WordList: AnsiString;
   FoundSemicolon, FoundFlagsOrType, FoundDot: Boolean;
   C: AnsiChar;
-  S: String;
 begin
   if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
     Exit;
@@ -4802,7 +4862,7 @@ begin
   WordEndPos := FActiveMemo.GetWordEndPosition(CaretPos, True);
   CharsBefore := CaretPos - WordStartPos;
 
-  { Don't start autocompletion after a character is typed if there are any
+  { Don't auto start autocompletion after a character is typed if there are any
     word characters adjacent to the character }
   if Key <> #0 then begin
     if CharsBefore > 1 then
@@ -4814,7 +4874,7 @@ begin
   case FActiveMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
-        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.ISPPDirectivesWordList;
         FActiveMemo.SetAutoCompleteFillupChars(' ');
@@ -4826,7 +4886,7 @@ begin
       end;
     '[':
       begin
-        if not CheckWhiteSpace(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.SectionsWordList;
         FActiveMemo.SetAutoCompleteFillupChars('');
@@ -4835,36 +4895,53 @@ begin
       begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
-          { Only allow autocompletion if the previous word on the line is 'function' or 'procedure',
-            exactly 1 space exists between it and the current word and no non-whitespace characters
-            exist before it on the line }
-          I := FActiveMemo.GetPositionBefore(WordStartPos);
-          if I < LinePos then
+          var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
+          if Key <> #0 then
+            FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
+          if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
             Exit;
-          if FActiveMemo.GetByteAtPosition(I) > ' ' then
+
+          WordList := '';
+
+          { Autocomplete event functions if the current word on the line has
+            exactly 1 space before it which has the word 'function' or
+            'procedure' before it which has only whitespace before it }
+          if (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
+            var FunctionWordEndPos := PositionBeforeWordStartPos;
+            var FunctionWordStartPos := FActiveMemo.GetWordStartPosition(FunctionWordEndPos, True);
+            if OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, FunctionWordStartPos) then begin
+              var FunctionWord := FActiveMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
+              if SameText(FunctionWord, 'procedure') then
+                WordList := FMemosStyler.EventFunctionsWordList[True]
+              else if SameText(FunctionWord, 'function') then
+                WordList := FMemosStyler.EventFunctionsWordList[False];
+              if WordList <> '' then
+                FActiveMemo.SetAutoCompleteFillupChars('');
+            end;
+          end;
+
+          { If no event function was found then autocomplete script functions if
+            the current word has no dot before it }
+          if WordList = '' then begin
+            var ClassFunction := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+            if not ClassFunction then begin
+              WordList := FMemosStyler.ScriptWordList;
+              FActiveMemo.SetAutoCompleteFillupChars('(')
+            end;
+          end;
+
+          if WordList = '' then
             Exit;
-          PrevWordEndPos := I;
-          PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
-          S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
-          if SameText(S, 'procedure') then
-            WordList := FMemosStyler.EventFunctionsWordList[True]
-          else if SameText(S, 'function') then
-            WordList := FMemosStyler.EventFunctionsWordList[False]
-          else
-            Exit;
-          if not CheckWhiteSpace(FActiveMemo, LinePos, PrevWordStartPos) then
-            Exit;
-          FActiveMemo.SetAutoCompleteFillupChars('');
         end else begin
           IsParamSection := FMemosStyler.IsParamSection(Section);
 
-          { Only allow autocompletion if no non-whitespace characters exist before
-            the current word on the line, or after the last ';' or 'Flags:' or 'Type:' in parameterized
-            sections }
+          { Autocomplete if the current word on the line has only whitespace
+            before it, or else also: after the last ';' or after 'Flags:' or
+            'Type:' in parameterized sections }
           FoundSemicolon := False;
           FoundFlagsOrType := False;
           FoundDot := False;
-          I := WordStartPos;
+          var I := WordStartPos;
           while I > LinePos do begin
             I := FActiveMemo.GetPositionBefore(I);
             if I < LinePos then
@@ -4875,11 +4952,11 @@ begin
                FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
               FoundSemicolon := C = ';';
               if not FoundSemicolon then begin
-                PrevWordEndPos := I;
-                PrevWordStartPos := FActiveMemo.GetWordStartPosition(PrevWordEndPos, True);
-                S := FActiveMemo.GetTextRange(PrevWordStartPos, PrevWordEndPos);
-                FoundFlagsOrType := SameText(S, 'Flags') or
-                                    ((Section in [scInstallDelete, scUninstallDelete]) and SameText(S, 'Type'));
+                var ParameterWordEndPos := I;
+                var ParameterWordStartPos := FActiveMemo.GetWordStartPosition(ParameterWordEndPos, True);
+                var ParameterWord := FActiveMemo.GetTextRange(ParameterWordStartPos,ParameterWordEndPos);
+                FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
+                                    ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
                 FoundFlagsOrType := False;
               Break;
@@ -4922,6 +4999,129 @@ begin
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
+procedure TCompileForm.InitiateCallTip;
+begin
+  var Pos := FActiveMemo.CaretPosition;
+
+  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
+     not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
+       FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
+       FActiveMemo.GetPositionBefore(Pos)) then
+    Exit;
+
+  { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
+    SciTEBase::FillFunctionDefinition, without support for multiple calltips }
+
+  { StartAutoComplete }
+
+  var CurrentCallTipWord := '';
+  var Line := FActiveMemo.CaretLineText;
+  var Current := FActiveMemo.CaretPositionInLine;
+  var CalltipWordCharacters := FActiveMemo.WordCharsAsSet;
+
+  {$ZEROBASEDSTRINGS ON}
+  repeat
+    var Braces := 0;
+		while ((Current > 0) and ((Braces <> 0) or not (Line[Current-1] = '('))) do begin
+			if Line[Current-1] = '(' then
+			  Dec(Braces)
+			else if Line[Current-1] = ')' then
+				Inc(Braces);
+			Dec(Current);
+			Dec(Pos);
+    end;
+    if Current > 0 then begin
+      Dec(Current);
+      Dec(Pos);
+    end else
+      Break;
+    while (Current > 0) and (Line[Current-1] <= ' ') do begin
+      Dec(Current);
+      Dec(Pos);
+    end
+  until not ((Current > 0) and not CharInSet(Line[Current-1], CalltipWordCharacters));
+  {$ZEROBASEDSTRINGS OFF}
+  if Current <= 0 then
+    Exit;
+
+	FCallTipState.StartCalltipWord := Current - 1;
+  {$ZEROBASEDSTRINGS ON}
+	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
+    Dec(FCallTipState.StartCallTipWord);
+  var ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  {$ZEROBASEDSTRINGS OFF}
+
+  SetLength(Line, Current);
+  CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+
+  FCallTipState.FunctionDefinition := '';
+
+  { FillFunctionDefinition - if this is separated for multiple calltips support like in SciTE then the following vars
+    need to be moved into FCallTipState: CurrentCallTipWord, ClassFunction, LastPosCallTip }
+
+  var LastPosCallTip := Pos;
+
+  // Should get current api definition
+  var Word: AnsiString;
+  if not ClassFunction then
+    Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
+  else
+    Word := '';
+  if Word <> '' then begin
+    FCallTipState.FunctionDefinition := Word;
+    FActiveMemo.ShowCallTip(LastPosCallTip - Length(CurrentCallTipWord), FCallTipState.FunctionDefinition);
+    ContinueCallTip;
+  end;
+end;
+
+procedure TCompileForm.ContinueCallTip;
+begin
+  { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
+
+	var Line := FActiveMemo.CaretLineText;
+	var Current := FActiveMemo.CaretPositionInLine;
+
+	var Braces := 0;
+	var Commas := 0;
+	for var I := FCallTipState.StartCalltipWord to Current-1 do begin
+    {$ZEROBASEDSTRINGS ON}
+		if Line[I] = '(' then
+      Inc(Braces)
+		else if (Line[I] = ')') and (Braces > 0) then
+			Dec(Braces)
+		else if (Braces = 1) and (Line[I] = ',') then
+			Inc(Commas);
+    {$ZEROBASEDSTRINGS OFF}
+	end;
+
+  {$ZEROBASEDSTRINGS ON}
+	var StartHighlight := 0;
+  var FunctionDefinition := FCallTipState.FunctionDefinition;
+  var FunctionDefinitionLength := Length(FunctionDefinition);
+	while (StartHighlight < FunctionDefinitionLength) and not (FunctionDefinition[StartHighlight] = '(') do
+		Inc(StartHighlight);
+	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
+		Inc(StartHighlight);
+	while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
+		if FunctionDefinition[StartHighlight] in [',', ';'] then
+			Dec(Commas);
+		// If it reached the end of the argument list it means that the user typed in more
+		// arguments than the ones listed in the calltip
+		if FunctionDefinition[StartHighlight] = ')' then
+			Commas := 0
+		else
+			Inc(StartHighlight);
+	end;
+	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] in [',', ';']) then
+		Inc(StartHighlight);
+	var EndHighlight := StartHighlight;
+	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] in [',', ';']) and not (FunctionDefinition[EndHighlight] = ')') do
+		Inc(EndHighlight);
+  {$ZEROBASEDSTRINGS OFF}
+
+	FActiveMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
+end;
+
 procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
   function LineIsBlank(const Line: Integer): Boolean;
@@ -4932,7 +5132,6 @@ procedure TCompileForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
 
 var
   NewLine, PreviousLine, NewIndent, PreviousIndent: Integer;
-  RestartAutoComplete: Boolean;
 begin
   if FOptions.AutoIndent and (Ch = FActiveMemo.LineEndingString[Length(FActiveMemo.LineEndingString)]) then begin
     { Add to the new line any (remaining) indentation from the previous line }
@@ -4958,17 +5157,53 @@ begin
       end;
     end;
   end;
+  
+  { Based on SciTE 5.50's SciTEBase::CharAdded but with an altered interaction
+    between calltips and autocomplete }
 
-  case Ch of
-    'A'..'Z', 'a'..'z', '_', '#', '{', '[':
-      if FOptions.AutoComplete then
+  var DoAutoComplete := False;
+
+  if FActiveMemo.CallTipActive then begin
+    if Ch = ')' then begin
+      Dec(FCallTipState.BraceCount);
+      if FCallTipState.BraceCount < 1 then
+        FActiveMemo.CancelCallTip
+      else if FOptions.AutoCallTips then
+        InitiateCallTip;
+    end else if Ch = '(' then begin
+      Inc(FCallTipState.BraceCount);
+      if FOptions.AutoCallTips then
+        InitiateCallTip;
+    end else
+      ContinueCallTip;
+  end else if FActiveMemo.AutoCompleteActive then begin
+    if Ch = '(' then begin
+      Inc(FCallTipState.BraceCount);
+      if FOptions.AutoCallTips then
+        InitiateCallTip;
+    end else if Ch = ')' then
+      Dec(FCallTipState.BraceCount)
+    else
+      DoAutoComplete := True;
+  end else if Ch = '(' then begin
+    FCallTipState.BraceCount := 1;
+    if FOptions.AutoCallTips then
+      InitiateCallTip;
+  end else
+    DoAutoComplete := True;
+
+  if DoAutoComplete then begin
+    case Ch of
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[':
+        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
+          InitiateAutoComplete(Ch);
+    else
+      var RestartAutoComplete := (Ch in [' ', '.']) and
+        (FOptions.AutoAutoComplete or FActiveMemo.AutoCompleteActive);
+      FActiveMemo.CancelAutoComplete;
+      if RestartAutoComplete then
         InitiateAutoComplete(Ch);
-  else
-    RestartAutoComplete := (Ch in [' ', '.']) and
-      (FOptions.AutoComplete or FActiveMemo.AutoCompleteActive);
-    FActiveMemo.CancelAutoComplete;
-    if RestartAutoComplete then
-      InitiateAutoComplete(Ch);
+    end;
   end;
 end;
 
@@ -5777,14 +6012,14 @@ begin
 
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := DarkToolBarImageCollection;
-    ThemedMarkersVirtualImageList.ImageCollection := DarkMarkersImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := DarkMarkersAndACImageCollection;
   end else begin
     ThemedToolbarVirtualImageList.ImageCollection := LightToolBarImageCollection;
-    ThemedMarkersVirtualImageList.ImageCollection := LightMarkersImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := LightMarkersAndACImageCollection;
   end;
 
   UpdateBevel1Visibility;
-  UpdateMarginsIcons;
+  UpdateMarginsAndAutoCompleteIcons;
 
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
@@ -7089,18 +7324,18 @@ begin
   NewMarker := -1;
   if AMemo.BreakPoints.IndexOf(Line) <> -1 then begin
     if AMemo.LineState = nil then
-      NewMarker := mimBreakpoint
+      NewMarker := mmiBreakpoint
     else if (Line < AMemo.LineStateCount) and (AMemo.LineState[Line] <> lnUnknown) then
-      NewMarker := IfThen(StepLine, mimBreakpointStep, mimBreakpointGood)
+      NewMarker := IfThen(StepLine, mmiBreakpointStep, mmiBreakpointGood)
     else
-      NewMarker := mimBreakpointBad;
+      NewMarker := mmiBreakpointBad;
   end else if StepLine then
-    NewMarker := mimStep
+    NewMarker := mmiStep
   else begin
     if Line < AMemo.LineStateCount then begin
       case AMemo.LineState[Line] of
-        lnHasEntry: NewMarker := mimHasEntry;
-        lnEntryProcessed: NewMarker := mimEntryProcessed;
+        lnHasEntry: NewMarker := mmiHasEntry;
+        lnEntryProcessed: NewMarker := mmiEntryProcessed;
       end;
     end;
   end;
@@ -7117,7 +7352,7 @@ begin
     AMemo.AddMarker(Line, mlmStep)
   else if AMemo.ErrorLine = Line then
     AMemo.AddMarker(Line, mlmError)
-  else if NewMarker = mimBreakpointBad then
+  else if NewMarker = mmiBreakpointBad then
     AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 

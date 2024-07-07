@@ -50,6 +50,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Other editor changes:</p>
 <ul>
   <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
+  <li>Implemented parameter hints for all Pascal Scripting support functions for quick reference to the function's parameter names, types, and order. Parameter hints can be invoked manually by pressing Ctrl+Shift+Space or automatically by using the new <i>Invoke parameter hints automatically</i> option which is enabled by default.</li>
+  <li>Added autocompletion support for all Pascal Scripting support functions. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
   <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
   <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
   <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
@@ -58,7 +60,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
   <li>Added shortcut and menu item to toggle line comment (Ctrl+/).</li>
   <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
-  <li>Added dark mode support to autocompletion lists.</li>
+  <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
 </ul>
 <p>Other changes:</p>
 <ul>
@@ -70,10 +72,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>  
   <li>Pascal Scripting change: Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> output.</li>
   <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
+  <li>Pascal Scripting change: documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
   <li>Various tweaks and documentation improvements.</li>
 </ul>
 
-<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov and John Stevenson for their contributions.</p>
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov, John Stevenson, and jogo- for their contributions!</p>
 
 <p><a name="6.3.2"></a><span class="ver">6.3.2 </span><span class="date">(2024-06-28)</span></p>
 <ul>
