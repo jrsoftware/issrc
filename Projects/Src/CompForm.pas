@@ -4894,6 +4894,8 @@ begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
           var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
+          if Key <> #0 then
+            FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
           if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
             Exit;
 
