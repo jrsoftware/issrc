@@ -4492,8 +4492,10 @@ begin
   { Update panel }
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
-  if FOptions.ShowCaretPosition then
-    Text := Format('%5d:%s', [FActiveMemo.CaretPosition, Text]);
+  if FOptions.ShowCaretPosition then begin
+    var CaretPos := FActiveMemo.CaretPosition;
+    Text := Format('%d@%d+%d:%s', [FActiveMemo.GetStyleAtPosition(CaretPos), CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+  end;
   StatusBar.Panels[spCaretPos].Text := Text;
 
   { Update NavStacks.Back if needed and remember new position }
