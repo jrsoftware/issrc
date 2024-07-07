@@ -160,31 +160,31 @@ type
   end;
 
 type
-  TNameValue = record
+  TSectionMapItem = record
     Name: TScintRawString;
-    Value: TInnoSetupStylerSection;
+    Section: TInnoSetupStylerSection;
   end;
 
 const
-  SectionMap: array[0..17] of TNameValue = (
-    (Name: 'Code'; Value: scCode),
-    (Name: 'Components'; Value: scComponents),
-    (Name: 'CustomMessages'; Value: scCustomMessages),
-    (Name: 'Dirs'; Value: scDirs),
-    (Name: 'Files'; Value: scFiles),
-    (Name: 'Icons'; Value: scIcons),
-    (Name: 'INI'; Value: scINI),
-    (Name: 'InstallDelete'; Value: scInstallDelete),
-    (Name: 'LangOptions'; Value: scLangOptions),
-    (Name: 'Languages'; Value: scLanguages),
-    (Name: 'Messages'; Value: scMessages),
-    (Name: 'Registry'; Value: scRegistry),
-    (Name: 'Run'; Value: scRun),
-    (Name: 'Setup'; Value: scSetup),
-    (Name: 'Tasks'; Value: scTasks),
-    (Name: 'Types'; Value: scTypes),
-    (Name: 'UninstallDelete'; Value: scUninstallDelete),
-    (Name: 'UninstallRun'; Value: scUninstallRun));
+  SectionMap: array[0..17] of TSectionMapItem = (
+    (Name: 'Code'; Section: scCode),
+    (Name: 'Components'; Section: scComponents),
+    (Name: 'CustomMessages'; Section: scCustomMessages),
+    (Name: 'Dirs'; Section: scDirs),
+    (Name: 'Files'; Section: scFiles),
+    (Name: 'Icons'; Section: scIcons),
+    (Name: 'INI'; Section: scINI),
+    (Name: 'InstallDelete'; Section: scInstallDelete),
+    (Name: 'LangOptions'; Section: scLangOptions),
+    (Name: 'Languages'; Section: scLanguages),
+    (Name: 'Messages'; Section: scMessages),
+    (Name: 'Registry'; Section: scRegistry),
+    (Name: 'Run'; Section: scRun),
+    (Name: 'Setup'; Section: scSetup),
+    (Name: 'Tasks'; Section: scTasks),
+    (Name: 'Types'; Section: scTypes),
+    (Name: 'UninstallDelete'; Section: scUninstallDelete),
+    (Name: 'UninstallRun'; Section: scUninstallRun));
 
   ComponentsSectionParameters: array of TScintRawString = [
     'Check',
@@ -831,8 +831,8 @@ procedure TInnoSetupStyler.BuildSectionsWordList;
 begin
   var SL := TStringList.Create;
   try
-    for var NameValue in SectionMap do
-      AddWordToList(SL, '[' + NameValue.Name + ']');
+    for var Section in SectionMap do
+      AddWordToList(SL, '[' + Section.Name + ']');
     FSectionsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -1726,9 +1726,9 @@ procedure TInnoSetupStyler.StyleNeeded;
       Result := scThirdParty
     else begin
       Result := scUnknown;
-      for var NameValue in SectionMap do
-        if SameRawText(S, NameValue.Name) then begin
-          Result := NameValue.Value;
+      for var Section in SectionMap do
+        if SameRawText(S, Section.Name) then begin
+          Result := Section.Section;
           Break;
         end;
     end;

@@ -73,10 +73,6 @@ type
     StartCallTipWord: Integer;
     FunctionDefinition: AnsiString;
     BraceCount: Integer;
-    //the following don't need to be in here if support for multiple calltips isn't added ultimately
-    CurrentCallTipWord: String;
-    LastPosCallTip: Integer;
-    ClassFunction: Boolean;
   end;
 
   TCompileForm = class(TUIStateForm)
@@ -5018,7 +5014,7 @@ begin
 
   { StartAutoComplete }
 
-  FCallTipState.CurrentCallTipWord := '';
+  var CurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
   var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
@@ -5052,27 +5048,28 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  FCallTipState.ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  var ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
-  FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+  CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
   FCallTipState.FunctionDefinition := '';
 
-  { FillFunctionDefinition }
+  { FillFunctionDefinition - if this is separated for multiple calltips support like in SciTE then the following vars
+    need to be moved into FCallTipState: CurrentCallTipWord, ClassFunction, LastPosCallTip }
 
-  FCallTipState.LastPosCallTip := Pos;
+  var LastPosCallTip := Pos;
 
   // Should get current api definition
   var Word: AnsiString;
-  if not FCallTipState.ClassFunction then
-    Word := FMemosStyler.ScriptFunctionDefinition[FCallTipState.CurrentCallTipWord]
+  if not ClassFunction then
+    Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
   else
     Word := '';
   if Word <> '' then begin
     FCallTipState.FunctionDefinition := Word;
-    FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
+    FActiveMemo.ShowCallTip(LastPosCallTip - Length(CurrentCallTipWord), FCallTipState.FunctionDefinition);
     ContinueCallTip;
   end;
 end;
