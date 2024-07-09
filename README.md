@@ -121,11 +121,11 @@ Overview
 
 Inno Setup consists of six projects:
 
-**Compil32** - This is the GUI front-end for the compiler. Compil32 does not
-do the actual compilation itself; it relegates it to ISCmplr.dll. If the
-ISCmplr project is changed, you normally don't need to recompile Compil32
-since it's essentially a text editor, and is not affected by internal
-changes to the compiler.
+**Compil32** - This is the GUI front-end for the compiler, also known as
+the Compiler IDE. Compil32 does not do the actual compilation itself; it
+relegates it to ISCmplr.dll. If the ISCmplr project is changed, you
+normally don't need to recompile Compil32 since it's essentially a text
+editor, and is not affected by internal changes to the compiler.
 
 **ISCC** - This is the command-line front-end to the compiler. Like
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
@@ -150,9 +150,11 @@ How do the projects link together?
   Struct.pas is changed, you usually will need to recompile ISCmplr, ISPP,
   Setup, and SetupLdr so that everything is in synch.
 
-- There are more units which are shared between projects. Search the .dpr
-  files of the projects if you aren't sure if a project uses a particular
-  unit.
+- There are more units which are shared between projects. These are located
+  in the [Projects\Src] directory. Project-specific units are in their respective
+  subdirectories of this directory, for example [Projects\Src\Compil32] has
+  all units used by the Compiler IDE only. Check the .dpr files of the
+  projects for unit usage details.
 
 - The ISPP help file uses various copies of other Inno Setup files. To synch
   these run **ISPP\Help\synch-isfiles.bat**.
@@ -208,7 +210,7 @@ by Visual Studio 2005 from the [Projects\islzma] directory.
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the isscint repository.
 
-**Projects\Helper\x64\Release\Helper.exe**, **Projects\Src\HelperEXEs.res** -
+**Projects\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup\HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
 
@@ -276,6 +278,8 @@ workflow will be triggered automatically.
 [Projects\islzma]: <Projects/islzma>
 [Projects\Helper]: <Projects/Helper>
 [Examples\MyProg]: <Examples/MyProg>
+[Projects\Src]: <Projects/Src>
+[Projects\Src\Compil32]: <Projects/Src/Compil32>
 [Projects\Src\Setup\Lzma2Decode\compiling.txt]: <Projects/Src/Setup/Lzma2Decode/compiling.txt>
 [Projects\Src\SetupLdr\LzmaDecode\compiling.txt]: <Projects/Src/SetupLdr/LzmaDecode/compiling.txt>
 [7-Zip]: https://www.7-zip.org/
