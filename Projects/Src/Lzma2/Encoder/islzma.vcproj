@@ -180,67 +180,67 @@
 			Name="SDK"
 			>
 			<File
-				RelativePath="..\C\Alloc.c"
+				RelativePath="..\..\..\..\Components\Lzma2\Alloc.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Alloc.h"
+				RelativePath="..\..\..\..\Components\Lzma2\Alloc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzFind.c"
+				RelativePath="..\..\..\..\Components\Lzma2\LzFind.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzFind.h"
+				RelativePath="..\..\..\..\Components\Lzma2\LzFind.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzFindMt.c"
+				RelativePath="..\..\..\..\Components\Lzma2\LzFindMt.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzFindMt.h"
+				RelativePath="..\..\..\..\Components\Lzma2\LzFindMt.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzHash.h"
+				RelativePath="..\..\..\..\Components\Lzma2\LzHash.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Lzma2Enc.c"
+				RelativePath="..\..\..\..\Components\Lzma2\Lzma2Enc.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Lzma2Enc.h"
+				RelativePath="..\..\..\..\Components\Lzma2\Lzma2Enc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzmaEnc.c"
+				RelativePath="..\..\..\..\Components\Lzma2\LzmaEnc.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\LzmaEnc.h"
+				RelativePath="..\..\..\..\Components\Lzma2\LzmaEnc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\MtCoder.c"
+				RelativePath="..\..\..\..\Components\Lzma2\MtCoder.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\MtCoder.h"
+				RelativePath="..\..\..\..\Components\Lzma2\MtCoder.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Threads.c"
+				RelativePath="..\..\..\..\Components\Lzma2\Threads.c"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Threads.h"
+				RelativePath="..\..\..\..\Components\Lzma2\Threads.h"
 				>
 			</File>
 			<File
-				RelativePath="..\C\Types.h"
+				RelativePath="..\..\..\..\Components\Lzma2\Types.h"
 				>
 			</File>
 		</Filter>

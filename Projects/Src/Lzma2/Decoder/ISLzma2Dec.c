@@ -5,7 +5,7 @@
   Lzma2Dec.c + additional helper functions used by LZMADecomp.pas
 */
 
-#include "../C/Lzma2Dec.c"
+#include "../../../../Components/Lzma2/Lzma2Dec.c"
 
 SRes IS_Lzma2Dec_Init(CLzma2Dec *state, size_t stateSize, Byte prop,
 	ISzAlloc *alloc)

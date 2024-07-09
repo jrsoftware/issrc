@@ -5,9 +5,9 @@
 
 #include <stddef.h>
 #include <windows.h>
-#include "../C/Alloc.h"
-#include "../C/LzmaEnc.h"
-#include "../C/Lzma2Enc.h"
+#include "../../../../Components/Lzma2/Alloc.h"
+#include "../../../../Components/Lzma2/LzmaEnc.h"
+#include "../../../../Components/Lzma2/Lzma2Enc.h"
 #include "islzma.h"
 
 // Private definition of a handle; callers of the DLL should use void*
