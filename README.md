@@ -203,7 +203,7 @@ from the bzlib directory in the iscompress repository.
 from the zlib-dll directory in the iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
-by Visual Studio 2005 from the [Projects\Src\Lzma2\Encoder] directory.
+by Visual Studio 2005 from the [Projects\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the isscint repository.
@@ -212,10 +212,10 @@ code in the isscint repository.
 Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\Src\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\Src\LzmaDecode\compiling.txt].
+**Projects\Src\Setup\Lzma2Decode\ISLzmaDec.obj**, **Projects\Src\Setup\Lzma2Decode\ISLzma2Dec.obj** -
+See [Projects\Src\Setup\Lzma2Decode\compiling.txt].
 
-**Projects\Src\Lzma2\Decoder\ISLzmaDec.obj**, **Projects\Src\Lzma2\Decoder\ISLzma2Dec.obj** -
-See [Projects\Src\Lzma2\Decoder\compiling.txt].
+**Projects\Src\SetupLdr\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\Src\SetupLdr\LzmaDecode\compiling.txt].
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
@@ -273,10 +273,10 @@ workflow will be triggered automatically.
 [Projects\Bin]: <Projects/Bin>
 [Components]: <Components>
 [Files]: <Files>
-[Projects\Src\Lzma2\Encoder]: <Projects/Src/Lzma2/Encoder>
+[Projects\islzma]: <Projects/islzma>
 [Projects\Helper]: <Projects/Helper>
 [Examples\MyProg]: <Examples/MyProg>
-[Projects\Src\LzmaDecode\compiling.txt]: <Projects/Src/LzmaDecode/compiling.txt>
-[Projects\Src\Lzma2\Decoder\compiling.txt]: <Projects/Src/Lzma2/Decoder/compiling.txt>
+[Projects\Src\Setup\Lzma2Decode\compiling.txt]: <Projects/Src/Setup/Lzma2Decode/compiling.txt>
+[Projects\Src\SetupLdr\LzmaDecode\compiling.txt]: <Projects/Src/SetupLdr/LzmaDecode/compiling.txt>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
