@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  CompMsgs, CmnFunc, CmnFunc2, CompFunc;
+  CompMsgs2, CmnFunc, CmnFunc2, CompFunc;
 
 {$R *.DFM}
 

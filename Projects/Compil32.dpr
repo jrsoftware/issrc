@@ -19,7 +19,7 @@ uses
   CmnFunc in 'Src\CmnFunc.pas',
   CmnFunc2 in 'Src\CmnFunc2.pas',
   CompFunc in 'Src\CompFunc.pas',
-  CompMsgs in 'Src\CompMsgs.pas',
+  CompMsgs2 in 'Src\Compil32\CompMsgs2.pas',
   CompInt in 'Src\CompInt.pas',
   CompOptions in 'Src\CompOptions.pas' {OptionsForm},
   CompStartup in 'Src\CompStartup.pas' {StartupForm},

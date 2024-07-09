@@ -16,7 +16,7 @@ uses
   Messages,
   SysUtils,
   Compress in 'Src\Compress.pas',
-  LZMADecompSmall in 'Src\LZMADecompSmall.pas',
+  LZMADecompSmall in 'Src\SetupLdr\LZMADecompSmall.pas',
   SetupEnt in 'Src\SetupEnt.pas',
   PathFunc in '..\Components\PathFunc.pas',
   CmnFunc2 in 'Src\CmnFunc2.pas',

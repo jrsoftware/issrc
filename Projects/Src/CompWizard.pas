@@ -188,7 +188,7 @@ implementation
 uses
   SysUtils, ShlObj, ActiveX, UITypes, FileClass,
   PathFunc, CmnFunc, CmnFunc2, CompFunc, BrowseFunc,
-  CompMsgs, CompWizardFile;
+  CompMsgs2, CompWizardFile;
 
 type
   TConstant = record

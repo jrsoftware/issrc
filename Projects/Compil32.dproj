@@ -84,7 +84,7 @@
         <DCCReference Include="Src\CmnFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>
         <DCCReference Include="Src\CompFunc.pas"/>
-        <DCCReference Include="Src\CompMsgs.pas"/>
+        <DCCReference Include="Src\Compil32\CompMsgs2.pas"/>
         <DCCReference Include="Src\CompInt.pas"/>
         <DCCReference Include="Src\CompOptions.pas">
             <Form>OptionsForm</Form>

@@ -74,7 +74,7 @@
         <DCCReference Include="Src\SafeDLLPath.pas"/>
         <DCCReference Include="Src\XPTheme.pas"/>
         <DCCReference Include="Src\Compress.pas"/>
-        <DCCReference Include="Src\LZMADecompSmall.pas"/>
+        <DCCReference Include="Src\SetupLdr\LZMADecompSmall.pas"/>
         <DCCReference Include="Src\SetupEnt.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>

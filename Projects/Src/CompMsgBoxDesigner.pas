@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, CompFunc, TaskDialog, CompMsgs;
+  CmnFunc, CmnFunc2, CompFunc, TaskDialog, CompMsgs2;
 
 {$R *.DFM}
 
