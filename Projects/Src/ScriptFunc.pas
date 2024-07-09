@@ -185,7 +185,8 @@ begin
   const BadType2: AnsiString = 'Longint';
 
   Result := (Pos(GoodTerminator, ScriptFunc) <> 0) and
-            (Pos(BadType1, ScriptFunc) = 0) and (Pos(BadType2, ScriptFunc) = 0);
+            (Pos(BadType1, ScriptFunc) = 0) and (Pos(BadType2, ScriptFunc) = 0) and
+            (ScriptFunc[Length(ScriptFunc)] = ';');
 end;
 
 procedure CheckIsCleanScriptFuncTable(const ScriptFuncTable: TScriptTable);
