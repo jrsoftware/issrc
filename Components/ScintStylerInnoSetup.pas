@@ -22,14 +22,21 @@ const
   InnoSetupStylerWordListTypeSeparator = '?';
 
   { AutoComplete word types }
-  awtFunction = 0;
-  awtType = 1;
-  awtVariable = 2;
-  awtConstant = 3;
-  awtClass = 4;
-  awtInterface = 5;
-  awtProperty = 6;
-  awtObject = 7;
+  awtScriptFunction = 0;
+  awtScriptType = 1;
+  awtScriptVariable = 2;
+  awtScriptConstant = 3;
+  awtScriptClass = 4;
+  awtScriptInterface = 5;
+  awtScriptProperty = 6;
+  awtScriptObject = 7;
+  awtScriptEvent = 8;
+  awtSection = 9;
+  awtParameter = 10;
+  awtDirective = 11;
+  awtFlag = 12;
+  awtPreprocessorDirective = 13;
+  awtConstant = 14;
 
 type
   TInnoSetupStylerSection = (
@@ -81,7 +88,7 @@ type
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
-      const Typ: Integer = -1);
+      const Typ: Integer);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -159,31 +166,31 @@ type
   end;
 
 type
-  TNameValue = record
+  TSectionMapItem = record
     Name: TScintRawString;
-    Value: TInnoSetupStylerSection;
+    Section: TInnoSetupStylerSection;
   end;
 
 const
-  SectionMap: array[0..17] of TNameValue = (
-    (Name: 'Code'; Value: scCode),
-    (Name: 'Components'; Value: scComponents),
-    (Name: 'CustomMessages'; Value: scCustomMessages),
-    (Name: 'Dirs'; Value: scDirs),
-    (Name: 'Files'; Value: scFiles),
-    (Name: 'Icons'; Value: scIcons),
-    (Name: 'INI'; Value: scINI),
-    (Name: 'InstallDelete'; Value: scInstallDelete),
-    (Name: 'LangOptions'; Value: scLangOptions),
-    (Name: 'Languages'; Value: scLanguages),
-    (Name: 'Messages'; Value: scMessages),
-    (Name: 'Registry'; Value: scRegistry),
-    (Name: 'Run'; Value: scRun),
-    (Name: 'Setup'; Value: scSetup),
-    (Name: 'Tasks'; Value: scTasks),
-    (Name: 'Types'; Value: scTypes),
-    (Name: 'UninstallDelete'; Value: scUninstallDelete),
-    (Name: 'UninstallRun'; Value: scUninstallRun));
+  SectionMap: array[0..17] of TSectionMapItem = (
+    (Name: 'Code'; Section: scCode),
+    (Name: 'Components'; Section: scComponents),
+    (Name: 'CustomMessages'; Section: scCustomMessages),
+    (Name: 'Dirs'; Section: scDirs),
+    (Name: 'Files'; Section: scFiles),
+    (Name: 'Icons'; Section: scIcons),
+    (Name: 'INI'; Section: scINI),
+    (Name: 'InstallDelete'; Section: scInstallDelete),
+    (Name: 'LangOptions'; Section: scLangOptions),
+    (Name: 'Languages'; Section: scLanguages),
+    (Name: 'Messages'; Section: scMessages),
+    (Name: 'Registry'; Section: scRegistry),
+    (Name: 'Run'; Section: scRun),
+    (Name: 'Setup'; Section: scSetup),
+    (Name: 'Tasks'; Section: scTasks),
+    (Name: 'Types'; Section: scTypes),
+    (Name: 'UninstallDelete'; Section: scUninstallDelete),
+    (Name: 'UninstallRun'; Section: scUninstallRun));
 
   ComponentsSectionParameters: array of TScintRawString = [
     'Check',
@@ -532,8 +539,8 @@ const
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
    { The following and some others below are not used by StyleNeeded and therefore
-     simply of type String instead of TScintRawString }
-   ConstantsWithParam: array of String = [
+     simply of type AnsiString instead of TScintRawString }
+   ConstantsWithParam: array of AnsiString = [
     'cm',
     'code',
     'drive',
@@ -541,7 +548,7 @@ const
     'param',
     'reg'];
 
-   Constants: array of String = [
+   Constants: array of AnsiString = [
     { #emit and #file handled separately by BuildConstantsWordList.
       Also doesnt include constants with non words chars. }
     '{',
@@ -605,30 +612,30 @@ const
     'username',
     'log'];
 
-  EventFunctions: array of String = [
-    'InitializeSetup(): Boolean;', { The () is needed for the function/procedure detection }
-    'InitializeWizard;',
-    'DeinitializeSetup;',
-    'CurStepChanged(CurStep: TSetupStep);',
-    'CurInstallProgressChanged(CurProgress, MaxProgress: Integer);',
-    'NextButtonClick(CurPageID: Integer): Boolean;',
-    'BackButtonClick(CurPageID: Integer): Boolean;',
-    'CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);',
-    'ShouldSkipPage(PageID: Integer): Boolean;',
-    'CurPageChanged(CurPageID: Integer);',
-    'CheckPassword(Password: String): Boolean;',
-    'NeedRestart(): Boolean;',
-    'UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;',
-    'RegisterPreviousData(PreviousDataKey: Integer);',
-    'CheckSerial(Serial: String): Boolean;',
-    'GetCustomSetupExitCode(): Integer;',
-    'PrepareToInstall(var NeedsRestart: Boolean): String;',
-    'RegisterExtraCloseApplicationsResources;',
-    'InitializeUninstall(): Boolean;',
-    'InitializeUninstallProgressForm;',
-    'DeinitializeUninstall;',
-    'CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
-    'UninstallNeedRestart(): Boolean;'];
+  EventFunctions: array of AnsiString = [
+    'function InitializeSetup: Boolean;',
+    'procedure InitializeWizard;',
+    'procedure DeinitializeSetup;',
+    'procedure CurStepChanged(CurStep: TSetupStep);',
+    'procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);',
+    'function NextButtonClick(CurPageID: Integer): Boolean;',
+    'function BackButtonClick(CurPageID: Integer): Boolean;',
+    'procedure CancelButtonClick(CurPageID: Integer; var Cancel, Confirm: Boolean);',
+    'function ShouldSkipPage(PageID: Integer): Boolean;',
+    'procedure CurPageChanged(CurPageID: Integer);',
+    'function CheckPassword(Password: String): Boolean;',
+    'function NeedRestart: Boolean;',
+    'function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;',
+    'procedure RegisterPreviousData(PreviousDataKey: Integer);',
+    'function CheckSerial(Serial: String): Boolean;',
+    'function GetCustomSetupExitCode: Integer;',
+    'function PrepareToInstall(var NeedsRestart: Boolean): String;',
+    'procedure RegisterExtraCloseApplicationsResources;',
+    'function InitializeUninstall: Boolean;',
+    'procedure InitializeUninstallProgressForm;',
+    'procedure DeinitializeUninstall;',
+    'procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
+    'function UninstallNeedRestart: Boolean;'];
 
 const
   inSquiggly = 0;
@@ -838,8 +845,8 @@ procedure TInnoSetupStyler.BuildSectionsWordList;
 begin
   var SL := TStringList.Create;
   try
-    for var NameValue in SectionMap do
-      SL.Add('[' + String(NameValue.Name) + ']');
+    for var Section in SectionMap do
+      AddWordToList(SL, '[' + Section.Name + ']', awtSection);
     FSectionsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -853,7 +860,7 @@ begin
   var SL :=TStringList.Create;
   try
     for var I := 0 to High(Parameters) do
-      SL.Add(String(Parameters[I]));
+      AddWordToList(SL, Parameters[I], awtParameter);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -866,7 +873,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      SL.Add(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint));
+      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint)), awtDirective);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -879,7 +886,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(Flags) do
-      SL.Add(String(Flags[I]));
+      AddWordToList(SL, Flags[I], awtFlag);
     FFlagsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -894,7 +901,7 @@ begin
     var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
     if ScriptFuncHasParameters(ScriptFunc) then
       FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-    AddWordToList(SL, ScriptFuncName, awtFunction);
+    AddWordToList(SL, ScriptFuncName, awtScriptFunction);
   end;
 end;
 
@@ -903,7 +910,7 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(ISPPDirectives) do
-      SL.Add('#' + String(ISPPDirectives[I].Name));
+      AddWordToList(SL, '#' + ISPPDirectives[I].Name, awtPreprocessorDirective);
     FISPPDirectivesWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -915,13 +922,13 @@ begin
   var SL := TStringList.Create;
   try
     for var I := 0 to High(Constants) do
-      SL.Add('{' + Constants[I] + '}');
+      AddWordToList(SL, '{' + Constants[I] + '}', awtConstant);
     if ISPPInstalled then begin
-      SL.Add('{#');
-      SL.Add('{#file ');
+      AddWordToList(SL, '{#', awtConstant);
+      AddWordToList(SL, '{#file ', awtConstant);
     end;
     for var I := 0 to High(ConstantsWithParam) do
-      SL.Add('{' + ConstantsWithParam[I]);
+      AddWordToList(SL, '{' + ConstantsWithParam[I], awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -936,11 +943,12 @@ begin
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
     for var I := 0 to High(EventFunctions) do begin
-      var S := EventFunctions[I];
-      if Pos('):', S) <> 0 then
-        SLFunctions.Add(StringReplace(S, '()', '', []))
+      var WasFunction: Boolean;
+      var S := RemoveScriptFuncHeader(EventFunctions[I], WasFunction);
+      if WasFunction then
+        AddWordToList(SLFunctions, S, awtScriptEvent)
       else
-        SLProcedures.Add(S);
+        AddWordToList(SLProcedures, S, awtScriptEvent);
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);
@@ -1732,9 +1740,9 @@ procedure TInnoSetupStyler.StyleNeeded;
       Result := scThirdParty
     else begin
       Result := scUnknown;
-      for var NameValue in SectionMap do
-        if SameRawText(S, NameValue.Name) then begin
-          Result := NameValue.Value;
+      for var Section in SectionMap do
+        if SameRawText(S, Section.Name) then begin
+          Result := Section.Section;
           Break;
         end;
     end;

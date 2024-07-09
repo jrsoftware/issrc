@@ -93,8 +93,8 @@ const
     size the compiler currently allows. }
   MaxDictionarySize = 1024 shl 20;  { 1 GB }
 
-{$L Src\Lzma2\Decoder\ISLzmaDec.obj}
-{$L Src\Lzma2\Decoder\ISLzma2Dec.obj}
+{$L Src\Setup\Lzma2Decode\ISLzmaDec.obj}
+{$L Src\Setup\Lzma2Decode\ISLzma2Dec.obj}
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;

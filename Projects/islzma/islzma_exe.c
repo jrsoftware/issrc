@@ -18,7 +18,7 @@
 
 #include <windows.h>
 #include <shlwapi.h>
-#include "../C/Types.h"
+#include "../../../../Components/Lzma2/Types.h"
 #include "islzma.h"
 
 #define ISLZMA_EXE_VERSION 101

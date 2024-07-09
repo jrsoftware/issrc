@@ -82,7 +82,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils,
   Messages, DwmApi, Consts,
   CmnFunc2, PathFunc, FileClass, NewUxTheme,
-  CompForm, CompMsgs, CompTypes;
+  CompForm, CompMsgs2, CompTypes;
 
 procedure InitFormFont(Form: TForm);
 var

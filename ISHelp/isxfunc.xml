@@ -2909,7 +2909,7 @@ end;</pre></example>
 begin
   try
     // Get the system configuration
-    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/k systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/c systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
   except
     Result := False;
     Log(GetExceptionMessage);

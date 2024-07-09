@@ -73,10 +73,6 @@ type
     StartCallTipWord: Integer;
     FunctionDefinition: AnsiString;
     BraceCount: Integer;
-    //the following don't need to be in here if support for multiple calltips isn't added ultimately
-    CurrentCallTipWord: String;
-    LastPosCallTip: Integer;
-    ClassFunction: Boolean;
   end;
 
   TCompileForm = class(TUIStateForm)
@@ -642,7 +638,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   Math, StrUtils, WideStrUtils,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs, TmSchema, BrowseFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs2, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
@@ -3905,14 +3901,21 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
-          NNT(awtFunction, 'ac\method-filled'),
-          NNT(awtType, 'ac\types'),
-          NNT(awtVariable, 'ac\variables'),
-          NNT(awtConstant, 'ac\constant-filled'),
-          NNT(awtClass, 'ac\class-filled'),
-          NNT(awtInterface, 'ac\interface-filled'),
-          NNT(awtProperty, 'ac\properties-filled'),
-          NNT(awtObject, 'ac\object-filled')];
+          NNT(awtScriptFunction, 'ac\method-filled'),
+          NNT(awtScriptType, 'ac\types'),
+          NNT(awtScriptVariable, 'ac\variables'),
+          NNT(awtScriptConstant, 'ac\constant-filled'),
+          NNT(awtScriptClass, 'ac\class-filled'),
+          NNT(awtScriptInterface, 'ac\interface-filled'),
+          NNT(awtScriptProperty, 'ac\properties-filled'),
+          NNT(awtScriptObject, 'ac\object-filled'),
+          NNT(awtScriptEvent, 'ac\event-filled'),
+          NNT(awtSection, 'ac\structure-filled'),
+          NNT(awtParameter, 'ac\xml-filled'),
+          NNT(awtDirective, 'ac\xml-filled'),
+          NNT(awtFlag, 'ac\values'),
+          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
+          NNT(awtConstant, 'ac\constant-filled_2')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
@@ -4489,8 +4492,10 @@ begin
   { Update panel }
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
-  if FOptions.ShowCaretPosition then
-    Text := Format('%5d:%s', [FActiveMemo.CaretPosition, Text]);
+  if FOptions.ShowCaretPosition then begin
+    var CaretPos := FActiveMemo.CaretPosition;
+    Text := Format('%d@%d+%d:%s', [FActiveMemo.GetStyleAtPosition(CaretPos), CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+  end;
   StatusBar.Panels[spCaretPos].Text := Text;
 
   { Update NavStacks.Back if needed and remember new position }
@@ -4893,6 +4898,8 @@ begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
           var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
+          if Key <> #0 then
+            FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
           if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
             Exit;
 
@@ -4995,19 +5002,13 @@ begin
 end;
 
 procedure TCompileForm.InitiateCallTip;
-
-  function IsASpace(const C: Char): Boolean;
-  begin
-    Result := (C = ' ') or ((C >= #9) and (C <= #13));
-  end;
-
 begin
   var Pos := FActiveMemo.CaretPosition;
 
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
      not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
-      FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
-      FActiveMemo.GetPositionBefore(Pos)) then
+       FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
+       FActiveMemo.GetPositionBefore(Pos)) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
@@ -5015,10 +5016,10 @@ begin
 
   { StartAutoComplete }
 
-  FCallTipState.CurrentCallTipWord := '';
+  var CurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
-  var CalltipWordCharacters := FActiveMemo.GetWordCharsAsSet;
+  var CalltipWordCharacters := FActiveMemo.WordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
@@ -5036,7 +5037,7 @@ begin
       Dec(Pos);
     end else
       Break;
-    while (Current > 0) and IsASpace(Line[Current-1]) do begin
+    while (Current > 0) and (Line[Current-1] <= ' ') do begin
       Dec(Current);
       Dec(Pos);
     end
@@ -5049,27 +5050,28 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  FCallTipState.ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  var ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
-  FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+  CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
   FCallTipState.FunctionDefinition := '';
 
-  { FillFunctionDefinition }
+  { FillFunctionDefinition - if this is separated for multiple calltips support like in SciTE then the following vars
+    need to be moved into FCallTipState: CurrentCallTipWord, ClassFunction, LastPosCallTip }
 
-  FCallTipState.LastPosCallTip := Pos;
+  var LastPosCallTip := Pos;
 
   // Should get current api definition
   var Word: AnsiString;
-  if not FCallTipState.ClassFunction then
-    Word := FMemosStyler.ScriptFunctionDefinition[FCallTipState.CurrentCallTipWord]
+  if not ClassFunction then
+    Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
   else
     Word := '';
   if Word <> '' then begin
     FCallTipState.FunctionDefinition := Word;
-    FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
+    FActiveMemo.ShowCallTip(LastPosCallTip - Length(CurrentCallTipWord), FCallTipState.FunctionDefinition);
     ContinueCallTip;
   end;
 end;

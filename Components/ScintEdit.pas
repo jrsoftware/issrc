@@ -306,8 +306,6 @@ type
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
-    function GetWordChars: AnsiString;
-    function GetWordCharsAsSet: TSysCharSet;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
@@ -395,6 +393,8 @@ type
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
     property TopLine: Integer read GetTopLine write SetTopLine;
+    property WordChars: AnsiString read FWordChars;
+    property WordCharsAsSet: TSysCharSet read FWordCharsAsSet;
   published
     property AcceptDroppedFiles: Boolean read FAcceptDroppedFiles write SetAcceptDroppedFiles
       default False;
@@ -1349,16 +1349,6 @@ function TScintEdit.GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
 begin
   FLines.CheckIndexRange(DocLine);
   Result := Call(SCI_VISIBLEFROMDOCLINE, DocLine, 0);
-end;
-
-function TScintEdit.GetWordChars: AnsiString;
-begin
-  Result := FWordChars;
-end;
-
-function TScintEdit.GetWordCharsAsSet: TSysCharSet;
-begin
-  Result := FWordCharsAsSet;
 end;
 
 function TScintEdit.GetWordEndPosition(const Pos: Integer;

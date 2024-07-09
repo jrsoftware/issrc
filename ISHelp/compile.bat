@@ -6,8 +6,6 @@ rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to compile the help file
-rem
-rem  $jrsoftware: ishelp/compile.bat,v 1.5 2010/06/07 22:15:42 jr Exp $
 
 setlocal
 

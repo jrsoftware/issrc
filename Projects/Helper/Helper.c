@@ -8,8 +8,6 @@
 
   Compiled on Visual Studio 2005 SP1
   Tested on x64 and IA-64 architectures (Athlon 64 and Merced specifically).
-
-  $jrsoftware: issrc/Projects/Helper/Helper.c,v 1.8 2008/10/16 19:27:24 jr Exp $
 */
 
 #define _WIN32_IE 0x0600

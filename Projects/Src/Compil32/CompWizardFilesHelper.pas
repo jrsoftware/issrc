@@ -49,7 +49,7 @@ implementation
 uses
   SysUtils, UITypes,
   CmnFunc, CmnFunc2, BrowseFunc, PathFunc,
-  CompMsgs, CompWizardFile;
+  CompMsgs2, CompWizardFile;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;

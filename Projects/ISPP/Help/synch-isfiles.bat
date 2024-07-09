@@ -1,3 +1,5 @@
+@echo off
+
 cd /d %~dp0
 
 echo - Synching files from ISHelp to Projects\ISPP\Help
