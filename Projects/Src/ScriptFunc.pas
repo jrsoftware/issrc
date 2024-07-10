@@ -185,9 +185,20 @@ var
     { ScriptFunc_C }
     'TArrayOfString','TArrayOfChar','TArrayOfBoolean','TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
-    'TSetupMessageID','TSetupStep','TUninstallStep','TSetupProcessorArchitecture',
+    'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
     'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnLog'
+  ];
+
+  ScriptEnumsTable: TScriptTable = [
+    { ScriptFunc_C }
+    //RegisterRealEnum('TMsgBoxType', TypeInfo(TMsgBoxType));
+    //RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
+    //RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
+    //RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
+    //RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
+    //RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
+    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
   ];
 
   ScriptVariablesTable: TScriptTable = [

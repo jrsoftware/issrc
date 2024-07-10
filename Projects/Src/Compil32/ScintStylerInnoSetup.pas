@@ -36,6 +36,7 @@ const
   awtScriptObject = 17;
   awtScriptEvent = 18;
   awtScriptKeyword = 19;
+  awtScriptEnum = 20;
 
 type
   TInnoSetupStylerSection = (
@@ -738,6 +739,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptKeyword);
       for var S in ScriptTypesTable do
         AddWordToList(SL, S, awtScriptType);
+      for var S in ScriptEnumsTable do
+        AddWordToList(SL, S, awtScriptEnum);
       for var S in ScriptVariablesTable do
         AddWordToList(SL, S, awtScriptVariable);
       FScriptWordList := BuildWordList(SL);
