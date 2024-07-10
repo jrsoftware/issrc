@@ -33,7 +33,7 @@ uses
   PathFunc in '..\Components\PathFunc.pas',
   CmnFunc2 in 'Src\CmnFunc2.pas',
   Int64Em in 'Src\Int64Em.pas',
-  SHA1 in 'Src\SHA1.pas',
+  SHA1 in '..\Components\SHA1.pas',
   DebugStruct in 'Src\DebugStruct.pas',
   LangOptionsSectionDirectives in 'Src\LangOptionsSectionDirectives.pas',
   MsgIDs in 'Src\MsgIDs.pas',
@@ -41,8 +41,7 @@ uses
   SetupSectionDirectives in 'Src\SetupSectionDirectives.pas',
   SetupTypes in 'Src\SetupTypes.pas',
   SimpleExpression in 'Src\SimpleExpression.pas',
-  MD5 in 'Src\MD5.pas',
-  RedirFunc in 'Src\RedirFunc.pas',
+  MD5 in '..\Components\MD5.pas',
   DotNetVersion in 'Src\DotNetVersion.pas';
 
 {$IMAGEBASE $00800000}

@@ -72,21 +72,21 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\XPTheme.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\XPTheme.pas"/>
         <DCCReference Include="Src\Compress.pas"/>
         <DCCReference Include="Src\SetupLdr\LZMADecompSmall.pas"/>
         <DCCReference Include="Src\SetupEnt.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>
-        <DCCReference Include="Src\Msgs.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Msgs.pas"/>
         <DCCReference Include="Src\MsgIDs.pas"/>
         <DCCReference Include="Src\Struct.pas"/>
-        <DCCReference Include="Src\InstFunc.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\InstFunc.pas"/>
         <DCCReference Include="Src\FileClass.pas"/>
         <DCCReference Include="Src\Int64Em.pas"/>
-        <DCCReference Include="Src\SHA1.pas"/>
-        <DCCReference Include="Src\MD5.pas"/>
-        <DCCReference Include="Src\RedirFunc.pas"/>
+        <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\RedirFunc.pas"/>
         <DCCReference Include="Src\SetupTypes.pas"/>
         <DCCReference Include="Src\VerInfo.pas"/>
         <BuildConfiguration Include="Base">
