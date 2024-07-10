@@ -13,7 +13,7 @@ uses
   SafeDLLPath in 'Src\SafeDLLPath.pas',
   SysUtils,
   CompInt in 'Src\CompInt.pas',
-  CompPreprocInt in 'Src\ISCmplr\CompPreprocInt.pas',
+  CompPreprocInt in 'Src\CompPreprocInt.pas',
   Compile in 'Src\ISCmplr\Compile.pas',
   CompMsgs in 'Src\ISCmplr\CompMsgs.pas',
   Struct in 'Src\Struct.pas',

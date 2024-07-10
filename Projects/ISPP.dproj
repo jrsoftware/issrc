@@ -77,7 +77,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\ISCmplr\CompPreprocInt.pas"/>
+        <DCCReference Include="Src\CompPreprocInt.pas"/>
         <DCCReference Include="Src\ISPP\IsppPreprocess.pas"/>
         <DCCReference Include="Src\ISPP\IsppPreprocessor.pas"/>
         <DCCReference Include="Src\ISPP\IsppFuncs.pas"/>

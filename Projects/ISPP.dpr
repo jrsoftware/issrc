@@ -14,7 +14,7 @@ uses
   SysUtils,
   Windows,
   Classes,
-  CompPreprocInt in 'Src\ISCmplr\CompPreprocInt.pas',
+  CompPreprocInt in 'Src\CompPreprocInt.pas',
   IsppPreprocess in 'Src\ISPP\IsppPreprocess.pas',
   IsppPreprocessor in 'Src\ISPP\IsppPreprocessor.pas',
   IsppFuncs in 'Src\ISPP\IsppFuncs.pas',
