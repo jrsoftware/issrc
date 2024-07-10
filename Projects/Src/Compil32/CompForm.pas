@@ -3901,6 +3901,12 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
+          NNT(awtSection, 'ac\structure-filled'),
+          NNT(awtParameter, 'ac\xml-filled'),
+          NNT(awtDirective, 'ac\xml-filled'),
+          NNT(awtFlag, 'ac\values'),
+          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
+          NNT(awtConstant, 'ac\constant-filled_2'),
           NNT(awtScriptFunction, 'ac\method-filled'),
           NNT(awtScriptType, 'ac\types'),
           NNT(awtScriptVariable, 'ac\variables'),
@@ -3910,12 +3916,7 @@ begin
           NNT(awtScriptProperty, 'ac\properties-filled'),
           NNT(awtScriptObject, 'ac\object-filled'),
           NNT(awtScriptEvent, 'ac\event-filled'),
-          NNT(awtSection, 'ac\structure-filled'),
-          NNT(awtParameter, 'ac\xml-filled'),
-          NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlag, 'ac\values'),
-          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
-          NNT(awtConstant, 'ac\constant-filled_2')];
+          NNT(awtScriptKeyword, 'ac\list')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
@@ -4934,7 +4935,7 @@ begin
             var ClassFunction := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
             if not ClassFunction then begin
               WordList := FMemosStyler.ScriptWordList;
-              FActiveMemo.SetAutoCompleteFillupChars('(')
+              FActiveMemo.SetAutoCompleteFillupChars('( ')
             end;
           end;
 

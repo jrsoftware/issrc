@@ -3326,7 +3326,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select autocompletion.</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion.</td><td>Space for ISPP directives and Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives<br />( for script functions</td>
+  <td>Fillup autocompletion.</td><td>Space for ISPP directives and Flags and Type parameters and [Code]<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives<br />( for [Code]</td>
 </tr>
 <tr>
   <td>Invoke parameter hint.</td><td>Ctrl+Shift+Space</td>

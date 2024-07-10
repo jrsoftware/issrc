@@ -113,7 +113,11 @@ var
 
   ScriptConstsTable: TScriptTable = [
     { ROPS }
-    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble', 'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean', 'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord', 'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray', 'varByRef', 'varUString',
+    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble',
+    'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean',
+    'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
+    'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
+    'varByRef', 'varUString',
     { Ours - ScriptClasses_C }
     'clHotLight'
   ];
@@ -121,11 +125,31 @@ var
   ScriptInterfacesTable: TScriptTable = [
     { ROPS }
     'IUnknown',
-    'Interface'
+    'IInterface',
+    'IDispatch'
+  ];
+
+  ScriptKeywordsTable: TScriptTable = [
+    { ROPS }
+    'and', 'array', 'as', 'begin', 'case', 'chr', 'class', 'const', 'constructor',
+    'destructor', 'div', 'do', 'downto', 'else', 'end', 'except', 'exit', 'export',
+    'external', 'finalization', 'finally', 'for', 'forward', 'function', 'goto',
+    'if', 'implementation', 'in', 'inherited', 'initialization', 'interface', 'is',
+    'label', 'mod', 'nil', 'not', 'of', 'or', 'ord', 'out', 'override', 'private',
+    'procedure', 'program', 'property', 'protected', 'public', 'published',
+    'record', 'repeat', 'set', 'shl', 'shr', 'then', 'to', 'try', 'type', 'unit',
+    'until', 'uses', 'var', 'virtual', 'while', 'with', 'xor',
+    'False', 'True'
   ];
 
   ScriptTypesTable: TScriptTable = [
     { ROPS }
+    'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
+    'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
+    'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64',
+    'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
+    'TVariantArray',
+    //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
     'TVarType'
     //undocumented: TIFException
   ];

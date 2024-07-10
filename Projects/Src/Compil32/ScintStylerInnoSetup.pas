@@ -20,21 +20,22 @@ const
   InnoSetupStylerWordListTypeSeparator = '?';
 
   { AutoComplete word types }
-  awtScriptFunction = 0;
-  awtScriptType = 1;
-  awtScriptVariable = 2;
-  awtScriptConstant = 3;
-  awtScriptClass = 4;
-  awtScriptInterface = 5;
-  awtScriptProperty = 6;
-  awtScriptObject = 7;
-  awtScriptEvent = 8;
-  awtSection = 9;
-  awtParameter = 10;
-  awtDirective = 11;
-  awtFlag = 12;
-  awtPreprocessorDirective = 13;
-  awtConstant = 14;
+  awtSection = 0;
+  awtParameter = 1;
+  awtDirective = 2;
+  awtFlag = 3;
+  awtPreprocessorDirective = 4;
+  awtConstant = 5;
+  awtScriptFunction = 10;
+  awtScriptType = 11;
+  awtScriptVariable = 12;
+  awtScriptConstant = 13;
+  awtScriptClass = 14;
+  awtScriptInterface = 15;
+  awtScriptProperty = 16;
+  awtScriptObject = 17;
+  awtScriptEvent = 18;
+  awtScriptKeyword = 19;
 
 type
   TInnoSetupStylerSection = (
@@ -733,6 +734,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptConstant);
       for var S in ScriptInterfacesTable do
         AddWordToList(SL, S, awtScriptInterface);
+      for var S in ScriptKeywordsTable do
+        AddWordToList(SL, S, awtScriptKeyword);
       for var S in ScriptTypesTable do
         AddWordToList(SL, S, awtScriptType);
       for var S in ScriptVariablesTable do
