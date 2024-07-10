@@ -7,6 +7,8 @@ unit CompPreprocInt;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler preprocessor interface
+
+  Actually not only used by ISCmplr but also by ISPP
 }
 
 interface
