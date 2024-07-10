@@ -11,7 +11,7 @@ program SetupLdr;
 
 uses
   SafeDLLPath in 'Src\SafeDLLPath.pas',
-  XPTheme in 'Src\XPTheme.pas',
+  XPTheme in 'Src\SetupLdrAndSetup\XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
@@ -20,10 +20,10 @@ uses
   SetupEnt in 'Src\SetupEnt.pas',
   PathFunc in '..\Components\PathFunc.pas',
   CmnFunc2 in 'Src\CmnFunc2.pas',
-  Msgs in 'Src\Msgs.pas',
+  Msgs in 'Src\SetupLdrAndSetup\Msgs.pas',
   MsgIDs in 'Src\MsgIDs.pas',
   Struct in 'Src\Struct.pas',
-  InstFunc in 'Src\InstFunc.pas',
+  InstFunc in 'Src\SetupLdrAndSetup\InstFunc.pas',
   FileClass in 'Src\FileClass.pas',
   Int64Em in 'Src\Int64Em.pas',
   SHA1 in 'Src\SHA1.pas',

@@ -75,7 +75,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\XPTheme.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\XPTheme.pas"/>
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="Src\CmnFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>
@@ -83,14 +83,14 @@
             <Form>MainForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Setup\Install.pas"/>
-        <DCCReference Include="Src\Msgs.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Msgs.pas"/>
         <DCCReference Include="Src\MsgIDs.pas"/>
         <DCCReference Include="Src\Setup\Undo.pas"/>
         <DCCReference Include="Src\Struct.pas"/>
         <DCCReference Include="Src\Setup\NewDisk.pas">
             <Form>NewDiskForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\InstFunc.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\InstFunc.pas"/>
         <DCCReference Include="Src\Setup\InstFnc2.pas"/>
         <DCCReference Include="Src\Setup\Wizard.pas">
             <Form>WizardForm</Form>

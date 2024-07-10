@@ -11,7 +11,7 @@ program Setup;
 
 uses
   SafeDLLPath in 'Src\SafeDLLPath.pas',
-  XPTheme in 'Src\XPTheme.pas',
+  XPTheme in 'Src\SetupLdrAndSetup\XPTheme.pas',
   Forms,
   Windows,
   SysUtils,
@@ -21,12 +21,12 @@ uses
   CmnFunc2 in 'Src\CmnFunc2.pas',
   Main in 'Src\Setup\Main.pas' {MainForm},
   Install in 'Src\Setup\Install.pas',
-  Msgs in 'Src\Msgs.pas',
+  Msgs in 'Src\SetupLdrAndSetup\Msgs.pas',
   MsgIDs in 'Src\MsgIDs.pas',
   Undo in 'Src\Setup\Undo.pas',
   Struct in 'Src\Struct.pas',
   NewDisk in 'Src\Setup\NewDisk.pas' {NewDiskForm},
-  InstFunc in 'Src\InstFunc.pas',
+  InstFunc in 'Src\SetupLdrAndSetup\InstFunc.pas',
   InstFnc2 in 'Src\Setup\InstFnc2.pas',
   Wizard in 'Src\Setup\Wizard.pas' {WizardForm},
   ScriptFunc_R in 'Src\ScriptFunc_R.pas',
