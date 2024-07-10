@@ -730,13 +730,13 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
       BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
       for var S in ScriptConstsTable do
-        AddWordToList(SL, S, awtConstant);
+        AddWordToList(SL, S, awtScriptConstant);
       for var S in ScriptInterfacesTable do
-        AddWordToList(SL, S, awtInterface);
+        AddWordToList(SL, S, awtScriptInterface);
       for var S in ScriptTypesTable do
-        AddWordToList(SL, S, awtType);
+        AddWordToList(SL, S, awtScriptType);
       for var S in ScriptVariablesTable do
-        AddWordToList(SL, S, awtVariable);
+        AddWordToList(SL, S, awtScriptVariable);
       FScriptWordList := BuildWordList(SL);
     finally
       SL.Free;
