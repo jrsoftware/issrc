@@ -13,8 +13,10 @@ unit ScriptFunc;
 
 interface
 
+{$IFDEF COMPIL32PROJ}
 uses
   TypInfo;
+{$ENDIF}
 
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDisk, sftBrowseFunc, sftCmnFunc,
