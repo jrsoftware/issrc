@@ -30,7 +30,7 @@ if errorlevel 1 goto failed
 
 echo Generating help files using ISHelpGen:
 echo.
-..\..\..\ishelp\ISHelpGen\ISHelpGen.exe .
+..\ISHelp\ISHelpGen\ISHelpGen.exe .
 if errorlevel 1 goto failed
 
 echo.
@@ -45,8 +45,8 @@ if not exist Staging\ispp.chm goto failed
 rem  HHC leaves behind a temporary file each time it runs...
 if exist "%TEMP%\~hh*.tmp" del /q "%TEMP%\~hh*.tmp"
 
-copy Staging\ispp.chm ..\..\..\Files\ISPP.chm
-if not exist ..\..\..\Files\ISPP.chm goto failed
+copy Staging\ispp.chm ..\Files\ISPP.chm
+if not exist ..\Files\ISPP.chm goto failed
 
 echo Success!
 exit /b 0

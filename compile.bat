@@ -33,14 +33,9 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 cd Projects
 if errorlevel 1 goto exit
 
-cd ISPP
-if errorlevel 1 goto failed
-
 echo - ISPP.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\..\Files -NUDcu ISPP.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
 if errorlevel 1 goto failed
-
-cd ..
 
 echo - Compil32.dpr
 mkdir Dcu\Compil32.dpr 2>nul
