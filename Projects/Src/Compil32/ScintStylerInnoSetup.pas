@@ -741,6 +741,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptType);
       for var S in ScriptEnumsTable do
         AddWordToList(SL, S, awtScriptEnum);
+      for var TypeInfo in ScriptRealEnumsTable do begin
+        var TypeData := GetTypeData(TypeInfo);
+        for var I := TypeData.MinValue to TypeData.MaxValue do
+          AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnum);
+      end;
       for var S in ScriptVariablesTable do
         AddWordToList(SL, S, awtScriptVariable);
       FScriptWordList := BuildWordList(SL);

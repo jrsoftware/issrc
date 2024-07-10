@@ -13,6 +13,9 @@ unit ScriptFunc;
 
 interface
 
+uses
+  TypInfo;
+
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDisk, sftBrowseFunc, sftCmnFunc,
     sftCmnFunc2, sftInstall, sftInstFunc, sftInstFnc2, sftMain, sftMsgs,
@@ -192,14 +195,10 @@ var
 
   ScriptEnumsTable: TScriptTable = [
     { ScriptFunc_C }
-    //RegisterRealEnum('TMsgBoxType', TypeInfo(TMsgBoxType));
-    //RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
-    //RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
-    //RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
-    //RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
-    //RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
     'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
   ];
+
+  ScriptRealEnumsTable: array of PTypeInfo; { Initialized below }
 
   ScriptVariablesTable: TScriptTable = [
     { ScriptClasses_C }
@@ -219,7 +218,8 @@ function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 implementation
 
 uses
-  SysUtils, AnsiStrings;
+  SysUtils, AnsiStrings,
+  CmnFunc;
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -657,5 +657,13 @@ initialization
   CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
   {$ENDIF}
   {$ENDIF}
+
+  SetLength(ScriptRealEnumsTable, 1);
+  ScriptRealEnumsTable[0] := TypeInfo(TMsgBoxType);
+    //RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
+    //RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
+    //RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
+    //RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
+    //RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
 
 end.
