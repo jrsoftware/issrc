@@ -1055,6 +1055,7 @@ begin
             Attributes.ForeColor := FTheme.Colors[tcMarginFore];
             Attributes.BackColor := FTheme.Colors[tcMarginBack];
           end;
+        STYLE_BRACEBAD: Attributes.ForeColor := FTheme.Colors[tcRed];
         STYLE_BRACELIGHT: Attributes.BackColor := FTheme.Colors[tcBraceBack];
         STYLE_INDENTGUIDE: Attributes.ForeColor := FTheme.Colors[tcIndentGuideFore];
       end;

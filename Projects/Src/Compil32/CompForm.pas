@@ -4698,35 +4698,41 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
   end;
 
   procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
-  var
-    Section: TInnoSetupStylerSection;
-    Pos, MatchPos: Integer;
-    C: AnsiChar;
-  begin
-    Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
-    if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
-      Pos := AMemo.CaretPosition;
-      C := AMemo.GetByteAtPosition(Pos);
-      if C in ['(', '[', '{'] then begin
-        MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
-        if MatchPos >= 0 then begin
-          AMemo.SetBraceHighlighting(Pos, MatchPos);
-          Exit;
-        end;
+
+    function TestPos(const AMemo: TCompScintEdit; Pos: Integer;
+      const Before: Boolean; const Braces: TSysCharSet): Boolean;
+    begin
+      if Before then begin
+        if Pos > 0 then
+          Pos := AMemo.GetPositionBefore(Pos)
+        else
+          Exit(False);
       end;
-      if Pos > 0 then begin
-        Pos := AMemo.GetPositionBefore(Pos);
-        C := AMemo.GetByteAtPosition(Pos);
-        if C in [')', ']', '}'] then begin
-          MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
-          if MatchPos >= 0 then begin
-            AMemo.SetBraceHighlighting(Pos, MatchPos);
-            Exit;
-          end;
-        end;
+      var C := AMemo.GetByteAtPosition(Pos);
+      Result := C in Braces;
+      if Result then begin
+        var MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
+        if MatchPos >= 0 then
+          AMemo.SetBraceHighlighting(Pos, MatchPos)
+        else
+          AMemo.SetBraceBadHighlighting(Pos);
       end;
     end;
-    AMemo.SetBraceHighlighting(-1, -1);
+
+  begin
+    var Highlighted := False;
+    var Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
+      var Pos := AMemo.CaretPosition;
+      const OpeningBraces: TSysCharSet = ['(', '[', '{', '<'];
+      const ClosingBraces: TSysCharSet = [')', ']', '}', '>'];
+      Highlighted := Highlighted or TestPos(AMemo, Pos, False, OpeningBraces);
+      Highlighted := Highlighted or TestPos(AMemo, Pos, False, ClosingBraces);
+      Highlighted := Highlighted or TestPos(AMemo, Pos, True, ClosingBraces);
+      Highlighted := Highlighted or TestPos(AMemo, Pos, True, OpeningBraces);
+    end;
+    if not Highlighted then
+      AMemo.SetBraceHighlighting(-1, -1);
   end;
 
 begin

@@ -80,7 +80,7 @@
         </DelphiCompile>
         <DCCReference Include="Src\SafeDLLPath.pas"/>
         <DCCReference Include="Src\CompInt.pas"/>
-        <DCCReference Include="Src\ISCmplr\CompPreprocInt.pas"/>
+        <DCCReference Include="Src\CompPreprocInt.pas"/>
         <DCCReference Include="Src\ISCmplr\Compile.pas"/>
         <DCCReference Include="Src\ISCmplr\CompMsgs.pas"/>
         <DCCReference Include="Src\Struct.pas"/>

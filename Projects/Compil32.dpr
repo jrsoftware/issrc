@@ -122,7 +122,7 @@ begin
 end;
 
 procedure CreateMutexes;
-{ Creates the two mutexes used by the Inno Setup's own installer/uninstaller to
+{ Creates the two mutexes used by Inno Setup's own installer/uninstaller to
   see if the compiler is still running.
   One of the mutexes is created in the global name space (which makes it
   possible to access the mutex across user sessions in Windows XP); the other

@@ -62,41 +62,40 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_ExeOutput>..\..\Files</DCC_ExeOutput>
+        <DCC_ExeOutput>..\Files</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_ExeOutput>..\Bin</DCC_ExeOutput>
-        <Debugger_HostApplication>..\Bin\Compil32.exe</Debugger_HostApplication>
+        <DCC_ExeOutput>Bin</DCC_ExeOutput>
+        <Debugger_HostApplication>Bin\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
-        <Debugger_CWD>..\Bin</Debugger_CWD>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\Src\ISCmplr\CompPreprocInt.pas"/>
-        <DCCReference Include="IsppPreprocess.pas"/>
-        <DCCReference Include="IsppPreprocessor.pas"/>
-        <DCCReference Include="IsppFuncs.pas"/>
-        <DCCReference Include="IsppVarUtils.pas"/>
-        <DCCReference Include="IsppConsts.pas"/>
-        <DCCReference Include="IsppStack.pas"/>
-        <DCCReference Include="IsppIntf.pas"/>
-        <DCCReference Include="IsppParser.pas"/>
-        <DCCReference Include="IsppIdentMan.pas"/>
-        <DCCReference Include="IsppSessions.pas"/>
-        <DCCReference Include="CTokenizer.pas"/>
-        <DCCReference Include="IsppBase.pas"/>
-        <DCCReference Include="..\..\Components\PathFunc.pas"/>
-        <DCCReference Include="..\Src\CmnFunc2.pas"/>
-        <DCCReference Include="..\Src\FileClass.pas"/>
-        <DCCReference Include="..\Src\Int64Em.pas"/>
-        <DCCReference Include="..\..\Components\MD5.pas"/>
-        <DCCReference Include="..\..\Components\SHA1.pas"/>
-        <DCCReference Include="..\Src\Struct.pas"/>
+        <DCCReference Include="Src\CompPreprocInt.pas"/>
+        <DCCReference Include="Src\ISPP\IsppPreprocess.pas"/>
+        <DCCReference Include="Src\ISPP\IsppPreprocessor.pas"/>
+        <DCCReference Include="Src\ISPP\IsppFuncs.pas"/>
+        <DCCReference Include="Src\ISPP\IsppVarUtils.pas"/>
+        <DCCReference Include="Src\ISPP\IsppConsts.pas"/>
+        <DCCReference Include="Src\ISPP\IsppStack.pas"/>
+        <DCCReference Include="Src\ISPP\IsppIntf.pas"/>
+        <DCCReference Include="Src\ISPP\IsppParser.pas"/>
+        <DCCReference Include="Src\ISPP\IsppIdentMan.pas"/>
+        <DCCReference Include="Src\ISPP\IsppSessions.pas"/>
+        <DCCReference Include="Src\ISPP\CTokenizer.pas"/>
+        <DCCReference Include="Src\ISPP\IsppBase.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="Src\CmnFunc2.pas"/>
+        <DCCReference Include="Src\FileClass.pas"/>
+        <DCCReference Include="Src\Int64Em.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="Src\Struct.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

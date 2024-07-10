@@ -18,7 +18,7 @@ unit SimpleExpression;
   As a special optional rule it can insert an 'or' if an identifier is encountered
   at the place where an 'or' could be.
 
-  Function calls withing parameter lists are currently not supported, except for calls
+  Function calls within parameter lists are currently not supported, except for calls
   to the special ExpandConstant function.
 }
 

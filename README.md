@@ -80,7 +80,7 @@ Getting Started
    Community Edition, open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup Preprocessor help file and its web version run
-   **ISHelp\ISHelpGen\compile.bat** and **Projects\Ispp\Help\compile.bat** and
+   **ISHelp\ISHelpGen\compile.bat** and **ISPPHelp\compile.bat** and
    follow the instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
@@ -137,14 +137,14 @@ Compil32, it depends on ISCmplr.dll to do the actual compiling.
 scripts. The actual compiler code is in Compile.pas. See CompInt.pas for the
 various structures and function declarations used to interface to the DLL.
 
+**ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
+
 **Setup** - This is the actual "Setup" program. It displays the wizard, and
 performs all (un)installation-related tasks.
 
 **SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
-
-**ISPP\ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
 How do the projects link together?
 
@@ -160,7 +160,7 @@ How do the projects link together?
   projects for unit usage details.
 
 - The ISPP help file uses various copies of other Inno Setup files. To synch
-  these run **ISPP\Help\synch-isfiles.bat**.
+  these run **ISPPHelp\synch-isfiles.bat**.
 
 
 Source code tips
