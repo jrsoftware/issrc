@@ -37,7 +37,7 @@ var
 
   { These are just for Compil32 and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
-    TPSExec.RegisterStandardProc }
+    TPSExec.RegisterStandardProc and RegisterDll_Compiletime and RegisterDLLRuntimeEx }
   ROPSScriptFuncTable: TScriptTable =
   [
     'function StrToIntDef(S: String; Def: LongInt): LongInt;',
@@ -70,6 +70,8 @@ var
     'function VarArrayGet(var S: Variant; I: Integer): Variant;',
     'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);',
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
+    'procedure UnloadDll(S: String);',
+    'function DllGetLastError: LongInt;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -118,7 +120,34 @@ var
     'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
     'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
     'varByRef', 'varUString',
-    { Ours - ScriptClasses_C }
+    { ScriptFunc_C }
+    'MaxInt', 'irInstall', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
+    'wpUserInfo', 'wpSelectDir', 'wpSelectComponents', 'wpSelectProgramGroup',
+    'wpSelectTasks', 'wpReady', 'wpPreparing', 'wpInstalling', 'wpInfoAfter',
+    'wpFinished', 'MB_OK', 'MB_OKCANCEL', 'MB_ABORTRETRYIGNORE', 'MB_YESNOCANCEL',
+    'MB_YESNO', 'MB_RETRYCANCEL', 'MB_DEFBUTTON1', 'MB_DEFBUTTON2', 'MB_DEFBUTTON3',
+    'MB_SETFOREGROUND', 'IDOK', 'IDCANCEL', 'IDABORT', 'IDRETRY', 'IDIGNORE',
+    'IDYES', 'IDNO', 'HWND_BROADCAST', 'HKEY_AUTO', 'HKEY_AUTO_32', 'HKEY_AUTO_64',
+    'HKEY_CLASSES_ROOT', 'HKEY_CLASSES_ROOT_32', 'HKEY_CLASSES_ROOT_64',
+    'HKEY_CURRENT_USER', 'HKEY_CURRENT_USER_32', 'HKEY_CURRENT_USER_64',
+    'HKEY_LOCAL_MACHINE', 'HKEY_LOCAL_MACHINE_32', 'HKEY_LOCAL_MACHINE_64',
+    'HKEY_USERS', 'HKEY_USERS_32', 'HKEY_USERS_64', 'HKEY_PERFORMANCE_DATA',
+    'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_CONFIG_32', 'HKEY_CURRENT_CONFIG_64',
+    'HKEY_DYN_DATA', 'HKA', 'HKA32', 'HKA64', 'HKCR', 'HKCR32', 'HKCR64', 'HKCU',
+    'HKCU32', 'HKCU64', 'HKLM', 'HKLM32', 'HKLM64', 'HKU', 'HKU32', 'HKU64',
+    'HKCC', 'HKCC32', 'HKCC64', 'SW_HIDE', 'SW_SHOWNORMAL', 'SW_SHOWMINIMIZED',
+    'SW_SHOWMAXIMIZED', 'SW_SHOWMINNOACTIVE', 'SW_SHOW', 'FILE_ATTRIBUTE_READONLY',
+    'FILE_ATTRIBUTE_HIDDEN', 'FILE_ATTRIBUTE_SYSTEM', 'FILE_ATTRIBUTE_DIRECTORY',
+    'FILE_ATTRIBUTE_ARCHIVE', 'FILE_ATTRIBUTE_DEVICE', 'FILE_ATTRIBUTE_NORMAL',
+    'FILE_ATTRIBUTE_TEMPORARY', 'FILE_ATTRIBUTE_SPARSE_FILE','FILE_ATTRIBUTE_REPARSE_POINT',
+    'FILE_ATTRIBUTE_COMPRESSED', 'FILE_ATTRIBUTE_OFFLINE', 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED',
+    'FILE_ATTRIBUTE_ENCRYPTED', 'VER_NT_WORKSTATION', 'VER_NT_DOMAIN_CONTROLLER',
+    'VER_NT_SERVER', 'VER_SUITE_SMALLBUSINESS', 'VER_SUITE_ENTERPRISE', 'VER_SUITE_BACKOFFICE',
+    'VER_SUITE_COMMUNICATIONS', 'VER_SUITE_TERMINAL', 'VER_SUITE_SMALLBUSINESS_RESTRICTED',
+    'VER_SUITE_EMBEDDEDNT', 'VER_SUITE_DATACENTER', 'VER_SUITE_SINGLEUSERTS',
+    'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
+    'VER_SUITE_SECURITY_APPLIANCE',
+    { ScriptClasses_C }
     'clHotLight'
   ];
 
@@ -139,7 +168,8 @@ var
     'procedure', 'program', 'property', 'protected', 'public', 'published',
     'record', 'repeat', 'set', 'shl', 'shr', 'then', 'to', 'try', 'type', 'unit',
     'until', 'uses', 'var', 'virtual', 'while', 'with', 'xor',
-    'False', 'True'
+    'False', 'True',
+    'delayload', 'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal'
   ];
 
   ScriptTypesTable: TScriptTable = [
@@ -150,12 +180,18 @@ var
     'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
     'TVariantArray',
     //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
-    'TVarType'
+    'TVarType',
     //undocumented: TIFException
+    { ScriptFunc_C }
+    'TArrayOfString','TArrayOfChar','TArrayOfBoolean','TArrayOfInteger', 'DWORD',
+    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
+    'TSetupMessageID','TSetupStep','TUninstallStep','TSetupProcessorArchitecture',
+    'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
+    'TOnDownloadProgress', 'TOnLog'
   ];
 
   ScriptVariablesTable: TScriptTable = [
-    { Ours - ScriptClasses_C }
+    { ScriptClasses_C }
     'WizardForm',
     'MainForm',
     'UninstallProgressForm'
