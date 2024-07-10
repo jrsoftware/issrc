@@ -10,7 +10,7 @@ setlocal
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
-echo Projects\ISPP\Help\compilesettings.bat is missing or incomplete. It needs
+echo ISPPHelp\compilesettings.bat is missing or incomplete. It needs
 echo to be created with the following lines, adjusted for your system:
 echo.
 echo   set HHCEXE=%%ProgramFiles%%\HTML Help Workshop\hhc.exe   [Path to help compiler]
