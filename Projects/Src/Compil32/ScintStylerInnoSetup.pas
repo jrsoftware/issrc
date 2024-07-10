@@ -7,8 +7,6 @@ unit ScintStylerInnoSetup;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TInnoSetupStyler: styler for Inno Setup scripts
-  
-  Requires ScriptFunc+LangOptions+SetupSectionDirectives and MsgIDs from the Inno Setup source code
 }
 
 interface
