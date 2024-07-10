@@ -10,7 +10,7 @@ setlocal
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
-echo Projects\ISPP\Help\compilesettings.bat is missing or incomplete. It needs
+echo ISPPHelp\compilesettings.bat is missing or incomplete. It needs
 echo to be created with the following lines, adjusted for your system:
 echo.
 echo   set HHCEXE=%%ProgramFiles%%\HTML Help Workshop\hhc.exe   [Path to help compiler]
@@ -30,7 +30,7 @@ if errorlevel 1 goto failed
 
 echo Generating help files using ISHelpGen:
 echo.
-..\..\..\ishelp\ISHelpGen\ISHelpGen.exe .
+..\ISHelp\ISHelpGen\ISHelpGen.exe .
 if errorlevel 1 goto failed
 
 echo.
@@ -45,8 +45,8 @@ if not exist Staging\ispp.chm goto failed
 rem  HHC leaves behind a temporary file each time it runs...
 if exist "%TEMP%\~hh*.tmp" del /q "%TEMP%\~hh*.tmp"
 
-copy Staging\ispp.chm ..\..\..\Files\ISPP.chm
-if not exist ..\..\..\Files\ISPP.chm goto failed
+copy Staging\ispp.chm ..\Files\ISPP.chm
+if not exist ..\Files\ISPP.chm goto failed
 
 echo Success!
 exit /b 0

@@ -53,11 +53,11 @@ call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 
-cd projects\ispp\help
+cd ispphelp
 if errorlevel 1 goto failed
 call .\compile.bat
 if errorlevel 1 goto failed
-cd ..\..\..
+cd ..
 if errorlevel 1 goto failed
 echo Compiling ISPP.chm done
 pause

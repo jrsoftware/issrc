@@ -39,11 +39,11 @@ if errorlevel 1 goto failed
 echo Compiling ISHelpGen done
 pause
 
-cd projects\ispp\help
+cd ispphelp
 if errorlevel 1 goto failed
 call .\compile.bat
 if errorlevel 1 goto failed
-cd ..\..\..
+cd ..
 if errorlevel 1 goto failed
 echo Compiling ISPP.chm done
 pause

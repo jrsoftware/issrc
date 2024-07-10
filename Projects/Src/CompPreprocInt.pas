@@ -6,9 +6,7 @@ unit CompPreprocInt;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler preprocessor interface
-
-  Actually not only used by ISCmplr but also by ISPP
+  Compiler preprocessor interface used by ISCmplr and ISPP
 }
 
 interface

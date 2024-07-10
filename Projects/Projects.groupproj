@@ -12,7 +12,7 @@
         <Projects Include="ISCmplr.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="ISPP\ISPP.dproj">
+        <Projects Include="ISPP.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="Setup.dproj">
@@ -60,13 +60,13 @@
         <MSBuild Projects="ISCmplr.dproj" Targets="Make"/>
     </Target>
     <Target Name="ISPP">
-        <MSBuild Projects="ISPP\ISPP.dproj"/>
+        <MSBuild Projects="ISPP.dproj"/>
     </Target>
     <Target Name="ISPP:Clean">
-        <MSBuild Projects="ISPP\ISPP.dproj" Targets="Clean"/>
+        <MSBuild Projects="ISPP.dproj" Targets="Clean"/>
     </Target>
     <Target Name="ISPP:Make">
-        <MSBuild Projects="ISPP\ISPP.dproj" Targets="Make"/>
+        <MSBuild Projects="ISPP.dproj" Targets="Make"/>
     </Target>
     <Target Name="Setup">
         <MSBuild Projects="Setup.dproj"/>
