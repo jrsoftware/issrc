@@ -229,7 +229,7 @@ Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
 
 - When mentioning something the user would type in a script, e.g. "MinVersion",
-  surround it by `<tt></tt>` so that it's displayed in the Courier New font. This is
+  surround it by `<tt></tt>` so that it's displayed in a monospaced font. This is
   a convention used throughout the help file. Example: `<tt>MinVersion</tt>`
 
 Setting up Continuous Integration

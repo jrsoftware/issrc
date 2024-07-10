@@ -10,10 +10,10 @@
 }
 
 {x$DEFINE STATICCOMPILER}
-{ For debugging purposes, remove the 'x' to have it link the compiler code
-  into this program and not depend on ISCmplr.dll. You will also need to add
-  the Src folder to the Delphi Compiler Search path in the project options.
-  Also see Compile's STATICPREPROC. }
+{ For debugging purposes, remove the 'x' to have it link the compiler code into
+  this program and not depend on ISCmplr.dll. You will also need to add the
+  ..\Components and Src and Src\ISCmplr folders to the Delphi Compiler Search path
+  in the project options. Also see Compile's STATICPREPROC. }
 
 {$IFDEF STATICCOMPILER}
 {$R ..\Res\ISCmplr.images.res}
