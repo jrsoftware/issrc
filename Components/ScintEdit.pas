@@ -333,6 +333,7 @@ type
     procedure SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
+    procedure SetBraceBadHighlighting(const Pos: Integer);
     procedure SetBraceHighlighting(const Pos1, Pos2: Integer);
     procedure SetCursorID(const CursorID: Integer);
     procedure SetCallTipHighlight(HighlightStart, HighlightEnd: Integer);
@@ -1641,6 +1642,11 @@ begin
   CallStr(SCI_AUTOCSTOPS, 0, StopChars);
 end;
 
+procedure TScintEdit.SetBraceBadHighlighting(const Pos: Integer);
+begin
+  Call(SCI_BRACEBADLIGHT, Pos, 0);
+end;
+
 procedure TScintEdit.SetBraceHighlighting(const Pos1, Pos2: Integer);
 begin
   Call(SCI_BRACEHIGHLIGHT, Pos1, Pos2);
@@ -2343,6 +2349,7 @@ begin
     if FUseStyleAttributes then begin
       for I := 0 to StyleNumbers-1 do
         SetStyleAttrFromStyler(I);
+      SetStyleAttrFromStyler(STYLE_BRACEBAD);
       SetStyleAttrFromStyler(STYLE_BRACELIGHT);
       SetStyleAttrFromStyler(STYLE_INDENTGUIDE);
     end;
