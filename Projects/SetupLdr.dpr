@@ -28,7 +28,7 @@ uses
   Int64Em in 'Src\Int64Em.pas',
   SHA1 in 'Src\SHA1.pas',
   MD5 in 'Src\MD5.pas',
-  RedirFunc in 'Src\RedirFunc.pas',
+  RedirFunc in 'Src\SetupLdrAndSetup\RedirFunc.pas',
   SetupTypes in 'Src\SetupTypes.pas',
   VerInfo in 'Src\VerInfo.pas';
 

@@ -109,7 +109,6 @@
         <DCCReference Include="Src\SetupTypes.pas"/>
         <DCCReference Include="Src\SimpleExpression.pas"/>
         <DCCReference Include="Src\MD5.pas"/>
-        <DCCReference Include="Src\RedirFunc.pas"/>
         <DCCReference Include="Src\DotNetVersion.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

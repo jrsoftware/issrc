@@ -42,7 +42,6 @@ uses
   SetupTypes in 'Src\SetupTypes.pas',
   SimpleExpression in 'Src\SimpleExpression.pas',
   MD5 in 'Src\MD5.pas',
-  RedirFunc in 'Src\RedirFunc.pas',
   DotNetVersion in 'Src\DotNetVersion.pas';
 
 {$IMAGEBASE $00800000}
