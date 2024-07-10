@@ -218,8 +218,8 @@ function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 implementation
 
 uses
-  SysUtils, AnsiStrings,
-  CmnFunc;
+  SysUtils, AnsiStrings
+  {$IFDEF COMPIL32PROJ}, CmnFunc {$ENDIF};
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -656,7 +656,6 @@ initialization
   CheckIsCleanScriptFuncTable(DelphiScriptFuncTable);
   CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
   {$ENDIF}
-  {$ENDIF}
 
   SetLength(ScriptRealEnumsTable, 1);
   ScriptRealEnumsTable[0] := TypeInfo(TMsgBoxType);
@@ -665,5 +664,6 @@ initialization
     //RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
     //RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
     //RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
+  {$ENDIF}
 
 end.
