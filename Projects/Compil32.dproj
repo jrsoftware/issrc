@@ -109,7 +109,7 @@
         <DCCReference Include="Src\Compil32\CompInputQueryCombo.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
-        <DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
+        <DCCReference Include="Src\Compil32\ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
         <DCCReference Include="Src\Compil32\CompMsgBoxDesigner.pas">
             <Form>MsgBoxDesignerForm</Form>

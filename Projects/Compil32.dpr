@@ -34,7 +34,7 @@ uses
   CompInputQueryCombo in 'Src\Compil32\CompInputQueryCombo.pas',
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
-  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
+  ScintStylerInnoSetup in 'Src\Compil32\ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
   CompMsgBoxDesigner in 'Src\Compil32\CompMsgBoxDesigner.pas' {MsgBoxDesignerForm},
   CompScintEdit in 'Src\Compil32\CompScintEdit.pas',
