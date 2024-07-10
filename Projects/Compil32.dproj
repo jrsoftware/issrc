@@ -140,7 +140,7 @@
             <Form>RegistryDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Compil32\CompWizardRegistryHelper.pas"/>
-        <DCCReference Include="Src\MD5.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="Src\Compil32\IsscintInt.pas"/>
         <DCCReference Include="Src\ScriptFunc.pas"/>
         <BuildConfiguration Include="Base">

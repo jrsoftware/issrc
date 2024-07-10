@@ -114,8 +114,8 @@
         <DCCReference Include="Src\bzlib.pas"/>
         <DCCReference Include="Src\Setup\LZMADecomp.pas"/>
         <DCCReference Include="Src\FileClass.pas"/>
-        <DCCReference Include="Src\MD5.pas"/>
-        <DCCReference Include="Src\SHA1.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="Src\Setup\Logging.pas"/>
         <DCCReference Include="Src\Setup\DebugClient.pas"/>
         <DCCReference Include="Src\DebugStruct.pas"/>

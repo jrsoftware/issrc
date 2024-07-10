@@ -84,8 +84,8 @@
         <DCCReference Include="Src\SetupLdrAndSetup\InstFunc.pas"/>
         <DCCReference Include="Src\FileClass.pas"/>
         <DCCReference Include="Src\Int64Em.pas"/>
-        <DCCReference Include="Src\SHA1.pas"/>
-        <DCCReference Include="Src\MD5.pas"/>
+        <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\RedirFunc.pas"/>
         <DCCReference Include="Src\SetupTypes.pas"/>
         <DCCReference Include="Src\VerInfo.pas"/>

@@ -94,8 +94,8 @@
         <DCCReference Include="..\Src\CmnFunc2.pas"/>
         <DCCReference Include="..\Src\FileClass.pas"/>
         <DCCReference Include="..\Src\Int64Em.pas"/>
-        <DCCReference Include="..\Src\MD5.pas"/>
-        <DCCReference Include="..\Src\SHA1.pas"/>
+        <DCCReference Include="..\..\Components\MD5.pas"/>
+        <DCCReference Include="..\..\Components\SHA1.pas"/>
         <DCCReference Include="..\Src\Struct.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

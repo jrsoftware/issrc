@@ -31,8 +31,8 @@ uses
   CmnFunc2 in '..\Src\CmnFunc2.pas',
   FileClass in '..\Src\FileClass.pas',
   Int64Em in '..\Src\Int64Em.pas',
-  MD5 in '..\Src\MD5.pas',
-  SHA1 in '..\Src\SHA1.pas',
+  MD5 in '..\..\Components\MD5.pas',
+  SHA1 in '..\..\Components\SHA1.pas',
   Struct in '..\Src\Struct.pas';
   
 {$IMAGEBASE $01800000}

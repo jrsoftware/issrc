@@ -59,7 +59,7 @@ uses
   TaskDialog in 'Src\TaskDialog.pas',
   CompRegistryDesigner in 'Src\Compil32\CompRegistryDesigner.pas' {RegistryDesignerForm},
   CompWizardRegistryHelper in 'Src\Compil32\CompWizardRegistryHelper.pas',
-  MD5 in 'Src\MD5.pas',
+  MD5 in '..\Components\MD5.pas',
   IsscintInt in 'Src\Compil32\IsscintInt.pas',
   ScriptFunc in 'Src\ScriptFunc.pas';
 
