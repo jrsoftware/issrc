@@ -115,6 +115,9 @@ If you only want to edit code, then you may skip installation of the
 components, and choose "Cancel" if the Delphi IDE tells you a class can't
 be found.
 
+The [Components] directory also includes various units that are not
+installable components; however, they are still considered components
+because they can function independently from Inno Setup.
 
 Overview
 --------
