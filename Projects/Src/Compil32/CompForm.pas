@@ -4936,7 +4936,7 @@ begin
             var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
             if not ClassOrRecordMember then begin
               WordList := FMemosStyler.ScriptWordList;
-              FActiveMemo.SetAutoCompleteFillupChars('( ')
+              FActiveMemo.SetAutoCompleteFillupChars('(')
             end;
           end;
 
