@@ -418,7 +418,7 @@ const
     'VER_SUITE_SECURITY_APPLIANCE',
     //undocumented: irInstall
     { ScriptClasses_C }
-    'clHotLight'
+    'clHotLight', 'crHand'
   ];
 
   PascalInterfaces: array of AnsiString = [
@@ -451,12 +451,29 @@ const
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
     'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
     'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnLog'
+    'TOnDownloadProgress', 'TOnLog',
+    { ScriptClasses_C }
+    'TFolderRenameEvent', 'TWizardPageNotifyEvent', 'TWizardPageButtonEvent',
+    'TWizardPageCancelEvent', 'TWizardPageShouldSkipEvent', 'TNewStaticText',
+    'TNewCheckListBox', 'TNewProgressBar', 'TRichEditViewer', 'TPasswordEdit',
+    'TCustomFolderTreeView', 'TFolderTreeView', 'TStartMenuFolderTreeView',
+    'TBitmapImage', 'TNewEdit', 'TNewMemo', 'TNewComboBox', 'TNewListBox',
+    'TNewButton', 'TNewCheckBox', 'TNewRadioButton', 'TNewLinkLabel',
+    'TNewNotebookPage', 'TNewNotebook', 'TUIStateForm', 'TSetupForm',
+    'TMainForm', 'TWizardForm', 'TUninstallProgressForm', 'TWizardPage',
+    'TInputQueryWizardPage', 'TInputOptionWizardPage', 'TInputDirWizardPage',
+    'TInputFileWizardPage', 'TOutputMsgWizardPage', 'TOutputMsgMemoWizardPage',
+    'TOutputProgressWizardPage', 'TOutputMarqueeProgressWizardPage',
+    'TDownloadWizardPage'
   ];
 
   PascalEnums: array of AnsiString = [
     { ScriptFunc_C }
-    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
+    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle',
+    { ScriptClasses_C }
+    'coUncheck', 'coCheck', 'coCheckWithChildren', 'npbsNormal', 'npbsError',
+    'npbsPaused', 'npbstNormal', 'npbstMarquee', 'afIgnored', 'afDefined',
+    'afPremultiplied'
   ];
 
 var
