@@ -66,7 +66,7 @@ type
   TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
     ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
     ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
-    ccAddCursorDown);
+    ccAddCursorDown, ccBraceMatch);
 
   TCompScintEdit = class(TScintEdit)
   private
@@ -347,7 +347,7 @@ begin
       AssignCmdKey(SCK_DOWN, [ssAlt], SCI_MOVESELECTEDLINESDOWN);
     end;
     Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
-    ClearCmdKey('/', [ssCtrl]);
+    ClearCmdKey('/', [ssCtrl]); { Will be used by ccToggleLinesComment }
     ClearCmdKey('\', [ssCtrl]);
     UpdateComplexCommands;
   end;
@@ -358,7 +358,7 @@ begin
   FComplexCommands.Clear;
   FComplexCommandsReversed.Clear;
 
-  { Normally VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [, and VK_OEM_2 is /
+  { Normally VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [,  VK_OEM_2 is /,  and VK_OEM_5 is \
     See CompFunc's NewShortcutToText for how it's is handled when they are different.
     Note: all VK_OEM shortcuts must have a menu item so the user can see what the
     shortcut is for their kayboard layout. }
@@ -381,6 +381,7 @@ begin
   AddComplexCommand(ShortCut(VK_DOWN, [ssCtrl, ssAlt]), ccAddCursorDown);
   { Use freed Ctrl+/ }
   AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment); { Also see GetComplexCommand for ReadOnly check }
+  AddComplexCommand(ShortCut(VK_OEM_5, [ssShift, ssCtrl]), ccBraceMatch);
 end;
 
 procedure TCompScintEdit.SetUseFolding(const Value: Boolean);

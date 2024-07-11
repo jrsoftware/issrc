@@ -536,6 +536,10 @@ object CompileForm: TCompileForm
         Caption = 'Toggle Line Comment'
         OnClick = EToggleLinesCommentClick
       end
+      object EBraceMatch: TMenuItem
+        Caption = 'Go To Matching Brace'
+        OnClick = EBraceMatchClick
+      end
     end
     object VMenu: TMenuItem
       Caption = '&View'
