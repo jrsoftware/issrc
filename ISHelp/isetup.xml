@@ -3128,223 +3128,226 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Indent block.</td><td>Tab</td>
+  <td>Indent block</td><td>Tab</td>
 </tr>
 <tr>
-  <td>Unindent block.</td><td>Shift+Tab</td>
+  <td>Unindent block</td><td>Shift+Tab</td>
 </tr>
 <tr>
-  <td>Indent lines.</td><td>-</td><td>Ctrl+]</td>
+  <td>Indent lines</td><td>-</td><td>Ctrl+]</td>
 </tr>
 <tr>
-  <td>Unindent lines.</td><td>-</td><td>Ctrl+[</td>
+  <td>Unindent lines</td><td>-</td><td>Ctrl+[</td>
 </tr>
 <tr>
-  <td>Toggle lines comment.</td><td>Ctrl+/</td>
-</tr>
-<tr>
-  <td>&nbsp;</td>
-</tr>
-<tr>
-  <td>Delete to start of word.</td><td>Ctrl+Backspace</td>
-</tr>
-<tr>
-  <td>Delete to end of word.</td><td>Ctrl+Delete</td>
-</tr>
-<tr>
-  <td>Delete to start of line.</td><td>Ctrl+Shift+Backspace</td>
-</tr>
-<tr>
-  <td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
+  <td>Toggle lines comment</td><td>Ctrl+/</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
+  <td>Delete to start of word</td><td>Ctrl+Backspace</td>
 </tr>
 <tr>
-  <td>Go to first non-blank character of line.</td><td>Home</td>
+  <td>Delete to end of word</td><td>Ctrl+Delete</td>
 </tr>
 <tr>
-  <td>Go to start of line.</td><td>Alt+Home or Home Home</td>
+  <td>Delete to start of line</td><td>Ctrl+Shift+Backspace</td>
 </tr>
 <tr>
-  <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
-</tr>
-<tr>
-  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td><td>-</td>
-</tr>
-<tr>
-  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td><td>-</td>
-</tr>
-<tr>
-  <td>Go to end of line.</td><td>End</td>
-</tr>
-<tr>
-  <td>Go to end of wrapped line.</td><td>Alt+End</td>
-</tr>
-<tr>
-  <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
-</tr>
-<tr>
-  <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
-</tr>
-<tr>
-  <td>Go to matching brace.</td><td>Ctrl+Shift+\</td>
-</tr>
-<tr>
-  <td>Scroll up.</td><td>Ctrl+Up</td>
-</tr>
-<tr>
-  <td>Scroll down.</td><td>Ctrl+Down</td>
-</tr>
-<tr>
-  <td>Scroll horizontally.</td><td>Shift+MouseWheel</td>
+  <td>Delete to end of line</td><td>Ctrl+Shift+Delete</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Cut selection or line.</td><td>Ctrl+X or Shift+Delete</td>
+  <td>Go to start of document (Shift extends selection)</td><td>Ctrl+Home</td>
 </tr>
 <tr>
-  <td>Copy selection or line.</td><td>Ctrl+C or Ctrl+Insert</td>
+  <td>Go to first non-blank character of line</td><td>Home</td>
 </tr>
 <tr>
-  <td>Cut lines.</td><td>Ctrl+L</td>
+  <td>Go to start of line</td><td>Alt+Home or Home Home</td>
 </tr>
 <tr>
-  <td>Copy lines.</td><td>Ctrl+Shift+T</td>
+  <td>Go to end of document (Shift extends selection)</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Delete line.</td><td>Ctrl+Shift+L</td><td>Ctrl+Shift+K</td>
+  <td>Go to next paragraph (Shift extends selection)</td><td>Ctrl+]</td><td>-</td>
 </tr>
 <tr>
-  <td>Switch line with previous.</td><td>Ctrl+T</td>
+  <td>Go to previous paragraph (Shift extends selection)</td><td>Ctrl+[</td><td>-</td>
 </tr>
 <tr>
-  <td>Move selected lines up.</td><td>Alt+Up</td>
+  <td>Go to end of line</td><td>End</td>
 </tr>
 <tr>
-  <td>Move selected lines down.</td><td>Alt+Down</td>
+  <td>Go to end of wrapped line</td><td>Alt+End</td>
 </tr>
 <tr>
-  <td>Duplicate selection or copy lines down.</td><td>Ctrl+D</td><td>-</td>
+  <td>Go to previous word (Shift extends selection)</td><td>Ctrl+Left</td>
 </tr>
 <tr>
-  <td>Copy line down.</td><td>-</td><td>Shift+Alt+Down</td>
+  <td>Go to next word (Shift extends selection)</td><td>Ctrl+Right</td>
 </tr>
 <tr>
-  <td>Lowercase lines.</td><td>Ctrl+U</td>
+  <td>Go to matching brace</td><td>Ctrl+Shift+\</td>
 </tr>
 <tr>
-  <td>Uppercase lines.</td><td>Ctrl+Shift+U</td>
+  <td>Scroll up</td><td>Ctrl+Up</td>
 </tr>
 <tr>
-  <td>&nbsp;</td>
+  <td>Scroll down</td><td>Ctrl+Down</td>
 </tr>
 <tr>
-  <td>Extend selection.</td><td>Shift+Arrow</td>
-</tr>
-<tr>
-  <td>Select word.</td><td>DoubleClick</td>
-</tr>
-<tr>
-  <td>Select line.</td><td>TripleClick or Click on line number</td>
-</tr>
-<tr>
-  <td>Select all.</td><td>Ctrl+A or Ctrl+Click on line number</td>
-</tr>
-<tr>
-  <td>Add additional cursor or selection.</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
-</tr>
-<tr>
-  <td>Remove a selection by clicking it.</td><td>Ctrl+Click</td><td>Alt+Click</td>
-</tr>
-<tr>
-  <td>Add word as additional selection.</td><td>Ctrl+DoubleClick</td><td>Alt+DoubleClick</td>
-</tr>
-<tr>
-  <td>Add line as additional selection.</td><td>Ctrl+TripleClick</td><td>Alt+TripleClick</td>
-</tr>
-<tr>
-  <td>Add additional cursor or selection up.</td><td>Ctrl+Alt+Up</td>
-</tr>
-<tr>
-  <td>Add additional cursor or selection down.</td><td>Ctrl+Alt+Down</td>
+  <td>Scroll horizontally</td><td>Shift+MouseWheel</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Add next occurrence of current word or selected text as additional selection.</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
+  <td>Cut selection or line</td><td>Ctrl+X or Shift+Delete</td>
 </tr>
 <tr>
-  <td>Select all occurrences of current word or selected text.</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or (only if classic menu keys are not active) Ctrl+F2</td>
+  <td>Copy selection or line</td><td>Ctrl+C or Ctrl+Insert</td>
 </tr>
 <tr>
-  <td>Select all matches of last find text (also works when find dialog is open).</td><td>Alt+Enter</td>
+  <td>Cut lines</td><td>Ctrl+L</td>
 </tr>
 <tr>
-  <td>Revert multiple selections into single one or single selection into empty one.</td><td>Esc</td>
+  <td>Copy lines</td><td>Ctrl+Shift+T</td>
 </tr>
 <tr>
-  <td>&nbsp;</td>
+  <td>Delete line</td><td>Ctrl+Shift+L</td><td>Ctrl+Shift+K</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection (mouse). Shift extends selection.</td><td>Alt+Drag</td><td>Shift+Alt+Drag</td>
+  <td>Switch line with previous</td><td>Ctrl+T</td>
 </tr>
 <tr>
-  <td>Perform rectangular block selection (keyboard).</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>
+  <td>Move selected lines up</td><td>Alt+Up</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to first non-blank character of line.</td><td>Shift+Alt+Home</td><td>Ctrl+Shift+Alt+Home</td>
+  <td>Move selected lines down</td><td>Alt+Down</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to start of line.</td><td>Shift+Alt+Home Home</td><td>Ctrl+Shift+Alt+Home Home</td>
+  <td>Duplicate selection or copy lines down</td><td>Ctrl+D</td><td>-</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to end of line.</td><td>Shift+Alt+End</td><td>Ctrl+Shift+Alt+End</td>
+  <td>Copy line down</td><td>-</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
-  <td>&nbsp;</td>
+  <td>Lowercase lines</td><td>Ctrl+U</td>
 </tr>
 <tr>
-  <td>Fold section.</td><td>Ctrl+Shift+[</td>
-</tr>
-<tr>
-  <td>Unfold section.</td><td>Ctrl+Shift+]</td>
-</tr>
-<tr>
-  <td>Fold or unfold all sections.</td><td>Ctrl+Shift+Click in folding margin</td>
+  <td>Uppercase lines</td><td>Ctrl+Shift+U</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Invoke autocomplete.</td><td>Ctrl+Space or Ctrl+I</td>
+  <td>Extend selection</td><td>Shift+Arrow</td>
 </tr>
 <tr>
-  <td>Select autocompletion.</td><td>Tab or Enter</td>
+  <td>Select word</td><td>DoubleClick</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion.</td><td>Space for ISPP directives and Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives<br />( for script functions</td>
+  <td>Select line</td><td>TripleClick or Click on line number</td>
 </tr>
 <tr>
-  <td>Invoke parameter hint.</td><td>Ctrl+Shift+Space</td>
+  <td>Select all</td><td>Ctrl+A or Ctrl+Click on line number</td>
 </tr>
 <tr>
-  <td>Cancel autocomplete or parameter hint.</td><td>Esc</td>
+  <td>Add additional cursor or selection</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
+</tr>
+<tr>
+  <td>Remove a selection by clicking it</td><td>Ctrl+Click</td><td>Alt+Click</td>
+</tr>
+<tr>
+  <td>Add word as additional selection</td><td>Ctrl+DoubleClick</td><td>Alt+DoubleClick</td>
+</tr>
+<tr>
+  <td>Add line as additional selection</td><td>Ctrl+TripleClick</td><td>Alt+TripleClick</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection up</td><td>Ctrl+Alt+Up</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection down</td><td>Ctrl+Alt+Down</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Select tab.</td><td>Ctrl+1 through Ctrl+9</td>
+  <td>Add next occurrence of current word or selected text as additional selection</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
 </tr>
 <tr>
-  <td>Switch between the active memo and the active bottom pane.</td><td>F6</td>
+  <td>Select all occurrences of current word or selected text</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or (only if classic menu keys are not active) Ctrl+F2</td>
+</tr>
+<tr>
+  <td>Select all matches of last find text (also works when find dialog is open)</td><td>Alt+Enter</td>
+</tr>
+<tr>
+  <td>Revert multiple selections into single one or single selection into empty one</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Perform rectangular block selection (mouse) (Shift extends selection)</td><td>Alt+Drag</td><td>Shift+Alt+Drag</td>
+</tr>
+<tr>
+  <td>Perform rectangular block selection (keyboard)</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to first non-blank character of line</td><td>Shift+Alt+Home</td><td>Ctrl+Shift+Alt+Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to start of line</td><td>Shift+Alt+Home Home</td><td>Ctrl+Shift+Alt+Home Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to end of line</td><td>Shift+Alt+End</td><td>Ctrl+Shift+Alt+End</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Fold section</td><td>Ctrl+Shift+[</td>
+</tr>
+<tr>
+  <td>Unfold section</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
+  <td>Fold or unfold all sections</td><td>Ctrl+Shift+Click in folding margin</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Invoke autocomplete</td><td>Ctrl+Space or Ctrl+I</td>
+</tr>
+<tr>
+  <td>Select autocompletion</td><td>Tab or Enter</td>
+</tr>
+<tr>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives and Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives<br />( for script functions</td>
+</tr>
+<tr>
+  <td>Invoke parameter hint</td><td>Ctrl+Shift+Space</td>
+</tr>
+<tr>
+  <td>Cancel autocomplete or parameter hint</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Toggle overwrite</td><td>Insert</td>
+</tr>
+<tr>
+  <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
+</tr>
+<tr>
+  <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
 </tr>
 </table>
 
