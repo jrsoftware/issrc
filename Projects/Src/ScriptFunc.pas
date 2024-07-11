@@ -70,9 +70,6 @@ var
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
     'procedure UnloadDll(S: String);',
     'function DllGetLastError: LongInt;',
-    'function Chr(B: Byte): Char;',
-    'function Ord(C: Char): Byte;',
-    'procedure Exit;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -80,7 +77,11 @@ var
     'procedure Inc(var X: Ordinal);',
     'procedure Include(var S: Set; I: Ordinal);',
     'procedure Exclude(var S: Set; I: Ordinal);',
-    'function SizeOf(var X): LongInt;'
+    'function SizeOf(var X): LongInt;',
+    { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
+    'function Chr(B: Byte): Char;',
+    'function Ord(C: Char): Byte;',
+    'procedure Exit;'
   ];
 
   { ROPSUndocumentedScriptFuncTable: TScriptTable =
