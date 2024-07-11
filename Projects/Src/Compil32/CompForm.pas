@@ -247,6 +247,7 @@ type
     N25: TMenuItem;
     ESelectAllFindMatches: TMenuItem;
     EToggleLinesComment: TMenuItem;
+    EBraceMatch: TMenuItem;
     EFoldLine: TMenuItem;
     EUnfoldLine: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -369,6 +370,7 @@ type
     procedure VWordWrapClick(Sender: TObject);
     procedure ESelectAllFindMatchesClick(Sender: TObject);
     procedure EToggleLinesCommentClick(Sender: TObject);
+    procedure EBraceMatchClick(Sender: TObject);
     procedure EFoldOrUnfoldLineClick(Sender: TObject);
   private
     { Private declarations }
@@ -1333,6 +1335,8 @@ begin
             EToggleLinesCommentClick(Self); //GetCompexCommand already checked ReadOnly for us
           ccAddCursorUp, ccAddCursorDown:
             AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
+          ccBraceMatch:
+            EBraceMatchClick(Self);
           else
             raise Exception.Create('Unknown ComplexCommand');
         end;
@@ -2278,6 +2282,7 @@ begin
       SetFakeShortCut(EFoldLine, FMainMemo.GetComplexCommandShortCut(ccFoldLine));
       SetFakeShortCut(EUnfoldLine, FMainMemo.GetComplexCommandShortCut(ccUnfoldLine));
       SetFakeShortCut(EToggleLinesComment, FMainMemo.GetComplexCommandShortCut(ccToggleLinesComment));
+      SetFakeShortCut(EBraceMatch, FMainMemo.GetComplexCommandShortCut(ccBraceMatch));
     end;
 
     Memo.UseFolding := FOptions.UseFolding;
@@ -2756,6 +2761,7 @@ begin
   EGoto.Enabled := MemoHasFocus;
   ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EToggleLinesComment.Enabled := not MemoIsReadOnly;
+  EBraceMatch.Enabled := MemoHasFocus;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -2894,6 +2900,38 @@ begin
       AMemo.Selection := Selection;
   finally
     AMemo.EndUndoAction;
+  end;
+end;
+
+procedure TCompileForm.EBraceMatchClick(Sender: TObject);
+begin
+  var AMemo := FActiveMemo;
+
+  var Selections: TScintCaretAndAnchorList := nil;
+  var VirtualSpaces: TScintCaretAndAnchorList := nil;
+  try
+    Selections := TScintCaretAndAnchorList.Create;
+    VirtualSpaces := TScintCaretAndAnchorList.Create;
+    AMemo.GetSelections(Selections, VirtualSpaces);
+    for var I := 0 to Selections.Count-1 do begin
+      if VirtualSpaces[I].CaretPos = 0 then begin
+        var Pos := Selections[I].CaretPos;
+        var MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
+        if MatchPos = -1 then begin
+          Pos := AMemo.GetPositionBefore(Pos);
+          MatchPos := AMemo.GetPositionOfMatchingBrace(Pos)
+        end;
+        if MatchPos <> -1 then begin
+          AMemo.SelectionCaretPosition[I] := MatchPos;
+          AMemo.SelectionAnchorPosition[I] := MatchPos;
+          if I = 0 then
+            AMemo.ScrollCaretIntoView;
+        end;
+      end;
+    end;
+  finally
+    VirtualSpaces.Free;
+    Selections.Free;
   end;
 end;
 
@@ -4699,7 +4737,7 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
 
   procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
 
-    function TestPos(const AMemo: TCompScintEdit; Pos: Integer;
+    function HighlightPos(const AMemo: TCompScintEdit; Pos: Integer;
       const Before: Boolean; const Braces: TSysCharSet): Boolean;
     begin
       if Before then begin
@@ -4726,10 +4764,10 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
       var Pos := AMemo.CaretPosition;
       const OpeningBraces: TSysCharSet = ['(', '[', '{', '<'];
       const ClosingBraces: TSysCharSet = [')', ']', '}', '>'];
-      Highlighted := Highlighted or TestPos(AMemo, Pos, False, OpeningBraces);
-      Highlighted := Highlighted or TestPos(AMemo, Pos, False, ClosingBraces);
-      Highlighted := Highlighted or TestPos(AMemo, Pos, True, ClosingBraces);
-      Highlighted := Highlighted or TestPos(AMemo, Pos, True, OpeningBraces);
+      Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, OpeningBraces);
+      Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, ClosingBraces);
+      Highlighted := Highlighted or HighlightPos(AMemo, Pos, True, ClosingBraces);
+      Highlighted := Highlighted or HighlightPos(AMemo, Pos, True, OpeningBraces);
     end;
     if not Highlighted then
       AMemo.SetBraceHighlighting(-1, -1);

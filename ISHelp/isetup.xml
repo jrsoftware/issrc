@@ -3120,7 +3120,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
 
 <table>
 <tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
@@ -3189,6 +3189,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 <tr>
   <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
+</tr>
+<tr>
+  <td>Go to matching brace.</td><td>Ctrl+Shift+\</td>
 </tr>
 <tr>
   <td>Scroll up.</td><td>Ctrl+Up</td>

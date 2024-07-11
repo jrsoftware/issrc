@@ -1864,6 +1864,7 @@ end;
 
 procedure TScintEdit.SetSelectionAnchorPosition(Selection: Integer;
   const Value: Integer);
+{ Also sets anchors's virtualspace to 0 }
 begin
   Call(SCI_SETSELECTIONNANCHOR, Selection, Value);
 end;
@@ -1876,6 +1877,7 @@ end;
 
 procedure TScintEdit.SetSelectionCaretPosition(Selection: Integer;
   const Value: Integer);
+{ Also sets caret's virtualspace to 0 }
 begin
   Call(SCI_SETSELECTIONNCARET, Selection, Value);
 end;
