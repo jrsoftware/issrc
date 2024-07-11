@@ -176,7 +176,7 @@ var
     'until', 'uses', 'var', 'virtual', 'while', 'with', 'xor',
     'False', 'True',
     'delayload', 'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register',
-    'pascal', 'setuponly', 'uninstallonly'
+    'pascal', 'setuponly', 'uninstallonly', 'event'
   ];
 
   ScriptTypesTable: TScriptTable = [

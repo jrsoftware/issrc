@@ -5204,7 +5204,7 @@ begin
 
   if DoAutoComplete then begin
     case Ch of
-      'A'..'Z', 'a'..'z', '_', '#', '{', '[':
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<':
         if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
           InitiateAutoComplete(Ch);
     else
