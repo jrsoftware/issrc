@@ -199,7 +199,7 @@ procedure TCompScintEdit.CreateWnd;
 begin
   inherited;
 
-  { Some notes about future Scintilla versions:
+  { Some notes about Scintilla versions:
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
     -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
             Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
