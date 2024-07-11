@@ -12,7 +12,7 @@ unit ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Generics.Collections,
+  SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
   ScintEdit, ModernColors, ScriptFunc;
 
 const
@@ -154,8 +154,9 @@ type
 implementation
 
 uses
-  TypInfo, Generics.Defaults,
-  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives;
+  Generics.Defaults,
+  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives,
+  CmnFunc, SetupTypes, Struct, DotNetVersion;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -612,6 +613,52 @@ const
     'username',
     'log'];
 
+  PascalConstants: array of AnsiString = [
+    { ROPS }
+    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble',
+    'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean',
+    'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
+    'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
+    'varByRef', 'varUString', 'False', 'True',
+    { ScriptFunc_C }
+    'MaxInt', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
+    'wpUserInfo', 'wpSelectDir', 'wpSelectComponents', 'wpSelectProgramGroup',
+    'wpSelectTasks', 'wpReady', 'wpPreparing', 'wpInstalling', 'wpInfoAfter',
+    'wpFinished', 'MB_OK', 'MB_OKCANCEL', 'MB_ABORTRETRYIGNORE', 'MB_YESNOCANCEL',
+    'MB_YESNO', 'MB_RETRYCANCEL', 'MB_DEFBUTTON1', 'MB_DEFBUTTON2', 'MB_DEFBUTTON3',
+    'MB_SETFOREGROUND', 'IDOK', 'IDCANCEL', 'IDABORT', 'IDRETRY', 'IDIGNORE',
+    'IDYES', 'IDNO', 'HWND_BROADCAST', 'HKEY_AUTO', 'HKEY_AUTO_32', 'HKEY_AUTO_64',
+    'HKEY_CLASSES_ROOT', 'HKEY_CLASSES_ROOT_32', 'HKEY_CLASSES_ROOT_64',
+    'HKEY_CURRENT_USER', 'HKEY_CURRENT_USER_32', 'HKEY_CURRENT_USER_64',
+    'HKEY_LOCAL_MACHINE', 'HKEY_LOCAL_MACHINE_32', 'HKEY_LOCAL_MACHINE_64',
+    'HKEY_USERS', 'HKEY_USERS_32', 'HKEY_USERS_64', 'HKEY_PERFORMANCE_DATA',
+    'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_CONFIG_32', 'HKEY_CURRENT_CONFIG_64',
+    'HKEY_DYN_DATA', 'HKA', 'HKA32', 'HKA64', 'HKCR', 'HKCR32', 'HKCR64', 'HKCU',
+    'HKCU32', 'HKCU64', 'HKLM', 'HKLM32', 'HKLM64', 'HKU', 'HKU32', 'HKU64',
+    'HKCC', 'HKCC32', 'HKCC64', 'SW_HIDE', 'SW_SHOWNORMAL', 'SW_SHOWMINIMIZED',
+    'SW_SHOWMAXIMIZED', 'SW_SHOWMINNOACTIVE', 'SW_SHOW', 'FILE_ATTRIBUTE_READONLY',
+    'FILE_ATTRIBUTE_HIDDEN', 'FILE_ATTRIBUTE_SYSTEM', 'FILE_ATTRIBUTE_DIRECTORY',
+    'FILE_ATTRIBUTE_ARCHIVE', 'FILE_ATTRIBUTE_DEVICE', 'FILE_ATTRIBUTE_NORMAL',
+    'FILE_ATTRIBUTE_TEMPORARY', 'FILE_ATTRIBUTE_SPARSE_FILE','FILE_ATTRIBUTE_REPARSE_POINT',
+    'FILE_ATTRIBUTE_COMPRESSED', 'FILE_ATTRIBUTE_OFFLINE', 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED',
+    'FILE_ATTRIBUTE_ENCRYPTED', 'VER_NT_WORKSTATION', 'VER_NT_DOMAIN_CONTROLLER',
+    'VER_NT_SERVER', 'VER_SUITE_SMALLBUSINESS', 'VER_SUITE_ENTERPRISE', 'VER_SUITE_BACKOFFICE',
+    'VER_SUITE_COMMUNICATIONS', 'VER_SUITE_TERMINAL', 'VER_SUITE_SMALLBUSINESS_RESTRICTED',
+    'VER_SUITE_EMBEDDEDNT', 'VER_SUITE_DATACENTER', 'VER_SUITE_SINGLEUSERTS',
+    'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
+    'VER_SUITE_SECURITY_APPLIANCE',
+    //undocumented: irInstall
+    { ScriptClasses_C }
+    'clHotLight'
+  ];
+
+  PascalInterfaces: array of AnsiString = [
+    { ROPS }
+    'IUnknown',
+    'IInterface',
+    'IDispatch'
+  ];
+
   PascalReservedWords: array of TScintRawString = [
     'and', 'array', 'as', 'begin', 'case', 'const', 'div',
     'do', 'downto', 'else', 'end', 'except', 'external',
@@ -622,6 +669,38 @@ const
     'with', 'xor', 'delayload', 'loadwithalteredsearchpath',
     'stdcall', 'cdecl', 'register', 'pascal', 'setuponly',
     'uninstallonly', 'event'
+  ];
+
+  PascalTypes: array of AnsiString = [
+    { ROPS }
+    'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
+    'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
+    'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64',
+    'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
+    'TVariantArray',
+    //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
+    'TVarType',
+    //undocumented: TIFException
+    { ScriptFunc_C }
+    'TArrayOfString','TArrayOfChar','TArrayOfBoolean','TArrayOfInteger', 'DWORD',
+    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
+    'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
+    'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
+    'TOnDownloadProgress', 'TOnLog'
+  ];
+
+  PascalEnums: array of AnsiString = [
+    { ScriptFunc_C }
+    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
+  ];
+
+var
+  PascalRealEnums: array of PTypeInfo; { Initialized below }
+
+const
+  PascalVariables: array of AnsiString = [
+    { ScriptClasses_C }
+    'WizardForm', 'MainForm', 'UninstallProgressForm'
   ];
 
   BasicEventFunctions: array of TScintRawString = [
@@ -660,9 +739,9 @@ const
     'procedure InitializeUninstallProgressForm;',
     'procedure DeinitializeUninstall;',
     'procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);',
-    'function UninstallNeedRestart: Boolean;'];
+    'function UninstallNeedRestart: Boolean;'
+  ];
 
-const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
@@ -752,27 +831,30 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete) }
     var SL := TStringList.Create;
     try
+      { Add stuff from ScriptFunc }
       for var ScriptFuncTable in ScriptFuncTables do
         BuildScriptFunctionsLists(ScriptFuncTable, SL);
       BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
       BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
-      for var S in ScriptConstsTable do
+      { Add stuff from this unit }
+      for var S in PascalConstants do
         AddWordToList(SL, S, awtScriptConstant);
-      for var S in ScriptInterfacesTable do
+      for var S in PascalInterfaces do
         AddWordToList(SL, S, awtScriptInterface);
       for var S in PascalReservedWords do
         AddWordToList(SL, S, awtScriptKeyword);
-      for var S in ScriptTypesTable do
+      for var S in PascalTypes do
         AddWordToList(SL, S, awtScriptType);
-      for var S in ScriptEnumsTable do
+      for var S in PascalEnums do
         AddWordToList(SL, S, awtScriptEnum);
-      for var TypeInfo in ScriptRealEnumsTable do begin
+      for var TypeInfo in PascalRealEnums do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
           AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnum);
       end;
-      for var S in ScriptVariablesTable do
+      for var S in PascalVariables do
         AddWordToList(SL, S, awtScriptVariable);
+
       FScriptWordList := BuildWordList(SL);
     finally
       SL.Free;
@@ -1820,5 +1902,14 @@ begin
   NewLineState.Section := Section;
   LineState := TScintLineState(NewLineState);
 end;
+
+initialization
+  SetLength(PascalRealEnums, 6);
+  PascalRealEnums[0] := TypeInfo(TMsgBoxType);
+  PascalRealEnums[1] := TypeInfo(TSetupMessageID);
+  PascalRealEnums[2] := TypeInfo(TSetupStep);
+  PascalRealEnums[3] := TypeInfo(TUninstallStep);
+  PascalRealEnums[4] := TypeInfo(TSetupProcessorArchitecture);
+  PascalRealEnums[5] := TypeInfo(TDotNetVersion);
 
 end.

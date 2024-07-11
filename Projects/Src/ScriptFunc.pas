@@ -7,16 +7,9 @@ unit ScriptFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions (listings - used by Compil32, ISCmplr, and Setup)
-
-  Script constants, types, etc (listings - used by Compil32)
 }
 
 interface
-
-{$IFDEF COMPIL32PROJ}
-uses
-  TypInfo;
-{$ENDIF}
 
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDisk, sftBrowseFunc, sftCmnFunc,
@@ -119,86 +112,6 @@ var
     'function Int64ToStr(I: Int64): String;'
   ]; }
 
-  { All of the following are also just for Compil32 }
-
-  ScriptConstsTable: TScriptTable = [
-    { ROPS }
-    'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble',
-    'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean',
-    'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
-    'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
-    'varByRef', 'varUString', 'False', 'True',
-    { ScriptFunc_C }
-    'MaxInt', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
-    'wpUserInfo', 'wpSelectDir', 'wpSelectComponents', 'wpSelectProgramGroup',
-    'wpSelectTasks', 'wpReady', 'wpPreparing', 'wpInstalling', 'wpInfoAfter',
-    'wpFinished', 'MB_OK', 'MB_OKCANCEL', 'MB_ABORTRETRYIGNORE', 'MB_YESNOCANCEL',
-    'MB_YESNO', 'MB_RETRYCANCEL', 'MB_DEFBUTTON1', 'MB_DEFBUTTON2', 'MB_DEFBUTTON3',
-    'MB_SETFOREGROUND', 'IDOK', 'IDCANCEL', 'IDABORT', 'IDRETRY', 'IDIGNORE',
-    'IDYES', 'IDNO', 'HWND_BROADCAST', 'HKEY_AUTO', 'HKEY_AUTO_32', 'HKEY_AUTO_64',
-    'HKEY_CLASSES_ROOT', 'HKEY_CLASSES_ROOT_32', 'HKEY_CLASSES_ROOT_64',
-    'HKEY_CURRENT_USER', 'HKEY_CURRENT_USER_32', 'HKEY_CURRENT_USER_64',
-    'HKEY_LOCAL_MACHINE', 'HKEY_LOCAL_MACHINE_32', 'HKEY_LOCAL_MACHINE_64',
-    'HKEY_USERS', 'HKEY_USERS_32', 'HKEY_USERS_64', 'HKEY_PERFORMANCE_DATA',
-    'HKEY_CURRENT_CONFIG', 'HKEY_CURRENT_CONFIG_32', 'HKEY_CURRENT_CONFIG_64',
-    'HKEY_DYN_DATA', 'HKA', 'HKA32', 'HKA64', 'HKCR', 'HKCR32', 'HKCR64', 'HKCU',
-    'HKCU32', 'HKCU64', 'HKLM', 'HKLM32', 'HKLM64', 'HKU', 'HKU32', 'HKU64',
-    'HKCC', 'HKCC32', 'HKCC64', 'SW_HIDE', 'SW_SHOWNORMAL', 'SW_SHOWMINIMIZED',
-    'SW_SHOWMAXIMIZED', 'SW_SHOWMINNOACTIVE', 'SW_SHOW', 'FILE_ATTRIBUTE_READONLY',
-    'FILE_ATTRIBUTE_HIDDEN', 'FILE_ATTRIBUTE_SYSTEM', 'FILE_ATTRIBUTE_DIRECTORY',
-    'FILE_ATTRIBUTE_ARCHIVE', 'FILE_ATTRIBUTE_DEVICE', 'FILE_ATTRIBUTE_NORMAL',
-    'FILE_ATTRIBUTE_TEMPORARY', 'FILE_ATTRIBUTE_SPARSE_FILE','FILE_ATTRIBUTE_REPARSE_POINT',
-    'FILE_ATTRIBUTE_COMPRESSED', 'FILE_ATTRIBUTE_OFFLINE', 'FILE_ATTRIBUTE_NOT_CONTENT_INDEXED',
-    'FILE_ATTRIBUTE_ENCRYPTED', 'VER_NT_WORKSTATION', 'VER_NT_DOMAIN_CONTROLLER',
-    'VER_NT_SERVER', 'VER_SUITE_SMALLBUSINESS', 'VER_SUITE_ENTERPRISE', 'VER_SUITE_BACKOFFICE',
-    'VER_SUITE_COMMUNICATIONS', 'VER_SUITE_TERMINAL', 'VER_SUITE_SMALLBUSINESS_RESTRICTED',
-    'VER_SUITE_EMBEDDEDNT', 'VER_SUITE_DATACENTER', 'VER_SUITE_SINGLEUSERTS',
-    'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
-    'VER_SUITE_SECURITY_APPLIANCE',
-    //undocumented: irInstall
-    { ScriptClasses_C }
-    'clHotLight'
-  ];
-
-  ScriptInterfacesTable: TScriptTable = [
-    { ROPS }
-    'IUnknown',
-    'IInterface',
-    'IDispatch'
-  ];
-
-  ScriptTypesTable: TScriptTable = [
-    { ROPS }
-    'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
-    'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
-    'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64',
-    'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
-    'TVariantArray',
-    //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
-    'TVarType',
-    //undocumented: TIFException
-    { ScriptFunc_C }
-    'TArrayOfString','TArrayOfChar','TArrayOfBoolean','TArrayOfInteger', 'DWORD',
-    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
-    'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
-    'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnLog'
-  ];
-
-  ScriptEnumsTable: TScriptTable = [
-    { ScriptFunc_C }
-    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
-  ];
-
-  ScriptRealEnumsTable: array of PTypeInfo; { Initialized below }
-
-  ScriptVariablesTable: TScriptTable = [
-    { ScriptClasses_C }
-    'WizardForm',
-    'MainForm',
-    'UninstallProgressForm'
-  ];
-
 {$ENDIF}
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
@@ -210,8 +123,7 @@ function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 implementation
 
 uses
-  SysUtils, AnsiStrings
-  {$IFDEF COMPIL32PROJ}, CmnFunc, MsgIDs, SetupTypes, Struct, DotNetVersion {$ENDIF};
+  SysUtils, AnsiStrings;
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -648,14 +560,6 @@ initialization
   CheckIsCleanScriptFuncTable(DelphiScriptFuncTable);
   CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
   {$ENDIF}
-
-  SetLength(ScriptRealEnumsTable, 6);
-  ScriptRealEnumsTable[0] := TypeInfo(TMsgBoxType);
-  ScriptRealEnumsTable[1] := TypeInfo(TSetupMessageID);
-  ScriptRealEnumsTable[2] := TypeInfo(TSetupStep);
-  ScriptRealEnumsTable[3] := TypeInfo(TUninstallStep);
-  ScriptRealEnumsTable[4] := TypeInfo(TSetupProcessorArchitecture);
-  ScriptRealEnumsTable[5] := TypeInfo(TDotNetVersion);
   {$ENDIF}
 
 end.
