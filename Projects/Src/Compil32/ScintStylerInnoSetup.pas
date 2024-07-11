@@ -687,53 +687,21 @@ begin
 end;
 
 function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
-
-  function GetASCIISortedInsertPos(const SL: TStringList; const S: String): Integer;
-  var
-    L, H, I, C: Integer;
-  begin
-    L := 0;
-    H := SL.Count - 1;
-    while L <= H do begin
-      I := (L + H) div 2;
-      C := CompareText(SL[I], S);
-      if C = 0 then begin
-        L := I;
-        Break;
-      end;
-      if C < 0 then
-        L := I + 1
-      else
-        H := I - 1;
-    end;
-    Result := L;
-  end;
-
-var
-  SortedWordStringList: TStringList;
-  S: String;
-  A: AnsiString;
-  I: Integer;
 begin
-  SortedWordStringList := TStringList.Create;
-  try
-    { Scintilla uses an ASCII binary search so the list must be in
-      ASCII sort order (case-insensitive). (TStringList's Sort method is
-      not suitable as it uses AnsiCompareText.) }
-    for I := 0 to WordStringList.Count-1 do begin
-      S := WordStringList[I];
-      SortedWordStringList.Insert(GetASCIISortedInsertPos(SortedWordStringList, S), S);
-    end;
-    for I := 0 to SortedWordStringList.Count - 1 do
-    begin
-      A := AnsiString(SortedWordStringList[I]);
-      if I = 0 then
-        Result := A
-      else
-        Result:= Result + InnoSetupStylerWordListSeparator + A;
-    end;
-  finally
-    SortedWordStringList.Free;
+  { Scintilla uses an ASCII binary search so the list must be in ASCII sort
+    order (case-insensitive). }
+  WordStringList.CaseSensitive := False;
+  WordStringList.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
+  WordStringList.Sort;
+
+  Result := '';
+  for var S in WordStringList do
+  begin
+    var A := AnsiString(S);
+    if Result = '' then
+      Result := A
+    else
+      Result := Result + InnoSetupStylerWordListSeparator + A;
   end;
 end;
 
