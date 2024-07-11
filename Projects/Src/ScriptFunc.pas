@@ -126,7 +126,7 @@ var
     'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
     'varByRef', 'varUString',
     { ScriptFunc_C }
-    'MaxInt', 'irInstall', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
+    'MaxInt', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
     'wpUserInfo', 'wpSelectDir', 'wpSelectComponents', 'wpSelectProgramGroup',
     'wpSelectTasks', 'wpReady', 'wpPreparing', 'wpInstalling', 'wpInfoAfter',
     'wpFinished', 'MB_OK', 'MB_OKCANCEL', 'MB_ABORTRETRYIGNORE', 'MB_YESNOCANCEL',
@@ -152,6 +152,7 @@ var
     'VER_SUITE_EMBEDDEDNT', 'VER_SUITE_DATACENTER', 'VER_SUITE_SINGLEUSERTS',
     'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
     'VER_SUITE_SECURITY_APPLIANCE',
+    //undocumented: irInstall
     { ScriptClasses_C }
     'clHotLight'
   ];
@@ -174,7 +175,8 @@ var
     'record', 'repeat', 'set', 'shl', 'shr', 'then', 'to', 'try', 'type', 'unit',
     'until', 'uses', 'var', 'virtual', 'while', 'with', 'xor',
     'False', 'True',
-    'delayload', 'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal'
+    'delayload', 'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register',
+    'pascal', 'setuponly', 'uninstallonly'
   ];
 
   ScriptTypesTable: TScriptTable = [
@@ -221,7 +223,7 @@ implementation
 
 uses
   SysUtils, AnsiStrings
-  {$IFDEF COMPIL32PROJ}, CmnFunc {$ENDIF};
+  {$IFDEF COMPIL32PROJ}, CmnFunc, MsgIDs, SetupTypes, Struct, DotNetVersion {$ENDIF};
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -659,13 +661,13 @@ initialization
   CheckIsCleanScriptFuncTable(ROPSScriptFuncTable);
   {$ENDIF}
 
-  SetLength(ScriptRealEnumsTable, 1);
+  SetLength(ScriptRealEnumsTable, 6);
   ScriptRealEnumsTable[0] := TypeInfo(TMsgBoxType);
-    //RegisterRealEnum('TSetupMessageID', TypeInfo(TSetupMessageID));
-    //RegisterRealEnum('TSetupStep', TypeInfo(TSetupStep));
-    //RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
-    //RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
-    //RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
+  ScriptRealEnumsTable[1] := TypeInfo(TSetupMessageID);
+  ScriptRealEnumsTable[2] := TypeInfo(TSetupStep);
+  ScriptRealEnumsTable[3] := TypeInfo(TUninstallStep);
+  ScriptRealEnumsTable[4] := TypeInfo(TSetupProcessorArchitecture);
+  ScriptRealEnumsTable[5] := TypeInfo(TDotNetVersion);
   {$ENDIF}
 
 end.

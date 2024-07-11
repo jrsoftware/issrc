@@ -61,7 +61,11 @@ uses
   CompWizardRegistryHelper in 'Src\Compil32\CompWizardRegistryHelper.pas',
   MD5 in '..\Components\MD5.pas',
   IsscintInt in 'Src\Compil32\IsscintInt.pas',
-  ScriptFunc in 'Src\ScriptFunc.pas';
+  ScriptFunc in 'Src\ScriptFunc.pas',
+  SetupTypes in 'Src\SetupTypes.pas',
+  Struct in 'Src\Struct.pas',
+  SHA1 in '..\Components\SHA1.pas',
+  DotNetVersion in 'Src\DotNetVersion.pas';
 
 {$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
