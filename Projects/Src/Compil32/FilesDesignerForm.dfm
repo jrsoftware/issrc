@@ -23,6 +23,8 @@ object FilesDesignerForm: TFilesDesignerForm
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
+    ExplicitTop = 360
+    ExplicitWidth = 571
     object Bevel1: TBevel
       Left = 0
       Top = 0

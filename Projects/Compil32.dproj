@@ -98,7 +98,7 @@
         <DCCReference Include="Src\Compil32\CompWizardFile.pas">
             <Form>WizardFileForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompFileAssoc.pas"/>
+        <DCCReference Include="Src\Compil32\FileAssocFunc.pas"/>
         <DCCReference Include="..\Components\TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\DebugStruct.pas"/>
@@ -115,9 +115,7 @@
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Compil32\CompScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\CompFilesDesigner.pas">
-            <Form>FilesDesignerForm</Form>
-        </DCCReference>
+        <DCCReference Include="Src\Compil32\FilesDesignerForm.pas"/>
         <DCCReference Include="Src\Compil32\CompWizardFilesHelper.pas"/>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
@@ -136,9 +134,7 @@
         <DCCReference Include="Src\Int64Em.pas"/>
         <DCCReference Include="Src\Compress.pas"/>
         <DCCReference Include="Src\TaskDialog.pas"/>
-        <DCCReference Include="Src\Compil32\CompRegistryDesigner.pas">
-            <Form>RegistryDesignerForm</Form>
-        </DCCReference>
+        <DCCReference Include="Src\Compil32\RegistryDesignerForm.pas"/>
         <DCCReference Include="Src\Compil32\CompWizardRegistryHelper.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="Src\Compil32\IsscintInt.pas"/>

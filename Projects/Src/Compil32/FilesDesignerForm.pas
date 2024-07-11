@@ -1,4 +1,4 @@
-unit CompFilesDesigner;
+unit FilesDesignerForm;
 
 {
   Inno Setup
