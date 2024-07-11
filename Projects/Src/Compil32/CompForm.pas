@@ -170,7 +170,6 @@ type
     N9: TMenuItem;
     VZoomReset: TMenuItem;
     N18: TMenuItem;
-    ECompleteWord: TMenuItem;
     N19: TMenuItem;
     FSaveEncoding: TMenuItem;
     FSaveEncodingAuto: TMenuItem;
@@ -323,7 +322,6 @@ type
     procedure VZoomInClick(Sender: TObject);
     procedure VZoomOutClick(Sender: TObject);
     procedure VZoomResetClick(Sender: TObject);
-    procedure ECompleteWordClick(Sender: TObject);
     procedure FSaveEncodingItemClick(Sender: TObject);
     procedure CompilerOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
@@ -888,7 +886,6 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCut(ECompleteWord, Ord(' '), [ssCtrl]);
   SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
   SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
   SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
@@ -2759,7 +2756,6 @@ begin
   EUnfoldLine.Visible := EFoldLine.Visible;
   EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGoto.Enabled := MemoHasFocus;
-  ECompleteWord.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EToggleLinesComment.Enabled := not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 
@@ -2967,11 +2963,6 @@ begin
       FActiveMemo.ScrollCaretIntoView;
     end;
   end;
-end;
-
-procedure TCompileForm.ECompleteWordClick(Sender: TObject);
-begin
-  InitiateAutoComplete(#0);
 end;
 
 procedure TCompileForm.VMenuClick(Sender: TObject);
@@ -6233,7 +6224,6 @@ begin
           NM(EReplace, 'replace'),
           NM(EFoldLine, 'symbol-remove'),
           NM(EUnfoldLine, 'symbol-add'),
-          NM(ECompleteWord, 'letter-a-arrow-right-2'),
           NM(VZoomIn, 'zoom-in'),
           NM(VZoomOut, 'zoom-out'),
           NM(VNextTab, 'control-tab-filled-arrow-right-2'),
