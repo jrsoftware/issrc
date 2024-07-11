@@ -514,7 +514,7 @@ type
     function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
     procedure InitiateAutoComplete(const Key: AnsiChar);
-    procedure InitiateCallTip;
+    procedure InitiateCallTip(const Key: AnsiChar);
     procedure ContinueCallTip;
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
@@ -1303,7 +1303,7 @@ begin
     Key := 0;
     if not FActiveMemo.CallTipActive then begin
       FCallTipState.BraceCount := 1;
-      InitiateCallTip;
+      InitiateCallTip(#0);
     end;
   end else begin
     var AShortCut := ShortCut(Key, Shift);
@@ -4904,10 +4904,11 @@ begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
           var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
-          if Key <> #0 then
+          if Key <> #0 then begin
             FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
-          if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
-            Exit;
+            if not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
+              Exit;
+          end;
 
           WordList := '';
 
@@ -5007,14 +5008,14 @@ begin
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
-procedure TCompileForm.InitiateCallTip;
+procedure TCompileForm.InitiateCallTip(const Key: AnsiChar);
 begin
   var Pos := FActiveMemo.CaretPosition;
 
   if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
-     not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
+     ((Key <> #0) and not InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
        FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
-       FActiveMemo.GetPositionBefore(Pos)) then
+       FActiveMemo.GetPositionBefore(Pos))) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
@@ -5177,18 +5178,18 @@ begin
       if FCallTipState.BraceCount < 1 then
         FActiveMemo.CancelCallTip
       else if FOptions.AutoCallTips then
-        InitiateCallTip;
+        InitiateCallTip(Ch);
     end else if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
       if FOptions.AutoCallTips then
-        InitiateCallTip;
+        InitiateCallTip(Ch);
     end else
       ContinueCallTip;
   end else if FActiveMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
       if FOptions.AutoCallTips then
-        InitiateCallTip;
+        InitiateCallTip(Ch);
     end else if Ch = ')' then
       Dec(FCallTipState.BraceCount)
     else
@@ -5196,7 +5197,7 @@ begin
   end else if Ch = '(' then begin
     FCallTipState.BraceCount := 1;
     if FOptions.AutoCallTips then
-      InitiateCallTip;
+      InitiateCallTip(Ch);
   end else
     DoAutoComplete := True;
 
