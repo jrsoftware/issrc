@@ -77,6 +77,9 @@ var
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
     'procedure UnloadDll(S: String);',
     'function DllGetLastError: LongInt;',
+    'function Chr(B: Byte): Char;',
+    'function Ord(C: Char): Byte;',
+    'procedure Exit;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -124,7 +127,7 @@ var
     'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean',
     'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
     'varInt64', 'varStrArg', 'varAny', 'varString', 'varTypeMask', 'varArray',
-    'varByRef', 'varUString',
+    'varByRef', 'varUString', 'False', 'True',
     { ScriptFunc_C }
     'MaxInt', 'wpWelcome', 'wpLicense', 'wpPassword', 'wpInfoBefore',
     'wpUserInfo', 'wpSelectDir', 'wpSelectComponents', 'wpSelectProgramGroup',
@@ -162,21 +165,6 @@ var
     'IUnknown',
     'IInterface',
     'IDispatch'
-  ];
-
-  ScriptKeywordsTable: TScriptTable = [
-    { ROPS }
-    'and', 'array', 'as', 'begin', 'case', 'chr', 'class', 'const', 'constructor',
-    'destructor', 'div', 'do', 'downto', 'else', 'end', 'except', 'exit', 'export',
-    'external', 'finalization', 'finally', 'for', 'forward', 'function', 'goto',
-    'if', 'implementation', 'in', 'inherited', 'initialization', 'interface', 'is',
-    'label', 'mod', 'nil', 'not', 'of', 'or', 'ord', 'out', 'override', 'private',
-    'procedure', 'program', 'property', 'protected', 'public', 'published',
-    'record', 'repeat', 'set', 'shl', 'shr', 'then', 'to', 'try', 'type', 'unit',
-    'until', 'uses', 'var', 'virtual', 'while', 'with', 'xor',
-    'False', 'True',
-    'delayload', 'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register',
-    'pascal', 'setuponly', 'uninstallonly', 'event'
   ];
 
   ScriptTypesTable: TScriptTable = [

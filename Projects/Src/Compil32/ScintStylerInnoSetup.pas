@@ -612,7 +612,32 @@ const
     'username',
     'log'];
 
-  EventFunctions: array of AnsiString = [
+  PascalReservedWords: array of TScintRawString = [
+    'and', 'array', 'as', 'begin', 'case', 'const', 'div',
+    'do', 'downto', 'else', 'end', 'except', 'external',
+    'finally', 'for', 'forward', 'function', 'goto', 'if', 'in', 'is',
+    'label', 'mod', 'nil', 'not', 'of', 'or', 'procedure',
+    'program', 'record', 'repeat', 'set', 'shl', 'shr',
+    'then', 'to', 'try', 'type', 'until', 'var', 'while',
+    'with', 'xor', 'delayload', 'loadwithalteredsearchpath',
+    'stdcall', 'cdecl', 'register', 'pascal', 'setuponly',
+    'uninstallonly', 'event'
+  ];
+
+  BasicEventFunctions: array of TScintRawString = [
+    'InitializeSetup', 'DeinitializeSetup', 'CurStepChanged',
+    'NextButtonClick', 'BackButtonClick', 'ShouldSkipPage',
+    'CurPageChanged', 'CheckPassword', 'NeedRestart',
+    'UpdateReadyMemo', 'RegisterPreviousData', 'CheckSerial',
+    'InitializeWizard', 'GetCustomSetupExitCode',
+    'InitializeUninstall', 'DeinitializeUninstall',
+    'CurUninstallStepChanged', 'UninstallNeedRestart',
+    'CancelButtonClick', 'InitializeUninstallProgressForm',
+    'PrepareToInstall', 'RegisterExtraCloseApplicationsResources',
+    'CurInstallProgressChanged'
+  ];
+
+  FullEventFunctions: array of AnsiString = [
     'function InitializeSetup: Boolean;',
     'procedure InitializeWizard;',
     'procedure DeinitializeSetup;',
@@ -735,7 +760,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptConstant);
       for var S in ScriptInterfacesTable do
         AddWordToList(SL, S, awtScriptInterface);
-      for var S in ScriptKeywordsTable do
+      for var S in PascalReservedWords do
         AddWordToList(SL, S, awtScriptKeyword);
       for var S in ScriptTypesTable do
         AddWordToList(SL, S, awtScriptType);
@@ -951,9 +976,9 @@ begin
   try
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
-    for var I := 0 to High(EventFunctions) do begin
+    for var I := 0 to High(FullEventFunctions) do begin
       var WasFunction: Boolean;
-      var S := RemoveScriptFuncHeader(EventFunctions[I], WasFunction);
+      var S := RemoveScriptFuncHeader(FullEventFunctions[I], WasFunction);
       if WasFunction then
         AddWordToList(SLFunctions, S, awtScriptEvent)
       else
@@ -1098,32 +1123,6 @@ procedure TInnoSetupStyler.HandleCodeSection(var SpanState: TInnoSetupStylerSpan
     CommitStyle(stComment);
   end;
 
-const
-  PascalReservedWords: array[0..42] of TScintRawString = (
-    'and', 'array', 'as', 'begin', 'case', 'const', 'div',
-    'do', 'downto', 'else', 'end', 'except', 'external',
-    'finally', 'for', 'forward', 'function', 'goto', 'if', 'in', 'is',
-    'label', 'mod', 'nil', 'not', 'of', 'or', 'procedure',
-    'program', 'record', 'repeat', 'set', 'shl', 'shr',
-    'then', 'to', 'try', 'type', 'until', 'var', 'while',
-    'with', 'xor');
-  EventFunctions: array[0..22] of TScintRawString = (
-    'InitializeSetup', 'DeinitializeSetup', 'CurStepChanged',
-    'NextButtonClick', 'BackButtonClick', 'ShouldSkipPage',
-    'CurPageChanged', 'CheckPassword', 'NeedRestart',
-    'UpdateReadyMemo', 'RegisterPreviousData', 'CheckSerial',
-    'InitializeWizard', 'GetCustomSetupExitCode',
-    'InitializeUninstall', 'DeinitializeUninstall',
-    'CurUninstallStepChanged', 'UninstallNeedRestart',
-    'CancelButtonClick', 'InitializeUninstallProgressForm',
-    'PrepareToInstall', 'RegisterExtraCloseApplicationsResources',
-    'CurInstallProgressChanged');
-  EventNamingAttribute = 'event';
-var
-  S: TScintRawString;
-  I: Integer;
-  C: AnsiChar;
-  PreviousIsAttributeOpen: Boolean;
 begin
   case SpanState of
     spBraceComment:
@@ -1138,28 +1137,23 @@ begin
   SkipWhitespace;
   while not EndOfLine do begin
     if CurChar in PascalIdentFirstChars then begin
-      PreviousIsAttributeOpen := PreviousCharIn(['<']);
-      S := ConsumeString(PascalIdentChars);
-      if PreviousIsAttributeOpen and SameRawText(S, EventNamingAttribute) then
-        CommitStyle(stPascalReservedWord)
-      else begin
-        for I := Low(PascalReservedWords) to High(PascalReservedWords) do
-          if SameRawText(S, PascalReservedWords[I]) then begin
-            CommitStyle(stPascalReservedWord);
-            Break;
-          end;
-        for I := Low(EventFunctions) to High(EventFunctions) do
-          if SameRawText(S, EventFunctions[I]) then begin
-            CommitStyle(stEventFunction);
-            Break;
-          end;
-        CommitStyle(stDefault);
-      end;
+      var S := ConsumeString(PascalIdentChars);
+      for var Word in PascalReservedWords do
+        if SameRawText(S, Word) then begin
+          CommitStyle(stPascalReservedWord);
+          Break;
+        end;
+      for var EventFunction in BasicEventFunctions do
+        if SameRawText(S, EventFunction) then begin
+          CommitStyle(stEventFunction);
+          Break;
+        end;
+      CommitStyle(stDefault);
     end else if ConsumeChars(DigitChars) then begin
       if not CurCharIs('.') or not NextCharIs('.') then begin
         if ConsumeChar('.') then
           ConsumeChars(DigitChars);
-        C := CurChar;
+        var C := CurChar;
         if C in ['E', 'e'] then begin
           ConsumeChar(C);
           if not ConsumeChar('-') then
@@ -1170,7 +1164,7 @@ begin
       end;
       CommitStyle(stPascalNumber);
     end else begin
-      C := CurChar;
+      var C := CurChar;
       ConsumeChar(C);
       case C of
         ';', ':', '=', '+', '-', '*', '/', '<', '>', ',', '(', ')',
