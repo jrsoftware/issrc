@@ -194,316 +194,137 @@ const
     (Name: 'UninstallRun'; Section: scUninstallRun));
 
   ComponentsSectionParameters: array of TScintRawString = [
-    'Check',
-    'Description',
-    'ExtraDiskSpaceRequired',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion',
-    'Types'];
+    'Check', 'Description', 'ExtraDiskSpaceRequired', 'Flags', 'Languages',
+    'MinVersion', 'Name', 'OnlyBelowVersion', 'Types'
+  ];
 
   ComponentsSectionFlags: array of TScintRawString = [
-    'checkablealone',
-    'disablenouninstallwarning',
-    'dontinheritcheck',
-    'exclusive',
-    'fixed',
-    'restart'];
+    'checkablealone', 'disablenouninstallwarning', 'dontinheritcheck', 'exclusive',
+    'fixed', 'restart'
+  ];
 
   DeleteSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion',
-    'Tasks',
-    'Type'];
+    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Languages',
+    'MinVersion', 'Name', 'OnlyBelowVersion', 'Tasks', 'Type'
+  ];
 
   DeleteSectionTypes: array of TScintRawString = [
-    'files',
-    'filesandordirs',
-    'dirifempty'];
+    'files', 'filesandordirs', 'dirifempty'
+  ];
 
   DirsSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'Attribs',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion',
-    'Permissions',
-    'Tasks'];
+    'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'Flags',
+    'Languages', 'MinVersion', 'Name', 'OnlyBelowVersion', 'Permissions', 'Tasks'
+  ];
 
   DirsSectionFlags: array of TScintRawString = [
-    'deleteafterinstall',
-    'setntfscompression',
-    'uninsalwaysuninstall',
-    'uninsneveruninstall',
-    'unsetntfscompression'];
+    'deleteafterinstall', 'setntfscompression', 'uninsalwaysuninstall',
+    'uninsneveruninstall', 'unsetntfscompression'
+  ];
 
   FilesSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'Attribs',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'CopyMode',
-    'DestDir',
-    'DestName',
-    'Excludes',
-    'ExternalSize',
-    'Flags',
-    'FontInstall',
-    'Languages',
-    'MinVersion',
-    'OnlyBelowVersion',
-    'Permissions',
-    'Source',
-    'StrongAssemblyName',
-    'Tasks'];
+    'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
+    'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'Flags', 'FontInstall',
+    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Source',
+    'StrongAssemblyName', 'Tasks'
+  ];
 
   FilesSectionFlags: array of TScintRawString = [
-    '32bit',
-    '64bit',
-    'allowunsafefiles',
-    'comparetimestamp',
-    'confirmoverwrite',
-    'createallsubdirs',
-    'deleteafterinstall',
-    'dontcopy',
-    'dontverifychecksum',
-    'external',
-    'fontisnttruetype',
-    'gacinstall',
-    'ignoreversion',
-    'isreadme',
-    'nocompression',
-    'noencryption',
-    'noregerror',
-    'onlyifdestfileexists',
-    'onlyifdoesntexist',
-    'overwritereadonly',
-    'promptifolder',
-    'recursesubdirs',
-    'regserver',
-    'regtypelib',
-    'replacesameversion',
-    'restartreplace',
-    'setntfscompression',
-    'sharedfile',
-    'sign',
-    'signcheck',
-    'signonce',
-    'skipifsourcedoesntexist',
-    'solidbreak',
-    'sortfilesbyextension',
-    'sortfilesbyname',
-    'touch',
-    'uninsnosharedfileprompt',
-    'uninsremovereadonly',
-    'uninsrestartdelete',
-    'uninsneveruninstall',
-    'unsetntfscompression'];
+    '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
+    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
+    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme',
+    'nocompression', 'noencryption', 'noregerror', 'onlyifdestfileexists',
+    'onlyifdoesntexist', 'overwritereadonly', 'promptifolder', 'recursesubdirs',
+    'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
+    'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
+    'skipifsourcedoesntexist', 'solidbreak', 'sortfilesbyextension',
+    'sortfilesbyname', 'touch', 'uninsnosharedfileprompt', 'uninsremovereadonly',
+    'uninsrestartdelete', 'uninsneveruninstall', 'unsetntfscompression'
+  ];
 
   IconsSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'AppUserModelID',
-    'AppUserModelToastActivatorCLSID',
-    'BeforeInstall',
-    'Check',
-    'Comment',
-    'Components',
-    'Filename',
-    'Flags',
-    'HotKey',
-    'IconFilename',
-    'IconIndex',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion',
-    'Parameters',
-    'Tasks',
-    'WorkingDir'];
+    'AfterInstall', 'AppUserModelID', 'AppUserModelToastActivatorCLSID',
+    'BeforeInstall', 'Check', 'Comment', 'Components', 'Filename', 'Flags',
+    'HotKey', 'IconFilename', 'IconIndex', 'Languages', 'MinVersion', 'Name',
+    'OnlyBelowVersion', 'Parameters', 'Tasks', 'WorkingDir'
+  ];
 
   IconsSectionFlags: array of TScintRawString = [
-    'closeonexit',
-    'createonlyiffileexists',
-    'dontcloseonexit',
-    'excludefromshowinnewinstall',
-    'foldershortcut',
-    'preventpinning',
-    'runmaximized',
-    'runminimized',
-    'uninsneveruninstall',
-    'useapppaths'];
+    'closeonexit', 'createonlyiffileexists', 'dontcloseonexit',
+    'excludefromshowinnewinstall', 'foldershortcut', 'preventpinning',
+    'runmaximized', 'runminimized', 'uninsneveruninstall', 'useapppaths'
+  ];
 
   INISectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Filename',
-    'Flags',
-    'Key',
-    'Languages',
-    'MinVersion',
-    'OnlyBelowVersion',
-    'Section',
-    'String',
-    'Tasks'];
+    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename',
+    'Flags', 'Key', 'Languages', 'MinVersion', 'OnlyBelowVersion', 'Section',
+    'String', 'Tasks'
+  ];
 
   INISectionFlags: array of TScintRawString = [
-    'createkeyifdoesntexist',
-    'uninsdeleteentry',
-    'uninsdeletesection',
-    'uninsdeletesectionifempty'];
+    'createkeyifdoesntexist', 'uninsdeleteentry', 'uninsdeletesection',
+    'uninsdeletesectionifempty'
+  ];
 
   LanguagesSectionParameters: array of TScintRawString = [
-    'InfoAfterFile',
-    'InfoBeforeFile',
-    'LicenseFile',
-    'MessagesFile',
-    'Name'];
+    'InfoAfterFile', 'InfoBeforeFile', 'LicenseFile', 'MessagesFile', 'Name'
+  ];
 
   RegistrySectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'OnlyBelowVersion',
-    'Permissions',
-    'Root',
-    'Subkey',
-    'Tasks',
-    'ValueData',
-    'ValueName',
-    'ValueType'];
+    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Flags', 'Languages',
+    'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Root', 'Subkey', 'Tasks',
+    'ValueData', 'ValueName', 'ValueType'
+  ];
 
   RegistrySectionFlags: array of TScintRawString = [
-    'createvalueifdoesntexist',
-    'deletekey',
-    'deletevalue',
-    'dontcreatekey',
-    'noerror',
-    'preservestringtype',
-    'uninsclearvalue',
-    'uninsdeletekey',
-    'uninsdeletekeyifempty',
-    'uninsdeletevalue'];
+    'createvalueifdoesntexist', 'deletekey', 'deletevalue', 'dontcreatekey',
+    'noerror', 'preservestringtype', 'uninsclearvalue', 'uninsdeletekey',
+    'uninsdeletekeyifempty', 'uninsdeletevalue'
+  ];
 
   RunSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Description',
-    'Filename',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'OnlyBelowVersion',
-    'Parameters',
-    'StatusMsg',
-    'Tasks',
-    'Verb',
-    'WorkingDir'];
+    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Description',
+    'Filename', 'Flags', 'Languages', 'MinVersion', 'OnlyBelowVersion',
+    'Parameters', 'StatusMsg', 'Tasks', 'Verb', 'WorkingDir'
+  ];
 
   RunSectionFlags: array of TScintRawString = [
-    '32bit',
-    '64bit',
-    'dontlogparameters',
-    'hidewizard',
-    'logoutput',
-    'nowait',
-    'postinstall',
-    'runascurrentuser',
-    'runasoriginaluser',
-    'runhidden',
-    'runmaximized',
-    'runminimized',
-    'shellexec',
-    'skipifdoesntexist',
-    'skipifnotsilent',
-    'skipifsilent',
-    'unchecked',
-    'waituntilidle',
-    'waituntilterminated'];
+    '32bit', '64bit', 'dontlogparameters', 'hidewizard', 'logoutput', 'nowait',
+    'postinstall', 'runascurrentuser', 'runasoriginaluser', 'runhidden',
+    'runmaximized', 'runminimized', 'shellexec', 'skipifdoesntexist', 'skipifnotsilent',
+    'skipifsilent', 'unchecked', 'waituntilidle', 'waituntilterminated'
+  ];
 
   UninstallRunSectionParameters: array of TScintRawString = [
-    'AfterInstall',
-    'BeforeInstall',
-    'Check',
-    'Components',
-    'Filename',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'OnlyBelowVersion',
-    'Parameters',
-    'RunOnceId',
-    'Tasks',
-    'Verb',
-    'WorkingDir'];
+    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename', 'Flags',
+    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Parameters', 'RunOnceId',
+    'Tasks', 'Verb', 'WorkingDir'
+  ];
 
   UninstallRunSectionFlags: array of TScintRawString = [
-    '32bit',
-    '64bit',
-    'dontlogparameters',
-    'hidewizard',
-    'logoutput',
-    'nowait',
-    'runascurrentuser',
-    'runhidden',
-    'runmaximized',
-    'runminimized',
-    'shellexec',
-    'skipifdoesntexist',
-    'waituntilidle',
-    'waituntilterminated'];
+    '32bit', '64bit', 'dontlogparameters', 'hidewizard', 'logoutput', 'nowait',
+    'runascurrentuser', 'runhidden', 'runmaximized', 'runminimized', 'shellexec',
+    'skipifdoesntexist', 'waituntilidle', 'waituntilterminated'
+  ];
 
   TasksSectionParameters: array of TScintRawString = [
-    'Check',
-    'Components',
-    'Description',
-    'Flags',
-    'GroupDescription',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion'];
+    'Check', 'Components', 'Description', 'Flags', 'GroupDescription', 'Languages',
+    'MinVersion', 'Name', 'OnlyBelowVersion'
+  ];
 
   TasksSectionFlags: array of TScintRawString = [
-    'checkablealone',
-    'checkedonce',
-    'dontinheritcheck',
-    'exclusive',
-    'restart',
-    'unchecked'];
+    'checkablealone', 'checkedonce', 'dontinheritcheck', 'exclusive', 'restart',
+    'unchecked'
+  ];
 
   TypesSectionParameters: array of TScintRawString = [
-    'Check',
-    'Description',
-    'Flags',
-    'Languages',
-    'MinVersion',
-    'Name',
-    'OnlyBelowVersion'];
+    'Check', 'Description', 'Flags', 'Languages', 'MinVersion', 'Name',
+    'OnlyBelowVersion'
+  ];
 
   TypesSectionFlags: array of TScintRawString = [
-    'iscustom'];
+    'iscustom'
+  ];
 
 type
   TISPPDirective = record
@@ -539,79 +360,27 @@ const
     (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
     (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
 
-   { The following and some others below are not used by StyleNeeded and therefore
-     simply of type AnsiString instead of TScintRawString }
-   ConstantsWithParam: array of AnsiString = [
-    'cm',
-    'code',
-    'drive',
-    'ini',
-    'param',
-    'reg'];
+  { The following and some others below are not used by StyleNeeded and therefore
+    simply of type AnsiString instead of TScintRawString }
+  ConstantsWithParam: array of AnsiString = [
+    'cm', 'code', 'drive', 'ini', 'param', 'reg'
+  ];
 
-   Constants: array of AnsiString = [
+  Constants: array of AnsiString = [
     { #emit and #file handled separately by BuildConstantsWordList.
       Also doesnt include constants with non words chars. }
-    '{',
-    'app',
-    'win',
-    'sys',
-    'sysnative',
-    'syswow64',
-    'src',
-    'sd',
-    'commonpf',
-    'commoncf',
-    'tmp',
-    'commonfonts',
-    'dao',
-    'dotnet11',
-    'dotnet20',
-    'dotnet40',
-    'group',
-    'localappdata',
-    'userappdata',
-    'commonappdata',
-    'usercf',
-    'userdesktop',
-    'commondesktop',
-    'userdocs',
-    'commondocs',
-    'userfavorites',
-    'userfonts',
-    'userpf',
-    'userprograms',
-    'commonprograms',
-    'usersavedgames',
-    'userstartmenu',
-    'commonstartmenu',
-    'userstartup',
-    'commonstartup',
-    'usertemplates',
-    'commontemplates',
-    'autoappdata',
-    'autocf',
-    'autodesktop',
-    'autodocs',
-    'autofonts',
-    'autopf',
-    'autoprograms',
-    'autostartmenu',
-    'cmd',
-    'computername',
-    'groupname',
-    'hwnd',
-    'wizardhwnd',
-    'language',
-    'srcexe',
-    'uninstallexe',
-    'sysuserinfoname',
-    'sysuserinfoorg',
-    'userinfoname',
-    'userinfoorg',
-    'userinfoserial',
-    'username',
-    'log'];
+    '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
+    'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
+    'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
+    'userdesktop', 'commondesktop', 'userdocs', 'commondocs', 'userfavorites',
+    'userfonts', 'userpf', 'userprograms', 'commonprograms', 'usersavedgames',
+    'userstartmenu', 'commonstartmenu', 'userstartup', 'commonstartup',
+    'usertemplates', 'commontemplates', 'autoappdata', 'autocf', 'autodesktop',
+    'autodocs', 'autofonts', 'autopf', 'autoprograms', 'autostartmenu', 'cmd',
+    'computername', 'groupname', 'hwnd', 'wizardhwnd', 'language', 'srcexe',
+    'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
+    'userinfoorg', 'userinfoserial', 'username', 'log'
+  ];
 
   PascalConstants: array of AnsiString = [
     { ROPS }
@@ -654,21 +423,17 @@ const
 
   PascalInterfaces: array of AnsiString = [
     { ROPS }
-    'IUnknown',
-    'IInterface',
-    'IDispatch'
+    'IUnknown', 'IInterface', 'IDispatch'
   ];
 
   PascalReservedWords: array of TScintRawString = [
-    'and', 'array', 'as', 'begin', 'case', 'const', 'div',
-    'do', 'downto', 'else', 'end', 'except', 'external',
-    'finally', 'for', 'forward', 'function', 'goto', 'if', 'in', 'is',
-    'label', 'mod', 'nil', 'not', 'of', 'or', 'procedure',
-    'program', 'record', 'repeat', 'set', 'shl', 'shr',
-    'then', 'to', 'try', 'type', 'until', 'var', 'while',
-    'with', 'xor', 'delayload', 'loadwithalteredsearchpath',
-    'stdcall', 'cdecl', 'register', 'pascal', 'setuponly',
-    'uninstallonly', 'event'
+    'and', 'array', 'as', 'begin', 'case', 'const', 'div', 'do', 'downto',
+    'else', 'end', 'except', 'external', 'finally', 'for', 'forward', 'function',
+    'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or',
+    'procedure', 'program', 'record', 'repeat', 'set', 'shl', 'shr', 'then',
+    'to', 'try', 'type', 'until', 'var', 'while', 'with', 'xor', 'delayload',
+    'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal',
+    'setuponly', 'uninstallonly', 'event'
   ];
 
   PascalTypes: array of AnsiString = [
@@ -682,7 +447,7 @@ const
     'TVarType',
     //undocumented: TIFException
     { ScriptFunc_C }
-    'TArrayOfString','TArrayOfChar','TArrayOfBoolean','TArrayOfInteger', 'DWORD',
+    'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
     'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
     'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
@@ -704,16 +469,14 @@ const
   ];
 
   BasicEventFunctions: array of TScintRawString = [
-    'InitializeSetup', 'DeinitializeSetup', 'CurStepChanged',
-    'NextButtonClick', 'BackButtonClick', 'ShouldSkipPage',
-    'CurPageChanged', 'CheckPassword', 'NeedRestart',
-    'UpdateReadyMemo', 'RegisterPreviousData', 'CheckSerial',
-    'InitializeWizard', 'GetCustomSetupExitCode',
-    'InitializeUninstall', 'DeinitializeUninstall',
-    'CurUninstallStepChanged', 'UninstallNeedRestart',
-    'CancelButtonClick', 'InitializeUninstallProgressForm',
-    'PrepareToInstall', 'RegisterExtraCloseApplicationsResources',
-    'CurInstallProgressChanged'
+    'InitializeSetup', 'InitializeWizard', 'DeinitializeSetup', 'CurStepChanged',
+    'CurInstallProgressChanged', 'NextButtonClick', 'BackButtonClick',
+    'CancelButtonClick', 'ShouldSkipPage', 'CurPageChanged', 'CheckPassword',
+    'NeedRestart', 'UpdateReadyMemo', 'RegisterPreviousData', 'CheckSerial',
+    'GetCustomSetupExitCode', 'PrepareToInstall',
+    'RegisterExtraCloseApplicationsResources', 'InitializeUninstall',
+    'InitializeUninstallProgressForm', 'DeinitializeUninstall',
+    'CurUninstallStepChanged', 'UninstallNeedRestart'
   ];
 
   FullEventFunctions: array of AnsiString = [
