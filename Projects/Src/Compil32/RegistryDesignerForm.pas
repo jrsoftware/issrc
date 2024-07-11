@@ -1,4 +1,4 @@
-unit CompRegistryDesigner;
+unit RegistryDesignerForm;
 
 {
   Inno Setup

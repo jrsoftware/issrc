@@ -3,8 +3,8 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Top = 273
   BorderStyle = bsDialog
   Caption = '[Registry] Entries Designer'
-  ClientHeight = 348
-  ClientWidth = 500
+  ClientHeight = 347
+  ClientWidth = 496
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,34 +14,44 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  DesignSize = (
+    496
+    347)
   TextHeight = 13
   object AppRegistryMinVerDocImage: TImage
-    Left = 414
+    Left = 406
     Top = 170
     Width = 16
     Height = 16
     Anchors = [akTop, akRight]
     AutoSize = True
     Transparent = True
+    ExplicitLeft = 414
   end
   object Panel1: TPanel
     Left = 0
-    Top = 320
-    Width = 500
+    Top = 305
+    Width = 496
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 9
+    ExplicitTop = 320
+    ExplicitWidth = 500
+    DesignSize = (
+      496
+      42)
     object Bevel1: TBevel
       Left = 0
       Top = 0
-      Width = 500
+      Width = 496
       Height = 3
       Align = alTop
       Shape = bsBottomLine
+      ExplicitWidth = 500
     end
     object InsertButton: TButton
-      Left = 330
+      Left = 322
       Top = 9
       Width = 75
       Height = 25
@@ -51,9 +61,10 @@ object RegistryDesignerForm: TRegistryDesignerForm
       ModalResult = 1
       TabOrder = 0
       OnClick = InsertButtonClick
+      ExplicitLeft = 330
     end
     object CancelButton: TButton
-      Left = 414
+      Left = 406
       Top = 9
       Width = 75
       Height = 25
@@ -67,8 +78,8 @@ object RegistryDesignerForm: TRegistryDesignerForm
     object PrivilegesRequiredLabel: TNewStaticText
       Left = 8
       Top = 15
-      Width = 8
-      Height = 17
+      Width = 5
+      Height = 14
       Caption = '*'
       Enabled = False
       TabOrder = 2
@@ -77,8 +88,8 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryFileLabel: TNewStaticText
     Left = 8
     Top = 18
-    Width = 316
-    Height = 17
+    Width = 170
+    Height = 14
     Caption = '&Windows registry file (.reg) to import:'
     FocusControl = AppRegistryFileEdit
     TabOrder = 0
@@ -86,25 +97,27 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryFileEdit: TEdit
     Left = 8
     Top = 38
-    Width = 392
+    Width = 384
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
+    ExplicitWidth = 392
   end
   object AppRegistryFileButton: TButton
-    Left = 414
+    Left = 406
     Top = 36
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = '&Browse...'
     TabOrder = 2
+    ExplicitLeft = 414
   end
   object AppRegistrySettingsLabel: TNewStaticText
     Left = 8
     Top = 69
-    Width = 392
-    Height = 230
+    Width = 156
+    Height = 14
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Settings (for all keys and values):'
     TabOrder = 3
@@ -149,9 +162,10 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryMinVerEdit: TEdit
     Left = 259
     Top = 168
-    Width = 140
+    Width = 132
     Height = 21
-    Anchors = [akTop, akLeft, akRight]
+    Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
+    ExplicitWidth = 140
   end
 end

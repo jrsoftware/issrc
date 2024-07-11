@@ -1,4 +1,4 @@
-unit CompFileAssoc;
+unit FileAssocFunc;
 
 {
   Inno Setup
