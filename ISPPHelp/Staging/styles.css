@@ -35,8 +35,20 @@ TD {
            (firefox 1.5 and opera 9 don't have this problem) */
 	vertical-align: baseline;
 }
-A:link, A:visited, A:active {
-	color: #008000;
+A {
+	text-decoration: none;
+}
+A:hover {
+	text-decoration: underline;
+}
+A:link {
+	color: #264b99;
+}
+A:visited {
+	color: #5e85d7;
+}
+A:active {
+	color: #7799dd;
 }
 A.highlighted {
 	background-color: #ffff00;
