@@ -73,15 +73,15 @@ INPUT {
 }
 #tabbody-contents A.selectedlink:link,
 #tabbody-contents A.selectedlink:visited {
-	color: WindowText;
-	background-color: ButtonFace;
+	color: #d6d6d6;
+	background-color: #403E41;
 }
 /* It would be cleaner to use :focus, but IE<8 doesn't support it */
 #tabbody-contents A.focusedlink:link,
 #tabbody-contents A.focusedlink:visited {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
+	outline-color: #d6d6d6;   /* needed for focus rect to appear on Firefox (3.5) */
 }
 #tabbody-contents TABLE {
 	border-collapse: collapse;
@@ -121,5 +121,5 @@ INPUT {
 #tabbody-index A:focus {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
+	outline-color: #d6d6d6;   /* needed for focus rect to appear on Firefox (3.5) */
 }
