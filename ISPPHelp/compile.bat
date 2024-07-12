@@ -27,7 +27,7 @@ rem -------------------------------------------------------------------------
 
 echo Synching IS files:
 echo.
-call synch-isfiles.bat
+call synch-isfiles.bat nopause
 if errorlevel 1 goto failed
 
 echo Synching dark files:
