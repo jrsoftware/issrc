@@ -1285,7 +1285,7 @@ begin
 
   if Key = VK_F1 then begin
     Key := 0;
-    var HelpFile := GetHelpFile;
+    var HelpFile := GetISHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
       var S := FActiveMemo.WordAtCursor;
@@ -3222,7 +3222,7 @@ end;
 
 procedure TCompileForm.HMenuClick(Sender: TObject);
 begin
-  HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
+  HISPPDoc.Visible := NewFileExists(GetISPPHelpFile);
   HISPPSep.Visible := HISPPDoc.Visible;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
@@ -3231,13 +3231,13 @@ end;
 procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformshortcuts.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetISHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformshortcuts.htm')));
 end;
 
 procedure TCompileForm.HDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, 0);
+    HtmlHelp(GetDesktopWindow, PChar(GetISHelpFile), HH_DISPLAY_TOPIC, 0);
 end;
 
 procedure TCompileForm.HExamplesClick(Sender: TObject);
@@ -3272,7 +3272,7 @@ end;
 procedure TCompileForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
+    HtmlHelp(GetDesktopWindow, PChar(GetISHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
 end;
 
 procedure TCompileForm.HDonateClick(Sender: TObject);
@@ -6038,6 +6038,8 @@ end;
 procedure TCompileForm.UpdateTheme;
 begin
   FTheme.Typ := FOptions.ThemeType;
+
+  SetHelpFilesDark(FTheme.Dark);
 
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
