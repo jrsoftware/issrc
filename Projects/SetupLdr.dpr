@@ -32,7 +32,6 @@ uses
   SetupTypes in 'Src\SetupTypes.pas',
   VerInfo in 'Src\VerInfo.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}

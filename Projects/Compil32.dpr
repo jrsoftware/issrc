@@ -61,7 +61,6 @@ uses
   CompWizardRegistryHelper in 'Src\CompWizardRegistryHelper.pas',
   MD5 in 'Src\MD5.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
