@@ -11452,8 +11452,8 @@ object CompileForm: TCompileForm
       end
       item
         CollectionIndex = 36
-        CollectionName = 'letter-a-arrow-right-2'
-        Name = 'letter-a-arrow-right-2'
+        CollectionName = 'unused\letter-a-arrow-right-2'
+        Name = 'unused\letter-a-arrow-right-2'
       end
       item
         CollectionIndex = 37
@@ -11759,8 +11759,8 @@ object CompileForm: TCompileForm
       end
       item
         CollectionIndex = 36
-        CollectionName = 'letter-a-arrow-right-2'
-        Name = 'letter-a-arrow-right-2'
+        CollectionName = 'unused\letter-a-arrow-right-2'
+        Name = 'unused\letter-a-arrow-right-2'
       end
       item
         CollectionIndex = 37
