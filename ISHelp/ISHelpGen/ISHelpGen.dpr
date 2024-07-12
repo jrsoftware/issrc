@@ -70,7 +70,7 @@ type
   end;
 
 var
-  SourceDir, OutputDir: String;
+  SourceDir, OutputDir, Postfix: String;
   ISPP: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
@@ -675,7 +675,7 @@ var
     if not ISPP and (ParentNode = ContentsNode) then begin
       { Don't put next 2 lines on 1 line or hhc will hang... }
       SL.Add('<object type="text/sitemap">');
-      SL.Add('<param name="Merge" value="ispp.chm::\hh_generated_contents.hhc"></object>');
+      SL.Add('<param name="Merge" value="ispp' + Postfix + '.chm::\hh_generated_contents.hhc"></object>');
     end;
   end;
 
@@ -1014,15 +1014,13 @@ begin
   try
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
-    var StagingDir := 'Staging';
-    if ParamCount = 2 then
-      StagingDir := StagingDir + ParamStr(2)
-    else if ParamCount <> 1 then begin
-      Writeln('usage: ISHelpGen <source-dir> [staging-dir-postfix]');
+    if (ParamCount = 0) or (ParamCount > 2) then begin
+      Writeln('usage: ISHelpGen <source-dir> [postfix]');
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    OutputDir := SourceDir + StagingDir + '\';
+    Postfix := ParamStr(2);
+    OutputDir := SourceDir + 'Staging' + Postfix + '\';
 
     ISPP := FileExists(SourceDir + 'ispp.xml');
     if ISPP then
