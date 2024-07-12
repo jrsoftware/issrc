@@ -528,10 +528,6 @@ object CompileForm: TCompileForm
       object N18: TMenuItem
         Caption = '-'
       end
-      object ECompleteWord: TMenuItem
-        Caption = 'Complete &Word'
-        OnClick = ECompleteWordClick
-      end
       object EToggleLinesComment: TMenuItem
         Caption = 'Toggle Line Comment'
         OnClick = EToggleLinesCommentClick
@@ -6940,7 +6936,7 @@ object CompileForm: TCompileForm
           end>
       end
       item
-        Name = 'letter-a-arrow-right-2'
+        Name = 'unused\letter-a-arrow-right-2'
         SourceImages = <
           item
             Image.Data = {
@@ -17680,7 +17676,7 @@ object CompileForm: TCompileForm
           end>
       end
       item
-        Name = 'letter-a-arrow-right-2'
+        Name = 'unused\letter-a-arrow-right-2'
         SourceImages = <
           item
             Image.Data = {

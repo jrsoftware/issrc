@@ -85,9 +85,6 @@ begin
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
           else
             DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
-          { Note: because we stripped relocations from Setup(Ldr).e32 during
-            compilation IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE won't actually
-            enable ASLR, but allow setting it anyway to make checkers happy. }
           if IsASLRCompatible then
             DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
           else

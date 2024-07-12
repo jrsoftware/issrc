@@ -27,7 +27,6 @@ uses
   CompTypes in 'Src\CompTypes.pas',
   Int64Em in 'Src\Int64Em.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
