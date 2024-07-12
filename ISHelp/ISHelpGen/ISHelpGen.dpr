@@ -13,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.13';
+  Version = '1.14';
 
   XMLFileVersion = '1';
 
@@ -1014,12 +1014,15 @@ begin
   try
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
-    if ParamCount <> 1 then begin
-      Writeln('usage: ISHelpGen [source-dir]');
+    var StagingDir := 'Staging';
+    if ParamCount = 2 then
+      StagingDir := StagingDir + ParamStr(2)
+    else if ParamCount <> 1 then begin
+      Writeln('usage: ISHelpGen <source-dir> [staging-dir-postfix]');
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    OutputDir := SourceDir + 'Staging\';
+    OutputDir := SourceDir + StagingDir + '\';
 
     ISPP := FileExists(SourceDir + 'ispp.xml');
     if ISPP then

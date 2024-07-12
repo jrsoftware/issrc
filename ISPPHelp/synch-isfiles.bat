@@ -6,8 +6,10 @@ echo - Synching files from ISHelp to ISPPHelp
 
 copy ..\ISHelp\isetup.dtd
 copy ..\ISHelp\Staging\contents.css Staging
+copy ..\ISHelp\Staging\contents-dark.css Staging
 copy ..\ISHelp\Staging\contents.js Staging
 copy ..\ISHelp\Staging\styles.css Staging
+copy ..\ISHelp\Staging\styles-dark.css Staging
 copy ..\ISHelp\Staging\topic.js Staging
 copy ..\ISHelp\Staging\images\contentsheadclosed.png Staging\images
 copy ..\ISHelp\Staging\images\contentsheadopen.png Staging\images
