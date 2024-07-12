@@ -63,7 +63,6 @@ uses
   IsscintInt in 'Src\Compil32\IsscintInt.pas',
   ScriptFunc in 'Src\ScriptFunc.pas';
 
-{$SetPEFlags IMAGE_FILE_RELOCS_STRIPPED}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
