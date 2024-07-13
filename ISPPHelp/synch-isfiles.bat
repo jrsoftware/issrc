@@ -20,6 +20,7 @@ exit /b 0
 
 copy ..\ISHelp\Staging%1\contents.css Staging%1
 copy ..\ISHelp\Staging%1\contents.js Staging%1
+copy ..\ISHelp\Staging%1\stoplist.stp Staging%1
 copy ..\ISHelp\Staging%1\styles.css Staging%1
 copy ..\ISHelp\Staging%1\topic.js Staging%1
 copy ..\ISHelp\Staging%1\images\contentsheadclosed.png Staging%1\images

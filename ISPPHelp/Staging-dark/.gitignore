@@ -1,13 +1,17 @@
+#copied from Staging
 contents-template.htm
 index.htm
-stoplist.stp
+index.php
+#copied from ISHelp
 contents.css
 contents.js
+stoplist.stp
 styles.css
 topic.js
+#generated
 contents.htm
 contentsindex.js
 hh_generated_contents.hhc
 hh_generated_index.hhk
-ispp.chm
+ispp-dark.chm
 topic_*.htm
