@@ -5001,7 +5001,8 @@ begin
                                     ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
                 FoundFlagsOrType := False;
-              Break;
+              if FoundSemicolon or FoundFlagsOrType then
+                Break;
             end;
             if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
               { Verify that a word (language name) precedes the '.', then check for
