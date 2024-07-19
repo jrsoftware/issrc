@@ -67,7 +67,6 @@ procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObj
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFilesDark(const Dark: Boolean);
 function GetISHelpFile: String;
-function GetISPPHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
 procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
