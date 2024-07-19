@@ -1819,9 +1819,22 @@ begin
 end;
 
 procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
+{ Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
+  without removing additional selections }
 begin
+  { First replace the selection }
   Call(SCI_TARGETFROMSELECTION, 0, 0);
   Call(SCI_REPLACETARGETMINIMAL, Length(Value), LPARAM(PAnsiChar(Value)));
+  { Then make the main selection an empty selection at the end of the inserted
+    text, just like SCI_REPLACESEL }
+  var Pos := GetTarget.EndPos; { SCI_REPLACETARGETMINIMAL updates the target }
+  var MainSel := MainSelection;
+  SetSelectionCaretPosition(MainSel, Pos);
+  SetSelectionAnchorPosition(MainSel, Pos);
+  { Finally call Editor::SetLastXChosen and scroll caret into review, also just
+    like SCI_REPLACESEL }
+  ChooseCaretX;
+  ScrollCaretIntoView;
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
@@ -1856,6 +1869,9 @@ begin
 end;
 
 procedure TScintEdit.SetSelection(const Value: TScintRange);
+{ Sets the main selection and removes additional selections. Very similar
+  to SetSingleSelection, not sure why both messages exist and are slightly
+  different }
 begin
   Call(SCI_SETSEL, Value.StartPos, Value.EndPos);
   ChooseCaretX;
@@ -1863,7 +1879,7 @@ end;
 
 procedure TScintEdit.SetSelectionAnchorPosition(Selection: Integer;
   const Value: Integer);
-{ Also sets anchors's virtualspace to 0 }
+{ Also sets anchors's virtual space to 0 }
 begin
   Call(SCI_SETSELECTIONNANCHOR, Selection, Value);
 end;
@@ -1876,7 +1892,7 @@ end;
 
 procedure TScintEdit.SetSelectionCaretPosition(Selection: Integer;
   const Value: Integer);
-{ Also sets caret's virtualspace to 0 }
+{ Also sets caret's virtual space to 0 }
 begin
   Call(SCI_SETSELECTIONNCARET, Selection, Value);
 end;
