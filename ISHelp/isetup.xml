@@ -64,12 +64,10 @@
     <contentstopic title="Expression Syntax" topic="expressions" />
     <contentstopic title="Predefined Variables" topic="predefinedvars" />
     <contentstopic title="Line Spanning" topic="linespan" />
-    <contentsheading title="Other Information">
-      <contentstopic title="Visibility of Identifiers" topic="visibility" />
-      <contentstopic title="Example Script" topic="example" />
-      <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
-      <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
-    </contentsheading>
+    <contentstopic title="Visibility of Identifiers" topic="visibility" />
+    <contentstopic title="Example Script" topic="example" />
+    <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
+    <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
   </contentsheading>
   <contentsheading title="Other Information">
     <contentstopic title="Support Inno Setup" topic="donate" />
@@ -3399,6 +3397,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </indent>
 
 <p>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</p>
+
+<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link>.</p>
 </li>
 
 <li>
