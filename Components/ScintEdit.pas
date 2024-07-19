@@ -1874,7 +1874,6 @@ procedure TScintEdit.SetSelection(const Value: TScintRange);
   different }
 begin
   Call(SCI_SETSEL, Value.StartPos, Value.EndPos);
-  ChooseCaretX;
 end;
 
 procedure TScintEdit.SetSelectionAnchorPosition(Selection: Integer;
