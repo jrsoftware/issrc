@@ -17,7 +17,7 @@ uses
 
 const
   InnoSetupStylerWordListSeparator = #9;
-  InnoSetupStylerWordListTypeSeparator = '?';
+  InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
 
   { AutoComplete word types }
   awtSection = 0;

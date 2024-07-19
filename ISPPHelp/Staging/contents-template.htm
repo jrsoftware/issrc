@@ -7,15 +7,8 @@
 <!--[if IE 6]><style type="text/css">html{overflow-y:scroll}</style><![endif]-->
 <link rel="stylesheet" type="text/css" href="contents.css" />
 <script type="text/javascript" src="contents.js"></script>
-<script type="text/javascript"><!--
-function init_ispp_contents()
-{
- init_contents(2);
- searchTabBaseUrl = "https://jrsoftware.org/ispphelp/";
-}
---></script>
 </head>
-<body onload="init_ispp_contents();">
+<body onload="init_contents(2);">
 
 <div id="tabbar">
 <table cellspacing="0">
@@ -23,7 +16,6 @@ function init_ispp_contents()
 <td><div style="width: 4px"></div></td>
 <td id="tab-contents" class="selectedtab" onmousedown="select_tab('contents');"><a href="javascript:select_tab('contents');">Contents</a></td>
 <td id="tab-index" class="unselectedtab" onmousedown="select_tab('index');"><a href="javascript:select_tab('index');">Index</a></td>
-<td id="tab-search" class="unselectedtab" onmousedown="select_tab('search');"><a href="javascript:select_tab('search');">Search</a></td>
 <td style="width: 100%">&nbsp;</td>
 </tr>
 </table>
@@ -37,11 +29,6 @@ function init_ispp_contents()
 
 <div id="tabbody-index" style="display: none">
 <div style="margin-top: 1em; text-align: center; color: GrayText">Loading...</div>
-</div>
-
-<div id="tabbody-search" style="display: none; padding: 4px">
-<div style="margin-bottom: 0.5em">Search Inno Setup Preprocessor Help:</div>
-<div id="searchcont"><div style="margin-top: 1em; text-align: center; color: GrayText">Loading...</div></div>
 </div>
 
 </div>

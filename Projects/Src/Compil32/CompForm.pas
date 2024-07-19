@@ -4848,7 +4848,7 @@ end;
 function TCompileForm.InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
 begin
-  Result := (PositionBeforeWordStartPos >= WordStartLinePos) and
+  Result := (PositionBeforeWordStartPos < WordStartLinePos) or
             not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
 end;
 
@@ -4934,6 +4934,10 @@ begin
       begin
         Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
         if Section = scCode then begin
+          { Space can only initiate autocompletion after non whitespace }
+          if (Key = ' ') and OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
+            Exit;
+
           var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
           if Key <> #0 then begin
             FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
@@ -4999,7 +5003,8 @@ begin
                                     ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
                 FoundFlagsOrType := False;
-              Break;
+              if FoundSemicolon or FoundFlagsOrType then
+                Break;
             end;
             if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
               { Verify that a word (language name) precedes the '.', then check for
