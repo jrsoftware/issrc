@@ -13,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.14';
+  Version = '1.15';
 
   XMLFileVersion = '1';
 
@@ -71,7 +71,6 @@ type
 
 var
   SourceDir, OutputDir, Postfix: String;
-  ISPP: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
@@ -672,11 +671,6 @@ var
       Node := Node.NextSibling;
     end;
     SL.Add('</ul>');
-    if not ISPP and (ParentNode = ContentsNode) then begin
-      { Don't put next 2 lines on 1 line or hhc will hang... }
-      SL.Add('<object type="text/sitemap">');
-      SL.Add('<param name="Merge" value="ispp' + Postfix + '.chm::\hh_generated_contents.hhc"></object>');
-    end;
   end;
 
 begin
@@ -965,11 +959,9 @@ procedure Go;
 var
   I: Integer;
 begin
-  if not ISPP then begin
-    TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
-    GenerateIsxClassesFile;
-  end else
-    TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
+  TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
+  GenerateIsxClassesFile;
+  TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
 
   Keywords := TStringList.Create;
   Keywords.Duplicates := dupAccept;
@@ -982,13 +974,11 @@ begin
   SetupDirectives.Duplicates := dupError;
   SetupDirectives.Sorted := True;
   try
-    if not ISPP then begin
-      DoDoc('isetup.xml');
-      DoDoc('isx.xml');
-      DoDoc('isxfunc_generated.xml');
-      DoDoc('isxclasses_generated.xml');
-    end else
-      DoDoc('ispp_generated.xml');
+    DoDoc('isetup.xml');
+    DoDoc('isx.xml');
+    DoDoc('isxfunc_generated.xml');
+    DoDoc('isxclasses_generated.xml');
+    DoDoc('ispp_generated.xml');
 
     CheckForNonexistentTargetTopics;
 
@@ -1021,10 +1011,6 @@ begin
     SourceDir := ParamStr(1) + '\';
     Postfix := ParamStr(2);
     OutputDir := SourceDir + 'Staging' + Postfix + '\';
-
-    ISPP := FileExists(SourceDir + 'ispp.xml');
-    if ISPP then
-      Writeln('Running in ISPP mode');
 
     OleCheck(CoInitialize(nil));  { for MSXML }
 
