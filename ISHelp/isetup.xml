@@ -3390,15 +3390,24 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
 
-<p>Valid options are: "/O-" to disable output (overriding any <tt>Output</tt> setting in the script), "/O+" to enable output (overriding any <tt>Output</tt> setting in the script), "/O" to specify an output path (overriding any <tt>OutputDir</tt> setting in the script), "/F" to specify an output filename (overriding any <tt>OutputBaseFilename</tt> setting in the script), "/S" to specify a Sign Tool (any Sign Tools configured using the Compiler IDE will be specified automatically), "/Q[p]" for quiet compile (print only error messages, "p" will show progress info), and "/?" to show a help screen.</p>
+<p>Valid options are:</p>
 
 <indent>
+<table>
+<tr><td>/O(+|-)</td><td>Enable or disable output (overrides <tt>Output</tt>)</td></tr>
+<tr><td>/O&lt;path&gt;</td><td>Output files to specified path (overrides <tt>OutputDir</tt>)</td></tr>
+<tr><td>/F&lt;filename&gt;</td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>)</td></tr>
+<tr><td>/S&lt;name&gt;=&lt;command></td><td>Sets a SignTool with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically)</td></tr>
+<tr><td>/Q</td><td>Quiet compile (print error messages only)</td></tr>
+<tr><td>/Qp</td><td>Enable quiet compile while still displaying progress</td></tr>
+</table>
 <example>iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</example>
 </indent>
 
+<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link> for additional options.</p>
+
 <p>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</p>
 
-<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link>.</p>
 </li>
 
 <li>

@@ -2045,14 +2045,14 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<description header="no">
 				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra parameters to control Inno Setup Preprocessor:</p>
 				<table>
-					<tr><td><code>/D&lt;name&gt;[=&lt;value&gt;]</code></td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
-					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/P&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/I&lt;paths&gt;</code></td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
-					<tr><td><code>/J&lt;filename&gt;</code></td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
-					<tr><td><code>/{#&lt;string&gt;</code></td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
-					<tr><td><code>/}&lt;string&gt;</code></td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
-					<tr><td><code>/V&lt;number&gt;</code></td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
+					<tr><td>/D&lt;name&gt;[=&lt;value&gt;]</td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
+					<tr><td>/$&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td>/P&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td>/I&lt;paths&gt;</td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
+					<tr><td>/J&lt;filename&gt;</td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
+					<tr><td>/{#&lt;string&gt;</td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
+					<tr><td>/}&lt;string&gt;</td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
+					<tr><td>/V&lt;number&gt;</td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
 				</table>
 				<p>Example: <tt>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>
