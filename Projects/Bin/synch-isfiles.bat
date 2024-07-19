@@ -13,8 +13,6 @@ copy ..\..\Files\islzma.dll
 copy ..\..\Files\islzma*.exe
 copy ..\..\Files\ISetup.chm
 copy ..\..\Files\ISetup-dark.chm
-copy ..\..\Files\ISPP.chm
-copy ..\..\Files\ISPP-dark.chm
 
 echo - Synching files done
 

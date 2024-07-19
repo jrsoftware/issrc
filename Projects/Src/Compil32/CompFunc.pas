@@ -717,11 +717,6 @@ begin
   Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFilesDark, '-dark', '')]);
 end;
 
-function GetISPPHelpFile: String;
-begin
-  Result := Format('%sispp%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFilesDark, '-dark', '')]);
-end;
-
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
 begin
   Result := [];

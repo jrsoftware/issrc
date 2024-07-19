@@ -90,7 +90,6 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: 
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
 Type: files; Name: "{app}\ISPP.chm"
-
 ; Remove desktop icon if needed
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
 ; Remove old FAQ file
