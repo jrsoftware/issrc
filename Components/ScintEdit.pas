@@ -1828,7 +1828,6 @@ procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
 { Replaces the main selection's text and *clears* additional selections }
 begin
   Call(SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Value)));
-  ChooseCaretX;
 end;
 
 procedure TScintEdit.SetRawText(const Value: TScintRawString);
