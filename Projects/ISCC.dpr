@@ -392,8 +392,9 @@ procedure ProcessCommandLine;
     WriteStdErr('Options:');
     WriteStdErr('  /O(+|-)            Enable or disable output (overrides Output)');
     WriteStdErr('  /O<path>           Output files to specified path (overrides OutputDir)');
-    WriteStdErr('  /F<filename>       Overrides OutputBaseFilename with the specified filename');
+    WriteStdErr('  /F<filename>       Specifies an output filename (overrides OutputBaseFilename)');
     WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
+    WriteStdErr('                     (Any Sign Tools configured using the Compiler IDE will be specified automatically)');
     WriteStdErr('  /Q                 Quiet compile (print error messages only)');
     WriteStdErr('  /Qp                Enable quiet compile while still displaying progress');
     if IsppMode then begin
@@ -407,9 +408,11 @@ procedure ProcessCommandLine;
       WriteStdErr('  /V<number>         Emulate #pragma verboselevel <number>');
     end;
     WriteStdErr('  /?                 Show this help screen');
+    WriteStdErr('');
+    WriteStdErr('Examples: iscc "c:\isetup\samples\my script.iss"');
+    WriteStdErr('          iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"');
     if IsppMode then begin
-      WriteStdErr('');
-      WriteStdErr('Example: iscc /$c- /Pu+ "/DLic=Trial Lic.txt" /IC:\INC;D:\INC scriptfile.iss');
+      WriteStdErr('          iscc /$c- /Pu+ "/DLic=Trial Lic.txt" /IC:\INC;D:\INC scriptfile.iss');
       WriteStdErr('');
     end;
   end;

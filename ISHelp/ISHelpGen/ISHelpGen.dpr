@@ -13,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.13';
+  Version = '1.14';
 
   XMLFileVersion = '1';
 
@@ -71,7 +71,7 @@ type
 
 var
   SourceDir, OutputDir: String;
-  ISPP: Boolean;
+  NoContentsHtm: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
@@ -404,7 +404,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -672,11 +672,6 @@ var
       Node := Node.NextSibling;
     end;
     SL.Add('</ul>');
-    if not ISPP and (ParentNode = ContentsNode) then begin
-      { Don't put next 2 lines on 1 line or hhc will hang... }
-      SL.Add('<object type="text/sitemap">');
-      SL.Add('<param name="Merge" value="ispp.chm::\hh_generated_contents.hhc"></object>');
-    end;
   end;
 
 begin
@@ -701,7 +696,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.png" alt="" /></td>' +
+    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
       '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
@@ -946,8 +941,10 @@ procedure Go;
               begin
                 Writeln('  - Generating hh_generated_contents.hhc');
                 GenerateHTMLHelpContents(Node);
-                Writeln('  - Generating contents.htm');
-                GenerateStaticContents(Node);
+                if not NoContentsHtm then begin
+                  Writeln('  - Generating contents.htm');
+                  GenerateStaticContents(Node);
+                end;
               end;
             elSetupTopic: ParseTopic(Node, True);
             elTopic: ParseTopic(Node, False);
@@ -965,11 +962,9 @@ procedure Go;
 var
   I: Integer;
 begin
-  if not ISPP then begin
-    TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
-    GenerateIsxClassesFile;
-  end else
-    TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
+  TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
+  GenerateIsxClassesFile;
+  TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
 
   Keywords := TStringList.Create;
   Keywords.Duplicates := dupAccept;
@@ -982,20 +977,20 @@ begin
   SetupDirectives.Duplicates := dupError;
   SetupDirectives.Sorted := True;
   try
-    if not ISPP then begin
-      DoDoc('isetup.xml');
-      DoDoc('isx.xml');
-      DoDoc('isxfunc_generated.xml');
-      DoDoc('isxclasses_generated.xml');
-    end else
-      DoDoc('ispp_generated.xml');
+    DoDoc('isetup.xml');
+    DoDoc('isx.xml');
+    DoDoc('isxfunc_generated.xml');
+    DoDoc('isxclasses_generated.xml');
+    DoDoc('ispp_generated.xml');
 
     CheckForNonexistentTargetTopics;
 
     Writeln('- Generating hh_generated_index.hhk');
     GenerateHTMLHelpIndex;
-    Writeln('- Generating contentsindex.js');
-    GenerateStaticIndex;
+    if not NoContentsHtm then begin
+      Writeln('- Generating contentsindex.js');
+      GenerateStaticIndex;
+    end;
   finally
     SetupDirectives.Free;
     TargetTopics.Free;
@@ -1014,16 +1009,16 @@ begin
   try
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
-    if ParamCount <> 1 then begin
-      Writeln('usage: ISHelpGen [source-dir]');
+    if (ParamCount = 0) or (ParamCount > 2) then begin
+      Writeln('usage: ISHelpGen <source-dir> [postfix]');
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    OutputDir := SourceDir + 'Staging\';
+    OutputDir := SourceDir + 'Staging' + ParamStr(2) + '\';
 
-    ISPP := FileExists(SourceDir + 'ispp.xml');
-    if ISPP then
-      Writeln('Running in ISPP mode');
+    NoContentsHtm := not FileExists(OutputDir + 'contents-template.htm');
+    if NoContentsHtm then
+      Writeln('Running in NoContentsHtm mode');
 
     OleCheck(CoInitialize(nil));  { for MSXML }
 

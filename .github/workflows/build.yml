@@ -53,7 +53,6 @@ jobs:
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
-          "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISPPHelp\compilesettings.bat
           .\build.bat
       - name: Clean up temporary files
         if: always()
@@ -63,7 +62,6 @@ jobs:
         run: |
           copy license.txt Files
           copy license.txt Output
-          copy license.txt ISPPHelp/Staging
           copy license.txt ISHelp/Staging
       - name: upload Files
         uses: actions/upload-artifact@v3
@@ -75,11 +73,6 @@ jobs:
         with:
           name: Output
           path: Output
-      - name: upload ISPPHelp
-        uses: actions/upload-artifact@v3
-        with:
-          name: ISPPHelp
-          path: ISPPHelp/Staging
       - name: upload ISHelp
         uses: actions/upload-artifact@v3
         with:

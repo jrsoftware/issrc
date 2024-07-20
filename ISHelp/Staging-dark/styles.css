@@ -1,13 +1,17 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
+
+	Style sheet used by topic_*.htm
 */
 
 BODY {
 	font: small arial, sans-serif;
 	margin: 0;
+	background-color: #1f1f1f;
+	color:#d6d6d6;
 }
 PRE, TT {
 	font: small "courier new", monospace;
@@ -34,6 +38,12 @@ TD {
 	   (not inside a <DIV>). otherwise it behaves more like "top".
            (firefox 1.5 and opera 9 don't have this problem) */
 	vertical-align: baseline;
+}
+IMG {
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	padding-left: 2px;
 }
 A {
 	text-decoration: none;
@@ -79,8 +89,8 @@ LI.compact {
 }
 
 .topicheading {
-	background: ButtonFace;
-	color: WindowText;
+	background-color: #403E41;
+	color: #d6d6d6;
 	padding: 4px 8px;
 	margin: 0;
 	font-size: 120%;
@@ -91,10 +101,10 @@ LI.compact {
 }
 
 .examplebox {
-	background: #f8f8f8;
-	color: black;
+	background-color: #403E41; 
+	color: #d6d6d6;
 	padding: 4px;
-	border: 1px solid #e0e0e0;
+	border: 1px solid #716F71;
 	/* on IE6, if the content of the box is wider than the page,
 	   the width of the box is increased. on firefox 1.5, by default
 	   the box width stays the same, and the content is drawn outside
@@ -143,7 +153,7 @@ TD.setuphdrr {
 
 #redirectbox {
 	position: absolute;
-	background: InfoBackground;
+	background-color: InfoBackground;
 	color: InfoText;
 	padding: 16px 24px;
 	border: 1px solid ThreeDDarkShadow;
