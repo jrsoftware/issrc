@@ -66,20 +66,27 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
   <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
   <li>Improved brace highlighting.</li>
+  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
 </ul>
-<p>Other changes:</p>
+<p>Other Compiler IDE changes:</p>
 <ul>
   <li>Shortcuts Alt+Left and Alt+Right now always navigate back and forward even if Visual Studio-style menu shortcuts have been activated.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or Ctrl+I alternatives must be used.</li>
   <li>Moved the list of recently opened files into a new <i>Open Recent</i> submenu of the <i>Files</i> menu.</li>
   <li>Added shortcuts to select a tab (Ctrl+1 through Ctrl+9).</li>
   <li>Added new <i>Word Wrap</i> menu item to the <i>View</i> menu (Alt+Z).</li>
   <li>Added shortcut to the <i>Options</i> menu item in the <i>Tools</i> menu (Ctrl+,).</li>
-  <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>  
-  <li>Pascal Scripting change: Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> output.</li>
-  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
-  <li>Pascal Scripting change: documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
+</ul>
+<p><span class="head2">Other changes</span></p>
+<ul>
   <li>The Inno Setup Preprocessor documentation has been merged into the main documentation instead of being separate.</li>
   <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
+    <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>  
+    <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
+  </ul>
+  </li>
   <li>Various tweaks and other documentation improvements.</li>
 </ul>
 
