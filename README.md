@@ -15,8 +15,8 @@ Getting Started
     First you need to download the sources from Github. From the command line do:
 
     ```
-    > git clone https://github.com/jrsoftware/issrc.git is
-    > cd is
+    > git clone https://github.com/jrsoftware/issrc.git issrc
+    > cd issrc
     > git submodule init
     > git submodule update
     ```
@@ -56,7 +56,7 @@ Getting Started
    http://web.archive.org/web/20160201063255/http://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe
 
    Note: Microsoft HTML Help Workshop is only needed to be able to compile the
-   help files.
+   help file.
 
 
 4. **Build Inno Setup**
@@ -103,7 +103,7 @@ additionally install the following components.
 - DropListBox
 - NewTabSet
 
-The [Components] directory contains a Components project which you can use to
+The [Components] directory contains a Components.dpk file which you can use to
 install all these components.
 
 If you only want to edit code, then you may skip installation of the

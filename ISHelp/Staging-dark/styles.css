@@ -10,8 +10,8 @@
 BODY {
 	font: small arial, sans-serif;
 	margin: 0;
+	color: #d6d6d6;
 	background-color: #1f1f1f;
-	color:#d6d6d6;
 }
 PRE, TT {
 	font: small "courier new", monospace;
@@ -52,13 +52,13 @@ A:hover {
 	text-decoration: underline;
 }
 A:link {
-	color: #264b99;
+	color: #6781b7;
 }
 A:visited {
-	color: #5e85d7;
+	color: #8ea9e3;
 }
 A:active {
-	color: #7799dd;
+	color: #9fb7e7;
 }
 A.highlighted {
 	background-color: #ffff00;
@@ -101,7 +101,7 @@ LI.compact {
 }
 
 .examplebox {
-	background-color: #403E41; 
+	background-color: #403E41;
 	color: #d6d6d6;
 	padding: 4px;
 	border: 1px solid #716F71;

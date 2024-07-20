@@ -5,7 +5,7 @@ rem  Copyright (C) 1997-2024 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to compile the help files and all projects
+rem  Batch file to compile Inno Setup
 
 setlocal
 

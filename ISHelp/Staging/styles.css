@@ -61,13 +61,16 @@ A:hover {
 	text-decoration: underline;
 }
 A:link {
-	color: #264b99;
+	color: #264b99; /* for IE */
+	color: light-dark(#264b99, #6781b7);
 }
 A:visited {
-	color: #5e85d7;
+	color: #5e85d7; /* for IE */
+	color: light-dark(#5e85d7, #8ea9e3);
 }
 A:active {
-	color: #7799dd;
+	color: #7799dd; /* for IE */
+	color: light-dark(#7799dd, #9fb7e7);
 }
 A.highlighted {
 	background-color: #ffff00;
