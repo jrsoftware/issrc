@@ -36,6 +36,8 @@ if errorlevel 1 goto failed
 call :generate_help -dark
 if errorlevel 1 goto failed
 
+del /q Staging-dark\topic_*.htm
+
 echo Success!
 exit /b 0
 

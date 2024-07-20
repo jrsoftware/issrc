@@ -13,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.15';
+  Version = '1.16';
 
   XMLFileVersion = '1';
 
@@ -70,7 +70,8 @@ type
   end;
 
 var
-  SourceDir, OutputDir, Postfix: String;
+  SourceDir, OutputDir: String;
+  NoContentsHtm: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
@@ -940,8 +941,10 @@ procedure Go;
               begin
                 Writeln('  - Generating hh_generated_contents.hhc');
                 GenerateHTMLHelpContents(Node);
-                Writeln('  - Generating contents.htm');
-                GenerateStaticContents(Node);
+                if not NoContentsHtm then begin
+                  Writeln('  - Generating contents.htm');
+                  GenerateStaticContents(Node);
+                end;
               end;
             elSetupTopic: ParseTopic(Node, True);
             elTopic: ParseTopic(Node, False);
@@ -984,8 +987,10 @@ begin
 
     Writeln('- Generating hh_generated_index.hhk');
     GenerateHTMLHelpIndex;
-    Writeln('- Generating contentsindex.js');
-    GenerateStaticIndex;
+    if not NoContentsHtm then begin
+      Writeln('- Generating contentsindex.js');
+      GenerateStaticIndex;
+    end;
   finally
     SetupDirectives.Free;
     TargetTopics.Free;
@@ -1009,8 +1014,12 @@ begin
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    Postfix := ParamStr(2);
+    var Postfix := ParamStr(2);
     OutputDir := SourceDir + 'Staging' + Postfix + '\';
+
+    NoContentsHtm := not FileExists(SourceDir + 'contents-template.htm');
+    if NoContentsHtm then
+      Writeln('Running in NoContentsHtm mode');
 
     OleCheck(CoInitialize(nil));  { for MSXML }
 
