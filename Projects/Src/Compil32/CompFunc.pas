@@ -67,7 +67,6 @@ procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObj
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFilesDark(const Dark: Boolean);
 function GetISHelpFile: String;
-function GetISPPHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
 procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
@@ -716,11 +715,6 @@ end;
 function GetISHelpFile: String;
 begin
   Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFilesDark, '-dark', '')]);
-end;
-
-function GetISPPHelpFile: String;
-begin
-  Result := Format('%sispp%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFilesDark, '-dark', '')]);
 end;
 
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;

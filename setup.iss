@@ -89,6 +89,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: 
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
+Type: files; Name: "{app}\ISPP.chm"
 ; Remove desktop icon if needed
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
 ; Remove old FAQ file
@@ -185,8 +186,6 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISPP-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif

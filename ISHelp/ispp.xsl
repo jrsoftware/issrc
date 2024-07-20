@@ -10,7 +10,7 @@
   <xsl:comment>
     Inno Setup Preprocessor Reference
     Copyright (C) 1997-2024 Jordan Russell
-    Portions Copyright (C) 2000-2020 Martijn Laan
+    Portions Copyright (C) 2000-2024 Martijn Laan
     For conditions of distribution and use, see LICENSE.TXT.
     Portions Copyright (C) 2001-2004 Alex Yackimoff
 
@@ -18,28 +18,6 @@
   </xsl:comment>
 
   <ishelp version="1">
-
-  <xsl:comment>Table of contents</xsl:comment>
-
-  <contents>
-    <contentsheading title="Inno Setup Preprocessor">
-      <contentstopic title="Introduction" topic="isppoverview" />
-      <contentstopic title="Directives Reference" topic="directives" />
-      <contentstopic title="Support Functions Reference" topic="funcs" />
-      <contentstopic title="User Defined Functions" topic="macros" />
-      <contentstopic title="Expression Syntax" topic="expressions" />
-      <contentstopic title="Predefined Variables" topic="predefinedvars" />
-      <contentstopic title="Line Spanning" topic="linespan" />
-      <contentsheading title="Other Information">
-        <contentstopic title="Visibility of Identifiers" topic="visibility" />
-        <contentstopic title="Example Script" topic="example" />
-        <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
-        <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
-      </contentsheading>
-    </contentsheading>
-  </contents>
-
-  <xsl:comment>Topics</xsl:comment>
 
   <xsl:apply-templates/>
 

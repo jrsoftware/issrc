@@ -828,7 +828,7 @@ object CompileForm: TCompileForm
     end
     object HMenu: TMenuItem
       Caption = '&Help'
-      OnClick = HMenuClick
+      OnClick = SimpleMenuClick
       object HDonate: TMenuItem
         Caption = 'D&onate - Thank you!'
         OnClick = HDonateClick

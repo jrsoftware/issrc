@@ -11,7 +11,6 @@ rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
 rem  This batch files does the following things:
 rem  -Compile ISHelpGen
-rem  -Compile ISPP*.chm
 rem  -Compile ISetup*.chm
 rem  -Compile Inno Setup
 rem  -Create Inno Setup installer
@@ -37,15 +36,6 @@ if errorlevel 1 goto failed
 cd ..\..
 if errorlevel 1 goto failed
 echo Compiling ISHelpGen done
-pause
-
-cd ispphelp
-if errorlevel 1 goto failed
-call .\compile.bat
-if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
-echo Compiling ISPP*.chm done
 pause
 
 cd ishelp

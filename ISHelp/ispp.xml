@@ -37,7 +37,7 @@
 		<title>Introduction</title>
 		<description header="no">
 			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time ISPP variable &dash; containing your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script.</p>
-			<p>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</p>
+			<p>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appvername">AppVerName</link> [Setup] section directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</p>
 			<p>ISPP can even scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</p>
 			<p>Conditional in- and exclusion of portions of script is also possible by using ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional). Without ISPP, you would need multiple scripts.</p>
 			<p>Finally, ISPP makes it possible to split long lines using a line spanning symbol.</p>
@@ -690,7 +690,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <extlink href="ms-its:isetup.chm::/topic_setup_appvername.htm">AppVerName</extlink> [Setup] section directive using ISPP directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using ISPP directive &emit;:</p>
         <pre>
           <line>#define MyAppVer GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")</line>
           <line></line>
@@ -932,7 +932,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> SetupSetting(<b>str</b>)</line></pre>
 				</section>
 				<description>
-					<p>Parses <extlink href="ms-its:isetup.chm::/topic_setupsection.htm">[Setup] section</extlink> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</p>
+					<p>Parses <link href="setupsection">[Setup] section</link> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</p>
 				</description>
 			</topic>
 			<topic id="SetSetupSetting">
@@ -2041,18 +2041,18 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</description>
 		</topic>
 		<topic id="isppcc">
-			<title>Command Line Compiler Execution</title>
+			<title>Command Line Compiler</title>
 			<description header="no">
-				<p>If Inno Setup Preprocessor is installed the console-mode compiler ISCC.exe automatically provides extra parameters to control Inno Setup Preprocessor:</p>
+				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra parameters to control Inno Setup Preprocessor:</p>
 				<table>
-					<tr><td><code>/D&lt;name&gt;[=&lt;value&gt;]</code></td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
-					<tr><td><code>/$&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/P&lt;letter&gt;(+|-)</code></td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td><code>/I&lt;paths&gt;</code></td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
-					<tr><td><code>/J&lt;filename&gt;</code></td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
-					<tr><td><code>/{#&lt;string&gt;</code></td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
-					<tr><td><code>/}&lt;string&gt;</code></td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
-					<tr><td><code>/V&lt;number&gt;</code></td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
+					<tr><td>/D&lt;name&gt;[=&lt;value&gt;]</td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
+					<tr><td>/$&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td>/P&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
+					<tr><td>/I&lt;paths&gt;</td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
+					<tr><td>/J&lt;filename&gt;</td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
+					<tr><td>/{#&lt;string&gt;</td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
+					<tr><td>/}&lt;string&gt;</td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
+					<tr><td>/V&lt;number&gt;</td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
 				</table>
 				<p>Example: <tt>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>
