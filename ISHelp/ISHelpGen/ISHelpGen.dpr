@@ -13,7 +13,7 @@ uses
   UIsxclassesParser in 'UIsxclassesParser.pas';
 
 const
-  Version = '1.16';
+  Version = '1.17';
 
   XMLFileVersion = '1';
 
@@ -404,7 +404,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -696,7 +696,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.png" alt="" /></td>' +
+    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
       '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
