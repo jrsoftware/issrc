@@ -1017,7 +1017,7 @@ begin
     var Postfix := ParamStr(2);
     OutputDir := SourceDir + 'Staging' + Postfix + '\';
 
-    NoContentsHtm := not FileExists(SourceDir + 'contents-template.htm');
+    NoContentsHtm := not FileExists(OutputDir + 'contents-template.htm');
     if NoContentsHtm then
       Writeln('Running in NoContentsHtm mode');
 
