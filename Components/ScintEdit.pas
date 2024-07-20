@@ -1831,7 +1831,7 @@ begin
   var MainSel := MainSelection;
   SetSelectionCaretPosition(MainSel, Pos);
   SetSelectionAnchorPosition(MainSel, Pos);
-  { Finally call Editor::SetLastXChosen and scroll caret into review, also just
+  { Finally call Editor::SetLastXChosen and scroll caret into view, also just
     like SCI_REPLACESEL }
   ChooseCaretX;
   ScrollCaretIntoView;
