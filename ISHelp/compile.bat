@@ -29,7 +29,7 @@ rem -------------------------------------------------------------------------
 echo Synching dark files:
 echo.
 call synch-darkfiles.bat nopause
-if errorlevel 1 goto failed 
+if errorlevel 1 goto failed
 
 call :generate_help
 if errorlevel 1 goto failed
