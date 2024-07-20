@@ -7,9 +7,20 @@
 	Style sheet used by topic_*.htm
 */
 
+:root {
+  color-scheme: light dark;
+  --light-color: WindowText;
+  --dark-color: #d6d6d6;
+  --light-background-color: Window;
+  --dark-background-color: #1f1f1f;
+  --light-tool-background-color: ButtonFace;
+  --dark-tool-background-color: #403E41;
+}
 BODY {
 	font: small arial, sans-serif;
 	margin: 0;
+	color: light-dark(var(--light-color), var(--dark-color));
+	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 }
 PRE, TT {
 	font: small "courier new", monospace;
@@ -81,8 +92,10 @@ LI.compact {
 }
 
 .topicheading {
-	background: ButtonFace;
-	color: WindowText;
+	background-color: ButtonFace; /* for IE */
+	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
 	padding: 4px 8px;
 	margin: 0;
 	font-size: 120%;
@@ -93,10 +106,13 @@ LI.compact {
 }
 
 .examplebox {
-	background: #f8f8f8;
-	color: black;
+	background-color: #f8f8f8; /* for IE */
+	background-color: light-dark(#f8f8f8, var(--dark-tool-background-color));
+	color: black; /* for IE */
+	color: light-dark(black, var(--dark-color));
 	padding: 4px;
-	border: 1px solid #e0e0e0;
+	border: 1px solid #e0e0e0; /* for IE */
+	border: 1px solid light-dark(#e0e0e0, #716f71);
 	/* on IE6, if the content of the box is wider than the page,
 	   the width of the box is increased. on firefox 1.5, by default
 	   the box width stays the same, and the content is drawn outside
@@ -145,7 +161,7 @@ TD.setuphdrr {
 
 #redirectbox {
 	position: absolute;
-	background: InfoBackground;
+	background-color: InfoBackground;
 	color: InfoText;
 	padding: 16px 24px;
 	border: 1px solid ThreeDDarkShadow;
