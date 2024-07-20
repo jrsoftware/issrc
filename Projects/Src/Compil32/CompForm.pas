@@ -294,7 +294,6 @@ type
     procedure RParametersClick(Sender: TObject);
     procedure POutputListCopyClick(Sender: TObject);
     procedure BStopCompileClick(Sender: TObject);
-    procedure HMenuClick(Sender: TObject);
     procedure EGotoClick(Sender: TObject);
     procedure RTerminateClick(Sender: TObject);
     procedure BMenuClick(Sender: TObject);
@@ -3220,14 +3219,6 @@ begin
     PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOWNORMAL);
 end;
 
-procedure TCompileForm.HMenuClick(Sender: TObject);
-begin
-  HISPPDoc.Visible := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ispp.chm');
-  HISPPSep.Visible := HISPPDoc.Visible;
-
-  ApplyMenuBitmaps(Sender as TMenuItem);
-end;
-
 procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
@@ -3272,7 +3263,7 @@ end;
 procedure TCompileForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile + '::/hh_isppredirect.xhtm'), HH_DISPLAY_TOPIC, 0);
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_isppoverview.htm')));
 end;
 
 procedure TCompileForm.HDonateClick(Sender: TObject);
@@ -6043,6 +6034,8 @@ end;
 procedure TCompileForm.UpdateTheme;
 begin
   FTheme.Typ := FOptions.ThemeType;
+
+  SetHelpFileDark(FTheme.Dark);
 
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;

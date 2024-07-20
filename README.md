@@ -79,11 +79,6 @@ Getting Started
    instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 
-   To just compile the Inno Setup Preprocessor help file and its web version run
-   **ISHelp\ISHelpGen\compile.bat** and **ISPPHelp\compile.bat** and
-   follow the instructions. The former batch file cannot be used with the
-   Community Edition, open Projects\Projects.groupproj instead.
-
 
 Component Installation
 ----------------------
@@ -158,9 +153,6 @@ How do the projects link together?
   subdirectories of this directory, for example [Projects\Src\Compil32] has
   all units used by the Compiler IDE only. Check the .dpr files of the
   projects for unit usage details.
-
-- The ISPP help file uses various copies of other Inno Setup files. To synch
-  these run **ISPPHelp\synch-isfiles.bat**.
 
 
 Source code tips

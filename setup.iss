@@ -89,6 +89,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: 
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
+Type: files; Name: "{app}\ISPP.chm"
 ; Remove desktop icon if needed
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
 ; Remove old FAQ file
@@ -114,6 +115,7 @@ Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isccexe
@@ -184,7 +186,6 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
@@ -201,6 +202,7 @@ Type: files; Name: "{app}\isfaq.url"
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
 Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
+Name: "{group}\Inno Setup Documentation (Dark)"; Filename: "{app}\ISetup-dark.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"

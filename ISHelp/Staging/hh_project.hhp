@@ -15,11 +15,5 @@ Title=Inno Setup Help
 $global_ismain=,"hh_generated_contents.hhc","hh_generated_index.hhk",,,,,,,0x22520,,0x300e,,,,,,,,0
 
 
-[FILES]
-hh_isppredirect.xhtm
-
-[MERGE FILES]
-ispp.chm
-
 [INFOTYPES]
 

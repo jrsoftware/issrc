@@ -9,6 +9,8 @@ rem  Batch file to compile the help file
 
 setlocal
 
+cd /d %~dp0
+
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
 echo ISHelp\compilesettings.bat is missing or incomplete. It needs to be created
@@ -24,27 +26,42 @@ if "%HHCEXE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
+echo Synching dark files:
+echo.
+call synch-darkfiles.bat nopause
+if errorlevel 1 goto failed
+
+call :generate_help
+if errorlevel 1 goto failed
+call :generate_help -dark
+if errorlevel 1 goto failed
+
+del /q Staging-dark\topic_*.htm
+
+echo Success!
+exit /b 0
+
+:generate_help
 echo Generating help files using ISHelpGen:
 echo.
-ISHelpGen\ISHelpGen.exe .
-if errorlevel 1 goto failed
+ISHelpGen\ISHelpGen.exe . %1
+if errorlevel 1 exit /b 1
 
 echo.
 echo Running HTML Help Compiler (hhc.exe):
 echo.
-if exist Staging\isetup.chm del Staging\isetup.chm
-if exist Staging\isetup.chm goto failed
-"%HHCEXE%" Staging\hh_project.hhp
-if %errorlevel% neq 1 goto failed
-if not exist Staging\isetup.chm goto failed
+if exist Staging%1\isetup.chm del Staging%1\isetup.chm
+if exist Staging%1\isetup.chm exit /b 1
+"%HHCEXE%" Staging%1\hh_project.hhp
+if %errorlevel% neq 1 exit /b 1
+if not exist Staging%1\isetup.chm exit /b 1
 
 rem  HHC leaves behind a temporary file each time it runs...
 if exist "%TEMP%\~hh*.tmp" del /q "%TEMP%\~hh*.tmp"
 
-copy Staging\isetup.chm ..\Files\ISetup.chm
-if not exist ..\Files\ISetup.chm goto failed
+copy Staging%1\isetup.chm ..\Files\ISetup%1.chm
+if not exist ..\Files\ISetup%1.chm exit /b 1
 
-echo Success!
 exit /b 0
 
 :failed

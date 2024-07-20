@@ -65,6 +65,7 @@ procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
+procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
 procedure StartAddRemovePrograms;
@@ -79,7 +80,7 @@ function GetPreferredMemoFont: String;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
   CmnFunc2, PathFunc, FileClass, NewUxTheme,
   CompForm, CompMsgs2, CompTypes;
@@ -703,9 +704,17 @@ begin
   end;
 end;
 
+var
+  HelpFileDark: Boolean;
+
+procedure SetHelpFileDark(const Dark: Boolean);
+begin
+  HelpFileDark := Dark;
+end;
+
 function GetHelpFile: String;
 begin
-  Result := PathExtractPath(NewParamStr(0)) + 'isetup.chm';
+  Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFileDark, '-dark', '')]);
 end;
 
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
