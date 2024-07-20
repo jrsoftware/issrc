@@ -143,10 +143,10 @@ displays the "This will install..." and /HELP message boxes.
 
 How do the projects link together?
 
-- ISCmplr, ISPP, Setup, and SetupLdr share the unit Struct.pas. This unit
-  contains various data structures and constants shared by the projects. If
-  Struct.pas is changed, you usually will need to recompile ISCmplr, ISPP,
-  Setup, and SetupLdr so that everything is in synch.
+- Compil32, ISCmplr, ISPP, Setup, and SetupLdr share the unit Struct.pas. This
+  unit contains various data structures and constants shared by the projects.
+  If Struct.pas is changed, you usually will need to recompile all these projects
+  so that everything is in synch.
 
 - There are more units which are shared between projects. These are located
   in the [Projects\Src] directory. Project-specific units are in their respective
