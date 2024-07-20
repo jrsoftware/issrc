@@ -50,16 +50,16 @@ if errorlevel 1 exit /b 1
 echo.
 echo Running HTML Help Compiler (hhc.exe):
 echo.
-if exist Staging%1\isetup%1.chm del Staging%1\isetup%1.chm
-if exist Staging%1\isetup%1.chm exit /b 1
+if exist Staging%1\isetup.chm del Staging%1\isetup.chm
+if exist Staging%1\isetup.chm exit /b 1
 "%HHCEXE%" Staging%1\hh_project.hhp
 if %errorlevel% neq 1 exit /b 1
-if not exist Staging%1\isetup%1.chm exit /b 1
+if not exist Staging%1\isetup.chm exit /b 1
 
 rem  HHC leaves behind a temporary file each time it runs...
 if exist "%TEMP%\~hh*.tmp" del /q "%TEMP%\~hh*.tmp"
 
-copy Staging%1\isetup%1.chm ..\Files\ISetup%1.chm
+copy Staging%1\isetup.chm ..\Files\ISetup%1.chm
 if not exist ..\Files\ISetup%1.chm exit /b 1
 
 exit /b 0
