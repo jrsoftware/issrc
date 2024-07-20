@@ -39,6 +39,12 @@ TD {
            (firefox 1.5 and opera 9 don't have this problem) */
 	vertical-align: baseline;
 }
+IMG {
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	padding-left: 2px;
+}
 A {
 	text-decoration: none;
 }
