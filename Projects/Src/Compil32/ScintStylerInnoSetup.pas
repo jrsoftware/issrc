@@ -446,19 +446,21 @@ const
     //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
     'TVarType',
     //undocumented: TIFException
-    { ScriptFunc_C's real enums - values done via PascalRealEnums instead of PascalEnums}
+    { ScriptFunc_C's real enums, values done via PascalRealEnumValues instead of PascalEnumValues}
     'TMsgBoxType', 'TSetupMessageID', 'TSetupStep', 'TUninstallStep',
     'TSetupProcessorArchitecture', 'TDotNetVersion',
-    { ScriptFunc_C's other types }
+    { ScriptFunc_C's non real enums and other types }
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
     'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnLog'
+    { ScriptClasses_C: see PascalTypes_IsxClasses in isxclasses_wordlists_generated }
   ];
 
   PascalEnumValues: array of AnsiString = [
-    { ScriptFunc_C }
+    { ScriptFunc_C's values of non real enums }
     'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
+    { ScriptClasses_C: see PascalEnumValues_IsxClasses in isxclasses_wordlists_generated }
   ];
 
 var

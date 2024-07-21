@@ -206,7 +206,8 @@ procedure TIsxclassesParser.SaveWordLists(const OutputFileName: String);
       if S <> '' then
         S := S + ', ';
       var V := Values[I];
-      V := '''' + StringReplace(V, ', ', ''', ''', [rfReplaceAll]) + '''';
+      V := StringReplace(V, ', ', ',', [rfReplaceAll]);
+      V := '''' + StringReplace(V, ',', ''', ''', [rfReplaceAll]) + '''';
       S := S + V;
       if Length(S) > NewLineLength then begin
         if I <> Values.Count-1 then
