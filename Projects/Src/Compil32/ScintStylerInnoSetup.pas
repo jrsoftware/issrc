@@ -446,11 +446,13 @@ const
     //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
     'TVarType',
     //undocumented: TIFException
-    { ScriptFunc_C }
+    { ScriptFunc_C's real enums - values done via PascalRealEnums instead of PascalEnums}
+    'TMsgBoxType', 'TSetupMessageID', 'TSetupStep', 'TUninstallStep',
+    'TSetupProcessorArchitecture', 'TDotNetVersion',
+    { ScriptFunc_C's other types }
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
-    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime', 'TMsgBoxType',
-    'TSetupMessageID', 'TSetupStep', 'TUninstallStep', 'TSetupProcessorArchitecture',
-    'TDotNetVersion', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
+    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
+    'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnLog',
     { ScriptClasses_C }
     'TFolderRenameEvent', 'TWizardPageNotifyEvent', 'TWizardPageButtonEvent',
