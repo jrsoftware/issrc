@@ -143,6 +143,7 @@
         <DCCReference Include="Src\Struct.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="Src\DotNetVersion.pas"/>
+        <DCCReference Include="..\ISHelp\isxclasses_wordlists_generated.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

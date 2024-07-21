@@ -65,7 +65,8 @@ uses
   SetupTypes in 'Src\SetupTypes.pas',
   Struct in 'Src\Struct.pas',
   SHA1 in '..\Components\SHA1.pas',
-  DotNetVersion in 'Src\DotNetVersion.pas';
+  DotNetVersion in 'Src\DotNetVersion.pas',
+  isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

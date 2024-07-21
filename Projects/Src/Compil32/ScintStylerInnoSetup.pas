@@ -156,7 +156,7 @@ implementation
 uses
   Generics.Defaults,
   MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives,
-  CmnFunc, SetupTypes, Struct, DotNetVersion;
+  CmnFunc, SetupTypes, Struct, DotNetVersion, isxclasses_wordlists_generated;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -453,33 +453,16 @@ const
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
     'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnLog',
-    { ScriptClasses_C }
-    'TFolderRenameEvent', 'TWizardPageNotifyEvent', 'TWizardPageButtonEvent',
-    'TWizardPageCancelEvent', 'TWizardPageShouldSkipEvent', 'TNewStaticText',
-    'TNewCheckListBox', 'TNewProgressBar', 'TRichEditViewer', 'TPasswordEdit',
-    'TCustomFolderTreeView', 'TFolderTreeView', 'TStartMenuFolderTreeView',
-    'TBitmapImage', 'TNewEdit', 'TNewMemo', 'TNewComboBox', 'TNewListBox',
-    'TNewButton', 'TNewCheckBox', 'TNewRadioButton', 'TNewLinkLabel',
-    'TNewNotebookPage', 'TNewNotebook', 'TUIStateForm', 'TSetupForm',
-    'TMainForm', 'TWizardForm', 'TUninstallProgressForm', 'TWizardPage',
-    'TInputQueryWizardPage', 'TInputOptionWizardPage', 'TInputDirWizardPage',
-    'TInputFileWizardPage', 'TOutputMsgWizardPage', 'TOutputMsgMemoWizardPage',
-    'TOutputProgressWizardPage', 'TOutputMarqueeProgressWizardPage',
-    'TDownloadWizardPage'
+    'TOnDownloadProgress', 'TOnLog'
   ];
 
-  PascalEnums: array of AnsiString = [
+  PascalEnumValues: array of AnsiString = [
     { ScriptFunc_C }
-    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle',
-    { ScriptClasses_C }
-    'coUncheck', 'coCheck', 'coCheckWithChildren', 'npbsNormal', 'npbsError',
-    'npbsPaused', 'npbstNormal', 'npbstMarquee', 'afIgnored', 'afDefined',
-    'afPremultiplied'
+    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
   ];
 
 var
-  PascalRealEnums: array of PTypeInfo; { Initialized below }
+  PascalRealEnumValues: array of PTypeInfo; { Initialized below }
 
 const
   PascalVariables: array of AnsiString = [
@@ -627,9 +610,13 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptKeyword);
       for var S in PascalTypes do
         AddWordToList(SL, S, awtScriptType);
-      for var S in PascalEnums do
+      for var S in PascalTypes_IsxClasses do
+        AddWordToList(SL, S, awtScriptType);
+      for var S in PascalEnumValues do
         AddWordToList(SL, S, awtScriptEnum);
-      for var TypeInfo in PascalRealEnums do begin
+      for var S in PascalEnumValues_IsxClasses do
+        AddWordToList(SL, S, awtScriptEnum);
+      for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
           AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnum);
@@ -1654,12 +1641,12 @@ begin
 end;
 
 initialization
-  SetLength(PascalRealEnums, 6);
-  PascalRealEnums[0] := TypeInfo(TMsgBoxType);
-  PascalRealEnums[1] := TypeInfo(TSetupMessageID);
-  PascalRealEnums[2] := TypeInfo(TSetupStep);
-  PascalRealEnums[3] := TypeInfo(TUninstallStep);
-  PascalRealEnums[4] := TypeInfo(TSetupProcessorArchitecture);
-  PascalRealEnums[5] := TypeInfo(TDotNetVersion);
+  SetLength(PascalRealEnumValues, 6);
+  PascalRealEnumValues[0] := TypeInfo(TMsgBoxType);
+  PascalRealEnumValues[1] := TypeInfo(TSetupMessageID);
+  PascalRealEnumValues[2] := TypeInfo(TSetupStep);
+  PascalRealEnumValues[3] := TypeInfo(TUninstallStep);
+  PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
+  PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
 
 end.

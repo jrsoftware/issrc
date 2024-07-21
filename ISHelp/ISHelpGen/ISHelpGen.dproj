@@ -62,6 +62,7 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <Debugger_RunParams>..</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -69,6 +70,7 @@
         </DelphiCompile>
         <DCCReference Include="XMLParse.pas"/>
         <DCCReference Include="UIsxclassesParser.pas"/>
+        <DCCReference Include="..\..\Components\PathFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

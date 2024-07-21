@@ -10,10 +10,11 @@ uses
   ComObj,
   TypInfo,
   XMLParse in 'XMLParse.pas',
-  UIsxclassesParser in 'UIsxclassesParser.pas';
+  UIsxclassesParser in 'UIsxclassesParser.pas',
+  PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.14';
+  Version = '1.15';
 
   XMLFileVersion = '1';
 
@@ -903,6 +904,7 @@ procedure Go;
         SourceDir + 'isxclasses.header2',
         SourceDir + 'isxclasses.footer',
         SourceDir + 'isxclasses_generated.xml');
+      IsxclassesParser.SaveWordLists(SourceDir + 'isxclasses_wordlists_generated.pas');
     finally
       IsxclassesParser.Free;
     end;
