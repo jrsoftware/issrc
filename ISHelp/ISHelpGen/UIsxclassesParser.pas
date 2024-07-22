@@ -11,6 +11,7 @@ type
     FLines: TStringList;
     FTypes: TStringList;
     FEnumValues: TStringList;
+    FConstants: TStringList;
   public
     constructor Create;
     destructor Destroy; override;
@@ -31,10 +32,12 @@ begin
   FLines := TStringList.Create;
   FTypes := TStringList.Create;
   FEnumValues := TStringList.Create;
+  FConstants := TStringList.Create;
 end;
 
 destructor TIsxclassesParser.Destroy;
 begin
+  FConstants.Free;
   FEnumValues.Free;
   FTypes.Free;
   FLines.Free;
@@ -53,11 +56,23 @@ begin
       FLines.Add(S);
       var P := Pos('=', S);
       if P > 1 then begin
+        { Remember type and if it's an enum also remember the enum values }
         FTypes.Add(Trim(Copy(S, 1, P-1)));
         Delete(S, 1, P+1);
         var N := Length(S);
         if (N > 3) and (S[1] = '(') and (S[N-1] = ')') and (S[N] = ';') then
           FEnumValues.Add(Copy(S, 2, N-3));
+      end;
+      P := Pos('{', S);
+      if P <> 0 then begin
+        { Remember constants }
+        P := Pos(': ', S);
+        if P <> 0 then begin
+          Delete(S, 1, P+1);
+          var N := Length(S);
+          if (N > 2) and (S[N-1] = ' ') and (S[N] = '}') then
+            FConstants.Add(Copy(S, 1, N-2));
+        end;
       end;
     end;
   finally
@@ -111,7 +126,7 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
             Inc(Text);
           SetString(Result, P, Text - P);
         end;
-      '(', ')', ',', '=', ':', ';', '[', ']':
+      '(', ')', ',', '=', ':', ';', '[', ']', '{', '}':
         begin
           Result := Text^;
           Inc(Text);
@@ -234,6 +249,8 @@ begin
     WriteLn(F, 'interface');
     WriteLn(F);
     WriteLn(F, 'var');
+    WriteStringArray(F, 'PascalConstants_IsxClasses', Indent, FConstants, 0);
+    WriteLn(F);
     WriteStringArray(F, 'PascalTypes_IsxClasses', Indent, FTypes, 80);
     WriteLn(F);
     WriteStringArray(F, 'PascalEnumValues_IsxClasses', Indent, FEnumValues, 0);

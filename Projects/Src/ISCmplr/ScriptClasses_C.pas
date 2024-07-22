@@ -19,7 +19,7 @@ procedure ScriptClassesLibraryRegister_C(Cl: TPSPascalCompiler);
 implementation
 
 uses
-  SetupTypes,
+  Windows, SetupTypes,
   uPSC_std, uPSC_classes, uPSC_graphics, uPSC_controls, uPSC_stdctrls,
   uPSC_forms, uPSC_extctrls, uPSC_comobj;
 
@@ -574,7 +574,6 @@ end;
 procedure ScriptClassesLibraryRegister_C(Cl: TPSPascalCompiler);
 const
   clSystemColor = $FF000000;
-  COLOR_HOTLIGHT = 26;
 begin
   { Std }
   SIRegister_Std_TypesAndConsts(Cl);

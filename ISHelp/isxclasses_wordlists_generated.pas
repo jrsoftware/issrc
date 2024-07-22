@@ -5,14 +5,19 @@ unit isxclasses_wordlists_generated;
 interface
 
 var
+  PascalConstants_IsxClasses: array of AnsiString = [
+    'soFromBeginning', 'soFromCurrent', 'soFromEnd',
+    'clBlack', 'clMaroon', 'clGreen', 'clOlive', 'clNavy', 'clPurple', 'clTeal', 'clGray', 'clSilver', 'clRed', 'clLime', 'clYellow', 'clBlue', 'clFuchsia', 'clAqua', 'clLtGray', 'clDkGray', 'clWhite', 'clNone', 'clDefault', 'clScrollBar', 'clBackground', 'clActiveCaption', 'clInactiveCaption', 'clMenu', 'clWindow', 'clWindowFrame', 'clMenuText', 'clWindowText', 'clCaptionText', 'clActiveBorder', 'clInactiveBorder', 'clAppWorkSpace', 'clHighlight', 'clHighlightText', 'clBtnFace', 'clBtnShadow', 'clGrayText', 'clBtnText', 'clInactiveCaptionText', 'clBtnHighlight', 'cl3DDkShadow', 'cl3DLight', 'clInfoText', 'clInfoBk', 'clHotLight'
+  ];
+
   PascalTypes_IsxClasses: array of AnsiString = [
-    'TObject', 'TPersistent', 'TComponent', 'TStrings', 'TNotifyEvent', 'TStringList',
-    'TStream', 'THandleStream', 'TFileStream', 'TStringStream', 'TGraphicsObject', 'TFontStyle',
-    'TFontStyles', 'TFont', 'TCanvas', 'TPenMode', 'TPenStyle', 'TPen', 'TBrushStyle',
-    'TBrush', 'TGraphic', 'TAlphaFormat', 'TBitmap', 'TAlign', 'TAnchorKind', 'TAnchors',
-    'TControl', 'TWinControl', 'TGraphicControl', 'TCustomControl', 'TScrollBarKind', 'TScrollBarInc',
+    'TObject', 'TPersistent', 'TComponent', 'TStrings', 'TNotifyEvent', 'TDuplicates',
+    'TStringList', 'TStream', 'THandleStream', 'TFileStream', 'TStringStream', 'TGraphicsObject',
+    'TBrushStyle', 'TBrush', 'TFontStyle', 'TFontStyles', 'TColor', 'TFont', 'TPenMode',
+    'TPenStyle', 'TPen', 'TCanvas', 'TGraphic', 'TAlphaFormat', 'HBITMAP', 'TBitmap', 'TAlign',
+    'TAnchorKind', 'TAnchors', 'TControl', 'TWinControl', 'TGraphicControl', 'TCustomControl',
     'TScrollingWinControl', 'TFormBorderStyle', 'TBorderIcon', 'TBorderIcons', 'TConstraintSize',
-    'TSizeConstraints', 'TPosition', 'TCloseAction', 'TCloseEvent', 'TCloseQueryEvent',
+    'TSizeConstraints', 'TFormStyle', 'TPosition', 'TCloseAction', 'TCloseEvent', 'TCloseQueryEvent',
     'TEShiftState', 'TShiftState', 'TKeyEvent', 'TKeyPressEvent', 'TForm', 'TCustomLabel',
     'TAlignment', 'TLabel', 'TCustomEdit', 'TBorderStyle', 'TEditCharCase', 'TEdit', 'TNewEdit',
     'TCustomMemo', 'TScrollStyle', 'TMemo', 'TNewMemo', 'TCustomComboBox', 'TComboBoxStyle',
@@ -32,16 +37,17 @@ var
   ];
 
   PascalEnumValues_IsxClasses: array of AnsiString = [
+    'dupIgnore', 'dupAccept', 'dupError',
+    'bsSolid', 'bsClear', 'bsHorizontal', 'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
     'fsBold', 'fsItalic', 'fsUnderline', 'fsStrikeOut',
     'pmBlack', 'pmWhite', 'pmNop', 'pmNot', 'pmCopy', 'pmNotCopy', 'pmMergePenNot', 'pmMaskPenNot', 'pmMergeNotPen', 'pmMaskNotPen', 'pmMerge', 'pmNotMerge', 'pmMask', 'pmNotMask', 'pmXor', 'pmNotXor',
     'psSolid', 'psDash', 'psDot', 'psDashDot', 'psDashDotDot', 'psClear', 'psInsideFrame',
-    'bsSolid', 'bsClear', 'bsHorizontal', 'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
     'afIgnored', 'afDefined', 'afPremultiplied',
     'alNone', 'alTop', 'alBottom', 'alLeft', 'alRight', 'alClient',
     'akLeft', 'akTop', 'akRight', 'akBottom',
-    'sbHorizontal', 'sbVertical',
     'bsNone', 'bsSingle', 'bsSizeable', 'bsDialog', 'bsToolWindow', 'bsSizeToolWin',
     'biSystemMenu', 'biMinimize', 'biMaximize', 'biHelp',
+    'fsNormal', 'fsMDIChild', 'fsMDIForm', 'fsStayOnTop',
     'poDesigned', 'poDefault', 'poDefaultPosOnly', 'poDefaultSizeOnly', 'poScreenCenter', 'poDesktopCenter', 'poMainFormCenter', 'poOwnerFormCenter',
     'caNone', 'caHide', 'caFree', 'caMinimize',
     'ssShift', 'ssAlt', 'ssCtrl', 'ssLeft', 'ssRight', 'ssMiddle', 'ssDouble',

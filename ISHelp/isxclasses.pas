@@ -44,6 +44,8 @@ end;
 
 TNotifyEvent = procedure(Sender: TObject);
 
+TDuplicates = (dupIgnore, dupAccept, dupError);
+
 TStringList = class(TStrings)
   function Find(S: String; var Index: Integer): Boolean;
   procedure Sort;
@@ -52,6 +54,8 @@ TStringList = class(TStrings)
   property OnChange: TNotifyEvent; read write;
   property OnChanging: TNotifyEvent; read write;
 end;
+
+{ Seek Origin values: soFromBeginning, soFromCurrent, soFromEnd }
 
 TStream = class(TObject)
   function Read(var Buffer: AnyString; ByteCount: Longint): Longint;
@@ -81,20 +85,44 @@ TGraphicsObject = class(TPersistent)
   property OnChange: TNotifyEvent; read write;
 end;
 
+TBrushStyle = (bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross);
+
+TBrush = class(TGraphicsObject)
+  constructor Create;
+  property Color: TColor; read write;
+  property Style: TBrushStyle; read write;
+end;
+
 TFontStyle = (fsBold, fsItalic, fsUnderline, fsStrikeOut);
 
 TFontStyles = set of TFontStyle;
 
+TColor = Integer;
+
+{ TColor values: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clLtGray, clDkGray, clWhite, clNone, clDefault, clScrollBar, clBackground, clActiveCaption, clInactiveCaption, clMenu, clWindow, clWindowFrame, clMenuText, clWindowText, clCaptionText, clActiveBorder, clInactiveBorder, clAppWorkSpace, clHighlight, clHighlightText, clBtnFace, clBtnShadow, clGrayText, clBtnText, clInactiveCaptionText, clBtnHighlight, cl3DDkShadow, cl3DLight, clInfoText, clInfoBk, clHotLight }
+
 TFont = class(TGraphicsObject)
   constructor Create;
   property Handle: Integer; read;
-  property Color: Integer; read write;
+  property Color: TColor; read write;
   property Height: Integer; read write;
   property Name: String; read write;
   property Pitch: Byte; read write;
   property Size: Integer; read write;
   property PixelsPerInch: Integer; read write;
   property Style: TFontStyles; read write;
+end;
+
+TPenMode = (pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor);
+
+TPenStyle = (psSolid, psDash, psDot, psDashDot, psDashDotDot, psClear, psInsideFrame);
+
+TPen = class(TGraphicsObject)
+  constructor Create;
+  property Color: TColor; read write;
+  property Mode: TPenMode; read write;
+  property Style: TPenStyle; read write;
+  property Width: Integer; read write;
 end;
 
 TCanvas = class(TPersistent)
@@ -120,26 +148,6 @@ TCanvas = class(TPersistent)
   property Pen: TPen; read;
 end;
 
-TPenMode = (pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor);
-
-TPenStyle = (psSolid, psDash, psDot, psDashDot, psDashDotDot, psClear, psInsideFrame);
-
-TPen = class(TGraphicsObject)
-  constructor Create;
-  property Color: TColor; read write;
-  property Mode: TPenMode; read write;
-  property Style: TPenStyle; read write;
-  property Width: Integer; read write;
-end;
-
-TBrushStyle = (bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross);
-
-TBrush = class(TGraphicsObject)
-  constructor Create;
-  property Color: TColor; read write;
-  property Style: TBrushStyle; read write;
-end;
-
 TGraphic = class(TPersistent)
   procedure LoadFromFile(const Filename: String);
   procedure SaveToFile(const Filename: String);
@@ -151,6 +159,8 @@ TGraphic = class(TPersistent)
 end;
 
 TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
+
+HBITMAP = Integer;
 
 TBitmap = class(TGraphic)
   procedure LoadFromStream(Stream: TStream);
@@ -210,10 +220,6 @@ end;
 TCustomControl = class(TWinControl)
 end;
 
-TScrollBarKind = (sbHorizontal, sbVertical);
-
-TScrollBarInc = SmallInt;
-
 TScrollingWinControl = class(TWinControl)
   procedure ScrollInView(AControl: TControl);
 end;
@@ -232,6 +238,8 @@ TSizeConstraints = class(TPersistent);
   property MinHeight: TConstraintSize; read write;
   property MinWidth: TConstraintSize; read write;
 end;
+
+TFormStyle = (fsNormal, fsMDIChild, fsMDIForm, fsStayOnTop);
 
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 

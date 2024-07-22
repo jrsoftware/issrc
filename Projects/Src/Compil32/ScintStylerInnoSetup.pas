@@ -418,7 +418,8 @@ const
     'VER_SUITE_SECURITY_APPLIANCE',
     //undocumented: irInstall
     { ScriptClasses_C }
-    'clHotLight', 'crHand'
+    'crHand'
+    { ScriptClasses_C others: see PascalConstants_IsxClasses in isxclasses_wordlists_generated }
   ];
 
   PascalInterfaces: array of AnsiString = [
@@ -605,6 +606,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
       { Add stuff from this unit }
       for var S in PascalConstants do
+        AddWordToList(SL, S, awtScriptConstant);
+      for var S in PascalConstants_IsxClasses do
         AddWordToList(SL, S, awtScriptConstant);
       for var S in PascalInterfaces do
         AddWordToList(SL, S, awtScriptInterface);
