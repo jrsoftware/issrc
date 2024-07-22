@@ -3074,9 +3074,5 @@ end;</pre></example>
      <description>TSetupMessageID</description>
      <values>Use 'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></values>
   </enum>
-  <enum>
-     <description>TShouldProcessEntryResult</description>
-     <values>srNo, srYes, srUnknown</values>
-  </enum>
 </isxenum>
 </isxhelp>
