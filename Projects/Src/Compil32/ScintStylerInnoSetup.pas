@@ -653,14 +653,6 @@ begin
   inherited;
 end;
 
-procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
-begin
-  if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
-    ApplyStyleByteIndicators([inPendingSquiggly], StartIndex, EndIndex)
-  else
-    ApplyStyleByteIndicators([inSquiggly], StartIndex, EndIndex);
-end;
-
 procedure TInnoSetupStyler.AddWordToList(const SL: TStringList;
   const Word: AnsiString; const Typ: Integer);
 begin
@@ -668,6 +660,14 @@ begin
     SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
   else
     SL.Add(String(Word));
+end;
+
+procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
+begin
+  if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
+    ApplyStyleByteIndicators([inPendingSquiggly], StartIndex, EndIndex)
+  else
+    ApplyStyleByteIndicators([inSquiggly], StartIndex, EndIndex);
 end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -689,8 +689,7 @@ begin
   WordStringList.Sort;
 
   Result := '';
-  for var S in WordStringList do
-  begin
+  for var S in WordStringList do begin
     var A := AnsiString(S);
     if Result = '' then
       Result := A
@@ -1420,7 +1419,7 @@ end;
 class function TInnoSetupStyler.IsParamSection(
   const Section: TInnoSetupStylerSection): Boolean;
 begin
-  Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup]);
+  Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup, scCode]);
 end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
