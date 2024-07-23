@@ -1015,9 +1015,9 @@ begin
 
     { PrivilegesRequired }
     if PrivilegesRequiredAdminRadioButton.Checked then
-      Setup := Setup + '; Uncomment the following line to run in non administrative install mode (install for current user only.)' + SNewLine + ';'
+      Setup := Setup + '; Uncomment the following line to run in non administrative install mode (install for current user only).' + SNewLine + ';'
     else
-      Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users.)' + SNewLine;
+      Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users).' + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
     if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
