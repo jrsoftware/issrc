@@ -8,8 +8,6 @@
 <li><tt><a name="MainForm">MainForm</a></tt> of type <anchorlink name="TMainForm">TMainForm</anchorlink> (only visible if <link topic="setup_windowvisible">WindowVisible</link> is set to <tt>yes</tt>.)</li>
 </ul>
 
-<p>One special constant is available: <tt>crHand</tt> of type <tt>TControl.Cursor</tt>.</p>
-
 <p>Parameter type <tt>AnyString</tt> means both <tt>String</tt> and <tt>AnsiString</tt> can be used.</p>
 
 <p>The <i>CodeClasses.iss</i> example script in the "Examples" subdirectory in your Inno Setup directory shows how to use these classes.</p>

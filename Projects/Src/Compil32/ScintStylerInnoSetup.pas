@@ -415,11 +415,9 @@ const
     'VER_SUITE_COMMUNICATIONS', 'VER_SUITE_TERMINAL', 'VER_SUITE_SMALLBUSINESS_RESTRICTED',
     'VER_SUITE_EMBEDDEDNT', 'VER_SUITE_DATACENTER', 'VER_SUITE_SINGLEUSERTS',
     'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
-    'VER_SUITE_SECURITY_APPLIANCE',
+    'VER_SUITE_SECURITY_APPLIANCE'
     //undocumented: irInstall
-    { ScriptClasses_C }
-    'crHand'
-    { ScriptClasses_C others: see PascalConstants_IsxClasses in isxclasses_wordlists_generated }
+    { ScriptClasses_C: see PascalConstants_IsxClasses in isxclasses_wordlists_generated }
   ];
 
   PascalInterfaces: array of AnsiString = [

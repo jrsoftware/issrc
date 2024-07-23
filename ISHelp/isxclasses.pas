@@ -176,6 +176,10 @@ TAnchorKind = (akLeft, akTop, akRight, akBottom);
 
 TAnchors = set of TAnchorKind;
 
+TCursor = Integer;
+
+{ TCursor values: crDefault, crNone, crArrow, crCross, crIBeam, crSizeNESW, crSizeNS, crSizeNWSE, crSizeWE, crUpArrow, crHourGlass, crDrag, crNoDrop, crHSplit, crVSplit, crMultiDrag, crSQLWait, crNo, crAppStart, crHelp, crHandPoint, crSizeAll, crHand }
+
 TControl = class(TComponent)
   constructor Create(AOwner: TComponent);
   procedure BringToFront;
@@ -198,7 +202,7 @@ TControl = class(TComponent)
   property ShowHint: Boolean; read write;
   property Visible: Boolean; read write;
   property Enabled: Boolean; read write;
-  property Cursor: Integer; read write;
+  property Cursor: TCursor; read write;
 end;
 
 TWinControl = class(TControl)

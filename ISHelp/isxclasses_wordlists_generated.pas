@@ -7,7 +7,8 @@ interface
 var
   PascalConstants_IsxClasses: array of AnsiString = [
     'soFromBeginning', 'soFromCurrent', 'soFromEnd',
-    'clBlack', 'clMaroon', 'clGreen', 'clOlive', 'clNavy', 'clPurple', 'clTeal', 'clGray', 'clSilver', 'clRed', 'clLime', 'clYellow', 'clBlue', 'clFuchsia', 'clAqua', 'clLtGray', 'clDkGray', 'clWhite', 'clNone', 'clDefault', 'clScrollBar', 'clBackground', 'clActiveCaption', 'clInactiveCaption', 'clMenu', 'clWindow', 'clWindowFrame', 'clMenuText', 'clWindowText', 'clCaptionText', 'clActiveBorder', 'clInactiveBorder', 'clAppWorkSpace', 'clHighlight', 'clHighlightText', 'clBtnFace', 'clBtnShadow', 'clGrayText', 'clBtnText', 'clInactiveCaptionText', 'clBtnHighlight', 'cl3DDkShadow', 'cl3DLight', 'clInfoText', 'clInfoBk', 'clHotLight'
+    'clBlack', 'clMaroon', 'clGreen', 'clOlive', 'clNavy', 'clPurple', 'clTeal', 'clGray', 'clSilver', 'clRed', 'clLime', 'clYellow', 'clBlue', 'clFuchsia', 'clAqua', 'clLtGray', 'clDkGray', 'clWhite', 'clNone', 'clDefault', 'clScrollBar', 'clBackground', 'clActiveCaption', 'clInactiveCaption', 'clMenu', 'clWindow', 'clWindowFrame', 'clMenuText', 'clWindowText', 'clCaptionText', 'clActiveBorder', 'clInactiveBorder', 'clAppWorkSpace', 'clHighlight', 'clHighlightText', 'clBtnFace', 'clBtnShadow', 'clGrayText', 'clBtnText', 'clInactiveCaptionText', 'clBtnHighlight', 'cl3DDkShadow', 'cl3DLight', 'clInfoText', 'clInfoBk', 'clHotLight',
+    'crDefault', 'crNone', 'crArrow', 'crCross', 'crIBeam', 'crSizeNESW', 'crSizeNS', 'crSizeNWSE', 'crSizeWE', 'crUpArrow', 'crHourGlass', 'crDrag', 'crNoDrop', 'crHSplit', 'crVSplit', 'crMultiDrag', 'crSQLWait', 'crNo', 'crAppStart', 'crHelp', 'crHandPoint', 'crSizeAll', 'crHand'
   ];
 
   PascalTypes_IsxClasses: array of AnsiString = [
@@ -15,25 +16,25 @@ var
     'TStringList', 'TStream', 'THandleStream', 'TFileStream', 'TStringStream', 'TGraphicsObject',
     'TBrushStyle', 'TBrush', 'TFontStyle', 'TFontStyles', 'TColor', 'TFont', 'TPenMode',
     'TPenStyle', 'TPen', 'TCanvas', 'TGraphic', 'TAlphaFormat', 'HBITMAP', 'TBitmap', 'TAlign',
-    'TAnchorKind', 'TAnchors', 'TControl', 'TWinControl', 'TGraphicControl', 'TCustomControl',
-    'TScrollingWinControl', 'TFormBorderStyle', 'TBorderIcon', 'TBorderIcons', 'TConstraintSize',
-    'TSizeConstraints', 'TFormStyle', 'TPosition', 'TCloseAction', 'TCloseEvent', 'TCloseQueryEvent',
-    'TEShiftState', 'TShiftState', 'TKeyEvent', 'TKeyPressEvent', 'TForm', 'TCustomLabel',
-    'TAlignment', 'TLabel', 'TCustomEdit', 'TBorderStyle', 'TEditCharCase', 'TEdit', 'TNewEdit',
-    'TCustomMemo', 'TScrollStyle', 'TMemo', 'TNewMemo', 'TCustomComboBox', 'TComboBoxStyle',
-    'TComboBox', 'TNewComboBox', 'TButtonControl', 'TButton', 'TNewButton', 'TCustomCheckBox',
-    'TCheckBoxState', 'TCheckBox', 'TNewCheckBox', 'TRadioButton', 'TNewRadioButton', 'TSysLinkType',
-    'TSysLinkEvent', 'TCustomLinkLabel', 'TLinkLabel', 'TNewLinkLabel', 'TCustomListBox',
-    'TListBoxStyle', 'TListBox', 'TNewListBox', 'TBevelKind', 'TBevelShape', 'TBevelStyle',
-    'TBevel', 'TCustomPanel', 'TPanelBevel', 'TBevelWidth', 'TBorderWidth', 'TPanel', 'TNewStaticText',
-    'TCheckItemOperation', 'TNewCheckListBox', 'TNewProgressBarState', 'TNewProgressBarStyle',
-    'TNewProgressBar', 'TRichEditViewer', 'TPasswordEdit', 'TCustomFolderTreeView', 'TFolderRenameEvent',
-    'TFolderTreeView', 'TStartMenuFolderTreeView', 'TBitmapImage', 'TNewNotebook', 'TNewNotebookPage',
-    'TWizardPageNotifyEvent', 'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageShouldSkipEvent',
-    'TWizardPage', 'TInputQueryWizardPage', 'TInputOptionWizardPage', 'TInputDirWizardPage',
-    'TInputFileWizardPage', 'TOutputMsgWizardPage', 'TOutputMsgMemoWizardPage', 'TOutputProgressWizardPage',
-    'TOutputMarqueeProgressWizardPage', 'TDownloadWizardPage', 'TUIStateForm', 'TSetupForm',
-    'TMainForm', 'TWizardForm', 'TUninstallProgressForm'
+    'TAnchorKind', 'TAnchors', 'TCursor', 'TControl', 'TWinControl', 'TGraphicControl',
+    'TCustomControl', 'TScrollingWinControl', 'TFormBorderStyle', 'TBorderIcon', 'TBorderIcons',
+    'TConstraintSize', 'TSizeConstraints', 'TFormStyle', 'TPosition', 'TCloseAction', 'TCloseEvent',
+    'TCloseQueryEvent', 'TEShiftState', 'TShiftState', 'TKeyEvent', 'TKeyPressEvent', 'TForm',
+    'TCustomLabel', 'TAlignment', 'TLabel', 'TCustomEdit', 'TBorderStyle', 'TEditCharCase',
+    'TEdit', 'TNewEdit', 'TCustomMemo', 'TScrollStyle', 'TMemo', 'TNewMemo', 'TCustomComboBox',
+    'TComboBoxStyle', 'TComboBox', 'TNewComboBox', 'TButtonControl', 'TButton', 'TNewButton',
+    'TCustomCheckBox', 'TCheckBoxState', 'TCheckBox', 'TNewCheckBox', 'TRadioButton', 'TNewRadioButton',
+    'TSysLinkType', 'TSysLinkEvent', 'TCustomLinkLabel', 'TLinkLabel', 'TNewLinkLabel',
+    'TCustomListBox', 'TListBoxStyle', 'TListBox', 'TNewListBox', 'TBevelKind', 'TBevelShape',
+    'TBevelStyle', 'TBevel', 'TCustomPanel', 'TPanelBevel', 'TBevelWidth', 'TBorderWidth',
+    'TPanel', 'TNewStaticText', 'TCheckItemOperation', 'TNewCheckListBox', 'TNewProgressBarState',
+    'TNewProgressBarStyle', 'TNewProgressBar', 'TRichEditViewer', 'TPasswordEdit', 'TCustomFolderTreeView',
+    'TFolderRenameEvent', 'TFolderTreeView', 'TStartMenuFolderTreeView', 'TBitmapImage',
+    'TNewNotebook', 'TNewNotebookPage', 'TWizardPageNotifyEvent', 'TWizardPageButtonEvent',
+    'TWizardPageCancelEvent', 'TWizardPageShouldSkipEvent', 'TWizardPage', 'TInputQueryWizardPage',
+    'TInputOptionWizardPage', 'TInputDirWizardPage', 'TInputFileWizardPage', 'TOutputMsgWizardPage',
+    'TOutputMsgMemoWizardPage', 'TOutputProgressWizardPage', 'TOutputMarqueeProgressWizardPage',
+    'TDownloadWizardPage', 'TUIStateForm', 'TSetupForm', 'TMainForm', 'TWizardForm', 'TUninstallProgressForm'
   ];
 
   PascalEnumValues_IsxClasses: array of AnsiString = [
