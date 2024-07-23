@@ -3921,6 +3921,12 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
+          NNT(awtSection, 'ac\structure-filled'),
+          NNT(awtParameter, 'ac\xml-filled'),
+          NNT(awtDirective, 'ac\xml-filled'),
+          NNT(awtFlag, 'ac\values'),
+          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
+          NNT(awtConstant, 'ac\constant-filled_2'),
           NNT(awtScriptFunction, 'ac\method-filled'),
           NNT(awtScriptType, 'ac\types'),
           NNT(awtScriptVariable, 'ac\variables'),
@@ -3930,12 +3936,8 @@ begin
           NNT(awtScriptProperty, 'ac\properties-filled'),
           NNT(awtScriptObject, 'ac\object-filled'),
           NNT(awtScriptEvent, 'ac\event-filled'),
-          NNT(awtSection, 'ac\structure-filled'),
-          NNT(awtParameter, 'ac\xml-filled'),
-          NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlag, 'ac\values'),
-          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
-          NNT(awtConstant, 'ac\constant-filled_2')];
+          NNT(awtScriptKeyword, 'ac\list'),
+          NNT(awtScriptEnum, 'ac\constant-filled')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
@@ -4953,11 +4955,11 @@ begin
             end;
           end;
 
-          { If no event function was found then autocomplete script functions if
-            the current word has no dot before it }
+          { If no event function was found then autocomplete script functions,
+            types, etc if the current word has no dot before it }
           if WordList = '' then begin
-            var ClassFunction := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-            if not ClassFunction then begin
+            var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+            if not ClassOrRecordMember then begin
               WordList := FMemosStyler.ScriptWordList;
               FActiveMemo.SetAutoCompleteFillupChars('(')
             end;
@@ -5082,7 +5084,7 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  var ClassFunction := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  var ClassOrRecordMember := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
@@ -5091,13 +5093,13 @@ begin
   FCallTipState.FunctionDefinition := '';
 
   { FillFunctionDefinition - if this is separated for multiple calltips support like in SciTE then the following vars
-    need to be moved into FCallTipState: CurrentCallTipWord, ClassFunction, LastPosCallTip }
+    need to be moved into FCallTipState: CurrentCallTipWord, ClassOrRecordMember, LastPosCallTip }
 
   var LastPosCallTip := Pos;
 
   // Should get current api definition
   var Word: AnsiString;
-  if not ClassFunction then
+  if not ClassOrRecordMember then
     Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
   else
     Word := '';
@@ -5228,7 +5230,7 @@ begin
 
   if DoAutoComplete then begin
     case Ch of
-      'A'..'Z', 'a'..'z', '_', '#', '{', '[':
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<':
         if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
           InitiateAutoComplete(Ch);
     else

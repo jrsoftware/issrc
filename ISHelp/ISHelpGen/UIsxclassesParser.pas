@@ -10,48 +10,70 @@ type
   private
     FLines: TStringList;
     FTypes: TStringList;
+    FEnumValues: TStringList;
+    FConstants: TStringList;
   public
-    constructor Create();
-    destructor Destroy(); override;
+    constructor Create;
+    destructor Destroy; override;
     procedure Parse(const FileName: String);
     procedure SaveXML(const HeaderFileName, HeaderFileName2, FooterFileName, OutputFileName: String);
+    procedure SaveWordLists(const OutputFileName: String);
   end;
 
 implementation
 
 uses
-  Windows,
-  SysUtils;
+  Windows, SysUtils,
+  PathFunc;
 
-constructor TIsxclassesParser.Create();
+constructor TIsxclassesParser.Create;
 begin
   inherited;
-  FLines := TStringList.Create();
-  FTypes := TStringList.Create();
+  FLines := TStringList.Create;
+  FTypes := TStringList.Create;
+  FEnumValues := TStringList.Create;
+  FConstants := TStringList.Create;
 end;
 
-destructor TIsxclassesParser.Destroy();
+destructor TIsxclassesParser.Destroy;
 begin
-  FTypes.Free();
-  FLines.Free();
+  FConstants.Free;
+  FEnumValues.Free;
+  FTypes.Free;
+  FLines.Free;
   inherited;
 end;
 
 procedure TIsxclassesParser.Parse(const FileName: String);
-var
-  F: TextFile;
-  S: String;
-  P: Integer;
 begin
+  var F: TextFile;
   AssignFile(F, FileName);
   Reset(F);
   try
     while not Eof(F) do begin
+      var S: String;
       ReadLn(F, S);
       FLines.Add(S);
-      P := Pos('=', S);
-      if P > 1 then
-        FTypes.Add(Trim(Copy(S, 1, P-1)))
+      var P := Pos('=', S);
+      if P > 1 then begin
+        { Remember type and if it's an enum also remember the enum values }
+        FTypes.Add(Trim(Copy(S, 1, P-1)));
+        Delete(S, 1, P+1);
+        var N := Length(S);
+        if (N > 3) and (S[1] = '(') and (S[N-1] = ')') and (S[N] = ';') then
+          FEnumValues.Add(Copy(S, 2, N-3));
+      end;
+      P := Pos('{', S);
+      if P <> 0 then begin
+        { Remember constants }
+        P := Pos(': ', S);
+        if P <> 0 then begin
+          Delete(S, 1, P+1);
+          var N := Length(S);
+          if (N > 2) and (S[N-1] = ' ') and (S[N] = '}') then
+            FConstants.Add(Copy(S, 1, N-2));
+        end;
+      end;
     end;
   finally
     CloseFile(F);
@@ -61,13 +83,12 @@ end;
 procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, FooterFileName, OutputFileName: String);
 
   procedure FCopyFile(const SourceFileName, DestFileName: String; AppendToDestFile: Boolean);
-  var
-    F1, F2: TextFile;
-    S: String;
   begin
+    var F1: TextFile;
     AssignFile(F1, SourceFileName);
     Reset(F1);
     try
+      var F2: TextFile;
       AssignFile(F2, DestFileName);
       if AppendToDestFile then begin
         if FileExists(DestFileName) then
@@ -78,6 +99,7 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
         Rewrite(F2);
       try
         while not Eof(F1) do begin
+          var S: String;
           ReadLn(F1, S);
           WriteLn(F2, S);
         end;
@@ -90,8 +112,6 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
   end;
 
   function FGetNextPart(var Text: PChar): String;
-  var
-    P: PChar;
   begin
     case Text^ of
       #0:
@@ -100,20 +120,20 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
         end;
       #1..#32:
         begin
-          P := Text;
+          var P := Text;
           Inc(Text);
           while CharInSet(Text^ , [#1..#32]) do
             Inc(Text);
           SetString(Result, P, Text - P);
         end;
-      '(', ')', ',', '=', ':', ';', '[', ']':
+      '(', ')', ',', '=', ':', ';', '[', ']', '{', '}':
         begin
           Result := Text^;
           Inc(Text);
         end;
       '0'..'9', 'A'..'Z', 'a'..'z', '_', '.':
         begin
-          P := Text;
+          var P := Text;
           Inc(Text);
           while CharInSet(Text^ , ['0'..'9', 'A'..'Z', 'a'..'z', '_', '.']) do
             Inc(Text);
@@ -125,14 +145,11 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
   end;
 
   function FLinkTypes(const S: String): String;
-  var
-    Text: PChar;
-    NextPart: String;
   begin
     Result := '';
-    Text := PChar(S);
+    var Text := PChar(S);
 
-    NextPart := FGetNextPart(Text);
+    var NextPart := FGetNextPart(Text);
     while NextPart <> '' do begin
       if FTypes.IndexOf(NextPart) >= 0 then begin
         if Result = '' then //start of line = object definition
@@ -146,11 +163,9 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
   end;
 
   function FConvertLeadingSpacesToNbsp(const S: String): String;
-  var
-    I: Integer;
   begin
     Result := S;
-    I := 1;
+    var I := 1;
     while (I <= Length(Result)) and (Result[I] = ' ') do begin
       Delete(Result, I, 1);
       Insert('&nbsp;', Result, I);
@@ -158,18 +173,15 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
     end;
   end;
 
-var
-  F: TextFile;
-  I: Integer;
-  S: String;
 begin
   FCopyFile(HeaderFileName, OutputFileName, False);
 
+  var F: TextFile;
   AssignFile(F, OutputFileName);
   Append(F);
   try
-    for I := 0 to FTypes.Count-1 do begin
-      S := '<keyword value="' + FTypes[I] + '" anchor="' + FTypes[I] + '" />';
+    for var I := 0 to FTypes.Count-1 do begin
+      var S := '<keyword value="' + FTypes[I] + '" anchor="' + FTypes[I] + '" />';
       WriteLn(F, S);
     end;
     WriteLn(F, '<keyword value="MainForm" />');
@@ -185,8 +197,8 @@ begin
   Append(F);
   try
     WriteLn(F, '<p><br/><tt>');
-    for I := 0 to FLines.Count-1 do begin
-      S := FLinkTypes(FLines[I]);
+    for var I := 0 to FLines.Count-1 do begin
+      var S := FLinkTypes(FLines[I]);
       S := FConvertLeadingSpacesToNbsp(S);
       WriteLn(F, S, '<br/>');
     end;
@@ -197,5 +209,59 @@ begin
 
   FCopyFile(FooterFileName, OutputFileName, True);
 end;
+
+procedure TIsxclassesParser.SaveWordLists(const OutputFileName: String);
+
+  procedure WriteStringArray(const F: TextFile; const Name, Indent: String;
+    const Values: TStrings; const NewLineLength: Integer);
+  begin
+    WriteLn(F, Indent + Name + ': array of AnsiString = [');
+    var S: String;
+    for var I := 0 to Values.Count-1 do begin
+      if S <> '' then
+        S := S + ', ';
+      var V := Values[I];
+      V := StringReplace(V, ', ', ',', [rfReplaceAll]);
+      V := '''' + StringReplace(V, ',', ''', ''', [rfReplaceAll]) + '''';
+      S := S + V;
+      if Length(S) > NewLineLength then begin
+        if I <> Values.Count-1 then
+          S := S + ',';
+        WriteLn(F, Indent + Indent + S);
+        S := '';
+      end;
+    end;
+    if S <> '' then
+      WriteLn(F, Indent + Indent + S);
+    WriteLn(F, Indent + '];');
+  end;
+
+begin
+  var F: TextFile;
+  AssignFile(F, OutputFileName);
+  Rewrite(F);
+  try
+    const Indent = '  ';
+    WriteLn(F, 'unit ' + PathChangeExt(PathExtractName(OutputFileName), '') + ';');
+    WriteLn(F);
+    WriteLn(F, '{ This file is automatically generated by ISHelpGen. Do not edit. }');
+    WriteLn(F);
+    WriteLn(F, 'interface');
+    WriteLn(F);
+    WriteLn(F, 'var');
+    WriteStringArray(F, 'PascalConstants_IsxClasses', Indent, FConstants, 0);
+    WriteLn(F);
+    WriteStringArray(F, 'PascalTypes_IsxClasses', Indent, FTypes, 80);
+    WriteLn(F);
+    WriteStringArray(F, 'PascalEnumValues_IsxClasses', Indent, FEnumValues, 0);
+    WriteLn(F);
+    WriteLN(F, 'implementation');
+    WriteLn(F);
+    Write(F, 'end.');
+  finally
+    CloseFile(F);
+  end;
+end;
+
 
 end.

@@ -59,14 +59,6 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
     C.Value.tU32 := Value;
   end;
 
-  procedure RegisterEnum(const TypeInfo: PTypeInfo; const MinValue, MaxValue: Integer);
-  var
-    Value: Integer;
-  begin
-    for Value := MinValue to MaxValue do
-      RegisterConst(tbtstring(GetEnumName(TypeInfo, Value)), Value);
-  end;
-
   procedure RegisterRealEnum(const Name: tbtstring; const TypeInfo: PTypeInfo);
   var
     TypeData: PTypeData;

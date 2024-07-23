@@ -7,8 +7,6 @@ unit ScriptFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script support functions (listings - used by Compil32, ISCmplr, and Setup)
-
-  Script constants, types, etc (listings - used by Compil32)
 }
 
 interface
@@ -37,7 +35,7 @@ var
 
   { These are just for Compil32 and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
-    TPSExec.RegisterStandardProc }
+    TPSExec.RegisterStandardProc and RegisterDll_Compiletime and RegisterDLLRuntimeEx }
   ROPSScriptFuncTable: TScriptTable =
   [
     'function StrToIntDef(S: String; Def: LongInt): LongInt;',
@@ -70,6 +68,8 @@ var
     'function VarArrayGet(var S: Variant; I: Integer): Variant;',
     'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);',
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
+    'procedure UnloadDll(S: String);',
+    'function DllGetLastError: LongInt;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -77,7 +77,11 @@ var
     'procedure Inc(var X: Ordinal);',
     'procedure Include(var S: Set; I: Ordinal);',
     'procedure Exclude(var S: Set; I: Ordinal);',
-    'function SizeOf(var X): LongInt;'
+    'function SizeOf(var X): LongInt;',
+    { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
+    'function Chr(B: Byte): Char;',
+    'function Ord(C: Char): Byte;',
+    'procedure Exit;'
   ];
 
   { ROPSUndocumentedScriptFuncTable: TScriptTable =
