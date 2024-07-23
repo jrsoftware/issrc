@@ -6,8 +6,7 @@ unit LZMA;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the LZMA/LZMA2 compression DLL and EXEs in lzma2\Encoder, used by
-  ISCmplr.
+  Interface to the islzma LZMA/LZMA2 compression DLL and EXEs, used by ISCmplr.
 }
 
 interface
