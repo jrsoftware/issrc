@@ -6,7 +6,7 @@ uses
   Classes;
 
 type
-  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember);
+  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember, ssProperty);
   TIsxclassesParserStrings = array [TIsxclassesParserStoredString] of TStringList;
 
   TIsxclassesParser = class
@@ -42,6 +42,8 @@ begin
   { Sorted for ignoring duplicates }
   FStrings[ssMember].Duplicates := dupIgnore;
   FStrings[ssMember].Sorted := True;
+  FStrings[ssProperty].Duplicates := dupIgnore;
+  FStrings[ssProperty].Sorted := True;
 end;
 
 destructor TIsxclassesParser.Destroy;
@@ -110,16 +112,19 @@ begin
         Continue;
       end;
 
+      var Typ := ssMember;
       P := Pos('procedure ', S);
       if P = 0 then
         P := Pos('function ', S);
-      if P = 0 then
+      if P = 0 then begin
+        Typ := ssProperty;
         P := Pos('property ', S);
+      end;
       if P <> 0 then begin
         Delete(S, 1, P-1);
         P := Pos(' ', S);
         Delete(S, 1, P);
-        FStrings[ssMember].Add(ExtractScriptFuncWithoutHeaderName(S));
+        FStrings[Typ].Add(ExtractScriptFuncWithoutHeaderName(S));
         Continue;
       end;
     end;
@@ -309,6 +314,10 @@ begin
     WriteStringArray(F, 'PascalTypes_Isxclasses', Indent, FStrings[ssType], 80);
     WriteLn(F);
     WriteStringArray(F, 'PascalEnumValues_Isxclasses', Indent, FStrings[ssEnumValue], 0);
+    WriteLn(F);
+    WriteStringArray(F, 'PascalMembers_Isxclasses', Indent, FStrings[ssMember], 80);
+    WriteLn(F);
+    WriteStringArray(F, 'PascalProperties_Isxclasses', Indent, FStrings[ssProperty], 80);
     WriteLn(F);
     WriteLN(F, 'implementation');
     WriteLn(F);

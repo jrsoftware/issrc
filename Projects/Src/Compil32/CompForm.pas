@@ -4957,10 +4957,8 @@ begin
             types, etc if the current word has no dot before it }
           if WordList = '' then begin
             var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-            if not ClassOrRecordMember then begin
-              WordList := FMemosStyler.ScriptWordList;
-              FActiveMemo.SetAutoCompleteFillupChars('(')
-            end;
+            WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
+            FActiveMemo.SetAutoCompleteFillupChars('(')
           end;
 
           if WordList = '' then

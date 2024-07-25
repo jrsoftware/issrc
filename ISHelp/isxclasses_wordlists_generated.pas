@@ -68,6 +68,68 @@ var
     'taLeftJustify', 'taRightJustify', 'taCenter'
   ];
 
+  PascalMembers_Isxclasses: array of AnsiString = [
+    'Add', 'AddCheckBox', 'AddEx', 'AddGroup', 'AddRadioButton', 'AddStrings', 'AdjustHeight',
+    'AdjustLabelHeight', 'AdjustLinkLabelHeight', 'Animate', 'Append', 'Arc', 'Assign',
+    'BringToFront', 'CalculateButtonWidth', 'CanFocus', 'ChangeDirectory', 'CheckItem',
+    'Chord', 'Clear', 'ClearSelection', 'Close', 'CopyFrom', 'CreateNewDirectory', 'Delete',
+    'DestroyComponents', 'Destroying', 'Download', 'Draw', 'Ellipse', 'Find', 'FindComponent',
+    'FindNextPage', 'FlipSizeAndCenterIfNeeded', 'FloodFill', 'Focused', 'Free', 'FreeNotification',
+    'Hide', 'IncTopDecHeight', 'IndexOf', 'Insert', 'InsertComponent', 'Invalidate', 'LineTo',
+    'LoadFromFile', 'LoadFromStream', 'MoveTo', 'Pie', 'Read', 'ReadBuffer', 'Rectangle',
+    'Refresh', 'Release', 'RemoveComponent', 'Repaint', 'RoundRect', 'SaveToFile', 'SaveToStream',
+    'ScrollInView', 'Seek', 'SelectAll', 'SendToBack', 'SetBounds', 'SetPaths', 'SetProgress',
+    'SetText', 'ShouldSizeX', 'ShouldSizeY', 'Show', 'ShowAboutBox', 'ShowModal', 'Sort',
+    'TextHeight', 'TextOut', 'TextWidth', 'Update', 'Write', 'WriteBuffer'
+  ];
+
+  PascalProperties_Isxclasses: array of AnsiString = [
+    'AbortButton', 'AbortedByUser', 'Active', 'ActiveControl', 'ActivePage', 'Align', 'Alignment',
+    'AllowGrayed', 'AlphaFormat', 'Anchors', 'AutoScroll', 'AutoSelect', 'AutoSize', 'BackButton',
+    'BackColor', 'Bevel', 'Bevel1', 'BeveledLabel', 'BevelInner', 'BevelKind', 'BevelOuter',
+    'BevelWidth', 'Bitmap', 'BorderIcons', 'BorderStyle', 'BorderWidth', 'Brush', 'Buttons',
+    'Cancel', 'CancelButton', 'Canvas', 'Caption', 'Center', 'CharCase', 'Checked', 'CheckListBox',
+    'ClientHeight', 'ClientWidth', 'Color', 'CommaText', 'ComponentCount', 'ComponentIndex',
+    'Components', 'ComponentsDiskSpaceLabel', 'ComponentsList', 'ComponentState', 'Constraints',
+    'ControlCount', 'Controls', 'ControlsFlipped', 'CopyMode', 'Count', 'CurPageID', 'Cursor',
+    'Default', 'Description', 'DesignInfo', 'DirBrowseButton', 'DirEdit', 'DiskSpaceLabel',
+    'DropDownCount', 'DroppedDown', 'Duplicates', 'Edits', 'Empty', 'Enabled', 'FilenameLabel',
+    'FinishedHeadingLabel', 'FinishedLabel', 'FinishedPage', 'Flat', 'FlipControlsOnShow',
+    'FocusControl', 'Font', 'ForceLTRReading', 'FormStyle', 'GroupBrowseButton', 'GroupEdit',
+    'Handle', 'Height', 'HideSelection', 'Hint', 'ID', 'InfoAfterClickLabel', 'InfoAfterMemo',
+    'InfoAfterPage', 'InfoBeforeClickLabel', 'InfoBeforeMemo', 'InfoBeforePage', 'InnerNotebook',
+    'InnerPage', 'InstallingPage', 'IsSaveButton', 'ItemCaption', 'ItemEnabled', 'ItemFontStyle',
+    'ItemIndex', 'ItemLevel', 'ItemObject', 'Items', 'ItemSubItem', 'KeepSizeY', 'KeyPreview',
+    'Left', 'LicenseAcceptedRadio', 'LicenseLabel1', 'LicenseMemo', 'LicenseNotAcceptedRadio',
+    'LicensePage', 'Lines', 'MainPanel', 'Max', 'MaxHeight', 'MaxLength', 'MaxWidth', 'Min',
+    'MinHeight', 'MinItemHeight', 'MinWidth', 'ModalResult', 'Mode', 'Modified', 'Msg1Label',
+    'Msg2Label', 'MsgLabel', 'MultiSelect', 'Name', 'NextButton', 'NoIconsCheck', 'NoRadio',
+    'Notebook', 'Objects', 'Offset', 'OnActivate', 'OnBackButtonClick', 'OnCancelButtonClick',
+    'OnChange', 'OnChanging', 'OnClick', 'OnClickCheck', 'OnClose', 'OnCloseQuery', 'OnCreate',
+    'OnDblClick', 'OnDeactivate', 'OnDestroy', 'OnDropDown', 'OnHide', 'OnKeyDown', 'OnKeyPress',
+    'OnKeyUp', 'OnLinkClick', 'OnNextButtonClick', 'OnRename', 'OnResize', 'OnShouldSkipPage',
+    'OnShow', 'OuterNotebook', 'Owner', 'PageCount', 'PageDescriptionLabel', 'PageIndex',
+    'PageNameLabel', 'Pages', 'Parent', 'ParentBackground', 'Password', 'PasswordChar',
+    'PasswordEdit', 'PasswordEditLabel', 'PasswordLabel', 'PasswordPage', 'Pen', 'Pitch',
+    'Pixels', 'PixelsPerInch', 'Position', 'PreparingErrorBitmapImage', 'PreparingLabel',
+    'PreparingMemo', 'PreparingNoRadio', 'PreparingPage', 'PreparingYesRadio', 'PrevAppDir',
+    'ProgressBar', 'ProgressGauge', 'PromptLabels', 'ReadOnly', 'ReadyLabel', 'ReadyMemo',
+    'ReadyPage', 'ReplaceColor', 'ReplaceWithColor', 'RequireRadioSelection', 'RichEditViewer',
+    'RightToLeft', 'RTFText', 'RunList', 'ScrollBars', 'SelCount', 'SelectComponentsLabel',
+    'SelectComponentsPage', 'SelectDirBitmapImage', 'SelectDirBrowseLabel', 'SelectDirLabel',
+    'SelectDirPage', 'Selected', 'SelectedValueIndex', 'SelectGroupBitmapImage', 'SelectProgramGroupPage',
+    'SelectStartMenuFolderBrowseLabel', 'SelectStartMenuFolderLabel', 'SelectTasksLabel',
+    'SelectTasksPage', 'SelLength', 'SelStart', 'SelText', 'Shape', 'ShowAccelChar', 'ShowBaseNameInsteadOfUrl',
+    'ShowHint', 'Showing', 'ShowLines', 'Size', 'SizeAndCenterOnShow', 'Sorted', 'State',
+    'StatusLabel', 'Stretch', 'Strings', 'Style', 'SubCaptionLabel', 'SubItemFontStyle',
+    'Surface', 'SurfaceColor', 'SurfaceHeight', 'SurfaceWidth', 'TabOrder', 'TabStop',
+    'Tag', 'TasksList', 'Text', 'Top', 'TypesCombo', 'UseRichEdit', 'UserInfoNameEdit',
+    'UserInfoNameLabel', 'UserInfoOrgEdit', 'UserInfoOrgLabel', 'UserInfoPage', 'UserInfoSerialEdit',
+    'UserInfoSerialLabel', 'UseVisualStyle', 'Values', 'Visible', 'WantReturns', 'WantTabs',
+    'WelcomeLabel1', 'WelcomeLabel2', 'WelcomePage', 'Width', 'WizardBitmapImage', 'WizardBitmapImage2',
+    'WizardSmallBitmapImage', 'WordWrap', 'YesRadio'
+  ];
+
 implementation
 
 end.

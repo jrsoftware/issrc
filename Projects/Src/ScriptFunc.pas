@@ -156,6 +156,7 @@ begin
     raise Exception.CreateFmt('Invalid FunctionDefinition: %s', [Result]);
 end;
 
+{ Also present in UIsxclassesParser.pas }
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 begin
   Result := ScriptFuncWithoutHeader;
