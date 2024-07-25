@@ -4718,10 +4718,14 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
   end;
 
   procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
+  const
+    OpeningBraces: TSysCharSet = ['(', '[', '{', '<'];
+    ClosingBraces: TSysCharSet = [')', ']', '}', '>'];
 
-    function HighlightPos(const AMemo: TCompScintEdit; Pos: Integer;
+    function HighlightPos(const AMemo: TCompScintEdit; const CaretPos: Integer;
       const Before: Boolean; const Braces: TSysCharSet): Boolean;
     begin
+      var Pos := CaretPos;
       if Before then begin
         if Pos > 0 then
           Pos := AMemo.GetPositionBefore(Pos)
@@ -4734,8 +4738,15 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
         var MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
         if MatchPos >= 0 then
           AMemo.SetBraceHighlighting(Pos, MatchPos)
-        else
-          AMemo.SetBraceBadHighlighting(Pos);
+        else begin
+          { Found an unmatched brace: highlight it as bad unless it's an opening
+            brace and the caret is at the end of the line }
+          var CaretLineEndPos := AMemo.GetLineEndPosition(AMemo.CaretLine);
+          if (C in ClosingBraces) or (CaretPos <> CaretLineEndPos) then
+            AMemo.SetBraceBadHighlighting(Pos)
+          else
+            AMemo.SetBraceHighlighting(-1, -1);
+        end;
       end;
     end;
 
@@ -4744,8 +4755,6 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     var Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       var Pos := AMemo.CaretPosition;
-      const OpeningBraces: TSysCharSet = ['(', '[', '{', '<'];
-      const ClosingBraces: TSysCharSet = [')', ']', '}', '>'];
       Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, OpeningBraces);
       Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, ClosingBraces);
       Highlighted := Highlighted or HighlightPos(AMemo, Pos, True, ClosingBraces);
