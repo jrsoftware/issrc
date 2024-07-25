@@ -6,12 +6,12 @@ uses
   Classes;
 
 type
+  TIsxClassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember);
+  TIsxClassesParserStrings = array [TIsxClassesParserStoredString] of TStringList;
+
   TIsxclassesParser = class
   private
-    FLines: TStringList;
-    FTypes: TStringList;
-    FEnumValues: TStringList;
-    FConstants: TStringList;
+    FStrings: TIsxClassesParserStrings;
   public
     constructor Create;
     destructor Destroy; override;
@@ -29,18 +29,14 @@ uses
 constructor TIsxclassesParser.Create;
 begin
   inherited;
-  FLines := TStringList.Create;
-  FTypes := TStringList.Create;
-  FEnumValues := TStringList.Create;
-  FConstants := TStringList.Create;
+  for var I := Low(TIsxClassesParserStoredString) to High(TIsxClassesParserStoredString) do
+    FStrings[I] := TStringList.Create;
 end;
 
 destructor TIsxclassesParser.Destroy;
 begin
-  FConstants.Free;
-  FEnumValues.Free;
-  FTypes.Free;
-  FLines.Free;
+  for var I := Low(TIsxClassesParserStoredString) to High(TIsxClassesParserStoredString) do
+    FStrings[I].Free;
   inherited;
 end;
 
@@ -53,15 +49,15 @@ begin
     while not Eof(F) do begin
       var S: String;
       ReadLn(F, S);
-      FLines.Add(S);
+      FStrings[ssLine].Add(S);
       var P := Pos('=', S);
       if P > 1 then begin
         { Remember type and if it's an enum also remember the enum values }
-        FTypes.Add(Trim(Copy(S, 1, P-1)));
+        FStrings[ssType].Add(Trim(Copy(S, 1, P-1)));
         Delete(S, 1, P+1);
         var N := Length(S);
         if (N > 3) and (S[1] = '(') and (S[N-1] = ')') and (S[N] = ';') then
-          FEnumValues.Add(Copy(S, 2, N-3));
+          FStrings[ssEnumValue].Add(Copy(S, 2, N-3));
       end;
       P := Pos('{', S);
       if P <> 0 then begin
@@ -71,7 +67,7 @@ begin
           Delete(S, 1, P+1);
           var N := Length(S);
           if (N > 2) and (S[N-1] = ' ') and (S[N] = '}') then
-            FConstants.Add(Copy(S, 1, N-2));
+            FStrings[ssConstant].Add(Copy(S, 1, N-2));
         end;
       end;
     end;
@@ -151,7 +147,7 @@ procedure TIsxclassesParser.SaveXML(const HeaderFileName, HeaderFileName2, Foote
 
     var NextPart := FGetNextPart(Text);
     while NextPart <> '' do begin
-      if FTypes.IndexOf(NextPart) >= 0 then begin
+      if FStrings[ssType].IndexOf(NextPart) >= 0 then begin
         if Result = '' then //start of line = object definition
           NextPart := '<a name="' + NextPart + '">' + NextPart + '</a>'
         else
@@ -180,8 +176,8 @@ begin
   AssignFile(F, OutputFileName);
   Append(F);
   try
-    for var I := 0 to FTypes.Count-1 do begin
-      var S := '<keyword value="' + FTypes[I] + '" anchor="' + FTypes[I] + '" />';
+    for var Typ in FStrings[ssType] do begin
+      var S := '<keyword value="' + Typ + '" anchor="' + Typ + '" />';
       WriteLn(F, S);
     end;
     WriteLn(F, '<keyword value="MainForm" />');
@@ -197,8 +193,8 @@ begin
   Append(F);
   try
     WriteLn(F, '<p><br/><tt>');
-    for var I := 0 to FLines.Count-1 do begin
-      var S := FLinkTypes(FLines[I]);
+    for var Line in FStrings[ssLine] do begin
+      var S := FLinkTypes(Line);
       S := FConvertLeadingSpacesToNbsp(S);
       WriteLn(F, S, '<br/>');
     end;
@@ -249,11 +245,11 @@ begin
     WriteLn(F, 'interface');
     WriteLn(F);
     WriteLn(F, 'var');
-    WriteStringArray(F, 'PascalConstants_IsxClasses', Indent, FConstants, 0);
+    WriteStringArray(F, 'PascalConstants_IsxClasses', Indent, FStrings[ssConstant], 0);
     WriteLn(F);
-    WriteStringArray(F, 'PascalTypes_IsxClasses', Indent, FTypes, 80);
+    WriteStringArray(F, 'PascalTypes_IsxClasses', Indent, FStrings[ssType], 80);
     WriteLn(F);
-    WriteStringArray(F, 'PascalEnumValues_IsxClasses', Indent, FEnumValues, 0);
+    WriteStringArray(F, 'PascalEnumValues_IsxClasses', Indent, FStrings[ssEnumValue], 0);
     WriteLn(F);
     WriteLN(F, 'implementation');
     WriteLn(F);
