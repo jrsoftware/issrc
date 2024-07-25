@@ -30,13 +30,11 @@ const
   awtScriptType = 11;
   awtScriptVariable = 12;
   awtScriptConstant = 13;
-  awtScriptClass = 14;
-  awtScriptInterface = 15;
-  awtScriptProperty = 16;
-  awtScriptObject = 17;
-  awtScriptEvent = 18;
-  awtScriptKeyword = 19;
-  awtScriptEnum = 20;
+  awtScriptInterface = 14;
+  awtScriptProperty = 15;
+  awtScriptEvent = 16;
+  awtScriptKeyword = 17;
+  awtScriptEnumValue = 18;
 
 type
   TInnoSetupStylerSection = (
@@ -618,13 +616,13 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       for var S in PascalTypes_IsxClasses do
         AddWordToList(SL, S, awtScriptType);
       for var S in PascalEnumValues do
-        AddWordToList(SL, S, awtScriptEnum);
+        AddWordToList(SL, S, awtScriptEnumValue);
       for var S in PascalEnumValues_IsxClasses do
-        AddWordToList(SL, S, awtScriptEnum);
+        AddWordToList(SL, S, awtScriptEnumValue);
       for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
-          AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnum);
+          AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
       end;
       for var S in PascalVariables do
         AddWordToList(SL, S, awtScriptVariable);
