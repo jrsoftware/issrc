@@ -31,8 +31,15 @@ begin
   inherited;
   for var I := Low(TIsxClassesParserStoredString) to High(TIsxClassesParserStoredString) do
     FStrings[I] := TStringList.Create;
+  { Sorted for speed of IndexOf used below }
   FStrings[ssType].Duplicates := dupError;
   FStrings[ssType].Sorted := True;
+  { Sorted for sanity checking of duplicates }
+  FStrings[ssEnumValue].Duplicates := dupError;
+  FStrings[ssEnumValue].Sorted := True;
+  FStrings[ssConstant].Duplicates := dupError;
+  FStrings[ssConstant].Sorted := True;
+  { Sorted for ignoring duplicates }
   FStrings[ssMember].Duplicates := dupIgnore;
   FStrings[ssMember].Sorted := True;
 end;

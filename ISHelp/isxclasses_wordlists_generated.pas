@@ -6,9 +6,9 @@ interface
 
 var
   PascalConstants_Isxclasses: array of AnsiString = [
-    'soFromBeginning', 'soFromCurrent', 'soFromEnd',
     'clBlack', 'clMaroon', 'clGreen', 'clOlive', 'clNavy', 'clPurple', 'clTeal', 'clGray', 'clSilver', 'clRed', 'clLime', 'clYellow', 'clBlue', 'clFuchsia', 'clAqua', 'clLtGray', 'clDkGray', 'clWhite', 'clNone', 'clDefault', 'clScrollBar', 'clBackground', 'clActiveCaption', 'clInactiveCaption', 'clMenu', 'clWindow', 'clWindowFrame', 'clMenuText', 'clWindowText', 'clCaptionText', 'clActiveBorder', 'clInactiveBorder', 'clAppWorkSpace', 'clHighlight', 'clHighlightText', 'clBtnFace', 'clBtnShadow', 'clGrayText', 'clBtnText', 'clInactiveCaptionText', 'clBtnHighlight', 'cl3DDkShadow', 'cl3DLight', 'clInfoText', 'clInfoBk', 'clHotLight',
-    'crDefault', 'crNone', 'crArrow', 'crCross', 'crIBeam', 'crSizeNESW', 'crSizeNS', 'crSizeNWSE', 'crSizeWE', 'crUpArrow', 'crHourGlass', 'crDrag', 'crNoDrop', 'crHSplit', 'crVSplit', 'crMultiDrag', 'crSQLWait', 'crNo', 'crAppStart', 'crHelp', 'crHandPoint', 'crSizeAll', 'crHand'
+    'crDefault', 'crNone', 'crArrow', 'crCross', 'crIBeam', 'crSizeNESW', 'crSizeNS', 'crSizeNWSE', 'crSizeWE', 'crUpArrow', 'crHourGlass', 'crDrag', 'crNoDrop', 'crHSplit', 'crVSplit', 'crMultiDrag', 'crSQLWait', 'crNo', 'crAppStart', 'crHelp', 'crHandPoint', 'crSizeAll', 'crHand',
+    'soFromBeginning', 'soFromCurrent', 'soFromEnd'
   ];
 
   PascalTypes_Isxclasses: array of AnsiString = [
@@ -38,34 +38,34 @@ var
   ];
 
   PascalEnumValues_Isxclasses: array of AnsiString = [
-    'dupIgnore', 'dupAccept', 'dupError',
-    'bsSolid', 'bsClear', 'bsHorizontal', 'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
-    'fsBold', 'fsItalic', 'fsUnderline', 'fsStrikeOut',
-    'pmBlack', 'pmWhite', 'pmNop', 'pmNot', 'pmCopy', 'pmNotCopy', 'pmMergePenNot', 'pmMaskPenNot', 'pmMergeNotPen', 'pmMaskNotPen', 'pmMerge', 'pmNotMerge', 'pmMask', 'pmNotMask', 'pmXor', 'pmNotXor',
-    'psSolid', 'psDash', 'psDot', 'psDashDot', 'psDashDotDot', 'psClear', 'psInsideFrame',
     'afIgnored', 'afDefined', 'afPremultiplied',
-    'alNone', 'alTop', 'alBottom', 'alLeft', 'alRight', 'alClient',
     'akLeft', 'akTop', 'akRight', 'akBottom',
-    'bsNone', 'bsSingle', 'bsSizeable', 'bsDialog', 'bsToolWindow', 'bsSizeToolWin',
+    'alNone', 'alTop', 'alBottom', 'alLeft', 'alRight', 'alClient',
     'biSystemMenu', 'biMinimize', 'biMaximize', 'biHelp',
-    'fsNormal', 'fsMDIChild', 'fsMDIForm', 'fsStayOnTop',
-    'poDesigned', 'poDefault', 'poDefaultPosOnly', 'poDefaultSizeOnly', 'poScreenCenter', 'poDesktopCenter', 'poMainFormCenter', 'poOwnerFormCenter',
-    'caNone', 'caHide', 'caFree', 'caMinimize',
-    'ssShift', 'ssAlt', 'ssCtrl', 'ssLeft', 'ssRight', 'ssMiddle', 'ssDouble',
-    'taLeftJustify', 'taRightJustify', 'taCenter',
-    'ecNormal', 'ecUpperCase', 'ecLowerCase',
-    'ssNone', 'ssHorizontal', 'ssVertical', 'ssBoth',
-    'csDropDown', 'csSimple', 'csDropDownList', 'csOwnerDrawFixed', 'csOwnerDrawVariable',
-    'cbUnchecked', 'cbChecked', 'cbGrayed',
-    'sltURL', 'sltID',
-    'lbStandard', 'lbOwnerDrawFixed', 'lbOwnerDrawVariable',
     'bkNone', 'bkTile', 'bkSoft', 'bkFlat',
     'bsBox', 'bsFrame', 'bsTopLine', 'bsBottomLine', 'bsLeftLine', 'bsRightLine', 'bsSpacer',
     'bsLowered', 'bsRaised',
+    'bsNone', 'bsSingle', 'bsSizeable', 'bsDialog', 'bsToolWindow', 'bsSizeToolWin',
+    'bsSolid', 'bsClear', 'bsHorizontal', 'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
     'bvNone', 'bvLowered', 'bvRaised', 'bvSpace',
+    'caNone', 'caHide', 'caFree', 'caMinimize',
+    'cbUnchecked', 'cbChecked', 'cbGrayed',
     'coUncheck', 'coCheck', 'coCheckWithChildren',
+    'csDropDown', 'csSimple', 'csDropDownList', 'csOwnerDrawFixed', 'csOwnerDrawVariable',
+    'dupIgnore', 'dupAccept', 'dupError',
+    'ecNormal', 'ecUpperCase', 'ecLowerCase',
+    'fsBold', 'fsItalic', 'fsUnderline', 'fsStrikeOut',
+    'fsNormal', 'fsMDIChild', 'fsMDIForm', 'fsStayOnTop',
+    'lbStandard', 'lbOwnerDrawFixed', 'lbOwnerDrawVariable',
     'npbsNormal', 'npbsError', 'npbsPaused',
-    'npbstNormal', 'npbstMarquee'
+    'npbstNormal', 'npbstMarquee',
+    'pmBlack', 'pmWhite', 'pmNop', 'pmNot', 'pmCopy', 'pmNotCopy', 'pmMergePenNot', 'pmMaskPenNot', 'pmMergeNotPen', 'pmMaskNotPen', 'pmMerge', 'pmNotMerge', 'pmMask', 'pmNotMask', 'pmXor', 'pmNotXor',
+    'poDesigned', 'poDefault', 'poDefaultPosOnly', 'poDefaultSizeOnly', 'poScreenCenter', 'poDesktopCenter', 'poMainFormCenter', 'poOwnerFormCenter',
+    'psSolid', 'psDash', 'psDot', 'psDashDot', 'psDashDotDot', 'psClear', 'psInsideFrame',
+    'sltURL', 'sltID',
+    'ssNone', 'ssHorizontal', 'ssVertical', 'ssBoth',
+    'ssShift', 'ssAlt', 'ssCtrl', 'ssLeft', 'ssRight', 'ssMiddle', 'ssDouble',
+    'taLeftJustify', 'taRightJustify', 'taCenter'
   ];
 
 implementation
