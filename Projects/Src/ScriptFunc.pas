@@ -153,7 +153,7 @@ begin
   else if CompareText(Copy(Result, 1, Length(H2)), H2) = 0 then
     Delete(Result, 1, Length(H2))
   else
-    raise Exception.CreateFmt('Invalid FunctionDefinition: %s', [Result]);
+    raise Exception.CreateFmt('Invalid ScriptFunc: %s', [Result]);
 end;
 
 { Also present in UIsxclassesParser.pas }
@@ -171,7 +171,7 @@ begin
   if P = 0 then
     P := Pos(C3, Result);
   if P = 0 then
-    raise Exception.CreateFmt('Invalid FunctionDefinitionWithoutHeader: %s', [Result]);
+    raise Exception.CreateFmt('Invalid ScriptFuncWithoutHeader: %s', [Result]);
 
   Delete(Result, P, Maxint);
 end;

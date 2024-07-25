@@ -73,7 +73,7 @@ procedure TIsxclassesParser.Parse(const FileName: String);
     if P = 0 then
       P := Pos(C3, Result);
     if P = 0 then
-      raise Exception.CreateFmt('Invalid FunctionDefinitionWithoutHeader: %s', [Result]);
+      raise Exception.CreateFmt('Invalid ScriptFuncWithoutHeader: %s', [Result]);
 
     Delete(Result, P, Maxint);
   end;
