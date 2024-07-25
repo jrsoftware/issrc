@@ -6,12 +6,12 @@ uses
   Classes;
 
 type
-  TIsxClassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember);
-  TIsxClassesParserStrings = array [TIsxClassesParserStoredString] of TStringList;
+  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant);
+  TIsxclassesParserStrings = array [TIsxclassesParserStoredString] of TStringList;
 
   TIsxclassesParser = class
   private
-    FStrings: TIsxClassesParserStrings;
+    FStrings: TIsxclassesParserStrings;
   public
     constructor Create;
     destructor Destroy; override;
@@ -52,6 +52,7 @@ begin
       var S: String;
       ReadLn(F, S);
       FStrings[ssLine].Add(S);
+
       var P := Pos('=', S);
       if P > 1 then begin
         { Remember type and if it's an enum also remember the enum values }
@@ -60,7 +61,9 @@ begin
         var N := Length(S);
         if (N > 3) and (S[1] = '(') and (S[N-1] = ')') and (S[N] = ';') then
           FStrings[ssEnumValue].Add(Copy(S, 2, N-3));
+        Continue;
       end;
+
       P := Pos('{', S);
       if P <> 0 then begin
         { Remember constants }
@@ -71,6 +74,7 @@ begin
           if (N > 2) and (S[N-1] = ' ') and (S[N] = '}') then
             FStrings[ssConstant].Add(Copy(S, 1, N-2));
         end;
+        Continue;
       end;
     end;
   finally
@@ -247,11 +251,11 @@ begin
     WriteLn(F, 'interface');
     WriteLn(F);
     WriteLn(F, 'var');
-    WriteStringArray(F, 'PascalConstants_IsxClasses', Indent, FStrings[ssConstant], 0);
+    WriteStringArray(F, 'PascalConstants_Isxclasses', Indent, FStrings[ssConstant], 0);
     WriteLn(F);
-    WriteStringArray(F, 'PascalTypes_IsxClasses', Indent, FStrings[ssType], 80);
+    WriteStringArray(F, 'PascalTypes_Isxclasses', Indent, FStrings[ssType], 80);
     WriteLn(F);
-    WriteStringArray(F, 'PascalEnumValues_IsxClasses', Indent, FStrings[ssEnumValue], 0);
+    WriteStringArray(F, 'PascalEnumValues_Isxclasses', Indent, FStrings[ssEnumValue], 0);
     WriteLn(F);
     WriteLN(F, 'implementation');
     WriteLn(F);

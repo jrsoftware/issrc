@@ -5,13 +5,13 @@ unit isxclasses_wordlists_generated;
 interface
 
 var
-  PascalConstants_IsxClasses: array of AnsiString = [
+  PascalConstants_Isxclasses: array of AnsiString = [
     'soFromBeginning', 'soFromCurrent', 'soFromEnd',
     'clBlack', 'clMaroon', 'clGreen', 'clOlive', 'clNavy', 'clPurple', 'clTeal', 'clGray', 'clSilver', 'clRed', 'clLime', 'clYellow', 'clBlue', 'clFuchsia', 'clAqua', 'clLtGray', 'clDkGray', 'clWhite', 'clNone', 'clDefault', 'clScrollBar', 'clBackground', 'clActiveCaption', 'clInactiveCaption', 'clMenu', 'clWindow', 'clWindowFrame', 'clMenuText', 'clWindowText', 'clCaptionText', 'clActiveBorder', 'clInactiveBorder', 'clAppWorkSpace', 'clHighlight', 'clHighlightText', 'clBtnFace', 'clBtnShadow', 'clGrayText', 'clBtnText', 'clInactiveCaptionText', 'clBtnHighlight', 'cl3DDkShadow', 'cl3DLight', 'clInfoText', 'clInfoBk', 'clHotLight',
     'crDefault', 'crNone', 'crArrow', 'crCross', 'crIBeam', 'crSizeNESW', 'crSizeNS', 'crSizeNWSE', 'crSizeWE', 'crUpArrow', 'crHourGlass', 'crDrag', 'crNoDrop', 'crHSplit', 'crVSplit', 'crMultiDrag', 'crSQLWait', 'crNo', 'crAppStart', 'crHelp', 'crHandPoint', 'crSizeAll', 'crHand'
   ];
 
-  PascalTypes_IsxClasses: array of AnsiString = [
+  PascalTypes_Isxclasses: array of AnsiString = [
     'HBITMAP', 'TAlign', 'TAlignment', 'TAlphaFormat', 'TAnchorKind', 'TAnchors', 'TBevel',
     'TBevelKind', 'TBevelShape', 'TBevelStyle', 'TBevelWidth', 'TBitmap', 'TBitmapImage',
     'TBorderIcon', 'TBorderIcons', 'TBorderStyle', 'TBorderWidth', 'TBrush', 'TBrushStyle',
@@ -37,7 +37,7 @@ var
     'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
   ];
 
-  PascalEnumValues_IsxClasses: array of AnsiString = [
+  PascalEnumValues_Isxclasses: array of AnsiString = [
     'dupIgnore', 'dupAccept', 'dupError',
     'bsSolid', 'bsClear', 'bsHorizontal', 'bsVertical', 'bsFDiagonal', 'bsBDiagonal', 'bsCross', 'bsDiagCross',
     'fsBold', 'fsItalic', 'fsUnderline', 'fsStrikeOut',

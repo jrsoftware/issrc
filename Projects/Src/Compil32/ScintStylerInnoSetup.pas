@@ -415,7 +415,7 @@ const
     'VER_SUITE_PERSONAL', 'VER_SUITE_BLADE', 'VER_SUITE_EMBEDDED_RESTRICTED',
     'VER_SUITE_SECURITY_APPLIANCE'
     //undocumented: irInstall
-    { ScriptClasses_C: see PascalConstants_IsxClasses in isxclasses_wordlists_generated }
+    { ScriptClasses_C: see PascalConstants_Isxclasses in isxclasses_wordlists_generated }
   ];
 
   PascalInterfaces: array of AnsiString = [
@@ -451,13 +451,13 @@ const
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
     'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnLog'
-    { ScriptClasses_C: see PascalTypes_IsxClasses in isxclasses_wordlists_generated }
+    { ScriptClasses_C: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }
   ];
 
   PascalEnumValues: array of AnsiString = [
     { ScriptFunc_C's values of non real enums }
     'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
-    { ScriptClasses_C: see PascalEnumValues_IsxClasses in isxclasses_wordlists_generated }
+    { ScriptClasses_C: see PascalEnumValues_Isxclasses in isxclasses_wordlists_generated }
   ];
 
 var
@@ -605,7 +605,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       { Add stuff from this unit }
       for var S in PascalConstants do
         AddWordToList(SL, S, awtScriptConstant);
-      for var S in PascalConstants_IsxClasses do
+      for var S in PascalConstants_Isxclasses do
         AddWordToList(SL, S, awtScriptConstant);
       for var S in PascalInterfaces do
         AddWordToList(SL, S, awtScriptInterface);
@@ -613,11 +613,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddWordToList(SL, S, awtScriptKeyword);
       for var S in PascalTypes do
         AddWordToList(SL, S, awtScriptType);
-      for var S in PascalTypes_IsxClasses do
+      for var S in PascalTypes_Isxclasses do
         AddWordToList(SL, S, awtScriptType);
       for var S in PascalEnumValues do
         AddWordToList(SL, S, awtScriptEnumValue);
-      for var S in PascalEnumValues_IsxClasses do
+      for var S in PascalEnumValues_Isxclasses do
         AddWordToList(SL, S, awtScriptEnumValue);
       for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
