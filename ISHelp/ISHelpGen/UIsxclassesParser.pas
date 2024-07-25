@@ -6,7 +6,7 @@ uses
   Classes;
 
 type
-  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant);
+  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember);
   TIsxclassesParserStrings = array [TIsxclassesParserStoredString] of TStringList;
 
   TIsxclassesParser = class
@@ -33,6 +33,8 @@ begin
     FStrings[I] := TStringList.Create;
   FStrings[ssType].Duplicates := dupError;
   FStrings[ssType].Sorted := True;
+  FStrings[ssMember].Duplicates := dupIgnore;
+  FStrings[ssMember].Sorted := True;
 end;
 
 destructor TIsxclassesParser.Destroy;
@@ -43,6 +45,30 @@ begin
 end;
 
 procedure TIsxclassesParser.Parse(const FileName: String);
+
+  { Also presents in ScriptFunc.pas - changed from AnsiString to String + check for [ added }
+  function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: String): String;
+  begin
+    Result := ScriptFuncWithoutHeader;
+
+    const C0: String = '[';
+    const C1: String = '(';
+    const C2: String = ':';
+    const C3: String = ';';
+
+    var P := Pos(C0, Result);
+    if P = 0 then
+      P := Pos(C1, Result);
+    if P = 0 then
+      P := Pos(C2, Result);
+    if P = 0 then
+      P := Pos(C3, Result);
+    if P = 0 then
+      raise Exception.CreateFmt('Invalid FunctionDefinitionWithoutHeader: %s', [Result]);
+
+    Delete(Result, P, Maxint);
+  end;
+
 begin
   var F: TextFile;
   AssignFile(F, FileName);
@@ -74,6 +100,19 @@ begin
           if (N > 2) and (S[N-1] = ' ') and (S[N] = '}') then
             FStrings[ssConstant].Add(Copy(S, 1, N-2));
         end;
+        Continue;
+      end;
+
+      P := Pos('procedure ', S);
+      if P = 0 then
+        P := Pos('function ', S);
+      if P = 0 then
+        P := Pos('property ', S);
+      if P <> 0 then begin
+        Delete(S, 1, P-1);
+        P := Pos(' ', S);
+        Delete(S, 1, P);
+        FStrings[ssMember].Add(ExtractScriptFuncWithoutHeaderName(S));
         Continue;
       end;
     end;
@@ -182,9 +221,16 @@ begin
   AssignFile(F, OutputFileName);
   Append(F);
   try
-    for var Typ in FStrings[ssType] do begin
-      var S := '<keyword value="' + Typ + '" anchor="' + Typ + '" />';
-      WriteLn(F, S);
+    for var Typ in [ssType, ssEnumValue, ssConstant, ssMember] do begin
+      for var S in FStrings[Typ] do begin
+        var A := S.Split([', ']);
+        for var S2 in A do begin
+          if Typ = ssType then
+            WriteLn(F, '<keyword value="' + S2 + '" anchor="' + S2 + '" />')
+          else
+            WriteLn(F, '<keyword value="' + S2 + '" />')
+        end;
+      end;
     end;
     WriteLn(F, '<keyword value="MainForm" />');
     WriteLn(F, '<keyword value="WizardForm" />');
