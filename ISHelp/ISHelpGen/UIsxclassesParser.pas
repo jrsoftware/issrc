@@ -31,6 +31,8 @@ begin
   inherited;
   for var I := Low(TIsxClassesParserStoredString) to High(TIsxClassesParserStoredString) do
     FStrings[I] := TStringList.Create;
+  FStrings[ssType].Duplicates := dupError;
+  FStrings[ssType].Sorted := True;
 end;
 
 destructor TIsxclassesParser.Destroy;
