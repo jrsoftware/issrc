@@ -233,7 +233,7 @@ begin
 
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
   
-  Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
+  Call(SCI_SETSCROLLWIDTH, 1024 * Call(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }

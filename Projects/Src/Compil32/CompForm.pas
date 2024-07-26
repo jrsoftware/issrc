@@ -568,7 +568,7 @@ type
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
-    procedure StoreLastFindOptions(Sender: TObject);
+    function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
     procedure SyncEditorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
@@ -2892,7 +2892,7 @@ begin
       if I = SelStartLine then // is this the first selected line?
         Inc(Selection.StartPos, Length(LongComment));
       Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
+      AMemo.Call(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
     end;
     // after uncommenting selection may promote itself to the lines
     // before the first initially selected line;
@@ -3026,7 +3026,7 @@ end;
 procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
   var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
-  var MemoWasActiveMemo:= Memo = FActiveMemo;
+  var MemoWasActiveMemo := Memo = FActiveMemo;
 
   MemosTabSet.Tabs.Delete(TabIndex); { This will not change MemosTabset.TabIndex }
   MemosTabSet.Hints.Delete(TabIndex);
@@ -3563,22 +3563,39 @@ begin
       mbInformation, MB_OK);
 end;
 
-procedure TCompileForm.StoreLastFindOptions(Sender: TObject);
+function TCompileForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  with Sender as TFindDialog do begin
-    FLastFindOptions := Options;
-    FLastFindText := FindText;
+  { Store }
+  if Sender is TFindDialog then begin
+    with Sender as TFindDialog do begin
+      FLastFindOptions := Options;
+      FLastFindText := FindText;
+    end;
+  end else begin
+    with Sender as TReplaceDialog do begin
+      FLastFindOptions := Options;
+      FLastFindText := FindText;
+    end;
   end;
   FLastFindRegEx := True; { fixme - use UI }
+
+  { Test }
+  if FLastFindRegEx then begin
+    Result := FActiveMemo.TestRegularExpression(FLastFindText);
+    if not Result then
+      MsgBoxFmt('Invalid regular expression "%s"', [FLastFindText], SCompilerFormCaption,
+        mbError, MB_OK);
+  end else
+    Result := True;
 end;
 
 procedure TCompileForm.FindDialogFind(Sender: TObject);
 begin
   { This event handler is shared between FindDialog & ReplaceDialog }
 
-  { Save a copy of the current text so that InitializeFindText doesn't
-    mess up the operation of Edit | Find Next }
-  StoreLastFindOptions(Sender);
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
+
   if GetKeyState(VK_MENU) < 0 then begin
     { Alt+Enter was used to close the dialog }
     (Sender as TFindDialog).CloseDialog;
@@ -3589,7 +3606,8 @@ end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
 begin
-  StoreLastFindOptions(Sender);
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
 
   FindResultsList.Clear;
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -3690,24 +3708,22 @@ begin
 end;
 
 procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
-var
-  ReplaceCount, Pos: Integer;
-  Range, NewRange: TScintRange;
 begin
-  FLastFindOptions := ReplaceDialog.Options;
-  FLastFindRegEx := True; { fixme - use UI }
-  FLastFindText := ReplaceDialog.FindText;
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
+
   FLastReplaceText := ReplaceDialog.ReplaceText;
   var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
 
   if frReplaceAll in FLastFindOptions then begin
-    ReplaceCount := 0;
+    var ReplaceCount := 0;
     FActiveMemo.BeginUndoAction;
     try
-      Pos := 0;
+      var Pos := 0;
+      var Range: TScintRange;
       while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
          FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
-        NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
+        var NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
         Pos := NewRange.EndPos;
         Inc(ReplaceCount);
       end;
