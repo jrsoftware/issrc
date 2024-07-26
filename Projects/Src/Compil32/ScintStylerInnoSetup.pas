@@ -102,6 +102,8 @@ type
       const EnumTypeInfo: Pointer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
+    procedure BuildScriptFunctionsListsFinalize(
+      const ClassMembers: Boolean);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -599,10 +601,12 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     var SL := TStringList.Create;
     try
       { Add stuff from ScriptFunc }
+      var ClassMembers := False;
       for var ScriptFuncTable in ScriptFuncTables do
-        BuildScriptFunctionsLists(ScriptFuncTable, False, SL);
-      BuildScriptFunctionsLists(DelphiScriptFuncTable, False, SL);
-      BuildScriptFunctionsLists(ROPSScriptFuncTable, False, SL);
+        BuildScriptFunctionsLists(ScriptFuncTable, ClassMembers, SL);
+      BuildScriptFunctionsLists(DelphiScriptFuncTable, ClassMembers, SL);
+      BuildScriptFunctionsLists(ROPSScriptFuncTable, ClassMembers, SL);
+      BuildScriptFunctionsListsFinalize(ClassMembers);
       { Add stuff from this unit }
       for var S in PascalConstants do
         AddWordToList(SL, S, awtScriptConstant);
@@ -627,14 +631,15 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       end;
       for var S in PascalVariables do
         AddWordToList(SL, S, awtScriptVariable);
-
       FScriptWordList[False] := BuildWordList(SL);
 
+      { Add stuff from Isxclasses }
       SL.Clear;
-      BuildScriptFunctionsLists(PascalMembers_Isxclasses, True, SL);
+      ClassMembers := True;
+      BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL);
+      BuildScriptFunctionsListsFinalize(ClassMembers);
       for var S in PascalProperties_Isxclasses do
         AddWordToList(SL, S, awtScriptProperty);
-
       FScriptWordList[True] := BuildWordList(SL);
     finally
       SL.Free;
@@ -781,6 +786,17 @@ begin
     end;
     if DoAddWordToList then
       AddWordToList(SL, ScriptFuncName, awtScriptFunction);
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildScriptFunctionsListsFinalize(
+  const ClassMembers: Boolean);
+begin
+  for var ScriptFunctions in FScriptFunctionsByName[ClassMembers].Values do begin
+    var N := Length(ScriptFunctions);
+    if N > 1 then
+      for var I := 0 to N-1 do
+        ScriptFunctions[I] := AnsiString(Format(#1'%d of %d'#2'%s', [I+1, N, ScriptFunctions[I]]));
   end;
 end;
 
