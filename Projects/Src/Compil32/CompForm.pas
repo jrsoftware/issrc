@@ -448,6 +448,7 @@ type
     FDebuggerException: String;
     FRunParameters: String;
     FLastFindOptions: TFindOptions;
+    FLastFindRegEx: Boolean;
     FLastFindText: String;
     FLastReplaceText: String;
     FLastEvaluateConstantText: String;
@@ -2957,7 +2958,7 @@ begin
 
     while (StartPos < EndPos) and
           FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-            FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
+            FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), FoundRange) do begin
       if StartPos = 0 then
         FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
       else
@@ -3555,7 +3556,7 @@ begin
     EndPos := 0;
   end;
   if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-     FindOptionsToSearchOptions(FLastFindOptions), Range) then
+     FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
     FActiveMemo.SelectAndEnsureVisible(Range)
   else
     MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
@@ -3568,6 +3569,7 @@ begin
     FLastFindOptions := Options;
     FLastFindText := FindText;
   end;
+  FLastFindRegEx := True; { fixme - use UI }
 end;
 
 procedure TCompileForm.FindDialogFind(Sender: TObject);
@@ -3604,7 +3606,7 @@ begin
       var Range: TScintRange;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
-              FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
+              FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         var Line := Memo.GetLineFromPosition(Range.StartPos);
         var Prefix := Format('  Line %d: ', [Line+1]);
         var FindResult := TFindResult.Create;
@@ -3693,17 +3695,19 @@ var
   Range, NewRange: TScintRange;
 begin
   FLastFindOptions := ReplaceDialog.Options;
+  FLastFindRegEx := True; { fixme - use UI }
   FLastFindText := ReplaceDialog.FindText;
   FLastReplaceText := ReplaceDialog.ReplaceText;
 
   if frReplaceAll in FLastFindOptions then begin
     ReplaceCount := 0;
+    var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
     FActiveMemo.BeginUndoAction;
     try
       Pos := 0;
       while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
-         FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
-        NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText);
+         FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+        NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
         Pos := NewRange.EndPos;
         Inc(ReplaceCount);
       end;
@@ -3718,6 +3722,7 @@ begin
         mbInformation, MB_OK);
   end
   else begin
+    { fix me - including check that regex didnt change from false to true since previous find }
     if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
       FActiveMemo.MainSelText := FLastReplaceText;
     FindNext(GetKeyState(VK_SHIFT) < 0);
