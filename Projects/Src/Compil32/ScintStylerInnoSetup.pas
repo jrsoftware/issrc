@@ -73,7 +73,8 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
-  TFunctionDefinitionsByName = TDictionary<String, AnsiString>;
+  TFunctionDefinitions = array of AnsiString;
+  TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
@@ -764,14 +765,22 @@ begin
   for var ScriptFunc in ScriptFuncTable do begin
     var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
     var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    var DoAddWordToList := True;
     if ScriptFuncHasParameters(ScriptFunc) then begin
-      try
-        FScriptFunctionsByName[ClassMembers].Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-      except on E: Exception do
-        raise Exception.CreateFmt('%s: %s', [ScriptFuncName, E.Message]);
-      end;
+      var Key := String(ScriptFuncName);
+      if FScriptFunctionsByName[ClassMembers].ContainsKey(Key) then begin
+        { Function has multiple prototypes }
+        var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
+        var N := Length(ScriptFunctions);
+        SetLength(ScriptFunctions, N+1);
+        ScriptFunctions[N] := ScriptFuncWithoutHeader;
+        FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
+        DoAddWordToList := False; { Already added it when the first prototype was found }
+      end else
+        FScriptFunctionsByName[ClassMembers].Add(Key, [ScriptFuncWithoutHeader]);
     end;
-    AddWordToList(SL, ScriptFuncName, awtScriptFunction);
+    if DoAddWordToList then
+      AddWordToList(SL, ScriptFuncName, awtScriptFunction);
   end;
 end;
 
@@ -885,7 +894,10 @@ end;
 
 function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean; const Name: String): AnsiString;
 begin
-  if not FScriptFunctionsByName[ClassMember].TryGetValue(Name, Result) then
+  var ScriptFunctions: TFunctionDefinitions;
+  if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then
+    Result := ScriptFunctions[0]
+  else
     Result := '';
 end;
 
