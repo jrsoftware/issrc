@@ -3698,10 +3698,10 @@ begin
   FLastFindRegEx := True; { fixme - use UI }
   FLastFindText := ReplaceDialog.FindText;
   FLastReplaceText := ReplaceDialog.ReplaceText;
+  var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
 
   if frReplaceAll in FLastFindOptions then begin
     ReplaceCount := 0;
-    var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
     FActiveMemo.BeginUndoAction;
     try
       Pos := 0;
@@ -3722,9 +3722,11 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    { fix me - including check that regex didnt change from false to true since previous find }
-    if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
-      FActiveMemo.MainSelText := FLastReplaceText;
+    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(FLastFindOptions - [frWholeWord], FLastFindRegEx)) then begin
+      { Note: the MainSelTextEquals above performs a search so the replacement
+        below is safe even if the user just enabled regex }
+      FActiveMemo.ReplaceMainSelText(FLastReplaceText, ReplaceMode);
+    end;
     FindNext(GetKeyState(VK_SHIFT) < 0);
   end;
 end;

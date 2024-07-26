@@ -159,8 +159,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
-    class function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
-    class function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
+    class function GetReplaceTargetMessage(const ReplaceMode: TScintReplaceMode): Cardinal;
+    class function GetSearchFlags(const Options: TScintFindOptions): Integer;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
@@ -314,13 +314,19 @@ type
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
-    function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
+    function MainSelTextEquals(const S: String;
+      const Options: TScintFindOptions): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
-    function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
+    function RawMainSelTextEquals(const S: TScintRawString;
+      const Options: TScintFindOptions): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
+    function ReplaceMainSelText(const S: String;
+      const ReplaceMode: TScintReplaceMode): TScintRange;
+    function ReplaceRawMainSelText(const S: TScintRawString;
+      const ReplaceMode: TScintReplaceMode): TScintRange;
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
       const S: TScintRawString; const ReplaceMode: TScintReplaceMode): TScintRange;
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String;
@@ -1233,6 +1239,18 @@ begin
   Result := Call(SCI_GETREADONLY, 0, 0) <> 0;
 end;
 
+class function TScintEdit.GetReplaceTargetMessage(
+  const ReplaceMode: TScintReplaceMode): Cardinal;
+begin
+  case ReplaceMode of
+    srmNormal: Result := SCI_REPLACETARGET;
+    srmMinimal: Result := SCI_REPLACETARGETMINIMAL;
+    srmRegEx: Result := SCI_REPLACETARGETRE;
+  else
+    raise GetErrorException('Unknown ReplaceMode');
+  end;
+end;
+
 class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
 begin
   Result := 0;
@@ -1242,14 +1260,6 @@ begin
     Result := Result or SCFIND_WHOLEWORD;
   if sfoRegEx in Options then
     Result := Result or (SCFIND_REGEXP or SCFIND_CXX11REGEX);
-end;
-
-class function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
-begin
-  if MatchCase then
-    Result := GetSearchFlags([sfoMatchCase])
-  else
-    Result := GetSearchFlags([]);
 end;
 
 function TScintEdit.GetSelection: TScintRange;
@@ -1411,9 +1421,9 @@ begin
 end;
 
 function TScintEdit.MainSelTextEquals(const S: String;
-  const MatchCase: Boolean): Boolean;
+  const Options: TScintFindOptions): Boolean;
 begin
-  Result := RawMainSelTextEquals(ConvertStringToRawString(S), MatchCase);
+  Result := RawMainSelTextEquals(ConvertStringToRawString(S), Options);
 end;
 
 procedure TScintEdit.Notification(AComponent: TComponent; Operation: TOperation);
@@ -1491,10 +1501,10 @@ begin
 end;
 
 function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;
-  const MatchCase: Boolean): Boolean;
+  const Options: TScintFindOptions): Boolean;
 begin
   Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Result := False;
   if Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0 then begin
     var Target := GetTarget;
@@ -1526,20 +1536,38 @@ begin
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
+function TScintEdit.ReplaceMainSelText(const S: String;
+  const ReplaceMode: TScintReplaceMode): TScintRange;
+begin
+  ReplaceRawMainSelText(ConvertStringToRawString(S), ReplaceMode);
+end;
+
+function TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
+  const ReplaceMode: TScintReplaceMode): TScintRange;
+{ Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
+  without removing additional selections }
+begin
+  { First replace the selection }
+  Call(SCI_TARGETFROMSELECTION, 0, 0);
+  Call(GetReplaceTargetMessage(ReplaceMode), Length(S), LPARAM(PAnsiChar(S)));
+  { Then make the main selection an empty selection at the end of the inserted
+    text, just like SCI_REPLACESEL }
+  var Pos := GetTarget.EndPos; { SCI_REPLACETARGET* updates the target }
+  var MainSel := MainSelection;
+  SetSelectionCaretPosition(MainSel, Pos);
+  SetSelectionAnchorPosition(MainSel, Pos);
+  { Finally call Editor::SetLastXChosen and scroll caret into view, also just
+    like SCI_REPLACESEL }
+  ChooseCaretX;
+  ScrollCaretIntoView;
+end;
+
 function TScintEdit.ReplaceRawTextRange(const StartPos, EndPos: Integer;
   const S: TScintRawString; const ReplaceMode: TScintReplaceMode): TScintRange;
 begin
   CheckPosRange(StartPos, EndPos);
   SetTarget(StartPos, EndPos);
-  var Msg: Cardinal;
-  case ReplaceMode of
-    srmNormal: Msg := SCI_REPLACETARGET;
-    srmMinimal: Msg := SCI_REPLACETARGETMINIMAL;
-    srmRegEx: Msg := SCI_REPLACETARGETRE;
-  else
-    raise GetErrorException('Unknown ReplaceMode');
-  end;
-  Call(Msg, Length(S), LPARAM(PAnsiChar(S)));
+  Call(GetReplaceTargetMessage(ReplaceMode), Length(S), LPARAM(PAnsiChar(S)));
   Result := GetTarget;
 end;
 
@@ -1840,22 +1868,8 @@ begin
 end;
 
 procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
-{ Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
-  without removing additional selections }
 begin
-  { First replace the selection }
-  Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_REPLACETARGETMINIMAL, Length(Value), LPARAM(PAnsiChar(Value)));
-  { Then make the main selection an empty selection at the end of the inserted
-    text, just like SCI_REPLACESEL }
-  var Pos := GetTarget.EndPos; { SCI_REPLACETARGETMINIMAL updates the target }
-  var MainSel := MainSelection;
-  SetSelectionCaretPosition(MainSel, Pos);
-  SetSelectionAnchorPosition(MainSel, Pos);
-  { Finally call Editor::SetLastXChosen and scroll caret into view, also just
-    like SCI_REPLACESEL }
-  ChooseCaretX;
-  ScrollCaretIntoView;
+  ReplaceRawMainSelText(Value, srmMinimal);
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
