@@ -24,6 +24,7 @@ type
   TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
   TScintCommand = type NativeInt;
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
+  TScintEditCallTipArrowClick = procedure(Sender: TObject; const Up: Boolean) of object;
   TScintEditChangeInfo = record
     Inserting: Boolean;
     StartPos, Length, LinesDelta: Integer;
@@ -115,6 +116,7 @@ type
     FLineNumbers: Boolean;
     FLines: TScintEditStrings;
     FOnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent;
+    FOnCallTipArrowClick: TScintEditCallTipArrowClick;
     FOnChange: TScintEditChangeEvent;
     FOnCharAdded: TScintEditCharAddedEvent;
     FOnDropFiles: TScintEditDropFilesEvent;
@@ -427,6 +429,7 @@ type
     property WordWrap: Boolean read FWordWrap write SetWordWrap default False;
     property Zoom: Integer read GetZoom write SetZoom default 0;
     property OnAutoCompleteSelection: TScintEditAutoCompleteSelectionEvent read FOnAutoCompleteSelection write FOnAutoCompleteSelection;
+    property OnCallTipArrowClick: TScintEditCallTipArrowClick read FOnCallTipArrowClick write FOnCallTipArrowClick;
     property OnChange: TScintEditChangeEvent read FOnChange write FOnChange;
     property OnCharAdded: TScintEditCharAddedEvent read FOnCharAdded write FOnCharAdded;
     property OnDropFiles: TScintEditDropFilesEvent read FOnDropFiles write FOnDropFiles;
@@ -1423,6 +1426,11 @@ begin
       begin
         if Assigned(FOnAutoCompleteSelection) then
           FOnAutoCompleteSelection(Self);
+      end;
+    SCN_CALLTIPCLICK:
+      begin
+        if (N.position in [1, 2]) and Assigned(FOnCallTipArrowClick) then
+          FOnCallTipArrowClick(Self, N.position = 1);
       end;
     SCN_CHARADDED:
       begin

@@ -73,6 +73,11 @@ type
     StartCallTipWord: Integer;
     FunctionDefinition: AnsiString;
     BraceCount: Integer;
+    LastPosCallTip: Integer;
+    ClassOrRecordMember: Boolean;
+    CurrentCallTipWord: String;
+    CurrentCallTip: Integer;
+    MaxCallTips: Integer;
   end;
 
   TCompileForm = class(TUIStateForm)
@@ -513,11 +518,13 @@ type
     function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
     procedure InitiateAutoComplete(const Key: AnsiChar);
+    procedure UpdateCallTipFunctionDefinition(const Pos: Integer = -1);
     procedure InitiateCallTip(const Key: AnsiChar);
     procedure ContinueCallTip;
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
+    procedure MemoCallTipArrowClick(Sender: TObject; const Up: Boolean);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
     procedure MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     procedure MainMemoDropFiles(Sender: TObject; X, Y: Integer; AFiles: TStrings);
@@ -711,6 +718,7 @@ begin
   Memo.ShowHint := True;
   Memo.Styler := FMemosStyler;
   Memo.PopupMenu := PopupMenu;
+  Memo.OnCallTipArrowClick := MemoCallTipArrowClick;
   Memo.OnChange := MemoChange;
   Memo.OnCharAdded := MemoCharAdded;
   Memo.OnHintShow := MemoHintShow;
@@ -986,6 +994,8 @@ begin
   FMenuBitmapsSize.cy := 0;
 
   FKeyMappedMenus := TKeyMappedMenus.Create;
+
+  FCallTipState.MaxCallTips := 1; { Just like SciTE 5.50 }
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
@@ -1299,8 +1309,12 @@ begin
     end;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
-    if not FActiveMemo.CallTipActive then begin
-      FCallTipState.BraceCount := 1;
+    { Based on SciTE 5.50's SciTEBase::MenuCommand IDM_SHOWCALLTIP }
+    if FActiveMemo.CallTipActive then begin
+      FCallTipState.CurrentCallTip := IfThen(FCallTipState.CurrentCallTip + 1 = FCallTipState.MaxCallTips, 0, FCallTipState.CurrentCallTip + 1);
+      UpdateCallTipFunctionDefinition;
+    end else begin
+      FCallTipState.BraceCount := 1; { Missing in SciTE, see https://sourceforge.net/p/scintilla/bugs/2446/ }
       InitiateCallTip(#0);
     end;
   end else begin
@@ -4789,6 +4803,19 @@ begin
     UpdateModifiedPanel;
 end;
 
+procedure TCompileForm.MemoCallTipArrowClick(Sender: TObject;
+  const Up: Boolean);
+begin
+  { Based on SciTE 5.50's SciTEBase::Notify SA::Notification::CallTipClick }
+  if Up and (FCallTipState.CurrentCallTip > 0) then begin
+    Dec(FCallTipState.CurrentCallTip);
+    UpdateCallTipFunctionDefinition;
+  end else if not Up and (FCallTipState.CurrentCallTip + 1 < FCallTipState.MaxCallTips) then begin
+    Inc(FCallTipState.CurrentCallTip);
+    UpdateCallTipFunctionDefinition;
+  end;
+end;
+
 procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
 
   procedure MemoLinesInsertedOrDeleted(Memo: TCompScintFileEdit);
@@ -4966,10 +4993,8 @@ begin
             types, etc if the current word has no dot before it }
           if WordList = '' then begin
             var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-            if not ClassOrRecordMember then begin
-              WordList := FMemosStyler.ScriptWordList;
-              FActiveMemo.SetAutoCompleteFillupChars('');
-            end;
+            WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
+            FActiveMemo.SetAutoCompleteFillupChars('');
           end;
 
           if WordList = '' then
@@ -5042,6 +5067,25 @@ begin
   FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
+procedure TCompileForm.UpdateCallTipFunctionDefinition(const Pos: Integer { = -1 });
+begin
+  { Based on SciTE 5.50's SciTEBase::FillFunctionDefinition }
+    
+  if Pos > 0 then
+    FCallTipState.LastPosCallTip := Pos;
+
+  // Should get current api definition
+  var Word := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+  if Word <> '' then begin
+    FCallTipState.FunctionDefinition := Word;
+    if FCallTipState.MaxCallTips > 1 then
+      FCallTipState.FunctionDefinition := AnsiString(Format(#1'%d of %d'#2'%s', [FCallTipState.CurrentCallTip+1, FCallTipState.MaxCallTips, FCallTipState.FunctionDefinition]));
+
+    FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
+    ContinueCallTip;
+  end;
+end;
+
 procedure TCompileForm.InitiateCallTip(const Key: AnsiChar);
 begin
   var Pos := FActiveMemo.CaretPosition;
@@ -5052,12 +5096,10 @@ begin
        FActiveMemo.GetPositionBefore(Pos))) then
     Exit;
 
-  { Based on SciTE 5.50's SciTEBase::StartAutoComplete and
-    SciTEBase::FillFunctionDefinition, without support for multiple calltips }
+  { Based on SciTE 5.50's SciTEBase::StartAutoComplete }
 
-  { StartAutoComplete }
-
-  var CurrentCallTipWord := '';
+  FCallTipState.CurrentCallTip := 0;
+  FCallTipState.CurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
   var CalltipWordCharacters := FActiveMemo.WordCharsAsSet;
@@ -5091,30 +5133,14 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  var ClassOrRecordMember := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
-  CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+  FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
   FCallTipState.FunctionDefinition := '';
-
-  { FillFunctionDefinition - if this is separated for multiple calltips support like in SciTE then the following vars
-    need to be moved into FCallTipState: CurrentCallTipWord, ClassOrRecordMember, LastPosCallTip }
-
-  var LastPosCallTip := Pos;
-
-  // Should get current api definition
-  var Word: AnsiString;
-  if not ClassOrRecordMember then
-    Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
-  else
-    Word := '';
-  if Word <> '' then begin
-    FCallTipState.FunctionDefinition := Word;
-    FActiveMemo.ShowCallTip(LastPosCallTip - Length(CurrentCallTipWord), FCallTipState.FunctionDefinition);
-    ContinueCallTip;
-  end;
+  UpdateCallTipFunctionDefinition(Pos);
 end;
 
 procedure TCompileForm.ContinueCallTip;

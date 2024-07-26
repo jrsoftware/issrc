@@ -73,7 +73,8 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
-  TFunctionDefinitionsByName = TDictionary<String, AnsiString>;
+  TFunctionDefinitions = array of AnsiString;
+  TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
@@ -81,8 +82,8 @@ type
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
-    FScriptFunctionsByName: TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
-    FScriptWordList: AnsiString;
+    FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
+    FScriptWordList: array[Boolean] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
@@ -100,7 +101,7 @@ type
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
       const EnumTypeInfo: Pointer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
-      const SL: TStringList);
+      const ClassMembers: Boolean; const SL: TStringList);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -109,7 +110,6 @@ type
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
-    function GetScriptFunctionDefinition(Name: String): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
@@ -122,6 +122,7 @@ type
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
+    function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -137,14 +138,15 @@ type
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
+    function GetScriptFunctionDefinition(const ClassMember: Boolean;
+      const Name: String; const Index: Integer; out Count: Integer): AnsiString;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
     property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
-    property ScriptFunctionDefinition[Name: String]: AnsiString read GetScriptFunctionDefinition;
-    property ScriptWordList: AnsiString read FScriptWordList;
+    property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -598,10 +600,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     var SL := TStringList.Create;
     try
       { Add stuff from ScriptFunc }
+      var ClassMembers := False;
       for var ScriptFuncTable in ScriptFuncTables do
-        BuildScriptFunctionsLists(ScriptFuncTable, SL);
-      BuildScriptFunctionsLists(DelphiScriptFuncTable, SL);
-      BuildScriptFunctionsLists(ROPSScriptFuncTable, SL);
+        BuildScriptFunctionsLists(ScriptFuncTable, ClassMembers, SL);
+      BuildScriptFunctionsLists(DelphiScriptFuncTable, ClassMembers, SL);
+      BuildScriptFunctionsLists(ROPSScriptFuncTable, ClassMembers, SL);
       { Add stuff from this unit }
       for var S in PascalConstants do
         AddWordToList(SL, S, awtScriptConstant);
@@ -626,8 +629,15 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       end;
       for var S in PascalVariables do
         AddWordToList(SL, S, awtScriptVariable);
+      FScriptWordList[False] := BuildWordList(SL);
 
-      FScriptWordList := BuildWordList(SL);
+      { Add stuff from Isxclasses }
+      SL.Clear;
+      ClassMembers := True;
+      BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL);
+      for var S in PascalProperties_Isxclasses do
+        AddWordToList(SL, S, awtScriptProperty);
+      FScriptWordList[True] := BuildWordList(SL);
     finally
       SL.Free;
     end;
@@ -641,13 +651,15 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
-  FScriptFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
+  FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
+  FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
 end;
 
 destructor TInnoSetupStyler.Destroy;
 begin
-  FScriptFunctionsByName.Free;
+  FScriptFunctionsByName[False].Free;
+  FScriptFunctionsByName[True].Free;
   inherited;
 end;
 
@@ -749,14 +761,27 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildScriptFunctionsLists(
-  const ScriptFuncTable: TScriptTable; const SL: TStringList);
+  const ScriptFuncTable: TScriptTable; const ClassMembers: Boolean;
+  const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
     var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
     var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
-    if ScriptFuncHasParameters(ScriptFunc) then
-      FScriptFunctionsByName.Add(String(ScriptFuncName), ScriptFuncWithoutHeader);
-    AddWordToList(SL, ScriptFuncName, awtScriptFunction);
+    var DoAddWordToList := True;
+    if ScriptFuncHasParameters(ScriptFunc) then begin
+      var Key := String(ScriptFuncName);
+      if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [ScriptFuncWithoutHeader]) then begin
+        { Function has multiple prototypes }
+        var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
+        var N := Length(ScriptFunctions);
+        SetLength(ScriptFunctions, N+1);
+        ScriptFunctions[N] := ScriptFuncWithoutHeader;
+        FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
+        DoAddWordToList := False; { Already added it when the first prototype was found }
+      end;
+    end;
+    if DoAddWordToList then
+      AddWordToList(SL, ScriptFuncName, awtScriptFunction);
   end;
 end;
 
@@ -868,10 +893,26 @@ begin
   Result := FKeywordsWordList[Section];
 end;
 
-function TInnoSetupStyler.GetScriptFunctionDefinition(Name: String): AnsiString;
+function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean;
+  const Name: String; const Index: Integer; out Count: Integer): AnsiString;
 begin
-  if not FScriptFunctionsByName.TryGetValue(Name, Result) then
+  var ScriptFunctions: TFunctionDefinitions;
+  if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then begin
+    Count := Length(ScriptFunctions);
+    var ResultIndex := Index;
+    if ResultIndex >= Count then
+      ResultIndex := Count-1;
+    Result := ScriptFunctions[ResultIndex]
+  end else begin
+    Count := 0;
     Result := '';
+  end;
+end;
+
+function TInnoSetupStyler.GetScriptWordList(
+  ClassOrRecordMembers: Boolean): AnsiString;
+begin
+  Result := FScriptWordList[ClassOrRecordMembers];
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(
