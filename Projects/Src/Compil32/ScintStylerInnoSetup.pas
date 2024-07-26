@@ -770,7 +770,7 @@ begin
     var DoAddWordToList := True;
     if ScriptFuncHasParameters(ScriptFunc) then begin
       var Key := String(ScriptFuncName);
-      if FScriptFunctionsByName[ClassMembers].ContainsKey(Key) then begin
+      if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [ScriptFuncWithoutHeader]) then begin
         { Function has multiple prototypes }
         var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
         var N := Length(ScriptFunctions);
@@ -778,8 +778,7 @@ begin
         ScriptFunctions[N] := ScriptFuncWithoutHeader;
         FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
         DoAddWordToList := False; { Already added it when the first prototype was found }
-      end else
-        FScriptFunctionsByName[ClassMembers].Add(Key, [ScriptFuncWithoutHeader]);
+      end;
     end;
     if DoAddWordToList then
       AddWordToList(SL, ScriptFuncName, awtScriptFunction);
