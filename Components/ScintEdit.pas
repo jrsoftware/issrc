@@ -869,6 +869,7 @@ begin
 end;
 
 class function TScintEdit.GetErrorException(const S: String): EScintEditError;
+ { Can be used when just calling Error would cause a compiler warning because it doesn't realize Error always raises }
 begin
   Result := EScintEditError.Create('TScintEdit error: ' + S);
 end;
