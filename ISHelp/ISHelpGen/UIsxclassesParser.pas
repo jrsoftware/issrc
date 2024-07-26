@@ -233,7 +233,7 @@ begin
   AssignFile(F, OutputFileName);
   Append(F);
   try
-    for var Typ in [ssType, ssEnumValue, ssConstant, ssMember] do begin
+    for var Typ in [ssType, ssEnumValue, ssConstant, ssMember, ssProperty] do begin
       for var S in FStrings[Typ] do begin
         var A := S.Split([', ']);
         for var S2 in A do begin
