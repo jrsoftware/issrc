@@ -6,7 +6,7 @@ uses
   Classes;
 
 type
-  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMember, ssProperty);
+  TIsxclassesParserStoredString = (ssLine, ssType, ssEnumValue, ssConstant, ssMemberName, ssMember, ssProperty);
   TIsxclassesParserStrings = array [TIsxclassesParserStoredString] of TStringList;
 
   TIsxclassesParser = class
@@ -40,6 +40,8 @@ begin
   FStrings[ssConstant].Duplicates := dupError;
   FStrings[ssConstant].Sorted := True;
   { Sorted for ignoring duplicates }
+  FStrings[ssMemberName].Duplicates := dupIgnore;
+  FStrings[ssMemberName].Sorted := True;
   FStrings[ssMember].Duplicates := dupIgnore;
   FStrings[ssMember].Sorted := True;
   FStrings[ssProperty].Duplicates := dupIgnore;
@@ -112,7 +114,7 @@ begin
         Continue;
       end;
 
-      var Typ := ssMember;
+      var Typ := ssMemberName;
       P := Pos('procedure ', S);
       if P = 0 then
         P := Pos('function ', S);
@@ -121,6 +123,8 @@ begin
         P := Pos('property ', S);
       end;
       if P <> 0 then begin
+        if Typ = ssMemberName then
+          FStrings[ssMember].Add(StringReplace(S.TrimLeft, 'const ', '', [rfReplaceAll]));
         Delete(S, 1, P-1);
         P := Pos(' ', S);
         Delete(S, 1, P);
@@ -233,7 +237,7 @@ begin
   AssignFile(F, OutputFileName);
   Append(F);
   try
-    for var Typ in [ssType, ssEnumValue, ssConstant, ssMember, ssProperty] do begin
+    for var Typ in [ssType, ssEnumValue, ssConstant, ssMemberName, ssProperty] do begin
       for var S in FStrings[Typ] do begin
         var A := S.Split([', ']);
         for var S2 in A do begin
@@ -273,17 +277,21 @@ end;
 procedure TIsxclassesParser.SaveWordLists(const OutputFileName: String);
 
   procedure WriteStringArray(const F: TextFile; const Name, Indent: String;
-    const Values: TStrings; const NewLineLength: Integer);
+    const Values: TStrings; const NewLineLength: Integer;
+    const AddQuotesAroundCommas: Boolean = True;
+    const ArrayType: String = 'array of AnsiString');
   begin
-    WriteLn(F, Indent + Name + ': array of AnsiString = [');
+    WriteLn(F, Indent + Name + ': ' + ArrayType + ' = [');
     var S: String;
     for var I := 0 to Values.Count-1 do begin
       if S <> '' then
         S := S + ', ';
       var V := Values[I];
-      V := StringReplace(V, ', ', ',', [rfReplaceAll]);
-      V := '''' + StringReplace(V, ',', ''', ''', [rfReplaceAll]) + '''';
-      S := S + V;
+      if AddQuotesAroundCommas then begin
+        V := StringReplace(V, ', ', ',', [rfReplaceAll]);
+        V := StringReplace(V, ',', ''', ''', [rfReplaceAll]);
+      end;
+      S := S + '''' + V + '''';
       if Length(S) > NewLineLength then begin
         if I <> Values.Count-1 then
           S := S + ',';
@@ -308,6 +316,9 @@ begin
     WriteLn(F);
     WriteLn(F, 'interface');
     WriteLn(F);
+    WriteLn(F, 'uses');
+    WriteLn(F, Indent + 'ScriptFunc;');
+    WriteLn(F);
     WriteLn(F, 'var');
     WriteStringArray(F, 'PascalConstants_Isxclasses', Indent, FStrings[ssConstant], 0);
     WriteLn(F);
@@ -315,7 +326,7 @@ begin
     WriteLn(F);
     WriteStringArray(F, 'PascalEnumValues_Isxclasses', Indent, FStrings[ssEnumValue], 0);
     WriteLn(F);
-    WriteStringArray(F, 'PascalMembers_Isxclasses', Indent, FStrings[ssMember], 80);
+    WriteStringArray(F, 'PascalMembers_Isxclasses', Indent, FStrings[ssMember], 0, False, 'TScriptTable');
     WriteLn(F);
     WriteStringArray(F, 'PascalProperties_Isxclasses', Indent, FStrings[ssProperty], 80);
     WriteLn(F);

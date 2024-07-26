@@ -5103,11 +5103,7 @@ begin
   var LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word: AnsiString;
-  if not ClassOrRecordMember then
-    Word := FMemosStyler.ScriptFunctionDefinition[CurrentCallTipWord]
-  else
-    Word := '';
+  var Word := FMemosStyler.GetScriptFunctionDefinition(ClassOrRecordMember, CurrentCallTipWord);
   if Word <> '' then begin
     FCallTipState.FunctionDefinition := Word;
     FActiveMemo.ShowCallTip(LastPosCallTip - Length(CurrentCallTipWord), FCallTipState.FunctionDefinition);
