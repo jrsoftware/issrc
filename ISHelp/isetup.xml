@@ -266,8 +266,8 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="runsection">[Run] section</link><br/>
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
-<link topic="scriptintro">Pascal Scripting: Introduction</link>
-<link topic="compformshortcuts">Compiler IDE Keyboard And Mouse Commands</link>
+<link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
+<link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
 
 </body>
