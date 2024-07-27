@@ -39,7 +39,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+.).</li>
   <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+;).</li>
-  <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the Find (Ctrl+F) and Replace (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
+  <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the <i>Find</i> (Ctrl+F) and <i>Replace</i> (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
   <li>Added shortcuts to add a cursor or selection up or down (Ctrl+Alt+Up and Ctrl+Alt+Down). For multi-line selections this extends the selection up or down and never shrinks.</li>
   <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click).</li>
   <li>Added shortcut to remove a selection by clicking it (Ctrl+Click).</li>
@@ -57,13 +57,15 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
   <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the object's class.</li>
   <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
+  <li>Added new <i>Use Regular Expressions</i> option to the <i>Edit</i> menu to enable or disable the use of regular expressions for all find and replace operations and added a shortcut for it (Alt+R).</li>
   <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
   <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
   <li>The editor can now be scrolled horizontally instead of vertically by holding the Shift key while rotating the mouse wheel. Horizontal scroll wheels are now also supported.</li>
   <li>Cut (Ctrl+X or Shift+Delete) and Copy (Ctrl+C or Ctrl+Insert) now cut or copy the entire line if there's no selection, consistent with most other modern editors.</li>
-  <li>Added shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
-  <li>Added shortcut and menu item to toggle line comment (Ctrl+/).</li>
-  <li>Added shortcut and menu item to go to matching brace (Ctrl+Shift+\).</li>
+  <li>Added new shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to toggle line comment (Ctrl+/).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to go to matching brace (Ctrl+Shift+\).</li>
+  <li>Moved the <i>Word Wrap</i> option to the <i>View</i> menu and added a shortcut for it (Alt+Z).</li>
   <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
   <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
   <li>Improved brace highlighting.</li>
@@ -74,7 +76,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Shortcuts Alt+Left and Alt+Right now always navigate back and forward even if Visual Studio-style menu shortcuts have been activated.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or Ctrl+I alternatives must be used.</li>
   <li>Moved the list of recently opened files into a new <i>Open Recent</i> submenu of the <i>Files</i> menu.</li>
   <li>Added shortcuts to select a tab (Ctrl+1 through Ctrl+9).</li>
-  <li>Added new <i>Word Wrap</i> menu item to the <i>View</i> menu (Alt+Z).</li>
   <li>Added shortcut to the <i>Options</i> menu item in the <i>Tools</i> menu (Ctrl+,).</li>
 </ul>
 <p><span class="head2">Other changes</span></p>
