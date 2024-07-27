@@ -569,6 +569,7 @@ type
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
+    function TestLastFindOptions: Boolean;
     procedure SyncEditorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
@@ -3530,6 +3531,8 @@ begin
       FLastFindOptions := FLastFindOptions + [frDown]
     else
       FLastFindOptions := FLastFindOptions - [frDown];
+    if not TestLastFindOptions then
+      Exit;
     FindNext(False);
   end;
 end;
@@ -3565,7 +3568,6 @@ end;
 
 function TCompileForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  { Store }
   if Sender is TFindDialog then begin
     with Sender as TFindDialog do begin
       FLastFindOptions := Options;
@@ -3579,7 +3581,11 @@ begin
   end;
   FLastFindRegEx := True; { fixme - use UI }
 
-  { Test }
+  Result := TestLastFindOptions;
+end;
+
+function TCompileForm.TestLastFindOptions;
+begin
   if FLastFindRegEx then begin
     Result := FActiveMemo.TestRegularExpression(FLastFindText);
     if not Result then
