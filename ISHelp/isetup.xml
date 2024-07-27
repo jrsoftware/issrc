@@ -85,6 +85,7 @@
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
+    <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -3363,6 +3364,19 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
 </tr>
 </table>
+
+</body>
+</topic>
+
+
+
+<topic name="compformregex" title="Compiler IDE Regular Expressions">
+<keyword value="Compiler IDE Regular Expressions" />
+<keyword value="Regular Expressions" />
+<keyword value="Regex" />
+<body>
+
+<p>...</p>
 
 </body>
 </topic>
