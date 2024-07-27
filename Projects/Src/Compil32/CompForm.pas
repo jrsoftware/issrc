@@ -254,6 +254,7 @@ type
     EBraceMatch: TMenuItem;
     EFoldLine: TMenuItem;
     EUnfoldLine: TMenuItem;
+    EFindRegEx: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -374,6 +375,7 @@ type
     procedure EToggleLinesCommentClick(Sender: TObject);
     procedure EBraceMatchClick(Sender: TObject);
     procedure EFoldOrUnfoldLineClick(Sender: TObject);
+    procedure EFindRegExClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -408,6 +410,7 @@ type
       TabWidth: Integer;
       UseTabCharacter: Boolean;
       UseFolding: Boolean;
+      FindRegEx: Boolean;
       WordWrap: Boolean;
       AutoIndent: Boolean;
       IndentationGuides: Boolean;
@@ -802,6 +805,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.UseFolding := Ini.ReadBool('Options', 'UseFolding', True);
+      FOptions.FindRegEx := Ini.ReadBool('Options', 'FindRegEx', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
@@ -2766,6 +2770,7 @@ begin
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EFindRegEx.Checked := FOptions.FindRegEx;
   EFoldLine.Visible := FOptions.UseFolding;
   EFoldLine.Enabled := MemoHasFocus;
   EUnfoldLine.Visible := EFoldLine.Visible;
@@ -3531,15 +3536,11 @@ begin
       FLastFindOptions := FLastFindOptions + [frDown]
     else
       FLastFindOptions := FLastFindOptions - [frDown];
+    FLastFindRegEx := FOptions.FindRegEx;
     if not TestLastFindOptions then
       Exit;
     FindNext(False);
   end;
-end;
-
-procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
-begin
-  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.FindNext(const ReverseDirection: Boolean);
@@ -3579,7 +3580,7 @@ begin
       FLastFindText := FindText;
     end;
   end;
-  FLastFindRegEx := True; { fixme - use UI }
+  FLastFindRegEx := FOptions.FindRegEx;
 
   Result := TestLastFindOptions;
 end;
@@ -3751,6 +3752,22 @@ begin
     end;
     FindNext(GetKeyState(VK_SHIFT) < 0);
   end;
+end;
+
+procedure TCompileForm.EFindRegExClick(Sender: TObject);
+begin
+  FOptions.FindRegEx := not FOptions.FindRegEx;
+  var Ini := TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
+begin
+  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);
