@@ -325,13 +325,13 @@ type
     procedure Redo;
     procedure RemoveAdditionalSelections;
     function ReplaceMainSelText(const S: String;
-      const ReplaceMode: TScintReplaceMode): TScintRange;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceRawMainSelText(const S: TScintRawString;
-      const ReplaceMode: TScintReplaceMode): TScintRange;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
-      const S: TScintRawString; const ReplaceMode: TScintReplaceMode): TScintRange;
+      const S: TScintRawString; const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String;
-      const ReplaceMode: TScintReplaceMode): TScintRange;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
     procedure SelectAll;
@@ -1904,7 +1904,7 @@ begin
     virtual space, it'll remain in virtual space after the replacement }
   Call(SCI_CLEARSELECTIONS, 0, 0);
   { Using ReplaceRawTextRange instead of SCI_SETTEXT for embedded null support }
-  ReplaceRawTextRange(0, GetRawTextLength, Value, srmNormal);
+  ReplaceRawTextRange(0, GetRawTextLength, Value);
   ChooseCaretX;
 end;
 
@@ -2613,7 +2613,7 @@ begin
   CheckIndexRange(Index);
   StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetPositionFromLine(Index + 1);
-  FEdit.ReplaceRawTextRange(StartPos, EndPos, '', srmNormal);
+  FEdit.ReplaceRawTextRange(StartPos, EndPos, '');
 end;
 
 function TScintEditStrings.Get(Index: Integer): String;
@@ -2705,7 +2705,7 @@ begin
   else
     InsertStr := S + EndingStr;
   { Using ReplaceRawTextRange instead of SCI_INSERTTEXT for embedded null support }
-  FEdit.ReplaceRawTextRange(Pos, Pos, InsertStr, srmNormal);
+  FEdit.ReplaceRawTextRange(Pos, Pos, InsertStr);
 end;
 
 procedure TScintEditStrings.Put(Index: Integer; const S: String);
@@ -2720,7 +2720,7 @@ begin
   CheckIndexRange(Index);
   StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetLineEndPosition(Index);
-  FEdit.ReplaceRawTextRange(StartPos, EndPos, S, srmNormal);
+  FEdit.ReplaceRawTextRange(StartPos, EndPos, S, srmMinimal);
 end;
 
 procedure TScintEditStrings.SetText(Text: PChar);
