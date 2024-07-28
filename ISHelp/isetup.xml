@@ -3376,26 +3376,28 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="Regex" />
 <body>
 
-<p>Regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
+<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
 
-<p>ECMAScript grammar, generally similar to the grammar used by JavaScript and the .NET languages.</p>
+<p>When used, regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
 
-<p><extlink href="https://cplusplus.com/reference/regex/ECMAScript/">https://cplusplus.com/reference/regex/ECMAScript/</extlink></p>
+<p>Regular expressions must be written in the ECMAScript grammar, generally similar to the grammar used by JavaScript and the .NET languages. Invalid regular expressions will cause an error message.</p>
 
-<p><extlink href="https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp">https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp</extlink></p>
+<p>For more information about the grammar see:</p>
+<ul>
+<li><extlink href="https://cplusplus.com/reference/regex/ECMAScript/">https://cplusplus.com/reference/regex/ECMAScript/</extlink></li>
+<li><extlink href="https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp">https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp</extlink></li>
+<li><extlink href="https://regex101.com/r/fYE7S3/1">https://regex101.com/r/fYE7S3/1</extlink></li>
+</ul>
 
-<p><extlink href="https://regex101.com/r/fYE7S3/1">https://regex101.com/r/fYE7S3/1</extlink></p>
+<p>When replacing using regular expressions the replace string may contain the following special escape sequences:</p>
 
 <table>
 <tr><td><u>Escape Sequence</u></td><td><u>Meaning</u></td></tr>
 <tr>
-  <td>&nbsp;</td>
+  <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
 </tr>
 <tr>
-  <td>$1 through $9 or \1 through \9</td><td>The corresponding submatch</td>
-</tr>
-<tr>
-  <td>$&amp; or \0</td><td>The full match</td>
+  <td>$&amp; or \0</td><td>Complete match contents</td>
 </tr>
 <tr>
   <td>$$</td><td>A literal '$' character</td>
@@ -3406,8 +3408,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </table>
 
 <p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "amplExs". Or if the replace string was $1\r\n$2 it would put a newline between "Ex" and "ample".</p>
-
-<p><extlink href="https://regex101.com/r/xzxvcL/1">https://regex101.com/r/xzxvcL/1</extlink></p>
 
 </body>
 </topic>
