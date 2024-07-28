@@ -67,7 +67,11 @@ procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObj
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
-function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
+function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
+  const RegEx: Boolean): TScintFindOptions; overload;
+function FindOptionsToSearchOptions(const MatchCase: Boolean;
+  const RegEx: Boolean): TScintFindOptions; overload;
+function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
 procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
@@ -717,13 +721,34 @@ begin
   Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFileDark, '-dark', '')]);
 end;
 
-function FindOptionsToSearchOptions(const FindOptions: TFindOptions): TScintFindOptions;
+function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
+  const RegEx: Boolean): TScintFindOptions;
 begin
   Result := [];
   if frMatchCase in FindOptions then
     Include(Result, sfoMatchCase);
   if frWholeWord in FindOptions then
     Include(Result, sfoWholeWord);
+  if RegEx then
+    Include(Result, sfoRegEx);
+end;
+
+function FindOptionsToSearchOptions(const MatchCase: Boolean;
+  const RegEx: Boolean): TScintFindOptions; overload;
+begin
+  Result := [];
+  if MatchCase then
+    Include(Result, sfoMatchCase);
+  if RegEx then
+    Include(Result, sfoRegEx);
+end;
+
+function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
+begin
+  if RegEx then
+    Result := srmRegEx
+  else
+    Result := srmMinimal;
 end;
 
 procedure StartAddRemovePrograms;

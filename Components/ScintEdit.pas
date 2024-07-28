@@ -42,7 +42,7 @@ type
   TScintEditUpdate = (suContent, suSelection, suVScroll, suHScroll);
   TScintEditUpdates = set of TScintEditUpdate;
   TScintEditUpdateUIEvent = procedure(Sender: TObject; Updated: TScintEditUpdates) of object;
-  TScintFindOption = (sfoMatchCase, sfoWholeWord);
+  TScintFindOption = (sfoMatchCase, sfoWholeWord, sfoRegEx);
   TScintFindOptions = set of TScintFindOption;
   TScintFoldFlag = (sffLineBeforeExpanded, sffLineBeforeContracted,
     sffLineAfterExpanded, sffLineAfterContracted, sffLevelNumbers, sffLineState);
@@ -50,6 +50,7 @@ type
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
   TScintKeyCode = type Word;
   TScintKeyDefinition = type Cardinal;
+  TScintReplaceMode = (srmNormal, srmMinimal, srmRegEx);
   TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
@@ -158,8 +159,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
-    class function GetSearchFlags(const Options: TScintFindOptions): Integer; overload;
-    class function GetSearchFlags(const MatchCase: Boolean): Integer; overload;
+    class function GetReplaceTargetMessage(const ReplaceMode: TScintReplaceMode): Cardinal;
+    class function GetSearchFlags(const Options: TScintFindOptions): Integer;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
@@ -244,9 +245,10 @@ type
     procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
       const Command: TScintCommand); overload;
     procedure BeginUndoAction;
-    function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
-    function CallStr(Msg: Cardinal; WParam: Longint;
-      const LParamStr: TScintRawString): Longint;
+    function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint; overload;
+    function Call(Msg: Cardinal; WParam: Longint; LParam: Longint; out WarnStatus: Integer): Longint; overload;
+    function Call(Msg: Cardinal; WParam: Longint; const LParamStr: TScintRawString): Longint; overload;
+    function Call(Msg: Cardinal; WParam: Longint; const LParamStr: TScintRawString; out WarnStatus: Integer): Longint; overload;
     procedure CancelAutoComplete;
     procedure CancelAutoCompleteAndCallTip;
     procedure CancelCallTip;
@@ -313,16 +315,23 @@ type
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition;
-    function MainSelTextEquals(const S: String; const MatchCase: Boolean): Boolean;
+    function MainSelTextEquals(const S: String;
+      const Options: TScintFindOptions): Boolean;
     class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
     procedure PasteFromClipboard;
-    function RawMainSelTextEquals(const S: TScintRawString; const MatchCase: Boolean): Boolean;
+    function RawMainSelTextEquals(const S: TScintRawString;
+      const Options: TScintFindOptions): Boolean;
     class function RawStringIsBlank(const S: TScintRawString): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
+    function ReplaceMainSelText(const S: String;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
+    function ReplaceRawMainSelText(const S: TScintRawString;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
-      const S: TScintRawString): TScintRange;
-    function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String): TScintRange;
+      const S: TScintRawString; const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
+    function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String;
+      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     procedure RestyleLine(const Line: Integer);
     procedure ScrollCaretIntoView;
     procedure SelectAll;
@@ -353,6 +362,8 @@ type
     procedure ShowCallTip(const Pos: Integer; const Definition: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
     procedure SysColorChange(const Message: TMessage);
+    function TestRegularExpression(const S: String): Boolean;
+    function TestRawRegularExpression(const S: TScintRawString): Boolean;
     procedure Undo;
     procedure UpdateStyleAttributes;
     function WordAtCursor: String;
@@ -638,6 +649,13 @@ end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
 begin
+  var Dummy: Integer;
+  Result := Call(Msg, WParam, LParam, Dummy);
+end;
+
+function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint;
+  out WarnStatus: Integer): Longint;
+begin
   HandleNeeded;
   if FDirectPtr = nil then
     Error('Call: FDirectPtr is nil');
@@ -649,15 +667,25 @@ begin
   if ErrorStatus <> 0 then begin
     var Dummy: Integer;
     FDirectStatusFunction(FDirectPtr, SCI_SETSTATUS, 0, 0, Dummy);
-    ErrorFmt('Error status %d returned after Call(%u, %d, %d) = %d',
-      [ErrorStatus, Msg, WParam, LParam, Result]);
+    if ErrorStatus < SC_STATUS_WARN_START then
+      ErrorFmt('Error status %d returned after Call(%u, %d, %d) = %d',
+        [ErrorStatus, Msg, WParam, LParam, Result]);
   end;
+
+  WarnStatus := ErrorStatus;
 end;
 
-function TScintEdit.CallStr(Msg: Cardinal; WParam: Longint;
+function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
   const LParamStr: TScintRawString): Longint;
 begin
-  Result := Call(Msg, WParam, LPARAM(PAnsiChar(LParamStr)));
+  var Dummy: Integer;
+  Result := Call(Msg, WParam, LParamStr, Dummy);
+end;
+
+function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
+  const LParamStr: TScintRawString; out WarnStatus: Integer): Longint;
+begin
+  Result := Call(Msg, WParam, LPARAM(PAnsiChar(LParamStr)), WarnStatus);
 end;
 
 procedure TScintEdit.CancelAutoComplete;
@@ -890,7 +918,7 @@ function TScintEdit.FindRawText(const StartPos, EndPos: Integer;
 begin
   SetTarget(StartPos, EndPos);
   Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
-  Result := Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0;
+  Result := Call(SCI_SEARCHINTARGET, Length(S), S) >= 0;
   if Result then
     MatchRange := GetTarget;
 end;
@@ -1231,6 +1259,18 @@ begin
   Result := Call(SCI_GETREADONLY, 0, 0) <> 0;
 end;
 
+class function TScintEdit.GetReplaceTargetMessage(
+  const ReplaceMode: TScintReplaceMode): Cardinal;
+begin
+  case ReplaceMode of
+    srmNormal: Result := SCI_REPLACETARGET;
+    srmMinimal: Result := SCI_REPLACETARGETMINIMAL;
+    srmRegEx: Result := SCI_REPLACETARGETRE;
+  else
+    raise GetErrorException('Unknown ReplaceMode');
+  end;
+end;
+
 class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
 begin
   Result := 0;
@@ -1238,14 +1278,8 @@ begin
     Result := Result or SCFIND_MATCHCASE;
   if sfoWholeWord in Options then
     Result := Result or SCFIND_WHOLEWORD;
-end;
-
-class function TScintEdit.GetSearchFlags(const MatchCase: Boolean): Integer;
-begin
-  if MatchCase then
-    Result := GetSearchFlags([sfoMatchCase])
-  else
-    Result := GetSearchFlags([]);
+  if sfoRegEx in Options then
+    Result := Result or (SCFIND_REGEXP or SCFIND_CXX11REGEX);
 end;
 
 function TScintEdit.GetSelection: TScintRange;
@@ -1407,9 +1441,9 @@ begin
 end;
 
 function TScintEdit.MainSelTextEquals(const S: String;
-  const MatchCase: Boolean): Boolean;
+  const Options: TScintFindOptions): Boolean;
 begin
-  Result := RawMainSelTextEquals(ConvertStringToRawString(S), MatchCase);
+  Result := RawMainSelTextEquals(ConvertStringToRawString(S), Options);
 end;
 
 procedure TScintEdit.Notification(AComponent: TComponent; Operation: TOperation);
@@ -1487,12 +1521,12 @@ begin
 end;
 
 function TScintEdit.RawMainSelTextEquals(const S: TScintRawString;
-  const MatchCase: Boolean): Boolean;
+  const Options: TScintFindOptions): Boolean;
 begin
   Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(MatchCase), 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags(Options), 0);
   Result := False;
-  if Call(SCI_SEARCHINTARGET, Length(S), LPARAM(PAnsiChar(S))) >= 0 then begin
+  if Call(SCI_SEARCHINTARGET, Length(S), S) >= 0 then begin
     var Target := GetTarget;
     var Sel := GetSelection;
     if (Target.StartPos = Sel.StartPos) and (Target.EndPos = Sel.EndPos) then
@@ -1522,19 +1556,45 @@ begin
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
+function TScintEdit.ReplaceMainSelText(const S: String;
+  const ReplaceMode: TScintReplaceMode): TScintRange;
+begin
+  ReplaceRawMainSelText(ConvertStringToRawString(S), ReplaceMode);
+end;
+
+function TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
+  const ReplaceMode: TScintReplaceMode): TScintRange;
+{ Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
+  without removing additional selections }
+begin
+  { First replace the selection }
+  Call(SCI_TARGETFROMSELECTION, 0, 0);
+  Call(GetReplaceTargetMessage(ReplaceMode), Length(S), S);
+  { Then make the main selection an empty selection at the end of the inserted
+    text, just like SCI_REPLACESEL }
+  var Pos := GetTarget.EndPos; { SCI_REPLACETARGET* updates the target }
+  var MainSel := MainSelection;
+  SetSelectionCaretPosition(MainSel, Pos);
+  SetSelectionAnchorPosition(MainSel, Pos);
+  { Finally call Editor::SetLastXChosen and scroll caret into view, also just
+    like SCI_REPLACESEL }
+  ChooseCaretX;
+  ScrollCaretIntoView;
+end;
+
 function TScintEdit.ReplaceRawTextRange(const StartPos, EndPos: Integer;
-  const S: TScintRawString): TScintRange;
+  const S: TScintRawString; const ReplaceMode: TScintReplaceMode): TScintRange;
 begin
   CheckPosRange(StartPos, EndPos);
   SetTarget(StartPos, EndPos);
-  Call(SCI_REPLACETARGETMINIMAL, Length(S), LPARAM(PAnsiChar(S)));
+  Call(GetReplaceTargetMessage(ReplaceMode), Length(S), S);
   Result := GetTarget;
 end;
 
 function TScintEdit.ReplaceTextRange(const StartPos, EndPos: Integer;
-  const S: String): TScintRange;
+  const S: String; const ReplaceMode: TScintReplaceMode): TScintRange;
 begin
-  Result := ReplaceRawTextRange(StartPos, EndPos, ConvertStringToRawString(S));
+  Result := ReplaceRawTextRange(StartPos, EndPos, ConvertStringToRawString(S), ReplaceMode);
 end;
 
 procedure TScintEdit.RestyleLine(const Line: Integer);
@@ -1616,7 +1676,7 @@ end;
 
 procedure TScintEdit.SetAutoCompleteFillupChars(const FillupChars: AnsiString);
 begin
-  CallStr(SCI_AUTOCSETFILLUPS, 0, FillupChars);
+  Call(SCI_AUTOCSETFILLUPS, 0, FillupChars);
 end;
 
 procedure TScintEdit.SetAutoCompleteFontName(const Value: String);
@@ -1637,7 +1697,7 @@ end;
 
 procedure TScintEdit.SetAutoCompleteSelectedItem(const S: TScintRawString);
 begin
-  CallStr(SCI_AUTOCSELECT, 0, S);
+  Call(SCI_AUTOCSELECT, 0, S);
 end;
 
 procedure TScintEdit.SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
@@ -1648,7 +1708,7 @@ end;
 
 procedure TScintEdit.SetAutoCompleteStopChars(const StopChars: AnsiString);
 begin
-  CallStr(SCI_AUTOCSTOPS, 0, StopChars);
+  Call(SCI_AUTOCSTOPS, 0, StopChars);
 end;
 
 procedure TScintEdit.SetBraceBadHighlighting(const Pos: Integer);
@@ -1828,28 +1888,14 @@ begin
 end;
 
 procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
-{ Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
-  without removing additional selections }
 begin
-  { First replace the selection }
-  Call(SCI_TARGETFROMSELECTION, 0, 0);
-  Call(SCI_REPLACETARGETMINIMAL, Length(Value), LPARAM(PAnsiChar(Value)));
-  { Then make the main selection an empty selection at the end of the inserted
-    text, just like SCI_REPLACESEL }
-  var Pos := GetTarget.EndPos; { SCI_REPLACETARGETMINIMAL updates the target }
-  var MainSel := MainSelection;
-  SetSelectionCaretPosition(MainSel, Pos);
-  SetSelectionAnchorPosition(MainSel, Pos);
-  { Finally call Editor::SetLastXChosen and scroll caret into view, also just
-    like SCI_REPLACESEL }
-  ChooseCaretX;
-  ScrollCaretIntoView;
+  ReplaceRawMainSelText(Value, srmMinimal);
 end;
 
 procedure TScintEdit.SetRawSelText(const Value: TScintRawString);
 { Replaces the main selection's text and *clears* additional selections }
 begin
-  Call(SCI_REPLACESEL, 0, LPARAM(PAnsiChar(Value)));
+  Call(SCI_REPLACESEL, 0, Value);
 end;
 
 procedure TScintEdit.SetRawText(const Value: TScintRawString);
@@ -2001,7 +2047,7 @@ begin
   FWordCharsAsSet := [];
   for var C in S do
     Include(FWordCharsAsSet, C);
-  CallStr(SCI_SETWORDCHARS, 0, S);
+  Call(SCI_SETWORDCHARS, 0, S);
 end;
 
 procedure TScintEdit.SetWordWrap(const Value: Boolean);
@@ -2020,13 +2066,13 @@ end;
 procedure TScintEdit.ShowAutoComplete(const CharsEntered: Integer;
   const WordList: AnsiString);
 begin
-  Call(SCI_AUTOCSHOW, CharsEntered, LPARAM(PAnsiChar(WordList)));
+  Call(SCI_AUTOCSHOW, CharsEntered, WordList);
 end;
 
 procedure TScintEdit.ShowCallTip(const Pos: Integer;
   const Definition: AnsiString);
 begin
-  Call(SCI_CALLTIPSHOW, Pos, LPARAM(PAnsiChar(Definition)));
+  Call(SCI_CALLTIPSHOW, Pos, Definition);
 end;
 
 procedure TScintEdit.StyleNeeded(const EndPos: Integer);
@@ -2132,7 +2178,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       if HadStyleByteIndicators then
         for var I := 1 to N do
           FStyler.FStyleStr[I] := AnsiChar(Ord(FStyler.FStyleStr[I]) and StyleNumberMask);
-      Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), LPARAM(PAnsiChar(FStyler.FStyleStr)));
+      Call(SCI_SETSTYLINGEX, Length(FStyler.FStyleStr), FStyler.FStyleStr);
 
       FStyler.FStyleStr := '';
       FStyler.FText := '';
@@ -2193,7 +2239,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
     { Note: Using SCI_SETSTYLINGEX because it only redraws the part of the
       range that changed, whereas SCI_SETSTYLING redraws the entire range. }
     StyleStr := StringOfChar(AnsiChar(0), FLines.GetRawLineLengthWithEnding(Line));
-    Call(SCI_SETSTYLINGEX, Length(StyleStr), LPARAM(PAnsiChar(StyleStr)));
+    Call(SCI_SETSTYLINGEX, Length(StyleStr), StyleStr);
   end;
 
 var
@@ -2238,6 +2284,21 @@ end;
 procedure TScintEdit.SysColorChange(const Message: TMessage);
 begin
   ForwardMessage(Message);
+end;
+
+function TScintEdit.TestRawRegularExpression(const S: TScintRawString): Boolean;
+{ Example invalid regular expression: ( }
+begin
+  Call(SCI_SETTARGETRANGE, 0, 0);
+  Call(SCI_SETSEARCHFLAGS, GetSearchFlags([sfoRegEx]), 0);
+  var WarnStatus: Integer;
+  var Res := Call(SCI_SEARCHINTARGET, Length(S), S, WarnStatus);
+  Result := not ((Res = -1) and (WarnStatus = SC_STATUS_WARN_REGEX));
+end;
+
+function TScintEdit.TestRegularExpression(const S: String): Boolean;
+begin
+  Result := TestRawRegularExpression(ConvertStringToRawString(S));
 end;
 
 procedure TScintEdit.Undo;
@@ -2310,7 +2371,7 @@ begin
       end;
     end;
 
-    PixelWidth := 4 + CallStr(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
+    PixelWidth := 4 + Call(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
   end else
     PixelWidth := 0;
   
@@ -2325,7 +2386,7 @@ var
     const Attr: TScintStyleAttributes; const Force: Boolean);
   begin
     if Force or (Attr.FontName <> DefaultAttr.FontName) then
-      CallStr(SCI_STYLESETFONT, StyleNumber, AnsiString(Attr.FontName));
+      Call(SCI_STYLESETFONT, StyleNumber, AnsiString(Attr.FontName));
     if Force or (Attr.FontSize <> DefaultAttr.FontSize) then
       { Note: Scintilla doesn't support negative point sizes like the VCL }
       Call(SCI_STYLESETSIZE, StyleNumber, Abs(Attr.FontSize));
@@ -2659,7 +2720,7 @@ begin
   CheckIndexRange(Index);
   StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetLineEndPosition(Index);
-  FEdit.ReplaceRawTextRange(StartPos, EndPos, S);
+  FEdit.ReplaceRawTextRange(StartPos, EndPos, S, srmMinimal);
 end;
 
 procedure TScintEditStrings.SetText(Text: PChar);

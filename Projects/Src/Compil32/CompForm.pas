@@ -254,6 +254,7 @@ type
     EBraceMatch: TMenuItem;
     EFoldLine: TMenuItem;
     EUnfoldLine: TMenuItem;
+    EFindRegEx: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -374,6 +375,7 @@ type
     procedure EToggleLinesCommentClick(Sender: TObject);
     procedure EBraceMatchClick(Sender: TObject);
     procedure EFoldOrUnfoldLineClick(Sender: TObject);
+    procedure EFindRegExClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -408,6 +410,7 @@ type
       TabWidth: Integer;
       UseTabCharacter: Boolean;
       UseFolding: Boolean;
+      FindRegEx: Boolean;
       WordWrap: Boolean;
       AutoIndent: Boolean;
       IndentationGuides: Boolean;
@@ -448,6 +451,7 @@ type
     FDebuggerException: String;
     FRunParameters: String;
     FLastFindOptions: TFindOptions;
+    FLastFindRegEx: Boolean;
     FLastFindText: String;
     FLastReplaceText: String;
     FLastEvaluateConstantText: String;
@@ -567,7 +571,8 @@ type
     procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
-    procedure StoreLastFindOptions(Sender: TObject);
+    function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
+    function TestLastFindOptions: Boolean;
     procedure SyncEditorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
@@ -800,6 +805,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.UseFolding := Ini.ReadBool('Options', 'UseFolding', True);
+      FOptions.FindRegEx := Ini.ReadBool('Options', 'FindRegEx', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
       FOptions.AutoIndent := Ini.ReadBool('Options', 'AutoIndent', True);
       FOptions.IndentationGuides := Ini.ReadBool('Options', 'IndentationGuides', True);
@@ -2764,6 +2770,7 @@ begin
   EFindNext.Enabled := MemoHasFocus;
   EFindPrevious.Enabled := MemoHasFocus;
   EReplace.Enabled := MemoHasFocus and not MemoIsReadOnly;
+  EFindRegEx.Checked := FOptions.FindRegEx;
   EFoldLine.Visible := FOptions.UseFolding;
   EFoldLine.Enabled := MemoHasFocus;
   EUnfoldLine.Visible := EFoldLine.Visible;
@@ -2891,7 +2898,7 @@ begin
       if I = SelStartLine then // is this the first selected line?
         Inc(Selection.StartPos, Length(LongComment));
       Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.CallStr(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
+      AMemo.Call(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
     end;
     // after uncommenting selection may promote itself to the lines
     // before the first initially selected line;
@@ -2957,7 +2964,7 @@ begin
 
     while (StartPos < EndPos) and
           FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-            FindOptionsToSearchOptions(FLastFindOptions), FoundRange) do begin
+            FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), FoundRange) do begin
       if StartPos = 0 then
         FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
       else
@@ -3025,7 +3032,7 @@ end;
 procedure TCompileForm.CloseTab(const TabIndex: Integer);
 begin
   var Memo := TabIndexToMemo(TabIndex, MemosTabSet.Tabs.Count-1);
-  var MemoWasActiveMemo:= Memo = FActiveMemo;
+  var MemoWasActiveMemo := Memo = FActiveMemo;
 
   MemosTabSet.Tabs.Delete(TabIndex); { This will not change MemosTabset.TabIndex }
   MemosTabSet.Hints.Delete(TabIndex);
@@ -3529,13 +3536,11 @@ begin
       FLastFindOptions := FLastFindOptions + [frDown]
     else
       FLastFindOptions := FLastFindOptions - [frDown];
+    FLastFindRegEx := FOptions.FindRegEx;
+    if not TestLastFindOptions then
+      Exit;
     FindNext(False);
   end;
-end;
-
-procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
-begin
-  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.FindNext(const ReverseDirection: Boolean);
@@ -3555,28 +3560,49 @@ begin
     EndPos := 0;
   end;
   if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-     FindOptionsToSearchOptions(FLastFindOptions), Range) then
+     FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
     FActiveMemo.SelectAndEnsureVisible(Range)
   else
     MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
       mbInformation, MB_OK);
 end;
 
-procedure TCompileForm.StoreLastFindOptions(Sender: TObject);
+function TCompileForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  with Sender as TFindDialog do begin
-    FLastFindOptions := Options;
-    FLastFindText := FindText;
+  if Sender is TFindDialog then begin
+    with Sender as TFindDialog do begin
+      FLastFindOptions := Options;
+      FLastFindText := FindText;
+    end;
+  end else begin
+    with Sender as TReplaceDialog do begin
+      FLastFindOptions := Options;
+      FLastFindText := FindText;
+    end;
   end;
+  FLastFindRegEx := FOptions.FindRegEx;
+
+  Result := TestLastFindOptions;
+end;
+
+function TCompileForm.TestLastFindOptions;
+begin
+  if FLastFindRegEx then begin
+    Result := FActiveMemo.TestRegularExpression(FLastFindText);
+    if not Result then
+      MsgBoxFmt('Invalid regular expression "%s"', [FLastFindText], SCompilerFormCaption,
+        mbError, MB_OK);
+  end else
+    Result := True;
 end;
 
 procedure TCompileForm.FindDialogFind(Sender: TObject);
 begin
   { This event handler is shared between FindDialog & ReplaceDialog }
 
-  { Save a copy of the current text so that InitializeFindText doesn't
-    mess up the operation of Edit | Find Next }
-  StoreLastFindOptions(Sender);
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
+
   if GetKeyState(VK_MENU) < 0 then begin
     { Alt+Enter was used to close the dialog }
     (Sender as TFindDialog).CloseDialog;
@@ -3587,7 +3613,8 @@ end;
 
 procedure TCompileForm.FindInFilesDialogFind(Sender: TObject);
 begin
-  StoreLastFindOptions(Sender);
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
 
   FindResultsList.Clear;
   SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -3604,7 +3631,7 @@ begin
       var Range: TScintRange;
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
-              FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
+              FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         var Line := Memo.GetLineFromPosition(Range.StartPos);
         var Prefix := Format('  Line %d: ', [Line+1]);
         var FindResult := TFindResult.Create;
@@ -3688,22 +3715,22 @@ begin
 end;
 
 procedure TCompileForm.ReplaceDialogReplace(Sender: TObject);
-var
-  ReplaceCount, Pos: Integer;
-  Range, NewRange: TScintRange;
 begin
-  FLastFindOptions := ReplaceDialog.Options;
-  FLastFindText := ReplaceDialog.FindText;
+  if not StoreAndTestLastFindOptions(Sender) then
+    Exit;
+
   FLastReplaceText := ReplaceDialog.ReplaceText;
+  var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
 
   if frReplaceAll in FLastFindOptions then begin
-    ReplaceCount := 0;
+    var ReplaceCount := 0;
     FActiveMemo.BeginUndoAction;
     try
-      Pos := 0;
+      var Pos := 0;
+      var Range: TScintRange;
       while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
-         FindOptionsToSearchOptions(FLastFindOptions), Range) do begin
-        NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText);
+         FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+        var NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
         Pos := NewRange.EndPos;
         Inc(ReplaceCount);
       end;
@@ -3718,10 +3745,29 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    if FActiveMemo.MainSelTextEquals(FLastFindText, frMatchCase in FLastFindOptions) then
-      FActiveMemo.MainSelText := FLastReplaceText;
+    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(frMatchCase in FLastFindOptions, FLastFindRegEx)) then begin
+      { Note: the MainSelTextEquals above performs a search so the replacement
+        below is safe even if the user just enabled regex }
+      FActiveMemo.ReplaceMainSelText(FLastReplaceText, ReplaceMode);
+    end;
     FindNext(GetKeyState(VK_SHIFT) < 0);
   end;
+end;
+
+procedure TCompileForm.EFindRegExClick(Sender: TObject);
+begin
+  FOptions.FindRegEx := not FOptions.FindRegEx;
+  var Ini := TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TCompileForm.EFoldOrUnfoldLineClick(Sender: TObject);
+begin
+  FActiveMemo.FoldLine(FActiveMemo.CaretLine, Sender = EFoldLine);
 end;
 
 procedure TCompileForm.UpdateStatusPanelHeight(H: Integer);

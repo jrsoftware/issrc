@@ -201,9 +201,6 @@ begin
 
   { Some notes about Scintilla versions:
     -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
-    -3.6.6: Investigate SCFIND_CXX11REGEX: C++ 11 <regex> support built by default.
-            Can be disabled by defining NO_CXX11_REGEX. Good (?) overview at:
-            https://cplusplus.com/reference/regex/ECMAScript/
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
             and SCI_FORMATRANGEFULL from their predecessors as they will be
             deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
@@ -233,7 +230,7 @@ begin
 
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
   
-  Call(SCI_SETSCROLLWIDTH, 1024 * CallStr(SCI_TEXTWIDTH, 0, 'X'), 0);
+  Call(SCI_SETSCROLLWIDTH, 1024 * Call(SCI_TEXTWIDTH, 0, 'X'), 0);
 
   Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }

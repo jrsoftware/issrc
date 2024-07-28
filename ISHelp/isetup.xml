@@ -85,6 +85,7 @@
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
+    <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -3363,6 +3364,50 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
 </tr>
 </table>
+
+</body>
+</topic>
+
+
+
+<topic name="compformregex" title="Compiler IDE Regular Expressions">
+<keyword value="Compiler IDE Regular Expressions" />
+<keyword value="Regular Expressions" />
+<keyword value="Regex" />
+<body>
+
+<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
+
+<p>When used, regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
+
+<p>Regular expressions must be written in the ECMAScript grammar, generally similar to the grammar used by JavaScript and the .NET languages. Invalid regular expressions will cause an error message.</p>
+
+<p>For more information about the grammar see:</p>
+<ul>
+<li><extlink href="https://cplusplus.com/reference/regex/ECMAScript/">https://cplusplus.com/reference/regex/ECMAScript/</extlink></li>
+<li><extlink href="https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp">https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp</extlink></li>
+<li><extlink href="https://regex101.com/r/fYE7S3/1">https://regex101.com/r/fYE7S3/1</extlink></li>
+</ul>
+
+<p>When replacing using regular expressions the replace string may contain the following special escape sequences:</p>
+
+<table>
+<tr><td><u>Escape Sequence</u></td><td><u>Meaning</u></td></tr>
+<tr>
+  <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
+</tr>
+<tr>
+  <td>$&amp; or \0</td><td>Complete match contents</td>
+</tr>
+<tr>
+  <td>$$</td><td>A literal '$' character</td>
+</tr>
+<tr>
+  <td>\\, \a, \b, \f, \r, \n, \t, \v</td><td>A literal '\', '\a', '\b', etc. character</td>
+</tr>
+</table>
+
+<p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "amplExs". Or if the replace string was $1\r\n$2 it would put a newline between "Ex" and "ample".</p>
 
 </body>
 </topic>
