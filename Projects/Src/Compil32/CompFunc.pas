@@ -68,7 +68,9 @@ procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
-  const RegEx: Boolean): TScintFindOptions;
+  const RegEx: Boolean): TScintFindOptions; overload;
+function FindOptionsToSearchOptions(const MatchCase: Boolean;
+  const RegEx: Boolean): TScintFindOptions; overload;
 function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
 procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
@@ -727,6 +729,16 @@ begin
     Include(Result, sfoMatchCase);
   if frWholeWord in FindOptions then
     Include(Result, sfoWholeWord);
+  if RegEx then
+    Include(Result, sfoRegEx);
+end;
+
+function FindOptionsToSearchOptions(const MatchCase: Boolean;
+  const RegEx: Boolean): TScintFindOptions; overload;
+begin
+  Result := [];
+  if MatchCase then
+    Include(Result, sfoMatchCase);
   if RegEx then
     Include(Result, sfoRegEx);
 end;

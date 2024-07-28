@@ -649,8 +649,8 @@ end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
 begin
-  var WarnStatus: Integer;
-  Result := Call(Msg, WParam, LParam, WarnStatus);
+  var Dummy: Integer;
+  Result := Call(Msg, WParam, LParam, Dummy);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint;
@@ -678,8 +678,8 @@ end;
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
   const LParamStr: TScintRawString): Longint;
 begin
-  var WarnStatus: Integer;
-  Result := Call(Msg, WParam, LParamStr, WarnStatus);
+  var Dummy: Integer;
+  Result := Call(Msg, WParam, LParamStr, Dummy);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
