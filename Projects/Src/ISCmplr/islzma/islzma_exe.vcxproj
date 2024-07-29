@@ -162,26 +162,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\C\Alloc.c" />
-    <ClCompile Include="..\C\LzFind.c" />
-    <ClCompile Include="..\C\LzFindMt.c" />
-    <ClCompile Include="..\C\Lzma2Enc.c" />
-    <ClCompile Include="..\C\LzmaEnc.c" />
-    <ClCompile Include="..\C\MtCoder.c" />
-    <ClCompile Include="..\C\Threads.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Alloc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFind.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindMt.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Lzma2Enc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzmaEnc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtCoder.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Threads.c" />
     <ClCompile Include="islzma.c" />
     <ClCompile Include="islzma_exe.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\C\Alloc.h" />
-    <ClInclude Include="..\C\LzFind.h" />
-    <ClInclude Include="..\C\LzFindMt.h" />
-    <ClInclude Include="..\C\LzHash.h" />
-    <ClInclude Include="..\C\Lzma2Enc.h" />
-    <ClInclude Include="..\C\LzmaEnc.h" />
-    <ClInclude Include="..\C\MtCoder.h" />
-    <ClInclude Include="..\C\Threads.h" />
-    <ClInclude Include="..\C\Types.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Alloc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFind.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFindMt.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzHash.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Lzma2Enc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzmaEnc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\MtCoder.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Threads.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Types.h" />
     <ClInclude Include="islzma.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
