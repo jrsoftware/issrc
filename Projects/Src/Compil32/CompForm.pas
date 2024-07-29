@@ -218,6 +218,7 @@ type
     VPreviousTab: TMenuItem;
     N20: TMenuItem;
     HShortcutsDoc: TMenuItem;
+    HRegExDoc: TMenuItem;
     N21: TMenuItem;
     EFindPrevious: TMenuItem;
     FindResultsList: TListBox;
@@ -346,6 +347,7 @@ type
     procedure VNextTabClick(Sender: TObject);
     procedure VPreviousTabClick(Sender: TObject);
     procedure HShortcutsDocClick(Sender: TObject);
+    procedure HRegExDocClick(Sender: TObject);
     procedure VFindResultsClick(Sender: TObject);
     procedure EFindInFilesClick(Sender: TObject);
     procedure FindInFilesDialogFind(Sender: TObject);
@@ -3244,6 +3246,12 @@ procedure TCompileForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformshortcuts.htm')));
+end;
+
+procedure TCompileForm.HRegExDocClick(Sender: TObject);
+begin
+  if Assigned(HtmlHelp) then
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformregex.htm')));
 end;
 
 procedure TCompileForm.HDocClick(Sender: TObject);

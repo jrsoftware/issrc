@@ -845,6 +845,10 @@ object CompileForm: TCompileForm
         Caption = '&Keyboard And Mouse Commands'
         OnClick = HShortcutsDocClick
       end
+      object HRegexDoc: TMenuItem
+        Caption = 'Regular E&xpressions'
+        OnClick = HRegexDocClick
+      end
       object N14: TMenuItem
         Caption = '-'
       end

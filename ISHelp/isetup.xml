@@ -3407,7 +3407,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 </table>
 
-<p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "amplExs". Or if the replace string was $1\r\n$2 it would put a newline between "Ex" and "ample".</p>
+<p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "amplExs". Or if the replace string was $1\r\n$2 this would put a newline between "Ex" and "amples".</p>
 
 </body>
 </topic>
