@@ -84,7 +84,7 @@ end;
 
 type
   TLzmaInCallback = record
-    Read: function(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer;
+    Read: function(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer; cdecl;
   end;
 
 const
@@ -95,12 +95,12 @@ const
 
 function LzmaMyDecodeProperties(var vs: TLZMAInternalDecoderState;
   vsSize: Integer; const propsData; propsDataSize: Integer;
-  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; external;
+  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; cdecl; external name '_LzmaMyDecodeProperties';
 procedure LzmaMyDecoderInit(var vs: TLZMAInternalDecoderState;
-  probsPtr: Pointer; dictionaryPtr: Pointer); external;
+  probsPtr: Pointer; dictionaryPtr: Pointer); cdecl; external name '_LzmaMyDecoderInit';
 function LzmaDecode(var vs: TLZMAInternalDecoderState;
   var inCallback: TLzmaInCallback; var outStream; outSize: Cardinal;
-  var outSizeProcessed: Cardinal): Integer; external;
+  var outSizeProcessed: Cardinal): Integer; cdecl; external name '_LzmaDecode';
 
 type
   TLZMADecompressorCallbackData = record
@@ -108,7 +108,7 @@ type
     Instance: TLZMA1SmallDecompressor;
   end;
 
-function ReadFunc(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer;
+function ReadFunc(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer; cdecl;
 begin
   TLZMADecompressorCallbackData(obj^).Instance.DoRead(buffer, bufferSize);
   { Don't bother returning any sort of failure code, because if DoRead failed,

@@ -210,9 +210,10 @@ Compiled by Visual Studio 2005 from the [Projects\Helper] directory and then
 stored in a compiled resource file.
 
 **Projects\Src\Setup\Lzma2Decode\ISLzmaDec.obj**, **Projects\Src\Setup\Lzma2Decode\ISLzma2Dec.obj** -
-See [Projects\Src\Setup\Lzma2Decode\compiling.txt].
+Compiled by Visual Studio 2022 from the [Projects\Src\Setup\Lzma2Decode] directory.
 
-**Projects\Src\SetupLdr\LzmaDecode\LzmaDecodeInno.obj** - See [Projects\Src\SetupLdr\LzmaDecode\compiling.txt].
+**Projects\Src\SetupLdr\LzmaDecode\LzmaDecodeInno.obj** - Compiled by Visual Studio
+2022 from the [Projects\Src\SetupLdr\LzmaDecode] directory.
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
@@ -275,7 +276,7 @@ workflow will be triggered automatically.
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
 [Projects\Src\Compil32]: <Projects/Src/Compil32>
-[Projects\Src\Setup\Lzma2Decode\compiling.txt]: <Projects/Src/Setup/Lzma2Decode/compiling.txt>
-[Projects\Src\SetupLdr\LzmaDecode\compiling.txt]: <Projects/Src/SetupLdr/LzmaDecode/compiling.txt>
+[Projects\Src\Setup\Lzma2Decode]: <Projects/Src/Setup/Lzma2Decode>
+[Projects\Src\SetupLdr\LzmaDecode]: <Projects/Src/SetupLdr/LzmaDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets

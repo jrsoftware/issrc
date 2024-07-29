@@ -65,8 +65,8 @@ type
 
   PLZMAISzAlloc = ^TLZMAISzAlloc;
   TLZMAISzAlloc = record
-    Alloc: function(p: PLZMAISzAlloc; size: Cardinal): Pointer;
-    Free: procedure(p: PLZMAISzAlloc; address: Pointer);
+    Alloc: function(p: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
+    Free: procedure(p: PLZMAISzAlloc; address: Pointer); cdecl;
   end;
 
 const
@@ -98,29 +98,29 @@ const
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;
-  const alloc: TLZMAISzAlloc): TLZMASRes; external;
+  const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name '_IS_LzmaDec_Init';
 function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
-  var status: Integer): TLZMASRes; external;
+  var status: Integer): TLZMASRes; cdecl; external name '_LzmaDec_DecodeToBuf';
 procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
-  const alloc: TLZMAISzAlloc); external;
+  const alloc: TLZMAISzAlloc); cdecl; external name '_LzmaDec_Free';
 
 function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
-  stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes;
-  external;
+  stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
+  external name '_IS_Lzma2Dec_Init';
 function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
-  var status: Integer): TLZMASRes; external;
+  var status: Integer): TLZMASRes; cdecl; external name '_Lzma2Dec_DecodeToBuf';
 procedure IS_Lzma2Dec_Free(var state: TLZMA2InternalDecoderState;
-  const alloc: TLZMAISzAlloc); external;
+  const alloc: TLZMAISzAlloc); cdecl; external name '_IS_Lzma2Dec_Free';
 
-procedure LzmaDec_Allocate; external;
-procedure LzmaDec_AllocateProbs; external;
-procedure LzmaDec_DecodeToDic; external;
-procedure LzmaDec_FreeProbs; external;
-procedure LzmaDec_Init; external;
-procedure LzmaDec_InitDicAndState; external;
-procedure LzmaProps_Decode; external;
+procedure LzmaDec_Allocate; cdecl; external name '_LzmaDec_Allocate';
+procedure LzmaDec_AllocateProbs; cdecl; external name '_LzmaDec_AllocateProbs';
+procedure LzmaDec_DecodeToDic; cdecl; external name'_LzmaDec_DecodeToDic';
+procedure LzmaDec_FreeProbs; cdecl; external name '_LzmaDec_FreeProbs';
+procedure LzmaDec_Init; cdecl; external name '_LzmaDec_Init';
+procedure LzmaDec_InitDicAndState; cdecl; external name '_LzmaDec_InitDicAndState';
+procedure LzmaProps_Decode; cdecl; external name '_LzmaProps_Decode';
 
 procedure LZMADecompInternalError(const Msg: String);
 begin
@@ -132,7 +132,7 @@ begin
   raise ECompressDataError.CreateFmt(SLZMADecompDataError, [Id]);
 end;
 
-function LZMAAllocFunc(p: PLZMAISzAlloc; size: Cardinal): Pointer;
+function LZMAAllocFunc(p: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
 begin
   if (size <> 0) and (size <= Cardinal(MaxDictionarySize)) then
     Result := VirtualAlloc(nil, size, MEM_COMMIT, PAGE_READWRITE)
@@ -140,7 +140,7 @@ begin
     Result := nil;
 end;
 
-procedure LZMAFreeFunc(p: PLZMAISzAlloc; address: Pointer);
+procedure LZMAFreeFunc(p: PLZMAISzAlloc; address: Pointer); cdecl;
 begin
   if Assigned(address) then
     VirtualFree(address, 0, MEM_RELEASE);
