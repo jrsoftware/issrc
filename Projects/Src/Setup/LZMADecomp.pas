@@ -93,6 +93,8 @@ const
     size the compiler currently allows. }
   MaxDictionarySize = 1024 shl 20;  { 1 GB }
 
+{ Compiled by Visual Studio 2022 using compile.bat
+  To enable source debugging recompile using compile-bcc32c.bat }
 {$L Src\Setup\Lzma2Decode\ISLzmaDec.obj}
 {$L Src\Setup\Lzma2Decode\ISLzma2Dec.obj}
 
