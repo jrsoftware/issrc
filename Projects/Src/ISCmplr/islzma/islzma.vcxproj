@@ -79,7 +79,9 @@
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>islzma.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x1200000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
