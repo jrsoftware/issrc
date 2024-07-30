@@ -93,6 +93,8 @@ const
     size the compiler currently allows. }
   MaxDictionarySize = 1024 shl 20;  { 1 GB }
 
+{ Compiled by Visual Studio 2022 using compile.bat
+  To enable source debugging recompile using compile-bcc32c.bat }
 {$L Src\Setup\Lzma2Decode\ISLzmaDec.obj}
 {$L Src\Setup\Lzma2Decode\ISLzma2Dec.obj}
 
@@ -122,6 +124,12 @@ procedure LzmaDec_Init; cdecl; external name '_LzmaDec_Init';
 procedure LzmaDec_InitDicAndState; cdecl; external name '_LzmaDec_InitDicAndState';
 procedure LzmaProps_Decode; cdecl; external name '_LzmaProps_Decode';
 
+function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
+begin
+  Move(src^, dest^, n);
+  Result := dest;
+end;
+
 procedure LZMADecompInternalError(const Msg: String);
 begin
   raise ECompressInternalError.CreateFmt('lzmadecomp: %s', [Msg]);
@@ -148,12 +156,6 @@ end;
 
 const
   LZMAAlloc: TLZMAISzAlloc = (Alloc: LZMAAllocFunc; Free: LZMAFreeFunc);
-
-function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
-begin
-  Move(src^, dest^, n);
-  Result := dest;
-end;
 
 { TLZMACustomDecompressor }
 
