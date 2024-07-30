@@ -122,6 +122,12 @@ procedure LzmaDec_Init; cdecl; external name '_LzmaDec_Init';
 procedure LzmaDec_InitDicAndState; cdecl; external name '_LzmaDec_InitDicAndState';
 procedure LzmaProps_Decode; cdecl; external name '_LzmaProps_Decode';
 
+function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
+begin
+  Move(src^, dest^, n);
+  Result := dest;
+end;
+
 procedure LZMADecompInternalError(const Msg: String);
 begin
   raise ECompressInternalError.CreateFmt('lzmadecomp: %s', [Msg]);
@@ -148,12 +154,6 @@ end;
 
 const
   LZMAAlloc: TLZMAISzAlloc = (Alloc: LZMAAllocFunc; Free: LZMAFreeFunc);
-
-function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
-begin
-  Move(src^, dest^, n);
-  Result := dest;
-end;
 
 { TLZMACustomDecompressor }
 

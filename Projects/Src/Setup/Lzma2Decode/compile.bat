@@ -35,7 +35,7 @@ if errorlevel 1 goto exit
 echo.
 
 echo - Compiling ISLzmaDec.c and ISLzma2Dec.c
-cl /c /O2 /Gd /GS- ISLzmaDec.c ISLzma2Dec.c
+cl.exe /c /O2 /Gd /GS- ISLzmaDec.c ISLzma2Dec.c
 if errorlevel 1 goto failed
 
 echo Success!
