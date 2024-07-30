@@ -200,7 +200,7 @@ from the bzlib directory in the iscompress repository.
 from the zlib-dll directory in the iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
-by Visual Studio 2005 from the [Projects\Src\ISCmplr\islzma] directory.
+by Visual Studio 2022 from the [Projects\Src\ISCmplr\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the isscint repository.
