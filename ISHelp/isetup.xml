@@ -5811,7 +5811,7 @@ SignTool=byparam format c:
 <tt>BT</tt> otherwise</setupdefault>
 <body>
 <p>Controls the match finder method used by the LZMA and LZMA2 compressors.</p>
-<p>A value of <tt>HC</tt> enables the Hash Chain method with 4 hash bytes.</p>
+<p>A value of <tt>HC</tt> enables the Hash Chain method with 5 hash bytes.</p>
 <p>A value of <tt>BT</tt> enables the Binary Tree method with 4 hash bytes.</p>
 <p>The Binary Tree method can provide a better compression ratio at the expense of compression speed.</p>
 </body>

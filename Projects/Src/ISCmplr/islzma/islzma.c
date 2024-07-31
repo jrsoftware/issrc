@@ -67,6 +67,7 @@ SRes __stdcall LZMA_SetProps(struct LZMAHandle *handle,
 	props->dictSize = encProps->DictionarySize;
 	props->fb = encProps->NumFastBytes;
 	props->btMode = encProps->BTMode;
+	props->numHashBytes = encProps->NumHashBytes;
 	props->numThreads = encProps->NumThreads;
 
 	if (handle->LZMA2) {

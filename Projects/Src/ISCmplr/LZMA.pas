@@ -48,6 +48,7 @@ type
     Algorithm: Integer;
     BlockSize: Integer;
     BTMode: Integer;
+    NumHashBytes: Integer;
     DictionarySize: Cardinal;
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
@@ -835,10 +836,11 @@ end;
 procedure TLZMACompressor.InitializeProps(const CompressionLevel: Integer;
   const ACompressorProps: TCompressorProps);
 const
-  algorithm: array [clLZMAFast..clLZMAUltra64] of Cardinal = (0, 1, 1, 1, 1);
+  algorithm: array [clLZMAFast..clLZMAUltra64] of Integer = (0, 1, 1, 1, 1);
   dicSize: array [clLZMAFast..clLZMAUltra64] of Cardinal = (32 shl 10, 2 shl 20, 8 shl 20, 32 shl 20, 64 shl 20);
-  numFastBytes: array [clLZMAFast..clLZMAUltra64] of Cardinal = (32, 32, 64, 64, 64);
-  btMode: array [clLZMAFast..clLZMAUltra64] of Cardinal = (0, 1, 1, 1, 1);
+  numFastBytes: array [clLZMAFast..clLZMAUltra64] of Integer = (32, 32, 64, 64, 64);
+  btMode: array [clLZMAFast..clLZMAUltra64] of Integer = (0, 1, 1, 1, 1);
+  numHashBytes: array [Boolean] of Integer = (5, 4);
 var
   EncProps: TLZMAEncoderProps;
   Props: TLZMACompressorProps;
@@ -872,6 +874,8 @@ begin
       EncProps.NumThreads := Props.NumThreads;
     WorkerProcessFilename := Props.WorkerProcessFilename;
   end;
+
+  EncProps.NumHashBytes := numHashBytes[EncProps.BTMode = 1];
 
   if WorkerProcessFilename <> '' then begin
     FWorker := TLZMAWorkerProcess.Create(@FEvents);
