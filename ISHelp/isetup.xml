@@ -4449,8 +4449,8 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tr><td></td><td>512 MB</td><td>5.76 GB</td></tr>
 <tr><td></td><td>1 GB</td><td>11.51 GB</td></tr>
 </table>
-</indent>
 <p>The compression memory requirements are approximately 60% of the above when <link topic="setup_lzmamatchfinder">LZMAMatchFinder</link> is set to <tt>HC</tt> at the expense of compression ratio.</p>
+</indent>
 <p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
