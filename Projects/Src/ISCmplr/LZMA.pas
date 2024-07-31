@@ -48,7 +48,7 @@ type
     Algorithm: Integer;
     BlockSize: Integer;
     BTMode: Integer;
-    DictionarySize: Integer;
+    DictionarySize: Cardinal;
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
