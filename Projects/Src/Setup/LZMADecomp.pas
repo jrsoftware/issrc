@@ -35,8 +35,8 @@ type
   end;
 
   { Internally-used records }
-  TLZMA1InternalDecoderState = array[0..27] of LongWord;
-  TLZMA2InternalDecoderState = array[0..34] of LongWord;
+  TLZMA1InternalDecoderState = array[0..24] of LongWord;
+  TLZMA2InternalDecoderState = array[0..28] of LongWord;
 
   TLZMA1Decompressor = class(TLZMACustomDecompressor)
   private
@@ -91,7 +91,7 @@ const
   { To ensure we don't allocate inordinate amounts of memory in the event a
     stream's header is corrupted, we limit the dictionary size to the maximum
     size the compiler currently allows. }
-  MaxDictionarySize = 1024 shl 20;  { 1 GB }
+  MaxDictionarySize = 1024 shl 20;  { 1 GB - same as ssLZMADictionarySize allows in Compile.pas }
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat }
