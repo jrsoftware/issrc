@@ -101,6 +101,7 @@ const
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;
   const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name '_IS_LzmaDec_Init';
+function IS_LzmaDec_StateSize: Cardinal; cdecl; external name '_IS_LzmaDec_StateSize';
 function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name '_LzmaDec_DecodeToBuf';
@@ -110,6 +111,7 @@ procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
 function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
   stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
   external name '_IS_Lzma2Dec_Init';
+function IS_Lzma2Dec_StateSize: Cardinal; cdecl; external name '_IS_Lzma2Dec_StateSize';
 function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name '_Lzma2Dec_DecodeToBuf';
@@ -239,9 +241,14 @@ begin
   if Props.DictionarySize > LongWord(MaxDictionarySize) then
     LZMADecompDataError(5);
 
+  var StateSize := IS_LzmaDec_StateSize;
+  var DecoderStateSize := SizeOf(FDecoderState);
+  if StateSize <> DecoderStateSize then
+    LZMADecompDataError(-StateSize);
+
   { Note: IS_LzmaDec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
-  case IS_LzmaDec_Init(FDecoderState, SizeOf(FDecoderState), Props,
+  case IS_LzmaDec_Init(FDecoderState, DecoderStateSize, Props,
      SizeOf(Props), LZMAAlloc) of
     SZ_OK: ;
     SZ_ERROR_MEM: OutOfMemoryError;
@@ -284,9 +291,14 @@ begin
      (LZMA2_DIC_SIZE_FROM_PROP(Prop) > LongWord(MaxDictionarySize)) then
     LZMADecompDataError(5);
 
+  var StateSize := IS_Lzma2Dec_StateSize;
+  var DecoderStateSize := SizeOf(FDecoderState);
+  if StateSize <> DecoderStateSize then
+    LZMADecompDataError(-StateSize);
+
   { Note: IS_Lzma2Dec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
-  case IS_Lzma2Dec_Init(FDecoderState, SizeOf(FDecoderState), Prop,
+  case IS_Lzma2Dec_Init(FDecoderState, DecoderStateSize, Prop,
      LZMAAlloc) of
     SZ_OK: ;
     SZ_ERROR_MEM: OutOfMemoryError;
