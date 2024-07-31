@@ -549,16 +549,17 @@ var
   Bytes: Longint;
 begin
   ProcessedSize := 0;
-  if Size > Cardinal(High(Longint)) then begin
-    Result := E_INVALIDARG;
-    Exit;
-  end;
   P := Data;
   while Size <> 0 do begin
-    if AWrite then
-      Bytes := RingBufferWrite(FShared.OutputBuffer, P^, Size)
+    var LimitedSize: LongInt;
+    if Size > MaxLong then
+      LimitedSize := MaxLong
     else
-      Bytes := RingBufferRead(FShared.InputBuffer, P^, Size);
+      LimitedSize := Size;
+    if AWrite then
+      Bytes := RingBufferWrite(FShared.OutputBuffer, P^, LimitedSize)
+    else
+      Bytes := RingBufferRead(FShared.InputBuffer, P^, LimitedSize);
     if Bytes = 0 then begin
       if AWrite then begin
         { Output buffer full; wait for the main thread to flush it }

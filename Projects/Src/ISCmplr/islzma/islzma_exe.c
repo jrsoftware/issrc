@@ -163,15 +163,13 @@ static HRESULT FillBuffer(const BOOL AWrite, void *Data, size_t Size,
 	HRESULT Result;
 
 	*ProcessedSize = 0;
-	if (Size > MAXLONG) {
-		return E_INVALIDARG;
-	}
 	P = Data;
 	while (Size != 0) {
+		Longint LimitedSize = Size > MAXLONG ? MAXLONG : (Longint)Size;
 		if (AWrite) {
-			Bytes = RingBufferWrite(&FShared->OutputBuffer, P, (Longint)Size);
+			Bytes = RingBufferWrite(&FShared->OutputBuffer, P, LimitedSize);
 		} else {
-			Bytes = RingBufferRead(&FShared->InputBuffer, P, (Longint)Size);
+			Bytes = RingBufferRead(&FShared->InputBuffer, P, LimitedSize);
 		}
 		if (Bytes == 0) {
 			if (AWrite) {
