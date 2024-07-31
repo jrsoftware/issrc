@@ -5,7 +5,6 @@
   For conditions of distribution and use, see LICENSE.TXT.
 
   External EXE-based LZMA encoder
-  Built on Visual Studio 2005 SP1
 
   Structures and functions in this file are derived from
   LZMA.pas revision 1.49.2.3.
