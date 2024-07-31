@@ -35,8 +35,8 @@ type
   end;
 
   { Internally-used records }
-  TLZMA1InternalDecoderState = array[0..27] of LongWord;
-  TLZMA2InternalDecoderState = array[0..34] of LongWord;
+  TLZMA1InternalDecoderState = array[0..24] of LongWord;
+  TLZMA2InternalDecoderState = array[0..28] of LongWord;
 
   TLZMA1Decompressor = class(TLZMACustomDecompressor)
   private
