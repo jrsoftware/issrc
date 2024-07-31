@@ -7,7 +7,7 @@ struct LZMAEncoderProps {
 	int Algorithm;
 	int BlockSize;
 	int BTMode;
-	int DictionarySize;
+	UInt32 DictionarySize;
 	int NumBlockThreads;
 	int NumFastBytes;
 	int NumThreads;
