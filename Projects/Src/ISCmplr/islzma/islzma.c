@@ -20,14 +20,6 @@ struct LZMAHandle {
 #define LZMA_HANDLE_MARKER 0x3E1A981F
 #define LZMA_HANDLE_VALID(h) ((h) && (h)->marker == LZMA_HANDLE_MARKER)
 
-static void *SzBigAlloc(void *p, size_t size) { return BigAlloc(size); }
-static void SzBigFree(void *p, void *address) { BigFree(address); }
-static ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
-
-static void *SzAlloc(void *p, size_t size) { return MyAlloc(size); }
-static void SzFree(void *p, void *address) { MyFree(address); }
-static ISzAlloc g_Alloc = { SzAlloc, SzFree };
-
 SRes __stdcall LZMA_Init(BOOL LZMA2, struct LZMAHandle **handle)
 {
 	struct LZMAHandle *h = calloc(1, sizeof(*h));

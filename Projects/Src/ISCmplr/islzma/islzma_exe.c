@@ -17,7 +17,7 @@
 
 #include <windows.h>
 #include <shlwapi.h>
-#include "../../../../Components/Lzma2/Types.h"
+#include "../../../../Components/Lzma2/7zTypes.h"
 #include "islzma.h"
 
 #define ISLZMA_EXE_VERSION 101
@@ -266,7 +266,7 @@ static HRESULT ProgressMade(const UInt64 TotalBytesProcessed)
 	return Result;
 }
 
-static SRes LZMASeqInStreamReadWrapper(void *p, void *buf, size_t *size)
+static SRes LZMASeqInStreamReadWrapper(ISeqInStreamPtr p, void *buf, size_t *size)
 {
 	if (Read(buf, *size, size) == S_OK) {
 		return SZ_OK;
@@ -275,7 +275,7 @@ static SRes LZMASeqInStreamReadWrapper(void *p, void *buf, size_t *size)
 	}
 }
 
-static size_t LZMASeqOutStreamWriteWrapper(void *p, const void *buf, size_t size)
+static size_t LZMASeqOutStreamWriteWrapper(ISeqOutStreamPtr p, const void *buf, size_t size)
 {
 	size_t Result;
 
@@ -285,7 +285,7 @@ static size_t LZMASeqOutStreamWriteWrapper(void *p, const void *buf, size_t size
 	return Result;
 }
 
-static SRes LZMACompressProgressProgressWrapper(void *p, UInt64 inSize, UInt64 outSize)
+static SRes LZMACompressProgressProgressWrapper(ICompressProgressPtr p, UInt64 inSize, UInt64 outSize)
 {
 	if (ProgressMade(inSize) == S_OK) {
 		return SZ_OK;

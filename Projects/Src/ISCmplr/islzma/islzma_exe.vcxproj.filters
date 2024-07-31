@@ -59,5 +59,20 @@
       <Filter>SDK</Filter>
     </ClInclude>
     <ClInclude Include="islzma.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zTypes.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zWindows.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Compiler.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\CpuArch.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Precomp.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
