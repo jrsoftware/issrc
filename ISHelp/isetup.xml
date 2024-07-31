@@ -4438,16 +4438,16 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (4 MB + 11 * dictionary size)</u></td></tr>
-<tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>3 MB</td></tr>
-<tr><td><tt>normal</tt></td><td>2 MB</td><td>26 MB</td></tr>
-<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>92 MB</td></tr>
-<tr><td><tt>ultra</tt></td><td>32 MB</td><td>356 MB</td></tr>
-<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>708 MB</td></tr>
-<tr><td></td><td>128 MB</td><td>1.38 GB</td></tr>
-<tr><td></td><td>256 MB</td><td>2.75 GB</td></tr>
-<tr><td></td><td>512 MB</td><td>5.5 GB</td></tr>
-<tr><td></td><td>1 GB</td><td>11 GB</td></tr>
+<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (6 MB + 11.5 * dictionary size)</u></td></tr>
+<tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
+<tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
+<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
+<tr><td><tt>ultra</tt></td><td>32 MB</td><td>374 MB</td></tr>
+<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>742 MB</td></tr>
+<tr><td></td><td>128 MB</td><td>1.44 GB</td></tr>
+<tr><td></td><td>256 MB</td><td>2.88 GB</td></tr>
+<tr><td></td><td>512 MB</td><td>5.76 GB</td></tr>
+<tr><td></td><td>1 GB</td><td>11.51 GB</td></tr>
 </table>
 </indent>
 <p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
