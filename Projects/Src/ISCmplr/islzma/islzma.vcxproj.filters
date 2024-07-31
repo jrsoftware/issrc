@@ -29,6 +29,18 @@
     </ClCompile>
     <ClCompile Include="islzma.c" />
     <ClCompile Include="islzma_dll.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\CpuArch.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtDec.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\7zStream.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindOpt.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Components\Lzma2\Alloc.h">

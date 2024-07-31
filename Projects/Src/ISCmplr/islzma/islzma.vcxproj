@@ -88,12 +88,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\7zStream.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\Alloc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\CpuArch.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\LzFind.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindMt.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindOpt.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\Lzma2Enc.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\LzmaEnc.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\MtCoder.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtDec.c" />
     <ClCompile Include="..\..\..\..\Components\Lzma2\Threads.c" />
     <ClCompile Include="islzma.c" />
     <ClCompile Include="islzma_dll.c" />

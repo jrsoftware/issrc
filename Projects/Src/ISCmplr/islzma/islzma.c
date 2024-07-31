@@ -92,7 +92,7 @@ SRes __stdcall LZMA_Encode(struct LZMAHandle *handle, ISeqInStream *inStream,
 		if (outStream->Write(outStream, &props, propsSize) != propsSize) {
 			return SZ_ERROR_WRITE;
 		};
-		return Lzma2Enc_Encode(handle->encoder2, outStream, inStream, progress);
+		return Lzma2Enc_Encode2(handle->encoder2, outStream, NULL, 0, inStream, NULL, 0, progress);
 	} else {
 		Byte props[LZMA_PROPS_SIZE];
 		SizeT propsSize = sizeof(props);
