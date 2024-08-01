@@ -4,6 +4,9 @@
     <Filter Include="SDK">
       <UniqueIdentifier>{0e1d5792-191a-491f-8ce6-a6b46bd91db5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{de7af8ec-ad7f-47c4-9b9c-1b7a0307fb6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Components\Lzma2\Alloc.c">
@@ -86,5 +89,18 @@
     <ClInclude Include="..\..\..\..\Components\Lzma2\Precomp.h">
       <Filter>SDK</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="islzma_exe.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="islzma_exe32.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="islzma_exe64.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

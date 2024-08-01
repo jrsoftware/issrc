@@ -106,6 +106,9 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -140,6 +143,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -191,6 +197,13 @@
     <ClInclude Include="..\..\..\..\Components\Lzma2\Threads.h" />
     <ClInclude Include="..\..\..\..\Components\Lzma2\Types.h" />
     <ClInclude Include="islzma.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="islzma_exe.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="islzma_exe32.ico" />
+    <Image Include="islzma_exe64.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
