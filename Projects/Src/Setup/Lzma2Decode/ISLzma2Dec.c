@@ -23,6 +23,11 @@ SRes IS_Lzma2Dec_Init(CLzma2Dec *state, size_t stateSize, Byte prop,
 	return SZ_OK;
 }
 
+size_t IS_Lzma2Dec_StateSize()
+{
+  return sizeof(CLzma2Dec);
+}
+
 void IS_Lzma2Dec_Free(CLzma2Dec *state, ISzAlloc *alloc)
 {
 	// This exists because Lzma2Dec_Free is a macro

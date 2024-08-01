@@ -22,3 +22,8 @@ SRes IS_LzmaDec_Init(CLzmaDec *state, size_t stateSize, const Byte *props,
 
 	return SZ_OK;
 }
+
+size_t IS_LzmaDec_StateSize()
+{
+  return sizeof(CLzmaDec);
+}

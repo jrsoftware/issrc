@@ -3844,7 +3844,8 @@ begin
         CompressProps.BlockSize := StrToIntRange(Value, 1024, 262144) * 1024; //search Lzma2Enc.c for kMaxSize to see this limit: 262144*1024==1<<28
       end;
     ssLZMADictionarySize: begin
-        CompressProps.DictionarySize := StrToIntRange(Value, 4, 1048576) * 1024;
+        var MaxDictionarySize := 1024 shl 20; //1 GB - same as MaxDictionarySize in LZMADecomp.pas - lower than the LZMA SDK allows (search Lzma2Enc.c for kLzmaMaxHistorySize to see this limit: Cardinal(15 shl 28) = 3.8 GB) because Setup can't allocate that much memory
+        CompressProps.DictionarySize := StrToIntRange(Value, 4, MaxDictionarySize div 1024) * 1024;
       end;
     ssLZMAMatchFinder: begin
         if CompareText(Value, 'BT') = 0 then

@@ -35,8 +35,8 @@ type
   end;
 
   { Internally-used records }
-  TLZMA1InternalDecoderState = array[0..27] of LongWord;
-  TLZMA2InternalDecoderState = array[0..34] of LongWord;
+  TLZMA1InternalDecoderState = array[0..24] of LongWord;
+  TLZMA2InternalDecoderState = array[0..28] of LongWord;
 
   TLZMA1Decompressor = class(TLZMACustomDecompressor)
   private
@@ -91,7 +91,7 @@ const
   { To ensure we don't allocate inordinate amounts of memory in the event a
     stream's header is corrupted, we limit the dictionary size to the maximum
     size the compiler currently allows. }
-  MaxDictionarySize = 1024 shl 20;  { 1 GB }
+  MaxDictionarySize = 1024 shl 20;  { 1 GB - same as ssLZMADictionarySize allows in Compile.pas }
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat }
@@ -101,6 +101,7 @@ const
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;
   const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name '_IS_LzmaDec_Init';
+function IS_LzmaDec_StateSize: Cardinal; cdecl; external name '_IS_LzmaDec_StateSize';
 function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name '_LzmaDec_DecodeToBuf';
@@ -110,6 +111,7 @@ procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
 function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
   stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
   external name '_IS_Lzma2Dec_Init';
+function IS_Lzma2Dec_StateSize: Cardinal; cdecl; external name '_IS_Lzma2Dec_StateSize';
 function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name '_Lzma2Dec_DecodeToBuf';
@@ -239,9 +241,14 @@ begin
   if Props.DictionarySize > LongWord(MaxDictionarySize) then
     LZMADecompDataError(5);
 
+  var StateSize := IS_LzmaDec_StateSize;
+  var DecoderStateSize := SizeOf(FDecoderState);
+  if StateSize <> DecoderStateSize then
+    LZMADecompDataError(-StateSize);
+
   { Note: IS_LzmaDec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
-  case IS_LzmaDec_Init(FDecoderState, SizeOf(FDecoderState), Props,
+  case IS_LzmaDec_Init(FDecoderState, DecoderStateSize, Props,
      SizeOf(Props), LZMAAlloc) of
     SZ_OK: ;
     SZ_ERROR_MEM: OutOfMemoryError;
@@ -284,9 +291,14 @@ begin
      (LZMA2_DIC_SIZE_FROM_PROP(Prop) > LongWord(MaxDictionarySize)) then
     LZMADecompDataError(5);
 
+  var StateSize := IS_Lzma2Dec_StateSize;
+  var DecoderStateSize := SizeOf(FDecoderState);
+  if StateSize <> DecoderStateSize then
+    LZMADecompDataError(-StateSize);
+
   { Note: IS_Lzma2Dec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
-  case IS_Lzma2Dec_Init(FDecoderState, SizeOf(FDecoderState), Prop,
+  case IS_Lzma2Dec_Init(FDecoderState, DecoderStateSize, Prop,
      LZMAAlloc) of
     SZ_OK: ;
     SZ_ERROR_MEM: OutOfMemoryError;
