@@ -1,4 +1,4 @@
-unit CompWizardFile;
+unit WizardFileForm;
 
 {
   Inno Setup

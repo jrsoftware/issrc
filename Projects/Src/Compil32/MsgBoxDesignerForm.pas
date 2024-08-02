@@ -1,4 +1,4 @@
-unit CompMsgBoxDesigner;
+unit MsgBoxDesignerForm;
 
 {
   Inno Setup

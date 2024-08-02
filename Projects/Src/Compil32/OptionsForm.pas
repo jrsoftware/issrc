@@ -1,4 +1,4 @@
-unit CompOptions;
+unit OptionsForm;
 
 {
   Inno Setup

@@ -1,4 +1,4 @@
-unit CompWizard;
+unit WizardForm;
 
 {
   Inno Setup
@@ -14,7 +14,7 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  CompWizardFilesHelper, CompWizardRegistryHelper;
+  WizardFormFilesHelper, WizardFormRegistryHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -188,7 +188,7 @@ implementation
 uses
   SysUtils, ShlObj, ActiveX, UITypes, FileClass,
   PathFunc, CmnFunc, CmnFunc2, CompFunc, BrowseFunc,
-  CompMsgs2, CompWizardFile;
+  CompMsgs2, WizardFileForm;
 
 type
   TConstant = record

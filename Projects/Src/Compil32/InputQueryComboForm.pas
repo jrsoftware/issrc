@@ -1,4 +1,4 @@
-unit CompInputQueryCombo;
+unit InputQueryComboForm;
 
 {
   Inno Setup
@@ -15,7 +15,7 @@ uses
   Classes, Controls, StdCtrls, UIStateForm;
 
 type
-  TInputQueryCombo = class(TUIStateForm)
+  TInputQueryComboForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
     PromptLabel: TLabel;
@@ -43,7 +43,7 @@ uses
 
 function InputQueryCombo(const ACaption, APrompt: String; var AValue: String; const AValues: TStringList): Boolean;
 begin
-  with TInputQueryCombo.Create(Application) do try
+  with TInputQueryComboForm.Create(Application) do try
     Caption := ACaption;
     Prompt := APrompt;
     Value := AValue;
@@ -58,27 +58,27 @@ begin
   end;
 end;
 
-procedure TInputQueryCombo.FormCreate(Sender: TObject);
+procedure TInputQueryComboForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
 end;
 
-function TInputQueryCombo.GetValue: String;
+function TInputQueryComboForm.GetValue: String;
 begin
   Result := ValueComboBox.Text;
 end;
 
-procedure TInputQueryCombo.SetPrompt(const APrompt: String);
+procedure TInputQueryComboForm.SetPrompt(const APrompt: String);
 begin
   PromptLabel.Caption := APrompt;
 end;
 
-procedure TInputQueryCombo.SetValue(const AValue: String);
+procedure TInputQueryComboForm.SetValue(const AValue: String);
 begin
   ValueComboBox.Text := AValue;
 end;
 
-procedure TInputQueryCombo.SetValues(const AValues: TStringList);
+procedure TInputQueryComboForm.SetValues(const AValues: TStringList);
 begin
   ValueComboBox.Items := AValues;
 end;

@@ -1,4 +1,4 @@
-unit CompWizardRegistryHelper;
+unit WizardFormRegistryHelper;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit CompWizardRegistryHelper;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Helper to avoid duplicate code between CompWizard and CompRegistryDesigner
+  Helper to avoid duplicate code between WizardForm and RegistryDesignerForm
 }
 
 interface

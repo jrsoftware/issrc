@@ -1,4 +1,4 @@
-object InputQueryCombo: TInputQueryCombo
+object InputQueryComboForm: TInputQueryComboForm
   Left = 330
   Top = 188
   BorderIcons = [biSystemMenu]

@@ -1,4 +1,4 @@
-unit CompStartup;
+unit StartupForm;
 
 {
   Inno Setup

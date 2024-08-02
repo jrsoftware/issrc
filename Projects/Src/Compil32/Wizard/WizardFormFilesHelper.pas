@@ -1,4 +1,4 @@
-unit CompWizardFilesHelper;
+unit WizardFormFilesHelper;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit CompWizardFilesHelper;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Helper to avoid duplicate code between CompWizard and CompFilesDesigner
+  Helper to avoid duplicate code between WizardForm and FilesDesignerForm
 }
 
 interface
@@ -49,7 +49,7 @@ implementation
 uses
   SysUtils, UITypes,
   CmnFunc, CmnFunc2, BrowseFunc, PathFunc,
-  CompMsgs2, CompWizardFile;
+  CompMsgs2, WizardFileForm;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;

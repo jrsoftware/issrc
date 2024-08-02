@@ -16,7 +16,7 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  CompWizardRegistryHelper, NewStaticText;
+  WizardFormRegistryHelper, NewStaticText;
 
 type
   TRegistryDesignerForm = class(TForm)

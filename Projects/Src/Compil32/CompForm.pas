@@ -654,8 +654,8 @@ uses
   PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs2, TmSchema, BrowseFunc,
   HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  CompOptions, CompStartup, CompWizard, CompSignTools, CompTypes, CompInputQueryCombo, CompMsgBoxDesigner,
-  FilesDesignerForm, RegistryDesignerForm, CompWizardRegistryHelper;
+  OptionsForm, StartupForm, WizardForm, SignToolsForm, CompTypes, InputQueryComboForm, MsgBoxDesignerForm,
+  FilesDesignerForm, RegistryDesignerForm, WizardFormRegistryHelper;
 
 {$R *.DFM}
 

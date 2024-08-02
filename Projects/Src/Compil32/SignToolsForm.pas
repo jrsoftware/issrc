@@ -1,4 +1,4 @@
-unit CompSignTools;
+unit SignToolsForm;
 
 {
   Inno Setup
