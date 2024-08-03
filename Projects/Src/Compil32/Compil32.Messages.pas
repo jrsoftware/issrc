@@ -1,4 +1,4 @@
-unit Compil32.CompMsgs2;
+unit Compil32.Messages;
 
 {
   Inno Setup

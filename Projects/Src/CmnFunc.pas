@@ -27,7 +27,7 @@ type
     destructor Destroy; override;
   end;
 
-  { Note: This type is also present in ScriptFunc_C.pas }
+  { Note: This type is also present in ISCmplr.ScriptFunc.pas }
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
   TMsgBoxCallbackFunc = procedure(const Flags: LongInt; const After: Boolean;

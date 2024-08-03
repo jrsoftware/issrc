@@ -8,11 +8,12 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppIdentMan;
+unit ISPP.IdentMan;
 
 interface
 
-uses SysUtils, Classes, IsppIntf, IsppBase;
+uses
+  SysUtils, Classes, ISPP.Intf, ISPP.Base;
 
 type
 
@@ -118,8 +119,9 @@ const
 
 implementation
 
-uses Windows, Types, IsppPreprocessor, CTokenizer, IsppParser, IsppVarUtils, IsppConsts,
-  IsppSessions;
+uses
+  Windows, Types, ISPP.Preprocessor, ISPP.CTokenizer, ISPP.Parser,
+  ISPP.VarUtils, ISPP.Consts, ISPP.Sessions;
 
 const
   MaxLocalArraySize = 16;

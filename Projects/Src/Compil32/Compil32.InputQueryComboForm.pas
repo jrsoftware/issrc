@@ -37,7 +37,7 @@ function InputQueryCombo(const ACaption, APrompt: String; var AValue: String; co
 implementation
 
 uses
-  Windows, Messages, CompFunc, Forms;
+  Windows, Messages, Compil32.HelpFunc, Forms;
 
 {$R *.DFM}
 

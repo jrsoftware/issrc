@@ -13,7 +13,7 @@ interface
 
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
-  UIStateForm, NewStaticText, DropListBox, WizardFormFilesHelper;
+  UIStateForm, NewStaticText, DropListBox, Compil32.Wizard.WizardFormFilesHelper;
 
 type
   TFilesDesignerForm = class(TUIStateForm)
@@ -45,7 +45,7 @@ implementation
 {$R *.dfm}
 
 uses
-  CompFunc;
+  Compil32.HelpFunc;
 
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin

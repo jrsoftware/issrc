@@ -60,7 +60,7 @@ implementation
 uses
   SysUtils, Generics.Defaults,
   uPSCompiler, uPSC_dll,
-  ScriptClasses_C, ScriptFunc_C;
+  ISCmplr.ScriptClasses, ISCmplr.ScriptFunc;
 
 type
   TScriptExport = class

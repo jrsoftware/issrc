@@ -32,13 +32,13 @@ implementation
 uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
-  PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
-  FileClass, Compress, CompressZlib, bzlib, LZMACompressor, ArcFour, SHA1,
-  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, ExeUpdate,
+  PathFunc, CmnFunc2, Struct, Int64Em, ISCmplr.Messages, SetupEnt,
+  FileClass, Compress, CompressZlib, bzlib, ISCmplr.LZMACompressor, ArcFour, SHA1,
+  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, ISCmplr.ExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
-  ScriptCompiler, SimpleExpression, SetupTypes;
+  ISCmplr.ScriptCompiler, SimpleExpression, SetupTypes;
 
 type
   TParamInfo = record

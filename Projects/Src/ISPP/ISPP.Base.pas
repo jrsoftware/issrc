@@ -8,11 +8,11 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppBase;
+unit ISPP.Base;
 
 interface
 
-uses IsppIntf, SysUtils;
+uses ISPP.Intf, SysUtils;
 
 type
 

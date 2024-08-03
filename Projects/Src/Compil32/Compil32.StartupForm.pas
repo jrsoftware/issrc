@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  CompMsgs2, CmnFunc, CmnFunc2, CompFunc, CompForm, ComCtrls;
+  Compil32.Messages, CmnFunc, CmnFunc2, Compil32.HelpFunc, Compil32.CompileForm, ComCtrls;
 
 {$R *.DFM}
 

@@ -1,4 +1,4 @@
-unit ISCmplr.ScriptFunc_C;
+unit ISCmplr.ScriptFunc;
 
 {
   Inno Setup
@@ -22,7 +22,7 @@ implementation
 uses
   Windows, SysUtils, TypInfo,
   CmnFunc2, MsgIDs, Struct,
-  SetupTypes, ScriptFunc, CompMsgs, DotNetVersion;
+  SetupTypes, ScriptFunc, ISCmplr.Messages, DotNetVersion;
 
 { This type copied from CmnFunc.pas. We don't actually 'use' CmnFunc since
   it would cause VCL units to be linked in. }

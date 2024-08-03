@@ -8,20 +8,20 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppFuncs;
+unit ISPP.Funcs;
 
 interface
 
 uses
-  Windows, Classes, IsppVarUtils, IsppIntf, IsppPreprocessor, IsppParser;
+  Windows, Classes, ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
 
 procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, Math, IsppConsts, IsppBase, IsppIdentMan,
-  IsppSessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
+  SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
+  ISPP.Sessions, DateUtils, FileClass, MD5, SHA1, PathFunc, CmnFunc2, Int64Em;
   
 var
   IsWin64: Boolean;
@@ -1974,7 +1974,7 @@ begin
     RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
     RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
     RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
-    RegisterFunction('SaveToFile', IsppFuncs.SaveToFile, -1);
+    RegisterFunction('SaveToFile', ISPP.Funcs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
     RegisterFunction('SetupSetting', SetupSetting, -1);
     RegisterFunction('SetSetupSetting', SetSetupSetting, -1);

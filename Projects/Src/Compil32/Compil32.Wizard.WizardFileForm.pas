@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  CompMsgs2, CmnFunc, CmnFunc2, CompFunc;
+  Compil32.Messages, CmnFunc, CmnFunc2, Compil32.HelpFunc;
 
 {$R *.DFM}
 

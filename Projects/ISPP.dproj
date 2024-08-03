@@ -40,7 +40,7 @@
         <VerInfo_DLL>true</VerInfo_DLL>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Preprocessor;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2010 Jordan Russell. Portions Copyright (C) 2000-2010 Martijn Laan. Copyright © 2001-2004 Alex Yackimoff.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
-        <DCC_Namespace>System;System.Win;Winapi;ISPP;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
@@ -76,18 +76,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\CompPreprocInt.pas"/>
-        <DCCReference Include="Src\ISPP\IsppPreprocess.pas"/>
-        <DCCReference Include="Src\ISPP\IsppPreprocessor.pas"/>
-        <DCCReference Include="Src\ISPP\IsppFuncs.pas"/>
-        <DCCReference Include="Src\ISPP\IsppVarUtils.pas"/>
-        <DCCReference Include="Src\ISPP\IsppConsts.pas"/>
-        <DCCReference Include="Src\ISPP\IsppStack.pas"/>
-        <DCCReference Include="Src\ISPP\IsppIntf.pas"/>
-        <DCCReference Include="Src\ISPP\IsppParser.pas"/>
-        <DCCReference Include="Src\ISPP\IsppIdentMan.pas"/>
-        <DCCReference Include="Src\ISPP\IsppSessions.pas"/>
-        <DCCReference Include="Src\ISPP\CTokenizer.pas"/>
-        <DCCReference Include="Src\ISPP\IsppBase.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Preprocess.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Preprocessor.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Funcs.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.VarUtils.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Consts.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Stack.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Intf.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Parser.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.IdentMan.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Sessions.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.CTokenizer.pas"/>
+        <DCCReference Include="Src\ISPP\ISPP.Base.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>
         <DCCReference Include="Src\FileClass.pas"/>

@@ -16,7 +16,7 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  WizardFormRegistryHelper, NewStaticText;
+  Compil32.Wizard.WizardFormRegistryHelper, NewStaticText;
 
 type
   TRegistryDesignerForm = class(TForm)
@@ -52,7 +52,7 @@ implementation
 {$R *.dfm}
 
 uses
-  CompFunc;
+  Compil32.HelpFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);

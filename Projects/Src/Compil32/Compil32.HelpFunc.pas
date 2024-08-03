@@ -1,4 +1,4 @@
-unit Compil32.CompFunc;
+unit Compil32.HelpFunc;
 
 {
   Inno Setup
@@ -14,7 +14,7 @@ interface
 uses
   Windows,
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls,
-  ScintEdit, CompScintEdit, ModernColors;
+  ScintEdit, Compil32.CompScintEdit, ModernColors;
 
 const
   MRUListMaxCount = 10;
@@ -87,7 +87,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
   CmnFunc2, PathFunc, FileClass, NewUxTheme,
-  CompForm, CompMsgs2, CompTypes;
+  Compil32.CompileForm, Compil32.Messages, CompTypes;
 
 procedure InitFormFont(Form: TForm);
 var

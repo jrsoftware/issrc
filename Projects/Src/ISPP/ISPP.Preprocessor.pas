@@ -8,12 +8,13 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppPreprocessor;
+unit ISPP.Preprocessor;
 
 interface
 
-uses Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, IsppIntf,
-  IsppBase, IsppStack, IsppIdentMan, IsppParser;
+uses
+  Windows, SysUtils, Classes, CompPreprocInt, IniFiles, Registry, ISPP.Intf,
+  ISPP.Base, ISPP.Stack, ISPP.IdentMan, ISPP.Parser;
 
 type
 
@@ -151,7 +152,8 @@ type
 
 implementation
 
-uses IsppConsts, IsppFuncs, IsppVarUtils, IsppSessions, CTokenizer, PathFunc,
+uses
+  ISPP.Consts, ISPP.Funcs, ISPP.VarUtils, ISPP.Sessions, ISPP.CTokenizer, PathFunc,
   CmnFunc2, FileClass, Struct;
 
 const
@@ -257,7 +259,7 @@ begin
   FOutput := TStringList.Create;
   FProcs := TStringList.Create;
   FStack := TConditionalTranslationStack.Create(Self);
-  if VarManager = nil then IsppFuncs.RegisterFunctions(Self);
+  if VarManager = nil then ISPP.Funcs.RegisterFunctions(Self);
 end;
 
 destructor TPreprocessor.Destroy;

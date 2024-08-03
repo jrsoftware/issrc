@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, CompFunc, FileAssocFunc;
+  CmnFunc, CmnFunc2, Compil32.HelpFunc, Compil32.FileAssocFunc;
 
 {$R *.DFM}
 

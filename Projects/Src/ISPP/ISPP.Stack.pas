@@ -8,7 +8,7 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppStack;
+unit ISPP.Stack;
 
 interface
 
@@ -49,7 +49,8 @@ type
 
 implementation
 
-uses IsppConsts;
+uses
+  ISPP.Consts;
 
 { TOrderedList }
 

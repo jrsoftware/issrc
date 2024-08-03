@@ -34,12 +34,12 @@ cd Projects
 if errorlevel 1 goto exit
 
 echo - ISPP.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;ISPP -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
 if errorlevel 1 goto failed
 
 echo - Compil32.dpr
 mkdir Dcu\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl;Vcl.Imaging;Compil32;Compil32.Wizard -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\Compil32.dpr -DCOMPIL32PROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl;Vcl.Imaging -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\Compil32.dpr -DCOMPIL32PROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
@@ -49,7 +49,7 @@ if errorlevel 1 goto failed
 
 echo - ISCmplr.dpr
 mkdir Dcu\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl;ISCmplr -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\ISCmplr.dpr -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\ISCmplr.dpr -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr

@@ -8,11 +8,12 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppParser;
+unit ISPP.Parser;
 
 interface
 
-uses IsppIntf, IsppBase, IsppIdentMan, CTokenizer;
+uses
+  ISPP.Intf, ISPP.Base, ISPP.IdentMan, ISPP.CTokenizer;
 
 type
 
@@ -47,7 +48,8 @@ function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Inte
 
 implementation
 
-uses SysUtils, IsppSessions, IsppConsts, IsppVarUtils;
+uses
+  SysUtils, ISPP.Sessions, ISPP.Consts, ISPP.VarUtils;
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
 begin

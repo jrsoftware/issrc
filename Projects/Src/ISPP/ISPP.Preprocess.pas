@@ -8,7 +8,7 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppPreprocess;
+unit ISPP.Preprocess;
 
 interface
 
@@ -21,7 +21,8 @@ implementation
 
 uses
   SysUtils, CmnFunc2, PathFunc,
-  IsppBase, IsppPreprocessor, IsppSessions, IsppIntf, IsppIdentMan, IsppVarUtils, IsppConsts;
+  ISPP.Base, ISPP.Preprocessor, ISPP.Sessions, ISPP.Intf,
+  ISPP.IdentMan, ISPP.VarUtils, ISPP.Consts;
 
 procedure ReadScript(const Params: TPreprocessScriptParams;
   const Preprocessor: TPreprocessor);

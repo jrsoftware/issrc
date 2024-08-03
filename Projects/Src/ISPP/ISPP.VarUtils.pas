@@ -8,11 +8,12 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppVarUtils;
+unit ISPP.VarUtils;
 
 interface
 
-uses IsppIntf, IsppBase, IsppPreprocessor;
+uses
+  ISPP.Intf, ISPP.Base, ISPP.Preprocessor;
 
 function SimplifyLValue(var Src: TIsppVariant): Boolean;
 procedure MakeRValue(var Src: TIsppVariant);
@@ -30,7 +31,8 @@ const
 
 implementation
 
-uses SysUtils, IsppConsts;
+uses
+  SysUtils, ISPP.Consts;
 
 function SimplifyLValue(var Src: TIsppVariant): Boolean;
 begin

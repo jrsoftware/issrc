@@ -1,4 +1,4 @@
-﻿unit Compil32.CompForm;
+﻿unit Compil32.CompileForm;
 
 {
   Inno Setup
@@ -24,8 +24,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, ScintStylerInnoSetup, NewTabSet, ModernColors, CompScintEdit,
-  DebugStruct, CompInt, NewUxTheme, ImageList, ImgList, ToolWin, CompFunc,
+  ScintInt, ScintEdit, Compil32.ScintStylerInnoSetup, NewTabSet, ModernColors, Compil32.CompScintEdit,
+  DebugStruct, CompInt, NewUxTheme, ImageList, ImgList, ToolWin, Compil32.HelpFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -651,11 +651,11 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   Math, StrUtils, WideStrUtils,
-  PathFunc, CmnFunc, CmnFunc2, FileClass, CompMsgs2, TmSchema, BrowseFunc,
-  HtmlHelpFunc, TaskbarProgressFunc,
+  PathFunc, CmnFunc, CmnFunc2, FileClass, Compil32.Messages, TmSchema, BrowseFunc,
+  Compil32.HtmlHelpFunc, TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  OptionsForm, StartupForm, WizardForm, SignToolsForm, CompTypes, InputQueryComboForm, MsgBoxDesignerForm,
-  FilesDesignerForm, RegistryDesignerForm, WizardFormRegistryHelper;
+  Compil32.OptionsForm, Compil32.StartupForm, Compil32.Wizard.WizardForm, Compil32.SignToolsForm, CompTypes, Compil32.InputQueryComboForm, Compil32.MsgBoxDesignerForm,
+  Compil32.FilesDesignerForm, Compil32.RegistryDesignerForm, Compil32.Wizard.WizardFormRegistryHelper;
 
 {$R *.DFM}
 

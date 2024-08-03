@@ -14,7 +14,7 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  WizardFormFilesHelper, WizardFormRegistryHelper;
+  Compil32.Wizard.WizardFormFilesHelper, Compil32.Wizard.WizardFormRegistryHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -187,8 +187,8 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes, FileClass,
-  PathFunc, CmnFunc, CmnFunc2, CompFunc, BrowseFunc,
-  CompMsgs2, WizardFileForm;
+  PathFunc, CmnFunc, CmnFunc2, Compil32.HelpFunc, BrowseFunc,
+  Compil32.Messages, Compil32.Wizard.WizardFileForm;
 
 type
   TConstant = record

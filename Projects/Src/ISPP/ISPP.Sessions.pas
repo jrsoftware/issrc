@@ -8,11 +8,12 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit ISPP.IsppSessions;
+unit ISPP.Sessions;
 
 interface
 
-uses IsppPreprocessor;
+uses
+  ISPP.Preprocessor;
 
 procedure PushPreproc(APreproc: TPreprocessor);
 function PopPreproc: TPreprocessor;
@@ -23,7 +24,8 @@ procedure QueueFileForDeletion(const FileName: string);
 
 implementation
 
-uses SysUtils, Classes, IsppStack, Windows;
+uses
+  SysUtils, Classes, ISPP.Stack, Windows;
 
 procedure WarningMsg(const Msg: string; const Args: array of const);
 var
