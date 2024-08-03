@@ -1,4 +1,4 @@
-unit LZMA;
+unit ISCmplr.LZMACompressor;
 
 {
   Inno Setup

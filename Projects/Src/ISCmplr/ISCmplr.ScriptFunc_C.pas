@@ -1,4 +1,4 @@
-unit ScriptFunc_C;
+unit ISCmplr.ScriptFunc_C;
 
 {
   Inno Setup

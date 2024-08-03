@@ -1,4 +1,4 @@
-unit ScriptCompiler;
+unit ISCmplr.ScriptCompiler;
 
 {
   Inno Setup

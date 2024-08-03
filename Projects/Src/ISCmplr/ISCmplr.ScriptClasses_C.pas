@@ -1,4 +1,4 @@
-unit ScriptClasses_C;
+unit ISCmplr.ScriptClasses_C;
 
 {
   Inno Setup

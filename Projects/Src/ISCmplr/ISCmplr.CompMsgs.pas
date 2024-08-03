@@ -1,4 +1,4 @@
-unit CompMsgs;
+unit ISCmplr.CompMsgs;
 
 {
   Inno Setup

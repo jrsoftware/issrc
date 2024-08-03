@@ -42,7 +42,7 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Compiler;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;Vcl;ISCmplr;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
@@ -53,7 +53,6 @@
         <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
@@ -81,19 +80,33 @@
         <DCCReference Include="Src\SafeDLLPath.pas"/>
         <DCCReference Include="Src\CompInt.pas"/>
         <DCCReference Include="Src\CompPreprocInt.pas"/>
-        <DCCReference Include="Src\ISCmplr\Compile.pas"/>
-        <DCCReference Include="Src\ISCmplr\CompMsgs.pas"/>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.Compile.pas">
+            <ModuleName>Compile</ModuleName>
+        </DCCReference>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.CompMsgs.pas">
+            <ModuleName>CompMsgs</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\Struct.pas"/>
         <DCCReference Include="Src\ScriptFunc.pas"/>
-        <DCCReference Include="Src\ISCmplr\ScriptFunc_C.pas"/>
-        <DCCReference Include="Src\ISCmplr\ScriptCompiler.pas"/>
-        <DCCReference Include="Src\ISCmplr\ScriptClasses_C.pas"/>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.ScriptFunc_C.pas">
+            <ModuleName>ScriptFunc_C</ModuleName>
+        </DCCReference>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.ScriptCompiler.pas">
+            <ModuleName>ScriptCompiler</ModuleName>
+        </DCCReference>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.ScriptClasses_C.pas">
+            <ModuleName>ScriptClasses_C</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\ResUpdate.pas"/>
-        <DCCReference Include="Src\ISCmplr\CompExeUpdate.pas"/>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.ExeUpdate.pas">
+            <ModuleName>ExeUpdate</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\Compress.pas"/>
         <DCCReference Include="Src\CompressZlib.pas"/>
         <DCCReference Include="Src\bzlib.pas"/>
-        <DCCReference Include="Src\ISCmplr\LZMA.pas"/>
+        <DCCReference Include="Src\ISCmplr\ISCmplr.LZMACompressor.pas">
+            <ModuleName>LZMACompressor</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\FileClass.pas"/>
         <DCCReference Include="Src\ArcFour.pas"/>
         <DCCReference Include="Src\VerInfo.pas"/>

@@ -1,4 +1,4 @@
-unit CompExeUpdate;
+unit ISCmplr.ExeUpdate;
 
 {
   Inno Setup

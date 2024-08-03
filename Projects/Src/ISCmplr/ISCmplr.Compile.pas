@@ -1,4 +1,4 @@
-unit Compile;
+unit ISCmplr.Compile;
 
 {
   Inno Setup
@@ -33,8 +33,8 @@ uses
   CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, CmnFunc2, Struct, Int64Em, CompMsgs, SetupEnt,
-  FileClass, Compress, CompressZlib, bzlib, LZMA, ArcFour, SHA1,
-  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, CompExeUpdate,
+  FileClass, Compress, CompressZlib, bzlib, LZMACompressor, ArcFour, SHA1,
+  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, ExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
@@ -8978,7 +8978,7 @@ begin
             { Update manifest if needed }
             if UseSetupLdr then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
-              CompExeUpdate.PreventCOMCTL32Sideloading(ExeFile);
+              PreventCOMCTL32Sideloading(ExeFile);
             end;
 
             { For some reason, on Win95 the date/time of the EXE sometimes
