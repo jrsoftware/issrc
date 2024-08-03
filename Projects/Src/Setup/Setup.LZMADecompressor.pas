@@ -1,4 +1,4 @@
-unit Setup.LZMADecomp;
+unit Setup.LZMADecompressor;
 
 {
   Inno Setup

@@ -75,7 +75,7 @@ uses
   Windows,
   Forms, SysUtils,
   uPSR_dll,
-  Setup.ScriptClasses_R, Setup.ScriptFunc_R;
+  Setup.ScriptClasses, Setup.ScriptFunc;
 
 {---}
 

@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs,
-  Setup.Wizard, Setup.Install,
+  Setup.WizardForm, Setup.Install,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -201,8 +201,8 @@ implementation
 
 uses
   StrUtils,
-  Struct, Setup.Main, Setup.SelFolderForm, SetupLdrAndSetup.Messages, MsgIDs, PathFunc, CmnFunc, CmnFunc2,
-  BrowseFunc, Setup.Logging, SetupLdrAndSetup.InstFunc;
+  Struct, Setup.MainForm, Setup.SelectFolderForm, SetupLdrAndSetup.Messages, MsgIDs, PathFunc, CmnFunc, CmnFunc2,
+  BrowseFunc, Setup.LoggingFunc, SetupLdrAndSetup.InstFunc;
 
 const
   DefaultLabelHeight = 14;

@@ -1,4 +1,4 @@
-unit Setup.SelLangForm;
+unit Setup.SelectLanguageForm;
 
 {
   Inno Setup
@@ -36,7 +36,7 @@ function AskForLanguage: Boolean;
 implementation
 
 uses
-  Struct, SetupLdrAndSetup.Messages, MsgIDs, Setup.Main;
+  Struct, SetupLdrAndSetup.Messages, MsgIDs, Setup.MainForm;
 
 {$R *.DFM}
 

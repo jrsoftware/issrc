@@ -1,4 +1,4 @@
-unit Setup.Main;
+unit Setup.MainForm;
 
 {
   Inno Setup
@@ -268,9 +268,9 @@ implementation
 uses
   ShellAPI, ShlObj, StrUtils,
   SetupLdrAndSetup.Messages, MsgIDs, Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFnc2, SetupLdrAndSetup.RedirFunc, PathFunc,
-  Compress, CompressZlib, bzlib, Setup.LZMADecomp, ArcFour, SetupEnt, Setup.SelLangForm,
-  Setup.Wizard, Setup.DebugClient, VerInfo, Setup.Extract, FileClass, Setup.Logging, MD5, SHA1, ActiveX,
-  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNet, BitmapImage,
+  Compress, CompressZlib, bzlib, Setup.LZMADecompressor, ArcFour, SetupEnt, Setup.SelectLanguageForm,
+  Setup.WizardForm, Setup.DebugClient, VerInfo, Setup.FileExtractor, FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
+  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
   TaskDialog, RegStr;
 
 {$R *.DFM}
@@ -527,7 +527,7 @@ end;
 class function TDummyClass.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 begin
-  Result := Setup.Main.EvalArchitectureIdentifier(Name);
+  Result := Setup.MainForm.EvalArchitectureIdentifier(Name);
 end;
 
 class function TDummyClass.EvalComponentOrTaskIdentifier(Sender: TSimpleExpression;

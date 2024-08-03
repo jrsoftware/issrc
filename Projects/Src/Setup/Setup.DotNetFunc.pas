@@ -1,4 +1,4 @@
-unit Setup.DotNet;
+unit Setup.DotNetFunc;
 
 {
   Inno Setup

@@ -1,4 +1,4 @@
-unit Setup.Extract;
+unit Setup.FileExtractor;
 
 {
   Inno Setup
@@ -49,9 +49,9 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  PathFunc, CmnFunc2, Setup.Main, SetupLdrAndSetup.Messages, MsgIDs,
+  PathFunc, CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, MsgIDs,
   SetupLdrAndSetup.InstFunc, CompressZlib, bzlib,
-  Setup.LZMADecomp, SHA1, Setup.Logging, Setup.NewDisk;
+  Setup.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
   FFileExtractor: TFileExtractor;

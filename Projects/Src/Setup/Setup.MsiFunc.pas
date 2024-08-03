@@ -1,4 +1,4 @@
-unit Setup.Msi;
+unit Setup.MsiFunc;
 
 {
   Inno Setup

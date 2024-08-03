@@ -1,4 +1,4 @@
-unit Setup.NewDisk;
+unit Setup.NewDiskForm;
 
 {
   Inno Setup
@@ -41,7 +41,7 @@ implementation
 
 uses
   SetupLdrAndSetup.Messages, MsgIDs, PathFunc, CmnFunc, CmnFunc2, BrowseFunc,
-  Setup.Main, Setup.Wizard;
+  Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}
 

@@ -1,4 +1,4 @@
-unit Setup.UninstProgressForm;
+unit Setup.UninstallProgressForm;
 
 {
   Inno Setup
@@ -65,7 +65,7 @@ var
 implementation
 
 uses
-  TaskbarProgressFunc, Setup.Main, SetupLdrAndSetup.Messages, MsgIDs, CmnFunc;
+  TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages, MsgIDs, CmnFunc;
 
 {$R *.DFM}
 

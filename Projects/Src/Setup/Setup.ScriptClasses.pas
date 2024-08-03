@@ -1,4 +1,4 @@
-unit Setup.ScriptClasses_R;
+unit Setup.ScriptClasses;
 
 {
   Inno Setup
@@ -24,9 +24,9 @@ uses
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
-  ExtCtrls, UIStateForm, Setup.SetupForm, Setup.Main, Setup.Wizard, SetupTypes, PasswordEdit,
+  ExtCtrls, UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, SetupTypes, PasswordEdit,
   FolderTreeView, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
-  Setup.UninstProgressForm;
+  Setup.UninstallProgressForm;
 
 type
   TWinControlAccess = class(TWinControl);

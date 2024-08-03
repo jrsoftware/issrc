@@ -23,7 +23,7 @@ function UnpinShellLink(const Filename: String): Boolean;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, CmnFunc2, SetupLdrAndSetup.InstFunc, Setup.Main,
+  Windows, SysUtils, PathFunc, CmnFunc2, SetupLdrAndSetup.InstFunc, Setup.MainForm,
   SetupLdrAndSetup.Messages, MsgIDs,
   ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
 

@@ -31,8 +31,8 @@ implementation
 {x$DEFINE HELPERDEBUG}
 
 uses
-  Forms, Int64Em, CmnFunc, CmnFunc2, PathFunc, Setup.Main, SetupLdrAndSetup.InstFunc,
-  Setup.Logging, SetupLdrAndSetup.Messages, MsgIDs;
+  Forms, Int64Em, CmnFunc, CmnFunc2, PathFunc, Setup.MainForm, SetupLdrAndSetup.InstFunc,
+  Setup.LoggingFunc, SetupLdrAndSetup.Messages, MsgIDs;
 
 const
   HELPER_VERSION = 105;

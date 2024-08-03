@@ -1,4 +1,4 @@
-unit Setup.UninstSharedFileForm;
+unit Setup.UninstallSharedFileForm;
 
 {
   Inno Setup
@@ -41,7 +41,7 @@ function ExecuteRemoveSharedFileDlg(const Filename: String;
 implementation
 
 uses
-  PathFunc, Struct, SetupLdrAndSetup.Messages, MsgIDs, Setup.Main;
+  PathFunc, Struct, SetupLdrAndSetup.Messages, MsgIDs, Setup.MainForm;
 
 {$R *.DFM}
 

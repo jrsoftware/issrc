@@ -1,4 +1,4 @@
-unit Setup.Wizard;
+unit Setup.WizardForm;
 
 {
   Inno Setup
@@ -342,8 +342,8 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, SetupLdrAndSetup.Messages, Setup.Main, PathFunc, CmnFunc, CmnFunc2,
-  MD5, SetupLdrAndSetup.InstFunc, Setup.SelFolderForm, Setup.Extract, Setup.Logging, RestartManager, Setup.ScriptRunner;
+  ShellApi, ShlObj, Types, SetupLdrAndSetup.Messages, Setup.MainForm, PathFunc, CmnFunc, CmnFunc2,
+  MD5, SetupLdrAndSetup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor, Setup.LoggingFunc, RestartManager, Setup.ScriptRunner;
 
 {$R *.DFM}
 

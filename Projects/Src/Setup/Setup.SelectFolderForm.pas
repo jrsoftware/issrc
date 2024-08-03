@@ -1,4 +1,4 @@
-unit Setup.SelFolderForm;
+unit Setup.SelectFolderForm;
 
 {
   Inno Setup
@@ -42,7 +42,7 @@ function ShowSelectFolderDialog(const StartMenu, AppendDir: Boolean;
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, MsgIDs, Setup.Main, SetupTypes, Setup.Wizard, CmnFunc2;
+  PathFunc, SetupLdrAndSetup.Messages, MsgIDs, Setup.MainForm, SetupTypes, Setup.WizardForm, CmnFunc2;
 
 {$R *.DFM}
 

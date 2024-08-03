@@ -1,4 +1,4 @@
-unit Setup.Undo;
+unit Setup.UninstallLog;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit Setup.Undo;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Uninstallation Procedures
+  Uninstallation functions
 }
 
 interface
@@ -157,7 +157,7 @@ uses
   Messages, ShlObj, AnsiStrings,
   PathFunc, Struct, SetupLdrAndSetup.Messages, MsgIDs, SetupLdrAndSetup.InstFunc,
   Setup.InstFnc2, SetupLdrAndSetup.RedirFunc, Compress,
-  Setup.Logging, Setup.RegDLL, Setup.Helper, Setup.DotNet;
+  Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it

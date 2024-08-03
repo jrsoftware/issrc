@@ -1,4 +1,4 @@
-unit Setup.ScriptFunc_R;
+unit Setup.ScriptFunc;
 
 {
   Inno Setup
@@ -21,11 +21,11 @@ implementation
 uses
   Windows, ScriptFunc,
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
-  Struct, Setup.ScriptDlg, Setup.Main, PathFunc, CmnFunc, CmnFunc2, FileClass, SetupLdrAndSetup.RedirFunc,
+  Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, CmnFunc, CmnFunc2, FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFnc2, SetupLdrAndSetup.Messages,
-  MsgIDs, Setup.NewDisk, BrowseFunc, Setup.Wizard, VerInfo,
-  SetupTypes, Int64Em, MD5, SHA1, Setup.Logging, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
-  Setup.SpawnClient, Setup.UninstProgressForm, ASMInline, Setup.DotNet, DotNetVersion, Setup.Msi, BitmapImage;
+  MsgIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, VerInfo,
+  SetupTypes, Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc, DotNetVersion, Setup.MsiFunc, BitmapImage;
 
 var
   ScaleBaseUnitsInitialized: Boolean;

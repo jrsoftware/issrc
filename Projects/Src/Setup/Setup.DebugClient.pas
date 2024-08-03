@@ -36,7 +36,7 @@ procedure SetDebugWnd(Wnd: HWND; WantCodeText: Boolean);
 implementation
 
 uses
-  Forms, Classes, CmnFunc2, Struct, SetupLdrAndSetup.InstFunc, Setup.Main;
+  Forms, Classes, CmnFunc2, Struct, SetupLdrAndSetup.InstFunc, Setup.MainForm;
 
 type
   TDummyClass = class

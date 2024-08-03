@@ -1,4 +1,4 @@
-unit Setup.Logging;
+unit Setup.LoggingFunc;
 
 {
   Inno Setup

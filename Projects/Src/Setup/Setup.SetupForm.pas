@@ -74,7 +74,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  CmnFunc2, Setup.Main, SetupLdrAndSetup.Messages, BidiUtils;
+  CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, BidiUtils;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -433,7 +433,7 @@ var
   W, H: Integer;
   R: TRect;
 begin
-  { Note: Must keep the following lines in synch with ScriptFunc_R's
+  { Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
     '', 8);
