@@ -8,7 +8,7 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit IsppFuncs;
+unit ISPP.IsppFuncs;
 
 interface
 

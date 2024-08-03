@@ -8,7 +8,7 @@
   For conditions of distribution and use, see LICENSE.TXT.
 }
 
-unit IsppIdentMan;
+unit ISPP.IsppIdentMan;
 
 interface
 

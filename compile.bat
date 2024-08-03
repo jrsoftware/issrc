@@ -34,7 +34,7 @@ cd Projects
 if errorlevel 1 goto exit
 
 echo - ISPP.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;ISPP -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
 if errorlevel 1 goto failed
 
 echo - Compil32.dpr
