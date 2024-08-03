@@ -51,7 +51,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 <p>Other editor changes:</p>
 <ul>
-  <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
+  <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor or remove a selection.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
   <li>Added new shortcuts only available if Visual Studio Code-style editor shortcuts have been activated: Shift+Alt+Down to copy line down and Ctrl+] and Ctrl+[ to ident or unindent lines.</li>
   <li>Added parameter hints for all Pascal Scripting support functions for quick reference to the function's parameter names, types, and order. Parameter hints can be invoked manually by pressing Ctrl+Shift+Space or automatically by using the new <i>Invoke parameter hints automatically</i> option which is enabled by default.</li>
   <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
@@ -81,7 +81,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression and decompression (respectively by 21% and 11% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%.</li>
-  <li>Merged Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
+  <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
   <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
   <li>Pascal Scripting changes:
   <ul>
@@ -94,6 +94,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 
 <p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov, John Stevenson, and jogo- for their contributions!</p>
+
+<p>Thanks to Neil Hodgson and Igor Pavlov for their continued work on Scintilla and the LZMA SDK!</p>
 
 <p><a name="6.3.3"></a><span class="ver">6.3.3 </span><span class="date">(2024-07-12)</span></p>
 <ul>
