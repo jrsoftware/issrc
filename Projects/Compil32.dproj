@@ -41,7 +41,7 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Compiler;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;Vcl;Vcl.Imaging;Compil32;Compil32.Wizard;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
@@ -78,33 +78,69 @@
         </DelphiCompile>
         <DCCReference Include="Src\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Compil32\CompForm.pas">
+        <DCCReference Include="Src\Compil32\Compil32.CompForm.pas">
+            <ModuleName>CompForm</ModuleName>
             <Form>CompileForm</Form>
         </DCCReference>
         <DCCReference Include="Src\CmnFunc.pas"/>
         <DCCReference Include="Src\CmnFunc2.pas"/>
-        <DCCReference Include="Src\Compil32\CompFunc.pas"/>
-        <DCCReference Include="Src\Compil32\CompMsgs2.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.CompFunc.pas">
+            <ModuleName>CompFunc</ModuleName>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.CompMsgs2.pas">
+            <ModuleName>CompMsgs2</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\CompInt.pas"/>
-        <DCCReference Include="Src\Compil32\OptionsForm.pas"/>
-        <DCCReference Include="Src\Compil32\StartupForm.pas"/>
-        <DCCReference Include="Src\Compil32\Wizard\WizardForm.pas"/>
-        <DCCReference Include="Src\Compil32\Wizard\WizardFileForm.pas"/>
-        <DCCReference Include="Src\Compil32\FileAssocFunc.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.OptionsForm.pas">
+            <ModuleName>OptionsForm</ModuleName>
+            <Form>OptionsForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.StartupForm.pas">
+            <ModuleName>StartupForm</ModuleName>
+            <Form>StartupForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardForm.pas">
+            <ModuleName>WizardForm</ModuleName>
+            <Form>WizardForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFileForm.pas">
+            <ModuleName>WizardFileForm</ModuleName>
+            <Form>WizardFileForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.FileAssocFunc.pas">
+            <ModuleName>FileAssocFunc</ModuleName>
+        </DCCReference>
         <DCCReference Include="..\Components\TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\DebugStruct.pas"/>
         <DCCReference Include="Src\BrowseFunc.pas"/>
-        <DCCReference Include="Src\Compil32\SignToolsForm.pas"/>
-        <DCCReference Include="Src\Compil32\InputQueryComboForm.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.SignToolsForm.pas">
+            <ModuleName>SignToolsForm</ModuleName>
+            <Form>SignToolsForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.InputQueryComboForm.pas">
+            <ModuleName>InputQueryComboForm</ModuleName>
+        </DCCReference>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\ScintStylerInnoSetup.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.ScintStylerInnoSetup.pas">
+            <ModuleName>ScintStylerInnoSetup</ModuleName>
+        </DCCReference>
         <DCCReference Include="..\Components\ModernColors.pas"/>
-        <DCCReference Include="Src\Compil32\MsgBoxDesignerForm.pas"/>
-        <DCCReference Include="Src\Compil32\CompScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\FilesDesignerForm.pas"/>
-        <DCCReference Include="Src\Compil32\Wizard\WizardFormFilesHelper.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.MsgBoxDesignerForm.pas">
+            <ModuleName>MsgBoxDesignerForm</ModuleName>
+            <Form>MsgBoxDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.CompScintEdit.pas">
+            <ModuleName>CompScintEdit</ModuleName>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.FilesDesignerForm.pas">
+            <ModuleName>FilesDesignerForm</ModuleName>
+            <Form>FilesDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFormFilesHelper.pas">
+            <ModuleName>WizardFormFilesHelper</ModuleName>
+        </DCCReference>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
@@ -112,7 +148,9 @@
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
-        <DCCReference Include="Src\Compil32\HtmlHelpFunc.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.HtmlHelpFunc.pas">
+            <ModuleName>HtmlHelpFunc</ModuleName>
+        </DCCReference>
         <DCCReference Include="Src\UIStateForm.pas"/>
         <DCCReference Include="Src\LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\MsgIDs.pas"/>
@@ -122,10 +160,15 @@
         <DCCReference Include="Src\Int64Em.pas"/>
         <DCCReference Include="Src\Compress.pas"/>
         <DCCReference Include="Src\TaskDialog.pas"/>
-        <DCCReference Include="Src\Compil32\RegistryDesignerForm.pas"/>
-        <DCCReference Include="Src\Compil32\Wizard\WizardFormRegistryHelper.pas"/>
+        <DCCReference Include="Src\Compil32\Compil32.RegistryDesignerForm.pas">
+            <ModuleName>RegistryDesignerForm</ModuleName>
+            <Form>RegistryDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFormRegistryHelper.pas">
+            <ModuleName>WizardFormRegistryHelper</ModuleName>
+        </DCCReference>
         <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="Src\Compil32\IsscintInt.pas"/>
+        <DCCReference Include="..\Components\IsscintInt.pas"/>
         <DCCReference Include="Src\ScriptFunc.pas"/>
         <DCCReference Include="Src\SetupTypes.pas"/>
         <DCCReference Include="Src\Struct.pas"/>

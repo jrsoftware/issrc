@@ -1,4 +1,4 @@
-unit FilesDesignerForm;
+unit Compil32.FilesDesignerForm;
 
 {
   Inno Setup

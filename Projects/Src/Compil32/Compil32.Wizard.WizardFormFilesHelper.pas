@@ -1,4 +1,4 @@
-unit WizardFormFilesHelper;
+unit Compil32.Wizard.WizardFormFilesHelper;
 
 {
   Inno Setup

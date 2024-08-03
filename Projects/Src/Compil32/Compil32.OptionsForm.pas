@@ -1,4 +1,4 @@
-unit OptionsForm;
+unit Compil32.OptionsForm;
 
 {
   Inno Setup

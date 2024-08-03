@@ -1,4 +1,4 @@
-unit CompFunc;
+unit Compil32.CompFunc;
 
 {
   Inno Setup

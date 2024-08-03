@@ -1,4 +1,4 @@
-unit SignToolsForm;
+unit Compil32.SignToolsForm;
 
 {
   Inno Setup

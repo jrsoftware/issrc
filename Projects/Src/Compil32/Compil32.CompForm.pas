@@ -1,4 +1,4 @@
-﻿unit CompForm;
+﻿unit Compil32.CompForm;
 
 {
   Inno Setup

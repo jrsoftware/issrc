@@ -1,4 +1,4 @@
-unit WizardForm;
+unit Compil32.Wizard.WizardForm;
 
 {
   Inno Setup

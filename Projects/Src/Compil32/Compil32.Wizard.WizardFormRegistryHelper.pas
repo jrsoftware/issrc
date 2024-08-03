@@ -1,4 +1,4 @@
-unit WizardFormRegistryHelper;
+unit Compil32.Wizard.WizardFormRegistryHelper;
 
 {
   Inno Setup

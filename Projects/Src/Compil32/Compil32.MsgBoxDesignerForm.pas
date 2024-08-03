@@ -1,4 +1,4 @@
-unit MsgBoxDesignerForm;
+unit Compil32.MsgBoxDesignerForm;
 
 {
   Inno Setup

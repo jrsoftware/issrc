@@ -1,4 +1,4 @@
-unit StartupForm;
+unit Compil32.StartupForm;
 
 {
   Inno Setup

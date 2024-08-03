@@ -1,4 +1,4 @@
-unit FileAssocFunc;
+unit Compil32.FileAssocFunc;
 
 {
   Inno Setup

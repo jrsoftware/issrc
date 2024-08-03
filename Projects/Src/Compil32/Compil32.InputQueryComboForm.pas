@@ -1,4 +1,4 @@
-unit InputQueryComboForm;
+unit Compil32.InputQueryComboForm;
 
 {
   Inno Setup

@@ -1,4 +1,4 @@
-unit RegistryDesignerForm;
+unit Compil32.RegistryDesignerForm;
 
 {
   Inno Setup

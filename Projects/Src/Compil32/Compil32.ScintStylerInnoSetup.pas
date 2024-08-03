@@ -1,4 +1,4 @@
-unit ScintStylerInnoSetup;
+unit Compil32.ScintStylerInnoSetup;
 
 {
   Inno Setup

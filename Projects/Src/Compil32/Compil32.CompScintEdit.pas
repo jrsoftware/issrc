@@ -1,4 +1,4 @@
-unit CompScintEdit;
+unit Compil32.CompScintEdit;
 
 {
   Inno Setup
