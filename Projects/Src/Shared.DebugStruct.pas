@@ -1,4 +1,4 @@
-unit DebugStruct;
+unit Shared.DebugStruct;
 
 {
   Inno Setup

@@ -1,4 +1,4 @@
-unit ArcFour;
+unit Shared.ArcFour;
 
 {
   Inno Setup

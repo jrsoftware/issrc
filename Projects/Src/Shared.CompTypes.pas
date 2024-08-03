@@ -1,4 +1,4 @@
-unit CompTypes;
+unit Shared.CompTypes;
 
 {
   Inno Setup

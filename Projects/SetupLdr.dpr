@@ -10,27 +10,27 @@ program SetupLdr;
 }
 
 uses
-  SafeDLLPath in 'Src\SafeDLLPath.pas',
+  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
   SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
-  Compress in 'Src\Compress.pas',
+  Shared.Compress in 'Src\Shared.Compress.pas',
   SetupLdr.LZMA1SmallDecompressor in 'Src\SetupLdr\SetupLdr.LZMA1SmallDecompressor.pas',
-  SetupEnt in 'Src\SetupEnt.pas',
+  Shared.SetupEnt in 'Src\Shared.SetupEnt.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  CmnFunc2 in 'Src\CmnFunc2.pas',
+  Shared.CmnFunc2 in 'Src\Shared.CmnFunc2.pas',
   SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.Messages.pas',
-  MsgIDs in 'Src\MsgIDs.pas',
-  Struct in 'Src\Struct.pas',
+  Shared.MsgIDs in 'Src\Shared.MsgIDs.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
   SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.InstFunc.pas',
-  FileClass in 'Src\FileClass.pas',
-  Int64Em in 'Src\Int64Em.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA1 in '..\Components\SHA1.pas',
   MD5 in '..\Components\MD5.pas',
   SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.RedirFunc.pas',
-  SetupTypes in 'Src\SetupTypes.pas',
-  VerInfo in 'Src\VerInfo.pas';
+  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.VerInfo in 'Src\Shared.VerInfo.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

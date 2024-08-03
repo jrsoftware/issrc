@@ -17,7 +17,7 @@ procedure UnregisterISSFileAssociation;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, ShlObj, CmnFunc, CmnFunc2;
+  Windows, SysUtils, PathFunc, ShlObj, Shared.CmnFunc, Shared.CmnFunc2;
   
 function GetRootkey: HKEY;
 begin

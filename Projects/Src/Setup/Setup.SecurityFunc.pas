@@ -12,7 +12,7 @@ unit Setup.SecurityFunc;
 interface
 
 uses
-  Windows, SysUtils, CmnFunc2, Struct;
+  Windows, SysUtils, Shared.CmnFunc2, Shared.Struct;
 
 function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;

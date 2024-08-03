@@ -1,4 +1,4 @@
-unit Int64Em;
+unit Shared.Int64Em;
 
 {
   Inno Setup

@@ -16,7 +16,7 @@ function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion
 implementation
 
 uses
-  Windows, SysUtils, CmnFunc2, PathFunc, VerInfo;
+  Windows, SysUtils, Shared.CmnFunc2, PathFunc, Shared.VerInfo;
 
 var
   MsiLoaded: Boolean;

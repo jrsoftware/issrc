@@ -48,7 +48,7 @@ implementation
 
 uses
   SysUtils, UITypes,
-  CmnFunc, CmnFunc2, BrowseFunc, PathFunc,
+  Shared.CmnFunc, Shared.CmnFunc2, Shared.BrowseFunc, PathFunc,
   Compil32.Messages, Compil32.Wizard.WizardFileForm;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;

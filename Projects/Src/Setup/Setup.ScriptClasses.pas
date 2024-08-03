@@ -24,7 +24,7 @@ uses
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
-  ExtCtrls, UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, SetupTypes, PasswordEdit,
+  ExtCtrls, Shared.UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Shared.SetupTypes, PasswordEdit,
   FolderTreeView, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
   Setup.UninstallProgressForm;
 

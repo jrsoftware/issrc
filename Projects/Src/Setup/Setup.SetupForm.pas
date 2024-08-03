@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, MsgIDs;
+  Shared.UIStateForm, Shared.MsgIDs;
 
 type
   TSetupForm = class(TUIStateForm)
@@ -74,7 +74,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, BidiUtils;
+  Shared.CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, BidiUtils;
 
 var
   WM_QueryCancelAutoPlay: UINT;

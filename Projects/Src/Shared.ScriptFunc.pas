@@ -1,4 +1,4 @@
-unit ScriptFunc;
+unit Shared.ScriptFunc;
 
 {
   Inno Setup

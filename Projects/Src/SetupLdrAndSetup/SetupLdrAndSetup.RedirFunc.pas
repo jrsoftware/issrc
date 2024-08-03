@@ -15,7 +15,7 @@ unit SetupLdrAndSetup.RedirFunc;
 interface
 
 uses
-  Windows, SysUtils, FileClass, VerInfo;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfo;
 
 type
   TPreviousFsRedirectionState = record
@@ -102,7 +102,7 @@ type
 implementation
 
 uses
-  CmnFunc2, PathFunc;
+  Shared.CmnFunc2, PathFunc;
 
 var
   Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;

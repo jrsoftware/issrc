@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
+  Shared.UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
 
 type
   TMsgBoxDesignerForm = class(TUIStateForm)
@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, Compil32.HelpFunc, TaskDialog, Compil32.Messages;
+  Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Shared.TaskDialog, Compil32.Messages;
 
 {$R *.DFM}
 

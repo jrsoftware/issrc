@@ -23,8 +23,8 @@ function UnpinShellLink(const Filename: String): Boolean;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, CmnFunc2, SetupLdrAndSetup.InstFunc, Setup.MainForm,
-  SetupLdrAndSetup.Messages, MsgIDs,
+  Windows, SysUtils, PathFunc, Shared.CmnFunc2, SetupLdrAndSetup.InstFunc, Setup.MainForm,
+  SetupLdrAndSetup.Messages, Shared.MsgIDs,
   ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);

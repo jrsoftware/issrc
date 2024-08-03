@@ -17,9 +17,9 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, PathFunc, CmnFunc, CmnFunc2, Setup.UninstallLog, SetupLdrAndSetup.Messages,
-  MsgIDs, SetupLdrAndSetup.InstFunc, Struct, SetupEnt, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
-  FileClass, Setup.ScriptRunner, Setup.DebugClient, SetupTypes, Setup.LoggingFunc, Setup.MainForm,
+  Windows, SysUtils, Messages, Forms, PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Setup.UninstallLog, SetupLdrAndSetup.Messages,
+  Shared.MsgIDs, SetupLdrAndSetup.InstFunc, Shared.Struct, Shared.SetupEnt, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
+  Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupTypes, Setup.LoggingFunc, Setup.MainForm,
   Setup.SpawnServer;
 
 type

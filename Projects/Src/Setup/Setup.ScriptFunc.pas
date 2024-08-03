@@ -19,13 +19,15 @@ procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 implementation
 
 uses
-  Windows, ScriptFunc,
+  Windows, Shared.ScriptFunc,
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
-  Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, CmnFunc, CmnFunc2, FileClass, SetupLdrAndSetup.RedirFunc,
+  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CmnFunc,
+  Shared.CmnFunc2, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFnc2, SetupLdrAndSetup.Messages,
-  MsgIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, VerInfo,
-  SetupTypes, Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
-  Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc, DotNetVersion, Setup.MsiFunc, BitmapImage;
+  Shared.MsgIDs, Setup.NewDiskForm, Shared.BrowseFunc, Setup.WizardForm, Shared.VerInfo,
+  Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,
+  Shared.DotNetVersion, Setup.MsiFunc, BitmapImage;
 
 var
   ScaleBaseUnitsInitialized: Boolean;

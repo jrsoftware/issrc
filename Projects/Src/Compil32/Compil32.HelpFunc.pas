@@ -86,8 +86,8 @@ implementation
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
-  CmnFunc2, PathFunc, FileClass, NewUxTheme,
-  Compil32.CompileForm, Compil32.Messages, CompTypes;
+  Shared.CmnFunc2, PathFunc, Shared.FileClass, NewUxTheme,
+  Compil32.CompileForm, Compil32.Messages, Shared.CompTypes;
 
 procedure InitFormFont(Form: TForm);
 var

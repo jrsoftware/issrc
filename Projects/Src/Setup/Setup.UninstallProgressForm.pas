@@ -65,7 +65,8 @@ var
 implementation
 
 uses
-  TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages, MsgIDs, CmnFunc;
+  Shared.TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
+  Shared.MsgIDs, Shared.CmnFunc;
 
 {$R *.DFM}
 

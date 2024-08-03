@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils,
-  Compress, Int64Em;
+  Shared.Compress, Shared.Int64Em;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;

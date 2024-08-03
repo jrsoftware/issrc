@@ -1,4 +1,4 @@
-unit TaskbarProgressFunc;
+unit Shared.TaskbarProgressFunc;
 
 {
   Inno Setup

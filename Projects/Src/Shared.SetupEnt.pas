@@ -1,4 +1,4 @@
-unit SetupEnt;
+unit Shared.SetupEnt;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit SetupEnt;
 interface
 
 uses
-  Compress;
+  Shared.Compress;
 
 procedure SEFreeRec(const P: Pointer; const NumStrings, NumAnsiStrings: Integer);
 procedure SEDuplicateRec(OldP, NewP: Pointer; Bytes: Cardinal;

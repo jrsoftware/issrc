@@ -1,4 +1,4 @@
-unit UIStateForm;
+unit Shared.UIStateForm;
 
 {
   Inno Setup

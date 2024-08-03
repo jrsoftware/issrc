@@ -12,7 +12,7 @@ unit SetupLdrAndSetup.InstFunc;
 interface
 
 uses
-  Windows, SysUtils, Struct, Int64Em, MD5, SHA1, CmnFunc2;
+  Windows, SysUtils, Shared.Struct, Shared.Int64Em, MD5, SHA1, Shared.CmnFunc2;
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
@@ -118,7 +118,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, SetupLdrAndSetup.Messages, MsgIDs, FileClass, SetupLdrAndSetup.RedirFunc, SetupTypes,
+  Messages, ShellApi, PathFunc, SetupLdrAndSetup.Messages, Shared.MsgIDs, Shared.FileClass, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
   Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);

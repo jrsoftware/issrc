@@ -1,4 +1,4 @@
-unit Struct;
+unit Shared.Struct;
 
 {
   Inno Setup
@@ -13,7 +13,7 @@ unit Struct;
 interface
 
 uses
-  Windows, Int64Em, SHA1;
+  Windows, Shared.Int64Em, SHA1;
 
 const
   SetupTitle = 'Inno Setup';

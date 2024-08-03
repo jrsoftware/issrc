@@ -13,7 +13,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
-  ScintEdit, ModernColors, ScriptFunc;
+  ScintEdit, ModernColors, Shared.ScriptFunc;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -155,8 +155,8 @@ implementation
 
 uses
   Generics.Defaults,
-  MsgIDs, ScintInt, SetupSectionDirectives, LangOptionsSectionDirectives,
-  CmnFunc, SetupTypes, Struct, DotNetVersion, isxclasses_wordlists_generated;
+  Shared.MsgIDs, ScintInt, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
+  Shared.CmnFunc, Shared.SetupTypes, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
 
 type
   { Size must be <= SizeOf(TScintLineState) }

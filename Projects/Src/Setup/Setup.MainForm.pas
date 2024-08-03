@@ -13,8 +13,8 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, Struct, DebugStruct, Int64Em, CmnFunc, CmnFunc2,
-  SetupTypes, Setup.ScriptRunner, BidiUtils, RestartManager;
+  Setup.SetupForm, StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CmnFunc, Shared.CmnFunc2,
+  Shared.SetupTypes, Setup.ScriptRunner, BidiUtils, RestartManager;
 
 type
   TMainForm = class(TSetupForm)
@@ -267,11 +267,11 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils,
-  SetupLdrAndSetup.Messages, MsgIDs, Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFnc2, SetupLdrAndSetup.RedirFunc, PathFunc,
-  Compress, CompressZlib, bzlib, Setup.LZMADecompressor, ArcFour, SetupEnt, Setup.SelectLanguageForm,
-  Setup.WizardForm, Setup.DebugClient, VerInfo, Setup.FileExtractor, FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
-  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
-  TaskDialog, RegStr;
+  SetupLdrAndSetup.Messages, Shared.MsgIDs, Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFnc2, SetupLdrAndSetup.RedirFunc, PathFunc,
+  Shared.Compress, Shared.CompressZlib, Shared.bzlib, Setup.LZMADecompressor, Shared.ArcFour, Shared.SetupEnt, Setup.SelectLanguageForm,
+  Setup.WizardForm, Setup.DebugClient, Shared.VerInfo, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
+  Shared.SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
+  Shared.TaskDialog, RegStr;
 
 {$R *.DFM}
 

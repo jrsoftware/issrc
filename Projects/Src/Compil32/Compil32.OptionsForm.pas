@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  Shared.UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
 
 type
   TOptionsForm = class(TUIStateForm)
@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  CmnFunc, CmnFunc2, Compil32.HelpFunc, Compil32.FileAssocFunc;
+  Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Compil32.FileAssocFunc;
 
 {$R *.DFM}
 

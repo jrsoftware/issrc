@@ -24,7 +24,7 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Int64Em, CmnFunc2, FileClass, Setup.DebugClient;
+  Windows, SysUtils, Shared.Int64Em, Shared.CmnFunc2, Shared.FileClass, Setup.DebugClient;
 
 var
   LogFile: TTextFileWriter;

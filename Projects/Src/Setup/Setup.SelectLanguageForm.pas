@@ -36,7 +36,7 @@ function AskForLanguage: Boolean;
 implementation
 
 uses
-  Struct, SetupLdrAndSetup.Messages, MsgIDs, Setup.MainForm;
+  Shared.Struct, SetupLdrAndSetup.Messages, Shared.MsgIDs, Setup.MainForm;
 
 {$R *.DFM}
 

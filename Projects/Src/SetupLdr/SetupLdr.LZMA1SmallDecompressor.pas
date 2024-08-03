@@ -13,7 +13,7 @@ unit SetupLdr.LZMA1SmallDecompressor;
 interface
 
 uses
-  Windows, SysUtils, Compress, Int64Em;
+  Windows, SysUtils, Shared.Compress, Shared.Int64Em;
 
 type
   { Internally-used record }

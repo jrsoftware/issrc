@@ -14,8 +14,8 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,
-  Setup.SetupForm, Struct, Int64Em, NewCheckListBox, RichEditViewer, NewStaticText,
-  SetupTypes, NewProgressBar, MsgIDs, PasswordEdit, FolderTreeView, BitmapImage,
+  Setup.SetupForm, Shared.Struct, Shared.Int64Em, NewCheckListBox, RichEditViewer, NewStaticText,
+  Shared.SetupTypes, NewProgressBar, Shared.MsgIDs, PasswordEdit, FolderTreeView, BitmapImage,
   NewNotebook, BidiCtrls;
 
 type
@@ -342,7 +342,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, SetupLdrAndSetup.Messages, Setup.MainForm, PathFunc, CmnFunc, CmnFunc2,
+  ShellApi, ShlObj, Types, SetupLdrAndSetup.Messages, Setup.MainForm, PathFunc, Shared.CmnFunc, Shared.CmnFunc2,
   MD5, SetupLdrAndSetup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor, Setup.LoggingFunc, RestartManager, Setup.ScriptRunner;
 
 {$R *.DFM}

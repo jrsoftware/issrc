@@ -13,7 +13,7 @@ interface
 
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
-  UIStateForm, NewStaticText, DropListBox, Compil32.Wizard.WizardFormFilesHelper;
+  Shared.UIStateForm, NewStaticText, DropListBox, Compil32.Wizard.WizardFormFilesHelper;
 
 type
   TFilesDesignerForm = class(TUIStateForm)

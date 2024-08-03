@@ -12,7 +12,7 @@ unit ISCmplr.ExeUpdate;
 interface
 
 uses
-  Windows, SysUtils, FileClass, VerInfo;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfo;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
@@ -27,7 +27,7 @@ procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 implementation
 
 uses
-  ResUpdate, Math, Int64Em;
+  Shared.ResUpdate, Math, Shared.Int64Em;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);

@@ -12,7 +12,7 @@ unit Compil32.SignToolsForm;
 interface
 
 uses
-    Classes, Controls, StdCtrls, UIStateForm;
+    Classes, Controls, StdCtrls, Shared.UIStateForm;
 
 type
   TSignToolsForm = class(TUIStateForm)
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Windows, Messages, Compil32.HelpFunc, CmnFunc, Dialogs, SysUtils;
+  Windows, Messages, Compil32.HelpFunc, Shared.CmnFunc, Dialogs, SysUtils;
 
 {$R *.DFM}
 

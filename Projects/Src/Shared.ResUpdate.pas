@@ -1,4 +1,4 @@
-unit ResUpdate;
+unit Shared.ResUpdate;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit ResUpdate;
 interface
 
 uses
-  Windows, SysUtils, FileClass;
+  Windows, SysUtils, Shared.FileClass;
 
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
@@ -27,7 +27,7 @@ procedure UpdateManifestRequestedExecutionLevel(const F: TCustomFile;
 implementation
 
 uses
-  Int64Em;
+  Shared.Int64Em;
 
 const
   IMAGE_NT_SIGNATURE = $00004550;

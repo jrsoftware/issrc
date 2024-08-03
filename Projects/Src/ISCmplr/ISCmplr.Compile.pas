@@ -18,7 +18,7 @@ unit ISCmplr.Compile;
 interface
 
 uses
-  Windows, SysUtils, CompInt;
+  Windows, SysUtils, Shared.CompInt;
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
@@ -30,15 +30,15 @@ type
 implementation
 
 uses
-  CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
+  Shared.CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
-  PathFunc, CmnFunc2, Struct, Int64Em, ISCmplr.Messages, SetupEnt,
-  FileClass, Compress, CompressZlib, bzlib, ISCmplr.LZMACompressor, ArcFour, SHA1,
-  MsgIDs, SetupSectionDirectives, LangOptionsSectionDirectives, DebugStruct, VerInfo, ResUpdate, ISCmplr.ExeUpdate,
+  PathFunc, Shared.CmnFunc2, Shared.Struct, Shared.Int64Em, ISCmplr.Messages, Shared.SetupEnt,
+  Shared.FileClass, Shared.Compress, Shared.CompressZlib, Shared.bzlib, ISCmplr.LZMACompressor, Shared.ArcFour, SHA1,
+  Shared.MsgIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfo, Shared.ResUpdate, ISCmplr.ExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
-  ISCmplr.ScriptCompiler, SimpleExpression, SetupTypes;
+  ISCmplr.ScriptCompiler, Shared.SimpleExpression, Shared.SetupTypes;
 
 type
   TParamInfo = record

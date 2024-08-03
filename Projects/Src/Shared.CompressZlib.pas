@@ -1,4 +1,4 @@
-unit CompressZlib;
+unit Shared.CompressZlib;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit CompressZlib;
 interface
 
 uses
-  Windows, SysUtils, Compress;
+  Windows, SysUtils, Shared.Compress;
 
 function ZlibInitCompressFunctions(Module: HMODULE): Boolean;
 function ZlibInitDecompressFunctions(Module: HMODULE): Boolean;

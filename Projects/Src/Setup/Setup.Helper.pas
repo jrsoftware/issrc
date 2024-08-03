@@ -15,7 +15,7 @@ unit Setup.Helper;
 interface
 
 uses
-  Windows, SysUtils, Struct;
+  Windows, SysUtils, Shared.Struct;
 
 function GetHelperResourceName: String;
 function HelperGrantPermission(const AObjectType: DWORD;
@@ -31,8 +31,8 @@ implementation
 {x$DEFINE HELPERDEBUG}
 
 uses
-  Forms, Int64Em, CmnFunc, CmnFunc2, PathFunc, Setup.MainForm, SetupLdrAndSetup.InstFunc,
-  Setup.LoggingFunc, SetupLdrAndSetup.Messages, MsgIDs;
+  Forms, Shared.Int64Em, Shared.CmnFunc, Shared.CmnFunc2, PathFunc, Setup.MainForm, SetupLdrAndSetup.InstFunc,
+  Setup.LoggingFunc, SetupLdrAndSetup.Messages, Shared.MsgIDs;
 
 const
   HELPER_VERSION = 105;

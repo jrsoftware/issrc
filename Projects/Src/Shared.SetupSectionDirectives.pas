@@ -1,4 +1,4 @@
-unit SetupSectionDirectives;
+unit Shared.SetupSectionDirectives;
 
 {
   Inno Setup

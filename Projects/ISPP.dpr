@@ -14,7 +14,7 @@ uses
   SysUtils,
   Windows,
   Classes,
-  CompPreprocInt in 'Src\CompPreprocInt.pas',
+  Shared.CompPreprocInt in 'Src\Shared.CompPreprocInt.pas',
   ISPP.Preprocess in 'Src\ISPP\ISPP.Preprocess.pas',
   ISPP.Preprocessor in 'Src\ISPP\ISPP.Preprocessor.pas',
   ISPP.Funcs in 'Src\ISPP\ISPP.Funcs.pas',
@@ -28,12 +28,12 @@ uses
   ISPP.CTokenizer in 'Src\ISPP\ISPP.CTokenizer.pas',
   ISPP.Base in 'Src\ISPP\ISPP.Base.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  CmnFunc2 in 'Src\CmnFunc2.pas',
-  FileClass in 'Src\FileClass.pas',
-  Int64Em in 'Src\Int64Em.pas',
+  Shared.CmnFunc2 in 'Src\Shared.CmnFunc2.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   MD5 in '..\Components\MD5.pas',
   SHA1 in '..\Components\SHA1.pas',
-  Struct in 'Src\Struct.pas';
+  Shared.Struct in 'Src\Shared.Struct.pas';
   
 {$IMAGEBASE $01800000}
 {$SETPEOSVERSION 6.1}

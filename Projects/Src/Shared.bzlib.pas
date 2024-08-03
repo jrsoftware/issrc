@@ -1,4 +1,4 @@
-unit bzlib;
+unit Shared.bzlib;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit bzlib;
 interface
 
 uses
-  Windows, SysUtils, Compress;
+  Windows, SysUtils, Shared.Compress;
 
 function BZInitCompressFunctions(Module: HMODULE): Boolean;
 function BZInitDecompressFunctions(Module: HMODULE): Boolean;

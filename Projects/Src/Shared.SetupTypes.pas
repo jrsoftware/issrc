@@ -1,4 +1,4 @@
-unit SetupTypes;
+unit Shared.SetupTypes;
 
 {
   Inno Setup
@@ -14,7 +14,7 @@ unit SetupTypes;
 interface
 
 uses
-  SysUtils, Classes, Struct;
+  SysUtils, Classes, Shared.Struct;
 
 type
   TSetupStep = (ssPreInstall, ssInstall, ssPostInstall, ssDone);
@@ -62,7 +62,7 @@ procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback
 implementation
 
 uses
-  CmnFunc2;
+  Shared.CmnFunc2;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if

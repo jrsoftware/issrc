@@ -16,7 +16,7 @@ unit SetupLdrAndSetup.Messages;
 interface
 
 uses
-  MsgIDs, Struct;
+  Shared.MsgIDs, Shared.Struct;
 
 const
   SNewLine = #13#10;  { line break }
@@ -51,7 +51,7 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Compress, CmnFunc2, FileClass;
+  Windows, SysUtils, Shared.Compress, Shared.CmnFunc2, Shared.FileClass;
 
 const
   SMsgsFileTooLarge = 'Internal error: Messages file is too large';

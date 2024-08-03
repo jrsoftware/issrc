@@ -1,4 +1,4 @@
-unit FileClass;
+unit Shared.FileClass;
 
 {
   Inno Setup
@@ -16,7 +16,7 @@ unit FileClass;
 interface
 
 uses
-  Windows, SysUtils, Int64Em;
+  Windows, SysUtils, Shared.Int64Em;
 
 type
   TFileCreateDisposition = (fdCreateAlways, fdCreateNew, fdOpenExisting,
@@ -148,7 +148,7 @@ implementation
 
 uses
   WideStrUtils,
-  CmnFunc2;
+  Shared.CmnFunc2;
 
 const
   SGenericIOError = 'File I/O error %d';

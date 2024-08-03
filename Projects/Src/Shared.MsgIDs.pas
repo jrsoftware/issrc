@@ -1,4 +1,4 @@
-unit MsgIDs;
+unit Shared.MsgIDs;
 
 {
   Inno Setup

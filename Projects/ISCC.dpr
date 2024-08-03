@@ -15,17 +15,17 @@ program ISCC;
   into this program and not depend on ISCmplr.dll. }
 
 uses
-  SafeDLLPath in 'Src\SafeDLLPath.pas',
+  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
   Windows,
   SysUtils,
   Classes,
-  {$IFDEF STATICCOMPILER} Compile in 'Src\Compile.pas', {$ENDIF}
+  {$IFDEF STATICCOMPILER} ISCmplr.Compile in 'Src\ISCmplr\ISCmplr.Compile.pas', {$ENDIF}
   PathFunc in '..\Components\PathFunc.pas',
-  CmnFunc2 in 'Src\CmnFunc2.pas',
-  CompInt in 'Src\CompInt.pas',
-  FileClass in 'Src\FileClass.pas',
-  CompTypes in 'Src\CompTypes.pas',
-  Int64Em in 'Src\Int64Em.pas';
+  Shared.CmnFunc2 in 'Src\Shared.CmnFunc2.pas',
+  Shared.CompInt in 'Src\Shared.CompInt.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.CompTypes in 'Src\Shared.CompTypes.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

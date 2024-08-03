@@ -5,7 +5,7 @@ unit isxclasses_wordlists_generated;
 interface
 
 uses
-  ScriptFunc;
+  Shared.ScriptFunc;
 
 var
   PascalConstants_Isxclasses: array of AnsiString = [

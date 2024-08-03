@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
-  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
+  Shared.UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
   Compil32.Wizard.WizardFormFilesHelper, Compil32.Wizard.WizardFormRegistryHelper;
 
 type
@@ -186,8 +186,8 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, ActiveX, UITypes, FileClass,
-  PathFunc, CmnFunc, CmnFunc2, Compil32.HelpFunc, BrowseFunc,
+  SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
+  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Shared.BrowseFunc,
   Compil32.Messages, Compil32.Wizard.WizardFileForm;
 
 type

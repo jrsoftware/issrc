@@ -12,7 +12,7 @@ unit Compil32.InputQueryComboForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, Shared.UIStateForm;
 
 type
   TInputQueryComboForm = class(TUIStateForm)

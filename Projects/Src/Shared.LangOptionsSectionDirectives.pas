@@ -1,4 +1,4 @@
-unit LangOptionsSectionDirectives;
+unit Shared.LangOptionsSectionDirectives;
 
 {
   Inno Setup

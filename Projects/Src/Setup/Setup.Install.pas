@@ -28,12 +28,12 @@ procedure SetDownloadCredentials(const User, Pass: String);
 implementation
 
 uses
-  Windows, SysUtils, Messages, Classes, Forms, ShlObj, Struct, Setup.UninstallLog, SetupTypes,
+  Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFnc2, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
-  Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, FileClass,
-  Compress, SHA1, PathFunc, CmnFunc, CmnFunc2, SetupLdrAndSetup.RedirFunc, Int64Em, MsgIDs,
-  Setup.WizardForm, DebugStruct, Setup.DebugClient, VerInfo, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
-  ResUpdate, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
+  Shared.Compress, SHA1, PathFunc, Shared.CmnFunc, Shared.CmnFunc2, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.MsgIDs,
+  Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfo, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
+  Shared.ResUpdate, Setup.DotNetFunc, Shared.TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
 
 type

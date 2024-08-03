@@ -1,4 +1,4 @@
-unit Compress;
+unit Shared.Compress;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit Compress;
 interface
 
 uses
-  Windows, SysUtils, Int64Em, FileClass;
+  Windows, SysUtils, Shared.Int64Em, Shared.FileClass;
 
 type
   ECompressError = class(Exception);

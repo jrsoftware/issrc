@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls;
+  Shared.UIStateForm, StdCtrls, ExtCtrls;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  Compil32.Messages, CmnFunc, CmnFunc2, Compil32.HelpFunc, Compil32.CompileForm, ComCtrls;
+  Compil32.Messages, Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Compil32.CompileForm, ComCtrls;
 
 {$R *.DFM}
 

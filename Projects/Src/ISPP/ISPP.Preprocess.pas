@@ -13,14 +13,14 @@ unit ISPP.Preprocess;
 interface
 
 uses
-  CompPreprocInt;
+  Shared.CompPreprocInt;
 
 function ISPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
 
 implementation
 
 uses
-  SysUtils, CmnFunc2, PathFunc,
+  SysUtils, Shared.CmnFunc2, PathFunc,
   ISPP.Base, ISPP.Preprocessor, ISPP.Sessions, ISPP.Intf,
   ISPP.IdentMan, ISPP.VarUtils, ISPP.Consts;
 

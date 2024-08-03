@@ -12,7 +12,8 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Int64Em, FileClass, Compress, Struct, ArcFour;
+  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Shared.Compress,
+  Shared.Struct, Shared.ArcFour;
 
 type
   TExtractorProgressProc = procedure(Bytes: Cardinal);
@@ -49,8 +50,8 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  PathFunc, CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, MsgIDs,
-  SetupLdrAndSetup.InstFunc, CompressZlib, bzlib,
+  PathFunc, Shared.CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, Shared.MsgIDs,
+  SetupLdrAndSetup.InstFunc, Shared.CompressZlib, Shared.bzlib,
   Setup.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var

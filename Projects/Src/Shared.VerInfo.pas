@@ -1,4 +1,4 @@
-unit VerInfo;
+unit Shared.VerInfo;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit VerInfo;
 interface
 
 uses
-  Windows, SysUtils, Int64Em;
+  Windows, SysUtils, Shared.Int64Em;
 
 type
   TFileVersionNumbers = record
@@ -29,7 +29,7 @@ function StrToVersionNumbers(const S: String;
 implementation
 
 uses
-  CmnFunc2, FileClass;
+  Shared.CmnFunc2, Shared.FileClass;
 
 function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;

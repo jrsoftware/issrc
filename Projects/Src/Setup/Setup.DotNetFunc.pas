@@ -1,4 +1,4 @@
-unit Setup.DotNetFunc;
+﻿unit Setup.DotNetFunc;
 
 {
   Inno Setup
@@ -29,7 +29,7 @@ unit Setup.DotNetFunc;
 interface
 
 uses
-  Ole2, SysUtils, Windows, CmnFunc2, DotNetVersion;
+  Ole2, SysUtils, Windows, Shared.CmnFunc2, Shared.DotNetVersion;
 
 type
   IAssemblyCache = class(Ole2.IUnknown)

@@ -19,7 +19,7 @@ procedure ScriptClassesLibraryRegister_C(Cl: TPSPascalCompiler);
 implementation
 
 uses
-  Windows, SetupTypes,
+  Windows, Shared.SetupTypes,
   uPSC_std, uPSC_classes, uPSC_graphics, uPSC_controls, uPSC_stdctrls,
   uPSC_forms, uPSC_extctrls, uPSC_comobj;
 

@@ -1,4 +1,4 @@
-unit DotNetVersion;
+unit Shared.DotNetVersion;
 
 {
   Inno Setup

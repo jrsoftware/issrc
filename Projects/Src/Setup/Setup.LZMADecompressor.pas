@@ -13,7 +13,7 @@ unit Setup.LZMADecompressor;
 interface
 
 uses
-  Windows, SysUtils, Int64Em, Compress;
+  Windows, SysUtils, Shared.Int64Em, Shared.Compress;
 
 type
   TLZMACustomDecompressor = class(TCustomDecompressor)
