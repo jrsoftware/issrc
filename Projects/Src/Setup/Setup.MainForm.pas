@@ -2907,7 +2907,7 @@ var
   StartParam: Integer;
   I, N: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
-  DebugWndValue: HWND;
+  DebugServerWnd: HWND;
   LogFilename: String;
   SetupFilename: String;
   SetupFile: TFile;
@@ -2949,7 +2949,7 @@ begin
   IsRespawnedProcess := False;
   EnableLogging := False;
   WantToSuppressMsgBoxes := False;
-  DebugWndValue := 0;
+  DebugServerWnd := 0;
   for I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
@@ -3025,7 +3025,7 @@ begin
       EnterSpawnServerDebugMode  { does not return }
     else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
       ParamIsAutomaticInternal := True; { sent by TCompileForm.StartProcess }
-      DebugWndValue := StrToInt(ParamValue);
+      DebugServerWnd := StrToInt(ParamValue);
     end else if CompareText(ParamName, '/ALLUSERS') = 0 then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
@@ -3122,9 +3122,9 @@ begin
         { Application.Handle is now known to be the main window. Set the shutdown block reason. }
         ShutdownBlockReasonCreate(Application.Handle, SetupMessages[msgWizardInstalling]);
 
-        { Initialize debug client }
-        if DebugWndValue <> 0 then
-          SetDebugWnd(DebugWndValue, False);
+        { Initialize debug client (client=Setup, server=debugger/IDE) }
+        if DebugServerWnd <> 0 then
+          SetDebugServerWnd(DebugServerWnd, False);
 
         { Initialize logging }
         if EnableLogging or (shSetupLogging in SetupHeader.Options) then begin

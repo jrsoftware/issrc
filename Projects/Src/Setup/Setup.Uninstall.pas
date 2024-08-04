@@ -46,7 +46,7 @@ var
   DidRespawn, SecondPhase: Boolean;
   EnableLogging, Silent, VerySilent, NoRestart: Boolean;
   LogFilename: String;
-  InitialProcessWnd, FirstPhaseWnd, DebugWnd: HWND;
+  InitialProcessWnd, FirstPhaseWnd, DebugServerWnd: HWND;
   OldWindowProc: Pointer;
 
 procedure ShowExceptionMsg;
@@ -286,7 +286,7 @@ begin
       WantToSuppressMsgBoxes := True
     else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
       ParamIsAutomaticInternal := True;
-      DebugWnd := StrToInt(ParamValue);
+      DebugServerWnd := StrToInt(ParamValue);
     end;
     if not ParamIsAutomaticInternal then
       NewParamsForCode.Add(NewParamStr(I));
@@ -490,8 +490,8 @@ begin
   AllowUninstallerShutdown := True;
 
   try
-    if DebugWnd <> 0 then
-      SetDebugWnd(DebugWnd, True);
+    if DebugServerWnd <> 0 then
+      SetDebugServerWnd(DebugServerWnd, True);
 
     if EnableLogging then begin
       try
@@ -547,7 +547,7 @@ begin
     if not UninstLog.ExtractLatestRecData(utCompiledCode,
          SetupBinVersion or Longint($80000000), CompiledCodeData) then
       InternalError('Cannot find utCompiledCode record for this version of the uninstaller');
-    if DebugWnd <> 0 then
+    if DebugServerWnd <> 0 then
       CompiledCodeText := DebugClientCompiledCodeText
     else
       CompiledCodeText := ExtractCompiledCodeText(CompiledCodeData[0]);
