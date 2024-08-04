@@ -1,4 +1,4 @@
-﻿unit Compil32.CompileForm;
+﻿unit IDE.CompileForm;
 
 {
   Inno Setup
@@ -11,12 +11,12 @@
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code into
-  this program and not depend on ISCmplr.dll. You will also need to add the
+  this program and not depend on Compiler.dll. You will also need to add the
   ..\Components and Src and Src\ISCmplr folders to the Delphi Compiler Search path
   in the project options. Also see Compile's STATICPREPROC. }
 
 {$IFDEF STATICCOMPILER}
-{$R ..\Res\ISCmplr.images.res}
+{$R ..\Res\Compiler.images.res}
 {$ENDIF}
 
 interface
@@ -24,8 +24,8 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, Shared.UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, Compil32.ScintStylerInnoSetup, NewTabSet, ModernColors, Compil32.CompScintEdit,
-  Shared.DebugStruct, Shared.CompInt, NewUxTheme, ImageList, ImgList, ToolWin, Compil32.HelpFunc,
+  ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.CompScintEdit,
+  Shared.DebugStruct, Shared.CompInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelpFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -651,11 +651,11 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   Math, StrUtils, WideStrUtils,
-  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Shared.FileClass, Compil32.Messages, TmSchema, Shared.BrowseFunc,
-  Compil32.HtmlHelpFunc, Shared.TaskbarProgressFunc,
+  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Shared.FileClass, IDE.Messages, TmSchema, Shared.BrowseFunc,
+  IDE.HtmlHelpFunc, Shared.TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
-  Compil32.OptionsForm, Compil32.StartupForm, Compil32.Wizard.WizardForm, Compil32.SignToolsForm, Shared.CompTypes, Compil32.InputQueryComboForm, Compil32.MsgBoxDesignerForm,
-  Compil32.FilesDesignerForm, Compil32.RegistryDesignerForm, Compil32.Wizard.WizardFormRegistryHelper;
+  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm, Shared.CompTypes, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
+  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$R *.DFM}
 

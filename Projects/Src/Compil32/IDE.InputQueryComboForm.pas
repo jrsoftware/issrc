@@ -1,4 +1,4 @@
-unit Compil32.InputQueryComboForm;
+unit IDE.InputQueryComboForm;
 
 {
   Inno Setup
@@ -37,7 +37,7 @@ function InputQueryCombo(const ACaption, APrompt: String; var AValue: String; co
 implementation
 
 uses
-  Windows, Messages, Compil32.HelpFunc, Forms;
+  Windows, Messages, IDE.HelpFunc, Forms;
 
 {$R *.DFM}
 

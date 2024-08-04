@@ -1,4 +1,4 @@
-unit Compil32.Wizard.WizardFormRegistryHelper;
+unit IDE.Wizard.WizardFormRegistryHelper;
 
 {
   Inno Setup
@@ -47,7 +47,7 @@ implementation
 uses
   Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls,
-  Compil32.CompileForm, Compil32.HelpFunc, Compil32.Messages, Shared.BrowseFunc, Shared.CmnFunc2, Compil32.HtmlHelpFunc;
+  IDE.CompileForm, IDE.HelpFunc, IDE.Messages, Shared.BrowseFunc, Shared.CmnFunc2, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 

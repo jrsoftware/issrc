@@ -41,7 +41,7 @@ type
 
   TEnumFROFilenamesProc = procedure(const Filename: String; Param: Pointer);
 
-  { Must keep this in synch with ISCmplr.ScriptFunc.pas: }
+  { Must keep this in synch with Compiler.ScriptFunc.pas: }
   TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);
 
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);

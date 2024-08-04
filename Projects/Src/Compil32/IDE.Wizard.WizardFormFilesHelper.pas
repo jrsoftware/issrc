@@ -1,4 +1,4 @@
-unit Compil32.Wizard.WizardFormFilesHelper;
+unit IDE.Wizard.WizardFormFilesHelper;
 
 {
   Inno Setup
@@ -49,7 +49,7 @@ implementation
 uses
   SysUtils, UITypes,
   Shared.CmnFunc, Shared.CmnFunc2, Shared.BrowseFunc, PathFunc,
-  Compil32.Messages, Compil32.Wizard.WizardFileForm;
+  IDE.Messages, IDE.Wizard.WizardFileForm;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;

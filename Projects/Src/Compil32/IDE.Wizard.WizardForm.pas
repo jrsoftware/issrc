@@ -1,4 +1,4 @@
-unit Compil32.Wizard.WizardForm;
+unit IDE.Wizard.WizardForm;
 
 {
   Inno Setup
@@ -14,7 +14,7 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   Shared.UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  Compil32.Wizard.WizardFormFilesHelper, Compil32.Wizard.WizardFormRegistryHelper;
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -187,8 +187,8 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
-  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Shared.BrowseFunc,
-  Compil32.Messages, Compil32.Wizard.WizardFileForm;
+  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, Shared.BrowseFunc,
+  IDE.Messages, IDE.Wizard.WizardFileForm;
 
 type
   TConstant = record

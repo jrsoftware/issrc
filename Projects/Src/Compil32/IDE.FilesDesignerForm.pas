@@ -1,4 +1,4 @@
-unit Compil32.FilesDesignerForm;
+unit IDE.FilesDesignerForm;
 
 {
   Inno Setup
@@ -13,7 +13,7 @@ interface
 
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
-  Shared.UIStateForm, NewStaticText, DropListBox, Compil32.Wizard.WizardFormFilesHelper;
+  Shared.UIStateForm, NewStaticText, DropListBox, IDE.Wizard.WizardFormFilesHelper;
 
 type
   TFilesDesignerForm = class(TUIStateForm)
@@ -45,7 +45,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Compil32.HelpFunc;
+  IDE.HelpFunc;
 
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin

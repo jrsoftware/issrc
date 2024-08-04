@@ -1,4 +1,4 @@
-unit Compil32.OptionsForm;
+unit IDE.OptionsForm;
 
 {
   Inno Setup
@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Compil32.FileAssocFunc;
+  Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, IDE.FileAssocFunc;
 
 {$R *.DFM}
 

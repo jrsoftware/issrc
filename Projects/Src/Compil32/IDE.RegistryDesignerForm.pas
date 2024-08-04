@@ -1,4 +1,4 @@
-unit Compil32.RegistryDesignerForm;
+unit IDE.RegistryDesignerForm;
 
 {
   Inno Setup
@@ -16,7 +16,7 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  Compil32.Wizard.WizardFormRegistryHelper, NewStaticText;
+  IDE.Wizard.WizardFormRegistryHelper, NewStaticText;
 
 type
   TRegistryDesignerForm = class(TForm)
@@ -52,7 +52,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Compil32.HelpFunc;
+  IDE.HelpFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);

@@ -1,4 +1,4 @@
-unit Compil32.SignToolsForm;
+unit IDE.SignToolsForm;
 
 {
   Inno Setup
@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Windows, Messages, Compil32.HelpFunc, Shared.CmnFunc, Dialogs, SysUtils;
+  Windows, Messages, IDE.HelpFunc, Shared.CmnFunc, Dialogs, SysUtils;
 
 {$R *.DFM}
 

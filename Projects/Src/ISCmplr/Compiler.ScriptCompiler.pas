@@ -1,4 +1,4 @@
-unit ISCmplr.ScriptCompiler;
+unit Compiler.ScriptCompiler;
 
 {
   Inno Setup
@@ -60,7 +60,7 @@ implementation
 uses
   SysUtils, Generics.Defaults,
   uPSCompiler, uPSC_dll,
-  ISCmplr.ScriptClasses, ISCmplr.ScriptFunc;
+  Compiler.ScriptClasses, Compiler.ScriptFunc;
 
 type
   TScriptExport = class

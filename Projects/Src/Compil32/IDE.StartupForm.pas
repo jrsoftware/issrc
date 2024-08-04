@@ -1,4 +1,4 @@
-unit Compil32.StartupForm;
+unit IDE.StartupForm;
 
 {
   Inno Setup
@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  Compil32.Messages, Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Compil32.CompileForm, ComCtrls;
+  IDE.Messages, Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, IDE.CompileForm, ComCtrls;
 
 {$R *.DFM}
 

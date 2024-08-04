@@ -77,47 +77,47 @@
         </DelphiCompile>
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.CompileForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.CompileForm.pas">
             <Form>CompileForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Shared.CmnFunc.pas"/>
         <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.HelpFunc.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.Messages.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.HelpFunc.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.Messages.pas"/>
         <DCCReference Include="Src\Shared.CompInt.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.OptionsForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.OptionsForm.pas">
             <Form>OptionsForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.StartupForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.StartupForm.pas">
             <Form>StartupForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.Wizard.WizardForm.pas">
             <Form>WizardForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFileForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.Wizard.WizardFileForm.pas">
             <Form>WizardFileForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.FileAssocFunc.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.FileAssocFunc.pas"/>
         <DCCReference Include="..\Components\TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="Src\Shared.BrowseFunc.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.SignToolsForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.SignToolsForm.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.InputQueryComboForm.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.InputQueryComboForm.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.ScintStylerInnoSetup.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.MsgBoxDesignerForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.MsgBoxDesignerForm.pas">
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.CompScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.FilesDesignerForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.CompScintEdit.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.FilesDesignerForm.pas">
             <Form>FilesDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFormFilesHelper.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.Wizard.WizardFormFilesHelper.pas"/>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
@@ -125,7 +125,7 @@
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="Src\Shared.TaskbarProgressFunc.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.HtmlHelpFunc.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.HtmlHelpFunc.pas"/>
         <DCCReference Include="Src\Shared.UIStateForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.MsgIDs.pas"/>
@@ -135,10 +135,10 @@
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>
         <DCCReference Include="Src\Shared.TaskDialog.pas"/>
-        <DCCReference Include="Src\Compil32\Compil32.RegistryDesignerForm.pas">
+        <DCCReference Include="Src\Compil32\IDE.RegistryDesignerForm.pas">
             <Form>RegistryDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\Compil32.Wizard.WizardFormRegistryHelper.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.Wizard.WizardFormRegistryHelper.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\IsscintInt.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>

@@ -809,7 +809,7 @@ begin
 end;
 
 type
-  { These must keep this in synch with ISCmplr.ScriptFunc.pas }
+  { These must keep this in synch with Compiler.ScriptFunc.pas }
   TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
 
   TExecOutput = record

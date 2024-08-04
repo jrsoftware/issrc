@@ -1,4 +1,4 @@
-unit Compil32.HtmlHelpFunc;
+unit IDE.HtmlHelpFunc;
 
 {
   Inno Setup

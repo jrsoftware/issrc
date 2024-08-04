@@ -1,4 +1,4 @@
-unit ISCmplr.Compile;
+unit Compiler.Compile;
 
 {
   Inno Setup
@@ -32,13 +32,13 @@ implementation
 uses
   Shared.CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
-  PathFunc, Shared.CmnFunc2, Shared.Struct, Shared.Int64Em, ISCmplr.Messages, Shared.SetupEnt,
-  Shared.FileClass, Shared.Compress, Shared.CompressZlib, Shared.bzlib, ISCmplr.LZMACompressor, Shared.ArcFour, SHA1,
-  Shared.MsgIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfo, Shared.ResUpdate, ISCmplr.ExeUpdate,
+  PathFunc, Shared.CmnFunc2, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEnt,
+  Shared.FileClass, Shared.Compress, Shared.CompressZlib, Shared.bzlib, Compiler.LZMACompressor, Shared.ArcFour, SHA1,
+  Shared.MsgIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfo, Shared.ResUpdate, Compiler.ExeUpdate,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
-  ISCmplr.ScriptCompiler, Shared.SimpleExpression, Shared.SetupTypes;
+  Compiler.ScriptCompiler, Shared.SimpleExpression, Shared.SetupTypes;
 
 type
   TParamInfo = record

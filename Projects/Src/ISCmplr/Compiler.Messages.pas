@@ -1,4 +1,4 @@
-unit ISCmplr.Messages;
+unit Compiler.Messages;
 
 {
   Inno Setup

@@ -1,4 +1,4 @@
-unit Compil32.Wizard.WizardFileForm;
+unit IDE.Wizard.WizardFileForm;
 
 {
   Inno Setup
@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  Compil32.Messages, Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc;
+  IDE.Messages, Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc;
 
 {$R *.DFM}
 

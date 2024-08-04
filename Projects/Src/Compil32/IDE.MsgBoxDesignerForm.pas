@@ -1,4 +1,4 @@
-unit Compil32.MsgBoxDesignerForm;
+unit IDE.MsgBoxDesignerForm;
 
 {
   Inno Setup
@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  Shared.CmnFunc, Shared.CmnFunc2, Compil32.HelpFunc, Shared.TaskDialog, Compil32.Messages;
+  Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, Shared.TaskDialog, IDE.Messages;
 
 {$R *.DFM}
 
