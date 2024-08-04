@@ -80,7 +80,8 @@
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="Src\Shared.CompTypes.pas"/>
+        <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
+        <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

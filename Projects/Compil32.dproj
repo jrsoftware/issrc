@@ -130,7 +130,8 @@
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
-        <DCCReference Include="Src\Shared.CompTypes.pas"/>
+        <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
+        <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>

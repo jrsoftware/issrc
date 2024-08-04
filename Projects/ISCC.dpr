@@ -24,7 +24,8 @@ uses
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
-  Shared.CompTypes in 'Src\Shared.CompTypes.pas',
+  Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
+  Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas';
 
 {$SETPEOSVERSION 6.1}

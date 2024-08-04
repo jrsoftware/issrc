@@ -87,7 +87,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
   Shared.CommonFunc, PathFunc, Shared.FileClass, NewUxTheme,
-  IDE.CompileForm, IDE.Messages, Shared.CompTypes;
+  IDE.CompileForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
 var
