@@ -18,7 +18,7 @@ uses
   IDE.CompileForm in 'Src\Compil32\IDE.CompileForm.pas' {CompileForm},
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
-  IDE.HelpFunc in 'Src\Compil32\IDE.HelpFunc.pas',
+  IDE.HelperFunc in 'Src\Compil32\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\Compil32\IDE.Messages.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   IDE.OptionsForm in 'Src\Compil32\IDE.OptionsForm.pas' {OptionsForm},

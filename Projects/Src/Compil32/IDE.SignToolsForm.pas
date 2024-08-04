@@ -46,7 +46,7 @@ type
 implementation
 
 uses
-  Windows, Messages, IDE.HelpFunc, Shared.CommonFunc.Vcl, Dialogs, SysUtils;
+  Windows, Messages, IDE.HelperFunc, Shared.CommonFunc.Vcl, Dialogs, SysUtils;
 
 {$R *.DFM}
 

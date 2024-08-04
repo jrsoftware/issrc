@@ -1,4 +1,4 @@
-unit IDE.HelpFunc;
+unit IDE.HelperFunc;
 
 {
   Inno Setup

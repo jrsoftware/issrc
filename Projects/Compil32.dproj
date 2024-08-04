@@ -82,7 +82,7 @@
         </DCCReference>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
-        <DCCReference Include="Src\Compil32\IDE.HelpFunc.pas"/>
+        <DCCReference Include="Src\Compil32\IDE.HelperFunc.pas"/>
         <DCCReference Include="Src\Compil32\IDE.Messages.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Compil32\IDE.OptionsForm.pas">

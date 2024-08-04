@@ -52,7 +52,7 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelpFunc;
+  IDE.HelperFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);

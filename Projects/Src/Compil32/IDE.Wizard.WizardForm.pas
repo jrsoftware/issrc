@@ -187,7 +187,7 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelpFunc, Shared.BrowseFunc,
+  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.BrowseFunc,
   IDE.Messages, IDE.Wizard.WizardFileForm;
 
 type

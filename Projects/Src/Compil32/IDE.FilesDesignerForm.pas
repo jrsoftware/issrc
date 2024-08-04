@@ -45,7 +45,7 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelpFunc;
+  IDE.HelperFunc;
 
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
