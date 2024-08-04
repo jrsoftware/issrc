@@ -16,7 +16,7 @@
   in the project options. Also see Compile's STATICPREPROC. }
 
 {$IFDEF STATICCOMPILER}
-{$R ..\Res\Compiler.images.res}
+{$R ..\Res\ISCmplr.images.res}
 {$ENDIF}
 
 interface
