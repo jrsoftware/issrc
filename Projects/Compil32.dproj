@@ -98,7 +98,7 @@
             <Form>WizardFileForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Compil32\IDE.FileAssocFunc.pas"/>
-        <DCCReference Include="..\Components\TmSchema.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="Src\Shared.BrowseFunc.pas"/>
@@ -141,7 +141,7 @@
         </DCCReference>
         <DCCReference Include="Src\Compil32\IDE.Wizard.WizardFormRegistryHelper.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="..\Components\IsscintInt.pas"/>
+        <DCCReference Include="..\Components\ScintInt.InnoSetup.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>

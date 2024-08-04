@@ -171,7 +171,7 @@ type
 implementation
 
 uses
-  SysUtils, MD5, IsscintInt;
+  SysUtils, MD5, ScintInt.InnoSetup;
   
 { TCompScintEdit }
 

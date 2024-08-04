@@ -46,7 +46,7 @@
 
 { Simplified by Martijn Laan for Inno Setup }
 
-unit TmSchema;
+unit NewUxTheme.TmSchema;
 
 interface
 

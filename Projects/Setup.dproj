@@ -151,7 +151,7 @@
         <DCCReference Include="..\Components\NewProgressBar.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\PasswordEdit.pas"/>
-        <DCCReference Include="..\Components\TmSchema.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.TmSchema.pas"/>
         <DCCReference Include="..\Components\RestartManager.pas"/>
         <DCCReference Include="..\Components\Resample.pas"/>
         <DCCReference Include="..\Components\ASMInline.pas"/>

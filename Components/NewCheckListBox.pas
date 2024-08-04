@@ -205,7 +205,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchema, PathFunc, ActiveX, BidiUtils, Types;
+  NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';

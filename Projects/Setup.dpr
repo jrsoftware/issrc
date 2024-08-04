@@ -78,7 +78,7 @@ uses
   NewProgressBar in '..\Components\NewProgressBar.pas',
   NewStaticText in '..\Components\NewStaticText.pas',
   PasswordEdit in '..\Components\PasswordEdit.pas',
-  TmSchema in '..\Components\TmSchema.pas',
+  NewUxTheme.TmSchema in '..\Components\NewUxTheme.TmSchema.pas',
   RestartManager in '..\Components\RestartManager.pas',
   Resample in '..\Components\Resample.pas',
   ASMInline in '..\Components\ASMInline.pas',

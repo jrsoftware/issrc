@@ -1,4 +1,4 @@
-unit IsscintInt;
+unit ScintInt.InnoSetup;
 
 {
   Inno Setup
