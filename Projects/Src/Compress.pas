@@ -6,7 +6,7 @@ unit Compress;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Abstract compression classes, and some generic compression-related functions
+  Abstract (de)compression classes, and some generic (de)compression-related functions
 }
 
 interface
