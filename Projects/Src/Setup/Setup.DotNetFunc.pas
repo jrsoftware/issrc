@@ -61,7 +61,7 @@ function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVer
 implementation
 
 uses
-  SetupLdrAndSetup.InstFunc, PathFunc;
+  Shared.InstFunc, PathFunc;
 
 var
   DotNetRoot: array [TRegView] of String;

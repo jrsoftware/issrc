@@ -74,7 +74,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  Shared.CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, BidiUtils;
+  Shared.CmnFunc2, Setup.MainForm, Shared.Messages, BidiUtils;
 
 var
   WM_QueryCancelAutoPlay: UINT;

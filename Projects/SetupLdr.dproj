@@ -71,21 +71,21 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\SetupLdrAndSetup.XPTheme.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Shared.XPTheme.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>
         <DCCReference Include="Src\SetupLdr\SetupLdr.LZMA1SmallDecompressor.pas"/>
         <DCCReference Include="Src\Shared.SetupEnt.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\SetupLdrAndSetup.Messages.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Shared.Messages.pas"/>
         <DCCReference Include="Src\Shared.MsgIDs.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\SetupLdrAndSetup.InstFunc.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Shared.InstFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\SetupLdrAndSetup.RedirFunc.pas"/>
+        <DCCReference Include="Src\SetupLdrAndSetup\Shared.RedirFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.VerInfo.pas"/>
         <BuildConfiguration Include="Base">

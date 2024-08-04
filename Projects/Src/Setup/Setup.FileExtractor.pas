@@ -50,8 +50,8 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  PathFunc, Shared.CmnFunc2, Setup.MainForm, SetupLdrAndSetup.Messages, Shared.MsgIDs,
-  SetupLdrAndSetup.InstFunc, Shared.CompressZlib, Shared.bzlib,
+  PathFunc, Shared.CmnFunc2, Setup.MainForm, Shared.Messages, Shared.MsgIDs,
+  Shared.InstFunc, Shared.CompressZlib, Shared.bzlib,
   Setup.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var

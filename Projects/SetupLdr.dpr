@@ -11,7 +11,7 @@ program SetupLdr;
 
 uses
   Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
-  SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.XPTheme.pas',
+  Shared.XPTheme in 'Src\SetupLdrAndSetup\Shared.XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
@@ -20,15 +20,15 @@ uses
   Shared.SetupEnt in 'Src\Shared.SetupEnt.pas',
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CmnFunc2 in 'Src\Shared.CmnFunc2.pas',
-  SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.Messages.pas',
+  Shared.Messages in 'Src\SetupLdrAndSetup\Shared.Messages.pas',
   Shared.MsgIDs in 'Src\Shared.MsgIDs.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
-  SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.InstFunc.pas',
+  Shared.InstFunc in 'Src\SetupLdrAndSetup\Shared.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA1 in '..\Components\SHA1.pas',
   MD5 in '..\Components\MD5.pas',
-  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup\SetupLdrAndSetup.RedirFunc.pas',
+  Shared.RedirFunc in 'Src\SetupLdrAndSetup\Shared.RedirFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.VerInfo in 'Src\Shared.VerInfo.pas';
 

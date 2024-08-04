@@ -1,4 +1,4 @@
-unit SetupLdrAndSetup.InstFunc;
+unit Shared.InstFunc;
 
 {
   Inno Setup
@@ -118,7 +118,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, SetupLdrAndSetup.Messages, Shared.MsgIDs, Shared.FileClass, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
+  Messages, ShellApi, PathFunc, Shared.Messages, Shared.MsgIDs, Shared.FileClass, Shared.RedirFunc, Shared.SetupTypes,
   Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);

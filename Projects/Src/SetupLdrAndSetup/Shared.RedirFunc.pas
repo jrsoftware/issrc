@@ -1,4 +1,4 @@
-unit SetupLdrAndSetup.RedirFunc;
+unit Shared.RedirFunc;
 
 {
   Inno Setup

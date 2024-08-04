@@ -155,8 +155,8 @@ implementation
 
 uses
   Messages, ShlObj, AnsiStrings,
-  PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.MsgIDs, SetupLdrAndSetup.InstFunc,
-  Setup.InstFnc2, SetupLdrAndSetup.RedirFunc, Shared.Compress,
+  PathFunc, Shared.Struct, Shared.Messages, Shared.MsgIDs, Shared.InstFunc,
+  Setup.InstFnc2, Shared.RedirFunc, Shared.Compress,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
 
 type

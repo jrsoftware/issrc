@@ -342,8 +342,8 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, SetupLdrAndSetup.Messages, Setup.MainForm, PathFunc, Shared.CmnFunc, Shared.CmnFunc2,
-  MD5, SetupLdrAndSetup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor, Setup.LoggingFunc, RestartManager, Setup.ScriptRunner;
+  ShellApi, ShlObj, Types, Shared.Messages, Setup.MainForm, PathFunc, Shared.CmnFunc, Shared.CmnFunc2,
+  MD5, Shared.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor, Setup.LoggingFunc, RestartManager, Setup.ScriptRunner;
 
 {$R *.DFM}
 
