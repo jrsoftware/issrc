@@ -56,6 +56,7 @@ type
     procedure Reset; virtual; abstract;
   end;
 
+  { TStoredCompressor is a compressor which doesn't actually compress }
   TStoredCompressor = class(TCustomCompressor)
   protected
     procedure DoCompress(const Buffer; Count: Longint); override;
