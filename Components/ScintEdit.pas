@@ -558,7 +558,7 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil, IsscintInt;
+  ShellAPI, RTLConsts, UITypes, GraphUtil;
 
 { TScintEdit }
 
