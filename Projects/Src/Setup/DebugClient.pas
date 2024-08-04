@@ -6,7 +6,7 @@ unit DebugClient;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Debug info stuff
+  Debug client functions (client=Setup, server=debugger/IDE)
 }
 
 interface
@@ -31,7 +31,7 @@ procedure DebugNotifyLogMessage(const Msg: String);
 procedure DebugNotifyTempDir(const Dir: String);
 procedure DebugNotifyUninstExe(UninstExe: String);
 procedure EndDebug;
-procedure SetDebugWnd(Wnd: HWND; WantCodeText: Boolean);
+procedure SetDebugServerWnd(Wnd: HWND; WantCodeText: Boolean);
 
 implementation
 
@@ -45,17 +45,17 @@ type
   end;
 
 var
-  DebugWnd: HWND;
+  DebugServerWnd: HWND;
   DebugClientWnd: HWND;
   DebugContinue: Boolean;
   DebugContinueStepOver: Boolean;
 
-procedure SetDebugWnd(Wnd: HWND; WantCodeText: Boolean);
+procedure SetDebugServerWnd(Wnd: HWND; WantCodeText: Boolean);
 var
   DebuggerVersion: Cardinal;
   I: Integer;
 begin
-  { First, verify that the debugger/compiler is the same version as Setup.
+  { First, verify that the debugger/IDE is the same version as Setup.
     A mismatch is possible when debugging an uninstaller if the uninstaller
     EXE was created by an installer built with a later version of IS. We can't
     continue in such a case because the debugger would send over updated
@@ -66,7 +66,7 @@ begin
       'not match Setup version ($%.8x)', [DebuggerVersion, SetupBinVersion]);
 
   Debugging := True;
-  DebugWnd := Wnd;
+  DebugServerWnd := Wnd;
   DebugClientWnd := AllocateHWnd(TDummyClass.DebugClientWndProc);
   if DebugClientWnd = 0 then
     InternalError('Failed to create DebugClientWnd');
@@ -76,15 +76,15 @@ begin
   for I := Low(DebugClientMessages) to High(DebugClientMessages) do
     AddToWindowMessageFilterEx(DebugClientWnd, DebugClientMessages[I]);
 
-  SendMessage(DebugWnd, WM_Debugger_Hello, WPARAM(DebugClientWnd), LPARAM(WantCodeText));
+  SendMessage(DebugServerWnd, WM_Debugger_Hello, WPARAM(DebugClientWnd), LPARAM(WantCodeText));
 end;
 
 procedure EndDebug;
 begin
   Debugging := False;
-  if DebugWnd <> 0 then begin
-    SendMessage(DebugWnd, WM_Debugger_Goodbye, 0, 0);
-    DebugWnd := 0;
+  if DebugServerWnd <> 0 then begin
+    SendMessage(DebugServerWnd, WM_Debugger_Goodbye, 0, 0);
+    DebugServerWnd := 0;
   end;
   if DebugClientWnd <> 0 then begin
     DeallocateHWnd(DebugClientWnd);
@@ -111,15 +111,15 @@ begin
 
   DebugContinue := False;
 
-  if SendMessage(DebugWnd, DebuggerMsg, Ord(Kind), Index) = 0 then begin
+  if SendMessage(DebugServerWnd, DebuggerMsg, Ord(Kind), Index) = 0 then begin
     { Don't pause }
     Exit;
   end;
 
   if Assigned(GetCallStack) then begin
     CallStack := GetCallStack(CallStackCount);
-    SendMessage(DebugWnd, WM_Debugger_CallStackCount, CallStackCount, 0);
-    SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_CallStackW, CallStack);
+    SendMessage(DebugServerWnd, WM_Debugger_CallStackCount, CallStackCount, 0);
+    SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_CallStackW, CallStack);
   end;
 
   Result := True;
@@ -154,7 +154,7 @@ begin
       { First ask the debugger to call SetForegroundWindow() on our window. If
         we don't do this then Windows (98/2000+) will prevent our window from
         becoming activated if the debugger is currently in the foreground. }
-      SendMessage(DebugWnd, WM_Debugger_SetForegroundWindow, WPARAM(TopWindow), 0);
+      SendMessage(DebugServerWnd, WM_Debugger_SetForegroundWindow, WPARAM(TopWindow), 0);
       { Now call SetForegroundWindow() ourself. Why? When a remote thread
         calls SetForegroundWindow(), the request is queued; the window doesn't
         actually become active until the next time the window's thread checks
@@ -184,24 +184,24 @@ procedure DebugNotifyException(Exception: String; Kind: TDebugEntryKind; Index: 
 var
   B: Boolean;
 begin
-  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_ExceptionW,
+  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_ExceptionW,
     Exception);
   InternalDebugNotify(WM_Debugger_Exception, Kind, Index, B);
 end;
 
 procedure DebugNotifyTempDir(const Dir: String);
 begin
-  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_TempDirW, Dir);
+  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_TempDirW, Dir);
 end;
 
 procedure DebugNotifyUninstExe(UninstExe: String);
 begin
-  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_UninstExeW, UninstExe);
+  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_UninstExeW, UninstExe);
 end;
 
 procedure DebugNotifyLogMessage(const Msg: String);
 begin
-  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_LogMessageW, Msg);
+  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_LogMessageW, Msg);
 end;
 
 class procedure TDummyClass.DebugClientWndProc(var Message: TMessage);
@@ -213,7 +213,7 @@ begin
     case Message.Msg of
       WM_DebugClient_Detach: begin
           Debugging := False;
-          DebugWnd := 0;
+          DebugServerWnd := 0;
           { If it's paused, force it to continue }
           DebugContinue := True;
           DebugContinueStepOver := False;
@@ -247,7 +247,7 @@ begin
                     EvaluateResult := GetExceptMessage;
                     Message.Result := 2;
                   end;
-                  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_ReplyW,
+                  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_ReplyW,
                     EvaluateResult);
                 except
                   { don't propagate exceptions }
@@ -266,7 +266,7 @@ begin
                     EvaluateResult := GetExceptMessage;
                     Message.Result := 2;
                   end;
-                  SendCopyDataMessageStr(DebugWnd, DebugClientWnd, CD_Debugger_ReplyW,
+                  SendCopyDataMessageStr(DebugServerWnd, DebugClientWnd, CD_Debugger_ReplyW,
                     EvaluateResult);
                 except
                   { don't propagate exceptions }
