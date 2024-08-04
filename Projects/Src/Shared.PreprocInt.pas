@@ -1,4 +1,4 @@
-unit Shared.CompPreprocInt;
+unit Shared.PreprocInt;
 
 {
   Inno Setup

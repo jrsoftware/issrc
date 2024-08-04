@@ -1,4 +1,4 @@
-unit Shared.VerInfo;
+unit Shared.VerInfoFunc;
 
 {
   Inno Setup
@@ -29,7 +29,7 @@ function StrToVersionNumbers(const S: String;
 implementation
 
 uses
-  Shared.CmnFunc2, Shared.FileClass;
+  Shared.CommonFunc, Shared.FileClass;
 
 function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;

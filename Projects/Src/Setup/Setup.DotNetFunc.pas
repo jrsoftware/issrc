@@ -29,7 +29,7 @@
 interface
 
 uses
-  Ole2, SysUtils, Windows, Shared.CmnFunc2, Shared.DotNetVersion;
+  Ole2, SysUtils, Windows, Shared.CommonFunc, Shared.DotNetVersion;
 
 type
   IAssemblyCache = class(Ole2.IUnknown)

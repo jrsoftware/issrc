@@ -117,7 +117,7 @@ const
 implementation
 
 uses
-  ISPP.Consts, Shared.CmnFunc2;
+  ISPP.Consts, Shared.CommonFunc;
 
 { TCTokenizer }
 

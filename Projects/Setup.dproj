@@ -76,21 +76,21 @@
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.XPTheme.pas"/>
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.MainForm.pas">
             <Form>MainForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Setup\Setup.Install.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.Messages.pas"/>
-        <DCCReference Include="Src\Shared.MsgIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Setup\Setup.UninstallLog.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="Src\Setup\Setup.NewDiskForm.pas">
             <Form>NewDiskForm</Form>
         </DCCReference>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.InstFunc.pas"/>
-        <DCCReference Include="Src\Setup\Setup.InstFnc2.pas"/>
+        <DCCReference Include="Src\Setup\Setup.InstFunc.Ole.pas"/>
         <DCCReference Include="Src\Setup\Setup.WizardForm.pas">
             <Form>WizardForm</Form>
         </DCCReference>
@@ -109,8 +109,8 @@
             <Form>SelectFolderForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\Shared.CompressZlib.pas"/>
-        <DCCReference Include="Src\Shared.bzlib.pas"/>
+        <DCCReference Include="Src\Shared.Compress.Zlib.pas"/>
+        <DCCReference Include="Src\Shared.Compress.bzlib.pas"/>
         <DCCReference Include="Src\Setup\Setup.LZMADecompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
@@ -134,13 +134,13 @@
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.RedirFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.SecurityFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.Helper.pas"/>
-        <DCCReference Include="Src\Shared.VerInfo.pas"/>
+        <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.RegDLL.pas"/>
-        <DCCReference Include="Src\Shared.ResUpdate.pas"/>
+        <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.SpawnCommon.pas"/>
         <DCCReference Include="Src\Setup\Setup.SpawnServer.pas"/>
         <DCCReference Include="Src\Setup\Setup.SpawnClient.pas"/>
-        <DCCReference Include="Src\Shared.TaskDialog.pas"/>
+        <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="..\Components\BidiCtrls.pas"/>
@@ -157,7 +157,7 @@
         <DCCReference Include="..\Components\ASMInline.pas"/>
         <DCCReference Include="Src\Shared.TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.DotNetFunc.pas"/>
-        <DCCReference Include="Src\Shared.SetupEnt.pas"/>
+        <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="Src\Setup\Setup.MsiFunc.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>

@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, Shared.UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.CompScintEdit,
-  Shared.DebugStruct, Shared.CompInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelpFunc,
+  Shared.DebugStruct, Shared.CompilerInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelpFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
 const
@@ -651,7 +651,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   Math, StrUtils, WideStrUtils,
-  PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Shared.FileClass, IDE.Messages, TmSchema, Shared.BrowseFunc,
+  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, TmSchema, Shared.BrowseFunc,
   IDE.HtmlHelpFunc, Shared.TaskbarProgressFunc,
   {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm, Shared.CompTypes, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,

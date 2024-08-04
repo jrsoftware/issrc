@@ -108,7 +108,7 @@ type
 implementation
 
 uses
-  Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, Shared.TaskDialog, IDE.Messages;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelpFunc, Shared.TaskDialogFunc, IDE.Messages;
 
 {$R *.DFM}
 

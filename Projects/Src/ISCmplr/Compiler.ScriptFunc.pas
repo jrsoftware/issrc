@@ -21,7 +21,7 @@ implementation
 
 uses
   Windows, SysUtils, TypInfo,
-  Shared.CmnFunc2, Shared.MsgIDs, Shared.Struct,
+  Shared.CommonFunc, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.ScriptFunc, Compiler.Messages, Shared.DotNetVersion;
 
 { This type copied from CmnFunc.pas. We don't actually 'use' CmnFunc since

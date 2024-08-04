@@ -1,4 +1,4 @@
-unit Setup.InstFnc2;
+unit Setup.InstFunc.Ole;
 
 {
   Inno Setup
@@ -23,8 +23,8 @@ function UnpinShellLink(const Filename: String): Boolean;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, Shared.CmnFunc2, Shared.InstFunc, Setup.MainForm,
-  Shared.Messages, Shared.MsgIDs,
+  Windows, SysUtils, PathFunc, Shared.CommonFunc, Shared.InstFunc, Setup.MainForm,
+  Shared.Messages, Shared.SetupMessageIDs,
   ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);

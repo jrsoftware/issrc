@@ -12,7 +12,7 @@ unit Setup.UninstallLog;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Shared.CmnFunc2;
+  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Shared.CommonFunc;
 
 const
   HighestSupportedVersion = 1048;
@@ -155,8 +155,8 @@ implementation
 
 uses
   Messages, ShlObj, AnsiStrings,
-  PathFunc, Shared.Struct, Shared.Messages, Shared.MsgIDs, Shared.InstFunc,
-  Setup.InstFnc2, Shared.RedirFunc, Shared.Compress,
+  PathFunc, Shared.Struct, Shared.Messages, Shared.SetupMessageIDs, Shared.InstFunc,
+  Setup.InstFunc.Ole, Shared.RedirFunc, Shared.Compress,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
 
 type

@@ -16,8 +16,8 @@ procedure RunRegSvr;
 implementation
 
 uses
-  Windows, SysUtils, Classes, Forms, PathFunc, Shared.CmnFunc2, Shared.InstFunc, Setup.InstFnc2,
-  Shared.FileClass, Shared.CmnFunc, Shared.Struct, Setup.MainForm, Shared.Messages, Shared.MsgIDs, Setup.RegDLL, Setup.Helper;
+  Windows, SysUtils, Classes, Forms, PathFunc, Shared.CommonFunc, Shared.InstFunc, Setup.InstFunc.Ole,
+  Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainForm, Shared.Messages, Shared.SetupMessageIDs, Setup.RegDLL, Setup.Helper;
 
 procedure DeleteOldTempFiles(const Path: String);
 { Removes any old isRS-???.tmp files from Path. Not strictly necessary, but

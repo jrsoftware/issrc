@@ -21,10 +21,10 @@ implementation
 uses
   Windows, Shared.ScriptFunc,
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
-  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CmnFunc,
-  Shared.CmnFunc2, Shared.FileClass, Shared.RedirFunc,
-  Setup.Install, Shared.InstFunc, Setup.InstFnc2, Shared.Messages,
-  Shared.MsgIDs, Setup.NewDiskForm, Shared.BrowseFunc, Setup.WizardForm, Shared.VerInfo,
+  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, Shared.FileClass, Shared.RedirFunc,
+  Setup.Install, Shared.InstFunc, Setup.InstFunc.Ole, Shared.Messages,
+  Shared.SetupMessageIDs, Setup.NewDiskForm, Shared.BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
   Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,
   Shared.DotNetVersion, Setup.MsiFunc, BitmapImage;

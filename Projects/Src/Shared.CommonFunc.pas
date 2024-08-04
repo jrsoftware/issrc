@@ -1,4 +1,4 @@
-unit Shared.CmnFunc2;
+unit Shared.CommonFunc;
 
 {
   Inno Setup

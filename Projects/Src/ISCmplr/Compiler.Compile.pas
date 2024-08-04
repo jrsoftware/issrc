@@ -18,7 +18,7 @@ unit Compiler.Compile;
 interface
 
 uses
-  Windows, SysUtils, Shared.CompInt;
+  Windows, SysUtils, Shared.CompilerInt;
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
@@ -30,11 +30,11 @@ type
 implementation
 
 uses
-  Shared.CompPreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
+  Shared.PreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
-  PathFunc, Shared.CmnFunc2, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEnt,
-  Shared.FileClass, Shared.Compress, Shared.CompressZlib, Shared.bzlib, Compiler.LZMACompressor, Shared.ArcFour, SHA1,
-  Shared.MsgIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfo, Shared.ResUpdate, Compiler.ExeUpdate,
+  PathFunc, Shared.CommonFunc, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEntFunc,
+  Shared.FileClass, Shared.Compress, Shared.Compress.Zlib, Shared.Compress.bzlib, Compiler.LZMACompressor, Shared.ArcFour, SHA1,
+  Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfoFunc, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}

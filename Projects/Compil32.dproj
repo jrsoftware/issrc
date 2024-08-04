@@ -80,11 +80,11 @@
         <DCCReference Include="Src\Compil32\IDE.CompileForm.pas">
             <Form>CompileForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Shared.CmnFunc.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Compil32\IDE.HelpFunc.pas"/>
         <DCCReference Include="Src\Compil32\IDE.Messages.pas"/>
-        <DCCReference Include="Src\Shared.CompInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Compil32\IDE.OptionsForm.pas">
             <Form>OptionsForm</Form>
         </DCCReference>
@@ -128,13 +128,13 @@
         <DCCReference Include="Src\Compil32\IDE.HtmlHelpFunc.pas"/>
         <DCCReference Include="Src\Shared.UIStateForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
-        <DCCReference Include="Src\Shared.MsgIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.CompTypes.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\Shared.TaskDialog.pas"/>
+        <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
         <DCCReference Include="Src\Compil32\IDE.RegistryDesignerForm.pas">
             <Form>RegistryDesignerForm</Form>
         </DCCReference>

@@ -29,11 +29,11 @@ implementation
 
 uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
-  Shared.InstFunc, Setup.InstFnc2, Setup.SecurityFunc, Shared.Messages,
+  Shared.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, Shared.Messages,
   Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Shared.Compress, SHA1, PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Shared.RedirFunc, Shared.Int64Em, Shared.MsgIDs,
-  Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfo, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
-  Shared.ResUpdate, Setup.DotNetFunc, Shared.TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Shared.Compress, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
+  Shared.ResUpdateFunc, Setup.DotNetFunc, Shared.TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
 
 type

@@ -77,8 +77,8 @@
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
         <DCCReference Include="Src\ISCmplr\ISCmplr.Compile.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
-        <DCCReference Include="Src\Shared.CompInt.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.CompTypes.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>

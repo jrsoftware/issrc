@@ -12,7 +12,7 @@ unit Shared.InstFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.Struct, Shared.Int64Em, MD5, SHA1, Shared.CmnFunc2;
+  Windows, SysUtils, Shared.Struct, Shared.Int64Em, MD5, SHA1, Shared.CommonFunc;
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
@@ -118,7 +118,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Shared.Messages, Shared.MsgIDs, Shared.FileClass, Shared.RedirFunc, Shared.SetupTypes,
+  Messages, ShellApi, PathFunc, Shared.Messages, Shared.SetupMessageIDs, Shared.FileClass, Shared.RedirFunc, Shared.SetupTypes,
   Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);

@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc;
+  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelpFunc;
 
 {$R *.DFM}
 

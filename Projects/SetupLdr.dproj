@@ -74,11 +74,11 @@
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.XPTheme.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>
         <DCCReference Include="Src\SetupLdr\SetupLdr.LZMA1SmallDecompressor.pas"/>
-        <DCCReference Include="Src\Shared.SetupEnt.pas"/>
+        <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.Messages.pas"/>
-        <DCCReference Include="Src\Shared.MsgIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.InstFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
@@ -87,7 +87,7 @@
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup\Shared.RedirFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
-        <DCCReference Include="Src\Shared.VerInfo.pas"/>
+        <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

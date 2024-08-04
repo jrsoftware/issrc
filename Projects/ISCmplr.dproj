@@ -78,8 +78,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
-        <DCCReference Include="Src\Shared.CompInt.pas"/>
-        <DCCReference Include="Src\Shared.CompPreprocInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\ISCmplr\Compiler.Compile.pas"/>
         <DCCReference Include="Src\ISCmplr\Compiler.Messages.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
@@ -87,23 +87,23 @@
         <DCCReference Include="Src\ISCmplr\Compiler.ScriptFunc.pas"/>
         <DCCReference Include="Src\ISCmplr\Compiler.ScriptCompiler.pas"/>
         <DCCReference Include="Src\ISCmplr\Compiler.ScriptClasses.pas"/>
-        <DCCReference Include="Src\Shared.ResUpdate.pas"/>
-        <DCCReference Include="Src\ISCmplr\Compiler.ExeUpdate.pas"/>
+        <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
+        <DCCReference Include="Src\ISCmplr\Compiler.ExeUpdateFunc.pas"/>
         <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\Shared.CompressZlib.pas"/>
-        <DCCReference Include="Src\Shared.bzlib.pas"/>
+        <DCCReference Include="Src\Shared.Compress.Zlib.pas"/>
+        <DCCReference Include="Src\Shared.Compress.bzlib.pas"/>
         <DCCReference Include="Src\ISCmplr\Compiler.LZMACompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.ArcFour.pas"/>
-        <DCCReference Include="Src\Shared.VerInfo.pas"/>
+        <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Shared.CmnFunc2.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
-        <DCCReference Include="Src\Shared.MsgIDs.pas"/>
-        <DCCReference Include="Src\Shared.SetupEnt.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.SimpleExpression.pas"/>

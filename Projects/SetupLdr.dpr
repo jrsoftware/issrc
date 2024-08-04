@@ -17,11 +17,11 @@ uses
   SysUtils,
   Shared.Compress in 'Src\Shared.Compress.pas',
   SetupLdr.LZMA1SmallDecompressor in 'Src\SetupLdr\SetupLdr.LZMA1SmallDecompressor.pas',
-  Shared.SetupEnt in 'Src\Shared.SetupEnt.pas',
+  Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  Shared.CmnFunc2 in 'Src\Shared.CmnFunc2.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.Messages in 'Src\SetupLdrAndSetup\Shared.Messages.pas',
-  Shared.MsgIDs in 'Src\Shared.MsgIDs.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
   Shared.InstFunc in 'Src\SetupLdrAndSetup\Shared.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
@@ -30,7 +30,7 @@ uses
   MD5 in '..\Components\MD5.pas',
   Shared.RedirFunc in 'Src\SetupLdrAndSetup\Shared.RedirFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
-  Shared.VerInfo in 'Src\Shared.VerInfo.pas';
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

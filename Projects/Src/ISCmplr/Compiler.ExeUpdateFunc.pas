@@ -1,4 +1,4 @@
-unit Compiler.ExeUpdate;
+unit Compiler.ExeUpdateFunc;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit Compiler.ExeUpdate;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Shared.VerInfo;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
@@ -27,7 +27,7 @@ procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 implementation
 
 uses
-  Shared.ResUpdate, Math, Shared.Int64Em;
+  Shared.ResUpdateFunc, Math, Shared.Int64Em;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);

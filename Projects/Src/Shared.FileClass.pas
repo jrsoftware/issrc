@@ -148,7 +148,7 @@ implementation
 
 uses
   WideStrUtils,
-  Shared.CmnFunc2;
+  Shared.CommonFunc;
 
 const
   SGenericIOError = 'File I/O error %d';

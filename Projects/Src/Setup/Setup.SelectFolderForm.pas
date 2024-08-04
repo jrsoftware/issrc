@@ -42,8 +42,8 @@ function ShowSelectFolderDialog(const StartMenu, AppendDir: Boolean;
 implementation
 
 uses
-  PathFunc, Shared.Messages, Shared.MsgIDs, Setup.MainForm,
-  Shared.SetupTypes, Setup.WizardForm, Shared.CmnFunc2;
+  PathFunc, Shared.Messages, Shared.SetupMessageIDs, Setup.MainForm,
+  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc;
 
 {$R *.DFM}
 

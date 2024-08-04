@@ -1,4 +1,4 @@
-unit Shared.CmnFunc;
+unit Shared.CommonFunc.Vcl;
 
 {
   Inno Setup
@@ -58,7 +58,7 @@ procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boole
 implementation
 
 uses
-  Consts, PathFunc, Shared.CmnFunc2;
+  Consts, PathFunc, Shared.CommonFunc;
 
 var
   MessageBoxCaptions: array[TMsgBoxType] of PChar;

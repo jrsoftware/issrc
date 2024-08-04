@@ -66,7 +66,7 @@ implementation
 
 uses
   Shared.TaskbarProgressFunc, Setup.MainForm, Shared.Messages,
-  Shared.MsgIDs, Shared.CmnFunc;
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
 

@@ -1,4 +1,4 @@
-unit Shared.TaskDialog;
+unit Shared.TaskDialogFunc;
 
 {
   Inno Setup
@@ -12,7 +12,7 @@ unit Shared.TaskDialog;
 interface
 
 uses
-  Windows, Shared.CmnFunc;
+  Windows, Shared.CommonFunc.Vcl;
 
 function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 
@@ -20,7 +20,7 @@ implementation
 
 uses
   Classes, StrUtils, Math, Forms, Dialogs, SysUtils,
-  Commctrl, Shared.CmnFunc2, {$IFDEF SETUPPROJ} Shared.InstFunc, {$ENDIF} PathFunc;
+  Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} Shared.InstFunc, {$ENDIF} PathFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;

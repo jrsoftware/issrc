@@ -15,7 +15,7 @@ unit Shared.RedirFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Shared.VerInfo;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
 type
   TPreviousFsRedirectionState = record
@@ -102,7 +102,7 @@ type
 implementation
 
 uses
-  Shared.CmnFunc2, PathFunc;
+  Shared.CommonFunc, PathFunc;
 
 var
   Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;

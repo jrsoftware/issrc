@@ -1,4 +1,4 @@
-unit Shared.bzlib;
+unit Shared.Compress.bzlib;
 
 {
   Inno Setup

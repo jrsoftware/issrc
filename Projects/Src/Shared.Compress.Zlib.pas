@@ -1,4 +1,4 @@
-unit Shared.CompressZlib;
+unit Shared.Compress.Zlib;
 
 {
   Inno Setup

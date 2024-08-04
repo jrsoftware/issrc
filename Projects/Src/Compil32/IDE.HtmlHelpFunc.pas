@@ -42,7 +42,7 @@ procedure FreeHtmlHelpLibrary;
 implementation
 
 uses
-  Messages, SysUtils, Shared.CmnFunc2, PathFunc;
+  Messages, SysUtils, Shared.CommonFunc, PathFunc;
 
 var
   HHCtrl: THandle;

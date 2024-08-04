@@ -1,4 +1,4 @@
-unit Shared.ResUpdate;
+unit Shared.ResUpdateFunc;
 
 {
   Inno Setup

@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, IDE.FileAssocFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelpFunc, IDE.FileAssocFunc;
 
 {$R *.DFM}
 

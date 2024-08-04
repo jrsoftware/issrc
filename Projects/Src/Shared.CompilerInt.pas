@@ -1,4 +1,4 @@
-unit Shared.CompInt;
+unit Shared.CompilerInt;
 
 {
   Inno Setup

@@ -155,8 +155,8 @@ implementation
 
 uses
   Generics.Defaults,
-  Shared.MsgIDs, ScintInt, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
-  Shared.CmnFunc, Shared.SetupTypes, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
+  Shared.SetupMessageIDs, ScintInt, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
+  Shared.CommonFunc.Vcl, Shared.SetupTypes, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
 
 type
   { Size must be <= SizeOf(TScintLineState) }

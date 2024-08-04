@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CmnFunc, Shared.CmnFunc2, IDE.HelpFunc, IDE.CompileForm, ComCtrls;
+  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelpFunc, IDE.CompileForm, ComCtrls;
 
 {$R *.DFM}
 

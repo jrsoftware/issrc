@@ -62,7 +62,7 @@ procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback
 implementation
 
 uses
-  Shared.CmnFunc2;
+  Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if

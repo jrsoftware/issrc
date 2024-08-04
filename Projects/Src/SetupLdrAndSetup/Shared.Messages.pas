@@ -16,7 +16,7 @@ unit Shared.Messages;
 interface
 
 uses
-  Shared.MsgIDs, Shared.Struct;
+  Shared.SetupMessageIDs, Shared.Struct;
 
 const
   SNewLine = #13#10;  { line break }
@@ -51,7 +51,7 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Shared.Compress, Shared.CmnFunc2, Shared.FileClass;
+  Windows, SysUtils, Shared.Compress, Shared.CommonFunc, Shared.FileClass;
 
 const
   SMsgsFileTooLarge = 'Internal error: Messages file is too large';

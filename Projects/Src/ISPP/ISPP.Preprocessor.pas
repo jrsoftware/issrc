@@ -13,7 +13,7 @@ unit ISPP.Preprocessor;
 interface
 
 uses
-  Windows, SysUtils, Classes, Shared.CompPreprocInt, IniFiles, Registry, ISPP.Intf,
+  Windows, SysUtils, Classes, Shared.PreprocInt, IniFiles, Registry, ISPP.Intf,
   ISPP.Base, ISPP.Stack, ISPP.IdentMan, ISPP.Parser;
 
 type
@@ -154,7 +154,7 @@ implementation
 
 uses
   ISPP.Consts, ISPP.Funcs, ISPP.VarUtils, ISPP.Sessions, ISPP.CTokenizer, PathFunc,
-  Shared.CmnFunc2, Shared.FileClass, Shared.Struct;
+  Shared.CommonFunc, Shared.FileClass, Shared.Struct;
 
 const
   PreprocCommands: array[TPreprocessorCommand] of String =

@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CmnFunc, Shared.CmnFunc2,
+  Setup.SetupForm, StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   Shared.SetupTypes, Setup.ScriptRunner, BidiUtils, RestartManager;
 
 type
@@ -267,11 +267,11 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils,
-  Shared.Messages, Shared.MsgIDs, Setup.Install, Shared.InstFunc, Setup.InstFnc2, Shared.RedirFunc, PathFunc,
-  Shared.Compress, Shared.CompressZlib, Shared.bzlib, Setup.LZMADecompressor, Shared.ArcFour, Shared.SetupEnt, Setup.SelectLanguageForm,
-  Setup.WizardForm, Setup.DebugClient, Shared.VerInfo, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
+  Shared.Messages, Shared.SetupMessageIDs, Setup.Install, Shared.InstFunc, Setup.InstFunc.Ole, Shared.RedirFunc, PathFunc,
+  Shared.Compress, Shared.Compress.Zlib, Shared.Compress.bzlib, Setup.LZMADecompressor, Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
+  Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
   Shared.SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
-  Shared.TaskDialog, RegStr;
+  Shared.TaskDialogFunc, RegStr;
 
 {$R *.DFM}
 

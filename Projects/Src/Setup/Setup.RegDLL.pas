@@ -20,7 +20,7 @@ procedure RegisterServer(const AUnregister: Boolean; const AIs64Bit: Boolean;
 implementation
 
 uses
-  SysUtils, Forms, PathFunc, Shared.CmnFunc, Shared.CmnFunc2, Shared.InstFunc, Shared.Messages, Shared.MsgIDs,
+  SysUtils, Forms, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.InstFunc, Shared.Messages, Shared.SetupMessageIDs,
   Setup.LoggingFunc, Shared.RedirFunc, Setup.MainForm;
 
 function WaitForAndCloseProcessHandle(var AProcessHandle: THandle): DWORD;

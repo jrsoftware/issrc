@@ -21,7 +21,7 @@ implementation
 
 uses
   SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
-  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, PathFunc, Shared.CmnFunc2,
+  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, PathFunc, Shared.CommonFunc,
   Shared.Int64Em;
   
 var
@@ -136,7 +136,7 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeBool(ResPtr^, Shared.CmnFunc2.DirExists(PrependPath(Ext, Get(0).AsStr)));
+      MakeBool(ResPtr^, Shared.CommonFunc.DirExists(PrependPath(Ext, Get(0).AsStr)));
   except
     on E: Exception do
     begin

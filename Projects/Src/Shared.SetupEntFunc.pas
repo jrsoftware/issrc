@@ -1,4 +1,4 @@
-unit Shared.SetupEnt;
+unit Shared.SetupEntFunc;
 
 {
   Inno Setup

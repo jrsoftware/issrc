@@ -15,7 +15,7 @@ unit Setup.SpawnClient;
 interface
 
 uses
-  Windows, SysUtils, Messages, Shared.InstFunc, Shared.CmnFunc2;
+  Windows, SysUtils, Messages, Shared.InstFunc, Shared.CommonFunc;
 
 procedure InitializeSpawnClient(const AServerWnd: HWND);
 function InstExecEx(const RunAsOriginalUser: Boolean;
