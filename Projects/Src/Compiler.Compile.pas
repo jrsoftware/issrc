@@ -11,9 +11,9 @@ unit Compiler.Compile;
 
 {x$DEFINE STATICPREPROC}
 { For debugging purposes, remove the 'x' to have it link the ISPP code into this
-  program and not depend on ISPP.dll. You will also need to add the Src\ISPP
+  program and not depend on ISPP.dll. You will also need to add the Src
   folder to the Delphi Compiler Search path in the project options. Most useful
-  when combine with CompForm's STATICCOMPILER. }
+  when combine with IDE.CompileForm's STATICCOMPILER. }
 
 interface
 
