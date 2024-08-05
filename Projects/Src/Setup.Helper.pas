@@ -31,8 +31,8 @@ implementation
 {x$DEFINE HELPERDEBUG}
 
 uses
-  Forms, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainForm, Shared.InstFunc,
-  Setup.LoggingFunc, Shared.Messages, Shared.SetupMessageIDs;
+  Forms, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainForm, Setup.InstFunc,
+  Setup.LoggingFunc, Setup.Messages, Shared.SetupMessageIDs;
 
 const
   HELPER_VERSION = 105;

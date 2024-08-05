@@ -267,7 +267,7 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils,
-  Shared.Messages, Shared.SetupMessageIDs, Setup.Install, Shared.InstFunc, Setup.InstFunc.Ole, Shared.RedirFunc, PathFunc,
+  Setup.Messages, Shared.SetupMessageIDs, Setup.Install, Setup.InstFunc, Setup.InstFunc.Ole, Setup.RedirFunc, PathFunc,
   Shared.Compress, Shared.Compress.Zlib, Shared.Compress.bzlib, Setup.LZMADecompressor, Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
   Shared.SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,

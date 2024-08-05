@@ -1,4 +1,4 @@
-unit Shared.RedirFunc;
+unit Setup.RedirFunc;
 
 {
   Inno Setup
@@ -7,6 +7,7 @@ unit Shared.RedirFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for dealing with WOW64 file system redirection.
+  Used only by the Setup and SetupLdr projects.
 
   The *Redir functions are counterparts to common functions that offer
   built-in support for disabling FS redirection.

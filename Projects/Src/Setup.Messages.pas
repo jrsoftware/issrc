@@ -1,4 +1,4 @@
-unit Shared.Messages;
+unit Setup.Messages;
 
 {
   Inno Setup

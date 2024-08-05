@@ -1,4 +1,4 @@
-unit Shared.XPTheme;
+unit Setup.XPTheme;
 
 {
   Inno Setup
@@ -16,7 +16,7 @@ interface
 
 implementation
 
-{$R Shared.XPTheme.res}
+{$R Setup.XPTheme.res}
 
 uses
   Windows;

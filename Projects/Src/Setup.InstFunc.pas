@@ -1,4 +1,4 @@
-unit Shared.InstFunc;
+unit Setup.InstFunc;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit Shared.InstFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Misc. installation functions
+  Misc. installation functions. Used only by the Setup and SetupLdr projects.
 }
 
 interface
@@ -118,7 +118,7 @@ function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, Shared.Messages, Shared.SetupMessageIDs, Shared.FileClass, Shared.RedirFunc, Shared.SetupTypes,
+  Messages, ShellApi, PathFunc, Setup.Messages, Shared.SetupMessageIDs, Shared.FileClass, Setup.RedirFunc, Shared.SetupTypes,
   Hash, Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);

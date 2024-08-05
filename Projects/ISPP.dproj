@@ -76,18 +76,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Preprocess.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Preprocessor.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Funcs.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.VarUtils.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Consts.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Stack.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Intf.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Parser.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.IdentMan.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Sessions.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.CTokenizer.pas"/>
-        <DCCReference Include="Src\ISPP\ISPP.Base.pas"/>
+        <DCCReference Include="Src\ISPP.Preprocess.pas"/>
+        <DCCReference Include="Src\ISPP.Preprocessor.pas"/>
+        <DCCReference Include="Src\ISPP.Funcs.pas"/>
+        <DCCReference Include="Src\ISPP.VarUtils.pas"/>
+        <DCCReference Include="Src\ISPP.Consts.pas"/>
+        <DCCReference Include="Src\ISPP.Stack.pas"/>
+        <DCCReference Include="Src\ISPP.Intf.pas"/>
+        <DCCReference Include="Src\ISPP.Parser.pas"/>
+        <DCCReference Include="Src\ISPP.IdentMan.pas"/>
+        <DCCReference Include="Src\ISPP.Sessions.pas"/>
+        <DCCReference Include="Src\ISPP.CTokenizer.pas"/>
+        <DCCReference Include="Src\ISPP.Base.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
