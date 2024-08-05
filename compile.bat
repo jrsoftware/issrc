@@ -9,6 +9,8 @@ rem  Batch file to compile Inno Setup
 
 setlocal
 
+cd /d %~dp0
+
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
 echo compilesettings.bat is missing or incomplete. It needs to be created
@@ -34,7 +36,8 @@ cd Projects
 if errorlevel 1 goto exit
 
 echo - ISPP.dpr
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu ISPP.dpr
+mkdir Dcu\ISPP.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISPP.dpr ISPP.dpr
 if errorlevel 1 goto failed
 
 echo - Compil32.dpr
