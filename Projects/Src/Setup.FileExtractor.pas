@@ -6,7 +6,7 @@ unit Setup.FileExtractor;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TFileExtractor class
+  TFileExtractor class to extract (=decrypt, decompress, and/or verify) Setup files
 }
 
 interface
