@@ -74,7 +74,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\ISCmplr\ISCmplr.Compile.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>

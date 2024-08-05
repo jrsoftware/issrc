@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
-  Shared.UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
+  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
   IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper;
 
 type
@@ -187,7 +187,7 @@ implementation
 
 uses
   SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.BrowseFunc,
+  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, BrowseFunc,
   IDE.Messages, IDE.Wizard.WizardFileForm;
 
 type

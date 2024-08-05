@@ -15,7 +15,7 @@ program ISCC;
   into this program and not depend on ISCmplr.dll. }
 
 uses
-  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
   Classes,

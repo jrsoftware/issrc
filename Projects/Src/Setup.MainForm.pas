@@ -270,7 +270,7 @@ uses
   Setup.Messages, Shared.SetupMessageIDs, Setup.Install, Setup.InstFunc, Setup.InstFunc.Ole, Setup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor, Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
-  Shared.SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
+  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
   Shared.TaskDialogFunc, RegStr;
 
 {$R *.DFM}

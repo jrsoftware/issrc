@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Shared.UIStateForm, Shared.SetupMessageIDs;
+  UIStateForm, Shared.SetupMessageIDs;
 
 type
   TSetupForm = class(TUIStateForm)

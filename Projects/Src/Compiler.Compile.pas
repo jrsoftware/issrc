@@ -38,7 +38,7 @@ uses
 {$IFDEF STATICPREPROC}
   IsppPreprocess,
 {$ENDIF}
-  Compiler.ScriptCompiler, Shared.SimpleExpression, Shared.SetupTypes;
+  Compiler.ScriptCompiler, SimpleExpression, Shared.SetupTypes;
 
 type
   TParamInfo = record

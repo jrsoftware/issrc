@@ -48,7 +48,7 @@ implementation
 
 uses
   SysUtils, UITypes,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.BrowseFunc, PathFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc, PathFunc,
   IDE.Messages, IDE.Wizard.WizardFileForm;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;

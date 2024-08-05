@@ -77,7 +77,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\Compiler.Compile.pas"/>
@@ -106,7 +106,7 @@
         <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
-        <DCCReference Include="Src\Shared.SimpleExpression.pas"/>
+        <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <BuildConfiguration Include="Base">

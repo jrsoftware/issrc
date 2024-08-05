@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Shared.UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
 
 type
 

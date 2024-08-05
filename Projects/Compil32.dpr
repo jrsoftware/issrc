@@ -10,7 +10,7 @@ program Compil32;
 }
 
 uses
-  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
   Forms,
@@ -29,7 +29,7 @@ uses
   NewUxTheme.TmSchema in '..\Components\NewUxTheme.TmSchema.pas',
   NewUxTheme in '..\Components\NewUxTheme.pas',
   Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
-  Shared.BrowseFunc in 'Src\Shared.BrowseFunc.pas',
+  BrowseFunc in '..\Components\BrowseFunc.pas',
   IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
   IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas',
   ScintInt in '..\Components\ScintInt.pas',
@@ -46,9 +46,9 @@ uses
   DropListBox in '..\Components\DropListBox.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
-  Shared.TaskbarProgressFunc in 'Src\Shared.TaskbarProgressFunc.pas',
+  TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
   IDE.HtmlHelpFunc in 'Src\IDE.HtmlHelpFunc.pas',
-  Shared.UIStateForm in 'Src\Shared.UIStateForm.pas',
+  UIStateForm in '..\Components\UIStateForm.pas',
   Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',

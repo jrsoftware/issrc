@@ -10,7 +10,7 @@ library ISCmplr;
 }
 
 uses
-  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   SysUtils,
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.PreprocInt in 'Src\Shared.PreprocInt.pas',
@@ -40,7 +40,7 @@ uses
   Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
-  Shared.SimpleExpression in 'Src\Shared.SimpleExpression.pas',
+  SimpleExpression in '..\Components\SimpleExpression.pas',
   MD5 in '..\Components\MD5.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas';
 

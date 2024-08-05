@@ -75,7 +75,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\IDE.CompileForm.pas">
             <Form>CompileForm</Form>
@@ -101,7 +101,7 @@
         <DCCReference Include="..\Components\NewUxTheme.TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
-        <DCCReference Include="Src\Shared.BrowseFunc.pas"/>
+        <DCCReference Include="..\Components\BrowseFunc.pas"/>
         <DCCReference Include="Src\IDE.SignToolsForm.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
@@ -124,9 +124,9 @@
         <DCCReference Include="..\Components\DropListBox.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
-        <DCCReference Include="Src\Shared.TaskbarProgressFunc.pas"/>
+        <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
-        <DCCReference Include="Src\Shared.UIStateForm.pas"/>
+        <DCCReference Include="..\Components\UIStateForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>

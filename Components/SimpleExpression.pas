@@ -1,4 +1,4 @@
-unit Shared.SimpleExpression;
+unit SimpleExpression;
 
 {
   Inno Setup

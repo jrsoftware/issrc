@@ -10,7 +10,7 @@ program SetupLdr;
 }
 
 uses
-  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Setup.XPTheme in 'Src\Setup.XPTheme.pas',
   Windows,
   Messages,

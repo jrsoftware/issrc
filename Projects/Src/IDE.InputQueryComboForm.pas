@@ -12,7 +12,7 @@ unit IDE.InputQueryComboForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, Shared.UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm;
 
 type
   TInputQueryComboForm = class(TUIStateForm)

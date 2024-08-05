@@ -15,7 +15,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs,
   Setup.WizardForm, Setup.Install,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
-  BidiCtrls, Shared.TaskbarProgressFunc;
+  BidiCtrls, TaskbarProgressFunc;
 
 type
   TInputQueryWizardPage = class(TWizardPage)
@@ -203,7 +203,7 @@ uses
   StrUtils,
   Shared.Struct, Setup.MainForm, Setup.SelectFolderForm, Setup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  Shared.BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
+  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
 
 const
   DefaultLabelHeight = 14;

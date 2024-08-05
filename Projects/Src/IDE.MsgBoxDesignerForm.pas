@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Shared.UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
+  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
 
 type
   TMsgBoxDesignerForm = class(TUIStateForm)

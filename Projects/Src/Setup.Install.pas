@@ -33,7 +33,7 @@ uses
   Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
   Compression.Base, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
-  Shared.ResUpdateFunc, Setup.DotNetFunc, Shared.TaskbarProgressFunc, NewProgressBar, RestartManager,
+  Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
 
 type

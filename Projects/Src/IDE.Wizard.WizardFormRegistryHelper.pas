@@ -47,7 +47,7 @@ implementation
 uses
   Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls,
-  IDE.CompileForm, IDE.HelperFunc, IDE.Messages, Shared.BrowseFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  IDE.CompileForm, IDE.HelperFunc, IDE.Messages, BrowseFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 

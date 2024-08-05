@@ -1,4 +1,4 @@
-unit Shared.SafeDLLPath;
+unit SafeDLLPath;
 
 {
   Inno Setup

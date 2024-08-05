@@ -10,7 +10,7 @@ program Setup;
 }
 
 uses
-  Shared.SafeDLLPath in 'Src\Shared.SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Setup.XPTheme in 'Src\Setup.XPTheme.pas',
   Forms,
   Windows,
@@ -53,11 +53,11 @@ uses
   Setup.Uninstall in 'Src\Setup.Uninstall.pas',
   Setup.UninstallProgressForm in 'Src\Setup.UninstallProgressForm.pas' {UninstallProgressForm},
   Setup.UninstallSharedFileForm in 'Src\Setup.UninstallSharedFileForm.pas' {UninstallSharedFileForm},
-  Shared.SimpleExpression in 'Src\Shared.SimpleExpression.pas',
-  Shared.UIStateForm in 'Src\Shared.UIStateForm.pas',
+  SimpleExpression in '..\Components\SimpleExpression.pas',
+  UIStateForm in '..\Components\UIStateForm.pas',
   Setup.SetupForm in 'Src\Setup.SetupForm.pas',
   Setup.RegSvr in 'Src\Setup.RegSvr.pas',
-  Shared.BrowseFunc in 'Src\Shared.BrowseFunc.pas',
+  BrowseFunc in '..\Components\BrowseFunc.pas',
   Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
   Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
   Setup.Helper in 'Src\Setup.Helper.pas',
@@ -82,7 +82,7 @@ uses
   RestartManager in '..\Components\RestartManager.pas',
   Resample in '..\Components\Resample.pas',
   ASMInline in '..\Components\ASMInline.pas',
-  Shared.TaskbarProgressFunc in 'Src\Shared.TaskbarProgressFunc.pas',
+  TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
   Setup.DotNetFunc in 'Src\Setup.DotNetFunc.pas',
   Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   Setup.MsiFunc in 'Src\Setup.MsiFunc.pas',

@@ -1,4 +1,4 @@
-unit Shared.BrowseFunc;
+unit BrowseFunc;
 
 {
   Inno Setup

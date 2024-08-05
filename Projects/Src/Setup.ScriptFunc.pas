@@ -24,7 +24,7 @@ uses
   Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, Setup.RedirFunc,
   Setup.Install, Setup.InstFunc, Setup.InstFunc.Ole, Setup.Messages,
-  Shared.SetupMessageIDs, Setup.NewDiskForm, Shared.BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
+  Shared.SetupMessageIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
   Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,
   Shared.DotNetVersion, Setup.MsiFunc, BitmapImage;
