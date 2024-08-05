@@ -36,7 +36,7 @@
         <SanitizedProjectName>SetupLdr</SanitizedProjectName>
         <VerInfo_Locale>1043</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
-        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
@@ -48,7 +48,6 @@
         <DCC_Define>SETUPLDRPROJ;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -71,24 +70,24 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\XPTheme.pas"/>
-        <DCCReference Include="Src\Compress.pas"/>
-        <DCCReference Include="Src\SetupLdr\LZMADecompSmall.pas"/>
-        <DCCReference Include="Src\SetupEnt.pas"/>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
+        <DCCReference Include="Src\Setup.XPTheme.pas"/>
+        <DCCReference Include="Src\Compression.Base.pas"/>
+        <DCCReference Include="Src\Compression.LZMA1SmallDecompressor.pas"/>
+        <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\CmnFunc2.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\Msgs.pas"/>
-        <DCCReference Include="Src\MsgIDs.pas"/>
-        <DCCReference Include="Src\Struct.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\InstFunc.pas"/>
-        <DCCReference Include="Src\FileClass.pas"/>
-        <DCCReference Include="Src\Int64Em.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Setup.Messages.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.Struct.pas"/>
+        <DCCReference Include="Src\Setup.InstFunc.pas"/>
+        <DCCReference Include="Src\Shared.FileClass.pas"/>
+        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup\RedirFunc.pas"/>
-        <DCCReference Include="Src\SetupTypes.pas"/>
-        <DCCReference Include="Src\VerInfo.pas"/>
+        <DCCReference Include="Src\Setup.RedirFunc.pas"/>
+        <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

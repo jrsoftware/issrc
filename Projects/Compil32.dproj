@@ -41,7 +41,7 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Compiler;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
@@ -52,7 +52,6 @@
         <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
@@ -76,73 +75,77 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Src\SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\Compil32\CompForm.pas">
+        <DCCReference Include="Src\IDE.CompileForm.pas">
             <Form>CompileForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\CmnFunc.pas"/>
-        <DCCReference Include="Src\CmnFunc2.pas"/>
-        <DCCReference Include="Src\Compil32\CompFunc.pas"/>
-        <DCCReference Include="Src\Compil32\CompMsgs2.pas"/>
-        <DCCReference Include="Src\CompInt.pas"/>
-        <DCCReference Include="Src\Compil32\CompOptions.pas">
+        <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\IDE.HelperFunc.pas"/>
+        <DCCReference Include="Src\IDE.Messages.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\IDE.OptionsForm.pas">
             <Form>OptionsForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompStartup.pas">
+        <DCCReference Include="Src\IDE.StartupForm.pas">
             <Form>StartupForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompWizard.pas">
+        <DCCReference Include="Src\IDE.Wizard.WizardForm.pas">
             <Form>WizardForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompWizardFile.pas">
+        <DCCReference Include="Src\IDE.Wizard.WizardFileForm.pas">
             <Form>WizardFileForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\FileAssocFunc.pas"/>
-        <DCCReference Include="..\Components\TmSchema.pas"/>
+        <DCCReference Include="Src\IDE.FileAssocFunc.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.TmSchema.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
-        <DCCReference Include="Src\DebugStruct.pas"/>
-        <DCCReference Include="Src\BrowseFunc.pas"/>
-        <DCCReference Include="Src\Compil32\CompSignTools.pas">
+        <DCCReference Include="Src\Shared.DebugStruct.pas"/>
+        <DCCReference Include="..\Components\BrowseFunc.pas"/>
+        <DCCReference Include="Src\IDE.SignToolsForm.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompInputQueryCombo.pas"/>
+        <DCCReference Include="Src\IDE.InputQueryComboForm.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\ScintStylerInnoSetup.pas"/>
+        <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
-        <DCCReference Include="Src\Compil32\CompMsgBoxDesigner.pas">
+        <DCCReference Include="Src\IDE.MsgBoxDesignerForm.pas">
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Compil32\CompScintEdit.pas"/>
-        <DCCReference Include="Src\Compil32\FilesDesignerForm.pas"/>
-        <DCCReference Include="Src\Compil32\CompWizardFilesHelper.pas"/>
+        <DCCReference Include="Src\IDE.CompScintEdit.pas"/>
+        <DCCReference Include="Src\IDE.FilesDesignerForm.pas">
+            <Form>FilesDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardFormFilesHelper.pas"/>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
         <DCCReference Include="..\Components\DropListBox.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
-        <DCCReference Include="Src\TaskbarProgressFunc.pas"/>
-        <DCCReference Include="Src\Compil32\HtmlHelpFunc.pas"/>
-        <DCCReference Include="Src\UIStateForm.pas"/>
-        <DCCReference Include="Src\LangOptionsSectionDirectives.pas"/>
-        <DCCReference Include="Src\MsgIDs.pas"/>
-        <DCCReference Include="Src\SetupSectionDirectives.pas"/>
-        <DCCReference Include="Src\CompTypes.pas"/>
-        <DCCReference Include="Src\FileClass.pas"/>
-        <DCCReference Include="Src\Int64Em.pas"/>
-        <DCCReference Include="Src\Compress.pas"/>
-        <DCCReference Include="Src\TaskDialog.pas"/>
-        <DCCReference Include="Src\Compil32\RegistryDesignerForm.pas"/>
-        <DCCReference Include="Src\Compil32\CompWizardRegistryHelper.pas"/>
+        <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
+        <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
+        <DCCReference Include="..\Components\UIStateForm.pas"/>
+        <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
+        <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
+        <DCCReference Include="Src\Shared.FileClass.pas"/>
+        <DCCReference Include="Src\Shared.Int64Em.pas"/>
+        <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
+        <DCCReference Include="Src\IDE.RegistryDesignerForm.pas">
+            <Form>RegistryDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardFormRegistryHelper.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="Src\Compil32\IsscintInt.pas"/>
-        <DCCReference Include="Src\ScriptFunc.pas"/>
-        <DCCReference Include="Src\SetupTypes.pas"/>
-        <DCCReference Include="Src\Struct.pas"/>
+        <DCCReference Include="..\Components\ScintInt.InnoSetup.pas"/>
+        <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
+        <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
-        <DCCReference Include="Src\DotNetVersion.pas"/>
+        <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\ISHelp\isxclasses_wordlists_generated.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

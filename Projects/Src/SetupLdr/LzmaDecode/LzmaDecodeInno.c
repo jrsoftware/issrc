@@ -1,6 +1,6 @@
 /*
   LzmaDecodeInno.c = LzmaDecodeSize.c + additional helper functions used by
-  Inno Setup's LZMADecompSmall.pas
+  Inno Setup's Compression.LZMA1SmallDecompressor.pas
 */
 
 #include "LzmaDecodeSize.c"
