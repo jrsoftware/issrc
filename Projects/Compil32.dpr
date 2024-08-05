@@ -56,7 +56,6 @@ uses
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
-  Shared.Compress in 'Src\Shared.Compress.pas',
   Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',
   IDE.RegistryDesignerForm in 'Src\IDE.RegistryDesignerForm.pas' {RegistryDesignerForm},
   IDE.Wizard.WizardFormRegistryHelper in 'Src\IDE.Wizard.WizardFormRegistryHelper.pas',

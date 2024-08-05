@@ -89,10 +89,10 @@
         <DCCReference Include="Src\Compiler.ScriptClasses.pas"/>
         <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
         <DCCReference Include="Src\Compiler.ExeUpdateFunc.pas"/>
-        <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\Shared.Compress.Zlib.pas"/>
-        <DCCReference Include="Src\Shared.Compress.bzlib.pas"/>
-        <DCCReference Include="Src\Compiler.LZMACompressor.pas"/>
+        <DCCReference Include="Src\Compression.Base.pas"/>
+        <DCCReference Include="Src\Compression.Zlib.pas"/>
+        <DCCReference Include="Src\Compression.bzlib.pas"/>
+        <DCCReference Include="Src\Compression.LZMACompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.ArcFour.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>

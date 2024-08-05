@@ -12,7 +12,7 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Shared.Compress,
+  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Compression.Base,
   Shared.Struct, Shared.ArcFour;
 
 type
@@ -51,8 +51,8 @@ implementation
 
 uses
   PathFunc, Shared.CommonFunc, Setup.MainForm, Setup.Messages, Shared.SetupMessageIDs,
-  Setup.InstFunc, Shared.Compress.Zlib, Shared.Compress.bzlib,
-  Setup.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
+  Setup.InstFunc, Compression.Zlib, Compression.bzlib,
+  Compression.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
   FFileExtractor: TFileExtractor;

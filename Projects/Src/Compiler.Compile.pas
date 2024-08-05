@@ -33,7 +33,7 @@ uses
   Shared.PreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
   Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, Shared.CommonFunc, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Shared.Compress, Shared.Compress.Zlib, Shared.Compress.bzlib, Compiler.LZMACompressor, Shared.ArcFour, SHA1,
+  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMACompressor, Shared.ArcFour, SHA1,
   Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfoFunc, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   IsppPreprocess,

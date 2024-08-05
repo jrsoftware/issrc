@@ -108,10 +108,10 @@
         <DCCReference Include="Src\Setup.SelectFolderForm.pas">
             <Form>SelectFolderForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\Shared.Compress.Zlib.pas"/>
-        <DCCReference Include="Src\Shared.Compress.bzlib.pas"/>
-        <DCCReference Include="Src\Setup.LZMADecompressor.pas"/>
+        <DCCReference Include="Src\Compression.Base.pas"/>
+        <DCCReference Include="Src\Compression.Zlib.pas"/>
+        <DCCReference Include="Src\Compression.bzlib.pas"/>
+        <DCCReference Include="Src\Compression.LZMADecompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>

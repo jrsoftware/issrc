@@ -72,8 +72,8 @@
         </DelphiCompile>
         <DCCReference Include="Src\Shared.SafeDLLPath.pas"/>
         <DCCReference Include="Src\Setup.XPTheme.pas"/>
-        <DCCReference Include="Src\Shared.Compress.pas"/>
-        <DCCReference Include="Src\SetupLdr.LZMA1SmallDecompressor.pas"/>
+        <DCCReference Include="Src\Compression.Base.pas"/>
+        <DCCReference Include="Src\Compression.LZMA1SmallDecompressor.pas"/>
         <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>

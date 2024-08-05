@@ -1,4 +1,4 @@
-unit SetupLdr.LZMA1SmallDecompressor;
+unit Compression.LZMA1SmallDecompressor;
 
 {
   Inno Setup
@@ -13,7 +13,7 @@ unit SetupLdr.LZMA1SmallDecompressor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Compress, Shared.Int64Em;
+  Windows, SysUtils, Compression.Base, Shared.Int64Em;
 
 type
   { Internally-used record }

@@ -1,4 +1,4 @@
-unit Compiler.LZMACompressor;
+unit Compression.LZMACompressor;
 
 {
   Inno Setup
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils,
-  Shared.Compress, Shared.Int64Em;
+  Compression.Base, Shared.Int64Em;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;

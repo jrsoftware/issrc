@@ -31,7 +31,7 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, Setup.Messages,
   Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Shared.Compress, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Compression.Base, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, Shared.TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;

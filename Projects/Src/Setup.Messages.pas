@@ -51,7 +51,7 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Shared.Compress, Shared.CommonFunc, Shared.FileClass;
+  Windows, SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
 
 const
   SMsgsFileTooLarge = 'Internal error: Messages file is too large';

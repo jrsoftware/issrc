@@ -1,4 +1,4 @@
-unit Setup.LZMADecompressor;
+unit Compression.LZMADecompressor;
 
 {
   Inno Setup
@@ -13,7 +13,7 @@ unit Setup.LZMADecompressor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.Compress;
+  Windows, SysUtils, Shared.Int64Em, Compression.Base;
 
 type
   TLZMACustomDecompressor = class(TCustomDecompressor)

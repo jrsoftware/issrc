@@ -1,4 +1,4 @@
-unit Shared.Compress;
+unit Compression.Base;
 
 {
   Inno Setup

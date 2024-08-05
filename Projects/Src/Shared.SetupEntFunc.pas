@@ -12,7 +12,7 @@ unit Shared.SetupEntFunc;
 interface
 
 uses
-  Shared.Compress;
+  Compression.Base;
 
 procedure SEFreeRec(const P: Pointer; const NumStrings, NumAnsiStrings: Integer);
 procedure SEDuplicateRec(OldP, NewP: Pointer; Bytes: Cardinal;
