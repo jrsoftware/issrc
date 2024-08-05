@@ -317,7 +317,7 @@ begin
     WriteLn(F, 'interface');
     WriteLn(F);
     WriteLn(F, 'uses');
-    WriteLn(F, Indent + 'ScriptFunc;');
+    WriteLn(F, Indent + 'Shared.ScriptFunc;');
     WriteLn(F);
     WriteLn(F, 'var');
     WriteStringArray(F, 'PascalConstants_Isxclasses', Indent, FStrings[ssConstant], 0);
