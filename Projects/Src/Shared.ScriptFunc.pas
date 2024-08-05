@@ -12,9 +12,9 @@ unit Shared.ScriptFunc;
 interface
 
 type
-  TScriptFuncTableID = (sftScriptDlg, sftNewDisk, sftBrowseFunc, sftCmnFunc,
-    sftCmnFunc2, sftInstall, sftInstFunc, sftInstFnc2, sftMain, sftMsgs,
-    sftSystem, sftSysUtils, sftVerInfo, sftWindows, sftOle2, sftLogging,
+  TScriptFuncTableID = (sftScriptDlg, sftNewDiskForm, sftBrowseFunc, sftCommonFuncVcl,
+    sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainForm, sftMessages,
+    sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftOle2, sftLoggingFunc,
     sftOther);
   TScriptTable = array of AnsiString;
 
@@ -207,7 +207,6 @@ end;
 
 initialization
 
-  { ScriptDlg }
   ScriptFuncTables[sftScriptDlg] :=
   [
     'function PageFromID(const ID: Integer): TWizardPage;',
@@ -227,13 +226,11 @@ initialization
     'function CreateCustomForm: TSetupForm;'
   ];
 
-  { NewDisk }
-  ScriptFuncTables[sftNewDisk] :=
+  ScriptFuncTables[sftNewDiskForm] :=
   [
     'function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;'
   ];
 
-  { BrowseFunc }
   ScriptFuncTables[sftBrowseFunc] :=
   [
     'function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;',
@@ -242,14 +239,12 @@ initialization
     'function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;'
   ];
 
-  { CmnFunc }
-  ScriptFuncTables[sftCmnFunc] :=
+  ScriptFuncTables[sftCommonFuncVcl] :=
   [
     'function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;'
   ];
 
-   { CmnFunc2 }
-  ScriptFuncTables[sftCmnFunc2] :=
+  ScriptFuncTables[sftCommonFunc] :=
   [
     'function FileExists(const Name: String): Boolean;',
     'function DirExists(const Name: String): Boolean;',
@@ -315,7 +310,6 @@ initialization
     'function WildcardMatch(const Text, Pattern: String): Boolean;'
   ];
 
-  { Install }
   ScriptFuncTables[sftInstall] :=
   [
     'procedure ExtractTemporaryFile(const FileName: String);',
@@ -326,7 +320,6 @@ initialization
     'procedure SetDownloadCredentials(const User, Pass: String);'
   ];
 
-  { InstFunc }
   ScriptFuncTables[sftInstFunc] :=
   [
     'function CheckForMutexes(Mutexes: String): Boolean;',
@@ -369,8 +362,7 @@ initialization
     'function ForceDirectories(Dir: String): Boolean;'
   ];
 
-  { InstFnc2 }
-  ScriptFuncTables[sftInstFnc2] :=
+  ScriptFuncTables[sftInstFuncOle] :=
   [
     'function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;',
     'procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);',
@@ -378,8 +370,7 @@ initialization
     'function UnpinShellLink(const Filename: String): Boolean;'
   ];
 
-  { Main }
-  ScriptFuncTables[sftMain] :=
+  ScriptFuncTables[sftMainForm] :=
   [
     'function GetWizardForm: TWizardForm;',
     'function GetMainForm: TMainForm;',
@@ -415,13 +406,11 @@ initialization
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;'
   ];
 
-  { Msgs }
-  ScriptFuncTables[sftMsgs] :=
+  ScriptFuncTables[sftMessages] :=
   [
     'function SetupMessage(const ID: TSetupMessageID): String;'
   ];
 
-  { System }
   ScriptFuncTables[sftSystem] :=
   [
     'function Random(const Range: Integer): Integer;',
@@ -433,7 +422,6 @@ initialization
     'function UTF8Decode(const S: AnsiString): String;'
   ];
 
-  { SysUtils }
   ScriptFuncTables[sftSysUtils] :=
   [
     'procedure Beep;',
@@ -463,8 +451,7 @@ initialization
     'function SysErrorMessage(ErrorCode: Integer): String;'
   ];
 
-  { VerInfo }
-  ScriptFuncTables[sftVerInfo] :=
+  ScriptFuncTables[sftVerInfoFunc] :=
   [
     'function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;',
     'function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;',
@@ -480,7 +467,6 @@ initialization
     'function StrToVersion(const VersionString: String; var Version: Int64): Boolean;'
   ];
 
-  { Windows }
   ScriptFuncTables[sftWindows] :=
   [
     'procedure Sleep(const Milliseconds: LongInt);',
@@ -501,19 +487,16 @@ initialization
     'procedure CharToOemBuff(var S: AnsiString);'
   ];
 
-  { Ole2 }
   ScriptFuncTables[sftOle2] :=
   [
     'procedure CoFreeUnusedLibraries;'
   ];
 
-  { Logging }
-  ScriptFuncTables[sftLogging] :=
+  ScriptFuncTables[sftLoggingFunc] :=
   [
     'procedure Log(const S: String);'
   ];
 
-  { Other }
   ScriptFuncTables[sftOther] :=
   [
     'procedure BringToFrontAndRestore;',

@@ -114,7 +114,6 @@ end;
 
 {---}
 
-{ ScriptDlg }
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -312,8 +311,7 @@ begin
     Result := False;
 end;
 
-{ NewDisk }
-function NewDiskProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function NewDiskFormProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
   S: String;
@@ -329,7 +327,6 @@ begin
     Result := False;
 end;
 
-{ BrowseFunc }
 function BrowseFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -373,8 +370,7 @@ begin
     Result := False;
 end;
 
-{ CmnFunc }
-function CmnFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function CommonFuncVclProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
 begin
@@ -387,8 +383,7 @@ begin
     Result := False;
 end;
 
-{ CmnFunc2 }
-function CmnFunc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function CommonFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
     var RootKey: HKEY);
@@ -763,7 +758,6 @@ begin
     Result := False;
 end;
 
-{ Install }
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -1018,8 +1012,7 @@ begin
     Result := False;
 end;
 
-{ InstFnc2 }
-function InstFnc2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function InstFuncOleProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
 begin
@@ -1053,8 +1046,7 @@ begin
     Result := False;
 end;
 
-{ Main }
-function MainProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function MainFormProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function CustomMessage(const MsgName: String): String;
   begin
@@ -1191,8 +1183,7 @@ begin
   Version.SuiteMask := WindowsSuiteMask;
 end;
 
-{ Msgs }
-function MsgsProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function MessagesProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
 begin
@@ -1210,7 +1201,6 @@ begin
   Result := FmtMessage(PChar(S), Args);
 end;
 
-{ System }
 function SystemProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -1258,8 +1248,6 @@ begin
   end else
     Result := False;
 end;
-
-{ SysUtils }
 
 type
   { *Must* keep this in synch with ScriptFunc_C }
@@ -1502,8 +1490,7 @@ begin
   end;
 end;
 
-{ VerInfo }
-function VerInfoProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function VerInfoFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
   VersionNumbers: TFileVersionNumbers;
@@ -1580,7 +1567,6 @@ end;
 type
   TDllProc = function(const Param1, Param2: Longint): Longint; stdcall;
 
-{ Windows }
 function WindowsProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -1641,7 +1627,6 @@ begin
     Result := False;
 end;
 
-{ Ole2 }
 function Ole2Proc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 begin
   Result := True;
@@ -1652,8 +1637,7 @@ begin
     Result := False;
 end;
 
-{ Logging }
-function LoggingProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function LoggingFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
 begin
@@ -2082,21 +2066,21 @@ begin
   Count := 0;
   {$ENDIF}
   RegisterFunctionTable(ScriptFuncTables[sftScriptDlg], @ScriptDlgProc);
-  RegisterFunctionTable(ScriptFuncTables[sftNewDisk], @NewDiskProc);
+  RegisterFunctionTable(ScriptFuncTables[sftNewDiskForm], @NewDiskFormProc);
   RegisterFunctionTable(ScriptFuncTables[sftBrowseFunc], @BrowseFuncProc);
-  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc], @CmnFuncProc);
-  RegisterFunctionTable(ScriptFuncTables[sftCmnFunc2], @CmnFunc2Proc);
+  RegisterFunctionTable(ScriptFuncTables[sftCommonFuncVcl], @CommonFuncVclProc);
+  RegisterFunctionTable(ScriptFuncTables[sftCommonFunc], @CommonFuncProc);
   RegisterFunctionTable(ScriptFuncTables[sftInstall], @InstallProc);
   RegisterFunctionTable(ScriptFuncTables[sftInstFunc], @InstFuncProc);
-  RegisterFunctionTable(ScriptFuncTables[sftInstFnc2], @InstFnc2Proc);
-  RegisterFunctionTable(ScriptFuncTables[sftMain], @MainProc);
-  RegisterFunctionTable(ScriptFuncTables[sftMsgs], @MsgsProc);
+  RegisterFunctionTable(ScriptFuncTables[sftInstFuncOle], @InstFuncOleProc);
+  RegisterFunctionTable(ScriptFuncTables[sftMainForm], @MainFormProc);
+  RegisterFunctionTable(ScriptFuncTables[sftMessages], @MessagesProc);
   RegisterFunctionTable(ScriptFuncTables[sftSystem], @SystemProc);
   RegisterFunctionTable(ScriptFuncTables[sftSysUtils], @SysUtilsProc);
-  RegisterFunctionTable(ScriptFuncTables[sftVerInfo], @VerInfoProc);
+  RegisterFunctionTable(ScriptFuncTables[sftVerInfoFunc], @VerInfoFuncProc);
   RegisterFunctionTable(ScriptFuncTables[sftWindows], @WindowsProc);
   RegisterFunctionTable(ScriptFuncTables[sftOle2], @Ole2Proc);
-  RegisterFunctionTable(ScriptFuncTables[sftLogging], @LoggingProc);
+  RegisterFunctionTable(ScriptFuncTables[sftLoggingFunc], @LoggingFuncProc);
   RegisterFunctionTable(ScriptFuncTables[sftOther], @OtherProc);
   {$IFDEF DEBUG}
   if Count <> Length(ScriptFuncTables) then
