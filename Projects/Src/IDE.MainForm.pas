@@ -5209,9 +5209,9 @@ begin
 	var Commas := 0;
 	for var I := FCallTipState.StartCalltipWord to Current-1 do begin
     {$ZEROBASEDSTRINGS ON}
-		if Line[I] = '(' then
+		if CharInSet(Line[I], ['(', '[']) then
       Inc(Braces)
-		else if (Line[I] = ')') and (Braces > 0) then
+		else if CharInSet(Line[I], [')', ']']) and (Braces > 0) then
 			Dec(Braces)
 		else if (Braces = 1) and (Line[I] = ',') then
 			Inc(Commas);
