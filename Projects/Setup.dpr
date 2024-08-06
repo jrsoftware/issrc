@@ -27,6 +27,7 @@ uses
   Shared.Struct in 'Src\Shared.Struct.pas',
   Setup.NewDiskForm in 'Src\Setup.NewDiskForm.pas' {NewDiskForm},
   SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
+  Setup.InstFunc in 'Src\Setup.InstFunc.pas',
   Setup.InstFunc.Ole in 'Src\Setup.InstFunc.Ole.pas',
   Setup.WizardForm in 'Src\Setup.WizardForm.pas' {WizardForm},
   Setup.ScriptFunc in 'Src\Setup.ScriptFunc.pas',

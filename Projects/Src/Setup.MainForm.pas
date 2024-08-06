@@ -267,10 +267,14 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.RedirFunc, PathFunc,
-  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor, Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
-  Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor, Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
-  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer, Setup.DotNetFunc, BitmapImage,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
+  Setup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.RedirFunc, PathFunc,
+  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
+  Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
+  Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
+  Shared.FileClass, Setup.LoggingFunc, MD5, SHA1, ActiveX,
+  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
+  Setup.DotNetFunc, BitmapImage,
   Shared.TaskDialogFunc, RegStr;
 
 {$R *.DFM}

@@ -90,6 +90,7 @@
             <Form>NewDiskForm</Form>
         </DCCReference>
         <DCCReference Include="Src\SetupLdrAndSetup.InstFunc.pas"/>
+        <DCCReference Include="Src\Setup.InstFunc.pas"/>
         <DCCReference Include="Src\Setup.InstFunc.Ole.pas"/>
         <DCCReference Include="Src\Setup.WizardForm.pas">
             <Form>WizardForm</Form>

@@ -17,10 +17,12 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.UninstallLog, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Shared.Struct, Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
-  Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupTypes, Setup.LoggingFunc, Setup.MainForm,
-  Setup.SpawnServer;
+  Windows, SysUtils, Messages, Forms, PathFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, Setup.UninstallLog, SetupLdrAndSetup.Messages,
+  Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
+  Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
+  Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupTypes,
+  Setup.LoggingFunc, Setup.MainForm, Setup.SpawnServer;
 
 type
   TExtUninstallLog = class(TUninstallLog)

@@ -203,7 +203,7 @@ uses
   StrUtils,
   Shared.Struct, Setup.MainForm, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, SetupLdrAndSetup.InstFunc;
+  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
 
 const
   DefaultLabelHeight = 14;

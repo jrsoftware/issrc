@@ -23,7 +23,7 @@ uses
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
   Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
-  Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.Messages,
+  Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
   Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,

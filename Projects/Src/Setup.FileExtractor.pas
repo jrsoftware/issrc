@@ -51,7 +51,7 @@ implementation
 
 uses
   PathFunc, Shared.CommonFunc, Setup.MainForm, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.InstFunc, Compression.Zlib, Compression.bzlib,
+  Setup.InstFunc, Compression.Zlib, Compression.bzlib,
   Compression.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
