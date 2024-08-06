@@ -201,20 +201,20 @@ from the bzlib directory in the iscompress repository.
 from the zlib-dll directory in the iscompress repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
-by Visual Studio 2022 from the [Projects\Src\Compiler\islzma] directory.
+by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the isscint repository.
 
-**Projects\Src\Setup\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup\HelperEXEs.res** -
-Compiled by Visual Studio 2005 from the [Projects\Src\Setup\Helper] directory and then
+**Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -
+Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\Src\Setup\Lzma2Decode\ISLzmaDec.obj**, **Projects\Src\Setup\Lzma2Decode\ISLzma2Dec.obj** -
-Compiled by Visual Studio 2022 from the [Projects\Src\Setup\Lzma2Decode] directory.
+**Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj**, **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzma2Dec.obj** -
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
-**Projects\Src\SetupLdr\LzmaDecode\LzmaDecodeInno.obj** - Compiled by Visual Studio
-2022 from the [Projects\Src\SetupLdr\LzmaDecode] directory.
+**Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj** -
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
@@ -272,12 +272,12 @@ workflow will be triggered automatically.
 [Projects\Bin]: <Projects/Bin>
 [Components]: <Components>
 [Files]: <Files>
-[Projects\Src\Compiler\islzma]: <Projects/Src/Compiler/islzma>
-[Projects\Src\Setup\Helper]: <Projects/Src/Setup/Helper>
+[Projects\Src\Compiler\Compression.LZMACompressor]: <Projects/Src/Compiler/Compression.LZMACompressor>
+[Projects\Src\Setup.HelperEXEs\Helper]: <Projects/Src/Setup.HelperEXEs/Helper>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
 [Projects\Src\Compil32]: <Projects/Src/Compil32>
-[Projects\Src\Setup\Lzma2Decode]: <Projects/Src/Setup/Lzma2Decode>
-[Projects\Src\SetupLdr\LzmaDecode]: <Projects/Src/SetupLdr/LzmaDecode>
+[Projects\Src\Compression.LZMADecompressor\Lzma2Decode]: <Projects/Src/Compression.LZMADecompressor/Lzma2Decode>
+[Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode]: <Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets

@@ -80,7 +80,7 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$L Src\SetupLdr\LzmaDecode\LzmaDecodeInno.obj}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj}
 
 type
   TLzmaInCallback = record

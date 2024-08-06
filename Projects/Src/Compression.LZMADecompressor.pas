@@ -95,8 +95,8 @@ const
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat }
-{$L Src\Setup\Lzma2Decode\ISLzmaDec.obj}
-{$L Src\Setup\Lzma2Decode\ISLzma2Dec.obj}
+{$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj}
+{$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzma2Dec.obj}
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;
