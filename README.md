@@ -272,7 +272,7 @@ workflow will be triggered automatically.
 [Projects\Bin]: <Projects/Bin>
 [Components]: <Components>
 [Files]: <Files>
-[Projects\Src\Compiler\Compression.LZMACompressor]: <Projects/Src/Compiler/Compression.LZMACompressor>
+[Projects\Src\Compression.LZMACompressor\islzma]: <Projects/Src/Compression.LZMACompressor/islzma>
 [Projects\Src\Setup.HelperEXEs\Helper]: <Projects/Src/Setup.HelperEXEs/Helper>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
