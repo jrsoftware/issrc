@@ -18,10 +18,6 @@ type
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);
   TGetLanguageEntryProc = function(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
 
-function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
-function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD): Boolean; overload;
 function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
   var Protected: Boolean): String; overload;
 function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String; overload;
@@ -30,10 +26,17 @@ procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
+function RestartComputer: Boolean;
+
+{ The following are not called by other SetupLdr units: they are only called by the
+  code below and by other Setup units }
+function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
+  var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
+function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
+  var ErrorCode: DWORD): Boolean; overload;
 function IntToBase32(Number: Longint): String;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
-function RestartComputer: Boolean;
 
 implementation
 
