@@ -13,7 +13,7 @@ unit Compiler.Compile;
 { For debugging purposes, remove the 'x' to have it link the ISPP code into this
   program and not depend on ISPP.dll. You will also need to add the Src
   folder to the Delphi Compiler Search path in the project options. Most useful
-  when combine with IDE.CompileForm's STATICCOMPILER. }
+  when combine with IDE.MainForm's STATICCOMPILER. }
 
 interface
 

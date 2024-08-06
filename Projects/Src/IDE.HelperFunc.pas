@@ -87,7 +87,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
   Shared.CommonFunc, PathFunc, Shared.FileClass, NewUxTheme,
-  IDE.CompileForm, IDE.Messages, Shared.ConfigIniFile;
+  IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
 var
@@ -148,7 +148,7 @@ procedure InitFormTheme(Form: TForm);
   end;
 
 begin
-  if (Form = CompileForm) or FormTheme.Dark then begin
+  if (Form = MainForm) or FormTheme.Dark then begin
     Form.Color := FormTheme.Colors[tcBack];
   
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes

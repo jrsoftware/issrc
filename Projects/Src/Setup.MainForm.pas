@@ -3024,7 +3024,7 @@ begin
     end else if CompareText(ParamName, '/DebugSpawnServer') = 0 then  { for debugging }
       EnterSpawnServerDebugMode  { does not return }
     else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
-      ParamIsAutomaticInternal := True; { sent by TCompileForm.StartProcess }
+      ParamIsAutomaticInternal := True; { sent by IDE.MainForm's StartProcess }
       DebugServerWnd := StrToInt(ParamValue);
     end else if CompareText(ParamName, '/ALLUSERS') = 0 then begin
       InitPrivilegesRequired := prAdmin;

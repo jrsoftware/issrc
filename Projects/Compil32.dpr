@@ -15,7 +15,7 @@ uses
   SysUtils,
   Forms,
   PathFunc in '..\Components\PathFunc.pas',
-  IDE.CompileForm in 'Src\IDE.CompileForm.pas' {CompileForm},
+  IDE.MainForm in 'Src\IDE.MainForm.pas' {MainForm},
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
@@ -217,6 +217,6 @@ begin
       Title := SCompilerFormCaption;
   end;
 
-  Application.CreateForm(TCompileForm, CompileForm);
+  Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.

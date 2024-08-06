@@ -1,4 +1,4 @@
-object CompileForm: TCompileForm
+object MainForm: TMainForm
   Left = 206
   Top = 97
   Caption = '*'

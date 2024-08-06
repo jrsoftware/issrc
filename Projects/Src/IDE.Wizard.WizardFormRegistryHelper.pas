@@ -47,7 +47,7 @@ implementation
 uses
   Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls,
-  IDE.CompileForm, IDE.HelperFunc, IDE.Messages, BrowseFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  IDE.MainForm, IDE.HelperFunc, IDE.Messages, BrowseFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -61,13 +61,13 @@ procedure TWizardFormRegistryHelper.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := CompileForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := MainForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, FForm.CurrentPPI, 96);
-  FMinVerDocImage.Picture.Graphic:= GetImage(CompileForm.HelpButton, WH);
+  FMinVerDocImage.Picture.Graphic:= GetImage(MainForm.HelpButton, WH);
 end;
 
 constructor TWizardFormRegistryHelper.Create(const Form: TForm;

@@ -77,8 +77,8 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="Src\IDE.CompileForm.pas">
-            <Form>CompileForm</Form>
+        <DCCReference Include="Src\IDE.MainForm.pas">
+            <Form>MainForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>

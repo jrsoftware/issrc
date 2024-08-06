@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.CompileForm, ComCtrls;
+  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.MainForm, ComCtrls;
 
 {$R *.DFM}
 
@@ -73,14 +73,14 @@ procedure TStartupForm.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := CompileForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := MainForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, CurrentPPI, 96);
-  NewImage.Picture.Graphic:= GetImage(CompileForm.NewMainFileButton, WH);
-  OpenImage.Picture.Graphic := GetImage(CompileForm.OpenMainFileButton, WH);
+  NewImage.Picture.Graphic:= GetImage(MainForm.NewMainFileButton, WH);
+  OpenImage.Picture.Graphic := GetImage(MainForm.OpenMainFileButton, WH);
 end;
 
 procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
