@@ -11,7 +11,7 @@ program SetupLdr;
 
 uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
-  Setup.XPTheme in 'Src\Setup.XPTheme.pas',
+  SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup.XPTheme.pas',
   Windows,
   Messages,
   SysUtils,
@@ -20,15 +20,15 @@ uses
   Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
-  Setup.Messages in 'Src\Setup.Messages.pas',
+  SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
-  Setup.InstFunc in 'Src\Setup.InstFunc.pas',
+  SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA1 in '..\Components\SHA1.pas',
   MD5 in '..\Components\MD5.pas',
-  Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
+  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
 
@@ -310,7 +310,7 @@ begin
           '/HELP, /?' + SNewLine +
            'Shows this information.' + SNewLine +
           '/SP-' + SNewLine +
-          'Disables the This will install... Do you wish to continue? prompt at the beginning of Setup.' + SNewLine +
+          'Disables the This will install... Do you wish to continue? prompt at the beginning of SetupLdrAndSetup.' + SNewLine +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
@@ -495,7 +495,7 @@ begin
         Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
           Longint(@SetupLdrWndProc));
 
-        { Now execute Setup. Use the exit code it returns as our exit code. }
+        { Now execute SetupLdrAndSetup. Use the exit code it returns as our exit code. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
           [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
           SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);

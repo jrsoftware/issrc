@@ -201,9 +201,9 @@ implementation
 
 uses
   StrUtils,
-  Shared.Struct, Setup.MainForm, Setup.SelectFolderForm, Setup.Messages,
+  Shared.Struct, Setup.MainForm, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
+  BrowseFunc, Setup.LoggingFunc, SetupLdrAndSetup.InstFunc;
 
 const
   DefaultLabelHeight = 14;

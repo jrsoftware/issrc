@@ -40,7 +40,7 @@ function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path
 implementation
 
 uses
-  Setup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
   Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}

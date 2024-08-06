@@ -1,4 +1,4 @@
-unit Setup.Messages;
+unit SetupLdrAndSetup.Messages;
 
 {
   Inno Setup

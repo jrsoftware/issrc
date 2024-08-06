@@ -20,7 +20,7 @@ implementation
 
 uses
   Classes, StrUtils, Math, Forms, Dialogs, SysUtils,
-  Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF} PathFunc;
+  Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} SetupLdrAndSetup.InstFunc, {$ENDIF} PathFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;

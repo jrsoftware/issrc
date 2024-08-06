@@ -41,7 +41,7 @@ function ExecuteRemoveSharedFileDlg(const Filename: String;
 implementation
 
 uses
-  PathFunc, Shared.Struct, Setup.Messages, Shared.SetupMessageIDs, Setup.MainForm;
+  PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainForm;
 
 {$R *.DFM}
 

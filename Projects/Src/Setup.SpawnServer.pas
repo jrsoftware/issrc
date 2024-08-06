@@ -46,7 +46,7 @@ implementation
 {x$DEFINE SPAWNSERVER_RESPAWN_ALWAYS}
 
 uses
-  Classes, Forms, ShellApi, Shared.Int64Em, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.SpawnCommon;
+  Classes, Forms, ShellApi, Shared.Int64Em, PathFunc, Shared.CommonFunc, SetupLdrAndSetup.InstFunc, Setup.SpawnCommon;
 
 type
   TPtrAndSize = record
