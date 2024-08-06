@@ -24,7 +24,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
-  ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.CompScintEdit,
+  ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
   VirtualImageList, BaseImageCollection, ImageCollection;
 
@@ -52,7 +52,7 @@ type
     CompilerFileIndex: Integer;
     LastWriteTime: TFileTime;
     HasLastWriteTime: Boolean;
-    Memo: TCompScintFileEdit;
+    Memo: TIDEScintFileEdit;
   end;
 
   TIncludedFiles = TObjectList<TIncludedFile>;
@@ -380,13 +380,13 @@ type
     procedure EFindRegExClick(Sender: TObject);
   private
     { Private declarations }
-    FMemos: TList<TCompScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
-    FMainMemo: TCompScintFileEdit;                      { Doesn't change }
-    FPreprocessorOutputMemo: TCompScintEdit;            { Doesn't change and is the only memo which isnt a TCompScint*File*Edit}
-    FFileMemos: TList<TCompScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
+    FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
+    FMainMemo: TIDEScintFileEdit;                      { Doesn't change }
+    FPreprocessorOutputMemo: TIDEScintEdit;            { Doesn't change and is the only memo which isnt a TIDEScint*File*Edit}
+    FFileMemos: TList<TIDEScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
     FHiddenFiles: TStringList;                          { List of files which *do* use a memo but are hidden by the user and have no tab }
-    FActiveMemo: TCompScintEdit;                        { Changes depending on user input }
-    FErrorMemo, FStepMemo: TCompScintFileEdit;          { These change depending on user input }
+    FActiveMemo: TIDEScintEdit;                        { Changes depending on user input }
+    FErrorMemo, FStepMemo: TIDEScintFileEdit;          { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
     FCompilerVersion: PCompilerVersionInfo;
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
@@ -419,7 +419,7 @@ type
       LowPriorityDuringCompile: Boolean;
       GutterLineNumbers: Boolean;
       KeyMappingType: TKeyMappingType;
-      MemoKeyMappingType: TCompScintKeyMappingType;
+      MemoKeyMappingType: TIDEScintKeyMappingType;
       ThemeType: TThemeType;
       ShowPreprocessorOutput: Boolean;
       OpenIncludedFiles: Boolean;
@@ -477,8 +477,8 @@ type
     FMenuBitmapsSize: TSize;
     FMenuBitmapsSourceImageCollection: TCustomImageCollection;
     FSynchingZoom: Boolean;
-    FNavStacks: TCompScintEditNavStacks;
-    FCurrentNavItem: TCompScintEditNavItem;
+    FNavStacks: TIDEScintEditNavStacks;
+    FCurrentNavItem: TIDEScintEditNavItem;
     FKeyMappedMenus: TKeyMappedMenus;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
@@ -491,7 +491,7 @@ type
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
-    procedure BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
+    procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
     procedure ClearMRUMainFilesList;
@@ -502,7 +502,7 @@ type
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
-    function DestroyLineState(const AMemo: TCompScintFileEdit): Boolean;
+    function DestroyLineState(const AMemo: TIDEScintFileEdit): Boolean;
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
     function EvaluateConstant(const S: String; var Output: String): Integer;
@@ -517,18 +517,18 @@ type
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
-    function InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
-    function InitializeMainMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
-    function InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
-    function InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
-    function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+    function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
+    function InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
+    function InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
+    function InitializeNonFileMemo(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
+    function InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TIDEScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
     procedure InitiateAutoComplete(const Key: AnsiChar);
     procedure UpdateCallTipFunctionDefinition(const Pos: Integer = -1);
     procedure InitiateCallTip(const Key: AnsiChar);
     procedure ContinueCallTip;
     procedure InvalidateStatusPanel(const Index: Integer);
-    procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
+    procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
     procedure MemoCallTipArrowClick(Sender: TObject; const Up: Boolean);
     procedure MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
@@ -537,49 +537,49 @@ type
     procedure MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     procedure MemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MemoKeyPress(Sender: TObject; var Key: Char);
-    procedure MemoLinesDeleted(Memo: TCompScintFileEdit; FirstLine, Count, FirstAffectedLine: Integer);
-    procedure MemoLinesInserted(Memo: TCompScintFileEdit; FirstLine, Count: integer);
+    procedure MemoLinesDeleted(Memo: TIDEScintFileEdit; FirstLine, Count, FirstAffectedLine: Integer);
+    procedure MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
     procedure MemoMarginClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
-    function MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
+    function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(AMemo: TCompScintEdit; const LineNumberOrPosition: Integer;
+    procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure NavItemClick(Sender: TObject);
     procedure NewMainFile;
     procedure NewMainFileUsingWizard;
-    procedure OpenFile(AMemo: TCompScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
+    procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
     procedure ReadMRUParametersList;
-    procedure RemoveMemoFromNav(const AMemo: TCompScintEdit);
-    procedure RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
+    procedure RemoveMemoFromNav(const AMemo: TIDEScintEdit);
+    procedure RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
     procedure ReopenTabClick(Sender: TObject);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     procedure StartProcess;
-    function SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
-    procedure SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
+    function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
+    procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
-    procedure SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
+    procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
     function TestLastFindOptions: Boolean;
     procedure SyncEditorOptions;
-    function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
+    function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
-    procedure UpdateAllMemoLineMarkers(const AMemo: TCompScintFileEdit);
+    procedure UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
@@ -588,7 +588,7 @@ type
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
-    procedure UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
+    procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
@@ -596,7 +596,7 @@ type
     procedure UpdateModifiedPanel;
     procedure UpdateNavButtons;
     procedure UpdateNewMainFileButtons;
-    procedure UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
+    procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
@@ -611,7 +611,7 @@ type
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
     procedure WMDebuggerGoodbye(var Message: TMessage); message WM_Debugger_Goodbye;
     procedure WMDebuggerQueryVersion(var Message: TMessage); message WM_Debugger_QueryVersion;
-    procedure GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TCompScintFileEdit;
+    procedure GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TIDEScintFileEdit;
       var DebugEntry: PDebugEntry);
     procedure DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
     procedure WMDebuggerStepped(var Message: TMessage); message WM_Debugger_Stepped;
@@ -716,7 +716,7 @@ end;
 
 { TCompileForm }
 
-function TCompileForm.InitializeMemoBase(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+function TCompileForm.InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   Memo.Align := alClient;
   Memo.AutoCompleteFontName := Font.Name;
@@ -745,7 +745,7 @@ begin
   Result := Memo;
 end;
 
-function TCompileForm.InitializeFileMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
+function TCompileForm.InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
 begin
   InitializeMemoBase(Memo, PopupMenu);
   Memo.ChangeHistory := schMarkers;
@@ -755,7 +755,7 @@ begin
   Result := Memo;
 end;
 
-function TCompileForm.InitializeMainMemo(const Memo: TCompScintFileEdit; const PopupMenu: TPopupMenu): TCompScintFileEdit;
+function TCompileForm.InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
 begin
   InitializeFileMemo(Memo, PopupMenu);
   Memo.AcceptDroppedFiles := True;
@@ -765,7 +765,7 @@ begin
   Result := Memo;
 end;
 
-function TCompileForm.InitializeNonFileMemo(const Memo: TCompScintEdit; const PopupMenu: TPopupMenu): TCompScintEdit;
+function TCompileForm.InitializeNonFileMemo(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   InitializeMemoBase(Memo, PopupMenu);
   Memo.ReadOnly := True;
@@ -779,7 +779,7 @@ constructor TCompileForm.Create(AOwner: TComponent);
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
     I: Integer;
-    Memo: TCompScintEdit;
+    Memo: TIDEScintEdit;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -819,8 +819,8 @@ constructor TCompileForm.Create(AOwner: TComponent);
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
       I := Ini.ReadInteger('Options', 'MemoKeyMappingType', Ord(GetDefaultMemoKeyMappingType));
-      if (I >= 0) and (I <= Ord(High(TCompScintKeyMappingType))) then
-        FOptions.MemoKeyMappingType := TCompScintKeyMappingType(I);
+      if (I >= 0) and (I <= Ord(High(TIDEScintKeyMappingType))) then
+        FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(I);
       I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
@@ -874,7 +874,7 @@ var
   I: Integer;
   NewItem: TMenuItem;
   PopupMenu: TPopupMenu;
-  Memo: TCompScintEdit;
+  Memo: TIDEScintEdit;
 begin
   inherited;
 
@@ -926,17 +926,17 @@ begin
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
 
-  FMemos := TList<TCompScintEdit>.Create;
-  FMainMemo := InitializeMainMemo(TCompScintFileEdit.Create(Self), PopupMenu);
+  FMemos := TList<TIDEScintEdit>.Create;
+  FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
-  FPreprocessorOutputMemo := InitializeNonFileMemo(TCompScintEdit.Create(Self), PopupMenu);
+  FPreprocessorOutputMemo := InitializeNonFileMemo(TIDEScintEdit.Create(Self), PopupMenu);
   FMemos.Add(FPreprocessorOutputMemo);
   for I := FMemos.Count to MaxMemos-1 do
-    FMemos.Add(InitializeFileMemo(TCompScintFileEdit.Create(Self), PopupMenu));
-  FFileMemos := TList<TCompScintFileEdit>.Create;
+    FMemos.Add(InitializeFileMemo(TIDEScintFileEdit.Create(Self), PopupMenu));
+  FFileMemos := TList<TIDEScintFileEdit>.Create;
   for Memo in FMemos do
-    if Memo is TCompScintFileEdit then
-      FFileMemos.Add(TCompScintFileEdit(Memo));
+    if Memo is TIDEScintFileEdit then
+      FFileMemos.Add(TIDEScintFileEdit(Memo));
   FHiddenFiles := TStringList.Create(dupError, True, True);
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
@@ -950,7 +950,7 @@ begin
   FFirstTabSelectShortCut := ShortCut(Ord('1'), [ssCtrl]);
   FLastTabSelectShortCut := ShortCut(Ord('9'), [ssCtrl]);
 
-  FNavStacks := TCompScintEditNavStacks.Create;
+  FNavStacks := TIDEScintEditNavStacks.Create;
   UpdateNavButtons;
   FCurrentNavItem.Invalidate;
 
@@ -1161,7 +1161,7 @@ end;
 procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
-  procedure SimplifySelection(const AMemo: TCompScintEdit);
+  procedure SimplifySelection(const AMemo: TIDEScintEdit);
   begin
     { The built in Esc (SCI_CANCEL) simply drops all additional selections
       and does not empty the main selection, It doesn't matter if Esc is
@@ -1174,7 +1174,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
     AMemo.ScrollCaretIntoView;
   end;
 
-  procedure AddCursor(const AMemo: TCompScintEdit; const Up: Boolean);
+  procedure AddCursor(const AMemo: TIDEScintEdit; const Up: Boolean);
   begin
     { Does not try to keep the main selection. }
 
@@ -1286,7 +1286,7 @@ procedure TCompileForm.MemoKeyDown(Sender: TObject; var Key: Word;
 
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
-    var Memo := Sender as TCompScintEdit;
+    var Memo := Sender as TIDEScintEdit;
      { Make sure we don't break the special rectangular select shortcuts }
     if Shift * [ssShift, ssAlt, ssCtrl] <> Memo.GetRectExtendShiftState(True) then begin
       if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
@@ -1463,7 +1463,7 @@ end;
 
 procedure TCompileForm.NewMainFile;
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
 begin
   HideError;
   FUninstExe := '';
@@ -1494,7 +1494,7 @@ begin
 end;
 
 { Breakpoints are preserved on a per-file basis }
-procedure TCompileForm.LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TCompScintFileEdit);
+procedure TCompileForm.LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TIDEScintFileEdit);
 begin
   if AMemo.BreakPoints.Count <> 0 then
     raise Exception.Create('AMemo.BreakPoints.Count <> 0'); { NewMainFile or OpenFile should have cleared these }
@@ -1527,7 +1527,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.BuildAndSaveBreakPointLines(const AMemo: TCompScintFileEdit);
+procedure TCompileForm.BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
 begin
   try
     if AMemo.FileName <> '' then begin
@@ -1639,7 +1639,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.OpenFile(AMemo: TCompScintFileEdit; AFilename: String;
+procedure TCompileForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
   const MainMemoAddToRecentDocs: Boolean);
 
   function GetStreamSaveEncoding(const Stream: TStream): TSaveEncoding;
@@ -1735,7 +1735,7 @@ begin
   end;
 end;
 
-function TCompileForm.SaveFile(const AMemo: TCompScintFileEdit; const SaveAs: Boolean): Boolean;
+function TCompileForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
 
   procedure SaveMemoTo(const FN: String);
   var
@@ -1813,7 +1813,7 @@ end;
 
 function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
 
-  function PromptToSaveMemo(const AMemo: TCompScintFileEdit): Boolean;
+  function PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
   var
     FileTitle: String;
   begin
@@ -1832,7 +1832,7 @@ function TCompileForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
   end;
 
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
 begin
   if FCompiling then begin
     MsgBox('Please stop the compile process before performing this command.',
@@ -2079,9 +2079,9 @@ end;
 
 procedure TCompileForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
 
-  function GetMemoFromErrorFilename(const ErrorFilename: String): TCompScintFileEdit;
+  function GetMemoFromErrorFilename(const ErrorFilename: String): TIDEScintFileEdit;
   var
-    Memo: TCompScintFileEdit;
+    Memo: TIDEScintFileEdit;
   begin
     if ErrorFilename = '' then
       Result := FMainMemo
@@ -2104,8 +2104,8 @@ var
   AppData: TAppData;
   StartTime, ElapsedTime, ElapsedSeconds: DWORD;
   I: Integer;
-  Memo: TCompScintFileEdit;
-  OldActiveMemo: TCompScintEdit;
+  Memo: TIDEScintFileEdit;
+  OldActiveMemo: TIDEScintEdit;
 begin
   if FCompiling then begin
     { Shouldn't get here, but just in case... }
@@ -2278,7 +2278,7 @@ procedure TCompileForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
 var
-  Memo: TCompScintEdit;
+  Memo: TIDEScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
@@ -2339,9 +2339,9 @@ var
 begin
   FSaveMainFileAs.Enabled := FActiveMemo = FMainMemo;
   FSaveEncoding.Enabled := FSave.Enabled; { FSave.Enabled is kept up-to-date by UpdateSaveMenuItemAndButton }
-  FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seAuto);
-  FSaveEncodingUTF8WithBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithBOM);
-  FSaveEncodingUTF8WithoutBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TCompScintFileEdit).SaveEncoding = seUTF8WithoutBOM);
+  FSaveEncodingAuto.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TIDEScintFileEdit).SaveEncoding = seAuto);
+  FSaveEncodingUTF8WithBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TIDEScintFileEdit).SaveEncoding = seUTF8WithBOM);
+  FSaveEncodingUTF8WithoutBOM.Checked := FSaveEncoding.Enabled and ((FActiveMemo as TIDEScintFileEdit).SaveEncoding = seUTF8WithoutBOM);
   FSaveAll.Visible := FOptions.OpenIncludedFiles;
   ReadMRUMainFilesList;
   FRecent.Visible := FMRUMainFilesList.Count <> 0;
@@ -2394,12 +2394,12 @@ end;
 
 procedure TCompileForm.FSaveClick(Sender: TObject);
 begin
-  SaveFile((FActiveMemo as TCompScintFileEdit), Sender = FSaveMainFileAs);
+  SaveFile((FActiveMemo as TIDEScintFileEdit), Sender = FSaveMainFileAs);
 end;
 
 procedure TCompileForm.FSaveEncodingItemClick(Sender: TObject);
 begin
-  var Memo := (FActiveMemo as TCompScintFileEdit);
+  var Memo := (FActiveMemo as TIDEScintFileEdit);
 
   var OldSaveEncoding := Memo.SaveEncoding;
 
@@ -2416,7 +2416,7 @@ end;
 
 procedure TCompileForm.FSaveAllClick(Sender: TObject);
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
 begin
   for Memo in FFileMemos do
     if Memo.Used and Memo.Modified then
@@ -2465,8 +2465,8 @@ var
   PrintStyler: TInnoSetupStyler;
   OldStyler: TScintCustomStyler;
   PrintTheme, OldTheme: TTheme;
-  PrintMemo: TCompScintEdit;
-  HeaderMemo: TCompScintFileEdit;
+  PrintMemo: TIDEScintEdit;
+  HeaderMemo: TIDEScintFileEdit;
   FileTitle, S: String;
   pdlg: TPrintDlg;
   hdc: Windows.HDC;
@@ -2484,8 +2484,8 @@ var
   sHeader, sFooter: String;
   pen, penOld: HPEN;
 begin
-  if FActiveMemo is TCompScintFileEdit then
-    HeaderMemo := TCompScintFileEdit(FActiveMemo)
+  if FActiveMemo is TIDEScintFileEdit then
+    HeaderMemo := TIDEScintFileEdit(FActiveMemo)
   else
     HeaderMemo := FMainMemo;
   sHeader := HeaderMemo.Filename;
@@ -3041,7 +3041,7 @@ begin
   MemosTabSet.Hints.Delete(TabIndex);
   MemosTabSet.CloseButtons.Delete(TabIndex);
 
-  FHiddenFiles.Add((Memo as TCompScintFileEdit).Filename);
+  FHiddenFiles.Add((Memo as TIDEScintFileEdit).Filename);
   InvalidateStatusPanel(spHiddenFilesCount);
   BuildAndSaveKnownIncludedAndHiddenFiles;
 
@@ -3790,9 +3790,9 @@ begin
   StatusPanel.Height := H;
 end;
 
-procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TCompScintEdit);
+procedure TCompileForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
 
-  procedure FindTextAndAddRanges(const AMemo: TCompScintEdit;
+  procedure FindTextAndAddRanges(const AMemo: TIDEScintEdit;
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
     const Selections, IndicatorRanges: TScintRangeList);
   begin
@@ -4178,7 +4178,7 @@ procedure TCompileForm.TOptionsClick(Sender: TObject);
 var
   OptionsForm: TOptionsForm;
   Ini: TConfigIniFile;
-  Memo: TCompScintEdit;
+  Memo: TIDEScintEdit;
 begin
   OptionsForm := TOptionsForm.Create(Application);
   try
@@ -4237,7 +4237,7 @@ begin
     FOptions.ShowPreprocessorOutput := OptionsForm.ShowPreprocessorOutputCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
-    FOptions.MemoKeyMappingType := TCompScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
+    FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
@@ -4300,7 +4300,7 @@ begin
 end;
 
 { Also see TabIndexToMemoIndex }
-function TCompileForm.MemoToTabIndex(const AMemo: TCompScintEdit): Integer;
+function TCompileForm.MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
 begin
   if AMemo = FMainMemo then
     Result := 0 { First tab displays the main memo  }
@@ -4309,7 +4309,7 @@ begin
       raise Exception.Create('not FPreprocessorOutputMemo.Used');
     Result := MemosTabSet.Tabs.Count-1 { Last tab displays the preprocessor output memo }
   end else begin
-    Result := FFileMemos.IndexOf(AMemo as TCompScintFileEdit); { Other tabs display include files which start second tab }
+    Result := FFileMemos.IndexOf(AMemo as TIDEScintFileEdit); { Other tabs display include files which start second tab }
 
    { Filter memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
@@ -4319,7 +4319,7 @@ begin
 end;
 
 { Also see MemoToTabIndex }
-function TCompileForm.TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TCompScintEdit;
+function TCompileForm.TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
 begin
   if ATabIndex = 0 then
     Result := FMemos[0] { First tab displays the main memo which is FMemos[0] }
@@ -4342,15 +4342,15 @@ begin
   end;
 end;
 
-procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TCompScintEdit; const LineNumberOrPosition: Integer;
+procedure TCompileForm.MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
   const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean; const IsPosition: Boolean;
   const PositionVirtualSpace: Integer);
 var
   Pos: Integer;
 begin
   { Reopen tab if needed }
-  if AMemo is TCompScintFileEdit then begin
-    var FileName := (AMemo as TCompScintFileEdit).Filename;
+  if AMemo is TIDEScintFileEdit then begin
+    var FileName := (AMemo as TIDEScintFileEdit).Filename;
     var HiddenFileIndex := FHiddenFiles.IndexOf(Filename);
     if HiddenFileIndex <> -1 then begin
       ReopenTabOrTabs(HiddenFileIndex, False);
@@ -4393,7 +4393,7 @@ begin
   MemosTabSet.TabIndex := MemoToTabIndex(AMemo); { This causes MemosTabSetClick to show the memo }
 end;
 
-procedure TCompileForm.SetErrorLine(const AMemo: TCompScintFileEdit; const ALine: Integer);
+procedure TCompileForm.SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
 var
   OldLine: Integer;
 begin
@@ -4414,7 +4414,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.SetStepLine(const AMemo: TCompScintFileEdit; ALine: Integer);
+procedure TCompileForm.SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
 var
   OldLine: Integer;
 begin
@@ -4440,7 +4440,7 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
 end;
 
-procedure TCompileForm.RemoveMemoFromNav(const AMemo: TCompScintEdit);
+procedure TCompileForm.RemoveMemoFromNav(const AMemo: TIDEScintEdit);
 begin
   if FNavStacks.RemoveMemo(AMemo) then
     UpdateNavButtons;
@@ -4448,7 +4448,7 @@ begin
     FCurrentNavItem.Invalidate;
 end;
 
-procedure TCompileForm.RemoveMemoBadLinesFromNav(const AMemo: TCompScintEdit);
+procedure TCompileForm.RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
 begin
   if FNavStacks.RemoveMemoBadLines(AMemo) then
     UpdateNavButtons;
@@ -4528,7 +4528,7 @@ end;
 
 procedure TCompileForm.NavPopupMenuClick(Sender: TObject);
 
-  procedure AddNavItemToMenu(const NavItem: TCompScintEditNavItem; const Checked: Boolean;
+  procedure AddNavItemToMenu(const NavItem: TIDEScintEditNavItem; const Checked: Boolean;
     const ClicksNeeded: Integer; const Menu: TMenuItem);
   begin
     if NavItem.Line >= NavItem.Memo.Lines.Count then
@@ -4588,7 +4588,7 @@ begin
   StatusBar.Panels[spCaretPos].Text := Text;
 
   { Update NavStacks.Back if needed and remember new position }
-  var NewNavItem := TCompScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
+  var NewNavItem := TIDEScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
   if FCurrentNavItem.Valid and FNavStacks.AddNewBackForJump(FCurrentNavItem, NewNavItem) then
     UpdateNavButtons;
   FCurrentNavItem := NewNavItem;
@@ -4759,7 +4759,7 @@ end;
 
 procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
 
-  procedure UpdatePendingSquiggly(const AMemo: TCompScintEdit);
+  procedure UpdatePendingSquiggly(const AMemo: TIDEScintEdit);
   var
     Pos: Integer;
     Value: Boolean;
@@ -4786,12 +4786,12 @@ procedure TCompileForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates)
     FPendingSquigglyCaretPos := Pos;
   end;
 
-  procedure UpdateBraceHighlighting(const AMemo: TCompScintEdit);
+  procedure UpdateBraceHighlighting(const AMemo: TIDEScintEdit);
   const
     OpeningBraces: TSysCharSet = ['(', '[', '{', '<'];
     ClosingBraces: TSysCharSet = [')', ']', '}', '>'];
 
-    function HighlightPos(const AMemo: TCompScintEdit; const CaretPos: Integer;
+    function HighlightPos(const AMemo: TIDEScintEdit; const CaretPos: Integer;
       const Before: Boolean; const Braces: TSysCharSet): Boolean;
     begin
       var Pos := CaretPos;
@@ -4837,7 +4837,7 @@ begin
   if Updated * [suContent, suSelection] = [] then
     Exit;
 
-  var Memo := Sender as TCompScintEdit;
+  var Memo := Sender as TIDEScintEdit;
 
   if (Memo = FErrorMemo) and ((FErrorMemo.ErrorLine < 0) or (FErrorMemo.CaretPosition <> FErrorMemo.ErrorCaretPosition)) then
     HideError;
@@ -4873,7 +4873,7 @@ end;
 
 procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
 
-  procedure MemoLinesInsertedOrDeleted(Memo: TCompScintFileEdit);
+  procedure MemoLinesInsertedOrDeleted(Memo: TIDEScintFileEdit);
   var
     FirstAffectedLine, Line, LinePos: Integer;
   begin
@@ -4893,12 +4893,12 @@ procedure TCompileForm.MemoChange(Sender: TObject; const Info: TScintEditChangeI
   end;
 
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
 begin
-  if not (Sender is TCompScintFileEdit) then
+  if not (Sender is TIDEScintFileEdit) then
     Exit;
 
-  Memo := TCompScintFileEdit(Sender);
+  Memo := TIDEScintFileEdit(Sender);
 
   if Memo.OpeningFile then
     Exit;
@@ -4925,7 +4925,7 @@ begin
   Memo.ReportCaretPositionToStyler := True;
 end;
 
-function TCompileForm.InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TCompScintEdit;
+function TCompileForm.InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TIDEScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
 begin
   Result := (PositionBeforeWordStartPos < WordStartLinePos) or
@@ -4934,7 +4934,7 @@ end;
 
 procedure TCompileForm.InitiateAutoComplete(const Key: AnsiChar);
 
-  function OnlyWhiteSpaceBeforeWord(const Memo: TCompScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  function OnlyWhiteSpaceBeforeWord(const Memo: TIDEScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   var
     I: Integer;
     C: AnsiChar;
@@ -5421,7 +5421,7 @@ begin
   Line := FActiveMemo.GetLineFromPosition(Pos);
 
   { Check if cursor is over a [Code] variable }
-  if (FActiveMemo is TCompScintFileEdit) and
+  if (FActiveMemo is TIDEScintFileEdit) and
      (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode) then begin
     { Note: The '+ 1' is needed so that when the mouse is over a '.'
       between two words, it won't match the word to the left of the '.' }
@@ -5429,7 +5429,7 @@ begin
     I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
     J := FActiveMemo.GetWordEndPosition(Pos, True);
     if J > I then begin
-      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TCompScintFileEdit).CompilerFileIndex,
+      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TIDEScintFileEdit).CompilerFileIndex,
         Line, GetCodeColumnFromPosition(I));
       if DebugEntry <> nil then begin
         case EvaluateVariableEntry(DebugEntry, Output) of
@@ -5530,11 +5530,11 @@ begin
   DebuggingStopped(True);
 end;
 
-procedure TCompileForm.GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TCompScintFileEdit; var DebugEntry: PDebugEntry);
+procedure TCompileForm.GetMemoAndDebugEntryFromMessage(Kind, Index: Integer; var Memo: TIDEScintFileEdit; var DebugEntry: PDebugEntry);
 
-  function GetMemoFromDebugEntryFileIndex(const FileIndex: Integer): TCompScintFileEdit;
+  function GetMemoFromDebugEntryFileIndex(const FileIndex: Integer): TIDEScintFileEdit;
   var
-    Memo: TCompScintFileEdit;
+    Memo: TIDEScintFileEdit;
   begin
     Result := nil;
     if FOptions.OpenIncludedFiles then begin
@@ -5585,7 +5585,7 @@ end;
 
 procedure TCompileForm.DebuggerStepped(var Message: TMessage; const Intermediate: Boolean);
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   DebugEntry: PDebugEntry;
   LineNumber: Integer;
 begin
@@ -5644,7 +5644,7 @@ end;
 
 procedure TCompileForm.WMDebuggerException(var Message: TMessage);
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   DebugEntry: PDebugEntry;
   LineNumber: Integer;
   S: String;
@@ -5739,7 +5739,7 @@ begin
   end;
 end;
 
-function TCompileForm.DestroyLineState(const AMemo: TCompScintFileEdit): Boolean;
+function TCompileForm.DestroyLineState(const AMemo: TIDEScintFileEdit): Boolean;
 begin
   if Assigned(AMemo.LineState) then begin
     AMemo.LineStateCapacity := 0;
@@ -5754,7 +5754,7 @@ end;
 procedure TCompileForm.DestroyDebugInfo;
 var
   HadDebugInfo: Boolean;
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
 begin
   HadDebugInfo := False;
   for Memo in FFileMemos do
@@ -5779,13 +5779,13 @@ end;
 
 var
   PrevCompilerFileIndex: Integer;
-  PrevMemo: TCompScintFileEdit;
+  PrevMemo: TIDEScintFileEdit;
 
 procedure TCompileForm.ParseDebugInfo(DebugInfo: Pointer);
 
-  function GetMemoFromCompilerFileIndex(const CompilerFileIndex: Integer): TCompScintFileEdit;
+  function GetMemoFromCompilerFileIndex(const CompilerFileIndex: Integer): TIDEScintFileEdit;
   var
-    Memo: TCompScintFileEdit;
+    Memo: TIDEScintFileEdit;
   begin
     if (PrevCompilerFileIndex <> CompilerFileIndex) then begin
       PrevMemo := nil;
@@ -5803,7 +5803,7 @@ procedure TCompileForm.ParseDebugInfo(DebugInfo: Pointer);
 { This creates and fills the DebugEntries and Memo LineState arrays }
 var
   Header: PDebugInfoHeader;
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   Size: Cardinal;
   I: Integer;
 begin
@@ -5866,7 +5866,7 @@ end;
 procedure TCompileForm.ResetAllMemosLineState;
 { Changes green dots back to grey dots }
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   I: Integer;
 begin
   for Memo in FFileMemos do begin
@@ -5997,7 +5997,7 @@ end;
 
 procedure TCompileForm.BreakPointsPopupMenuClick(Sender: TObject);
 begin
-  RToggleBreakPoint2.Enabled := FActiveMemo is TCompScintFileEdit;
+  RToggleBreakPoint2.Enabled := FActiveMemo is TIDEScintFileEdit;
   RDeleteBreakPoints2.Enabled := AnyMemoHasBreakPoint;
   { Also see UpdateRunMenu }
 
@@ -6015,11 +6015,11 @@ begin
   RunButton.Enabled := RRun.Enabled;
   RPause.Enabled := FDebugging and not FPaused;
   PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TCompScintFileEdit);
+  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
   RStepOut.Enabled := FPaused;
-  RToggleBreakPoint.Enabled := FActiveMemo is TCompScintFileEdit;
+  RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
@@ -6028,7 +6028,7 @@ end;
 
 procedure TCompileForm.UpdateSaveMenuItemAndButton;
 begin
-  FSave.Enabled := FActiveMemo is TCompScintFileEdit;
+  FSave.Enabled := FActiveMemo is TIDEScintFileEdit;
   SaveButton.Enabled := FSave.Enabled;
 end;
 
@@ -6612,7 +6612,7 @@ end;
 
 procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
-  function GetDebugEntryFromMemoAndLineNumber(Memo: TCompScintFileEdit; LineNumber: Integer;
+  function GetDebugEntryFromMemoAndLineNumber(Memo: TIDEScintFileEdit; LineNumber: Integer;
     var DebugEntry: TDebugEntry): Boolean;
   var
     I: Integer;
@@ -6630,7 +6630,7 @@ procedure TCompileForm.RRunToCursorClick(Sender: TObject);
 
 begin
   CompileIfNecessary;
-  if not GetDebugEntryFromMemoAndLineNumber((FActiveMemo as TCompScintFileEdit), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
+  if not GetDebugEntryFromMemoAndLineNumber((FActiveMemo as TIDEScintFileEdit), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
     MsgBox('No code was generated for the current line.', SCompilerFormCaption,
       mbError, MB_OK);
     Exit;
@@ -7058,7 +7058,7 @@ const
       'also been made in the source editor.' + SNewLine2 + 'Do you want to ' +
       'reload the file and lose the changes made in the source editor?');
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   NewTime: TFileTime;
   Changed: Boolean;
 begin
@@ -7159,7 +7159,7 @@ end;
 procedure TCompileForm.FindResultsListDblClick(Sender: TObject);
 var
   FindResult: TFindResult;
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   I: Integer;
 begin
   I := FindResultsList.ItemIndex;
@@ -7263,10 +7263,10 @@ end;
 
 procedure TCompileForm.ToggleBreakPoint(Line: Integer);
 var
-  Memo: TCompScintFileEdit;
+  Memo: TIDEScintFileEdit;
   I: Integer;
 begin
-  Memo := FActiveMemo as TCompScintFileEdit;
+  Memo := FActiveMemo as TIDEScintFileEdit;
   I := Memo.BreakPoints.IndexOf(Line);
   if I = -1 then
     Memo.BreakPoints.Add(Line)
@@ -7317,7 +7317,7 @@ begin
   end;
 end;
 
-procedure TCompileForm.MemoLinesInserted(Memo: TCompScintFileEdit; FirstLine, Count: integer);
+procedure TCompileForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
 var
   I, Line: Integer;
 begin
@@ -7362,7 +7362,7 @@ begin
   FNavStacks.LinesInserted(Memo, FirstLine, Count);
 end;
 
-procedure TCompileForm.MemoLinesDeleted(Memo: TCompScintFileEdit; FirstLine, Count,
+procedure TCompileForm.MemoLinesDeleted(Memo: TIDEScintFileEdit; FirstLine, Count,
   FirstAffectedLine: Integer);
 var
   I, Line: Integer;
@@ -7437,7 +7437,7 @@ begin
   UpdateLineMarkers(Memo, FirstAffectedLine);
 end;
 
-procedure TCompileForm.UpdateLineMarkers(const AMemo: TCompScintFileEdit; const Line: Integer);
+procedure TCompileForm.UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
 var
   NewMarker: Integer;
 begin
@@ -7481,7 +7481,7 @@ begin
     AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 
-procedure TCompileForm.UpdateAllMemoLineMarkers(const AMemo: TCompScintFileEdit);
+procedure TCompileForm.UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
 begin
   for var Line := 0 to AMemo.Lines.Count-1 do
     UpdateLineMarkers(AMemo, Line);

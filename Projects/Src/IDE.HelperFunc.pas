@@ -14,7 +14,7 @@ interface
 uses
   Windows,
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls,
-  ScintEdit, IDE.CompScintEdit, ModernColors;
+  ScintEdit, IDE.IDEScintEdit, ModernColors;
 
 const
   MRUListMaxCount = 10;
@@ -43,7 +43,7 @@ function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 function GetDefaultKeyMappingType: TKeyMappingType;
-function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
+function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure ClearMRUList(const MRUList: TStringList; const Section: String);
@@ -284,7 +284,7 @@ begin
   Result := kmtDelphi;
 end;
 
-function GetDefaultMemoKeyMappingType: TCompScintKeyMappingType;
+function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 begin
   Result := kmtDefault;
 end;

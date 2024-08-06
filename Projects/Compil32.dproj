@@ -113,7 +113,7 @@
         <DCCReference Include="Src\IDE.MsgBoxDesignerForm.pas">
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\IDE.CompScintEdit.pas"/>
+        <DCCReference Include="Src\IDE.IDEScintEdit.pas"/>
         <DCCReference Include="Src\IDE.FilesDesignerForm.pas">
             <Form>FilesDesignerForm</Form>
         </DCCReference>

@@ -82,7 +82,7 @@ begin
   KeyMappingComboBox.Items.Add('Classic');
   KeyMappingComboBox.Items.Add('Visual Studio / Visual Studio Code');
 
-  { Order must match TCompScintKeyMappingType }
+  { Order must match TIDEScintKeyMappingType }
   MemoKeyMappingComboBox.Items.Add('Classic / Visual Studio');
   MemoKeyMappingComboBox.Items.Add('Visual Studio Code');
 

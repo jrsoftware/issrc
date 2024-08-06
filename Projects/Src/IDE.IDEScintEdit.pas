@@ -1,4 +1,4 @@
-unit IDE.CompScintEdit;
+unit IDE.IDEScintEdit;
 
 {
   Inno Setup
@@ -55,38 +55,38 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
-  TCompScintIndicatorNumber = 0..minMax;
+  TIDEScintIndicatorNumber = 0..minMax;
 
  { Keymaps - Note: Scintilla's default keymap is the same or at least nearly
    the same as Visual Studio's }
-  TCompScintKeyMappingType = (kmtDefault, kmtVSCode);
+  TIDEScintKeyMappingType = (kmtDefault, kmtVSCode);
 
  { Commands which require more than 1 parameterless SCI_XXXXX and need help
    from the container }
-  TCompScintComplexCommand = (ccNone, ccSelectNextOccurrence,
+  TIDEScintComplexCommand = (ccNone, ccSelectNextOccurrence,
     ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
     ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
     ccAddCursorDown, ccBraceMatch);
 
-  TCompScintEdit = class(TScintEdit)
+  TIDEScintEdit = class(TScintEdit)
   private
     type
-      TCompScintComplexCommands = TDictionary<TShortCut, TCompScintComplexCommand>;
-      TCompScintComplexCommandsReversed = TDictionary<TCompScintComplexCommand, TShortCut>;
+      TIDEScintComplexCommands = TDictionary<TShortCut, TIDEScintComplexCommand>;
+      TIDEScintComplexCommandsReversed = TDictionary<TIDEScintComplexCommand, TShortCut>;
     var
-      FKeyMappingType: TCompScintKeyMappingType;
-      FComplexCommands: TCompScintComplexCommands;
-      FComplexCommandsReversed: TCompScintComplexCommandsReversed;
+      FKeyMappingType: TIDEScintKeyMappingType;
+      FComplexCommands: TIDEScintComplexCommands;
+      FComplexCommandsReversed: TIDEScintComplexCommandsReversed;
       FUseFolding: Boolean;
       FTheme: TTheme;
       FOpeningFile: Boolean;
       FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
-      FIndicatorCount: array[TCompScintIndicatorNumber] of Integer;
-      FIndicatorHash: array[TCompScintIndicatorNumber] of String;
+      FIndicatorCount: array[TIDEScintIndicatorNumber] of Integer;
+      FIndicatorHash: array[TIDEScintIndicatorNumber] of String;
       procedure AddComplexCommand(const ShortCut: TShortCut;
-        Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean = False);
+        Command: TIDEScintComplexCommand; const AlternativeShortCut: Boolean = False);
       procedure SetUseFolding(const Value: Boolean);
-      procedure SetKeyMappingType(const Value: TCompScintKeyMappingType);
+      procedure SetKeyMappingType(const Value: TIDEScintKeyMappingType);
       procedure UpdateComplexCommands;
   protected
     procedure CreateWnd; override;
@@ -96,21 +96,21 @@ type
     property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
-    function GetComplexCommand(const ShortCut: TShortCut): TCompScintComplexCommand;
-    function GetComplexCommandShortCut(const Command: TCompScintComplexCommand): TShortCut;
+    function GetComplexCommand(const ShortCut: TShortCut): TIDEScintComplexCommand;
+    function GetComplexCommandShortCut(const Command: TIDEScintComplexCommand): TShortCut;
     function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
-      const IndicatorNumber: TCompScintIndicatorNumber);
+      const IndicatorNumber: TIDEScintIndicatorNumber);
     procedure UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
       BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
       RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
-    property KeyMappingType: TCompScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
+    property KeyMappingType: TIDEScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
     property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
-  TCompScintFileEdit = class(TCompScintEdit)
+  TIDEScintFileEdit = class(TIDEScintEdit)
   private
     FBreakPoints: TList<Integer>;
     FCompilerFileIndex: Integer;
@@ -131,41 +131,41 @@ type
     property SaveEncoding: TSaveEncoding read FSaveEncoding write FSaveEncoding;
   end;
 
-  TCompScintEditNavItem = record
-    Memo: TCompScintEdit;
+  TIDEScintEditNavItem = record
+    Memo: TIDEScintEdit;
     Line, Column, VirtualSpace: Integer;
-    constructor Create(const AMemo: TCompScintEdit);
-    function EqualMemoAndLine(const ANavItem: TCompScintEditNavItem): Boolean;
+    constructor Create(const AMemo: TIDEScintEdit);
+    function EqualMemoAndLine(const ANavItem: TIDEScintEditNavItem): Boolean;
     procedure Invalidate;
     function Valid: Boolean;
   end;
 
   { Not using TStack since it lacks a way the keep a maximum amount of items by discarding the oldest }
-  TCompScintEditNavStack = class(TList<TCompScintEditNavItem>)
+  TIDEScintEditNavStack = class(TList<TIDEScintEditNavItem>)
   public
-    function LinesDeleted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer): Boolean;
-    procedure LinesInserted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer);
+    function LinesDeleted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer): Boolean;
+    procedure LinesInserted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer);
     procedure Optimize;
-    function RemoveMemo(const AMemo: TCompScintEdit): Boolean;
-    function RemoveMemoBadLines(const AMemo: TCompScintEdit): Boolean;
+    function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
+    function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
   end;
 
-  TCompScintEditNavStacks = class
+  TIDEScintEditNavStacks = class
   private
-    FBackNavStack: TCompScintEditNavStack;
-    FForwardNavStack: TCompScintEditNavStack;
+    FBackNavStack: TIDEScintEditNavStack;
+    FForwardNavStack: TIDEScintEditNavStack;
   public
     constructor Create;
     destructor Destroy; override;
-    function AddNewBackForJump(const OldNavItem, NewNavItem: TCompScintEditNavItem): Boolean;
+    function AddNewBackForJump(const OldNavItem, NewNavItem: TIDEScintEditNavItem): Boolean;
     procedure Clear;
     procedure Limit;
-    function LinesDeleted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer): Boolean;
-    procedure LinesInserted(const AMemo: TCompScintEdit; const FirstLine, LineCount: Integer);
-    function RemoveMemo(const AMemo: TCompScintEdit): Boolean;
-    function RemoveMemoBadLines(const AMemo: TCompScintEdit): Boolean;
-    property Back: TCompScintEditNavStack read FBackNavStack;
-    property Forward: TCompScintEditNavStack read FForwardNavStack;
+    function LinesDeleted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer): Boolean;
+    procedure LinesInserted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer);
+    function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
+    function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
+    property Back: TIDEScintEditNavStack read FBackNavStack;
+    property Forward: TIDEScintEditNavStack read FForwardNavStack;
   end;
 
 implementation
@@ -173,21 +173,21 @@ implementation
 uses
   SysUtils, MD5, ScintInt.InnoSetup;
   
-{ TCompScintEdit }
+{ TIDEScintEdit }
 
-constructor TCompScintEdit.Create(AOwner: TComponent);
+constructor TIDEScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
 
-  FComplexCommands := TCompScintComplexCommands.Create;
-  FComplexCommandsReversed := TCompScintComplexCommandsReversed.Create;
+  FComplexCommands := TIDEScintComplexCommands.Create;
+  FComplexCommandsReversed := TIDEScintComplexCommandsReversed.Create;
 
   FKeyMappingType := kmtDefault;
   UpdateComplexCommands;
   FUseFolding := True;
 end;
 
-destructor TCompScintEdit.Destroy;
+destructor TIDEScintEdit.Destroy;
 begin
   FComplexCommandsReversed.Free;
   FComplexCommands.Free;
@@ -195,7 +195,7 @@ begin
   inherited;
 end;
 
-procedure TCompScintEdit.CreateWnd;
+procedure TIDEScintEdit.CreateWnd;
 begin
   inherited;
 
@@ -295,8 +295,8 @@ begin
   Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
-procedure TCompScintEdit.AddComplexCommand(const ShortCut: TShortCut;
-  Command: TCompScintComplexCommand; const AlternativeShortCut: Boolean);
+procedure TIDEScintEdit.AddComplexCommand(const ShortCut: TShortCut;
+  Command: TIDEScintComplexCommand; const AlternativeShortCut: Boolean);
 begin
   if Command = ccNone then
     raise Exception.Create('Command = ccNone');
@@ -305,21 +305,21 @@ begin
     FComplexCommandsReversed.Add(Command, ShortCut);
 end;
 
-function TCompScintEdit.GetComplexCommand(
-  const ShortCut: TShortCut): TCompScintComplexCommand;
+function TIDEScintEdit.GetComplexCommand(
+  const ShortCut: TShortCut): TIDEScintComplexCommand;
 begin
   if not FComplexCommands.TryGetValue(ShortCut, Result) or
      (ReadOnly and (Result = ccToggleLinesComment)) then
     Result := ccNone;
 end;
 
-function TCompScintEdit.GetComplexCommandShortCut(
-  const Command: TCompScintComplexCommand): TShortCut;
+function TIDEScintEdit.GetComplexCommandShortCut(
+  const Command: TIDEScintComplexCommand): TShortCut;
 begin
   Result := FComplexCommandsReversed[Command];
 end;
 
-function TCompScintEdit.GetRectExtendShiftState(
+function TIDEScintEdit.GetRectExtendShiftState(
   const Desired: Boolean): TShiftState;
 begin
   Result := [ssShift, ssAlt];
@@ -328,8 +328,8 @@ begin
     Include(Result, ssCtrl);
 end;
 
-procedure TCompScintEdit.SetKeyMappingType(
-  const Value: TCompScintKeyMappingType);
+procedure TIDEScintEdit.SetKeyMappingType(
+  const Value: TIDEScintKeyMappingType);
 begin
   if FKeyMappingType <> Value then begin
     FKeyMappingType := Value;
@@ -350,7 +350,7 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateComplexCommands;
+procedure TIDEScintEdit.UpdateComplexCommands;
 begin
   FComplexCommands.Clear;
   FComplexCommandsReversed.Clear;
@@ -381,7 +381,7 @@ begin
   AddComplexCommand(ShortCut(VK_OEM_5, [ssShift, ssCtrl]), ccBraceMatch);
 end;
 
-procedure TCompScintEdit.SetUseFolding(const Value: Boolean);
+procedure TIDEScintEdit.SetUseFolding(const Value: Boolean);
 begin
   if FUseFolding <> Value then begin
     FUseFolding := Value;
@@ -394,8 +394,8 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
-  const IndicatorNumber: TCompScintIndicatorNumber);
+procedure TIDEScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
+  const IndicatorNumber: TIDEScintIndicatorNumber);
 
   function HashRanges(const Ranges: TScintRangeList): String;
   begin
@@ -434,7 +434,7 @@ begin
   end;
 end;
 
-procedure TCompScintEdit.UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
+procedure TIDEScintEdit.UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
   RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
 begin
@@ -463,7 +463,7 @@ begin
   Call(SCI_SETCARETWIDTH, CaretWidth, 0);
 end;
 
-procedure TCompScintEdit.UpdateThemeColorsAndStyleAttributes;
+procedure TIDEScintEdit.UpdateThemeColorsAndStyleAttributes;
 begin
   if FTheme <> nil then begin { Always True at the moment }
     Font.Color := FTheme.Colors[tcFore];
@@ -511,23 +511,23 @@ begin
   UpdateStyleAttributes;
 end;
 
-{ TCompScintFileEdit }
+{ TIDEScintFileEdit }
 
-constructor TCompScintFileEdit.Create;
+constructor TIDEScintFileEdit.Create;
 begin
   inherited;
   FBreakPoints := TList<Integer>.Create;
 end;
 
-destructor TCompScintFileEdit.Destroy;
+destructor TIDEScintFileEdit.Destroy;
 begin
   FBreakPoints.Free;
   inherited;
 end;
 
-{ TCompScintEditNavItem }
+{ TIDEScintEditNavItem }
 
-constructor TCompScintEditNavItem.Create(const AMemo: TCompScintEdit);
+constructor TIDEScintEditNavItem.Create(const AMemo: TIDEScintEdit);
 begin
   Memo := AMemo;
   Line := AMemo.CaretLine;
@@ -535,25 +535,25 @@ begin
   VirtualSpace := AMemo.CaretVirtualSpace;
 end;
 
-function TCompScintEditNavItem.EqualMemoAndLine(
-  const ANavItem: TCompScintEditNavItem): Boolean;
+function TIDEScintEditNavItem.EqualMemoAndLine(
+  const ANavItem: TIDEScintEditNavItem): Boolean;
 begin
   Result := (Memo = ANavItem.Memo) and (Line = ANavItem.Line);
 end;
 
-procedure TCompScintEditNavItem.Invalidate;
+procedure TIDEScintEditNavItem.Invalidate;
 begin
   Memo := nil;
 end;
 
-function TCompScintEditNavItem.Valid: Boolean;
+function TIDEScintEditNavItem.Valid: Boolean;
 begin
   Result := (Memo <> nil) and (Line < Memo.Lines.Count); { Line check: see MemoLinesDeleted and RemoveMemoBadLinesFromNav }
 end;
 
-{ TCompScintEditNavStack }
+{ TIDEScintEditNavStack }
 
-function TCompScintEditNavStack.LinesDeleted(const AMemo: TCompScintEdit;
+function TIDEScintEditNavStack.LinesDeleted(const AMemo: TIDEScintEdit;
   const FirstLine, LineCount: Integer): Boolean;
 begin
   Result := False;
@@ -576,7 +576,7 @@ begin
     Optimize;
 end;
 
-procedure TCompScintEditNavStack.LinesInserted(const AMemo: TCompScintEdit;
+procedure TIDEScintEditNavStack.LinesInserted(const AMemo: TIDEScintEdit;
   const FirstLine, LineCount: Integer);
 begin
   for var I := 0 to Count-1 do begin
@@ -591,7 +591,7 @@ begin
   end;
 end;
 
-procedure TCompScintEditNavStack.Optimize;
+procedure TIDEScintEditNavStack.Optimize;
 begin
   { Turn two entries for the same memo and line which are next to each other
     into one entry, ignoring column differences (like Visual Studio 2022)
@@ -602,8 +602,8 @@ begin
       Delete(I);
 end;
 
-function TCompScintEditNavStack.RemoveMemo(
-  const AMemo: TCompScintEdit): Boolean;
+function TIDEScintEditNavStack.RemoveMemo(
+  const AMemo: TIDEScintEdit): Boolean;
 begin
   Result := False;
   for var I := Count-1 downto 0 do begin
@@ -616,8 +616,8 @@ begin
     Optimize;
 end;
 
-function TCompScintEditNavStack.RemoveMemoBadLines(
-  const AMemo: TCompScintEdit): Boolean;
+function TIDEScintEditNavStack.RemoveMemoBadLines(
+  const AMemo: TIDEScintEdit): Boolean;
 begin
   Result := False;
   var LastGoodLine := AMemo.Lines.Count-1;
@@ -631,24 +631,24 @@ begin
     Optimize;
 end;
 
-{ TCompScintEditNavStacks }
+{ TIDEScintEditNavStacks }
 
-constructor TCompScintEditNavStacks.Create;
+constructor TIDEScintEditNavStacks.Create;
 begin
   inherited;
-  FBackNavStack := TCompScintEditNavStack.Create;
-  FForwardNavStack := TCompScintEditNavStack.Create;
+  FBackNavStack := TIDEScintEditNavStack.Create;
+  FForwardNavStack := TIDEScintEditNavStack.Create;
 end;
 
-destructor TCompScintEditNavStacks.Destroy;
+destructor TIDEScintEditNavStacks.Destroy;
 begin
   FForwardNavStack.Free;
   FBackNavStack.Free;
   inherited;
 end;
 
-function TCompScintEditNavStacks.AddNewBackForJump(const OldNavItem,
-  NewNavItem: TCompScintEditNavItem): Boolean;
+function TIDEScintEditNavStacks.AddNewBackForJump(const OldNavItem,
+  NewNavItem: TIDEScintEditNavItem): Boolean;
 begin
   { Want a new item when changing tabs or moving at least 11 lines at once,
     similar to Visual Studio 2022, see:
@@ -662,13 +662,13 @@ begin
   end;
 end;
 
-procedure TCompScintEditNavStacks.Clear;
+procedure TIDEScintEditNavStacks.Clear;
 begin
   FBackNavStack.Clear;
   FForwardNavStack.Clear;
 end;
 
-procedure TCompScintEditNavStacks.Limit;
+procedure TIDEScintEditNavStacks.Limit;
 begin
   { The dropdown showing both stacks + the current nav item should show at most
     16 items just like Visual Studio 2022 }
@@ -676,29 +676,29 @@ begin
     FBackNavStack.Delete(0);
 end;
 
-function TCompScintEditNavStacks.LinesDeleted(const AMemo: TCompScintEdit;
+function TIDEScintEditNavStacks.LinesDeleted(const AMemo: TIDEScintEdit;
   const FirstLine, LineCount: Integer): Boolean;
 begin
   Result := FBackNavStack.LinesDeleted(AMemo, FirstLine, LineCount);
   Result := FForwardNavStack.LinesDeleted(AMemo, FirstLine, LineCount) or Result;
 end;
 
-procedure TCompScintEditNavStacks.LinesInserted(const AMemo: TCompScintEdit;
+procedure TIDEScintEditNavStacks.LinesInserted(const AMemo: TIDEScintEdit;
   const FirstLine, LineCount: Integer);
 begin
   FBackNavStack.LinesInserted(AMemo, FirstLine, LineCount);
   FForwardNavStack.LinesInserted(AMemo, FirstLine, LineCount);
 end;
 
-function TCompScintEditNavStacks.RemoveMemo(
-  const AMemo: TCompScintEdit): Boolean;
+function TIDEScintEditNavStacks.RemoveMemo(
+  const AMemo: TIDEScintEdit): Boolean;
 begin
   Result := FBackNavStack.RemoveMemo(AMemo);
   Result := FForwardNavStack.RemoveMemo(AMemo) or Result;
 end;
 
-function TCompScintEditNavStacks.RemoveMemoBadLines(
-  const AMemo: TCompScintEdit): Boolean;
+function TIDEScintEditNavStacks.RemoveMemoBadLines(
+  const AMemo: TIDEScintEdit): Boolean;
 begin
   Result := FBackNavStack.RemoveMemoBadLines(AMemo);
   Result := FForwardNavStack.RemoveMemoBadLines(AMemo) or Result;

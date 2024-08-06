@@ -37,7 +37,7 @@ uses
   IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
   IDE.MsgBoxDesignerForm in 'Src\IDE.MsgBoxDesignerForm.pas' {MsgBoxDesignerForm},
-  IDE.CompScintEdit in 'Src\IDE.CompScintEdit.pas',
+  IDE.IDEScintEdit in 'Src\IDE.IDEScintEdit.pas',
   IDE.FilesDesignerForm in 'Src\IDE.FilesDesignerForm.pas' {FilesDesignerForm},
   IDE.Wizard.WizardFormFilesHelper in 'Src\IDE.Wizard.WizardFormFilesHelper.pas',
   NewTabSet in '..\Components\NewTabSet.pas',
