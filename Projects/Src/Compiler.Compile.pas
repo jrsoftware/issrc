@@ -13,7 +13,7 @@ unit Compiler.Compile;
 { For debugging purposes, remove the 'x' to have it link the ISPP code into this
   program and not depend on ISPP.dll. You will also need to add the Src
   folder to the Delphi Compiler Search path in the project options. Most useful
-  when combine with IDE.MainForm's STATICCOMPILER. }
+  when combined with IDE.MainForm's or ISCC's STATICCOMPILER. }
 
 interface
 
@@ -30,13 +30,13 @@ type
 implementation
 
 uses
-  Shared.PreprocInt, Commctrl, Consts, Classes, IniFiles, TypInfo, AnsiStrings, Math,
-  Generics.Collections, StrUtils, WideStrUtils,
+  Shared.PreprocInt, Commctrl, Vcl.Consts { Vcl prefix for ISCC's STATICCOMPILER support }, Classes,
+  IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, Shared.CommonFunc, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMACompressor, Shared.ArcFour, SHA1,
   Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfoFunc, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
-  IsppPreprocess,
+  ISPP.Preprocess,
 {$ENDIF}
   Compiler.ScriptCompiler, SimpleExpression, Shared.SetupTypes;
 

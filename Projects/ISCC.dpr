@@ -12,14 +12,16 @@ program ISCC;
 
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code
-  into this program and not depend on ISCmplr.dll. }
+  into this program and not depend on ISCmplr.dll. You will also need to add the
+  ..\Components and Src folders to the Delphi Compiler Search path in the project
+  options. Also see IDE.MainForm's STATICCOMPILER and Compiler.Compile's STATICPREPROC. }
 
 uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
   Classes,
-  {$IFDEF STATICCOMPILER} ISCmplr.Compile in 'Src\ISCmplr\ISCmplr.Compile.pas', {$ENDIF}
+  Compiler.Compile,
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',

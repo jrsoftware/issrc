@@ -12,8 +12,8 @@
 {x$DEFINE STATICCOMPILER}
 { For debugging purposes, remove the 'x' to have it link the compiler code into
   this program and not depend on ISCmplr.dll. You will also need to add the
-  ..\Components and Src folders to the Delphi Compiler Search path
-  in the project options. Also see Compiler.Compile's STATICPREPROC. }
+  ..\Components and Src folders to the Delphi Compiler Search path in the project
+  options. Also see ISCC's STATICCOMPILER and Compiler.Compile's STATICPREPROC. }
 
 {$IFDEF STATICCOMPILER}
 {$R ..\Res\ISCmplr.images.res}
@@ -653,7 +653,7 @@ uses
   Math, StrUtils, WideStrUtils,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc,
-  {$IFDEF STATICCOMPILER} Compile, {$ENDIF}
+  {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
