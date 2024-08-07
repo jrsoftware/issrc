@@ -149,12 +149,9 @@ How do the projects link together?
   If Shared.Struct.pas is changed, you usually will need to recompile all these
   projects so that everything is in synch.
 
-- There are more units which are shared between projects. These are located
-  in the [Projects\Src] directory. Project-specific units are in their respective
-  subdirectories of this directory, for example [Projects\Src\Compil32] has
-  all units used by the Compiler IDE only. Check the .dpr files of the
-  projects for unit usage details.
-
+- There are more units which are shared between projects. Search the .dpr
+  files of the projects if you aren't sure if a project uses a particular
+  unit.
 
 Source code tips
 ----------------
