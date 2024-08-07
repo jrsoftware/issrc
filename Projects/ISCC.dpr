@@ -21,7 +21,7 @@ uses
   Windows,
   SysUtils,
   Classes,
-  Compiler.Compile,
+  {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
