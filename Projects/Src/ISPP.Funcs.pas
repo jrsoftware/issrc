@@ -22,7 +22,7 @@ implementation
 uses
   SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
   ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, PathFunc, Shared.CommonFunc,
-  Shared.Int64Em;
+  Shared.Int64Em, Hash;
   
 var
   IsWin64: Boolean;
@@ -1661,21 +1661,20 @@ end;
 function GetMD5OfFile(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: TFile;
-  NumRead: Cardinal;
-  Context: TMD5Context;
   Buf: array[0..65535] of Byte;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
+      var Context: TMD5Context;
       MD5Init(Context);
-      F := TFile.Create(PrependPath(Ext, Get(0).AsStr), fdOpenExisting, faRead, fsReadWrite);
+      var F := TFile.Create(PrependPath(Ext, Get(0).AsStr), fdOpenExisting, faRead, fsReadWrite);
       try
         while True do begin
-          NumRead := F.Read(Buf, SizeOf(Buf));
-          if NumRead = 0 then Break;
+          var NumRead := F.Read(Buf, SizeOf(Buf));
+          if NumRead = 0 then
+            Break;
           MD5Update(Context, Buf, NumRead);
         end;
       finally
@@ -1694,14 +1693,12 @@ end;
 
 function GetMD5OfString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  S: AnsiString;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      S := AnsiString(Get(0).AsStr);
+      var S := AnsiString(Get(0).AsStr);
       MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
     end;
   except
@@ -1715,14 +1712,12 @@ end;
 
 function GetMD5OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  S: UnicodeString;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      S := Get(0).AsStr;
+      var S := Get(0).AsStr;
       MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
     end;
   except
@@ -1737,21 +1732,20 @@ end;
 function GetSHA1OfFile(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: TFile;
-  NumRead: Cardinal;
-  Context: TSHA1Context;
   Buf: array[0..65535] of Byte;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
+      var Context: TSHA1Context;
       SHA1Init(Context);
-      F := TFile.Create(PrependPath(Ext, Get(0).AsStr), fdOpenExisting, faRead, fsReadWrite);
+      var F := TFile.Create(PrependPath(Ext, Get(0).AsStr), fdOpenExisting, faRead, fsReadWrite);
       try
         while True do begin
-          NumRead := F.Read(Buf, SizeOf(Buf));
-          if NumRead = 0 then Break;
+          var NumRead := F.Read(Buf, SizeOf(Buf));
+          if NumRead = 0 then
+            Break;
           SHA1Update(Context, Buf, NumRead);
         end;
       finally
@@ -1770,14 +1764,12 @@ end;
 
 function GetSHA1OfString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  S: AnsiString;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      S := AnsiString(Get(0).AsStr);
+      var S := AnsiString(Get(0).AsStr);
       MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
     end;
   except
@@ -1791,15 +1783,83 @@ end;
 
 function GetSHA1OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  S: UnicodeString;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      S := Get(0).AsStr;
+      var S := Get(0).AsStr;
       MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function GetSHA256OfFile(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      MakeStr(ResPtr^, THashSHA2.GetHashStringFromFile(Get(0).AsStr, SHA256));
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function GetSHA256OfString(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      var S := AnsiString(Get(0).AsStr);
+      var M := TMemoryStream.Create;
+      try
+        M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
+        M.Seek(0, soFromBeginning);
+        MakeStr(ResPtr^, THashSHA2.GetHashString(M, SHA256));
+      finally
+        M.Free;
+      end;
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
+function GetSHA256OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      var S := Get(0).AsStr;
+      var M := TMemoryStream.Create;
+      try
+        M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
+        M.Seek(0, soFromBeginning);
+        MakeStr(ResPtr^, THashSHA2.GetHashString(M, SHA256));
+      finally
+        M.Free;
+      end;
     end;
   except
     on E: Exception do
@@ -2009,6 +2069,9 @@ begin
     RegisterFunction('GetSHA1OfFile', GetSHA1OfFile, -1);
     RegisterFunction('GetSHA1OfString', GetSHA1OfString, -1);
     RegisterFunction('GetSHA1OfUnicodeString', GetSHA1OfUnicodeString, -1);
+    RegisterFunction('GetSHA256OfFile', GetSHA256OfFile, -1);
+    RegisterFunction('GetSHA256OfString', GetSHA256OfString, -1);
+    RegisterFunction('GetSHA256OfUnicodeString', GetSHA256OfUnicodeString, -1);
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);

@@ -1249,7 +1249,6 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified Unicode string, as a string.</p>
-					<p>Causes an internal error if called during non Unicode compilation.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1275,16 +1274,27 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Gets the SHA-1 hash of the specified ANSI string, as a string.</p>
 				</description>
+				<section title="Example">
+					<pre>
+						<line>#define SHA1 GetSHA1OfString('Test')</line>
+						<line>// SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'</line>
+					</pre>
+				</section>
 			</topic>
 			<topic id="GetSHA1OfUnicodeString">
 				<title>GetSHA1OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA1OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA1OfUnicodeString(<b>str</b>)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified Unicode string, as a string.</p>
-					<p>Causes an internal error if called during non Unicode compilation.</p>
 				</description>
+				<section title="Example">
+					<pre>
+						<line>#define SHA1 GetSHA1OfUnicodeString('Test')</line>
+						<line>// SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'</line>
+					</pre>
+				</section>
 			</topic>
 			<topic id="GetSHA1OfFile">
 				<title>GetSHA1OfFile</title>
@@ -1293,6 +1303,45 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified file, as a string.</p>
+				</description>
+			</topic>
+			<topic id="GetSHA256OfString">
+				<title>GetSHA256OfString</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> GetSHA256OfString(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<p>Gets the SHA-256 hash of the specified ANSI string, as a string.</p>
+				</description>
+				<section title="Example">
+					<pre>
+						<line>#define SHA256 GetSHA256OfString('Test')</line>
+						<line>// SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'</line>
+					</pre>
+				</section>
+			</topic>
+			<topic id="GetSHA256OfUnicodeString">
+				<title>GetSHA256OfUnicodeString</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> GetSHA256OfString(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<p>Gets the SHA-256 hash of the specified Unicode string, as a string.</p>
+				</description>
+				<section title="Example">
+					<pre>
+						<line>#define SHA256 GetSHA256OfUnicodeString('Test')</line>
+						<line>// SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'</line>
+					</pre>
+				</section>
+			</topic>
+			<topic id="GetSHA256OfFile">
+				<title>GetSHA256OfFile</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> GetSHA256OfFile(<b>str</b>)</line></pre>
+				</section>
+				<description>
+					<p>Gets the SHA-256 hash of the specified file, as a string.</p>
 				</description>
 			</topic>
 			<topic id="Trim">

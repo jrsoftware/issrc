@@ -560,17 +560,16 @@ function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TM
 { Gets MD5 sum of the file Filename. An exception will be raised upon
   failure. }
 var
-  F: TFile;
-  NumRead: Cardinal;
-  Context: TMD5Context;
   Buf: array[0..65535] of Byte;
 begin
+  var Context: TMD5Context;
   MD5Init(Context);
-  F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
-      NumRead := F.Read(Buf, SizeOf(Buf));
-      if NumRead = 0 then Break;
+      var NumRead := F.Read(Buf, SizeOf(Buf));
+      if NumRead = 0 then
+        Break;
       MD5Update(Context, Buf, NumRead);
     end;
   finally
@@ -583,17 +582,16 @@ function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): T
 { Gets SHA-1 sum of the file Filename. An exception will be raised upon
   failure. }
 var
-  F: TFile;
-  NumRead: Cardinal;
-  Context: TSHA1Context;
   Buf: array[0..65535] of Byte;
 begin
+  var Context: TSHA1Context;
   SHA1Init(Context);
-  F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
-      NumRead := F.Read(Buf, SizeOf(Buf));
-      if NumRead = 0 then Break;
+      var NumRead := F.Read(Buf, SizeOf(Buf));
+      if NumRead = 0 then
+        Break;
       SHA1Update(Context, Buf, NumRead);
     end;
   finally
@@ -605,9 +603,8 @@ end;
 function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): String;
 { Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
   failure. }
-var
-  PrevState: TPreviousFsRedirectionState;
 begin
+  var PrevState: TPreviousFsRedirectionState;
   if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then
     InternalError('GetSHA256OfFile: DisableFsRedirectionIf failed.');
   try
