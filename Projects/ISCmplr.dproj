@@ -42,7 +42,7 @@
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Compiler;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
-        <DCC_Namespace>System;System.Win;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>

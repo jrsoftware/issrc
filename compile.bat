@@ -52,7 +52,7 @@ if errorlevel 1 goto failed
 
 echo - ISCmplr.dpr
 mkdir Dcu\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\ISCmplr.dpr -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\ISCmplr.dpr -DPS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr

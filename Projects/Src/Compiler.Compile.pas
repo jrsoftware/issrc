@@ -30,8 +30,7 @@ type
 implementation
 
 uses
-  Shared.PreprocInt, Commctrl, Vcl.Consts { Vcl prefix for ISCC's STATICCOMPILER support }, Classes,
-  IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections, StrUtils, WideStrUtils,
+  Shared.PreprocInt, Commctrl, Classes, IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections, StrUtils, WideStrUtils,
   PathFunc, Shared.CommonFunc, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMACompressor, Shared.ArcFour, SHA1,
   Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfoFunc, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
@@ -4815,9 +4814,9 @@ type
 
 var
   MenuKeyCaps: array[TMenuKeyCap] of string = (
-    SmkcBkSp, SmkcTab, SmkcEsc, SmkcEnter, SmkcSpace, SmkcPgUp,
-    SmkcPgDn, SmkcEnd, SmkcHome, SmkcLeft, SmkcUp, SmkcRight,
-    SmkcDown, SmkcIns, SmkcDel, SmkcShift, SmkcCtrl, SmkcAlt);
+    'BkSp', 'Tab', 'Esc', 'Enter', 'Space', 'PgUp',
+    'PgDn', 'End', 'Home', 'Left', 'Up', 'Right',
+    'Down', 'Ins', 'Del', 'Shift', 'Ctrl+', 'Alt+');
 
 procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
 
