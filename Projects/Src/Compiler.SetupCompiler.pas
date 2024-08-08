@@ -18,31 +18,20 @@ unit Compiler.SetupCompiler;
 interface
 
 uses
-  Windows, SysUtils, Shared.CompilerInt;
-
-function ISCompileScript(const Params: TCompileScriptParamsEx;
-  const PropagateExceptions: Boolean): Integer;
-function ISGetVersion: PCompilerVersionInfo;
+  Windows, SysUtils, Classes, Generics.Collections,
+  SimpleExpression,
+  Shared.Struct, Shared.CompilerInt, Shared.PreprocInt, Shared.SetupMessageIDs,
+  Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
+  Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
 
 type
   EISCompileError = class(Exception);
 
-implementation
+  TParamFlags = set of (piRequired, piNoEmpty, piNoQuotes);
 
-uses
-  Shared.PreprocInt, Commctrl, Classes, IniFiles, TypInfo, AnsiStrings, Math, Generics.Collections, StrUtils, WideStrUtils,
-  PathFunc, Shared.CommonFunc, Shared.Struct, Shared.Int64Em, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMACompressor, Shared.ArcFour, SHA1,
-  Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives, Shared.DebugStruct, Shared.VerInfoFunc, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
-{$IFDEF STATICPREPROC}
-  ISPP.Preprocess,
-{$ENDIF}
-  Compiler.StringLists, Compiler.ScriptCompiler, SimpleExpression, Shared.SetupTypes;
-
-type
   TParamInfo = record
     Name: String;
-    Flags: set of (piRequired, piNoEmpty, piNoQuotes);
+    Flags: TParamFlags;
   end;
   TParamValue = record
     Found: Boolean;
@@ -54,12 +43,6 @@ type
   TAllowedConst = (acOldData, acBreak);
   TAllowedConsts = set of TAllowedConst;
 
-  TLineInfo = class
-  public
-    FileName: String;
-    FileLineNumber: Integer;
-  end;
-
   TPreLangData = class
   public
     Name: String;
@@ -70,10 +53,6 @@ type
   public
     MessagesDefined: array[TSetupMessageID] of Boolean;
     Messages: array[TSetupMessageID] of String;
-  end;
-
-  TSignTool = class
-    Name, Command: String;
   end;
 
   TNameAndAccessMask = record
@@ -181,14 +160,12 @@ type
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
       const Warning: Boolean);
     procedure AbortCompile(const Msg: String);
-    procedure AbortCompileFmt(const Msg: String; const Args: array of const);
     procedure AbortCompileOnLine(const Msg: String);
     procedure AbortCompileOnLineFmt(const Msg: String;
       const Args: array of const);
     procedure AbortCompileParamError(const Msg, ParamName: String);
     function PrependDirName(const Filename, Dir: String): String;
     function PrependSourceDirName(const Filename: String): String;
-    procedure CallIdleProc(const IgnoreCallbackResult: Boolean = False);
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
       const IgnoreCallbackResult: Boolean = False);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
@@ -284,8 +261,52 @@ type
     CompilerDir, SourceDir, OriginalSourceDir: String;
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
+    procedure AbortCompileFmt(const Msg: String; const Args: array of const);
+    procedure AddBytesCompressedSoFar(const Value: Cardinal); overload;
+    procedure AddBytesCompressedSoFar(const Value: Integer64); overload;
+    procedure AddPreprocOption(const Value: String);
     procedure AddSignTool(const Name, Command: String);
+    procedure CallIdleProc(const IgnoreCallbackResult: Boolean = False);
     procedure Compile;
+    function GetBytesCompressedSoFar: Integer64;
+    function GetDebugInfo: TMemoryStream;
+    function GetDiskSliceSize:Longint;
+    function GetDiskSpanning: Boolean;
+    function GetExeFilename: String;
+    function GetLineFilename: String;
+    function GetLineNumber: Integer;
+    function GetOutputBaseFileName: String;
+    function GetOutputDir: String;
+    function GetPreprocIncludedFilenames: TStringList;
+    function GetPreprocOutput: String;
+    function GetSlicesPerDisk: Longint;
+    procedure SetBytesCompressedSoFar(const Value: Integer64);
+    procedure SetOutput(Value: Boolean);
+    procedure SetOutputBaseFilename(const Value: String);
+    procedure SetOutputDir(const Value: String);
+  end;
+
+implementation
+
+uses
+  Commctrl, IniFiles, TypInfo, AnsiStrings, Math, StrUtils, WideStrUtils,
+  PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Shared.ArcFour, SHA1,
+  Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
+{$IFDEF STATICPREPROC}
+  ISPP.Preprocess,
+{$ENDIF}
+  Shared.SetupTypes, Compiler.CompressionHandler, Compiler.HelperFunc, Compiler.BuiltinPreproc;
+
+type
+  TLineInfo = class
+  public
+    FileName: String;
+    FileLineNumber: Integer;
+  end;
+
+  TSignTool = class
+    Name, Command: String;
   end;
 
 var
@@ -307,173 +328,6 @@ const
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
   MaxDiskSliceSize = 2100000000;
-
-type
-  TColor = $7FFFFFFF-1..$7FFFFFFF;
-
-const
-  clScrollBar = TColor(COLOR_SCROLLBAR or $80000000);
-  clBackground = TColor(COLOR_BACKGROUND or $80000000);
-  clActiveCaption = TColor(COLOR_ACTIVECAPTION or $80000000);
-  clInactiveCaption = TColor(COLOR_INACTIVECAPTION or $80000000);
-  clMenu = TColor(COLOR_MENU or $80000000);
-  clWindow = TColor(COLOR_WINDOW or $80000000);
-  clWindowFrame = TColor(COLOR_WINDOWFRAME or $80000000);
-  clMenuText = TColor(COLOR_MENUTEXT or $80000000);
-  clWindowText = TColor(COLOR_WINDOWTEXT or $80000000);
-  clCaptionText = TColor(COLOR_CAPTIONTEXT or $80000000);
-  clActiveBorder = TColor(COLOR_ACTIVEBORDER or $80000000);
-  clInactiveBorder = TColor(COLOR_INACTIVEBORDER or $80000000);
-  clAppWorkSpace = TColor(COLOR_APPWORKSPACE or $80000000);
-  clHighlight = TColor(COLOR_HIGHLIGHT or $80000000);
-  clHighlightText = TColor(COLOR_HIGHLIGHTTEXT or $80000000);
-  clBtnFace = TColor(COLOR_BTNFACE or $80000000);
-  clBtnShadow = TColor(COLOR_BTNSHADOW or $80000000);
-  clGrayText = TColor(COLOR_GRAYTEXT or $80000000);
-  clBtnText = TColor(COLOR_BTNTEXT or $80000000);
-  clInactiveCaptionText = TColor(COLOR_INACTIVECAPTIONTEXT or $80000000);
-  clBtnHighlight = TColor(COLOR_BTNHIGHLIGHT or $80000000);
-  cl3DDkShadow = TColor(COLOR_3DDKSHADOW or $80000000);
-  cl3DLight = TColor(COLOR_3DLIGHT or $80000000);
-  clInfoText = TColor(COLOR_INFOTEXT or $80000000);
-  clInfoBk = TColor(COLOR_INFOBK or $80000000);
-
-  clBlack = TColor($000000);
-  clMaroon = TColor($000080);
-  clGreen = TColor($008000);
-  clOlive = TColor($008080);
-  clNavy = TColor($800000);
-  clPurple = TColor($800080);
-  clTeal = TColor($808000);
-  clGray = TColor($808080);
-  clSilver = TColor($C0C0C0);
-  clRed = TColor($0000FF);
-  clLime = TColor($00FF00);
-  clYellow = TColor($00FFFF);
-  clBlue = TColor($FF0000);
-  clFuchsia = TColor($FF00FF);
-  clAqua = TColor($FFFF00);
-  clLtGray = TColor($C0C0C0);
-  clDkGray = TColor($808080);
-  clWhite = TColor($FFFFFF);
-  clNone = TColor($1FFFFFFF);
-  clDefault = TColor($20000000);
-
-type
-  TColorEntry = record
-    Value: TColor;
-    Name: string;
-  end;
-
-const
-  Colors: array[0..41] of TColorEntry = (
-    (Value: clBlack; Name: 'clBlack'),
-    (Value: clMaroon; Name: 'clMaroon'),
-    (Value: clGreen; Name: 'clGreen'),
-    (Value: clOlive; Name: 'clOlive'),
-    (Value: clNavy; Name: 'clNavy'),
-    (Value: clPurple; Name: 'clPurple'),
-    (Value: clTeal; Name: 'clTeal'),
-    (Value: clGray; Name: 'clGray'),
-    (Value: clSilver; Name: 'clSilver'),
-    (Value: clRed; Name: 'clRed'),
-    (Value: clLime; Name: 'clLime'),
-    (Value: clYellow; Name: 'clYellow'),
-    (Value: clBlue; Name: 'clBlue'),
-    (Value: clFuchsia; Name: 'clFuchsia'),
-    (Value: clAqua; Name: 'clAqua'),
-    (Value: clWhite; Name: 'clWhite'),
-    (Value: clScrollBar; Name: 'clScrollBar'),
-    (Value: clBackground; Name: 'clBackground'),
-    (Value: clActiveCaption; Name: 'clActiveCaption'),
-    (Value: clInactiveCaption; Name: 'clInactiveCaption'),
-    (Value: clMenu; Name: 'clMenu'),
-    (Value: clWindow; Name: 'clWindow'),
-    (Value: clWindowFrame; Name: 'clWindowFrame'),
-    (Value: clMenuText; Name: 'clMenuText'),
-    (Value: clWindowText; Name: 'clWindowText'),
-    (Value: clCaptionText; Name: 'clCaptionText'),
-    (Value: clActiveBorder; Name: 'clActiveBorder'),
-    (Value: clInactiveBorder; Name: 'clInactiveBorder'),
-    (Value: clAppWorkSpace; Name: 'clAppWorkSpace'),
-    (Value: clHighlight; Name: 'clHighlight'),
-    (Value: clHighlightText; Name: 'clHighlightText'),
-    (Value: clBtnFace; Name: 'clBtnFace'),
-    (Value: clBtnShadow; Name: 'clBtnShadow'),
-    (Value: clGrayText; Name: 'clGrayText'),
-    (Value: clBtnText; Name: 'clBtnText'),
-    (Value: clInactiveCaptionText; Name: 'clInactiveCaptionText'),
-    (Value: clBtnHighlight; Name: 'clBtnHighlight'),
-    (Value: cl3DDkShadow; Name: 'cl3DDkShadow'),
-    (Value: cl3DLight; Name: 'cl3DLight'),
-    (Value: clInfoText; Name: 'clInfoText'),
-    (Value: clInfoBk; Name: 'clInfoBk'),
-    (Value: clNone; Name: 'clNone'));
-
-function IdentToColor(const Ident: string; var Color: Longint): Boolean;
-var
-  I: Integer;
-begin
-  for I := Low(Colors) to High(Colors) do
-    if CompareText(Colors[I].Name, Ident) = 0 then
-    begin
-      Result := True;
-      Color := Longint(Colors[I].Value);
-      Exit;
-    end;
-  Result := False;
-end;
-
-function StringToColor(const S: string): TColor;
-begin
-  if not IdentToColor(S, Longint(Result)) then
-    Result := TColor(StrToInt(S));
-end;
-
-function IsRelativePath(const Filename: String): Boolean;
-var
-  L: Integer;
-begin
-  Result := True;
-  L := Length(Filename);
-  if ((L >= 1) and (Filename[1] = '\')) or
-     ((L >= 2) and CharInSet(Filename[1], ['A'..'Z', 'a'..'z']) and (Filename[2] = ':')) then
-    Result := False;
-end;
-
-function GetSelfFilename: String;
-{ Returns Filename of the calling DLL or application. (ParamStr(0) can only
-  return the filename of the calling application.) }
-var
-  Buf: array[0..MAX_PATH-1] of Char;
-begin
-  SetString(Result, Buf, GetModuleFileName(HInstance, Buf, SizeOf(Buf)))
-end;
-
-function CreateMemoryStreamFromFile(const Filename: String): TMemoryStream;
-{ Creates a TMemoryStream and loads the contents of the specified file into it }
-var
-  F: TFile;
-  SizeOfFile: Cardinal;
-begin
-  Result := TMemoryStream.Create;
-  try
-    { Why not use TMemoryStream.LoadFromFile here?
-      1. On Delphi 2 it opens files for exclusive access (not good).
-      2. It doesn't give specific error messages. }
-    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-    try
-      SizeOfFile := F.CappedSize;
-      Result.SetSize(SizeOfFile);
-      F.ReadBuffer(Result.Memory^, SizeOfFile);
-    finally
-      F.Free;
-    end;
-  except
-    Result.Free;
-    raise Exception.CreateFmt(SCompilerReadError, [Filename, GetExceptMessage]);
-  end;
-end;
 
 function ExtractStr(var S: String; const Separator: Char): String;
 var
@@ -557,619 +411,6 @@ begin
     Result.Free;
     raise;
   end;
-end;
-
-function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
-  const CRC: Longint): Boolean;
-var
-  F: TFile;
-  SizeOfFile: Integer64;
-  Buf: AnsiString;
-begin
-  Result := False;
-  try
-    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-    try
-      SizeOfFile := F.Size;
-      if (SizeOfFile.Lo = Size) and (SizeOfFile.Hi = 0) then begin
-        SetLength(Buf, Size);
-        F.ReadBuffer(Buf[1], Size);
-        if GetCRC32(Buf[1], Size) = CRC then
-          Result := True;
-      end;
-    finally
-      F.Free;
-    end;
-  except
-  end;
-end;
-
-const
-  IMAGE_NT_SIGNATURE = $00004550;  { 'PE'#0#0 }
-  IMAGE_NT_OPTIONAL_HDR32_MAGIC = $10b;
-type
-  TImageFileHeader = packed record
-    Machine: Word;
-    NumberOfSections: Word;
-    TimeDateStamp: DWORD;
-    PointerToSymbolTable: DWORD;
-    NumberOfSymbols: DWORD;
-    SizeOfOptionalHeader: Word;
-    Characteristics: Word;
-  end;
-
-function IsX86OrX64Executable(const F: TFile): Boolean;
-const
-  IMAGE_FILE_MACHINE_I386 = $014C;
-  IMAGE_FILE_MACHINE_AMD64 = $8664;
-var
-  DosHeader: array[0..63] of Byte;
-  PEHeaderOffset: Longint;
-  PESigAndHeader: packed record
-    Sig: DWORD;
-    Machine: Word;
-  end;
-begin
-  Result := False;
-  if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-    if (DosHeader[0] = Ord('M')) and (DosHeader[1] = Ord('Z')) then begin
-      PEHeaderOffset := PLongint(@DosHeader[60])^;
-      if PEHeaderOffset > 0 then begin
-        F.Seek(PEHeaderOffset);
-        if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
-          if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
-             ((PESigAndHeader.Machine = IMAGE_FILE_MACHINE_I386) or
-              (PESigAndHeader.Machine = IMAGE_FILE_MACHINE_AMD64)) then
-            Result := True;
-        end;
-      end;
-    end;
-  end;
-  F.Seek(0);
-end;
-
-function CountChars(const S: String; C: Char): Integer;
-var
-  I: Integer;
-begin
-  Result := 0;
-  for I := 1 to Length(S) do
-    if S[I] = C then
-      Inc(Result);
-end;
-
-function IsValidIdentString(const S: String; AllowBackslash, AllowOperators: Boolean): Boolean;
-var
-  I, N: Integer;
-begin
-  if S = '' then
-    Result := False
-  else if not AllowOperators and ((CompareText(S, 'not') = 0) or
-     (CompareText(S, 'and') = 0) or (CompareText(S, 'or') = 0)) then
-    Result := False
-  else begin
-    N := Length(S);
-    for I := 1 to N do
-      if not (CharInSet(S[I], ['A'..'Z', 'a'..'z', '_']) or
-              ((I > 1) and CharInSet(S[I], ['0'..'9'])) or
-              (AllowBackslash and (I > 1) and (I < N) and (S[I] = '\'))) then begin
-        Result := False;
-        Exit;
-      end;
-    Result := True;
-  end;
-end;
-
-procedure SkipWhitespace(var S: PChar);
-begin
-  while CharInSet(S^, [#1..' ']) do
-    Inc(S);
-end;
-
-function ExtractWords(var S: PChar; const Sep: Char): String;
-{ Extracts characters from S until it reaches the character Sep or the end
-  of S. The returned string has trailing whitespace characters trimmed off. }
-var
-  StartPos, EndPos: PChar;
-begin
-  StartPos := S;
-  EndPos := S;
-  while (S^ <> #0) and (S^ <> Sep) do begin
-    if S^ > ' ' then
-      EndPos := S + 1;
-    Inc(S);
-  end;
-  SetString(Result, StartPos, EndPos - StartPos);
-end;
-
-function UnescapeBraces(const S: String): String;
-{ Changes all '{{' to '{'. Assumes that S does not contain any constants; you
-  should check before calling. }
-var
-  I: Integer;
-begin
-  Result := S;
-  I := 1;
-  while I < Length(Result) do begin
-    if Result[I] = '{' then begin
-      Inc(I);
-      if Result[I] = '{' then
-        Delete(Result, I, 1);
-    end
-    else
-      Inc(I);
-  end;
-end;
-
-type
-  HCRYPTPROV = DWORD;
-
-const
-  PROV_RSA_FULL = 1;
-  CRYPT_VERIFYCONTEXT = $F0000000;
-
-function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: PAnsiChar;
-  pszProvider: PAnsiChar; dwProvType: DWORD; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptAcquireContextA';
-function CryptReleaseContext(hProv: HCRYPTPROV; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptReleaseContext';
-function CryptGenRandom(hProv: HCRYPTPROV; dwLen: DWORD; pbBuffer: Pointer): BOOL;
-  stdcall; external advapi32 name 'CryptGenRandom';
-
-var
-  CryptProv: HCRYPTPROV;
-
-procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
-var
-  ErrorCode: DWORD;
-begin
-  if CryptProv = 0 then begin
-    if not CryptAcquireContext(CryptProv, nil, nil, PROV_RSA_FULL,
-       CRYPT_VERIFYCONTEXT) then begin
-      ErrorCode := GetLastError;
-      raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-        ['CryptAcquireContext', ErrorCode, Win32ErrorString(ErrorCode)]);
-    end;
-    { Note: CryptProv is released in the 'finalization' section of this unit }
-  end;
-  FillChar(Buffer, Bytes, 0);
-  if not CryptGenRandom(CryptProv, Bytes, @Buffer) then begin
-    ErrorCode := GetLastError;
-    raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-      ['CryptGenRandom', ErrorCode, Win32ErrorString(ErrorCode)]);
-  end;
-end;
-
-{ Built-in preprocessor }
-
-type
-  EBuiltinPreprocessScriptError = class(Exception);
-
-function BuiltinPreprocessScript(var Params: TPreprocessScriptParams): Integer; stdcall;
-var
-  IncludeStack: TStringList;
-
-  procedure RaiseError(const LineFilename: String; const LineNumber: Integer;
-    const Msg: String);
-  begin
-    Params.ErrorProc(Params.CompilerData, PChar(Msg), PChar(LineFilename),
-      LineNumber, 0);
-    { Note: This exception is caught and translated into ispePreprocessError }
-    raise EBuiltinPreprocessScriptError.Create('BuiltinPreprocessScript error');
-  end;
-
-  procedure ProcessLines(const Filename: String; const FileHandle: TPreprocFileHandle);
-    forward;
-
-  procedure ProcessLinesFromFile(const LineFilename: String;
-    const LineNumber: Integer; const IncludeFilename: String);
-  var
-    I: Integer;
-    FileHandle: TPreprocFileHandle;
-  begin
-    { Check if it's a recursive include }
-    for I := 0 to IncludeStack.Count-1 do
-      if PathCompare(IncludeStack[I], IncludeFilename) = 0 then
-        RaiseError(LineFilename, LineNumber, Format(SCompilerRecursiveInclude,
-          [IncludeFilename]));
-
-    FileHandle := Params.LoadFileProc(Params.CompilerData,
-      PChar(IncludeFilename), PChar(LineFilename), LineNumber, 0);
-    if FileHandle < 0 then begin
-      { Note: The message here shouldn't be seen as LoadFileProc should have
-        already called ErrorProc itself }
-      RaiseError(LineFilename, LineNumber, 'LoadFileProc failed');
-    end;
-    ProcessLines(IncludeFilename, FileHandle);
-  end;
-
-  procedure ProcessDirective(const LineFilename: String; const LineNumber: Integer;
-    D: String);
-  var
-    Dir, IncludeFilename: String;
-  begin
-    if Copy(D, 1, Length('include')) = 'include' then begin
-      Delete(D, 1, Length('include'));
-      if (D = '') or (D[1] > ' ') then
-        RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
-      D := TrimLeft(D);
-      if (Length(D) < 3) or (D[1] <> '"') or (PathLastChar(D)^ <> '"') then
-        RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
-      if LineFilename = '' then
-        Dir := Params.SourcePath
-      else
-        Dir := PathExtractPath(LineFilename);
-      IncludeFilename := Params.PrependDirNameProc(Params.CompilerData,
-        PChar(RemoveQuotes(D)), PChar(Dir), PChar(LineFilename), LineNumber, 0);
-      if IncludeFilename = '' then begin
-        { Note: The message here shouldn't be seen as PrependDirNameProc
-          should have already called ErrorProc itself }
-        RaiseError(LineFilename, LineNumber, 'PrependDirNameProc failed');
-      end;
-      Params.StatusProc(Params.CompilerData,
-        PChar(Format(SBuiltinPreprocessStatusIncludingFile, [IncludeFilename])), False);
-      ProcessLinesFromFile(LineFilename, LineNumber, PathExpand(IncludeFilename));
-    end
-    else
-      RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
-  end;
-
-  procedure ProcessLines(const Filename: String; const FileHandle: TPreprocFileHandle);
-  var
-    I: Integer;
-    LineText, L: PChar;
-  begin
-    IncludeStack.Add(Filename);
-    I := 0;
-    while True do begin
-      LineText := Params.LineInProc(Params.CompilerData, FileHandle, I);
-      if LineText = nil then
-        Break;
-      L := LineText;
-      SkipWhitespace(L);
-      if L^ = '#' then
-        ProcessDirective(Filename, I + 1, L + 1)
-      else
-        Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
-          LineText);
-      Inc(I);
-    end;
-    IncludeStack.Delete(IncludeStack.Count-1);
-  end;
-
-begin
-  if (Params.Size <> SizeOf(Params)) or
-     (Params.InterfaceVersion <> 3) then begin
-    Result := ispeInvalidParam;
-    Exit;
-  end;
-
-  try
-    IncludeStack := TStringList.Create;
-    try
-      ProcessLines(Params.Filename, 0);
-    finally
-      IncludeStack.Free;
-    end;
-    Result := ispeSuccess;
-  except
-    Result := ispePreprocessError;
-    if not(ExceptObject is EBuiltinPreprocessScriptError) then
-      raise;
-  end;
-end;
-
-{ TCompressionHandler }
-
-type
-  TCompressionHandler = class
-  private
-    FCachedCompressors: TLowFragList;
-    FCompiler: TSetupCompiler;
-    FCompressor: TCustomCompressor;
-    FChunkBytesRead: Integer64;
-    FChunkBytesWritten: Integer64;
-    FChunkEncrypted: Boolean;
-    FChunkFirstSlice: Integer;
-    FChunkStarted: Boolean;
-    FChunkStartOffset: Longint;
-    FCryptContext: TArcFourContext;
-    FCurSlice: Integer;
-    FDestFile: TFile;
-    FDestFileIsDiskSlice: Boolean;
-    FInitialBytesCompressedSoFar: Integer64;
-    FSliceBaseOffset: Cardinal;
-    FSliceBytesLeft: Cardinal;
-    procedure EndSlice;
-    procedure NewSlice(const Filename: String);
-  public
-    constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
-    destructor Destroy; override;
-    procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
-      const CallOptimize: Boolean; var SHA1Sum: TSHA1Digest);
-    procedure EndChunk;
-    procedure Finish;
-    procedure NewChunk(const ACompressorClass: TCustomCompressorClass;
-      const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
-      const AUseEncryption: Boolean; const ACryptKey: String);
-    procedure ProgressProc(BytesProcessed: Cardinal);
-    function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
-    procedure WriteProc(const Buf; BufSize: Longint);
-    property ChunkBytesRead: Integer64 read FChunkBytesRead;
-    property ChunkBytesWritten: Integer64 read FChunkBytesWritten;
-    property ChunkEncrypted: Boolean read FChunkEncrypted;
-    property ChunkFirstSlice: Integer read FChunkFirstSlice;
-    property ChunkStartOffset: Longint read FChunkStartOffset;
-    property ChunkStarted: Boolean read FChunkStarted;
-    property CurSlice: Integer read FCurSlice;
-  end;
-
-constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
-  const InitialSliceFilename: String);
-begin
-  inherited Create;
-  FCompiler := ACompiler;
-  FCurSlice := -1;
-  FCachedCompressors := TLowFragList.Create;
-  NewSlice(InitialSliceFilename);
-end;
-
-destructor TCompressionHandler.Destroy;
-var
-  I: Integer;
-begin
-  if Assigned(FCachedCompressors) then begin
-    for I := FCachedCompressors.Count-1 downto 0 do
-      TCustomCompressor(FCachedCompressors[I]).Free;
-    FreeAndNil(FCachedCompressors);
-  end;
-  FreeAndNil(FDestFile);
-  inherited;
-end;
-
-procedure TCompressionHandler.Finish;
-begin
-  EndChunk;
-  EndSlice;
-end;
-
-procedure TCompressionHandler.EndSlice;
-var
-  DiskSliceHeader: TDiskSliceHeader;
-begin
-  if Assigned(FDestFile) then begin
-    if FDestFileIsDiskSlice then begin
-      DiskSliceHeader.TotalSize := FDestFile.Size.Lo;
-      FDestFile.Seek(SizeOf(DiskSliceID));
-      FDestFile.WriteBuffer(DiskSliceHeader, SizeOf(DiskSliceHeader));
-    end;
-    FreeAndNil(FDestFile);
-  end;
-end;
-
-procedure TCompressionHandler.NewSlice(const Filename: String);
-
-  function GenerateSliceFilename(const Compiler: TSetupCompiler;
-    const ASlice: Integer): String;
-  var
-    Major, Minor: Integer;
-  begin
-    Major := ASlice div Compiler.SlicesPerDisk + 1;
-    Minor := ASlice mod Compiler.SlicesPerDisk;
-    if Compiler.SlicesPerDisk = 1 then
-      Result := Format('%s-%d.bin', [Compiler.OutputBaseFilename, Major])
-    else
-      Result := Format('%s-%d%s.bin', [Compiler.OutputBaseFilename, Major,
-        Chr(Ord('a') + Minor)]);
-  end;
-
-var
-  DiskHeader: TDiskSliceHeader;
-begin
-  EndSlice;
-  Inc(FCurSlice);
-  if (FCurSlice > 0) and not FCompiler.DiskSpanning then
-    FCompiler.AbortCompileFmt(SCompilerMustUseDiskSpanning,
-      [FCompiler.DiskSliceSize]);
-  if Filename = '' then begin
-    FDestFileIsDiskSlice := True;
-    FDestFile := TFile.Create(FCompiler.OutputDir +
-      GenerateSliceFilename(FCompiler, FCurSlice), fdCreateAlways, faReadWrite, fsNone);
-    FDestFile.WriteBuffer(DiskSliceID, SizeOf(DiskSliceID));
-    DiskHeader.TotalSize := 0;
-    FDestFile.WriteBuffer(DiskHeader, SizeOf(DiskHeader));
-    FSliceBaseOffset := 0;
-    FSliceBytesLeft := FCompiler.DiskSliceSize - (SizeOf(DiskSliceID) + SizeOf(DiskHeader));
-  end
-  else begin
-    FDestFileIsDiskSlice := False;
-    FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
-    FDestFile.SeekToEnd;
-    FSliceBaseOffset := FDestFile.Position.Lo;
-    FSliceBytesLeft := Cardinal(FCompiler.DiskSliceSize) - FSliceBaseOffset;
-  end;
-end;
-
-function TCompressionHandler.ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
-begin
-  if FSliceBytesLeft >= Bytes then begin
-    Dec(FSliceBytesLeft, Bytes);
-    Result := True;
-  end
-  else
-    Result := False;
-end;
-
-procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressorClass;
-  const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
-  const AUseEncryption: Boolean; const ACryptKey: String);
-
-  procedure SelectCompressor;
-  var
-    I: Integer;
-    C: TCustomCompressor;
-  begin
-    { No current compressor, or changing compressor classes? }
-    if (FCompressor = nil) or (FCompressor.ClassType <> ACompressorClass) then begin
-      FCompressor := nil;
-      { Search cache for requested class }
-      for I := FCachedCompressors.Count-1 downto 0 do begin
-        C := FCachedCompressors[I];
-        if C.ClassType = ACompressorClass then begin
-          FCompressor := C;
-          Break;
-        end;
-      end;
-    end;
-    if FCompressor = nil then begin
-      FCachedCompressors.Expand;
-      FCompressor := ACompressorClass.Create(WriteProc, ProgressProc,
-        ACompressLevel, ACompressorProps);
-      FCachedCompressors.Add(FCompressor);
-    end;
-  end;
-
-  procedure InitEncryption;
-  var
-    Salt: TSetupSalt;
-    Context: TSHA1Context;
-    Hash: TSHA1Digest;
-  begin
-    { Generate and write a random salt. This salt is hashed into the key to
-      prevent the same key from ever being used twice (theoretically). }
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-    FDestFile.WriteBuffer(Salt, SizeOf(Salt));
-
-    { Create an SHA-1 hash of the salt plus ACryptKey, and use that as the key }
-    SHA1Init(Context);
-    SHA1Update(Context, Salt, SizeOf(Salt));
-    SHA1Update(Context, Pointer(ACryptKey)^, Length(ACryptKey)*SizeOf(ACryptKey[1]));
-    Hash := SHA1Final(Context);
-    ArcFourInit(FCryptContext, Hash, SizeOf(Hash));
-
-    { Discard first 1000 bytes of the output keystream, since according to
-      <http://en.wikipedia.org/wiki/RC4_(cipher)>, "the first few bytes of
-      output keystream are strongly non-random." }
-    ArcFourDiscard(FCryptContext, 1000);
-  end;
-
-var
-  MinBytesLeft: Cardinal;
-begin
-  EndChunk;
-
-  { If there isn't enough room left to start a new chunk on the current slice,
-    start a new slice }
-  MinBytesLeft := SizeOf(ZLIBID);
-  if AUseEncryption then
-    Inc(MinBytesLeft, SizeOf(TSetupSalt));
-  Inc(MinBytesLeft);  { for at least one byte of data }
-  if FSliceBytesLeft < MinBytesLeft then
-    NewSlice('');
-
-  FChunkFirstSlice := FCurSlice;
-  FChunkStartOffset := FDestFile.Position.Lo - FSliceBaseOffset;
-  FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
-  Dec(FSliceBytesLeft, SizeOf(ZLIBID));
-  FChunkBytesRead.Hi := 0;
-  FChunkBytesRead.Lo := 0;
-  FChunkBytesWritten.Hi := 0;
-  FChunkBytesWritten.Lo := 0;
-  FInitialBytesCompressedSoFar := FCompiler.BytesCompressedSoFar;
-
-  SelectCompressor;
-
-  FChunkEncrypted := AUseEncryption;
-  if AUseEncryption then
-    InitEncryption;
-
-  FChunkStarted := True;
-end;
-
-procedure TCompressionHandler.EndChunk;
-begin
-  if Assigned(FCompressor) then begin
-    FCompressor.Finish;
-    { In case we didn't get a ProgressProc call after the final block: }
-    FCompiler.BytesCompressedSoFar := FInitialBytesCompressedSoFar;
-    Inc6464(FCompiler.BytesCompressedSoFar, FChunkBytesRead);
-    FCompiler.CallIdleProc;
-  end;
-
-  FChunkStarted := False;
-end;
-
-procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
-  Bytes: Integer64; const CallOptimize: Boolean; var SHA1Sum: TSHA1Digest);
-var
-  Context: TSHA1Context;
-  AddrOffset: LongWord;
-  BufSize: Cardinal;
-  Buf: array[0..65535] of Byte;
-  { ^ *must* be the same buffer size used in Setup (TFileExtractor), otherwise
-    the TransformCallInstructions call will break }
-begin
-  SHA1Init(Context);
-  AddrOffset := 0;
-  while True do begin
-    BufSize := SizeOf(Buf);
-    if (Bytes.Hi = 0) and (Bytes.Lo < BufSize) then
-      BufSize := Bytes.Lo;
-    if BufSize = 0 then
-      Break;
-
-    SourceFile.ReadBuffer(Buf, BufSize);
-    Inc64(FChunkBytesRead, BufSize);
-    Dec64(Bytes, BufSize);
-    SHA1Update(Context, Buf, BufSize);
-    if CallOptimize then begin
-      TransformCallInstructions(Buf, BufSize, True, AddrOffset);
-      Inc(AddrOffset, BufSize);  { may wrap, but OK }
-    end;
-    FCompressor.Compress(Buf, BufSize);
-  end;
-  SHA1Sum := SHA1Final(Context);
-end;
-
-procedure TCompressionHandler.WriteProc(const Buf; BufSize: Longint);
-var
-  P, P2: Pointer;
-  S: Cardinal;
-begin
-  FCompiler.CallIdleProc;
-  P := @Buf;
-  while BufSize > 0 do begin
-    S := BufSize;
-    if FSliceBytesLeft = 0 then
-      NewSlice('');
-    if S > Cardinal(FSliceBytesLeft) then
-      S := FSliceBytesLeft;
-
-    if not FChunkEncrypted then
-      FDestFile.WriteBuffer(P^, S)
-    else begin
-      { Using encryption. Can't modify Buf in place so allocate a new,
-        temporary buffer. }
-      GetMem(P2, S);
-      try
-        ArcFourCrypt(FCryptContext, P^, P2^, S);
-        FDestFile.WriteBuffer(P2^, S)
-      finally
-        FreeMem(P2);
-      end;
-    end;
-
-    Inc64(FChunkBytesWritten, S);
-    Inc(Cardinal(P), S);
-    Dec(BufSize, S);
-    Dec(FSliceBytesLeft, S);
-  end;
-end;
-
-procedure TCompressionHandler.ProgressProc(BytesProcessed: Cardinal);
-begin
-  Inc64(FCompiler.BytesCompressedSoFar, BytesProcessed);
-  FCompiler.CallIdleProc;
 end;
 
 { TSetupCompiler }
@@ -1336,6 +577,41 @@ begin
   LZMAInitialized := True;
 end;
 
+function TSetupCompiler.GetBytesCompressedSoFar: Integer64;
+begin
+  Result := BytesCompressedSoFar;
+end;
+
+function TSetupCompiler.GetDebugInfo: TMemoryStream;
+begin
+  Result := DebugInfo;
+end;
+
+function TSetupCompiler.GetDiskSliceSize: Longint;
+begin
+  Result := DiskSliceSize;
+end;
+
+function TSetupCompiler.GetDiskSpanning: Boolean;
+begin
+  Result := DiskSpanning;
+end;
+
+function TSetupCompiler.GetExeFilename: String;
+begin
+  Result := ExeFilename;
+end;
+
+function TSetupCompiler.GetLineFilename: String;
+begin
+  Result := LineFilename;
+end;
+
+function TSetupCompiler.GetLineNumber: Integer;
+begin
+  Result := LineNumber;
+end;
+
 function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
 const
   PROCESSOR_ARCHITECTURE_AMD64 = 9;
@@ -1356,6 +632,31 @@ begin
     end;
   end;
   Result := CompilerDir + ExeFilenames[UseX64Exe];
+end;
+
+function TSetupCompiler.GetOutputBaseFileName: String;
+begin
+  Result := OutputBaseFileName;
+end;
+
+function TSetupCompiler.GetOutputDir: String;
+begin
+  Result := OutputDir;
+end;
+
+function TSetupCompiler.GetPreprocIncludedFilenames: TStringList;
+begin
+  Result := PreprocIncludedFilenames;
+end;
+
+function TSetupCompiler.GetPreprocOutput: String;
+begin
+  Result := PreprocOutput;
+end;
+
+function TSetupCompiler.GetSlicesPerDisk: Longint;
+begin
+  Result := SlicesPerDisk;
 end;
 
 procedure TSetupCompiler.InitCryptDLL;
@@ -2613,13 +1914,6 @@ begin
   end;
 end;
 
-procedure AddToCommaText(var CommaText: String; const S: String);
-begin
-  if CommaText <> '' then
-    CommaText := CommaText + ',';
-  CommaText := CommaText + S;
-end;
-
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 const
@@ -2989,6 +2283,29 @@ begin
        (Value[1] = '"') and (Value[Length(Value)] = '"') then
       Value := Copy(Value, 2, Length(Value)-2);
   end;
+end;
+
+procedure TSetupCompiler.SetBytesCompressedSoFar(const Value: Integer64);
+begin
+  BytesCompressedSoFar := Value;
+end;
+
+procedure TSetupCompiler.SetOutput(Value: Boolean);
+begin
+  Output := Value;
+  FixedOutput := True;
+end;
+
+procedure TSetupCompiler.SetOutputBaseFilename(const Value: String);
+begin
+  OutputBaseFilename := Value;
+  FixedOutputBaseFilename := True;
+end;
+
+procedure TSetupCompiler.SetOutputDir(const Value: String);
+begin
+  OutputDir := Value;
+  FixedOutputDir := True;
 end;
 
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
@@ -4198,6 +3515,14 @@ begin
 end;
 
 procedure TSetupCompiler.EnumComponentsProc(const Line: PChar; const Ext: Integer);
+
+  procedure AddToCommaText(var CommaText: String; const S: String);
+  begin
+    if CommaText <> '' then
+      CommaText := CommaText + ',';
+    CommaText := CommaText + S;
+  end;
+
 type
   TParam = (paFlags, paName, paDescription, paExtraDiskSpaceRequired, paTypes,
     paLanguages, paCheck, paMinVersion, paOnlyBelowVersion);
@@ -4494,18 +3819,6 @@ begin
   end;
   WriteDebugEntry(deDir, DirEntries.Count);
   DirEntries.Add(NewDirEntry);
-end;
-
-function SpaceString(const S: String): String;
-var
-  I: Integer;
-begin
-  Result := '';
-  for I := 1 to Length(S) do begin
-    if S[I] = ' ' then Continue;
-    if Result <> '' then Result := Result + ' ';
-    Result := Result + S[I];
-  end;
 end;
 
 type
@@ -6106,14 +5419,6 @@ begin
   end;
 end;
 
-procedure UpdateTimeStamp(H: THandle);
-var
-  FT: TFileTime;
-begin
-  GetSystemTimeAsFileTime(FT);
-  SetFileTime(H, nil, nil, @FT);
-end;
-
 procedure TSetupCompiler.EnumRunProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paFilename, paParameters, paWorkingDir, paRunOnceId,
@@ -6992,6 +6297,21 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Cardinal);
+begin
+  Inc64(BytesCompressedSoFar, Value);
+end;
+
+procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Integer64);
+begin
+  Inc6464(BytesCompressedSoFar, Value);
+end;
+
+procedure TSetupCompiler.AddPreprocOption(const Value: String);
+begin
+  PreprocOptionsString := PreprocOptionsString + Value + #0;
+end;
+
 procedure TSetupCompiler.AddSignTool(const Name, Command: String);
 var
   SignTool: TSignTool;
@@ -7015,13 +6335,13 @@ begin
   end;
 end;
 
-  procedure SignCommandLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
-  begin
-    if S <> '' then begin
-      var SetupCompiler := TSetupCompiler(Data);
-      SetupCompiler.AddStatus('   ' + S, Error);
-    end;
+procedure SignCommandLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  if S <> '' then begin
+    var SetupCompiler := TSetupCompiler(Data);
+    SetupCompiler.AddStatus('   ' + S, Error);
   end;
+end;
 
 procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
 
@@ -8000,6 +7320,13 @@ var
     end;
   end;
 
+  procedure UpdateTimeStamp(H: THandle);
+  var
+    FT: TFileTime;
+  begin
+    GetSystemTimeAsFileTime(FT);
+    SetFileTime(H, nil, nil, @FT);
+  end;
 
 const
   BadFilePathChars = '/*?"<>|';
@@ -8760,173 +8087,4 @@ begin
   end;
 end;
 
-{ Interface functions }
-
-function ISCompileScript(const Params: TCompileScriptParamsEx;
-  const PropagateExceptions: Boolean): Integer;
-
-  function CheckParams(const Params: TCompileScriptParamsEx): Boolean;
-  begin
-    Result := ((Params.Size = SizeOf(Params)) or
-               (Params.Size = SizeOf(TCompileScriptParams))) and
-              Assigned(Params.CallbackProc);
-  end;
-
-  procedure InitializeSetupCompiler(const SetupCompiler: TSetupCompiler;
-    const Params: TCompileScriptParamsEx);
-  begin
-    SetupCompiler.AppData := Params.AppData;
-    SetupCompiler.CallbackProc := Params.CallbackProc;
-    if Assigned(Params.CompilerPath) then
-      SetupCompiler.CompilerDir := Params.CompilerPath
-    else
-      SetupCompiler.CompilerDir := PathExtractPath(GetSelfFilename);
-    SetupCompiler.SourceDir := Params.SourcePath;
-  end;
-
-  function EncodeIncludedFilenames(const IncludedFilenames: TStringList): String;
-  var
-    S: String;
-    I: Integer;
-  begin
-    S := '';
-    for I := 0 to IncludedFilenames.Count-1 do
-     S := S + IncludedFilenames[I] + #0;
-    Result := S;
-  end;
-
-  procedure NotifyPreproc(const SetupCompiler: TSetupCompiler);
-  var
-    Data: TCompilerCallbackData;
-    S: String;
-  begin
-    Data.PreprocessedScript := PChar(SetupCompiler.PreprocOutput);
-    S := EncodeIncludedFilenames(SetupCompiler.PreprocIncludedFilenames);
-    Data.IncludedFilenames := PChar(S);
-    Params.CallbackProc(iscbNotifyPreproc, Data, Params.AppData);
-  end;
-
-  procedure NotifySuccess(const SetupCompiler: TSetupCompiler);
-  var
-    Data: TCompilerCallbackData;
-  begin
-    Data.OutputExeFilename := PChar(SetupCompiler.ExeFilename);
-    Data.DebugInfo := SetupCompiler.DebugInfo.Memory;
-    Data.DebugInfoSize := SetupCompiler.DebugInfo.Size;
-    Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
-  end;
-
-  procedure NotifyError(const SetupCompiler: TSetupCompiler);
-  var
-    Data: TCompilerCallbackData;
-    S: String;
-  begin
-    Data.ErrorMsg := nil;
-    Data.ErrorFilename := nil;
-    Data.ErrorLine := 0;
-    if not(ExceptObject is EAbort) then begin
-      S := GetExceptMessage;
-      Data.ErrorMsg := PChar(S);
-      { use a Pointer cast instead of PChar so that we'll get a null
-        pointer if the string is empty }
-      Data.ErrorFilename := Pointer(SetupCompiler.LineFilename);
-      Data.ErrorLine := SetupCompiler.LineNumber;
-    end;
-    Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
-  end;
-
-var
-  SetupCompiler: TSetupCompiler;
-  P: PChar;
-  P2: Integer;
-begin
-  if not CheckParams(Params) then begin
-    Result := isceInvalidParam;
-    Exit;
-  end;
-  SetupCompiler := TSetupCompiler.Create(nil);
-  try
-    InitializeSetupCompiler(SetupCompiler, Params);
-
-    { Parse Options (only present in TCompileScriptParamsEx) }
-    if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
-      P := Params.Options;
-      while P^ <> #0 do begin
-        if StrLIComp(P, 'Output=', Length('Output=')) = 0 then begin
-          Inc(P, Length('Output='));
-          if TryStrToBoolean(P, SetupCompiler.Output) then
-            SetupCompiler.FixedOutput := True
-          else begin
-            { Bad option }
-            Result := isceInvalidParam;
-            Exit;
-          end;
-        end
-        else if StrLIComp(P, 'OutputDir=', Length('OutputDir=')) = 0 then begin
-          Inc(P, Length('OutputDir='));
-          SetupCompiler.OutputDir := P;
-          SetupCompiler.FixedOutputDir := True;
-        end
-        else if StrLIComp(P, 'OutputBaseFilename=', Length('OutputBaseFilename=')) = 0 then begin
-          Inc(P, Length('OutputBaseFilename='));
-          SetupCompiler.OutputBaseFilename := P;
-          SetupCompiler.FixedOutputBaseFilename := True;
-        end
-        else if StrLIComp(P, 'SignTool-', Length('SignTool-')) = 0 then begin
-          Inc(P, Length('SignTool-'));
-          P2 := Pos('=', P);
-          if (P2 <> 0) then
-            SetupCompiler.AddSignTool(Copy(P, 1, P2-1), Copy(P, P2+1, MaxInt))
-          else begin
-            { Bad option }
-            Result := isceInvalidParam;
-            Exit;
-          end;
-        end
-        else if StrLIComp(P, 'ISPP:', Length('ISPP:')) = 0 then begin
-          SetupCompiler.PreprocOptionsString :=
-            SetupCompiler.PreprocOptionsString + P + #0;
-        end
-        else begin
-          { Unknown option }
-          Result := isceInvalidParam;
-          Exit;
-        end;
-        Inc(P, StrLen(P) + 1);
-      end;
-    end;
-
-    try
-      try
-        SetupCompiler.Compile;
-      finally
-        NotifyPreproc(SetupCompiler);
-      end;
-      Result := isceNoError;
-      NotifySuccess(SetupCompiler);
-    except
-      Result := isceCompileFailure;
-      NotifyError(SetupCompiler);
-      if PropagateExceptions then
-        raise;
-    end;
-  finally
-    SetupCompiler.Free;
-  end;
-end;
-
-function ISGetVersion: PCompilerVersionInfo;
-const
-  Ver: TCompilerVersionInfo =
-   (Title: SetupTitle; Version: SetupVersion; BinVersion: SetupBinVersion);
-begin
-  Result := @Ver;
-end;
-
-initialization
-finalization
-  if CryptProv <> 0 then begin
-    CryptReleaseContext(CryptProv, 0);
-    CryptProv := 0;
-  end;
 end.

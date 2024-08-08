@@ -81,7 +81,12 @@
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\Compiler.Compile.pas"/>
+        <DCCReference Include="Src\Compiler.SetupCompiler.pas"/>
         <DCCReference Include="Src\Compiler.Messages.pas"/>
+        <DCCReference Include="Src\Compiler.StringLists.pas"/>
+        <DCCReference Include="Src\Compiler.CompressionHandler.pas"/>
+        <DCCReference Include="Src\Compiler.HelperFunc.pas"/>
+        <DCCReference Include="Src\Compiler.BuiltinPreproc.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
         <DCCReference Include="Src\Compiler.ScriptFunc.pas"/>
