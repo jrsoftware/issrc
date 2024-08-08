@@ -289,7 +289,7 @@ type
 implementation
 
 uses
-  Commctrl, IniFiles, TypInfo, AnsiStrings, Math, StrUtils, WideStrUtils,
+  Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Shared.ArcFour, SHA1,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
@@ -339,78 +339,6 @@ begin
     Result := Trim(Copy(S, 1, I-1));
     S := Trim(Copy(S, I+1, Maxint));
   until (Result <> '') or (S = '');
-end;
-
-function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
-
-  procedure AddFile(const Filename: String);
-  begin
-    AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
-    Result.Add(CreateMemoryStreamFromFile(FileName));
-  end;
-
-var
-  Filename, SearchSubDir: String;
-  AFilesList: TStringList;
-  I: Integer;
-  H: THandle;
-  FindData: TWin32FindData;
-begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
-  try
-    { In older versions only one file could be listed and comma's could be used so
-      before treating AFiles as a list, first check if it's actually a single file
-      with a comma in its name. }
-    Filename := PrependSourceDirName(AFiles);
-    if NewFileExists(Filename) then
-       AddFile(Filename)
-    else begin
-      AFilesList := TStringList.Create;
-      try
-        ProcessWildcardsParameter(AFiles, AFilesList,
-          Format(SCompilerDirectivePatternTooLong, [ADirectiveName]));
-        for I := 0 to AFilesList.Count-1 do begin
-          Filename := PrependSourceDirName(AFilesList[I]);
-          if IsWildcard(FileName) then begin
-            H := FindFirstFile(PChar(Filename), FindData);
-            if H <> INVALID_HANDLE_VALUE then begin
-              try
-                SearchSubDir := PathExtractPath(Filename);
-                repeat
-                  if FindData.dwFileAttributes and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_HIDDEN) <> 0 then
-                    Continue;
-                   AddFile(SearchSubDir + FindData.cFilename);
-                until not FindNextFile(H, FindData);
-              finally
-                Windows.FindClose(H);
-              end;
-            end;
-          end else
-            AddFile(Filename);  { use the case specified in the script }
-        end;
-      finally
-        AFilesList.Free;
-      end;
-    end;
-  except
-    Result.Free;
-    raise;
-  end;
-end;
-
-function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
-var
-  I, J: Integer;
-begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
-  try
-    for I := 0 to Length(AResourceNamesPrefixes)-1 do
-      for J := 0 to Length(AResourceNamesPostfixes)-1 do
-        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA));
-  except
-    Result.Free;
-    raise;
-  end;
 end;
 
 { TSetupCompiler }
@@ -502,6 +430,78 @@ begin
   LanguageEntries.Free;
   ScriptFiles.Free;
   inherited Destroy;
+end;
+
+function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
+
+  procedure AddFile(const Filename: String);
+  begin
+    AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
+    Result.Add(CreateMemoryStreamFromFile(FileName));
+  end;
+
+var
+  Filename, SearchSubDir: String;
+  AFilesList: TStringList;
+  I: Integer;
+  H: THandle;
+  FindData: TWin32FindData;
+begin
+  Result := TObjectList<TCustomMemoryStream>.Create;
+  try
+    { In older versions only one file could be listed and comma's could be used so
+      before treating AFiles as a list, first check if it's actually a single file
+      with a comma in its name. }
+    Filename := PrependSourceDirName(AFiles);
+    if NewFileExists(Filename) then
+       AddFile(Filename)
+    else begin
+      AFilesList := TStringList.Create;
+      try
+        ProcessWildcardsParameter(AFiles, AFilesList,
+          Format(SCompilerDirectivePatternTooLong, [ADirectiveName]));
+        for I := 0 to AFilesList.Count-1 do begin
+          Filename := PrependSourceDirName(AFilesList[I]);
+          if IsWildcard(FileName) then begin
+            H := FindFirstFile(PChar(Filename), FindData);
+            if H <> INVALID_HANDLE_VALUE then begin
+              try
+                SearchSubDir := PathExtractPath(Filename);
+                repeat
+                  if FindData.dwFileAttributes and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_HIDDEN) <> 0 then
+                    Continue;
+                   AddFile(SearchSubDir + FindData.cFilename);
+                until not FindNextFile(H, FindData);
+              finally
+                Windows.FindClose(H);
+              end;
+            end;
+          end else
+            AddFile(Filename);  { use the case specified in the script }
+        end;
+      finally
+        AFilesList.Free;
+      end;
+    end;
+  except
+    Result.Free;
+    raise;
+  end;
+end;
+
+function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+var
+  I, J: Integer;
+begin
+  Result := TObjectList<TCustomMemoryStream>.Create;
+  try
+    for I := 0 to Length(AResourceNamesPrefixes)-1 do
+      for J := 0 to Length(AResourceNamesPostfixes)-1 do
+        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA));
+  except
+    Result.Free;
+    raise;
+  end;
 end;
 
 procedure TSetupCompiler.InitPreprocessor;

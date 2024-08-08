@@ -33,7 +33,6 @@ begin
   SetString(Result, Buf, GetModuleFileName(HInstance, Buf, SizeOf(Buf)))
 end;
 
-
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;
 
