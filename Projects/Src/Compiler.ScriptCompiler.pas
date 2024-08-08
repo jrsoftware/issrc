@@ -6,7 +6,7 @@ unit Compiler.ScriptCompiler;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script compiler
+  Script (=[Code]) compiler
 }
 
 interface
