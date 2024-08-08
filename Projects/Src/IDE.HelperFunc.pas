@@ -80,6 +80,7 @@ function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 function GetWordOccurrenceFindOptions: TScintFindOptions;
 function GetSelTextOccurrenceFindOptions: TScintFindOptions;
 function GetPreferredMemoFont: String;
+function DoubleAmp(const S: String): String;
 
 implementation
 
@@ -869,6 +870,23 @@ var
 function GetPreferredMemoFont: String;
 begin
   Result := PreferredMemoFont;
+end;
+
+function DoubleAmp(const S: String): String;
+var
+  I: Integer;
+begin
+  Result := S;
+  I := 1;
+  while I <= Length(Result) do begin
+    if Result[I] = '&' then begin
+      Inc(I);
+      Insert('&', Result, I);
+      Inc(I);
+    end
+    else
+      Inc(I, PathCharLength(S, I));
+  end;
 end;
 
 initialization
