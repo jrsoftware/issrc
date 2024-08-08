@@ -6,7 +6,7 @@ unit Compiler.HelperFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Additional compiker functions
+  Additional compiler functions
 }
 
 interface
