@@ -6,7 +6,7 @@ unit Setup.MainForm;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Background form
+  Setup main functions and global variables
 }
 
 interface
