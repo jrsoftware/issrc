@@ -201,7 +201,7 @@ implementation
 
 uses
   StrUtils,
-  Shared.Struct, Setup.MainForm, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
+  Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
 

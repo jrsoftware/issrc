@@ -20,6 +20,7 @@ uses
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Setup.MainForm in 'Src\Setup.MainForm.pas' {MainForm},
+  Setup.MainFunc in 'Src\Setup.MainFunc.pas',
   Setup.Install in 'Src\Setup.Install.pas',
   SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',

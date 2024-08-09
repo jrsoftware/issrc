@@ -17,7 +17,7 @@ implementation
 
 uses
   Windows, SysUtils, Classes, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
-  Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainForm,
+  Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.RegDLL, Setup.Helper;
 
 procedure DeleteOldTempFiles(const Path: String);

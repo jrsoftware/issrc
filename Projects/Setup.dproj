@@ -81,6 +81,7 @@
         <DCCReference Include="Src\Setup.MainForm.pas">
             <Form>MainForm</Form>
         </DCCReference>
+        <DCCReference Include="Src\Setup.MainFunc.pas"/>
         <DCCReference Include="Src\Setup.Install.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.Messages.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>

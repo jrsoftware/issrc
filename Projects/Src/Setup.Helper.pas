@@ -31,7 +31,7 @@ implementation
 {x$DEFINE HELPERDEBUG}
 
 uses
-  Forms, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainForm, Setup.InstFunc,
+  Forms, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainFunc, Setup.InstFunc,
   Setup.LoggingFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs;
 
 const

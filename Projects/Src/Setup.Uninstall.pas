@@ -22,7 +22,7 @@ uses
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
   Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupTypes,
-  Setup.LoggingFunc, Setup.MainForm, Setup.SpawnServer;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer;
 
 type
   TExtUninstallLog = class(TUninstallLog)

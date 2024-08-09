@@ -30,7 +30,7 @@ implementation
 uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
-  Setup.MainForm, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
+  Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
   Compression.Base, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,

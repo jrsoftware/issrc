@@ -41,7 +41,7 @@ implementation
 
 uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
-  Setup.MainForm, Setup.WizardForm;
+  Setup.MainFunc, Setup.WizardForm;
 
 {$R *.DFM}
 

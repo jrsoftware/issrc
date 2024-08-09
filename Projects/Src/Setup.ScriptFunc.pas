@@ -21,7 +21,7 @@ implementation
 uses
   Windows, Shared.ScriptFunc,
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
-  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, PathFunc, Shared.CommonFunc.Vcl,
+  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, Setup.MainFunc, PathFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,

@@ -21,7 +21,7 @@ implementation
 
 uses
   SysUtils, Forms, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.InstFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  Setup.LoggingFunc, SetupLdrAndSetup.RedirFunc, Setup.MainForm;
+  Setup.LoggingFunc, SetupLdrAndSetup.RedirFunc, Setup.MainFunc;
 
 function WaitForAndCloseProcessHandle(var AProcessHandle: THandle): DWORD;
 var
