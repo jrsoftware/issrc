@@ -106,6 +106,7 @@
             <Form>SignToolsForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryComboForm.pas"/>
+        <DCCReference Include="Src\IDE.InputQueryMemoForm.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>

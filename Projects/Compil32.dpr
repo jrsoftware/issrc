@@ -32,6 +32,7 @@ uses
   BrowseFunc in '..\Components\BrowseFunc.pas',
   IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
   IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas',
+  IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas',
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',

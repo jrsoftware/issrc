@@ -7,6 +7,8 @@ unit IDE.InputQueryComboForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   InputQuery with a TComboBox instead of a TEdit
+
+  Unlike InputQuery it doesn't limit the value to 255 characters
 }
 
 interface
@@ -19,7 +21,7 @@ type
     OKButton: TButton;
     CancelButton: TButton;
     PromptLabel: TLabel;
-    ValueComboBox: TComboBox;
+    ValueControl: TComboBox;
     procedure FormCreate(Sender: TObject);
   private
     function GetValue: String;
@@ -65,22 +67,25 @@ end;
 
 function TInputQueryComboForm.GetValue: String;
 begin
-  Result := ValueComboBox.Text;
+  Result := ValueControl.Text;
 end;
 
 procedure TInputQueryComboForm.SetPrompt(const APrompt: String);
 begin
   PromptLabel.Caption := APrompt;
+  var MoveX := PromptLabel.Left + PromptLabel.Width + CancelButton.Left - (OkButton.Left + OkButton.Width) - ValueControl.Left;
+  ValueControl.Left := ValueControl.Left + MoveX;
+  ValueControl.Width := ValueControl.Width - MoveX;
 end;
 
 procedure TInputQueryComboForm.SetValue(const AValue: String);
 begin
-  ValueComboBox.Text := AValue;
+  ValueControl.Text := AValue;
 end;
 
 procedure TInputQueryComboForm.SetValues(const AValues: TStringList);
 begin
-  ValueComboBox.Items := AValues;
+  ValueControl.Items := AValues;
 end;
 
 end.

@@ -46,7 +46,8 @@ type
 implementation
 
 uses
-  Windows, Messages, IDE.HelperFunc, Shared.CommonFunc.Vcl, Dialogs, SysUtils;
+  Windows, Messages, SysUtils, Dialogs,
+  Shared.CommonFunc.Vcl, IDE.InputQueryMemoForm, IDE.HelperFunc;
 
 {$R *.DFM}
 
@@ -117,7 +118,7 @@ begin
       end;
     end;
 
-    if InputQuery(Caption, 'Command of the Sign Tool:', SignToolCommand) then begin
+    if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True) then begin
       if SignToolCommand = '' then begin
         AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
         Exit;
