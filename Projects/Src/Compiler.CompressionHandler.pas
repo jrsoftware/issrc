@@ -5,6 +5,8 @@ unit Compiler.CompressionHandler;
   Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
+
+  Compression handler used by TSetupCompiler
 }
 
 interface
