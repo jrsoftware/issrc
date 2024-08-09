@@ -38,6 +38,7 @@ object SignToolsForm: TSignToolsForm
       ItemHeight = 13
       TabOrder = 0
       OnClick = SignToolsListBoxClick
+      OnDblClick = SignToolsListBoxDblClick
     end
     object AddButton: TButton
       Left = 480

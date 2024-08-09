@@ -29,6 +29,7 @@ type
     procedure AddButtonClick(Sender: TObject);
     procedure RemoveButtonClick(Sender: TObject);
     procedure EditButtonClick(Sender: TObject);
+    procedure SignToolsListBoxDblClick(Sender: TObject);
   private
     FSignTools: TStringList;
     procedure CommandDocImageClick(Sender: TObject);
@@ -183,6 +184,12 @@ end;
 procedure TSignToolsForm.SignToolsListBoxClick(Sender: TObject);
 begin
   UpdateSignToolsButtons;
+end;
+
+procedure TSignToolsForm.SignToolsListBoxDblClick(Sender: TObject);
+begin
+  if EditButton.Enabled then
+    EditButton.Click;
 end;
 
 end.
