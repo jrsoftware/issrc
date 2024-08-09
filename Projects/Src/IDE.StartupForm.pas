@@ -59,7 +59,8 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.MainForm, ComCtrls;
+  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc,
+  IDE.MainForm, IDE.ImagesModule, ComCtrls;
 
 {$R *.DFM}
 
@@ -73,7 +74,7 @@ procedure TStartupForm.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := MainForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin

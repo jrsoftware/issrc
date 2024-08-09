@@ -46,8 +46,8 @@ implementation
 
 uses
   Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
-  ComCtrls,
-  IDE.MainForm, IDE.HelperFunc, IDE.Messages, BrowseFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  ComCtrls, BrowseFunc,
+  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -61,7 +61,7 @@ procedure TWizardFormRegistryHelper.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := MainForm.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin

@@ -147,6 +147,11 @@
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\ISHelp\isxclasses_wordlists_generated.pas"/>
+        <DCCReference Include="Src\IDE.ImagesModule.pas">
+            <Form>ImagesModule</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

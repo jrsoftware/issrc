@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
-  VirtualImageList, BaseImageCollection, ImageCollection;
+  VirtualImageList, BaseImageCollection;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -198,12 +198,7 @@ type
     ToolButton5: TToolButton;
     HelpButton: TToolButton;
     Bevel1: TBevel;
-    BuildImageList: TImageList;
     TerminateButton: TToolButton;
-    LightToolBarImageCollection: TImageCollection;
-    DarkToolBarImageCollection: TImageCollection;
-    ThemedToolbarVirtualImageList: TVirtualImageList;
-    LightToolbarVirtualImageList: TVirtualImageList;
     POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -239,9 +234,6 @@ type
     VReopenTabs2: TMenuItem;
     NavPopupMenu: TMenuItem;
     N23: TMenuItem;
-    LightMarkersAndACImageCollection: TImageCollection;
-    DarkMarkersAndACImageCollection: TImageCollection;
-    ThemedMarkersAndACVirtualImageList: TVirtualImageList;
     ESelectNextOccurrence: TMenuItem;
     ESelectAllOccurrences: TMenuItem;
     BreakPointsPopupMenu: TMenuItem;
@@ -652,7 +644,7 @@ uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
   Math, StrUtils, WideStrUtils,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
-  IDE.HtmlHelpFunc, TaskbarProgressFunc,
+  IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
@@ -993,8 +985,6 @@ begin
 
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
-
-  ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
 
@@ -3938,7 +3928,7 @@ type
   end;
 
 begin
-  var ImageList := ThemedMarkersAndACVirtualImageList;
+  var ImageList := ImagesModule.ThemedMarkersAndACVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
@@ -6119,13 +6109,7 @@ begin
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
   ToolBarPanel.ParentBackground := False;
 
-  if FTheme.Dark then begin
-    ThemedToolbarVirtualImageList.ImageCollection := DarkToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := DarkMarkersAndACImageCollection;
-  end else begin
-    ThemedToolbarVirtualImageList.ImageCollection := LightToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := LightMarkersAndACImageCollection;
-  end;
+  ImagesModule.UpdateTheme(FTheme.Dark);
 
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
@@ -6151,14 +6135,14 @@ begin
    FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
    missing. }
   if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
-    FMenuImageList := ThemedToolbarVirtualImageList;
+    FMenuImageList := ImagesModule.ThemedToolbarVirtualImageList;
     if FTheme.Dark then
       SetPreferredAppMode(PAM_FORCEDARK)
     else
       SetPreferredAppMode(PAM_FORCELIGHT);
     FlushMenuThemes;
   end else
-    FMenuImageList := LightToolbarVirtualImageList;
+    FMenuImageList := ImagesModule.LightToolbarVirtualImageList;
 end;
 
 procedure TMainForm.UpdateThemeData(const Open: Boolean);
@@ -6816,6 +6800,7 @@ begin
       end;
     spCompileIcon:
       if FCompiling then begin
+        var BuildImageList := ImagesModule.BuildImageList;
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
