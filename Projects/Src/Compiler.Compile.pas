@@ -6,7 +6,7 @@ unit Compiler.Compile;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler DLL interface functions
+  Compiler DLL interface functions which wrap TSetupCompiler
 }
 
 interface
