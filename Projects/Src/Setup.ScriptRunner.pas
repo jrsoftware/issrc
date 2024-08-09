@@ -609,9 +609,8 @@ function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongIn
         Result := PSVariantToString(p, ClassProperties);
       end;
     end else
-    Result := PSVariantToString(p, ClassProperties);
+      Result := PSVariantToString(p, ClassProperties);
   end;
-
 
 begin
   case TPSVariableType(Param1) of
