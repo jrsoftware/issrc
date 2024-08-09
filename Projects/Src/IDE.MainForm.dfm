@@ -356,8 +356,8 @@ object MainForm: TMainForm
   object MainMenu1: TMainMenu
     AutoHotkeys = maManual
     AutoLineReduction = maManual
-    Left = 8
-    Top = 48
+    Left = 48
+    Top = 64
     object FMenu: TMenuItem
       Caption = '&File'
       OnClick = FMenuClick
@@ -894,30 +894,30 @@ object MainForm: TMainForm
   end
   object FindDialog: TFindDialog
     OnFind = FindDialogFind
-    Left = 136
-    Top = 48
+    Left = 48
+    Top = 152
   end
   object ReplaceDialog: TReplaceDialog
     OnFind = FindDialogFind
     OnReplace = ReplaceDialogReplace
-    Left = 168
-    Top = 48
+    Left = 160
+    Top = 152
   end
   object CheckIfRunningTimer: TTimer
     Enabled = False
     Interval = 100
     OnTimer = CheckIfRunningTimerTimer
-    Left = 200
-    Top = 48
+    Left = 160
+    Top = 64
   end
   object FindInFilesDialog: TFindDialog
     Options = [frDown, frHideUpDown]
     OnFind = FindInFilesDialogFind
-    Left = 136
+    Left = 272
     Top = 152
   end
   object PrintDialog: TPrintDialog
-    Left = 224
-    Top = 149
+    Left = 272
+    Top = 64
   end
 end

@@ -1,12 +1,12 @@
 object ImagesModule: TImagesModule
   OnCreate = DataModuleCreate
-  Height = 480
-  Width = 640
+  Height = 368
+  Width = 656
   object BuildImageList: TImageList
     ColorDepth = cd32Bit
     Height = 17
-    Left = 312
-    Top = 48
+    Left = 96
+    Top = 288
     Bitmap = {
       494C010104002400040010001100FFFFFFFF2110FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000002200000001002000000000000022
@@ -10365,8 +10365,8 @@ object ImagesModule: TImagesModule
               22227FE00DAD121733D564B79E0000000049454E44AE426082}
           end>
       end>
-    Left = 272
-    Top = 48
+    Left = 96
+    Top = 24
   end
   object ThemedToolbarVirtualImageList: TVirtualImageList
     AutoFill = True
@@ -10672,8 +10672,8 @@ object ImagesModule: TImagesModule
         Name = 'symbol-remove'
       end>
     ImageCollection = LightToolBarImageCollection
-    Left = 272
-    Top = 100
+    Left = 520
+    Top = 24
   end
   object LightToolbarVirtualImageList: TVirtualImageList
     AutoFill = True
@@ -10979,8 +10979,8 @@ object ImagesModule: TImagesModule
         Name = 'symbol-remove'
       end>
     ImageCollection = LightToolBarImageCollection
-    Left = 272
-    Top = 140
+    Left = 96
+    Top = 92
   end
   object DarkToolBarImageCollection: TImageCollection
     Images = <
@@ -21138,8 +21138,8 @@ object ImagesModule: TImagesModule
               22227FE00DAD121733D564B79E0000000049454E44AE426082}
           end>
       end>
-    Left = 232
-    Top = 100
+    Left = 304
+    Top = 24
   end
   object LightMarkersAndACImageCollection: TImageCollection
     Images = <
@@ -24166,15 +24166,15 @@ object ImagesModule: TImagesModule
               D7BF1E7F01F52962DB4F7906D80000000049454E44AE426082}
           end>
       end>
-    Left = 24
-    Top = 115
+    Left = 96
+    Top = 195
   end
   object ThemedMarkersAndACVirtualImageList: TVirtualImageList
     Images = <>
     Width = 12
     Height = 12
-    Left = 32
-    Top = 176
+    Left = 520
+    Top = 194
   end
   object DarkMarkersAndACImageCollection: TImageCollection
     Images = <
@@ -27224,7 +27224,7 @@ object ImagesModule: TImagesModule
               4AD81C57880000000049454E44AE426082}
           end>
       end>
-    Left = 80
-    Top = 91
+    Left = 304
+    Top = 194
   end
 end
