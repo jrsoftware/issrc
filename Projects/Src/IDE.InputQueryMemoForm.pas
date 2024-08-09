@@ -14,7 +14,7 @@ unit IDE.InputQueryMemoForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm, Vcl.ExtCtrls;
 
 type
   TInputQueryMemoForm = class(TUIStateForm)
@@ -22,40 +22,48 @@ type
     CancelButton: TButton;
     PromptLabel: TLabel;
     ValueControl: TMemo;
+    DocImage: TImage;
     procedure FormCreate(Sender: TObject);
     procedure ValueControlKeyPress(Sender: TObject; var Key: Char);
     procedure ValueControlChange(Sender: TObject);
     procedure ValueControlKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     FSingleLine: Boolean;
     function GetValue: String;
     procedure SetPrompt(const APrompt: String);
     procedure SetValue(const AValue: String);
+    procedure UpdateImages;
+    procedure SetDocImageClick(const Value: TNotifyEvent);
   public
-    property SingleLine: Boolean write FSingleLine;
+    property DocImageClick: TNotifyEvent write SetDocImageClick;
     property Prompt: String write SetPrompt;
+    property SingleLine: Boolean write FSingleLine;
     property Value: String read GetValue write SetValue;
   end;
 
 function InputQueryMemo(const ACaption, APrompt: String; var AValue: String;
-  const ASingleLine: Boolean = False): Boolean;
+  const ASingleLine: Boolean = False; const ADocImageClick: TNotifyEvent = nil): Boolean;
 
 implementation
 
 uses
-  Windows, Messages, IDE.HelperFunc, Forms;
+  Windows, Messages, Forms, Graphics, ComCtrls,
+  IDE.HelperFunc, IDE.ImagesModule, IDE.MainForm;
 
 {$R *.DFM}
 
 function InputQueryMemo(const ACaption, APrompt: String; var AValue: String;
-  const ASingleLine: Boolean): Boolean;
+  const ASingleLine: Boolean; const ADocImageClick: TNotifyEvent): Boolean;
 begin
   with TInputQueryMemoForm.Create(Application) do try
     Caption := ACaption;
     Prompt := APrompt;
     Value := AValue;
     SingleLine := ASingleLine;
+    DocImageClick := ADocImageClick;
     if ShowModal = mrOk then begin
       AValue := Value;
       Result := True;
@@ -69,11 +77,24 @@ end;
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  UpdateImages;
+end;
+
+procedure TInputQueryMemoForm.FormAfterMonitorDpiChanged(Sender: TObject;
+  OldDPI, NewDPI: Integer);
+begin
+  UpdateImages;
 end;
 
 function TInputQueryMemoForm.GetValue: String;
 begin
   Result := ValueControl.Text;
+end;
+
+procedure TInputQueryMemoForm.SetDocImageClick(const Value: TNotifyEvent);
+begin
+  DocImage.OnClick := Value;
+  DocImage.Visible := Assigned(DocImage.OnClick);
 end;
 
 procedure TInputQueryMemoForm.SetPrompt(const APrompt: String);
@@ -115,6 +136,19 @@ begin
   { #10 = Ctrl+Enter, #13 = Enter or Shift+Enter }
   if FSingleLine and ((Key = #10) or (Key = #13)) then
     Key := #0;
+end;
+
+procedure TInputQueryMemoForm.UpdateImages;
+
+  function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
+  begin
+    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+  end;
+
+begin
+ { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
+  var WH := MulDiv(16, CurrentPPI, 96);
+  DocImage.Picture.Graphic:= GetImage(MainForm.HelpButton, WH);
 end;
 
 end.

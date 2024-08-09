@@ -13,6 +13,7 @@ object InputQueryMemoForm: TInputQueryMemoForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCreate = FormCreate
   DesignSize = (
     582
@@ -25,6 +26,16 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Height = 13
     Caption = '...'
     FocusControl = ValueControl
+  end
+  object DocImage: TImage
+    Left = 8
+    Top = 115
+    Width = 16
+    Height = 16
+    Cursor = crHandPoint
+    Anchors = [akLeft, akBottom]
+    AutoSize = True
+    Transparent = True
   end
   object OKButton: TButton
     Left = 421
