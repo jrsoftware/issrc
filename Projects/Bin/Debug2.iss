@@ -3,6 +3,7 @@
 ; Use it to test the compiler or Compiler IDE's support for include files
 
 [Code]
-procedure InitializeWizard;
+<event('InitializeWizard')>
+procedure Debug2_InitializeWizard;
 begin
 end;
