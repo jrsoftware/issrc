@@ -248,6 +248,8 @@ type
     EFoldLine: TMenuItem;
     EUnfoldLine: TMenuItem;
     EFindRegEx: TMenuItem;
+    UpdatePanel: TPanel;
+    UpdateLinkLabel: TLinkLabel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -370,6 +372,8 @@ type
     procedure EBraceMatchClick(Sender: TObject);
     procedure EFoldOrUnfoldLineClick(Sender: TObject);
     procedure EFindRegExClick(Sender: TObject);
+    procedure UpdateLinkLabelLinkClick(Sender: TObject; const Link: string;
+      LinkType: TSysLinkType);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -917,6 +921,10 @@ begin
 
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
+
+  ToolBarPanel.ParentBackground := False;
+  UpdatePanel.ParentBackground := False;
+  UpdatePanel.Color := $add6ad; //MGreen, 6 tints lightened using color-hex.com - also OK for dark mode
 
   FMemos := TList<TIDEScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
@@ -6107,7 +6115,6 @@ begin
 
   InitFormTheme(Self);
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
-  ToolBarPanel.ParentBackground := False;
 
   ImagesModule.UpdateTheme(FTheme.Dark);
 
@@ -7449,6 +7456,13 @@ begin
     AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 
+procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
+  const Link: string; LinkType: TSysLinkType);
+begin
+ if (LinkType = sltID) and (Link = 'whatsnew') then
+  HWhatsNew.Click;
+end;
+
 procedure TMainForm.UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
 begin
   for var Line := 0 to AMemo.Lines.Count-1 do
@@ -7464,8 +7478,10 @@ end;
 
 procedure TMainForm.UpdateBevel1Visibility;
 begin
-  { Bevel1 is the line between the toolbar and the memo when there's no tabset }
-  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
+  { Bevel1 is the line between the toolbar and the memo when there's nothing in
+    between and they have the same color }
+  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and
+                    not UpdatePanel.Visible and not MemosTabSet.Visible;
 end;
 
 function TMainForm.ToCurrentPPI(const XY: Integer): Integer;

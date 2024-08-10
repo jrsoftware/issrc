@@ -2,7 +2,7 @@ object MainForm: TMainForm
   Left = 206
   Top = 97
   Caption = '*'
-  ClientHeight = 265
+  ClientHeight = 306
   ClientWidth = 361
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -28,13 +28,13 @@ object MainForm: TMainForm
   end
   object BodyPanel: TPanel
     Left = 0
-    Top = 51
+    Top = 92
     Width = 361
     Height = 194
     Align = alClient
     BevelOuter = bvNone
     FullRepaint = False
-    TabOrder = 0
+    TabOrder = 3
     object SplitPanel: TPanel
       Left = 0
       Top = 86
@@ -136,7 +136,7 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 245
+    Top = 286
     Width = 361
     Height = 20
     Panels = <
@@ -187,7 +187,7 @@ object MainForm: TMainForm
     Height = 29
     Align = alTop
     BevelOuter = bvNone
-    TabOrder = 2
+    TabOrder = 0
     object ToolBar: TToolBar
       AlignWithMargins = True
       Left = 7
@@ -342,7 +342,7 @@ object MainForm: TMainForm
   end
   object MemosTabSet: TNewTabSet
     Left = 0
-    Top = 30
+    Top = 71
     Width = 361
     Height = 21
     Align = alTop
@@ -352,6 +352,26 @@ object MainForm: TMainForm
     TabPosition = tpTop
     OnClick = MemosTabSetClick
     OnCloseButtonClick = MemosTabSetOnCloseButtonClick
+  end
+  object UpdatePanel: TPanel
+    Left = 0
+    Top = 30
+    Width = 361
+    Height = 41
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 1
+    object UpdateLinkLabel: TLinkLabel
+      Left = 13
+      Top = 13
+      Width = 363
+      Height = 17
+      Caption = 
+        'Your version of Inno Setup has been updated. Click <a  id="whats' +
+        'new">here</a> to see what'#39's new.'
+      TabOrder = 0
+      OnLinkClick = UpdateLinkLabelLinkClick
+    end
   end
   object MainMenu1: TMainMenu
     AutoHotkeys = maManual
