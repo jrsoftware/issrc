@@ -1323,7 +1323,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA256OfUnicodeString">
 				<title>GetSHA256OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA256OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA256OfUnicodeString(<b>str</b>)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-256 hash of the specified Unicode string, as a string.</p>
