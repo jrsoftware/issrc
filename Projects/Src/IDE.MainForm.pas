@@ -199,6 +199,8 @@ type
     HelpButton: TToolButton;
     Bevel1: TBevel;
     TerminateButton: TToolButton;
+    ThemedToolbarVirtualImageList: TVirtualImageList;
+    LightToolbarVirtualImageList: TVirtualImageList;
     POutputListSelectAll: TMenuItem;
     DebugCallStackList: TListBox;
     VDebugCallStack: TMenuItem;
@@ -234,6 +236,7 @@ type
     VReopenTabs2: TMenuItem;
     NavPopupMenu: TMenuItem;
     N23: TMenuItem;
+    ThemedMarkersAndACVirtualImageList: TVirtualImageList;
     ESelectNextOccurrence: TMenuItem;
     ESelectAllOccurrences: TMenuItem;
     BreakPointsPopupMenu: TMenuItem;
@@ -993,6 +996,9 @@ begin
 
   FMenuDarkBackgroundBrush := TBrush.Create;
   FMenuDarkHotOrSelectedBrush := TBrush.Create;
+
+  LightToolbarVirtualImageList.AutoFill := True;
+  ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
 
@@ -3936,7 +3942,7 @@ type
   end;
 
 begin
-  var ImageList := ImagesModule.ThemedMarkersAndACVirtualImageList;
+  var ImageList := ThemedMarkersAndACVirtualImageList;
 
   var DC := CreateCompatibleDC(0);
   if DC <> 0 then begin
@@ -6116,7 +6122,13 @@ begin
   InitFormTheme(Self);
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
 
-  ImagesModule.UpdateTheme(FTheme.Dark);
+  if FTheme.Dark then begin
+    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
+  end else begin
+    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
+    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
+  end;
 
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
@@ -6142,14 +6154,14 @@ begin
    FlushMenuThemes. So don't call SetPreferredAppMode if FlushMenuThemes is
    missing. }
   if Assigned(SetPreferredAppMode) and Assigned(FlushMenuThemes) then begin
-    FMenuImageList := ImagesModule.ThemedToolbarVirtualImageList;
+    FMenuImageList := ThemedToolbarVirtualImageList;
     if FTheme.Dark then
       SetPreferredAppMode(PAM_FORCEDARK)
     else
       SetPreferredAppMode(PAM_FORCELIGHT);
     FlushMenuThemes;
   end else
-    FMenuImageList := ImagesModule.LightToolbarVirtualImageList;
+    FMenuImageList := LightToolbarVirtualImageList;
 end;
 
 procedure TMainForm.UpdateThemeData(const Open: Boolean);

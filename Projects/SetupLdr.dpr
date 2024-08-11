@@ -310,7 +310,7 @@ begin
           '/HELP, /?' + SNewLine +
            'Shows this information.' + SNewLine +
           '/SP-' + SNewLine +
-          'Disables the This will install... Do you wish to continue? prompt at the beginning of SetupLdrAndSetup.' + SNewLine +
+          'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
@@ -495,7 +495,7 @@ begin
         Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
           Longint(@SetupLdrWndProc));
 
-        { Now execute SetupLdrAndSetup. Use the exit code it returns as our exit code. }
+        { Now execute Setup. Use the exit code it returns as our exit code. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
           [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
           SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
