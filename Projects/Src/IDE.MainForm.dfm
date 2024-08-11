@@ -361,6 +361,19 @@ object MainForm: TMainForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    object UpdatePanelClosePaintBox: TPaintBox
+      AlignWithMargins = True
+      Left = 330
+      Top = 10
+      Width = 21
+      Height = 21
+      Margins.Top = 10
+      Margins.Right = 10
+      Margins.Bottom = 10
+      Align = alRight
+      OnClick = UpdatePanelClosePaintBoxClick
+      OnPaint = UpdatePanelClosePaintBoxPaint
+    end
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
