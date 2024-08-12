@@ -112,6 +112,12 @@ begin
   ScaleBaseUnitsInitialized := True;
 end;
 
+function IsSrcExe(const Filename: String): Boolean;
+begin
+  var ExpandedFilename := PathExpand(Filename);
+  Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+end;
+
 {---}
 
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -551,7 +557,7 @@ begin
     Stack.SetBool(PStart, True);
   end else if Proc.Name = 'FILECOPY' then begin
     ExistingFilename := Stack.GetString(PStart-1);
-    if PathCompare(ExistingFilename, SetupLdrOriginalFilename) <> 0 then
+    if not IsSrcExe(ExistingFilename) then
       Stack.SetBool(PStart, CopyFileRedir(ScriptFuncDisableFsRedir,
         ExistingFilename, Stack.GetString(PStart-2), Stack.GetBool(PStart-3)))
     else
@@ -942,7 +948,7 @@ begin
         InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
 
       Filename := Stack.GetString(PStart-1);
-      if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
+      if not IsSrcExe(Filename) then begin
         { Disable windows so the user can't utilize our UI during the InstExec
           call }
         WindowDisabler := TWindowDisabler.Create;
@@ -970,7 +976,7 @@ begin
       NoUninstallFuncError(Proc.Name);
 
     Filename := Stack.GetString(PStart-2);
-    if PathCompare(Filename, SetupLdrOriginalFilename) <> 0 then begin
+    if not IsSrcExe(Filename) then begin
       { Disable windows so the user can't utilize our UI during the
         InstShellExec call }
       WindowDisabler := TWindowDisabler.Create;
@@ -1404,7 +1410,7 @@ begin
     Stack.SetString(PStart, NewFileSearch(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'RENAMEFILE' then begin
     OldName := Stack.GetString(PStart-1);
-    if PathCompare(OldName, SetupLdrOriginalFilename) <> 0 then
+    if not IsSrcExe(OldName) then
       Stack.SetBool(PStart, MoveFileRedir(ScriptFuncDisableFsRedir, OldName, Stack.GetString(PStart-2)))
     else
       Stack.SetBool(PStart, False);

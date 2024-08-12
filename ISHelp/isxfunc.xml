@@ -1653,6 +1653,7 @@ end;</pre></example>
 <p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
 <p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 <p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p>
+<p>Can't be used to execute Setup itself.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
         <example><pre>var
   ResultCode: Integer;
@@ -1685,7 +1686,8 @@ end;</pre></example>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
+<p>Can't be used to execute Setup itself.</p></remarks>
         <example><pre>var
   ErrorCode: Integer;
 begin
@@ -1838,11 +1840,13 @@ end;</pre>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+        <remarks><p>Can't be used to rename Setup itself.</p></remarks>
       </function>
       <function>
         <name>FileCopy</name>
         <prototype>function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
         <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Can't be used to copy Setup itself.</p></remarks>
       </function>
       <function>
         <name>DeleteFile</name>
