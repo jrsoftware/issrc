@@ -834,6 +834,11 @@ constructor TMainForm.Create(AOwner: TComponent);
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
 
+      { UpdatePanel visibility }
+      var KnownVersion := Cardinal(Ini.ReadInteger('Options', 'KnownVersion', 0));
+      UpdatePanel.Visible := KnownVersion < FCompilerVersion.BinVersion;
+      UpdateBevel1Visibility;
+
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
       if FOptions.ShowCaretPosition then
@@ -864,6 +869,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
+      { StatusPanel height }
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
     finally
@@ -7482,6 +7488,12 @@ end;
 
 procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
 begin
+  var Ini := TConfigIniFile.Create;
+  try
+    Ini.WriteInteger('Options', 'KnownVersion', FCompilerVersion.BinVersion);
+  finally
+    Ini.Free;
+  end;
   UpdatePanel.Visible := False;
   UpdateBevel1Visibility;
 end;
