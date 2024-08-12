@@ -251,6 +251,10 @@ type
     EFoldLine: TMenuItem;
     EUnfoldLine: TMenuItem;
     EFindRegEx: TMenuItem;
+    UpdatePanel: TPanel;
+    UpdateLinkLabel: TLinkLabel;
+    UpdatePanelClosePaintBox: TPaintBox;
+    UpdatePanelDonateImage: TImage;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -373,6 +377,11 @@ type
     procedure EBraceMatchClick(Sender: TObject);
     procedure EFoldOrUnfoldLineClick(Sender: TObject);
     procedure EFindRegExClick(Sender: TObject);
+    procedure UpdateLinkLabelLinkClick(Sender: TObject; const Link: string;
+      LinkType: TSysLinkType);
+    procedure UpdatePanelClosePaintBoxPaint(Sender: TObject);
+    procedure UpdatePanelClosePaintBoxClick(Sender: TObject);
+    procedure UpdatePanelDonateImageClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -584,6 +593,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
+    procedure UpdateImages;
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
@@ -827,6 +837,11 @@ constructor TMainForm.Create(AOwner: TComponent);
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
 
+      { UpdatePanel visibility }
+      var KnownVersion := Cardinal(Ini.ReadInteger('Options', 'KnownVersion', 0));
+      UpdatePanel.Visible := KnownVersion < FCompilerVersion.BinVersion;
+      UpdateBevel1Visibility;
+
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
       if FOptions.ShowCaretPosition then
@@ -857,6 +872,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
+      { StatusPanel height }
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
     finally
@@ -920,6 +936,13 @@ begin
 
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
+
+  ToolBarPanel.ParentBackground := False;
+  UpdatePanel.ParentBackground := False;
+  UpdatePanel.Color := $add6ad; //MGreen, 6 tints lightened using color-hex.com - also OK for dark mode
+  UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
+
+  UpdateImages;
 
   FMemos := TList<TIDEScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
@@ -1093,8 +1116,9 @@ end;
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateMarginsAndSquigglyAndCaretWidths;
+  UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
+  UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
@@ -3847,6 +3871,16 @@ begin
   end;
 end;
 
+procedure TMainForm.UpdateImages;
+{ Should be called at startup and after DPI changes }
+begin
+  var WH := MulDiv(16, CurrentPPI, 96);
+  var Images := ImagesModule.LightToolBarImageCollection;
+
+  var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
+  UpdatePanelDonateImage.Picture.Graphic:= Image;
+end;
+
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
 { Should be called at startup and after DPI changes }
 begin
@@ -6113,7 +6147,6 @@ begin
 
   InitFormTheme(Self);
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
-  ToolBarPanel.ParentBackground := False;
 
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
@@ -7461,6 +7494,53 @@ begin
     AMemo.AddMarker(Line, mlmBreakpointBad);
 end;
 
+procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
+  const Link: string; LinkType: TSysLinkType);
+begin
+  if (LinkType = sltID) and (Link = 'whatsnew') then begin
+    HWhatsNew.Click;
+    UpdatePanelClosePaintBoxClick(Sender);
+  end;
+end;
+
+procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
+begin
+  var Ini := TConfigIniFile.Create;
+  try
+    Ini.WriteInteger('Options', 'KnownVersion', FCompilerVersion.BinVersion);
+  finally
+    Ini.Free;
+  end;
+  UpdatePanel.Visible := False;
+  UpdateBevel1Visibility;
+end;
+
+procedure TMainForm.UpdatePanelDonateImageClick(Sender: TObject);
+begin
+  HDonate.Click;
+end;
+
+procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
+const
+  MENU_SYSTEMCLOSE = 17;
+  MSYSC_NORMAL = 1;
+begin
+  var Canvas := UpdatePanelClosePaintBox.Canvas;
+  var R := TRect.Create(0, 0, UpdatePanelClosePaintBox.Width, UpdatePanelClosePaintBox.Height);
+  if FMenuThemeData <> 0 then begin
+    var Offset := MulDiv(1, CurrentPPI, 96);
+    Inc(R.Left, Offset);
+    DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
+  end else begin
+    InflateRect(R, -MulDiv(6, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+    Canvas.Pen.Color := Canvas.Font.Color;
+    Canvas.MoveTo(R.Left, R.Top);
+    Canvas.LineTo(R.Right, R.Bottom);
+    Canvas.MoveTo(R.Left, R.Bottom-1);
+    Canvas.LineTo(R.Right, R.Top-1);
+  end;
+end;
+
 procedure TMainForm.UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
 begin
   for var Line := 0 to AMemo.Lines.Count-1 do
@@ -7476,8 +7556,10 @@ end;
 
 procedure TMainForm.UpdateBevel1Visibility;
 begin
-  { Bevel1 is the line between the toolbar and the memo when there's no tabset }
-  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and not MemosTabSet.Visible;
+  { Bevel1 is the line between the toolbar and the memo when there's nothing in
+    between and they have the same color }
+  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and
+                    not UpdatePanel.Visible and not MemosTabSet.Visible;
 end;
 
 function TMainForm.ToCurrentPPI(const XY: Integer): Integer;

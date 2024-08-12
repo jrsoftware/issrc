@@ -78,7 +78,7 @@ procedure TStartupForm.UpdateImages;
   end;
 
 begin
- { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
+  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, CurrentPPI, 96);
   NewImage.Picture.Graphic:= GetImage(MainForm.NewMainFileButton, WH);
   OpenImage.Picture.Graphic := GetImage(MainForm.OpenMainFileButton, WH);
@@ -95,6 +95,8 @@ begin
   FResult := srNone;
 
   InitFormFont(Self);
+
+  DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
 
   UpdateImages;
 
