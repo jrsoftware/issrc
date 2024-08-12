@@ -91,7 +91,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
   </ul>
   </li>
-  <li>ISPP change: Added support functions <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt>.</li>
+  <li>ISPP changes:
+    <ul>
+      <li>Added support functions <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt>.</li>
+      <li>Support function <tt>CopyFile</tt> has been renamed to <tt>FileCopy</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
+    </ul>
   <li>Various tweaks and other documentation improvements.</li>
 </ul>
 

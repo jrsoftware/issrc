@@ -1000,13 +1000,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Deletes the specified file. Does not return anything. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
 				</description>
 			</topic>
-			<topic id="CopyFile">
-				<title>CopyFile</title>
+			<topic id="FileCopy">
+				<title>FileCopy</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> CopyFile(<b>str</b> 1, <b>str</b> 2)</line></pre>
+					<pre><line><b>void</b> FileCopy(<b>str</b> ExistingFile, <b>str</b> NewFile)</line></pre>
 				</section>
 				<description>
-					<p>Copies an existing file (first parameter) to a new file (second parameter). If the new file already exists, it will be overwritten.</p>
+					<p>Copies ExistingFile to NewFile, preserving time stamp and file attributes. If NewFile already exists, it will be overwritten.</p>
 				</description>
 			</topic>
 			<topic id="FindFirst">
