@@ -381,7 +381,6 @@ object MainForm: TMainForm
       Width = 21
       Height = 21
       Cursor = crHandPoint
-      Hint = 'Support Inno Setup - Thank you!'
       Margins.Top = 10
       Margins.Bottom = 10
       Align = alRight
@@ -884,7 +883,7 @@ object MainForm: TMainForm
       Caption = '&Help'
       OnClick = SimpleMenuClick
       object HDonate: TMenuItem
-        Caption = 'D&onate - Thank you!'
+        Caption = '&Support Inno Setup - Thank you!'
         OnClick = HDonateClick
       end
       object N21: TMenuItem
