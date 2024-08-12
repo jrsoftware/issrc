@@ -254,6 +254,7 @@ type
     UpdatePanel: TPanel;
     UpdateLinkLabel: TLinkLabel;
     UpdatePanelClosePaintBox: TPaintBox;
+    UpdatePanelDonateImage: TImage;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -380,6 +381,7 @@ type
       LinkType: TSysLinkType);
     procedure UpdatePanelClosePaintBoxPaint(Sender: TObject);
     procedure UpdatePanelClosePaintBoxClick(Sender: TObject);
+    procedure UpdatePanelDonateImageClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -591,6 +593,7 @@ type
     procedure UpdateEditModePanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
+    procedure UpdateImages;
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
@@ -937,6 +940,9 @@ begin
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
   UpdatePanel.Color := $add6ad; //MGreen, 6 tints lightened using color-hex.com - also OK for dark mode
+  UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
+
+  UpdateImages;
 
   FMemos := TList<TIDEScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
@@ -1110,8 +1116,9 @@ end;
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
-  UpdateMarginsAndSquigglyAndCaretWidths;
+  UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
+  UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
@@ -3862,6 +3869,16 @@ begin
     Selections.Free;
     IndicatorRanges.Free;
   end;
+end;
+
+procedure TMainForm.UpdateImages;
+{ Should be called at startup and after DPI changes }
+begin
+  var WH := MulDiv(16, CurrentPPI, 96);
+  var Images := ImagesModule.LightToolBarImageCollection;
+
+  var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
+  UpdatePanelDonateImage.Picture.Graphic:= Image;
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -7498,6 +7515,11 @@ begin
   UpdateBevel1Visibility;
 end;
 
+procedure TMainForm.UpdatePanelDonateImageClick(Sender: TObject);
+begin
+  HDonate.Click;
+end;
+
 procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
 const
   MENU_SYSTEMCLOSE = 17;
@@ -7508,10 +7530,9 @@ begin
   if FMenuThemeData <> 0 then begin
     var Offset := MulDiv(1, CurrentPPI, 96);
     Inc(R.Left, Offset);
-    Inc(R.Top, Offset);
     DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
   end else begin
-    InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+    InflateRect(R, -MulDiv(6, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
     Canvas.Pen.Color := Canvas.Font.Color;
     Canvas.MoveTo(R.Left, R.Top);
     Canvas.LineTo(R.Right, R.Bottom);

@@ -374,6 +374,22 @@ object MainForm: TMainForm
       OnClick = UpdatePanelClosePaintBoxClick
       OnPaint = UpdatePanelClosePaintBoxPaint
     end
+    object UpdatePanelDonateImage: TImage
+      AlignWithMargins = True
+      Left = 303
+      Top = 10
+      Width = 21
+      Height = 21
+      Cursor = crHandPoint
+      Hint = 'Support Inno Setup - Thank you!'
+      Margins.Top = 10
+      Margins.Bottom = 10
+      Align = alRight
+      Center = True
+      ParentShowHint = False
+      ShowHint = True
+      OnClick = UpdatePanelDonateImageClick
+    end
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
