@@ -1052,7 +1052,7 @@ begin
     Result := False;
 end;
 
-function MainFormProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+function MainFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function CustomMessage(const MsgName: String): String;
   begin
@@ -1074,32 +1074,8 @@ begin
   PStart := Stack.Count-1;
   Result := True;
 
-  if Proc.Name = 'GETWIZARDFORM' then begin
-    Stack.SetClass(PStart, GetWizardForm);
-  end else if Proc.Name = 'GETMAINFORM' then begin
-    Stack.SetClass(PStart, GetMainForm);
-  end else if Proc.Name = 'ACTIVELANGUAGE' then begin
+  if Proc.Name = 'ACTIVELANGUAGE' then begin
     Stack.SetString(PStart, ExpandConst('{language}'));
-  end else if (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED') or
-              (Proc.Name = 'WIZARDISTASKSELECTED') or (Proc.Name = 'ISTASKSELECTED') then begin
-    if IsUninstaller then
-      NoUninstallFuncError(Proc.Name);
-    StringList := TStringList.Create();
-    try
-      Components := (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED');
-      if Components then
-        GetWizardForm.GetSelectedComponents(StringList, False, False)
-      else
-        GetWizardForm.GetSelectedTasks(StringList, False, False, False);
-      S := Stack.GetString(PStart-1);
-      StringChange(S, '/', '\');
-      if Components then
-        Stack.SetBool(PStart, ShouldProcessEntry(StringList, nil, S, '', '', ''))
-      else
-        Stack.SetBool(PStart, ShouldProcessEntry(nil, StringList, '', S, '', ''));
-    finally
-      StringList.Free();
-    end;
   end else if Proc.Name = 'EXPANDCONSTANT' then begin
     Stack.SetString(PStart, ExpandConst(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'EXPANDCONSTANTEX' then begin
@@ -1160,6 +1136,30 @@ begin
     Stack.SetBool(PStart, RmSessionStarted);
   end else if Proc.Name = 'REGISTEREXTRACLOSEAPPLICATIONSRESOURCE' then begin
     Stack.SetBool(PStart, CodeRegisterExtraCloseApplicationsResource(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
+  end else if Proc.Name = 'GETMAINFORM' then begin
+    Stack.SetClass(PStart, GetMainForm);
+  end else if Proc.Name = 'GETWIZARDFORM' then begin
+    Stack.SetClass(PStart, GetWizardForm);
+  end else if (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED') or
+              (Proc.Name = 'WIZARDISTASKSELECTED') or (Proc.Name = 'ISTASKSELECTED') then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    StringList := TStringList.Create();
+    try
+      Components := (Proc.Name = 'WIZARDISCOMPONENTSELECTED') or (Proc.Name = 'ISCOMPONENTSELECTED');
+      if Components then
+        GetWizardForm.GetSelectedComponents(StringList, False, False)
+      else
+        GetWizardForm.GetSelectedTasks(StringList, False, False, False);
+      S := Stack.GetString(PStart-1);
+      StringChange(S, '/', '\');
+      if Components then
+        Stack.SetBool(PStart, ShouldProcessEntry(StringList, nil, S, '', '', ''))
+      else
+        Stack.SetBool(PStart, ShouldProcessEntry(nil, StringList, '', S, '', ''));
+    finally
+      StringList.Free();
+    end;
   end else
     Result := False;
 end;
@@ -2079,7 +2079,7 @@ begin
   RegisterFunctionTable(ScriptFuncTables[sftInstall], @InstallProc);
   RegisterFunctionTable(ScriptFuncTables[sftInstFunc], @InstFuncProc);
   RegisterFunctionTable(ScriptFuncTables[sftInstFuncOle], @InstFuncOleProc);
-  RegisterFunctionTable(ScriptFuncTables[sftMainForm], @MainFormProc);
+  RegisterFunctionTable(ScriptFuncTables[sftMainFunc], @MainFuncProc);
   RegisterFunctionTable(ScriptFuncTables[sftMessages], @MessagesProc);
   RegisterFunctionTable(ScriptFuncTables[sftSystem], @SystemProc);
   RegisterFunctionTable(ScriptFuncTables[sftSysUtils], @SysUtilsProc);

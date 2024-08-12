@@ -13,7 +13,7 @@ interface
 
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDiskForm, sftBrowseFunc, sftCommonFuncVcl,
-    sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainForm, sftMessages,
+    sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainFunc, sftMessages,
     sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftOle2, sftLoggingFunc,
     sftOther);
   TScriptTable = array of AnsiString;
@@ -370,15 +370,9 @@ initialization
     'function UnpinShellLink(const Filename: String): Boolean;'
   ];
 
-  ScriptFuncTables[sftMainForm] :=
+  ScriptFuncTables[sftMainFunc] :=
   [
-    'function GetWizardForm: TWizardForm;',
-    'function GetMainForm: TMainForm;',
     'function ActiveLanguage: String;',
-    'function WizardIsComponentSelected(const Components: String): Boolean;',
-    'function IsComponentSelected(const Components: String): Boolean;', { old name of WizardIsComponentSelected }
-    'function WizardIsTaskSelected(const Tasks: String): Boolean;',
-    'function IsTaskSelected(const Tasks: String): Boolean;', { old name of WizardIsTaskSelected }
     'function ExpandConstant(const S: String): String;',
     'function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;',
     'function ExitSetupMsgBox: Boolean;',
@@ -403,7 +397,15 @@ initialization
     'function IsX86Compatible: Boolean;',
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
-    'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;'
+    'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;',
+    { Actually access MainForm.pas }
+    'function GetMainForm: TMainForm;',
+    { Actually access WizardForm.pas }
+    'function GetWizardForm: TWizardForm;',
+    'function WizardIsComponentSelected(const Components: String): Boolean;',
+    'function IsComponentSelected(const Components: String): Boolean;', { old name of WizardIsComponentSelected }
+    'function WizardIsTaskSelected(const Tasks: String): Boolean;',
+    'function IsTaskSelected(const Tasks: String): Boolean;' { old name of WizardIsTaskSelected }
   ];
 
   ScriptFuncTables[sftMessages] :=
