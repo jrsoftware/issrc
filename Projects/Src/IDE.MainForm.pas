@@ -5771,34 +5771,6 @@ var
   PrevCompilerFileIndex: Integer;
   PrevMemo: TIDEScintFileEdit;
 
-procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
-begin
-  UpdatePanel.Visible := False;
-  UpdateBevel1Visibility;
-end;
-
-procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
-const
-  MENU_SYSTEMCLOSE = 17;
-  MSYSC_NORMAL = 1;
-begin
-  var Canvas := UpdatePanelClosePaintBox.Canvas;
-  var R := TRect.Create(0, 0, UpdatePanelClosePaintBox.Width, UpdatePanelClosePaintBox.Height);
-  if FMenuThemeData <> 0 then begin
-    var Offset := MulDiv(1, CurrentPPI, 96);
-    Inc(R.Left, Offset);
-    Inc(R.Top, Offset);
-    DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
-  end else begin
-    InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
-    Canvas.Pen.Color := Canvas.Font.Color;
-    Canvas.MoveTo(R.Left, R.Top);
-    Canvas.LineTo(R.Right, R.Bottom);
-    Canvas.MoveTo(R.Left, R.Bottom-1);
-    Canvas.LineTo(R.Right, R.Top-1);
-  end;
-end;
-
 procedure TMainForm.ParseDebugInfo(DebugInfo: Pointer);
 
   function GetMemoFromCompilerFileIndex(const CompilerFileIndex: Integer): TIDEScintFileEdit;
@@ -7504,8 +7476,35 @@ procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
 begin
   if (LinkType = sltID) and (Link = 'whatsnew') then begin
     HWhatsNew.Click;
-    UpdatePanel.Visible := False;
-    UpdateBevel1Visibility;
+    UpdatePanelClosePaintBoxClick(Sender);
+  end;
+end;
+
+procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
+begin
+  UpdatePanel.Visible := False;
+  UpdateBevel1Visibility;
+end;
+
+procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
+const
+  MENU_SYSTEMCLOSE = 17;
+  MSYSC_NORMAL = 1;
+begin
+  var Canvas := UpdatePanelClosePaintBox.Canvas;
+  var R := TRect.Create(0, 0, UpdatePanelClosePaintBox.Width, UpdatePanelClosePaintBox.Height);
+  if FMenuThemeData <> 0 then begin
+    var Offset := MulDiv(1, CurrentPPI, 96);
+    Inc(R.Left, Offset);
+    Inc(R.Top, Offset);
+    DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
+  end else begin
+    InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+    Canvas.Pen.Color := Canvas.Font.Color;
+    Canvas.MoveTo(R.Left, R.Top);
+    Canvas.LineTo(R.Right, R.Bottom);
+    Canvas.MoveTo(R.Left, R.Bottom-1);
+    Canvas.LineTo(R.Right, R.Top-1);
   end;
 end;
 
