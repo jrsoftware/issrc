@@ -54,23 +54,14 @@ IMG {
 	border-style: none;
 	padding-left: 2px;
 }
-A {
+A:link, A:visited {
+	color: hsl(206, 100%, 40%); /* for IE */
+	color: light-dark(hsl(206, 100%, 40%), hsl(206, 100%, 50%));
+	background-color: transparent;
 	text-decoration: none;
 }
-A:hover {
+A[href]:hover {
 	text-decoration: underline;
-}
-A:link {
-	color: #264b99; /* for IE */
-	color: light-dark(#264b99, #6781b7);
-}
-A:visited {
-	color: #5e85d7; /* for IE */
-	color: light-dark(#5e85d7, #8ea9e3);
-}
-A:active {
-	color: #7799dd; /* for IE */
-	color: light-dark(#7799dd, #9fb7e7);
 }
 A.highlighted {
 	background-color: #ffff00;
