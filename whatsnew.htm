@@ -34,13 +34,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Updated the Scintilla editor component used by the Compiler IDE to the latest version.</p>
 <p>Multiple selection editing has been improved:</p>
 <ul>
-  <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+.).</li>
-  <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+;).</li>
+  <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+. or Ctrl+D, see below).</li>
+  <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+; or Ctrl+Shift+L).</li>
   <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the <i>Find</i> (Ctrl+F) and <i>Replace</i> (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
   <li>Added shortcuts to add a cursor or selection up or down (Ctrl+Alt+Up and Ctrl+Alt+Down). For multi-line selections this extends the selection up or down and never shrinks.</li>
   <li>Added shortcut to add cursors to line ends (Shift+Alt+I). Behaves the same as in Visual Studio Code, so for example does nothing if all selections are empty.</li>
-  <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click).</li>
-  <li>Added shortcut to remove a selection by clicking it (Ctrl+Click).</li>
+  <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click or Alt+Double Click and Alt+Triple Click).</li>
+  <li>Added shortcut to remove a selection by clicking it (Ctrl+Click or Alt+Click).</li>
   <li>Multiple selection now works over Left, Right, Up, Down, Home and End navigation and selection commands.</li>
   <li>Multiple selection now works over word and line deletion commands, and line end insertion.</li>
   <li>Left, Right, etc. navigation with rectangular selection is now allowed.</li>
@@ -50,7 +50,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Other editor changes:</p>
 <ul>
   <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor or remove a selection.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
-  <li>Added new shortcuts only available if Visual Studio Code-style editor shortcuts have been activated: Shift+Alt+Down to copy line down and Ctrl+] and Ctrl+[ to ident or unindent lines.</li>
+  <li>Only if Visual Studio Code-style editor shortcuts have been activated: Added shortcuts to copy line down (Shift+Alt+Down) and to ident or unindent lines (Ctrl+] and Ctrl+[).</li>
   <li>Added parameter hints for all Pascal Scripting support functions for quick reference to the function's parameter names, types, and order. Parameter hints can be invoked manually by pressing Ctrl+Shift+Space or automatically by using the new <i>Invoke parameter hints automatically</i> option which is enabled by default.</li>
   <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
   <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the object's class.</li>
