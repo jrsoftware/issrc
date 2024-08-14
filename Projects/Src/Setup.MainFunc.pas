@@ -2318,9 +2318,6 @@ begin
 end;
 
 function GetMessageBoxResultText(const AResult: Integer): String;
-const
-  IDTRYAGAIN = 10;
-  IDCONTINUE = 11;
 begin
   case AResult of
     IDOK: Result := 'OK';
