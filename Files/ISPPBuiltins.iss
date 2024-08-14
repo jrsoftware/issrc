@@ -302,20 +302,16 @@
 #define SameStr(str S1, str S2) \
   S1 == S2
 
-#define WarnRenamed(str OldName, str NewName) \
+#define WarnRenamedVersion(str OldName, str NewName) \
   Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + """ instead.")
 
 #define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
-  WarnRenamed("ParseVersion", "GetVersionComponents"), \
+  WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
   GetVersionComponents(FileName, Major, Minor, Rev, Build)
 
 #define GetFileVersion(str FileName) \
-  WarnRenamed("GetFileVersion", "GetVersionNumbersString"), \
+  WarnRenamedVersion("GetFileVersion", "GetVersionNumbersString"), \
   GetVersionNumbersString(FileName)
-
-#define CopyFile(str ExistingFile, str NewFile) \
-  WarnRenamed("CopyFile", "FileCopy"), \
-  FileCopy(ExistingFile, NewFile)
 
 #ifdef DisablePOptP
 # pragma parseroption -p-

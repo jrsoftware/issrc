@@ -1147,7 +1147,7 @@ begin
   end;
 end;
 
-function FileCopyFunc(Ext: Longint; const Params: IIsppFuncParams;
+function CopyFileFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
@@ -2045,7 +2045,7 @@ begin
     RegisterFunction('GetEnv', GetEnvFunc, -1);
     RegisterFunction('DeleteFile', DelFileFunc, -1);
     RegisterFunction('DeleteFileNow', DelFileNowFunc, -1);
-    RegisterFunction('FileCopy', FileCopyFunc, -1);
+    RegisterFunction('CopyFile', CopyFileFunc, -1);
     RegisterFunction('ReadEnv', GetEnvFunc, -1);
     RegisterFunction('FindFirst', FindFirstFunc, -1);
     RegisterFunction('FindNext', FindNextFunc, -1);
