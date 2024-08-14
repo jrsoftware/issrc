@@ -7556,9 +7556,9 @@ end;
 
 procedure TMainForm.UpdateBevel1Visibility;
 begin
-  { Bevel1 is the line between the toolbar and the memo when there's nothing in
-    between and they have the same color }
-  Bevel1.Visible := (FTheme.Colors[tcMarginBack] = ToolBarPanel.Color) and
+  { Bevel1 is the line between the toolbar and memos when there's nothing in
+    between and the color of the toolbar and memo margins is the same }
+  Bevel1.Visible := (ToolBarPanel.Color = FTheme.Colors[tcMarginBack]) and
                     not UpdatePanel.Visible and not MemosTabSet.Visible;
 end;
 
