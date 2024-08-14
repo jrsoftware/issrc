@@ -112,10 +112,13 @@ begin
   ScaleBaseUnitsInitialized := True;
 end;
 
-function IsSrcExe(const Filename: String): Boolean;
+function IsProtectedSrcExe(const Filename: String): Boolean;
 begin
-  var ExpandedFilename := PathExpand(Filename);
-  Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+  if (MainForm = nil) or (MainForm.CurStep < ssInstall) then begin
+    var ExpandedFilename := PathExpand(Filename);
+    Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+  end else
+    Result := False;
 end;
 
 {---}
@@ -557,7 +560,7 @@ begin
     Stack.SetBool(PStart, True);
   end else if (Proc.Name = 'COPYFILE') or (Proc.Name = 'FILECOPY') then begin
     ExistingFilename := Stack.GetString(PStart-1);
-    if not IsSrcExe(ExistingFilename) then
+    if not IsProtectedSrcExe(ExistingFilename) then
       Stack.SetBool(PStart, CopyFileRedir(ScriptFuncDisableFsRedir,
         ExistingFilename, Stack.GetString(PStart-2), Stack.GetBool(PStart-3)))
     else
@@ -948,7 +951,7 @@ begin
         InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [Proc.Name]));
 
       Filename := Stack.GetString(PStart-1);
-      if not IsSrcExe(Filename) then begin
+      if not IsProtectedSrcExe(Filename) then begin
         { Disable windows so the user can't utilize our UI during the InstExec
           call }
         WindowDisabler := TWindowDisabler.Create;
@@ -976,7 +979,7 @@ begin
       NoUninstallFuncError(Proc.Name);
 
     Filename := Stack.GetString(PStart-2);
-    if not IsSrcExe(Filename) then begin
+    if not IsProtectedSrcExe(Filename) then begin
       { Disable windows so the user can't utilize our UI during the
         InstShellExec call }
       WindowDisabler := TWindowDisabler.Create;
@@ -1410,7 +1413,7 @@ begin
     Stack.SetString(PStart, NewFileSearch(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
   end else if Proc.Name = 'RENAMEFILE' then begin
     OldName := Stack.GetString(PStart-1);
-    if not IsSrcExe(OldName) then
+    if not IsProtectedSrcExe(OldName) then
       Stack.SetBool(PStart, MoveFileRedir(ScriptFuncDisableFsRedir, OldName, Stack.GetString(PStart-2)))
     else
       Stack.SetBool(PStart, False);
