@@ -63,7 +63,7 @@ TStream = class(TObject)
   function Seek(Offset: Int64; Origin: Word): Int64;
   procedure ReadBuffer(var Buffer: AnyString; ByteCount: Longint);
   procedure WriteBuffer(const Buffer: AnyString; ByteCount: Longint);
-  function CopyFrom(Source: TStream; ByteCount: Int64): Int64;
+  function CopyFrom(Source: TStream; ByteCount: Int64; BufferSize: Integer): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
