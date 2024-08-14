@@ -79,7 +79,7 @@ begin
   DataDirPage := CreateInputDirPage(wpSelectDir,
     'Select Personal Data Directory', 'Where should personal data files be installed?',
     'Select the folder in which Setup should install personal data files, then click Next.',
-    False, '');
+    False, SetupMessage(msgNewFolderName));
   DataDirPage.Add('');
 
   { Set default values, using settings that were stored last time if possible }

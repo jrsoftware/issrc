@@ -2475,7 +2475,7 @@ Page := CreateInputDirPage(wpWelcome,
   'Select Personal Data Location', 'Where should personal data files be stored?',
   'Personal data files will be stored in the following folder.'#13#10#13#10 +
   'To continue, click Next. If you would like to select a different folder, click Browse.',
-  False, 'New Folder');
+  False, SetupMessage(msgNewFolderName));
 
 // Add item (with an empty caption)
 Page.Add('');
