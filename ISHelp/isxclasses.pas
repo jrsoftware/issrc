@@ -731,6 +731,7 @@ TInputDirWizardPage = class(TWizardPage)
   function Add(const APrompt: String): Integer;
   property Buttons[Index: Integer]: TNewButton; read;
   property Edits[Index: Integer]: TEdit; read;
+  property NewFolderName: String; read write;
   property PromptLabels[Index: Integer]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
   property Values[Index: Integer]: String; read write;

@@ -88,6 +88,7 @@ type
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
     published
+      property NewFolderName: String read FNewFolderName write FNewFolderName;
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
 

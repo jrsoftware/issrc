@@ -491,6 +491,7 @@ begin
     RegisterMethod('function Add(const APrompt: String): Integer');
     RegisterProperty('Buttons', 'TNewButton Integer', iptr);
     RegisterProperty('Edits', 'TEdit Integer', iptr);
+    RegisterProperty('NewFolderName', 'String', iptrw);
     RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
     RegisterProperty('Values', 'String Integer', iptrw);
