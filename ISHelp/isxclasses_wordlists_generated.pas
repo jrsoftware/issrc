@@ -87,7 +87,7 @@ var
     'function CalculateButtonWidth(ButtonCaptions: array of String): Integer;',
     'function CanFocus: Boolean;',
     'function CheckItem(Index: Integer; AOperation: TCheckItemOperation): Boolean;',
-    'function CopyFrom(Source: TStream; ByteCount: Int64): Int64;',
+    'function CopyFrom(Source: TStream; ByteCount: Int64; BufferSize: Integer): Int64;',
     'function Download: Int64;',
     'function Find(S: String; var Index: Integer): Boolean;',
     'function FindComponent(AName: String): TComponent;',
