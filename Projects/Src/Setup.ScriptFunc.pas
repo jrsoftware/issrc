@@ -555,7 +555,7 @@ begin
     Stack.SetString(PStart-1, S);
   end else if Proc.Name = 'USINGWINNT' then begin
     Stack.SetBool(PStart, True);
-  end else if Proc.Name = 'FILECOPY' then begin
+  end else if (Proc.Name = 'COPYFILE') or (Proc.Name = 'FILECOPY') then begin
     ExistingFilename := Stack.GetString(PStart-1);
     if not IsSrcExe(ExistingFilename) then
       Stack.SetBool(PStart, CopyFileRedir(ScriptFuncDisableFsRedir,

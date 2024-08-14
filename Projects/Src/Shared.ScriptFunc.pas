@@ -277,7 +277,8 @@ initialization
     'function StringChange(var S: String; const FromStr, ToStr: String): Integer;',
     'function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;',
     'function UsingWinNT: Boolean;',
-    'function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;',
+    'function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;',
+    'function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;', { old name of CopyFile }
     'function ConvertPercentStr(var S: String): Boolean;',
     'function RegValueExists(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;',
     'function RegQueryStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;',

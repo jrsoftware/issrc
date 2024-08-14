@@ -1843,8 +1843,8 @@ end;</pre>
         <remarks><p>Can't be used to rename Setup itself.</p></remarks>
       </function>
       <function>
-        <name>FileCopy</name>
-        <prototype>function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
+        <name>CopyFile</name>
+        <prototype>function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
         <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p></description>
         <remarks><p>Can't be used to copy Setup itself.</p></remarks>
       </function>

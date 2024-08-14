@@ -148,6 +148,7 @@ begin
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
   ObsoleteFunctionWarnings.Add('IsX64', Format(SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs, ['IsX64', 'IsX64OS', 'IsX64Compatible', 'Architecture Identifiers']));
+  ObsoleteFunctionWarnings.Add('FileCopy', Format(SCompilerCodeFunctionRenamed, ['FileCopy', 'CopyFile']));
 
   RegisterConst('MaxInt', MaxInt);
 
