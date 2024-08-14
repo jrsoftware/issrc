@@ -3289,6 +3289,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Add additional cursor or selection down</td><td>Ctrl+Alt+Down</td>
 </tr>
 <tr>
+  <td>Add cursors to line ends</td><td>Shift+Alt+I</td>
+</tr>
+<tr>
   <td>&nbsp;</td>
 </tr>
 <tr>

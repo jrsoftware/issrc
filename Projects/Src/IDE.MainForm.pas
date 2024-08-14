@@ -1304,6 +1304,89 @@ procedure TMainForm.MemoKeyDown(Sender: TObject; var Key: Word;
     end;
   end;
 
+  procedure AddCursorsToLineEnds(const AMemo: TIDEScintEdit);
+  begin
+    { Does not try to keep the main selection. Otherwise behaves the same as
+      observed in Visual Studio Code, see comments. }
+
+    var Selections: TScintCaretAndAnchorList := nil;
+    var VirtualSpaces: TScintCaretAndAnchorList := nil;
+    try
+      Selections := TScintCaretAndAnchorList.Create;
+      VirtualSpaces := TScintCaretAndAnchorList.Create;
+      AMemo.GetSelections(Selections, VirtualSpaces);
+
+      { First remove all empty selections }
+      for var I := Selections.Count-1 downto 0 do begin
+        var Selection := Selections[I];
+        var VirtualSpace := VirtualSpaces[I];
+        if (Selection.CaretPos + VirtualSpace.CaretPos) =
+           (Selection.AnchorPos + VirtualSpace.AnchorPos) then begin
+          Selections.Delete(I);
+          VirtualSpaces.Delete(I);
+        end;
+      end;
+
+      { If all selections were empty do nothing }
+      if Selections.Count = 0 then
+        Exit;
+
+      { Handle non empty selections }
+      for var I := Selections.Count-1 downto 0 do begin
+        var Selection := Selections[I];
+        var Line1 := AMemo.GetLineFromPosition(Selection.CaretPos);
+        var Line2 := AMemo.GetLineFromPosition(Selection.AnchorPos);
+        var SelSingleLine := Line1 = Line2;
+        if SelSingleLine then begin
+          { Single line selections are updated into empty selection at end of selection }
+          var VirtualSpace := VirtualSpaces[I];
+          if Selection.CaretPos + VirtualSpace.CaretPos > Selection.AnchorPos + VirtualSpace.AnchorPos then begin
+            Selection.AnchorPos := Selection.CaretPos;
+            VirtualSpace.AnchorPos := VirtualSpace.CaretPos;
+          end else begin
+            Selection.CaretPos := Selection.AnchorPos;
+            VirtualSpace.CaretPos := VirtualSpace.AnchorPos;
+          end;
+          Selections[I] := Selection;
+          VirtualSpaces[I] := VirtualSpace;
+        end else begin
+          { Multiline selections are replaced by empty selections at each end of line }
+          if Line1 > Line2 then begin
+            var TmpLine := Line1;
+            Line1 := Line2;
+            Line2 := TmpLine;
+          end;
+          { Ignore last line if the selection doesn't really select anything on that line }
+          if Selection.Range.EndPos = AMemo.GetPositionFromLine(Line2) then
+            Dec(Line2);
+          for var Line := Line1 to Line2 do begin
+            Selection.CaretPos := AMemo.GetLineEndPosition(Line);
+            Selection.AnchorPos := Selection.CaretPos;
+            Selections.Add(Selection);
+            VirtualSpaces.Add(TScintCaretAndAnchor.Create(0, 0));
+          end;
+          Selections.Delete(I);
+          VirtualSpaces.Delete(I);
+        end;
+      end;
+
+      { Send updated selections to memo }
+      for var I := 0 to Selections.Count-1 do begin
+        var Selection := Selections[I];
+        var VirtualSpace := VirtualSpaces[I];
+        if I = 0 then
+          AMemo.SetSingleSelection(Selection.CaretPos, Selection.AnchorPos)
+        else
+          AMemo.AddSelection(Selection.CaretPos, Selection.AnchorPos);
+        AMemo.SelectionCaretVirtualSpace[I] := VirtualSpaces[I].CaretPos;
+        AMemo.SelectionAnchorVirtualSpace[I] := VirtualSpaces[I].AnchorPos;
+      end;
+    finally
+      VirtualSpaces.Free;
+      Selections.Free;
+    end;
+  end;
+
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TIDEScintEdit;
@@ -1376,6 +1459,8 @@ begin
             AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
           ccBraceMatch:
             EBraceMatchClick(Self);
+          ccAddCursorsToLineEnds:
+            AddCursorsToLineEnds(FActiveMemo);
           else
             raise Exception.Create('Unknown ComplexCommand');
         end;

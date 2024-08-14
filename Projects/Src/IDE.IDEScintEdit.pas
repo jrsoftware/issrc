@@ -66,7 +66,7 @@ type
   TIDEScintComplexCommand = (ccNone, ccSelectNextOccurrence,
     ccSelectAllOccurrences, ccSelectAllFindMatches, ccSimplifySelection,
     ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
-    ccAddCursorDown, ccBraceMatch);
+    ccAddCursorDown, ccBraceMatch, ccAddCursorsToLineEnds);
 
   TIDEScintEdit = class(TScintEdit)
   private
@@ -379,6 +379,7 @@ begin
   { Use freed Ctrl+/ }
   AddComplexCommand(ShortCut(VK_OEM_2, [ssCtrl]), ccToggleLinesComment); { Also see GetComplexCommand for ReadOnly check }
   AddComplexCommand(ShortCut(VK_OEM_5, [ssShift, ssCtrl]), ccBraceMatch);
+  AddComplexCommand(ShortCut(KeyToKeyCode('I'), [ssShift, ssAlt]), ccAddCursorsToLineEnds);
 end;
 
 procedure TIDEScintEdit.SetUseFolding(const Value: Boolean);
