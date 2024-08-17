@@ -55,12 +55,14 @@ IMG {
 	padding-left: 2px;
 }
 A:link, A:visited {
-	color: hsl(206, 100%, 40%); /* for IE */
-	color: light-dark(hsl(206, 100%, 40%), hsl(206, 100%, 50%));
+	color: hsl(206, 100%, 37%); /* for IE */
+	color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
 	background-color: transparent;
 	text-decoration: none;
 }
 A[href]:hover {
+	color: hsl(206, 100%, 30%); /* for IE */
+	color: light-dark(hsl(206, 100%, 30%), hsl(206, 100%, 50%));
 	text-decoration: underline;
 }
 A.highlighted {
