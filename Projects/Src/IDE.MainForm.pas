@@ -939,7 +939,7 @@ begin
 
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
-  UpdatePanel.Color := $add6ad; //MGreen, 6 tints lightened using color-hex.com - also OK for dark mode
+  UpdatePanel.Color := $ABE3AB; //MGreen with HSL lightness changed from 40% to 78%
   UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
 
   UpdateImages;
