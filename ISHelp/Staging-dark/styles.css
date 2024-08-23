@@ -45,20 +45,14 @@ IMG {
 	border-style: none;
 	padding-left: 2px;
 }
-A {
+A:link, A:visited {
+	color: hsl(206, 100%, 50%)
+	background-color: transparent;
 	text-decoration: none;
 }
-A:hover {
+A[href]:hover {
+	color: hsl(206, 100%, 43%)
 	text-decoration: underline;
-}
-A:link {
-	color: #6781b7;
-}
-A:visited {
-	color: #8ea9e3;
-}
-A:active {
-	color: #9fb7e7;
 }
 A.highlighted {
 	background-color: #ffff00;
