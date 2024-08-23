@@ -158,6 +158,12 @@ object MainForm: TMainForm
         Width = 64
       end
       item
+        Alignment = taCenter
+        Bevel = pbNone
+        Text = '.*'
+        Width = 23
+      end
+      item
         Bevel = pbNone
         Style = psOwnerDraw
         Width = 110

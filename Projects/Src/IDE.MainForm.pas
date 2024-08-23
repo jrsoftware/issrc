@@ -591,6 +591,7 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
+    procedure UpdateFindRegExPanel;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -674,10 +675,11 @@ const
   spCaretPos = 0;
   spModified = 1;
   spEditMode = 2;
-  spHiddenFilesCount = 3;
-  spCompileIcon = 4;
-  spCompileProgress = 5;
-  spExtraStatus = 6;
+  spFindRegEx = 3;
+  spHiddenFilesCount = 4;
+  spCompileIcon = 5;
+  spCompileProgress = 6;
+  spExtraStatus = 7;
 
   { Output tab set indexes }
   tiCompilerOutput = 0;
@@ -851,6 +853,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateTheme;
+      UpdateFindRegExPanel;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -3854,6 +3857,7 @@ end;
 procedure TMainForm.EFindRegExClick(Sender: TObject);
 begin
   FOptions.FindRegEx := not FOptions.FindRegEx;
+  UpdateFindRegExPanel;
   var Ini := TConfigIniFile.Create;
   try
     Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
@@ -4700,6 +4704,13 @@ begin
     StatusBar.Panels[spEditMode].Text := 'Read only'
   else
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
+end;
+
+procedure TMainForm.UpdateFindRegExPanel;
+const
+  FindRegExText: array[Boolean] of String = ('', '.*');
+begin
+  StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
