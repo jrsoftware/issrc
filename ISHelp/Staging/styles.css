@@ -62,7 +62,7 @@ A:link, A:visited {
 }
 A[href]:hover {
 	color: hsl(206, 100%, 30%); /* for IE */
-	color: light-dark(hsl(206, 100%, 30%), hsl(206, 100%, 50%));
+	color: light-dark(hsl(206, 100%, 30%), hsl(206, 100%, 43%));
 	text-decoration: underline;
 }
 A.highlighted {
