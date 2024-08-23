@@ -46,12 +46,12 @@ IMG {
 	padding-left: 2px;
 }
 A:link, A:visited {
-	color: hsl(206, 100%, 50%)
+	color: hsl(206, 100%, 50%);
 	background-color: transparent;
 	text-decoration: none;
 }
 A[href]:hover {
-	color: hsl(206, 100%, 43%)
+	color: hsl(206, 100%, 43%);
 	text-decoration: underline;
 }
 A.highlighted {
