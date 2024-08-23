@@ -129,7 +129,7 @@ editor, and is not affected by internal changes to the compiler.
 Compil32, it depends on ISCmplr.dll to do the actual compiling.
 
 **ISCmplr** - This is a DLL which is loaded by Compil32 and ISCC to compile
-scripts. The actual compiler code is in ISCmplr.Compile.pas. See
+scripts. The actual compiler code is in Compiler.SetupCompiler.pas. See
 Shared.CompInt.pas for the various structures and function declarations used
 to interface to the DLL.
 
@@ -168,7 +168,7 @@ Source code tips
   
 - When building the projects in Release mode it outputs to [Files].
   
-- All of the forms in the Setup project, with the exception of Main.dfm, have
+- All of the forms in the Setup project, with the exception of Setup.MainForm.dfm, have
   Scaled set to False. This is because they dynamically scale themselves at
   run-time by calling a function named InitializeFont.
 
