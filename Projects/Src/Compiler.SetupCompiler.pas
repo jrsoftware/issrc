@@ -4584,7 +4584,7 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck');
+    'sortfilesbyname', 'gacinstall', 'signcheck', 'signonce', 'sign');
   SignFlags: array[TSetupFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -4911,7 +4911,8 @@ type
           Exclude(NewFileLocationEntry^.Flags, foChunkCompressed);
         if NoEncryption then
           Exclude(NewFileLocationEntry^.Flags, foChunkEncrypted);
-        NewFileLocationEntry.Sign := Sign;
+        if Sign > NewFileLocationEntry.Sign then
+          NewFileLocationEntry.Sign := Sign;
       end
       else begin
         NewFileEntry^.SourceFilename := SourceFile;
@@ -5093,6 +5094,7 @@ type
 
   procedure ApplyNewSign(const NewSign: TSetupFileLocationSign);
   begin
+    { Error if there's multiple and different sign flags on the same entry }
     if not (Sign in [fsNoSetting, NewSign]) then
       AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
         [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
@@ -5182,9 +5184,9 @@ begin
                    35: Include(Options, foUnsetNTFSCompression);
                    36: SortFilesByName := True;
                    37: Include(Options, foGacInstall);
-                   38: ApplyNewSign(fsYes);
+                   38: ApplyNewSign(fsCheck);
                    39: ApplyNewSign(fsOnce);
-                   40: ApplyNewSign(fsCheck);
+                   40: ApplyNewSign(fsYes);
                  end;
 
                { Source }
