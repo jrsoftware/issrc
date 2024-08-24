@@ -208,6 +208,7 @@ const
   { Flags }
   SCompilerParamUnknownFlag2 = 'Parameter "%s" includes an unknown flag';
   SCompilerParamErrorBadCombo2 = 'Parameter "%s" cannot have both the "%s" and "%s" flags';
+  SCompilerParamErrorBadCombo3 = 'Parameter "%s" cannot have both the "%s" and "%s" flags on the same source file';
   SCompilerParamUnsupportedFlag = 'Parameter "%s" includes a flag that is not supported in this section';
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';

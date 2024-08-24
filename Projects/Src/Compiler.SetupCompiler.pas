@@ -4584,7 +4584,7 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall', 'signcheck', 'signonce', 'sign');
+    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck');
   SignFlags: array[TSetupFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -4831,6 +4831,16 @@ type
     end;
   end;
 
+  procedure ApplyNewSign(var Sign: TSetupFileLocationSign;
+    const NewSign: TSetupFileLocationSign; const ErrorMessage: String);
+  begin
+    if not (Sign in [fsNoSetting, NewSign]) then
+      AbortCompileOnLineFmt(ErrorMessage,
+        [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
+    else
+      Sign := NewSign;
+  end;
+
   procedure ProcessFileList(const FileListBaseDir: String; FileList: TList);
   var
     FileListRec: PFileListRec;
@@ -4911,8 +4921,8 @@ type
           Exclude(NewFileLocationEntry^.Flags, foChunkCompressed);
         if NoEncryption then
           Exclude(NewFileLocationEntry^.Flags, foChunkEncrypted);
-        if Sign > NewFileLocationEntry.Sign then
-          NewFileLocationEntry.Sign := Sign;
+        if Sign <> fsNoSetting then
+          ApplyNewSign(NewFileLocationEntry.Sign, Sign, SCompilerParamErrorBadCombo3);
       end
       else begin
         NewFileEntry^.SourceFilename := SourceFile;
@@ -5092,16 +5102,6 @@ type
     end;
   end;
 
-  procedure ApplyNewSign(const NewSign: TSetupFileLocationSign);
-  begin
-    { Error if there's multiple and different sign flags on the same entry }
-    if not (Sign in [fsNoSetting, NewSign]) then
-      AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
-        [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
-    else
-      Sign := NewSign;
-  end;
-
 var
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
@@ -5184,9 +5184,9 @@ begin
                    35: Include(Options, foUnsetNTFSCompression);
                    36: SortFilesByName := True;
                    37: Include(Options, foGacInstall);
-                   38: ApplyNewSign(fsCheck);
-                   39: ApplyNewSign(fsOnce);
-                   40: ApplyNewSign(fsYes);
+                   38: ApplyNewSign(Sign, fsYes, SCompilerParamErrorBadCombo2);
+                   39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
+                   40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
                  end;
 
                { Source }
