@@ -79,16 +79,6 @@ var
   CurrentListIsCompact: Boolean;
   CurrentTableColumnIndex: Integer;
 
-const
-  { When IE 6 is rendering a frame in Standards mode (due to a !DOCTYPE tag)
-    and a vertical scroll bar must be displayed, the scroll bar obscures the
-    right edge of the content. This hack works around that by forcing the
-    vertical scroll bar to always be shown. It is applied only to IE 6, since
-    neither IE 5.x nor IE 7 exhibit this behavior.
-    See http://groups.google.com/group/macromedia.dreamweaver/browse_thread/thread/fb755be2e0ee9267 }
-  IE6FramesHack =
-    '<!--[if IE 6]><style type="text/css">html{overflow-y:scroll}</style><![endif]-->';
-
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
   raise Exception.CreateFmt('Element "%s" is unexpected here', [Node.NodeName]);
@@ -575,13 +565,11 @@ begin
   CurrentTopicName := '';
 
   S :=
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + SNewLine +
-    '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">' + SNewLine +
+    '<!DOCTYPE html>' + SNewLine +
+    '<html lang="en">' + SNewLine +
     '<head>' + SNewLine +
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' + SNewLine +
-    '<meta http-equiv="X-UA-Compatible" content="IE=8" />' + SNewLine +
     '<title>' + EscapeHTML(TopicTitle, False) + '</title>' + SNewLine +
-    IE6FramesHack + SNewLine +
     '<link rel="stylesheet" type="text/css" href="styles.css" />' + SNewLine +
     '<script type="text/javascript" src="topic.js"></script>' + SNewLine +
     '</head>' + SNewLine +
