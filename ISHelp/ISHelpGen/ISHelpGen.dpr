@@ -569,6 +569,7 @@ begin
     '<html lang="en">' + SNewLine +
     '<head>' + SNewLine +
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' + SNewLine +
+    '<meta http-equiv="X-UA-Compatible" content="IE=11" />' + SNewLine +
     '<title>' + EscapeHTML(TopicTitle, False) + '</title>' + SNewLine +
     '<link rel="stylesheet" type="text/css" href="styles.css" />' + SNewLine +
     '<script type="text/javascript" src="topic.js"></script>' + SNewLine +
