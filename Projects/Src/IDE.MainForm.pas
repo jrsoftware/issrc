@@ -3856,13 +3856,19 @@ end;
 
 procedure TMainForm.EFindRegExClick(Sender: TObject);
 begin
-  FOptions.FindRegEx := not FOptions.FindRegEx;
-  UpdateFindRegExPanel;
-  var Ini := TConfigIniFile.Create;
-  try
-    Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
-  finally
-    Ini.Free;
+  { If EFindRegEx uses Alt+R as the shortcut just like VSCode then also handle it like VSCode:
+    when the memo does not have the focus open the Run menu (also Alt+R) instead }
+  if not FActiveMemo.Focused and (EFindRegEx.ShortCut = ShortCut(Ord('R'), [ssAlt])) then
+    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
+  else begin
+    FOptions.FindRegEx := not FOptions.FindRegEx;
+    UpdateFindRegExPanel;
+    var Ini := TConfigIniFile.Create;
+    try
+      Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
+    finally
+      Ini.Free;
+    end;
   end;
 end;
 
@@ -6174,6 +6180,7 @@ type
 
 begin
   var KeyMappedMenus := [
+    KMM(EFindRegEx, Ord('R'), [ssCtrl, ssAlt], Ord('R'), [ssAlt]),
     KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton),
     KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),

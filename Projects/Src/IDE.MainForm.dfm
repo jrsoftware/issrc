@@ -565,7 +565,6 @@ object MainForm: TMainForm
       end
       object EFindRegEx: TMenuItem
         Caption = 'Use Regular E&xpressions'
-        ShortCut = 32850
         OnClick = EFindRegExClick
       end
       object N13: TMenuItem
