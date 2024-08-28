@@ -6119,6 +6119,10 @@ begin
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
 
+{ Should always be called when one of the Enabled states would change because
+  other code depends on the states being correct always even if the user never
+  clicks the Run menu. This is unlike the other menus. Note: also updates
+  BCompile and BStopCompile from the Build menu. }
 procedure TMainForm.UpdateRunMenu;
 begin
   CheckIfTerminated;
