@@ -488,6 +488,7 @@ type
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
     FIgnoreTabSetClick: Boolean;
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
+    FCompileShortCut2: TShortCut;
     FCallTipState: TCallTipState;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
@@ -1165,7 +1166,11 @@ begin
       end else { Ctrl+9 = Select last tab }
         MemosTabSet.TabIndex := MemosTabSet.Tabs.Count-1;
     end;
-  end else if (Key = VK_F6) and not(ssAlt in Shift) then begin
+  end else if AShortCut = FCompileShortCut2 then begin
+    Key := 0;
+    if BCompile.Enabled then
+      BCompileClick(Self);
+  end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Toggle focus between the active memo and the active bottom pane }
     Key := 0;
     if ActiveControl <> FActiveMemo then
@@ -6185,7 +6190,7 @@ type
 begin
   var KeyMappedMenus := [
     KMM(EFindRegEx, Ord('R'), [ssCtrl, ssAlt], Ord('R'), [ssAlt]),
-    KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton),
+    KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton), { Also FCompileShortCut2 below }
     KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
     KMM(RStepInto, VK_F7, [], VK_F11, []),
@@ -6214,8 +6219,12 @@ begin
   SetFakeShortCut(RToggleBreakPoint2, RToggleBreakPoint.ShortCut);
   SetFakeShortCut(RDeleteBreakPoints2, RDeleteBreakPoints.ShortCut);
 
-  { The Nav buttons have no corresponding menu item and also no ShortCut property
-    so they need special handling }
+  { Handle two special cases:
+    -The Nav buttons have no corresponding menu item and also no ShortCut property
+     so they need special handling
+    -Visual Studio and Delphi have separate Compile and Build shortcuts and the
+     Compile shortcut is displayed by the menu and is set above but we want to
+     allow the Build shortcuts as well for our single Build/Compile command }
 
   FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
   FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
@@ -6225,11 +6234,13 @@ begin
       begin
         FBackNavButtonShortCut2 := 0;
         FForwardNavButtonShortCut2 := 0;
+        FCompileShortCut2 := ShortCut(VK_F9, [ssShift]);
       end;
     kmtVisualStudio:
       begin
         FBackNavButtonShortCut2 := ShortCut(VK_OEM_MINUS, [ssCtrl]);
         FForwardNavButtonShortCut2 := ShortCut(VK_OEM_MINUS, [ssCtrl, ssShift]);
+        FCompileShortCut2 := ShortCut(VK_F7, []);
       end;
   else
     raise Exception.Create('Unknown FOptions.KeyMappingType');
@@ -6239,6 +6250,9 @@ begin
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
+
+
+
 end;
 
 procedure TMainForm.UpdateTheme;
