@@ -6250,9 +6250,6 @@ begin
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
-
-
-
 end;
 
 procedure TMainForm.UpdateTheme;
