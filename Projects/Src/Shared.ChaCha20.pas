@@ -22,6 +22,7 @@ type
   TChaChaContext = record
     ctx, keystream: TChaChaCtx;
     position: 0..64;
+    count64: Boolean;
   end;
 
 procedure ChaCha20Init(var Context: TChaChaContext; const Key;
@@ -40,7 +41,7 @@ procedure ChaCha20Init(var Context: TChaChaContext; const Key;
   const Count: Cardinal);
 begin
   Assert(KeyLength = 32);
-  Assert((NonceLength = 0) or (NonceLength = 12));
+  Assert(NonceLength in [0, 8, 12]);
   {$IFDEF DEBUG}
   ZeroMemory(@Context, SizeOf(Context));
   {$ENDIF}
@@ -51,11 +52,15 @@ begin
   Move(Key, Context.ctx[4], KeyLength);
   Context.ctx[12] := Count;
   if NonceLength = 12 then
-    Move(Nonce, Context.ctx[13], NonceLength)
-  else
+    Move(Nonce, Context.ctx[13], 12)
+  else if NonceLength = 8 then begin
+    Context.ctx[13] := 0;
+    Move(Nonce, Context.ctx[14], 8)
+  end else
     ZeroMemory(@Context.ctx[13], 12);
 
   Context.position := 64;
+  Context.count64 := NonceLength <> 12;
 end;
 
 procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
@@ -74,7 +79,7 @@ procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
     Inc(c, d); b := b xor c; b := ROTL(b, 7);
   end;
 
-  procedure ChaCha20BlockNext(var ctx, keystream: TChaChaCtx);
+  procedure ChaCha20BlockNext(var ctx, keystream: TChaChaCtx; const count64: Boolean);
   begin
     for var i := 0 to 15 do
       keystream[i] := ctx[i];
@@ -93,8 +98,18 @@ procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
     for var i := 0 to 15 do
       keystream[i] := keystream[i] + ctx[i];
 
-    Assert(ctx[12] < High(Cardinal));
-    ctx[12] := ctx[12] + 1;
+    if count64 then begin
+      if ctx[12] < High(Cardinal) then
+        ctx[12] := ctx[12] + 1
+      else begin
+        ctx[12] := 0;
+        Assert(ctx[13] < High(Cardinal));
+        ctx[13] := ctx[13] + 1;
+      end;
+    end else begin
+      Assert(ctx[12] < High(Cardinal));
+      ctx[12] := ctx[12] + 1;
+    end;
   end;
 
 begin
@@ -104,7 +119,7 @@ begin
 
   for var I := 0 to Length-1 do begin
     if Context.position >= 64 then begin
-      ChaCha20BlockNext(Context.ctx, Context.keystream);
+      ChaCha20BlockNext(Context.ctx, Context.keystream, Context.count64);
       Context.position := 0;
     end;
     OutBuf[I] := InBuf[I] xor KeyStream[Context.position];
