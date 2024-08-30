@@ -36,6 +36,8 @@ implementation
 uses
   SysUtils, Math;
 
+{$C+}
+
 procedure ChaCha20Init(var Context: TChaChaContext; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
   const Count: Cardinal);
@@ -126,5 +128,25 @@ begin
     Inc(Context.position);
   end;
 end;
+
+{.$DEFINE TEST}
+
+{$IFDEF TEST}
+initialization
+  var Buf: AnsiString := 'Ladies and Gentlemen of the class of ''99: If I could offer you only one tip for the future, sunscreen would be it.';
+  var BufSize := Length(Buf)*SizeOf(Buf[1]);
+  var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
+  var Nonce: TBytes := [$00, $00, $00, $00, $00, $00, $00, $4a, $00, $00, $00, $00];
+  var Counter := 1;
+  var Ctx: TChaChaContext;
+  var CipherText: TBytes := [$6e, $2e, $35, $9a, $25, $68, $f9, $80, $41, $ba, $07, $28, $dd, $0d, $69, $81, $e9, $7e, $7a, $ec, $1d, $43, $60, $c2, $0a, $27, $af, $cc, $fd, $9f, $ae, $0b, $f9, $1b, $65, $c5, $52, $47, $33, $ab, $8f, $59, $3d, $ab, $cd, $62, $b3, $57, $16, $39, $d6, $24, $e6, $51, $52, $ab, $8f, $53, $0c, $35, $9f, $08, $61, $d8, $07, $ca, $0d, $bf, $50, $0d, $6a, $61, $56, $a3, $8e, $08, $8a, $22, $b6, $5e, $52, $bc, $51, $4d, $16, $cc, $f8, $06, $81, $8c, $e9, $1a, $b7, $79, $37, $36, $5a, $f9, $0b, $bf, $74, $a3, $5b, $e6, $b4, $0b, $8e, $ed, $f2, $78, $5e, $42, $87, $4d];
+
+  ChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
+  ChaCha20Crypt(Ctx, Buf[1], Buf[1], 10);
+  ChaCha20Crypt(Ctx, Buf[11], Buf[11], BufSize-10);
+  Assert(Length(Buf) = Length(CipherText));
+  for var I := 0 to Length(Buf)-1 do
+    Assert(Buf[I+1] = AnsiChar(CipherText[I]));
+{$ENDIF}
 
 end.
