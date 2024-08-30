@@ -8,9 +8,7 @@ unit Shared.ChaCha20;
 
   ChaCha20 encryption/decryption
 
-  Based on https://github.com/marcizhu/ChaCha20/blob/master/ChaCha20.h
-  Copyright (c) 2022 Marc Izquierdo
-  MIT License
+  Based on https://github.com/Ginurx/chacha20-c/tree/master
 }
 
 interface
@@ -23,6 +21,7 @@ type
 
   TChaChaContext = record
     ctx, keystream: TChaChaCtx;
+    position: 0..64;
   end;
 
 procedure ChaCha20Init(var Context: TChaChaContext; const Key;
@@ -55,6 +54,8 @@ begin
     Move(Nonce, Context.ctx[13], NonceLength)
   else
     ZeroMemory(@Context.ctx[13], 12);
+
+  Context.position := 64;
 end;
 
 procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
@@ -99,17 +100,15 @@ procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
 begin
   var InBuf: PByte := @InBuffer;
   var OutBuf: PByte := @OutBuffer;
-  while Length > 0 do begin
-    ChaCha20BlockNext(Context.ctx, Context.keystream);
+  var KeyStream: PByte := @Context.keystream;
 
-    var KeyStream: PByte := @Context.keystream;
-    var BlockSize := Min(Length, 64);
-    for var I := 0 to  BlockSize - 1 do
-      OutBuf[I] := InBuf[I] xor KeyStream[i];
-
-    InBuf := PByte(NativeUInt(InBuf)+BlockSize);
-    OutBuf := PByte(NativeUInt(OutBuf)+BlockSize);
-    Dec(Length, BlockSize);
+  for var I := 0 to Length-1 do begin
+    if Context.position >= 64 then begin
+      ChaCha20BlockNext(Context.ctx, Context.keystream);
+      Context.position := 0;
+    end;
+    OutBuf[I] := InBuf[I] xor KeyStream[Context.position];
+    Inc(Context.position);
   end;
 end;
 
