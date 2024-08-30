@@ -96,10 +96,12 @@ begin
   while Length > 0 do begin
     var Tmp: TChaChaCtx;
     ChaCha20BlockNext(Context.ctx, Tmp);
-    Context.ctx[12] := Context.ctx[12] + 1;
-    if Context.ctx[12] = 0 then begin
+    if Context.ctx[12] < High(Cardinal) then
+      Context.ctx[12] := Context.ctx[12] + 1
+    else begin
+      Context.ctx[12] := 0;
+      Assert(Context.ctx[13] < High(Cardinal));
       Context.ctx[13] := Context.ctx[13] + 1;
-      Assert(Context.ctx[13] <> 0);
     end;
 
     var KeyStream: PByte := @Tmp;
