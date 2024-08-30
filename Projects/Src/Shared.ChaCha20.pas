@@ -41,7 +41,7 @@ procedure ChaCha20Init(var Context: TChaChaContext; const Key;
   const Count: Cardinal);
 begin
   Assert(KeyLength = 32);
-  Assert(NonceLength = 12);
+  Assert((NonceLength = 0) or (NonceLength = 12));
   {$IFDEF DEBUG}
   ZeroMemory(@Context, SizeOf(Context));
   {$ENDIF}
@@ -51,7 +51,10 @@ begin
   Context.ctx[3] := $6b206574;
   Move(Key, Context.ctx[4], KeyLength);
   Context.ctx[12] := Count;
-  Move(Nonce, Context.ctx[13], NonceLength);
+  if NonceLength = 12 then
+    Move(Nonce, Context.ctx[13], NonceLength)
+  else
+    ZeroMemory(@Context.ctx[13], 12);
 end;
 
 procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
