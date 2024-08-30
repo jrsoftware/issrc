@@ -39,15 +39,6 @@ uses
 procedure ChaCha20Init(var Context: TChaChaContext; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
   const Count: Cardinal);
-
-  function Pack4(const pData: PByte; const Index: Integer): Cardinal;
-  begin
-    Result := Cardinal(pData[Index]) or
-              (Cardinal(pData[Index + 1]) shl 8) or
-              (Cardinal(pData[Index + 2]) shl 16) or
-              (Cardinal(pData[Index + 3]) shl 24);
-  end;
-
 begin
   Assert(KeyLength = 32);
   Assert(NonceLength = 12);
@@ -58,13 +49,9 @@ begin
   Context.ctx[1] := $3320646e;
   Context.ctx[2] := $79622d32;
   Context.ctx[3] := $6b206574;
-  var Buf: PByte := @Key;
-  for var I := 0 to 7 do
-    Context.ctx[I + 4] := Pack4(Buf, I * 4);
+  Move(Key, Context.ctx[4], KeyLength);
   Context.ctx[12] := Count;
-  Buf := @Nonce;
-  for var I := 0 to 2 do
-    Context.ctx[I + 13] := Pack4(Buf, i * 4);
+  Move(Nonce, Context.ctx[13], NonceLength);
 end;
 
 procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
