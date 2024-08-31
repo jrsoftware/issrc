@@ -6,9 +6,9 @@ unit Shared.ChaCha20;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  ChaCha20 encryption/decryption
+  ChaCha20 and XChaCha20 encryption/decryption
 
-  Based on https://github.com/Ginurx/chacha20-c/tree/master
+  Initially based on https://github.com/Ginurx/chacha20-c/tree/master
 }
 
 interface
@@ -29,7 +29,13 @@ procedure ChaCha20Init(var Context: TChaChaContext; const Key;
  const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
  const Count: Cardinal);
 procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
-  var OutBuffer; Length: Cardinal);
+  var OutBuffer; const Length: Cardinal);
+
+procedure XChaCha20Init(var Context: TChaChaContext; const Key;
+ const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
+ const Count: Cardinal);
+procedure XChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+  var OutBuffer; const Length: Cardinal);
 
 implementation
 
@@ -38,35 +44,40 @@ uses
 
 {$C+}
 
-procedure ChaCha20Init(var Context: TChaChaContext; const Key;
+procedure ChaCha20InitCtx(var ctx: TChaChaCtx; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
   const Count: Cardinal);
 begin
   Assert(KeyLength = 32);
   Assert(NonceLength in [0, 8, 12]);
   {$IFDEF DEBUG}
-  ZeroMemory(@Context, SizeOf(Context));
+  ZeroMemory(@Ctx, SizeOf(Ctx));
   {$ENDIF}
-  Context.ctx[0] := $61707865;
-  Context.ctx[1] := $3320646e;
-  Context.ctx[2] := $79622d32;
-  Context.ctx[3] := $6b206574;
-  Move(Key, Context.ctx[4], KeyLength);
-  Context.ctx[12] := Count;
+  ctx[0] := $61707865;
+  ctx[1] := $3320646e;
+  ctx[2] := $79622d32;
+  ctx[3] := $6b206574;
+  Move(Key, ctx[4], KeyLength);
+  ctx[12] := Count;
   if NonceLength = 12 then
-    Move(Nonce, Context.ctx[13], 12)
+    Move(Nonce, ctx[13], 12)
   else if NonceLength = 8 then begin
-    Context.ctx[13] := 0;
-    Move(Nonce, Context.ctx[14], 8)
+    ctx[13] := 0;
+    Move(Nonce, ctx[14], 8)
   end else
-    ZeroMemory(@Context.ctx[13], 12);
+    ZeroMemory(@ctx[13], 12);
+end;
 
+procedure ChaCha20Init(var Context: TChaChaContext; const Key;
+  const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
+  const Count: Cardinal);
+begin
+  ChaCha20InitCtx(Context.ctx, Key, KeyLength, Nonce, NonceLength, Count);
   Context.position := 64;
   Context.count64 := NonceLength <> 12;
 end;
 
-procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
-  var OutBuffer; Length: Cardinal);
+procedure ChaCha20RunRounds(var ctx, keystream: TChaChaCtx);
 
   function ROTL(const x: Cardinal; const n: Byte): Cardinal;
   begin
@@ -81,39 +92,45 @@ procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
     Inc(c, d); b := b xor c; b := ROTL(b, 7);
   end;
 
-  procedure ChaCha20BlockNext(var ctx, keystream: TChaChaCtx; const count64: Boolean);
-  begin
-    for var i := 0 to 15 do
-      keystream[i] := ctx[i];
+begin
+  for var i := 0 to 15 do
+    keystream[i] := ctx[i];
 
-    for var i := 0 to 9 do begin
-      CHACHA20_QR(keystream[0], keystream[4], keystream[8], keystream[12]);  // column 0
-      CHACHA20_QR(keystream[1], keystream[5], keystream[9], keystream[13]);  // column 1
-      CHACHA20_QR(keystream[2], keystream[6], keystream[10], keystream[14]); // column 2
-      CHACHA20_QR(keystream[3], keystream[7], keystream[11], keystream[15]); // column 3
-      CHACHA20_QR(keystream[0], keystream[5], keystream[10], keystream[15]); // diagonal 1 (main diagonal)
-      CHACHA20_QR(keystream[1], keystream[6], keystream[11], keystream[12]); // diagonal 2
-      CHACHA20_QR(keystream[2], keystream[7], keystream[8], keystream[13]);  // diagonal 3
-      CHACHA20_QR(keystream[3], keystream[4], keystream[9], keystream[14]);  // diagonal 4
-    end;
-
-    for var i := 0 to 15 do
-      keystream[i] := keystream[i] + ctx[i];
-
-    if count64 then begin
-      if ctx[12] < High(Cardinal) then
-        ctx[12] := ctx[12] + 1
-      else begin
-        ctx[12] := 0;
-        Assert(ctx[13] < High(Cardinal));
-        ctx[13] := ctx[13] + 1;
-      end;
-    end else begin
-      Assert(ctx[12] < High(Cardinal));
-      ctx[12] := ctx[12] + 1;
-    end;
+  for var i := 0 to 9 do begin
+    CHACHA20_QR(keystream[0], keystream[4], keystream[8], keystream[12]);  // column 0
+    CHACHA20_QR(keystream[1], keystream[5], keystream[9], keystream[13]);  // column 1
+    CHACHA20_QR(keystream[2], keystream[6], keystream[10], keystream[14]); // column 2
+    CHACHA20_QR(keystream[3], keystream[7], keystream[11], keystream[15]); // column 3
+    CHACHA20_QR(keystream[0], keystream[5], keystream[10], keystream[15]); // diagonal 1 (main diagonal)
+    CHACHA20_QR(keystream[1], keystream[6], keystream[11], keystream[12]); // diagonal 2
+    CHACHA20_QR(keystream[2], keystream[7], keystream[8], keystream[13]);  // diagonal 3
+    CHACHA20_QR(keystream[3], keystream[4], keystream[9], keystream[14]);  // diagonal 4
   end;
+end;
 
+procedure ChaCha20BlockNext(var ctx, keystream: TChaChaCtx; const count64: Boolean);
+begin
+  ChaCha20RunRounds(ctx, keystream);
+
+  for var i := 0 to 15 do
+    keystream[i] := keystream[i] + ctx[i];
+
+  if count64 then begin
+    if ctx[12] < High(Cardinal) then
+      ctx[12] := ctx[12] + 1
+    else begin
+      ctx[12] := 0;
+      Assert(ctx[13] < High(Cardinal));
+      ctx[13] := ctx[13] + 1;
+    end;
+  end else begin
+    Assert(ctx[12] < High(Cardinal));
+    ctx[12] := ctx[12] + 1;
+  end;
+end;
+
+procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+  var OutBuffer; const Length: Cardinal);
 begin
   var InBuf: PByte := @InBuffer;
   var OutBuf: PByte := @OutBuffer;
@@ -129,7 +146,34 @@ begin
   end;
 end;
 
-{.$DEFINE TEST}
+procedure HChaCha20(const Key; const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal);
+begin
+  Assert(KeyLength = 32);
+  Assert(NonceLength = 16);
+  var NonceBytes: PByte := @Nonce;
+  var ctx: TChaChaCtx;
+  ChaCha20InitCtx(ctx, Key, KeyLength, NonceBytes[4], 12, PCardinal(NonceBytes)^);
+  var keystream: TChaChaCtx;
+  ChaCha20RunRounds(ctx, keystream);
+  //return only the first and last rows of keystream, in little endian, resulting in a 256-bit key
+end;
+
+procedure XChaCha20Init(var Context: TChaChaContext; const Key;
+ const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
+ const Count: Cardinal);
+begin
+  Assert(NonceLength = 24);
+  HChaCha20(Key, KeyLength, Nonce, 16);
+  //..
+end;
+
+procedure XChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+  var OutBuffer; const Length: Cardinal);
+begin
+  ChaCha20Crypt(Context, InBuffer, OutBuffer, Length);
+end;
+
+{$DEFINE TEST}
 
 {$IFDEF TEST}
 initialization
@@ -147,6 +191,16 @@ initialization
   Assert(Length(Buf) = Length(CipherText));
   for var I := 0 to Length(Buf)-1 do
     Assert(Buf[I+1] = AnsiChar(CipherText[I]));
+
+  Key := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
+  Nonce := [$00, $00, $00, $09, $00, $00, $00, $4a, $00, $00, $00, $00, $31, $41, $59, $27];
+  HChaCha20(Key[0], Length(Key), Nonce[0], Length(Nonce));
+  //82413b42 27b27bfe d30e4250 8a877d73 a0f9e4d5 8a74a853 c12ec413 26d3ecdc
+
+  Key := [$80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $8a, $8b, $8c, $8d, $8e, $8f, $90, $91, $92, $93, $94, $95, $96, $97, $98, $99, $9a, $9b, $9c, $9d, $9e, $9f];
+  Nonce := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
+  XChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
+
 {$ENDIF}
 
 end.
