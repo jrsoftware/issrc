@@ -14,24 +14,24 @@ unit ChaCha20;
 interface
 
 type
-  TChaChaCtx = array[0..15] of Cardinal;
+  TChaCha20Ctx = array[0..15] of Cardinal;
 
-  TChaChaContext = record
-    ctx, keystream: TChaChaCtx;
+  TChaCha20Context = record
+    ctx, keystream: TChaCha20Ctx;
     position: 0..64;
     count64: Boolean;
   end;
 
-procedure ChaCha20Init(var Context: TChaChaContext; const Key;
+procedure ChaCha20Init(var Context: TChaCha20Context; const Key;
  const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
  const Count: Cardinal);
-procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+procedure ChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   var OutBuffer; const Length: Cardinal);
 
-procedure XChaCha20Init(var Context: TChaChaContext; const Key;
+procedure XChaCha20Init(var Context: TChaCha20Context; const Key;
  const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
  const Count: Cardinal);
-procedure XChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   var OutBuffer; const Length: Cardinal);
 
 implementation
@@ -41,7 +41,7 @@ uses
 
 {$C+}
 
-procedure ChaCha20InitCtx(var ctx: TChaChaCtx; const Key;
+procedure ChaCha20InitCtx(var ctx: TChaCha20Ctx; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
   const Count: Cardinal);
 begin
@@ -65,7 +65,7 @@ begin
     FillChar(ctx[13], 12, 0);
 end;
 
-procedure ChaCha20Init(var Context: TChaChaContext; const Key;
+procedure ChaCha20Init(var Context: TChaCha20Context; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
   const Count: Cardinal);
 begin
@@ -74,7 +74,7 @@ begin
   Context.count64 := NonceLength <> 12;
 end;
 
-procedure ChaCha20RunRounds(var ctx, keystream: TChaChaCtx);
+procedure ChaCha20RunRounds(var ctx, keystream: TChaCha20Ctx);
 
   function ROTL(const x: Cardinal; const n: Byte): Cardinal;
   begin
@@ -104,10 +104,10 @@ begin
   end;
 end;
 
-procedure ChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+procedure ChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   var OutBuffer; const Length: Cardinal);
 
-  procedure ChaCha20BlockNext(var ctx, keystream: TChaChaCtx; const count64: Boolean);
+  procedure ChaCha20BlockNext(var ctx, keystream: TChaCha20Ctx; const count64: Boolean);
   begin
     ChaCha20RunRounds(ctx, keystream);
 
@@ -148,16 +148,16 @@ procedure HChaCha20(const Key; const KeyLength: Cardinal; const Nonce;
 begin
   Assert(NonceLength = 16);
   var NonceBytes: PByte := @Nonce;
-  var ctx: TChaChaCtx;
+  var ctx: TChaCha20Ctx;
   ChaCha20InitCtx(ctx, Key, KeyLength, NonceBytes[4], 12, PCardinal(NonceBytes)^);
-  var keystream: TChaChaCtx;
+  var keystream: TChaCha20Ctx;
   ChaCha20RunRounds(ctx, keystream);
   SetLength(SubKey, 32);
   Move(keystream[0], SubKey[0], 16);
   Move(keystream[12], SubKey[16], 16);
 end;
 
-procedure XChaCha20Init(var Context: TChaChaContext; const Key;
+procedure XChaCha20Init(var Context: TChaCha20Context; const Key;
  const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
  const Count: Cardinal);
 begin
@@ -168,7 +168,7 @@ begin
   ChaCha20Init(Context, SubKey[0], Length(SubKey), NonceBytes[16], 8, Count);
 end;
 
-procedure XChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
+procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   var OutBuffer; const Length: Cardinal);
 begin
   ChaCha20Crypt(Context, InBuffer, OutBuffer, Length);
@@ -186,7 +186,7 @@ begin
   var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
   var Nonce: TBytes := [$00, $00, $00, $00, $00, $00, $00, $4a, $00, $00, $00, $00];
   var Counter := 1;
-  var Ctx: TChaChaContext;
+  var Ctx: TChaCha20Context;
 
   ChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
   ChaCha20Crypt(Ctx, Buf[1], Buf[1], 10);
@@ -223,7 +223,7 @@ begin
   var Key: TBytes := [$80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $8a, $8b, $8c, $8d, $8e, $8f, $90, $91, $92, $93, $94, $95, $96, $97, $98, $99, $9a, $9b, $9c, $9d, $9e, $9f];
   var Nonce: TBytes := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
   var Counter := 0;
-  var Ctx: TChaChaContext;
+  var Ctx: TChaCha20Context;
 
   XChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
   XChaCha20Crypt(Ctx, Buf[1], Buf[1], BufSize);
