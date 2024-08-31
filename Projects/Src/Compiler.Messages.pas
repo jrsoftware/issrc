@@ -49,7 +49,6 @@ const
   SCompilerStatusCreateSetupFiles = 'Creating setup files';
   SCompilerStatusSkippingCreateSetupFiles = 'Skipping creating setup files, output is disabled';
   SCompilerStatusCreateManifestFile = 'Creating manifest file';
-  SCompilerStatusFilesInitEncryption = '   Initializing encryption';
   SCompilerStatusFilesCompressing = '   Compressing: %s';
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
   SCompilerStatusFilesStoring = '   Storing: %s';
@@ -92,8 +91,6 @@ const
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
-  SCompilerISCryptMissing = 'Cannot use encryption because ISCrypt.dll is missing.' + SNewLine2 +
-    'Note: This file is not installed with Inno Setup. A link to obtain it can be found on the Inno Setup web site';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
 
   { [Setup] }

@@ -120,7 +120,7 @@
         <DCCReference Include="Src\Setup.LoggingFunc.pas"/>
         <DCCReference Include="Src\Setup.DebugClient.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
-        <DCCReference Include="Src\Shared.ArcFour.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="Src\Setup.Uninstall.pas"/>
         <DCCReference Include="Src\Setup.UninstallProgressForm.pas">
             <Form>UninstallProgressForm</Form>

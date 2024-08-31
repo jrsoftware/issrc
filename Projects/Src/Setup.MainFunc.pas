@@ -241,7 +241,7 @@ uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
-  Shared.ArcFour, Shared.SetupEntFunc, Setup.SelectLanguageForm,
+  Shared.SetupEntFunc, Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, SHA1, ActiveX,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
@@ -2543,7 +2543,7 @@ procedure InitializeSetup;
 { Initializes various vars used by the setup. This is called in the project
   source. }
 var
-  DecompressorDLL, DecryptDLL: TMemoryStream;
+  DecompressorDLL: TMemoryStream;
 
   function ExtractLongWord(var S: String): LongWord;
   var
@@ -2633,20 +2633,6 @@ var
         if not BZInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('BZInitDecompressFunctions failed');
     end;
-  end;
-
-  procedure LoadDecryptDLL;
-  var
-    Filename: String;
-  begin
-    Filename := AddBackslash(TempInstallDir) + '_isetup\_iscrypt.dll';
-    SaveStreamToTempFile(DecryptDLL, Filename);
-    FreeAndNil(DecryptDLL);
-    DecryptDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
-    if DecryptDLLHandle = 0 then
-      InternalError(Format('Failed to load DLL "%s"', [Filename]));
-    if not ArcFourInitFunctions(DecryptDLLHandle) then
-      InternalError('ISCryptInitFunctions failed');
   end;
 
 var
@@ -3161,9 +3147,7 @@ begin
         ReadEntries(seUninstallRun, SetupHeader.NumUninstallRunEntries, SizeOf(TSetupRunEntry),
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
-
-        { Wizard image }
-
+        { Wizard images }
         Reader.Read(N, SizeOf(LongInt));
         for I := 0 to N-1 do
           WizardImages.Add(ReadWizardImage(Reader));
@@ -3175,12 +3159,6 @@ begin
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(DecompressorDLL, Reader);
-        end;
-        { Decryption DLL }
-        DecryptDLL := nil;
-        if shEncryptionUsed in SetupHeader.Options then begin
-          DecryptDLL := TMemoryStream.Create;
-          ReadFileIntoStream(DecryptDLL, Reader);
         end;
       finally
         Reader.Free;
@@ -3264,10 +3242,6 @@ begin
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
-
-  { Extract "_iscrypt.dll" to TempInstallDir, and load it }
-  if shEncryptionUsed in SetupHeader.Options then
-    LoadDecryptDLL;
 
   { Start RestartManager session }
   if InitCloseApplications or

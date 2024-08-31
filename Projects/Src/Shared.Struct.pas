@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.3.0)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0) (u)';
@@ -69,6 +69,7 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupSalt = array[0..7] of Byte;
+  TSetupNonce = array[0..23] of Byte;
   TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);

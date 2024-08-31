@@ -51,7 +51,7 @@ uses
   Setup.LoggingFunc in 'Src\Setup.LoggingFunc.pas',
   Setup.DebugClient in 'Src\Setup.DebugClient.pas',
   Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
-  Shared.ArcFour in 'Src\Shared.ArcFour.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
   Setup.Uninstall in 'Src\Setup.Uninstall.pas',
   Setup.UninstallProgressForm in 'Src\Setup.UninstallProgressForm.pas' {UninstallProgressForm},
   Setup.UninstallSharedFileForm in 'Src\Setup.UninstallSharedFileForm.pas' {UninstallSharedFileForm},

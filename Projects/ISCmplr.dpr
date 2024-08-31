@@ -33,7 +33,7 @@ uses
   Compression.bzlib in 'Src\Compression.bzlib.pas',
   Compression.LZMACompressor in 'Src\Compression.LZMACompressor.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
-  Shared.ArcFour in 'Src\Shared.ArcFour.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',

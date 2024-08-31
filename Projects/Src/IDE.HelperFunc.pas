@@ -37,7 +37,6 @@ procedure AddFileToRecentDocs(const Filename: String);
 function GenerateGuid: String;
 function ISPPInstalled: Boolean;
 function IsISPPBuiltins(const Filename: String): Boolean;
-function ISCryptInstalled: Boolean;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
@@ -241,11 +240,6 @@ end;
 function IsISPPBuiltins(const Filename: String): Boolean;
 begin
   Result := PathCompare(PathExtractName(Filename), 'ISPPBuiltins.iss') = 0;
-end;
-
-function ISCryptInstalled: Boolean;
-begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'iscrypt.dll');
 end;
 
 var
