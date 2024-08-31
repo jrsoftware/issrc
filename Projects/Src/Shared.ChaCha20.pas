@@ -13,9 +13,6 @@ unit Shared.ChaCha20;
 
 interface
 
-uses
-  Windows;
-
 type
   TChaChaCtx = array[0..15] of Cardinal;
 
@@ -51,7 +48,7 @@ begin
   Assert(KeyLength = 32);
   Assert(NonceLength in [0, 8, 12]);
   {$IFDEF DEBUG}
-  ZeroMemory(@Ctx, SizeOf(Ctx));
+  FillChar(ctx[0], SizeOf(ctx), 1);
   {$ENDIF}
   ctx[0] := $61707865;
   ctx[1] := $3320646e;
@@ -65,7 +62,7 @@ begin
     ctx[13] := 0;
     Move(Nonce, ctx[14], 8)
   end else
-    ZeroMemory(@ctx[13], 12);
+    FillChar(ctx[13], 12, 0);
 end;
 
 procedure ChaCha20Init(var Context: TChaChaContext; const Key;
@@ -146,16 +143,18 @@ begin
   end;
 end;
 
-procedure HChaCha20(const Key; const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal);
+procedure HChaCha20(const Key; const KeyLength: Cardinal; const Nonce;
+  const NonceLength: Cardinal; out SubKey: TBytes);
 begin
-  Assert(KeyLength = 32);
   Assert(NonceLength = 16);
   var NonceBytes: PByte := @Nonce;
   var ctx: TChaChaCtx;
   ChaCha20InitCtx(ctx, Key, KeyLength, NonceBytes[4], 12, PCardinal(NonceBytes)^);
   var keystream: TChaChaCtx;
   ChaCha20RunRounds(ctx, keystream);
-  //return only the first and last rows of keystream, in little endian, resulting in a 256-bit key
+  SetLength(SubKey, 32);
+  Move(keystream[0], SubKey[0], 16);
+  Move(keystream[12], SubKey[16], 16);
 end;
 
 procedure XChaCha20Init(var Context: TChaChaContext; const Key;
@@ -163,8 +162,10 @@ procedure XChaCha20Init(var Context: TChaChaContext; const Key;
  const Count: Cardinal);
 begin
   Assert(NonceLength = 24);
-  HChaCha20(Key, KeyLength, Nonce, 16);
-  //..
+  var SubKey: TBytes;
+  HChaCha20(Key, KeyLength, Nonce, 16, SubKey);
+  var NonceBytes: PByte := @Nonce;
+  ChaCha20Init(Context, SubKey[0], Length(SubKey), NonceBytes[16], 8, Count);
 end;
 
 procedure XChaCha20Crypt(var Context: TChaChaContext; const InBuffer;
@@ -177,6 +178,7 @@ end;
 
 {$IFDEF TEST}
 initialization
+  //https://datatracker.ietf.org/doc/html/rfc7539#section-2.4.2
   var Buf: AnsiString := 'Ladies and Gentlemen of the class of ''99: If I could offer you only one tip for the future, sunscreen would be it.';
   var BufSize := Length(Buf)*SizeOf(Buf[1]);
   var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
@@ -192,14 +194,21 @@ initialization
   for var I := 0 to Length(Buf)-1 do
     Assert(Buf[I+1] = AnsiChar(CipherText[I]));
 
+  //https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-xchacha-03#section-2.2.1
   Key := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
   Nonce := [$00, $00, $00, $09, $00, $00, $00, $4a, $00, $00, $00, $00, $31, $41, $59, $27];
-  HChaCha20(Key[0], Length(Key), Nonce[0], Length(Nonce));
+  var SubKey: TBytes;
+  HChaCha20(Key[0], Length(Key), Nonce[0], Length(Nonce), SubKey);
   //82413b42 27b27bfe d30e4250 8a877d73 a0f9e4d5 8a74a853 c12ec413 26d3ecdc
 
+  //https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-xchacha-03#appendix-A.2
+  Buf := 'The dhole (pronounced "dole") is also known as the Asiatic wilddog, red dog, and whistling dog.'+'It is about the size of a German shepherd but looks more like a long-legged fox. This highly elusive and skilled jumper is classified with wolves, coyotes, jackals, and foxes in the taxonomic family Canidae.';
+  BufSize := Length(Buf)*SizeOf(Buf[1]);
   Key := [$80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $8a, $8b, $8c, $8d, $8e, $8f, $90, $91, $92, $93, $94, $95, $96, $97, $98, $99, $9a, $9b, $9c, $9d, $9e, $9f];
   Nonce := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
+  Counter := 0;
   XChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
+  XChaCha20Crypt(Ctx, Buf[1], Buf[1], BufSize);
 
 {$ENDIF}
 
