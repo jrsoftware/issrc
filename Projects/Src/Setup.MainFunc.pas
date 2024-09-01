@@ -257,7 +257,6 @@ var
     var ppszPath: PWideChar): HRESULT; stdcall;
 
   DecompressorDLLHandle: HMODULE;
-  DecryptDLLHandle: HMODULE;
 
 type
   TDummyClass = class
@@ -3489,10 +3488,6 @@ begin
   { End RestartManager session }
   if RmSessionStarted then
     RmEndSession(RmSessionHandle);
-
-  { Free the _iscrypt.dll handle }
-  if DecryptDLLHandle <> 0 then
-    FreeLibrary(DecryptDLLHandle);
 
   { Free the _isdecmp.dll handle }
   if DecompressorDLLHandle <> 0 then
