@@ -190,15 +190,15 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
 
   procedure InitDecryption;
   begin
-    { Read the nonce }
-    var Nonce: TSetupNonce;
-    if FSourceF.Read(Nonce, SizeOf(Nonce)) <> SizeOf(Nonce) then
-      SourceIsCorrupted('Failed to read nonce');
-
     { Initialize the key, which is the SHA-256 hash of FCryptKey }
     var Key := THashSHA2.GetHashBytes(FCryptKey, SHA256);
 
-    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce[0], Length(Nonce), 0);
+    { Recreate the unique nonce from the base nonce }
+    var Nonce := SetupHeader.EncryptionBaseNonce;
+    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
+
+    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
   end;
 
   procedure Discard(Count: Integer64);
@@ -253,8 +253,6 @@ begin
         SourceIsCorrupted('Failed to read CompID');
       if Longint(TestCompID) <> Longint(ZLIBID) then
         SourceIsCorrupted('Invalid CompID');
-      if foChunkEncrypted in FL.Flags then
-        InitDecryption;
 
       FChunkFirstSlice := FL.FirstSlice;
       FChunkLastSlice := FL.LastSlice;
@@ -264,6 +262,9 @@ begin
       FChunkDecompressedBytesRead.Lo := 0;
       FChunkCompressed := foChunkCompressed in FL.Flags;
       FChunkEncrypted := foChunkEncrypted in FL.Flags;
+
+      if foChunkEncrypted in FL.Flags then
+        InitDecryption;
     end;
 
     { Need to seek forward in the chunk? }

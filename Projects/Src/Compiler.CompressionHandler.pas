@@ -193,12 +193,12 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
     { Create an SHA-256 hash of ACryptKey, and use that as the key }
     var Key := THashSHA2.GetHashBytes(ACryptKey, SHA256);
 
-    { Generate and write a random nonce. }
-    var Nonce: TSetupNonce;
-    GenerateRandomBytes(Nonce, SizeOf(Nonce));
-    FDestFile.WriteBuffer(Nonce, SizeOf(Nonce));
+    { Create a unique nonce from the base nonce }
+    var Nonce := FCompiler.GetEncryptionBaseNonce;
+    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
-    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce[0], Length(Nonce), 0);
+    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
   end;
 
 var

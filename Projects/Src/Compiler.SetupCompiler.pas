@@ -271,6 +271,7 @@ type
     function GetDebugInfo: TMemoryStream;
     function GetDiskSliceSize:Longint;
     function GetDiskSpanning: Boolean;
+    function GetEncryptionBaseNonce: TSetupNonce;
     function GetExeFilename: String;
     function GetLineFilename: String;
     function GetLineNumber: Integer;
@@ -594,6 +595,11 @@ end;
 function TSetupCompiler.GetDiskSpanning: Boolean;
 begin
   Result := DiskSpanning;
+end;
+
+function TSetupCompiler.GetEncryptionBaseNonce: TSetupNonce;
+begin
+  Result := SetupHeader.EncryptionBaseNonce;
 end;
 
 function TSetupCompiler.GetExeFilename: String;
@@ -2362,6 +2368,11 @@ var
     Hash := SHA1Final(Context);
   end;
 
+  procedure GenerateEncryptionBaseNonce(var Nonce: TSetupNonce);
+  begin
+    GenerateRandomBytes(Nonce, SizeOf(Nonce));
+  end;
+
   procedure StrToTouchDate(const S: String);
   var
     P: PChar;
@@ -2805,6 +2816,8 @@ begin
     ssEncryption:
       begin
         SetSetupHeaderOption(shEncryptionUsed);
+        if shEncryptionUsed in SetupHeader.Options then
+         GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
       end;
     ssExtraDiskSpaceRequired: begin
         if not StrToInteger64(Value, SetupHeader.ExtraDiskSpaceRequired) then
