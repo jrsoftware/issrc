@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Compression.Base,
-  Shared.Struct, Shared.ArcFour;
+  Shared.Struct, ChaCha20;
 
 type
   TExtractorProgressProc = procedure(Bytes: Cardinal);
@@ -27,7 +27,7 @@ type
     FChunkBytesLeft, FChunkDecompressedBytesRead: Integer64;
     FNeedReset: Boolean;
     FChunkCompressed, FChunkEncrypted: Boolean;
-    FCryptContext: TArcFourContext;
+    FCryptContext: TChaCha20Context;
     FCryptKey: String;
     FEntered: Integer;
     procedure DecompressBytes(var Buffer; Count: Cardinal);
@@ -50,8 +50,8 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  PathFunc, Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  Setup.InstFunc, Compression.Zlib, Compression.bzlib,
+  Hash, PathFunc, Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages,
+  Shared.SetupMessageIDs, Setup.InstFunc, Compression.Zlib, Compression.bzlib,
   Compression.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
@@ -189,25 +189,16 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   const ProgressProc: TExtractorProgressProc);
 
   procedure InitDecryption;
-  var
-    Salt: TSetupSalt;
-    Context: TSHA1Context;
-    Hash: TSHA1Digest;
   begin
-    { Read the salt }
-    if FSourceF.Read(Salt, SizeOf(Salt)) <> SizeOf(Salt) then
-      SourceIsCorrupted('Failed to read salt');
+    { Initialize the key, which is the SHA-256 hash of FCryptKey }
+    var Key := THashSHA2.GetHashBytes(FCryptKey, SHA256);
 
-    { Initialize the key, which is the SHA-1 hash of the salt plus FCryptKey }
-    SHA1Init(Context);
-    SHA1Update(Context, Salt, SizeOf(Salt));
-    SHA1Update(Context, Pointer(FCryptKey)^, Length(FCryptKey)*SizeOf(FCryptKey[1]));
-    Hash := SHA1Final(Context);
-    ArcFourInit(FCryptContext, Hash, SizeOf(Hash));
+    { Recreate the unique nonce from the base nonce }
+    var Nonce := SetupHeader.EncryptionBaseNonce;
+    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
-    { The compiler discards the first 1000 bytes for extra security,
-      so we must as well }
-    ArcFourDiscard(FCryptContext, 1000);
+    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
   end;
 
   procedure Discard(Count: Integer64);
@@ -262,8 +253,6 @@ begin
         SourceIsCorrupted('Failed to read CompID');
       if Longint(TestCompID) <> Longint(ZLIBID) then
         SourceIsCorrupted('Invalid CompID');
-      if foChunkEncrypted in FL.Flags then
-        InitDecryption;
 
       FChunkFirstSlice := FL.FirstSlice;
       FChunkLastSlice := FL.LastSlice;
@@ -273,6 +262,9 @@ begin
       FChunkDecompressedBytesRead.Lo := 0;
       FChunkCompressed := foChunkCompressed in FL.Flags;
       FChunkEncrypted := foChunkEncrypted in FL.Flags;
+
+      if foChunkEncrypted in FL.Flags then
+        InitDecryption;
     end;
 
     { Need to seek forward in the chunk? }
@@ -302,7 +294,7 @@ begin
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
-      ArcFourCrypt(FCryptContext, Buffer^, Buffer^, Res);
+      ChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
 
     if Left = Res then
       Break

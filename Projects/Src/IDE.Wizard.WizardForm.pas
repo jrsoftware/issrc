@@ -373,7 +373,6 @@ begin
 
   { Compiler }
   OutputBaseFileNameEdit.Text := 'mysetup';
-  EncryptionCheck.Visible := ISCryptInstalled;
   EncryptionCheck.Checked := True;
   EncryptionCheck.Enabled := False;
 
@@ -1053,7 +1052,7 @@ begin
       Setup := Setup + 'SetupIconFile=' + SetupIconFileEdit.Text + SNewLine;
     if PasswordEdit.Text <> '' then begin
       Setup := Setup + 'Password=' + PasswordEdit.Text + SNewLine;
-      if ISCryptInstalled and EncryptionCheck.Checked then
+      if EncryptionCheck.Checked then
         Setup := Setup + 'Encryption=yes' + SNewLine;
     end;
 

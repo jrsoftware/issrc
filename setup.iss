@@ -6,8 +6,6 @@
 ; Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
 
-#include "iscrypt.iss"
-
 #include "isdonateandmail.iss"
 
 #include "isportable.iss"
@@ -77,7 +75,7 @@ Name: english; MessagesFile: "files\Default.isl"
 #expr FindFiles("files\Languages\")
 
 [Messages]
-HelpTextNote=/PORTABLE=1%nEnable portable mode.%n/DOWNLOADISCRYPT=1%nEnable ISCrypt.dll download.
+HelpTextNote=/PORTABLE=1%nEnable portable mode.
 ; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
@@ -111,6 +109,8 @@ Type: files; Name: "{app}\WizModernImage.bmp"
 Type: files; Name: "{app}\WizModernImage-IS.bmp"
 Type: files; Name: "{app}\WizModernSmallImage.bmp"
 Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
+; Remove old ISCrypt.dll
+Type: files; Name: "{app}\ISCrypt.dll"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch

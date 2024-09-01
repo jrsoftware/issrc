@@ -202,7 +202,6 @@ type
     function FindSignToolIndexByName(const AName: String): Integer;
     function GetLZMAExeFilename(const Allow64Bit: Boolean): String;
     procedure InitBzipDLL;
-    procedure InitCryptDLL;
     procedure InitPreLangData(const APreLangData: TPreLangData);
     procedure InitLanguageEntry(var ALanguageEntry: TSetupLanguageEntry);
     procedure InitLZMADLL;
@@ -272,6 +271,7 @@ type
     function GetDebugInfo: TMemoryStream;
     function GetDiskSliceSize:Longint;
     function GetDiskSpanning: Boolean;
+    function GetEncryptionBaseNonce: TSetupNonce;
     function GetExeFilename: String;
     function GetLineFilename: String;
     function GetLineNumber: Integer;
@@ -291,7 +291,7 @@ implementation
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, Shared.ArcFour, SHA1,
+  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, SHA1,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
@@ -310,7 +310,7 @@ type
   end;
 
 var
-  ZipInitialized, BzipInitialized, LZMAInitialized, CryptInitialized: Boolean;
+  ZipInitialized, BzipInitialized, LZMAInitialized: Boolean;
   PreprocessorInitialized: Boolean;
   PreprocessScriptProc: TPreprocessScriptProc;
 
@@ -597,6 +597,11 @@ begin
   Result := DiskSpanning;
 end;
 
+function TSetupCompiler.GetEncryptionBaseNonce: TSetupNonce;
+begin
+  Result := SetupHeader.EncryptionBaseNonce;
+end;
+
 function TSetupCompiler.GetExeFilename: String;
 begin
   Result := ExeFilename;
@@ -657,20 +662,6 @@ end;
 function TSetupCompiler.GetSlicesPerDisk: Longint;
 begin
   Result := SlicesPerDisk;
-end;
-
-procedure TSetupCompiler.InitCryptDLL;
-var
-  M: HMODULE;
-begin
-  if CryptInitialized then
-    Exit;
-  M := SafeLoadLibrary(CompilerDir + 'iscrypt.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load iscrypt.dll (%d)', [GetLastError]);
-  if not ArcFourInitFunctions(M) then
-    AbortCompile('Failed to get address of functions in iscrypt.dll');
-  CryptInitialized := True;
 end;
 
 function TSetupCompiler.FilenameToFileIndex(const AFilename: String): Integer;
@@ -2377,6 +2368,11 @@ var
     Hash := SHA1Final(Context);
   end;
 
+  procedure GenerateEncryptionBaseNonce(var Nonce: TSetupNonce);
+  begin
+    GenerateRandomBytes(Nonce, SizeOf(Nonce));
+  end;
+
   procedure StrToTouchDate(const S: String);
   var
     P: PChar;
@@ -2820,6 +2816,8 @@ begin
     ssEncryption:
       begin
         SetSetupHeaderOption(shEncryptionUsed);
+        if shEncryptionUsed in SetupHeader.Options then
+          GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
       end;
     ssExtraDiskSpaceRequired: begin
         if not StrToInteger64(Value, SetupHeader.ExtraDiskSpaceRequired) then
@@ -6633,7 +6631,7 @@ var
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
   WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
-  DecompressorDLL, DecryptionDLL: TMemoryStream;
+  DecompressorDLL: TMemoryStream;
 
   SetupLdrOffsetTable: TSetupLdrOffsetTable;
   SizeOfExe, SizeOfHeaders: Longint;
@@ -6739,8 +6737,6 @@ var
         WriteStream(WizardSmallImages[J], W);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
-      if shEncryptionUsed in SetupHeader.Options then
-        WriteStream(DecryptionDLL, W);
 
       W.Finish;
     finally
@@ -6908,12 +6904,6 @@ var
     ChunkCompressed := False;  { avoid warning }
     CH := TCompressionHandler.Create(Self, FirstDestFile);
     try
-      { If encryption is used, load the encryption DLL }
-      if shEncryptionUsed in SetupHeader.Options then begin
-        AddStatus(SCompilerStatusFilesInitEncryption);
-        InitCryptDLL;
-      end;
-
       if DiskSpanning then begin
         if not CH.ReserveBytesOnSlice(BytesToReserveOnFirstDisk) then
           AbortCompile(SCompilerNotEnoughSpaceOnFirstDisk);
@@ -7356,7 +7346,6 @@ begin
   WizardSmallImages := nil;
   SetupE32 := nil;
   DecompressorDLL := nil;
-  DecryptionDLL := nil;
 
   try
     Finalize(SetupHeader);
@@ -7870,14 +7859,6 @@ begin
         end;
     end;
 
-    { Read decryption DLL }
-    if shEncryptionUsed in SetupHeader.Options then begin
-      AddStatus(Format(SCompilerStatusReadingFile, ['iscrypt.dll']));
-      if not NewFileExists(CompilerDir + 'iscrypt.dll') then
-        AbortCompile(SCompilerISCryptMissing);
-      DecryptionDLL := CreateMemoryStreamFromFile(CompilerDir + 'iscrypt.dll');
-    end;
-
     { Add default types if necessary }
     if (ComponentEntries.Count > 0) and (TypeEntries.Count = 0) then begin
       AddDefaultSetupType(DefaultTypeEntryNames[0], [], ttDefaultFull);
@@ -8057,7 +8038,6 @@ begin
     UsedUserAreas.Clear;
     WarningsList.Clear;
     { Free all the data }
-    DecryptionDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
     WizardSmallImages.Free;

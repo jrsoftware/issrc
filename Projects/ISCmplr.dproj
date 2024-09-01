@@ -99,7 +99,7 @@
         <DCCReference Include="Src\Compression.bzlib.pas"/>
         <DCCReference Include="Src\Compression.LZMACompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="Src\Shared.ArcFour.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>

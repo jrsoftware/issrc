@@ -12,7 +12,7 @@ unit Compiler.CompressionHandler;
 interface
 
 uses
-  SHA1, Shared.ArcFour, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  SHA1, ChaCha20, Shared.Int64Em, Shared.FileClass, Compression.Base,
   Compiler.StringLists, Compiler.SetupCompiler;
 
 type
@@ -27,7 +27,7 @@ type
     FChunkFirstSlice: Integer;
     FChunkStarted: Boolean;
     FChunkStartOffset: Longint;
-    FCryptContext: TArcFourContext;
+    FCryptContext: TChaCha20Context;
     FCurSlice: Integer;
     FDestFile: TFile;
     FDestFileIsDiskSlice: Boolean;
@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  SysUtils, Shared.Struct, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Hash, Shared.Struct, Compiler.Messages, Compiler.HelperFunc;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);
@@ -189,27 +189,16 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
   end;
 
   procedure InitEncryption;
-  var
-    Salt: TSetupSalt;
-    Context: TSHA1Context;
-    Hash: TSHA1Digest;
   begin
-    { Generate and write a random salt. This salt is hashed into the key to
-      prevent the same key from ever being used twice (theoretically). }
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-    FDestFile.WriteBuffer(Salt, SizeOf(Salt));
+    { Create an SHA-256 hash of ACryptKey, and use that as the key }
+    var Key := THashSHA2.GetHashBytes(ACryptKey, SHA256);
 
-    { Create an SHA-1 hash of the salt plus ACryptKey, and use that as the key }
-    SHA1Init(Context);
-    SHA1Update(Context, Salt, SizeOf(Salt));
-    SHA1Update(Context, Pointer(ACryptKey)^, Length(ACryptKey)*SizeOf(ACryptKey[1]));
-    Hash := SHA1Final(Context);
-    ArcFourInit(FCryptContext, Hash, SizeOf(Hash));
+    { Create a unique nonce from the base nonce }
+    var Nonce := FCompiler.GetEncryptionBaseNonce;
+    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
-    { Discard first 1000 bytes of the output keystream, since according to
-      <http://en.wikipedia.org/wiki/RC4_(cipher)>, "the first few bytes of
-      output keystream are strongly non-random." }
-    ArcFourDiscard(FCryptContext, 1000);
+    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
   end;
 
 var
@@ -220,8 +209,6 @@ begin
   { If there isn't enough room left to start a new chunk on the current slice,
     start a new slice }
   MinBytesLeft := SizeOf(ZLIBID);
-  if AUseEncryption then
-    Inc(MinBytesLeft, SizeOf(TSetupSalt));
   Inc(MinBytesLeft);  { for at least one byte of data }
   if FSliceBytesLeft < MinBytesLeft then
     NewSlice('');
@@ -311,7 +298,7 @@ begin
         temporary buffer. }
       GetMem(P2, S);
       try
-        ArcFourCrypt(FCryptContext, P^, P2^, S);
+        XChaCha20Crypt(FCryptContext, P^, P2^, S);
         FDestFile.WriteBuffer(P2^, S)
       finally
         FreeMem(P2);
