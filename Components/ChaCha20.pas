@@ -129,6 +129,9 @@ procedure ChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   end;
 
 begin
+  if Length = 0 then
+    Exit;
+
   var InBuf: PByte := @InBuffer;
   var OutBuf: PByte := @OutBuffer;
   var KeyStream: PByte := @Context.keystream;
