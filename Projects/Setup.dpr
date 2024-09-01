@@ -48,6 +48,7 @@ uses
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   MD5 in '..\Components\MD5.pas',
   SHA1 in '..\Components\SHA1.pas',
+  SHA256 in '..\Components\SHA256.pas',
   Setup.LoggingFunc in 'Src\Setup.LoggingFunc.pas',
   Setup.DebugClient in 'Src\Setup.DebugClient.pas',
   Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',

@@ -117,6 +117,7 @@
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\Setup.LoggingFunc.pas"/>
         <DCCReference Include="Src\Setup.DebugClient.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>

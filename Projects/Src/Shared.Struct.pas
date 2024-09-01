@@ -13,7 +13,7 @@ unit Shared.Struct;
 interface
 
 uses
-  Windows, Shared.Int64Em, SHA1;
+  Windows, Shared.Int64Em, SHA1, SHA256;
 
 const
   SetupTitle = 'Inno Setup';
@@ -109,7 +109,7 @@ type
     WizardStyle: TSetupWizardStyle;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    PasswordHash: TSHA1Digest;
+    PasswordHash: TSHA256Digest;
     PasswordSalt: TSetupSalt;
     EncryptionBaseNonce: TSetupNonce;
     ExtraDiskSpaceRequired: Integer64;

@@ -140,12 +140,13 @@
             <Form>RegistryDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.Wizard.WizardFormRegistryHelper.pas"/>
-        <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\ScintInt.InnoSetup.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\ISHelp\isxclasses_wordlists_generated.pas"/>
         <DCCReference Include="Src\IDE.ImagesModule.pas">

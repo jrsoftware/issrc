@@ -19,7 +19,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Generics.Collections,
-  SimpleExpression,
+  SimpleExpression, SHA256,
   Shared.Struct, Shared.CompilerInt, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
@@ -2351,9 +2351,9 @@ var
   end;
 
   procedure GeneratePasswordHashAndSalt(const Password: String;
-    var Hash: TSHA1Digest; var Salt: TSetupSalt);
+    var Hash: TSHA256Digest; var Salt: TSetupSalt);
   var
-    Context: TSHA1Context;
+    Context: TSHA256Context;
   begin
     { Random salt is mixed into the password hash to make it more difficult
       for someone to tell that two installations use the same password. A
@@ -2361,11 +2361,11 @@ var
       broken -- this hash must never be the same as the hash used for
       encryption. }
     GenerateRandomBytes(Salt, SizeOf(Salt));
-    SHA1Init(Context);
-    SHA1Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
-    SHA1Update(Context, Salt, SizeOf(Salt));
-    SHA1Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
-    Hash := SHA1Final(Context);
+    SHA256Init(Context);
+    SHA256Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
+    SHA256Update(Context, Salt, SizeOf(Salt));
+    SHA256Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
+    Hash := SHA256Final(Context);
   end;
 
   procedure GenerateEncryptionBaseNonce(var Nonce: TSetupNonce);

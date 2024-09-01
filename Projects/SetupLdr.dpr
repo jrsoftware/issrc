@@ -26,8 +26,9 @@ uses
   SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
-  SHA1 in '..\Components\SHA1.pas',
   MD5 in '..\Components\MD5.pas',
+  SHA1 in '..\Components\SHA1.pas',
+  SHA256 in '..\Components\SHA256.pas',
   SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
