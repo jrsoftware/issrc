@@ -82,7 +82,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression and decompression (respectively by 21% and 11% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%.</li>
-  <li>Updated the encryption algorithm used by Inno Setup to XChaCha20 for extra security.</li>
+  <li>Updated the encryption algorithm used by Inno Setup to XChaCha20 for extra security. This code is built-in: the separate ISCrypt.dll "encryption module" is no longer used and will be automatically deleted when you update.</li>
   <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
   <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
   <li>Pascal Scripting changes:

@@ -209,8 +209,6 @@ begin
   { If there isn't enough room left to start a new chunk on the current slice,
     start a new slice }
   MinBytesLeft := SizeOf(ZLIBID);
-  if AUseEncryption then
-    Inc(MinBytesLeft, SizeOf(TSetupNonce));
   Inc(MinBytesLeft);  { for at least one byte of data }
   if FSliceBytesLeft < MinBytesLeft then
     NewSlice('');

@@ -2817,7 +2817,7 @@ begin
       begin
         SetSetupHeaderOption(shEncryptionUsed);
         if shEncryptionUsed in SetupHeader.Options then
-         GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
+          GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
       end;
     ssExtraDiskSpaceRequired: begin
         if not StrToInteger64(Value, SetupHeader.ExtraDiskSpaceRequired) then
