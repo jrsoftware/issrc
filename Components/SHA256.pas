@@ -66,7 +66,7 @@ end;
 
 function SHA256DigestToString(const D: TSHA256Digest): String;
 const
-  Digits: array[0..31] of Char = '0123456789abcdef';
+  Digits: array[0..15] of Char = '0123456789abcdef';
 var
   Buf: array[0..63] of Char;
   P: PChar;
