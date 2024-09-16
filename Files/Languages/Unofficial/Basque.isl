@@ -1,6 +1,8 @@
-; *** Inno Setup version 5.5.3+ Basque messages ***
+﻿; *** Inno Setup version 6.1.0+ Basque messages ***
 ;
 ; Basque Translation: (EUS_Xabier Aramendi) (azpidatziak@gmail.com)
+; Default.isl 6.1.0 translation: Marimar (bmarimar2@gmail.com) 
+; Based in translation 5.5.3+ by Xabier Aramendi
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -13,8 +15,8 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=Euskara
-LanguageID=$042d
+LanguageName=Basque (Euskara)
+LanguageID=$042D
 LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -45,6 +47,7 @@ SetupLdrStartupMessage=Honek %1 ezarriko du. Jarraitzea nahi duzu?
 LdrCannotCreateTemp=Ezinezkoa aldibaterako agiri bat sortzea. Ezarpena utzita
 LdrCannotExecTemp=Ezinezkoa agiria exekutatzea aldibaterako zuzenbidean. Ezarpena utzita
 
+
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nAkatsa %2: %3
 SetupFileMissing=%1 agiria ez dago ezarpen zuzenbidean. Mesedez zuzendu arazoa edo lortu programaren kopia berri bat.
@@ -54,18 +57,25 @@ InvalidParameter=Parametro baliogabe bat igaro da komando lerroan:%n%n%1
 SetupAlreadyRunning=Ezarpena jadanik ekinean dago.
 WindowsVersionNotSupported=Programa honek ez du zure ordenagailuan ekinean dagoen Windows bertsioa sostengatzen.
 WindowsServicePackRequired=Programa honek %1 Service Pack %2 edo berriagoa behar du.
-
-
 NotOnThisPlatform=Programa honek ez du ekingo hemen: %1.
 OnlyOnThisPlatform=Programa hau hemen ekin behar da: %1.
 OnlyOnTheseArchitectures=Programa hau hurrengo Windows arkitekturatarako diseinaturiko bertsioetan bakarrik ezarri daiteke:%n%n%1
-MissingWOW64APIs=Erabiltzen ari zaren Windows bertsioak ez du Ezartzaileak 64-biteko ezarpen bat egiteko behar dituen eginkizunak barneratzen. Arazo hau zuzentzeko, mesedez ezarri Service Pack %1.
 WinVersionTooLowError=Programa honek %1 bertsioa %2 edo berriagoa behar du.
 WinVersionTooHighError=Programa hau ezin da %1 bertsioa %2 edo berriagoan ezarria izan.
 AdminPrivilegesRequired=Administrari bezala izena-emanda egon behar zara programa hau ezartzeko.
 PowerUserPrivilegesRequired=Administrari bezala izena-emanda edo Boteredun Erabiltzaile taldeko kide bezala egon behar zara programa hau ezartzerakoan.
 SetupAppRunningError=Ezartzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
 UninstallAppRunningError=Kentzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
+
+; *** Startup questions
+PrivilegesRequiredOverrideTitle= Instalatzeko modua hautatzea
+PrivilegesRequiredOverrideInstruction=Aukeratu instalatzeko modua
+PrivilegesRequiredOverrideText1=%1 erabiltzaile guztientzat instalatu daiteke (administrazio-pribilegioak behar ditu), edo zuretzat bakarrik.
+PrivilegesRequiredOverrideText2=%1 Zuretzat bakarrik instalatu daiteke, edo erabiltzaile guztientzat (administrazio-pribilegioak behar ditu).
+PrivilegesRequiredOverrideAllUsers=Instalatu erabiltzaile guztientzat
+PrivilegesRequiredOverrideAllUsersRecommended=Instalatu &erabiltzaile guztientzat (gomendatua)
+PrivilegesRequiredOverrideCurrentUser=Instalatu &niretzako soilik
+PrivilegesRequiredOverrideCurrentUserRecommended=Instalatu &niretzako soilik (gomendatua)
 
 ; *** Misc. errors
 ErrorCreatingDir=Ezartzaileak ezin izan du zuzenbidea sortu "%1" 
@@ -145,6 +155,7 @@ WizardSelectDir=Hautatu Helmuga Kokalekua
 SelectDirDesc=Non ezarri behar da [name]?
 SelectDirLabel3=Ezartzaileak [name] hurrengo agiritegian ezarriko du.
 SelectDirBrowseLabel=Jarraitzeko, klikatu Hurrengoa. Beste agiritegi bat hautatzea nahi baduzu, klikatu Bilatu.
+DiskSpaceGBLabel=Gutxienez [gb] GB-eko toki askea behar da diska gogorrean.
 DiskSpaceMBLabel=Gutxienez [mb] MB-eko toki askea behar da diska gogorrean.
 CannotInstallToNetworkDrive=Ezarpena ezin da sare gidagailu batean egin.
 CannotInstallToUNCPath=Ezarpena ezin da UNC helburu batean egin.
@@ -172,6 +183,7 @@ NoUninstallWarningTitle=Osagaiak Badaude
 NoUninstallWarning=Ezartzaileak atzeman du hurrengo osagaiak jadanik zure ordenagailuan ezarrita daudela:%n%n%1%n%nOsagai hauek deshautatuz gero ez dira ezarriko.%n%nHorrela ere jarraitzea nahi duzu?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Oraingo hautapenak gutxienez [gb] GB-eko tokia behar du diskan.
 ComponentsDiskSpaceMBLabel=Oraingo hautapenak gutxienez [mb] MB-eko tokia behar du diskan.
 
 ; *** "Select Additional Tasks" wizard page
@@ -202,6 +214,18 @@ ReadyMemoComponents=Hautaturiko osagaiak:
 ReadyMemoGroup=Hasiera Menuko agiritegia:
 ReadyMemoTasks=Eginkizun gehigarriak:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Fitxategi gehigarriak deskargatzen...
+ButtonStopDownload=&Gelditu deskarga
+StopDownload=Ondoren, deskarga gelditu nahi duzu?
+ErrorDownloadAborted=Deskarga ezeztatuta
+ErrorDownloadFailed=Deskarga huts egin du: %1 %2
+ErrorDownloadSizeFailed=Tamaina lortzea huts egin du: %1 %2
+ErrorFileHash1=Fitxategiaren hash huts egin zuen: %1
+ErrorFileHash2=Fitxategiaren hash ez da baliozkoa: espero %1, aurkitu %2
+ErrorProgress=Aurrerapena ez da baliozkoa: %1 (e) tik %2 (e) ra
+ErrorFileSize=ErrorFileSize=Fitxategiaren tamaina ez da baliozkoa: espero %1, aurkitu %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Ezartzeko Gertatzen
 PreparingDesc=Ezartzailea [name] zure ordenagailuan ezartzeko gertatzen ari da.
@@ -212,6 +236,7 @@ ApplicationsFound2=Hurrengo aplikazioak Ezartzaileak eguneratu behar dituen agir
 CloseApplications=&Berezgaitasunez itxi aplikazioak
 DontCloseApplications=&Ez itxi aplikazioak
 ErrorCloseApplications=Ezartzaileak ezin ditu berezgaitasunez aplikazio guztiak itxi. Gomendagarria da Ezartzaileak eguneratu behar dituen agiriak erabiltzen ari diren aplikazio guztiak istea jarraitu aurretik.
+PrepareToInstallNeedsRestart=Instalazio-programak sistema berrabiarazi behar du. Berriro hasi ondoren, instalazio-programa exekutatu berriro, [name] -ren instalazioa osatzeko.%n%n Sistema berrabiarazi nahi duzu orain?
 
 ; *** "Installing" wizard page
 WizardInstalling=Ezartzen
@@ -241,7 +266,10 @@ SelectDirectoryLabel=Mesedez adierazi hurrengo diskaren kokalekua.
 
 ; *** Installation phase messages
 SetupAborted=Ezarpena ez da osatu.%n%nMesedez zuzendu arazoa eta ekin Ezartzailea berriro.
-EntryAbortRetryIgnore=Klikatu Bersaiatu berriro saiatzeko, Ezikusi horrela ere jarraitzeko, edo Utzi ezarpena ezeztatzeko.
+AbortRetryIgnoreSelectAction=Hautatu ekintza
+AbortRetryIgnoreRetry=&Berrsaiatu
+AbortRetryIgnoreIgnore=&Errorea alde batera utzi eta jarraitu
+AbortRetryIgnoreCancel=Instalazioa bertan behera utzi
 
 ; *** Installation status messages
 StatusClosingApplications=Aplikazioak isten...
@@ -272,24 +300,44 @@ ErrorRegWriteKey=Akatsa erregistro giltza idazterakoan:%n%1\%2
 ErrorIniEntry=Akatsa INI sarrera "%1" agirian sortzerakoan.
 
 ; *** File copying errors
-FileAbortRetryIgnore=Klikatu Bersaiatu berriro saitzeko, Ezikusi agiri hau jauzteko (ez da gomendatua), edo Utzi ezarpena ezeztatzeko.
-FileAbortRetryIgnore2=Klikatu Bersaiatu berriro saitzeko, Ezikusi horrela ere jarraitzeko (ez da gomendatua), edo Utzi ezarpena ezeztatzeko.
+FileAbortRetryIgnoreSkipNotRecommended=&Omitir fitxategi hau (ez da gomendatua)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Errorea alde batera utzi eta jarraitu (ez da gomendatua)
 SourceIsCorrupted=Iturburu agiria hondatuta dago.
 SourceDoesntExist="%1" iturburu agiria ez dago
-ExistingFileReadOnly=Dagoen agiria irakurtzeko-bakarrik bezala markatuta dago.%n%nKlikatu Bersaiatu irakurtzeko-bakarrik ezaugarria kentzeko eta saiatu berriro, Ezikusi agiri hau jauzteko, edo Utzi ezarpena ezeztatzeko.
+ExistingFileReadOnly2=Dagoen fitxategia ezin da ordeztu, bakarrik irakurtzeko markatuta dagoelako.
+ExistingFileReadOnlyRetry=&Ezabatu eguzkitarako eta irakurketarako atributua
+ExistingFileReadOnlyKeepExisting=&Dagoen fitxategia mantentzea
 ErrorReadingExistingDest=Akats bat gertatu da dagoen agiria irakurtzen saiatzerakoan:
-FileExists=Agiria jadanik badago.%n%nNahi duzu Ezartzaileak gainidaztea?
-ExistingFileNewer=Dagoen agiria Ezartzailea ezartzen saiatzen ari dena baino berriagoa da. Gomendagarria da dagoen agiriari heustea.%n%nDagoen agiriari heustea nahi diozu?
-ErrorChangingAttr=Akats bat gertatu da dagoen agiriaren ezaugarriak aldatzen saiatzerakoan:
-ErrorCreatingTemp=Akats bat gertatu da helmuga zuzenbidean agiri bat sortzen saiatzerakoan:
-ErrorReadingSource=Akats bat gertatu da iturburu agiria irakurtzen saiatzerakoan:
-ErrorCopying=Akats bat gertatu da agiri bat kopiatzen saiatzerakoan:
-ErrorReplacingExistingFile=Akats bat gertatu da dagoen agiria ordezten saiatzerakoan:
-ErrorRestartReplace=Berrabiarazte-Ordezte hutsegitea:
-ErrorRenamingTemp=Akats bat gertatu da helmuga zuzenbideko agiri bat berrizendatzen saiatzerakoan:
-ErrorRegisterServer=Ezinezkoa DLL/OCX erregistratzea: %1
-ErrorRegSvr32Failed=RegSvr32 hutsegitea %1 irteera kodearekin
-ErrorRegisterTypeLib=Ezinezkoa liburutegi mota erregistratzea: %1
+FileExistsSelectAction=Hautatu ekintza
+FileExists2=Fitxategia existitzen da.
+FileExistsOverwriteExisting=&Dagoen fitxategia gainidatzi
+FileExistsKeepExisting=&Dagoen fitxategia mantentzea
+FileExistsOverwriteOrKeepAll=&Gauza bera egin honako gatazka hauetarako
+ExistingFileNewerSelectAction=Hautatu ekintza
+ExistingFileNewer2=Dagoen fitxategia instalatu nahi dena baino berriagoa da.
+ExistingFileNewerOverwriteExisting=&Dagoen fitxategia gainidatzi
+ExistingFileNewerKeepExisting=&Dagoen fitxategia mantentzea (gomendatua)
+ExistingFileNewerOverwriteOrKeepAll=&Gauza bera egin honako gatazka hauetarako
+ErrorChangingAttr=Errorea gertatu zen fitxategiaren atributuak aldatzen saiatzean:
+ErrorCreatingTemp=Errore bat gertatu zen helmugako karpetan fitxategi bat sortzen saiatzean:
+ErrorReadingSource=Errore bat gertatu zen jatorrizko fitxategia irakurtzen saiatzean:
+ErrorCopying=Errorea gertatu da fitxategia kopiatzen saiatzean:
+ErrorReplacingExistingFile=Errore bat gertatu zen dagoen fitxategia ordezten saiatzean:
+ErrorRestartReplace=Huts egin zuen ordezteko saiakeran:
+ErrorRenamingTemp=Errore bat gertatu zen helmugako karpetan fitxategi bat berrizendatzean:
+ErrorRegisterServer=Ezinezkoa da DLL/OCX erregistratzea: %1
+ErrorRegSvr32Failed=RegSvr32 %1 irteera-kodearekin huts egin zuen
+ErrorRegisterTypeLib=Ezinezkoa da tipoen liburu-denda erregistratzea: %1
+
+; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
+UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
+UninstallDisplayNameMarks=%1 ( %2, %3)
+UninstallDisplayNameMark32Bit=32-bit
+UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMarkAllUsers=Erabiltzaile guztiak
+UninstallDisplayNameMarkCurrentUser=Egungo erabiltzailea
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Akats bat gertatu da IRAKURRI agiria irekitzen saiatzerakoan.
