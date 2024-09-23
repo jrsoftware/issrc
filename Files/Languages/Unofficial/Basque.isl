@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Basque messages ***
+; *** Inno Setup version 6.1.0+ Basque messages ***
 ;
 ; Basque Translation: (EUS_Xabier Aramendi) (azpidatziak@gmail.com)
 ; Default.isl 6.1.0 translation: Marimar (bmarimar2@gmail.com) 
@@ -224,7 +224,7 @@ ErrorDownloadSizeFailed=Tamaina lortzea huts egin du: %1 %2
 ErrorFileHash1=Fitxategiaren hash huts egin zuen: %1
 ErrorFileHash2=Fitxategiaren hash ez da baliozkoa: espero %1, aurkitu %2
 ErrorProgress=Aurrerapena ez da baliozkoa: %1 (e) tik %2 (e) ra
-ErrorFileSize=ErrorFileSize=Fitxategiaren tamaina ez da baliozkoa: espero %1, aurkitu %2
+ErrorFileSize=Fitxategiaren tamaina ez da baliozkoa: espero %1, aurkitu %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Ezartzeko Gertatzen
