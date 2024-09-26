@@ -50,9 +50,9 @@ procedure FreeFileExtractor;
 implementation
 
 uses
-  Hash, PathFunc, Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages,
+  PathFunc, Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Setup.InstFunc, Compression.Zlib, Compression.bzlib,
-  Compression.LZMADecompressor, SHA1, Setup.LoggingFunc, Setup.NewDiskForm;
+  Compression.LZMADecompressor, SHA256, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
   FFileExtractor: TFileExtractor;
@@ -191,7 +191,7 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   procedure InitDecryption;
   begin
     { Initialize the key, which is the SHA-256 hash of FCryptKey }
-    var Key := THashSHA2.GetHashBytes(FCryptKey, SHA256);
+    var Key := SHA256Buf(Pointer(FCryptKey)^, Length(FCryptKey)*SizeOf(FCryptKey[1]));
 
     { Recreate the unique nonce from the base nonce }
     var Nonce := SetupHeader.EncryptionBaseNonce;
@@ -315,7 +315,7 @@ procedure TFileExtractor.DecompressFile(const FL: TSetupFileLocationEntry;
   const VerifyChecksum: Boolean);
 var
   BytesLeft: Integer64;
-  Context: TSHA1Context;
+  Context: TSHA256Context;
   AddrOffset: LongWord;
   BufSize: Cardinal;
   Buf: array[0..65535] of Byte;
@@ -334,7 +334,7 @@ begin
     DestF.Truncate;
     DestF.Seek(0);
 
-    SHA1Init(Context);
+    SHA256Init(Context);
 
     try
       AddrOffset := 0;
@@ -351,7 +351,7 @@ begin
           Inc(AddrOffset, BufSize);  { may wrap, but OK }
         end;
         Dec64(BytesLeft, BufSize);
-        SHA1Update(Context, Buf, BufSize);
+        SHA256Update(Context, Buf, BufSize);
         DestF.WriteBuffer(Buf, BufSize);
 
         if Assigned(ProgressProc) then
@@ -362,8 +362,8 @@ begin
         SourceIsCorrupted(E.Message);
     end;
 
-    if VerifyChecksum and not SHA1DigestsEqual(SHA1Final(Context), FL.SHA1Sum) then
-      SourceIsCorrupted('SHA-1 hash mismatch');
+    if VerifyChecksum and not SHA256DigestsEqual(SHA256Final(Context), FL.SHA256Sum) then
+      SourceIsCorrupted('SHA-256 hash mismatch');
   finally
     Dec(FEntered);
   end;

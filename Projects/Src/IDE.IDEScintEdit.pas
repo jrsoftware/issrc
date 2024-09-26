@@ -171,7 +171,7 @@ type
 implementation
 
 uses
-  SysUtils, MD5, ScintInt.InnoSetup;
+  SysUtils, SHA256, ScintInt.InnoSetup;
   
 { TIDEScintEdit }
 
@@ -401,11 +401,11 @@ procedure TIDEScintEdit.UpdateIndicators(const Ranges: TScintRangeList;
   function HashRanges(const Ranges: TScintRangeList): String;
   begin
     if Ranges.Count > 0 then begin
-      var Context: TMD5Context;
-      MD5Init(Context);
+      var Context: TSHA256Context;
+      SHA256Init(Context);
       for var Range in Ranges do
-        MD5Update(Context, Range, SizeOf(Range));
-      Result := MD5DigestToString(MD5Final(Context));
+        SHA256Update(Context, Range, SizeOf(Range));
+      Result := SHA256DigestToString(SHA256Final(Context));
     end else
       Result := '';
   end;

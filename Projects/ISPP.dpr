@@ -33,6 +33,7 @@ uses
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   MD5 in '..\Components\MD5.pas',
   SHA1 in '..\Components\SHA1.pas',
+  SHA256 in '..\Components\SHA256.pas',
   Shared.Struct in 'Src\Shared.Struct.pas';
   
 {$IMAGEBASE $01800000}

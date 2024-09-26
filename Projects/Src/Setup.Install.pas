@@ -31,7 +31,7 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA1, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Compression.Base, SHA256, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
@@ -237,12 +237,12 @@ begin
     Result := '(invalid)';
 end;
 
-function TryToGetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String;
-  var Sum: TSHA1Digest): Boolean;
-{ Like GetSHA1OfFile but traps exceptions locally. Returns True if successful. }
+function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
+  var Sum: TSHA256Digest): Boolean;
+{ Like GetSHA256OfFile but traps exceptions locally. Returns True if successful. }
 begin
   try
-    Sum := GetSHA1OfFile(DisableFsRedir, Filename);
+    Sum := GetSHA256OfFile(DisableFsRedir, Filename);
     Result := True;
   except
     Result := False;
@@ -877,17 +877,17 @@ var
 
   procedure BindUninstallMsgDataToExe(const F: TFile);
   var
-    UniqueValue: TSHA1Digest;
+    UniqueValue: TSHA256Digest;
     UninstallerMsgTail: TUninstallerMsgTail;
   begin
     F.SeekToEnd;
 
     { First append the hash of AppId so that unins*.exe files from different
-      applications won't have the same MD5 sum. This is done to combat broken
-      anti-spyware programs that catch all unins*.exe files with certain MD5
+      applications won't have the same file hash. This is done to combat broken
+      anti-spyware programs that catch all unins*.exe files with certain hash
       sums just because some piece of spyware was deployed with Inno Setup and
       had the unins*.exe file in its directory. }
-    UniqueValue := GetSHA1OfUnicodeString(ExpandedAppId);
+    UniqueValue := GetSHA256OfUnicodeString(ExpandedAppId);
     F.WriteBuffer(UniqueValue, SizeOf(UniqueValue));
 
     UninstallerMsgTail.ID := UninstallerMsgTailID;
@@ -1080,7 +1080,7 @@ var
     CurFileVersionInfoValid: Boolean;
     CurFileVersionInfo, ExistingVersionInfo: TFileVersionNumbers;
     CurFileDateValid, ExistingFileDateValid: Boolean;
-    CurFileHash, ExistingFileHash: TSHA1Digest;
+    CurFileHash, ExistingFileHash: TSHA256Digest;
     IsProtectedFile, AllowTimeStampComparison: Boolean;
     DeleteFlags: Longint;
     CurFileDate, ExistingFileDate: TFileTime;
@@ -1254,27 +1254,27 @@ var
                    (ExistingVersionInfo.LS = CurFileVersionInfo.LS) and
                    not(foOverwriteSameVersion in CurFile^.Options) then begin
                   if foReplaceSameVersionIfContentsDiffer in CurFile^.Options then begin
-                    { Get the two files' SHA-1 hashes and compare them }
-                    if TryToGetSHA1OfFile(DisableFsRedir, DestFile, ExistingFileHash) then begin
+                    { Get the two files' SHA-256 hashes and compare them }
+                    if TryToGetSHA256OfFile(DisableFsRedir, DestFile, ExistingFileHash) then begin
                       if Assigned(CurFileLocation) then
-                        CurFileHash := CurFileLocation^.SHA1Sum
+                        CurFileHash := CurFileLocation^.SHA256Sum
                       else begin
                         LastOperation := SetupMessages[msgErrorReadingSource];
-                        { This GetSHA1OfFile call could raise an exception, but
+                        { This GetSHA256OfFile call could raise an exception, but
                           it's very unlikely since we were already able to
                           successfully read the file's version info. }
-                        CurFileHash := GetSHA1OfFile(DisableFsRedir, ASourceFile);
+                        CurFileHash := GetSHA256OfFile(DisableFsRedir, ASourceFile);
                         LastOperation := SetupMessages[msgErrorReadingExistingDest];
                       end;
-                      { If the two files' SHA-1 hashes are equal, skip the file }
-                      if SHA1DigestsEqual(ExistingFileHash, CurFileHash) then begin
-                        Log('Existing file''s SHA-1 hash matches our file. Skipping.');
+                      { If the two files' SHA-256 hashes are equal, skip the file }
+                      if SHA256DigestsEqual(ExistingFileHash, CurFileHash) then begin
+                        Log('Existing file''s SHA-256 hash matches our file. Skipping.');
                         goto Skip;
                       end;
-                      Log('Existing file''s SHA-1 hash is different from our file. Proceeding.');
+                      Log('Existing file''s SHA-256 hash is different from our file. Proceeding.');
                     end
                     else
-                      Log('Failed to read existing file''s SHA-1 hash. Proceeding.');
+                      Log('Failed to read existing file''s SHA-256 hash. Proceeding.');
                   end
                   else begin
                     { Skip the file or fall back to time stamp comparison }
@@ -3511,7 +3511,8 @@ begin
 
   { Prepare directory }
   if FileExists(DestFile) then begin
-    if (RequiredSHA256OfFile <> '') and (RequiredSHA256OfFile = GetSHA256OfFile(DisableFsRedir, DestFile)) then begin
+    if (RequiredSHA256OfFile <> '') and
+       (RequiredSHA256OfFile = SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
@@ -3574,7 +3575,7 @@ begin
       { Check hash if specified, otherwise check everything else we can check }
       if RequiredSHA256OfFile <> '' then begin
         try
-          SHA256OfFile := GetSHA256OfFile(DisableFsRedir, TempFile);
+          SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
         except on E: Exception do
           raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
         end;

@@ -237,15 +237,15 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, SHA256,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
-  Shared.FileClass, Setup.LoggingFunc, SHA1, ActiveX,
+  Shared.FileClass, Setup.LoggingFunc,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
-  Setup.DotNetFunc, Shared.TaskDialogFunc, RegStr, Setup.MainForm;
+  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -373,15 +373,15 @@ end;
 
 function TestPassword(const Password: String): Boolean;
 var
-  Context: TSHA1Context;
-  Hash: TSHA1Digest;
+  Context: TSHA256Context;
+  Hash: TSHA256Digest;
 begin
-  SHA1Init(Context);
-  SHA1Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
-  SHA1Update(Context, SetupHeader.PasswordSalt, SizeOf(SetupHeader.PasswordSalt));
-  SHA1Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
-  Hash := SHA1Final(Context);
-  Result := SHA1DigestsEqual(Hash, SetupHeader.PasswordHash);
+  SHA256Init(Context);
+  SHA256Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
+  SHA256Update(Context, SetupHeader.PasswordSalt, SizeOf(SetupHeader.PasswordSalt));
+  SHA256Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
+  Hash := SHA256Final(Context);
+  Result := SHA256DigestsEqual(Hash, SetupHeader.PasswordHash);
 end;
 
 class function TDummyClass.ExpandCheckOrInstallConstant(Sender: TSimpleExpression;

@@ -21,8 +21,8 @@ implementation
 
 uses
   SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
-  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, PathFunc, Shared.CommonFunc,
-  Shared.Int64Em, Hash;
+  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, SHA256, PathFunc, Shared.CommonFunc,
+  Shared.Int64Em;
   
 var
   IsWin64: Boolean;
@@ -1802,12 +1802,27 @@ end;
 
 function GetSHA256OfFile(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  Buf: array[0..65535] of Byte;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeStr(ResPtr^, THashSHA2.GetHashStringFromFile(Get(0).AsStr, SHA256));
+      var Context: TSHA256Context;
+      SHA256Init(Context);
+      var F := TFile.Create(PrependPath(Ext, Get(0).AsStr), fdOpenExisting, faRead, fsReadWrite);
+      try
+        while True do begin
+          var NumRead := F.Read(Buf, SizeOf(Buf));
+          if NumRead = 0 then
+            Break;
+          SHA256Update(Context, Buf, NumRead);
+        end;
+      finally
+        F.Free;
+      end;
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Final(Context)));
     end;
   except
     on E: Exception do
@@ -1826,14 +1841,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      var M := TMemoryStream.Create;
-      try
-        M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
-        M.Seek(0, soFromBeginning);
-        MakeStr(ResPtr^, THashSHA2.GetHashString(M, SHA256));
-      finally
-        M.Free;
-      end;
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1852,14 +1860,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      var M := TMemoryStream.Create;
-      try
-        M.Write(Pointer(S)^, Length(S)*SizeOf(S[1]));
-        M.Seek(0, soFromBeginning);
-        MakeStr(ResPtr^, THashSHA2.GetHashString(M, SHA256));
-      finally
-        M.Free;
-      end;
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
