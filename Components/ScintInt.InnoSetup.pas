@@ -12,9 +12,6 @@ unit ScintInt.InnoSetup;
 interface
 
 const
-  SCI_LINEINDENT = 2813;
-  SCI_LINEDEDENT = 2814;
-
   SC_MARK_BACKFORE = 34;
   SC_CMDKEYS_DEFAULT = 0;
   SC_CMDKEYS_VSCODE_WINDOWS = 1;
