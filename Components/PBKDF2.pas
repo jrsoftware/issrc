@@ -14,7 +14,6 @@ interface
 uses
   System.SysUtils;
 
-
 function PBKDF2SHA256(const Password, Salt: TBytes; const Iterations, KeyLength: Integer): TBytes; overload;
 function PBKDF2SHA256(const Password: String; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes; overload;
 
@@ -71,7 +70,7 @@ end;
 
 {$C+}
 
-procedure TestPBKDF2SHA;
+procedure TestPBKDF2SHA256;
 
   function AnsiStringToBytes(const S: AnsiString): TBytes;
   begin
@@ -109,7 +108,7 @@ begin
 end;
 
 initialization
-  TestPBKDF2SHA;
+  TestPBKDF2SHA256;
 
 {$ENDIF}
 
