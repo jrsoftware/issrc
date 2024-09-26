@@ -227,7 +227,8 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-function TestPassword(const Password: String): Boolean;
+procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
+function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
@@ -237,7 +238,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, SHA256,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, SHA256, ChaCha20,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -371,17 +372,24 @@ begin
   Result := -1;
 end;
 
-function TestPassword(const Password: String): Boolean;
-var
-  Context: TSHA256Context;
-  Hash: TSHA256Digest;
+procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
 begin
-  SHA256Init(Context);
-  SHA256Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
-  SHA256Update(Context, SetupHeader.PasswordSalt, SizeOf(SetupHeader.PasswordSalt));
-  SHA256Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
-  Hash := SHA256Final(Context);
-  Result := SHA256DigestsEqual(Hash, SetupHeader.PasswordHash);
+  Key := SHA256Buf(Pointer(Password)^, Length(Password)*SizeOf(Password[1]))
+end;
+
+{ This function assumes EncryptionKey is based on the password }
+function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
+begin
+  { Do same as compiler did in GeneratePasswordTest and compare results }
+  var Nonce := SetupHeader.EncryptionBaseNonce;
+  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
+
+  var Context: TChaCha20Context;
+  XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
+  var PasswordTest := 0;
+  XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
+
+  Result := PasswordTest = SetupHeader.PasswordTest;
 end;
 
 class function TDummyClass.ExpandCheckOrInstallConstant(Sender: TSimpleExpression;
@@ -2691,15 +2699,17 @@ var
     if NeedPassword and (InitPassword <> '') then begin
       PasswordOk := False;
       S := InitPassword;
+      var CryptKey: TSetupEncryptionKey;
+      GenerateEncryptionKey(S, CryptKey);
       if shPassword in SetupHeader.Options then
-        PasswordOk := TestPassword(S);
+        PasswordOk := TestPassword(CryptKey);
       if not PasswordOk and (CodeRunner <> nil) then
         PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
         if shEncryptionUsed in SetupHeader.Options then
-          FileExtractor.CryptKey := S;
+          FileExtractor.CryptKey := CryptKey;
       end;
     end;
   end;

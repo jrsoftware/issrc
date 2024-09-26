@@ -28,12 +28,14 @@ type
     FNeedReset: Boolean;
     FChunkCompressed, FChunkEncrypted: Boolean;
     FCryptContext: TChaCha20Context;
-    FCryptKey: String;
+    FCryptKey: TSetupEncryptionKey;
+    FCryptKeySet: Boolean;
     FEntered: Integer;
     procedure DecompressBytes(var Buffer; Count: Cardinal);
     class function FindSliceFilename(const ASlice: Integer): String;
     procedure OpenSlice(const ASlice: Integer);
     function ReadProc(var Buf; Count: Longint): Longint;
+    procedure SetCryptKey(const Value: TSetupEncryptionKey);
   public
     constructor Create(ADecompressorClass: TCustomDecompressorClass);
     destructor Destroy; override;
@@ -41,7 +43,7 @@ type
       const ProgressProc: TExtractorProgressProc; const VerifyChecksum: Boolean);
     procedure SeekTo(const FL: TSetupFileLocationEntry;
       const ProgressProc: TExtractorProgressProc);
-    property CryptKey: String write FCryptKey;
+    property CryptKey: TSetupEncryptionKey write SetCryptKey;
   end;
 
 function FileExtractor: TFileExtractor;
@@ -98,6 +100,12 @@ begin
   FDecompressor[True].Free;
   FDecompressor[False].Free;
   inherited;
+end;
+
+procedure TFileExtractor.SetCryptKey(const Value: TSetupEncryptionKey);
+begin
+  FCryptKey := Value;
+  FCryptKeySet := True;
 end;
 
 var
@@ -190,15 +198,12 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
 
   procedure InitDecryption;
   begin
-    { Initialize the key, which is the SHA-256 hash of FCryptKey }
-    var Key := SHA256Buf(Pointer(FCryptKey)^, Length(FCryptKey)*SizeOf(FCryptKey[1]));
-
     { Recreate the unique nonce from the base nonce }
     var Nonce := SetupHeader.EncryptionBaseNonce;
     Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
     Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
-    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
+    XChaCha20Init(FCryptContext, FCryptKey[0], Length(FCryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
   procedure Discard(Count: Integer64);
@@ -232,7 +237,7 @@ begin
     InternalError('Cannot call file extractor recursively');
   Inc(FEntered);
   try
-    if (foChunkEncrypted in FL.Flags) and (FCryptKey = '') then
+    if (foChunkEncrypted in FL.Flags) and not FCryptKeySet then
       InternalError('Cannot read an encrypted file before the key has been set');
 
     { Is the file in a different chunk than the current one?

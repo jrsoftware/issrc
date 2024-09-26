@@ -19,7 +19,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Generics.Collections,
-  SimpleExpression, SHA256,
+  SimpleExpression, SHA256, ChaCha20,
   Shared.Struct, Shared.CompilerInt, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
@@ -111,7 +111,7 @@ type
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
     DontMergeDuplicateFiles: Boolean;
-    CryptKey: String;
+    CryptKey: TSHA256Digest;
     TimeStampsInUTC: Boolean;
     TimeStampRounding: Integer;
     TouchDateOption: (tdCurrent, tdNone, tdExplicit);
@@ -271,7 +271,7 @@ type
     function GetDebugInfo: TMemoryStream;
     function GetDiskSliceSize:Longint;
     function GetDiskSpanning: Boolean;
-    function GetEncryptionBaseNonce: TSetupNonce;
+    function GetEncryptionBaseNonce: TSetupEncryptionNonce;
     function GetExeFilename: String;
     function GetLineFilename: String;
     function GetLineNumber: Integer;
@@ -597,7 +597,7 @@ begin
   Result := DiskSpanning;
 end;
 
-function TSetupCompiler.GetEncryptionBaseNonce: TSetupNonce;
+function TSetupCompiler.GetEncryptionBaseNonce: TSetupEncryptionNonce;
 begin
   Result := SetupHeader.EncryptionBaseNonce;
 end;
@@ -2350,27 +2350,29 @@ var
     end;
   end;
 
-  procedure GeneratePasswordHashAndSalt(const Password: String;
-    var Hash: TSHA256Digest; var Salt: TSetupSalt);
-  var
-    Context: TSHA256Context;
-  begin
-    { Random salt is mixed into the password hash to make it more difficult
-      for someone to tell that two installations use the same password. A
-      fixed string is also mixed in "just in case" the system's RNG is
-      broken -- this hash must never be the same as the hash used for
-      encryption. }
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-    SHA256Init(Context);
-    SHA256Update(Context, PAnsiChar('PasswordCheckHash')^, Length('PasswordCheckHash'));
-    SHA256Update(Context, Salt, SizeOf(Salt));
-    SHA256Update(Context, Pointer(Password)^, Length(Password)*SizeOf(Password[1]));
-    Hash := SHA256Final(Context);
-  end;
-
-  procedure GenerateEncryptionBaseNonce(var Nonce: TSetupNonce);
+  procedure GenerateEncryptionBaseNonce(var Nonce: TSetupEncryptionNonce);
   begin
     GenerateRandomBytes(Nonce, SizeOf(Nonce));
+  end;
+
+  procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
+  begin
+    Key := SHA256Buf(Pointer(Password)^, Length(Password)*SizeOf(Password[1]))
+  end;
+
+  { This function assumes EncryptionKey is based on the password }
+  procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
+    const EncryptionBaseNonce: TSetupEncryptionNonce; var PasswordTest: Integer);
+  begin
+    { Create a special nonce that cannot collide with encrypted-file nonces }
+    var Nonce := EncryptionBaseNonce;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
+
+    { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
+    var Context: TChaCha20Context;
+    XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
+    PasswordTest := 0;
+    XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
   end;
 
   procedure StrToTouchDate(const S: String);
@@ -2813,11 +2815,8 @@ begin
     ssEnableDirDoesntExistWarning: begin
         SetSetupHeaderOption(shEnableDirDoesntExistWarning);
       end;
-    ssEncryption:
-      begin
+    ssEncryption: begin
         SetSetupHeaderOption(shEncryptionUsed);
-        if shEncryptionUsed in SetupHeader.Options then
-          GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
       end;
     ssExtraDiskSpaceRequired: begin
         if not StrToInteger64(Value, SetupHeader.ExtraDiskSpaceRequired) then
@@ -2929,9 +2928,9 @@ begin
       end;
     ssPassword: begin
         if Value <> '' then begin
-          CryptKey := Value;
-          GeneratePasswordHashAndSalt(Value, SetupHeader.PasswordHash,
-            SetupHeader.PasswordSalt);
+          GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
+          GenerateEncryptionKey(Value, CryptKey);
+          GeneratePasswordTest(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
           Include(SetupHeader.Options, shPassword);
         end;
       end;
@@ -7559,7 +7558,7 @@ begin
       else
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
-    if (shEncryptionUsed in SetupHeader.Options) and (CryptKey = '') then begin
+    if (shEncryptionUsed in SetupHeader.Options) and not (shPassword in SetupHeader.Options) then begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;

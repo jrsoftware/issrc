@@ -2286,15 +2286,17 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   begin
     Result := False;
     S := PasswordEdit.Text;
+    var CryptKey: TSetupEncryptionKey;
+    GenerateEncryptionKey(S, CryptKey);
     if shPassword in SetupHeader.Options then
-      Result := TestPassword(S);
+      Result := TestPassword(CryptKey);
     if not Result and (CodeRunner <> nil) then
       Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
       if shEncryptionUsed in SetupHeader.Options then
-        FileExtractor.CryptKey := S;
+        FileExtractor.CryptKey := CryptKey;
       PasswordEdit.Text := '';
     end else begin
       { Delay for 750 ms when an incorrect password is entered to

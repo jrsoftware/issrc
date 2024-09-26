@@ -12,7 +12,7 @@ unit Compiler.CompressionHandler;
 interface
 
 uses
-  SHA256, ChaCha20, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
   Compiler.StringLists, Compiler.SetupCompiler;
 
 type
@@ -45,7 +45,7 @@ type
     procedure Finish;
     procedure NewChunk(const ACompressorClass: TCustomCompressorClass;
       const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
-      const AUseEncryption: Boolean; const ACryptKey: String);
+      const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
     procedure ProgressProc(BytesProcessed: Cardinal);
     function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
     procedure WriteProc(const Buf; BufSize: Longint);
@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  SysUtils, Shared.Struct, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Compiler.Messages, Compiler.HelperFunc;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);
@@ -161,7 +161,7 @@ end;
 
 procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressorClass;
   const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
-  const AUseEncryption: Boolean; const ACryptKey: String);
+  const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
 
   procedure SelectCompressor;
   var
@@ -190,15 +190,12 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
 
   procedure InitEncryption;
   begin
-    { Create an SHA-256 hash of ACryptKey, and use that as the key }
-    var Key := SHA256Buf(Pointer(ACryptKey)^, Length(ACryptKey)*SizeOf(ACryptKey[1]));
-
     { Create a unique nonce from the base nonce }
     var Nonce := FCompiler.GetEncryptionBaseNonce;
     Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
     Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
-    XChaCha20Init(FCryptContext, Key[0], Length(Key), Nonce, SizeOf(Nonce), 0);
+    XChaCha20Init(FCryptContext, ACryptKey[0], Length(ACryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
 var
