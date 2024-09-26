@@ -291,7 +291,7 @@ implementation
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib, SHA1,
+  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
@@ -6999,7 +6999,7 @@ var
             Include(FL.Flags, foCallInstructionOptimized);
 
           CH.CompressFile(SourceFile, FL.OriginalSize,
-            foCallInstructionOptimized in FL.Flags, FL.SHA1Sum);
+            foCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
         finally
           SourceFile.Free;
         end;
@@ -7125,7 +7125,7 @@ var
       end;
     end else begin
       Filename := SignedUninstallerDir + Format('uninst-%s-%s.e32', [SetupVersion,
-        Copy(SHA1DigestToString(SHA1Buf(UnsignedFile.Memory^, UnsignedFileSize)), 1, 10)]);
+        Copy(SHA256DigestToString(SHA256Buf(UnsignedFile.Memory^, UnsignedFileSize)), 1, 10)]);
 
       if not NewFileExists(Filename) then begin
         { Create new signed uninstaller file }
@@ -7272,7 +7272,7 @@ var
       fdCreateAlways, faWrite, fsRead);
     try
       S := 'Index' + #9 + 'SourceFilename' + #9 + 'TimeStamp' + #9 +
-        'Version' + #9 + 'SHA1Sum' + #9 + 'OriginalSize' + #9 +
+        'Version' + #9 + 'SHA256Sum' + #9 + 'OriginalSize' + #9 +
         'FirstSlice' + #9 + 'LastSlice' + #9 + 'StartOffset' + #9 +
         'ChunkSuboffset' + #9 + 'ChunkCompressedSize' + #9 + 'Encrypted';
       F.WriteLine(S);
@@ -7285,7 +7285,7 @@ var
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
             FL.FileVersionLS and $FFFF]);
-        S := S + #9 + SHA1DigestToString(FL.SHA1Sum) + #9 +
+        S := S + #9 + SHA256DigestToString(FL.SHA256Sum) + #9 +
           Integer64ToStr(FL.OriginalSize) + #9 +
           SliceToString(FL.FirstSlice) + #9 +
           SliceToString(FL.LastSlice) + #9 +

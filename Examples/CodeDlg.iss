@@ -153,7 +153,7 @@ begin
     finally
       ProgressPage.Hide;
     end;
-    if GetSHA1OfString('codedlg' + KeyPage.Values[0]) = '8013f310d340dab18a0d0cda2b5b115d2dcd97e4' then
+    if GetSHA256OfString('codedlg' + KeyPage.Values[0]) = '4c06e466ec3a2c977ac902a6cf4c602457f701b59309fc4282d9cb2234b7559b' then
       Result := True
     else begin
       MsgBox('You must enter a valid registration key. (Hint: The key is "inno".)', mbError, MB_OK);

@@ -49,7 +49,7 @@ var
 implementation
 
 uses
-  Forms, Graphics, ShlObj, MD5, RestartManager,
+  Forms, Graphics, ShlObj, SHA256, RestartManager,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc, Setup.Install,
   Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc;
@@ -328,7 +328,7 @@ function TMainForm.Install: Boolean;
   procedure ProcessRunEntries;
   var
     CheckIfRestartNeeded: Boolean;
-    ChecksumBefore, ChecksumAfter: TMD5Digest;
+    ChecksumBefore, ChecksumAfter: TSHA256Digest;
     WindowDisabler: TWindowDisabler;
     I: Integer;
     RunEntry: PSetupRunEntry;
@@ -388,7 +388,7 @@ function TMainForm.Install: Boolean;
         WindowDisabler.Free;
         if CheckIfRestartNeeded then begin
           ChecksumAfter := MakePendingFileRenameOperationsChecksum;
-          if not MD5DigestsEqual(ChecksumBefore, ChecksumAfter) then
+          if not SHA256DigestsEqual(ChecksumBefore, ChecksumAfter) then
             NeedsRestart := True;
         end;
       end;

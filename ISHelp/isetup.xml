@@ -5030,7 +5030,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies a password you want to prompt the user for at the beginning of the installation.</p>
 <p>When using a password, you might consider setting <link topic="setup_encryption">Encryption</link> to <tt>yes</tt> as well, otherwise files will be stored as plain text and it would not be exceedingly difficult for someone to gain access to them through reverse engineering.</p>
-<p>The password itself is not stored as clear text; it's stored as a 160-bit SHA-1 hash, salted with a 64-bit random number. (Note: When encryption is enabled, this stored hash is <i>not</i> used for the encryption key.)</p>
+<p>The password itself is not stored as clear text; it's stored as a SHA-256 hash, salted with a 64-bit random number. (Note: When encryption is enabled, this stored hash is <i>not</i> used for the encryption key.)</p>
 </body>
 </setuptopic>
 

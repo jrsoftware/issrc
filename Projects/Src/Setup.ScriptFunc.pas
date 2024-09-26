@@ -25,7 +25,7 @@ uses
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
-  Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, SHA256, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,
   Shared.DotNetVersion, Setup.MsiFunc, BitmapImage;
 
@@ -849,6 +849,71 @@ begin
 end;
 
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
+
+  function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
+  { Gets MD5 sum of the file Filename. An exception will be raised upon
+    failure. }
+  var
+    Buf: array[0..65535] of Byte;
+  begin
+    var Context: TMD5Context;
+    MD5Init(Context);
+    var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+    try
+      while True do begin
+        var NumRead := F.Read(Buf, SizeOf(Buf));
+        if NumRead = 0 then
+          Break;
+        MD5Update(Context, Buf, NumRead);
+      end;
+    finally
+      F.Free;
+    end;
+    Result := MD5Final(Context);
+  end;
+
+  function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+  { Gets SHA-1 sum of the file Filename. An exception will be raised upon
+    failure. }
+  var
+    Buf: array[0..65535] of Byte;
+  begin
+    var Context: TSHA1Context;
+    SHA1Init(Context);
+    var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+    try
+      while True do begin
+        var NumRead := F.Read(Buf, SizeOf(Buf));
+        if NumRead = 0 then
+          Break;
+        SHA1Update(Context, Buf, NumRead);
+      end;
+    finally
+      F.Free;
+    end;
+    Result := SHA1Final(Context);
+  end;
+
+  function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
+  begin
+    Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  end;
+
+  function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
+  begin
+    Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  end;
+
+  function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
+  begin
+    Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  end;
+
+  function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
+  begin
+    Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+end;
+
 var
   PStart: Cardinal;
   Filename: String;
@@ -890,11 +955,11 @@ begin
   end else if Proc.Name = 'GETSHA1OFUNICODESTRING' then begin
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfUnicodeString(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA256OFFILE' then begin
-    Stack.SetString(PStart, GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+    Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA256OFSTRING' then begin
-    Stack.SetString(PStart, GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1)));
+    Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
   end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
-    Stack.SetString(PStart, GetSHA256OfUnicodeString(Stack.GetString(PStart-1)));
+    Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfUnicodeString(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSPACEONDISK' then begin
     if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
       if Stack.GetBool(PStart-2) then begin
@@ -999,7 +1064,7 @@ begin
   end else if Proc.Name = 'ISPROTECTEDSYSTEMFILE' then begin
     Stack.SetBool(PStart, IsProtectedSystemFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
   end else if Proc.Name = 'MAKEPENDINGFILERENAMEOPERATIONSCHECKSUM' then begin
-    Stack.SetString(PStart, MD5DigestToString(MakePendingFileRenameOperationsChecksum));
+    Stack.SetString(PStart, SHA256DigestToString(MakePendingFileRenameOperationsChecksum));
   end else if Proc.Name = 'MODIFYPIFFILE' then begin
     Stack.SetBool(PStart, ModifyPifFile(Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
   end else if Proc.Name = 'REGISTERSERVER' then begin
