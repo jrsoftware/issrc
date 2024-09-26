@@ -37,7 +37,7 @@ procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
 implementation
 
 uses
-  SysUtils;
+  System.SysUtils;
 
 {$C+}
 
