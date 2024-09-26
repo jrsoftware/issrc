@@ -104,8 +104,6 @@
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
-        <DCCReference Include="..\Components\MD5.pas"/>
-        <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>

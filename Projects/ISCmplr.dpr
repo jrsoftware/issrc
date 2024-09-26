@@ -38,8 +38,6 @@ uses
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
-  MD5 in '..\Components\MD5.pas',
-  SHA1 in '..\Components\SHA1.pas',
   SHA256 in '..\Components\SHA256.pas',
   Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
   Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',

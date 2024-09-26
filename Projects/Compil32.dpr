@@ -64,8 +64,6 @@ uses
   Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
-  MD5 in '..\Components\MD5.pas',
-  SHA1 in '..\Components\SHA1.pas',
   SHA256 in '..\Components\SHA256.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas',
