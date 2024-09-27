@@ -41,7 +41,7 @@ function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes;
+  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, SetupLdrAndSetup.RedirFunc;
 
 function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSecurityDescriptor: PWideChar;

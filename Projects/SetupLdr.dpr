@@ -28,7 +28,6 @@ uses
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA256 in '..\Components\SHA256.pas',
   SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
-  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
 
 {$SETPEOSVERSION 6.1}
