@@ -111,7 +111,7 @@ type
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
     DontMergeDuplicateFiles: Boolean;
-    CryptKey: TSHA256Digest;
+    CryptKey: TSetupEncryptionKey;
     TimeStampsInUTC: Boolean;
     TimeStampRounding: Integer;
     TouchDateOption: (tdCurrent, tdNone, tdExplicit);
@@ -2350,19 +2350,19 @@ var
     end;
   end;
 
-  procedure GenerateEncryptionBaseNonce(var Nonce: TSetupEncryptionNonce);
+  procedure GenerateEncryptionKDFSalt(out Salt: TSetupKDFSalt);
+  begin
+    GenerateRandomBytes(Salt, SizeOf(Salt));
+  end;
+
+  procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
   begin
     GenerateRandomBytes(Nonce, SizeOf(Nonce));
   end;
 
-  procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
-  begin
-    Key := SHA256Buf(Pointer(Password)^, Length(Password)*SizeOf(Password[1]))
-  end;
-
   { This function assumes EncryptionKey is based on the password }
   procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
-    const EncryptionBaseNonce: TSetupEncryptionNonce; var PasswordTest: Integer);
+    const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
   begin
     { Create a special nonce that cannot collide with encrypted-file nonces }
     var Nonce := EncryptionBaseNonce;
@@ -2928,8 +2928,9 @@ begin
       end;
     ssPassword: begin
         if Value <> '' then begin
+          GenerateEncryptionKDFSalt(SetupHeader.EncryptionKDFSalt);
+          GenerateEncryptionKey(Value,  SetupHeader.EncryptionKDFSalt, CryptKey);
           GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
-          GenerateEncryptionKey(Value, CryptKey);
           GeneratePasswordTest(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
           Include(SetupHeader.Options, shPassword);
         end;

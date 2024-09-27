@@ -2290,7 +2290,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
     S := PasswordEdit.Text;
     var CryptKey: TSetupEncryptionKey;
-    GenerateEncryptionKey(S, CryptKey);
+    GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
     if shPassword in SetupHeader.Options then
       Result := TestPassword(CryptKey);
     if not Result and (CodeRunner <> nil) then

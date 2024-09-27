@@ -68,7 +68,8 @@ type
     shWizardResizable, shUninstallLogging);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
-  TSetupEncryptionKey = TSHA256Digest;
+  TSetupKDFSalt = array[0..15] of Byte;
+  TSetupEncryptionKey = array[0..31] of Byte;
   TSetupEncryptionNonce = record
     RandomXorStartOffset: Int64;
     RandomXorFirstSlice: Int32;
@@ -110,6 +111,7 @@ type
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordTest: Integer;
+    EncryptionKDFSalt: TSetupKDFSalt;
     EncryptionBaseNonce: TSetupEncryptionNonce;
     ExtraDiskSpaceRequired: Integer64;
     SlicesPerDisk: Integer;

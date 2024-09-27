@@ -227,7 +227,6 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
 function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
@@ -238,7 +237,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, SHA256, ChaCha20,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -370,11 +369,6 @@ begin
   end;
   
   Result := -1;
-end;
-
-procedure GenerateEncryptionKey(const Password: String; var Key: TSetupEncryptionKey);
-begin
-  Key := SHA256Buf(Pointer(Password)^, Length(Password)*SizeOf(Password[1]))
 end;
 
 { This function assumes EncryptionKey is based on the password }
@@ -2700,7 +2694,7 @@ var
       PasswordOk := False;
       S := InitPassword;
       var CryptKey: TSetupEncryptionKey;
-      GenerateEncryptionKey(S, CryptKey);
+      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(CryptKey);
       if not PasswordOk and (CodeRunner <> nil) then

@@ -91,7 +91,8 @@ uses
   Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   Setup.MsiFunc in 'Src\Setup.MsiFunc.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
-  NewUxTheme in '..\Components\NewUxTheme.pas';
+  NewUxTheme in '..\Components\NewUxTheme.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

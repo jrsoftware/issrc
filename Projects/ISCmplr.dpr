@@ -47,7 +47,8 @@ uses
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',
-  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas';
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

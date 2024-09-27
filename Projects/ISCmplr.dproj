@@ -114,6 +114,7 @@
         <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
