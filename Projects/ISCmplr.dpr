@@ -45,6 +45,7 @@ uses
   Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas';
 

@@ -7,19 +7,12 @@ unit Shared.SetupTypes;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Types and functions used by both ISCmplr-only and Setup-only units
-
-  Also used by Compil32, for autocompletion only
 }
 
 interface
 
 uses
   SysUtils, Classes, Shared.Struct;
-
-type
-  TSetupStep = (ssPreInstall, ssInstall, ssPostInstall, ssDone);
-
-  TUninstallStep = (usAppMutexCheck, usUninstall, usPostUninstall, usDone);
 
 const
   { Predefined page identifiers }

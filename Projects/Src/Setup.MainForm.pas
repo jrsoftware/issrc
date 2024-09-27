@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Shared.Struct, Setup.MainFunc, Setup.SetupForm, Shared.SetupTypes;
+  Shared.Struct, Setup.MainFunc, Setup.SetupForm, Shared.SetupSteps;
 
 type
   TMainForm = class(TSetupForm)
@@ -52,7 +52,7 @@ uses
   Forms, Graphics, ShlObj, SHA256, RestartManager,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc, Setup.Install,
-  Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc;
+  Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc, Shared.SetupTypes;
 
 {$R *.DFM}
 

@@ -21,13 +21,15 @@ implementation
 uses
   Windows, Shared.ScriptFunc,
   Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
-  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, Setup.MainFunc, PathFunc, Shared.CommonFunc.Vcl,
+  PathFunc, BrowseFunc, MD5, SHA1, SHA256, ASMInline, BitmapImage,
+  Shared.Struct, Setup.ScriptDlg, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
-  Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, Setup.NewDiskForm, BrowseFunc, Setup.WizardForm, Shared.VerInfoFunc,
-  Shared.SetupTypes, Shared.Int64Em, MD5, SHA1, SHA256, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
-  Setup.SpawnClient, Setup.UninstallProgressForm, ASMInline, Setup.DotNetFunc,
-  Shared.DotNetVersion, Setup.MsiFunc, BitmapImage;
+  Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
+  Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes, Shared.SetupSteps,
+  Shared.Int64Em, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.SpawnClient, Setup.UninstallProgressForm, Setup.DotNetFunc,
+  Shared.DotNetVersion, Setup.MsiFunc;
 
 var
   ScaleBaseUnitsInitialized: Boolean;

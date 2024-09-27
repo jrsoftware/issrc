@@ -99,6 +99,7 @@
         <DCCReference Include="Src\Setup.ScriptFunc.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Setup.ScriptRunner.pas"/>
         <DCCReference Include="Src\Setup.ScriptDlg.pas"/>
         <DCCReference Include="Src\Setup.ScriptClasses.pas"/>

@@ -21,7 +21,7 @@ uses
   Shared.CommonFunc, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
-  Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupTypes,
+  Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupSteps,
   Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer;
 
 type

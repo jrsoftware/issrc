@@ -142,7 +142,7 @@
         <DCCReference Include="Src\IDE.Wizard.WizardFormRegistryHelper.pas"/>
         <DCCReference Include="..\Components\ScintInt.InnoSetup.pas"/>
         <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
-        <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>

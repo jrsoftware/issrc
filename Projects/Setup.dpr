@@ -34,6 +34,7 @@ uses
   Setup.ScriptFunc in 'Src\Setup.ScriptFunc.pas',
   Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   Setup.ScriptRunner in 'Src\Setup.ScriptRunner.pas',
   Setup.ScriptDlg in 'Src\Setup.ScriptDlg.pas',
   Setup.ScriptClasses in 'Src\Setup.ScriptClasses.pas',

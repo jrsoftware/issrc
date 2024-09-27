@@ -111,6 +111,7 @@
         <DCCReference Include="Src\Shared.SetupEntFunc.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <BuildConfiguration Include="Base">

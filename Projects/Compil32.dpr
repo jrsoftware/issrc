@@ -62,7 +62,7 @@ uses
   IDE.Wizard.WizardFormRegistryHelper in 'Src\IDE.Wizard.WizardFormRegistryHelper.pas',
   ScintInt.InnoSetup in '..\Components\ScintInt.InnoSetup.pas',
   Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
-  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
   SHA256 in '..\Components\SHA256.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
