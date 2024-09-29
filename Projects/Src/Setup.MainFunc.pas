@@ -2691,7 +2691,7 @@ var
       var PasswordOk := False;
       var S := InitPassword;
       var CryptKey: TSetupEncryptionKey;
-      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
+      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(CryptKey);
       if not PasswordOk and (CodeRunner <> nil) then

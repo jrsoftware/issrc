@@ -112,6 +112,7 @@ type
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordTest: Integer;
     EncryptionKDFSalt: TSetupKDFSalt;
+    EncryptionKDFIterations: Integer;
     EncryptionBaseNonce: TSetupEncryptionNonce;
     ExtraDiskSpaceRequired: Integer64;
     SlicesPerDisk: Integer;

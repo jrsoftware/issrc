@@ -111,6 +111,7 @@ type
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
     DontMergeDuplicateFiles: Boolean;
+    Password: String;
     CryptKey: TSetupEncryptionKey;
     TimeStampsInUTC: Boolean;
     TimeStampRounding: Integer;
@@ -2350,31 +2351,6 @@ var
     end;
   end;
 
-  procedure GenerateEncryptionKDFSalt(out Salt: TSetupKDFSalt);
-  begin
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-  end;
-
-  procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
-  begin
-    GenerateRandomBytes(Nonce, SizeOf(Nonce));
-  end;
-
-  { This function assumes EncryptionKey is based on the password }
-  procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
-    const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
-  begin
-    { Create a special nonce that cannot collide with encrypted-file nonces }
-    var Nonce := EncryptionBaseNonce;
-    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
-
-    { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
-    var Context: TChaCha20Context;
-    XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-    PasswordTest := 0;
-    XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
-  end;
-
   procedure StrToTouchDate(const S: String);
   var
     P: PChar;
@@ -2818,6 +2794,17 @@ begin
     ssEncryption: begin
         SetSetupHeaderOption(shEncryptionUsed);
       end;
+    ssEncryptionKeyDerivation: begin
+        if Value = 'pbkdf2' then
+          SetupHeader.EncryptionKDFIterations := 100000
+        else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
+          I := StrToIntDef(Copy(Value, 8, Maxint), -1);
+          if I < 1 then
+            Invalid;
+          SetupHeader.EncryptionKDFIterations := I;
+        end else
+          Invalid;
+      end;
     ssExtraDiskSpaceRequired: begin
         if not StrToInteger64(Value, SetupHeader.ExtraDiskSpaceRequired) then
           Invalid;
@@ -2927,13 +2914,7 @@ begin
         OutputManifestFile := Value;
       end;
     ssPassword: begin
-        if Value <> '' then begin
-          GenerateEncryptionKDFSalt(SetupHeader.EncryptionKDFSalt);
-          GenerateEncryptionKey(Value,  SetupHeader.EncryptionKDFSalt, CryptKey);
-          GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
-          GeneratePasswordTest(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
-          Include(SetupHeader.Options, shPassword);
-        end;
+        Password := Value;
       end;
     ssPrivilegesRequired: begin
         if CompareText(Value, 'none') = 0 then
@@ -7320,6 +7301,31 @@ var
     SetFileTime(H, nil, nil, @FT);
   end;
 
+  procedure GenerateEncryptionKDFSalt(out Salt: TSetupKDFSalt);
+  begin
+    GenerateRandomBytes(Salt, SizeOf(Salt));
+  end;
+
+  procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
+  begin
+    GenerateRandomBytes(Nonce, SizeOf(Nonce));
+  end;
+
+  { This function assumes EncryptionKey is based on the password }
+  procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
+    const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
+  begin
+    { Create a special nonce that cannot collide with encrypted-file nonces }
+    var Nonce := EncryptionBaseNonce;
+    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
+
+    { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
+    var Context: TChaCha20Context;
+    XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
+    PasswordTest := 0;
+    XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
+  end;
+
 const
   BadFilePathChars = '/*?"<>|';
   BadFileNameChars = BadFilePathChars + ':';
@@ -7411,6 +7417,7 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
+    SetupHeader.EncryptionKDFIterations := 100000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -7559,7 +7566,7 @@ begin
       else
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
-    if (shEncryptionUsed in SetupHeader.Options) and not (shPassword in SetupHeader.Options) then begin
+    if (shEncryptionUsed in SetupHeader.Options) and (Password = '') then begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
@@ -7627,6 +7634,14 @@ begin
         MkDirs(SignedUninstallerDir);
       end;
       SignedUninstallerDir := AddBackslash(SignedUninstallerDir);
+    end;
+
+    if Password <> '' then begin
+      GenerateEncryptionKDFSalt(SetupHeader.EncryptionKDFSalt);
+      GenerateEncryptionKey(Password,  SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
+      GeneratePasswordTest(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
+      Include(SetupHeader.Options, shPassword);
     end;
 
     { Read text files }

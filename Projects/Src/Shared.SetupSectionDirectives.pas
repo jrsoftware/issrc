@@ -76,6 +76,7 @@ type
     ssDontMergeDuplicateFiles,
     ssEnableDirDoesntExistWarning,
     ssEncryption,
+    ssEncryptionKeyDerivation,
     ssExtraDiskSpaceRequired,
     ssFlatComponentsList,
     ssInfoAfterFile,

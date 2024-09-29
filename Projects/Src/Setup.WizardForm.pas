@@ -2294,7 +2294,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     var SaveCursor := GetCursor;
     SetCursor(LoadCursor(0, IDC_WAIT));
     try
-      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
+      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
     finally
       SetCursor(SaveCursor);
     end;
