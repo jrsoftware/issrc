@@ -5439,7 +5439,7 @@ DiskSliceSize=1457664
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>The 32-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using PBKDF2 with 100,000 iterations and a 128-bit random salt, and the 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
+<p>The 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using PBKDF2 with 100,000 iterations and a 128-bit random salt, and the 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 </body>
 </setuptopic>
 
