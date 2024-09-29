@@ -2683,16 +2683,13 @@ var
 
   function HandleInitPassword(const NeedPassword: Boolean): Boolean;
   { Handles InitPassword and returns the updated value of NeedPassword }
-  { Also see Wizard.CheckPassword }
-  var
-    S: String;
-    PasswordOk: Boolean;
+  { Also see WizardForm.CheckPassword }
   begin
     Result := NeedPassword;
 
     if NeedPassword and (InitPassword <> '') then begin
-      PasswordOk := False;
-      S := InitPassword;
+      var PasswordOk := False;
+      var S := InitPassword;
       var CryptKey: TSetupEncryptionKey;
       GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
       if shPassword in SetupHeader.Options then

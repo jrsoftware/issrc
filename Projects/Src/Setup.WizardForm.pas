@@ -2282,15 +2282,23 @@ end;
 procedure TWizardForm.NextButtonClick(Sender: TObject);
 
   function CheckPassword: Boolean;
-  { Also see Main.HandleInitPassword }
-  var
-    S: String;
-    SaveCursor: HCURSOR;
+  { Also see MainFunc.HandleInitPassword }
   begin
     Result := False;
-    S := PasswordEdit.Text;
+    var S := PasswordEdit.Text;
+
+    var Timer: TOneShotTimer;
+    Timer.Start(750); { See comment below }
+
     var CryptKey: TSetupEncryptionKey;
-    GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
+    var SaveCursor := GetCursor;
+    SetCursor(LoadCursor(0, IDC_WAIT));
+    try
+      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, CryptKey);
+    finally
+      SetCursor(SaveCursor);
+    end;
+
     if shPassword in SetupHeader.Options then
       Result := TestPassword(CryptKey);
     if not Result and (CodeRunner <> nil) then
@@ -2302,13 +2310,16 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
         FileExtractor.CryptKey := CryptKey;
       PasswordEdit.Text := '';
     end else begin
-      { Delay for 750 ms when an incorrect password is entered to
+      { Ensure a total time of 750 ms when an incorrect password is entered to
         discourage brute-force attempts }
       if Visible then begin
         SaveCursor := GetCursor;
         SetCursor(LoadCursor(0, IDC_WAIT));
-        Sleep(750);
-        SetCursor(SaveCursor);
+        try
+          Timer.SleepUntilExpired;
+        finally
+          SetCursor(SaveCursor);
+        end;
       end;
       LoggedMsgBox(SetupMessages[msgIncorrectPassword], '', mbError, MB_OK, True, IDOK);
       if Visible then begin

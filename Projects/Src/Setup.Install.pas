@@ -2904,22 +2904,19 @@ var
   end;
 
   procedure RenameUninstallExe;
-  var
-    RetriesLeft: Integer;
-    Timer: TOneShotTimer;
-    LastError: DWORD;
   begin
     { If the uninstall EXE wasn't extracted to a .tmp file because it isn't
       replacing an existing uninstall EXE, exit. }
     if UninstallTempExeFilename = '' then
       Exit;
     Log('Renaming uninstaller.');
-    RetriesLeft := 4;
+    var Timer: TOneShotTimer;
+    var RetriesLeft := 4;
     while True do begin
       Timer.Start(1000);
       if MoveFileReplace(UninstallTempExeFilename, UninstallExeFilename) then
         Break;
-      LastError := GetLastError;
+      var LastError := GetLastError;
       { Does the error code indicate that the file is possibly in use? }
       if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
         if RetriesLeft > 0 then begin
