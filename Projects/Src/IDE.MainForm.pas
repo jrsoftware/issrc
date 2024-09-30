@@ -5277,7 +5277,7 @@ begin
   FCallTipState.CurrentCallTipWord := '';
   var Line := FActiveMemo.CaretLineText;
   var Current := FActiveMemo.CaretPositionInLine;
-  var CalltipWordCharacters := FActiveMemo.WordCharsAsSet;
+  var CallTipWordCharacters := FActiveMemo.WordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
@@ -5299,16 +5299,16 @@ begin
       Dec(Current);
       Dec(Pos);
     end
-  until not ((Current > 0) and not CharInSet(Line[Current-1], CalltipWordCharacters));
+  until not ((Current > 0) and not CharInSet(Line[Current-1], CallTipWordCharacters));
   {$ZEROBASEDSTRINGS OFF}
   if Current <= 0 then
     Exit;
 
-	FCallTipState.StartCalltipWord := Current - 1;
+	FCallTipState.StartCallTipWord := Current - 1;
   {$ZEROBASEDSTRINGS ON}
-	while (FCallTipState.StartCalltipWord > 0) and CharInSet(Line[FCallTipState.StartCalltipWord-1], CalltipWordCharacters) do
+	while (FCallTipState.StartCallTipWord > 0) and CharInSet(Line[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCalltipWord > 0) and (Line[FCallTipState.StartCalltipWord-1] = '.');
+  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCallTipWord > 0) and (Line[FCallTipState.StartCallTipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(Line, Current);
@@ -5327,7 +5327,7 @@ begin
 
 	var Braces := 0;
 	var Commas := 0;
-	for var I := FCallTipState.StartCalltipWord to Current-1 do begin
+	for var I := FCallTipState.StartCallTipWord to Current-1 do begin
     {$ZEROBASEDSTRINGS ON}
 		if CharInSet(Line[I], ['(', '[']) then
       Inc(Braces)
