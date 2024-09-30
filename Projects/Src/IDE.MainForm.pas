@@ -406,6 +406,7 @@ type
       PauseOnDebuggerExceptions: Boolean;
       RunAsDifferentUser: Boolean;
       AutoAutoComplete: Boolean;
+      AutoAutoCompleteCode: Boolean;
       AutoCallTips: Boolean;
       UseSyntaxHighlighting: Boolean;
       ColorizeCompilerOutput: Boolean;
@@ -806,6 +807,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoAutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
+      FOptions.AutoAutoCompleteCode := Ini.ReadBool('Options', 'AutoCompleteCode', FOptions.AutoAutoComplete);
       FOptions.AutoCallTips := Ini.ReadBool('Options', 'AutoCallTips', True);
       FOptions.UseSyntaxHighlighting := Ini.ReadBool('Options', 'UseSynHigh', True);
       FOptions.ColorizeCompilerOutput := Ini.ReadBool('Options', 'ColorizeCompilerOutput', True);
@@ -4383,6 +4385,7 @@ begin
       Ini.WriteBool('Options', 'PauseOnDebuggerExceptions', FOptions.PauseOnDebuggerExceptions);
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
       Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoAutoComplete);
+      Ini.WriteBool('Options', 'AutoCompleteCode', FOptions.AutoAutoCompleteCode);
       Ini.WriteBool('Options', 'AutoCallTips', FOptions.AutoCallTips);
       Ini.WriteBool('Options', 'UseSynHigh', FOptions.UseSyntaxHighlighting);
       Ini.WriteBool('Options', 'ColorizeCompilerOutput', FOptions.ColorizeCompilerOutput);
@@ -5374,6 +5377,14 @@ procedure TMainForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
     Result := TScintEdit.RawStringIsBlank(S);
   end;
 
+  function AutoAutoComplete: Boolean;
+  begin
+    if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) = scCode then
+      Result := FOptions.AutoAutoCompleteCode
+    else
+      Result := FOptions.AutoAutoComplete;
+  end;
+
 var
   NewLine, PreviousLine, NewIndent, PreviousIndent: Integer;
 begin
@@ -5439,11 +5450,11 @@ begin
   if DoAutoComplete then begin
     case Ch of
       'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<':
-        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
+        if not FActiveMemo.AutoCompleteActive and AutoAutoComplete then
           InitiateAutoComplete(Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
-        (FOptions.AutoAutoComplete or FActiveMemo.AutoCompleteActive);
+        (AutoAutoComplete or FActiveMemo.AutoCompleteActive);
       FActiveMemo.CancelAutoComplete;
       if RestartAutoComplete then
         InitiateAutoComplete(Ch);
