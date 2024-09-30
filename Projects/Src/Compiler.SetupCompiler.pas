@@ -2796,7 +2796,7 @@ begin
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
-          SetupHeader.EncryptionKDFIterations := 100000
+          SetupHeader.EncryptionKDFIterations := 200000
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
           I := StrToIntDef(Copy(Value, 8, Maxint), -1);
           if I < 1 then
@@ -7417,7 +7417,7 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
-    SetupHeader.EncryptionKDFIterations := 100000;
+    SetupHeader.EncryptionKDFIterations := 200000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);

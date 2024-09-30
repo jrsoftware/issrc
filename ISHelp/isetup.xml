@@ -5447,10 +5447,10 @@ DiskSliceSize=1457664
 <keyword value="pbkdf2" />
 <setupvalid><tt>pbkdf2</tt><br/>
 <tt>pbkdf2/1</tt> through <tt>pbkdf2/2147483647</tt></setupvalid>
-<setupdefault><tt>pbkdf2/100000</tt></setupdefault>
+<setupdefault><tt>pbkdf2/200000</tt></setupdefault>
 <body>
 <p>This specifies the key derivation function to use to derive the encryption key from the value of <link topic="setup_password">Password</link>, and optionally its parameters.</p>
-<p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 100000.</p>
+<p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 200000.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_encryption">Encryption</link>
 </p>
