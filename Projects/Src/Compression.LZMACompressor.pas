@@ -6,7 +6,8 @@ unit Compression.LZMACompressor;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the islzma LZMA/LZMA2 compression DLL and EXEs, used by ISCmplr.
+  Interface to the islzma LZMA/LZMA2 compression DLL and EXEs in
+  Compression.LZMACompressor\islzma, used by ISCmplr.
 }
 
 interface

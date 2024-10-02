@@ -7,7 +7,7 @@ unit Compression.LZMA1SmallDecompressor;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ in
-  LzmaDecode, used by SetupLdr.
+  Compression.LZMA1SmallDecompressor\LzmaDecode, used by SetupLdr.
 }
 
 interface

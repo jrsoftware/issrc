@@ -6,8 +6,8 @@ unit Compression.LZMADecompressor;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the "new" LZMA/LZMA2 SDK decompression OBJs in lzma2\Decoder,
-  used by Setup.
+  Interface to the LZMA/LZMA2 SDK decompression OBJs in
+  Compression.LZMADecompressor\Lzma2Decode, used by Setup.
 }
 
 interface
