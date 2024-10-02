@@ -1,9 +1,16 @@
 /* 7zMain.c - Test application for 7z Decoder
 2024-02-28 : Igor Pavlov : Public domain */
 
+/* Changes by Martijn Laan for Inno Setup:
+   -Does not include <stdio.h> but instead defines fputs' prototype and a stdout dummy, allowing
+    the test application code to be embedded in another application (which should implement fputs)
+   Zero other changes */
+
 #include "Precomp.h"
 
-#include <stdio.h>
+int fputs(const char *s, void *stream);
+#define stdout 0
+
 #include <string.h>
 
 #ifndef USE_WINDOWS_FILE
