@@ -545,10 +545,13 @@ type
 
   TScintPixmap = class
   private
-    class var ColorCodes: String;
+    type
+      TPixmap = array of AnsiString;
+    class var
+      ColorCodes: String;
+    var
+      FPixmap: TPixmap;
     class constructor Create;
-    type TPixmap = array of AnsiString;
-    var FPixmap: TPixmap;
     function GetPixmap: Pointer;
   public
     procedure InitializeFromBitmap(const ABitmap: TBitmap; const TransparentColor: TColorRef);

@@ -41,10 +41,12 @@ type
   
   TRichEditViewer = class(TMemo)
   private
-    FUseRichEdit: Boolean;
-    FRichEditLoaded: Boolean;
-    FCallback: IRichEditOleCallback;
-    class var FCustomShellExecute: TRichEditViewerCustomShellExecute;
+    class var
+      FCustomShellExecute: TRichEditViewerCustomShellExecute;
+    var
+      FUseRichEdit: Boolean;
+      FRichEditLoaded: Boolean;
+      FCallback: IRichEditOleCallback;
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
