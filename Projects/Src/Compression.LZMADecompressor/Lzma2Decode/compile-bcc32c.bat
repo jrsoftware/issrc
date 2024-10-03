@@ -5,7 +5,7 @@ rem  Copyright (C) 1997-2024 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to compile  ISLzmaDec.c and ISLzma2Dec.c using Embarcadero's free
+rem  Batch file to compile ISLzmaDec.c using Embarcadero's free
 rem  C++ compiler from https://www.embarcadero.com/free-tools/ccompiler
 rem  with source debugging turned on
 
@@ -28,8 +28,8 @@ if "%BCCROOT%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-echo - Compiling ISLzmaDec.c and ISLzma2Dec.c
-"%BCCROOT%\bin\bcc32c.exe" -c -O2 -v ISLzmaDec.c ISLzma2Dec.c
+echo - Compiling ISLzmaDec.c
+"%BCCROOT%\bin\bcc32c.exe" -c -O2 -v ISLzmaDec.c
 if errorlevel 1 goto failed
 
 echo Success!
