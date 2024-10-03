@@ -36,6 +36,7 @@ begin
   Result := CreateDirectoryW(lpPathName, lpSecurityAttributes);
 end;
 
+{ Never actually called but still required by the linker }
 function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
@@ -55,6 +56,7 @@ begin
   Result := FileTimeToLocalFileTime(lpFileTime, lpLocalFileTime);
 end;
 
+{ Never actually called but still required by the linker }
 function __GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
 begin
   Result := GetFileSize(hFile, lpFileSizeHigh);
