@@ -94,7 +94,8 @@ const
   MaxDictionarySize = 1024 shl 20;  { 1 GB - same as ssLZMADictionarySize allows in Compile.pas }
 
 { Compiled by Visual Studio 2022 using compile.bat
-  To enable source debugging recompile using compile-bcc32c.bat }
+  To enable source debugging recompile using compile-bcc32c.bat
+  Note that in a speed test the code produced by bcc32c was about 33% slower }
 {$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj}
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
