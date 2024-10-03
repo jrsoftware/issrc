@@ -2,9 +2,10 @@
 2024-02-28 : Igor Pavlov : Public domain */
 
 /* Changes by Martijn Laan for Inno Setup:
-   -Does not include <stdio.h> but instead defines fputs' prototype and a stdout dummy, allowing
+   -Don't include <stdio.h> but instead define fputs' prototype and a stdout dummy, allowing
     the test application code to be embedded in another application (which should implement fputs)
-   Zero other changes */
+   -Use CP_UTF8 in PrintString
+   Otherwise unchanged */
 
 #include "Precomp.h"
 
@@ -261,7 +262,7 @@ static SRes PrintString(const UInt16 *s)
   Buf_Init(&buf);
   res = Utf16_To_Char(&buf, s
       #ifndef MY_USE_UTF8
-      , CP_OEMCP
+      , CP_UTF8
       #endif
       );
   if (res == SZ_OK)

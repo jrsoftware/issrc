@@ -67,7 +67,7 @@ end;
 
 function _fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 begin
-  Log(String(str));
+  Log(UTF8ToString(str));
   Result := 1;
 end;
 
