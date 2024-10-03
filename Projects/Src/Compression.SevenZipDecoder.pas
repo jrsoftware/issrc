@@ -28,7 +28,6 @@ uses
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
-//https://github.com/rust-lang/compiler-builtins/issues/403
 {$IFDEF VISUALSTUDIO}
 function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
@@ -119,6 +118,7 @@ begin
   Result := WideCharToMultiByte(CodePage, dwFlags, lpWideCharStr, cchWideChar, lpMultiByteStr, cchMultiByte, lpDefaultChar, lpUsedDefaultChar);
 end;
 
+//https://github.com/rust-lang/compiler-builtins/issues/403
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
 {$ELSE}
