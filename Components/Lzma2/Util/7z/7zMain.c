@@ -11,7 +11,7 @@
 #include "Precomp.h"
 
 int fputs(const char *s, void *stream);
-#define stdout 0
+#define stdout NULL
 
 #include <string.h>
 
