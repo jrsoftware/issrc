@@ -155,7 +155,7 @@ begin
   Result := StrComp(string1, string2);
 end;
 
-function _fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
+function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 begin
   Log(UTF8ToString(str));
   Result := 1;

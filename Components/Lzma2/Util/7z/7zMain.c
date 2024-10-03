@@ -2,17 +2,13 @@
 2024-02-28 : Igor Pavlov : Public domain */
 
 /* Changes by Martijn Laan for Inno Setup:
-   -Don't include <stdio.h> but instead define fputs' prototype and a stdout dummy, allowing
-    the test application code to be embedded in another application (which should implement fputs)
    -Use CP_UTF8 in PrintString
    -Change main to mainW to support Unicode archive names
    Otherwise unchanged */
 
 #include "Precomp.h"
 
-int fputs(const char *s, void *stream);
-#define stdout NULL
-
+#include <stdio.h>
 #include <string.h>
 
 #ifndef USE_WINDOWS_FILE

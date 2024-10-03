@@ -1,17 +1,20 @@
 /*
   IS7zDec.c, by Martijn Laan for Inno Setup
   This file is public domain (like the LZMA SDK)
+
+  7zMain.c + its dependencies + additional helper function used by Compression.SevenZipDecoder.pas
 */
+
+#include "../../../../Components/Lzma2/Util/7z/Precomp.h" /* Says it must be included first */
 
 #ifdef _MSC_VER
 
 /* Stop 7-Zip from using stdcall functions which will get unavoidable decorated names from
    MSVC's cl.exe which Delphi can't handle: first include windows.h and then hide the
    functions 7-Zip wants to use with macros pointing to cdecl prototypes. This will enable
-   is us to call the stdcall function from a cdecl implementation in Delphi and keeps the
+   us to call the stdcall function from a cdecl implementation in Delphi and keeps the
    rest of windows.h available to 7-Zip. */
 
-#include "../../../../Components/Lzma2/Util/7z/Precomp.h" /* Says it must be included first */
 #include "../../../../Components/Lzma2/7zWindows.h"
 
 BOOL _CreateDirectoryW(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
@@ -61,6 +64,24 @@ int _WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int
 
 #endif
 
+/* Stop 7-Zip from using fputs from stdio.c: first include stdio.h and then hide the
+   real fputs 7-Zip wants to use with a macro pointing to a renamed prototype. This will
+   enable us to log 7-Zip output from a cdecl implementation in Delphi and keeps the
+   rest of stdio.h available to 7-Zip.*/
+
+#include <stdio.h>
+
+int _fputs(char const* str, FILE* stream);
+#define fputs _fputs
+
+/* Stop 7-Zip from requiring stdout ("__acrt_iob_func"). Undef first to avoid warning. */
+
+#undef stdout
+#define stdout NULL
+
+/* Include all needed SDK code. None of these require changes for the helper function to
+   work but 7zMain.c was changed for better Unicode support */
+
 #include "../../../../Components/Lzma2/Util/7z/7zMain.c"
 
 #include "../../../../Components/Lzma2/7zAlloc.c"
@@ -77,6 +98,8 @@ int _WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int
 #include "../../../../Components/Lzma2/Delta.c"
 #include "../../../../Components/Lzma2/LzmaDec.c"
 #include "../../../../Components/Lzma2/Lzma2Dec.c"
+
+/* Finally the helper function */
 
 int IS_7zDec(WCHAR *fileName, BOOL fullPaths)
 {
