@@ -157,10 +157,40 @@ begin
   Result := StrComp(string1, string2);
 end;
 
-function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
+procedure Log(const S: AnsiString);
 begin
-  Log(UTF8ToString(str));
-  Result := 1;
+  if S <> '' then
+    Setup.LoggingFunc.Log(UTF8ToString(S));
+end;
+
+var
+  LogBuffer: AnsiString;
+
+function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
+
+  function FindNewLine(const S: AnsiString): Integer;
+  begin
+    { 7-Zip never sends #13 so this only checks for #10 }
+    var N := Length(S);
+    for var I := 1 to N do
+      if S[I] = #10 then
+        Exit(I);
+    Result := 0;
+  end;
+
+begin
+  try
+    LogBuffer := LogBuffer + str;
+    var P := FindNewLine(LogBuffer);
+    while P <> 0 do begin
+      Log(Copy(LogBuffer, 1, P-1));
+      Delete(LogBuffer, 1, P);
+      P := FindNewLine(LogBuffer);
+    end;
+    Result := 0;
+  except
+    Result := -1; { EOF }
+  end;
 end;
 
 procedure SevenZipDecode(const FileName, DestDir: String;
@@ -168,8 +198,14 @@ procedure SevenZipDecode(const FileName, DestDir: String;
 begin
   var SaveCurDir := GetCurrentDir;
   SetCurrentDir(DestDir);
-  IS_7zDec(PChar(FileName), FullPaths);
-  SetCurrentDir(SaveCurDir);
+  try
+    LogBuffer := '';
+    IS_7zDec(PChar(FileName), FullPaths);
+    if LogBuffer <> '' then
+      Log(LogBuffer);
+  finally
+    SetCurrentDir(SaveCurDir);
+  end;
 end;
 
 end.
