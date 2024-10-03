@@ -20,9 +20,9 @@ implementation
 uses
   Windows, SysUtils, Setup.LoggingFunc;
 
-{$L Src\Compression.SevenZipDecoder\7ZipDecode\IS7ZipDec.obj}
+{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
 
-function IS_7ZipDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7ZipDec';
+function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
 {.$DEFINE VISUALSTUDIO}
 
@@ -76,7 +76,7 @@ procedure SevenZipDecode(const FileName, DestDir: String;
 begin
   var SaveCurDir := GetCurrentDir;
   SetCurrentDir(DestDir);
-  IS_7ZipDec(PChar(FileName), FullPaths);
+  IS_7zDec(PChar(FileName), FullPaths);
   SetCurrentDir(SaveCurDir);
 end;
 

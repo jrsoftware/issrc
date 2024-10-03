@@ -5,7 +5,9 @@ rem  Copyright (C) 1997-2024 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to compile IS7ZipDec.c
+rem  Batch file to compile IS7zDec.c using Embarcadero's free
+rem  C++ compiler from https://www.embarcadero.com/free-tools/ccompiler
+rem  with source debugging turned on
 
 setlocal
 
@@ -16,26 +18,18 @@ if exist compilesettings.bat goto compilesettingsfound
 echo compilesettings.bat is missing or incomplete. It needs to be created
 echo with the following line, adjusted for your system:
 echo.
-echo   set VSTOOLSROOT=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools
+echo   set BCCROOT=C:\BCC102
 goto failed2
 
 :compilesettingsfound
-set VSTOOLSROOT=
+set BCCROOT=
 call .\compilesettings.bat
-if "%VSTOOLSROOT%"=="" goto compilesettingserror
+if "%BCCROOT%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-set __VSCMD_ARG_NO_LOGO=1
-set VSCMD_SKIP_SENDTELEMETRY=1
-
-echo - Calling VsDevCmd.bat
-call "%VSTOOLSROOT%\VsDevCmd.bat"
-if errorlevel 1 goto exit
-echo.
-
-echo - Compiling IS7ZipDec.c
-cl.exe /c /O2 /GS- IS7ZipDec.c
+echo - Compiling IS7zDec.c
+"%BCCROOT%\bin\bcc32c.exe" -c -O2 -v IS7zDec.c
 if errorlevel 1 goto failed
 
 echo Success!

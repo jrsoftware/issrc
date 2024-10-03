@@ -1,5 +1,5 @@
 /*
-  IS7ZipDec.c, by Martijn Laan for Inno Setup
+  IS7zDec.c, by Martijn Laan for Inno Setup
   This file is public domain (like the LZMA SDK)
 */
 
@@ -20,7 +20,7 @@
 #include "../../../../Components/Lzma2/LzmaDec.c"
 #include "../../../../Components/Lzma2/Lzma2Dec.c"
 
-int IS_7ZipDec(WCHAR *fileName, BOOL fullPaths)
+int IS_7zDec(WCHAR *fileName, BOOL fullPaths)
 {
   WCHAR* args[3];
   args[0] = L"";
