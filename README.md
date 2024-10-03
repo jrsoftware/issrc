@@ -207,7 +207,7 @@ code in the isscint repository.
 Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj**, **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzma2Dec.obj** -
+**Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
 **Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj** -

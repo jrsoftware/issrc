@@ -5,7 +5,7 @@ rem  Copyright (C) 1997-2024 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to compile ISLzmaDec.c and ISLzma2Dec.c
+rem  Batch file to compile ISLzmaDec.c
 
 setlocal
 
@@ -34,8 +34,8 @@ call "%VSTOOLSROOT%\VsDevCmd.bat"
 if errorlevel 1 goto exit
 echo.
 
-echo - Compiling ISLzmaDec.c and ISLzma2Dec.c
-cl.exe /c /O2 /GS- ISLzmaDec.c ISLzma2Dec.c
+echo - Compiling ISLzmaDec.c
+cl.exe /c /O2 /GS- ISLzmaDec.c
 if errorlevel 1 goto failed
 
 echo Success!
