@@ -20,16 +20,22 @@ implementation
 uses
   Windows, SysUtils, Setup.LoggingFunc;
 
-{ Compiled by Embarcadero C++ 7.30 2022 using compile-bcc32c.bat
-  For Visual Studio use compile.bat and define VISUALSTUDIO below but currently this gives linker errors in Delphi }
+{ Compiled by Visual Studio 2022 using compile.bat
+  To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
+  Note that in a speed test the code produced by bcc32c was about 33% slower }
 {$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
+{$DEFINE VISUALSTUDIO}
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
-{.$DEFINE VISUALSTUDIO}
-
 //https://github.com/rust-lang/compiler-builtins/issues/403
 {$IFDEF VISUALSTUDIO}
+function __CreateDirectoryW(lpPathName: LPCWSTR;
+  lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
+begin
+  Result := CreateDirectoryW(lpPathName, lpSecurityAttributes);
+end;
+
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
 {$ELSE}

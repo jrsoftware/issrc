@@ -3,6 +3,22 @@
   This file is public domain (like the LZMA SDK)
 */
 
+#ifdef _MSC_VER
+
+/* Stop 7-Zip from using stdcall functions which will get unavoidable decorated names from
+   MSVC's cl.exe which Delphi can't handle: first include windows.h and then hide the
+   functions 7-Zip wants to use with macros pointing to cdecl prototypes. This will enable
+   is us to call the stdcall function from a cdecl implementation in Delphi and keeps the
+   rest of windows.h available to 7-Zip. */
+
+#include "../../../../Components/Lzma2/Util/7z/Precomp.h" /* Says it must be included first */
+#include "../../../../Components/Lzma2/7zWindows.h"
+
+BOOL _CreateDirectoryW(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+#define CreateDirectoryW _CreateDirectoryW
+
+#endif
+
 #include "../../../../Components/Lzma2/Util/7z/7zMain.c"
 
 #include "../../../../Components/Lzma2/7zAlloc.c"
