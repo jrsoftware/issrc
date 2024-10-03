@@ -20,6 +20,8 @@ implementation
 uses
   Windows, SysUtils, Setup.LoggingFunc;
 
+{ Compiled by Embarcadero C++ 7.30 2022 using compile-bcc32c.bat
+  For Visual Studio use compile.bat and define VISUALSTUDIO below but currently this gives linker errors in Delphi }
 {$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
@@ -30,9 +32,10 @@ function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl;
 {$IFDEF VISUALSTUDIO}
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
-{$ENDIF}
+{$ELSE}
 procedure __aullrem; stdcall; external 'ntdll.dll' name '_aullrem';
 procedure __aulldiv; stdcall; external 'ntdll.dll' name '_aulldiv';
+{$ENDIF}
 
 function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
 begin
