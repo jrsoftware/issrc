@@ -2,7 +2,7 @@
   ISLzmaDec.c, by Jordan Russell for Inno Setup
   This file is public domain (like the LZMA SDK)
 
-  LzmaDec.c + additional helper functions used by LZMADecomp.pas
+  LzmaDec.c + additional helper functions used by Compression.LZMADecompressor.pas
 */
 
 #include "../../../../Components/Lzma2/LzmaDec.c"
