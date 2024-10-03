@@ -12,7 +12,7 @@ unit Compression.SevenZipDecoder;
 
 interface
 
-procedure SevenZipDecode(const FileName: AnsiString; const DestDir: String;
+procedure SevenZipDecode(const FileName, DestDir: String;
   const FullPaths: Boolean);
 
 implementation
@@ -22,7 +22,7 @@ uses
 
 {$L Src\Compression.SevenZipDecoder\7ZipDecode\IS7ZipDec.obj}
 
-function IS_7ZipDec(const fileName: PAnsiChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7ZipDec';
+function IS_7ZipDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7ZipDec';
 
 {.$DEFINE VISUALSTUDIO}
 
@@ -60,7 +60,7 @@ begin
     VirtualFree(address, 0, MEM_RELEASE);
 end;
 
-function _strcmp(string1, string2: PAnsiChar): Integer; cdecl;
+function _wcscmp(string1, string2: PChar): Integer; cdecl;
 begin
   Result := StrComp(string1, string2);
 end;
@@ -71,12 +71,12 @@ begin
   Result := 1;
 end;
 
-procedure SevenZipDecode(const FileName: AnsiString; const DestDir: String;
+procedure SevenZipDecode(const FileName, DestDir: String;
   const FullPaths: Boolean);
 begin
   var SaveCurDir := GetCurrentDir;
   SetCurrentDir(DestDir);
-  IS_7ZipDec(PAnsiChar(FileName), FullPaths);
+  IS_7ZipDec(PChar(FileName), FullPaths);
   SetCurrentDir(SaveCurDir);
 end;
 

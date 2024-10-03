@@ -20,11 +20,11 @@
 #include "../../../../Components/Lzma2/LzmaDec.c"
 #include "../../../../Components/Lzma2/Lzma2Dec.c"
 
-int IS_7ZipDec(char *fileName, BOOL fullPaths)
+int IS_7ZipDec(WCHAR *fileName, BOOL fullPaths)
 {
-  char* args[3];
-  args[0] = "";
-  args[1] = fullPaths?"x":"e";
+  WCHAR* args[3];
+  args[0] = L"";
+  args[1] = fullPaths?L"x":L"e";
   args[2] = fileName;
-  return main(3, args);
+  return mainW(3, args);
 }

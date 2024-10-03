@@ -5,6 +5,7 @@
    -Don't include <stdio.h> but instead define fputs' prototype and a stdout dummy, allowing
     the test application code to be embedded in another application (which should implement fputs)
    -Use CP_UTF8 in PrintString
+   -Change main to mainW to support Unicode archive names
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -550,7 +551,7 @@ static void GetAttribString(UInt32 wa, BoolInt isDir, char *s)
 
 // #define NUM_PARENTS_MAX 128
 
-int Z7_CDECL main(int numargs, char *args[])
+int Z7_CDECL mainW(int numargs, WCHAR *args[])
 {
   ISzAlloc allocImp;
   ISzAlloc allocTempImp;
@@ -594,11 +595,7 @@ int Z7_CDECL main(int numargs, char *args[])
 
   {
     WRes wres =
-    #ifdef UNDER_CE
-      InFile_OpenW(&archiveStream.file, L"\test.7z"); // change it
-    #else
-      InFile_Open(&archiveStream.file, args[2]);
-    #endif
+      InFile_OpenW(&archiveStream.file, args[2]);
     if (wres != 0)
     {
       PrintError_WRes("cannot open input file", wres);
@@ -636,13 +633,13 @@ int Z7_CDECL main(int numargs, char *args[])
   
   if (res == SZ_OK)
   {
-    char *command = args[1];
+    WCHAR *command = args[1];
     int listCommand = 0, testCommand = 0, fullPaths = 0;
     
-    if (strcmp(command, "l") == 0) listCommand = 1;
-    else if (strcmp(command, "t") == 0) testCommand = 1;
-    else if (strcmp(command, "e") == 0) { }
-    else if (strcmp(command, "x") == 0) { fullPaths = 1; }
+    if (wcscmp(command, L"l") == 0) listCommand = 1;
+    else if (wcscmp(command, L"t") == 0) testCommand = 1;
+    else if (wcscmp(command, L"e") == 0) { }
+    else if (wcscmp(command, L"x") == 0) { fullPaths = 1; }
     else
     {
       PrintError("incorrect command");
