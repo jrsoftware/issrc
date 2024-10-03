@@ -214,7 +214,7 @@ Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompress
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
 
 **Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj** -
-Compiled by Embarcadero C++ 7.30 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode] directory.
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode] directory.
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.

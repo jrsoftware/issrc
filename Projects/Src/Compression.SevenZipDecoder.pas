@@ -20,16 +20,103 @@ implementation
 uses
   Windows, SysUtils, Setup.LoggingFunc;
 
-{ Compiled by Embarcadero C++ 7.30 2022 using compile-bcc32c.bat
-  For Visual Studio use compile.bat and define VISUALSTUDIO below but currently this gives linker errors in Delphi }
+{ Compiled by Visual Studio 2022 using compile.bat
+  To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
+  Note that in a speed test the code produced by bcc32c was about 33% slower }
 {$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
+{$DEFINE VISUALSTUDIO}
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
-{.$DEFINE VISUALSTUDIO}
-
 //https://github.com/rust-lang/compiler-builtins/issues/403
 {$IFDEF VISUALSTUDIO}
+function __CreateDirectoryW(lpPathName: LPCWSTR;
+  lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
+begin
+  Result := CreateDirectoryW(lpPathName, lpSecurityAttributes);
+end;
+
+function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
+  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
+  hTemplateFile: THandle): THandle; cdecl;
+begin
+  Result := CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+end;
+
+function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
+  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
+  hTemplateFile: THandle): THandle; cdecl;
+begin
+  Result := CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+end;
+
+function __FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
+begin
+  Result := FileTimeToLocalFileTime(lpFileTime, lpLocalFileTime);
+end;
+
+function __GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
+begin
+  Result := GetFileSize(hFile, lpFileSizeHigh);
+end;
+
+function __ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
+  var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
+begin
+  Result := ReadFile(hFile, Buffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
+end;
+
+function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
+begin
+  Result := SetFileAttributesW(lpFileName, dwFileAttributes);
+end;
+
+function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
+  lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD; cdecl;
+begin
+  Result := SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
+end;
+
+function __SetFileTime(hFile: THandle;
+  lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL; cdecl;
+begin
+  Result := SetFileTime(hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
+end;
+
+function __WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
+  var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
+begin
+  Result := WriteFile(hFile, Buffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
+end;
+
+function __CloseHandle(hObject: THandle): BOOL; cdecl;
+begin
+  Result := CloseHandle(hObject);
+end;
+
+function __GetLastError: DWORD; cdecl;
+begin
+  Result := GetLastError;
+end;
+
+function __LocalFree(hMem: HLOCAL): HLOCAL; cdecl;
+begin
+  Result := LocalFree(hMem);
+end;
+
+function __FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
+  lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD; cdecl;
+begin
+  Result := FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, Arguments);
+end;
+
+function __WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
+  lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
+  cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer; cdecl;
+begin
+  Result := WideCharToMultiByte(CodePage, dwFlags, lpWideCharStr, cchWideChar, lpMultiByteStr, cchMultiByte, lpDefaultChar, lpUsedDefaultChar);
+end;
+
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
 {$ELSE}
