@@ -17,6 +17,48 @@
 BOOL _CreateDirectoryW(LPCWSTR lpPathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 #define CreateDirectoryW _CreateDirectoryW
 
+HANDLE _CreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+#define CreateFileA _CreateFileA
+
+HANDLE _CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+#define CreateFileW _CreateFileW
+
+BOOL _FileTimeToLocalFileTime(FILETIME* lpFileTime, LPFILETIME lpLocalFileTime);
+#define FileTimeToLocalFileTime _FileTimeToLocalFileTime
+
+DWORD _GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
+#define GetFileSize _GetFileSize
+
+BOOL _ReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped);
+#define ReadFile _ReadFile
+
+BOOL _SetFileAttributesW(LPCWSTR lpFileName, DWORD dwFileAttributes);
+#define SetFileAttributesW _SetFileAttributesW
+
+DWORD _SetFilePointer(HANDLE hFile, LONG lDistanceToMove, PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod);
+#define SetFilePointer _SetFilePointer
+
+BOOL _SetFileTime(HANDLE hFile, FILETIME* lpCreationTime, FILETIME* lpLastAccessTime, FILETIME* lpLastWriteTime);
+#define SetFileTime _SetFileTime
+
+BOOL _WriteFile(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped);
+#define WriteFile _WriteFile
+
+BOOL _CloseHandle(HANDLE hObject);
+#define CloseHandle _CloseHandle
+
+DWORD _GetLastError(VOID);
+#define GetLastError _GetLastError
+
+HLOCAL _LocalFree(HLOCAL hMem);
+#define LocalFree _LocalFree
+
+DWORD _FormatMessageA(DWORD dwFlags, LPCVOID lpSource, DWORD dwMessageId, DWORD dwLanguageId, LPSTR lpBuffer, DWORD nSize, va_list *Arguments);
+#define FormatMessageA _FormatMessageA
+
+int _WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int cchWideChar, LPSTR lpMultiByteStr, int cbMultiByte, LPCCH lpDefaultChar, LPBOOL lpUsedDefaultChar);
+#define WideCharToMultiByte _WideCharToMultiByte
+
 #endif
 
 #include "../../../../Components/Lzma2/Util/7z/7zMain.c"
