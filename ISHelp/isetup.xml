@@ -155,7 +155,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
-<li>Tiny footprint: only about 1.5 mB overhead with all features included.</li>
+<li>Tiny footprint: only 1.75 mB overhead with all features included.</li>
 
 <li>All features are fully documented.</li>
 
