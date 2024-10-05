@@ -12,8 +12,8 @@ unit Compression.SevenZipDecoder;
 
 interface
 
-procedure SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean);
+function SevenZipDecode(const FileName, DestDir: String;
+  const FullPaths: Boolean): Integer;
 
 implementation
 
@@ -189,14 +189,14 @@ begin
   end;
 end;
 
-procedure SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean);
+function SevenZipDecode(const FileName, DestDir: String;
+  const FullPaths: Boolean): Integer;
 begin
   var SaveCurDir := GetCurrentDir;
   SetCurrentDir(DestDir);
   try
     LogBuffer := '';
-    IS_7zDec(PChar(FileName), FullPaths);
+    Result := IS_7zDec(PChar(FileName), FullPaths);
     if LogBuffer <> '' then
       Log(LogBuffer);
   finally

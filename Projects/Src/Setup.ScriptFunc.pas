@@ -29,7 +29,7 @@ uses
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes, Shared.SetupSteps,
   Shared.Int64Em, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.UninstallProgressForm, Setup.DotNetFunc,
-  Shared.DotNetVersion, Setup.MsiFunc;
+  Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder;
 
 var
   ScaleBaseUnitsInitialized: Boolean;
@@ -2105,6 +2105,8 @@ begin
     for I := 0 to N-1 do
       AscendingTrySizes[I] := VNGetInt(PSGetArrayField(Arr, I));
     Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
+  end else if Proc.Name = 'EXTRACT7ZIPFILE' then begin
+    Stack.SetInt(PStart, SevenZipDecode(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
   end else
     Result := False;
 end;
