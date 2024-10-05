@@ -92,7 +92,8 @@ uses
   Setup.MsiFunc in 'Src\Setup.MsiFunc.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   NewUxTheme in '..\Components\NewUxTheme.pas',
-  PBKDF2 in '..\Components\PBKDF2.pas';
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

@@ -538,7 +538,8 @@ initialization
     'function CreateCallback(Method: AnyMethod): Longword;',
     'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;',
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
-    'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;'
+    'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
+    'function Extract7ZipFile(const FileName, DestDir: String; const FullPaths: Boolean): Integer;'
   ];
 
   {$IFDEF COMPIL32PROJ}
