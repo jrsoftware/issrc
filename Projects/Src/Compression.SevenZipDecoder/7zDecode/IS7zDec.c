@@ -64,7 +64,7 @@ int _WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWCH lpWideCharStr, int
 
 #endif
 
-/* Stop 7-Zip from using fputs from stdio.c: first include stdio.h and then hide the
+/* Stop 7-Zip from using fputs from stdio.h: first include stdio.h and then hide the
    real fputs 7-Zip wants to use with a macro pointing to a renamed prototype. This will
    enable us to log 7-Zip output from a cdecl implementation in Delphi and keeps the
    rest of stdio.h available to 7-Zip.*/
