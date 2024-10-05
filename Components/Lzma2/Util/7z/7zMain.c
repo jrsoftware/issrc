@@ -4,6 +4,7 @@
 /* Changes by Martijn Laan for Inno Setup:
    -Use CP_UTF8 in PrintString
    -Change main to mainW to support Unicode archive names
+   -Return res on errors instead of always returning 1
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -886,5 +887,5 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError(s);
   }
   
-  return 1;
+  return res;
 }
