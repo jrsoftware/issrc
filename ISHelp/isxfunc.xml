@@ -1834,6 +1834,24 @@ end;</pre>
 <p>An exception will be raised if there was an error.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
+      <function>
+        <name>Extract7ZipFile</name>
+        <prototype>function Extract7ZipFile(const FileName, DestDir: String; const FullPaths: Boolean): Integer;</prototype>
+        <description><p>Extracts the specified 7-Zip archive to the specified directory. Returns zero if successful, zero otherwise..</p></description>
+        <remarks><p>Based on the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov as-is, except that Unicode support was improved.</p>
+<p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
+<p>The decoder has the following limitations, as written by Igor Pavlov in file 7zC.txt of the LZMA SDK:<br /><br />
+-It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
+-It supports only LZMA/LZMA2 and Copy methods with BCJ or BCJ2 filters.<br />
+-It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</p>
+<p>Additionally he wrote:<br /><br />
+You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
+7z.exe a archive.7z *.htm -r -mx -m0fb=255<br /><br />
+If you have big number of files in archive, and you need fast extracting,<br /> 
+you can use partly-solid archives:<br /><br />
+7za.exe a archive.7z *.htm -ms=512K -r -mx -m0fb=255 -m0d=512K<br /><br />
+In that example 7-Zip will use 512KB solid blocks. So it needs to decompress only  512KB for extracting one file from such archive.</p></remarks>
+      </function>
     </subcategory>
     <subcategory>
       <function>
