@@ -4,6 +4,7 @@
 /* Changes by Martijn Laan for Inno Setup:
    -Use CP_UTF8 in PrintString
    -Change main to mainW to support Unicode archive names
+   -Add specific error text for SZ_ERROR_NO_ARCHIVE
    -Return res on errors instead of always returning 1
    Otherwise unchanged */
 
@@ -878,6 +879,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("cannot allocate memory");
   else if (res == SZ_ERROR_CRC)
     PrintError("CRC error");
+  else if (res == SZ_ERROR_NO_ARCHIVE)
+    PrintError("not an archive");
   else if (res == SZ_ERROR_READ /* || archiveStream.Res != 0 */)
     PrintError_WRes("Read Error", archiveStream.wres);
   else
