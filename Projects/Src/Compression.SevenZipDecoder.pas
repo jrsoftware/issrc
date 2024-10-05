@@ -18,7 +18,7 @@ procedure SevenZipDecode(const FileName, DestDir: String;
 implementation
 
 uses
-  Windows, SysUtils, Setup.LoggingFunc;
+  Windows, SysUtils, Compression.LZMADecompressor, Setup.LoggingFunc;
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
@@ -140,16 +140,12 @@ end;
 
 function _malloc(size: Cardinal): Pointer; cdecl;
 begin
-  if size <> 0 then
-    Result := VirtualAlloc(nil, size, MEM_COMMIT, PAGE_READWRITE)
-  else
-    Result := nil;
+  Result := LZMAAllocFunc(nil, size);
 end;
 
 procedure _free(address: Pointer); cdecl;
 begin
-  if Assigned(address) then
-    VirtualFree(address, 0, MEM_RELEASE);
+  LZMAFreeFunc(nil, address);
 end;
 
 function _wcscmp(string1, string2: PChar): Integer; cdecl;
