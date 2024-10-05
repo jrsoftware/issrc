@@ -84,6 +84,10 @@ int _fputs(char const* str, FILE* stream);
 
 #include "../../../../Components/Lzma2/Util/7z/7zMain.c"
 
+#ifndef USE_WINDOWS_FILE
+#error USE_WINDOWS_FILE is required by Compression.SevenZipDecoder.pas
+#endif
+
 #include "../../../../Components/Lzma2/7zAlloc.c"
 #include "../../../../Components/Lzma2/7zArcIn.c"
 #include "../../../../Components/Lzma2/7zBuf.c"
