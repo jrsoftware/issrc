@@ -166,10 +166,10 @@ function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
   function FindNewLine(const S: AnsiString): Integer;
   begin
-    { 7-Zip never sends #13 so this only checks for #10 }
+    { 7zMain.c always sends #10 as newline but its call to FormatMessage can cause #13#10 anyway  }
     var N := Length(S);
     for var I := 1 to N do
-      if S[I] = #10 then
+      if CharInSet(S[I], [#13, #10]) then
         Exit(I);
     Result := 0;
   end;
@@ -180,6 +180,8 @@ begin
     var P := FindNewLine(LogBuffer);
     while P <> 0 do begin
       Log(Copy(LogBuffer, 1, P-1));
+      if (LogBuffer[P] = #13) and (P < Length(LogBuffer)) and (LogBuffer[P+1] = #10) then
+        Inc(P);
       Delete(LogBuffer, 1, P);
       P := FindNewLine(LogBuffer);
     end;
