@@ -1840,10 +1840,11 @@ end;</pre>
         <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names. Returns zero if successful, nonzero otherwise.</p></description>
         <remarks><p>Uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support was improved.</p>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
-<p>The decoder has the following limitations, as written by Igor Pavlov in file 7zC.txt of the LZMA SDK:<br /><br />
+<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
 -It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
 -It supports only LZMA/LZMA2 and Copy methods with BCJ or BCJ2 filters.<br />
--It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</p>
+-It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.<br />
+-It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</p>
 <p>Additionally he wrote:<br /><br />
 You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
 7z.exe a archive.7z *.htm -r -mx -m0fb=255<br /><br />
