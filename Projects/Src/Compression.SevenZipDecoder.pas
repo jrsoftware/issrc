@@ -195,7 +195,8 @@ function SevenZipDecode(const FileName, DestDir: String;
   const FullPaths: Boolean): Integer;
 begin
   var SaveCurDir := GetCurrentDir;
-  SetCurrentDir(DestDir);
+  if SetCurrentDir(DestDir) then
+    Exit(-1);
   try
     LogBuffer := '';
     Result := IS_7zDec(PChar(FileName), FullPaths);
