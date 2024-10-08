@@ -81,7 +81,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression (by 10% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%.</li>
+  <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression (by 10% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%. This also made it possible to add support for extracting 7-Zip archives, see below.</li>
   <li>Updated the key derivation function and encryption algorithm used by Inno Setup to PBKDF2-HMAC-SHA256 and XChaCha20 respectively, increasing security. This code is built-in: the separate ISCrypt.dll "encryption module" is no longer used and will be automatically deleted when you update.</li>
   <li>Added <tt>[Setup]</tt> section directive <tt>EncryptionKeyDerivation</tt> to change the number of PBKDF2-HMAC-SHA256 iterations to use from the default of 200000 to another value.</li>
   <li>Replaced all remaining use of MD5 and SHA-1 hashes with SHA-256 hashes, without removing the MD5 and SHA-1 Pascal Scripting and ISPP support functions.</li>

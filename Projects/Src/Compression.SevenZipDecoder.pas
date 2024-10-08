@@ -40,7 +40,10 @@ function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
-  Result := CreateFileA(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+  { Return an error if we do ever get called which is unwanted because it should
+    use CreateFileW and not CreateFileA }
+  Result := INVALID_HANDLE_VALUE;
+  SetLastError(ERROR_INVALID_FUNCTION);
 end;
 
 function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
@@ -140,7 +143,7 @@ end;
 
 function _malloc(size: NativeUInt): Pointer; cdecl;
 begin
-  if size > High(NativeInt) then
+  if size > NativeUInt(High(NativeInt)) then
     Result := nil
   else begin
     try

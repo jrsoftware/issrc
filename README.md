@@ -279,5 +279,6 @@ workflow will be triggered automatically.
 [Projects\Src\Compil32]: <Projects/Src/Compil32>
 [Projects\Src\Compression.LZMADecompressor\Lzma2Decode]: <Projects/Src/Compression.LZMADecompressor/Lzma2Decode>
 [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode]: <Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode>
+[Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
