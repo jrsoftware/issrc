@@ -18,7 +18,7 @@ function SevenZipDecode(const FileName, DestDir: String;
 implementation
 
 uses
-  Windows, SysUtils, Compression.LZMADecompressor, Setup.LoggingFunc;
+  Windows, SysUtils, Setup.LoggingFunc;
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
@@ -138,14 +138,23 @@ begin
   Result := dest;
 end;
 
-function _malloc(size: Cardinal): Pointer; cdecl;
+function _malloc(size: NativeUInt): Pointer; cdecl;
 begin
-  Result := LZMAAllocFunc(nil, size);
+  if size > High(NativeInt) then
+    Result := nil
+  else begin
+    try
+      GetMem(Result, NativeInt(size));
+    except
+      on EOutOfMemory do
+        Result := nil;
+    end;
+  end;
 end;
 
 procedure _free(address: Pointer); cdecl;
 begin
-  LZMAFreeFunc(nil, address);
+  FreeMem(address);
 end;
 
 function _wcscmp(string1, string2: PChar): Integer; cdecl;

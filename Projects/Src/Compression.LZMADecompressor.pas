@@ -58,19 +58,16 @@ type
     procedure ProcessHeader; override;
   end;
 
+implementation
+
+type
+  TLZMASRes = type Integer;
+
   PLZMAISzAlloc = ^TLZMAISzAlloc;
   TLZMAISzAlloc = record
     Alloc: function(p: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
     Free: procedure(p: PLZMAISzAlloc; address: Pointer); cdecl;
   end;
-
-function LZMAAllocFunc(unused: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
-procedure LZMAFreeFunc(unused: PLZMAISzAlloc; address: Pointer); cdecl;
-
-implementation
-
-type
-  TLZMASRes = type Integer;
 
 const
   { SRes (TLZMASRes) }
@@ -137,7 +134,7 @@ begin
   raise ECompressDataError.CreateFmt(SLZMADecompDataError, [Id]);
 end;
 
-function LZMAAllocFunc(unused: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
+function LZMAAllocFunc(p: PLZMAISzAlloc; size: Cardinal): Pointer; cdecl;
 begin
   if (size <> 0) and (size <= Cardinal(MaxDictionarySize)) then
     Result := VirtualAlloc(nil, size, MEM_COMMIT, PAGE_READWRITE)
@@ -145,7 +142,7 @@ begin
     Result := nil;
 end;
 
-procedure LZMAFreeFunc(unused: PLZMAISzAlloc; address: Pointer); cdecl;
+procedure LZMAFreeFunc(p: PLZMAISzAlloc; address: Pointer); cdecl;
 begin
   if Assigned(address) then
     VirtualFree(address, 0, MEM_RELEASE);
