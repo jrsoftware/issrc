@@ -233,6 +233,12 @@ end;</pre></example>
         <prototype>function Terminated: Boolean;</prototype>
         <description><p>Returns True if Setup or Uninstall is terminating, False otherwise.</p></description>
       </function>
+      <function>
+        <name>Debugging</name>
+        <prototype>function Debugging: Boolean;</prototype>
+        <description><p>Returns True if Setup or Uninstall is being debugged by the Compiler IDE or another application, False otherwise.</p></description>
+        <seealso><p><link topic="scriptdebug">Run-time debugger</link></p></seealso>
+      </function>
     </subcategory>
     <subcategory>
       <function>

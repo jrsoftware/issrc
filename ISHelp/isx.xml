@@ -55,7 +55,7 @@
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
 <link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
 <link topic="scriptautomation">Using COM Automation objects</link><br/>
-<link topic="scriptdebug">Debugging</link>
+<link topic="scriptdebug">Run-time debugger</link>
 </p>
 
 </body>
@@ -722,9 +722,10 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 </topic>
 
 
-<topic name="scriptdebug" title="Pascal Scripting: Debugging">
-<keyword value="Pascal Scripting: Debugging" />
-<keyword value="Debugging" />
+<topic name="scriptdebug" title="Pascal Scripting: Run-time debugger">
+<keyword value="Pascal Scripting: Run-time debugger" />
+<keyword value="Run-time debugger" />
+<keyword value="Debugger" />
 <body>
 <p>The Compiler IDE contains an integrated run-time debugger to debug your custom Pascal script, accessed via the <i>Run</i> menu. This debugger works very much like debuggers in other IDE's and uses the following menu items:</p>
 
@@ -769,6 +770,9 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 <p>Lines which can be paused on are marked by a gray square in the gutter. The square turns green the first time Setup reaches the line.</p>
 
 <p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
+
+<p><b>See also:</b><br/>
+<link topic="isxfunc_Debugging">Debugging</link></p>
 
 </body>
 </topic>
