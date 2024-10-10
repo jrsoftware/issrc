@@ -241,9 +241,8 @@ begin
   end;
   FunctionName := Copy(S, 1, I-1);
 
-  ScriptRunner.LogFmt('Function name: %s', [FunctionName]);
   UnicodeDllName := UTF8ToString(DllName);
-  ScriptRunner.LogFmt('DLL name: %s', [UnicodeDllname]);
+  ScriptRunner.LogFmt('Function and DLL name: %s@%s', [FunctionName, UnicodeDllName]);
 
   if Assigned(ScriptRunner.FOnDllImport) then begin
     ScriptRunner.FOnDllImport(UnicodeDllName, ForceDelayLoad);
@@ -251,10 +250,9 @@ begin
     p.Decl := AnsiString('dll:') + DllName + Copy(p.Decl, Pos(AnsiString(#0), p.Decl), MaxInt);
   end;
 
-  if DllName <> '' then begin
-    ScriptRunner.LogFmt('Dest DLL name: %s', [UnicodeDllName]);
-    ScriptRunner.Log('Importing the DLL function.');
-  end else
+  if DllName <> '' then
+    ScriptRunner.LogFmt('Importing the DLL function. Dest DLL name: %s', [UnicodeDllName])
+  else
     ScriptRunner.Log('Skipping.'); { We're actually still going to call ProcessDllImport but this doesn't matter to the user. }
 
   var DelayLoaded: Boolean;
