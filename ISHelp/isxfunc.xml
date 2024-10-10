@@ -1849,7 +1849,7 @@ end;</pre>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
 <p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
 -It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
--It supports only LZMA/LZMA2 and Copy methods with BCJ or BCJ2 filters.<br />
+-It does not support PPMd and BZip2 methods.<br />
 -It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.<br />
 -It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</p>
 <p>Additionally he wrote:<br /><br />
