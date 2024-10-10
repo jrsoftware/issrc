@@ -510,6 +510,14 @@ const
     'function UninstallNeedRestart: Boolean;'
   ];
 
+    EventFunctionsParameters: array of AnsiString = [
+    'CurStep', 'CurProgress', 'MaxProgress', 'CurPageID', 'Cancel', 'Confirm',
+    'PageID', 'Password', 'Space', 'NewLine', 'MemoUserInfoInfo',
+    'MemoDirInfo', 'MemoTypeInfo', 'MemoComponentsInfo', 'MemoGroupInfo',
+    'MemoTasksInfo', 'PreviousDataKey', 'Serial', 'NeedsRestart',
+    'CurUninstallStep'
+  ];
+
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
@@ -628,6 +636,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
           AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
       end;
       for var S in PascalVariables do
+        AddWordToList(SL, S, awtScriptVariable);
+      for var S in EventFunctionsParameters  do
         AddWordToList(SL, S, awtScriptVariable);
       FScriptWordList[False] := BuildWordList(SL);
 
