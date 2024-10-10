@@ -731,29 +731,29 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <dl>
 
-<dt><i>Run To Cursor</i> (F4)</dt>
+<dt><i>Run To Cursor</i> (F4 or Ctrl+F10*)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the line of the cursor, then pauses it.</p>
 </dd>
 
-<dt><i>Step Into</i> (F7)</dt>
+<dt><i>Step Into</i> (F7 or F11)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the next line, then pauses it. By continually pressing F7 you can follow the entire execution flow of Setup.</p>
 </dd>
 
-<dt><i>Step Over</i> (F8)</dt>
+<dt><i>Step Over</i> (F8 or F10)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the next line, then pauses it. Lines inside functions calls are skipped.</p>
 </dd>
 
-<dt><i>Step Out</i> (Shift+F8)</dt>
+<dt><i>Step Out</i> (Shift+F8 or Shift+F11)</dt>
 <dd>
 <p>Unpauses Setup until it reaches the end of the current function, then pauses it on the next line.</p>
 </dd>
 
-<dt><i>Toggle Breakpoint</i> (F5)</dt>
+<dt><i>Toggle Breakpoint</i> (F5 or F9)</dt>
 <dd>
-<p>Next time Setup reaches the line of the cursor, it pauses. There can be multiple breakpoints at once and breakpoints can be removed by pressing F5 again.</p>
+<p>Next time Setup reaches the line of the cursor, it pauses. There can be multiple breakpoints at once and breakpoints can be removed by pressing F5 or F9 again.</p>
 </dd>
 
 <dt><i>Pause</i></dt>
@@ -770,6 +770,8 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 <p>Lines which can be paused on are marked by a gray square in the gutter. The square turns green the first time Setup reaches the line.</p>
 
 <p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
+
+<p>* = actual shortcut depends on the &quot;Menu keys&quot; option.</p>
 
 <p><b>See also:</b><br/>
 <link topic="isxfunc_Debugging">Debugging</link></p>
