@@ -40,12 +40,6 @@ Getting Started
 
    We compile all of Inno Setup's projects under Delphi 11.3 Alexandria.
 
-   If you do not have access to this version of Delphi, you should be
-   able to compile the projects on other versions, however complete
-   compatibility is NOT guaranteed. We try to make Inno Setup compilable on
-   the other versions when possible, but do not have the resources to test
-   every change on every Delphi version.
-  
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
 
