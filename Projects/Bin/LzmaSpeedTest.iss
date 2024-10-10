@@ -12,7 +12,6 @@ OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 MergeDuplicateFiles=no
 DisableDirPage=yes
-LZMANumBlockThreads=4
 
 [Files]
 #define i
