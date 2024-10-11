@@ -2918,12 +2918,12 @@ begin
   if SelectionCount > 1 then begin
     var RectangularPaste := False; {todo} { First check for the case Scintilla *does* support }
     if not RectangularPaste then begin
-      var PasteText := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
-      if SelectionCount = Length(PasteText) then begin
+      var PasteLines := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
+      if SelectionCount = Length(PasteLines) then begin
         for var I := 0 to SelectionCount-1 do begin
           var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
           var EndPos := AMemo.SelectionEndPosition[I];
-          AMemo.ReplaceTextRange(StartPos, EndPos, PasteText[I], srmMinimal);
+          AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
           { Update the selection to an empty selection at the end of the inserted
             text, just like ReplaceMainSelText }
           var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
