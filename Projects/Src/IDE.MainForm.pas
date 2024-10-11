@@ -552,7 +552,7 @@ type
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
-    function MultipleSelectionPaste(const AMemo: TIDESCintEdit): Boolean;
+    function MultipleSelectionPasteFromClipboard(const AMemo: TIDESCintEdit): Boolean;
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
@@ -1430,7 +1430,7 @@ begin
     end;
   end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
     if not FActiveMemo.ReadOnly and Clipboard.HasFormat(CF_TEXT) then { Also see EMenuClick }
-      if MultipleSelectionPaste(FActiveMemo) then
+      if MultipleSelectionPasteFromClipboard(FActiveMemo) then
         Key := 0;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
@@ -2906,7 +2906,7 @@ begin
   FActiveMemo.CopyToClipboard;
 end;
 
-function TMainForm.MultipleSelectionPaste(const AMemo: TIDEScintEdit): Boolean;
+function TMainForm.MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
 begin
   { Scintilla doesn't yet properly support multiple selection paste. Handle it
     here, VSCode style: if there's multiple selections and the paste text has the
@@ -2920,15 +2920,20 @@ begin
     if not RectangularPaste then begin
       var PasteLines := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
       if SelectionCount = Length(PasteLines) then begin
-        for var I := 0 to SelectionCount-1 do begin
-          var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
-          var EndPos := AMemo.SelectionEndPosition[I];
-          AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
-          { Update the selection to an empty selection at the end of the inserted
-            text, just like ReplaceMainSelText }
-          var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
-          AMemo.SelectionCaretPosition[I] := Pos;
-          AMemo.SelectionAnchorPosition[I] := Pos;
+        AMemo.BeginUndoAction;
+        try
+          for var I := 0 to SelectionCount-1 do begin
+            var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
+            var EndPos := AMemo.SelectionEndPosition[I];
+            AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
+            { Update the selection to an empty selection at the end of the inserted
+              text, just like ReplaceMainSelText }
+            var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
+            AMemo.SelectionCaretPosition[I] := Pos;
+            AMemo.SelectionAnchorPosition[I] := Pos;
+          end;
+        finally
+          AMemo.EndUndoAction;
         end;
         Result := True;
       end;
@@ -2938,7 +2943,7 @@ end;
 
 procedure TMainForm.EPasteClick(Sender: TObject);
 begin
-  if not MultipleSelectionPaste(FActiveMemo) then
+  if not MultipleSelectionPasteFromClipboard(FActiveMemo) then
     FActiveMemo.PasteFromClipboard;
 end;
 
