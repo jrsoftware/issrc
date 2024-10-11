@@ -1429,7 +1429,7 @@ begin
       end;
     end;
   end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
-    if not FActiveMemo.ReadOnly and Clipboard.HasFormat(CF_TEXT) then { Also see EMenuClick }
+    if FActiveMemo.CanPaste then
       if MultipleSelectionPasteFromClipboard(FActiveMemo) then
         Key := 0;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
@@ -2864,7 +2864,7 @@ begin
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
   ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
   ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
-  EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT); { Also see MemoKeyDown }
+  EPaste.Enabled := MemoHasFocus and FActiveMemo.CanPaste;
   EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;

@@ -254,6 +254,7 @@ type
     procedure CancelAutoComplete;
     procedure CancelAutoCompleteAndCallTip;
     procedure CancelCallTip;
+    function CanPaste: Boolean;
     function CanRedo: Boolean;
     function CanUndo: Boolean;
     procedure ChooseCaretX;
@@ -710,6 +711,11 @@ end;
 procedure TScintEdit.CancelCallTip;
 begin
   Call(SCI_CALLTIPCANCEL, 0, 0);
+end;
+
+function TScintEdit.CanPaste: Boolean;
+begin
+  Result := Call(SCI_CANPASTE, 0, 0) <> 0;
 end;
 
 function TScintEdit.CanRedo: Boolean;
