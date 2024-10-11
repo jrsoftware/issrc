@@ -166,8 +166,10 @@ type
     function GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
     function GetSelectionCaretPosition(Selection: Integer): Integer;
     function GetSelectionCaretVirtualSpace(Selection: Integer): Integer;
+    function GetSelectionEndPosition(Selection: Integer): Integer;
     function GetSelectionCount: Integer;
     function GetSelectionMode: TScintSelectionMode;
+    function GetSelectionStartPosition(Selection: Integer): Integer;
     function GetSelText: String;
     function GetTopLine: Integer;
     function GetZoom: Integer;
@@ -403,9 +405,12 @@ type
     property SelectionCaretPosition[Selection: Integer]: Integer read GetSelectionCaretPosition write SetSelectionCaretPosition;
     property SelectionCaretVirtualSpace[Selection: Integer]: Integer read GetSelectionCaretVirtualSpace write SetSelectionCaretVirtualSpace;
     property SelectionCount: Integer read GetSelectionCount;
+    property SelectionEndPosition[Selection: Integer]: Integer read GetSelectionEndPosition;
     property SelectionMode: TScintSelectionMode read GetSelectionMode write SetSelectionMode;
+    property SelectionStartPosition[Selection: Integer]: Integer read GetSelectionStartPosition;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
+    property Target: TScintRange read GetTarget;
     property TopLine: Integer read GetTopLine write SetTopLine;
     property WordChars: AnsiString read FWordChars;
     property WordCharsAsSet: TSysCharSet read FWordCharsAsSet;
@@ -1295,8 +1300,8 @@ procedure TScintEdit.GetSelections(const RangeList: TScintRangeList);
 begin
   RangeList.Clear;
   for var I := 0 to SelectionCount-1 do begin
-    var StartPos := Call(SCI_GETSELECTIONNSTART, I, 0);
-    var EndPos := Call(SCI_GETSELECTIONNEND, I, 0);
+    var StartPos := GetSelectionStartPosition(I);
+    var EndPos := GetSelectionEndPosition(I);
     RangeList.Add(TScintRange.Create(StartPos, EndPos));
   end;
 end;
@@ -1349,6 +1354,11 @@ begin
   Result := Call(SCI_GETSELECTIONS, 0, 0);
 end;
 
+function TScintEdit.GetSelectionEndPosition(Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNEND, Selection, 0)
+end;
+
 function TScintEdit.GetSelectionMode: TScintSelectionMode;
 begin
   case Call(SCI_GETSELECTIONMODE, 0, 0) of
@@ -1359,6 +1369,11 @@ begin
   else
     raise GetErrorException('Unexpected SCI_GETSELECTIONMODE result');
   end;
+end;
+
+function TScintEdit.GetSelectionStartPosition(Selection: Integer): Integer;
+begin
+  Result := Call(SCI_GETSELECTIONNSTART, Selection, 0);
 end;
 
 function TScintEdit.GetSelText: String;

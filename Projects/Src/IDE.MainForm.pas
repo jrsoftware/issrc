@@ -552,6 +552,7 @@ type
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
+    function MultipleSelectionPaste(const AMemo: TIDESCintEdit): Boolean;
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
     procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
     procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
@@ -1427,6 +1428,10 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
       end;
     end;
+  end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
+    if not FActiveMemo.ReadOnly and Clipboard.HasFormat(CF_TEXT) then { Also see EMenuClick }
+      if MultipleSelectionPaste(FActiveMemo) then
+        Key := 0;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
     { Based on SciTE 5.50's SciTEBase::MenuCommand IDM_SHOWCALLTIP }
@@ -2859,7 +2864,7 @@ begin
   ERedo.Enabled := MemoHasFocus and FActiveMemo.CanRedo;
   ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
   ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
-  EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT);
+  EPaste.Enabled := MemoHasFocus and not MemoIsReadOnly and Clipboard.HasFormat(CF_TEXT); { Also see MemoKeyDown }
   EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;
@@ -2901,11 +2906,41 @@ begin
   FActiveMemo.CopyToClipboard;
 end;
 
-procedure TMainForm.EPasteClick(Sender: TObject);
+function TMainForm.MultipleSelectionPaste(const AMemo: TIDEScintEdit): Boolean;
 begin
-  FActiveMemo.PasteFromClipboard;
+  { Scintilla doesn't yet properly support multiple selection paste. Handle it
+    here, VSCode style: if there's multiple selections and the paste text has the
+    same amount of lines then paste 1 line per selection. Otherwise do nothing
+    to allow Scintilla's default behaviour (which is to paste all lines into
+    each selection if SC_MULTIPASTE_EACH is on). }
+  Result := False;
+  var SelectionCount := AMemo.SelectionCount;
+  if SelectionCount > 1 then begin
+    var RectangularPaste := False; {todo} { First check for the case Scintilla *does* support }
+    if not RectangularPaste then begin
+      var PasteText := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
+      if SelectionCount = Length(PasteText) then begin
+        for var I := 0 to SelectionCount-1 do begin
+          var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
+          var EndPos := AMemo.SelectionEndPosition[I];
+          AMemo.ReplaceTextRange(StartPos, EndPos, PasteText[I], srmMinimal);
+          { Update the selection to an empty selection at the end of the inserted
+            text, just like SCI_REPLACESEL }
+          var Pos := AMemo.Target.EndPos; { SCI_REPLACETARGET* updates the target }
+          AMemo.SelectionCaretPosition[I] := Pos;
+          AMemo.SelectionAnchorPosition[I] := Pos;
+        end;
+        Result := True;
+      end;
+    end;
+  end;
 end;
 
+procedure TMainForm.EPasteClick(Sender: TObject);
+begin
+  if not MultipleSelectionPaste(FActiveMemo) then
+    FActiveMemo.PasteFromClipboard;
+end;
 
 procedure TMainForm.EDeleteClick(Sender: TObject);
 begin
