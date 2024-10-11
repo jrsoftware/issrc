@@ -2909,34 +2909,36 @@ end;
 function TMainForm.MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
 begin
   { Scintilla doesn't yet properly support multiple selection paste. Handle it
-    here, VSCode style: if there's multiple selections and the paste text has the
-    same amount of lines then paste 1 line per selection. Otherwise paste all lines
-    into each selection. For the latter we don't need handling here: this is
-    Scintilla's default behaviour if SC_MULTIPASTE_EACH is on. }
+    here, just like VS and VSCode do: if there's multiple selections and the paste
+    text has the same amount of lines then paste 1 line per selection. Do this even
+    if the paste text is marked as rectangular. Otherwise (so no match between
+    the selection count and the line count) paste all lines into each selection.
+    For the latter we don't need handling here: this is Scintilla's default
+    behaviour if SC_MULTIPASTE_EACH is on. }
   Result := False;
   var SelectionCount := AMemo.SelectionCount;
   if SelectionCount > 1 then begin
-    var RectangularPaste := False; {todo} { First check for the case Scintilla *does* support }
-    if not RectangularPaste then begin
-      var PasteLines := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
-      if SelectionCount = Length(PasteLines) then begin
-        AMemo.BeginUndoAction;
-        try
-          for var I := 0 to SelectionCount-1 do begin
-            var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
-            var EndPos := AMemo.SelectionEndPosition[I];
-            AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
-            { Update the selection to an empty selection at the end of the inserted
-              text, just like ReplaceMainSelText }
-            var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
-            AMemo.SelectionCaretPosition[I] := Pos;
-            AMemo.SelectionAnchorPosition[I] := Pos;
-          end;
-        finally
-          AMemo.EndUndoAction;
+    var PasteLines := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
+    if SelectionCount = Length(PasteLines) then begin
+      AMemo.BeginUndoAction;
+      try
+        for var I := 0 to SelectionCount-1 do begin
+          var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
+          var EndPos := AMemo.SelectionEndPosition[I];
+          AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
+          { Update the selection to an empty selection at the end of the inserted
+            text, just like ReplaceMainSelText }
+          var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
+          AMemo.SelectionCaretPosition[I] := Pos;
+          AMemo.SelectionAnchorPosition[I] := Pos;
         end;
-        Result := True;
+        { Be like SCI_PASTE }
+        AMemo.ChooseCaretX;
+        AMemo.ScrollCaretIntoView;
+      finally
+        AMemo.EndUndoAction;
       end;
+      Result := True;
     end;
   end;
 end;
