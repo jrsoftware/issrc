@@ -2910,9 +2910,9 @@ function TMainForm.MultipleSelectionPaste(const AMemo: TIDEScintEdit): Boolean;
 begin
   { Scintilla doesn't yet properly support multiple selection paste. Handle it
     here, VSCode style: if there's multiple selections and the paste text has the
-    same amount of lines then paste 1 line per selection. Otherwise do nothing
-    to allow Scintilla's default behaviour (which is to paste all lines into
-    each selection if SC_MULTIPASTE_EACH is on). }
+    same amount of lines then paste 1 line per selection. Otherwise paste all lines
+    into each selection. For the latter we don't need handling here: this is
+    Scintilla's default behaviour if SC_MULTIPASTE_EACH is on. }
   Result := False;
   var SelectionCount := AMemo.SelectionCount;
   if SelectionCount > 1 then begin
@@ -2925,8 +2925,8 @@ begin
           var EndPos := AMemo.SelectionEndPosition[I];
           AMemo.ReplaceTextRange(StartPos, EndPos, PasteText[I], srmMinimal);
           { Update the selection to an empty selection at the end of the inserted
-            text, just like SCI_REPLACESEL }
-          var Pos := AMemo.Target.EndPos; { SCI_REPLACETARGET* updates the target }
+            text, just like ReplaceMainSelText }
+          var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
           AMemo.SelectionCaretPosition[I] := Pos;
           AMemo.SelectionAnchorPosition[I] := Pos;
         end;
