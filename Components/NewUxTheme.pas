@@ -1250,7 +1250,7 @@ begin
       DrawThemeParentBackground := GetProcAddress(ThemeLibrary, 'DrawThemeParentBackground');
       EnableTheming := GetProcAddress(ThemeLibrary, 'EnableTheming');
       if WindowsVersionAtLeast(10, 0, 18362) and { Windows 10 Version 1903 (May 2019 Update) }
-         WindowsVersionAtMost(10, 0, 22631) then begin { Windows 11 Version 23H2 (2023 Update) }
+         WindowsVersionAtMost(10, 0, 26100) then begin { Windows 11 Version 24H2 (2024 Update) }
         SetPreferredAppMode := GetProcAddress(ThemeLibrary, MakeIntResource(135));
         FlushMenuThemes := GetProcAddress(ThemeLibrary, MakeIntResource(136));
       end else begin
