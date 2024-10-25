@@ -5271,7 +5271,7 @@ begin
             FActiveMemo.SetAutoCompleteFillupChars(' ');
           end else begin
             WordList := FMemosStyler.KeywordsWordList[Section];
-            if WordList = '' then { Messages & CustomMessages }
+            if WordList = '' then { CustomMessages }
               Exit;
             if IsParamSection then
               FActiveMemo.SetAutoCompleteFillupChars(':')

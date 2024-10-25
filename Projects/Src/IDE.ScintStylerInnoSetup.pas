@@ -99,7 +99,7 @@ type
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
-      const EnumTypeInfo: Pointer);
+      const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
     function BuildWordList(const WordStringList: TStringList): AnsiString;
@@ -591,15 +591,16 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
-    BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), 2);
     BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
     BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
     BuildKeywordsWordList(scRun, RunSectionParameters);
-    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective));
+    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), 2);
     BuildKeywordsWordList(scTasks, TasksSectionParameters);
     BuildKeywordsWordList(scTypes, TypesSectionParameters);
     BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
     BuildKeywordsWordList(scUninstallRun, UninstallRunSectionParameters);
+    BuildKeywordsWordListFromTypeInfo(scMessages, TypeInfo(TSetupMessageID), 3);
   end;
 
   procedure BuildScriptLists;
@@ -745,12 +746,13 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildKeywordsWordListFromTypeInfo(
-  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer);
+  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer;
+  const PrefixLength: Integer);
 begin
   var SL := TStringList.Create;
   try
     for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), 3, Maxint)), awtDirective);
+      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, Maxint)), awtDirective);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
