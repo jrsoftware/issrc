@@ -11,6 +11,8 @@ unit Shared.SetupSectionDirectives;
 
 interface
 
+const
+  SetupSectionDirectivePrefixLength = 2;
 type
   TSetupSectionDirective = (
     ssAllowCancelDuringInstall,

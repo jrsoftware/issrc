@@ -11,6 +11,8 @@ unit Shared.LangOptionsSectionDirectives;
 
 interface
 
+const
+  LangOptionsSectionDirectivePrefixLength = 2;
 type
   TLangOptionsSectionDirective = (
     lsCopyrightFontName,
