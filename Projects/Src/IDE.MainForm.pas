@@ -80,6 +80,14 @@ type
     MaxCallTips: Integer;
   end;
 
+  TUpdatePanelMessage = class
+    Msg, ConfigIdent: String;
+    ConfigValue: Integer;
+    constructor Create(AMsg, AConfigIdent: String; AConfigValue: Integer);
+  end;
+
+  TUpdatePanelMessages = TList<TUpdatePanelMessage>;
+
   TMainForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
     FMenu: TMenuItem;
@@ -490,6 +498,7 @@ type
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
     FCompileShortCut2: TShortCut;
     FCallTipState: TCallTipState;
+    FUpdatePanelMessages: TUpdatePanelMessages;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -609,6 +618,7 @@ type
     procedure UpdateRunMenu;
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateTargetMenu;
+    procedure UpdateUpdatePanel;
     procedure UpdateKeyMapping;
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
@@ -690,6 +700,16 @@ const
   tiFindResults = 3;
 
   LineStateGrowAmount = 4000;
+
+{ TUpdatePanelMessage }
+
+constructor TUpdatePanelMessage.Create(AMsg, AConfigIdent: String;
+  AConfigValue: Integer);
+begin
+  Msg := AMsg;
+  ConfigIdent := AConfigIdent;
+  ConfigValue := AConfigValue;
+end;
 
 { TMainFormPopupMenu }
 
@@ -783,6 +803,14 @@ end;
 
 constructor TMainForm.Create(AOwner: TComponent);
 
+  procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
+    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String);
+  begin
+    var ConfigValue := Ini.ReadInteger('Options', ConfigIdent, ConfigValueDefault);
+    if ConfigValue < ConfigValueMinimum then
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum));
+  end;
+
   procedure ReadConfig;
   var
     Ini: TConfigIniFile;
@@ -842,9 +870,11 @@ constructor TMainForm.Create(AOwner: TComponent);
           Memo.Font := FMainMemo.Font;
 
       { UpdatePanel visibility }
-      var KnownVersion := Cardinal(Ini.ReadInteger('Options', 'KnownVersion', 0));
-      UpdatePanel.Visible := KnownVersion < FCompilerVersion.BinVersion;
-      UpdateBevel1Visibility;
+      CheckUpdatePanelMessage(Ini, 'UpdatePanel.KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
+        'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.');
+      CheckUpdatePanelMessage(Ini, 'UpdatePanel.VSCodeMemoKeyMap', 0, 1,
+        'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.');
+      UpdateUpdatePanel;
 
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
@@ -1030,6 +1060,8 @@ begin
 
   FCallTipState.MaxCallTips := 1; { Just like SciTE 5.50 }
 
+  FUpdatePanelMessages := TUpdatePanelMessages.Create;
+
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
@@ -1093,6 +1125,7 @@ begin
   if FDevNames <> 0 then
     GlobalFree(FDevNames);
 
+  FUpdatePanelMessages.Free;
   FNavStacks.Free;
   FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
@@ -6378,6 +6411,17 @@ begin
   end;
 end;
 
+procedure TMainForm.UpdateUpdatePanel;
+begin
+  UpdatePanel.Visible := FUpdatePanelMessages.Count > 0;
+  if UpdatePanel.Visible then begin
+    var MessageToShowIndex := FUpdatePanelMessages.Count-1;
+    UpdateLinkLabel.Tag := MessageToShowIndex;
+    UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
+  end;
+  UpdateBevel1Visibility;
+end;
+
 procedure TMainForm.UpdateMenuBitmapsIfNeeded;
 
   procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
@@ -7657,22 +7701,28 @@ end;
 procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
   const Link: string; LinkType: TSysLinkType);
 begin
-  if (LinkType = sltID) and (Link = 'whatsnew') then begin
-    HWhatsNew.Click;
+  var Handled := True;
+  if (LinkType = sltID) and (Link = 'hwhatsnew') then
+    HWhatsNew.Click
+  else if (LinkType = sltID) and (Link = 'toptions') then
+    TOptions.Click
+  else
+    Handled := False;
+  if Handled then
     UpdatePanelClosePaintBoxClick(Sender);
-  end;
 end;
 
 procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
 begin
+  var MessageToHideIndex := UpdateLinkLabel.Tag;
   var Ini := TConfigIniFile.Create;
   try
-    Ini.WriteInteger('Options', 'KnownVersion', FCompilerVersion.BinVersion);
+    Ini.WriteInteger('Options', FUpdatePanelMessages[MessageToHideIndex].ConfigIdent, FUpdatePanelMessages[MessageToHideIndex].ConfigValue);
   finally
     Ini.Free;
   end;
-  UpdatePanel.Visible := False;
-  UpdateBevel1Visibility;
+  FUpdatePanelMessages.Delete(MessageToHideIndex);
+  UpdateUpdatePanel;
 end;
 
 procedure TMainForm.UpdatePanelDonateImageClick(Sender: TObject);
