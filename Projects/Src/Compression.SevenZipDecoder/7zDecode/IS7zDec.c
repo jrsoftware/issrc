@@ -7,13 +7,8 @@
 
 #include "../../../../Components/Lzma2/Util/7z/Precomp.h" /* Says it must be included first */
 
-#ifdef _MSC_VER
-
-/* Stop 7-Zip from using stdcall functions which will get unavoidable decorated names from
-   MSVC's cl.exe which Delphi can't handle: first include windows.h and then hide the
-   functions 7-Zip wants to use with macros pointing to cdecl prototypes. This will enable
-   us to call the stdcall function from a cdecl implementation in Delphi and keeps the
-   rest of windows.h available to 7-Zip. */
+/* Stop 7-Zip from directly creating files and directories. This will enable us to perform
+   extra checks from a cdecl implementation in Delphi. */
 
 #include "../../../../Components/Lzma2/7zWindows.h"
 
@@ -25,6 +20,15 @@ HANDLE _CreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
 
 HANDLE _CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 #define CreateFileW _CreateFileW
+
+#ifdef _MSC_VER
+
+/* MSVC only:
+   Stop 7-Zip from using stdcall functions which will get unavoidable decorated names from
+   MSVC's cl.exe which Delphi can't handle: first include windows.h and then hide the
+   functions 7-Zip wants to use with macros pointing to cdecl prototypes. This will enable
+   us to call the stdcall function from a cdecl implementation in Delphi and keeps the
+   rest of windows.h available to 7-Zip. */
 
 BOOL _FileTimeToLocalFileTime(FILETIME* lpFileTime, LPFILETIME lpLocalFileTime);
 #define FileTimeToLocalFileTime _FileTimeToLocalFileTime

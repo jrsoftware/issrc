@@ -18,7 +18,10 @@ function SevenZipDecode(const FileName, DestDir: String;
 implementation
 
 uses
-  Windows, SysUtils, Setup.LoggingFunc;
+  Windows, SysUtils, PathFunc, Setup.LoggingFunc;
+
+var
+  ExpandedDestDir: String;
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
@@ -28,11 +31,16 @@ uses
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
-{$IFDEF VISUALSTUDIO}
 function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
-  Result := CreateDirectoryW(lpPathName, lpSecurityAttributes);
+  var ExpandedDir := PathExpand(lpPathName);
+  if PathStartsWith(ExpandedDir, ExpandedDestDir) then
+    Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
+  else begin
+    Result := False;
+    SetLastError(ERROR_ACCESS_DENIED);
+  end;
 end;
 
 { Never actually called but still required by the linker }
@@ -50,8 +58,16 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
-  Result := CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+  var ExpandedFileName := PathExpand(lpFileName);
+  if PathStartsWith(ExpandedFileName, ExpandedDestDir) then
+    Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
+  else begin
+    Result := INVALID_HANDLE_VALUE;
+    SetLastError(ERROR_ACCESS_DENIED);
+  end;
 end;
+
+{$IFDEF VISUALSTUDIO}
 
 function __FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
 begin
@@ -211,6 +227,7 @@ begin
     Exit(-1);
   try
     LogBuffer := '';
+    ExpandedDestDir := PathExpand(DestDir);
     Result := IS_7zDec(PChar(FileName), FullPaths);
     if LogBuffer <> '' then
       Log(LogBuffer);
