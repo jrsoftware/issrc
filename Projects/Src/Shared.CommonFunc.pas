@@ -754,6 +754,9 @@ function GetTempDir: String;
   differences. }
 label 1;
 begin
+  Result := GetEnv('INNOSETUPTMP');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
   Result := GetEnv('TMP');
   if (Result <> '') and DirExists(Result) then
     goto 1;
