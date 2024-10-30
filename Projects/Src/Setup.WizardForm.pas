@@ -776,17 +776,30 @@ begin
 
   MainPanel.ParentBackground := False;
 
-  { Prior to scaling the form, shrink WizardSmallBitmapImage if it's currently
-    larger than WizardSmallImage. This way, stretching will not occur if the
-    user specifies a smaller-than-default image and WizardImageStretch=yes,
-    except if the form has to be scaled (e.g. due to Large Fonts). }
-  if WizardSmallImages.Count = 1 then begin
-    I := WizardSmallBitmapImage.Height - TBitmap(WizardSmallImages[0]).Height;
+  { Prior to scaling the form, reduce the size of the WizardSmallBitmapImage
+    control if appropriate:
+    - If the user specified a single image AND that image is not larger than
+      the default control size (55x58), then reduce the control size to match
+      the image dimensions. That avoids stretching if the user is purposely
+      using a smaller-than-default image and WizardImageStretch=yes.
+    - Otherwise, it's unclear what size/shape the user prefers for the
+      control. But most likely they're using square images intended to fill
+      the whole area, so reduce the control size to a square 55x55. }
+  begin
+    var NewWidth := TBitmap(WizardSmallImages[0]).Width;
+    var NewHeight := TBitmap(WizardSmallImages[0]).Height;
+    if (WizardSmallImages.Count > 1) or
+       (NewWidth > WizardSmallBitmapImage.Width) or
+       (NewHeight > WizardSmallBitmapImage.Height) then begin
+      NewWidth := 55;
+      NewHeight := 55;
+    end;
+    I := WizardSmallBitmapImage.Height - NewHeight;
     if I > 0 then begin
       WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
       WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
     end;
-    I := WizardSmallBitmapImage.Width - TBitmap(WizardSmallImages[0]).Width;
+    I := WizardSmallBitmapImage.Width - NewWidth;
     if I > 0 then begin
       WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
       WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
