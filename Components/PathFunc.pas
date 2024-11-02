@@ -22,7 +22,8 @@ function PathCompare(const S1, S2: String): Integer;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
-function PathExpand(const Filename: String): String;
+function PathExpand(const Filename: String): String; overload;
+function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean; overload;
 function PathExtensionPos(const Filename: String): Integer;
 function PathExtractDir(const Filename: String): String;
 function PathExtractDrive(const Filename: String): String;
@@ -278,7 +279,7 @@ begin
   end;
 end;
 
-function PathExpand(const Filename: String): String;
+function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean;
 { Like Delphi's ExpandFileName, but does proper error checking. }
 var
   Res: Integer;
@@ -287,9 +288,14 @@ var
 begin
   DWORD(Res) := GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
     Buf, FilePart);
-  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
-    SetString(Result, Buf, Res)
-  else
+  Result := (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0]));
+  if Result then
+    SetString(ExpandedFilename, Buf, Res)
+end;
+
+function PathExpand(const Filename: String): String;
+begin
+  if not PathExpand(Filename, Result) then
     Result := Filename;
 end;
 

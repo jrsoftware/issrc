@@ -34,8 +34,8 @@ function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl;
 function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
-  var ExpandedDir := PathExpand(lpPathName);
-  if PathStartsWith(ExpandedDir, ExpandedDestDir) then
+  var ExpandedDir: String;
+  if PathExpand(lpPathName, ExpandedDir) and  PathStartsWith(ExpandedDir, ExpandedDestDir) then
     Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
@@ -58,8 +58,8 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
-  var ExpandedFileName := PathExpand(lpFileName);
-  if PathStartsWith(ExpandedFileName, ExpandedDestDir) then
+  var ExpandedFileName: String;
+  if PathExpand(lpFileName, ExpandedFileName) and PathStartsWith(ExpandedFileName, ExpandedDestDir) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
