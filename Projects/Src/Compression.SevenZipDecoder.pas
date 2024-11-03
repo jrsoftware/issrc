@@ -227,7 +227,7 @@ begin
     Exit(-1);
   try
     LogBuffer := '';
-    ExpandedDestDir := PathExpand(DestDir);
+    ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     Result := IS_7zDec(PChar(FileName), FullPaths);
     if LogBuffer <> '' then
       Log(LogBuffer);
