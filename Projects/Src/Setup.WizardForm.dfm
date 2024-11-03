@@ -703,9 +703,9 @@ object WizardForm: TWizardForm
           497
           58)
         object FWizardSmallBitmapImage: TBitmapImage
-          Left = 440
+          Left = 439
           Top = 0
-          Width = 55
+          Width = 58
           Height = 58
           Anchors = [akTop, akRight]
           BackColor = clWindow

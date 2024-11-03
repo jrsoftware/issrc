@@ -776,36 +776,6 @@ begin
 
   MainPanel.ParentBackground := False;
 
-  { Prior to scaling the form, reduce the size of the WizardSmallBitmapImage
-    control if appropriate:
-    - If the user specified a single image AND that image is not larger than
-      the default control size (55x58), then reduce the control size to match
-      the image dimensions. That avoids stretching if the user is purposely
-      using a smaller-than-default image and WizardImageStretch=yes.
-    - Otherwise, it's unclear what size/shape the user prefers for the
-      control. But most likely they're using square images intended to fill
-      the whole area, so reduce the control size to a square 55x55. }
-  begin
-    var NewWidth := TBitmap(WizardSmallImages[0]).Width;
-    var NewHeight := TBitmap(WizardSmallImages[0]).Height;
-    if (WizardSmallImages.Count > 1) or
-       (NewWidth > WizardSmallBitmapImage.Width) or
-       (NewHeight > WizardSmallBitmapImage.Height) then begin
-      NewWidth := 55;
-      NewHeight := 55;
-    end;
-    I := WizardSmallBitmapImage.Height - NewHeight;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
-      WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
-    end;
-    I := WizardSmallBitmapImage.Width - NewWidth;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
-      WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
-    end;
-  end;
-
   { Not sure why the following is needed but various things related to
     positioning and anchoring don't work without this (you get positions of
     page controls back as if there was no anchoring until the page handle
@@ -879,6 +849,49 @@ begin
   if SetupHeader.WizardStyle = wsModern then begin
     OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
+  end;
+
+  { Adjust small wizard image's size and position }
+  begin
+    { If the control is no longer square after scaling, fix it }
+    I := WizardSmallBitmapImage.Height - WizardSmallBitmapImage.Width;
+    WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width + I;
+    WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left - I;
+    PageNameLabel.Width := PageNameLabel.Width - I;
+    PageDescriptionLabel.Width := PageDescriptionLabel.Width - I;
+
+    { Reduce the size of the control if appropriate:
+      - If the user supplied a single image AND that image is not larger than
+        the default control size before scaling (58x58), then reduce the
+        control size to match the image dimensions. That avoids stretching to
+        58x58 when the user is purposely using a smaller-than-default image
+        (such as 55x55 or 32x32) and WizardImageStretch=yes.
+      - Otherwise, it's unclear what size/shape the user prefers for the
+        control. Set the control size to 55x55, because that has historically
+        been the size of the (smallest) default images. }
+    var NewWidth := TBitmap(WizardSmallImages[0]).Width;
+    var NewHeight := TBitmap(WizardSmallImages[0]).Height;
+    if (WizardSmallImages.Count > 1) or
+       (NewWidth > 58) or
+       (NewHeight > 58) then begin
+      NewWidth := 55;
+      NewHeight := 55;
+    end;
+
+    { Scale the new width and height }
+    NewWidth := MulDiv(NewWidth, WizardSmallBitmapImage.Width, 58);
+    NewHeight := MulDiv(NewHeight, WizardSmallBitmapImage.Height, 58);
+
+    I := WizardSmallBitmapImage.Height - NewHeight;
+    if I > 0 then begin
+      WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
+      WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
+    end;
+    I := WizardSmallBitmapImage.Width - NewWidth;
+    if I > 0 then begin
+      WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
+      WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+    end;
   end;
 
   { Initialize images }
