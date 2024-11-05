@@ -5271,7 +5271,7 @@ begin
               if not FoundSemicolon then begin
                 var ParameterWordEndPos := I;
                 var ParameterWordStartPos := FActiveMemo.GetWordStartPosition(ParameterWordEndPos, True);
-                var ParameterWord := FActiveMemo.GetTextRange(ParameterWordStartPos,ParameterWordEndPos);
+                var ParameterWord := FActiveMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                 FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                     ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
@@ -5287,9 +5287,19 @@ begin
                 Exit;
               I := LangNamePos;
               FoundDot := True;
-            end
-            else begin
-              if C > ' ' then
+            end else if C > ' ' then begin
+              if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
+                 (FMemosStyler.FlagsWordList[Section] <> '') then begin
+                { Verify word before the current word (or before that when we get here again) is
+                  a valid flag and if so, continue looking before it instead of stopping }
+                var FlagEndPos := FActiveMemo.GetWordEndPosition(I, True);
+                var FlagStartPos := FActiveMemo.GetWordStartPosition(I, True);
+                var FlagWord := FActiveMemo.GetTextRange(FlagStartPos, FlagEndPos);
+                if FMemosStyler.SectionHasFlag(Section, FlagWord) then
+                  I := FlagStartPos
+                else
+                  Exit;
+              end else
                 Exit;
             end;
           end;

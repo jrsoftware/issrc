@@ -73,6 +73,7 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
+  TWordsBySection = TObjectDictionary<TInnoSetupStylerSection, TStringList>;
   TFunctionDefinitions = array of AnsiString;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
@@ -80,6 +81,7 @@ type
   private
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
+    FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
@@ -140,6 +142,7 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+    function SectionHasFlag(const Section: TInnoSetupStylerSection; const Flag: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
     property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
@@ -653,6 +656,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
 begin
   inherited;
+  FFlagsWords := TWordsBySection.Create([doOwnsValues]);
   BuildConstantsWordList;
   BuildEventFunctionsWordList;
   BuildFlagsWordLists;
@@ -668,6 +672,7 @@ destructor TInnoSetupStyler.Destroy;
 begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
+  FFlagsWords.Free;
   inherited;
 end;
 
@@ -732,10 +737,10 @@ procedure TInnoSetupStyler.BuildKeywordsWordList(
   const Section: TInnoSetupStylerSection;
   const Parameters: array of TScintRawString);
 begin
-  var SL :=TStringList.Create;
+  var SL := TStringList.Create;
   try
-    for var I := 0 to High(Parameters) do
-      AddWordToList(SL, Parameters[I], awtParameter);
+    for var Parameter in Parameters do
+      AddWordToList(SL, Parameter, awtParameter);
     FKeywordsWordList[Section] := BuildWordList(SL);
   finally
     SL.Free;
@@ -759,13 +764,27 @@ end;
 procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
   const Flags: array of TScintRawString);
 begin
-  var SL := TStringList.Create;
+  { Build FFlagsWords }
+  var SL1 := TStringList.Create;
   try
-    for var I := 0 to High(Flags) do
-      AddWordToList(SL, Flags[I], awtFlag);
-    FFlagsWordList[Section] := BuildWordList(SL);
+    SL1.CaseSensitive := False;
+    for var Flag in Flags do
+      SL1.Add(String(Flag));
+    FFlagsWords.Add(Section, SL1);
+    SL1 := nil; //SL1 is now owned by FFlagsWords
+  except
+    SL1.Free;
+    raise;
+  end;
+
+  { Build FFlagsWordList }
+  var SL2 := TStringList.Create;
+  try
+    for var Flag in Flags do
+      AddWordToList(SL2, Flag, awtFlag);
+    FFlagsWordList[Section] := BuildWordList(SL2);
   finally
-    SL.Free;
+    SL2.Free;
   end;
 end;
 
@@ -798,8 +817,8 @@ procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
 begin
   var SL := TStringList.Create;
   try
-    for var I := 0 to High(ISPPDirectives) do
-      AddWordToList(SL, '#' + ISPPDirectives[I].Name, awtPreprocessorDirective);
+    for var ISPPDirective in ISPPDirectives do
+      AddWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
     FISPPDirectivesWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -810,14 +829,14 @@ procedure TInnoSetupStyler.BuildConstantsWordList;
 begin
   var SL := TStringList.Create;
   try
-    for var I := 0 to High(Constants) do
-      AddWordToList(SL, '{' + Constants[I] + '}', awtConstant);
+    for var Constant in Constants do
+      AddWordToList(SL, '{' + Constant + '}', awtConstant);
     if ISPPInstalled then begin
       AddWordToList(SL, '{#', awtConstant);
       AddWordToList(SL, '{#file ', awtConstant);
     end;
-    for var I := 0 to High(ConstantsWithParam) do
-      AddWordToList(SL, '{' + ConstantsWithParam[I], awtConstant);
+    for var ConstantWithParam in ConstantsWithParam do
+      AddWordToList(SL, '{' + ConstantWithParam, awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -831,9 +850,9 @@ begin
   try
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
-    for var I := 0 to High(FullEventFunctions) do begin
+    for var FullEventFunction in FullEventFunctions do begin
       var WasFunction: Boolean;
-      var S := RemoveScriptFuncHeader(FullEventFunctions[I], WasFunction);
+      var S := RemoveScriptFuncHeader(FullEventFunction, WasFunction);
       if WasFunction then
         AddWordToList(SLFunctions, S, awtScriptEvent)
       else
@@ -1189,8 +1208,8 @@ begin
     FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
   end else begin
     var S := ConsumeString(ISPPIdentChars);
-    for var I := Low(ISPPDirectives) to High(ISPPDirectives) do
-      if SameRawText(S, ISPPDirectives[I].Name) then begin
+    for var ISPPDirective in ISPPDirectives do
+      if SameRawText(S, ISPPDirective.Name) then begin
         if SameRawText(S, 'error') then
           ErrorDirective := True
         else if SameRawText(S, 'include') then
@@ -1198,12 +1217,12 @@ begin
         else
           NeedIspp := True; { Built-in preprocessor only supports '#include' }
         ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
-        Inc(OpenCount, ISPPDirectives[I].OpenCountChange);
+        Inc(OpenCount, ISPPDirective.OpenCountChange);
         if OpenCount < 0 then begin
           CommitStyleSq(stCompilerDirective, True);
           OpenCount := 0; { Reset so that next doesn't automatically gets error as well }
         end;
-        FinishDirectiveNameOrShorthand(ISPPDirectives[I].RequiresParameter);
+        FinishDirectiveNameOrShorthand(ISPPDirective.RequiresParameter);
         Break;
       end;
     if InlineDirective then
@@ -1236,8 +1255,8 @@ begin
       end;
       if CurChar in ISPPIdentFirstChars then begin
         var S := ConsumeString(ISPPIdentChars);
-        for var I := Low(ISPPReservedWords) to High(ISPPReservedWords) do
-          if SameRawText(S, ISPPReservedWords[I]) then begin
+        for var ISPPReservedWord in ISPPReservedWords do
+          if SameRawText(S, ISPPReservedWord) then begin
             CommitStyle(stISPPReservedWord);
             Break;
           end;
@@ -1551,6 +1570,13 @@ begin
         Inc(I);
     end;
   end;
+end;
+
+function TInnoSetupStyler.SectionHasFlag(const Section: TInnoSetupStylerSection;
+  const Flag: String): Boolean;
+begin
+  var SL := FFlagsWords[Section];
+  Result := (SL <> nil) and not SL.CaseSensitive and (SL.IndexOf(Flag) <> -1);
 end;
 
 procedure TInnoSetupStyler.SetISPPInstalled(const Value: Boolean);
