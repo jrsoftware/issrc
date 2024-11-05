@@ -853,10 +853,13 @@ begin
 
   { Adjust small wizard image's size and position }
   begin
-    { If the control is no longer square after scaling, fix it }
-    I := WizardSmallBitmapImage.Height - WizardSmallBitmapImage.Width;
-    WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width + I;
-    WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left - I;
+    { Make sure the control is still perfectly square after scaling and flush
+      with the right edge of its parent }
+    I := WizardSmallBitmapImage.Left;
+    WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Height;
+    WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Parent.ClientWidth -
+      WizardSmallBitmapImage.Width;
+    Dec(I, WizardSmallBitmapImage.Left);
     PageNameLabel.Width := PageNameLabel.Width - I;
     PageDescriptionLabel.Width := PageDescriptionLabel.Width - I;
 
