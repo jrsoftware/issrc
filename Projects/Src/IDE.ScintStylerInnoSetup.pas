@@ -570,7 +570,6 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildFlagsWordList(scFiles, FilesSectionFlags);
     BuildFlagsWordList(scComponents, ComponentsSectionFlags);
     BuildFlagsWordList(scDirs, DirsSectionFlags);
-    BuildFlagsWordList(scFiles, FilesSectionFlags);
     BuildFlagsWordList(scIcons, IconsSectionFlags);
     BuildFlagsWordList(scINI, INISectionFlags);
     BuildFlagsWordList(scRegistry, RegistrySectionFlags);
@@ -578,8 +577,6 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildFlagsWordList(scTasks, TasksSectionFlags);
     BuildFlagsWordList(scTypes, TypesSectionFlags);
     BuildFlagsWordList(scUninstallRun, UninstallRunSectionFlags);
-    BuildFlagsWordList(scComponents, ComponentsSectionFlags);
-    BuildFlagsWordList(scDirs, DirsSectionFlags);
     { Bit of a trick }
     BuildFlagsWordList(scInstallDelete, DeleteSectionTypes);
     BuildFlagsWordList(scUninstallDelete, DeleteSectionTypes);
