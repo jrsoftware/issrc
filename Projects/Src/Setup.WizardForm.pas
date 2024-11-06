@@ -189,6 +189,7 @@ type
     EnableAnchorOuterPagesOnResize: Boolean;
     EnableAdjustReadyLabelHeightOnResize: Boolean;
     procedure AdjustFocus;
+    procedure AnchorOuterPages;
     procedure CalcCurrentComponentsSpace;
     procedure ChangeReadyLabel(const S: String);
     function CheckSerialOk: Boolean;
@@ -851,6 +852,9 @@ begin
     Bevel1.Visible := False;
   end;
 
+  { Correct aspect ratio of the large wizard images after scaling }
+  AnchorOuterPages;
+
   { Adjust small wizard image's size and position }
   begin
     { Make sure the control is still perfectly square after scaling and flush
@@ -1274,7 +1278,7 @@ begin
     NoIconsCheck.Visible := False;
 end;
 
-procedure TWizardForm.FormResize(Sender: TObject);
+procedure TWizardForm.AnchorOuterPages;
 
   procedure AnchorOuterPage(const Page: TNewNotebookPage;
     const BitmapImage: TBitmapImage);
@@ -1295,15 +1299,15 @@ procedure TWizardForm.FormResize(Sender: TObject);
     if BitmapImage.Visible and (BitmapImage.Align = alNone) and (BitmapImage.Anchors = ExpectedAnchors) then begin
       if BaseUnitX = 0 then
         InternalError('AnchorOuterPage: BaseUnitX = 0');
-      NewWidth := MulDiv(BitmapImage.Height, ScalePixelsX(164), ScalePixelsY(314)); //164x314 is the original bitmapimage size
+      NewWidth := MulDiv(BitmapImage.Height, 164, 314); //164x314 is the original bitmapimage size
       if ControlsFlipped then
-        BitmapImage.Left := ClientWidth - NewWidth;
+        BitmapImage.Left := Page.ClientWidth - NewWidth;
       BitmapImage.Width := NewWidth;
       for I := 0 to Page.ControlCount-1 do begin
         Ctl := Page.Controls[I];
         if Ctl <> BitmapImage then begin
           NewLeft := BitmapImage.Width + ScalePixelsX(12); //12 is original space between bitmapimage and controls
-          Ctl.Width := ClientWidth - ScalePixelsX(20) - NewLeft; //20 is original space between controls and right border
+          Ctl.Width := Page.ClientWidth - ScalePixelsX(20) - NewLeft; //20 is original space between controls and right border
           if not ControlsFlipped then
             Ctl.Left := NewLeft;
         end;
@@ -1312,10 +1316,14 @@ procedure TWizardForm.FormResize(Sender: TObject);
   end;
 
 begin
-  if EnableAnchorOuterPagesOnResize then begin
-    AnchorOuterPage(WelcomePage, WizardBitmapImage);
-    AnchorOuterPage(FinishedPage, WizardBitmapImage2);
-  end;
+  AnchorOuterPage(WelcomePage, WizardBitmapImage);
+  AnchorOuterPage(FinishedPage, WizardBitmapImage2);
+end;
+
+procedure TWizardForm.FormResize(Sender: TObject);
+begin
+  if EnableAnchorOuterPagesOnResize then
+    AnchorOuterPages;
   if EnableAdjustReadyLabelHeightOnResize then
     IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
 end;
