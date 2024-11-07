@@ -1053,7 +1053,6 @@ begin
     end;
 
     { Other }
-    Setup := Setup + 'Compression=lzma' + SNewLine;
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
     Setup := Setup + 'WizardStyle=modern' + SNewLine;
 
