@@ -244,9 +244,6 @@ end;
 
 { --- }
 
-type
-  TNotebookAccess = class(TNotebook);
-
 procedure TWizardForm.FormCreate(Sender: TObject);
 
   procedure AddLanguages(const Extension: String);
@@ -302,7 +299,7 @@ begin
 
   InitFormFont(Self);
   if Font.Name = 'Segoe UI' then begin
-    { See Wizard.pas }
+    { See Setup.WizardForm.pas }
     for I := 0 to OuterNotebook.PageCount-1 do
       OuterNotebook.Pages[I].HandleNeeded;
     for I := 0 to InnerNotebook.PageCount-1 do
@@ -312,7 +309,6 @@ begin
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
 
-  TNotebookAccess(OuterNotebook).ParentBackground := False;
   OuterNotebook.Color := clWindow;
 
   MakeBold(PageNameLabel);
