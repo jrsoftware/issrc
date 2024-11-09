@@ -221,10 +221,10 @@ begin
   end;
 end;
 
-procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64); cdecl;
+procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
   //Setup.LoggingFunc.Log(Format('%s: %d of %d', [FileName, Progress, ProgressMax]));
-  if DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
+  if not Abort and DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
     Application.ProcessMessages;
 end;
 
