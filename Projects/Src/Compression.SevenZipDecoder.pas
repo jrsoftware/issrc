@@ -219,6 +219,11 @@ begin
   end;
 end;
 
+procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64); cdecl;
+begin
+  //Setup.LoggingFunc.Log(Format('%s: %d of %d', [FileName, Progress, ProgressMax]));
+end;
+
 function SevenZipDecode(const FileName, DestDir: String;
   const FullPaths: Boolean): Integer;
 begin
