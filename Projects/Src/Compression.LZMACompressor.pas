@@ -355,13 +355,17 @@ begin
     if Bytes > SizeOf(Ring.Buf) - Offset then
       Bytes := SizeOf(Ring.Buf) - Offset;
 
+    { On a weakly-ordered CPU, the read of Count above must happen before
+      Buf content is read below (otherwise the content could be stale) }
+    MemoryBarrier;
+
     if AWrite then begin
       Move(P^, Ring.Buf[Offset], Bytes);
-      InterlockedExchangeAdd(Ring.Count, Bytes);
+      InterlockedExchangeAdd(Ring.Count, Bytes);  { full barrier }
     end
     else begin
       Move(Ring.Buf[Offset], P^, Bytes);
-      InterlockedExchangeAdd(Ring.Count, -Bytes);
+      InterlockedExchangeAdd(Ring.Count, -Bytes);  { full barrier }
     end;
     if Offset + Bytes = SizeOf(Ring.Buf) then
       Offset := 0
@@ -403,8 +407,12 @@ begin
     if Bytes > SizeOf(Ring.Buf) - Ring.ReaderOffset then
       Bytes := SizeOf(Ring.Buf) - Ring.ReaderOffset;
 
+    { On a weakly-ordered CPU, the read of Count above must happen before
+      Buf content is read below (otherwise the content could be stale) }
+    MemoryBarrier;
+
     AWriteProc(Ring.Buf[Ring.ReaderOffset], Bytes);
-    InterlockedExchangeAdd(Ring.Count, -Bytes);
+    InterlockedExchangeAdd(Ring.Count, -Bytes);  { full barrier }
     if Ring.ReaderOffset + Bytes = SizeOf(Ring.Buf) then
       Ring.ReaderOffset := 0
     else

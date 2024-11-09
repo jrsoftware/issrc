@@ -96,12 +96,16 @@ static Longint RingBufferInternalWriteOrRead(struct TLZMACompressorRingBuffer *R
 			Bytes = (Longint)sizeof(Ring->Buf) - *Offset;
 		}
 
+		/* On a weakly-ordered CPU, the read of Count above must happen before
+		   Buf content is read below (otherwise the content could be stale) */
+		MemoryBarrier();
+
 		if (AWrite) {
 			memcpy(&Ring->Buf[*Offset], P, Bytes);
-			InterlockedExchangeAdd(&Ring->Count, Bytes);
+			InterlockedExchangeAdd(&Ring->Count, Bytes);  /* full barrier */
 		} else {
 			memcpy(P, &Ring->Buf[*Offset], Bytes);
-			InterlockedExchangeAdd(&Ring->Count, -Bytes);
+			InterlockedExchangeAdd(&Ring->Count, -Bytes);  /* full barrier */
 		}
 		if (*Offset + Bytes == sizeof(Ring->Buf)) {
 			*Offset = 0;
