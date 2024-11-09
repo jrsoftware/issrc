@@ -605,7 +605,7 @@ begin
     Exit;
   end;
   Result := FillBuffer(False, @Data, Size, ProcessedSize);
-  FReadLock := 0;
+  InterlockedExchange(FReadLock, 0);
 end;
 
 function TLZMAWorkerThread.Write(const Data; Size: Cardinal;
@@ -618,7 +618,7 @@ begin
     Exit;
   end;
   Result := FillBuffer(True, @Data, Size, ProcessedSize);
-  FWriteLock := 0;
+  InterlockedExchange(FWriteLock, 0);
 end;
 
 function TLZMAWorkerThread.ProgressMade(const TotalBytesProcessed: Integer64): HRESULT;
@@ -645,7 +645,7 @@ begin
     end;
     Result := WakeMainAndWaitUntil(FEvents.WorkerHasProgressEvent,
       FEvents.EndWaitOnProgressEvent);
-    FProgressLock := 0;
+    InterlockedExchange(FProgressLock, 0);
   end
   else
     Result := S_OK;

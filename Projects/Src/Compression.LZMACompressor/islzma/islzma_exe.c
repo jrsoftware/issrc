@@ -217,7 +217,7 @@ static HRESULT Read(void *Data, size_t Size, size_t *ProcessedSize)
 		return E_FAIL;
 	}
 	Result = FillBuffer(FALSE, Data, Size, ProcessedSize);
-	FReadLock = 0;
+	InterlockedExchange(&FReadLock, 0);
 
 	return Result;
 }
@@ -232,7 +232,7 @@ static HRESULT Write(const void *Data, size_t Size, size_t *ProcessedSize)
 		return E_FAIL;
 	}
 	Result = FillBuffer(TRUE, (void *)Data, Size, ProcessedSize);
-	FWriteLock = 0;
+	InterlockedExchange(&FWriteLock, 0);
 
 	return Result;
 }
@@ -262,7 +262,7 @@ static HRESULT ProgressMade(const UInt64 TotalBytesProcessed)
 		Result = WakeMainAndWaitUntil(
 			THandle32ToHandle(FEvents->WorkerHasProgressEvent),
 			THandle32ToHandle(FEvents->EndWaitOnProgressEvent));
-		FProgressLock = 0;
+		InterlockedExchange(&FProgressLock, 0);
 	} else {
 		Result = S_OK;
 	}
