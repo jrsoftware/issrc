@@ -3423,7 +3423,7 @@ begin
     end;
   end;
 
-  if not Abort and DownloadTemporaryFileProcessMessages then
+  if not Abort and DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
     Application.ProcessMessages;
 
   if Abort then

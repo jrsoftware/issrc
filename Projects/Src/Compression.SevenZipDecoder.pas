@@ -18,7 +18,9 @@ function SevenZipDecode(const FileName, DestDir: String;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, Setup.LoggingFunc;
+  Windows, SysUtils, Forms,
+  PathFunc,
+  Setup.LoggingFunc, Setup.MainFunc;
 
 var
   ExpandedDestDir: String;
@@ -222,6 +224,8 @@ end;
 procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64); cdecl;
 begin
   //Setup.LoggingFunc.Log(Format('%s: %d of %d', [FileName, Progress, ProgressMax]));
+  if DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
+    Application.ProcessMessages;
 end;
 
 function SevenZipDecode(const FileName, DestDir: String;
