@@ -559,8 +559,17 @@ begin
       LimitedSize := Size;
     if AWrite then
       Bytes := RingBufferWrite(FShared.OutputBuffer, P^, LimitedSize)
-    else
+    else begin
+      if FShared.NoMoreInput then begin
+        { If NoMoreInput=True and *then* we see that the input buffer is
+          empty (ordering matters!), we know that all input has been
+          processed and that the input buffer will stay empty }
+        MemoryBarrier;
+        if FShared.InputBuffer.Count = 0 then
+          Break;
+      end;
       Bytes := RingBufferRead(FShared.InputBuffer, P^, LimitedSize);
+    end;
     if Bytes = 0 then begin
       if AWrite then begin
         { Output buffer full; wait for the main thread to flush it }
@@ -571,8 +580,6 @@ begin
       end
       else begin
         { Input buffer empty; wait for the main thread to fill it }
-        if FShared.NoMoreInput then
-          Break;
         Result := WakeMainAndWaitUntil(FEvents.WorkerWaitingOnInputEvent,
           FEvents.EndWaitOnInputEvent);
         if Result <> S_OK then
@@ -1072,6 +1079,11 @@ procedure TLZMACompressor.DoFinish;
 begin
   StartEncode;
 
+  { Ensure prior InputBuffer updates are made visible before setting
+    NoMoreInput. (This isn't actually needed right now because there's
+    already a full barrier inside RingBufferWrite. But that's an
+    implementation detail.) }
+  MemoryBarrier;
   FShared.NoMoreInput := True;
   while not FEncodeFinished do begin
     SatisfyWorkerWaitOnInput;
@@ -1093,6 +1105,11 @@ begin
     LZMAInternalErrorFmt('Finish: LZMA_Encode failed with code %d',
       [FShared.EncodeResult]);
   end;
+
+  { Encoding was successful; verify that all input was consumed }
+  if FShared.InputBuffer.Count <> 0 then
+    LZMAInternalErrorFmt('Finish: Input buffer is not empty (%d)',
+      [FShared.InputBuffer.Count]);
 
   FEncodeStarted := False;
 end;

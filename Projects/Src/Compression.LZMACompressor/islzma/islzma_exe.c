@@ -169,6 +169,15 @@ static HRESULT FillBuffer(const BOOL AWrite, void *Data, size_t Size,
 		if (AWrite) {
 			Bytes = RingBufferWrite(&FShared->OutputBuffer, P, LimitedSize);
 		} else {
+			if (FShared->NoMoreInput) {
+				/* If NoMoreInput=True and *then* we see that the input buffer is
+				   empty (ordering matters!), we know that all input has been
+				   processed and that the input buffer will stay empty */
+				MemoryBarrier();
+				if (FShared->InputBuffer.Count == 0) {
+					break;
+				}
+			}
 			Bytes = RingBufferRead(&FShared->InputBuffer, P, LimitedSize);
 		}
 		if (Bytes == 0) {
@@ -182,9 +191,6 @@ static HRESULT FillBuffer(const BOOL AWrite, void *Data, size_t Size,
 				}
 			} else {
 				/* Input buffer empty; wait for the main thread to fill it */
-				if (FShared->NoMoreInput) {
-					break;
-				}
 				Result = WakeMainAndWaitUntil(
 					THandle32ToHandle(FEvents->WorkerWaitingOnInputEvent),
 					THandle32ToHandle(FEvents->EndWaitOnInputEvent));
