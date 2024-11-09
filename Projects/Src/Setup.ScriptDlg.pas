@@ -918,7 +918,7 @@ begin
   InternalError('Cannot call TOutputMarqueeProgressWizardPage.SetProgress');
 end;
 
-{--- OutputDownload ---}
+{--- Download ---}
 
 type
   TDownloadFile = class
