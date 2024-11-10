@@ -223,17 +223,6 @@ const
   SZ_ERROR_PROGRESS = 10;
   SZ_ERROR_FAIL = 11;
 
-function InterlockedExchangeAdd(var Addend: Longint; Value: Longint): Longint;
-  stdcall; external kernel32;
-
-function GetNumberOfProcessors: Cardinal;
-var
-  SysInfo: TSystemInfo;
-begin
-  GetSystemInfo(SysInfo);
-  Result := SysInfo.dwNumberOfProcessors;
-end;
-
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 begin
   LZMADLLInitialized := False;
