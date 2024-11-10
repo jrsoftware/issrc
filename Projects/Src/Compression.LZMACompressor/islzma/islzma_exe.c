@@ -50,7 +50,7 @@ struct TLZMACompressorSharedEvents {
 
 struct TLZMACompressorSharedData {
 	volatile BOOL NoMoreInput;
-	volatile LongWord ProgressKB;
+	volatile UInt32 ProgressKB;
 	volatile SRes EncodeResult;
 	struct TLZMACompressorRingBuffer InputBuffer;
 	struct TLZMACompressorRingBuffer OutputBuffer;
@@ -245,7 +245,6 @@ static HRESULT ProgressMade(const UInt64 TotalBytesProcessed)
 /* Called from worker thread (or a thread spawned by the worker thread) */
 {
 	DWORD T;
-	UInt64 KBProcessed;
 	HRESULT Result;
 
 	T = GetTickCount();
@@ -259,9 +258,7 @@ static HRESULT ProgressMade(const UInt64 TotalBytesProcessed)
 		   "-1 for size means unknown value", though I don't see any place
 		   where LzmaEnc actually does call Progress with inSize = -1. */
 		if ((Int64)TotalBytesProcessed >= 0) {
-			KBProcessed = TotalBytesProcessed;
-			KBProcessed /= 1024;
-			FShared->ProgressKB = (LongWord)KBProcessed;
+			FShared->ProgressKB = (UInt32)(TotalBytesProcessed >> 10);
 		}
 		Result = WakeMainAndWaitUntil(
 			THandle32ToHandle(FEvents->WorkerHasProgressEvent),

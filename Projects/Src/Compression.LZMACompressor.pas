@@ -14,7 +14,7 @@ interface
 
 uses
   Windows, SysUtils,
-  Compression.Base, Shared.Int64Em;
+  Compression.Base;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;
@@ -76,7 +76,7 @@ type
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
     NoMoreInput: BOOL;
-    ProgressKB: LongWord;
+    ProgressKB: UInt32;
     EncodeResult: TLZMASRes;
     InputBuffer: TLZMACompressorRingBuffer;
     OutputBuffer: TLZMACompressorRingBuffer;
@@ -101,7 +101,7 @@ type
     FEncodeStarted: Boolean;
     FEncodeFinished: Boolean;
     FLastInputWriteCount: LongWord;
-    FLastProgressKB: LongWord;
+    FLastProgressKB: UInt32;
     procedure FlushOutputBuffer(const OnlyOptimalSize: Boolean);
     procedure InitializeProps(const CompressionLevel: Integer;
       const ACompressorProps: TCompressorProps);
@@ -158,7 +158,7 @@ type
     FLastProgressTick: DWORD;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
       Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
-    function ProgressMade(const TotalBytesProcessed: Integer64): HRESULT;
+    function ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
     function Read(var Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
     function WakeMainAndWaitUntil(const AWakeEvent, AWaitEvent: THandle): HRESULT;
     procedure WorkerThreadProc;
@@ -199,7 +199,7 @@ type
   end;
   PLZMACompressProgress = ^TLZMACompressProgress;
   TLZMACompressProgress = record
-    Progress: function(p: PLZMACompressProgress; inSize, outSize: Integer64): TLZMASRes; stdcall;
+    Progress: function(p: PLZMACompressProgress; inSize, outSize: UInt64): TLZMASRes; stdcall;
     Instance: TLZMAWorkerThread;
   end;
 
@@ -312,7 +312,7 @@ begin
 end;
 
 function LZMACompressProgressProgressWrapper(p: PLZMACompressProgress;
-  inSize, outSize: Integer64): TLZMASRes; stdcall;
+  inSize, outSize: UInt64): TLZMASRes; stdcall;
 begin
   if p.Instance.ProgressMade(inSize) = S_OK then
     Result := SZ_OK
@@ -629,11 +629,10 @@ begin
   InterlockedExchange(FWriteLock, 0);
 end;
 
-function TLZMAWorkerThread.ProgressMade(const TotalBytesProcessed: Integer64): HRESULT;
+function TLZMAWorkerThread.ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 var
   T: DWORD;
-  KBProcessed: Integer64;
 begin
   T := GetTickCount;
   if Cardinal(T - FLastProgressTick) >= Cardinal(100) then begin
@@ -646,11 +645,8 @@ begin
     { Make sure TotalBytesProcessed isn't negative. LZMA's Types.h says
       "-1 for size means unknown value", though I don't see any place
       where LzmaEnc actually does call Progress with inSize = -1. }
-    if Longint(TotalBytesProcessed.Hi) >= 0 then begin
-      KBProcessed := TotalBytesProcessed;
-      Div64(KBProcessed, 1024);
-      FShared.ProgressKB := KBProcessed.Lo;
-    end;
+    if Int64(TotalBytesProcessed) >= 0 then
+      FShared.ProgressKB := UInt32(TotalBytesProcessed shr 10);
     Result := WakeMainAndWaitUntil(FEvents.WorkerHasProgressEvent,
       FEvents.EndWaitOnProgressEvent);
     InterlockedExchange(FProgressLock, 0);
@@ -940,23 +936,26 @@ begin
 end;
 
 procedure TLZMACompressor.UpdateProgress;
+const
+  MaxBytesPerProgressProcCall = 1 shl 30;  { 1 GB }
 var
-  NewProgressKB: LongWord;
-  Bytes: Integer64;
+  NewProgressKB: UInt32;
+  Bytes: UInt64;
+  LimitedBytes: Cardinal;
 begin
   if IsEventSet(FEvents.WorkerHasProgressEvent) then begin
     if Assigned(ProgressProc) then begin
       NewProgressKB := FShared.ProgressKB;
-      Bytes.Hi := 0;
-      Bytes.Lo := NewProgressKB - FLastProgressKB;  { wraparound is OK }
-      Mul64(Bytes, 1024);
+      Bytes := UInt64(UInt32(NewProgressKB - FLastProgressKB)) shl 10;  { wraparound is OK }
       FLastProgressKB := NewProgressKB;
-      while Bytes.Hi <> 0 do begin
-        ProgressProc(Cardinal($80000000));
-        ProgressProc(Cardinal($80000000));
-        Dec(Bytes.Hi);
-      end;
-      ProgressProc(Bytes.Lo);
+      repeat
+        if Bytes >= MaxBytesPerProgressProcCall then
+          LimitedBytes := MaxBytesPerProgressProcCall
+        else
+          LimitedBytes := Cardinal(Bytes);
+        ProgressProc(LimitedBytes);
+        Dec(Bytes, LimitedBytes);
+      until Bytes = 0;
     end;
     if not ResetEvent(FEvents.WorkerHasProgressEvent) then
       LZMAWin32Error('UpdateProgress: ResetEvent');
