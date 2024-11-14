@@ -231,15 +231,15 @@ end;
 
 procedure TCompressionHandler.EndChunk;
 begin
-  if Assigned(FCompressor) then begin
-    FCompressor.Finish;
-    { In case we didn't get a ProgressProc call after the final block: }
-    FCompiler.SetBytesCompressedSoFar(FInitialBytesCompressedSoFar);
-    FCompiler.AddBytesCompressedSoFar(FChunkBytesRead);
-    FCompiler.CallIdleProc;
-  end;
-
+  if not FChunkStarted then
+    Exit;
   FChunkStarted := False;
+
+  FCompressor.Finish;
+  { In case we didn't get a ProgressProc call after the final block: }
+  FCompiler.SetBytesCompressedSoFar(FInitialBytesCompressedSoFar);
+  FCompiler.AddBytesCompressedSoFar(FChunkBytesRead);
+  FCompiler.CallIdleProc;
 end;
 
 procedure TCompressionHandler.CompressFile(const SourceFile: TFile;

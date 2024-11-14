@@ -10,8 +10,9 @@
   LZMA.pas revision 1.49.2.3.
 
   Intentional deviations from the original Pascal code:
-  - The WaitForMultipleObjects() calls in WakeMainAndWaitUntil and
-    BeginEncode additionally wait on ProcessData.ParentProcess.
+  - The WaitForMultipleObjects() calls in WakeMainAndWaitUntil,
+    CheckTerminateWorkerEvent, and BeginEncode additionally wait on
+    ProcessData.ParentProcess.
   Everything else *should* be 100% consistent.
 */
 
@@ -20,7 +21,7 @@
 #include "../../../../Components/Lzma2/7zTypes.h"
 #include "islzma.h"
 
-#define ISLZMA_EXE_VERSION 101
+#define ISLZMA_EXE_VERSION 102
 
 typedef BYTE Byte;
 typedef LONG Longint;
@@ -41,16 +42,14 @@ struct TLZMACompressorSharedEvents {
 	THandle32 StartEncodeEvent;
 	THandle32 EndWaitOnInputEvent;
 	THandle32 EndWaitOnOutputEvent;
-	THandle32 EndWaitOnProgressEvent;
 	THandle32 WorkerWaitingOnInputEvent;
 	THandle32 WorkerWaitingOnOutputEvent;
-	THandle32 WorkerHasProgressEvent;
 	THandle32 WorkerEncodeFinishedEvent;
 };
 
 struct TLZMACompressorSharedData {
+	volatile Int64 ProgressBytes;
 	volatile BOOL NoMoreInput;
-	volatile LongWord ProgressKB;
 	volatile SRes EncodeResult;
 	struct TLZMACompressorRingBuffer InputBuffer;
 	struct TLZMACompressorRingBuffer OutputBuffer;
@@ -70,7 +69,6 @@ static struct TLZMACompressorProcessData ProcessData;
 static struct TLZMACompressorSharedEvents *FEvents;
 static struct TLZMACompressorSharedData *FShared;
 static volatile LONG FReadLock, FWriteLock, FProgressLock;
-static volatile DWORD FLastProgressTick;
 
 static Longint RingBufferInternalWriteOrRead(struct TLZMACompressorRingBuffer *Ring,
 	const BOOL AWrite, Longint *Offset, void *Data, Longint Size)
@@ -151,6 +149,24 @@ static HRESULT WakeMainAndWaitUntil(HANDLE AWakeEvent, HANDLE AWaitEvent)
 		case WAIT_OBJECT_0 + 1:
 			return E_ABORT;
 		case WAIT_OBJECT_0 + 2:
+			return S_OK;
+		default:
+			SetEvent(THandle32ToHandle(FEvents->TerminateWorkerEvent));
+			return E_FAIL;
+	}
+}
+
+static HRESULT CheckTerminateWorkerEvent(void)
+{
+	HANDLE H[2];
+
+	H[0] = THandle32ToHandle(FEvents->TerminateWorkerEvent);
+	H[1] = THandle32ToHandle(ProcessData.ParentProcess);
+	switch (WaitForMultipleObjects(2, H, FALSE, 0)) {
+		case WAIT_OBJECT_0 + 0:
+		case WAIT_OBJECT_0 + 1:
+			return E_ABORT;
+		case WAIT_TIMEOUT:
 			return S_OK;
 		default:
 			SetEvent(THandle32ToHandle(FEvents->TerminateWorkerEvent));
@@ -244,32 +260,20 @@ static HRESULT Write(const void *Data, size_t Size, size_t *ProcessedSize)
 static HRESULT ProgressMade(const UInt64 TotalBytesProcessed)
 /* Called from worker thread (or a thread spawned by the worker thread) */
 {
-	DWORD T;
-	UInt64 KBProcessed;
 	HRESULT Result;
 
-	T = GetTickCount();
-	if (T - FLastProgressTick >= 100) {
-		/* Sanity check: Make sure we're the only thread inside Progress */
-		if (InterlockedExchange(&FProgressLock, 1) != 0) {
-			return E_FAIL;
-		}
-		FLastProgressTick = T;
-		/* Make sure TotalBytesProcessed isn't negative. LZMA's Types.h says
-		   "-1 for size means unknown value", though I don't see any place
-		   where LzmaEnc actually does call Progress with inSize = -1. */
-		if ((Int64)TotalBytesProcessed >= 0) {
-			KBProcessed = TotalBytesProcessed;
-			KBProcessed /= 1024;
-			FShared->ProgressKB = (LongWord)KBProcessed;
-		}
-		Result = WakeMainAndWaitUntil(
-			THandle32ToHandle(FEvents->WorkerHasProgressEvent),
-			THandle32ToHandle(FEvents->EndWaitOnProgressEvent));
-		InterlockedExchange(&FProgressLock, 0);
-	} else {
-		Result = S_OK;
+	/* Sanity check: Make sure we're the only thread inside Progress */
+	if (InterlockedExchange(&FProgressLock, 1) != 0) {
+		return E_FAIL;
 	}
+	/* An Interlocked function is used to ensure the 64-bit value is written
+	   atomically (not with two separate 32-bit writes).
+	   TLZMACompressor will ignore negative values. LZMA SDK's 7zTypes.h says
+	   "-1 for size means unknown value", though I don't see any place
+	   where LzmaEnc actually does call Progress with inSize = -1. */
+	InterlockedExchange64(&FShared->ProgressBytes, (Int64)TotalBytesProcessed);
+	Result = CheckTerminateWorkerEvent();
+	InterlockedExchange(&FProgressLock, 0);
 
 	return Result;
 }

@@ -86,6 +86,7 @@ int _fputs(char const* str, FILE* stream);
 /* Include all needed SDK code. None of these require changes for the helper function to
    work but 7zMain.c was changed for better Unicode support */
 
+#define REPORT_OUTBUFFERSIZE
 #define REPORT_PROGRESS
 
 #include "../../../../Components/Lzma2/Util/7z/7zMain.c"

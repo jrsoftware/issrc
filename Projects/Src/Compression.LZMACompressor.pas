@@ -14,7 +14,7 @@ interface
 
 uses
   Windows, SysUtils,
-  Compression.Base, Shared.Int64Em;
+  Compression.Base;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;
@@ -67,16 +67,14 @@ type
     StartEncodeEvent: THandle;
     EndWaitOnInputEvent: THandle;
     EndWaitOnOutputEvent: THandle;
-    EndWaitOnProgressEvent: THandle;
     WorkerWaitingOnInputEvent: THandle;
     WorkerWaitingOnOutputEvent: THandle;
-    WorkerHasProgressEvent: THandle;
     WorkerEncodeFinishedEvent: THandle;
   end;
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
+    ProgressBytes: Int64;
     NoMoreInput: BOOL;
-    ProgressKB: LongWord;
     EncodeResult: TLZMASRes;
     InputBuffer: TLZMACompressorRingBuffer;
     OutputBuffer: TLZMACompressorRingBuffer;
@@ -101,11 +99,13 @@ type
     FEncodeStarted: Boolean;
     FEncodeFinished: Boolean;
     FLastInputWriteCount: LongWord;
-    FLastProgressKB: LongWord;
+    FLastProgressBytes: Int64;
+    FProgressTimer: THandle;
+    FProgressTimerSignaled: Boolean;
     procedure FlushOutputBuffer(const OnlyOptimalSize: Boolean);
     procedure InitializeProps(const CompressionLevel: Integer;
       const ACompressorProps: TCompressorProps);
-    class function IsEventSet(const AEvent: THandle): Boolean;
+    class function IsObjectSignaled(const AObject: THandle): Boolean;
     class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle);
     procedure SatisfyWorkerWaitOnInput;
     procedure SatisfyWorkerWaitOnOutput;
@@ -145,7 +145,7 @@ type
 implementation
 
 const
-  ISLZMA_EXE_VERSION = 101;
+  ISLZMA_EXE_VERSION = 102;
 
 type
   TLZMACompressorHandle = type Pointer;
@@ -155,10 +155,10 @@ type
     FThread: THandle;
     FLZMAHandle: TLZMACompressorHandle;
     FReadLock, FWriteLock, FProgressLock: Integer;
-    FLastProgressTick: DWORD;
+    function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
       Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
-    function ProgressMade(const TotalBytesProcessed: Integer64): HRESULT;
+    function ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
     function Read(var Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
     function WakeMainAndWaitUntil(const AWakeEvent, AWaitEvent: THandle): HRESULT;
     procedure WorkerThreadProc;
@@ -199,7 +199,7 @@ type
   end;
   PLZMACompressProgress = ^TLZMACompressProgress;
   TLZMACompressProgress = record
-    Progress: function(p: PLZMACompressProgress; inSize, outSize: Integer64): TLZMASRes; stdcall;
+    Progress: function(p: PLZMACompressProgress; inSize, outSize: UInt64): TLZMASRes; stdcall;
     Instance: TLZMAWorkerThread;
   end;
 
@@ -222,17 +222,6 @@ const
   SZ_ERROR_READ = 8;
   SZ_ERROR_PROGRESS = 10;
   SZ_ERROR_FAIL = 11;
-
-function InterlockedExchangeAdd(var Addend: Longint; Value: Longint): Longint;
-  stdcall; external kernel32;
-
-function GetNumberOfProcessors: Cardinal;
-var
-  SysInfo: TSystemInfo;
-begin
-  GetSystemInfo(SysInfo);
-  Result := SysInfo.dwNumberOfProcessors;
-end;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 begin
@@ -312,7 +301,7 @@ begin
 end;
 
 function LZMACompressProgressProgressWrapper(p: PLZMACompressProgress;
-  inSize, outSize: Integer64): TLZMASRes; stdcall;
+  inSize, outSize: UInt64): TLZMASRes; stdcall;
 begin
   if p.Instance.ProgressMade(inSize) = S_OK then
     Result := SZ_OK
@@ -550,6 +539,17 @@ begin
   end;
 end;
 
+function TLZMAWorkerThread.CheckTerminateWorkerEvent: HRESULT;
+begin
+  case WaitForSingleObject(FEvents.TerminateWorkerEvent, 0) of
+    WAIT_OBJECT_0 + 0: Result := E_ABORT;
+    WAIT_TIMEOUT: Result := S_OK;
+  else
+    SetEvent(FEvents.TerminateWorkerEvent);
+    Result := E_FAIL;
+  end;
+end;
+
 function TLZMAWorkerThread.FillBuffer(const AWrite: Boolean;
   const Data: Pointer; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
@@ -629,34 +629,22 @@ begin
   InterlockedExchange(FWriteLock, 0);
 end;
 
-function TLZMAWorkerThread.ProgressMade(const TotalBytesProcessed: Integer64): HRESULT;
+function TLZMAWorkerThread.ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
-var
-  T: DWORD;
-  KBProcessed: Integer64;
 begin
-  T := GetTickCount;
-  if Cardinal(T - FLastProgressTick) >= Cardinal(100) then begin
-    { Sanity check: Make sure we're the only thread inside Progress }
-    if InterlockedExchange(FProgressLock, 1) <> 0 then begin
-      Result := E_FAIL;
-      Exit;
-    end;
-    FLastProgressTick := T;
-    { Make sure TotalBytesProcessed isn't negative. LZMA's Types.h says
-      "-1 for size means unknown value", though I don't see any place
-      where LzmaEnc actually does call Progress with inSize = -1. }
-    if Longint(TotalBytesProcessed.Hi) >= 0 then begin
-      KBProcessed := TotalBytesProcessed;
-      Div64(KBProcessed, 1024);
-      FShared.ProgressKB := KBProcessed.Lo;
-    end;
-    Result := WakeMainAndWaitUntil(FEvents.WorkerHasProgressEvent,
-      FEvents.EndWaitOnProgressEvent);
-    InterlockedExchange(FProgressLock, 0);
-  end
-  else
-    Result := S_OK;
+  { Sanity check: Make sure we're the only thread inside Progress }
+  if InterlockedExchange(FProgressLock, 1) <> 0 then begin
+    Result := E_FAIL;
+    Exit;
+  end;
+  { An Interlocked function is used to ensure the 64-bit value is written
+    atomically (not with two separate 32-bit writes).
+    TLZMACompressor will ignore negative values. LZMA SDK's 7zTypes.h says
+    "-1 for size means unknown value", though I don't see any place
+    where LzmaEnc actually does call Progress with inSize = -1. }
+  InterlockedExchange64(FShared.ProgressBytes, Int64(TotalBytesProcessed));
+  Result := CheckTerminateWorkerEvent;
+  InterlockedExchange(FProgressLock, 0);
 end;
 
 { TLZMAWorkerProcess }
@@ -727,10 +715,8 @@ procedure TLZMAWorkerProcess.SetProps(const LZMA2: Boolean;
     DupeEvent(Src.StartEncodeEvent, Dest.StartEncodeEvent);
     DupeEvent(Src.EndWaitOnInputEvent, Dest.EndWaitOnInputEvent);
     DupeEvent(Src.EndWaitOnOutputEvent, Dest.EndWaitOnOutputEvent);
-    DupeEvent(Src.EndWaitOnProgressEvent, Dest.EndWaitOnProgressEvent);
     DupeEvent(Src.WorkerWaitingOnInputEvent, Dest.WorkerWaitingOnInputEvent);
     DupeEvent(Src.WorkerWaitingOnOutputEvent, Dest.WorkerWaitingOnOutputEvent);
-    DupeEvent(Src.WorkerHasProgressEvent, Dest.WorkerHasProgressEvent);
     DupeEvent(Src.WorkerEncodeFinishedEvent, Dest.WorkerEncodeFinishedEvent);
   end;
 
@@ -820,11 +806,12 @@ begin
   FEvents.StartEncodeEvent := LZMACreateEvent(False);          { auto reset }
   FEvents.EndWaitOnInputEvent := LZMACreateEvent(False);       { auto reset }
   FEvents.EndWaitOnOutputEvent := LZMACreateEvent(False);      { auto reset }
-  FEvents.EndWaitOnProgressEvent := LZMACreateEvent(False);    { auto reset }
   FEvents.WorkerWaitingOnInputEvent := LZMACreateEvent(True);  { manual reset }
   FEvents.WorkerWaitingOnOutputEvent := LZMACreateEvent(True); { manual reset }
-  FEvents.WorkerHasProgressEvent := LZMACreateEvent(True);     { manual reset }
   FEvents.WorkerEncodeFinishedEvent := LZMACreateEvent(True);  { manual reset }
+  FProgressTimer := CreateWaitableTimer(nil, False, nil);      { auto reset }
+  if FProgressTimer = 0 then
+    LZMAWin32Error('CreateWaitableTimer');
   InitializeProps(CompressionLevel, ACompressorProps);
 end;
 
@@ -838,11 +825,10 @@ destructor TLZMACompressor.Destroy;
 
 begin
   FWorker.Free;
+  DestroyEvent(FProgressTimer);
   DestroyEvent(FEvents.WorkerEncodeFinishedEvent);
-  DestroyEvent(FEvents.WorkerHasProgressEvent);
   DestroyEvent(FEvents.WorkerWaitingOnOutputEvent);
   DestroyEvent(FEvents.WorkerWaitingOnInputEvent);
-  DestroyEvent(FEvents.EndWaitOnProgressEvent);
   DestroyEvent(FEvents.EndWaitOnOutputEvent);
   DestroyEvent(FEvents.EndWaitOnInputEvent);
   DestroyEvent(FEvents.StartEncodeEvent);
@@ -907,21 +893,21 @@ begin
   FWorker.SetProps(FUseLZMA2, EncProps);
 end;
 
-class function TLZMACompressor.IsEventSet(const AEvent: THandle): Boolean;
+class function TLZMACompressor.IsObjectSignaled(const AObject: THandle): Boolean;
 begin
   Result := False;
-  case WaitForSingleObject(AEvent, 0) of
+  case WaitForSingleObject(AObject, 0) of
     WAIT_OBJECT_0: Result := True;
     WAIT_TIMEOUT: ;
   else
-    LZMAInternalError('IsEventSet: WaitForSingleObject failed');
+    LZMAInternalError('IsObjectSignaled: WaitForSingleObject failed');
   end;
 end;
 
 class procedure TLZMACompressor.SatisfyWorkerWait(const AWorkerEvent,
   AMainEvent: THandle);
 begin
-  if IsEventSet(AWorkerEvent) then begin
+  if IsObjectSignaled(AWorkerEvent) then begin
     if not ResetEvent(AWorkerEvent) then
       LZMAWin32Error('SatisfyWorkerWait: ResetEvent');
     if not SetEvent(AMainEvent) then
@@ -940,28 +926,42 @@ begin
 end;
 
 procedure TLZMACompressor.UpdateProgress;
+const
+  MaxBytesPerProgressProcCall = 1 shl 30;  { 1 GB }
 var
-  NewProgressKB: LongWord;
-  Bytes: Integer64;
+  NewProgressBytes, Bytes: Int64;
+  LimitedBytes: Cardinal;
 begin
-  if IsEventSet(FEvents.WorkerHasProgressEvent) then begin
+  { Check if the timer is signaled. Because it's an auto-reset timer, this
+    also resets it to non-signaled. Note that WaitForWorkerEvent also waits
+    on the timer and sets FProgressTimerSignaled. }
+  if IsObjectSignaled(FProgressTimer) then
+    FProgressTimerSignaled := True;
+
+  if FProgressTimerSignaled then begin
+    FProgressTimerSignaled := False;
     if Assigned(ProgressProc) then begin
-      NewProgressKB := FShared.ProgressKB;
-      Bytes.Hi := 0;
-      Bytes.Lo := NewProgressKB - FLastProgressKB;  { wraparound is OK }
-      Mul64(Bytes, 1024);
-      FLastProgressKB := NewProgressKB;
-      while Bytes.Hi <> 0 do begin
-        ProgressProc(Cardinal($80000000));
-        ProgressProc(Cardinal($80000000));
-        Dec(Bytes.Hi);
-      end;
-      ProgressProc(Bytes.Lo);
+      { An Interlocked function is used to ensure the 64-bit value is read
+        atomically (not with two separate 32-bit reads). }
+      NewProgressBytes := InterlockedExchangeAdd64(FShared.ProgressBytes, 0);
+
+      { Make sure the new value isn't negative or going backwards. A call
+        to ProgressProc is always made, even if the byte count is 0. }
+      if NewProgressBytes > FLastProgressBytes then begin
+        Bytes := NewProgressBytes - FLastProgressBytes;
+        FLastProgressBytes := NewProgressBytes;
+      end else
+        Bytes := 0;
+
+      repeat
+        if Bytes >= MaxBytesPerProgressProcCall then
+          LimitedBytes := MaxBytesPerProgressProcCall
+        else
+          LimitedBytes := Cardinal(Bytes);
+        ProgressProc(LimitedBytes);
+        Dec(Bytes, LimitedBytes);
+      until Bytes = 0;
     end;
-    if not ResetEvent(FEvents.WorkerHasProgressEvent) then
-      LZMAWin32Error('UpdateProgress: ResetEvent');
-    if not SetEvent(FEvents.EndWaitOnProgressEvent) then
-      LZMAWin32Error('UpdateProgress: SetEvent');
   end;
 end;
 
@@ -993,19 +993,39 @@ begin
 end;
 
 procedure TLZMACompressor.StartEncode;
+
+  procedure StartProgressTimer;
+  const
+    { This interval was chosen because:
+      - It's two system timer ticks, rounded up:
+          (1000 / 64) * 2 = 31.25
+      - The keyboard repeat rate is 30/s by default:
+          1000 / 30 = 33.333
+        So if an edit control is focused and the ProgressProc is processing
+        messages, the caret should move at full speed when an arrow key is
+        held down. }
+    Interval = 32;
+  begin
+    FProgressTimerSignaled := False;
+    var DueTime := Int64(-10000) * Interval;
+    if not SetWaitableTimer(FProgressTimer, DueTime, Interval, nil, nil, False) then
+      LZMAWin32Error('SetWaitableTimer');
+  end;
+
 begin
   if not FEncodeStarted then begin
     FShared.NoMoreInput := False;
-    FShared.ProgressKB := 0;
+    FShared.ProgressBytes := 0;
     FShared.EncodeResult := -1;
     RingBufferReset(FShared.InputBuffer);
     RingBufferReset(FShared.OutputBuffer);
     FLastInputWriteCount := 0;
-    FLastProgressKB := 0;
+    FLastProgressBytes := 0;
     FEncodeFinished := False;
     FEncodeStarted := True;
     if not ResetEvent(FEvents.WorkerEncodeFinishedEvent) then
       LZMAWin32Error('StartEncode: ResetEvent');
+    StartProgressTimer;
     if not SetEvent(FEvents.StartEncodeEvent) then
       LZMAWin32Error('StartEncode: SetEvent');
   end;
@@ -1026,13 +1046,13 @@ begin
     events. }
   H[0] := FWorker.GetExitHandle;
   H[1] := FEvents.WorkerEncodeFinishedEvent;
-  H[2] := FEvents.WorkerHasProgressEvent;
+  H[2] := FProgressTimer;
   H[3] := FEvents.WorkerWaitingOnInputEvent;
   H[4] := FEvents.WorkerWaitingOnOutputEvent;
   case WaitForMultipleObjects(5, @H, False, INFINITE) of
     WAIT_OBJECT_0 + 0: FWorker.UnexpectedTerminationError;
     WAIT_OBJECT_0 + 1: FEncodeFinished := True;
-    WAIT_OBJECT_0 + 2,
+    WAIT_OBJECT_0 + 2: FProgressTimerSignaled := True;
     WAIT_OBJECT_0 + 3,
     WAIT_OBJECT_0 + 4: ;
   else
@@ -1120,6 +1140,8 @@ begin
       [FShared.InputBuffer.Count]);
 
   FEncodeStarted := False;
+  if not CancelWaitableTimer(FProgressTimer) then
+    LZMAWin32Error('CancelWaitableTimer');
 end;
 
 { TLZMA2Compressor }
