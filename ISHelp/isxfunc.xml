@@ -1845,7 +1845,7 @@ end;</pre>
         <prototype>function Extract7ZipFile(const FileName, DestDir: String; const FullPaths: Boolean): Integer;</prototype>
         <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names. Returns zero if successful, nonzero otherwise</p>
 <p>The archive must not be encrypted.</p></description>
-        <remarks><p>Uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support was improved.</p>
+        <remarks><p>Uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
 <p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
 -It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />

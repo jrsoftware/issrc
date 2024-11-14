@@ -6,6 +6,7 @@
    -Change main to mainW to support Unicode archive names
    -Add specific error text for SZ_ERROR_ARCHIVE and SZ_ERROR_NO_ARCHIVE
    -Return res on errors instead of always returning 1
+   -Add optional output of SzArEx_Extract's output buffer sizes
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -531,6 +532,19 @@ static void PrintError_WRes(const char *message, WRes wres)
   PrintLF();
 }
 
+#ifdef REPORT_OUTBUFFERSIZE
+static void PrintInt(const char *message, UInt64 value)
+{
+  Print(message);
+  {
+    char s[32];
+    UInt64ToStr(value, s, 1);
+    Print(s);
+  }
+  PrintLF();
+}
+#endif
+
 static void GetAttribString(UInt32 wa, BoolInt isDir, char *s)
 {
   #ifdef USE_WINDOWS_FILE
@@ -655,6 +669,9 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
       UInt32 blockIndex = 0xFFFFFFFF; /* it can have any value before first call (if outBuffer = 0) */
       Byte *outBuffer = 0; /* it must be 0 before first call for each new archive. */
       size_t outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
+      #ifdef REPORT_OUTBUFFERSIZE
+      size_t prevOutBufferSize = -1; /* it must be -1 before first call for each new archive. */
+      #endif
 
       for (i = 0; i < db.NumFiles; i++)
       {
@@ -741,6 +758,14 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
               &allocImp, &allocTempImp);
           if (res != SZ_OK)
             break;
+          #ifdef REPORT_OUTBUFFERSIZE
+          if (prevOutBufferSize == -1 || outBufferSize != prevOutBufferSize)
+          {
+            PrintLF();
+            PrintInt("Used new buffer size ", outBufferSize);
+            prevOutBufferSize = outBufferSize;
+          }
+          #endif
         }
         
         if (!testCommand)
