@@ -2995,26 +2995,20 @@ end;
 procedure TMainForm.ESelectAllOccurrencesClick(Sender: TObject);
 begin
   { Might be called even if ESelectAllOccurrences.Enabled would be False in EMenuClick }
-  var Options := GetSelTextOccurrenceFindOptions;
   if FActiveMemo.SelEmpty then begin
+    { If the selection is empty then SelectAllOccurrences will actually just select
+      the word at caret which is not what we want, so preselect this word ourselves }
     var Range := FActiveMemo.WordAtCursorRange;
-    if Range.StartPos <> Range.EndPos then begin
+    if Range.StartPos <> Range.EndPos then
       FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
-      Options := GetWordOccurrenceFindOptions;
-    end;
   end;
-  FActiveMemo.SelectAllOccurrences(Options);
+  FActiveMemo.SelectAllOccurrences([sfoMatchCase]);
 end;
 
 procedure TMainForm.ESelectNextOccurrenceClick(Sender: TObject);
 begin
   { Might be called even if ESelectNextOccurrence.Enabled would be False in EMenuClick }
-
-  { Currently this always uses GetWordOccurrenceFindOptions but ideally it would
-    know whether this is the 'first' SelectNext or not. Then, if first it would
-    do what SelectAll does to choose a FindOptions. And if next it would reuse
-    that. This is what VSCode does. }
-  FActiveMemo.SelectNextOccurrence(GetWordOccurrenceFindOptions);
+  FActiveMemo.SelectNextOccurrence([sfoMatchCase]);
 end;
 
 procedure TMainForm.EToggleLinesCommentClick(Sender: TObject);
@@ -4027,7 +4021,7 @@ begin
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
         AMemo.GetSelections(Selections); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, GetWordOccurrenceFindOptions, Selections, IndicatorRanges);
+        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
@@ -4037,7 +4031,7 @@ begin
       var TextToIndicate := AMemo.RawMainSelText;
       if Selections.Count = 0 then { If 0 then we didn't already call GetSelections above}
         AMemo.GetSelections(Selections);
-      FindTextAndAddRanges(AMemo, TextToIndicate, GetSelTextOccurrenceFindOptions, Selections, IndicatorRanges);
+      FindTextAndAddRanges(AMemo, TextToIndicate, [], Selections, IndicatorRanges);
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minSelTextOccurrence);
   finally
