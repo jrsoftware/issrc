@@ -918,18 +918,21 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             SetFileAttributesW((LPCWSTR)destPath, attrib);
           }
           #endif
+        }
+        PrintLF();
 
-          #ifdef REPORT_PROGRESS
-          progress += processedSize;
+        #ifdef REPORT_PROGRESS
+        progress += outSizeProcessed;
+        if (progress == progressMax)
+        {
           ReportProgress(temp, progress, progressMax, &abort);
           if (abort)
           {
             res = SZ_ERROR_PROGRESS;
             break;
-          } 
-          #endif
-        }
-        PrintLF();
+          }
+        } 
+        #endif
       }
       ISzAlloc_Free(&allocImp, outBuffer);
     }
