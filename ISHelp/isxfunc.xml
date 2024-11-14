@@ -1849,7 +1849,7 @@ end;</pre>
 <p>The archive must not be encrypted.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
-<p><tt>TOnExtractionProgress = function(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p>
 <p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
@@ -1868,23 +1868,6 @@ In that example 7-Zip will use 512KB solid blocks. So it needs to decompress onl
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
-        <example><pre>
-[Code]
-function OnExtractionProgress(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
-begin
-  Log(Format('  %s\%s: %d of %d bytes done.', [ArchiveFileName, FileName, Progress, ProgressMax]))
-  Result := True;
-end;
-
-function InitializeSetup: Boolean;
-begin
-  try
-    Result := Extract7ZipArchive(ExpandConstant('{tmp}\Archive.7z'), ExpandConstant('{app}'), True, @OnExtractionProgress) = 0;
-  except
-    Log(GetExceptionMessage);
-    Result := False;
-  end;
-end;</pre></example>
       </function>
     </subcategory>
     <subcategory>

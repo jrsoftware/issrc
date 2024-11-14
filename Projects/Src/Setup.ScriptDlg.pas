@@ -217,7 +217,7 @@ type
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
       procedure AbortButtonClick(Sender: TObject);
-      function InternalOnExtractionProgress(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
@@ -1086,7 +1086,7 @@ begin
   FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
 end;
 
-function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
 var
   Progress32, ProgressMax32: LongInt;
 begin
@@ -1094,9 +1094,9 @@ begin
     Log('Need to abort extraction.');
     Result := False;
   end else begin
-    Log(Format('  %d bytes done.', [Progress]));
+    { Unlike TDownloadWizardPage we don't log progress here. This is because 7zMain.c already logs output dirs and names. }
 
-    FMsg2Label.Caption := IfThen(FShowArchiveInsteadOfFile, ArchiveFileName, FileName);
+    FMsg2Label.Caption := IfThen(FShowArchiveInsteadOfFile, ArchiveName, FileName);
     if ProgressMax > MaxLongInt then begin
       Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
       ProgressMax32 := MaxLongInt;
@@ -1113,7 +1113,7 @@ begin
     end;
 
     if Assigned(FOnExtractionProgress) then
-      Result := FOnExtractionProgress(ArchiveFileName, FileName, Progress, ProgressMax)
+      Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
     else
       Result := True;
   end;

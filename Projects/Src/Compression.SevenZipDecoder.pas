@@ -13,7 +13,7 @@ unit Compression.SevenZipDecoder;
 interface
 
 type
-  TOnExtractionProgress = function(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+  TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
 function Extract7ZipArchive(const ArchiveFileName, DestDir: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;
@@ -29,6 +29,7 @@ type
   TSevenZipDecodeState = record
     ExpandedDestDir: String;
     LogBuffer: AnsiString;
+    ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
     LastReportedProgress, LastReportedProgressMax: UInt64;
   end;
@@ -241,8 +242,7 @@ begin
        (Progress < State.LastReportedProgress) or (ProgressMax <> State.LastReportedProgressMax) or
        ((Progress - State.LastReportedProgress) > 524288) then begin
       try
-        var ArchiveFileName := '?'; //todo: fix
-        if not State.OnExtractionProgress(ArchiveFileName, FileName, Progress, ProgressMax) then
+        if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
           Abort := True;
       finally
         State.LastReportedProgress := Progress;
@@ -269,8 +269,9 @@ begin
   if not SetCurrentDir(DestDir) then
     Exit(-1);
   try
-    State.LogBuffer := '';
     State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+    State.LogBuffer := '';
+    State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
     State.OnExtractionProgress := OnExtractionProgress;
     State.LastReportedProgress := 0;
     State.LastReportedProgressMax := 0;
