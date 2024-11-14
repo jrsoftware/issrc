@@ -1451,7 +1451,7 @@ begin
     var HelpFile := GetHelpFile;
     if Assigned(HtmlHelp) then begin
       HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      var S := FActiveMemo.WordAtCursor;
+      var S := FActiveMemo.WordAtCaret;
       if S <> '' then begin
         var KLink: THH_AKLINK;
         FillChar(KLink, SizeOf(KLink), 0);
@@ -2998,7 +2998,7 @@ begin
   if FActiveMemo.SelEmpty then begin
     { If the selection is empty then SelectAllOccurrences will actually just select
       the word at caret which is not what we want, so preselect this word ourselves }
-    var Range := FActiveMemo.WordAtCursorRange;
+    var Range := FActiveMemo.WordAtCaretRange;
     if Range.StartPos <> Range.EndPos then
       FActiveMemo.SetSingleSelection(Range.EndPos, Range.StartPos);
   end;
@@ -4017,7 +4017,7 @@ begin
     Selections := TScintRangeList.Create;
 
     if FOptions.HighlightWordAtCursorOccurrences and (AMemo.CaretVirtualSpace = 0) and MainSelSingleLine then begin
-      var Word := AMemo.WordAtCursorRange;
+      var Word := AMemo.WordAtCaretRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
         AMemo.GetSelections(Selections); { Gets any additional selections as well }

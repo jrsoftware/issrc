@@ -369,8 +369,8 @@ type
     function TestRawRegularExpression(const S: TScintRawString): Boolean;
     procedure Undo;
     procedure UpdateStyleAttributes;
-    function WordAtCursor: String;
-    function WordAtCursorRange: TScintRange;
+    function WordAtCaret: String;
+    function WordAtCaretRange: TScintRange;
     procedure ZoomIn;
     procedure ZoomOut;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
@@ -2483,13 +2483,13 @@ begin
     Call(SCI_AUTOCSETSTYLE, 0, 0);
 end;
 
-function TScintEdit.WordAtCursor: String;
+function TScintEdit.WordAtCaret: String;
 begin
-  var Range := WordAtCursorRange;
+  var Range := WordAtCaretRange;
   Result := GetTextRange(Range.StartPos, Range.EndPos);
 end;
 
-function TScintEdit.WordAtCursorRange: TScintRange;
+function TScintEdit.WordAtCaretRange: TScintRange;
 begin
   var Pos := GetCaretPosition;
   Result.StartPos := GetWordStartPosition(Pos, True);
