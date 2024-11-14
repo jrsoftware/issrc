@@ -1082,8 +1082,7 @@ end;
 
 procedure TExtractionWizardPage.AbortButtonClick(Sender: TObject);
 begin
-  //todo: fix msg!
-  FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
+  FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopExtraction], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
 end;
 
 function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
@@ -1136,11 +1135,11 @@ procedure TExtractionWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel]; //todo: fix message
+  FMsg1Label.Caption := SetupMessages[msgExtractionLabel];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
-    Caption := SetupMessages[msgButtonStopDownload]; //todo: fix message
+    Caption := SetupMessages[msgButtonStopExtraction];
     Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
     Width := WizardForm.CalculateButtonWidth([Caption]);
     Anchors := [akLeft, akTop];

@@ -273,7 +273,7 @@ begin
 
   var SaveCurDir := GetCurrentDir;
   if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
-    raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, ['-1', ''])); //todo: fix message
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
   try
     State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
     State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
@@ -290,9 +290,9 @@ begin
       Log(State.LogBuffer);
 
     if State.Aborted then
-      raise Exception.Create(SetupMessages[msgErrorDownloadAborted]) //todo: fix message
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
     else if Res <> 0 then
-      raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [Res.ToString, ''])) //todo: fix message
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString]))
   finally
     SetCurrentDir(SaveCurDir);
   end;
