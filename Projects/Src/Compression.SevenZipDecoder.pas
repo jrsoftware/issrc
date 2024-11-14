@@ -27,7 +27,7 @@ uses
 
 type
   TSevenZipDecodeState = record
-    ExpandedDestDir: String;
+    ExpandedArchiveFileName, ExpandedDestDir: String;
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
@@ -50,7 +50,7 @@ function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
   var ExpandedDir: String;
-  if PathExpand(lpPathName, ExpandedDir) and  PathStartsWith(ExpandedDir, State.ExpandedDestDir) then
+  if PathExpand(lpPathName, ExpandedDir) and PathStartsWith(ExpandedDir, State.ExpandedDestDir) then
     Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
@@ -74,7 +74,8 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
   var ExpandedFileName: String;
-  if PathExpand(lpFileName, ExpandedFileName) and PathStartsWith(ExpandedFileName, State.ExpandedDestDir) then
+  if PathExpand(lpFileName, ExpandedFileName) and
+     ((PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0) or PathStartsWith(ExpandedFileName, State.ExpandedDestDir)) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
@@ -273,6 +274,7 @@ begin
   if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
     raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, ['-1', ''])); //todo: fix message
   try
+    State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
     State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.LogBuffer := '';
     State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
