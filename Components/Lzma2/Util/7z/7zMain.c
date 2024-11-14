@@ -533,7 +533,7 @@ static void PrintError_WRes(const char *message, WRes wres)
 }
 
 #ifdef REPORT_OUTBUFFERSIZE
-static void PrintInt(const char *message, UInt64 value)
+static void PrintInt(const char *message, UInt64 value, const char *message2, const BOOL lf)
 {
   Print(message);
   {
@@ -541,7 +541,10 @@ static void PrintInt(const char *message, UInt64 value)
     UInt64ToStr(value, s, 1);
     Print(s);
   }
-  PrintLF();
+  if (message2)
+    Print(message2);
+  if (lf)
+    PrintLF();
 }
 #endif
 
@@ -759,10 +762,19 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           if (res != SZ_OK)
             break;
           #ifdef REPORT_OUTBUFFERSIZE
-          if (prevOutBufferSize == -1 || outBufferSize != prevOutBufferSize)
+          if (prevOutBufferSize == -1 || outBufferSize > prevOutBufferSize) /* only report increasing buffer sizes */
           {
             PrintLF();
-            PrintInt("Used new buffer size ", outBufferSize);
+            PrintInt("Used new increased buffer size: ", outBufferSize, " bytes", False);
+            if (outBufferSize > 1024)
+            {
+              size_t friendlySize = (outBufferSize + 512) / 1024;
+              if (friendlySize > 1024)
+				        PrintInt(" (", (friendlySize + 512 ) / 1024, " mb)", False);
+              else
+  			        PrintInt(" (", friendlySize, " kb)", False);
+    			  }
+            PrintLF();
             prevOutBufferSize = outBufferSize;
           }
           #endif
