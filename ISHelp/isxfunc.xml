@@ -1843,9 +1843,9 @@ end;</pre>
       </function>
       <function>
         <name>Extract7ZipArchive</name>
-        <prototype>function Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;</prototype>
+        <prototype>procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
         <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names.</p>
-<p>Returns zero if successful, nonzero otherwise</p>
+<p>An exception will be raised if there was an error.</p>
 <p>The archive must not be encrypted.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>

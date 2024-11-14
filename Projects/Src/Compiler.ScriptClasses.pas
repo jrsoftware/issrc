@@ -576,7 +576,7 @@ begin
     RegisterProperty('ShowArchiveInsteadOfFile', 'Boolean', iptrw);
     RegisterMethod('procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean)');
     RegisterMethod('procedure Clear');
-    RegisterMethod('function Extract: Integer');
+    RegisterMethod('procedure Extract');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
   end;
 end;

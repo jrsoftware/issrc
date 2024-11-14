@@ -15,15 +15,15 @@ interface
 type
   TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
-function Extract7ZipArchive(const ArchiveFileName, DestDir: String;
-  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
 uses
   Windows, SysUtils, Forms,
   PathFunc,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record
@@ -32,6 +32,7 @@ type
     ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
     LastReportedProgress, LastReportedProgressMax: UInt64;
+    Aborted: Boolean;
   end;
 
 var
@@ -253,10 +254,13 @@ begin
 
   if not Abort and DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
     Application.ProcessMessages;
+
+  if Abort then
+    State.Aborted := True;
 end;
 
-function Extract7ZipArchive(const ArchiveFileName, DestDir: String;
-  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   if ArchiveFileName = '' then
     InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
@@ -266,8 +270,8 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
   var SaveCurDir := GetCurrentDir;
-  if not SetCurrentDir(DestDir) then
-    Exit(-1);
+  if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
+    raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, ['-1', ''])); //todo: fix message
   try
     State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.LogBuffer := '';
@@ -275,13 +279,17 @@ begin
     State.OnExtractionProgress := OnExtractionProgress;
     State.LastReportedProgress := 0;
     State.LastReportedProgressMax := 0;
+    State.Aborted := False;
 
-    Result := IS_7zDec(PChar(ArchiveFileName), FullPaths);
-
-    //todo: throw exception on Result <> 0 like DownloadTemporaryFile uses exceptions?
+    var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
 
     if State.LogBuffer <> '' then
       Log(State.LogBuffer);
+
+    if State.Aborted then
+      raise Exception.Create(SetupMessages[msgErrorDownloadAborted]) //todo: fix message
+    else if Res <> 0 then
+      raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [Res.ToString, ''])) //todo: fix message
   finally
     SetCurrentDir(SaveCurDir);
   end;

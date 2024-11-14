@@ -291,7 +291,7 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewDownloadPage);
-  end else if Proc.Name = 'CREATEXTRACTIONPAGE' then begin
+  end else if Proc.Name = 'CREATEEXTRACTIONPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
     var P: PPSVariantProcPtr := Stack.Items[PStart-3];
@@ -2118,14 +2118,14 @@ begin
       AscendingTrySizes[I] := VNGetInt(PSGetArrayField(Arr, I));
     Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
   end else if Proc.Name = 'EXTRACT7ZIPARCHIVE' then begin
-    var P: PPSVariantProcPtr := Stack.Items[PStart-4];
+    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
     var OnExtractionProgress: TOnExtractionProgress;
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnExtractionProgress := TOnExtractionProgress(Caller.GetProcAsMethod(P.ProcNo))
     else
       OnExtractionProgress := nil;
-    Stack.SetInt(PStart, Extract7ZipArchive(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3), OnExtractionProgress));
+    Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), OnExtractionProgress);
   end else if Proc.Name = 'DEBUGGING' then begin
     Stack.SetBool(PStart, Debugging);
   end else

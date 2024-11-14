@@ -225,7 +225,7 @@ type
       procedure Initialize; override;
       procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
       procedure Clear;
-      function Extract: Integer;
+      procedure Extract;
       property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
       procedure Show; override;
     published
@@ -1180,15 +1180,13 @@ begin
   FArchives.Clear;
 end;
 
-function TExtractionWizardPage.Extract: Integer;
+procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  Result := 0;
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrSevenZipDecodeProcessMessages before extraction since we already process messages ourselves. }
-    if Extract7ZipArchive(A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress) = 0 then
-      Inc(Result);
+    Extract7ZipArchive(A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
   end;
 end;
 
