@@ -75,7 +75,8 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
 begin
   var ExpandedFileName: String;
   if PathExpand(lpFileName, ExpandedFileName) and
-     ((PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0) or PathStartsWith(ExpandedFileName, State.ExpandedDestDir)) then
+     (((dwDesiredAccess = GENERIC_READ) and (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
+      ((dwDesiredAccess = GENERIC_WRITE) and PathStartsWith(ExpandedFileName, State.ExpandedDestDir))) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
