@@ -780,6 +780,15 @@ TDownloadWizardPage = class(TOutputProgressWizardPage)
   property ShowBaseNameInsteadOfUrl: Boolean; read write;
 end;
 
+TExtractionWizardPage = class(TOutputProgressWizardPage)
+  property AbortButton: TNewButton; read;
+  property AbortedByUser: Boolean; read;
+  procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+  procedure Clear;
+  function Extract: Integer;
+  property ShowArchiveInsteadOfFile: Boolean; read write;
+end;
+
 TUIStateForm = class(TForm)
 end;
 

@@ -12,18 +12,29 @@ unit Compression.SevenZipDecoder;
 
 interface
 
-function SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean): Integer;
+type
+  TOnExtractionProgress = function(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
+function Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;
 
 implementation
 
 uses
   Windows, SysUtils, Forms,
   PathFunc,
-  Setup.LoggingFunc, Setup.MainFunc;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+
+type
+  TSevenZipDecodeState = record
+    ExpandedDestDir: String;
+    LogBuffer: AnsiString;
+    OnExtractionProgress: TOnExtractionProgress;
+    LastReportedProgress, LastReportedProgressMax: UInt64;
+  end;
 
 var
-  ExpandedDestDir: String;
+  State: TSevenZipDecodeState;
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
@@ -37,7 +48,7 @@ function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
   var ExpandedDir: String;
-  if PathExpand(lpPathName, ExpandedDir) and  PathStartsWith(ExpandedDir, ExpandedDestDir) then
+  if PathExpand(lpPathName, ExpandedDir) and  PathStartsWith(ExpandedDir, State.ExpandedDestDir) then
     Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
@@ -61,7 +72,7 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
   var ExpandedFileName: String;
-  if PathExpand(lpFileName, ExpandedFileName) and PathStartsWith(ExpandedFileName, ExpandedDestDir) then
+  if PathExpand(lpFileName, ExpandedFileName) and PathStartsWith(ExpandedFileName, State.ExpandedDestDir) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
@@ -189,9 +200,6 @@ begin
     Setup.LoggingFunc.Log(UTF8ToString(S));
 end;
 
-var
-  LogBuffer: AnsiString;
-
 function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
   function FindNewLine(const S: AnsiString): Integer;
@@ -206,14 +214,14 @@ function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
 begin
   try
-    LogBuffer := LogBuffer + str;
-    var P := FindNewLine(LogBuffer);
+    State.LogBuffer := State.LogBuffer + str;
+    var P := FindNewLine(State.LogBuffer);
     while P <> 0 do begin
-      Log(Copy(LogBuffer, 1, P-1));
-      if (LogBuffer[P] = #13) and (P < Length(LogBuffer)) and (LogBuffer[P+1] = #10) then
+      Log(Copy(State.LogBuffer, 1, P-1));
+      if (State.LogBuffer[P] = #13) and (P < Length(State.LogBuffer)) and (State.LogBuffer[P+1] = #10) then
         Inc(P);
-      Delete(LogBuffer, 1, P);
-      P := FindNewLine(LogBuffer);
+      Delete(State.LogBuffer, 1, P);
+      P := FindNewLine(State.LogBuffer);
     end;
     Result := 0;
   except
@@ -223,23 +231,56 @@ end;
 
 procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
-  //Setup.LoggingFunc.Log(Format('%s: %d of %d', [FileName, Progress, ProgressMax]));
+  if Assigned(State.OnExtractionProgress) then begin
+    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+      -At start or finish
+      -Or if somehow Progress decreased or Max changed
+      -Or if at least 512 KB progress was made since last report
+    }
+    if (Progress = 0) or (Progress = ProgressMax) or
+       (Progress < State.LastReportedProgress) or (ProgressMax <> State.LastReportedProgressMax) or
+       ((Progress - State.LastReportedProgress) > 524288) then begin
+      try
+        var ArchiveFileName := '?'; //todo: fix
+        if not State.OnExtractionProgress(ArchiveFileName, FileName, Progress, ProgressMax) then
+          Abort := True;
+      finally
+        State.LastReportedProgress := Progress;
+        State.LastReportedProgressMax := ProgressMax;
+      end;
+    end;
+  end;
+
   if not Abort and DownloadTemporaryFileOrSevenZipDecodeProcessMessages then
     Application.ProcessMessages;
 end;
 
-function SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean): Integer;
+function Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;
 begin
+  if ArchiveFileName = '' then
+    InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
+  if DestDir = '' then
+    InternalError('Extract7ZipArchive: Invalid DestDir value');
+
+  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+
   var SaveCurDir := GetCurrentDir;
   if not SetCurrentDir(DestDir) then
     Exit(-1);
   try
-    LogBuffer := '';
-    ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-    Result := IS_7zDec(PChar(FileName), FullPaths);
-    if LogBuffer <> '' then
-      Log(LogBuffer);
+    State.LogBuffer := '';
+    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+    State.OnExtractionProgress := OnExtractionProgress;
+    State.LastReportedProgress := 0;
+    State.LastReportedProgressMax := 0;
+
+    Result := IS_7zDec(PChar(ArchiveFileName), FullPaths);
+
+    //todo: throw exception on Result <> 0 like DownloadTemporaryFile uses exceptions?
+
+    if State.LogBuffer <> '' then
+      Log(State.LogBuffer);
   finally
     SetCurrentDir(SaveCurDir);
   end;

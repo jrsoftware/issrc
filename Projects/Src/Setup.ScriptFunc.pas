@@ -129,18 +129,6 @@ end;
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  NewPage: TWizardPage;
-  NewInputQueryPage: TInputQueryWizardPage;
-  NewInputOptionPage: TInputOptionWizardPage;
-  NewInputDirPage: TInputDirWizardPage;
-  NewInputFilePage: TInputFileWizardPage;
-  NewOutputMsgPage: TOutputMsgWizardPage;
-  NewOutputMsgMemoPage: TOutputMsgMemoWizardPage;
-  NewOutputProgressPage: TOutputProgressWizardPage;
-  NewOutputMarqueeProgressPage: TOutputMarqueeProgressWizardPage;
-  NewDownloadPage: TDownloadWizardPage;
-  OnDownloadProgress: TOnDownloadProgress;
-  NewSetupForm: TSetupForm;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -156,7 +144,7 @@ begin
   end else if Proc.Name = 'CREATECUSTOMPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewPage := TWizardPage.Create(GetWizardForm);
+    var NewPage := TWizardPage.Create(GetWizardForm);
     try
       NewPage.Caption := Stack.GetString(PStart-2);
       NewPage.Description := Stack.GetString(PStart-3);
@@ -169,7 +157,7 @@ begin
   end else if Proc.Name = 'CREATEINPUTQUERYPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewInputQueryPage := TInputQueryWizardPage.Create(GetWizardForm);
+    var NewInputQueryPage := TInputQueryWizardPage.Create(GetWizardForm);
     try
       NewInputQueryPage.Caption := Stack.GetString(PStart-2);
       NewInputQueryPage.Description := Stack.GetString(PStart-3);
@@ -183,7 +171,7 @@ begin
   end else if Proc.Name = 'CREATEINPUTOPTIONPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewInputOptionPage := TInputOptionWizardPage.Create(GetWizardForm);
+    var NewInputOptionPage := TInputOptionWizardPage.Create(GetWizardForm);
     try
       NewInputOptionPage.Caption := Stack.GetString(PStart-2);
       NewInputOptionPage.Description := Stack.GetString(PStart-3);
@@ -198,7 +186,7 @@ begin
   end else if Proc.Name = 'CREATEINPUTDIRPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewInputDirPage := TInputDirWizardPage.Create(GetWizardForm);
+    var NewInputDirPage := TInputDirWizardPage.Create(GetWizardForm);
     try
       NewInputDirPage.Caption := Stack.GetString(PStart-2);
       NewInputDirPage.Description := Stack.GetString(PStart-3);
@@ -213,7 +201,7 @@ begin
   end else if Proc.Name = 'CREATEINPUTFILEPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewInputFilePage := TInputFileWizardPage.Create(GetWizardForm);
+    var NewInputFilePage := TInputFileWizardPage.Create(GetWizardForm);
     try
       NewInputFilePage.Caption := Stack.GetString(PStart-2);
       NewInputFilePage.Description := Stack.GetString(PStart-3);
@@ -227,7 +215,7 @@ begin
   end else if Proc.Name = 'CREATEOUTPUTMSGPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewOutputMsgPage := TOutputMsgWizardPage.Create(GetWizardForm);
+    var NewOutputMsgPage := TOutputMsgWizardPage.Create(GetWizardForm);
     try
       NewOutputMsgPage.Caption := Stack.GetString(PStart-2);
       NewOutputMsgPage.Description := Stack.GetString(PStart-3);
@@ -241,7 +229,7 @@ begin
   end else if Proc.Name = 'CREATEOUTPUTMSGMEMOPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewOutputMsgMemoPage := TOutputMsgMemoWizardPage.Create(GetWizardForm);
+    var NewOutputMsgMemoPage := TOutputMsgMemoWizardPage.Create(GetWizardForm);
     try
       NewOutputMsgMemoPage.Caption := Stack.GetString(PStart-2);
       NewOutputMsgMemoPage.Description := Stack.GetString(PStart-3);
@@ -256,7 +244,7 @@ begin
   end else if Proc.Name = 'CREATEOUTPUTPROGRESSPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewOutputProgressPage := TOutputProgressWizardPage.Create(GetWizardForm);
+    var NewOutputProgressPage := TOutputProgressWizardPage.Create(GetWizardForm);
     try
       NewOutputProgressPage.Caption := Stack.GetString(PStart-1);
       NewOutputProgressPage.Description := Stack.GetString(PStart-2);
@@ -270,7 +258,7 @@ begin
   end else if Proc.Name = 'CREATEOUTPUTMARQUEEPROGRESSPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    NewOutputMarqueeProgressPage := TOutputMarqueeProgressWizardPage.Create(GetWizardForm);
+    var NewOutputMarqueeProgressPage := TOutputMarqueeProgressWizardPage.Create(GetWizardForm);
     try
       NewOutputMarqueeProgressPage.Caption := Stack.GetString(PStart-1);
       NewOutputMarqueeProgressPage.Description := Stack.GetString(PStart-2);
@@ -285,12 +273,13 @@ begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
     var P: PPSVariantProcPtr := Stack.Items[PStart-3];
+    var OnDownloadProgress: TOnDownloadProgress;
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
     else
       OnDownloadProgress := nil;
-    NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
+    var NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
     try
       NewDownloadPage.Caption := Stack.GetString(PStart-1);
       NewDownloadPage.Description := Stack.GetString(PStart-2);
@@ -302,6 +291,28 @@ begin
       raise;
     end;
     Stack.SetClass(PStart, NewDownloadPage);
+  end else if Proc.Name = 'CREATEXTRACTIONPAGE' then begin
+    if IsUninstaller then
+      NoUninstallFuncError(Proc.Name);
+    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
+    var OnExtractionProgress: TOnExtractionProgress;
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnExtractionProgress := TOnExtractionProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnExtractionProgress := nil;
+    var NewExtractionPage := TExtractionWizardPage.Create(GetWizardForm);
+    try
+      NewExtractionPage.Caption := Stack.GetString(PStart-1);
+      NewExtractionPage.Description := Stack.GetString(PStart-2);
+      GetWizardForm.AddPage(NewExtractionPage, -1);
+      NewExtractionPage.Initialize;
+      NewExtractionPage.OnExtractionProgress := OnExtractionProgress;
+    except
+      NewExtractionPage.Free;
+      raise;
+    end;
+    Stack.SetClass(PStart, NewExtractionPage);
   end else if Proc.Name = 'SCALEX' then begin
     InitializeScaleBaseUnits;
     Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), ScaleBaseUnitX, OrigBaseUnitX));
@@ -309,7 +320,7 @@ begin
     InitializeScaleBaseUnits;
     Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), ScaleBaseUnitY, OrigBaseUnitY));
   end else if Proc.Name = 'CREATECUSTOMFORM' then begin
-    NewSetupForm := TSetupForm.CreateNew(nil);
+    var NewSetupForm := TSetupForm.CreateNew(nil);
     try
       NewSetupForm.AutoScroll := False;
       NewSetupForm.BorderStyle := bsDialog;
@@ -773,7 +784,6 @@ end;
 function InstallProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
-  OnDownloadProgress: TOnDownloadProgress;
 begin
   if IsUninstaller then
     NoUninstallFuncError(Proc.Name);
@@ -787,6 +797,7 @@ begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
     var P: PPSVariantProcPtr := Stack.Items[PStart-4];
+    var OnDownloadProgress: TOnDownloadProgress;
     { ProcNo 0 means nil was passed by the script }
     if P.ProcNo <> 0 then
       OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
@@ -2106,8 +2117,15 @@ begin
     for I := 0 to N-1 do
       AscendingTrySizes[I] := VNGetInt(PSGetArrayField(Arr, I));
     Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
-  end else if Proc.Name = 'EXTRACT7ZIPFILE' then begin
-    Stack.SetInt(PStart, SevenZipDecode(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
+  end else if Proc.Name = 'EXTRACT7ZIPARCHIVE' then begin
+    var P: PPSVariantProcPtr := Stack.Items[PStart-4];
+    var OnExtractionProgress: TOnExtractionProgress;
+    { ProcNo 0 means nil was passed by the script }
+    if P.ProcNo <> 0 then
+      OnExtractionProgress := TOnExtractionProgress(Caller.GetProcAsMethod(P.ProcNo))
+    else
+      OnExtractionProgress := nil;
+    Stack.SetInt(PStart, Extract7ZipArchive(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3), OnExtractionProgress));
   end else if Proc.Name = 'DEBUGGING' then begin
     Stack.SetBool(PStart, Debugging);
   end else

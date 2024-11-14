@@ -221,6 +221,7 @@ initialization
     'function CreateOutputProgressPage(const ACaption, ADescription: String): TOutputProgressWizardPage;',
     'function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;',
     'function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;',
+    'function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;',
     'function ScaleX(X: Integer): Integer;',
     'function ScaleY(Y: Integer): Integer;',
     'function CreateCustomForm: TSetupForm;'
@@ -539,7 +540,7 @@ initialization
     'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;',
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
-    'function Extract7ZipFile(const FileName, DestDir: String; const FullPaths: Boolean): Integer;',
+    'function Extract7ZipArchive(const FileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress): Integer;',
     'function Debugging: Boolean;'
   ];
 

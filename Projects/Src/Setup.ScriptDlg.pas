@@ -12,8 +12,8 @@ unit Setup.ScriptDlg;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs,
-  Setup.WizardForm, Setup.Install,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
+  Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -172,9 +172,14 @@ type
       procedure SetProgress(const Position, Max: Longint);
   end;
 
+  TDownloadFile = class
+    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+  end;
+  TDownloadFiles = TObjectList<TDownloadFile>;
+
   TDownloadWizardPage = class(TOutputProgressWizardPage)
     private
-      FFiles: TObjectList;
+      FFiles: TDownloadFiles;
       FOnDownloadProgress: TOnDownloadProgress;
       FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
@@ -198,6 +203,37 @@ type
       property ShowBaseNameInsteadOfUrl: Boolean read FShowBaseNameInsteadOfUrl write FShowBaseNameInsteadOfUrl;
   end;
   
+  TArchive = class
+    FileName, DestDir: String;
+    FullPaths: Boolean;
+  end;
+  TArchives = TObjectList<TArchive>;
+
+  TExtractionWizardPage = class(TOutputProgressWizardPage)
+    private
+      FArchives: TArchives;
+      FOnExtractionProgress: TOnExtractionProgress;
+      FShowArchiveInsteadOfFile: Boolean;
+      FAbortButton: TNewButton;
+      FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      procedure AbortButtonClick(Sender: TObject);
+      function InternalOnExtractionProgress(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+      procedure ShowProgressControls(const AVisible: Boolean);
+    public
+      constructor Create(AOwner: TComponent); override;
+      destructor Destroy; override;
+      procedure Initialize; override;
+      procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+      procedure Clear;
+      function Extract: Integer;
+      property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
+      procedure Show; override;
+    published
+      property AbortButton: TNewButton read FAbortButton;
+      property AbortedByUser: Boolean read FAbortedByUser;
+      property ShowArchiveInsteadOfFile: Boolean read FShowArchiveInsteadOfFile write FShowArchiveInsteadOfFile;
+  end;
+
 implementation
 
 uses
@@ -920,11 +956,6 @@ end;
 
 {--- Download ---}
 
-type
-  TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-  end;
-
 procedure TDownloadWizardPage.AbortButtonClick(Sender: TObject);
 begin
   FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
@@ -970,7 +1001,7 @@ constructor TDownloadWizardPage.Create(AOwner: TComponent);
 begin
   inherited;
   FUseMarqueeStyle := True;
-  FFiles := TObjectList.Create;
+  FFiles := TDownloadFiles.Create;
 end;
 
 destructor TDownloadWizardPage.Destroy;
@@ -1019,10 +1050,8 @@ begin
 end;
 
 procedure TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
-var
-  F: TDownloadFile;
 begin
-  F := TDownloadFile.Create;
+  var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
   F.RequiredSHA256OfFile := RequiredSHA256OfFile;
@@ -1037,20 +1066,130 @@ begin
 end;
 
 function TDownloadWizardPage.Download: Int64;
-var
-  F: TDownloadFile;
-  I: Integer;
 begin
   FAbortedByUser := False;
-  
+
   Result := 0;
-  for I := 0 to FFiles.Count-1 do begin
-    F := TDownloadFile(FFiles[I]);
+  for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileProcessMessages before downloading since we already process messages ourselves. }
     SetDownloadCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
   end;
   SetDownloadCredentials('', '');
+end;
+
+{--- Extraction ---}
+
+procedure TExtractionWizardPage.AbortButtonClick(Sender: TObject);
+begin
+  //todo: fix msg!
+  FAbortedByUser := LoggedMsgBox(SetupMessages[msgStopDownload], '', mbConfirmation, MB_YESNO, True, ID_YES) = IDYES;
+end;
+
+function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveFileName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+var
+  Progress32, ProgressMax32: LongInt;
+begin
+  if FAbortedByUser then begin
+    Log('Need to abort extraction.');
+    Result := False;
+  end else begin
+    Log(Format('  %d bytes done.', [Progress]));
+
+    FMsg2Label.Caption := IfThen(FShowArchiveInsteadOfFile, ArchiveFileName, FileName);
+    if ProgressMax > MaxLongInt then begin
+      Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
+      ProgressMax32 := MaxLongInt;
+    end else begin
+      Progress32 := Progress;
+      ProgressMax32 := ProgressMax;
+    end;
+    SetProgress(Progress32, ProgressMax32); { This will process messages which we need for the abort button to work }
+
+    if FShowProgressControlsOnNextProgress then begin
+      ShowProgressControls(True);
+      FShowProgressControlsOnNextProgress := False;
+      ProcessMsgs;
+    end;
+
+    if Assigned(FOnExtractionProgress) then
+      Result := FOnExtractionProgress(ArchiveFileName, FileName, Progress, ProgressMax)
+    else
+      Result := True;
+  end;
+end;
+
+constructor TExtractionWizardPage.Create(AOwner: TComponent);
+begin
+  inherited;
+  FUseMarqueeStyle := True;
+  FArchives := TArchives.Create;
+end;
+
+destructor TExtractionWizardPage.Destroy;
+begin
+  FArchives.Free;
+  inherited;
+end;
+
+procedure TExtractionWizardPage.Initialize;
+begin
+  inherited;
+
+  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel]; //todo: fix message
+
+  FAbortButton := TNewButton.Create(Self);
+  with FAbortButton do begin
+    Caption := SetupMessages[msgButtonStopDownload]; //todo: fix message
+    Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
+    Width := WizardForm.CalculateButtonWidth([Caption]);
+    Anchors := [akLeft, akTop];
+    Height := WizardForm.CancelButton.Height;
+    OnClick := AbortButtonClick;
+  end;
+  SetCtlParent(FAbortButton, Surface);
+end;
+
+procedure TExtractionWizardPage.Show;
+begin
+  if WizardForm.CurPageID <> ID then begin
+    ShowProgressControls(False);
+    FShowProgressControlsOnNextProgress := True;
+  end;
+  inherited;
+end;
+
+procedure TExtractionWizardPage.ShowProgressControls(const AVisible: Boolean);
+begin
+  FMsg2Label.Visible := AVisible;
+  FProgressBar.Visible := AVisible;
+  FAbortButton.Visible := AVisible;
+end;
+
+procedure TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+begin
+  var A := TArchive.Create;
+  A.FileName := ArchiveFileName;
+  A.DestDir := DestDir;
+  A.FullPaths := FullPaths;
+  FArchives.Add(A);
+end;
+
+procedure TExtractionWizardPage.Clear;
+begin
+  FArchives.Clear;
+end;
+
+function TExtractionWizardPage.Extract: Integer;
+begin
+  FAbortedByUser := False;
+
+  Result := 0;
+  for var A in FArchives do begin
+    { Don't need to set DownloadTemporaryFileOrSevenZipDecodeProcessMessages before extraction since we already process messages ourselves. }
+    if Extract7ZipArchive(A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress) = 0 then
+      Inc(Result);
+  end;
 end;
 
 end.
