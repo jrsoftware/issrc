@@ -194,10 +194,10 @@ ReadyMemoTasks=Extra taken:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
 DownloadingLabel=Bezig met het downloaden van extra bestanden...
-ButtonStopDownload=&Stop download
-StopDownload=Weet u zeker dat u de download wilt stoppen?
-ErrorDownloadAborted=Download afgebroken
-ErrorDownloadFailed=Download mislukt: %1 %2
+ButtonStopDownload=&Stop downloaden
+StopDownload=Weet u zeker dat u het downloaden wilt stoppen?
+ErrorDownloadAborted=Downloaden gestopt
+ErrorDownloadFailed=Downloaden mislukt: %1 %2
 ErrorDownloadSizeFailed=Ophalen grootte mislukt: %1 %2
 ErrorFileHash1=Bestand hashing mislukt: %1
 ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
@@ -208,7 +208,7 @@ ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 ExtractionLabel=Bezig met het uitpakken van extra bestanden...
 ButtonStopExtraction=&Stop uitpakken
 StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
-ErrorExtractionAborted=Uitpakken afgebroken
+ErrorExtractionAborted=Uitpakken gestopt
 ErrorExtractionFailed=Uitpakken mislukt: %1
 
 ; *** "Preparing to Install" wizard page
