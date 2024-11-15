@@ -474,7 +474,6 @@ type
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
     FProgressThemeData: HTHEME;
-    FProgressChunkSize, FProgressSpaceSize: Integer;
     FMenuThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
     FMenuDarkBackgroundBrush: TBrush;
@@ -6404,12 +6403,6 @@ begin
 
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
-    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSCHUNKSIZE, FProgressChunkSize) <> S_OK) or
-       (FProgressChunkSize <= 0) then
-      FProgressChunkSize := 6;
-    if (GetThemeInt(FProgressThemeData, 0, 0, TMT_PROGRESSSPACESIZE, FProgressSpaceSize) <> S_OK) or
-       (FProgressSpaceSize < 0) then  { ...since "OpusOS" theme returns a bogus -1 value }
-      FProgressSpaceSize := 2;
     FMenuThemeData := OpenThemeData(Handle, 'Menu');
     FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
   end;
@@ -7063,25 +7056,39 @@ begin
         var R := Rect;
         InflateRect(R, -2, -2);
         if FProgressThemeData = 0 then begin
+          { Border }
+          StatusBar.Canvas.Pen.Color := clBtnShadow;
+          StatusBar.Canvas.Brush.Style := bsClear;
+          StatusBar.Canvas.Rectangle(R);
+          InflateRect(R, -1, -1);
+          { Filled part }
+          var SaveRight := R.Right;
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
             FProgressMax);
           StatusBar.Canvas.Brush.Color := clHighlight;
           StatusBar.Canvas.FillRect(R);
+          { Unfilled part }
+          R.Left := R.Right;
+          R.Right := SaveRight;
+          StatusBar.Canvas.Brush.Color := clBtnFace;
+          StatusBar.Canvas.FillRect(R);
         end else begin
-          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle, PP_BAR, 0, R, nil);
-          var BR := R;
-          GetThemeBackgroundContentRect(FProgressThemeData, StatusBar.Canvas.Handle, PP_BAR, 0, BR, @R);
-          IntersectClipRect(StatusBar.Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
-          var W := MulDiv(FProgress, R.Right - R.Left, FProgressMax);
-          var ChunkCount := W div (FProgressChunkSize + FProgressSpaceSize);
-          if W mod (FProgressChunkSize + FProgressSpaceSize) > 0 then
-            Inc(ChunkCount);
-          R.Right := R.Left + FProgressChunkSize;
-          for W := 0 to ChunkCount - 1 do
-          begin
-            DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle, PP_CHUNK, 0, R, nil);
-            OffsetRect(R, FProgressChunkSize + FProgressSpaceSize, 0);
-          end;
+          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+            PP_BAR, 0, R, nil);
+          { PP_FILL drawing on Windows 11 (and probably 10) is bugged: when
+            the width of the green bar is less than ~25 pixels, the bar is
+            drawn over the left border. The same thing happens with
+            TProgressBar, so I don't think the API is being used incorrectly.
+            Work around the bug by passing a clipping rectangle that excludes
+            the left edge when running on Windows 10/11 only. (I don't know if
+            earlier versions need it, or if later versions will fix it.) }
+          var CR := R;
+          if (Win32MajorVersion = 10) and (Win32MinorVersion = 0) then
+            Inc(CR.Left);  { does this need to be DPI-scaled? }
+          R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
+            FProgressMax);
+          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+            PP_FILL, PBFS_NORMAL, R, @CR);
         end;
       end;
   end;

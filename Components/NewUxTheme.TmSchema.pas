@@ -928,6 +928,10 @@ const
   PP_BARVERT           = 2;
   PP_CHUNK             = 3;
   PP_CHUNKVERT         = 4;
+  // New in Windows Vista:
+  PP_FILL              = 5;
+
+  PBFS_NORMAL          = 1;
 
 //----------------------------------------------------------------------------------------------------------------------
 //   "Tab" Parts & States
