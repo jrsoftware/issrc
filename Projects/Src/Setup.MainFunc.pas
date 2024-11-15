@@ -152,7 +152,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess, DownloadTemporaryFileProcessMessages: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages: Boolean;
   TaskbarButtonHidden: Boolean;
   InstallModeRootKey: HKEY;
 

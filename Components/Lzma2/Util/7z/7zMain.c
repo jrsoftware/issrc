@@ -4,8 +4,9 @@
 /* Changes by Martijn Laan for Inno Setup:
    -Use CP_UTF8 in PrintString
    -Change main to mainW to support Unicode archive names
-   -Add specific error text for SZ_ERROR_ARCHIVE and SZ_ERROR_NO_ARCHIVE
+   -Add specific error text for SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
+   -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
    Otherwise unchanged */
 
@@ -45,6 +46,9 @@
 static const ISzAlloc g_Alloc = { SzAlloc, SzFree };
 // static const ISzAlloc g_Alloc_temp = { SzAllocTemp, SzFreeTemp };
 
+#ifdef REPORT_PROGRESS
+void ReportProgress(UInt16 *fileName, const UInt64 progress, const UInt64 progressMax, BoolInt *abort);
+#endif
 
 static void Print(const char *s)
 {
@@ -665,6 +669,21 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     {
       UInt32 i;
 
+      #ifdef REPORT_PROGRESS
+      UInt64 progressMax = 0;
+      for (i = 0; i < db.NumFiles; i++)
+      {
+          const BoolInt isDir = SzArEx_IsDir(&db, i);
+          if (!isDir)
+          {
+            UInt64 fileSize = SzArEx_GetFileSize(&db, i);
+            progressMax += fileSize;
+          }
+      }
+      UInt64 progress = 0;
+      BoolInt abort = False;
+      #endif
+
       /*
       if you need cache, use these 3 variables.
       if you use external function, you can make these variable as static.
@@ -755,6 +774,14 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           Print("/");
         else
         {
+          #ifdef REPORT_PROGRESS
+          ReportProgress(temp, progress, progressMax, &abort);
+          if (abort)
+          {
+            res = SZ_ERROR_PROGRESS;
+            break;
+          } 
+          #endif 
           res = SzArEx_Extract(&db, &lookStream.vt, i,
               &blockIndex, &outBuffer, &outBufferSize,
               &offset, &outSizeProcessed,
@@ -893,6 +920,19 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           #endif
         }
         PrintLF();
+
+        #ifdef REPORT_PROGRESS
+        progress += outSizeProcessed;
+        if (progress == progressMax)
+        {
+          ReportProgress(temp, progress, progressMax, &abort);
+          if (abort)
+          {
+            res = SZ_ERROR_PROGRESS;
+            break;
+          }
+        } 
+        #endif
       }
       ISzAlloc_Free(&allocImp, outBuffer);
     }
@@ -922,6 +962,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("not an archive");
   else if (res == SZ_ERROR_READ /* || archiveStream.Res != 0 */)
     PrintError_WRes("Read Error", archiveStream.wres);
+  else if (res == SZ_ERROR_PROGRESS)
+    PrintError("break from progress callback");
   else
   {
     char s[32];

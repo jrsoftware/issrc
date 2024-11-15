@@ -343,6 +343,17 @@ begin
   end;
 end;
 
+procedure RegisterExtractionWizardPage_R(CL: TPSRuntimeClassImporter);
+begin
+  with CL.Add(TExtractionWizardPage) do
+  begin
+    RegisterMethod(@TExtractionWizardPage.Add, 'Add');
+    RegisterMethod(@TExtractionWizardPage.Clear, 'Clear');
+    RegisterMethod(@TExtractionWizardPage.Extract, 'Extract');
+    RegisterMethod(@TExtractionWizardPage.Show, 'Show');
+  end;
+end;
+
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
 const
   IDC_HAND = MakeIntResource(32649);
@@ -447,6 +458,7 @@ begin
     RegisterOutputProgressWizardPage_R(Cl);
     RegisterOutputMarqueeProgressWizardPage_R(Cl);
     RegisterDownloadWizardPage_R(Cl);
+    RegisterExtractionWizardPage_R(Cl);
 
     RegisterHandCursor_R(Cl);
 

@@ -567,6 +567,20 @@ begin
   end;
 end;
 
+procedure RegisterExtractionWizardPage_C(Cl: TPSPascalCompiler);
+begin
+  with CL.AddClassN(Cl.FindClass('TOutputProgressWizardPage'),'TExtractionWizardPage') do
+  begin
+    RegisterProperty('AbortButton', 'TNewButton', iptr);
+    RegisterProperty('AbortedByUser', 'Boolean', iptr);
+    RegisterProperty('ShowArchiveInsteadOfFile', 'Boolean', iptrw);
+    RegisterMethod('procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean)');
+    RegisterMethod('procedure Clear');
+    RegisterMethod('procedure Extract');
+    RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
+  end;
+end;
+
 procedure RegisterHandCursor_C(Cl: TPSPascalCompiler);
 begin
   cl.AddConstantN('crHand', 'Integer').Value.ts32 := crHand;
@@ -675,6 +689,7 @@ begin
   RegisterOutputProgressWizardPage_C(Cl);
   RegisterOutputMarqueeProgressWizardPage_C(Cl);
   RegisterDownloadWizardPage_C(Cl);
+  RegisterExtractionWizardPage_C(Cl);
 
   RegisterHandCursor_C(Cl);
   

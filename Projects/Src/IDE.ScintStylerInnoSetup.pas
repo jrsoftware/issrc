@@ -455,7 +455,7 @@ const
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
     'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnLog'
+    'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog'
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }
   ];
 

@@ -36,7 +36,7 @@ const
   SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.0.0) (u)';
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;

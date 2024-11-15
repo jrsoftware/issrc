@@ -1871,12 +1871,12 @@ begin
     end;
     WizardForm.Update;
     try
-      DownloadTemporaryFileProcessMessages := True;
+      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
-      DownloadTemporaryFileProcessMessages := False;
+      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := False;
       UpdateCurPageButtonState;
     end;
     Application.BringToFront;

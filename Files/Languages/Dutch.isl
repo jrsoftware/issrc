@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Dutch messages ***
+﻿; *** Inno Setup version 6.4.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -203,6 +203,13 @@ ErrorFileHash1=Bestand hashing mislukt: %1
 ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
 ErrorProgress=Ongeldige voortgang: %1 van %2
 ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Bezig met het uitpakken van extra bestanden...
+ButtonStopExtraction=&Stop uitpakken
+StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
+ErrorExtractionAborted=uitpakken afgebroken
+ErrorExtractionFailed=Uitpakken mislukt: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie

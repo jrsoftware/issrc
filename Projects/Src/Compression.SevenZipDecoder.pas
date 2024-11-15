@@ -12,16 +12,31 @@ unit Compression.SevenZipDecoder;
 
 interface
 
-function SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean): Integer;
+type
+  TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, Setup.LoggingFunc;
+  Windows, SysUtils, Forms,
+  PathFunc,
+  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+
+type
+  TSevenZipDecodeState = record
+    ExpandedArchiveFileName, ExpandedDestDir: String;
+    LogBuffer: AnsiString;
+    ExtractedArchiveName: String;
+    OnExtractionProgress: TOnExtractionProgress;
+    LastReportedProgress, LastReportedProgressMax: UInt64;
+    Aborted: Boolean;
+  end;
 
 var
-  ExpandedDestDir: String;
+  State: TSevenZipDecodeState;
 
 { Compiled by Visual Studio 2022 using compile.bat
   To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
@@ -35,7 +50,7 @@ function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
   var ExpandedDir: String;
-  if PathExpand(lpPathName, ExpandedDir) and  PathStartsWith(ExpandedDir, ExpandedDestDir) then
+  if PathExpand(lpPathName, ExpandedDir) and PathStartsWith(ExpandedDir, State.ExpandedDestDir) then
     Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
@@ -59,7 +74,9 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
   var ExpandedFileName: String;
-  if PathExpand(lpFileName, ExpandedFileName) and PathStartsWith(ExpandedFileName, ExpandedDestDir) then
+  if PathExpand(lpFileName, ExpandedFileName) and
+     (((dwDesiredAccess = GENERIC_READ) and (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
+      ((dwDesiredAccess = GENERIC_WRITE) and PathStartsWith(ExpandedFileName, State.ExpandedDestDir))) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
@@ -187,9 +204,6 @@ begin
     Setup.LoggingFunc.Log(UTF8ToString(S));
 end;
 
-var
-  LogBuffer: AnsiString;
-
 function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
   function FindNewLine(const S: AnsiString): Integer;
@@ -204,14 +218,14 @@ function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
 begin
   try
-    LogBuffer := LogBuffer + str;
-    var P := FindNewLine(LogBuffer);
+    State.LogBuffer := State.LogBuffer + str;
+    var P := FindNewLine(State.LogBuffer);
     while P <> 0 do begin
-      Log(Copy(LogBuffer, 1, P-1));
-      if (LogBuffer[P] = #13) and (P < Length(LogBuffer)) and (LogBuffer[P+1] = #10) then
+      Log(Copy(State.LogBuffer, 1, P-1));
+      if (State.LogBuffer[P] = #13) and (P < Length(State.LogBuffer)) and (State.LogBuffer[P+1] = #10) then
         Inc(P);
-      Delete(LogBuffer, 1, P);
-      P := FindNewLine(LogBuffer);
+      Delete(State.LogBuffer, 1, P);
+      P := FindNewLine(State.LogBuffer);
     end;
     Result := 0;
   except
@@ -219,18 +233,66 @@ begin
   end;
 end;
 
-function SevenZipDecode(const FileName, DestDir: String;
-  const FullPaths: Boolean): Integer;
+procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
+  if Assigned(State.OnExtractionProgress) then begin
+    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+      -At start or finish
+      -Or if somehow Progress decreased or Max changed
+      -Or if at least 512 KB progress was made since last report
+    }
+    if (Progress = 0) or (Progress = ProgressMax) or
+       (Progress < State.LastReportedProgress) or (ProgressMax <> State.LastReportedProgressMax) or
+       ((Progress - State.LastReportedProgress) > 524288) then begin
+      try
+        if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
+          Abort := True;
+      finally
+        State.LastReportedProgress := Progress;
+        State.LastReportedProgressMax := ProgressMax;
+      end;
+    end;
+  end;
+
+  if not Abort and DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages then
+    Application.ProcessMessages;
+
+  if Abort then
+    State.Aborted := True;
+end;
+
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
+begin
+  if ArchiveFileName = '' then
+    InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
+  if DestDir = '' then
+    InternalError('Extract7ZipArchive: Invalid DestDir value');
+
+  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+
   var SaveCurDir := GetCurrentDir;
-  if not SetCurrentDir(DestDir) then
-    Exit(-1);
+  if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
   try
-    LogBuffer := '';
-    ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-    Result := IS_7zDec(PChar(FileName), FullPaths);
-    if LogBuffer <> '' then
-      Log(LogBuffer);
+    State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
+    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+    State.LogBuffer := '';
+    State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
+    State.OnExtractionProgress := OnExtractionProgress;
+    State.LastReportedProgress := 0;
+    State.LastReportedProgressMax := 0;
+    State.Aborted := False;
+
+    var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
+
+    if State.LogBuffer <> '' then
+      Log(State.LogBuffer);
+
+    if State.Aborted then
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else if Res <> 0 then
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString]))
   finally
     SetCurrentDir(SaveCurDir);
   end;

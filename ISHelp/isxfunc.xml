@@ -1795,7 +1795,8 @@ end;</pre></example>
 <link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
 <link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
+<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link></p></seealso>
         <example><pre>
 [Code]
 function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
@@ -1841,11 +1842,16 @@ end;</pre>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
       <function>
-        <name>Extract7ZipFile</name>
-        <prototype>function Extract7ZipFile(const FileName, DestDir: String; const FullPaths: Boolean): Integer;</prototype>
-        <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names. Returns zero if successful, nonzero otherwise</p>
-<p>The archive must not be encrypted.</p></description>
-        <remarks><p>Uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
+        <name>Extract7ZipArchive</name>
+        <prototype>procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
+        <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>The archive must not be encrypted.</p>
+<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+        <remarks><p>TOnExtractionProgress is defined as:</p>
+<p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p>Return True to allow the extraction to continue, False otherwise.</p>
+<p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
 <p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
 -It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
@@ -1858,6 +1864,10 @@ You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
 If you have big number of files in archive, and you need fast extracting, you can use partly-solid archives:<br /><br />
 7za.exe a archive.7z *.htm -ms=512K -r -mx -m0fb=255 -m0d=512K<br /><br />
 In that example 7-Zip will use 512KB solid blocks. So it needs to decompress only 512KB for extracting one file from such archive.</p></remarks>
+        <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2621,6 +2631,23 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
+<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
+      </function>
+      <function>
+        <name>CreateExtractionPage</name>
+        <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): ExtractionWizardPage;</prototype>
+        <description><p>Creates a wizard page to extract 7-Zip archives and show progress.</p>
+<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
+        <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>To add a new archive to extract, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
+<p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
+<p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
+<p>See <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link> for other considerations and the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
+<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>
