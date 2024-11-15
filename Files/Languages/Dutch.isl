@@ -208,7 +208,7 @@ ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 ExtractionLabel=Bezig met het uitpakken van extra bestanden...
 ButtonStopExtraction=&Stop uitpakken
 StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
-ErrorExtractionAborted=uitpakken afgebroken
+ErrorExtractionAborted=Uitpakken afgebroken
 ErrorExtractionFailed=Uitpakken mislukt: %1
 
 ; *** "Preparing to Install" wizard page
