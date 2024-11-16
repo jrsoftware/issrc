@@ -451,16 +451,17 @@ const
     { ScriptFunc's real enums, values done via PascalRealEnumValues instead of PascalEnumValues}
     'TMsgBoxType', 'TSetupMessageID', 'TSetupStep', 'TUninstallStep',
     'TSetupProcessorArchitecture', 'TDotNetVersion',
-    { ScriptFunc's non real enums and other types }
+    { ScriptFunc's non real enums and other types - also see PascalEnumValues below }
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
     'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
-    'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
+    'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog'
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }
   ];
 
   PascalEnumValues: array of AnsiString = [
-    { ScriptFunc's values of non real enums }
+    { ScriptFunc's values of non real enums - also see PascalTypes above }
+    'stAll', 'stExcludeEmpty', 'stExcludeLastEmpty',
     'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
     { ScriptClasses: see PascalEnumValues_Isxclasses in isxclasses_wordlists_generated }
   ];

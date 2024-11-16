@@ -20,7 +20,7 @@ implementation
 
 uses
   Windows, Shared.ScriptFunc,
-  Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX,
+  Forms, uPSUtils, SysUtils, Classes, Graphics, Controls, TypInfo, ActiveX, Generics.Collections,
   PathFunc, BrowseFunc, MD5, SHA1, SHA256, ASMInline, BitmapImage,
   Shared.Struct, Setup.ScriptDlg, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
@@ -1885,6 +1885,7 @@ var
   ErrorCode: Cardinal;
   N, I: Integer;
   AscendingTrySizes: array of Integer;
+  Values, Separators: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -2051,6 +2052,30 @@ begin
     Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), OnExtractionProgress);
   end else if Proc.Name = 'DEBUGGING' then begin
     Stack.SetBool(PStart, Debugging);
+  end else if Proc.Name = 'STRINGJOIN' then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(Values, N);
+    for I := 0 to N-1 do
+      Values[I] := VNGetString(PSGetArrayField(Arr, I));
+    Stack.SetString(PStart, String.Join(Stack.GetString(PStart-1), Values));
+  end else if (Proc.Name = 'STRINGSPLIT') or (Proc.Name = 'STRINGSPLITEX') then begin
+    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
+    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
+    SetLength(Separators, N);
+    for I := 0 to N-1 do
+      Separators[I] := VNGetString(PSGetArrayField(Arr, I));
+    var Parts: TArray<String>;
+    if Proc.Name = 'STRINGSPLITEX' then begin
+      var Quote := Stack.GetString(PStart-3)[1];
+      Parts := Stack.GetString(PStart-1).Split(Separators, Quote, Quote, TStringSplitOptions(Stack.GetInt(PStart-4)))
+    end else
+      Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));
+    Arr := NewTPSVariantIFC(Stack[PStart], True);
+    N := Length(Parts);
+    PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, N);
+    for I := 0 to N-1 do
+      VNSetString(PSGetArrayField(Arr, I), Parts[I]);
   end else
     Result := False;
 end;

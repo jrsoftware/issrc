@@ -105,6 +105,8 @@ begin
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
   RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
 
+  RegisterType('TSplitType', '(stAll, stExcludeEmpty, stExcludeLastEmpty)'); //must be compatible with System.SysUtils.TStringSplitOptions
+
   RegisterType('TExecWait', '(ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle)');
 
   RegisterType('TExecOutput',

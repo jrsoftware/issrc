@@ -541,7 +541,10 @@ initialization
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
-    'function Debugging: Boolean;'
+    'function Debugging: Boolean;',
+    'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
+    'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',
+    'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;'
   ];
 
   {$IFDEF COMPIL32PROJ}
