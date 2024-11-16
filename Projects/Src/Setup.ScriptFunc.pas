@@ -1246,31 +1246,6 @@ begin
     Result := False;
 end;
 
-type
-  { *Must* keep this in synch with ScriptFunc_C }
-  TWindowsVersion = packed record
-    Major: Cardinal;
-    Minor: Cardinal;
-    Build: Cardinal;
-    ServicePackMajor: Cardinal;
-    ServicePackMinor: Cardinal;
-    NTPlatform: Boolean;
-    ProductType: Byte;
-    SuiteMask: Word;
-  end;
-
-procedure _GetWindowsVersionEx(var Version: TWindowsVersion);
-begin
-  Version.Major := WindowsVersion shr 24;
-  Version.Minor := (WindowsVersion shr 16) and $FF;
-  Version.Build := WindowsVersion and $FFFF;
-  Version.ServicePackMajor := Hi(NTServicePackLevel);
-  Version.ServicePackMinor := Lo(NTServicePackLevel);
-  Version.NTPlatform := True;
-  Version.ProductType := WindowsProductType;
-  Version.SuiteMask := WindowsSuiteMask;
-end;
-
 function MessagesProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -1282,11 +1257,6 @@ begin
     Stack.SetString(PStart, SetupMessages[TSetupMessageID(Stack.GetInt(PStart-1))]);
   end else
     Result := False;
-end;
-
-function _FmtMessage(const S: String; const Args: array of String): String;
-begin
-  Result := FmtMessage(PChar(S), Args);
 end;
 
 function SystemProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -1529,53 +1499,6 @@ begin
     Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
   end else
     Result := False;
-end;
-
-procedure FindDataToFindRec(const FindData: TWin32FindData;
-  var FindRec: TFindRec);
-begin
-  FindRec.Name := FindData.cFileName;
-  FindRec.Attributes := FindData.dwFileAttributes;
-  FindRec.SizeHigh := FindData.nFileSizeHigh;
-  FindRec.SizeLow := FindData.nFileSizeLow;
-  FindRec.CreationTime := FindData.ftCreationTime;
-  FindRec.LastAccessTime := FindData.ftLastAccessTime;
-  FindRec.LastWriteTime := FindData.ftLastWriteTime;
-  FindRec.AlternateName := FindData.cAlternateFileName;
-end;
-
-function _FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;
-var
-  FindHandle: THandle;
-  FindData: TWin32FindData;
-begin
-  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
-  if FindHandle <> INVALID_HANDLE_VALUE then begin
-    FindRec.FindHandle := FindHandle;
-    FindDataToFindRec(FindData, FindRec);
-    Result := True;
-  end
-  else begin
-    FindRec.FindHandle := 0;
-    Result := False;
-  end;
-end;
-
-function _FindNext(var FindRec: TFindRec): Boolean;
-var
-  FindData: TWin32FindData;
-begin
-  Result := (FindRec.FindHandle <> 0) and FindNextFile(FindRec.FindHandle, FindData);
-  if Result then
-    FindDataToFindRec(FindData, FindRec);
-end;
-
-procedure _FindClose(var FindRec: TFindRec);
-begin
-  if FindRec.FindHandle <> 0 then begin
-    Windows.FindClose(FindRec.FindHandle);
-    FindRec.FindHandle := 0;
-  end;
 end;
 
 function VerInfoFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -2133,6 +2056,83 @@ begin
 end;
 
 {---}
+
+procedure FindDataToFindRec(const FindData: TWin32FindData;
+  var FindRec: TFindRec);
+begin
+  FindRec.Name := FindData.cFileName;
+  FindRec.Attributes := FindData.dwFileAttributes;
+  FindRec.SizeHigh := FindData.nFileSizeHigh;
+  FindRec.SizeLow := FindData.nFileSizeLow;
+  FindRec.CreationTime := FindData.ftCreationTime;
+  FindRec.LastAccessTime := FindData.ftLastAccessTime;
+  FindRec.LastWriteTime := FindData.ftLastWriteTime;
+  FindRec.AlternateName := FindData.cAlternateFileName;
+end;
+
+function _FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;
+var
+  FindHandle: THandle;
+  FindData: TWin32FindData;
+begin
+  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
+  if FindHandle <> INVALID_HANDLE_VALUE then begin
+    FindRec.FindHandle := FindHandle;
+    FindDataToFindRec(FindData, FindRec);
+    Result := True;
+  end
+  else begin
+    FindRec.FindHandle := 0;
+    Result := False;
+  end;
+end;
+
+function _FindNext(var FindRec: TFindRec): Boolean;
+var
+  FindData: TWin32FindData;
+begin
+  Result := (FindRec.FindHandle <> 0) and FindNextFile(FindRec.FindHandle, FindData);
+  if Result then
+    FindDataToFindRec(FindData, FindRec);
+end;
+
+procedure _FindClose(var FindRec: TFindRec);
+begin
+  if FindRec.FindHandle <> 0 then begin
+    Windows.FindClose(FindRec.FindHandle);
+    FindRec.FindHandle := 0;
+  end;
+end;
+
+function _FmtMessage(const S: String; const Args: array of String): String;
+begin
+  Result := FmtMessage(PChar(S), Args);
+end;
+
+type
+  { *Must* keep this in synch with ScriptFunc_C }
+  TWindowsVersion = packed record
+    Major: Cardinal;
+    Minor: Cardinal;
+    Build: Cardinal;
+    ServicePackMajor: Cardinal;
+    ServicePackMinor: Cardinal;
+    NTPlatform: Boolean;
+    ProductType: Byte;
+    SuiteMask: Word;
+  end;
+
+procedure _GetWindowsVersionEx(var Version: TWindowsVersion);
+begin
+  Version.Major := WindowsVersion shr 24;
+  Version.Minor := (WindowsVersion shr 16) and $FF;
+  Version.Build := WindowsVersion and $FFFF;
+  Version.ServicePackMajor := Hi(NTServicePackLevel);
+  Version.ServicePackMinor := Lo(NTServicePackLevel);
+  Version.NTPlatform := True;
+  Version.ProductType := WindowsProductType;
+  Version.SuiteMask := WindowsSuiteMask;
+end;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 {$IFDEF DEBUG}
