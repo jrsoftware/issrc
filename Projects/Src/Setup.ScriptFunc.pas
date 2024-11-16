@@ -119,36 +119,44 @@ end;
 type
   TPSStackHelper = class helper for TPSStack
   private
-    function GetArray(const ItemNo: Longint; out N: Integer): TPSVariantIFC;
-    function SetArray(const ItemNo: Longint; const N: Integer): TPSVariantIFC; overload;
+    function GetArray(const ItemNo, FieldNo: Longint; out N: Integer): TPSVariantIFC;
+    function SetArray(const ItemNo, FieldNo: Longint; const N: Integer): TPSVariantIFC; overload;
   public
     type
       TArrayOfInteger = array of Integer;
       TArrayOfString = array of String;
-    function GetIntArray(const ItemNo: Longint): TArrayOfInteger;
+    function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
-    function GetStringArray(const ItemNo: Longint): TArrayOfString;
-    procedure SetArray(const ItemNo: Longint; const Data: TArray<String>); overload;
+    function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
+    procedure SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint = -1); overload;
+    procedure SetArray(const ItemNo: Longint; const Data: TStrings; const FieldNo: Longint = -1); overload;
+    procedure SetInt(const ItemNo: Longint; const Data: Integer; const FieldNo: Longint = -1);
   end;
 
-function TPSStackHelper.GetArray(const ItemNo: Longint;
+function TPSStackHelper.GetArray(const ItemNo, FieldNo: Longint;
   out N: Integer): TPSVariantIFC;
 begin
-  Result := NewTPSVariantIFC(Items[ItemNo], True);
+  if FieldNo >= 0 then
+    Result := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo)
+  else
+    Result := NewTPSVariantIFC(Items[ItemNo], True);
   N := PSDynArrayGetLength(Pointer(Result.Dta^), Result.aType);
 end;
 
-function TPSStackHelper.SetArray(const ItemNo: Longint;
+function TPSStackHelper.SetArray(const ItemNo, FieldNo: Longint;
   const N: Integer): TPSVariantIFC;
 begin
-  Result := NewTPSVariantIFC(Items[ItemNo], True);
+  if FieldNo >= 0 then
+    Result := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo)
+  else
+    Result := NewTPSVariantIFC(Items[ItemNo], True);
   PSDynArraySetLength(Pointer(Result.Dta^), Result.aType, N);
 end;
 
-function TPSStackHelper.GetIntArray(const ItemNo: Longint): TArrayOfInteger;
+function TPSStackHelper.GetIntArray(const ItemNo, FieldNo: Longint): TArrayOfInteger;
 begin
   var N: Integer;
-  var Arr := GetArray(ItemNo, N);
+  var Arr := GetArray(ItemNo, FieldNo, N);
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetInt(PSGetArrayField(Arr, I));
@@ -161,21 +169,40 @@ begin
   Result := Exec.GetProcAsMethod(P.ProcNo);
 end;
 
-function TPSStackHelper.GetStringArray(const ItemNo: Longint): TArrayOfString;
+function TPSStackHelper.GetStringArray(const ItemNo, FieldNo: Longint): TArrayOfString;
 begin
   var N: Integer;
-  var Arr := GetArray(ItemNo, N);
+  var Arr := GetArray(ItemNo, FieldNo, N);
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetString(PSGetArrayField(Arr, I));
 end;
 
-procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TArray<String>);
+procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint);
 begin
   var N := System.Length(Data);
-  var Arr := SetArray(ItemNo, N);
+  var Arr := SetArray(ItemNo, FieldNo, N);
   for var I := 0 to N-1 do
     VNSetString(PSGetArrayField(Arr, I), Data[I]);
+end;
+
+procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TStrings; const FieldNo: Longint);
+begin
+  var N := Data.Count;
+  var Arr := SetArray(ItemNo, FieldNo, N);
+  for var I := 0 to N-1 do
+    VNSetString(PSGetArrayField(Arr, I), Data[I]);
+end;
+
+procedure TPSStackHelper.SetInt(const ItemNo: Longint; const Data: Integer;
+  const FieldNo: Longint);
+begin
+  if FieldNo = -1 then
+    inherited SetInt(ItemNo, Data)
+  else begin
+    var PSVariantIFC := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo);
+    VNSetInt(PSVariantIFC, Data);
+  end;
 end;
 
 {---}
@@ -874,27 +901,6 @@ begin
   OnLog(S, Error, FirstLine);
 end;
 
-procedure ExecAndCaptureFinalize(StackData: Pointer; const OutputReader: TCreateProcessOutputReader);
-begin
-  { StdOut - 0 }
-  var Item := NewTPSVariantRecordIFC(StackData, 0);
-  var List := OutputReader.CaptureOutList;
-  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
-  for var I := 0 to List.Count - 1 do
-    VNSetString(PSGetArrayField(Item, I), List[I]);
-
-  { StdErr - 1 }
-  Item := NewTPSVariantRecordIFC(StackData, 1);
-  List := OutputReader.CaptureErrList;
-  PSDynArraySetLength(Pointer(Item.Dta^), Item.aType, List.Count);
-  for var I := 0 to List.Count - 1 do
-    VNSetString(PSGetArrayField(Item, I), List[I]);
-
-  { Error - 2 }
-  Item := NewTPSVariantRecordIFC(StackData, 2);
-  VNSetInt(Item, OutputReader.CaptureError.ToInteger);
-end;
-
 function InstFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 
   function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
@@ -1074,8 +1080,12 @@ begin
           WindowDisabler.Free;
         end;
         Stack.SetInt(PStart-6, ResultCode);
-        if Proc.Name = 'EXECANDCAPTUREOUTPUT' then
-          ExecAndCaptureFinalize(Stack[PStart-7], OutputReader);
+        if Proc.Name = 'EXECANDCAPTUREOUTPUT' then begin
+          { Set the three TExecOutput fields }
+          Stack.SetArray(PStart-7, OutputReader.CaptureOutList, 0);
+          Stack.SetArray(PStart-7, OutputReader.CaptureErrList, 1);
+          Stack.SetInt(PStart-7, OutputReader.CaptureError.ToInteger, 2);
+        end;
       end else begin
         Stack.SetBool(PStart, False);
         Stack.SetInt(PStart-6, ERROR_ACCESS_DENIED);
