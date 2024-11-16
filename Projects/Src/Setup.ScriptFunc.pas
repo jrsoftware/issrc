@@ -56,16 +56,6 @@ begin
   InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
 end;
 
-function StackGetAnsiString(Stack: TPSStack; ItemNo: LongInt): AnsiString;
-begin
-  Result := Stack.GetAnsiString(ItemNo);
-end;
-
-procedure StackSetAnsiString(Stack: TPSStack; ItemNo: LongInt; const Data: AnsiString);
-begin
-  Stack.SetAnsiString(ItemNo, Data);
-end;
-
 function GetMainForm: TMainForm;
 begin
   Result := MainForm;
@@ -129,25 +119,26 @@ end;
 type
   TPSStackHelper = class helper for TPSStack
   private
-    function GetArray(const ItemNo: LongInt; out N: Integer): TPSVariantIFC;
-    function SetArray(const ItemNo: LongInt; const N: Integer): TPSVariantIFC; overload;
+    function GetArray(const ItemNo: Longint; out N: Integer): TPSVariantIFC;
+    function SetArray(const ItemNo: Longint; const N: Integer): TPSVariantIFC; overload;
   public
     type
       TArrayOfInteger = array of Integer;
       TArrayOfString = array of String;
     function GetIntArray(const ItemNo: Longint): TArrayOfInteger;
+    function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint): TArrayOfString;
-    procedure SetArray(const ItemNo: LongInt; const Data: TArray<String>); overload;
+    procedure SetArray(const ItemNo: Longint; const Data: TArray<String>); overload;
   end;
 
-function TPSStackHelper.GetArray(const ItemNo: LongInt;
+function TPSStackHelper.GetArray(const ItemNo: Longint;
   out N: Integer): TPSVariantIFC;
 begin
   Result := NewTPSVariantIFC(Items[ItemNo], True);
   N := PSDynArrayGetLength(Pointer(Result.Dta^), Result.aType);
 end;
 
-function TPSStackHelper.SetArray(const ItemNo: LongInt;
+function TPSStackHelper.SetArray(const ItemNo: Longint;
   const N: Integer): TPSVariantIFC;
 begin
   Result := NewTPSVariantIFC(Items[ItemNo], True);
@@ -163,6 +154,13 @@ begin
     Result[I] := VNGetInt(PSGetArrayField(Arr, I));
 end;
 
+function TPSStackHelper.GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
+begin
+  var P := PPSVariantProcPtr(Items[ItemNo]);
+  { ProcNo 0 means nil was passed by the script and GetProcAsMethod will then return a (nil, nil) TMethod }
+  Result := Exec.GetProcAsMethod(P.ProcNo);
+end;
+
 function TPSStackHelper.GetStringArray(const ItemNo: Longint): TArrayOfString;
 begin
   var N: Integer;
@@ -172,7 +170,7 @@ begin
     Result[I] := VNGetString(PSGetArrayField(Arr, I));
 end;
 
-procedure TPSStackHelper.SetArray(const ItemNo: LongInt; const Data: TArray<String>);
+procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TArray<String>);
 begin
   var N := System.Length(Data);
   var Arr := SetArray(ItemNo, N);
@@ -291,7 +289,7 @@ begin
       NewOutputMsgMemoPage.Description := Stack.GetString(PStart-3);
       GetWizardForm.AddPage(NewOutputMsgMemoPage, Stack.GetInt(PStart-1));
       NewOutputMsgMemoPage.Initialize(Stack.GetString(PStart-4),
-         StackGetAnsiString(Stack, PStart-5));
+         Stack.GetAnsiString(PStart-5));
     except
       NewOutputMsgMemoPage.Free;
       raise;
@@ -328,20 +326,13 @@ begin
   end else if Proc.Name = 'CREATEDOWNLOADPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
-    var OnDownloadProgress: TOnDownloadProgress;
-    { ProcNo 0 means nil was passed by the script }
-    if P.ProcNo <> 0 then
-      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
-    else
-      OnDownloadProgress := nil;
     var NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
     try
       NewDownloadPage.Caption := Stack.GetString(PStart-1);
       NewDownloadPage.Description := Stack.GetString(PStart-2);
       GetWizardForm.AddPage(NewDownloadPage, -1);
       NewDownloadPage.Initialize;
-      NewDownloadPage.OnDownloadProgress := OnDownloadProgress;
+      NewDownloadPage.OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-3, Caller));
     except
       NewDownloadPage.Free;
       raise;
@@ -350,20 +341,13 @@ begin
   end else if Proc.Name = 'CREATEEXTRACTIONPAGE' then begin
     if IsUninstaller then
       NoUninstallFuncError(Proc.Name);
-    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
-    var OnExtractionProgress: TOnExtractionProgress;
-    { ProcNo 0 means nil was passed by the script }
-    if P.ProcNo <> 0 then
-      OnExtractionProgress := TOnExtractionProgress(Caller.GetProcAsMethod(P.ProcNo))
-    else
-      OnExtractionProgress := nil;
     var NewExtractionPage := TExtractionWizardPage.Create(GetWizardForm);
     try
       NewExtractionPage.Caption := Stack.GetString(PStart-1);
       NewExtractionPage.Description := Stack.GetString(PStart-2);
       GetWizardForm.AddPage(NewExtractionPage, -1);
       NewExtractionPage.Initialize;
-      NewExtractionPage.OnExtractionProgress := OnExtractionProgress;
+      NewExtractionPage.OnExtractionProgress := TOnExtractionProgress(Stack.GetProc(PStart-3, Caller));
     except
       NewExtractionPage.Free;
       raise;
@@ -727,7 +711,7 @@ begin
       if RegQueryValueEx(K, PChar(N), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
         SetLength(DataS, Size);
         if RegQueryValueEx(K, PChar(N), nil, @Typ, @DataS[1], @Size) = ERROR_SUCCESS then begin
-          StackSetAnsiString(Stack, PStart-4, DataS);
+          Stack.SetAnsiString(PStart-4, DataS);
           Stack.SetBool(PStart, True);
         end else
           Stack.SetBool(PStart, False);
@@ -803,7 +787,7 @@ begin
     S := Stack.GetString(PStart-2);
     if RegCreateKeyExView(RegView, RootKey, PChar(S), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
       N := Stack.GetString(PStart-3);
-      DataS := StackGetAnsiString(Stack, PStart-4);
+      DataS := Stack.GetAnsiString(PStart-4);
       if RegSetValueEx(K, PChar(N), 0, REG_BINARY, @DataS[1], Length(DataS)) = ERROR_SUCCESS then
         Stack.SetBool(PStart, True)
       else
@@ -852,14 +836,7 @@ begin
   end else if Proc.Name = 'EXTRACTTEMPORARYFILES' then begin
     Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILE' then begin
-    var P: PPSVariantProcPtr := Stack.Items[PStart-4];
-    var OnDownloadProgress: TOnDownloadProgress;
-    { ProcNo 0 means nil was passed by the script }
-    if P.ProcNo <> 0 then
-      OnDownloadProgress := TOnDownloadProgress(Caller.GetProcAsMethod(P.ProcNo))
-    else
-      OnDownloadProgress := nil;
-    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), OnDownloadProgress));
+    Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
   end else if Proc.Name = 'SETDOWNLOADCREDENTIALS' then begin
     SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
   end else if Proc.Name = 'DOWNLOADTEMPORARYFILESIZE' then begin
@@ -1015,19 +992,19 @@ begin
   end else if Proc.Name = 'GETMD5OFFILE' then begin
     Stack.SetString(PStart, MD5DigestToString(GetMD5OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETMD5OFSTRING' then begin
-    Stack.SetString(PStart, MD5DigestToString(GetMD5OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
+    Stack.SetString(PStart, MD5DigestToString(GetMD5OfAnsiString(Stack.GetAnsiString(PStart-1))));
   end else if Proc.Name = 'GETMD5OFUNICODESTRING' then begin
     Stack.SetString(PStart, MD5DigestToString(GetMD5OfUnicodeString(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA1OFFILE' then begin
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA1OFSTRING' then begin
-    Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
+    Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfAnsiString(Stack.GetAnsiString(PStart-1))));
   end else if Proc.Name = 'GETSHA1OFUNICODESTRING' then begin
     Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfUnicodeString(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA256OFFILE' then begin
     Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSHA256OFSTRING' then begin
-    Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfAnsiString(StackGetAnsiString(Stack, PStart-1))));
+    Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfAnsiString(Stack.GetAnsiString(PStart-1))));
   end else if Proc.Name = 'GETSHA256OFUNICODESTRING' then begin
     Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfUnicodeString(Stack.GetString(PStart-1))));
   end else if Proc.Name = 'GETSPACEONDISK' then begin
@@ -1066,16 +1043,14 @@ begin
   end else if (Proc.Name = 'EXEC') or (Proc.Name = 'EXECASORIGINALUSER') or
               (Proc.Name = 'EXECANDLOGOUTPUT') or (Proc.Name = 'EXECANDCAPTUREOUTPUT') then begin
     var RunAsOriginalUser := Proc.Name = 'EXECASORIGINALUSER';
-    var Method: TMethod;
+    var Method: TMethod; { Must stay alive until OutputReader is freed }
     var OutputReader: TCreateProcessOutputReader := nil;
     try
       if Proc.Name = 'EXECANDLOGOUTPUT' then begin
-        var P: PPSVariantProcPtr := Stack.Items[PStart-7];
-        { ProcNo 0 means nil was passed by the script }
-        if P.ProcNo <> 0 then begin
-          Method := Caller.GetProcAsMethod(P.ProcNo); { This is a TOnLog }
-          OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLogCustom, NativeInt(@Method));
-        end else if GetLogActive then
+        Method := Stack.GetProc(PStart-7, Caller);
+        if Method.Code <> nil then
+          OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLogCustom, NativeInt(@Method))
+        else if GetLogActive then
           OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0);
       end else if Proc.Name = 'EXECANDCAPTUREOUTPUT' then
         OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0, omCapture);
@@ -1349,9 +1324,9 @@ begin
   end else if Proc.Name = 'GET8087CW' then begin
     Stack.SetInt(PStart, Get8087CW);
   end else if Proc.Name = 'UTF8ENCODE' then begin
-    StackSetAnsiString(Stack, PStart, Utf8Encode(Stack.GetString(PStart-1)));
+    Stack.SetAnsiString(PStart, Utf8Encode(Stack.GetString(PStart-1)));
   end else if Proc.Name = 'UTF8DECODE' then begin
-    Stack.SetString(PStart, UTF8ToString(StackGetAnsiString(Stack, PStart-1)));
+    Stack.SetString(PStart, UTF8ToString(Stack.GetAnsiString(PStart-1)));
   end else
     Result := False;
 end;
@@ -1676,13 +1651,13 @@ begin
   end else if Proc.Name = 'CREATEMUTEX' then begin
     Windows.CreateMutex(nil, False, PChar(Stack.GetString(PStart)));
   end else if Proc.Name = 'OEMTOCHARBUFF' then begin
-    S := StackGetAnsiString(Stack, PStart);
+    S := Stack.GetAnsiString(PStart);
     OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
-    StackSetAnsiString(Stack, PStart, S);
+    Stack.SetAnsiString(PStart, S);
   end else if Proc.Name = 'CHARTOOEMBUFF' then begin
-    S := StackGetAnsiString(Stack, PStart);
+    S := Stack.GetAnsiString(PStart);
     CharToOemBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
-    StackSetAnsiString(Stack, PStart, S);
+    Stack.SetAnsiString(PStart, S);
   end else
     Result := False;
 end;
@@ -2037,13 +2012,13 @@ begin
   end else if Proc.Name = 'SETPREVIOUSDATA' then begin
     Stack.SetBool(PStart, SetCodePreviousData(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
   end else if Proc.Name = 'LOADSTRINGFROMFILE' then begin
-    AnsiS := StackGetAnsiString(Stack, PStart-2);
+    AnsiS := Stack.GetAnsiString(PStart-2);
     Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS, fsRead));
-    StackSetAnsiString(Stack, PStart-2, AnsiS);
+    Stack.SetAnsiString(PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGFROMLOCKEDFILE' then begin
-    AnsiS := StackGetAnsiString(Stack, PStart-2);
+    AnsiS := Stack.GetAnsiString(PStart-2);
     Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS, fsReadWrite));
-    StackSetAnsiString(Stack, PStart-2, AnsiS);
+    Stack.SetAnsiString(PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGSFROMFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsRead));
@@ -2051,7 +2026,7 @@ begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsReadWrite));
   end else if Proc.Name = 'SAVESTRINGTOFILE' then begin
-    Stack.SetBool(PStart, SaveStringToFile(Stack.GetString(PStart-1), StackGetAnsiString(Stack, PStart-2), Stack.GetBool(PStart-3)));
+    Stack.SetBool(PStart, SaveStringToFile(Stack.GetString(PStart-1), Stack.GetAnsiString(PStart-2), Stack.GetBool(PStart-3)));
   end else if Proc.Name = 'SAVESTRINGSTOFILE' then begin
     Arr := NewTPSVariantIFC(Stack[PStart-2], True);
     Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), False, False));
@@ -2084,14 +2059,7 @@ begin
     var AscendingTrySizes := Stack.GetIntArray(PStart-4);
     Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
   end else if Proc.Name = 'EXTRACT7ZIPARCHIVE' then begin
-    var P: PPSVariantProcPtr := Stack.Items[PStart-3];
-    var OnExtractionProgress: TOnExtractionProgress;
-    { ProcNo 0 means nil was passed by the script }
-    if P.ProcNo <> 0 then
-      OnExtractionProgress := TOnExtractionProgress(Caller.GetProcAsMethod(P.ProcNo))
-    else
-      OnExtractionProgress := nil;
-    Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), OnExtractionProgress);
+    Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
   end else if Proc.Name = 'DEBUGGING' then begin
     Stack.SetBool(PStart, Debugging);
   end else if Proc.Name = 'STRINGJOIN' then begin
