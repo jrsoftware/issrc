@@ -126,6 +126,62 @@ end;
 
 {---}
 
+type
+  TPSStackHelper = class helper for TPSStack
+  private
+    function GetArray(const ItemNo: LongInt; out N: Integer): TPSVariantIFC;
+    function SetArray(const ItemNo: LongInt; const N: Integer): TPSVariantIFC; overload;
+  public
+    type
+      TArrayOfInteger = array of Integer;
+      TArrayOfString = array of String;
+    function GetIntArray(const ItemNo: Longint): TArrayOfInteger;
+    function GetStringArray(const ItemNo: Longint): TArrayOfString;
+    procedure SetArray(const ItemNo: LongInt; const Data: TArray<String>); overload;
+  end;
+
+function TPSStackHelper.GetArray(const ItemNo: LongInt;
+  out N: Integer): TPSVariantIFC;
+begin
+  Result := NewTPSVariantIFC(Items[ItemNo], True);
+  N := PSDynArrayGetLength(Pointer(Result.Dta^), Result.aType);
+end;
+
+function TPSStackHelper.SetArray(const ItemNo: LongInt;
+  const N: Integer): TPSVariantIFC;
+begin
+  Result := NewTPSVariantIFC(Items[ItemNo], True);
+  PSDynArraySetLength(Pointer(Result.Dta^), Result.aType, N);
+end;
+
+function TPSStackHelper.GetIntArray(const ItemNo: Longint): TArrayOfInteger;
+begin
+  var N: Integer;
+  var Arr := GetArray(ItemNo, N);
+  SetLength(Result, N);
+  for var I := 0 to N-1 do
+    Result[I] := VNGetInt(PSGetArrayField(Arr, I));
+end;
+
+function TPSStackHelper.GetStringArray(const ItemNo: Longint): TArrayOfString;
+begin
+  var N: Integer;
+  var Arr := GetArray(ItemNo, N);
+  SetLength(Result, N);
+  for var I := 0 to N-1 do
+    Result[I] := VNGetString(PSGetArrayField(Arr, I));
+end;
+
+procedure TPSStackHelper.SetArray(const ItemNo: LongInt; const Data: TArray<String>);
+begin
+  var N := System.Length(Data);
+  var Arr := SetArray(ItemNo, N);
+  for var I := 0 to N-1 do
+    VNSetString(PSGetArrayField(Arr, I), Data[I]);
+end;
+
+{---}
+
 function ScriptDlgProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 var
   PStart: Cardinal;
@@ -1149,9 +1205,6 @@ var
   S: String;
   Components, Suppressible: Boolean;
   Default: Integer;
-  Arr: TPSVariantIFC;
-  N, I: Integer;
-  ButtonLabels: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -1195,11 +1248,7 @@ begin
       Suppressible := True;
       Default := Stack.GetInt(PStart-7);
     end;
-    Arr := NewTPSVariantIFC(Stack[PStart-5], True);
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    SetLength(ButtonLabels, N);
-    for I := 0 to N-1 do
-      ButtonLabels[I] := VNGetString(PSGetArrayField(Arr, I));
+    var ButtonLabels := Stack.GetStringArray(PStart-5);
     Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Stack.GetInt(PStart-4), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
   end else if Proc.Name = 'ISWIN64' then begin
     Stack.SetBool(PStart, IsWin64);
@@ -1883,9 +1932,6 @@ var
   AnsiS: AnsiString;
   Arr: TPSVariantIFC;
   ErrorCode: Cardinal;
-  N, I: Integer;
-  AscendingTrySizes: array of Integer;
-  Values, Separators: array of String;
 begin
   PStart := Stack.Count-1;
   Result := True;
@@ -2035,11 +2081,7 @@ begin
     if ErrorCode <> 0 then
       raise Exception.Create(Win32ErrorString(ErrorCode));
   end else if Proc.Name = 'INITIALIZEBITMAPIMAGEFROMICON' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-4], True);
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    SetLength(AscendingTrySizes, N);
-    for I := 0 to N-1 do
-      AscendingTrySizes[I] := VNGetInt(PSGetArrayField(Arr, I));
+    var AscendingTrySizes := Stack.GetIntArray(PStart-4);
     Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
   end else if Proc.Name = 'EXTRACT7ZIPARCHIVE' then begin
     var P: PPSVariantProcPtr := Stack.Items[PStart-3];
@@ -2053,29 +2095,17 @@ begin
   end else if Proc.Name = 'DEBUGGING' then begin
     Stack.SetBool(PStart, Debugging);
   end else if Proc.Name = 'STRINGJOIN' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    SetLength(Values, N);
-    for I := 0 to N-1 do
-      Values[I] := VNGetString(PSGetArrayField(Arr, I));
+    var Values := Stack.GetStringArray(PStart-2);
     Stack.SetString(PStart, String.Join(Stack.GetString(PStart-1), Values));
   end else if (Proc.Name = 'STRINGSPLIT') or (Proc.Name = 'STRINGSPLITEX') then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-    SetLength(Separators, N);
-    for I := 0 to N-1 do
-      Separators[I] := VNGetString(PSGetArrayField(Arr, I));
+    var Separators := Stack.GetStringArray(PStart-2);
     var Parts: TArray<String>;
     if Proc.Name = 'STRINGSPLITEX' then begin
       var Quote := Stack.GetString(PStart-3)[1];
       Parts := Stack.GetString(PStart-1).Split(Separators, Quote, Quote, TStringSplitOptions(Stack.GetInt(PStart-4)))
     end else
       Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));
-    Arr := NewTPSVariantIFC(Stack[PStart], True);
-    N := Length(Parts);
-    PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, N);
-    for I := 0 to N-1 do
-      VNSetString(PSGetArrayField(Arr, I), Parts[I]);
+    Stack.SetArray(PStart, Parts);
   end else
     Result := False;
 end;
