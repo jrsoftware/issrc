@@ -125,9 +125,22 @@ type
     type
       TArrayOfInteger = array of Integer;
       TArrayOfString = array of String;
+      TArrayBuilder = record
+        Arr: TPSVariantIFC;
+        I: Integer;
+        procedure Add(const Data: String);
+      end;
+      TArrayEnumerator = record
+        Arr: TPSVariantIFC;
+        N, I: Integer;
+        function HasNext: Boolean;
+        function Next: String;
+      end;
     function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
+    function InitArrayBuilder(const ItemNo: LongInt; const FieldNo: Longint = -1): TArrayBuilder;
+    function InitArrayEnumerator(const ItemNo: LongInt; const FieldNo: Longint = -1): TArrayEnumerator;
     procedure SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint = -1); overload;
     procedure SetArray(const ItemNo: Longint; const Data: TStrings; const FieldNo: Longint = -1); overload;
     procedure SetInt(const ItemNo: Longint; const Data: Integer; const FieldNo: Longint = -1);
@@ -176,6 +189,36 @@ begin
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetString(PSGetArrayField(Arr, I));
+end;
+
+function TPSStackHelper.InitArrayBuilder(const ItemNo, FieldNo: Longint): TArrayBuilder;
+begin
+  Result.Arr := SetArray(ItemNo, FieldNo, 0);
+  Result.I := 0;
+end;
+
+procedure TPSStackHelper.TArrayBuilder.Add(const Data: String);
+begin
+  PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, I+1);
+  VNSetString(PSGetArrayField(Arr, I), Data);
+  Inc(I);
+end;
+
+function TPSStackHelper.InitArrayEnumerator(const ItemNo, FieldNo: Longint): TArrayEnumerator;
+begin
+  Result.Arr := GetArray(ItemNo, FieldNo, Result.N);
+  Result.I := 0;
+end;
+
+function TPSStackHelper.TArrayEnumerator.HasNext: Boolean;
+begin
+  Result := I < N;
+end;
+
+function TPSStackHelper.TArrayEnumerator.Next: String;
+begin
+  Result := VNGetString(PSGetArrayField(Arr, I));
+  Inc(I);
 end;
 
 procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint);
@@ -503,12 +546,11 @@ function CommonFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack
   end;
 
   function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
-    const SubKeyName: String; Arr: PPSVariantIFC; const Subkey: Boolean): Boolean;
+    const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
   const
     samDesired: array [Boolean] of REGSAM = (KEY_QUERY_VALUE, KEY_ENUMERATE_SUB_KEYS);
   var
     K: HKEY;
-    I: Cardinal;
     Buf, S: String;
     BufSize, R: DWORD;
   begin
@@ -517,14 +559,13 @@ function CommonFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack
     if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, samDesired[Subkey], K) <> ERROR_SUCCESS then
       Exit;
     try
-      PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, 0);
-      I := 0;
+      var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
       while True do begin
         BufSize := Length(Buf);
         if Subkey then
-          R := RegEnumKeyEx(K, I, @Buf[1], BufSize, nil, nil, nil, nil)
+          R := RegEnumKeyEx(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil)
         else
-          R := RegEnumValue(K, I, @Buf[1], BufSize, nil, nil, nil, nil);
+          R := RegEnumValue(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil);
         case R of
           ERROR_SUCCESS: ;
           ERROR_NO_MORE_ITEMS: Break;
@@ -542,10 +583,8 @@ function CommonFuncProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack
         else
           Exit;  { unknown failure... }
         end;
-        PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, I+1);
         SetString(S, PChar(@Buf[1]), BufSize);
-        VNSetString(PSGetArrayField(Arr^, I), S);
-        Inc(I);
+        ArrayBuilder.Add(S);
       end;
     finally
       RegCloseKey(K);
@@ -561,7 +600,6 @@ var
   S, N, V: String;
   DataS: AnsiString;
   Typ, ExistingTyp, Data, Size: DWORD;
-  Arr: TPSVariantIFC;
   I: Integer;
 begin
   PStart := Stack.Count-1;
@@ -686,14 +724,12 @@ begin
       Stack.SetBool(PStart, False);
   end else if Proc.Name = 'REGGETSUBKEYNAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
-    Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, True));
+      Stack.GetString(PStart-2), Stack, PStart-3, True));
   end else if Proc.Name = 'REGGETVALUENAMES' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
-    Arr := NewTPSVariantIFC(Stack[PStart-3], True);
     Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
-      Stack.GetString(PStart-2), @Arr, False));
+      Stack.GetString(PStart-2), Stack, PStart-3, False));
   end else if Proc.Name = 'REGQUERYSTRINGVALUE' then begin
     CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
     S := Stack.GetString(PStart-2);
@@ -888,12 +924,6 @@ end;
 type
   { These must keep this in synch with Compiler.ScriptFunc.pas }
   TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
-
-  TExecOutput = record
-    StdOut: PPSVariantIFC;
-    StdErr: PPSVariantIFC;
-    Error: Boolean;
-  end;
 
 procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
@@ -1756,24 +1786,17 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     end;
   end;
 
-  function LoadStringsFromFile(const FileName: String; Arr: PPSVariantIFC;
-    const Sharing: TFileSharing): Boolean;
+  function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
+    const ItemNo: Longint; const Sharing: TFileSharing): Boolean;
   var
     F: TTextFileReader;
-    I: Integer;
-    S: String;
   begin
     try
       F := TTextFileReaderRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
       try
-        PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, 0);
-        I := 0;
-        while not F.Eof do begin
-          S := F.ReadLine;
-          PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, I+1);
-          VNSetString(PSGetArrayField(Arr^, I), S);
-          Inc(I);
-        end;
+        var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
+        while not F.Eof do
+          ArrayBuilder.Add(F.ReadLine);
       finally
         F.Free;
       end;
@@ -1806,11 +1829,10 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
     end;
   end;
 
-  function SaveStringsToFile(const FileName: String; const Arr: PPSVariantIFC; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
+  function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
+    const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
   var
     F: TTextFileWriter;
-    I, N: Integer;
-    S: String;
   begin
     try
       if Append then
@@ -1820,9 +1842,9 @@ function OtherProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPS
       try
         if UTF8 and UTF8WithoutBOM then
           F.UTF8WithoutBOM := UTF8WithoutBOM;
-        N := PSDynArrayGetLength(Pointer(Arr.Dta^), Arr.aType);
-        for I := 0 to N-1 do begin
-          S := VNGetString(PSGetArrayField(Arr^, I));
+        var ArrayEnumerator := Stack.InitArrayEnumerator(ItemNo);
+        while ArrayEnumerator.HasNext do begin
+          var S := ArrayEnumerator.Next;
           if not UTF8 then
             F.WriteAnsiLine(AnsiString(S))
           else
@@ -1915,7 +1937,6 @@ var
   StringList: TStringList;
   S: String;
   AnsiS: AnsiString;
-  Arr: TPSVariantIFC;
   ErrorCode: Cardinal;
 begin
   PStart := Stack.Count-1;
@@ -2030,22 +2051,17 @@ begin
     Stack.SetBool(PStart, LoadStringFromFile(Stack.GetString(PStart-1), AnsiS, fsReadWrite));
     Stack.SetAnsiString(PStart-2, AnsiS);
   end else if Proc.Name = 'LOADSTRINGSFROMFILE' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsRead));
+    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), Stack, PStart-2, fsRead));
   end else if Proc.Name = 'LOADSTRINGSFROMLOCKEDFILE' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), @Arr, fsReadWrite));
+    Stack.SetBool(PStart, LoadStringsFromFile(Stack.GetString(PStart-1), Stack, PStart-2, fsReadWrite));
   end else if Proc.Name = 'SAVESTRINGTOFILE' then begin
     Stack.SetBool(PStart, SaveStringToFile(Stack.GetString(PStart-1), Stack.GetAnsiString(PStart-2), Stack.GetBool(PStart-3)));
   end else if Proc.Name = 'SAVESTRINGSTOFILE' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), False, False));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), Stack, PStart-2, Stack.GetBool(PStart-3), False, False));
   end else if Proc.Name = 'SAVESTRINGSTOUTF8FILE' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, False));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), Stack, PStart-2, Stack.GetBool(PStart-3), True, False));
   end else if Proc.Name = 'SAVESTRINGSTOUTF8FILEWITHOUTBOM' then begin
-    Arr := NewTPSVariantIFC(Stack[PStart-2], True);
-    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), @Arr, Stack.GetBool(PStart-3), True, True));
+    Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), Stack, PStart-2, Stack.GetBool(PStart-3), True, True));
   end else if Proc.Name = 'ENABLEFSREDIRECTION' then begin
     Stack.SetBool(PStart, not ScriptFuncDisableFsRedir);
     if Stack.GetBool(PStart-1) then

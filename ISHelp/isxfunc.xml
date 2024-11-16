@@ -2217,14 +2217,11 @@ end;</pre></example>
         <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
-  I: Integer;
   S: String;
 begin
   if RegGetSubkeyNames(HKEY_CURRENT_USER, 'Control Panel', Names) then
   begin
-    S := '';
-    for I := 0 to GetArrayLength(Names)-1 do
-      S := S + Names[I] + #13#10;
+    S := StringJoin(#13#10, Names);
     MsgBox('List of subkeys:'#13#10#13#10 + S, mbInformation, MB_OK);
   end else
   begin
@@ -2238,14 +2235,11 @@ end;</pre></example>
         <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
-  I: Integer;
   S: String;
 begin
   if RegGetValueNames(HKEY_CURRENT_USER, 'Control Panel\Mouse', Names) then
   begin
-    S := '';
-    for I := 0 to GetArrayLength(Names)-1 do
-      S := S + Names[I] + #13#10;
+    S := StringJoin(#13#10, Names);
     MsgBox('List of values:'#13#10#13#10 + S, mbInformation, MB_OK);
   end else
   begin
