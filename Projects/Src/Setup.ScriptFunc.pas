@@ -32,183 +32,6 @@ uses
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder,
   Setup.DebugClient;
 
-var
-  ScaleBaseUnitsInitialized: Boolean;
-  ScaleBaseUnitX, ScaleBaseUnitY: Integer;
-
-procedure NoSetupFuncError(const C: AnsiString); overload;
-begin
-  InternalError(Format('Cannot call "%s" function during Setup', [C]));
-end;
-
-procedure NoUninstallFuncError(const C: AnsiString); overload;
-begin
-  InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
-end;
-
-procedure NoSetupFuncError(const C: UnicodeString); overload;
-begin
-  InternalError(Format('Cannot call "%s" function during Setup', [C]));
-end;
-
-procedure NoUninstallFuncError(const C: UnicodeString); overload;
-begin
-  InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
-end;
-
-function GetMainForm: TMainForm;
-begin
-  Result := MainForm;
-  if Result = nil then
-    InternalError('An attempt was made to access MainForm before it has been created'); 
-end;
-
-function GetWizardForm: TWizardForm;
-begin
-  Result := WizardForm;
-  if Result = nil then
-    InternalError('An attempt was made to access WizardForm before it has been created'); 
-end;
-
-function GetUninstallProgressForm: TUninstallProgressForm;
-begin
-  Result := UninstallProgressForm;
-  if Result = nil then
-    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
-end;
-
-function GetMsgBoxCaption: String;
-var
-  ID: TSetupMessageID;
-begin
-  if IsUninstaller then
-    ID := msgUninstallAppTitle
-  else
-    ID := msgSetupAppTitle;
-  Result := SetupMessages[ID];
-end;
-
-procedure InitializeScaleBaseUnits;
-var
-  Font: TFont;
-begin
-  if ScaleBaseUnitsInitialized then
-    Exit;
-  Font := TFont.Create;
-  try
-    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
-      '', 8);
-    CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
-  finally
-    Font.Free;
-  end;
-  ScaleBaseUnitsInitialized := True;
-end;
-
-function IsProtectedSrcExe(const Filename: String): Boolean;
-begin
-  if (MainForm = nil) or (MainForm.CurStep < ssInstall) then begin
-    var ExpandedFilename := PathExpand(Filename);
-    Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
-  end else
-    Result := False;
-end;
-
-{---}
-
-type
-  { *Must* keep this in synch with ScriptFunc_C }
-  TFindRec = record
-    Name: String;
-    Attributes: LongWord;
-    SizeHigh: LongWord;
-    SizeLow: LongWord;
-    CreationTime: TFileTime;
-    LastAccessTime: TFileTime;
-    LastWriteTime: TFileTime;
-    AlternateName: String;
-    FindHandle: THandle;
-  end;
-
-procedure FindDataToFindRec(const FindData: TWin32FindData;
-  var FindRec: TFindRec);
-begin
-  FindRec.Name := FindData.cFileName;
-  FindRec.Attributes := FindData.dwFileAttributes;
-  FindRec.SizeHigh := FindData.nFileSizeHigh;
-  FindRec.SizeLow := FindData.nFileSizeLow;
-  FindRec.CreationTime := FindData.ftCreationTime;
-  FindRec.LastAccessTime := FindData.ftLastAccessTime;
-  FindRec.LastWriteTime := FindData.ftLastWriteTime;
-  FindRec.AlternateName := FindData.cAlternateFileName;
-end;
-
-function _FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;
-var
-  FindHandle: THandle;
-  FindData: TWin32FindData;
-begin
-  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
-  if FindHandle <> INVALID_HANDLE_VALUE then begin
-    FindRec.FindHandle := FindHandle;
-    FindDataToFindRec(FindData, FindRec);
-    Result := True;
-  end
-  else begin
-    FindRec.FindHandle := 0;
-    Result := False;
-  end;
-end;
-
-function _FindNext(var FindRec: TFindRec): Boolean;
-var
-  FindData: TWin32FindData;
-begin
-  Result := (FindRec.FindHandle <> 0) and FindNextFile(FindRec.FindHandle, FindData);
-  if Result then
-    FindDataToFindRec(FindData, FindRec);
-end;
-
-procedure _FindClose(var FindRec: TFindRec);
-begin
-  if FindRec.FindHandle <> 0 then begin
-    Windows.FindClose(FindRec.FindHandle);
-    FindRec.FindHandle := 0;
-  end;
-end;
-
-function _FmtMessage(const S: String; const Args: array of String): String;
-begin
-  Result := FmtMessage(PChar(S), Args);
-end;
-
-type
-  { *Must* keep this in synch with ScriptFunc_C }
-  TWindowsVersion = packed record
-    Major: Cardinal;
-    Minor: Cardinal;
-    Build: Cardinal;
-    ServicePackMajor: Cardinal;
-    ServicePackMinor: Cardinal;
-    NTPlatform: Boolean;
-    ProductType: Byte;
-    SuiteMask: Word;
-  end;
-
-procedure _GetWindowsVersionEx(var Version: TWindowsVersion);
-begin
-  Version.Major := WindowsVersion shr 24;
-  Version.Minor := (WindowsVersion shr 16) and $FF;
-  Version.Build := WindowsVersion and $FFFF;
-  Version.ServicePackMajor := Hi(NTServicePackLevel);
-  Version.ServicePackMinor := Lo(NTServicePackLevel);
-  Version.NTPlatform := True;
-  Version.ProductType := WindowsProductType;
-  Version.SuiteMask := WindowsSuiteMask;
-end;
-
-{---}
-
 type
   TPSStackHelper = class helper for TPSStack
   private
@@ -342,6 +165,164 @@ begin
 end;
 
 {---}
+
+procedure NoUninstallFuncError(const C: AnsiString); overload;
+begin
+  InternalError(Format('Cannot call "%s" function during Uninstall', [C]));
+end;
+
+function GetMainForm: TMainForm;
+begin
+  Result := MainForm;
+  if Result = nil then
+    InternalError('An attempt was made to access MainForm before it has been created'); 
+end;
+
+function GetWizardForm: TWizardForm;
+begin
+  Result := WizardForm;
+  if Result = nil then
+    InternalError('An attempt was made to access WizardForm before it has been created'); 
+end;
+
+function GetUninstallProgressForm: TUninstallProgressForm;
+begin
+  Result := UninstallProgressForm;
+  if Result = nil then
+    InternalError('An attempt was made to access UninstallProgressForm before it has been created');
+end;
+
+function GetMsgBoxCaption: String;
+var
+  ID: TSetupMessageID;
+begin
+  if IsUninstaller then
+    ID := msgUninstallAppTitle
+  else
+    ID := msgSetupAppTitle;
+  Result := SetupMessages[ID];
+end;
+
+var
+  ScaleBaseUnitsInitialized: Boolean;
+  ScaleBaseUnitX, ScaleBaseUnitY: Integer;
+
+procedure InitializeScaleBaseUnits;
+var
+  Font: TFont;
+begin
+  if ScaleBaseUnitsInitialized then
+    Exit;
+  Font := TFont.Create;
+  try
+    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
+      '', 8);
+    CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
+  finally
+    Font.Free;
+  end;
+  ScaleBaseUnitsInitialized := True;
+end;
+
+function IsProtectedSrcExe(const Filename: String): Boolean;
+begin
+  if (MainForm = nil) or (MainForm.CurStep < ssInstall) then begin
+    var ExpandedFilename := PathExpand(Filename);
+    Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+  end else
+    Result := False;
+end;
+
+type
+  { *Must* keep this in synch with ScriptFunc_C }
+  TFindRec = record
+    Name: String;
+    Attributes: LongWord;
+    SizeHigh: LongWord;
+    SizeLow: LongWord;
+    CreationTime: TFileTime;
+    LastAccessTime: TFileTime;
+    LastWriteTime: TFileTime;
+    AlternateName: String;
+    FindHandle: THandle;
+  end;
+
+procedure FindDataToFindRec(const FindData: TWin32FindData;
+  var FindRec: TFindRec);
+begin
+  FindRec.Name := FindData.cFileName;
+  FindRec.Attributes := FindData.dwFileAttributes;
+  FindRec.SizeHigh := FindData.nFileSizeHigh;
+  FindRec.SizeLow := FindData.nFileSizeLow;
+  FindRec.CreationTime := FindData.ftCreationTime;
+  FindRec.LastAccessTime := FindData.ftLastAccessTime;
+  FindRec.LastWriteTime := FindData.ftLastWriteTime;
+  FindRec.AlternateName := FindData.cAlternateFileName;
+end;
+
+function _FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;
+var
+  FindHandle: THandle;
+  FindData: TWin32FindData;
+begin
+  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
+  if FindHandle <> INVALID_HANDLE_VALUE then begin
+    FindRec.FindHandle := FindHandle;
+    FindDataToFindRec(FindData, FindRec);
+    Result := True;
+  end
+  else begin
+    FindRec.FindHandle := 0;
+    Result := False;
+  end;
+end;
+
+function _FindNext(var FindRec: TFindRec): Boolean;
+var
+  FindData: TWin32FindData;
+begin
+  Result := (FindRec.FindHandle <> 0) and FindNextFile(FindRec.FindHandle, FindData);
+  if Result then
+    FindDataToFindRec(FindData, FindRec);
+end;
+
+procedure _FindClose(var FindRec: TFindRec);
+begin
+  if FindRec.FindHandle <> 0 then begin
+    Windows.FindClose(FindRec.FindHandle);
+    FindRec.FindHandle := 0;
+  end;
+end;
+
+function _FmtMessage(const S: String; const Args: array of String): String;
+begin
+  Result := FmtMessage(PChar(S), Args);
+end;
+
+type
+  { *Must* keep this in synch with Compiler.ScriptFunc.pas }
+  TWindowsVersion = packed record
+    Major: Cardinal;
+    Minor: Cardinal;
+    Build: Cardinal;
+    ServicePackMajor: Cardinal;
+    ServicePackMinor: Cardinal;
+    NTPlatform: Boolean;
+    ProductType: Byte;
+    SuiteMask: Word;
+  end;
+
+procedure _GetWindowsVersionEx(var Version: TWindowsVersion);
+begin
+  Version.Major := WindowsVersion shr 24;
+  Version.Minor := (WindowsVersion shr 16) and $FF;
+  Version.Build := WindowsVersion and $FFFF;
+  Version.ServicePackMajor := Hi(NTServicePackLevel);
+  Version.ServicePackMinor := Lo(NTServicePackLevel);
+  Version.NTPlatform := True;
+  Version.ProductType := WindowsProductType;
+  Version.SuiteMask := WindowsSuiteMask;
+end;
 
 procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
   var RootKey: HKEY);
@@ -812,16 +793,37 @@ end;
 
 type
   TScriptFunc = reference to procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal);
-  TScriptFuncs = TDictionary<AnsiString, TScriptFunc>;
+  TScriptFuncTyp = (sfNormal, sfNoUninstall, sfOnlyUninstall);
+  TScriptFuncEx = record
+    OrgName: AnsiString;
+    ScriptFunc: TScriptFunc;
+    Typ: TScriptFuncTyp;
+    constructor Create(const AOrgName: AnsiString; const AScriptFunc: TScriptFunc; const ATyp: TScriptFuncTyp);
+  end;
+  TScriptFuncs = TDictionary<AnsiString, TScriptFuncEx>;
+
 var
   ScriptFuncs: TScriptFuncs;
 
+constructor TScriptFuncEx.Create(const AOrgName: AnsiString; const AScriptFunc: TScriptFunc; const ATyp: TScriptFuncTyp);
+begin
+  OrgName := AOrgName;
+  ScriptFunc := AScriptFunc;
+  Typ := ATyp;
+end;
+
 function ScriptFuncPSProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 begin
-  var ScriptFunc: TScriptFunc;
-  Result := ScriptFuncs.TryGetValue(Proc.Name, ScriptFunc);
-  if Result then
-    ScriptFunc(Caller, Proc.Name, Stack, Stack.Count-1);
+  var ScriptFuncEx: TScriptFuncEx;
+  Result := ScriptFuncs.TryGetValue(Proc.Name, ScriptFuncEx);
+  if Result then begin
+    if (ScriptFuncEx.Typ = sfNoUninstall) and IsUninstaller then
+      NoUninstallFuncError(Proc.Name)
+    else if (ScriptFuncEx.Typ = sfOnlyUninstall) and not IsUninstaller then
+      InternalError(Format('Cannot call "%s" function during Setup', [ScriptFuncEx.OrgName]))
+    else
+      ScriptFuncEx.ScriptFunc(Caller, Proc.Name, Stack, Stack.Count-1);
+  end;
 end;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
@@ -830,13 +832,19 @@ var
   Count: Integer;
 {$ENDIF}
 
-  procedure RegisterScriptFunc(const Name: AnsiString; const ScriptFunc: TScriptFunc); overload;
+  procedure RegisterScriptFunc(const Name: AnsiString; const ScriptFuncTyp: TScriptFuncTyp; const ScriptFunc: TScriptFunc); overload;
   begin
-    ScriptFuncs.Add(FastUpperCase(Name), ScriptFunc);
+    var ScriptFuncEx: TScriptFuncEx;
+    ScriptFuncs.Add(FastUpperCase(Name), TScriptFuncEx.Create(Name, ScriptFunc, ScriptFuncTyp));
     ScriptInterpreter.RegisterFunctionName(Name, ScriptFuncPSProc, nil, nil);
     {$IFDEF DEBUG}
     Inc(Count);
     {$ENDIF}
+  end;
+
+  procedure RegisterScriptFunc(const Name: AnsiString; const ScriptFunc: TScriptFunc); overload;
+  begin
+    RegisterScriptFunc(Name, sfNormal, ScriptFunc);
   end;
 
   procedure RegisterScriptFunc(const Names: array of AnsiString; const ScriptFunc: TScriptFunc); overload;
@@ -847,22 +855,16 @@ var
 
   procedure RegisterScriptDlgScriptFuncs;
   begin
-    RegisterScriptFunc('PAGEFROMID', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('PageFromID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       Stack.SetClass(PStart, GetWizardForm.PageFromID(Stack.GetInt(PStart-1)));
     end);
-    RegisterScriptFunc('PAGEINDEXFROMID', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('PageIndexFromID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       Stack.SetInt(PStart, GetWizardForm.PageIndexFromID(Stack.GetInt(PStart-1)));
     end);
-    RegisterScriptFunc('CREATECUSTOMPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateCustomPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewPage := TWizardPage.Create(GetWizardForm);
       try
         NewPage.Caption := Stack.GetString(PStart-2);
@@ -874,10 +876,8 @@ var
       end;
       Stack.SetClass(PStart, NewPage);
     end);
-    RegisterScriptFunc('CREATEINPUTQUERYPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputQueryPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewInputQueryPage := TInputQueryWizardPage.Create(GetWizardForm);
       try
         NewInputQueryPage.Caption := Stack.GetString(PStart-2);
@@ -890,10 +890,8 @@ var
       end;
       Stack.SetClass(PStart, NewInputQueryPage);
     end);
-    RegisterScriptFunc('CREATEINPUTOPTIONPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputOptionPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewInputOptionPage := TInputOptionWizardPage.Create(GetWizardForm);
       try
         NewInputOptionPage.Caption := Stack.GetString(PStart-2);
@@ -907,10 +905,8 @@ var
       end;
       Stack.SetClass(PStart, NewInputOptionPage);
     end);
-    RegisterScriptFunc('CREATEINPUTDIRPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEINPUTDIRPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewInputDirPage := TInputDirWizardPage.Create(GetWizardForm);
       try
         NewInputDirPage.Caption := Stack.GetString(PStart-2);
@@ -924,10 +920,8 @@ var
       end;
       Stack.SetClass(PStart, NewInputDirPage);
     end);
-    RegisterScriptFunc('CREATEINPUTFILEPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEINPUTFILEPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewInputFilePage := TInputFileWizardPage.Create(GetWizardForm);
       try
         NewInputFilePage.Caption := Stack.GetString(PStart-2);
@@ -940,10 +934,8 @@ var
       end;
       Stack.SetClass(PStart, NewInputFilePage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMSGPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEOUTPUTMSGPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewOutputMsgPage := TOutputMsgWizardPage.Create(GetWizardForm);
       try
         NewOutputMsgPage.Caption := Stack.GetString(PStart-2);
@@ -956,10 +948,8 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMsgPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMSGMEMOPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEOUTPUTMSGMEMOPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewOutputMsgMemoPage := TOutputMsgMemoWizardPage.Create(GetWizardForm);
       try
         NewOutputMsgMemoPage.Caption := Stack.GetString(PStart-2);
@@ -973,10 +963,8 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMsgMemoPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTPROGRESSPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEOUTPUTPROGRESSPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewOutputProgressPage := TOutputProgressWizardPage.Create(GetWizardForm);
       try
         NewOutputProgressPage.Caption := Stack.GetString(PStart-1);
@@ -989,10 +977,8 @@ var
       end;
       Stack.SetClass(PStart, NewOutputProgressPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMARQUEEPROGRESSPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEOUTPUTMARQUEEPROGRESSPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewOutputMarqueeProgressPage := TOutputMarqueeProgressWizardPage.Create(GetWizardForm);
       try
         NewOutputMarqueeProgressPage.Caption := Stack.GetString(PStart-1);
@@ -1005,10 +991,8 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMarqueeProgressPage);
     end);
-    RegisterScriptFunc('CREATEDOWNLOADPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
+    RegisterScriptFunc('CREATEDOWNLOADPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin;
       var NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
       try
         NewDownloadPage.Caption := Stack.GetString(PStart-1);
@@ -1022,10 +1006,8 @@ var
       end;
       Stack.SetClass(PStart, NewDownloadPage);
     end);
-    RegisterScriptFunc('CREATEEXTRACTIONPAGE', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CREATEEXTRACTIONPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if IsUninstaller then
-        NoUninstallFuncError(Name);
       var NewExtractionPage := TExtractionWizardPage.Create(GetWizardForm);
       try
         NewExtractionPage.Caption := Stack.GetString(PStart-1);
@@ -2439,10 +2421,8 @@ var
     begin
       Stack.SetBool(PStart, IsUninstaller);
     end);
-    RegisterScriptFunc('UNINSTALLSILENT', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('UninstallSilent', sfOnlyUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      if not IsUninstaller then
-        NoSetupFuncError(Name);
       Stack.SetBool(PStart, UninstallSilent);
     end);
     RegisterScriptFunc('CURRENTFILENAME', procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
