@@ -198,7 +198,9 @@ end;
 destructor TNewTabSet.Destroy;
 begin
   UpdateThemeData(False);
+  FHints.Free;
   FTabs.Free;
+  FCloseButtons.Free;
   inherited;
 end;
 
