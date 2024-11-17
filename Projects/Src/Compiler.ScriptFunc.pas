@@ -140,8 +140,8 @@ begin
     '  SuiteMask: Word;' +
     'end');
 
-  RegisterType('TOnDownloadProgress', 'function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
-  RegisterType('TOnExtractionProgress', 'function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;');
+  RegisterType('TOnDownloadProgress', 'function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;');
+  RegisterType('TOnExtractionProgress', 'function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;');
   RegisterType('TOnLog', 'procedure(const S: String; const Error, FirstLine: Boolean);');
 
   for var ScriptFuncTable in ScriptFuncTables do
