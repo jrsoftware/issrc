@@ -473,6 +473,7 @@ type
     FBuildAnimationFrame: Cardinal;
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
+    FTaskbarProgressValue: Cardinal;
     FProgressThemeData: HTHEME;
     FMenuThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
@@ -2312,6 +2313,7 @@ begin
     FBuildAnimationFrame := 0;
     FProgress := 0;
     FProgressMax := 0;
+    FTaskbarProgressValue := 0;
 
     FActiveMemo.CancelAutoCompleteAndCallTip;
     FActiveMemo.Cursor := crAppStart;
@@ -7108,16 +7110,15 @@ end;
 procedure TMainForm.UpdateCompileStatusPanels(const AProgress,
   AProgressMax: Cardinal; const ASecondsRemaining: Integer;
   const ABytesCompressedPerSecond: Cardinal);
-var
-  T: DWORD;
 begin
-  { Icon panel }
-  T := GetTickCount;
-  if Cardinal(T - FLastAnimationTick) >= Cardinal(500) then begin
-    FLastAnimationTick := T;
+  var CurTick := GetTickCount;
+  var LastTick := FLastAnimationTick;
+  FLastAnimationTick := CurTick;
+
+  { Icon and text panels - updated every 500ms }
+  if CurTick div 500 <> LastTick div 500 then begin
     InvalidateStatusPanel(spCompileIcon);
     FBuildAnimationFrame := (FBuildAnimationFrame + 1) mod 4;
-    { Also update the status text twice a second }
     if ASecondsRemaining >= 0 then
       StatusBar.Panels[spExtraStatus].Text := Format(
         ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
@@ -7128,13 +7129,29 @@ begin
       StatusBar.Panels[spExtraStatus].Text := '';
   end;
 
-  { Progress panel and taskbar progress bar }
-  if (FProgress <> AProgress) or
-     (FProgressMax <> AProgressMax) then begin
+  { Progress panel and taskbar progress bar - updated every 100ms }
+  if (CurTick div 100 <> LastTick div 100) and
+     ((FProgress <> AProgress) or (FProgressMax <> AProgressMax)) then begin
     FProgress := AProgress;
     FProgressMax := AProgressMax;
     InvalidateStatusPanel(spCompileProgress);
-    SetAppTaskbarProgressValue(AProgress, AProgressMax);
+
+    { The taskbar progress updates are slow (on Windows 11). Limiting the
+      range to 64 instead of 1024 improved compression KB/sec by about 4%
+      (9000 to 9400) when the rate limit above is disabled. }
+    var NewValue: Cardinal := 1;  { must be at least 1 for progress bar to show }
+    if AProgressMax > 0 then begin
+      { Not using MulDiv here to avoid rounding up }
+      NewValue := (AProgress * 64) div AProgressMax;
+      if NewValue = 0 then
+        NewValue := 1;
+    end;
+    { Don't call the function if the value hasn't changed, just in case there's
+      a performance penalty. (There doesn't appear to be on Windows 11.) }
+    if FTaskbarProgressValue <> NewValue then begin
+      FTaskbarProgressValue := NewValue;
+      SetAppTaskbarProgressValue(NewValue, 64);
+    end;
   end;
 end;
 
