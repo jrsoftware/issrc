@@ -42,6 +42,7 @@ type
     ScriptFunc: TScriptFunc;
     Typ: TScriptFuncTyp;
     constructor Create(const AOrgName: AnsiString; const AScriptFunc: TScriptFunc; const ATyp: TScriptFuncTyp);
+    procedure Run(const Caller: TPSExec; const Stack: TPSStack);
   end;
 
   TScriptFuncs = TDictionary<AnsiString, TScriptFuncEx>;
@@ -56,19 +57,23 @@ begin
   Typ := ATyp;
 end;
 
+procedure TScriptFuncEx.Run(const Caller: TPSExec; const Stack: TPSStack);
+begin
+  if (Typ = sfNoUninstall) and IsUninstaller then
+    NoUninstallFuncError(OrgName)
+  else if (Typ = sfOnlyUninstall) and not IsUninstaller then
+    OnlyUninstallFuncError(OrgName)
+  else
+    ScriptFunc(Caller, OrgName, Stack, Stack.Count-1);
+end;
+
 { Called by ROPS }
 function ScriptFuncPSProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
 begin
   var ScriptFuncEx: TScriptFuncEx;
   Result := ScriptFuncs.TryGetValue(Proc.Name, ScriptFuncEx);
-  if Result then begin
-    if (ScriptFuncEx.Typ = sfNoUninstall) and IsUninstaller then
-      NoUninstallFuncError(ScriptFuncEx.OrgName)
-    else if (ScriptFuncEx.Typ = sfOnlyUninstall) and not IsUninstaller then
-      OnlyUninstallFuncError(ScriptFuncEx.OrgName)
-    else
-      ScriptFuncEx.ScriptFunc(Caller, ScriptFuncEx.OrgName, Stack, Stack.Count-1);
-  end;
+  if Result then
+    ScriptFuncEx.Run(Caller, Stack);
 end;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
