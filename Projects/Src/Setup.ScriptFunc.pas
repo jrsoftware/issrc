@@ -106,15 +106,15 @@ var
 
   procedure RegisterScriptDlgScriptFuncs;
   begin
-    RegisterScriptFunc('PAGEFROMID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('PageFromID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetClass(PStart, GetWizardForm.PageFromID(Stack.GetInt(PStart-1)));
     end);
-    RegisterScriptFunc('PAGEINDEXFROMID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('PageIndexFromID', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetInt(PStart, GetWizardForm.PageIndexFromID(Stack.GetInt(PStart-1)));
     end);
-    RegisterScriptFunc('CREATECUSTOMPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateCustomPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewPage := TWizardPage.Create(GetWizardForm);
       try
@@ -127,7 +127,7 @@ var
       end;
       Stack.SetClass(PStart, NewPage);
     end);
-    RegisterScriptFunc('CREATEINPUTQUERYPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputQueryPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewInputQueryPage := TInputQueryWizardPage.Create(GetWizardForm);
       try
@@ -141,7 +141,7 @@ var
       end;
       Stack.SetClass(PStart, NewInputQueryPage);
     end);
-    RegisterScriptFunc('CREATEINPUTOPTIONPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputOptionPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewInputOptionPage := TInputOptionWizardPage.Create(GetWizardForm);
       try
@@ -156,7 +156,7 @@ var
       end;
       Stack.SetClass(PStart, NewInputOptionPage);
     end);
-    RegisterScriptFunc('CREATEINPUTDIRPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputDirPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewInputDirPage := TInputDirWizardPage.Create(GetWizardForm);
       try
@@ -171,7 +171,7 @@ var
       end;
       Stack.SetClass(PStart, NewInputDirPage);
     end);
-    RegisterScriptFunc('CREATEINPUTFILEPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateInputFilePage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewInputFilePage := TInputFileWizardPage.Create(GetWizardForm);
       try
@@ -185,7 +185,7 @@ var
       end;
       Stack.SetClass(PStart, NewInputFilePage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMSGPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateOutputMsgPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewOutputMsgPage := TOutputMsgWizardPage.Create(GetWizardForm);
       try
@@ -199,7 +199,7 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMsgPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMSGMEMOPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateOutputMsgMemoPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewOutputMsgMemoPage := TOutputMsgMemoWizardPage.Create(GetWizardForm);
       try
@@ -214,7 +214,7 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMsgMemoPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTPROGRESSPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateOutputProgressPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewOutputProgressPage := TOutputProgressWizardPage.Create(GetWizardForm);
       try
@@ -228,7 +228,7 @@ var
       end;
       Stack.SetClass(PStart, NewOutputProgressPage);
     end);
-    RegisterScriptFunc('CREATEOUTPUTMARQUEEPROGRESSPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateOutputMarqueeProgressPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewOutputMarqueeProgressPage := TOutputMarqueeProgressWizardPage.Create(GetWizardForm);
       try
@@ -242,7 +242,7 @@ var
       end;
       Stack.SetClass(PStart, NewOutputMarqueeProgressPage);
     end);
-    RegisterScriptFunc('CREATEDOWNLOADPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateDownloadPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin;
       var NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
       try
@@ -257,7 +257,7 @@ var
       end;
       Stack.SetClass(PStart, NewDownloadPage);
     end);
-    RegisterScriptFunc('CREATEEXTRACTIONPAGE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CreateExtractionPage', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var NewExtractionPage := TExtractionWizardPage.Create(GetWizardForm);
       try
@@ -771,27 +771,27 @@ var
 
   procedure RegisterInstallScriptFuncs;
   begin
-    RegisterScriptFunc('EXTRACTTEMPORARYFILE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('ExtractTemporaryFile', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       ExtractTemporaryFile(Stack.GetString(PStart));
     end);
-    RegisterScriptFunc('EXTRACTTEMPORARYFILES', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('ExtractTemporaryFiles', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('DOWNLOADTEMPORARYFILE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('DownloadTemporaryFile', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
     end);
-    RegisterScriptFunc('SETDOWNLOADCREDENTIALS', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
     end);
-    RegisterScriptFunc('DOWNLOADTEMPORARYFILESIZE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetInt64(PStart, DownloadTemporaryFileSize(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('DOWNLOADTEMPORARYFILEDATE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('DownloadTemporaryFileDate', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));
     end);
@@ -1163,7 +1163,7 @@ var
     begin
       Stack.SetClass(PStart, GetWizardForm);
     end);
-    RegisterScriptFunc(['WIZARDISCOMPONENTSELECTED', 'ISCOMPONENTSELECTED', 'WIZARDISTASKSELECTED', 'ISTASKSELECTED'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['WizardIsComponentSelected', 'IsComponentSelected', 'WizardIsTaskSelected', 'IsTaskSelected'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       StringList := TStringList.Create;
       try
@@ -1583,19 +1583,19 @@ var
       Application.BringToFront;
       Application.Restore;
     end);
-    RegisterScriptFunc('WIZARDDIRVALUE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('WizardDirValue', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, RemoveBackslashUnlessRoot(GetWizardForm.DirEdit.Text));
     end);
-    RegisterScriptFunc('WIZARDGROUPVALUE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('WizardGroupValue', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, RemoveBackslashUnlessRoot(GetWizardForm.GroupEdit.Text));
     end);
-    RegisterScriptFunc('WIZARDNOICONS', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('WizardNoIcons', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetBool(PStart, GetWizardForm.NoIconsCheck.Checked);
     end);
-    RegisterScriptFunc('WIZARDSETUPTYPE', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('WizardSetupType', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       TypeEntry := GetWizardForm.GetSetupType;
       if TypeEntry <> nil then begin
@@ -1607,7 +1607,7 @@ var
       else
         Stack.SetString(PStart, '');
     end);
-    RegisterScriptFunc(['WIZARDSELECTEDCOMPONENTS', 'WIZARDSELECTEDTASKS'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['WizardSelectedComponents', 'WizardSelectedTasks'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       StringList := TStringList.Create;
       try
@@ -1620,7 +1620,7 @@ var
         StringList.Free;
       end;
     end);
-    RegisterScriptFunc(['WIZARDSELECTCOMPONENTS', 'WIZARDSELECTTASKS'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['WizardSelectComponents', 'WizardSelectTasks'], sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       StringList := TStringList.Create;
       try
@@ -1635,7 +1635,7 @@ var
         StringList.Free;
       end;
     end);
-    RegisterScriptFunc('WIZARDSILENT', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('WizardSilent', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetBool(PStart, InstallMode <> imNormal);
     end);
@@ -1647,14 +1647,14 @@ var
     begin
       Stack.SetBool(PStart, UninstallSilent);
     end);
-    RegisterScriptFunc('CURRENTFILENAME', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CurrentFilename', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       if CheckOrInstallCurrentFilename <> '' then
         Stack.SetString(PStart, CheckOrInstallCurrentFilename)
       else
         InternalError('An attempt was made to call the "CurrentFilename" function from outside a "Check", "BeforeInstall" or "AfterInstall" event function belonging to a "[Files]" entry');
     end);
-    RegisterScriptFunc('CURRENTSOURCEFILENAME', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc('CurrentSourceFilename', sfNoUninstall, procedure(const Caller: TPSExec; const Name: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       if CheckOrInstallCurrentSourceFilename <> '' then
         Stack.SetString(PStart, CheckOrInstallCurrentSourceFilename)
