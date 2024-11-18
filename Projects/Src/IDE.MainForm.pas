@@ -86,7 +86,7 @@ type
     constructor Create(AMsg, AConfigIdent: String; AConfigValue: Integer);
   end;
 
-  TUpdatePanelMessages = TList<TUpdatePanelMessage>;
+  TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
 
   TMainForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -806,7 +806,7 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
     const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String);
   begin
-    var ConfigValue := Ini.ReadInteger('Options', ConfigIdent, ConfigValueDefault);
+    var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
       FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum));
   end;
@@ -870,9 +870,9 @@ constructor TMainForm.Create(AOwner: TComponent);
           Memo.Font := FMainMemo.Font;
 
       { UpdatePanel visibility }
-      CheckUpdatePanelMessage(Ini, 'UpdatePanel.KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
+      CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.');
-      CheckUpdatePanelMessage(Ini, 'UpdatePanel.VSCodeMemoKeyMap', 0, 1,
+      CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.');
       UpdateUpdatePanel;
 
@@ -7745,7 +7745,7 @@ begin
   var MessageToHideIndex := UpdateLinkLabel.Tag;
   var Ini := TConfigIniFile.Create;
   try
-    Ini.WriteInteger('Options', FUpdatePanelMessages[MessageToHideIndex].ConfigIdent, FUpdatePanelMessages[MessageToHideIndex].ConfigValue);
+    Ini.WriteInteger('UpdatePanel', FUpdatePanelMessages[MessageToHideIndex].ConfigIdent, FUpdatePanelMessages[MessageToHideIndex].ConfigValue);
   finally
     Ini.Free;
   end;
