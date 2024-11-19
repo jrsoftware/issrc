@@ -1,6 +1,6 @@
 ; *** Inno Setup version 6.1.0+ Russian messages ***
 ;
-; Translated from English by Dmitry Kann, yktooo at gmail.com
+; Translated from English by Dmitry Kann, https://yktoo.com
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
