@@ -1368,8 +1368,8 @@ var
       var OldDateSeparator := FormatSettings.DateSeparator;
       var OldTimeSeparator := FormatSettings.TimeSeparator;
       try
-        var NewDateSeparator := Stack.GetString(PStart-2)[1];
-        var NewTimeSeparator := Stack.GetString(PStart-3)[1];
+        var NewDateSeparator := Stack.GetChar(PStart-2);
+        var NewTimeSeparator := Stack.GetChar(PStart-3);
         if NewDateSeparator <> #0 then
           FormatSettings.DateSeparator := NewDateSeparator;
         if NewTimeSeparator <> #0 then
@@ -1800,7 +1800,7 @@ var
       var Separators := Stack.GetStringArray(PStart-2);
       var Parts: TArray<String>;
       if OrgName = 'StringSplitEx' then begin
-        var Quote := Stack.GetString(PStart-3)[1];
+        var Quote := Stack.GetChar(PStart-3);
         Parts := Stack.GetString(PStart-1).Split(Separators, Quote, Quote, TStringSplitOptions(Stack.GetInt(PStart-4)))
       end else
         Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));

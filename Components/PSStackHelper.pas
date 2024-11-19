@@ -35,6 +35,7 @@ type
         function HasNext: Boolean;
         function Next: String;
       end;
+    function GetChar(const ItemNo: Longint): Char;
     function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
@@ -65,6 +66,15 @@ begin
   else
     Result := NewTPSVariantIFC(Items[ItemNo], True);
   PSDynArraySetLength(Pointer(Result.Dta^), Result.aType, N);
+end;
+
+function TPSStackHelper.GetChar(const ItemNo: Longint): Char;
+begin
+  var S := GetString(ItemNo);
+  if S <> '' then
+    Result := S[1]
+  else
+    Result := #0;
 end;
 
 function TPSStackHelper.GetIntArray(const ItemNo, FieldNo: Longint): TArrayOfInteger;
@@ -141,12 +151,11 @@ end;
 procedure TPSStackHelper.SetInt(const ItemNo: Longint; const Data: Integer;
   const FieldNo: Longint);
 begin
-  if FieldNo = -1 then
-    inherited SetInt(ItemNo, Data)
-  else begin
+  if FieldNo >= 0 then begin
     var PSVariantIFC := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo);
     VNSetInt(PSVariantIFC, Data);
-  end;
+  end else
+    inherited SetInt(ItemNo, Data)
 end;
 
 end.
