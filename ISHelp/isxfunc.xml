@@ -73,7 +73,9 @@ end;</pre></example>
       <function>
         <name>SetupMessage</name>
         <prototype>function SetupMessage(const ID: TSetupMessageID): String;</prototype>
-        <description><p>Returns the value of the specified message.</p></description>
+        <description><p>Returns the value of the specified message.</p>
+<p>TSetupMessageID is defined as:</p>
+<p>'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></p></description>
         <example><pre>var
   S: String;
 begin
@@ -936,6 +938,50 @@ end;</pre></example>
         <name>TrimRight</name>
         <prototype>function TrimRight(const S: String): String;</prototype>
         <description><p>Trims trailing spaces and control characters from the given string S.</p></description>
+      </function>
+      <function>
+        <name>StringJoin</name>
+        <prototype>function StringJoin(const Separator: String; const Values: TArrayOfString): String;</prototype>
+        <description><p>Joins two or more strings together separated by the given separator.</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := StringJoin(',', ['1', '2']);
+  // S = '1,2'
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
+      </function>
+      <function>
+        <name>StringSplit</name>
+        <prototype>function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;</prototype>
+        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored.</p>
+<p>TSplitType is defined as:</p>
+<p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
+        <example><pre>var
+  A: array of String;
+begin
+  A := StringSplit('1,,2', [','], stExcludeEmpty);
+  // A = ['1','2']
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringJoin">StringJoin</link><br />
+<link topic="isxfunc_StringSplitEx">StringSplitEx</link></p></seealso>
+      </function>
+      <function>
+        <name>StringSplitEx</name>
+        <prototype>function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;</prototype>
+        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the Quote parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
+<p>TSplitType is defined as:</p>
+<p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
+        <example><pre>var
+  A: array of String;
+begin
+  A := StringSplitEx('1,",",2', [','], '"', stAll);
+  // A = ['1','","','2']
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -3093,20 +3139,8 @@ end;</pre></example>
 </isxfunc>
 <isxenum>
   <enum>
-     <description>CurStep values</description>
-     <values>ssInstall, ssPostInstall, ssDone</values>
-  </enum>
-  <enum>
-     <description>CurPage values</description>
-     <values>wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</values>
-  </enum>
-  <enum>
      <description>Exec and ShellExec - ShowCmd values</description>
      <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
-  </enum>
-  <enum>
-     <description>TMsgBoxType</description>
-     <values>mbInformation, mbConfirmation, mbError, mbCriticalError</values>
   </enum>
   <enum>
      <description>MsgBox - Buttons flags</description>
@@ -3119,10 +3153,6 @@ end;</pre></example>
   <enum>
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
-  </enum>
-  <enum>
-     <description>TSetupMessageID</description>
-     <values>Use 'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></values>
   </enum>
 </isxenum>
 </isxhelp>
