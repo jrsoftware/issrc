@@ -879,10 +879,10 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { UpdatePanel visibility }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.',
+        'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
         $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.',
+        'Support for Visual Studio Code-style editor shortcuts has been added! Use the Options dialog and <a id="toptions">change the Editor Keys option</a>.',
         $FFD399); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
