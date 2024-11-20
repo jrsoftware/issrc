@@ -163,7 +163,6 @@ end;
 const
   TabPaddingX = 5;
   TabPaddingY = 3;
-  TabSpacing = 1;
   CloseButtonSizeX = 12;
 
 constructor TNewTabSet.Create(AOwner: TComponent);
@@ -262,7 +261,7 @@ begin
   Result.Right := 4 - FTabsOffset;
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
-    SizeX := Size.cx + (TabPaddingX * 2) + TabSpacing;
+    SizeX := Size.cx + (TabPaddingX * 2);
     if (I < FCloseButtons.Count) and FCloseButtons[I] then
       Inc(SizeX, MulDiv(CloseButtonSizeX, CurrentPPI, 96));
     SizeY := Size.cy + (TabPaddingY * 2);
@@ -287,9 +286,6 @@ var
 begin
   if HandleAllocated and (Index >= 0) and (Index < FTabs.Count) then begin
     R := GetTabRect(Index);
-    { Inc R.Right since the trailing separator of a tab overwrites the first
-      pixel of the next tab }
-    Inc(R.Right);
     InvalidateRect(Handle, @R, False);
   end;
 end;
@@ -390,7 +386,6 @@ var
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
       if SelectedTab and (FTabIndex = I) then begin
-        Dec(R.Right, TabSpacing);
         if FTheme <> nil then
           Canvas.Brush.Color := FTheme.Colors[tcBack]
         else
