@@ -200,6 +200,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   InitialCurDir := GetCurrentDir;
   if not SetCurrentDir(PathExtractDir(NewParamStr(0))) then
     SetCurrentDir(GetSystemDir);
