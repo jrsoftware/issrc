@@ -119,7 +119,7 @@ object OptionsForm: TOptionsForm
     object Label3: TNewStaticText
       Left = 8
       Top = 243
-      Width = 45
+      Width = 56
       Height = 14
       Caption = 'Menu &keys:'
       FocusControl = KeyMappingComboBox
@@ -316,7 +316,7 @@ object OptionsForm: TOptionsForm
     object Label5: TNewStaticText
       Left = 8
       Top = 243
-      Width = 45
+      Width = 27
       Height = 14
       Caption = 'Ke&ys:'
       FocusControl = MemoKeyMappingComboBox
@@ -329,6 +329,14 @@ object OptionsForm: TOptionsForm
       Height = 21
       Style = csDropDownList
       TabOrder = 12
+    end
+    object ShowWhiteSpaceCheck: TCheckBox
+      Left = 120
+      Top = 338
+      Width = 120
+      Height = 17
+      Caption = 'Show whitespace'
+      TabOrder = 20
     end
   end
   object OKButton: TButton

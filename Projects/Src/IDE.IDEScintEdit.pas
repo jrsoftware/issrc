@@ -101,9 +101,9 @@ type
     function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TIDEScintIndicatorNumber);
-    procedure UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
+    procedure UpdateWidthsAndSizes(const IconMarkersWidth,
       BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
-      RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
+      RightBlankMarginWidth, SquigglyWidth, CaretWidth, WhiteSpaceSize: Integer);
     procedure UpdateThemeColorsAndStyleAttributes;
   published
     property KeyMappingType: TIDEScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
@@ -436,9 +436,9 @@ begin
   end;
 end;
 
-procedure TIDEScintEdit.UpdateMarginsAndSquigglyAndCaretWidths(const IconMarkersWidth,
+procedure TIDEScintEdit.UpdateWidthsAndSizes(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
-  RightBlankMarginWidth, SquigglyWidth, CaretWidth: Integer);
+  RightBlankMarginWidth, SquigglyWidth, CaretWidth, WhiteSpaceSize: Integer);
 begin
   Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
 
@@ -463,6 +463,8 @@ begin
   Call(SCI_INDICSETSTROKEWIDTH, minSquiggly, SquigglyWidth);
 
   Call(SCI_SETCARETWIDTH, CaretWidth, 0);
+
+  Call(SCI_SETWHITESPACESIZE, WhiteSpaceSize, 0);
 end;
 
 procedure TIDEScintEdit.UpdateThemeColorsAndStyleAttributes;
@@ -490,6 +492,8 @@ begin
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
+
+    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_WHITE_SPACE, FTheme.Colors[tcIndentGuideFore] or (SC_ALPHA_OPAQUE shl 24));
 
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_FOLD_LINE, FTheme.Colors[tcIndentGuideFore] or (70 shl 24));
     Call(SCI_SETFOLDMARGINCOLOUR, Ord(True), FTheme.Colors[tcBack]);
