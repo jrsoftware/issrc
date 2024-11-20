@@ -167,6 +167,8 @@
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDecoder.pas"/>
+        <DCCReference Include="..\Components\PSStackHelper.pas"/>
+        <DCCReference Include="Src\Setup.ScriptFunc.HelperFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

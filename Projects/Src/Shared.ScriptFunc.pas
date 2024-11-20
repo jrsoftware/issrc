@@ -14,7 +14,7 @@ interface
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDiskForm, sftBrowseFunc, sftCommonFuncVcl,
     sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainFunc, sftMessages,
-    sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftOle2, sftLoggingFunc,
+    sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftActiveX, sftLoggingFunc,
     sftOther);
   TScriptTable = array of AnsiString;
 
@@ -491,7 +491,7 @@ initialization
     'procedure CharToOemBuff(var S: AnsiString);'
   ];
 
-  ScriptFuncTables[sftOle2] :=
+  ScriptFuncTables[sftActiveX] :=
   [
     'procedure CoFreeUnusedLibraries;'
   ];
