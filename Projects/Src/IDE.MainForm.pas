@@ -882,7 +882,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
         $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'Support for Visual Studio Code-style editor shortcuts has been added! Use the Options dialog and <a id="toptions">change the Editor Keys option</a>.',
+        'Support for Visual Studio Code-style editor shortcuts has been added! Use the Options dialog and <a id="toptions-vscode">change the Editor Keys option</a>.',
         $FFD399); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
@@ -7768,9 +7768,10 @@ begin
   var Handled := True;
   if (LinkType = sltID) and (Link = 'hwhatsnew') then
     HWhatsNew.Click
-  else if (LinkType = sltID) and (Link = 'toptions') then
+  else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
+    TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  else
+  end else
     Handled := False;
   if Handled then
     UpdatePanelClosePaintBoxClick(Sender);

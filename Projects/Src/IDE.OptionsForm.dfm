@@ -15,6 +15,7 @@ object OptionsForm: TOptionsForm
   OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnShow = FormShow
   DesignSize = (
     589
     424)
