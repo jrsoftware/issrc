@@ -881,7 +881,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.',
-        $FFD399); //MBlue with HSL lightness changes from 42% to 80%
+        $FFD399); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
       { Debug options }
