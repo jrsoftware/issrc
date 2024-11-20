@@ -528,6 +528,7 @@ type
     function FindSetupDirectiveValue(const DirectiveName: String;
       DefaultValue: Boolean): Boolean; overload;
     function FromCurrentPPI(const XY: Integer): Integer;
+    function GetBorderStyle: TFormBorderStyle;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -583,6 +584,7 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
+    procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
@@ -656,6 +658,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
+  published
+    property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
 
 var
@@ -1143,6 +1147,26 @@ begin
   FMemos.Free;
 
   inherited;
+end;
+
+function TMainForm.GetBorderStyle: TFormBorderStyle;
+begin
+  Result := inherited BorderStyle;
+end;
+
+procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
+begin
+  { Hack: To stop the Delphi IDE from adding Explicit* properties to the .dfm
+    file every time the unit is saved, we set BorderStyle=bsNone on the form.
+    At run-time, ignore that setting so that BorderStyle stays at the default
+    value, bsSizeable.
+    It would be simpler to change BorderStyle from bsNone to bsSizeable in the
+    form's constructor, but it doesn't quite work: when a form's handle is
+    created while BorderStyle=bsNone, Position=poDefault behaves like
+    poDefaultPosOnly (see TCustomForm.CreateParams). }
+
+  if Value <> bsNone then
+    inherited BorderStyle := Value;
 end;
 
 class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);

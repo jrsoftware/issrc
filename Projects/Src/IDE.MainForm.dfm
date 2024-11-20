@@ -1,6 +1,7 @@
 object MainForm: TMainForm
   Left = 206
   Top = 97
+  BorderStyle = bsNone
   Caption = '*'
   ClientHeight = 306
   ClientWidth = 361
