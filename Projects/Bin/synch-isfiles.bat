@@ -13,6 +13,7 @@ copy ..\..\Files\islzma.dll
 copy ..\..\Files\islzma*.exe
 copy ..\..\Files\ISetup.chm
 copy ..\..\Files\ISetup-dark.chm
+copy ..\..\Files\WizClassicSmallImage.bmp
 copy ..\..\whatsnew.htm
 
 echo - Synching files done
