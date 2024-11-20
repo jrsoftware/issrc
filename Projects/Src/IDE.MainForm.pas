@@ -83,7 +83,8 @@ type
   TUpdatePanelMessage = class
     Msg, ConfigIdent: String;
     ConfigValue: Integer;
-    constructor Create(AMsg, AConfigIdent: String; AConfigValue: Integer);
+    Color: TColor;
+    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor);
   end;
 
   TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
@@ -707,12 +708,13 @@ const
 
 { TUpdatePanelMessage }
 
-constructor TUpdatePanelMessage.Create(AMsg, AConfigIdent: String;
-  AConfigValue: Integer);
+constructor TUpdatePanelMessage.Create(const AMsg, AConfigIdent: String;
+  const AConfigValue: Integer; const AColor: TColor);
 begin
   Msg := AMsg;
   ConfigIdent := AConfigIdent;
   ConfigValue := AConfigValue;
+  Color := AColor;
 end;
 
 { TMainFormPopupMenu }
@@ -808,11 +810,11 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String);
+    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor);
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color));
   end;
 
   procedure ReadConfig;
@@ -875,9 +877,11 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { UpdatePanel visibility }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.');
+        'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.',
+        $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.');
+        'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.',
+        $FFD399); //MBlue with HSL lightness changes from 42% to 80%
       UpdateUpdatePanel;
 
       { Debug options }
@@ -978,7 +982,6 @@ begin
 
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
-  UpdatePanel.Color := $ABE3AB; //MGreen with HSL lightness changed from 40% to 78%
   UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
 
   UpdateImages;
@@ -6441,6 +6444,7 @@ begin
     var MessageToShowIndex := FUpdatePanelMessages.Count-1;
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
+    UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
   end;
   UpdateBevel1Visibility;
 end;
