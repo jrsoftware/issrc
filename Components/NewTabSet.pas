@@ -35,7 +35,8 @@ type
     FTheme: TTheme;
     FThemeDark: Boolean;
     FHotIndex: Integer;
-    function GetTabRect(Index: Integer): TRect;
+    procedure EnsureCurrentTabIsFullyVisible;
+    function GetTabRect(const Index: Integer; const ApplyTabsOffset: Boolean = True): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
     procedure CloseButtonsListChanged(Sender: TObject; const Item: Boolean;
@@ -48,8 +49,8 @@ type
     procedure SetTabPosition(Value: TTabPosition);
     procedure SetTheme(Value: TTheme);
     procedure SetHints(const Value: TStrings);
+    function ToCurrentPPI(const XY: Integer): Integer;
     procedure UpdateThemeData(const Open: Boolean);
-    procedure EnsureCurrentTabIsFullyVisible;
   protected
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
@@ -60,6 +61,7 @@ type
     procedure UpdateHotIndex(NewHotIndex: Integer);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure Paint; override;
+    procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -161,6 +163,7 @@ end;
 { TNewTabSet }
 
 const
+  TabSetMarginX = 4;
   TabPaddingX = 5;
   TabPaddingY = 3;
   CloseButtonSizeX = 12;
@@ -248,7 +251,36 @@ begin
   inherited;
 end;
 
-function TNewTabSet.GetTabRect(Index: Integer): TRect;
+procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;
+begin
+  const AdjacentTabVisiblePixels = ToCurrentPPI(30);
+  const CR = ClientRect;
+  const R = GetTabRect(FTabIndex, False);
+  var Offset := FTabsOffset;
+
+  { If the tab is overflowing to the right, scroll right }
+  var Overflow := R.Right - Offset - CR.Right + AdjacentTabVisiblePixels;
+  if Overflow > 0 then
+    Inc(Offset, Overflow);
+
+  { If there's extra space after the last tab, scroll left if possible }
+  const LastTabRight = GetTabRect(FTabs.Count-1, False).Right +
+    ToCurrentPPI(TabSetMarginX);
+  Offset := Min(Offset, Max(0, LastTabRight - CR.Right));
+
+  { If the tab is overflowing to the left, scroll left }
+  Overflow := Offset - R.Left + AdjacentTabVisiblePixels;
+  if Overflow > 0 then
+    Offset := Max(0, Offset - Overflow);
+
+  if FTabsOffset <> Offset then begin
+    FTabsOffset := Offset;
+    Invalidate;
+  end;
+end;
+
+function TNewTabSet.GetTabRect(const Index: Integer;
+  const ApplyTabsOffset: Boolean = True): TRect;
 var
   CR: TRect;
   I, SizeX, SizeY: Integer;
@@ -258,7 +290,9 @@ begin
   Canvas.Font.Assign(Font);
   if FTabPosition = tpBottom then
     Result.Top := 0;
-  Result.Right := 4 - FTabsOffset;
+  Result.Right := ToCurrentPPI(TabSetMarginX);
+  if ApplyTabsOffset then
+    Dec(Result.Right, FTabsOffset);
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
     SizeX := Size.cx + (TabPaddingX * 2);
@@ -473,6 +507,12 @@ begin
   DrawTabs(False);
 end;
 
+procedure TNewTabSet.Resize;
+begin
+  EnsureCurrentTabIsFullyVisible;
+  inherited;
+end;
+
 procedure TNewTabSet.SetCloseButtons(Value: TBoolList);
 begin
   FCloseButtons.Clear;
@@ -523,6 +563,11 @@ begin
   end;
 end;
 
+function TNewTabSet.ToCurrentPPI(const XY: Integer): Integer;
+begin
+  Result := MulDiv(XY, CurrentPPI, 96);
+end;
+
 procedure TNewTabSet.UpdateThemeData(const Open: Boolean);
 begin
   if FMenuThemeData <> 0 then begin
@@ -537,34 +582,5 @@ begin
       FMenuThemeData := OpenThemeData(Handle, 'Menu');
   end;
 end;
-
-procedure TNewTabSet.EnsureCurrentTabIsFullyVisible;
-var
-  rcTab, rcCtl, rcLast: TRect;
-  iExtra, iDelta, iNewOffset: Integer;
-begin
-  rcCtl := ClientRect;
-  rcTab := GetTabRect(FTabIndex);
-
-  { Check and modify tabs offset so everything fits }
-  iExtra := Min(rcCtl.Width div 2, rcTab.Width * 4);  { arbitrary value, adjust as needed }
-  iDelta := rcTab.Width div 2;                        { arbitrary value, adjust as needed }
-
-  { Left side is easy, limit is always 0 }
-  if rcTab.Left < rcCtl.Left + iDelta then begin
-    FTabsOffset := Max(0, FTabsOffset - rcCtl.Left - rcTab.Left - iExtra);
-    Invalidate;
-  end;
-
-  { Right side limit depends on last tab and total available space }
-  if rcTab.Right > rcCtl.Right - iDelta then begin
-    iNewOffset := FTabsOffset + (rcTab.Right - rcCtl.Right) + iExtra;
-    FTabsOffset := 0; { We need the last tabs leftmost position w/o any offset }
-    rcLast := GetTabRect(FTabs.Count-1);
-    FTabsOffset := Max(0, Min(iNewOffset, rcLast.Right - rcCtl.Width + 10));
-    Invalidate;
-  end;
-end;
-
 
 end.
