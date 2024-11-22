@@ -295,10 +295,10 @@ begin
     Dec(Result.Right, FTabsOffset);
   for I := 0 to FTabs.Count-1 do begin
     Size := Canvas.TextExtent(FTabs[I]);
-    SizeX := Size.cx + (TabPaddingX * 2);
+    SizeX := Size.cx + (ToCurrentPPI(TabPaddingX) * 2);
     if (I < FCloseButtons.Count) and FCloseButtons[I] then
-      Inc(SizeX, MulDiv(CloseButtonSizeX, CurrentPPI, 96));
-    SizeY := Size.cy + (TabPaddingY * 2);
+      Inc(SizeX, ToCurrentPPI(CloseButtonSizeX));
+    SizeY := Size.cy + (ToCurrentPPI(TabPaddingY) * 2);
     if FTabPosition = tpTop then
       Result.Top := CR.Bottom - SizeY;
     Result := Bounds(Result.Right, Result.Top, SizeX, SizeY);
@@ -310,8 +310,8 @@ end;
 
 function TNewTabSet.GetCloseButtonRect(const TabRect: TRect): TRect;
 begin
-  Result := TRect.Create(TabRect.Right - MulDiv(CloseButtonSizeX, CurrentPPI, 96) - TabPaddingX div 2,
-    TabRect.Top, TabRect.Right - TabPaddingX div 2, TabRect.Bottom);
+  Result := TRect.Create(TabRect.Right - ToCurrentPPI(CloseButtonSizeX) - ToCurrentPPI(TabPaddingX) div 2,
+    TabRect.Top, TabRect.Right - ToCurrentPPI(TabPaddingX) div 2, TabRect.Bottom);
 end;
 
 procedure TNewTabSet.InvalidateTab(Index: Integer);
@@ -397,12 +397,12 @@ var
    if (TabIndex < FCloseButtons.Count) and FCloseButtons[TabIndex] then begin
       var R := GetCloseButtonRect(TabRect);
       if FMenuThemeData <> 0 then begin
-        var Offset := MulDiv(1, CurrentPPI, 96);
+        var Offset := ToCurrentPPI(1);
         Inc(R.Left, Offset);
         Inc(R.Top, Offset);
         DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
       end else begin
-        InflateRect(R, -MulDiv(3, CurrentPPI, 96), -MulDiv(6, CurrentPPI, 96));
+        InflateRect(R, -ToCurrentPPI(3), -ToCurrentPPI(6));
         Canvas.Pen.Color := Canvas.Font.Color;
         Canvas.MoveTo(R.Left, R.Top);
         Canvas.LineTo(R.Right, R.Bottom);
@@ -430,7 +430,7 @@ var
           Canvas.Font.Color := FTheme.Colors[tcFore]
         else
           Canvas.Font.Color := clBtnText;
-        Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
+        Canvas.TextOut(R.Left + ToCurrentPPI(TabPaddingX), R.Top + ToCurrentPPI(TabPaddingY), FTabs[I]);
         DrawCloseButton(R, I);
         ExcludeClipRect(Canvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
         Break;
@@ -450,7 +450,7 @@ var
             use plain clBtnHighlight as the text color }
           Canvas.Font.Color := clBtnHighlight;
         end;
-        Canvas.TextOut(R.Left + TabPaddingX, R.Top + TabPaddingY, FTabs[I]);
+        Canvas.TextOut(R.Left + ToCurrentPPI(TabPaddingX), R.Top + ToCurrentPPI(TabPaddingY), FTabs[I]);
         if FHotIndex = I then
           DrawCloseButton(R, I);
       end;
