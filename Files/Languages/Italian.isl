@@ -1,5 +1,5 @@
-﻿; bovirus@gmail.com
-; *** Inno Setup version 6.1.0+ Italian messages ***
+; bovirus@gmail.com
+; *** Inno Setup version 6.4.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;    https://jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 25.07.2020  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 25.11.2024  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -49,6 +49,7 @@ ErrorTitle=Errore
 SetupLdrStartupMessage=Questa è l'installazione di %1.%n%nVuoi continuare?
 LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata.
 LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata.
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nErrore %2: %3
@@ -90,7 +91,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 11.09.2018)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 25.11.2024)
 
 ; *** Buttons
 ButtonBack=< &Indietro
@@ -227,6 +228,13 @@ ErrorFileHash1=Errore hash file: %1
 ErrorFileHash2=Hash file non valido: atteso %1, trovato %2
 ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Estrazione file aggiuntivi...
+ButtonStopExtraction=Interrompi e&strazione
+StopExtraction=Sei sicuro di voler interrompere l'estrazione?
+ErrorExtractionAborted=Estrazione interrotta
+ErrorExtractionFailed=Estrazione fallita: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
