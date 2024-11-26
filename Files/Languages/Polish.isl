@@ -1,7 +1,7 @@
-; *** Inno Setup version 6.1.0+ Polish messages ***
+; *** Inno Setup version 6.4.0+ Polish messages ***
+; Lukasz Abramczuk <lukasz.abramczuk at gmail.com>
+; Original translations up to 5.5.7:
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
-; Proofreading, corrections and 5.5.7-6.1.0+ updates:
-; £ukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
@@ -214,6 +214,13 @@ ErrorFileHash1=B³¹d sumy kontrolnej pliku: %1
 ErrorFileHash2=Nieprawid³owa suma kontrolna pliku: oczekiwano %1, otrzymano %2
 ErrorProgress=Nieprawid³owy postêp: %1 z %2
 ErrorFileSize=Nieprawid³owy rozmiar pliku: oczekiwano %1, otrzymano %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Wypakowywanie dodatkowych plików...
+ButtonStopExtraction=&Zatrzymaj wypakowywanie
+StopExtraction=Azy na pewno chcesz zatrzymaæ wypakowywanie?
+ErrorExtractionAborted=Wypakowywanie przerwane
+ErrorExtractionFailed=B³¹d wypakowywania: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Przygotowanie do instalacji
