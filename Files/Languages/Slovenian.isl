@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Slovenian messages ***
+; *** Inno Setup version 6.4.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -211,6 +211,13 @@ ErrorFileHash1=Pridobivanje zgošèene vrednosti ni uspelo: %1
 ErrorFileHash2=Neveljavna zgošèena vrednost: prièakovana %1, dobljena %2
 ErrorProgress=Neveljaven potek: %1 od %2
 ErrorFileSize=Neveljavna velikost datoteke: prièakovana %1, dobljena %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Razširjanje dodatnih datotek...
+ButtonStopExtraction=U&stavi razširjanje
+StopExtraction=Ste preprièani, da želite ustaviti razširjanje datotek?
+ErrorExtractionAborted=Razširjanje datotek prekinjeno
+ErrorExtractionFailed=Napaka pri razširjanju: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pripravljam za namestitev
