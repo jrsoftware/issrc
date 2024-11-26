@@ -1,13 +1,11 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   JavaScript code used by contents.htm
 */
-
-var searchTabBaseUrl = "https://jrsoftware.org/ishelp/";
 
 function get_absolute_top(obj)
 {
@@ -61,15 +59,7 @@ function ensure_elements_visible(elementTop, elementBottom)
 	yTop -= viewportScrollTop;
 	yBottom -= viewportScrollTop;
 
-	var clientHeight;
-	if (typeof window.innerHeight != "undefined") {
-		// Opera 9.01 compatibility: document.documentElement.clientHeight
-		// returns the page content height, not the client area height,
-		// so we have to use this instead.
-		clientHeight = window.innerHeight;
-	} else {
-		clientHeight = get_viewport_element().clientHeight;
-	}
+	var clientHeight = get_viewport_element().clientHeight;
 
 	if (yTop < 0) {
 		// Scroll up to make the top of elementTop visible
@@ -90,7 +80,7 @@ function toggle_node(id)
 	objContent.style.display = expanding ? "" : "none";
 
 	document.getElementById("nodeimg_" + id).src =
-		expanding ? "images/contentsheadopen.png" : "images/contentsheadclosed.png";
+		expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
 
 	if (expanding) {
 		// Scroll expanded items into view. This is similar to calling scrollIntoView() but
@@ -217,7 +207,7 @@ function sync_contents()
 
 function select_tab(newTab)
 {
-	var tabs = ["contents", "index", "search"];
+	var tabs = ["contents", "index"];
 
 	var i;
 	for (i = 0; i < tabs.length; i++) {
@@ -231,7 +221,6 @@ function select_tab(newTab)
 	document.getElementById("tabbody-" + newTab).style.display = "";
 
 	if (newTab == "index") init_index_tab();
-	if (newTab == "search") init_search_tab();
 }
 
 var indexTabInited = false;
@@ -294,38 +283,4 @@ function index_tab_element_clicked(evt)
 			}
 		}
 	}
-}
-
-var searchTabInited = false;
-
-function init_search_tab()
-{
-	if (searchTabInited) return;
-	searchTabInited = true;
-
-	var script = document.createElement("script");
-	script.src = "http://www.google.com/jsapi?callback=google_loader_callback";
-	script.type = "text/javascript";
-	document.getElementsByTagName("head")[0].appendChild(script);
-}
-
-function google_loader_callback()
-{
-	google.load("search", "1", {"callback" : google_searchapi_callback});
-}
-
-function google_searchapi_callback() {
-	var drawOptions = new google.search.DrawOptions();
-	drawOptions.setDrawMode(google.search.SearchControl.DRAW_MODE_TABBED);
-
-	var webSearch = new google.search.WebSearch();
-	webSearch.setSiteRestriction(searchTabBaseUrl);
-	webSearch.setUserDefinedLabel("Results");
-
-	var searchControl = new google.search.SearchControl();
-	searchControl.setLinkTarget("bodyframe");
-	searchControl.setResultSetSize(google.search.Search.LARGE_RESULTSET);
-	searchControl.addSearcher(webSearch);
-	searchControl.setNoResultsString("No results");
-	searchControl.draw(document.getElementById("searchcont"), drawOptions);
 }

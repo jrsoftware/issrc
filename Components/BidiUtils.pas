@@ -2,7 +2,7 @@ unit BidiUtils;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,7 +21,7 @@ function IsParentRightToLeft(const AControl: TControl): Boolean;
 function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
 
 var
-  { These are set by the SetupForm unit: }
+  { These two callbacks should be set by the caller. Inno Setup: set by the Setup.SetupForm unit: }
   IsParentFlippedFunc: function(AControl: TControl): Boolean;
   IsParentRightToLeftFunc: function(AControl: TControl): Boolean;
 

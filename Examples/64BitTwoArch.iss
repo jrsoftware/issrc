@@ -2,8 +2,8 @@
 ; Demonstrates how to install a program built for two different
 ; architectures (x86 and x64) using a single installer: on a "x86"
 ; edition of Windows the x86 version of the program will be
-; installed but on a "x64" edition of Windows the x64 version will
-; be installed.
+; installed but on a "x64" edition of Windows or Windows 11 on Arm
+; the x64 version will be installed.
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
@@ -17,17 +17,17 @@ WizardStyle=modern
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
-; "ArchitecturesInstallIn64BitMode=x64" requests that the install be
-; done in "64-bit mode" on x64, meaning it should use the native
-; 64-bit Program Files directory and the 64-bit view of the registry.
+; "ArchitecturesInstallIn64BitMode=x64compatible" requests that the
+; install be done in "64-bit mode" on x64 or Windows 11 on Arm,
+; meaning it should use the native 64-bit Program Files directory and
+; the 64-bit view of the registry.
 ; On all other architectures it will install in "32-bit mode".
-ArchitecturesInstallIn64BitMode=x64
-; Note: We don't set ProcessorsAllowed because we want this
-; installation to run on all architectures (including Itanium,
-; since it's capable of running 32-bit code too).
+ArchitecturesInstallIn64BitMode=x64compatible
+; Note: We don't set ArchitecturesAllowed because we want this
+; installation to run on all architectures.
 
 [Files]
-; Install MyProg-x64.exe if running in 64-bit mode (x64; see above),
+; Install MyProg-x64.exe if running in 64-bit mode (see above), and
 ; MyProg.exe otherwise.
 ; Place all x64 files here
 Source: "MyProg-x64.exe"; DestDir: "{app}"; DestName: "MyProg.exe"; Check: Is64BitInstallMode

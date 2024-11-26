@@ -1,128 +1,135 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
+<meta charset="utf-8" />
 <title>Inno Setup 6 Revision History</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<base href="https://jrsoftware.org/" />
 <style type="text/css">
-    body         { font: small verdana, arial, sans-serif; color: black; background-color: white }
-    a:link       { color: #264b99; background-color: white }
-    a:active     { color: #7799dd; background-color: white }
-    a:visited    { color: #5e85d7; background-color: white }
-    tt           { font: small "courier new", monospace }
-    li           { margin-top: 0.15em; margin-bottom: 0.15em }
-    div.bluehead { text-align: center; color: white; background-color: #264b99; padding: 5px; font-weight: bold }
-    .date        { font-size: x-small; font-weight: bold }
-    .head1       { font-size: xx-large }
-    .head2       { font-size: large }
-    .ver         { font-size: large; font-weight: bold }
+    body         { font: calc(14rem/16)/1.5 "Segoe UI", sans-serif; color: #282828; background-color: white }
+    a:link, a:visited { color: hsl(206, 100%, 37%); background-color: transparent; text-decoration: none }
+    a[href]:hover { color: hsl(206, 100%, 30%); text-decoration: underline }
+    tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
+    pre          { line-height: normal; padding: 10px; border-radius: 6px }
+    li, div.limargins { margin-top: 5px; margin-bottom: 5px }
+    div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
+    .date        { font-size: calc(11rem/16); font-weight: bold }
+    .head1       { font-size: calc(32rem/16) }
+    .head2       { font-size: calc(20rem/16) }
+    .ver         { font-size: calc(20rem/16); font-weight: bold }
 </style>
 </head>
 <body>
 
 <div class="bluehead"><span class="head1">Inno Setup 6</span><br /><span class="head2">Revision History</span></div>
 
-<p>Copyright &copy; 1997-2020 <a href="https://jrsoftware.org/">Jordan Russell</a>. All rights reserved.<br />
-Portions Copyright &copy; 2000-2020 Martijn Laan. All rights reserved.<br />
-For conditions of distribution and use, see <a href="https://jrsoftware.org/files/is/license.txt">LICENSE.TXT</a>.
+<p>Copyright © 1997-2024 <a href="./">Jordan Russell</a>. All rights reserved.<br />
+Portions Copyright © 2000-2024 Martijn Laan. All rights reserved.<br />
+For conditions of distribution and use, see <a href="files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
-<p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List!<br /><b>If you subscribed before October 2019, please resubscribe.</b></p>
+<p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.1.0"></a><span class="ver">6.1.0-dev </span><span class="date">(?)</span></p>
-<p><span class="head2">Per-user fonts</span></p>
-<p>Per-user fonts are now supported if Setup is running on Windows 10 Version 1803 and later:</p>
+<p><a name="6.4.0"></a><span class="ver">6.4.0-dev </span><span class="date">(?)</span></p>
+<p><span class="head2">Compiler IDE changes</span></p>
+<p>Updated the Scintilla editor component used by the Compiler IDE to the latest version.</p>
+<p>Multiple selection editing has been improved:</p>
 <ul>
-  <li>[Files] section parameter <tt>FontInstall</tt> can now be used in <a href="https://jrsoftware.org/ishelp/index.php?topic=admininstallmode">non administrative installs</a>. Requires Windows 10 Version 1803 or later to successfully install a font.</li>
-  <li>The <tt>{fonts}</tt> constant has been renamed to <tt>{commonfonts}</tt>.  The old name is still supported, but it is recommended to update your scripts to the new names and the compiler will issue a warning if you don't.</tt>
-  <li>Added new <tt>{userfonts}</tt> constant. Only Windows 10 Version 1803 and later supports <tt>{userfonts}</tt>. Same directory as <tt>{localappdata}\Microsoft\Windows\Fonts</tt>.</li>
-  <li>Added new <tt>{autofonts}</tt> constant which automatically maps to <tt>{commonfonts}</tt> unless the installation is running in non administrative install mode, in which case it maps to <tt>{userfonts}</tt>. It is recommended to update your scripts to use <tt>{autofonts}</tt> as much as possible to avoid mistakes.</li>
-  <li>Updated all examples to use <tt>{autofonts}</tt> instead of <tt>{fonts}</tt>.</li>
-  <li>Pascal Scripting change: The <tt>UnregisterFont</tt> support function now has an extra parameter.</li>
+  <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+. or Ctrl+D, see below).</li>
+  <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+; or Ctrl+Shift+L).</li>
+  <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the <i>Find</i> (Ctrl+F) and <i>Replace</i> (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
+  <li>Added shortcuts to add a cursor or selection up or down (Ctrl+Alt+Up and Ctrl+Alt+Down). For multi-line selections this extends the selection up or down and never shrinks.</li>
+  <li>Added shortcut to add cursors to line ends (Shift+Alt+I). Behaves the same as in Visual Studio Code, so for example does nothing if all selections are empty.</li>
+  <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click or Alt+Double Click and Alt+Triple Click).</li>
+  <li>Added shortcut to remove a selection by clicking it (Ctrl+Click or Alt+Click).</li>
+  <li>Multiple selection now works over Left, Right, Up, Down, Home and End navigation and selection commands.</li>
+  <li>Multiple selection now works over word and line deletion commands, and line end insertion.</li>
+  <li>Multiple selection now works better with Copy and Paste commands.</li>
+  <li>Left, Right, etc. navigation with rectangular selection is now allowed.</li>
+  <li>The Find and Replace dialogs and the tools from the <i>Tools</i> menu which generate script text now all work better with multiple selections present.</li>
 </ul>
-<p><span class="head2">Compiler IDE updates</span></p>
-<p>Various improvements have been made to the Compiler IDE:</p>
+<p>Other editor changes:</p>
 <ul>
-  <li><a href="https://i.imgur.com/wHoJ3FG.png">Improved highlighting</a> for the [CustomMessages] and [Messages] sections.</li>
-  <li>Added new <a href="https://i.imgur.com/c9wGM3M.png">MessageBox Designer</a> menu item to the Tools menu to design and insert MsgBox or TaskDialogMsgBox calls for the [Code] section.</li>
-  <li>Added buttons to the Welcome dialog to <a href="https://jrsoftware.org/isdonate.php">Donate</a> to support Inno Setup (Thank you!) and to <a href="https://jrsoftware.org/ismail.php">Subscribe</a> to the Inno Setup Mailing List to be notified by e-mail of new Inno Setup releases.</li>
-  <li>The Run Parameters dialog now shows a list of most recently used parameters.</li>
+  <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor or remove a selection.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
+  <li>Only if Visual Studio Code-style editor shortcuts have been activated: Added shortcuts to copy line down (Shift+Alt+Down) and to indent or unindent lines (Ctrl+] and Ctrl+[).</li>
+  <li>Added parameter hints for all Pascal Scripting support functions for quick reference to the function's parameter names, types, and order. Parameter hints can be invoked manually by pressing Ctrl+Shift+Space or automatically by using the new <i>Invoke parameter hints automatically</i> option which is enabled by default.</li>
+  <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
+  <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the current object's class.</li>
+  <li>Added autocompletion support for all Pascal Scripting event function parameters. Always shows all parameters instead of just those of the current event function.</li>
+  <li>Added autocompletion support for the [Messages] section.</li>
+  <li>Improved autocompletion support for all Flags parameters: now works for multiple flags instead of for the first only.</li>
+  <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
+  <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
+  <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
+  <li>The editor can now be scrolled horizontally instead of vertically by holding the Shift key while rotating the mouse wheel. Horizontal scroll wheels are now also supported.</li>
+  <li>Cut (Ctrl+X or Shift+Delete) and Copy (Ctrl+C or Ctrl+Insert) now cut or copy the entire line if there's no selection, consistent with most other modern editors.</li>
+  <li>Added new shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to toggle line comment (Ctrl+/).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to go to matching brace (Ctrl+Shift+\).</li>
+  <li>Moved the <i>Word Wrap</i> option to the <i>View</i> menu and added a shortcut for it (Alt+Z).</li>
+  <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
+  <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
+  <li>Added new <i>Show whitespace</i> option. Disabled by default.</li>
+  <li>Improved brace highlighting.</li>
+  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
 </ul>
-<p><span class="head2">Built-in download support for [Code]</span></p>
-<p>Pascal Scripting now supports downloading files and checking SHA-256 hashes:</p>
+<p>Other Compiler IDE changes:</p>
 <ul>
-  <li>Added new <tt>DownloadTemporaryFile</tt> support function to download files without using a third-party tool:
-  <ul>
-    <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP.</li>
-    <li>Redirects are automatically followed and proxy settings are automatically used.</li>
-    <li>Safe to use from services unlike existing third-party tools.</li>
-    <li>Supports SHA-256 hash checking of the downloaded file.</li>
-    <li>Supports basic authentication.</li>
-  </ul>
-  </li>
-  <li>Added new <tt>CreateDownloadPage</tt> support function to easily <a href="https://i.imgur.com/deliPb8.png">show the download progress</a> to the user. See the new <i><a href="https://jrsoftware.github.io/issrc/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a></i> example script for an example.</li>
-  <li>Added new <tt>DownloadTemporaryFileSize</tt> support function to get the size of a file without downloading it.</li>
-  <li>Added new <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt> support functions to calculate SHA-256 hashes.</li>
-  <li><b>Change in default behavior:</b> Setup no longer disables itself entirely while <tt>PrepareToInstall</tt> is running. Instead only the Cancel button is disabled.</li>
-</ul>
-<p><span class="head2">Inno Setup Preprocessor (ISPP) updates</span></p>
-<p>ISPP now uses 64-bit integers and has new functions to more easily compare version numbers:</p>
-<ul>
-  <li>ISPP's <tt>int</tt> type is now a signed 64-bit integer type.</tt>
-  <li>Support function <tt>FileSize</tt> now supports 64-bit file sizes.</li>
-  <li>Added new <tt>PackVersionComponents</tt>, <tt>UnpackVersionComponents</tt>, and <tt>ParseVersionPacked</tt> support functions.</li>
-</ul>
-<p>Similar Pascal Scripting changes have been done:</p>
-<ul>
-  <li>Added new <tt>FileSize64</tt> support function.</li>
-  <li>Added new <tt>PackVersionNumbers</tt>, <tt>PackVersionComponents</tt>, <tt>UnpackVersionNumbers</tt>, <tt>UnpackVersionComponents</tt>, and <tt>VersionToStr</tt> support functions.</li>
+  <li>Shortcuts Alt+Left and Alt+Right now always navigate back and forward even if Visual Studio-style menu shortcuts have been activated.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or Ctrl+I alternatives must be used.</li>
+  <li>Moved the list of recently opened files into a new <i>Open Recent</i> submenu of the <i>Files</i> menu.</li>
+  <li>Added new <i>Use Regular Expressions</i> option to the <i>Edit</i> menu to enable or disable the use of regular expressions for all find and replace operations and added a shortcut for it (Ctrl+Alt+R or Alt+R). Also added a small panel to the statusbar to indicate the current state.</li>
+  <li>The Find and Replace dialogs now support using Shift+Enter to temporarily search in the opposite direction.</li>
+  <li>Added shortcuts to select a tab (Ctrl+1 through Ctrl+9).</li>
+  <li>Added alternative shortcut for the <i>Compile</i> menu item in the <i>Build</i> menu (Shift+F9 or F7).</li>
+  <li>Added shortcut to the <i>Options</i> menu item in the <i>Tools</i> menu (Ctrl+,).</li>
+  <li>Removed the length limitation when entering a Sign Tool command and increased control height.</li>
+  <li>Added a banner which is displayed to each user after each update and links to this revision history.</li>
+  <li>Enabled dark mode support for the menus on Windows 11 Version 24H2 (2024 Update).</li>
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>Added new [Run] and [UninstallRun] sections flag: <tt>dontlogparameters</tt>. If this flag is specified, the command line parameters for the program will not be included in the log file.</li>
-  <li>If there are [UninstallRun] section entries without a <tt>RunOnceId</tt> parameter the compiler will now warn you about this. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular [UninstallRun] entry will only be executed once during uninstallation. The warning can be disabled using new [Setup] section directive <tt>MissingRunOnceIdsWarning</tt>.</li>
-  <li>Added new [Icons] section parameter: <tt>AppUserModelToastActivatorCLSID</tt>. Specifies the Windows 10 Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</li>
-  <li>Setup's prompts to overwrite or keep existing files have been made more user friendly:
-  <ul>
-    <li>Setup now shows <a href="https://i.imgur.com/AnF6qo8.png">more user friendly prompts</a> to overwrite or keep existing files if the <tt>confirmoverwrite</tt> flag is set.</li>
-    <li>Setup now shows <a href="https://i.imgur.com/VBDuZ7U.png">more user friendly prompts</a> to keep or overwrite existing files if the <tt>promptifolder</tt> flag is set.</li>
-  </ul>
-  </li>
+  <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression (by 10% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%. This also made it possible to add support for extracting 7-Zip archives, see below.</li>
+  <li>Updated the encryption algorithm and key derivation function used by Inno Setup to XChaCha20 and PBKDF2-HMAC-SHA256 respectively, increasing security. This code is built-in: the separate ISCrypt.dll "encryption module" is no longer used and will be automatically deleted when you update.</li>
+  <li>Added <tt>[Setup]</tt> section directive <tt>EncryptionKeyDerivation</tt> to change the number of PBKDF2-HMAC-SHA256 iterations to use from the default of 200000 to another value.</li>
+  <li>Replaced all remaining use of MD5 and SHA-1 hashes with SHA-256 hashes, without removing the MD5 and SHA-1 Pascal Scripting and ISPP support functions.</li>
+  <li>The aspect ratio of Setup's large and small wizard images (as specified by <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>) is now maintained when the window is scaled. Previously, depending on the font and font size used, they could have appeared horizontally stretched or squished.</li>
+  <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
+  <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
   <li>Pascal Scripting changes:
   <ul>
-    <li>Added new <tt>CalculateButtonWidth</tt> function to the <tt>TSetupForm</tt> support class.</li>
-    <li>The <tt>ACaption</tt> and <tt>ADescription</tt> parameters of the various <tt>Create...Page</tt> support functions may now specify Setup messages containing shorthands like <tt>[name]</tt>.</li>
-    <li><i>Fix:</i> Support function <tt>WizardSelectComponents</tt> now also updates component sizes and the current selection's required disk space.</li>
+    <li>Added new <tt>Extract7ZipArchive</tt> support function to extract a 7-Zip archive, based on the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov. See the new <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">help topic</a> for information about its limitations.<br />Added new <tt>CreateExtractionPage</tt> support function to easily show the extraction progress to the user.</li>
+    <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
+    <li>Added new <tt>StringJoin</tt>, <tt>StringSplit</tt>, and <tt>StringSplitEx</tt> support functions.</li>
+    <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>
+    <li><tt>TInputDirWizardPage</tt>: Added new <tt>NewFolderName</tt> property to update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
+    <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
+    <li>Renamed the <tt>FileCopy</tt> support function to <tt>CopyFile</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
+    <li>Fixed support function <tt>TStream.CopyFrom</tt> by adding a <tt>BufferSize</tt> parameter which was required but missing. Using <tt>$100000</tt> as the value is recommended.</li>
+    <li>Condensed the logging of DLL function imports.</li>
+    <li>Added new <tt>Debugging</tt> support function.</li>
   </ul>
   </li>
-  <li>Console-mode compiler (ISCC) change: Warnings and errors are now <a href="https://i.imgur.com/9VvbFGJ.png">colorized</a>.</li>
-  <li>Minor tweaks.</li>
+  <li>ISPP change: Added support functions <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt>.</li>
+  <li>Inno Setup's Delphi <a href="https://github.com/jrsoftware/issrc" target="_blank">source code</a> has been reorganized to use unit scope names and additionally various units have been renamed for clarity. This makes it a lot easier to get started with working with the Inno Setup source code and making contributions, even with the free <a href="https://www.embarcadero.com/products/delphi/starter/free-download">Delphi Community Edition</a>.</li>
+  <li>Added official Tamil translation.</li>
+  <li>Various tweaks and improvements.</li>
 </ul>
 
-<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: <b>Thanks to Gavin Lambert and Sergii Leonov for their contributions.</b></p>
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov, John Stevenson, and jogo- for their contributions!</p>
 
-<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/9e03ea4de5b8639937d2c4024ec8582a7e63b048">View differences in Default.isl</a>).</p>
+<p>Thanks to Neil Hodgson and Igor Pavlov for their continued work on Scintilla and the LZMA SDK!</p>
+
+<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/d18bab1c9234aa8bba6c8e277121e562724d331c">View differences in Default.isl</a>.)</p>
 <ul>
   <li><b>New messages:</b>
   <ul>
-    <li>DownloadingLabel, ButtonStopDownload, StopDownload, ErrorDownloadAborted, ErrorDownloadFailed, ErrorDownloadSizeFailed, ErrorFileHash1, ErrorFileHash2, ErrorProgress, ErrorFileSize.</li>
-    <li>ExistingFileNewerSelectAction, ExistingFileNewer2, ExistingFileNewerOverwriteExisting, ExistingFileNewerKeepExisting, ExistingFileNewerOverwriteOrKeepAll.</li>
-    <li>FileExistsSelectAction, FileExists2, FileExistsOverwriteExisting, FileExistsKeepExisting, FileExistsOverwriteOrKeepAll.</li>
-  </ul>
-  </li>
-  <li><b>Previously optional messages which must now always be set:</b>
-  <ul>
-    <li>ComponentsDiskSpaceGBLabel, DiskSpaceGBLabel, PrepareToInstallNeedsRestart.</li>
-  </ul>
-  <li><b>Removed messages:</b>
-  <ul>
-    <li>ExistingFileNewer, FileExists.</li>
+    <li>ExtractionLabel, ButtonStopExtraction, StopExtraction, ErrorExtractionAborted, ErrorExtractionFailed.</li>
   </ul>
   </li>
 </ul>
 
-<p>Note: Not all official translations have been updated for these changes at this moment. <!-- Demoted the official <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/German.isl">German</a>, <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Nepali.islu">Nepali</a>, <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/SerbianCyrillic.isl">Serbian (Cyrillic)</a> and <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/SerbianLatin.isl">Serbian (Latin)</a> translations to unofficial because of a no longer available maintainer. To send updates yourself, see <a href="http://news.jrsoftware.org/read/article.php?id=2514&amp;group=jrsoftware.innosetup.translations#2514">this post</a> for what needs updating and use <a href="https://jrsoftware.org/files/istrans/send2.php">this form</a> to send updates (or use <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>). See the <a href="https://jrsoftware.org/files/istrans/">Inno Setup Translations</a> page for more information. --></li>
+<p>Note: Not all official translations have been updated for these changes at this moment.</li>
 
-<p><a href="https://jrsoftware.org/files/is6.0-whatsnew.htm">Inno Setup 6.0 Revision History</a></p >
+<p><a href="files/is6.3-whatsnew.htm">Inno Setup 6.3 Revision History</a></p>
 
 </body>
 </html>

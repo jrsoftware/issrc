@@ -79,17 +79,28 @@ end;
 function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
 external 'SetTimer@user32.dll stdcall';
 
+function KillTimer(hWnd, nIDEvent: Longword): Bool;
+external 'KillTimer@user32.dll stdcall';
+
 var
-  TimerCount: Integer;
+  TimerID, TimerCount: Integer;
 
 procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
 begin
-  Inc(TimerCount);
-  WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount) + ' ';
-  WizardForm.BeveledLabel.Visible := True;
+  if WizardForm <> nil then begin
+    Inc(TimerCount);
+    WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount) + ' ';
+    WizardForm.BeveledLabel.Visible := True;
+  end;
 end;
 
 procedure InitializeWizard;
 begin
-  SetTimer(0, 0, 1000, CreateCallback(@MyTimerProc));
+  TimerID := SetTimer(0, 0, 1000, CreateCallback(@MyTimerProc));
+end;
+
+procedure DeinitializeSetup;
+begin
+  if TimerID <> 0 then
+    KillTimer(0, TimerID);
 end;

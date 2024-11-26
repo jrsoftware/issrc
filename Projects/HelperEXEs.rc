@@ -1,5 +1,0 @@
-// $jrsoftware: issrc/Projects/HelperEXEs.rc,v 1.4 2010/10/20 02:43:26 jr Exp $
-//
-// Contains the 64-bit helper EXEs used by the Helper unit
-
-HELPER_EXE_AMD64 RCDATA Helper\x64\Release\Helper.exe

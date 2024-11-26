@@ -1,0 +1,108 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{C0278F77-1554-45D9-B1E9-69FB923E8771}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Compil32.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ISCC.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ISCmplr.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ISPP.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Setup.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SetupLdr.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\ISHelp\ISHelpGen\ISHelpGen.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Compil32">
+        <MSBuild Projects="Compil32.dproj"/>
+    </Target>
+    <Target Name="Compil32:Clean">
+        <MSBuild Projects="Compil32.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Compil32:Make">
+        <MSBuild Projects="Compil32.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ISCC">
+        <MSBuild Projects="ISCC.dproj"/>
+    </Target>
+    <Target Name="ISCC:Clean">
+        <MSBuild Projects="ISCC.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISCC:Make">
+        <MSBuild Projects="ISCC.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ISCmplr">
+        <MSBuild Projects="ISCmplr.dproj"/>
+    </Target>
+    <Target Name="ISCmplr:Clean">
+        <MSBuild Projects="ISCmplr.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISCmplr:Make">
+        <MSBuild Projects="ISCmplr.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ISPP">
+        <MSBuild Projects="ISPP.dproj"/>
+    </Target>
+    <Target Name="ISPP:Clean">
+        <MSBuild Projects="ISPP.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISPP:Make">
+        <MSBuild Projects="ISPP.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Setup">
+        <MSBuild Projects="Setup.dproj"/>
+    </Target>
+    <Target Name="Setup:Clean">
+        <MSBuild Projects="Setup.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Setup:Make">
+        <MSBuild Projects="Setup.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SetupLdr">
+        <MSBuild Projects="SetupLdr.dproj"/>
+    </Target>
+    <Target Name="SetupLdr:Clean">
+        <MSBuild Projects="SetupLdr.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SetupLdr:Make">
+        <MSBuild Projects="SetupLdr.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ISHelpGen">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj"/>
+    </Target>
+    <Target Name="ISHelpGen:Clean">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISHelpGen:Make">
+        <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupLdr;ISHelpGen"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean;ISHelpGen:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make;ISHelpGen:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

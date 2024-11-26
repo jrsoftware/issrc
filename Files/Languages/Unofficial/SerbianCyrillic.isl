@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ Serbian (Cyrillic) messages ***
+; *** Inno Setup version 6.1.0+ Serbian (Cyrillic) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -152,6 +152,7 @@ WizardSelectDir=Одабир одредишне фасцикле
 SelectDirDesc=Изаберите место на ком желите да инсталирате [name].
 SelectDirLabel3=Програм ће инсталирати [name] у следећу фасциклу.
 SelectDirBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи…“.
+DiskSpaceGBLabel=Потребно је најмање [gb] GB слободног простора на диску.
 DiskSpaceMBLabel=Потребно је најмање [mb] MB слободног простора на диску.
 CannotInstallToNetworkDrive=Не могу да инсталирам на мрежну јединицу.
 CannotInstallToUNCPath=Не могу да инсталирам на UNC путању.
@@ -209,6 +210,18 @@ ReadyMemoType=Врста инсталације:
 ReadyMemoComponents=Изабране компоненте:
 ReadyMemoGroup=Фасцикла у менију „Старт“:
 ReadyMemoTasks=Додатни задаци:
+
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Преузимање додатних датотека...
+ButtonStopDownload=&Заустави преузимање
+StopDownload=Да ли сте сигурни да желите да зауставите преузимање?
+ErrorDownloadAborted=Преузимање је прекинуто
+ErrorDownloadFailed=Преузимање није успело: %1 %2
+ErrorDownloadSizeFailed=Добијање величине није успело: %1 %2
+ErrorFileHash1=Хеш датотеке није успео: %1
+ErrorFileHash2=Неисправан хеш датотеке: очекиван %1, пронађен %2
+ErrorProgress=Неисправан напредак: %1 од %2
+ErrorFileSize=Неисправна величина датотеке: очекиван %1, пронађен %2
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Припрема за инсталацију
@@ -292,8 +305,16 @@ ExistingFileReadOnly2=Постојећа датотека не може да се замени јер је само за чит
 ExistingFileReadOnlyRetry=&Уклоните атрибут само за читање и покушајте поново
 ExistingFileReadOnlyKeepExisting=&Задржите постојећу датотеку
 ErrorReadingExistingDest=Дошло је до грешке при покушају читања постојеће датотеке:
-FileExists=Датотека већ постоји.%n%nЖелите ли да је замените?
-ExistingFileNewer=Постојећа датотека је новија од оне коју треба поставити. Препоручујемо вам да задржите постојећу датотеку.%n%nЖелите ли то да урадите?
+FileExistsSelectAction=Одабери акцију
+FileExists2=Датотека већ постоји.
+FileExistsOverwriteExisting=&Замени постојећу датотеку
+FileExistsKeepExisting=&Задржи постојећу датотеку
+FileExistsOverwriteOrKeepAll=&Уради ово и убудуће
+ExistingFileNewerSelectAction=Одабери акцију
+ExistingFileNewer2=Постојећа датотека је новија од оне коју треба инсталирати.
+ExistingFileNewerOverwriteExisting=&Замени постојећу датотеку
+ExistingFileNewerKeepExisting=&Задржи постојећу датотеку (препоручено)
+ExistingFileNewerOverwriteOrKeepAll=&Уради ово и убудуће
 ErrorChangingAttr=Дошло је до грешке при измени особине следеће датотеке:
 ErrorCreatingTemp=Дошло је до грешке при стварању датотеке у одредишној фасцикли:
 ErrorReadingSource=Дошло је до грешке при читању изворне датотеке:

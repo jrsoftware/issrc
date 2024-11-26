@@ -44,6 +44,8 @@ end;
 
 TNotifyEvent = procedure(Sender: TObject);
 
+TDuplicates = (dupIgnore, dupAccept, dupError);
+
 TStringList = class(TStrings)
   function Find(S: String; var Index: Integer): Boolean;
   procedure Sort;
@@ -53,13 +55,15 @@ TStringList = class(TStrings)
   property OnChanging: TNotifyEvent; read write;
 end;
 
+{ Seek Origin values: soFromBeginning, soFromCurrent, soFromEnd }
+
 TStream = class(TObject)
-  function Read(Buffer: String; Count: Longint): Longint;
-  function Write(Buffer: String; Count: Longint): Longint;
+  function Read(var Buffer: AnyString; ByteCount: Longint): Longint;
+  function Write(const Buffer: AnyString; ByteCount: Longint): Longint;
   function Seek(Offset: Int64; Origin: Word): Int64;
-  procedure ReadBuffer(Buffer: String; Count: Longint);
-  procedure WriteBuffer(Buffer: String; Count: Longint);
-  function CopyFrom(Source: TStream; Count: Int64): Int64;
+  procedure ReadBuffer(var Buffer: AnyString; ByteCount: Longint);
+  procedure WriteBuffer(const Buffer: AnyString; ByteCount: Longint);
+  function CopyFrom(Source: TStream; ByteCount: Int64; BufferSize: Integer): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
@@ -81,20 +85,44 @@ TGraphicsObject = class(TPersistent)
   property OnChange: TNotifyEvent; read write;
 end;
 
+TBrushStyle = (bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross);
+
+TBrush = class(TGraphicsObject)
+  constructor Create;
+  property Color: TColor; read write;
+  property Style: TBrushStyle; read write;
+end;
+
 TFontStyle = (fsBold, fsItalic, fsUnderline, fsStrikeOut);
 
 TFontStyles = set of TFontStyle;
 
+TColor = Integer;
+
+{ TColor values: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clLtGray, clDkGray, clWhite, clNone, clDefault, clScrollBar, clBackground, clActiveCaption, clInactiveCaption, clMenu, clWindow, clWindowFrame, clMenuText, clWindowText, clCaptionText, clActiveBorder, clInactiveBorder, clAppWorkSpace, clHighlight, clHighlightText, clBtnFace, clBtnShadow, clGrayText, clBtnText, clInactiveCaptionText, clBtnHighlight, cl3DDkShadow, cl3DLight, clInfoText, clInfoBk, clHotLight }
+
 TFont = class(TGraphicsObject)
   constructor Create;
   property Handle: Integer; read;
-  property Color: Integer; read write;
+  property Color: TColor; read write;
   property Height: Integer; read write;
   property Name: String; read write;
   property Pitch: Byte; read write;
   property Size: Integer; read write;
   property PixelsPerInch: Integer; read write;
   property Style: TFontStyles; read write;
+end;
+
+TPenMode = (pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor);
+
+TPenStyle = (psSolid, psDash, psDot, psDashDot, psDashDotDot, psClear, psInsideFrame);
+
+TPen = class(TGraphicsObject)
+  constructor Create;
+  property Color: TColor; read write;
+  property Mode: TPenMode; read write;
+  property Style: TPenStyle; read write;
+  property Width: Integer; read write;
 end;
 
 TCanvas = class(TPersistent)
@@ -120,26 +148,6 @@ TCanvas = class(TPersistent)
   property Pen: TPen; read;
 end;
 
-TPenMode = (pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor);
-
-TPenStyle = (psSolid, psDash, psDot, psDashDot, psDashDotDot, psClear, psInsideFrame);
-
-TPen = class(TGraphicsObject)
-  constructor Create;
-  property Color: TColor; read write;
-  property Mode: TPenMode; read write;
-  property Style: TPenStyle; read write;
-  property Width: Integer; read write;
-end;
-
-TBrushStyle = (bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross);
-
-TBrush = class(TGraphicsObject)
-  constructor Create;
-  property Color: TColor; read write;
-  property Style: TBrushStyle; read write;
-end;
-
 TGraphic = class(TPersistent)
   procedure LoadFromFile(const Filename: String);
   procedure SaveToFile(const Filename: String);
@@ -151,6 +159,8 @@ TGraphic = class(TPersistent)
 end;
 
 TAlphaFormat = (afIgnored, afDefined, afPremultiplied);
+
+HBITMAP = Integer;
 
 TBitmap = class(TGraphic)
   procedure LoadFromStream(Stream: TStream);
@@ -165,6 +175,10 @@ TAlign = (alNone, alTop, alBottom, alLeft, alRight, alClient);
 TAnchorKind = (akLeft, akTop, akRight, akBottom);
 
 TAnchors = set of TAnchorKind;
+
+TCursor = Integer;
+
+{ TCursor values: crDefault, crNone, crArrow, crCross, crIBeam, crSizeNESW, crSizeNS, crSizeNWSE, crSizeWE, crUpArrow, crHourGlass, crDrag, crNoDrop, crHSplit, crVSplit, crMultiDrag, crSQLWait, crNo, crAppStart, crHelp, crHandPoint, crSizeAll, crHand }
 
 TControl = class(TComponent)
   constructor Create(AOwner: TComponent);
@@ -188,7 +202,7 @@ TControl = class(TComponent)
   property ShowHint: Boolean; read write;
   property Visible: Boolean; read write;
   property Enabled: Boolean; read write;
-  property Cursor: Integer; read write;
+  property Cursor: TCursor; read write;
 end;
 
 TWinControl = class(TControl)
@@ -210,10 +224,6 @@ end;
 TCustomControl = class(TWinControl)
 end;
 
-TScrollBarKind = (sbHorizontal, sbVertical);
-
-TScrollBarInc = SmallInt;
-
 TScrollingWinControl = class(TWinControl)
   procedure ScrollInView(AControl: TControl);
 end;
@@ -232,6 +242,8 @@ TSizeConstraints = class(TPersistent);
   property MinHeight: TConstraintSize; read write;
   property MinWidth: TConstraintSize; read write;
 end;
+
+TFormStyle = (fsNormal, fsMDIChild, fsMDIForm, fsStayOnTop);
 
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 
@@ -452,6 +464,28 @@ end;
 TNewRadioButton = class(TRadioButton)
 end;
 
+TSysLinkType = (sltURL, sltID);
+
+TSysLinkEvent = procedure(Sender: TObject; const Link: string; LinkType: TSysLinkType);
+
+TCustomLinkLabel = class(TWinControl)
+  property Alignment: TAlignment; read write;
+  property AutoSize: Boolean; read write;
+  property UseVisualStyle: Boolean; read write;
+  property OnLinkClick: TSysLinkEvent; read write;
+end;
+
+TLinkLabel = class(TCustomLinkLabel)
+  property Anchors: TAnchors; read write;
+  property Caption: String; read write;
+  property Color: TColor; read write;
+  property Font: TFont; read write;
+end;
+
+TNewLinkLabel = class(TLinkLabel)
+  function AdjustHeight: Integer;
+end;
+
 TCustomListBox = class(TWinControl)
   property Items: TStrings; read write;
   property ItemIndex: Integer; read write;
@@ -543,9 +577,11 @@ TNewCheckListBox = class(TCustomListBox)
   property State[Index: Integer]: TCheckBoxState; read write;
   property ItemCaption[Index: Integer]: String; read write;
   property ItemEnabled[Index: Integer]: Boolean; read write;
+  property ItemFontStyle[Index: Integer]: TFontStyles; read write;
   property ItemLevel[Index: Integer]: Byte; read;
   property ItemObject[Index: Integer]: TObject; read write;
   property ItemSubItem[Index: Integer]: String; read write;
+  property SubItemFontStyle[Index: Integer]: TFontStyles; read write;
   property Flat: Boolean; read write;
   property MinItemHeight: Integer; read write;
   property Offset: Integer; read write;
@@ -695,6 +731,7 @@ TInputDirWizardPage = class(TWizardPage)
   function Add(const APrompt: String): Integer;
   property Buttons[Index: Integer]: TNewButton; read;
   property Edits[Index: Integer]: TEdit; read;
+  property NewFolderName: String; read write;
   property PromptLabels[Index: Integer]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
   property Values[Index: Integer]: String; read write;
@@ -729,11 +766,27 @@ TOutputProgressWizardPage = class(TWizardPage)
   procedure Show;
 end;
 
+TOutputMarqueeProgressWizardPage = class(TOutputProgressWizardPage)
+  procedure Animate;
+end;
+
 TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
+  property AbortedByUser: Boolean; read;
   procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
+  procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
   procedure Clear;
   function Download: Int64;
+  property ShowBaseNameInsteadOfUrl: Boolean; read write;
+end;
+
+TExtractionWizardPage = class(TOutputProgressWizardPage)
+  property AbortButton: TNewButton; read;
+  property AbortedByUser: Boolean; read;
+  procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+  procedure Clear;
+  procedure Extract;
+  property ShowArchiveInsteadOfFile: Boolean; read write;
 end;
 
 TUIStateForm = class(TForm)
@@ -839,6 +892,7 @@ TWizardForm = class(TSetupForm)
   property PreparingMemo: TNewMemo; read;
   property CurPageID: Integer; read;
   function AdjustLabelHeight(ALabel: TNewStaticText): Integer;
+  function AdjustLinkLabelHeight(ALinkLabel: TNewLinkLabel): Integer;
   procedure IncTopDecHeight(AControl: TControl; Amount: Integer);
   property PrevAppDir: String; read;
 end;

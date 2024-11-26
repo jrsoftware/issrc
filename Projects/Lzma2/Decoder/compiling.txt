@@ -1,9 +1,0 @@
-ISLzmaDec.obj and ISLzma2Dec.obj are compiled using the
-Borland C++Builder 6 compiler ("Borland C++ 5.6.4 for Win32")
-as follows:
-
-bcc32 -c -pr -O2 ISLzmaDec.c ISLzma2Dec.c
-
-Add -v if you wish to enable source-level debugging, which
-makes it possible to step through the C code from within
-Delphi.

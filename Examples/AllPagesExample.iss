@@ -42,7 +42,8 @@ Name: "task"; Description: "Task";
 [Code]
 var
   OutputProgressWizardPage: TOutputProgressWizardPage;
-  OutputProgressWizardPageAfterID: Integer;
+  OutputMarqueeProgressWizardPage: TOutputMarqueeProgressWizardPage;
+  OutputProgressWizardPagesAfterID: Integer;
 
 procedure InitializeWizard;
 var
@@ -54,7 +55,9 @@ var
   OutputMsgMemoWizardPage: TOutputMsgMemoWizardPage;
   AfterID: Integer;
 begin
+  WizardForm.LicenseAcceptedRadio.Checked := True;
   WizardForm.PasswordEdit.Text := '{#Password}';
+  WizardForm.UserInfoNameEdit.Text := 'Username';
 
   AfterID := wpSelectTasks;
   
@@ -84,26 +87,37 @@ begin
   AfterID := OutputMsgMemoWizardPage.ID;
 
   OutputProgressWizardPage := CreateOutputProgressPage('CreateOutputProgressPage', 'ADescription');
-  OutputProgressWizardPageAfterID := AfterID;
+  OutputMarqueeProgressWizardPage := CreateOutputMarqueeProgressPage('CreateOutputMarqueeProgressPage', 'ADescription');
+  OutputProgressWizardPagesAfterID := AfterID;
 
   { See CodeDownloadFiles.iss for a CreateDownloadPage example }
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
-  Position, Max: Integer;
+  I, Max: Integer;
 begin
-  if CurPageID = OutputProgressWizardPageAfterID then begin
+  if CurPageID = OutputProgressWizardPagesAfterID then begin
     try
-      Max := 25;
-      for Position := 0 to Max do begin
-        OutputProgressWizardPage.SetProgress(Position, Max);
-        if Position = 0 then
+      Max := 50;
+      for I := 0 to Max do begin
+        OutputProgressWizardPage.SetProgress(I, Max);
+        if I = 0 then
           OutputProgressWizardPage.Show;
         Sleep(2000 div Max);
       end;
     finally
       OutputProgressWizardPage.Hide;
+    end;
+    try
+      Max := 50;
+      OutputMarqueeProgressWizardPage.Show;
+      for I := 0 to Max do begin
+        OutputMarqueeProgressWizardPage.Animate;
+        Sleep(2000 div Max);
+      end;
+    finally
+      OutputMarqueeProgressWizardPage.Hide;
     end;
   end;
   Result := True;

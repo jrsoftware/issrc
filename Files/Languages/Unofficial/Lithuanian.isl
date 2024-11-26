@@ -213,6 +213,18 @@ ReadyMemoComponents=Pasirinkti komponentai:
 ReadyMemoGroup=„Start Menu“ katalogas:
 ReadyMemoTasks=Papildomi veiksmai:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Parsisiunèiami papildomi failai...
+ButtonStopDownload=&Stabdyti parsisiuntimà
+StopDownload=Ar tikrai norite sustabdyti parsisiuntimà?
+ErrorDownloadAborted=Parsisiuntimas nutrauktas
+ErrorDownloadFailed=Parsisiøsti nepavyko: %1 %2
+ErrorDownloadSizeFailed=Nepavyko gauti dydþio: %1 %2
+ErrorFileHash1=Failo patikrinimas nepavyko: %1
+ErrorFileHash2=Neteisinga failo „hash“ reikðmë: numatyta %1, rasta %2
+ErrorProgress=Netinkama eiga: %1 ið %2
+ErrorFileSize=Neteisingas failo dydis: numatytas %1, rastas %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pasirengimas diegimui
 PreparingDesc=Diegimo programa pasirengusi „[name]“ diegimui Jûsø kompiuteryje.
@@ -296,7 +308,6 @@ ExistingFileReadOnlyRetry=Paðalinkite at&ributà „Tik skaitymui“ ir bandykite vël
 ExistingFileReadOnlyKeepExisting=Pali&kti esamà failà
 ErrorReadingExistingDest=Skaitant esamà failà ávyko klaida:
 FileExistsSelectAction=Pasirinkite veiksmà
-FileExists=Toks failas jau yra.%n%nNorite, kad diegimo programa perraðytø failà?
 FileExists2=Toks failas jau yra.
 FileExistsOverwriteExisting=&Perraðyti esamà failà
 FileExistsKeepExisting=Pali&kti esamà failà

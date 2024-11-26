@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.0.0+ Finnish messages ***
+; *** Inno Setup version 6.1.0+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
 ; E-mail: antti.j.karttunen@iki.fi
-; Last modification date: 2019-01-22
+; Last modification date: 2020-08-02
 
 [LangOptions]
 LanguageName=Suomi
@@ -134,6 +134,7 @@ WizardSelectDir=Valitse kohdekansio
 SelectDirDesc=Mihin [name] asennetaan?
 SelectDirLabel3=[name] asennetaan t‰h‰n kansioon.
 SelectDirBrowseLabel=Valitse Seuraava jatkaaksesi. Jos haluat vaihtaa kansiota, valitse Selaa.
+DiskSpaceGBLabel=Vapaata levytilaa tarvitaan v‰hint‰‰n [gb] Gt.
 DiskSpaceMBLabel=Vapaata levytilaa tarvitaan v‰hint‰‰n [mb] Mt.
 CannotInstallToNetworkDrive=Asennus ei voi asentaa ohjelmaa verkkoasemalle.
 CannotInstallToUNCPath=Asennus ei voi asentaa ohjelmaa UNC-polun alle.
@@ -160,6 +161,7 @@ NoUninstallWarningTitle=Asennettuja osia lˆydettiin
 NoUninstallWarning=Seuraavat osat on jo asennettu koneelle:%n%n%1%n%nN‰iden osien valinnan poistaminen ei poista niit‰ koneelta.%n%nHaluatko jatkaa t‰st‰ huolimatta?
 ComponentSize1=%1 kt
 ComponentSize2=%1 Mt
+ComponentsDiskSpaceGBLabel=Nykyiset valinnat vaativat v‰hint‰‰n [gb] Gt levytilaa.
 ComponentsDiskSpaceMBLabel=Nykyiset valinnat vaativat v‰hint‰‰n [mb] Mt levytilaa.
 
 ; *** "Select Additional Tasks" wizard page
@@ -190,6 +192,18 @@ ReadyMemoComponents=Asennettavaksi valitut osat:
 ReadyMemoGroup=K‰ynnist‰-valikon kansio:
 ReadyMemoTasks=Muut toiminnot:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Ladataan tarvittavia tiedostoja...
+ButtonStopDownload=&Pys‰yt‰ lataus
+StopDownload=Oletko varma, ett‰ haluat pys‰ytt‰‰ tiedostojen latauksen?
+ErrorDownloadAborted=Tiedostojen lataaminen keskeytettiin
+ErrorDownloadFailed=Tiedoston lataaminen ep‰onnistui: %1 %2
+ErrorDownloadSizeFailed=Latauksen koon noutaminen ep‰onnistui: %1 %2
+ErrorFileHash1=Tiedoston tiivisteen luominen ep‰onnistui: %1
+ErrorFileHash2=Tiedoston tiiviste on virheellinen: odotettu %1, lˆydetty %2
+ErrorProgress=Virheellinen edistyminen: %1 / %2
+ErrorFileSize=Virheellinen tiedoston koko: odotettu %1, lˆydetty %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Valmistellaan asennusta
 PreparingDesc=Valmistaudutaan asentamaan [name] koneellesi.
@@ -200,6 +214,7 @@ ApplicationsFound2=Seuraavat sovellukset k‰ytt‰v‰t tiedostoja, joita Asennuksen 
 CloseApplications=&Sulje sovellukset automaattisesti
 DontCloseApplications=&ƒl‰ sulje sovelluksia
 ErrorCloseApplications=Asennus ei pystynyt sulkemaan tarvittavia sovelluksia automaattisesti. On suositeltavaa, ett‰ ennen jatkamista suljet sovellukset, jotka k‰ytt‰v‰t asennuksen aikana p‰ivitett‰vi‰ tiedostoja.
+PrepareToInstallNeedsRestart=Asennuksen t‰ytyy k‰ynnist‰‰ tietokone uudelleen. Aja Asennus uudelleenk‰ynnistyksen j‰lkeen, jotta [name] voidaan asentaa.%n%nHaluatko k‰ynnist‰‰ tietokoneen uudelleen nyt?
 
 ; *** "Installing" wizard page
 WizardInstalling=Asennus k‰ynniss‰
@@ -273,8 +288,16 @@ ExistingFileReadOnly2=Nykyist‰ tiedostoa ei voitu korvata, koska se on Vain luku
 ExistingFileReadOnlyRetry=&Poista Vain luku -asetus ja yrit‰ uudelleen
 ExistingFileReadOnlyKeepExisting=&S‰ilyt‰ nykyinen tiedosto
 ErrorReadingExistingDest=Virhe luettaessa nykyist‰ tiedostoa:
-FileExists=Tiedosto on jo olemassa.%n%nKorvataanko se?
-ExistingFileNewer=Nykyinen tiedosto on uudempi kuin asennettava tiedosto. Nykyisen tiedoston s‰ilytt‰minen on suositeltavaa.n%nHaluatko s‰ilytt‰‰ nykyisen tiedoston?
+FileExistsSelectAction=Valitse toiminto
+FileExists2=Tiedosto on jo olemassa.
+FileExistsOverwriteExisting=Korvaa &olemassa oleva tiedosto
+FileExistsKeepExisting=&S‰ilyt‰ olemassa oleva tiedosto
+FileExistsOverwriteOrKeepAll=&Hoida muut vastaavat tilanteet samalla tavalla
+ExistingFileNewerSelectAction=Valitse toiminto
+ExistingFileNewer2=Olemassa oleva tiedosto on uudempi kuin Asennuksen sis‰lt‰m‰ tiedosto.
+ExistingFileNewerOverwriteExisting=Korvaa &olemassa oleva tiedosto
+ExistingFileNewerKeepExisting=&S‰ilyt‰ olemassa oleva tiedosto (suositeltavaa)
+ExistingFileNewerOverwriteOrKeepAll=&Hoida muut vastaavat tilanteet samalla tavalla
 ErrorChangingAttr=Virhe vaihdettaessa nykyisen tiedoston m‰‰ritteit‰:
 ErrorCreatingTemp=Virhe luotaessa tiedostoa kohdehakemistoon:
 ErrorReadingSource=Virhe luettaessa l‰hdetiedostoa:

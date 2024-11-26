@@ -162,7 +162,7 @@ end;
 {--- MSXML ---}
 
 const
-  XMLURL = 'http://jrsoftware.github.io/issrc/ISHelp/isxfunc.xml';
+  XMLURL = 'https://jrsoftware.github.io/issrc/ISHelp/isxfunc.xml';
   XMLFileName = 'isxfunc.xml';
   XMLFileName2 = 'isxfuncmodified.xml';
 
@@ -171,7 +171,7 @@ var
   XMLHTTP, XMLDoc, NewNode, RootNode: Variant;
   Path: String;
 begin
-  if MsgBox('Setup will now use MSXML to download XML file ''' + XMLURL + ''' and save it to disk.'#13#13'Setup will then load, modify and save this XML file. Do you want to continue?', mbInformation, mb_YesNo) = idNo then
+  if MsgBox('Setup will now use MSXML to download XML file ''' + XMLURL + ''' and save it to the source folder.'#13#13'Setup will then load, modify and save this XML file. Do you want to continue?', mbInformation, mb_YesNo) = idNo then
     Exit;
     
   { Create the main MSXML COM Automation object }
@@ -275,6 +275,46 @@ begin
   MsgBox('Setup is now an authorized application for the current profile', mbInformation, mb_Ok);
 end;
 
+{--- Unzip ---}
+
+const
+  ZipURL = 'https://jrsoftware.org/download.php/iscrypt.zip';
+  ZipFileName = 'iscrypt.zip';
+  ZipSHA256 = '0569ffe1677ba699d07063a902d48c2f92c8e88669bdc13118f5808c30e998bc';
+  SHCONTCH_NOPROGRESSBOX = 4;
+  SHCONTCH_RESPONDYESTOALL = 16;
+
+procedure UnzipButtonOnClick(Sender: TObject);
+var
+  Shell, ZipFolder, TargetFolder: Variant;
+  ZipPath, TargetPath: String;
+begin
+  if MsgBox('Setup will now download Zip file ''' + ZipURL + ''' and save it to a temporary folder.'#13#13'Setup will then unzip this Zip file to the source folder. Do you want to continue?', mbInformation, mb_YesNo) = idNo then
+    Exit;
+  
+  { Download the Zip file }
+  DownloadTemporaryFile(ZipURL + '?dontcount=1', ZipFileName, ZipSHA256, nil);
+  ZipPath := ExpandConstant('{tmp}\' + ZipFileName);
+
+  MsgBox('Downloaded the Zip file and saved it as ''' + ZipPath + '''.', mbInformation, mb_Ok);
+
+  { Unzip the Zip file to the source folder }
+  Shell := CreateOleObject('Shell.Application');
+  
+  ZipFolder := Shell.NameSpace(ZipPath);
+  if VarIsClear(ZipFolder) then
+    RaiseException(Format('Zip file ''%s'' does not exist or cannot be opened', [ZipPath]));
+    
+  TargetPath := ExpandConstant('{src}');
+  TargetFolder := Shell.NameSpace(TargetPath);
+  if VarIsClear(TargetFolder) then
+    RaiseException(Format('Target ''%s'' does not exist', [TargetPath]));
+    
+  TargetFolder.CopyHere(ZipFolder.Items, SHCONTCH_NOPROGRESSBOX or SHCONTCH_RESPONDYESTOALL);  
+
+  MsgBox('Unzipped the Zip file to ''' + TargetPath + '''.', mbInformation, mb_Ok);
+end;
+
 {---}
 
 procedure CreateButton(ALeft, ATop: Integer; ACaption: String; ANotifyEvent: TNotifyEvent);
@@ -308,4 +348,6 @@ begin
   CreateButton(Left, Top, '&MSXML...', @MSXMLButtonOnClick);
   Top := Top + TopInc;
   CreateButton(Left, Top, '&Word...', @WordButtonOnClick);
+  Top := Top + TopInc;
+  CreateButton(Left, Top, '&Unzip...', @UnzipButtonOnClick);
 end;

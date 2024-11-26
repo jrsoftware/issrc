@@ -1,7 +1,7 @@
-﻿; *** Inno Setup version 6.0.0+ Vietnamese messages ***
+﻿; *** Inno Setup version 6.1.0+ Vietnamese messages ***
 ; Translated by Vu Khac Hiep (email: vukhachiep@gmail.com)
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -106,7 +106,7 @@ SelectLanguageTitle=Chọn ngôn ngữ cài đặt
 SelectLanguageLabel=Chọn ngôn ngữ để sử dụng khi cài đặt:
 
 ; *** Common wizard text
-ClickNext=Click Tiếp để tiếp tục, hoặc Hủy để thoát cài đặt
+ClickNext=Nhấn Tiếp để tiếp tục, hoặc Hủy để thoát cài đặt
 BeveledLabel=
 BrowseDialogTitle=Tìm thư mục
 BrowseDialogLabel=Chọn một thư mục trong danh sách sau rồi ấn OK.
@@ -119,7 +119,7 @@ WelcomeLabel2=Chương trình này sẽ cài [name/ver] trên máy tính của b
 ; *** "Password" wizard page
 WizardPassword=Mật khẩu
 PasswordLabel1=Việc cài đặt được bảo vệ bằng mật khẩu.
-PasswordLabel3=Hãy nhập mật khẩu, rồi click Tiếp để tiếp tục. Mật khẩu phân biệt chữ hoa/thường.
+PasswordLabel3=Hãy nhập mật khẩu, rồi nhấn Tiếp để tiếp tục. Mật khẩu phân biệt chữ hoa/thường.
 PasswordEditLabel=&Mật khẩu:
 IncorrectPassword=Mật khẩu bạn đã nhập không đúng. Hãy thử lại.
 
@@ -150,14 +150,15 @@ UserInfoNameRequired=Bạn phải nhập một tên.
 WizardSelectDir=Chọn vị trí cài đặt
 SelectDirDesc=[name] nên được cài đặt ở đâu?
 SelectDirLabel3=[name] sẽ được cài đặt vào thư mục sau:
-SelectDirBrowseLabel=Để tiếp tục. click Tiếp. Nếu bạn muốn chọn một thư mục khác, click Duyệt.
-DiskSpaceMBLabel=Cần có ít nhất [mb]MB ổ đĩa trống.
+SelectDirBrowseLabel=Để tiếp tục. nhấn Tiếp. Nếu bạn muốn chọn một thư mục khác, nhấn Duyệt.
+DiskSpaceGBLabel=Cần có ít nhất [gb] GB ổ đĩa trống.
+DiskSpaceMBLabel=Cần có ít nhất [mb] MB ổ đĩa trống.
 CannotInstallToNetworkDrive=Cài đặt không thể cài vào một ổ đĩa mạng.
 CannotInstallToUNCPath=Cài đặt không thể cài vào đường dẫn UNC.
 InvalidPath=Bạn phải nhập đường dẫn đầy đủ với chữ cái ổ đĩa, ví dụ:%n%nC:\APP%n%nhoặc một đường dẫn UNC theo mẫu:%n%n\\server\share
 InvalidDrive=Ổ đĩa hoặc chia sẻ UNC bạn đã chọn không tồn tại hoặc không truy cập được. Hãy chọn cái khác.
 DiskSpaceWarningTitle=Không đủ dung lượng đĩa
-DiskSpaceWarning=Cài đặt yêu cầu ít nhất %1KB dung lượng trống để cài đặt, nhưng ổ đĩa đã chọn chỉ còn %2KB.%n%nBạn muốn tiếp tục bằng mọi giá?
+DiskSpaceWarning=Cài đặt yêu cầu ít nhất %1 KB dung lượng trống để cài đặt, nhưng ổ đĩa đã chọn chỉ còn %2KB.%n%nBạn muốn tiếp tục bằng mọi giá?
 DirNameTooLong=Tên thư mục hoặc đường dẫn quá dài.
 InvalidDirName=Tên thư mục không hợp lệ.
 BadDirName32=Tên thư mục không được chứa các kí tự sau:%n%n%1
@@ -176,14 +177,15 @@ CompactInstallation=Cài đặt rút gọn
 CustomInstallation=Cài đặt tủy chỉnh
 NoUninstallWarningTitle=Thành phần đã tồn tại
 NoUninstallWarning=Cài đặt phát hiện các thành phần sau đã được cài đặt trên máy tính của bạn:%n%n%1%n%nBỏ chọn những thành phần này sẽ không cài đặt chúng.%n%nBạn có muốn tiếp tục bằng mọi giá?
-ComponentSize1=%1KB
-ComponentSize2=%1MB
-ComponentsDiskSpaceMBLabel=Lựa chọn này yêu cầu ít nhất [mb]MB không gian đĩa.
+ComponentSize1=%1 KB
+ComponentSize2=%1 MB
+ComponentsDiskSpaceGBLabel=Lựa chọn này yêu cầu ít nhất [gb] GB không gian đĩa.
+ComponentsDiskSpaceMBLabel=Lựa chọn này yêu cầu ít nhất [mb] MB không gian đĩa.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Chọn các tác vụ bổ sung
 SelectTasksDesc=Các tác vụ bổ sung nào nên được thực hiện?
-SelectTasksLabel2=Chọn các tác vụ bổ sung mà bạn muốn cài đặt thực hiện khi cài đặt [name], rồi click Tiếp.
+SelectTasksLabel2=Chọn các tác vụ bổ sung mà bạn muốn cài đặt thực hiện khi cài đặt [name], rồi nhấn Tiếp.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Chọn thư mục bắt đầu
@@ -208,16 +210,29 @@ ReadyMemoComponents=Các thành phần được chọn:
 ReadyMemoGroup=Thư mục bắt đầu:
 ReadyMemoTasks=Các tác vụ bổ sung:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Đang tải các tập tin bổ sung...
+ButtonStopDownload=&Dừng tải xuống
+StopDownload=Bạn có chắc chắn muốn dừng tải xuống không?
+ErrorDownloadAborted=Tải xuống bị hủy bỏ
+ErrorDownloadFailed=Tải xuống không thành công: %1 %2
+ErrorDownloadSizeFailed=Getting size failed: %1 %2
+ErrorFileHash1=File hash failed: %1
+ErrorFileHash2=Invalid file hash: expected %1, found %2
+ErrorProgress=Invalid progress: %1 of %2
+ErrorFileSize=Invalid file size: expected %1, found %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Chuẩn bị cài đặt
 PreparingDesc=[name] đang chuẩn bị được cài đặt trên máy tính của bạn.
 PreviousInstallNotCompleted=Việc cài đặt/gỡ bỏ một chương trình chưa được hoàn tất trước đó. Bạn sẽ phải khởi động lại máy tính để hoàn tất cài đặt đó.%n%nSau khi chởi động lại, chạy Cài đặt một lần nữa để hoàn tất cài đặt [name].
-CannotContinue=Cài đặt không thể tiếp tục. Click Hủy để thoát.
+CannotContinue=Cài đặt không thể tiếp tục. Nhấn Hủy để thoát.
 ApplicationsFound=Những chương trình sau đang sử dụng các tệp cần được cập nhật bởi trình cài đặt. Chúng tôi khuyên bạn cho phép Cài đặt đóng các chương trình này.
 ApplicationsFound2=Những chương trình sau đang sử dụng các tệp cần được cập nhật bởi trình cài đặt. Chúng tôi khuyên bạn cho phép Cài đặt đóng các chương trình này. Sau khi hoàn thành cài đặt, chúng tôi sẽ thử khởi động lại các chương trình này.
 CloseApplications=Tự độn&g đóng các chương trình này
 DontCloseApplications=Không đóng các chương t&rình này
 ErrorCloseApplications=Cài đặt không thể đóng mọi chương trình. Chúng tôi khuyên bạn đóng các chương trình đang sử dụng các tệp cần được cập nhật bởi Cài đặt một cách thủ công trước khi tiếp tục.
+PrepareToInstallNeedsRestart=Setup must restart your computer. After restarting your computer, run Setup again to complete the installation of [name].%n%nWould you like to restart now?
 
 ; *** "Installing" wizard page
 WizardInstalling=Đang cài đặt
@@ -289,8 +304,16 @@ ExistingFileReadOnly2=Tệp đã tồn tại với đánh dấu chỉ đọc.
 ExistingFileReadOnlyRetry=&Xóa thuộc tính chỉ đọc và thử lại
 ExistingFileReadOnlyKeepExisting=&Giữ tập tin hiện có
 ErrorReadingExistingDest=Một lỗi đã xảy ra khi đọc tệp:
-FileExists=Tệp đã tồn tại.%n%nBạn muốn Cài đặt thay thế nó không?
-ExistingFileNewer=Tệp này mới hơn tệp mà Cài đặt muốn cài. Chúng tôi khuyên bạn giữ lại tệp này.%n%nBạn có muốn giữ lại tệp này?
+FileExistsSelectAction=Select action
+FileExists2=Tệp đã tồn tại.
+FileExistsOverwriteExisting=G&hi đè tệp hiện có
+FileExistsKeepExisting=&Giữ tệp hiện có
+FileExistsOverwriteOrKeepAll=&Do this for the next conflicts
+ExistingFileNewerSelectAction=Select action
+ExistingFileNewer2=Tệp hiện có mới hơn tệp mà Thiết lập đang cố gắng cài đặt.
+ExistingFileNewerOverwriteExisting=&Ghi đè tệp hiện có
+ExistingFileNewerKeepExisting=&Giữ tệp hiện có (khuyến nghị)
+ExistingFileNewerOverwriteOrKeepAll=&Do this for the next conflicts
 ErrorChangingAttr=Một lỗi đã xảy ra khi thay đổi thuộc tính của tệp sau:
 ErrorCreatingTemp=Một lỗi đã xảy ra khi tạo một tệp trong thư mục đích:
 ErrorReadingSource=Một lỗi đã xảy ra khi đọc tệp nguồn:
@@ -347,8 +370,7 @@ ShutdownBlockReasonUninstallingApp=Đang gỡ cài đặt %1.
 
 [CustomMessages]
 
-;NameAndVersion=%1 phiên bản %2
-NameAndVersion=%1
+NameAndVersion=%1 phiên bản %2
 AdditionalIcons=Các lối tắt bổ sung:
 CreateDesktopIcon=Tạo một &lối tắt trên Desktop
 CreateQuickLaunchIcon=Tạo một lối tắt &Khởi động nhanh

@@ -1,18 +1,29 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Style sheet used by contents.htm
 */
 
+:root {
+  color-scheme: light dark;
+  --light-color: WindowText;
+  --dark-color: #d6d6d6;
+  --light-background-color: Window;
+  --dark-background-color: #1f1f1f;
+  --light-tool-background-color: ButtonFace;
+  --dark-tool-background-color: #403E41;
+}
 BODY {
-	font-family: "Segoe UI", Tahoma, "Microsoft Sans Serif", "MS Sans Serif", sans-serif;
-	font-size: 66.667%;   /* 8pt (8/12) */
+	font-family: "Segoe UI", Tahoma, sans-serif;
+	font-size: 75%;   /* 9pt (12px/16px) */
 	margin: 0;
-	color: WindowText;
-	background-color: Window;
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
+	background-color: Window; /* for IE */
+	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 }
 INPUT {
 	font: inherit;
@@ -20,9 +31,11 @@ INPUT {
 
 
 #tabbar {
-	background-color: ButtonFace;
-	color: WindowText;
-	padding-top: 4px;
+	background-color: ButtonFace; /* for IE */
+	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
+	padding-top: 6px;
 	cursor: default;
 	-moz-user-select: none;
 }
@@ -31,7 +44,8 @@ INPUT {
 	font-weight: bold;
 }
 #tabbar TD.selectedtab {
-	background-color: Window;
+	background-color: Window; /* for IE */
+	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 	padding: 2px 6px 3px 6px;
 	border-bottom: none;
 }
@@ -41,7 +55,8 @@ INPUT {
 }
 #tabbar A {
 	background-color: transparent;
-	color: WindowText;
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
 	text-decoration: none;
 	outline: none;
 }
@@ -63,7 +78,8 @@ INPUT {
 #tabbody-contents A:link,
 #tabbody-contents A:visited,
 #tabbody-contents A:active {
-	color: WindowText;
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
 	background-color: transparent;
 	text-decoration: none;
 }
@@ -73,15 +89,18 @@ INPUT {
 }
 #tabbody-contents A.selectedlink:link,
 #tabbody-contents A.selectedlink:visited {
-	color: WindowText;
-	background-color: ButtonFace;
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
+	background-color: ButtonFace; /* for IE */
+	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
 }
 /* It would be cleaner to use :focus, but IE<8 doesn't support it */
 #tabbody-contents A.focusedlink:link,
 #tabbody-contents A.focusedlink:visited {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
+	outline-color: WindowText; /* for IE */
+	outline-color: light-dark(var(--light-color), var(--dark-color));   /* needed for focus rect to appear on Firefox (3.5) */
 }
 #tabbody-contents TABLE {
 	border-collapse: collapse;
@@ -110,7 +129,8 @@ INPUT {
 #tabbody-index A:link,
 #tabbody-index A:visited,
 #tabbody-index A:active {
-	color: WindowText;
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
 	background-color: transparent;
 	text-decoration: none;
 }
@@ -121,62 +141,6 @@ INPUT {
 #tabbody-index A:focus {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText;   /* needed for focus rect to appear on Firefox (3.5) */
-}
-
-
-#searchcont .gsc-control {
-	font: small Arial, sans-serif;   /* 10pt */
-	width: 100%;
-}
-#searchcont .gsc-tabHeader {
-	display: none;
-}
-#searchcont .gsc-resultsHeader {
-	border: none;
-}
-#searchcont .gs-webResult DIV.gs-visibleUrl-short {
-	display: none;
-}
-#searchcont .gsc-result .gs-title {
-	height: auto;   /* otherwise it clips to one line */
-	overflow: visible;   /* otherwise focus rectangle is chopped off */
-}
-#searchcont .gs-result .gs-title,
-#searchcont .gs-result .gs-title * {
-	color: #008000;
-}
-#searchcont .gs-result .gs-snippet {
-	font-size: 90%;   /* 9pt (9/10) */
-}
-#searchcont .gsc-results .gsc-cursor-box {
-	padding-top: 0.5em;
-	text-align: center;
-}
-#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-page {
-	padding: 1px 5px;
-	border: 1px solid #008000;
-	color: #008000;
-	font-size: 90%;   /* 9pt (9/10) */
-	text-decoration: none;
-	     border-radius: 3px;
-	-moz-border-radius: 3px;			/* for Firefox 3.6 */
-	        box-shadow: #c0c0c0 1px 1px 2px;
-	   -moz-box-shadow: #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
-	-webkit-box-shadow: #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
-	-moz-user-select: none;
-}
-#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-page:hover {
-	background-color: #008000;
-	color: white;
-	        box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;
-	   -moz-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Firefox 3.6 */
-	-webkit-box-shadow: #008000 0 0 5px, #c0c0c0 1px 1px 2px;	/* for Chrome 6.0 */
-}
-#searchcont .gsc-results .gsc-cursor-box .gsc-cursor-current-page {
-	background-color: #008000;
-	color: white;
-}
-#searchcont .gsc-results .gsc-cursor-box .gsc-trailing-more-results {
-	display: none;
+	outline-color: WindowText; /* for IE */
+	outline-color: light-dark(var(--light-color), var(--dark-color));   /* needed for focus rect to appear on Firefox (3.5) */
 }

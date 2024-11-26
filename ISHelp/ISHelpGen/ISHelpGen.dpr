@@ -1,7 +1,4 @@
 program ISHelpGen;
-{ $jrsoftware: ishelp/ISHelpGen/ISHelpGen.dpr,v 1.25 2010/05/26 05:27:57 jr Exp $ }
-
-{ Compiled under Delphi 5.01 }
 
 {$APPTYPE CONSOLE}
 
@@ -13,10 +10,11 @@ uses
   ComObj,
   TypInfo,
   XMLParse in 'XMLParse.pas',
-  UIsxclassesParser in 'UIsxclassesParser.pas';
+  UIsxclassesParser in 'UIsxclassesParser.pas',
+  PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.12';
+  Version = '1.17';
 
   XMLFileVersion = '1';
 
@@ -74,22 +72,12 @@ type
 
 var
   SourceDir, OutputDir: String;
-  ISPP: Boolean;
+  NoContentsHtm: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
   CurrentListIsCompact: Boolean;
   CurrentTableColumnIndex: Integer;
-
-const
-  { When IE 6 is rendering a frame in Standards mode (due to a !DOCTYPE tag)
-    and a vertical scroll bar must be displayed, the scroll bar obscures the
-    right edge of the content. This hack works around that by forcing the
-    vertical scroll bar to always be shown. It is applied only to IE 6, since
-    neither IE 5.x nor IE 7 exhibit this behavior.
-    See http://groups.google.com/group/macromedia.dreamweaver/browse_thread/thread/fb755be2e0ee9267 }
-  IE6FramesHack =
-    '<!--[if IE 6]><style type="text/css">html{overflow-y:scroll}</style><![endif]-->';
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -124,7 +112,7 @@ begin
   if Node.NodeType = NODE_TEXT then begin
     S := Node.Text;
     for I := 1 to Length(S) do
-      if not(S[I] in [#9, #10, ' ']) then
+      if not CharInSet(S[I], [#9, #10, ' ']) then
         Exit;
     Result := True;
   end;
@@ -209,10 +197,12 @@ end;
 procedure SaveStringToFile(const S, Filename: String);
 var
   F: TFileStream;
+  U: UTF8String;
 begin
   F := TFileStream.Create(Filename, fmCreate);
   try
-    F.WriteBuffer(S[1], Length(S));
+    U := UTF8String(S);
+    F.WriteBuffer(U[1], Length(U));
   finally
     F.Free;
   end;
@@ -226,10 +216,10 @@ begin
   StringChange(Result, '>', '&gt;');
   if EscapeDoubleQuotes then
     StringChange(Result, '"', '&quot;');
-  { Also convert the UTF-8 representation of a non-breaking space into &nbsp;
+  { Also convert the Unicode representation of a non-breaking space into &nbsp;
     so it's easily to tell them apart from normal spaces when viewing the
     generated HTML source }
-  StringChange(Result, #194#160, '&nbsp;');
+  StringChange(Result, #$00A0, '&nbsp;');
 end;
 
 procedure CheckTopicNameValidity(const TopicName: String);
@@ -240,7 +230,7 @@ begin
     raise Exception.Create('Topic name cannot be empty');
   { Security: Make sure topic names don't include slashes etc. }
   for I := 1 to Length(TopicName) do
-    if not(TopicName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
+    if not CharInSet(TopicName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-']) then
       raise Exception.CreateFmt('Topic name "%s" includes invalid characters', [TopicName]);
 end;
 
@@ -251,7 +241,7 @@ begin
   if AnchorName = '' then
     raise Exception.Create('Anchor name cannot be empty');
   for I := 1 to Length(AnchorName) do
-    if not(AnchorName[I] in ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
+    if not CharInSet(AnchorName[I], ['A'..'Z', 'a'..'z', '0'..'9', '_', '-', '.']) then
       raise Exception.CreateFmt('Anchor name "%s" includes invalid characters', [AnchorName]);
 end;
 
@@ -405,7 +395,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -420,7 +410,7 @@ begin
         Result := Result + '<ol>' + ParseFormattedText(Node) + '</ol>';
       elP:
         begin
-          if Node.Attributes['margin'] = 'no' then
+          if Node.HasAttribute('margin') and (Node.Attributes['margin'] = 'no') then
             Result := Result + '<div>' + ParseFormattedText(Node) + '</div>'
           else
             Result := Result + '<p>' + ParseFormattedText(Node) + '</p>';
@@ -481,7 +471,7 @@ begin
       elUL:
         begin
           B := CurrentListIsCompact;
-          CurrentListIsCompact := (Node.Attributes['appearance'] = 'compact');
+          CurrentListIsCompact := (Node.HasAttribute('appearance') and (Node.Attributes['appearance'] = 'compact'));
           Result := Result + '<ul>' + ParseFormattedText(Node) + '</ul>';
           CurrentListIsCompact := B;
         end;
@@ -575,13 +565,12 @@ begin
   CurrentTopicName := '';
 
   S :=
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + SNewLine +
-    '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">' + SNewLine +
+    '<!DOCTYPE html>' + SNewLine +
+    '<html lang="en">' + SNewLine +
     '<head>' + SNewLine +
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' + SNewLine +
-    '<meta http-equiv="X-UA-Compatible" content="IE=8" />' + SNewLine +
+    '<meta http-equiv="X-UA-Compatible" content="IE=11" />' + SNewLine +
     '<title>' + EscapeHTML(TopicTitle, False) + '</title>' + SNewLine +
-    IE6FramesHack + SNewLine +
     '<link rel="stylesheet" type="text/css" href="styles.css" />' + SNewLine +
     '<script type="text/javascript" src="topic.js"></script>' + SNewLine +
     '</head>' + SNewLine +
@@ -673,11 +662,6 @@ var
       Node := Node.NextSibling;
     end;
     SL.Add('</ul>');
-    if not ISPP and (ParentNode = ContentsNode) then begin
-      { Don't put next 2 lines on 1 line or hhc will hang... }
-      SL.Add('<object type="text/sitemap">');
-      SL.Add('<param name="Merge" value="ispp.chm::\hh_generated_contents.hhc"></object>');
-    end;
   end;
 
 begin
@@ -688,7 +672,8 @@ begin
     HandleNode(ContentsNode);
 
     SL.Add('</body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_contents.hhc', TEncoding.UTF8);
   finally
     SL.Free;
   end;
@@ -701,7 +686,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.png" alt="" /></td>' +
+    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
       '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
@@ -765,7 +750,8 @@ begin
       if StringChange(S, '%CONTENTSTABLES%' + SNewLine, SL.Text) <> 1 then
         raise Exception.Create('GenerateStaticContents: Unexpected result from StringChange');
       TemplateSL.Text := S;
-      TemplateSL.SaveToFile(OutputDir + 'contents.htm');
+      TemplateSL.WriteBOM := False;
+      TemplateSL.SaveToFile(OutputDir + 'contents.htm', TEncoding.UTF8);
     finally
       TemplateSL.Free;
     end;
@@ -801,7 +787,7 @@ begin
     SL.Add('<html><head></head><body><ul>');
     for I := 0 to Keywords.Count-1 do begin
       { If a keyword is used more then once, don't use anchors: the 'Topics Found'
-        dialog displayed when clicking on such a keyword doesnt display the correct
+        dialog displayed when clicking on such a keyword doesn't display the correct
         topic titles anymore for each item with an anchor. Some HTML Help bug, see
         http://social.msdn.microsoft.com/Forums/en-US/devdocs/thread/a2ee989e-4488-4edd-b034-745ed91c19e2 }
       if not MultiKeyword(Keywords[I]) then
@@ -817,7 +803,8 @@ begin
            Anchor))]));
     end;
     SL.Add('</ul></body></html>');
-    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk');
+    SL.WriteBOM := False;
+    SL.SaveToFile(OutputDir + 'hh_generated_index.hhk', TEncoding.UTF8);
   finally
     SL.Free;
   end;
@@ -906,6 +893,7 @@ procedure Go;
         SourceDir + 'isxclasses.header2',
         SourceDir + 'isxclasses.footer',
         SourceDir + 'isxclasses_generated.xml');
+      IsxclassesParser.SaveWordLists(SourceDir + 'isxclasses_wordlists_generated.pas');
     finally
       IsxclassesParser.Free;
     end;
@@ -932,7 +920,7 @@ procedure Go;
       Doc.StripComments;
 
       Node := Doc.Root;
-      if Node.Attributes['version'] <> XMLFileVersion then
+      if Node.HasAttribute('version') and (Node.Attributes['version'] <> XMLFileVersion) then
         raise Exception.CreateFmt('Unrecognized file version "%s" (expected "%s")',
           [Node.Attributes['version'], XMLFileVersion]);
       Node := Node.FirstChild;
@@ -944,8 +932,10 @@ procedure Go;
               begin
                 Writeln('  - Generating hh_generated_contents.hhc');
                 GenerateHTMLHelpContents(Node);
-                Writeln('  - Generating contents.htm');
-                GenerateStaticContents(Node);
+                if not NoContentsHtm then begin
+                  Writeln('  - Generating contents.htm');
+                  GenerateStaticContents(Node);
+                end;
               end;
             elSetupTopic: ParseTopic(Node, True);
             elTopic: ParseTopic(Node, False);
@@ -963,11 +953,9 @@ procedure Go;
 var
   I: Integer;
 begin
-  if not ISPP then begin
-    TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
-    GenerateIsxClassesFile;
-  end else
-    TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
+  TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
+  GenerateIsxClassesFile;
+  TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
 
   Keywords := TStringList.Create;
   Keywords.Duplicates := dupAccept;
@@ -980,20 +968,20 @@ begin
   SetupDirectives.Duplicates := dupError;
   SetupDirectives.Sorted := True;
   try
-    if not ISPP then begin
-      DoDoc('isetup.xml');
-      DoDoc('isx.xml');
-      DoDoc('isxfunc_generated.xml');
-      DoDoc('isxclasses_generated.xml');
-    end else
-      DoDoc('ispp_generated.xml');
+    DoDoc('isetup.xml');
+    DoDoc('isx.xml');
+    DoDoc('isxfunc_generated.xml');
+    DoDoc('isxclasses_generated.xml');
+    DoDoc('ispp_generated.xml');
 
     CheckForNonexistentTargetTopics;
 
     Writeln('- Generating hh_generated_index.hhk');
     GenerateHTMLHelpIndex;
-    Writeln('- Generating contentsindex.js');
-    GenerateStaticIndex;
+    if not NoContentsHtm then begin
+      Writeln('- Generating contentsindex.js');
+      GenerateStaticIndex;
+    end;
   finally
     SetupDirectives.Free;
     TargetTopics.Free;
@@ -1012,16 +1000,16 @@ begin
   try
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
-    if ParamCount <> 1 then begin
-      Writeln('usage: ISHelpGen [source-dir]');
+    if (ParamCount = 0) or (ParamCount > 2) then begin
+      Writeln('usage: ISHelpGen <source-dir> [postfix]');
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    OutputDir := SourceDir + 'Staging\';
+    OutputDir := SourceDir + 'Staging' + ParamStr(2) + '\';
 
-    ISPP := FileExists(SourceDir + 'ispp.xml');
-    if ISPP then
-      Writeln('Running in ISPP mode');
+    NoContentsHtm := not FileExists(OutputDir + 'contents-template.htm');
+    if NoContentsHtm then
+      Writeln('Running in NoContentsHtm mode');
 
     OleCheck(CoInitialize(nil));  { for MSXML }
 

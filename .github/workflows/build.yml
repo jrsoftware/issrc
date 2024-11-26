@@ -1,0 +1,133 @@
+name: build
+
+on:
+  push:
+
+env:
+  HOME: "${{github.workspace}}\\home"
+
+jobs:
+  build:
+    # Only set the topic `has-issrc-build-env` if the secrets are available
+    if: contains(github.event.repository.topics, 'has-issrc-build-env')
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: initialize build environment
+        env:
+          ISSRC_BUILD_ENV_ZIP_PASSWORD: ${{ secrets.ISSRC_BUILD_ENV_ZIP_PASSWORD }}
+          ISSRC_BUILD_ENV_ZIP_URL: ${{ secrets.ISSRC_BUILD_ENV_ZIP_URL }}
+        run: |
+          (New-Object Net.WebClient).DownloadFile($env:ISSRC_BUILD_ENV_ZIP_URL, "issrc-build-env.zip")
+          & "C:\\Program Files\\7-Zip\\7z.exe" x -oissrc-build-env -p"$env:ISSRC_BUILD_ENV_ZIP_PASSWORD" issrc-build-env.zip
+          if (!(Test-Path issrc-build-env\bin\dcc32.exe)) {
+            Write-Host "Failed to extract dcc32.exe"
+            Exit 1
+          }
+          Remove-Item issrc-build-env.zip
+          $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
+          "DELPHIXEROOT=$DELPHIXEROOT" |  Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
+      - name: Prepare home directory for code-signing
+        env:
+          CODESIGN_P12: ${{secrets.CODESIGN_P12}}
+          CODESIGN_PASS: ${{secrets.CODESIGN_PASS}}
+        if: env.CODESIGN_P12 != '' && env.CODESIGN_PASS != ''
+        shell: bash
+        run: |
+          mkdir -p home/bin &&
+          echo -n "$CODESIGN_P12" | tr % '\n' | base64 -d >home/.codesign.p12 &&
+          printf '%s ' >home/bin/run-signtool.bat \
+            '"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign' \
+            '/v /fd SHA256 /du "https://jrsoftware.org" /d "Inno Setup"' \
+            '/tr http://timestamp.comodoca.com?td=sha256 /td SHA256' \
+            '/f "${{github.workspace}}\home\.codesign.p12"' \
+            "/p \"$CODESIGN_PASS\" \"%1\"" &&
+          printf '%s\n' >setup-sign.bat \
+            'mkdir tmp-unsigned' \
+            'copy files tmp-unsigned' \
+            'tmp-unsigned\iscc /Sissigntool256="${{github.workspace}}\home\bin\run-signtool.bat $f" /DSIGNTOOL setup.iss'
+      - name: build issrc
+        run: |
+          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
+          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
+          "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
+          .\build.bat
+      - name: Clean up temporary files
+        if: always()
+        shell: bash
+        run: rm -rf home setup-sign.bat
+      - name: copy license.txt into all artifacts
+        run: |
+          copy license.txt Files
+          copy license.txt Output
+          copy license.txt ISHelp/Staging
+      - name: upload Files
+        uses: actions/upload-artifact@v3
+        with:
+          name: Files
+          path: Files
+      - name: upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: Output
+          path: Output
+      - name: upload ISHelp
+        uses: actions/upload-artifact@v3
+        with:
+          name: ISHelp
+          path: ISHelp/Staging
+      - name: find mt.exe
+        shell: bash
+        run: |
+          set -x &&
+          mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe) &&
+          test -n "$mt" &&
+          echo "${mt%%/mt.exe*}" >>$GITHUB_PATH
+      - name: verify installer
+        shell: bash
+        run: |
+          set -x &&
+          ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
+          mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
+          cat innosetup-$ver.manifest &&
+          mkdir -p Output/innosetup-$ver.exe.Local &&
+          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver.exe.Local/ &&
+          mkdir Output/innosetup-$ver.en-US &&
+          mkdir Output/innosetup-$ver.en &&
+          mkdir Output/innosetup-$ver.ENU &&
+          mkdir -p trace &&
+          echo "$ver" >trace/ver &&
+          curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip &&
+          unzip ProcessMonitor.zip &&
+          # Need to start the background process via PowerShell because it would
+          # block for some reason if started as a Bash background process.
+          powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/procmon.pml -RunTime 60"' &&
+          test $? = 0 &&
+          ps -W &&
+          ./Procmon.exe -AcceptEula -WaitForIdle &&
+          ./Output/innosetup-$ver.exe //verysilent //dir=InnoSetup //noicons \
+            //tasks= //portable=1 &&
+          test -x InnoSetup/ISCC.exe &&
+          ./Procmon.exe -Terminate -Quiet &&
+          powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
+      - name: upload trace
+        uses: actions/upload-artifact@v3
+        with:
+          name: trace
+          path: trace
+      - name: check trace
+        shell: bash
+        run: |
+          set -x &&
+          curdir="$(cygpath -aw Output | sed 's/\\/&&/g')" &&
+          ver="$(sed 's/\./\\&/g' <trace/ver)" &&
+          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' -e '/"'$curdir'\\/p' \
+            trace/procmon.csv >trace/filtered.csv &&
+          if test -s trace/filtered.csv
+          then
+            echo ":error:Unexpected filesystem access" >&2
+            cat trace/filtered.csv >&2
+            exit 1
+          fi

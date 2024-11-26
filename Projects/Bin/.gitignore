@@ -1,0 +1,10 @@
+*.dll
+*.exe
+*.e32
+Setup-*.bin
+Setup.log
+Default.isl
+ISPPBuiltins.iss
+whatsnew.htm
+*.chm
+*.chw

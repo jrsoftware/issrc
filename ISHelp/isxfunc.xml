@@ -2,7 +2,7 @@
 <isxhelp version="1.0">
 <copyright>
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 </copyright>
@@ -13,17 +13,24 @@
       <function>
         <name>GetCmdTail</name>
         <prototype>function GetCmdTail: String;</prototype>
-        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string.</p></description>
+        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string, including undocumented internal parameters used by Setup and Uninstall.</p></description>
+        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link></p></seealso>
       </function>
       <function>
         <name>ParamCount</name>
         <prototype>function ParamCount: Integer;</prototype>
-        <description><p>Returns the number of command line parameters passed to Setup or Uninstall.</p></description>
+        <description><p>Returns the number of command line parameters passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p></description>
+        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link><br />
+<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
       </function>
       <function>
         <name>ParamStr</name>
         <prototype>function ParamStr(Index: Integer): String;</prototype>
-        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall.</p></description>
+        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
+<p>Parameter number zero is the full file name with which Setup or Uninstall was started.</p>
+<p>If Index is invalid, ParamStr returns an empty string.</p></description>
+        <seealso><p><link topic="isxfunc_ParamCount">ParamCount</link><br />
+<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -66,7 +73,9 @@ end;</pre></example>
       <function>
         <name>SetupMessage</name>
         <prototype>function SetupMessage(const ID: TSetupMessageID): String;</prototype>
-        <description><p>Returns the value of the specified message.</p></description>
+        <description><p>Returns the value of the specified message.</p>
+<p>TSetupMessageID is defined as:</p>
+<p>'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></p></description>
         <example><pre>var
   S: String;
 begin
@@ -226,6 +235,12 @@ end;</pre></example>
         <prototype>function Terminated: Boolean;</prototype>
         <description><p>Returns True if Setup or Uninstall is terminating, False otherwise.</p></description>
       </function>
+      <function>
+        <name>Debugging</name>
+        <prototype>function Debugging: Boolean;</prototype>
+        <description><p>Returns True if Setup or Uninstall is being debugged by the Compiler IDE or another application, False otherwise.</p></description>
+        <seealso><p><link topic="scriptdebug">Run-time debugger</link></p></seealso>
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -314,7 +329,7 @@ end;</pre></example>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive) the message will recorded in the log in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre>var
   I: Integer;
 begin
@@ -432,6 +447,7 @@ end;</pre></example>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
+<p>Another way to describe this function is: Returns True if the system matches architecture identifier <link topic="archidentifiers">win64</link>.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
         <example><pre>begin
   // Check IsWin64 before using a 64-bit-only feature to
@@ -462,90 +478,69 @@ end;</pre></example>
       <function>
         <name>ProcessorArchitecture</name>
         <prototype>function ProcessorArchitecture: TSetupProcessorArchitecture;</prototype>
-        <description><p>Returns the native processor architecture of the current system.</p>
-<p>TSetupProcessorArchitecture is defined as:</p>
-<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paIA64, paARM64);</tt></p></description>
-        <remarks><p>A 64-bit processor architecture will never be returned on 32-bit versions of Windows. Hence, you cannot use this function to detect a 64-bit AMD CPU on a 32-bit version of Windows; you'll just get back <tt>paX86</tt> if you try.</p>
-<p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the processor architecture. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit code, or Setup/Uninstall wouldn't be running at all.</p>
-<p>If <tt>paIA64</tt> is returned, and <tt>ia64</tt> is <i>not</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, you should not assume that Inno Setup's 64-bit-only features are available -- for example, the <tt>{autopf64}</tt> constant. Those features only work when <link topic="isxfunc_IsWin64">IsWin64</link> returns True, and as documented, it may not return True on older Itanium versions of Windows that lack certain APIs Inno Setup requires.</p>
-<p>Therefore, instead of:</p>
-<pre>
-  if ProcessorArchitecture = paIA64 then
-    // perform some Itanium-specific install task that
-    // involves expanding {autopf64}
-</pre>
-<p>you should additionally check that IsWin64 returns True:</p>
-<pre>
-  if ProcessorArchitecture = paIA64 then
-  begin
-    if IsWin64 then
-      // perform some Itanium-specific install task that
-      // involves expanding {autopf64}
-    else
-      // cannot use 64-bit features; display an error message,
-      // fail silently, try something else, etc.
-  end;
-</pre>
-<p>If <tt>ia64</tt> <i>is</i> included in the value of the <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> [Setup] section directive, then it is not necessary to check IsWin64 because Setup will do so itself at startup, and fail with an error message (<tt>MissingWOW64APIs</tt>) if it is False.</p></remarks>
+        <description><p>Returns the architecture of the system's Windows installation.</p>
+<p><tt>TSetupProcessorArchitecture</tt> is an enumerated type, defined as:</p>
+<p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);</tt></p></description>
+        <remarks><p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the architecture of the Windows installation. It can be assumed that an "unknown" architecture is at least capable of executing 32-bit x86 code, or Setup/Uninstall wouldn't be running at all.</p>
+<p><tt>paArm32</tt> is not a possible return value for this function because no version of Windows for 32-bit Arm processors had the ability to run x86 binaries. (An x86 emulator was first introduced in Arm64 Windows.)</p></remarks>
         <example><pre>var
   S: String;
 begin
   case ProcessorArchitecture of
     paX86: S := 'x86';
     paX64: S := 'x64';
-    paIA64: S := 'Itanium';
-    paARM64: S := 'ARM64';
+    paArm64: S := 'Arm64';
   else
     S := 'Unrecognized';
   end;
-  MsgBox('Your processor architecture: ' + S, mbInformation, MB_OK);
+  MsgBox('Windows architecture: ' + S, mbInformation, MB_OK);
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link><br />
-<link topic="isxfunc_IsWin64">IsWin64</link><br />
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
       </function>
       <function>
-        <name>IsX86</name>
-        <prototype>function IsX86: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is x86.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+        <name>IsArm32Compatible</name>
+        <prototype>function IsArm32Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm32compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
       <function>
-        <name>IsX64</name>
-        <prototype>function IsX64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is x64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+        <name>IsArm64</name>
+        <prototype>function IsArm64: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm64</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
       <function>
-        <name>IsIA64</name>
-        <prototype>function IsIA64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is ia64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsARM64">IsARM64</link></p></seealso>
+        <name>IsX64Compatible</name>
+        <prototype>function IsX64Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
       <function>
-        <name>IsARM64</name>
-        <prototype>function IsARM64: Boolean;</prototype>
-        <description><p>Returns True if the native processor architecture is arm64.</p>
-<p>This function is a shorthand for <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link>. Be sure to read the <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link> topic before using this function.</p></description>
-        <seealso><p><link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link><br />
-<link topic="isxfunc_IsX86">IsX86</link><br />
-<link topic="isxfunc_IsX64">IsX64</link><br />
-<link topic="isxfunc_IsIA64">IsIA64</link></p></seealso>
+        <name>IsX64OS</name>
+        <prototype>function IsX64OS: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64os</link>.</p>
+<p>Before Inno Setup 6.3, <tt>IsX64OS</tt> was named <tt>IsX64</tt>. The compiler still accepts <tt>IsX64</tt> as an alias for <tt>IsX64OS</tt>, but will emit a deprecation warning when used.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX86Compatible</name>
+        <prototype>function IsX86Compatible: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86compatible</link>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+      </function>
+      <function>
+        <name>IsX86OS</name>
+        <prototype>function IsX86OS: Boolean;</prototype>
+        <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86os</link>.</p>
+<p>Before Inno Setup 6.3, <tt>IsX86OS</tt> was named <tt>IsX86</tt>. The compiler still accepts <tt>IsX86</tt> as an alias for <tt>IsX86OS</tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -580,6 +575,19 @@ begin
   Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8
   if not Result then
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
+end;</pre></example>
+      </function>    
+      <function>
+        <name>IsMsiProductInstalled</name>
+        <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
+        <description><p>Returns True if a MSI product with the specified UpgradeCode and PackedMinVersion is installed.</p>
+<p>If there are multiple products installed with the specified UpgradeCode only the version of the first product returned by the system is checked.</p>
+<p>An exception will be raised if an error occurs.</p></description>
+        <example><pre>function InitializeSetup: Boolean;
+begin
+  Result := IsMsiProductInstalled('{20400CF0-DE7C-327E-9AE4-F0F38D9085F8}', PackVersionComponents(12, 0, 0, 0)); //Returns True if Visual C++ 2013 Redistributable (x64) is installed
+  if not Result then
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['Visual C++ 2013 Redistributable (x64)', '12.0']), mbCriticalError, MB_OK, IDOK);
 end;</pre></example>
       </function>    
     </subcategory>
@@ -640,37 +648,37 @@ end;</pre></example>
       </function>
       <function>
         <name>SendMessage</name>
-        <prototype>function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Longint;</prototype>
+        <prototype>function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): LongInt;</prototype>
         <description><p>Sends the specified message to the specified window. Does not return until the window procedure has processed the message.</p></description>
       </function>
       <function>
         <name>PostMessage</name>
-        <prototype>function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <prototype>function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;</prototype>
         <description><p>Posts the specified message to the specified window, returning immediately. Returns True if successful.</p></description>
       </function>
       <function>
         <name>SendNotifyMessage</name>
-        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;</prototype>
         <description><p>Sends the specified message to the specified window without waiting for the message to be processed by the destination window procedure. Returns True if successful.</p></description>
       </function>
       <function>
         <name>RegisterWindowMessage</name>
-        <prototype>function RegisterWindowMessage(const Name: String): Longint;</prototype>
+        <prototype>function RegisterWindowMessage(const Name: String): LongInt;</prototype>
         <description><p>The RegisterWindowMessage function defines a new window message that is guaranteed to be unique throughout the system. The returned message value can be used when calling the SendBroadcastMessage or PostBroadcastMessage function.</p></description>
       </function>
       <function>
         <name>SendBroadcastMessage</name>
-        <prototype>function SendBroadcastMessage(const Msg, WParam, LParam: Longint): Longint;</prototype>
+        <prototype>function SendBroadcastMessage(const Msg, WParam, LParam: LongInt): LongInt;</prototype>
         <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedure have processed the message.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>PostBroadcastMessage</name>
-        <prototype>function PostBroadcastMessage(const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <prototype>function PostBroadcastMessage(const Msg, WParam, LParam: LongInt): Boolean;</prototype>
         <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>SendBroadcastNotifyMessage</name>
-        <prototype>function SendBroadcastNotifyMessage(const Msg, WParam, LParam: Longint): Boolean;</prototype>
+        <prototype>function SendBroadcastNotifyMessage(const Msg, WParam, LParam: LongInt): Boolean;</prototype>
       </function>
     </subcategory>
     <subcategory>
@@ -748,7 +756,7 @@ end;</pre></example>
       </function>
       <function>
         <name>DLLGetLastError</name>
-        <prototype>function DLLGetLastError(): Longint;</prototype>
+        <prototype>function DLLGetLastError(): LongInt;</prototype>
         <description><p>Returns value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
         <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
@@ -777,47 +785,47 @@ begin
       </function>
       <function>
         <name>Copy</name>
-        <prototype>function Copy(S: String; Index, Count: Integer): String;</prototype>
+        <prototype>function Copy(S: AnyString; Index, Count: Integer): String;</prototype>
         <description><p>Returns a string containing Count characters starting at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, only the characters from S[Index] to the end of S are returned.</p></description>
       </function>
       <function>
         <name>Length</name>
-        <prototype>function Length(s: String): Longint;</prototype>
+        <prototype>function Length(S: AnyString): LongInt;</prototype>
         <description><p>Returns the length of the specified string.</p></description>
       </function>
       <function>
         <name>Lowercase</name>
-        <prototype>function Lowercase(S: String): String;</prototype>
+        <prototype>function Lowercase(S: AnyString): String;</prototype>
         <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use AnsiLowercase instead.</p></description>
       </function>
       <function>
         <name>Uppercase</name>
-        <prototype>function Uppercase(S: String): String;</prototype>
+        <prototype>function Uppercase(S: AnyString): String;</prototype>
         <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use AnsiUppercase instead.</p></description>
       </function>
       <function>
         <name>AnsiLowercase</name>
-        <prototype>function AnsiLowercase(S: String): String;</prototype>
+        <prototype>function AnsiLowercase(S: AnyString): String;</prototype>
         <description><p>Returns a string that is a copy of the given string converted to lowercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
       </function>
       <function>
         <name>AnsiUppercase</name>
-        <prototype>function AnsiUppercase(S: String): String;</prototype>
+        <prototype>function AnsiUppercase(S: AnyString): String;</prototype>
         <description><p>Returns a string that is a copy of the given string converted to uppercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
       </function>
       <function>
         <name>StringOfChar</name>
-        <prototype>function StringOfChar(c: Char; I : Longint): String;</prototype>
+        <prototype>function StringOfChar(C: Char; I : LongInt): String;</prototype>
         <description><p>Returns a string of length I with all characters set to character C.</p></description>
       </function>
       <function>
         <name>Delete</name>
-        <prototype>procedure Delete(var S: String; Index, Count: Integer);</prototype>
+        <prototype>procedure Delete(var S: AnyString; Index, Count: Integer);</prototype>
         <description><p>Removes a substring of Count characters from string S starting at S[Index].<br />If Index is larger than the length of S, no characters are deleted. If Count specifies more characters than remain starting at the S[Index], Delete removes the rest of the string.</p></description>
       </function>
       <function>
         <name>Insert</name>
-        <prototype>procedure Insert(Source: String; var Dest: String; Index: Integer);</prototype>
+        <prototype>procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer);</prototype>
         <description><p>Merges Source into Dest at the position Dest[Index].</p></description>
       </function>
       <function>
@@ -842,7 +850,7 @@ end;</pre></example>
       </function>
       <function>
         <name>Pos</name>
-        <prototype>function Pos(SubStr, S: String): Integer;</prototype>
+        <prototype>function Pos(SubStr, S: AnyString): Integer;</prototype>
         <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
       </function>
       <function>
@@ -864,22 +872,22 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CompareText</name>
-        <prototype>function CompareText(const S1, S2: string): Integer;</prototype>
+        <prototype>function CompareText(const S1, S2: String): Integer;</prototype>
         <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>CompareStr</name>
-        <prototype>function CompareStr(const S1, S2: string): Integer;</prototype>
+        <prototype>function CompareStr(const S1, S2: String): Integer;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
       </function>
       <function>
         <name>SameText</name>
-        <prototype>function SameText(const S1, S2: string): Boolean;</prototype>
-        <description><p>Compares the strings S1 and S2 and returns True if they are equal.  The SameText function is not case-sensitive.</p></description>
+        <prototype>function SameText(const S1, S2: String): Boolean;</prototype>
+        <description><p>Compares the strings S1 and S2 and returns True if they are equal. The SameText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>SameStr</name>
-        <prototype>function SameStr(const S1, S2: string): Boolan;</prototype>
+        <prototype>function SameStr(const S1, S2: String): Boolean;</prototype>
         <description><p>Compares S1 to S2, with case-sensitivity. The return value is True if they are equal.</p></description>
       </function>
       <function>
@@ -896,7 +904,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Format</name>
-        <prototype>function Format(const Format: string; const Args: array of const): string;</prototype>
+        <prototype>function Format(const Format: String; const Args: array of const): String;</prototype>
         <description><p>Formats the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
 <p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
         <example><pre>var
@@ -918,56 +926,100 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Trim</name>
-        <prototype>function Trim(const S: string): String;</prototype>
+        <prototype>function Trim(const S: AnyString): AnyString;</prototype>
         <description><p>Trims leading and trailing spaces and control characters from the given string S.</p></description>
       </function>
       <function>
         <name>TrimLeft</name>
-        <prototype>function TrimLeft(const S: string): String;</prototype>
+        <prototype>function TrimLeft(const S: String): String;</prototype>
         <description><p>Trims leading spaces and control characters from the given string S.</p></description>
       </function>
       <function>
         <name>TrimRight</name>
-        <prototype>function TrimRight(const S: string): String;</prototype>
+        <prototype>function TrimRight(const S: String): String;</prototype>
         <description><p>Trims trailing spaces and control characters from the given string S.</p></description>
+      </function>
+      <function>
+        <name>StringJoin</name>
+        <prototype>function StringJoin(const Separator: String; const Values: TArrayOfString): String;</prototype>
+        <description><p>Joins two or more strings together separated by the given separator.</p></description>
+        <example><pre>var
+  S: String;
+begin
+  S := StringJoin(',', ['1', '2']);
+  // S = '1,2'
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
+      </function>
+      <function>
+        <name>StringSplit</name>
+        <prototype>function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;</prototype>
+        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored.</p>
+<p>TSplitType is defined as:</p>
+<p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
+        <example><pre>var
+  A: array of String;
+begin
+  A := StringSplit('1,,2', [','], stExcludeEmpty);
+  // A = ['1','2']
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringJoin">StringJoin</link><br />
+<link topic="isxfunc_StringSplitEx">StringSplitEx</link></p></seealso>
+      </function>
+      <function>
+        <name>StringSplitEx</name>
+        <prototype>function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;</prototype>
+        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the Quote parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
+<p>TSplitType is defined as:</p>
+<p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
+        <example><pre>var
+  A: array of String;
+begin
+  A := StringSplitEx('1,",",2', [','], '"', stAll);
+  // A = ['1','","','2']
+end;
+</pre></example>
+        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>StrToIntDef</name>
-        <prototype>function StrToIntDef(s: string; def: Longint): Longint;</prototype>
+        <prototype>function StrToIntDef(S: String; Def: LongInt): LongInt;</prototype>
         <description><p>The StrToInt function converts the string passed in S into a number. If S does not represent a valid number, StrToInt returns the number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt</name>
-        <prototype>function StrToInt(s: string): Longint;</prototype>
+        <prototype>function StrToInt(S: String): LongInt;</prototype>
         <description><p>The StrToInt function converts the string passed in S into a number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToInt64Def</name>
-        <prototype>function StrToInt64Def(s: string; def: Int64): Int64;</prototype>
+        <prototype>function StrToInt64Def(S: String; Def: Int64): Int64;</prototype>
         <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
-        <prototype>function StrToInt64(s: string): Int64;</prototype>
+        <prototype>function StrToInt64(S: String): Int64;</prototype>
         <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToFloat</name>
-        <prototype>function StrToFloat(s: string): Extended;</prototype>
+        <prototype>function StrToFloat(S: String): Extended;</prototype>
         <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot.</p></description>
       </function>
       <function>
         <name>IntToStr</name>
-        <prototype>function IntToStr(i: Int64): String;</prototype>
+        <prototype>function IntToStr(I: Int64): String;</prototype>
         <description><p>The IntToStr function converts a 64-bit number into a string.</p></description>
       </function>
       <function>
         <name>FloatToStr</name>
-        <prototype>function FloatToStr(e: extended): String;</prototype>
+        <prototype>function FloatToStr(E: Extended): String;</prototype>
         <description><p>The FloatToStr function converts a floating point number into a string.</p><p>The character used for the decimal point will always be a dot.</p></description>
       </function>
     </subcategory>
@@ -1025,32 +1077,32 @@ end;</pre></example>
       </function>
       <function>
         <name>ChangeFileExt</name>
-        <prototype>function ChangeFileExt(const FileName, Extension: string): String;</prototype>
+        <prototype>function ChangeFileExt(const FileName, Extension: String): String;</prototype>
         <description><p>Takes the file name passed in FileName and changes the extension of the file name to the extension passed in Extension.</p></description>
       </function>
       <function>
         <name>ExtractFileExt</name>
-        <prototype>function ExtractFileExt(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileExt(const FileName: String): String;</prototype>
         <description><p>Extracts the extension part of the given file name. The resulting string includes the period character that separates the name and extension parts. The resulting string is empty if the given filename has no extension.</p></description>
       </function>
       <function>
         <name>ExtractFileDir</name>
-        <prototype>function ExtractFileDir(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFilePath</name>
-        <prototype>function ExtractFilePath(const FileName: string): String;</prototype>
+        <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFileName</name>
-        <prototype>function ExtractFileName(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileName(const FileName: String): String;</prototype>
         <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of FileName, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to FileName if FileName contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFileDrive</name>
-        <prototype>function ExtractFileDrive(const FileName: string): String;</prototype>
+        <prototype>function ExtractFileDrive(const FileName: String): String;</prototype>
         <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in the FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
       </function>
       <function>
@@ -1067,12 +1119,12 @@ end;</pre></example>
       </function>
       <function>
         <name>ExpandFileName</name>
-        <prototype>function ExpandFileName(const FileName: string): String;</prototype>
+        <prototype>function ExpandFileName(const FileName: String): String;</prototype>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
         <name>ExpandUNCFileName</name>
-        <prototype>function ExpandUNCFileName(const FileName: string): String;</prototype>
+        <prototype>function ExpandUNCFileName(const FileName: String): String;</prototype>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
     </subcategory>
@@ -1127,7 +1179,7 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
     <subcategory>
       <function>
         <name>SetLength</name>
-        <prototype>procedure SetLength(var S: String; L: Longint);</prototype>
+        <prototype>procedure SetLength(var S: AnyString; L: LongInt);</prototype>
         <description><p>Sets the length of a string.</p></description>
       </function>
       <function>
@@ -1139,6 +1191,16 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
         <name>OemToCharBuff</name>
         <prototype>procedure OemToCharBuff(var S: AnsiString);</prototype>
         <description><p>Translates a string with characters from the OEM-defined character set into an ANSI string.</p></description>
+      </function>
+      <function>
+        <name>Utf8Encode</name>
+        <prototype>function Utf8Encode(const S: String): AnsiString;</prototype>
+        <description><p>Encodes a Unicode string into a UTF-8 encoded ANSI string.</p></description>
+      </function>
+      <function>
+        <name>Utf8Decode</name>
+        <prototype>function Utf8Decode(const S: AnsiString): String;</prototype>
+        <description><p>Decodes a UTF-8 encoded ANSI string into a Unicode string.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1198,7 +1260,7 @@ end;
   SHA256: String;
 begin
   SHA256 := GetSHA256OfString('Test');
-  // SHA256 = '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+  // SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'
 end;
 </pre></example>
       </function>
@@ -1210,7 +1272,7 @@ end;
   SHA256: String;
 begin
   SHA256 := GetSHA256OfUnicodeString('Test');
-  // SHA256 = 'fe520676b1a1d93dabab2319eea03674f3632eaeeb163d1e88244f5eb1de10eb'
+  // SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'
 end;
 </pre></example>
       </function>
@@ -1238,12 +1300,12 @@ end;
     <subcategory>
       <function>
         <name>GetArrayLength</name>
-        <prototype>function GetArrayLength(var Arr: Array): Longint;</prototype>
+        <prototype>function GetArrayLength(var Arr: Array): LongInt;</prototype>
         <description><p>Gets the length of an array.</p></description>
       </function>
       <function>
         <name>SetArrayLength</name>
-        <prototype>procedure SetArrayLength(var Arr: Array; I: Longint);</prototype>
+        <prototype>procedure SetArrayLength(var Arr: Array; I: LongInt);</prototype>
         <description><p>Sets the length of an array. Always call SetArrayLength before accessing the elements in an array.</p></description>
       </function>
     </subcategory>
@@ -1290,7 +1352,7 @@ end;
 const
   varEmpty    = $0000;
   varNull     = $0001;
-  varSmallint = $0002;
+  varSmallInt = $0002;
   varInteger  = $0003;
   varSingle   = $0004;
   varDouble   = $0005;
@@ -1303,12 +1365,28 @@ const
   varVariant  = $000C;
   varUnknown  = $000D;
   varByte     = $0011;
+  varWord     = $0012;
+  varLongWord = $0013;
+  varInt64    = $0014;
+  varStrArg   = $0048;
   varString   = $0100;
+  varAny      = $0101;
+  varUString  = $0102;
   varTypeMask = $0FFF;
   varArray    = $2000;
   varByRef    = $4000;
 </pre>
 </description>
+      </function>
+      <function>
+        <name>VarArrayGet</name>
+        <prototype>function VarArrayGet(var S: Variant; I: Integer): Variant;</prototype>
+        <description><p>Returns the specified element of the specified variant array.</p></description>
+      </function>
+      <function>
+        <name>VarArraySet</name>
+        <prototype>procedure VarArraySet(C: Variant; I: Integer; var S: Variant);</prototype>
+        <description><p>Sets the specified element of the specified variant array.</p></description>
       </function>
     </subcategory>
   </category>
@@ -1387,7 +1465,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>FileSearch</name>
-        <prototype>function FileSearch(const Name, DirList: string): String;</prototype>
+        <prototype>function FileSearch(const Name, DirList: String): String;</prototype>
         <description><p>Searches through the directories passed in DirList for a file named Name. DirList should be directory names separated by semicolons. If FileSearch locates a file matching Name, it returns a string containing a fully-qualified path name for that file. If no matching file exists, FileSearch returns an empty string.</p></description>
       </function>
       <function>
@@ -1481,7 +1559,7 @@ end;</pre></example>
       </function>
       <function>
         <name>SetCurrentDir</name>
-        <prototype>function SetCurrentDir(const Dir: string): Boolean;</prototype>
+        <prototype>function SetCurrentDir(const Dir: String): Boolean;</prototype>
         <description><p>Sets the current directory. The return value is True if the current directory was successfully changed, or False if an error occurred.</p></description>
       </function>
       <function>
@@ -1600,7 +1678,7 @@ begin
     // directory is launched.
     OldState := EnableFsRedirection(False);
     try
-      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOW,
+      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL,
         ewWaitUntilTerminated, ResultCode);
     finally
       // Restore the previous redirection state.
@@ -1626,12 +1704,14 @@ end;</pre></example>
 <p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
 <p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
 <p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p></remarks>
+<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p>
+<p>Can't be used to execute Setup itself until the installation has started.</p>
+<p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
         <example><pre>var
   ResultCode: Integer;
 begin
   // Launch Notepad and wait for it to terminate
-  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOW,
+  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOWNORMAL,
      ewWaitUntilTerminated, ResultCode) then
   begin
     // handle success if necessary; ResultCode contains the exit code
@@ -1640,7 +1720,9 @@ begin
     // handle failure if necessary; ResultCode contains the error code
   end;
 end;</pre></example>
-        <seealso><p><link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
+<link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
       </function>
       <function>
         <name>ExecAsOriginalUser</name>
@@ -1656,12 +1738,13 @@ end;</pre></example>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
+<p>Can't be used to execute Setup itself until the installation has started.</p></remarks>
         <example><pre>var
   ErrorCode: Integer;
 begin
   if not ShellExec('', ExpandConstant('{app}\filename.rtf'),
-     '', '', SW_SHOW, ewNoWait, ErrorCode) then
+     '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode) then
   begin
     // handle failure if necessary
   end;
@@ -1749,17 +1832,20 @@ end;</pre></example>
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
-<p>For basic authentication use a special URL format like this: http://username:password@example.com/</p>
+<p>For basic authentication use <link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link>.</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
-<p><tt>TOnDownloadProgress = function(const Url, FileName: string; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
-        <seealso><p><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
+<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
+<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link></p></seealso>
         <example><pre>
 [Code]
-function OnDownloadProgress(const Url, Filename: string; const Progress, ProgressMax: Int64): Boolean;
+function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
 begin
   if ProgressMax &lt;&gt; 0 then
     Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
@@ -1771,8 +1857,8 @@ end;
 function InitializeSetup: Boolean;
 begin
   try
-    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe', 'innosetup-latest.exe', '', @OnDownloadProgress);
-    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe?dontcount=1', 'innosetup-latest.exe', '', @OnDownloadProgress);
+    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
     Result := True;
   except
     Log(GetExceptionMessage);
@@ -1782,27 +1868,70 @@ end;</pre>
 <p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
       </function>
       <function>
+        <name>SetDownloadCredentials</name>
+        <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
+        <description><p>Sets username and password for all following downloads. Set an empty string to delete the previous setting.</p>
+<seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/><link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso></description>
+      </function>
+      <function>
         <name>DownloadTemporaryFileSize</name>
         <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
-        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the file size, -1 will be returned.</p>
+        <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the size, -1 will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+      </function>
+      <function>
+        <name>DownloadTemporaryFileDate</name>
+        <prototype>function DownloadTemporaryFileDate(const Url): String;</prototype>
+        <description><p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the last modified file date, '' will be returned.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+      </function>
+      <function>
+        <name>Extract7ZipArchive</name>
+        <prototype>procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
+        <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names.</p>
+<p>An exception will be raised if there was an error.</p>
+<p>The archive must not be encrypted.</p>
+<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+        <remarks><p>TOnExtractionProgress is defined as:</p>
+<p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
+<p>Return True to allow the extraction to continue, False otherwise.</p>
+<p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
+<p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
+<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
+-It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
+-It does not support PPMd and BZip2 methods.<br />
+-It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.<br />
+-It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</p>
+<p>Additionally he wrote:<br /><br />
+You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
+7z.exe a archive.7z *.htm -r -mx -m0fb=255<br /><br />
+If you have big number of files in archive, and you need fast extracting, you can use partly-solid archives:<br /><br />
+7za.exe a archive.7z *.htm -ms=512K -r -mx -m0fb=255 -m0d=512K<br /><br />
+In that example 7-Zip will use 512KB solid blocks. So it needs to decompress only 512KB for extracting one file from such archive.</p></remarks>
+        <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
+<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>RenameFile</name>
-        <prototype>function RenameFile(const OldName, NewName: string): Boolean;</prototype>
+        <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+        <remarks><p>Can't be used to rename Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
-        <name>FileCopy</name>
-        <prototype>function FileCopy(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
+        <name>CopyFile</name>
+        <prototype>function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
         <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Can't be used to copy Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
         <name>DeleteFile</name>
-        <prototype>function DeleteFile(const FileName: string): Boolean;</prototype>
+        <prototype>function DeleteFile(const FileName: String): Boolean;</prototype>
         <description><p>Erases the file named by FileName from the disk.<br />If the file cannot be deleted or does not exist, the function returns False.</p></description>
       </function>
       <function>
@@ -1822,47 +1951,72 @@ end;</pre>
         <name>LoadStringFromFile</name>
         <prototype>function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
         <description><p>Loads the specified binary or non Unicode text file into the specified string. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Use <link topic="isxfunc_LoadStringFromLockedFile">LoadStringFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
+      </function>
+      <function>
+        <name>LoadStringFromLockedFile</name>
+        <prototype>function LoadStringFromLockedFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
+        <description><p>Loads the specified binary or non Unicode text file into the specified string, even if the file is already opened for writing by another program. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
       </function>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
-        <description><p>Loads the specified text file into the specified string array. Returns True if successful, False otherwise.</p></description>
+        <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>Use <link topic="isxfunc_LoadStringsFromLockedFile">LoadStringsFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
+      </function>
+      <function>
+        <name>LoadStringsFromLockedFile</name>
+        <prototype>function LoadStringsFromLockedFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
+        <description><p>Loads the specified text file into the specified string array, even if the file is already opened for writing by another program. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
       </function>
       <function>
         <name>SaveStringToFile</name>
         <prototype>function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string to the specified file. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and after your string:</p>
+        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and/or after your string:</p>
 <p><tt>SaveStringToFile('c:\filename.txt', #13#10 + 'the string' + #13#10, True);</tt></p></remarks>
       </function>
       <function>
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
+        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link><br />
+<link topic="isxfunc_SaveStringsToUTF8FileWithoutBOM">SaveStringsToUTF8FileWithoutBOM</link></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF8 encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link></p></seealso>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
+<link topic="isxfunc_SaveStringsToUTF8FileWithoutBOM">SaveStringsToUTF8FileWithoutBOM</link></p></seealso>
+      </function>
+      <function>
+        <name>SaveStringsToUTF8FileWithoutBOM</name>
+        <prototype>function SaveStringsToUTF8FileWithoutBOM(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
+<link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>CreateDir</name>
-        <prototype>function CreateDir(const Dir: string): Boolean;</prototype>
+        <prototype>function CreateDir(const Dir: String): Boolean;</prototype>
         <description><p>Creates a new directory. The return value is True if a new directory was successfully created, or False if an error occurred.</p></description>
       </function>
       <function>
         <name>ForceDirectories</name>
-        <prototype>function ForceDirectories(Dir: string): Boolean;</prototype>
+        <prototype>function ForceDirectories(Dir: String): Boolean;</prototype>
         <description><p>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>RemoveDir</name>
-        <prototype>function RemoveDir(const Dir: string): Boolean;</prototype>
-        <description><p>Deletes an existing empty directory. The return value is True if a new directory was successfully deleted, or False if an error occurred.</p></description>
+        <prototype>function RemoveDir(const Dir: String): Boolean;</prototype>
+        <description><p>Deletes an existing empty directory. The return value is True if the empty directory was successfully deleted, or False if an error occurred.</p></description>
       </function>
       <function>
         <name>DelTree</name>
@@ -1987,55 +2141,91 @@ end;</pre>
       <function>
         <name>GetVersionNumbers</name>
         <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file.</p></description>
+        <description><p>Gets the version numbers of the specified file. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
+      </function>
+      <function>
+        <name>GetVersionComponents</name>
+        <prototype>function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;</prototype>
+        <description><p>Gets the individual version components of the specified file. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
       <function>
         <name>GetVersionNumbersString</name>
         <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
-        <description><p>Gets the file version numbers of the specified file, as a string.</p></description>
+        <description><p>Gets the version of the specified file as a string (in "0.0.0.0" format). Returns True if successful, False otherwise.</p></description>
+      </function>
+      <function>
+        <name>GetPackedVersion</name>
+        <prototype>function GetPackedVersion(const Filename: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Gets the packed version of the specified file. Returns True if successful, False otherwise.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>PackVersionNumbers</name>
         <prototype>function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;</prototype>
-        <description><p>Packs version numbers (from <link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link>, ISPP's <tt>PackVersionComponents</tt>, or similar) into a single value.</p></description>
-        <remarks><p>You can directly compare two packed version numbers with the normal comparison operators (<tt>=</tt>, <tt>&lt;&gt;</tt>, <tt>&lt;</tt>, and <tt>&gt;</tt>).</p></remarks>
-        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
-<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
-<link topic="isxfunc_VersionToStr">VersionToStr</link></p></seealso>
+        <description><p>Packs version numbers into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
       </function>
       <function>
         <name>PackVersionComponents</name>
         <prototype>function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;</prototype>
-        <description><p>Packs individual version components (from ISPP's <tt>ParseVersion</tt> or similar) into a single value.</p></description>
-        <remarks><p>You can directly compare two packed version numbers with the normal comparison operators (<tt>=</tt>, <tt>&lt;&gt;</tt>, <tt>&lt;</tt>, and <tt>&gt;</tt>).</p></remarks>
-        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+        <description><p>Packs individual version components into a single value.</p>
+<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
+        <seealso><p><link topic="isxfunc_GetVersionComponents">GetVersionComponents</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ComparePackedVersion</name>
+        <prototype>function ComparePackedVersion(const Version1, Version2: Int64): Integer;</prototype>
+        <description><p>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</p></description>
+      </function>
+      <function>
+        <name>SamePackedVersion</name>
+        <prototype>function SamePackedVersion(const Version1, Version2: Int64): Boolean;</prototype>
+        <description><p>Compares the packed versions Version1 and Version2 and returns True if they are equal.</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>UnpackVersionNumbers</name>
         <prototype>procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);</prototype>
-        <description><p>Unpacks a packed version (for example, from <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link>) into MS/LS numbers compatible with <link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link>.</p></description>
-        <seealso><p><link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+        <description><p>Unpacks a packed version into version numbers.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
       </function>
       <function>
         <name>UnpackVersionComponents</name>
         <prototype>procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);</prototype>
-        <description><p>Unpacks a packed version (for example, from <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link>) into individual version components, suitable for display.</p></description>
-        <seealso><p><link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
+        <description><p>Unpacks a packed version into individual version components.</p></description>
+        <seealso><p><link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>VersionToStr</name>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
-        <description><p>Gets the string (in "0.0.0.0" format) representing the given packed version.</p></description>
-        <remarks><p>This is intended mainly for logging/debugging purposes; when displaying versions to the user you should prefer using the version text resource directly rather than formatting the numeric version, as the application's preferred version formatting may be different from the default.</p></remarks>
-        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
+        <description><p>Returns the specified packed version as a string (in "0.0.0.0" format).</p></description>
+        <seealso><p><link topic="isxfunc_StrToVersion">StrToVersion</link><br />
+<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
+<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+      </function>
+      <function>
+        <name>StrToVersion</name>
+        <prototype>function StrToVersion(const Version: String; var Version: Int64): Boolean;</prototype>
+        <description><p>Returns the specified string (in "0.0.0.0" format) as a packed version. Returns True if successful, False otherwise.</p></description>
+        <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
+<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
       </function>
     </subcategory>
@@ -2073,14 +2263,11 @@ end;</pre></example>
         <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
-  I: Integer;
   S: String;
 begin
   if RegGetSubkeyNames(HKEY_CURRENT_USER, 'Control Panel', Names) then
   begin
-    S := '';
-    for I := 0 to GetArrayLength(Names)-1 do
-      S := S + Names[I] + #13#10;
+    S := StringJoin(#13#10, Names);
     MsgBox('List of subkeys:'#13#10#13#10 + S, mbInformation, MB_OK);
   end else
   begin
@@ -2094,14 +2281,11 @@ end;</pre></example>
         <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
-  I: Integer;
   S: String;
 begin
   if RegGetValueNames(HKEY_CURRENT_USER, 'Control Panel\Mouse', Names) then
   begin
-    S := '';
-    for I := 0 to GetArrayLength(Names)-1 do
-      S := S + Names[I] + #13#10;
+    S := StringJoin(#13#10, Names);
     MsgBox('List of values:'#13#10#13#10 + S, mbInformation, MB_OK);
   end else
   begin
@@ -2243,8 +2427,8 @@ end;</pre></example>
       </function>
       <function>
         <name>GetIniInt</name>
-        <prototype>function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;</prototype>
-        <description><p>Reads a Longint from an INI file. If the Longint read is not between Min/Max then it returns Default. If Min=Max then Min/Max are ignored.</p></description>
+        <prototype>function GetIniInt(const Section, Key: String; const Default, Min, Max: LongInt; const Filename: String): LongInt;</prototype>
+        <description><p>Reads a LongInt from an INI file. If the LongInt read is not between Min/Max then it returns Default. If Min=Max then Min/Max are ignored.</p></description>
       </function>
       <function>
         <name>GetIniString</name>
@@ -2260,8 +2444,8 @@ end;</pre></example>
       </function>
       <function>
         <name>SetIniInt</name>
-        <prototype>function SetIniInt(const Section, Key: String; const Value: Longint; const Filename: String): Boolean;</prototype>
-        <description><p>Writes a Longint to an INI file.</p></description>
+        <prototype>function SetIniInt(const Section, Key: String; const Value: LongInt; const Filename: String): Boolean;</prototype>
+        <description><p>Writes a LongInt to an INI file.</p></description>
       </function>
       <function>
         <name>SetIniString</name>
@@ -2366,7 +2550,7 @@ Page := CreateInputDirPage(wpWelcome,
   'Select Personal Data Location', 'Where should personal data files be stored?',
   'Personal data files will be stored in the following folder.'#13#10#13#10 +
   'To continue, click Next. If you would like to select a different folder, click Browse.',
-  False, 'New Folder');
+  False, SetupMessage(msgNewFolderName));
 
 // Add item (with an empty caption)
 Page.Add('');
@@ -2458,10 +2642,19 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
-<p>To display or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.
-</p></remarks>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></p></seealso>
+<p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
+        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scrips in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
+<link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link></p></seealso>
+      </function>
+      <function>
+        <name>CreateOutputMarqueeProgressPage</name>
+        <prototype>function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;</prototype>
+        <description><p>Creates a wizard page containing static text as well as a marquee progress bar.</p>
+<p>See <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link> for information on how to work with progress pages.</p></description>
+        <remarks><p>To animate the progress bar, call the <tt>Animate</tt> method. Do not call the <tt>SetProgress</tt> method, it will raise an internal error.</p></remarks>
+        <example><p>See <i>AllPagesExample.iss</i> for an example.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></p></seealso>
       </function>
       <function>
         <name>CreateDownloadPage</name>
@@ -2473,6 +2666,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
+<p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
@@ -2480,10 +2674,27 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>
+        <name>CreateExtractionPage</name>
+        <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): ExtractionWizardPage;</prototype>
+        <description><p>Creates a wizard page to extract 7-Zip archives and show progress.</p>
+<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
+        <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>To add a new archive to extract, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
+<p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
+<p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
+<p>See <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link> for other considerations and the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p></example>
+        <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
+<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link><br />
+<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
+      </function>
+      <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
         <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> for examples.</p></example>
+        <example><p>See <i>CodeClasses.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
     </subcategory>
@@ -2531,6 +2742,31 @@ end;</pre></example>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
         <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then Y is returned unchanged.</p></description>
+      </function>
+      <function>
+        <name>InitializeBitmapImageFromIcon</name>
+        <prototype>function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
+        <description><p>Initializes the given bitmap image with an icon from the given icon file using the given background color for transparent parts.</p>
+<p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
+<p>The array must be sorted already from smallest to highest size.</p>
+<p>Returns True if the icon could be loaded, False otherwise.</p></description>
+        <example><pre>procedure InitializeWizard;
+var
+  Page: TWizardPage;
+  BitmapImage: TBitmapImage;
+begin
+  Page := CreateCustomPage(wpWelcome, 'Test', 'Test');
+
+  BitmapImage := TBitmapImage.Create(Page);
+  
+  with BitmapImage do begin
+    Width := ScaleX(32);
+    Height := ScaleY(32);
+    Parent := Page.Surface;
+  end;
+
+  InitializeBitmapImageFromIcon(BitmapImage, 'MyProg.ico', Page.SurfaceColor, [32, 48, 64]);
+end;</pre></example>
       </function>
     </subcategory>
   </category>
@@ -2687,12 +2923,12 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CreateOleObject</name>
-        <prototype>function CreateOleObject(const ClassName: string): Variant;</prototype>
+        <prototype>function CreateOleObject(const ClassName: String): Variant;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>GetActiveOleObject</name>
-        <prototype>function GetActiveOleObject(const ClassName: string): Variant;</prototype>
+        <prototype>function GetActiveOleObject(const ClassName: String): Variant;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
@@ -2742,8 +2978,84 @@ end;</pre></example>
       <function>
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
-        <description><p>Logs the specified string in Setup's log file.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive.</p></remarks>
+        <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
+      </function>
+<function>
+        <name>ExecAndCaptureOutput</name>
+        <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
+        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+<p>Program output from the stdout and stderr streams is captured. This is different from <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> which merges the streams.</p>
+<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
+        <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
+<p>TExecOutput is defined as:</p>
+<pre>
+  TExecOutput = record
+    StdOut: TArrayOfString;
+    StdErr: TArrayOfString;
+    Error: Boolean;
+  end;
+</pre>
+<p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
+        <example><pre>var
+  ResultCode: Integer;
+  Output: TExecOutput;
+begin
+  try
+    // Get the system configuration
+    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/c systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+  except
+    Result := False;
+    Log(GetExceptionMessage);
+  end;
+
+  if Result then begin
+    // Do something with the Output.StdOut array of string
+  end;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link></p></seealso>
+      </function>
+      <function>
+        <name>ExecAndLogOutput</name>
+        <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
+        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
+<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
+<p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
+        <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
+<p>TOnLog is defined as:</p>
+<p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
+<p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
+<p>Error will be True if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
+<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
+        <example><pre>var
+  Line: String;
+
+procedure ExecAndGetFirstLineLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error and (Line = '') and (Trim(S) &lt;&gt; '') then
+    Line := S; { First non-empty line found, store it }
+  if FirstLine then
+    Log('Output:');
+  Log(S);
+end;
+
+function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
+begin
+  Line := '';
+  try
+    ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
+  except
+    Log(GetExceptionMessage);
+  end;
+  Result := Line;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
+<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -2791,20 +3103,20 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>LoadDLL</name>
-        <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): Longint;</prototype>
+        <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): LongInt;</prototype>
         <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
-        <prototype>function CallDLLProc(const DLLHandle: Longint; const ProcName: String; const Param1, Param2: Longint; var Result: Longint): Boolean;</prototype>
+        <prototype>function CallDLLProc(const DLLHandle: LongInt; const ProcName: String; const Param1, Param2: LongInt; var Result: LongInt): Boolean;</prototype>
         <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True is the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two 4 byte integer parameters and return a 4 byte integer result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>FreeDLL</name>
-        <prototype>function FreeDLL(const DLLHandle: Longint): Boolean;</prototype>
+        <prototype>function FreeDLL(const DLLHandle: LongInt): Boolean;</prototype>
         <description><p>Unloads a DLL specified using the DLL handle returned by LoadDLL.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
@@ -2812,13 +3124,13 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CastStringToInteger</name>
-        <prototype>function CastStringToInteger(var S: String): Longint;</prototype>
+        <prototype>function CastStringToInteger(var S: String): LongInt;</prototype>
         <description><p>Casts a string to an integer so that a string can be passed to a DLL using CallDllProc.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>CastIntegerToString</name>
-        <prototype>function CastIntegerToString(const L: Longint): String;</prototype>
+        <prototype>function CastIntegerToString(const L: LongInt): String;</prototype>
         <description><p>Casts an integer to a string so that a string can be received from a DLL using CallDllProc.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
@@ -2827,20 +3139,8 @@ end;</pre></example>
 </isxfunc>
 <isxenum>
   <enum>
-     <description>CurStep values</description>
-     <values>ssInstall, ssPostInstall, ssDone</values>
-  </enum>
-  <enum>
-     <description>CurPage values</description>
-     <values>wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</values>
-  </enum>
-  <enum>
      <description>Exec and ShellExec - ShowCmd values</description>
      <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
-  </enum>
-  <enum>
-     <description>TMsgBoxType</description>
-     <values>mbInformation, mbConfirmation, mbError, mbCriticalError</values>
   </enum>
   <enum>
      <description>MsgBox - Buttons flags</description>
@@ -2853,18 +3153,6 @@ end;</pre></example>
   <enum>
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
-  </enum>
-  <enum>
-     <description>TShellFolderID</description>
-     <values>sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo, sfFonts, sfAppData, sfDocs, sfTemplates, sfFavorites, sfLocalAppData</values>
-  </enum>
-  <enum>
-     <description>TSetupMessageID</description>
-     <values>Use 'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></values>
-  </enum>
-  <enum>
-     <description>TShouldProcessEntryResult</description>
-     <values>srNo, srYes, srUnknown</values>
   </enum>
 </isxenum>
 </isxhelp>

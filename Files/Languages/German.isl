@@ -1,6 +1,6 @@
 ﻿; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.0.3+ German messages      ***
+; *** Inno Setup version 6.1.0+ German messages      ***
 ; ***                                                ***
 ; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
@@ -20,6 +20,9 @@
 ; ******************************************************
 ;
 ; Diese Übersetzung hält sich an die neue deutsche Rechtschreibung.
+
+; To download user-contributed translations of this file, go to:
+; https://jrsoftware.org/files/istrans/
 
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -78,8 +81,8 @@ WinVersionTooLowError=Dieses Programm benötigt %1 Version %2 oder höher.
 WinVersionTooHighError=Dieses Programm kann nicht unter %1 Version %2 oder höher installiert werden.
 AdminPrivilegesRequired=Sie müssen als Administrator angemeldet sein, um dieses Programm installieren zu können.
 PowerUserPrivilegesRequired=Sie müssen als Administrator oder als Mitglied der Hauptbenutzer-Gruppe angemeldet sein, um dieses Programm installieren zu können.
-SetupAppRunningError=Das Setup hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
-UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zur Zeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+SetupAppRunningError=Das Setup hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
+UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
@@ -228,6 +231,18 @@ ReadyMemoComponents=Ausgewählte Komponenten:
 ReadyMemoGroup=Startmenü-Ordner:
 ReadyMemoTasks=Zusätzliche Aufgaben:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Lade zusätzliche Dateien herunter...
+ButtonStopDownload=Download &abbrechen
+StopDownload=Sind Sie sicher, dass Sie den Download abbrechen wollen?
+ErrorDownloadAborted=Download abgebrochen
+ErrorDownloadFailed=Download fehlgeschlagen: %1 %2
+ErrorDownloadSizeFailed=Fehler beim Ermitteln der Größe: %1 %2
+ErrorFileHash1=Fehler beim Ermitteln der Datei-Prüfsumme: %1
+ErrorFileHash2=Ungültige Datei-Prüfsumme: erwartet %1, gefunden %2
+ErrorProgress=Ungültiger Fortschritt: %1 von %2
+ErrorFileSize=Ungültige Dateigröße: erwartet %1, gefunden %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Vorbereitung der Installation
 PreparingDesc=Das Setup bereitet die Installation von [name] auf diesem Computer vor.
@@ -310,8 +325,16 @@ ExistingFileReadOnly2=Die vorhandene Datei kann nicht ersetzt werden, da sie sch
 ExistingFileReadOnlyRetry=&Den Schreibschutz entfernen und noch einmal versuchen
 ExistingFileReadOnlyKeepExisting=Die &vorhandene Datei behalten
 ErrorReadingExistingDest=Lesefehler in Datei:
-FileExists=Die Datei ist bereits vorhanden.%n%nSoll sie überschrieben werden?
-ExistingFileNewer=Die vorhandene Datei ist neuer als die Datei, die installiert werden soll. Es wird empfohlen, die vorhandene Datei beizubehalten.%n%n Möchten Sie die vorhandene Datei beibehalten?
+FileExistsSelectAction=Aktion auswählen
+FileExists2=Die Datei ist bereits vorhanden.
+FileExistsOverwriteExisting=Vorhandene Datei &überschreiben
+FileExistsKeepExisting=Vorhandene Datei &behalten
+FileExistsOverwriteOrKeepAll=&Dies auch für die nächsten Konflikte ausführen
+ExistingFileNewerSelectAction=Aktion auswählen
+ExistingFileNewer2=Die vorhandene Datei ist neuer als die Datei, die installiert werden soll.
+ExistingFileNewerOverwriteExisting=Vorhandene Datei &überschreiben
+ExistingFileNewerKeepExisting=Vorhandene Datei &behalten (empfohlen)
+ExistingFileNewerOverwriteOrKeepAll=&Dies auch für die nächsten Konflikte ausführen
 ErrorChangingAttr=Fehler beim Ändern der Datei-Attribute:
 ErrorCreatingTemp=Fehler beim Erstellen einer Datei im Ziel-Ordner:
 ErrorReadingSource=Fehler beim Lesen der Quelldatei:
@@ -378,6 +401,6 @@ LaunchProgram=%1 starten
 AssocFileExtension=&Registriere %1 mit der %2-Dateierweiterung
 AssocingFileExtension=%1 wird mit der %2-Dateierweiterung registriert...
 AutoStartProgramGroupDescription=Beginn des Setups:
-AutoStartProgram=Starte automatisch%1
+AutoStartProgram=Starte automatisch %1
 AddonHostProgramNotFound=%1 konnte im ausgewählten Ordner nicht gefunden werden.%n%nMöchten Sie dennoch fortfahren?
 

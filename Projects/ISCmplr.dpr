@@ -2,41 +2,61 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler DLL
 }
 
+uses
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
+  SysUtils,
+  Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  Shared.PreprocInt in 'Src\Shared.PreprocInt.pas',
+  Compiler.Compile in 'Src\Compiler.Compile.pas',
+  Compiler.SetupCompiler in 'Src\Compiler.SetupCompiler.pas',
+  Compiler.Messages in 'Src\Compiler.Messages.pas',
+  Compiler.StringLists in 'Src\Compiler.StringLists.pas',
+  Compiler.CompressionHandler in 'Src\Compiler.CompressionHandler.pas',
+  Compiler.HelperFunc in 'Src\Compiler.HelperFunc.pas',
+  Compiler.BuiltinPreproc in 'Src\Compiler.BuiltinPreproc.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
+  Compiler.ScriptFunc in 'Src\Compiler.ScriptFunc.pas',
+  Compiler.ScriptCompiler in 'Src\Compiler.ScriptCompiler.pas',
+  Compiler.ScriptClasses in 'Src\Compiler.ScriptClasses.pas',
+  Shared.ResUpdateFunc in 'Src\Shared.ResUpdateFunc.pas',
+  Compiler.ExeUpdateFunc in 'Src\Compiler.ExeUpdateFunc.pas',
+  Compression.Base in 'Src\Compression.Base.pas',
+  Compression.Zlib in 'Src\Compression.Zlib.pas',
+  Compression.bzlib in 'Src\Compression.bzlib.pas',
+  Compression.LZMACompressor in 'Src\Compression.LZMACompressor.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
+  Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
+  Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
+  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
+  SimpleExpression in '..\Components\SimpleExpression.pas',
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas';
+
 {$IMAGEBASE $00800000}
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-uses
-  SafeDLLPath in 'SafeDLLPath.pas',
-  SysUtils,
-  CompInt in 'CompInt.pas',
-  CompPreprocInt in 'CompPreprocInt.pas',
-  Compile in 'Compile.pas',
-  CompMsgs in 'CompMsgs.pas',
-  Struct in 'Struct.pas',
-  ScriptFunc in 'ScriptFunc.pas',
-  ScriptFunc_C in 'ScriptFunc_C.pas',
-  ScriptCompiler in 'ScriptCompiler.pas',
-  ScriptClasses_C in 'ScriptClasses_C.pas',
-  ResUpdate in 'ResUpdate.pas',
-  CompResUpdate in 'CompResUpdate.pas',
-  Compress in 'Compress.pas',
-  CompressZlib in 'CompressZlib.pas',
-  bzlib in 'bzlib.pas',
-  LZMA in 'LZMA.pas',
-  FileClass in 'FileClass.pas',
-  ArcFour in 'ArcFour.pas',
-  VerInfo in 'VerInfo.pas';
-
-{$R *.RES}
+{$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.version.res}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
 stdcall;
@@ -44,7 +64,6 @@ begin
   Result := ISCompileScript(Params, False);
 end;
 
-{$IFDEF UNICODE}
 type
   PWrapperData = ^TWrapperData;
   TWrapperData = record
@@ -52,6 +71,7 @@ type
     LastLineRead: String;
   end;
 
+{ Does not support iscbNotifyPreproc }
 function WrapperCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer;
 stdcall;
@@ -142,7 +162,6 @@ begin
     FreeMem(WrapperParams);
   end;
 end;
-{$ENDIF}
 
 function ISDllGetVersion: PCompilerVersionInfo; stdcall;
 begin
@@ -150,10 +169,8 @@ begin
 end;
 
 exports
-  ISDllCompileScript{$IFDEF UNICODE} name 'ISDllCompileScriptW'{$ENDIF},
-{$IFDEF UNICODE}
+  ISDllCompileScript name 'ISDllCompileScriptW',
   ISDllCompileScriptA name 'ISDllCompileScript',
-{$ENDIF}
   ISDllGetVersion;
 
 begin

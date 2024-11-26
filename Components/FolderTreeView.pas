@@ -2,7 +2,7 @@ unit FolderTreeView;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,7 +24,6 @@ type
   private
     FDestroyingHandle: Boolean;
     FDirectory: String;
-    FFriendlyTree: Boolean;
     FItemExpanding: Boolean;
     FOnChange: TNotifyEvent;
     FOnRename: TFolderRenameEvent;
@@ -135,7 +134,7 @@ implementation
 }
 
 uses
-  PathFunc, ShellApi, UxTheme, Types;
+  PathFunc, ShellApi, NewUxTheme, Types;
 
 const
   SHPPFW_NONE = $00000000;
@@ -329,34 +328,6 @@ begin
   end;
 end;
 
-function UseFriendlyTree: Boolean;
-{ Returns True if running Windows XP or 2003 and the "Display simple folder
-  view" option in Explorer is enabled (by default, it is).
-  Note: Windows Vista also has this option, but regardless of how it is set,
-  folders never expand with a single click in Explorer. So on Vista and later,
-  False is always returned. }
-var
-  Ver: Word;
-  K: HKEY;
-  Typ, Value, Size: DWORD;
-begin
-  Ver := Word(GetVersion);
-  if (Lo(Ver) = 5) and (Hi(Ver) >= 1) then begin
-    Result := True;
-    if RegOpenKeyEx(HKEY_CURRENT_USER,
-       'Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced',
-       0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      Size := SizeOf(Value);
-      if (RegQueryValueEx(K, 'FriendlyTree', nil, @Typ, @Value, @Size) = ERROR_SUCCESS) and
-         (Typ = REG_DWORD) and (Size = SizeOf(Value)) then
-        Result := (Value <> 0);
-      RegCloseKey(K);
-    end;
-  end
-  else
-    Result := False;
-end;
-
 { TCustomFolderTreeView }
 
 type
@@ -377,8 +348,6 @@ begin
   Height := 97;
   ParentColor := False;
   TabStop := True;
-  if Lo(GetVersion) < 6 then
-    Cursor := crArrow;  { prevent hand cursor from appearing in TVS_TRACKSELECT mode }
   if SystemParametersInfo(SPI_GETICONTITLELOGFONT, SizeOf(LogFont), @LogFont, 0) then
     Font.Handle := CreateFontIndirect(LogFont);
 end;
@@ -394,15 +363,7 @@ begin
   with Params do begin
     Style := Style or WS_CLIPCHILDREN or WS_CLIPSIBLINGS or TVS_LINESATROOT or
       TVS_HASBUTTONS or TVS_SHOWSELALWAYS or TVS_EDITLABELS;
-    FFriendlyTree := UseFriendlyTree;
-    if FFriendlyTree then
-      Style := Style or TVS_TRACKSELECT or TVS_SINGLEEXPAND
-    else begin
-      if Lo(GetVersion) >= 6 then
-        Style := Style or TVS_TRACKSELECT
-      else
-        Style := Style or TVS_HASLINES;
-    end;
+    Style := Style or TVS_TRACKSELECT;
     ExStyle := ExStyle or WS_EX_CLIENTEDGE;
     WindowClass.style := WindowClass.style and not (CS_HREDRAW or CS_VREDRAW);
   end;
@@ -420,8 +381,8 @@ begin
   if csDesigning in ComponentState then
     Exit;
 
-  { On Vista, enable the new Explorer-style look }
-  if (Lo(GetVersion) >= 6) and Assigned(SetWindowTheme) then begin
+  { Enable the new Explorer-style look }
+  if Assigned(SetWindowTheme) then begin
     SetWindowTheme(Handle, 'Explorer', nil);
     { Like Explorer, enable double buffering to avoid flicker when the mouse
       is moved across the items }
@@ -489,7 +450,7 @@ end;
 
 procedure TCustomFolderTreeView.WMEraseBkgnd(var Message: TWMEraseBkgnd);
 begin
-  { For TVS_EX_DOUBLEBUFFER to be truly flicker-free on Vista, we must use
+  { For TVS_EX_DOUBLEBUFFER to be truly flicker-free, we must use
     comctl32's default WM_ERASEBKGND handling, not the VCL's (which calls
     FillRect). }
   DefaultHandler(Message);
@@ -555,19 +516,8 @@ const
     if Assigned(Item) then begin
       if HitTestInfo.flags and TVHT_ONITEMBUTTON <> 0 then
         TreeView_Expand(Handle, Item, TVE_TOGGLE)
-      else begin
-        if TreeView_GetSelection(Handle) <> Item then
-          SelectItem(Item)
-        else begin
-          { In 'friendly tree' mode, if the item is already selected, ensure
-            it's expanded.
-            Note: We do this only if SelectItem wasn't called, since newly
-            selected items are expanded automatically. If we were to call this
-            unconditionally, any error message would be shown twice. }
-          if FFriendlyTree and (HitTestInfo.flags and TVHT_ONITEM <> 0) then
-            TreeView_Expand(Handle, Item, TVE_EXPAND);
-        end;
-      end;
+      else if TreeView_GetSelection(Handle) <> Item then
+        SelectItem(Item);
     end;
   end;
 
@@ -686,25 +636,6 @@ begin
             the item to expand, but never to collapse. }
         HandleClick;
         Message.Result := 1;
-      end;
-    TVN_SINGLEEXPAND:
-      begin
-        Hdr := PNMTreeView(Message.NMHdr);
-        { Trying to emulate Windows XP's Explorer here:
-          Only collapse old item if it's at the same level as the new item. }
-        if Assigned(Hdr.itemOld.hItem) and Assigned(Hdr.itemNew.hItem) and
-           (TreeView_GetParent(Handle, Hdr.itemNew.hItem) <>
-            TreeView_GetParent(Handle, Hdr.itemOld.hItem)) then
-          Message.Result := Message.Result or TVNRET_SKIPOLD;
-        { Selecting expanded items shouldn't collapse them }
-        if Assigned(Hdr.itemNew.hItem) then begin
-          TVItem.mask := TVIF_STATE;
-          TVItem.hItem := Hdr.itemNew.hItem;
-          TVItem.stateMask := TVIS_EXPANDED;
-          if TreeView_GetItem(Handle, TVItem) and
-             (TVItem.state and TVIS_EXPANDED <> 0) then
-            Message.Result := Message.Result or TVNRET_SKIPNEW;
-        end;
       end;
   end;
 end;
@@ -1205,5 +1136,5 @@ end;
 initialization
   InitThemeLibrary;
   SHPathPrepareForWriteFunc := GetProcAddress(LoadLibrary(PChar(AddBackslash(GetSystemDir) + shell32)),
-    {$IFDEF UNICODE}'SHPathPrepareForWriteW'{$ELSE}'SHPathPrepareForWriteA'{$ENDIF});
+    'SHPathPrepareForWriteW');
 end.

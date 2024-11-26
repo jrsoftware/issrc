@@ -39,11 +39,11 @@ Root: HKA; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
 Root: HKA; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "Language"; ValueData: "{language}"
 ; Associate .myp files with My Program (requires ChangesAssociations=yes)
-Root: HKA; Subkey: "Software\Classes\.myp"; ValueType: string; ValueName: ""; ValueData: "MyProgramFile.myp"; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\.myp\OpenWithProgids"; ValueType: string; ValueName: "MyProgramFile.myp"; ValueData: ""; Flags: uninsdeletevalue
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp"; ValueType: string; ValueName: ""; ValueData: "My Program File"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\MyProg.exe,0"
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\MyProg.exe"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\MyProg.exe\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""
 ; HKA (and HKCU) should only be used for settings which are compatible with
 ; roaming profiles so settings like paths should be written to HKLM, which
 ; is only possible in administrative install mode.
@@ -51,13 +51,12 @@ Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty; Check: 
 Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey; Check: IsAdminInstallMode
 Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Check: IsAdminInstallMode
 ; User specific settings should always be written to HKCU, which should only
-; be done in non administrative install mode.
+; be done in non administrative install mode. Also see ShouldSkipPage below.
 Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "UserName"; ValueData: "{userinfoname}"; Check: not IsAdminInstallMode
 Root: HKCU; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "UserOrganization"; ValueData: "{userinfoorg}"; Check: not IsAdminInstallMode
 
 [Code]
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  // User specific pages should be skipped in administrative install mode
   Result := IsAdminInstallMode and (PageID = wpUserInfo);
 end;

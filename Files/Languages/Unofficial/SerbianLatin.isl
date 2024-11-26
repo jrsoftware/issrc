@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.0.3+ Serbian (Latin) messages ***
+; *** Inno Setup version 6.1.0+ Serbian (Latin) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -212,6 +212,18 @@ ReadyMemoComponents=Izabrane komponente:
 ReadyMemoGroup=Fascikla u meniju „Start“:
 ReadyMemoTasks=Dodatni zadaci:
 
+; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
+DownloadingLabel=Preuzimanje dodatnih datoteka...
+ButtonStopDownload=&Zaustavi preuzimanje
+StopDownload=Da li ste sigurni da želite da zaustavite preuzimanje?
+ErrorDownloadAborted=Preuzimanje je prekinuto
+ErrorDownloadFailed=Preuzimanje nije uspelo: %1 %2
+ErrorDownloadSizeFailed=Dobijanje velièine nije uspelo: %1 %2
+ErrorFileHash1=Heš datoteke nije uspeo: %1
+ErrorFileHash2=Neispravan heš datoteke: oèekivan %1, pronaðen %2
+ErrorProgress=Neispravan napredak: %1 od %2
+ErrorFileSize=Neispravna velièina datoteke: oèekivan %1, pronaðen %2
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Priprema za instalaciju
 PreparingDesc=Program se priprema da instalira [name] na raèunar.
@@ -294,8 +306,16 @@ ExistingFileReadOnly2=Postojeæa datoteka ne može da se zameni jer je samo za èit
 ExistingFileReadOnlyRetry=&Uklonite atribut samo za èitanje i pokušajte ponovo
 ExistingFileReadOnlyKeepExisting=&Zadržite postojeæu datoteku
 ErrorReadingExistingDest=Došlo je do greške pri pokušaju èitanja postojeæe datoteke:
-FileExists=Datoteka veæ postoji.%n%nŽelite li da je zamenite?
-ExistingFileNewer=Postojeæa datoteka je novija od one koju treba postaviti. Preporuèujemo vam da zadržite postojeæu datoteku.%n%nŽelite li to da uradite?
+FileExistsSelectAction=Odaberi akciju
+FileExists2=Datoteka veæ postoji.
+FileExistsOverwriteExisting=&Zameni postojeæu datoteku
+FileExistsKeepExisting=&Zadrži postojeæu datoteku
+FileExistsOverwriteOrKeepAll=&Uradi ovo i ubuduæe
+ExistingFileNewerSelectAction=Odaberi akciju
+ExistingFileNewer2=Postojeæa datoteka je novija od one koju treba instalirati.
+ExistingFileNewerOverwriteExisting=&Zameni postojeæu datoteku
+ExistingFileNewerKeepExisting=&Zadrži postojeæu datoteku (preporuèeno)
+ExistingFileNewerOverwriteOrKeepAll=&Uradi ovo i ubuduæe
 ErrorChangingAttr=Došlo je do greške pri izmeni osobine sledeæe datoteke:
 ErrorCreatingTemp=Došlo je do greške pri stvaranju datoteke u odredišnoj fascikli:
 ErrorReadingSource=Došlo je do greške pri èitanju izvorne datoteke:

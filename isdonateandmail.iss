@@ -1,9 +1,9 @@
-; -- IsDonateAndMail.iss --
-; Include file which adds donate and subscribe buttons to Setup
-
+// -- IsDonateAndMail.iss --
+// Include file which adds donate and subscribe buttons to Setup
+//
 [Files]
-Source: "isdonate.bmp"; Flags: dontcopy
-Source: "ismail.bmp"; Flags: dontcopy
+Source: "isdonate.bmp"; Flags: dontcopy noencryption
+Source: "ismail.bmp"; Flags: dontcopy noencryption
 
 [CustomMessages]
 ; No need to localize: The IS website is in English only
@@ -32,6 +32,9 @@ var
   DonateImage, MailImage: TBitmapImage;
   BevelTop: Integer;
 begin
+  if WizardSilent then
+    Exit;
+
   ImageFileName := ExpandConstant('{tmp}\isdonate.bmp');
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
