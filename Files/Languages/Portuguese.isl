@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 6.4.0+ Portuguese (Portugal) messages ***
 ;
 ; Maintained by Nuno Silva (nars AT gmx.net)
 
@@ -203,6 +203,13 @@ ErrorFileHash1=Falha de verificação do ficheiro: %1
 ErrorFileHash2=Hash do ficheiro inválida: experado %1, encontrado %2
 ErrorProgress=Progresso inválido: %1 de %2
 ErrorFileSize=Tamanho de ficheiro inválido: experado %1, encontrado %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=A extrair ficheiros adicionais...
+ButtonStopExtraction=&Parar extracção
+StopExtraction=Tem a certeza que deseja parar a extracção?
+ErrorExtractionAborted=Extracção cancelada
+ErrorExtractionFailed=Falha na extracção: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparando-se para instalar
