@@ -83,6 +83,8 @@ function IsProtectedSystemFile(const DisableFsRedir: Boolean;
   const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
+function PathHasInvalidCharacters(const S: String;
+  const AllowDriveLetterColon: Boolean): Boolean;
 procedure RaiseFunctionFailedError(const FunctionName: String);
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
@@ -1061,6 +1063,69 @@ begin
   else
     Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
       CreateDirectoryRedir(DisableFsRedir, Dir);
+end;
+
+function PathHasInvalidCharacters(const S: String;
+  const AllowDriveLetterColon: Boolean): Boolean;
+{ Checks the specified path for characters that are never allowed in paths,
+  or characters and path components that are accepted by the system but might
+  present a security problem (such as '..' and sometimes ':').
+  Specifically, True is returned if S includes any of the following:
+  - Control characters (0-31)
+  - One of these characters: /*?"<>|
+    (This means forward slashes and the prefixes '\\?\' and '\??\' are never
+    allowed.)
+  - Colons (':'), except when AllowDriveLetterColon=True and the string's
+    first character is a letter and the second character is the only colon.
+    (This blocks NTFS alternate data stream names.)
+  - A component with a trailing dot or space
+
+  Due to the last rule above, '.' and '..' components are never allowed, nor
+  are components like these:
+    'file '
+    'file.'
+    'file. . .'
+    'file . . '
+  When expanding paths (with no '\\?\' prefix used), Windows 11 23H2 silently
+  removes all trailing dots and spaces from the end of the string. Therefore,
+  if used at the end of a path, all of the above cases yield just 'file'.
+  On preceding components of the path, nothing is done with spaces; if there
+  is exactly one dot at the end, it is removed (e.g., 'dir.\file' becomes
+  'dir\file'), while multiple dots are left untouched ('dir..\file' doesn't
+  change).
+  By rejecting trailing dots and spaces up front, we avoid all that weirdness
+  and the problems that could arise from it.
+
+  Since ':' is considered invalid (except in the one case noted above), it's
+  not possible to sneak in disallowed dots/spaces by including an NTFS
+  alternate data stream name. The function will return True in these cases:
+    '..:streamname'
+    'file :streamname'
+}
+begin
+  Result := True;
+  for var I := Low(S) to High(S) do begin
+    var C := S[I];
+    if Ord(C) < 32 then
+      Exit;
+    case C of
+      #32, '.':
+        begin
+          if (I = High(S)) or PathCharIsSlash(S[I+1]) then
+            Exit;
+        end;
+      ':':
+        begin
+          { The A-Z check ensures that '.:streamname', ' :streamname', and
+            '\:streamname' are disallowed. }
+          if not AllowDriveLetterColon or (I <> Low(S)+1) or
+             not CharInSet(S[Low(S)], ['A'..'Z', 'a'..'z']) then
+            Exit;
+        end;
+      '/', '*', '?', '"', '<', '>', '|': Exit;
+    end;
+  end;
+  Result := False;
 end;
 
 { TSimpleStringList }
