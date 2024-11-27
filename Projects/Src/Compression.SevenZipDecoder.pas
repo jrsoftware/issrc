@@ -46,11 +46,50 @@ var
 
 function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
 
+function ValidateAndCombinePath(const ADestDir, AFilename: String;
+  out AResultingPath: String): Boolean;
+{ Filenames read from archives aren't validated at all by the SDK's 7zMain.c,
+  so we have to handle that ourself. Most importantly, we need to make sure a
+  malicious archive cannot create files outside of the destination directory.
+  Returns True if all security checks pass, with the combination of ADestDir
+  and AFilename in AResultingPath.
+  ADestDir is assumed to be normalized already and have a trailing backslash.
+  AFilename may be a file or directory name. }
+begin
+  { - Don't allow empty names
+    - Don't allow forward slashes or repeated slashes
+      (archives use '/' on disk but 7zMain.c changes them to '\')
+    - Don't allow rooted (non-relative to current directory) names
+    - Don't allow trailing slash
+    - Don't allow invalid characters/dots/spaces (this catches '..') }
+  Result := False;
+  if (AFilename <> '') and
+     (AFilename = PathNormalizeSlashes(AFilename)) and
+     not PathIsRooted(AFilename) and
+     not PathCharIsSlash(AFilename[High(AFilename)]) and
+     not PathHasInvalidCharacters(AFilename, False) then begin
+    { Our validity checks passed. Now pass the combined path to PathExpand
+      (GetFullPathName) to see if it thinks the path needs normalization.
+      If the returned path isn't exactly what was passed in, then consider
+      the name invalid.
+      One way that can happen is if the path ends in an MS-DOS device name:
+      PathExpand('c:\path\NUL') returns '\\.\NUL'. Obviously we don't want
+      devices being opened, so that must be rejected. }
+    var CombinedPath := ADestDir + AFilename;
+    var TestExpandedPath: String;
+    if PathExpand(CombinedPath, TestExpandedPath) and
+       (CombinedPath = TestExpandedPath) then begin
+      AResultingPath := CombinedPath;
+      Result := True;
+    end;
+  end;
+end;
+
 function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
   var ExpandedDir: String;
-  if PathExpand(lpPathName, ExpandedDir) and PathStartsWith(ExpandedDir, State.ExpandedDestDir) then
+  if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
     Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
@@ -74,9 +113,11 @@ function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
   var ExpandedFileName: String;
-  if PathExpand(lpFileName, ExpandedFileName) and
-     (((dwDesiredAccess = GENERIC_READ) and (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
-      ((dwDesiredAccess = GENERIC_WRITE) and PathStartsWith(ExpandedFileName, State.ExpandedDestDir))) then
+  if ((dwDesiredAccess = GENERIC_READ) and
+      PathExpand(lpFileName, ExpandedFileName) and
+      (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
+     ((dwDesiredAccess = GENERIC_WRITE) and
+      ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName)) then
     Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
