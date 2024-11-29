@@ -55,6 +55,7 @@ type
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
+    function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -69,6 +70,7 @@ type
     property Theme: TTheme read FTheme write SetTheme;
   published
     property Align;
+    property AutoSize default True;
     property Font;
     property Hints: TStrings read FHints write SetHints;
     property ParentFont;
@@ -178,17 +180,18 @@ begin
   FTabPosition := tpBottom;
   FHints := TStringList.Create;
   TStringList(FHints).OnChange := HintsListChanged;
+  FHotIndex := -1;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
-  FHotIndex := -1;
+  AutoSize := True;
 end;
 
 procedure TNewTabSet.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   with Params.WindowClass do
-    style := style and not (CS_HREDRAW or CS_VREDRAW);
+    style := style and not CS_HREDRAW;
 end;
 
 procedure TNewTabSet.CreateWnd;
@@ -277,6 +280,15 @@ begin
     FTabsOffset := Offset;
     Invalidate;
   end;
+end;
+
+function TNewTabSet.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
+begin
+  { We need to manage our own height for correct results with non-default PPI }
+  Canvas.Font.Assign(Font);
+  NewHeight := Canvas.TextHeight('0') + (ToCurrentPPI(TabPaddingY) * 2) +
+    ToCurrentPPI(2);
+  Result := True;
 end;
 
 function TNewTabSet.GetTabRect(const Index: Integer;
