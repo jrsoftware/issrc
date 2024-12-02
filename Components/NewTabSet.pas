@@ -51,16 +51,17 @@ type
     procedure SetHints(const Value: TStrings);
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure UpdateThemeData(const Open: Boolean);
-  protected
+    procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
+  protected
     function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure UpdateHotIndex(NewHotIndex: Integer);
-    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure Paint; override;
     procedure Resize; override;
   public
@@ -207,6 +208,13 @@ begin
   FTabs.Free;
   FCloseButtons.Free;
   inherited;
+end;
+
+procedure TNewTabSet.CMFontChanged(var Message: TMessage);
+begin
+  inherited;
+  if AutoSize then
+    AdjustSize;
 end;
 
 procedure TNewTabSet.CMHintShow(var Message: TCMHintShow);
@@ -491,16 +499,16 @@ begin
 
   { Top or bottom line }
   if FTheme <> nil then
-    Canvas.Pen.Color := FTheme.Colors[tcBack]
+    Canvas.Brush.Color := FTheme.Colors[tcBack]
   else
-    Canvas.Pen.Color := clBtnFace;
-  if FTabPosition = tpBottom then begin
-    Canvas.MoveTo(0, 0);
-    Canvas.LineTo(CR.Right, 0);
-  end else begin
-    Canvas.MoveTo(0, CR.Bottom-1);
-    Canvas.LineTo(CR.Right, CR.Bottom-1);
-  end;
+    Canvas.Brush.Color := clBtnFace;
+  const LineRectHeight = ToCurrentPPI(1);
+  var LineRect := CR;
+  if FTabPosition = tpBottom then
+    LineRect.Bottom := LineRect.Top + LineRectHeight
+  else
+    LineRect.Top := LineRect.Bottom - LineRectHeight;
+  Canvas.FillRect(LineRect);
 
   { Background fill }
   if FTheme <> nil then
@@ -510,9 +518,9 @@ begin
   else
     Canvas.Brush.Color := clBtnShadow;
   if FTabPosition = tpBottom then
-    Inc(CR.Top)
+    Inc(CR.Top, LineRectHeight)
   else
-    Dec(CR.Bottom);
+    Dec(CR.Bottom, LineRectHeight);
   Canvas.FillRect(CR);
 
   { Non-selected tabs }
