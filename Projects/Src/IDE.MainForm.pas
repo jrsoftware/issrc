@@ -1110,7 +1110,11 @@ destructor TMainForm.Destroy;
       Ini.WriteInteger('State', 'WindowTop', WindowPlacement.rcNormalPosition.Top);
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
-      Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
+      { The GetWindowPlacement docs claim that "flags" is always zero.
+        Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
+        window is either currently maximized, or currently minimized from a
+        previous maximized state. }
+      Ini.WriteBool('State', 'WindowMaximized', WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }

@@ -214,6 +214,9 @@ begin
   CheckParams;
   RegisterApplicationRestart;
 
+  if not CommandLineWizard then
+    Application.MainFormOnTaskBar := True;
+
   { The 'with' is so that the Delphi IDE doesn't mess with these }
   with Application do begin
     if CommandLineWizard then
