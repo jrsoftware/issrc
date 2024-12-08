@@ -212,16 +212,43 @@ var
   ActiveWindow: HWND;
   WindowList: Pointer;
 begin
+  { Always try to bring the message box to the foreground. Task dialogs appear
+    to do that by default.
+    Without this, if the main form is minimized and then closed via the
+    taskbar 'X', a message box shown in its OnCloseQuery handler gets
+    displayed behind the foreground app's window, with no indication that a
+    message box is waiting. With the flag set, the message box is still shown
+    behind the foreground app's window, but the taskbar button begins blinking
+    and the main form is restored automatically. (These tests were done with
+    MainFormOnTaskBar=True and the message box window properly owned by the
+    main form. Don't run under the debugger when testing because that changes
+    the foreground stealing rules.) }
+  Flags := Flags or MB_SETFOREGROUND;
   if MessageBoxRightToLeft then
     Flags := Flags or (MB_RTLREADING or MB_RIGHT);
 
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
-    { If the application window isn't currently visible, show the message box
-      with no owner window so it'll get a taskbar button } 
-    if IsIconic(Application.Handle) or
-       (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
-       (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then begin
+    { Application.MessageBox uses Application.ActiveFormHandle for the message
+      box's owner window. If that window is Application.Handle AND it isn't
+      currently shown on the taskbar [1], the result will be a message box
+      with no taskbar button -- which can easily get lost behind other
+      windows. Avoid that by calling MessageBox directly with no owner window.
+      [1] That is the case when we're called while no forms are visible.
+          But it can also be the case when Application.MainFormOnTaskBar=True
+          and we're called while the application isn't in the foreground
+          (i.e., GetActiveWindow=0). That seems like erroneous behavior on the
+          VCL's part (it should return the same handle as when the app is in
+          the foreground), and it causes modal TForms to get the 'wrong' owner
+          as well. However, it can be worked around using a custom
+          Application.OnGetActiveFormHandle handler. }
+    var ActWnd := Application.ActiveFormHandle;
+    if ActWnd = 0 then  { shouldn't be possible, but they have this check }
+      ActWnd := Application.Handle;
+    if (ActWnd = Application.Handle) and
+       (IsIconic(Application.Handle) or
+        (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
+        (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0)) then begin
       ActiveWindow := GetActiveWindow;
       WindowList := DisableTaskWindows(0);
       try

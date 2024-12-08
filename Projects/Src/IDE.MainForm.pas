@@ -504,6 +504,7 @@ type
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
+    class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
@@ -1182,6 +1183,29 @@ class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
 begin
   AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
     MB_OK or MB_ICONSTOP);
+end;
+
+class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
+begin
+  { As of Delphi 11.3, the default code in TApplication.GetActiveFormHandle
+    (which runs after this handler) calls GetActiveWindow, and if that returns
+    0, it calls GetLastActivePopup(Application.Handle).
+    The problem is that when the application isn't in the foreground,
+    GetActiveWindow returns 0, and when MainFormOnTaskBar=True, the
+    GetLastActivePopup call normally just returns Application.Handle (since
+    there are no popups owned by the application window).
+    So if the application calls Application.MessageBox while it isn't in the
+    foreground, that message box will be owned by Application.Handle, not by
+    the last-active form as it should be. That can lead to the message box
+    falling behind the form in z-order.
+    To rectify that, we return Screen.ActiveForm.Handle if possible, which is
+    valid whether or not the application is in the foreground. This code is
+    from TCustomTaskDialog.Execute. (HandleAllocated call added to be safe) }
+
+  if Assigned(Screen.ActiveForm) and
+     (Screen.ActiveForm.FormStyle <> fsMDIChild) and
+     Screen.ActiveForm.HandleAllocated then
+    AHandle := Screen.ActiveForm.Handle;
 end;
 
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
@@ -7852,6 +7876,7 @@ begin
 end;
 
 initialization
+  Application.OnGetActiveFormHandle := TMainForm.AppOnGetActiveFormHandle;
   InitThemeLibrary;
   InitHtmlHelpLibrary;
   { For ClearType support, try to make the default font Microsoft Sans Serif }
