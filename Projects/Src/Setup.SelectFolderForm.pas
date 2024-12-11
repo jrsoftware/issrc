@@ -107,6 +107,10 @@ begin
   FFolderTreeView.SetBounds(16, 64, 317, 229);
   FFolderTreeView.Anchors := [akLeft, akTop, akRight, akBottom];
   FFolderTreeView.Visible := False;
+  { The form needs its handle allocated before the Parent assignment,
+    otherwise the control's width and height get reduced later. Looks like
+    a Delphi 11 bug; the problem is seen in IS 6.3 but not 6.2.2. }
+  HandleNeeded;
   FFolderTreeView.Parent := Self;
   PathEdit.BringToFront;     { for MSAA }
   BrowseLabel.BringToFront;  { for MSAA }
