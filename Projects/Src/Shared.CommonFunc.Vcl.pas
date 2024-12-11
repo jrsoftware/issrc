@@ -241,7 +241,31 @@ begin
           VCL's part (it should return the same handle as when the app is in
           the foreground), and it causes modal TForms to get the 'wrong' owner
           as well. However, it can be worked around using a custom
-          Application.OnGetActiveFormHandle handler. }
+          Application.OnGetActiveFormHandle handler (see IDE.MainForm).
+
+      We also use the same MessageBox call when IsIconic(Application.Handle)
+      is True to work around a separate issue:
+        1. Start with Application.MainFormOnTaskBar=False
+        2. Minimize the app
+        3. While the app is still minimized, call Application.MessageBox
+        4. Click the app's taskbar button (don't touch the message box)
+      At this point, the form that was previously hidden when the app was
+      minimized is shown again. But it's not disabled! You can interact with
+      the form despite the message box not being dismissed (which can lead to
+      reentrancy issues and undefined behavior). And the form is allowed to
+      rise above the message box in z-order.
+      The reason the form isn't disabled is that the VCL's DisableTaskWindows
+      function, which is called by Application.MessageBox, ignores non-visible
+      windows. Which seems wrong.
+      When we call MessageBox here with no owner window, we pass the
+      MB_TASKMODAL flag, which goes further than DisableTaskWindows and
+      disables non-visible windows too. That prevents the user from
+      interacting with the form. However, the form can still rise above the
+      message box. But with separate taskbar buttons for the two windows,
+      it's easier to get the message box back on top.
+      (This problem doesn't occur when Application.MainFormOnTaskBar=True
+      because the main form retains its WS_VISIBLE style while minimized.)
+    }
     var ActWnd := Application.ActiveFormHandle;
     if ActWnd = 0 then  { shouldn't be possible, but they have this check }
       ActWnd := Application.Handle;
