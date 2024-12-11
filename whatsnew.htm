@@ -92,6 +92,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added <tt>[Setup]</tt> section directive <tt>EncryptionKeyDerivation</tt> to change the number of PBKDF2-HMAC-SHA256 iterations to use from the default of 200000 to another value.</li>
   <li>Replaced all remaining use of MD5 and SHA-1 hashes with SHA-256 hashes, without removing the MD5 and SHA-1 Pascal Scripting and ISPP support functions.</li>
   <li>The aspect ratio of Setup's large and small wizard images (as specified by <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>) is now maintained when the window is scaled. Previously, depending on the font and font size used, they could have appeared horizontally stretched or squished.</li>
+  <li>The New Script Wizard now sets <tt>UninstallDisplayIcon</tt> when an .exe is chosen as the main executable file.</li>
   <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
   <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
   <li>Pascal Scripting changes:
