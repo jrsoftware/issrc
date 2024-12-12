@@ -41,19 +41,20 @@ implementation
 
 uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
-  Setup.MainFunc, Setup.WizardForm;
+  Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}
 
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
+  MainForm.RestoreApp;
+
   with TNewDiskForm.Create(Application) do
     try
       Filename := AFilename;
       SelectDiskLabel.Caption := FmtSetupMessage(msgSelectDiskLabel2, [IntToStr(DiskNumber)]);
       PathEdit.Text := Path;
-      Beep;
       Result := ShowModal = mrOK;
       if Result then
         Path := GetSanitizedPath;

@@ -24,8 +24,9 @@ type
       Shift: TShiftState);
   private
     IsMinimized, HideWizard: Boolean;
+    class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     function MainWindowHook(var Message: TMessage): Boolean;
-    procedure UpdateWizardFormVisibility;
+    procedure UpdateWizardFormVisibility(const IgnoreMinimizedState: Boolean = False);
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
@@ -37,6 +38,7 @@ type
     procedure Finish(const FromPreparingPage: Boolean);
     procedure InitializeWizard;
     function Install: Boolean;
+    procedure RestoreApp;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
     class procedure ShowExceptionMsg(const S: String);
@@ -716,7 +718,8 @@ begin
   end;
 end;
 
-procedure TMainForm.UpdateWizardFormVisibility;
+procedure TMainForm.UpdateWizardFormVisibility(
+  const IgnoreMinimizedState: Boolean = False);
 var
   ShouldShow: Boolean;
 begin
@@ -724,7 +727,7 @@ begin
     have Visible set to False, the application taskbar button disappears. }
   if Assigned(WizardForm) and WizardForm.HandleAllocated then begin
     ShouldShow := WizardForm.Showing and not HideWizard and
-      not IsIconic(Application.Handle);
+      (IgnoreMinimizedState or not IsIconic(Application.Handle));
     if (GetWindowLong(WizardForm.Handle, GWL_STYLE) and WS_VISIBLE <> 0) <> ShouldShow then begin
       if ShouldShow then
         ShowWindow(WizardForm.Handle, SW_SHOW)
@@ -764,4 +767,40 @@ begin
     SetActiveWindow(WizardForm.Handle);
 end;
 
+procedure TMainForm.RestoreApp;
+{ Restores the app if it is currently minimized, and tries to make its taskbar
+  button blink (by attempting to bring it to the foreground, which Windows
+  normally blocks). This should be called before displaying any dialogs that
+  aren't user-initiated (like NewDiskForm). }
+begin
+  if IsIconic(Application.Handle) then begin
+    { If called alone, Application.Restore annoyingly brings WizardForm to the
+      foreground even if you're actively clicking/typing in the foreground
+      app. Evidently the SW_RESTORE command used by Application.Restore
+      bypasses Windows' usual foreground-stealing protections. However, if
+      we show WizardForm in advance (and leave the application window still
+      minimized), then SW_RESTORE doesn't bring WizardForm to the foreground
+      (not sure why).
+      Calling ShowWindow(Application.Handle, SW_SHOWNOACTIVATE) before
+      Application.Restore also works, but I worry that's relying on an
+      implementation detail: Application.Restore could be a no-op if it finds
+      the application window isn't minimized. (In fact, it used to be, until
+      the Forms unit added that fake IsIconic function.) }
+    UpdateWizardFormVisibility(True);
+    Application.Restore;
+  end;
+  Application.BringToFront;
+end;
+
+class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
+begin
+  { IDE's TMainForm has this too; see comments there }
+  if Assigned(Screen.ActiveForm) and
+     (Screen.ActiveForm.FormStyle <> fsMDIChild) and
+     Screen.ActiveForm.HandleAllocated then
+    AHandle := Screen.ActiveForm.Handle;
+end;
+
+initialization
+  Application.OnGetActiveFormHandle := TMainForm.AppOnGetActiveFormHandle;
 end.
