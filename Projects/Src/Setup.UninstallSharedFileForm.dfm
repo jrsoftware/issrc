@@ -12,12 +12,11 @@ object UninstSharedFileForm: TUninstSharedFileForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PopupMode = pmAuto
   Scaled = False
   DesignSize = (
     397
     225)
-  PixelsPerInch = 96
   TextHeight = 13
   object NoToAllButton: TNewButton
     Left = 283

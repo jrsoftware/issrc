@@ -12,12 +12,11 @@ object SelectFolderForm: TSelectFolderForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PopupMode = pmAuto
   Scaled = False
   DesignSize = (
     349
     337)
-  PixelsPerInch = 96
   TextHeight = 13
   object CancelButton: TNewButton
     Left = 320
