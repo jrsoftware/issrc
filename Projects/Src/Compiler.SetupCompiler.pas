@@ -2579,30 +2579,11 @@ begin
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);
       end;
-    ssBackColor: begin
-        try
-          SetupHeader.BackColor := StringToColor(Value);
-        except
-          Invalid;
-        end;
-      end;
-    ssBackColor2: begin
-        try
-          SetupHeader.BackColor2 := StringToColor(Value);
-        except
-          Invalid;
-        end;
-      end;
-    ssBackColorDirection: begin
-        if CompareText(Value, 'toptobottom') = 0 then
-          Exclude(SetupHeader.Options, shBackColorHorizontal)
-        else if CompareText(Value, 'lefttoright') = 0 then
-          Include(SetupHeader.Options, shBackColorHorizontal)
-        else
-          Invalid;
-      end;
+    ssBackColor,
+    ssBackColor2,
+    ssBackColorDirection,
     ssBackSolid: begin
-        BackSolid := StrToBool(Value);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssChangesAssociations: begin
         SetupHeader.ChangesAssociations := Value;
@@ -3153,17 +3134,11 @@ begin
         if not StrToVersionNumbers(Value, VersionInfoVersion) then
           Invalid;
       end;
-    ssWindowResizable: begin
-        SetSetupHeaderOption(shWindowResizable);
-      end;
-    ssWindowShowCaption: begin
-        SetSetupHeaderOption(shWindowShowCaption);
-      end;
-    ssWindowStartMaximized: begin
-        SetSetupHeaderOption(shWindowStartMaximized);
-      end;
+    ssWindowResizable,
+    ssWindowShowCaption,
+    ssWindowStartMaximized,
     ssWindowVisible: begin
-        SetSetupHeaderOption(shWindowVisible);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardImageAlphaFormat: begin
         if CompareText(Value, 'none') = 0 then
