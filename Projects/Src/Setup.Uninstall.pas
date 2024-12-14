@@ -91,7 +91,7 @@ end;
 
 procedure InitializeUninstallProgressForm;
 begin
-  UninstallProgressForm := TUninstallProgressForm.Create(nil);
+  Application.CreateForm(TUninstallProgressForm, UninstallProgressForm);
   UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags);
   if CodeRunner <> nil then begin
     try
@@ -485,9 +485,6 @@ var
   Res, RemovedAll, UninstallNeedsRestart: Boolean;
   StartTime: DWORD;
 begin
-  if VerySilent then
-    SetTaskbarButtonVisibility(False);
-
   RestartSystem := False;
   AllowUninstallerShutdown := True;
 
@@ -758,9 +755,7 @@ var
 begin
   { Set default title; it's set again below after the messages are read }
   Application.Title := 'Uninstall';
-  { This is needed for D3+: Must force the application window visible since
-    we aren't displaying any forms }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.MainFormOnTaskBar := True;
 
   try
     InitializeCommonVars;

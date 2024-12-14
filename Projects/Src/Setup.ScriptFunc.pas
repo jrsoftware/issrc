@@ -1175,10 +1175,6 @@ var
     begin
       Stack.SetBool(PStart, CodeRegisterExtraCloseApplicationsResource(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
     end);
-    RegisterScriptFunc('GETMAINFORM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      Stack.SetClass(PStart, GetMainForm);
-    end);
     RegisterScriptFunc('GETWIZARDFORM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetClass(PStart, GetWizardForm);

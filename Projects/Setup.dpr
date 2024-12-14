@@ -179,29 +179,6 @@ begin
           AcceptedQueryEndSessionInProgress := False;
         Result := True;
       end;
-    WM_STYLECHANGING: begin
-        { On Delphi 2009, we must suppress some of the VCL's manipulation of
-          the application window styles in order to prevent the taskbar button
-          from re-appearing after SetTaskbarButtonVisibility(False) was used
-          to hide it.
-          - The VCL tries to clear WS_EX_TOOLWINDOW whenever a form handle is
-            created (see TCustomForm.CreateParams). Since
-            SetTaskbarButtonVisibility uses the WS_EX_TOOLWINDOW style
-            internally to hide the taskbar button, we can't allow that.
-          - The VCL tries to set WS_EX_APPWINDOW on the application window
-            after the main form is created (see ChangeAppWindow in Forms).
-            The WS_EX_APPWINDOW style forces the window to show a taskbar
-            button, overriding WS_EX_TOOLWINDOW, so don't allow that either.
-            (It appears to be redundant anyway.) }
-        if Integer(Message.WParam) = GWL_EXSTYLE then begin
-          { SetTaskbarButtonVisibility sets TaskbarButtonHidden }
-          if TaskbarButtonHidden then
-            PStyleStruct(Message.LParam).styleNew :=
-              PStyleStruct(Message.LParam).styleNew or WS_EX_TOOLWINDOW;
-          PStyleStruct(Message.LParam).styleNew :=
-            PStyleStruct(Message.LParam).styleNew and not WS_EX_APPWINDOW;
-        end;
-      end;
   end;
 end;
 
@@ -277,12 +254,6 @@ begin
 end;
 
 begin
-  { Delphi 2009 initially sets WS_EX_TOOLWINDOW on the application window.
-    That will prevent our ShowWindow(Application.Handle, SW_SHOW) calls from
-    actually displaying the taskbar button as intended, so clear it. }
-  SetWindowLong(Application.Handle, GWL_EXSTYLE,
-    GetWindowLong(Application.Handle, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW);
-
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
@@ -299,17 +270,15 @@ begin
     Note: There's no need to localize the following line since it's changed in
     InitializeSetup }
   Application.Title := 'Setup';
-  { On Delphi 3+, the application window by default isn't visible until a form
-    is shown. Force it visible like Delphi 2. Note that due to the way
-    TApplication.UpdateVisible is coded, this should be permanent; if a form
-    is shown and hidden, the application window should still be visible. }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.ShowMainForm := False;
   Application.OnException := TMainForm.ShowException;
   try
     Application.Initialize;
+    Application.MainFormOnTaskBar := True;
     InitializeSetup;
-    Application.CreateForm(TMainForm, MainForm);
-  MainForm.InitializeWizard;
+    MainForm := TMainForm.Create(Application);
+    Application.CreateForm(TWizardForm, WizardForm);
+    MainForm.InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;

@@ -211,8 +211,6 @@ type
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
     PrepareToInstallFailureMessage: String;
@@ -1347,14 +1345,6 @@ begin
   inherited;
 end;
 
-procedure TWizardForm.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  { Ensure the form is *always* on top of MainForm by making MainForm
-    the "parent" of the form. }
-  Params.WndParent := MainForm.Handle;
-end;
-
 function TWizardForm.PageIndexFromID(const ID: Integer): Integer;
 { Given a page ID, returns the index of the page in FPageList. An exception is
   raised if a page with the specified ID is not found. }
@@ -1865,10 +1855,8 @@ begin
     BackButton.Visible := False;
     NextButton.Visible := False;
     CancelButton.Enabled := False;
-    if InstallMode = imSilent then begin
-      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+    if InstallMode = imSilent then
       WizardForm.Show;
-    end;
     WizardForm.Update;
     try
       DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
@@ -2559,10 +2547,8 @@ begin
               SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
               BackButton.Visible := False;
               NextButton.Visible := False;
-              if InstallMode = imSilent then begin
-                SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
+              if InstallMode = imSilent then
                 WizardForm.Show;
-              end;
               try
                 WizardForm.Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
@@ -3044,9 +3030,7 @@ begin
           The taskbar button will be hidden at this point on very silent
           installs (see SetupInstallMode); re-show it. }
         Log('Failed to proceed to next wizard page; showing wizard.');
-        SetTaskbarButtonVisibility(True);
         Application.Restore;
-        SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
         WizardForm.Show;
         Break;
       end;

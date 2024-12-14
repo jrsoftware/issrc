@@ -153,7 +153,6 @@ var
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
   RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages: Boolean;
-  TaskbarButtonHidden: Boolean;
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
@@ -212,7 +211,6 @@ procedure RemoveTempInstallDir;
 procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
-procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
@@ -1178,12 +1176,6 @@ begin
       Result := UninstallExpandedLanguage
     else
       Result := PSetupLanguageEntry(Entries[seLanguage][ActiveLanguage]).Name
-  end
-  else if Cnst = 'hwnd' then begin
-    if Assigned(MainForm) then
-      Result := IntToStr(MainForm.Handle)
-    else
-      Result := '0';
   end
   else if Cnst = 'wizardhwnd' then begin
     if Assigned(WizardForm) then
@@ -2235,33 +2227,6 @@ begin
   SetActiveLanguage(I);
 end;
 
-procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
-var
-  ExStyle: Longint;
-begin
-  { The taskbar button is hidden by setting the WS_EX_TOOLWINDOW style on the
-    application window. We can't simply hide the window because on D3+ the VCL
-    would just show it again in TApplication.UpdateVisible when the first form
-    is shown. }
-  TaskbarButtonHidden := not AVisible;  { see WM_STYLECHANGING hook in Setup.dpr }
-  if (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0) <> AVisible then begin
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-    ExStyle := GetWindowLong(Application.Handle, GWL_EXSTYLE);
-    if AVisible then
-      ExStyle := ExStyle and not WS_EX_TOOLWINDOW
-    else
-      ExStyle := ExStyle or WS_EX_TOOLWINDOW;
-    SetWindowLong(Application.Handle, GWL_EXSTYLE, ExStyle);
-    if AVisible then
-      { Show and activate when becoming visible }
-      ShowWindow(Application.Handle, SW_SHOW)
-    else
-      SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-        SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_SHOWWINDOW);
-  end;
-end;
-
 procedure LogCompatibilityMode;
 var
   S: String;
@@ -2711,14 +2676,6 @@ var
       InstallMode := imVerySilent
     else if InitSilent then
       InstallMode := imSilent;
-
-    if InstallMode <> imNormal then begin
-      if InstallMode = imVerySilent then begin
-        Application.ShowMainForm := False;
-        SetTaskbarButtonVisibility(False);
-      end;
-      SetupHeader.Options := SetupHeader.Options - [shWindowVisible];
-    end;
   end;
 
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
