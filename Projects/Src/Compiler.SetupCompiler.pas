@@ -123,7 +123,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
-    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
+    UseSetupLdr, DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
@@ -1653,8 +1653,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 const
   UserConsts: array[0..0] of String = (
     'username');
-  Consts: array[0..42] of String = (
-    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts', 'hwnd',
+  Consts: array[0..41] of String = (
+    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
     'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
@@ -7360,7 +7360,6 @@ begin
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
-      shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
       shUsePreviousSetupType, shAlwaysShowComponentsList, shFlatComponentsList,
       shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
@@ -7373,15 +7372,12 @@ begin
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
     SetupHeader.DefaultUserInfoOrg := '{sysuserinfoorg}';
-    SetupHeader.BackColor := clBlue;
-    SetupHeader.BackColor2 := clBlack;
     SetupHeader.DisableDirPage := dpAuto;
     SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
-    BackSolid := False;
     DefaultDialogFontName := 'Tahoma';
     SignToolRetryCount := 2;
     SignToolRetryDelay := 500;
@@ -7480,8 +7476,6 @@ begin
     CheckConst(SetupHeader.DefaultUserInfoOrg, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
-    if BackSolid then
-      SetupHeader.BackColor2 := SetupHeader.BackColor;
     if not DiskSpanning then begin
       DiskSliceSize := MaxDiskSliceSize;
       DiskClusterSize := 1;
