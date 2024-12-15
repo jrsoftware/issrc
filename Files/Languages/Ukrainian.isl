@@ -1,35 +1,23 @@
-; *** Inno Setup version 6.1.0+ Ukrainian messages ***
+; *** Inno Setup version 6.4.0+ Ukrainian messages ***
 ; Author: Dmytro Onyshchuk
 ; E-Mail: mrlols3@gmail.com
 ; Please report all spelling/grammar errors, and observations.
 ; Version 2020.08.04
 
-; *** Український переклад Inno Setup для версії 6.1.0 та вище***
+; *** Український переклад Inno Setup для версії 6.4.0 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mrlols3@gmail.com
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
 ; Версія перекладу 2020.08.04
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
-; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<0423><043A><0440><0430><0457><043D><0441><044C><043A><0430>
 LanguageID=$0422
 LanguageCodePage=1251
-; If the language you are translating to requires special font faces or
-; sizes, uncomment any of the following entries and change them accordingly.
-;DialogFontName=
-;DialogFontSize=8
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
 
 [Messages]
 
-; *** Заголовки програми
+; *** Application titles
 SetupAppTitle=Встановлення
 SetupWindowTitle=Встановлення — %1
 UninstallAppTitle=Видалення
@@ -75,11 +63,11 @@ PrivilegesRequiredOverrideAllUsersRecommended=Встановити для &всіх користувачів 
 PrivilegesRequiredOverrideCurrentUser=Встановити тільки для мене
 PrivilegesRequiredOverrideCurrentUserRecommended=Встановити тільки для &мене (рекомендується)
 
-; *** Різні помилки
+; *** Misc. errors
 ErrorCreatingDir=Програмі встановлення не вдалося створити папку "%1"
 ErrorTooManyFilesInDir=Програмі встановлення не вдалося створити файл в папці "%1", тому що в ньому занадто багато файлів
 
-; *** Спільні повідомлення програми
+; *** Setup common messages
 ExitSetupTitle=Вихід з програми встановлення
 ExitSetupMessage=Встановлення не завершено. Якщо ви вийдете зараз, програму не буде встановлено.%n%nВи можете відкрити програму встановлення в іншим часом.%n%nВийти з програми встановлення?
 AboutSetupMenuItem=&Про програму встановлення...
@@ -88,7 +76,7 @@ AboutSetupMessage=%1 версія %2%n%3%n%n%1 домашня сторінка:%n%4
 AboutSetupNote=
 TranslatorNote=Ukrainian translation by Dmytro Onyshchuk
 
-; *** Кнопки
+; *** Buttons
 ButtonBack=< &Назад
 ButtonNext=&Далі >
 ButtonInstall=&Встановити
@@ -103,36 +91,36 @@ ButtonBrowse=&Огляд...
 ButtonWizardBrowse=О&гляд...
 ButtonNewFolder=&Створити папку
 
-; *** Діалогове повідомлення "Вибір мови"
+; *** "Select Language" dialog messages
 SelectLanguageTitle=Виберіть мову встановлення
 SelectLanguageLabel=Виберіть мову, яка буде використовуватися під час встановлення.
 
-; *** Спільний тест програми
+; *** Common wizard text
 ClickNext=Натисніть «Далі», щоб продовжити, або «Скасувати» для виходу з програми встановлення.
 BeveledLabel=
 BrowseDialogTitle=Огляд папок
 BrowseDialogLabel=Виберіть папку зі списку та натисніть «ОК».
 NewFolderName=Нова папка
 
-; *** Сторінка "Привітання"
-WelcomeLabel1=Ласкаво просимо до програми встановлення [name].
+; *** "Welcome" wizard page
+WelcomeLabel1=Ласкаво просимо до програми встановлення [name]
 WelcomeLabel2=Ця програма встановить [name/ver] на ваш комп’ютер.%n%nРекомендується закрити всі інші програми перед продовженням.
 
-; *** Сторінка "Пароль"
+; *** "Password" wizard page
 WizardPassword=Пароль
 PasswordLabel1=Ця програма встановлення захищена паролем.
 PasswordLabel3=Будь ласка, введіть пароль та натисніть «Далі», щоб продовжити. Пароль чутливий до регістру.
 PasswordEditLabel=&Пароль:
 IncorrectPassword=Ви ввели неправильний пароль. Будь ласка, спробуйте ще раз.
 
-; *** Сторінка "Ліцензійна угода"
+; *** "License Agreement" wizard page
 WizardLicense=Ліцензійна угода
 LicenseLabel=Будь ласка, прочитайте ліцензійну угоду.
 LicenseLabel3=Будь ласка, прочитайте ліцензійну угоду. Ви повинні прийняти умови цієї угоди, перш ніж продовжити встановлення.
 LicenseAccepted=Я &приймаю умови угоди
 LicenseNotAccepted=Я &не приймаю умови угоди
 
-; *** Сторінка "Інформація"
+; *** "Information" wizard pages
 WizardInfoBefore=Інформація
 InfoBeforeLabel=Будь ласка, прочитайте наступну важливу інформацію, перш ніж продовжити.
 InfoBeforeClickLabel=Якщо ви готові продовжити встановлення, натисніть «Далі».
@@ -140,7 +128,7 @@ WizardInfoAfter=Інформація
 InfoAfterLabel=Будь ласка, прочитайте наступну важливу інформацію, перш ніж продовжити.
 InfoAfterClickLabel=Якщо ви готові продовжити встановлення, натисніть «Далі».
 
-; *** Сторінка "Інформація про користувача"
+; *** "User Information" wizard page
 WizardUserInfo=Інформація про користувача
 UserInfoDesc=Будь ласка, введіть дані про себе.
 UserInfoName=&Ім’я користувача:
@@ -148,7 +136,7 @@ UserInfoOrg=&Організація:
 UserInfoSerial=&Серійний номер:
 UserInfoNameRequired=Ви повинні ввести ім'я.
 
-; *** Сторінка "Вибір шляху встановлення"
+; *** "Select Destination Location" wizard page
 WizardSelectDir=Вибір шляху встановлення
 SelectDirDesc=Куди ви бажаєте встановити [name]?
 SelectDirLabel3=Програма встановить [name] у наступну папку.
@@ -169,7 +157,7 @@ DirExists=Папка:%n%n%1%n%nвже існує. Ви все одно бажаєте встановити в цю папку?
 DirDoesntExistTitle=Папка не існує
 DirDoesntExist=Папка:%n%n%1%n%nне існує. Ви бажаєте створити її?
 
-; *** Сторінка "Вибір компонентів"
+; *** "Select Components" wizard page
 WizardSelectComponents=Вибір компонентів
 SelectComponentsDesc=Які компоненти ви бажаєте встановити?
 SelectComponentsLabel2=Виберіть компоненти які ви бажаєте встановити; зніміть відмітку з компонентів які ви не бажаєте встановлювати. Натисніть «Далі», щоб продовжити.
@@ -184,12 +172,12 @@ ComponentSize2=%1 Mб
 ComponentsDiskSpaceGBLabel=Даний вибір вимагає як мінімум [gb] Гб дискового простору.
 ComponentsDiskSpaceMBLabel=Даний вибір вимагає як мінімум [mb] Mб дискового простору.
 
-; *** Сторінка "Вибір додаткових завдань"
+; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Вибір додаткових завдань
 SelectTasksDesc=Які додаткові завдання ви бажаєте виконати?
 SelectTasksLabel2=Виберіть додаткові завдання які програма встановлення [name] повинна виконати, потім натисніть «Далі».
 
-; *** Сторінка "Вибір папки в меню «Пуск»"
+; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Вибір папки в меню «Пуск»
 SelectStartMenuFolderDesc=Де ви бажаєте створити ярлики?
 SelectStartMenuFolderLabel3=Програма встановлення створить ярлики у наступній папці меню «Пуск».
@@ -200,7 +188,7 @@ InvalidGroupName=Вказане ім’я папки недопустиме.
 BadGroupName=Ім'я папки не може включати наступні символи:%n%n%1
 NoProgramGroupCheck2=&Не створювати папку в меню «Пуск»
 
-; *** Сторінка "Усе готово до встановлення"
+; *** "Ready to Install" wizard page
 WizardReady=Усе готово до встановлення
 ReadyLabel1=Програма готова розпочати встановлення [name] на ваш комп’ютер.
 ReadyLabel2a=Натисніть «Встановити» для продовження встановлення, або «Назад», якщо ви бажаєте переглянути або змінити налаштування встановлення.
@@ -224,7 +212,14 @@ ErrorFileHash2=Невірний хеш файлу: очікувався %1, отриманий %2
 ErrorProgress=Помилка виконання: %1 з %2
 ErrorFileSize=Невірний розмір файлу: очікувався %1, отриманий %2
 
-; *** Сторінка "Підготовка до встановлення"
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Розпакування додаткових файлів...
+ButtonStopExtraction=&Перервати розпакування
+StopExtraction=Ви дійсно бажаєте перервати розпакування?
+ErrorExtractionAborted=Розпакування перервано
+ErrorExtractionFailed=Помилка розпакування: %1
+
+; *** "Preparing to Install" wizard page
 WizardPreparing=Підготовка до встановлення
 PreparingDesc=Програма встановлення готується до встановлення [name] на ваш комп’ютер.
 PreviousInstallNotCompleted=Встановлення або видалення попередньої програми не було завершено. Вам потрібно перезавантажити ваш комп’ютер для завершення минулого встановлення.%n%nПісля перезавантаження відкрийте програму встановлення знову, щоб завершити встановлення [name].
@@ -236,11 +231,11 @@ DontCloseApplications=&Не закривати програми
 ErrorCloseApplications=Програма встановлення не може автоматично закрити всі програми. Рекомендується закрити всі програми, що використовують файли, які повинні бути оновлені програмою встановлення, перш ніж продовжити.
 PrepareToInstallNeedsRestart=Програмі встановлення необхідно перезавантажити ваш ПК. Після перезавантаження ПК, запустіть встановлення знову для завершення встановлення [name]%n%nВи бажаєте перезавантажити зараз?
 
-; *** Сторінка "Встановлення"
+; *** "Installing" wizard page
 WizardInstalling=Встановлення
 InstallingLabel=Будь ласка, зачекайте, поки [name] встановиться на ваш комп'ютер.
 
-; *** Сторінка "Встановлення завершено"
+; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Завершення встановлення [name]
 FinishedLabelNoIcons=Встановлення [name] на ваш комп’ютер завершено.
 FinishedLabel=Встановлення [name] на ваш комп’ютер завершено. Встановлені програми можна відкрити за допомогою створених ярликів.
@@ -269,7 +264,7 @@ AbortRetryIgnoreRetry=&Спробувати знову
 AbortRetryIgnoreIgnore=&Ігнорувати помилку та продовжити
 AbortRetryIgnoreCancel=Відмінити встановлення
 
-; *** Повідомлення стану встановлення
+; *** Installation status messages
 StatusClosingApplications=Закриття програм...
 StatusCreateDirs=Створення папок...
 StatusExtractFiles=Розпакування файлів...
@@ -282,22 +277,22 @@ StatusRunProgram=Завершення встановлення...
 StatusRestartingApplications=Перезапуск програм...
 StatusRollback=Скасування змін...
 
-; *** Різні помилки
+; *** Misc. errors
 ErrorInternal2=Внутрішня помилка: %1
 ErrorFunctionFailedNoCode=%1 збій
 ErrorFunctionFailed=%1 збій; код %2
 ErrorFunctionFailedWithMessage=%1 збій; код %2.%n%3
 ErrorExecutingProgram=Неможливо виконати файл:%n%1
 
-; *** Помилки реєстру
+; *** Registry errors
 ErrorRegOpenKey=Помилка відкриття ключа реєстру:%n%1\%2
 ErrorRegCreateKey=Помилка створення ключа реєстру:%n%1\%2
 ErrorRegWriteKey=Помилка запису в ключ реєстру:%n%1\%2
 
-; *** Помилки INI
+; *** INI errors
 ErrorIniEntry=Помилка при створенні запису в INI-файлі "%1".
 
-; *** Помилки копіювання файлів
+; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Пропустити файл (не рекомендується)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ігнорувати помилку та продовжити (не рекомендується)
 SourceIsCorrupted=Вихідний файл пошкоджений
@@ -328,7 +323,9 @@ ErrorRegSvr32Failed=Помилка при виконанні RegSvr32, код повернення %1
 ErrorRegisterTypeLib=Неможливо зареєструвати бібліотеку типів: %1
 
 ; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-біт
 UninstallDisplayNameMark64Bit=64-біт
@@ -339,7 +336,7 @@ UninstallDisplayNameMarkCurrentUser=Поточний користувач
 ErrorOpeningReadme=Виникла помилка при спробі відкриття файлу README.
 ErrorRestartingComputer=Програмі встановлення не вдалося перезавантажити комп'ютер. Будь ласка, виконайте це самостійно.
 
-; *** Повідомлення видалення
+; *** Uninstaller messages
 UninstallNotFound=Файл "%1" не існує, видалення неможливе.
 UninstallOpenError=Неможливо відкрити файл "%1". Видалення неможливе
 UninstallUnsupportedVer=Файл протоколу для видалення "%1" не розпізнаний даною версією програми видалення. Видалення неможливе
@@ -361,8 +358,7 @@ SharedFileLocationLabel=Розміщення:
 WizardUninstalling=Стан видалення
 StatusUninstalling=Видалення %1...
 
-
-; *** Причини блокування вимкнення
+; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Встановлення %1.
 ShutdownBlockReasonUninstallingApp=Видалення %1.
 
