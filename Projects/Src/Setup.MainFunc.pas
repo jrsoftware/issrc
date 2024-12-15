@@ -2389,14 +2389,6 @@ begin
   RestartInitiatedByThisProcess := True;
   { Note: Depending on the OS, RestartComputer may not return if successful }
   if not RestartComputer then begin
-    { Hack for when called from RespawnSetupElevated: re-show the
-      application's taskbar button } 
-    ShowWindow(Application.Handle, SW_SHOW);
-    { If another app denied the shutdown, we probably lost the foreground;
-      try to take it back. (Note: Application.BringToFront can't be used
-      because we have no visible forms, and MB_SETFOREGROUND doesn't make
-      the app's taskbar button blink.) }
-    SetForegroundWindow(Application.Handle);
     LoggedMsgBox(SetupMessages[msgErrorRestartingComputer], '', mbError,
       MB_OK, True, IDOK);
   end;
@@ -2415,9 +2407,6 @@ var
     NotifyNewLanguage: Integer;
   end;
 begin
-  { Hide the taskbar button }
-  SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-    SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
   Cancelled := False;
   try
     Server := TSpawnServer.Create;
@@ -2438,11 +2427,8 @@ begin
     { If the user clicked Cancel on the dialog, halt with special exit code }
     if ExceptObject is EAbort then
       Cancelled := True
-    else begin
-      { Otherwise, re-show the taskbar button and re-raise }
-      ShowWindow(Application.Handle, SW_SHOW);
+    else
       raise;
-    end;
   end;
   if Cancelled then
     Halt(ecCancelledBeforeInstall);
@@ -2461,7 +2447,6 @@ begin
     except
       { In the unlikely event that something above raises an exception, handle
         it here so the right exit code will still be returned below }
-      ShowWindow(Application.Handle, SW_SHOW);
       Application.HandleException(nil);
     end;
   end;

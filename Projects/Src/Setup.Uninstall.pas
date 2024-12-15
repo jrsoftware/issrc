@@ -349,19 +349,9 @@ begin
   RequireAdmin := (ufAdminInstalled in Flags) or (ufPowerUserInstalled in Flags);
 
   if NeedToRespawnSelfElevated(RequireAdmin, False) then begin
-    { Hide the taskbar button }
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-    try
-      RespawnSelfElevated(UninstExeFilename,
-        Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
-        UninstallExitCode);
-    except
-      { Re-show the taskbar button and re-raise }
-      if not(ExceptObject is EAbort) then
-        ShowWindow(Application.Handle, SW_SHOW);
-      raise;
-    end;
+    RespawnSelfElevated(UninstExeFilename,
+      Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
+      UninstallExitCode);
     Result := True;
   end;
 end;
@@ -402,11 +392,6 @@ begin
   Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
     Longint(@FirstPhaseWindowProc));
   try
-    { Hide the application window so that we don't end up with two taskbar
-      buttons once the second phase starts }
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-
     { Execute the copy of itself ("second phase") }
     ProcessHandle := Exec(TempFile, Format('/SECONDPHASE="%s" /FIRSTPHASEWND=$%x ',
       [NewParamStr(0), Wnd]) + GetCmdTail);
@@ -733,11 +718,6 @@ begin
       Log('Restarting Windows.');
       RestartInitiatedByThisProcess := True;
       if not RestartComputer then begin
-        { If another app denied the shutdown, we probably lost the foreground;
-          try to take it back. (Note: Application.BringToFront can't be used
-          because we have no visible forms, and MB_SETFOREGROUND doesn't make
-          the app's taskbar button blink.) }
-        SetForegroundWindow(Application.Handle);
         LoggedAppMessageBox(PChar(SetupMessages[msgErrorRestartingComputer]),
           PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION,
           True, IDOK);

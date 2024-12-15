@@ -48,14 +48,16 @@ const
   StateFlags: array[TTaskbarProgressState] of Integer = (
     TBPF_NOPROGRESS, TBPF_INDETERMINATE, TBPF_NORMAL, TBPF_ERROR, TBPF_PAUSED);
 begin
-  if InitializeTaskbarList then
-    TaskbarListInterface.SetProgressState(Application.Handle, StateFlags[State]);
+  if InitializeTaskbarList and Assigned(Application.MainForm) and
+     Application.MainForm.HandleAllocated then
+    TaskbarListInterface.SetProgressState(Application.MainForm.Handle, StateFlags[State]);
 end;
 
 procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
 begin
-  if InitializeTaskbarList then
-    TaskbarListInterface.SetProgressValue(Application.Handle, Completed, Total);
+  if InitializeTaskbarList and Assigned(Application.MainForm) and
+     Application.MainForm.HandleAllocated then
+    TaskbarListInterface.SetProgressValue(Application.MainForm.Handle, Completed, Total);
 end;
 
 end.
