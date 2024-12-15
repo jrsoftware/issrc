@@ -759,10 +759,9 @@ var
   SystemMenu: HMENU;
   P: String;
   I, DefaultSetupTypeIndex: Integer;
-  DfmDefault, IgnoreInitComponents: Boolean;
+  IgnoreInitComponents: Boolean;
   TypeEntry: PSetupTypeEntry;
   ComponentEntry: PSetupComponentEntry;
-  SaveClientWidth, SaveClientHeight: Integer;
 begin
   inherited;
 
@@ -791,34 +790,17 @@ begin
   WelcomeLabel1.Font.Style := [fsBold];
   PageNameLabel.Font.Style := [fsBold];
 
-  if shWindowVisible in SetupHeader.Options then
-    Caption := SetupMessages[msgSetupAppTitle]
-  else if shDisableWelcomePage in SetupHeader.Options then
+  if shDisableWelcomePage in SetupHeader.Options then
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Set BorderStyle and BorderIcons:
-    -WindowVisible + WizardResizable = sizeable
-    -not WindowVisible + WizardResizable = sizeable + minimize
-    -WindowVisible + not WizardResizable = dialog = .dfm default = do nothing
-    -not WindowVisible + not WizardResizable = single + minimize }
-  DfmDefault := (shWindowVisible in SetupHeader.Options) and not (shWizardResizable in SetupHeader.Options);
-  if not DfmDefault then begin
-    { Save ClientWidth/ClientHeight and restore them after changing BorderStyle. }
-    SaveClientWidth := ClientWidth;
-    SaveClientHeight := ClientHeight;
-    if not(shWindowVisible in SetupHeader.Options) then
-      BorderIcons := BorderIcons + [biMinimize];
-    if not(shWizardResizable in SetupHeader.Options) then
-      BorderStyle := bsSingle
-    else
-      BorderStyle := bsSizeable;
+  if shWizardResizable in SetupHeader.Options then begin
+    const SaveClientWidth = ClientWidth;
+    const SaveClientHeight = ClientHeight;
+    BorderStyle := bsSizeable;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
-  end;
-
-  if shWizardResizable in SetupHeader.Options then begin
     EnableAnchorOuterPagesOnResize := True;
     { Do not allow user to resize it smaller than 100% nor larger than 150%. }
     Constraints.MinHeight := Height;
@@ -2695,12 +2677,6 @@ end;
 
 procedure TWizardForm.WMSysCommand(var Message: TWMSysCommand);
 begin
-  if Message.CmdType and $FFF0 = SC_MINIMIZE then
-    { A minimize button is shown on the wizard form when (shWindowVisible in
-      SetupHeader.Options). When it is clicked we want to minimize the whole
-      application. }
-    Application.Minimize
-  else
   if Message.CmdType = 9999 then
     MainForm.ShowAboutBox
   else
