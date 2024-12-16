@@ -116,6 +116,7 @@ var
   NButtonLabelsAvailable: Integer;
   ButtonIDs: array of Integer;
 begin
+  Application.Restore; { See comments in AppMessageBox }
   if Icon <> '' then
     IconP := PChar(Icon)
   else begin

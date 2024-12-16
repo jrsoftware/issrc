@@ -212,6 +212,18 @@ var
   ActiveWindow: HWND;
   WindowList: Pointer;
 begin
+  { Always restore the app first if it's minimized. This makes sense from a
+    usability perspective (e.g., it may be unclear which app generated the
+    message box if it's shown by itself), but it's also a VCL bug mitigation
+    (seen on Delphi 11.3):
+    Without this, when Application.MainFormOnTaskBar=True, showing a window
+    like a message box causes a WM_ACTIVATEAPP message to be sent to
+    Application.Handle, and the VCL strangely responds by setting FAppIconic
+    to False -- even though the main form is still iconic (minimized). If we
+    later try to call Application.Restore, nothing happens because it sees
+    FAppIconic=False. }
+  Application.Restore;
+
   { Always try to bring the message box to the foreground. Task dialogs appear
     to do that by default.
     Without this, if the main form is minimized and then closed via the

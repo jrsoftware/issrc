@@ -26,7 +26,6 @@ type
     procedure Finish(const FromPreparingPage: Boolean);
     procedure InitializeWizard;
     function Install: Boolean;
-    procedure RestoreApp;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
     class procedure ShowExceptionMsg(const S: String);
@@ -500,31 +499,6 @@ begin
             NeedToAbortInstall := True;
     end;
   end;
-end;
-
-procedure TMainForm.RestoreApp;
-{ Restores the app if it is currently minimized, and tries to make its taskbar
-  button blink (by attempting to bring it to the foreground, which Windows
-  normally blocks). This should be called before displaying any dialogs that
-  aren't user-initiated (like NewDiskForm). }
-begin
-  if IsIconic(Application.Handle) then begin
-    { If called alone, Application.Restore annoyingly brings WizardForm to the
-      foreground even if you're actively clicking/typing in the foreground
-      app. Evidently the SW_RESTORE command used by Application.Restore
-      bypasses Windows' usual foreground-stealing protections. However, if
-      we show WizardForm in advance (and leave the application window still
-      minimized), then SW_RESTORE doesn't bring WizardForm to the foreground
-      (not sure why).
-      Calling ShowWindow(Application.Handle, SW_SHOWNOACTIVATE) before
-      Application.Restore also works, but I worry that's relying on an
-      implementation detail: Application.Restore could be a no-op if it finds
-      the application window isn't minimized. (In fact, it used to be, until
-      the Forms unit added that fake IsIconic function.) }
-    //UpdateWizardFormVisibility(True);
-    Application.Restore;
-  end;
-  Application.BringToFront;
 end;
 
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
