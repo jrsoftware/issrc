@@ -1587,8 +1587,9 @@ var
   begin
     RegisterScriptFunc('BRINGTOFRONTANDRESTORE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Application.BringToFront;
+      { Must be in this order to work around VCL bug }
       Application.Restore;
+      Application.BringToFront;
     end);
     RegisterScriptFunc('WizardDirValue', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
