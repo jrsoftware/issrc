@@ -214,7 +214,8 @@ function TMainForm.Install: Boolean;
             NeedsRestart := True;
         end;
       end;
-      Application.BringToFront;
+      if WizardForm.WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
     end;
   end;
 
@@ -239,7 +240,8 @@ function TMainForm.Install: Boolean;
       finally
         WindowDisabler.Free;
       end;
-      Application.BringToFront;
+      if WizardForm.WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
 
       if Error = ERROR_FAIL_RESTART then
         Log('One or more applications could not be restarted.')

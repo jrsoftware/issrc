@@ -1849,7 +1849,8 @@ begin
       DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := False;
       UpdateCurPageButtonState;
     end;
-    Application.BringToFront;
+    if WindowState <> wsMinimized then  { VCL bug workaround }
+      Application.BringToFront;
   end;
   if Result <> '' then begin
     if PrepareToInstallNeedsRestart then
