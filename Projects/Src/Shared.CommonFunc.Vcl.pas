@@ -54,6 +54,7 @@ procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
+function GetOwnerWndForMessageBox: HWND;
 
 implementation
 
@@ -207,6 +208,25 @@ begin
   end;
 end;
 
+function GetOwnerWndForMessageBox: HWND;
+{ Returns window handle that Application.MessageBox, if called immediately
+  after this function, would use as the owner window for the message box.
+  Exception: If the window that would be returned is not shown on the taskbar,
+  or is a minimized Application.Handle window, then 0 is returned instead.
+  See comments in AppMessageBox. }
+begin
+  { This is what Application.MessageBox does (Delphi 11.3) }
+  Result := Application.ActiveFormHandle;
+  if Result = 0 then  { shouldn't be possible, but they have this check }
+    Result := Application.Handle;
+
+  { Now our override }
+  if ((Result = Application.Handle) and IsIconic(Result)) or
+     (GetWindowLong(Result, GWL_STYLE) and WS_VISIBLE = 0) or
+     (GetWindowLong(Result, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
+    Result := 0;
+end;
+
 function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;
 var
   ActiveWindow: HWND;
@@ -278,13 +298,7 @@ begin
       (This problem doesn't occur when Application.MainFormOnTaskBar=True
       because the main form retains its WS_VISIBLE style while minimized.)
     }
-    var ActWnd := Application.ActiveFormHandle;
-    if ActWnd = 0 then  { shouldn't be possible, but they have this check }
-      ActWnd := Application.Handle;
-    if (ActWnd = Application.Handle) and
-       (IsIconic(Application.Handle) or
-        (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
-        (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0)) then begin
+    if GetOwnerWndForMessageBox = 0 then begin
       ActiveWindow := GetActiveWindow;
       WindowList := DisableTaskWindows(0);
       try
