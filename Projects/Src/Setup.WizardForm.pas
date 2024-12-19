@@ -211,6 +211,7 @@ type
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
+    procedure WMWindowPosChanging(var Message: TWMWindowPosChanging); message WM_WINDOWPOSCHANGING;
   public
     { Public declarations }
     PrepareToInstallFailureMessage: String;
@@ -2682,6 +2683,22 @@ begin
     MainForm.ShowAboutBox
   else
     inherited;
+end;
+
+procedure TWizardForm.WMWindowPosChanging(var Message: TWMWindowPosChanging);
+begin
+  { Work around a VCL issue (Delphi 11.3) when MainFormOnTaskBar=True:
+    If Application.Restore is called while the main form is hidden
+    (Visible=False), the window can become visible because of the SW_RESTORE
+    command it uses, which both unminimizes and shows a window. Reproducer:
+      Application.Minimize;
+      Hide;
+      Application.Restore;
+    This blocks any attempt to show the window while Visible=False.
+    (SW_RESTORE will still unminimize the window; it just cannot show it.) }
+  inherited;
+  if not Visible then
+    Message.WindowPos.flags := Message.WindowPos.flags and not SWP_SHOWWINDOW;
 end;
 
 procedure TWizardForm.LicenseAcceptedRadioClick(Sender: TObject);
