@@ -1,11 +1,10 @@
 <body>
 
-<p>Below is the list of support classes that can be used from within the Pascal script. There are also three support objects available globally:</p>
+<p>Below is the list of support classes that can be used from within the Pascal script. There are also two support objects available globally:</p>
 
 <ul>
 <li><tt><a name="WizardForm">WizardForm</a></tt> of type <anchorlink name="TWizardForm">TWizardForm</anchorlink>.</li>
 <li><tt><a name="UninstallProgressForm">UninstallProgressForm</a></tt> of type <anchorlink name="TUninstallProgressForm">TUninstallProgressForm</anchorlink>.</li>
-<li><tt><a name="MainForm">MainForm</a></tt> of type <anchorlink name="TMainForm">TMainForm</anchorlink> (only visible if <link topic="setup_windowvisible">WindowVisible</link> is set to <tt>yes</tt>.)</li>
 </ul>
 
 <p>Parameter type <tt>AnyString</tt> means both <tt>String</tt> and <tt>AnsiString</tt> can be used.</p>

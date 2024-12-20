@@ -1124,18 +1124,10 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_appcopyright">AppCopyright</link></li>
-<li><link topic="setup_backcolor">BackColor</link></li>
-<li><link topic="setup_backcolor">BackColor2</link></li>
-<li><link topic="setup_backcolordirection">BackColorDirection</link></li>
-<li><link topic="setup_backsolid">BackSolid</link></li>
 <li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
 <li><link topic="setup_setupiconfile">SetupIconFile</link></li>
 <li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
 <li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
-<li><link topic="setup_windowshowcaption">WindowShowCaption</link></li>
-<li><link topic="setup_windowstartmaximized">WindowStartMaximized</link></li>
-<li><link topic="setup_windowresizable">WindowResizable</link></li>
-<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
@@ -1151,12 +1143,20 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_alwayscreateuninstallicon">AlwaysCreateUninstallIcon</link></li>
+<li><link topic="setup_windowvisible">BackColor</link></li>
+<li><link topic="setup_windowvisible">BackColor2</link></li>
+<li><link topic="setup_windowvisible">BackColorDirection</link></li>
+<li><link topic="setup_windowvisible">BackSolid</link></li>
 <li><link topic="setup_disableappenddir">DisableAppendDir</link></li>
 <li><link topic="setup_dontmergeduplicatefiles">DontMergeDuplicateFiles</link></li>
 <li><link topic="setup_messagesfile">MessagesFile</link></li>
 <li><link topic="setup_uninstalliconfile">UninstallIconFile</link></li>
 <li><link topic="setup_uninstalliconname">UninstallIconName</link></li>
 <li><link topic="setup_uninstallstyle">UninstallStyle</link></li>
+<li><link topic="setup_windowvisible">WindowResizable</link></li>
+<li><link topic="setup_windowvisible">WindowShowCaption</link></li>
+<li><link topic="setup_windowvisible">WindowStartMaximized</link></li>
+<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 </ul>
@@ -4032,41 +4032,6 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 </body>
 </setuptopic>
 
-<setuptopic directive="BackColor" title="BackColor, BackColor2">
-<keyword value="BackColor2" />
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>rr</tt>, <tt>gg</tt>, and <tt>bb</tt> specify the two-digit intensities (in hexadecimal) for red, green, and blue respectively. Or it may be one of the following predefined color names: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite.</setupvalid>
-<setupdefault><tt>clBlue</tt> for <tt>BackColor</tt>,<br/><tt>clBlack</tt> for <tt>BackColor2</tt></setupdefault>
-<body>
-<p>The <tt>BackColor</tt> directive specifies the color to use at the top (or left, if <tt>BackColorDirection=lefttoright</tt>) of the setup window's gradient background. <tt>BackColor2</tt> specifies the color to use at the bottom (or right).</p>
-<p>The setting of <tt>BackColor2</tt> is ignored if <tt>BackSolid=yes</tt>.</p>
-<examples>
-<pre>
-BackColor=clBlue
-BackColor2=clBlack
-
-BackColor=$FF0000
-BackColor2=$000000
-</pre>
-</examples>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackColorDirection">
-<setupvalid><tt>toptobottom</tt> or <tt>lefttoright</tt></setupvalid>
-<setupdefault><tt>toptobottom</tt></setupdefault>
-<body>
-<p>This determines the direction of the gradient background on the setup window. If <tt>BackColorDirection</tt> is <tt>toptobottom</tt>, it is drawn from top to bottom; if it is <tt>lefttoright</tt>, it is drawn from left to right.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackSolid">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>This specifies whether to use a solid or gradient background on the setup window. If this is <tt>yes</tt>, the background is a solid color (the color specified by <tt>BackColor</tt>; <tt>BackColor2</tt> is ignored).</p>
-</body>
-</setuptopic>
-
 <setuptopic directive="AppName">
 <body>
 <p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <link topic="setup_appversion">AppVersion</link> and/or <link topic="setup_appvername">AppVerName</link> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
@@ -4165,8 +4130,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 
 <setuptopic directive="AppCopyright">
 <body>
-<p>Specifies a copyright message that Setup will display in the bottom-right corner of Setup's background window when <link topic="setup_windowvisible">WindowVisible</link> is <tt>yes</tt>.</p>
-<p>The value of this directive is also used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
+<p>The value of this directive is used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
 <example><pre>AppCopyright=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
 </body>
 </setuptopic>
@@ -5084,39 +5048,16 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
-<setuptopic directive="WindowShowCaption">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
+<setuptopic directive="WindowVisible" title="BackColor, BackColor2, BackColorDirection, BackSolid, WindowResizable, WindowShowCaption, WindowStartMaximized, WindowVisible">
+<keyword value="BackColor" />
+<keyword value="BackColor2" />
+<keyword value="BackColorDirection" />
+<keyword value="BackSolid" />
+<keyword value="WindowResizable" />
+<keyword value="WindowShowCaption" />
+<keyword value="WindowStartMaximized" />
 <body>
-<p>If set to <tt>no</tt>, Setup will be truly "full screen" -- it won't have a caption bar or border, and it will be on top of the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowStartMaximized">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, the Setup program's background window will initially be displayed in a maximized state, where it won't cover over the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowResizable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>no</tt>, the user won't be able to resize the Setup program's background window when it's not maximized.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowVisible">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, there will be a gradient background window displayed behind the wizard.</p>
-<p>Note that this is considered a legacy feature; it likely will be removed at some point in the future.</p>
+<p><i>Obsolete in 6.4.</i> These directives are no longer supported. In past versions, they were used to configure a 1990s-style gradient background behind the wizard window. This long-deprecated feature has been removed.</p>
 </body>
 </setuptopic>
 

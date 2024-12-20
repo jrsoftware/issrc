@@ -268,12 +268,6 @@ end;</pre></example>
         <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
         <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
       </function>
-      <function>
-        <name>GetMainForm</name>
-        <prototype>function GetMainForm: TMainForm;</prototype>
-        <description><p>Returns the <tt>MainForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
-        <seealso><p><link topic="scriptclasses" anchor="MainForm">MainForm</link></p></seealso>
-      </function>
     </subcategory>
   </category>
   <category>
