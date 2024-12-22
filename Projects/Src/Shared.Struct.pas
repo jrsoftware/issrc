@@ -53,7 +53,7 @@ type
     shAllowNoIcons, shAlwaysRestart, shAlwaysUsePersonalGroup,
     shEnableDirDoesntExistWarning,
     shPassword, shAllowRootDirectory, shDisableFinishedPage, shUsePreviousAppDir,
-    shBackColorHorizontal, shUsePreviousGroup, shUpdateUninstallLogAppName,
+    shUsePreviousGroup, shUpdateUninstallLogAppName,
     shUsePreviousSetupType, shDisableReadyMemo, shAlwaysShowComponentsList,
     shFlatComponentsList, shShowComponentSizes, shUsePreviousTasks,
     shDisableReadyPage, shAlwaysShowDirOnReadyPage, shAlwaysShowGroupOnReadyPage,
