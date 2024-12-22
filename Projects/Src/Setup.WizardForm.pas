@@ -1839,7 +1839,7 @@ begin
     NextButton.Visible := False;
     CancelButton.Enabled := False;
     if InstallMode = imSilent then
-      WizardForm.Show;
+      WizardForm.Visible := True;
     WizardForm.Update;
     try
       DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
@@ -2532,7 +2532,7 @@ begin
               BackButton.Visible := False;
               NextButton.Visible := False;
               if InstallMode = imSilent then
-                WizardForm.Show;
+                WizardForm.Visible := True;
               try
                 WizardForm.Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
@@ -3020,12 +3020,10 @@ begin
         { After installation, we can't abort since e.g. a restart might be
           needed. Instead, to avoid getting stuck in a loop, show the wizard
           (even though this is a silent install) and let the user deal with the
-          problem on their own.
-          The taskbar button will be hidden at this point on very silent
-          installs (see SetupInstallMode); re-show it. }
+          problem on their own. }
         Log('Failed to proceed to next wizard page; showing wizard.');
+        WizardForm.Visible := True;
         Application.Restore;
-        WizardForm.Show;
         Break;
       end;
     end;

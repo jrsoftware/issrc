@@ -119,7 +119,7 @@ begin
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }
-    WizardForm.Show;
+    WizardForm.Visible := True;
   end
   else
     WizardForm.ClickThroughPages;
@@ -195,7 +195,7 @@ function TMainForm.Install: Boolean;
             else begin
               if WizardWasHidden then begin
                 WizardWasHidden := False;
-                WizardForm.Show;
+                WizardForm.Visible := True;
               end;
             end;
             DebugNotifyEntry(seRun, I);
@@ -206,7 +206,7 @@ function TMainForm.Install: Boolean;
         end;
       finally
         if WizardWasHidden then
-          WizardForm.Show;
+          WizardForm.Visible := True;
         WindowDisabler.Free;
         if CheckIfRestartNeeded then begin
           ChecksumAfter := MakePendingFileRenameOperationsChecksum;
@@ -276,7 +276,7 @@ begin
 
     Application.Restore;
     if InstallMode = imSilent then
-      WizardForm.Show;
+      WizardForm.Visible := True;
     WizardForm.Update;
 
     SetStep(ssInstall, False);
