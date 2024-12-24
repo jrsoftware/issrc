@@ -259,6 +259,29 @@ begin
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
     TRichEditViewer.CustomShellExecute := ShellExecuteAsOriginalUser;
+
+    { Don't respect the show command passed by the parent process.
+      "Maximized" makes no sense as our windows don't have maximize/restore
+      buttons, and "Minimized" is problematic as the VCL doesn't realize the
+      app is minimized (Application.Restore has no effect because
+      FAppIconic=False).
+      If the parent process is SetupLdr, then there shouldn't be a non-normal
+      show command because SetupLdr doesn't specify a show command when
+      starting Setup. So this should really only matter when UseSetupLdr=no.
+      First, overwrite the System.CmdShow variable to ensure that
+      Application.Run (if called) doesn't mess with the main form's
+      WindowState.
+      Second, because ShowWindow overrides the value of nCmdShow on the first
+      call if it's SW_SHOWNORMAL, SW_SHOW, or SW_SHOWDEFAULT (which isn't
+      specifically documented; I tested each value), make a first call to
+      ShowWindow here that doesn't actually do anything (the app window is
+      already hidden at this point, and SW_HIDE is not one of the values that
+      get overridden), so that when we show our first form, it will be the
+      second call to ShowWindow and won't have its SW_SHOWNORMAL nCmdShow
+      value overridden. }
+    CmdShow := SW_SHOWNORMAL;
+    ShowWindow(Application.Handle, SW_HIDE);
+
     SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }
