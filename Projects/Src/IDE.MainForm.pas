@@ -3460,12 +3460,9 @@ begin
 end;
 
 procedure TMainForm.BOpenOutputFolderClick(Sender: TObject);
-var
-  Dir: String;
 begin
-  Dir := GetWinDir;
-  ShellExecute(Application.Handle, 'open', PChar(AddBackslash(Dir) + 'explorer.exe'),
-    PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOWNORMAL);
+  LaunchFileOrURL(AddBackslash(GetSystemWinDir) + 'explorer.exe',
+    Format('/select,"%s"', [FCompiledExe]));
 end;
 
 procedure TMainForm.HShortcutsDocClick(Sender: TObject);
@@ -3488,26 +3485,22 @@ end;
 
 procedure TMainForm.HExamplesClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'Examples'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'Examples');
 end;
 
 procedure TMainForm.HFaqClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'isfaq.url');
 end;
 
 procedure TMainForm.HWhatsNewClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm');
 end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isinfo.php', nil,
-    nil, SW_SHOWNORMAL);
+  LaunchFileOrURL('https://jrsoftware.org/isinfo.php');
 end;
 
 procedure TMainForm.HMailingListClick(Sender: TObject);
