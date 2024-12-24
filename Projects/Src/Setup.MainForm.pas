@@ -13,32 +13,19 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes,
-  Shared.Struct, Setup.MainFunc, Setup.SetupForm, Shared.SetupSteps;
+  Shared.Struct, Setup.MainFunc, Shared.SetupSteps;
 
 type
-  TMainForm = class(TSetupForm)
-    procedure FormResize(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure FormPaint(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+  TMainForm = class(TComponent)
   private
-    IsMinimized, HideWizard: Boolean;
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
-    function MainWindowHook(var Message: TMessage): Boolean;
-    procedure UpdateWizardFormVisibility(const IgnoreMinimizedState: Boolean = False);
-    procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
-    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
-    procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
-    procedure WMShowWindow(var Message: TWMShowWindow); message WM_SHOWWINDOW;
   public
     CurStep: TSetupStep;
-    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure Close;
     procedure Finish(const FromPreparingPage: Boolean);
     procedure InitializeWizard;
     function Install: Boolean;
-    procedure RestoreApp;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
     class procedure ShowExceptionMsg(const S: String);
@@ -56,174 +43,10 @@ uses
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc, Setup.Install,
   Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc, Shared.SetupTypes;
 
-{$R *.DFM}
-
-constructor TMainForm.Create(AOwner: TComponent);
-var
-  SystemMenu: HMenu;
-begin
-  inherited;
-
-  InitializeFont;
-
-  if shWindowVisible in SetupHeader.Options then begin
-    { Should the main window not be sizable? }
-    if not(shWindowShowCaption in SetupHeader.Options) then
-      BorderStyle := bsNone
-    else
-    if not(shWindowResizable in SetupHeader.Options) then
-      BorderStyle := bsSingle;
-
-    { Make the main window full-screen. If the window is resizable, limit it
-      to just the work area because full-screen resizable windows don't cover
-      over the taskbar. }
-    BoundsRect := GetRectOfPrimaryMonitor(BorderStyle = bsSizeable);
-    { Before maximizing the window, ensure Handle is created now so the correct
-      'restored' position is saved properly }
-    HandleNeeded;
-
-    { Maximize the window so that the taskbar is still accessible }
-    if shWindowStartMaximized in SetupHeader.Options then
-      WindowState := wsMaximized;
-  end
-  else begin
-    Application.ShowMainForm := False;
-  end;
-
-  if shDisableWelcomePage in SetupHeader.Options then
-    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
-  else
-    Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
-
-  { Append the 'About Setup' item to the system menu }
-  SystemMenu := GetSystemMenu(Handle, False);
-  AppendMenu(SystemMenu, MF_SEPARATOR, 0, nil);
-  AppendMenu(SystemMenu, MF_STRING, 9999, PChar(SetupMessages[msgAboutSetupMenuItem]));
-
-  Application.HookMainWindow(MainWindowHook);
-
-  if Application.ShowMainForm then
-    { Show this form now, so that the focus stays on the wizard form that
-      InitializeWizard (called in the .dpr) shows }
-    Visible := True;
-end;
-
 destructor TMainForm.Destroy;
 begin
-  Application.UnhookMainWindow(MainWindowHook);
+  MainForm := nil;  { just to detect use-after-free }
   inherited;
-end;
-
-procedure TMainForm.WMSysCommand(var Message: TWMSysCommand);
-begin
-  if Message.CmdType = 9999 then
-    ShowAboutBox
-  else
-    inherited;
-end;
-
-procedure TMainForm.WMEraseBkgnd(var Message: TWMEraseBkgnd);
-begin
-  { Since the form paints its entire client area in FormPaint, there is
-    no need for the VCL to ever erase the client area with the brush color.
-    Doing so only slows it down, so this message handler disables that default
-    behavior. }
-  Message.Result := 0;
-end;
-
-procedure TMainForm.FormPaint(Sender: TObject);
-
-  function BlendRGB(const Color1, Color2: TColor; const Blend: Integer): TColor;
-  { Blends Color1 and Color2. Blend must be between 0 and 255; 0 = all Color1,
-    255 = all Color2. }
-  type
-    TColorBytes = array[0..3] of Byte;
-  var
-    I: Integer;
-  begin
-    Result := 0;
-    for I := 0 to 2 do
-      TColorBytes(Result)[I] := Integer(TColorBytes(Color1)[I] +
-        ((TColorBytes(Color2)[I] - TColorBytes(Color1)[I]) * Blend) div 255);
-  end;
-
-var
-  C1, C2: TColor;
-  CS: TPoint;
-  Z: Integer;
-  DrawTextFlags: UINT;
-  R, R2: TRect;
-begin
-  with Canvas do begin
-    { Draw the blue background }
-    if SetupHeader.BackColor = SetupHeader.BackColor2 then begin
-      Brush.Color := SetupHeader.BackColor;
-      FillRect(ClientRect);
-    end
-    else begin
-      C1 := ColorToRGB(SetupHeader.BackColor);
-      C2 := ColorToRGB(SetupHeader.BackColor2);
-      CS := ClientRect.BottomRight;
-      for Z := 0 to 255 do begin
-        Brush.Color := BlendRGB(C1, C2, Z);
-        if not(shBackColorHorizontal in SetupHeader.Options) then
-          FillRect(Rect(0, MulDiv(CS.Y, Z, 255), CS.X, MulDiv(CS.Y, Z+1, 255)))
-        else
-          FillRect(Rect(MulDiv(CS.X, Z, 255), 0, MulDiv(CS.X, Z+1, 255), CS.Y));
-      end;
-    end;
-
-    { Draw the application name and copyright }
-    SetBkMode(Handle, TRANSPARENT);
-
-    DrawTextFlags := DT_WORDBREAK or DT_NOPREFIX or DT_NOCLIP;
-    if RightToLeft then
-      DrawTextFlags := DrawTextFlags or (DT_RIGHT or DT_RTLREADING);
-    SetFontNameSize(Font, LangOptions.TitleFontName,
-      LangOptions.TitleFontSize, 'Arial', 29);
-    if IsMultiByteString(AnsiString(ExpandedAppName)) then
-      { Don't use italics on Japanese characters }
-      Font.Style := [fsBold]
-    else
-      Font.Style := [fsBold, fsItalic];
-    R := ClientRect;
-    InflateRect(R, -8, -8);
-    R2 := R;
-    if RightToLeft then
-      OffsetRect(R2, -4, 4)
-    else
-      OffsetRect(R2, 4, 4);
-    Font.Color := clBlack;
-    DrawText(Handle, PChar(ExpandedAppName), -1, R2, DrawTextFlags);
-    Font.Color := clWhite;
-    DrawText(Handle, PChar(ExpandedAppName), -1, R, DrawTextFlags);
-
-    DrawTextFlags := DrawTextFlags xor DT_RIGHT;
-    SetFontNameSize(Font, LangOptions.CopyrightFontName,
-      LangOptions.CopyrightFontSize, 'Arial', 8);
-    Font.Style := [];
-    R := ClientRect;
-    InflateRect(R, -6, -6);
-    R2 := R;
-    DrawText(Handle, PChar(ExpandedAppCopyright), -1, R2, DrawTextFlags or
-      DT_CALCRECT);
-    R.Top := R.Bottom - (R2.Bottom - R2.Top);
-    R2 := R;
-    if RightToLeft then
-      OffsetRect(R2, -1, 1)
-    else
-      OffsetRect(R2, 1, 1);
-    Font.Color := clBlack;
-    DrawText(Handle, PChar(ExpandedAppCopyright), -1, R2, DrawTextFlags);
-    Font.Color := clWhite;
-    DrawText(Handle, PChar(ExpandedAppCopyright), -1, R, DrawTextFlags);
-  end;
-end;
-
-procedure TMainForm.FormResize(Sender: TObject);
-begin
-  { Needs to redraw the background whenever the form is resized }
-  Repaint;
 end;
 
 procedure TMainForm.ShowAboutBox;
@@ -284,7 +107,6 @@ end;
 
 procedure TMainForm.InitializeWizard;
 begin
-  WizardForm := TWizardForm.Create(Application);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeWizard', [''], False);
@@ -293,12 +115,11 @@ begin
       raise;
     end;
   end;
-  WizardForm.FlipSizeAndCenterIfNeeded(shWindowVisible in SetupHeader.Options, MainForm, True);
+  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }
-    SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-    WizardForm.Show;
+    WizardForm.Visible := True;
   end
   else
     WizardForm.ClickThroughPages;
@@ -340,6 +161,7 @@ function TMainForm.Install: Boolean;
         not NeedsRestart;
       if CheckIfRestartNeeded then
         ChecksumBefore := MakePendingFileRenameOperationsChecksum;
+      var WizardWasHidden := False;
       WindowDisabler := nil;
       try
         for I := 0 to Entries[seRun].Count-1 do begin
@@ -365,15 +187,15 @@ function TMainForm.Install: Boolean;
               WizardForm.StatusLabel.Caption := SetupMessages[msgStatusRunProgram];
             WizardForm.StatusLabel.Update;
             if roHideWizard in RunEntry.Options then begin
-              if WizardForm.Visible and not HideWizard then begin
-                HideWizard := True;
-                UpdateWizardFormVisibility;
+              if WizardForm.Visible and not WizardWasHidden then begin
+                WizardWasHidden := True;
+                WizardForm.Hide;
               end;
             end
             else begin
-              if HideWizard then begin
-                HideWizard := False;
-                UpdateWizardFormVisibility;
+              if WizardWasHidden then begin
+                WizardWasHidden := False;
+                WizardForm.Visible := True;
               end;
             end;
             DebugNotifyEntry(seRun, I);
@@ -383,10 +205,8 @@ function TMainForm.Install: Boolean;
           end;
         end;
       finally
-        if HideWizard then begin
-          HideWizard := False;
-          UpdateWizardFormVisibility;
-        end;
+        if WizardWasHidden then
+          WizardForm.Visible := True;
         WindowDisabler.Free;
         if CheckIfRestartNeeded then begin
           ChecksumAfter := MakePendingFileRenameOperationsChecksum;
@@ -394,7 +214,8 @@ function TMainForm.Install: Boolean;
             NeedsRestart := True;
         end;
       end;
-      Application.BringToFront;
+      if WizardForm.WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
     end;
   end;
 
@@ -419,7 +240,8 @@ function TMainForm.Install: Boolean;
       finally
         WindowDisabler.Free;
       end;
-      Application.BringToFront;
+      if WizardForm.WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
 
       if Error = ERROR_FAIL_RESTART then
         Log('One or more applications could not be restarted.')
@@ -453,11 +275,8 @@ begin
       SaveInf(InitSaveInf);
 
     Application.Restore;
-    Update;
-    if InstallMode = imSilent then begin
-      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-      WizardForm.Show;
-    end;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
     WizardForm.Update;
 
     SetStep(ssInstall, False);
@@ -514,10 +333,8 @@ begin
       end;
     end;
 
-    if InstallMode = imNormal then begin
+    if InstallMode = imNormal then
       Application.Restore;
-      Update;
-    end;
 
     Result := True;
   except
@@ -653,7 +470,7 @@ begin
   TerminateApp;
 end;
 
-procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+procedure TMainForm.Close;
 
   function ConfirmCancel(const DefaultConfirm: Boolean): Boolean;
   var
@@ -666,9 +483,6 @@ procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   end;
 
 begin
-  { Note: Setting CanClose to True causes Application.Terminate to be called;
-    we don't want that. }
-  CanClose := False;
   if Assigned(WizardForm) and WizardForm.HandleAllocated and
      IsWindowVisible(WizardForm.Handle) and IsWindowEnabled(WizardForm.Handle) and
      WizardForm.CancelButton.CanFocus then begin
@@ -687,109 +501,6 @@ begin
             NeedToAbortInstall := True;
     end;
   end;
-end;
-
-procedure TMainForm.WMGetDlgCode(var Message: TWMGetDlgCode);
-begin
-  Message.Result := Message.Result or DLGC_WANTTAB;
-end;
-
-function EWP(Wnd: HWND; Param: LPARAM): BOOL; stdcall;
-begin
-  { Note: GetParent is not used here because the other windows are not
-    actually child windows since they don't have WS_CHILD set. }
-  if GetWindowLong(Wnd, GWL_HWNDPARENT) <> Param then
-    Result := True
-  else begin
-    Result := False;
-    BringWindowToTop(Wnd);
-  end;
-end;
-
-procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  { If, for some reason, the user doesn't have a mouse and the main form was
-    activated, there would normally be no way to reactivate the child form.
-    But this reactivates the form if the user hits a key on the keyboard }
-  if not(ssAlt in Shift) then begin
-    Key := 0;
-    EnumThreadWindows(GetCurrentThreadId, @EWP, Handle);
-  end;
-end;
-
-procedure TMainForm.UpdateWizardFormVisibility(
-  const IgnoreMinimizedState: Boolean = False);
-var
-  ShouldShow: Boolean;
-begin
-  { Note: We don't adjust WizardForm.Visible because on Delphi 3+, if all forms
-    have Visible set to False, the application taskbar button disappears. }
-  if Assigned(WizardForm) and WizardForm.HandleAllocated then begin
-    ShouldShow := WizardForm.Showing and not HideWizard and
-      (IgnoreMinimizedState or not IsIconic(Application.Handle));
-    if (GetWindowLong(WizardForm.Handle, GWL_STYLE) and WS_VISIBLE <> 0) <> ShouldShow then begin
-      if ShouldShow then
-        ShowWindow(WizardForm.Handle, SW_SHOW)
-      else
-        ShowWindow(WizardForm.Handle, SW_HIDE);
-    end;
-  end;
-end;
-
-function TMainForm.MainWindowHook(var Message: TMessage): Boolean;
-var
-  IsIcon: Boolean;
-begin
-  Result := False;
-  case Message.Msg of
-    WM_WINDOWPOSCHANGED: begin
-        { When the application window is minimized or restored, also hide or
-          show WizardForm.
-          Note: MainForm is hidden/shown automatically because its owner
-          window is Application.Handle. }
-        IsIcon := IsIconic(Application.Handle);
-        if IsMinimized <> IsIcon then begin
-          IsMinimized := IsIcon;
-          UpdateWizardFormVisibility;
-        end;
-      end;
-  end;
-end;
-
-procedure TMainForm.WMShowWindow(var Message: TWMShowWindow);
-begin
-  inherited;
-  { When showing, ensure WizardForm is the active window, not MainForm }
-  if Message.Show and (GetActiveWindow = Handle) and
-     Assigned(WizardForm) and WizardForm.HandleAllocated and
-     IsWindowVisible(WizardForm.Handle) then
-    SetActiveWindow(WizardForm.Handle);
-end;
-
-procedure TMainForm.RestoreApp;
-{ Restores the app if it is currently minimized, and tries to make its taskbar
-  button blink (by attempting to bring it to the foreground, which Windows
-  normally blocks). This should be called before displaying any dialogs that
-  aren't user-initiated (like NewDiskForm). }
-begin
-  if IsIconic(Application.Handle) then begin
-    { If called alone, Application.Restore annoyingly brings WizardForm to the
-      foreground even if you're actively clicking/typing in the foreground
-      app. Evidently the SW_RESTORE command used by Application.Restore
-      bypasses Windows' usual foreground-stealing protections. However, if
-      we show WizardForm in advance (and leave the application window still
-      minimized), then SW_RESTORE doesn't bring WizardForm to the foreground
-      (not sure why).
-      Calling ShowWindow(Application.Handle, SW_SHOWNOACTIVATE) before
-      Application.Restore also works, but I worry that's relying on an
-      implementation detail: Application.Restore could be a no-op if it finds
-      the application window isn't minimized. (In fact, it used to be, until
-      the Forms unit added that fake IsIconic function.) }
-    UpdateWizardFormVisibility(True);
-    Application.Restore;
-  end;
-  Application.BringToFront;
 end;
 
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);

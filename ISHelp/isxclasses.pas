@@ -804,10 +804,6 @@ TSetupForm = class(TUIStateForm)
   property SizeAndCenterOnShow: Boolean; read write;
 end;
 
-TMainForm = class(TSetupForm)
-  procedure ShowAboutBox;
-end;
-
 TWizardForm = class(TSetupForm)
   property CancelButton: TNewButton; read;
   property NextButton: TNewButton; read;

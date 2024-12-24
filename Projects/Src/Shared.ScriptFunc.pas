@@ -400,8 +400,6 @@ initialization
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;',
-    { Actually access MainForm.pas }
-    'function GetMainForm: TMainForm;',
     { Actually access WizardForm.pas }
     'function GetWizardForm: TWizardForm;',
     'function WizardIsComponentSelected(const Components: String): Boolean;',

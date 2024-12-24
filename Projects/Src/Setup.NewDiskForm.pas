@@ -48,7 +48,8 @@ uses
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
-  MainForm.RestoreApp;
+  Application.Restore;       { see comments in AppMessageBox }
+  Application.BringToFront;  { usually just makes taskbar button blink }
 
   with TNewDiskForm.Create(Application) do
     try

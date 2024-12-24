@@ -331,6 +331,13 @@ procedure TSetupForm.CenterInsideControl(const Ctl: TWinControl;
 var
   R: TRect;
 begin
+  const CtlForm = GetParentForm(Ctl);
+  if (CtlForm = nil) or not IsWindowVisible(CtlForm.Handle) or
+     IsIconic(CtlForm.Handle) then begin
+    Center;
+    Exit;
+  end;
+
   if not InsideClientArea then begin
     if GetWindowRect(Ctl.Handle, R) then
       CenterInsideRect(R);

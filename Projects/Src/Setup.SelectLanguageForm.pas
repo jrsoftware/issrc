@@ -48,7 +48,7 @@ var
   I, J: Integer;
   LangEntry: PSetupLanguageEntry;
 begin
-  LangForm := TSelectLanguageForm.Create(Application);
+  Application.CreateForm(TSelectLanguageForm, LangForm);
   try
     for I := 0 to Entries[seLanguage].Count-1 do begin
       LangEntry := Entries[seLanguage][I];

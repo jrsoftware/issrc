@@ -27,18 +27,17 @@ var
     'TFolderTreeView', 'TFont', 'TFontStyle', 'TFontStyles', 'TForm', 'TFormBorderStyle',
     'TFormStyle', 'TGraphic', 'TGraphicControl', 'TGraphicsObject', 'THandleStream', 'TInputDirWizardPage',
     'TInputFileWizardPage', 'TInputOptionWizardPage', 'TInputQueryWizardPage', 'TKeyEvent',
-    'TKeyPressEvent', 'TLabel', 'TLinkLabel', 'TListBox', 'TListBoxStyle', 'TMainForm',
-    'TMemo', 'TNewButton', 'TNewCheckBox', 'TNewCheckListBox', 'TNewComboBox', 'TNewEdit',
-    'TNewLinkLabel', 'TNewListBox', 'TNewMemo', 'TNewNotebook', 'TNewNotebookPage', 'TNewProgressBar',
-    'TNewProgressBarState', 'TNewProgressBarStyle', 'TNewRadioButton', 'TNewStaticText',
-    'TNotifyEvent', 'TObject', 'TOutputMarqueeProgressWizardPage', 'TOutputMsgMemoWizardPage',
-    'TOutputMsgWizardPage', 'TOutputProgressWizardPage', 'TPanel', 'TPanelBevel', 'TPasswordEdit',
-    'TPen', 'TPenMode', 'TPenStyle', 'TPersistent', 'TPosition', 'TRadioButton', 'TRichEditViewer',
-    'TScrollingWinControl', 'TScrollStyle', 'TSetupForm', 'TShiftState', 'TSizeConstraints',
-    'TStartMenuFolderTreeView', 'TStream', 'TStringList', 'TStrings', 'TStringStream',
-    'TSysLinkEvent', 'TSysLinkType', 'TUIStateForm', 'TUninstallProgressForm', 'TWinControl',
-    'TWizardForm', 'TWizardPage', 'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent',
-    'TWizardPageShouldSkipEvent'
+    'TKeyPressEvent', 'TLabel', 'TLinkLabel', 'TListBox', 'TListBoxStyle', 'TMemo', 'TNewButton',
+    'TNewCheckBox', 'TNewCheckListBox', 'TNewComboBox', 'TNewEdit', 'TNewLinkLabel', 'TNewListBox',
+    'TNewMemo', 'TNewNotebook', 'TNewNotebookPage', 'TNewProgressBar', 'TNewProgressBarState',
+    'TNewProgressBarStyle', 'TNewRadioButton', 'TNewStaticText', 'TNotifyEvent', 'TObject',
+    'TOutputMarqueeProgressWizardPage', 'TOutputMsgMemoWizardPage', 'TOutputMsgWizardPage',
+    'TOutputProgressWizardPage', 'TPanel', 'TPanelBevel', 'TPasswordEdit', 'TPen', 'TPenMode',
+    'TPenStyle', 'TPersistent', 'TPosition', 'TRadioButton', 'TRichEditViewer', 'TScrollingWinControl',
+    'TScrollStyle', 'TSetupForm', 'TShiftState', 'TSizeConstraints', 'TStartMenuFolderTreeView',
+    'TStream', 'TStringList', 'TStrings', 'TStringStream', 'TSysLinkEvent', 'TSysLinkType',
+    'TUIStateForm', 'TUninstallProgressForm', 'TWinControl', 'TWizardForm', 'TWizardPage',
+    'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
   ];
 
   PascalEnumValues_Isxclasses: array of AnsiString = [
@@ -155,7 +154,6 @@ var
     'procedure SetProgress(Position, Max: Longint);',
     'procedure SetText(Msg1, Msg2: String);',
     'procedure Show;',
-    'procedure ShowAboutBox;',
     'procedure Sort;',
     'procedure TextOut(X, Y: Integer; Text: String);',
     'procedure Update;',

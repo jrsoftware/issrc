@@ -53,7 +53,6 @@ procedure NoUninstallFuncError(const C: AnsiString); overload;
 procedure OnlyUninstallFuncError(const C: AnsiString); overload;
 function GetMainForm: TMainForm;
 function GetWizardForm: TWizardForm;
-function GetWizardFormHandle: HWND;
 function GetUninstallProgressForm: TUninstallProgressForm;
 function GetMsgBoxCaption: String;
 procedure InitializeScaleBaseUnits;
@@ -123,14 +122,6 @@ begin
   Result := WizardForm;
   if Result = nil then
     InternalError('An attempt was made to access WizardForm before it has been created');
-end;
-
-function GetWizardFormHandle: HWND;
-begin
-  if Assigned(WizardForm) then
-    Result := WizardForm.Handle
-  else
-    Result := 0;
 end;
 
 function GetUninstallProgressForm: TUninstallProgressForm;
