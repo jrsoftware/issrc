@@ -58,6 +58,7 @@ begin
       Filename := AFilename;
       SelectDiskLabel.Caption := FmtSetupMessage(msgSelectDiskLabel2, [IntToStr(DiskNumber)]);
       PathEdit.Text := Path;
+      ActiveControl := OKButton;
       Result := ShowModal = mrOK;
       if Result then
         Path := GetSanitizedPath;
