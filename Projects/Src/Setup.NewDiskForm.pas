@@ -30,6 +30,8 @@ type
     { Private declarations }
     Filename: string;
     function GetSanitizedPath: String;
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -86,6 +88,15 @@ begin
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+end;
+
+procedure TNewDiskForm.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  { Make sure the form gets a taskbar button if WizardForm doesn't exist yet
+    or if it isn't visible because it's a very silent install }
+  if (WizardForm = nil) or not WizardForm.Visible then
+    Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;
