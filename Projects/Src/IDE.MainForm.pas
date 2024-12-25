@@ -1221,7 +1221,7 @@ end;
 procedure TMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
-  if IsWindowEnabled(Application.Handle) then
+  if IsWindowEnabled(Handle) then
     CanClose := ConfirmCloseFile(True)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
@@ -6727,7 +6727,7 @@ begin
   Info.cbSize := SizeOf(Info);
   Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
     SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
-  Info.Wnd := Application.Handle;
+  Info.Wnd := Handle;
   if FOptions.RunAsDifferentUser then
     Info.lpVerb := 'runas'
   else
@@ -6737,19 +6737,21 @@ begin
   WorkingDir := PathExtractDir(RunFilename);
   Info.lpDirectory := PChar(WorkingDir);
   Info.nShow := SW_SHOWNORMAL;
-  { Disable windows so that the user can't click other things while a "Run as"
-    dialog is up but is not system modal (which it is currently) }
+  { When the RunAsDifferentUser option is enabled, it's this process that
+    waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
+    prevent the user from clicking other things before the UAC dialog is
+    dismissed (which is definitely a possibility if the "Switch to the secure
+    desktop when prompting for elevation" setting is disabled in Group
+    Policy). }
   SaveFocusWindow := GetFocus;
-  WindowList := DisableTaskWindows(0);
+  WindowList := DisableTaskWindows(Handle);
   try
     { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed if the UAC dialog doesn't come to
-      the foreground for some reason (e.g. if the following SetActiveWindow call
-      is removed). }
+      still receive keystrokes. This is needed if Windows doesn't switch to
+      the secure desktop immediately and instead shows a flashing taskbar
+      button that the user must click (which happened on Windows Vista; I'm
+      unable to reproduce it on Windows 11). }
     Windows.SetFocus(0);
-    { We have to make the application window the active window, otherwise the
-      UAC dialog doesn't come to the foreground automatically. }
-    SetActiveWindow(Application.Handle);
     ShellExecuteResult := ShellExecuteEx(@Info);
     ErrorCode := GetLastError;
   finally
@@ -7379,7 +7381,7 @@ begin
 
     { If it has been, offer to reload it }
     if Changed then begin
-      if IsWindowEnabled(Application.Handle) then begin
+      if IsWindowEnabled(Handle) then begin
         if MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
            SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
           if ConfirmCloseFile(False) then begin
