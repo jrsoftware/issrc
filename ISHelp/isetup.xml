@@ -740,7 +740,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="hwnd">{hwnd}</a></b></dt>
 <dd>
-<p><i>(Special-purpose)</i> Translates to the window handle of the Setup program's background window.</p>
+<p><i>Feature removed in 6.4.</i> Previously translated to the window handle of the background window that could be enabled via the <link topic="setup_windowvisible">WindowVisible</link> directive.</p>
 </dd>
 
 <dt><b><a name="wizardhwnd">{wizardhwnd}</a></b></dt>
@@ -5057,7 +5057,7 @@ DiskSliceSize=1457664
 <keyword value="WindowShowCaption" />
 <keyword value="WindowStartMaximized" />
 <body>
-<p><i>Obsolete in 6.4.</i> These directives are no longer supported. In past versions, they were used to configure a 1990s-style gradient background behind the wizard window. This long-deprecated feature has been removed.</p>
+<p><i>Feature removed in 6.4.</i> These directives are no longer supported. In past versions, they were used to configure a 1990s-style blue gradient background behind the wizard window.</p>
 </body>
 </setuptopic>
 
