@@ -30,6 +30,7 @@ type
     { Private declarations }
     Filename: string;
     function GetSanitizedPath: String;
+    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
@@ -50,8 +51,7 @@ uses
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
-  Application.Restore;       { see comments in AppMessageBox }
-  Application.BringToFront;  { usually just makes taskbar button blink }
+  Application.Restore;  { see comments in AppMessageBox }
 
   with TNewDiskForm.Create(Application) do
     try
@@ -97,7 +97,15 @@ begin
   { Make sure the form gets a taskbar button if WizardForm doesn't exist yet
     or if it isn't visible because it's a very silent install }
   if (WizardForm = nil) or not WizardForm.Visible then
-    Params.ExStyle := Params.ExStyle or WS_EX_APPWINDOW;
+    Params.WndParent := 0;
+end;
+
+procedure TNewDiskForm.CMShowingChanged(var Message: TMessage);
+begin
+  inherited;
+  { This usually just makes the taskbar button flash }
+  if Showing then
+    SetForegroundWindow(Handle);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;
