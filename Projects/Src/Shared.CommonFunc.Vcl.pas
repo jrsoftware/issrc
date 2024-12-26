@@ -246,16 +246,14 @@ begin
 
   { Always try to bring the message box to the foreground. Task dialogs appear
     to do that by default.
-    Without this, if the main form is minimized and then closed via the
-    taskbar 'X', a message box shown in its OnCloseQuery handler gets
-    displayed behind the foreground app's window, with no indication that a
-    message box is waiting. With the flag set, the message box is still shown
-    behind the foreground app's window, but the taskbar button begins blinking
-    and the main form is restored automatically. (These tests were done with
-    MainFormOnTaskBar=True and the message box window properly owned by the
-    main form. Don't run under the debugger when testing because that changes
-    the foreground stealing rules.) }
+    Due to Windows' protections against apps stealing the foreground, the
+    message box won't actually come to the foreground in most cases. Instead,
+    the taskbar button will flash. That's really all we need; the user just
+    needs to be made aware that a message box is awaiting their response.
+    (Note: Don't run under the debugger when testing because Windows allows
+    debugged processes to steal the foreground with no restrictions.) }
   Flags := Flags or MB_SETFOREGROUND;
+
   if MessageBoxRightToLeft then
     Flags := Flags or (MB_RTLREADING or MB_RIGHT);
 
@@ -297,6 +295,20 @@ begin
       it's easier to get the message box back on top.
       (This problem doesn't occur when Application.MainFormOnTaskBar=True
       because the main form retains its WS_VISIBLE style while minimized.)
+
+      UPDATE: Had to restrict the use of MB_TASKMODAL to only when
+      MainFormOnTaskBar=False is set to work around *another* VCL issue.
+      The above problem doesn't affect MainFormOnTaskBar=True so that should
+      be fine.
+      Details: When MainFormOnTaskBar=True and MessageBox is called with the
+      MB_TASKMODAL flag after the main form is created but before the main
+      form is shown, the message box appears on the screen but you can't
+      interact with it using the keyboard; keys like Enter and Escape have no
+      effect. The problem? The CM_ACTIVATE handler in TApplication.WndProc is
+      calling SetFocus with a NULL window handle. This erroneous SetFocus call
+      is only reached when the main form window is found to be disabled, which
+      only happens when MB_TASKMODAL is used. As noted above, non-visible
+      windows aren't disabled when only DisableTaskWindows is used.
     }
     if GetOwnerWndForMessageBox = 0 then begin
       ActiveWindow := GetActiveWindow;
@@ -304,7 +316,9 @@ begin
       try
         { Note: DisableTaskWindows doesn't disable invisible windows.
           MB_TASKMODAL will ensure that Application.Handle gets disabled too. }
-        Result := MessageBox(0, Text, Caption, Flags or MB_TASKMODAL);
+        if not Application.MainFormOnTaskBar then
+          Flags := Flags or MB_TASKMODAL;
+        Result := MessageBox(0, Text, Caption, UINT(Flags));
       finally
         EnableTaskWindows(WindowList);
         SetActiveWindow(ActiveWindow);
