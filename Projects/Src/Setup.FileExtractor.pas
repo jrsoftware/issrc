@@ -299,7 +299,7 @@ begin
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
-      ChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
+      XChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
 
     if Left = Res then
       Break
