@@ -5574,8 +5574,8 @@ begin
 
   if DoAutoComplete then begin
     case Ch of
-      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<':
-        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<', '0'..'9':
+        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
