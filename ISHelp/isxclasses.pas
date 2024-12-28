@@ -245,6 +245,8 @@ end;
 
 TFormStyle = (fsNormal, fsMDIChild, fsMDIForm, fsStayOnTop);
 
+TPopupMode = (pmNone, pmAuto, pmExplicit);
+
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 
 TCloseAction = (caNone, caHide, caFree, caMinimize);
@@ -280,6 +282,8 @@ TForm = class(TScrollingWinControl)
   property Font: TFont; read write;
   property FormStyle: TFormStyle; read write;
   property KeyPreview: Boolean; read write;
+  property PopupMode: TPopupMenu; read write;
+  property PopupParent: TForm; read write;
   property Position: TPosition; read write;
   property OnActivate: TNotifyEvent; read write;
   property OnClick: TNotifyEvent; read write;

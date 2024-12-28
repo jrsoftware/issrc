@@ -33,11 +33,12 @@ var
     'TNewProgressBarStyle', 'TNewRadioButton', 'TNewStaticText', 'TNotifyEvent', 'TObject',
     'TOutputMarqueeProgressWizardPage', 'TOutputMsgMemoWizardPage', 'TOutputMsgWizardPage',
     'TOutputProgressWizardPage', 'TPanel', 'TPanelBevel', 'TPasswordEdit', 'TPen', 'TPenMode',
-    'TPenStyle', 'TPersistent', 'TPosition', 'TRadioButton', 'TRichEditViewer', 'TScrollingWinControl',
-    'TScrollStyle', 'TSetupForm', 'TShiftState', 'TSizeConstraints', 'TStartMenuFolderTreeView',
-    'TStream', 'TStringList', 'TStrings', 'TStringStream', 'TSysLinkEvent', 'TSysLinkType',
-    'TUIStateForm', 'TUninstallProgressForm', 'TWinControl', 'TWizardForm', 'TWizardPage',
-    'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
+    'TPenStyle', 'TPersistent', 'TPopupMode', 'TPosition', 'TRadioButton', 'TRichEditViewer',
+    'TScrollingWinControl', 'TScrollStyle', 'TSetupForm', 'TShiftState', 'TSizeConstraints',
+    'TStartMenuFolderTreeView', 'TStream', 'TStringList', 'TStrings', 'TStringStream',
+    'TSysLinkEvent', 'TSysLinkType', 'TUIStateForm', 'TUninstallProgressForm', 'TWinControl',
+    'TWizardForm', 'TWizardPage', 'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent',
+    'TWizardPageShouldSkipEvent'
   ];
 
   PascalEnumValues_Isxclasses: array of AnsiString = [
@@ -63,6 +64,7 @@ var
     'npbsNormal', 'npbsError', 'npbsPaused',
     'npbstNormal', 'npbstMarquee',
     'pmBlack', 'pmWhite', 'pmNop', 'pmNot', 'pmCopy', 'pmNotCopy', 'pmMergePenNot', 'pmMaskPenNot', 'pmMergeNotPen', 'pmMaskNotPen', 'pmMerge', 'pmNotMerge', 'pmMask', 'pmNotMask', 'pmXor', 'pmNotXor',
+    'pmNone', 'pmAuto', 'pmExplicit',
     'poDesigned', 'poDefault', 'poDefaultPosOnly', 'poDefaultSizeOnly', 'poScreenCenter', 'poDesktopCenter', 'poMainFormCenter', 'poOwnerFormCenter',
     'psSolid', 'psDash', 'psDot', 'psDashDot', 'psDashDotDot', 'psClear', 'psInsideFrame',
     'sltURL', 'sltID',
@@ -188,11 +190,11 @@ var
     'OnShow', 'OuterNotebook', 'Owner', 'PageCount', 'PageDescriptionLabel', 'PageIndex',
     'PageNameLabel', 'Pages', 'Parent', 'ParentBackground', 'Password', 'PasswordChar',
     'PasswordEdit', 'PasswordEditLabel', 'PasswordLabel', 'PasswordPage', 'Pen', 'Pitch',
-    'Pixels', 'PixelsPerInch', 'Position', 'PreparingErrorBitmapImage', 'PreparingLabel',
-    'PreparingMemo', 'PreparingNoRadio', 'PreparingPage', 'PreparingYesRadio', 'PrevAppDir',
-    'ProgressBar', 'ProgressGauge', 'PromptLabels', 'ReadOnly', 'ReadyLabel', 'ReadyMemo',
-    'ReadyPage', 'ReplaceColor', 'ReplaceWithColor', 'RequireRadioSelection', 'RichEditViewer',
-    'RightToLeft', 'RTFText', 'RunList', 'ScrollBars', 'SelCount', 'SelectComponentsLabel',
+    'Pixels', 'PixelsPerInch', 'PopupMode', 'PopupParent', 'Position', 'PreparingErrorBitmapImage',
+    'PreparingLabel', 'PreparingMemo', 'PreparingNoRadio', 'PreparingPage', 'PreparingYesRadio',
+    'PrevAppDir', 'ProgressBar', 'ProgressGauge', 'PromptLabels', 'ReadOnly', 'ReadyLabel',
+    'ReadyMemo', 'ReadyPage', 'ReplaceColor', 'ReplaceWithColor', 'RequireRadioSelection',
+    'RichEditViewer', 'RightToLeft', 'RTFText', 'RunList', 'ScrollBars', 'SelCount', 'SelectComponentsLabel',
     'SelectComponentsPage', 'SelectDirBitmapImage', 'SelectDirBrowseLabel', 'SelectDirLabel',
     'SelectDirPage', 'Selected', 'SelectedValueIndex', 'SelectGroupBitmapImage', 'SelectProgramGroupPage',
     'SelectStartMenuFolderBrowseLabel', 'SelectStartMenuFolderLabel', 'SelectTasksLabel',
