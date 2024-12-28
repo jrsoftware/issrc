@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Hebrew messages (s_h(at)enativ.com) ***
+; *** Inno Setup version 6.4.0+ Hebrew messages (s_h(at)enativ.com) ***
 ;
 ;   https://jrsoftware.org/files/istrans/
 ;	Translated by s_h (s_h@enativ.com) (c) 2020
@@ -216,6 +216,13 @@ ErrorFileHash1=אימות מזהה  הקובץ נכשל: %2
 ErrorFileHash2=מזהה קובץ לא חוקי: מצופה %2, נמצא %2
 ErrorProgress=תהליך לא חוקי: %1 מתוך %1
 ErrorFileSize=גודל קובץ לא חוקי: מצופה %1, נמצא %1
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=מחלץ קבצים נוספים...
+ButtonStopExtraction=&עצור חילוץ
+StopExtraction=אתה בטוח שאתה מעוניין לעצור את חילוץ הקבצים?
+ErrorExtractionAborted=חילוץ בוטל
+ErrorExtractionFailed=החילוץ נכשל: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=מתכונן להתקנה

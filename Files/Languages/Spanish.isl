@@ -1,11 +1,11 @@
-; *** Inno Setup version 6.1.0+ Spanish messages ***
+; *** Inno Setup version 6.4.0+ Spanish messages ***
 ;
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
-; Spanish.isl version 1.5.2 (20211123)
-; Default.isl version 6.1.0
+; Spanish.isl version 1.6.0 (20241226)
+; Default.isl version 6.4.0
 ; 
 ; Thanks to Germán Giraldo, Jordi Latorre, Ximo Tamarit, Emiliano Llano, 
-; Ramón Verduzco, Graciela García, Carles Millan and Rafael Barranco-Droege
+; Ramón Verduzco, Graciela García,  Carles Millan and Rafael Barranco-Droege
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -221,6 +221,13 @@ ErrorFileHash2=Hash de archivo no válido: esperado %1, encontrado %2
 ErrorProgress=Progreso no válido: %1 de %2
 ErrorFileSize=Tamaño de archivo no válido: esperado %1, encontrado %2
 
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extrayendo archivos adicionales...
+ButtonStopExtraction=&Detener extracción
+StopExtraction=¿Está seguro que desea detener la extracción?
+ErrorExtractionAborted=Extracción cancelada
+ErrorExtractionFailed=Falló la extracción: %1
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparándose para Instalar
 PreparingDesc=El programa de instalación está preparándose para instalar [name] en su sistema.
@@ -307,7 +314,7 @@ FileExistsSelectAction=Seleccione acción
 FileExists2=El archivo ya existe.
 FileExistsOverwriteExisting=&Sobreescribir el archivo existente
 FileExistsKeepExisting=&Mantener el archivo existente
-FileExistsOverwriteOrKeepAll=&Hacer lo mismo para lo siguientes conflictos
+FileExistsOverwriteOrKeepAll=&Hacer lo mismo para los siguientes conflictos
 ExistingFileNewerSelectAction=Seleccione acción
 ExistingFileNewer2=El archivo existente es más reciente que el que se está tratando de instalar.
 ExistingFileNewerOverwriteExisting=&Sobreescribir el archivo existente

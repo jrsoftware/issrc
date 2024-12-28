@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ French messages ***
+﻿; *** Inno Setup version 6.4.0+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -26,6 +26,7 @@
 ;     "retry": "Recommencer" au lieu de "Réessayer"
 ; + Added new 6.0.0 messages
 ; + Added new 6.1.0 messages
+; + Added new 6.4.0 messages
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -240,6 +241,13 @@ ErrorFileHash1=Le calcul de l'empreinte du fichier a échoué : %1
 ErrorFileHash2=Empreinte du fichier invalide : attendue %1, trouvée %2
 ErrorProgress=Progression invalide : %1 sur %2
 ErrorFileSize=Taille du fichier invalide : attendue %1, trouvée %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extraction de fichiers supplémentaires...
+ButtonStopExtraction=&Arrêter l'extraction
+StopExtraction=Êtes-vous sûr de vouloir arrêter l'extraction ?
+ErrorExtractionAborted=Extraction annulée
+ErrorExtractionFailed=L'extraction a échoué : %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Préparation de l'installation

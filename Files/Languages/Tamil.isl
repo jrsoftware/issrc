@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ English messages ***
+﻿; *** Inno Setup version 6.4.0+ English messages ***
 ; தமிழ்நேரம் (https://TamilNeram.github.io)
 ;anishprabu.t@gmail.com
 ; To download user-contributed translations of this file, go to:
@@ -222,6 +222,13 @@ ErrorFileHash1=கோப்பு ஆச் தோல்வியுற்றத
 ErrorFileHash2=தவறான கோப்பு ஆச்: எதிர்பார்க்கப்பட்டது %1,காணப்பட்டது %2 
 ErrorProgress=தவறான முன்னேற்றம்: %2 இல் %1
 ErrorFileSize=தவறான கோப்பு அளவு: எதிர்பார்க்கப்பட்டது %1, காணப்பட்டது %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=கூடுதல் கோப்புகளை பிரித்தெடுக்கிறது...
+ButtonStopExtraction=பிரித்தெடுப்பதை நிறுத்து (&S)
+StopExtraction=பிரித்தெடுப்பதை நிறுத்த விரும்புகிறீர்களா?
+ErrorExtractionAborted=பிரித்தெடுத்தல் நிறுத்தப்பட்டது
+ErrorExtractionFailed=பிரித்தெடுத்தல் தோல்வியடைந்தது: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=நிறுவ தயாராகி வருகிறது

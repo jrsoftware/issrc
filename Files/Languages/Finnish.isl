@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.1.0+ Finnish messages ***
+; *** Inno Setup version 6.4.0+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
 ; E-mail: antti.j.karttunen@iki.fi
-; Last modification date: 2020-08-02
+; Last modification date: 2024-11-30
 
 [LangOptions]
 LanguageName=Suomi
@@ -203,6 +203,13 @@ ErrorFileHash1=Tiedoston tiivisteen luominen epäonnistui: %1
 ErrorFileHash2=Tiedoston tiiviste on virheellinen: odotettu %1, löydetty %2
 ErrorProgress=Virheellinen edistyminen: %1 / %2
 ErrorFileSize=Virheellinen tiedoston koko: odotettu %1, löydetty %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Puretaan tarvittavia tiedostoja...
+ButtonStopExtraction=&Pysäytä purku
+StopExtraction=Oletko varma, että haluat pysäyttää tiedostojen purkamisen?
+ErrorExtractionAborted=Tiedostojen purkaminen keskeytettiin
+ErrorExtractionFailed=Tiedoston purkaminen epäonnistui: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Valmistellaan asennusta

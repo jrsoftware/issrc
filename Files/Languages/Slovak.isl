@@ -1,6 +1,6 @@
 ﻿; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.1.0+ Slovak messages      ***
+; *** Inno Setup version 6.4.0+ Slovak messages      ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -14,7 +14,7 @@
 ; ***   Slappy (slappy AT pobox.sk)                  ***
 ; ***   Comments: (mitems58 AT gmail.com)            ***
 ; ***                                                ***
-; *** Update: 28.01.2021                             ***
+; *** Update: 12.12.2024                             ***
 ; ***                                                ***
 ; ******************************************************
 ;
@@ -221,6 +221,13 @@ ErrorFileHash1=Kontrola hodnoty súboru zlyhala: %1
 ErrorFileHash2=Nesprávna kontrolná hodnota: očakávala sa %1, zistená %2
 ErrorProgress=Nesprávny priebeh: %1 z %2
 ErrorFileSize=Nesprávna veľkosť súboru: očakávala sa %1, zistená %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Rozbaľovanie dodatočných súborov...
+ButtonStopExtraction=&Zastaviť rozbaľovanie
+StopExtraction=Naozaj chcete zastaviť rozbaľovanie?
+ErrorExtractionAborted=Rozbaľovanie prerušené
+ErrorExtractionFailed=Rozbaľovanie zlyhalo: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Príprava inštalácie

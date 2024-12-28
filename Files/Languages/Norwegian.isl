@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Norwegian (bokmål) messages ***
+; *** Inno Setup version 6.4.0+ Norwegian (bokmål) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -217,6 +217,13 @@ ErrorFileHash1=Fil hash verdi feilet: %1
 ErrorFileHash2=Ugyldig fil hash verdi: forventet %1, fant %2
 ErrorProgress=Ugyldig fremdrift: %1 of %2
 ErrorFileSize=Ugyldig fil størrelse: forventet %1, fant %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Pakker ut ekstra filer...
+ButtonStopExtraction=&Stopp utpakking
+StopExtraction=Er du sikker på at du vil stoppe utpakking?
+ErrorExtractionAborted=Utpakking avbrutt
+ErrorExtractionFailed=Utpakking feilet: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Forbereder installasjonen
