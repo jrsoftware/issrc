@@ -5559,8 +5559,16 @@ begin
   end else if FActiveMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
-      if FOptions.AutoCallTips then
+      if FOptions.AutoCallTips then begin
         InitiateCallTip(Ch);
+        if not FActiveMemo.CallTipActive then begin
+          { Normally the calltip activation means any active autocompletion gets
+            cancelled by Scintilla but if the current word has no call tip then
+            we should make sure ourselves that the added brace still cancels
+            the currently active autocompletion }
+          DoAutoComplete := True;
+        end;
+      end;
     end else if Ch = ')' then
       Dec(FCallTipState.BraceCount)
     else
