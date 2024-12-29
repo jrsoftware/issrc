@@ -5422,7 +5422,7 @@ DiskSliceSize=1457664
 
 <dt><b>arm32compatible</b></dt>
 <dd>
-<p>Matches systems capable of running 32-bit Arm binaries. Only Arm64 Windows includes such support.</p>
+<p>Matches systems capable of running 32-bit Arm binaries. Arm64 Windows previously included such support, but Microsoft removed it in Windows 11 24H2.</p>
 </dd>
 
 <dt><b>arm64</b></dt>
@@ -5489,8 +5489,6 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 ArchitecturesAllowed=x64compatible and x86compatible
 ; - An Arm64 app installer that includes some x64 binaries:
 ArchitecturesAllowed=arm64 and x64compatible
-; - An Arm64 app installer that includes some Arm32 binaries:
-ArchitecturesAllowed=arm64 and arm32compatible
 
 ; Only allow installation on systems that <i>aren't</i> x64-compatible.
 ; Useful in a situation where you have separate x86 &amp; x64 installers,
