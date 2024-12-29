@@ -1196,16 +1196,24 @@ begin
     there are no popups owned by the application window).
     So if the application calls Application.MessageBox while it isn't in the
     foreground, that message box will be owned by Application.Handle, not by
-    the last-active form as it should be. That can lead to the message box
-    falling behind the form in z-order.
-    To rectify that, we return Screen.ActiveForm.Handle if possible, which is
-    valid whether or not the application is in the foreground. This code is
-    from TCustomTaskDialog.Execute. (HandleAllocated call added to be safe) }
+    the last-active window as it should be. That can lead to the message box
+    falling behind the main form in z-order.
+    To rectify that, when no window is active and MainFormOnTaskBar=True, we
+    fall back to returning the handle of the main form's last active popup,
+    which is the window that would be activated if the main form's taskbar
+    button were clicked. (If Application.Handle is active, we treat that the
+    same as no active window because Application.Handle shouldn't be the owner
+    of any windows when MainFormOnTaskBar=True.)
+    If there is no assigned main form or if MainFormOnTaskBar=False, then we
+    fall back to the default handling. }
 
-  if Assigned(Screen.ActiveForm) and
-     (Screen.ActiveForm.FormStyle <> fsMDIChild) and
-     Screen.ActiveForm.HandleAllocated then
-    AHandle := Screen.ActiveForm.Handle;
+  if Application.MainFormOnTaskBar then begin
+    AHandle := GetActiveWindow;
+    if ((AHandle = 0) or (AHandle = Application.Handle)) and
+       Assigned(Application.MainForm) and
+       Application.MainForm.HandleAllocated then
+      AHandle := GetLastActivePopup(Application.MainFormHandle);
+  end;
 end;
 
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,

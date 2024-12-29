@@ -506,10 +506,13 @@ end;
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
 begin
   { IDE's TMainForm has this too; see comments there }
-  if Assigned(Screen.ActiveForm) and
-     (Screen.ActiveForm.FormStyle <> fsMDIChild) and
-     Screen.ActiveForm.HandleAllocated then
-    AHandle := Screen.ActiveForm.Handle;
+  if Application.MainFormOnTaskBar then begin
+    AHandle := GetActiveWindow;
+    if ((AHandle = 0) or (AHandle = Application.Handle)) and
+       Assigned(Application.MainForm) and
+       Application.MainForm.HandleAllocated then
+      AHandle := GetLastActivePopup(Application.MainFormHandle);
+  end;
 end;
 
 initialization
