@@ -220,10 +220,24 @@ begin
   if Result = 0 then  { shouldn't be possible, but they have this check }
     Result := Application.Handle;
 
-  { Now our override }
-  if ((Result = Application.Handle) and IsIconic(Result)) or
-     (GetWindowLong(Result, GWL_STYLE) and WS_VISIBLE = 0) or
-     (GetWindowLong(Result, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
+  { Now our overrides }
+  if (Result = Application.Handle) and IsIconic(Result) then
+    Exit(0);
+
+  { Find the "root owner" window, which is what appears in the taskbar.
+    We avoid GetAncestor(..., GA_ROOTOWNER) because it's broken in the same
+    way as GetParent(): it stops if it reaches a top-level window that doesn't
+    have the WS_POPUP style (i.e., a WS_OVERLAPPED window). }
+  var RootWnd := Result;
+  while True do begin
+    var ParentWnd := HWND(GetWindowLongPtr(RootWnd, GWLP_HWNDPARENT));
+    if ParentWnd = 0 then
+      Break;
+    RootWnd := ParentWnd;
+  end;
+
+  if (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE = 0) or
+     (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
     Result := 0;
 end;
 
