@@ -282,7 +282,7 @@ TForm = class(TScrollingWinControl)
   property Font: TFont; read write;
   property FormStyle: TFormStyle; read write;
   property KeyPreview: Boolean; read write;
-  property PopupMode: TPopupMenu; read write;
+  property PopupMode: TPopupMode; read write;
   property PopupParent: TForm; read write;
   property Position: TPosition; read write;
   property OnActivate: TNotifyEvent; read write;
