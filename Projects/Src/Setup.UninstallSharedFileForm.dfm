@@ -25,7 +25,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Height = 23
     Anchors = [akBottom]
     Caption = '*'
-    ModalResult = 9
+    ModalResult = 13
     TabOrder = 3
   end
   object NoButton: TNewButton
@@ -45,7 +45,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Height = 23
     Anchors = [akBottom]
     Caption = '*'
-    ModalResult = 10
+    ModalResult = 14
     TabOrder = 1
   end
   object YesButton: TNewButton

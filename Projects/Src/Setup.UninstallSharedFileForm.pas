@@ -45,12 +45,6 @@ uses
 
 {$R *.DFM}
 
-const
-  { These aren't defined on Delphi 2 }
-  mrAll      = mrNo + 1;
-  mrNoToAll  = mrAll + 1;
-  mrYesToAll = mrNoToAll + 1;
-
 function ExecuteRemoveSharedFileDlg(const Filename: String;
   var AAll: Boolean): Boolean;
 var
