@@ -974,7 +974,6 @@ begin
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '"; ValueType: string; ValueName: ""; ValueData: "' + AppAssocNameEdit.Text + '"; Flags: uninsdeletekey' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\' + AppExeName + '"" ""%1"""' + SNewLine;
-      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\Applications\' + AppExeName + '\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""' + SNewLine;
     end;
 
     FFilesHelper.AddScript(Files);

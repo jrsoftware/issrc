@@ -2,7 +2,7 @@ unit IDE.FileAssocFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -83,8 +83,6 @@ begin
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
     '"' + SelfName + '" /cc "%1"');
 
-  SetKeyValue(Rootkey, PChar('Software\Classes\Applications\' + PathExtractName(SelfName) + '\SupportedTypes'), '.iss', '');
-
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then
     UnregisterISSFileAssociationDo(HKEY_CURRENT_USER, False);
@@ -144,7 +142,9 @@ var
   SelfName: String;
   NumSubkeys, NumValues: DWORD;
 begin
-  if not KeyExists(Rootkey, 'Software\Classes\InnoSetupScriptFile') and not KeyExists(Rootkey, 'Software\Classes\.iss') then
+  if not KeyExists(Rootkey, 'Software\Classes\InnoSetupScriptFile') and
+     not KeyExists(Rootkey, 'Software\Classes\.iss') and
+     not KeyExists(Rootkey, 'Software\Classes\Applications\Compil32.exe') then
     Exit;
 
   SelfName := NewParamStr(0);
@@ -175,6 +175,10 @@ begin
     DeleteValue(Rootkey, 'Software\Classes\.iss', 'Content Type');
   end;
   RegDeleteKeyIfEmpty(rvDefault, RootKey, 'Software\Classes\.iss');
+
+  { Remove unnecessary key set by previous versions }
+  RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
+    'Software\Classes\Applications\Compil32.exe');
 
   if ChangeNotify then
     SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
