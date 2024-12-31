@@ -27,7 +27,7 @@ begin
     Result := HKEY_CURRENT_USER;
 end;
 
-procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY; const ChangeNotify: Boolean); forward;
+procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY); forward;
 
 function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUsers: Boolean): Boolean;
 
@@ -85,108 +85,35 @@ begin
 
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then
-    UnregisterISSFileAssociationDo(HKEY_CURRENT_USER, False);
+    UnregisterISSFileAssociationDo(HKEY_CURRENT_USER);
 
   SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
 
-procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY; const ChangeNotify: Boolean);
-
-  function KeyValueEquals(const Rootkey: HKEY; const Subkey: PChar; const Data: String): Boolean;
-  var
-    K: HKEY;
-    S: String;
-  begin
-    Result := False;
-    if RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      if RegQueryStringValue(K, nil, S) and (PathCompare(Data, S) = 0) then
-        Result := True;
-      RegCloseKey(K);
-    end;
-  end;
-
-  function KeyExists(const Rootkey: HKEY; const Subkey: PChar): Boolean;
-  var
-    K: HKEY;
-  begin
-    Result := (RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_QUERY_VALUE,
-      K) = ERROR_SUCCESS);
-    if Result then
-      RegCloseKey(K);
-  end;
-
-  function GetKeyNumSubkeysValues(const Rootkey: HKEY; const Subkey: PChar;
-    var NumSubkeys, NumValues: DWORD): Boolean;
-  var
-    K: HKEY;
-  begin
-    Result := False;
-    if RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
-      Result := RegQueryInfoKey(K, nil, nil, nil, @NumSubkeys, nil, nil,
-        @NumValues, nil, nil, nil, nil) = ERROR_SUCCESS;
-      RegCloseKey(K);
-    end;
-  end;
-
-  procedure DeleteValue(const Rootkey: HKEY; const Subkey, ValueName: PChar);
-  var
-    K: HKEY;
-  begin
-    if RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
-      RegDeleteValue(K, ValueName);
-      RegCloseKey(K);
-    end;
-  end;
-
-var
-  SelfName: String;
-  NumSubkeys, NumValues: DWORD;
+procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY);
 begin
-  if not KeyExists(Rootkey, 'Software\Classes\InnoSetupScriptFile') and
-     not KeyExists(Rootkey, 'Software\Classes\.iss') and
-     not KeyExists(Rootkey, 'Software\Classes\Applications\Compil32.exe') then
-    Exit;
+  { Remove 'InnoSetupScriptFile' entirely. We own it. }
+  RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
+    'Software\Classes\InnoSetupScriptFile');
 
-  SelfName := NewParamStr(0);
-
-  { NOTE: We can't just blindly delete the entire .iss & InnoSetupScriptFile
-    keys, otherwise we'd remove the association even if we weren't the one who
-    registered it in the first place. }
-
-  { Clean up 'InnoSetupScriptFile' }
-  if KeyValueEquals(Rootkey, 'Software\Classes\InnoSetupScriptFile\DefaultIcon', SelfName + ',1') then
-    RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey, 'Software\Classes\InnoSetupScriptFile\DefaultIcon');
-  if KeyValueEquals(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', '"' + SelfName + '" "%1"') then
-    RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open');
-  if KeyValueEquals(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\OpenWithInnoSetup\command', '"' + SelfName + '" "%1"') then
-    RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\OpenWithInnoSetup');
-  if KeyValueEquals(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', '"' + SelfName + '" /cc "%1"') then
-    RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile');
-  RegDeleteKeyIfEmpty(rvDefault, Rootkey, 'Software\Classes\InnoSetupScriptFile\shell');
-  if KeyValueEquals(Rootkey, 'Software\Classes\InnoSetupScriptFile', 'Inno Setup Script') and
-     GetKeyNumSubkeysValues(Rootkey, 'Software\Classes\InnoSetupScriptFile', NumSubkeys, NumValues) and
-     (NumSubkeys = 0) and (NumValues <= 1) then
-    RegDeleteKey(Rootkey, 'Software\Classes\InnoSetupScriptFile');
-
-  { Clean up '.iss' }
-  if not KeyExists(Rootkey, 'Software\Classes\InnoSetupScriptFile') and
-     KeyValueEquals(Rootkey, 'Software\Classes\.iss', 'InnoSetupScriptFile') then begin
-    DeleteValue(Rootkey, 'Software\Classes\.iss', nil);
-    DeleteValue(Rootkey, 'Software\Classes\.iss', 'Content Type');
-  end;
-  RegDeleteKeyIfEmpty(rvDefault, RootKey, 'Software\Classes\.iss');
+  { Leave '.iss' as-is. Other apps may have added their own OpenWithProgids
+    values there, and Microsoft docs recommend against trying to delete the
+    key's default value (which points to a ProgID). See:
+    https://learn.microsoft.com/en-us/windows/win32/shell/fa-file-types
+  }
 
   { Remove unnecessary key set by previous versions }
   RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
     'Software\Classes\Applications\Compil32.exe');
-
-  if ChangeNotify then
-    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
 
 procedure UnregisterISSFileAssociation;
 begin
-  UnregisterISSFileAssociationDo(GetRootkey, True);
+  UnregisterISSFileAssociationDo(HKEY_CURRENT_USER);
+  if IsAdminLoggedOn then
+    UnregisterISSFileAssociationDo(HKEY_LOCAL_MACHINE);
+
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
 
 end.
