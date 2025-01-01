@@ -67,18 +67,18 @@ begin
   if not Result then
     Exit;
 
+  { Remove any cruft left around from an older/newer version }
+  UnregisterISSFileAssociationDo(Rootkey, False);
+
   SelfName := NewParamStr(0);
 
   SetKeyValue(Rootkey, 'Software\Classes\.iss', nil, 'InnoSetupScriptFile');
   SetKeyValue(Rootkey, 'Software\Classes\.iss', 'Content Type', 'text/plain');
+  SetKeyValue(Rootkey, 'Software\Classes\.iss\OpenWithProgids', 'InnoSetupScriptFile', '');
 
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile', nil, 'Inno Setup Script');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\DefaultIcon', nil, SelfName + ',1');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', nil,
-    '"' + SelfName + '" "%1"');
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\OpenWithInnoSetup', nil,
-    'Open with &Inno Setup');
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\OpenWithInnoSetup\command', nil,
     '"' + SelfName + '" "%1"');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, 'Compi&le');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
@@ -112,6 +112,16 @@ procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY;
     end;
   end;
 
+  procedure DeleteValue(const Rootkey: HKEY; const Subkey, ValueName: PChar);
+  var
+    K: HKEY;
+  begin
+    if RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
+      RegDeleteValue(K, ValueName);
+      RegCloseKey(K);
+    end;
+  end;
+
 begin
   if Conditional then begin
     const ExpectedCommand = '"' + NewParamStr(0) + '" "%1"';
@@ -125,11 +135,14 @@ begin
   RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
     'Software\Classes\InnoSetupScriptFile');
 
-  { Leave '.iss' as-is. Other apps may have added their own OpenWithProgids
-    values there, and Microsoft docs recommend against trying to delete the
-    key's default value (which points to a ProgID). See:
+  { As for '.iss', remove only our OpenWithProgids value, not the whole key.
+    Other apps may have added their own OpenWithProgids values there, and
+    Microsoft docs recommend against trying to delete the key's default value
+    (which points to a ProgID). See:
     https://learn.microsoft.com/en-us/windows/win32/shell/fa-file-types
   }
+  DeleteValue(Rootkey, 'Software\Classes\.iss\OpenWithProgids',
+    'InnoSetupScriptFile');
 
   { Remove unnecessary key set by previous versions }
   RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
