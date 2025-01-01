@@ -182,7 +182,7 @@ begin
     end
     else if CompareText(S, '/UNASSOC') = 0 then begin
       try
-        UnregisterISSFileAssociation;
+        UnregisterISSFileAssociation(True);
       except
         MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
         Halt(2);

@@ -12,7 +12,7 @@ unit IDE.FileAssocFunc;
 interface
 
 function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUsers: Boolean): Boolean;
-procedure UnregisterISSFileAssociation;
+procedure UnregisterISSFileAssociation(const Conditional: Boolean);
 
 implementation
 
@@ -27,7 +27,8 @@ begin
     Result := HKEY_CURRENT_USER;
 end;
 
-procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY); forward;
+procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY;
+  const Conditional: Boolean); forward;
 
 function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUsers: Boolean): Boolean;
 
@@ -85,13 +86,41 @@ begin
 
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then
-    UnregisterISSFileAssociationDo(HKEY_CURRENT_USER);
+    UnregisterISSFileAssociationDo(HKEY_CURRENT_USER, False);
 
   SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
 
-procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY);
+procedure UnregisterISSFileAssociationDo(const Rootkey: HKEY;
+  const Conditional: Boolean);
+{ If Conditional is True, no action is taken if the association exists but
+  doesn't point to the currently-running EXE file. That can happen when there
+  are multiple Inno Setup installations in different paths. When one of them
+  is uninstalled, the association shouldn't be unregistered if a different
+  installation currently "owns" it. }
+
+  function GetKeyValue(const Rootkey: HKEY; const Subkey: PChar;
+    var Data: String): Boolean;
+  var
+    K: HKEY;
+  begin
+    Result := False;
+    if RegOpenKeyExView(rvDefault, Rootkey, Subkey, 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+      if RegQueryStringValue(K, nil, Data) then
+        Result := True;
+      RegCloseKey(K);
+    end;
+  end;
+
 begin
+  if Conditional then begin
+    const ExpectedCommand = '"' + NewParamStr(0) + '" "%1"';
+    var CurCommand: String;
+    if GetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', CurCommand) and
+       (PathCompare(CurCommand, ExpectedCommand) <> 0) then
+      Exit;
+  end;
+
   { Remove 'InnoSetupScriptFile' entirely. We own it. }
   RegDeleteKeyIncludingSubkeys(rvDefault, Rootkey,
     'Software\Classes\InnoSetupScriptFile');
@@ -107,11 +136,11 @@ begin
     'Software\Classes\Applications\Compil32.exe');
 end;
 
-procedure UnregisterISSFileAssociation;
+procedure UnregisterISSFileAssociation(const Conditional: Boolean);
 begin
-  UnregisterISSFileAssociationDo(HKEY_CURRENT_USER);
+  UnregisterISSFileAssociationDo(HKEY_CURRENT_USER, Conditional);
   if IsAdminLoggedOn then
-    UnregisterISSFileAssociationDo(HKEY_LOCAL_MACHINE);
+    UnregisterISSFileAssociationDo(HKEY_LOCAL_MACHINE, Conditional);
 
   SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);
 end;
