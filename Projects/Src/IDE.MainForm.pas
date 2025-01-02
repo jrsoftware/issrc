@@ -2,7 +2,7 @@
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -3539,8 +3539,8 @@ begin
     String(FCompilerVersion.Version) + SNewLine;
   if FCompilerVersion.Title <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2024 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2024 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2025 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/' + SNewLine2 +

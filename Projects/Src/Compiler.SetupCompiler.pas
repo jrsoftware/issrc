@@ -2,7 +2,7 @@ unit Compiler.SetupCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -8013,8 +8013,8 @@ begin
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I], True);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2024 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2024 Martijn Laan',0; @1: end;
+    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2025 Jordan Russell, '
+                  db 'Portions Copyright (C) 2000-2025 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally
