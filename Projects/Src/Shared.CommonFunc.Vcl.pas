@@ -2,7 +2,7 @@ unit Shared.CommonFunc.Vcl;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -37,6 +37,7 @@ type
 const
   EnableColor: array[Boolean] of TColor = (clBtnFace, clWindow);
 
+function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
 procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
@@ -67,6 +68,22 @@ var
   MessageBoxCallbackFunc: TMsgBoxCallbackFunc;
   MessageBoxCallbackParam: LongInt;
   MessageBoxCallbackActive: Boolean;
+
+function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
+{ Creates a form, making it the main form if there isn't one already.
+  Usage: AppCreateForm(TMyForm) as TMyForm
+  This is a wrapper around Application.CreateForm, but with these advantages:
+  - Safety: Returns a typed value instead of writing to an untyped parameter.
+  - Safety: When used in an assignment statement: MyForm := AppCreateForm(...)
+    the variable isn't modified until the form is fully constructed and the
+    function exits. Application.CreateForm writes to its parameter, making the
+    value public, before the form's constructor is executed, which could allow
+    code outside the form to access the form before it's fully constructed.
+  - When the result is casted with "as", it works with type inference.
+  - When used in the .dpr, the Delphi IDE will never touch it. }
+begin
+  Application.CreateForm(AClass, Result);
+end;
 
 type
   TListBoxAccess = class(TCustomListBox);

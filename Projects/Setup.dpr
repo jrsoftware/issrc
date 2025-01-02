@@ -2,7 +2,7 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -300,7 +300,6 @@ begin
     Application.MainFormOnTaskBar := True;
     InitializeSetup;
     MainForm := TMainForm.Create(Application);
-    Application.CreateForm(TWizardForm, WizardForm);
     MainForm.InitializeWizard;
   except
     { Halt on any exception }

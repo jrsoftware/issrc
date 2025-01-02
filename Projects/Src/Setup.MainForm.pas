@@ -107,6 +107,7 @@ end;
 
 procedure TMainForm.InitializeWizard;
 begin
+  WizardForm := AppCreateForm(TWizardForm) as TWizardForm;
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeWizard', [''], False);
