@@ -47,13 +47,12 @@ jobs:
           printf '%s\n' >setup-sign.bat \
             'mkdir tmp-unsigned' \
             'copy files tmp-unsigned' \
-            'tmp-unsigned\iscc /Sissigntool256="${{github.workspace}}\home\bin\run-signtool.bat $f" /DSIGNTOOL /DNOSHA1SIGNTOOL setup.iss'
+            'tmp-unsigned\iscc /Sissigntool256="${{github.workspace}}\home\bin\run-signtool.bat $f" /DSIGNTOOL setup.iss'
       - name: build issrc
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
-          "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii Projects\ISPP\Help\compilesettings.bat
           .\build.bat
       - name: Clean up temporary files
         if: always()
@@ -63,7 +62,6 @@ jobs:
         run: |
           copy license.txt Files
           copy license.txt Output
-          copy license.txt Projects/ISPP/Help/Staging
           copy license.txt ISHelp/Staging
       - name: upload Files
         uses: actions/upload-artifact@v3
@@ -75,11 +73,6 @@ jobs:
         with:
           name: Output
           path: Output
-      - name: upload ISPP/Help
-        uses: actions/upload-artifact@v3
-        with:
-          name: Help
-          path: Projects/ISPP/Help/Staging
       - name: upload ISHelp
         uses: actions/upload-artifact@v3
         with:
@@ -92,17 +85,6 @@ jobs:
           mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe) &&
           test -n "$mt" &&
           echo "${mt%%/mt.exe*}" >>$GITHUB_PATH
-      - name: verify MinVersion=6.0 (to support Vista)
-        shell: bash
-        run: |
-          set -x &&
-          sed '/^\[Setup\]/a\
-          MinVersion=6.0\
-          OutputBaseFilename=mysetup-vista
-          ' <setup.iss >setup-vista.iss &&
-          files/ISCC.exe setup-vista.iss &&
-          mt '-inputresource:Output\mysetup-vista.exe' -out:mysetup-vista.manifest &&
-          cat mysetup-vista.manifest
       - name: verify installer
         shell: bash
         run: |

@@ -2,11 +2,9 @@
 ; Inno Setup's own Setup script
 
 ; Inno Setup
-; Copyright (C) 1997-2023 Jordan Russell. All rights reserved.
-; Portions Copyright (C) 2000-2023 Martijn Laan. All rights reserved.
+; Copyright (C) 1997-2025 Jordan Russell. All rights reserved.
+; Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
-
-#include "iscrypt.iss"
 
 #include "isdonateandmail.iss"
 
@@ -15,12 +13,12 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.2.2
+AppVersion=6.4.0-dev
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
 AppUpdatesURL=https://www.innosetup.com/
-VersionInfoCopyright=Copyright (C) 1997-2023 Jordan Russell. Portions Copyright (C) 2000-2023 Martijn Laan.
+VersionInfoCopyright=Copyright (C) 1997-2025 Jordan Russell. Portions Copyright (C) 2000-2025 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern
@@ -38,9 +36,6 @@ TimeStampsInUTC=yes
 TouchDate=none
 TouchTime=00:00
 #ifdef SIGNTOOL
-#ifndef NOSHA1SIGNTOOL
-SignTool=issigntool
-#endif
 SignTool=issigntool256
 SignedUninstaller=yes
 #endif
@@ -80,7 +75,7 @@ Name: english; MessagesFile: "files\Default.isl"
 #expr FindFiles("files\Languages\")
 
 [Messages]
-HelpTextNote=/PORTABLE=1%nEnable portable mode.%n/DOWNLOADISCRYPT=1%nEnable ISCrypt.dll download.
+HelpTextNote=/PORTABLE=1%nEnable portable mode.
 ; Two "Setup" on the same line looks weird, so put a line break in between
 english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
@@ -92,6 +87,7 @@ Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: 
 ; Remove old ISPP files
 Type: files; Name: "{app}\ISCmplr.dls"
 Type: files; Name: "{app}\Builtins.iss"
+Type: files; Name: "{app}\ISPP.chm"
 ; Remove desktop icon if needed
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
 ; Remove old FAQ file
@@ -113,10 +109,13 @@ Type: files; Name: "{app}\WizModernImage.bmp"
 Type: files; Name: "{app}\WizModernImage-IS.bmp"
 Type: files; Name: "{app}\WizModernSmallImage.bmp"
 Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
+; Remove old ISCrypt.dll
+Type: files; Name: "{app}\ISCrypt.dll"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isccexe
@@ -170,8 +169,9 @@ Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversio
 Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
-Source: "Examples\MyProg-ARM64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\MyProg-Arm64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
 Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\PowerShell.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-Dutch.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-German.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -186,7 +186,6 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-Source: "files\ISPP.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
@@ -203,6 +202,7 @@ Type: files; Name: "{app}\isfaq.url"
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
 Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
+Name: "{group}\Inno Setup Documentation (Dark)"; Filename: "{app}\ISetup-dark.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"

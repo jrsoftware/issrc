@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{9A22AB1E-129F-4448-A167-79B909AC4C10}</ProjectGuid>
+    <RootNamespace>islzma</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.35004.147</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ISSRCROOT)\Projects\Bin\</OutDir>
+    <IntDir>$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ShortProjectName)\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ISLZMA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <CallingConvention>StdCall</CallingConvention>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>islzma.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <BaseAddress>0x1200000</BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ISLZMA_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <CallingConvention>StdCall</CallingConvention>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>islzma.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <BaseAddress>0x1200000</BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\7zStream.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Alloc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\CpuArch.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFind.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindMt.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindOpt.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Lzma2Enc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzmaEnc.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtCoder.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtDec.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Threads.c" />
+    <ClCompile Include="islzma.c" />
+    <ClCompile Include="islzma_dll.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zTypes.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zWindows.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Alloc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Compiler.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\CpuArch.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFind.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFindMt.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzHash.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Lzma2Enc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzmaEnc.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\MtCoder.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Precomp.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Threads.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Types.h" />
+    <ClInclude Include="islzma.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="islzma.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

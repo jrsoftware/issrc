@@ -41,10 +41,12 @@ type
   
   TRichEditViewer = class(TMemo)
   private
-    FUseRichEdit: Boolean;
-    FRichEditLoaded: Boolean;
-    FCallback: IRichEditOleCallback;
-    class var FCustomShellExecute: TRichEditViewerCustomShellExecute;
+    class var
+      FCustomShellExecute: TRichEditViewerCustomShellExecute;
+    var
+      FUseRichEdit: Boolean;
+      FRichEditLoaded: Boolean;
+      FCallback: IRichEditOleCallback;
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
@@ -72,9 +74,6 @@ uses
   ShellApi, BidiUtils, PathFunc, ComObj;
 
 const
-  { Note: There is no 'W' 1.0 class }
-  RICHEDIT_CLASS10A = 'RICHEDIT';
-  RICHEDIT_CLASSA = 'RichEdit20A';
   RICHEDIT_CLASSW = 'RichEdit20W';
   MSFTEDIT_CLASS = 'RICHEDIT50W';
   EM_AUTOURLDETECT = WM_USER + 91;
@@ -116,7 +115,7 @@ type
 
   TTextRange = record
     chrg: TCharRange;
-    lpstrText: {$IFDEF UNICODE} PWideChar {$ELSE} PAnsiChar {$ENDIF};
+    lpstrText: PWideChar;
   end;
 
 var
@@ -136,22 +135,12 @@ procedure LoadRichEdit;
 
 begin
   if RichEditUseCount = 0 then begin
-    {$IFDEF UNICODE}
     RichEditVersion := 4;
     RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'MSFTEDIT.DLL'));
-    {$ELSE}
-    RichEditModule := 0;
-    {$ENDIF}
     if RichEditModule = 0 then begin
       RichEditVersion := 2;
       RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED20.DLL'));
     end;
-    {$IFNDEF UNICODE}
-    if RichEditModule = 0 then begin
-      RichEditVersion := 1;
-      RichEditModule := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'RICHED32.DLL'));
-    end;
-    {$ENDIF}
   end;
   Inc(RichEditUseCount);
 end;
@@ -266,17 +255,10 @@ begin
   end;
   inherited;
   if UseRichEdit then begin
-    {$IFDEF UNICODE}
     if RichEditVersion = 4 then
       CreateSubClass(Params, MSFTEDIT_CLASS)
     else
       CreateSubClass(Params, RICHEDIT_CLASSW);
-    {$ELSE}
-    if RichEditVersion = 2 then
-      CreateSubClass(Params, RICHEDIT_CLASSA)
-    else
-      CreateSubClass(Params, RICHEDIT_CLASS10A);
-    {$ENDIF}
   end else
     { Inherited handler creates a subclass of 'EDIT'.
       Must have a unique class name since it uses two different classes

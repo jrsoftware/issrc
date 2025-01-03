@@ -55,7 +55,7 @@
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
 <link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
 <link topic="scriptautomation">Using COM Automation objects</link><br/>
-<link topic="scriptdebug">Debugging</link>
+<link topic="scriptdebug">Run-time debugger</link>
 </p>
 
 </body>
@@ -71,7 +71,7 @@
 
 <p>The <tt>[Code]</tt> section is an optional section that specifies a Pascal script. A Pascal script can be used to customize Setup or Uninstall in many ways. Note that creating a Pascal script is not easy and requires experience with Inno Setup and knowledge about programming in Pascal or at least a similar programming language.</p>
 
-<p>The "Code*.iss" and "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
+<p>The <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
 
 <p>Note: to learn more about the Pascal programming language you may find useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
 
@@ -196,8 +196,9 @@
 <dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
 <dd>
 <p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return True to accept the password and False to reject it.</p>
-<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-1 hash of your salted password yourself and then compare that to <tt><link topic="isxfunc_GetSHA1OfString">GetSHA1OfString</link>(Password)</tt>. This way the actual value of the password remains protected.</p>
+<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><link topic="isxfunc_GetSHA256OfString">GetSHA256OfString</link>(Password)</tt>. This way the actual value of the password is better protected.</p>
 <p>Note: If Setup is run with a /PASSWORD= <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
+<p>Also note: If <link topic="setup_encryption">Encryption</link> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
 
 <dt><tt>function <a name="NeedRestart">NeedRestart</a>(): Boolean;</tt></dt>
@@ -538,7 +539,7 @@ end;
 <keyword value="Pascal Scripting: Examples" />
 <body>
 
-<p>The Pascal Scripting example scripts are located in separate files. Open one of the "Code*.iss" or "UninstallCode*.iss" files in the "Examples" subdirectory in your Inno Setup directory.</p>
+<p>The Pascal Scripting example scripts are located in separate files. Open one of the <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, or <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory.</p>
 
 </body>
 </topic>
@@ -721,37 +722,38 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 </topic>
 
 
-<topic name="scriptdebug" title="Pascal Scripting: Debugging">
-<keyword value="Pascal Scripting: Debugging" />
-<keyword value="Debugging" />
+<topic name="scriptdebug" title="Pascal Scripting: Run-time debugger">
+<keyword value="Pascal Scripting: Run-time debugger" />
+<keyword value="Run-time debugger" />
+<keyword value="Debugger" />
 <body>
 <p>The Compiler IDE contains an integrated run-time debugger to debug your custom Pascal script, accessed via the <i>Run</i> menu. This debugger works very much like debuggers in other IDE's and uses the following menu items:</p>
 
 <dl>
 
-<dt><i>Run To Cursor</i> (F4)</dt>
+<dt><i>Run To Cursor</i> (F4 or Ctrl+F10*)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the line of the cursor, then pauses it.</p>
 </dd>
 
-<dt><i>Step Into</i> (F7)</dt>
+<dt><i>Step Into</i> (F7 or F11)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the next line, then pauses it. By continually pressing F7 you can follow the entire execution flow of Setup.</p>
 </dd>
 
-<dt><i>Step Over</i> (F8)</dt>
+<dt><i>Step Over</i> (F8 or F10)</dt>
 <dd>
 <p>Runs or unpauses Setup until it reaches the next line, then pauses it. Lines inside functions calls are skipped.</p>
 </dd>
 
-<dt><i>Step Out</i> (Shift+F8)</dt>
+<dt><i>Step Out</i> (Shift+F8 or Shift+F11)</dt>
 <dd>
 <p>Unpauses Setup until it reaches the end of the current function, then pauses it on the next line.</p>
 </dd>
 
-<dt><i>Toggle Breakpoint</i> (F5)</dt>
+<dt><i>Toggle Breakpoint</i> (F5 or F9)</dt>
 <dd>
-<p>Next time Setup reaches the line of the cursor, it pauses. There can be multiple breakpoints at once and breakpoints can be removed by pressing F5 again.</p>
+<p>Next time Setup reaches the line of the cursor, it pauses. There can be multiple breakpoints at once and breakpoints can be removed by pressing F5 or F9 again.</p>
 </dd>
 
 <dt><i>Pause</i></dt>
@@ -769,13 +771,39 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
 
+<p>* = actual shortcut depends on the &quot;Menu keys&quot; option.</p>
+
+<p><b>See also:</b><br/>
+<link topic="isxfunc_Debugging">Debugging</link></p>
+
 </body>
 </topic>
 
-<topic name="scriptexpression" title="Pascal Scripting: Boolean Expressions">
+<topic name="scriptexpression" title="Pascal Scripting: Scripted Boolean Expressions">
+<keyword value="Pascal Scripting: Scripted Boolean Expressions" />
 <keyword value="Pascal Scripting: Boolean Expressions" />
 <body>
 <p>See <link topic="scriptcheck">Pascal Scripting: Check Parameters</link> for more information on boolean expressions and see <link topic="setup_uninstallable">Uninstallable</link> for an example.</p>
+</body>
+</topic>
+
+<topic name="isarchidentifier" title="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible">
+<keyword value="Pascal Scripting: Architecture Identifier Matchers like IsX64Compatible" />
+<keyword value="IsX64" />
+<keyword value="IsX86" />
+<body>
+<p>This is the list of support functions which test if the system matches an <link topic="archidentifiers">architecture identifier</link>:<br/><br/>
+<link topic="isxfunc_IsArm32Compatible">IsArm32Compatible</link><br/>
+<link topic="isxfunc_IsArm64">IsArm64</link><br/>
+<link topic="isxfunc_IsWin64">IsWin64</link><br/>
+<link topic="isxfunc_IsX64Compatible">IsX64Compatible</link><br/>
+<link topic="isxfunc_IsX64OS">IsX64OS</link><br/>
+<link topic="isxfunc_IsX86Compatible">IsX86Compatible</link><br/>
+<link topic="isxfunc_IsX86OS">IsX86OS</link><br/><br/>
+<link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
+<link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
+<p><b>See also:</b><br/>
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
 </body>
 </topic>
 

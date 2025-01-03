@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, UxTheme;
+  StdCtrls, NewUxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;
@@ -93,10 +93,9 @@ type
     procedure LBDeleteString(var Message: TMessage); message LB_DELETESTRING;
     procedure LBResetContent(var Message: TMessage); message LB_RESETCONTENT;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
-    procedure WMGetObject(var Message: TMessage); message $003D; //WM_GETOBJECT
+    procedure WMGetObject(var Message: TMessage); message WM_GETOBJECT;
     procedure WMKeyDown(var Message: TWMKeyDown); message WM_KEYDOWN;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
-    procedure WMMouseWheel(var Message: TMessage); message $020A; //WM_MOUSEWHEEL
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
@@ -206,7 +205,7 @@ procedure Register;
 implementation
 
 uses
-  TmSchema, PathFunc, ActiveX, BidiUtils, Types;
+  NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -238,9 +237,6 @@ const
     D1:$00020400; D2:$0000; D3:$0000; D4:($C0,$00,$00,$00,$00,$00,$00,$46));
   IID_IAccessible: TGUID = (
     D1:$618736e0; D2:$3c3d; D3:$11cf; D4:($81,$0c,$00,$aa,$00,$38,$9b,$71));
-
-var
-  CanQueryUIState: Boolean;
 
 type
   TWinControlAccess = class (TWinControl);
@@ -623,8 +619,8 @@ begin
       FlipRect(rcItem, ClientRect, FUseRightToLeft);
     end;
     { Don't let TCustomListBox.CNDrawItem draw the focus }
-    if FWantTabs or (CanQueryUIState and
-      (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS <> 0)) then
+    if FWantTabs or
+      (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS <> 0) then
       itemState := itemState and not ODS_FOCUS;
     inherited;
   end;
@@ -775,10 +771,7 @@ begin
   FlipRect(Rect, SavedClientRect, FUseRightToLeft);
 
   ItemState := ItemStates[Index];
-  if CanQueryUIState then
-    UIState := SendMessage(Handle, WM_QUERYUISTATE, 0, 0)
-  else
-    UIState := 0; //no UISF_HIDEACCEL and no UISF_HIDEFOCUS
+  UIState := SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
   Disabled := not Enabled or not ItemState.Enabled;
   with Canvas do begin
     if not FWantTabs and (odSelected in State) and Focused then begin
@@ -1751,39 +1744,6 @@ begin
   UpdateHotIndex(NewHotIndex);
 end;
 
-procedure TNewCheckListBox.WMMouseWheel(var Message: TMessage);
-const
-  WHEEL_DELTA = 120;
-begin
-  { Work around a Windows bug (reproducible on 2000/XP/2003, but not Vista):
-    On an ownerdraw-variable list box, scrolling up or down more than one item
-    at a time with animation enabled causes a strange effect: first all visible
-    items appear to scroll off the bottom, then the items are all repainted in
-    the correct position. To avoid that, we implement our own mouse wheel
-    handling that scrolls only one item at a time.
-    (Note: The same problem exists when scrolling a page at a time using the
-    scroll bar. But because it's not as obvious, we don't work around it.) }
-  if (Lo(GetVersion) = 5) and
-     (Message.WParam and (MK_CONTROL or MK_SHIFT) = 0) then begin
-    Inc(FWheelAccum, Smallint(Message.WParam shr 16));
-    if Abs(FWheelAccum) >= WHEEL_DELTA then begin
-      while FWheelAccum >= WHEEL_DELTA do begin
-        SendMessage(Handle, WM_VSCROLL, SB_LINEUP, 0);
-        Dec(FWheelAccum, WHEEL_DELTA);
-      end;
-      while FWheelAccum <= -WHEEL_DELTA do begin
-        SendMessage(Handle, WM_VSCROLL, SB_LINEDOWN, 0);
-        Inc(FWheelAccum, WHEEL_DELTA);
-      end;
-      SendMessage(Handle, WM_VSCROLL, SB_ENDSCROLL, 0);
-    end;
-  end
-  else
-    { Like the default handling, don't scroll if Control or Shift are down,
-      and on Vista always use the default handling since it isn't bugged. }
-    inherited;
-end;
-
 procedure TNewCheckListBox.WMNCHitTest(var Message: TWMNCHitTest);
 var
   I: Integer;
@@ -2144,18 +2104,6 @@ begin
   RegisterComponents('JR', [TNewCheckListBox]);
 end;
 
-procedure InitCanQueryUIState;
-var
-  OSVersionInfo: TOSVersionInfo;
-begin
-  CanQueryUIState := False;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
-    if GetVersionEx(OSVersionInfo) then
-      CanQueryUIState := OSVersionInfo.dwMajorVersion >= 5;
-  end;
-end;
-
 { Note: This COM initialization code based on code from DBTables }
 var
   SaveInitProc: Pointer;
@@ -2172,7 +2120,6 @@ initialization
     SaveInitProc := InitProc;
     InitProc := @InitCOM;
   end;
-  InitCanQueryUIState;
   InitThemeLibrary;
   NotifyWinEventFunc := GetProcAddress(GetModuleHandle(user32), 'NotifyWinEvent');
 finalization

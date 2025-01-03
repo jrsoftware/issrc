@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2023 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2023 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2025 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Contributing issues
@@ -32,8 +32,8 @@ branches and make pull requests. In detail:
 6. Make sure that your changes adhere to the current coding conventions used
    throughout the project - indentation, accurate comments, etc.
 
-   Do not make mass whitespace, copyright date or $jrsoftware$ tag changes to
-   files. The only time is it ok to make such changes is when you already needed
+   Do not make mass whitespace or copyright date changes to files nor anything
+   similar. The only time is it ok to make such changes is when you already needed
    to change the file to implement your feature, change, or fix.
 
 7. Commit your changes to your topic branch.
@@ -58,4 +58,4 @@ To contribute translations please see https://jrsoftware.org/files/istrans/send.
 
 Please do NOT use GitHub's web editor to edit ANSI translations and create pull
 requests. This editor doesn't work since it automatically turns ANSI files into
-UTF8 files without a BOM which are not supported (only UTF8 with a BOM is).
+UTF8 files without a BOM which are not supported before Inno Setup 6.3.

@@ -1,21 +1,11 @@
 unit NewStaticText;
 
 {
-  TNewStaticText - similar to TStaticText on D3+ but with multi-line AutoSize
+  TNewStaticText - similar to TStaticText but with multi-line AutoSize
   support and a WordWrap property
 }
 
 interface
-
-{$IFNDEF VER90}
-  {$IFNDEF VER100}
-    {$IFNDEF VER120}
-      {$IFNDEF VER130}
-        {$DEFINE Delphi6OrHigher}
-      {$ENDIF}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}
 
 uses
   Windows, Messages, SysUtils, Classes, Controls, Forms;
@@ -44,7 +34,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure SetAutoSize(Value: Boolean); {$IFDEF Delphi6OrHigher}override;{$ENDIF}
+    procedure SetAutoSize(Value: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;
@@ -94,38 +84,6 @@ procedure Register;
 begin
   RegisterComponents('JR', [TNewStaticText]);
 end;
-
-procedure DrawTextACP(const DC: HDC; const S: String; var R: TRect;
-  const AFormat: UINT);
-{ Draws an ANSI string using the system's code page (CP_ACP), unlike DrawTextA
-  which uses the code page defined by the selected font. }
-{$IFDEF UNICODE}
-begin
-  DrawText(DC, PChar(S), Length(S), R, AFormat);
-end;
-{$ELSE}
-var
-  SLen, WideLen: Integer;
-  WideStr: PWideChar;
-begin
-  SLen := Length(S);
-  if SLen = 0 then
-    Exit;
-  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
-    if SLen > High(Integer) div SizeOf(WideChar) then
-      Exit;
-    GetMem(WideStr, SLen * SizeOf(WideChar));
-    try
-      WideLen := MultiByteToWideChar(CP_ACP, 0, PChar(S), SLen, WideStr, SLen);
-      DrawTextW(DC, WideStr, WideLen, R, AFormat);
-    finally
-      FreeMem(WideStr);
-    end;
-  end
-  else
-    DrawText(DC, PChar(S), SLen, R, AFormat);
-end;
-{$ENDIF}
 
 { TNewStaticText }
 
@@ -234,15 +192,7 @@ begin
   DC := GetDC(0);
   try
     SelectObject(DC, Font.Handle);
-    { On NT platforms, static controls are Unicode-based internally; when
-      ANSI text is assigned to them, it is converted to Unicode using the
-      system code page (ACP). We must be sure to use the ACP here, too,
-      otherwise the calculated size could be incorrect. The code page used
-      by DrawTextA is defined by the font, and not necessarily equal to the
-      ACP, so we can't use it. (To reproduce: with the ACP set to Hebrew
-      (1255), try passing Hebrew text to DrawTextA with the font set to
-      "Lucida Console". It appears to use CP 1252, not 1255.) }
-    DrawTextACP(DC, S, R, DT_CALCRECT or GetDrawTextFlags);
+    DrawText(DC, PChar(S), Length(S), R, DT_CALCRECT or GetDrawTextFlags);
   finally
     ReleaseDC(0, DC);
   end;

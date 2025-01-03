@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Lithuanian messages ***
+; *** Inno Setup version 6.4.0+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -224,6 +224,13 @@ ErrorFileHash1=Failo patikrinimas nepavyko: %1
 ErrorFileHash2=Neteisinga failo „hash“ reikðmë: numatyta %1, rasta %2
 ErrorProgress=Netinkama eiga: %1 ið %2
 ErrorFileSize=Neteisingas failo dydis: numatytas %1, rastas %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Papildomø failø iðtraukimas...
+ButtonStopExtraction=&Stabdyti iðtraukimà
+StopExtraction=Ar tikrai norite sustabdyti iðtraukimà?
+ErrorExtractionAborted=Iðtraukimas nutrauktas
+ErrorExtractionFailed=Nepavyko iðtraukti: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pasirengimas diegimui

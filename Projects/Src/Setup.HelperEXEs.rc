@@ -1,0 +1,3 @@
+// Contains the 64-bit helper EXEs used by the Helper unit
+
+HELPER_EXE_AMD64 RCDATA Helper\x64\Release\Helper.exe

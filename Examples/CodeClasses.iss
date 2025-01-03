@@ -105,6 +105,16 @@ begin
   end;
 end;
 
+procedure LinkLabelOnLinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
+var
+  ErrorCode: Integer;
+begin
+  if (LinkType = sltID) and (Link = 'jrsoftware') then
+    ShellExecAsOriginalUser('open', 'https://jrsoftware.org', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode)
+  else if LinkType = sltURL then  
+    ShellExecAsOriginalUser('open', Link, '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+end;
+
 procedure CreateTheWizardPages;
 var
   Page: TWizardPage;
@@ -116,7 +126,8 @@ var
   Memo: TNewMemo;
   ComboBox: TNewComboBox;
   ListBox: TNewListBox;
-  StaticText, ProgressBarLabel: TNewStaticText;
+  StaticText, StaticText2, ProgressBarLabel: TNewStaticText;
+  LinkLabel: TNewLinkLabel;
   ProgressBar, ProgressBar2, ProgressBar3: TNewProgressBar;
   CheckListBox, CheckListBox2: TNewCheckListBox;
   FolderTreeView: TFolderTreeView;
@@ -222,14 +233,37 @@ begin
   StaticText.Top := ListBox.Top + ListBox.Height + ScaleY(8);
   StaticText.Anchors := [akLeft, akRight, akBottom];
   StaticText.Caption := 'TNewStaticText';
-  StaticText.AutoSize := True;
   StaticText.Parent := Page.Surface;
 
+  StaticText2 := TNewStaticText.Create(Page);
+  StaticText2.AutoSize := False;
+  StaticText2.Left := StaticText.Width + ScaleX(32);
+  StaticText2.Top := StaticText.Top;
+  StaticText2.Anchors := [akLeft, akRight, akBottom];
+  StaticText2.WordWrap := True;
+  StaticText2.Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
+  StaticText2.Width := 2 * StaticText.Width;
+  StaticText2.Parent := Page.Surface;
+  StaticText2.AdjustHeight;
+
+  LinkLabel := TNewLinkLabel.Create(Page);
+  LinkLabel.AutoSize := False;
+  LinkLabel.Left := StaticText2.Left;
+  LinkLabel.Top := StaticText2.Top + StaticText2.Height + ScaleY(8);
+  LinkLabel.Anchors := [akLeft, akRight, akBottom];
+  LinkLabel.Caption := 'TNew<a id="jrsoftware">Link</a>Label with more text and an adjusted label height so it''s multi-line with a second <a id="jrsoftware">link</a> on the second line.';
+  LinkLabel.Width := StaticText2.Width;
+  LinkLabel.OnLinkClick := @LinkLabelOnLinkClick;
+  LinkLabel.Parent := Page.Surface;
+  LinkLabel.AdjustHeight;
+
+  { TNewProgressBar }
+
+  Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TNewProgressBar');
+
   ProgressBarLabel := TNewStaticText.Create(Page);
-  ProgressBarLabel.Top := StaticText.Top + StaticText.Height + ScaleY(8);
-  ProgressBarLabel.Anchors := [akLeft, akBottom];
+  ProgressBarLabel.Anchors := [akLeft, akTop];
   ProgressBarLabel.Caption := 'TNewProgressBar';
-  ProgressBarLabel.AutoSize := True;
   ProgressBarLabel.Parent := Page.Surface;
 
   ProgressBar := TNewProgressBar.Create(Page);
@@ -237,7 +271,7 @@ begin
   ProgressBar.Top := ProgressBarLabel.Top;
   ProgressBar.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar.Anchors := [akLeft, akRight, akBottom];
+  ProgressBar.Anchors := [akLeft, akRight, akTop];
   ProgressBar.Parent := Page.Surface;
   ProgressBar.Position := 25;
 
@@ -246,7 +280,7 @@ begin
   ProgressBar2.Top := ProgressBar.Top + ProgressBar.Height + ScaleY(4);
   ProgressBar2.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar2.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar2.Anchors := [akLeft, akRight, akBottom];
+  ProgressBar2.Anchors := [akLeft, akRight, akTop];
   ProgressBar2.Parent := Page.Surface;
   ProgressBar2.Position := 50;
   ProgressBar2.State := npbsError;
@@ -256,7 +290,7 @@ begin
   ProgressBar3.Top := ProgressBar2.Top + ProgressBar2.Height + ScaleY(4);
   ProgressBar3.Width := Page.SurfaceWidth - ProgressBar.Left;
   ProgressBar3.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar3.Anchors := [akLeft, akRight, akBottom];
+  ProgressBar3.Anchors := [akLeft, akRight, akTop];
   ProgressBar3.Parent := Page.Surface;
   ProgressBar3.Style := npbstMarquee;
   
@@ -367,17 +401,10 @@ begin
   MsgBox('This demo shows some features of the various form objects and control classes.', mbInformation, mb_Ok);
 end;
 
-procedure URLLabelOnClick(Sender: TObject);
-var
-  ErrorCode: Integer;
-begin
-  ShellExecAsOriginalUser('open', 'http://www.innosetup.com/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
-end;
-
 procedure CreateAboutButtonAndURLLabel(ParentForm: TSetupForm; CancelButton: TNewButton);
 var
   AboutButton: TNewButton;
-  URLLabel: TNewStaticText;
+  URLLabel: TNewLinkLabel;
 begin
   AboutButton := TNewButton.Create(ParentForm);
   AboutButton.Left := ParentForm.ClientWidth - CancelButton.Left - CancelButton.Width;
@@ -389,17 +416,14 @@ begin
   AboutButton.OnClick := @AboutButtonOnClick;
   AboutButton.Parent := ParentForm;
 
-  URLLabel := TNewStaticText.Create(ParentForm);
-  URLLabel.Caption := 'www.innosetup.com';
-  URLLabel.Cursor := crHand;
-  URLLabel.OnClick := @URLLabelOnClick;
-  URLLabel.Parent := ParentForm;
-  { Alter Font *after* setting Parent so the correct defaults are inherited first }
-  URLLabel.Font.Style := URLLabel.Font.Style + [fsUnderline];
-  URLLabel.Font.Color := clHotLight
-  URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
+  URLLabel := TNewLinkLabel.Create(ParentForm);
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
+  URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
   URLLabel.Anchors := [akLeft, akBottom];
+  URLLabel.Caption := '<a href="https://jrsoftware.org">jrsoftware.org</a>';
+  URLLabel.OnLinkClick := @LinkLabelOnLinkClick;
+  URLLabel.UseVisualStyle := True;
+  URLLabel.Parent := ParentForm;
 end;
 
 procedure InitializeWizard();

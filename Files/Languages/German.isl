@@ -1,6 +1,6 @@
 ﻿; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.1.0+ German messages      ***
+; *** Inno Setup version 6.4.0+ German messages      ***
 ; ***                                                ***
 ; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
@@ -243,6 +243,13 @@ ErrorFileHash2=Ungültige Datei-Prüfsumme: erwartet %1, gefunden %2
 ErrorProgress=Ungültiger Fortschritt: %1 von %2
 ErrorFileSize=Ungültige Dateigröße: erwartet %1, gefunden %2
 
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Entpacke zusätzliche Dateien...
+ButtonStopExtraction=Entpacken &abbrechen
+StopExtraction=Sind Sie sicher, dass Sie das Entpacken abbrechen wollen?
+ErrorExtractionAborted=Entpacken abgebrochen
+ErrorExtractionFailed=Entpacken fehlgeschlagen: %1
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Vorbereitung der Installation
 PreparingDesc=Das Setup bereitet die Installation von [name] auf diesem Computer vor.
@@ -401,6 +408,6 @@ LaunchProgram=%1 starten
 AssocFileExtension=&Registriere %1 mit der %2-Dateierweiterung
 AssocingFileExtension=%1 wird mit der %2-Dateierweiterung registriert...
 AutoStartProgramGroupDescription=Beginn des Setups:
-AutoStartProgram=Starte automatisch%1
+AutoStartProgram=Starte automatisch %1
 AddonHostProgramNotFound=%1 konnte im ausgewählten Ordner nicht gefunden werden.%n%nMöchten Sie dennoch fortfahren?
 

@@ -7,8 +7,6 @@ unit PathFuncTest;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Test unit for PathFunc
-
-  $jrsoftware: issrc/Components/PathFuncTest.pas,v 1.10 2010/04/19 21:43:01 jr Exp $
 }
 
 interface

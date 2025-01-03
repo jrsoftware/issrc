@@ -2,17 +2,11 @@ unit PathFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  This unit provides some path-related, MBCS-aware functions.
-
-  These functions should always be used in lieu of their SysUtils counterparts
-  since they aren't MBCS-aware on Delphi 2, and sometimes not MBCS-aware on
-  Delphi 6 and 7 either (see QC#5096).
-
-  $jrsoftware: issrc/Components/PathFunc.pas,v 1.43 2010/04/19 21:43:01 jr Exp $
+  This unit provides some path-related functions.
 }
 
 interface
@@ -28,7 +22,8 @@ function PathCompare(const S1, S2: String): Integer;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
-function PathExpand(const Filename: String): String;
+function PathExpand(const Filename: String): String; overload;
+function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean; overload;
 function PathExtensionPos(const Filename: String): Integer;
 function PathExtractDir(const Filename: String): String;
 function PathExtractDrive(const Filename: String): String;
@@ -66,20 +61,9 @@ begin
 end;
 
 function PathCharLength(const S: String; const Index: Integer): Integer;
-{ Returns the length in bytes of the character at Index in S.
-  Notes:
-  1. If Index specifies the last character in S, 1 will always be returned,
-     even if the last character is a lead byte.
-  2. If a lead byte is followed by a null character (e.g. #131#0), 2 will be
-     returned. This mimics the behavior of MultiByteToWideChar and CharPrev,
-     but not CharNext(P)-P, which would stop on the null. }
+{ Returns the length in characters of the character at Index in S. }
 begin
-  {$IFNDEF UNICODE}
-  if IsDBCSLeadByte(Ord(S[Index])) and (Index < Length(S)) then
-    Result := 2
-  else
-  {$ENDIF}
-    Result := 1;
+  Result := 1;
 end;
 
 function PathCharIsSlash(const C: Char): Boolean;
@@ -188,8 +172,7 @@ function PathDrivePartLengthEx(const Filename: String;
     'x:\file'             -> 3  ('x:\')
     '\\server\share\file' -> 14 ('\\server\share')
     '\file'               -> 1  ('\')
-  Note: This is MBCS-safe, unlike the Delphi's ExtractFileDrive function.
-  (Computer and share names can include multi-byte characters!) }
+}
 var
   Len, I, C: Integer;
 begin
@@ -296,7 +279,7 @@ begin
   end;
 end;
 
-function PathExpand(const Filename: String): String;
+function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean;
 { Like Delphi's ExpandFileName, but does proper error checking. }
 var
   Res: Integer;
@@ -305,9 +288,14 @@ var
 begin
   DWORD(Res) := GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
     Buf, FilePart);
-  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
-    SetString(Result, Buf, Res)
-  else
+  Result := (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0]));
+  if Result then
+    SetString(ExpandedFilename, Buf, Res)
+end;
+
+function PathExpand(const Filename: String): String;
+begin
+  if not PathExpand(Filename, Result) then
     Result := Filename;
 end;
 
@@ -392,8 +380,8 @@ begin
 end;
 
 function PathLastChar(const S: String): PChar;
-{ Returns pointer to last character in the string. Is MBCS-aware. Returns nil
-  if the string is empty. }
+{ Returns pointer to last character in the string. Returns nil if the string is
+  empty. }
 begin
   if S = '' then
     Result := nil
@@ -426,37 +414,11 @@ end;
 
 function PathLowercase(const S: String): String;
 { Converts the specified path name to lowercase }
-{$IFNDEF UNICODE}
-var
-  I, L: Integer;
-{$ENDIF}
 begin
-  {$IFNDEF UNICODE}
-  if (Win32Platform <> VER_PLATFORM_WIN32_NT) and
-     (GetSystemMetrics(SM_DBCSENABLED) <> 0) then begin
-    { Japanese Windows 98's handling of double-byte Roman characters in
-      filenames is case sensitive, so we can't change the case of double-byte
-      characters. (Japanese Windows NT/2000 is case insensitive, on both FAT
-      and NTFS, in my tests.) Based on code from AnsiLowerCaseFileName. }
-    Result := S;
-    L := Length(Result);
-    I := 1;
-    while I <= L do begin
-      if Result[I] in ['A'..'Z'] then begin
-        Inc(Byte(Result[I]), 32);
-        Inc(I);
-      end
-      else
-        Inc(I, PathCharLength(Result, I));
-    end;
-  end
-  else
-  {$ENDIF}
-    Result := AnsiLowerCase(S);
+  Result := AnsiLowerCase(S);
 end;
 
 function PathPos(Ch: Char; const S: String): Integer;
-{ This is an MBCS-aware Pos function. }
 var
   Len, I: Integer;
 begin
@@ -499,7 +461,7 @@ end;
 
 function PathStartsWith(const S, AStartsWith: String): Boolean;
 { Returns True if S starts with (or is equal to) AStartsWith. Uses path casing
-  rules, and is MBCS-aware. }
+  rules. }
 var
   AStartsWithLen: Integer;
 begin
@@ -513,35 +475,24 @@ begin
 end;
 
 function PathStrNextChar(const S: PChar): PChar;
-{ Returns pointer to the character after S, unless S points to a null (#0).
-  Is MBCS-aware. }
+{ Returns pointer to the character after S, unless S points to a null (#0). }
 begin
-  {$IFNDEF UNICODE}
-  Result := CharNext(S);
-  {$ELSE}
   Result := S;
   if Result^ <> #0 then
     Inc(Result);
-  {$ENDIF}
 end;
 
 function PathStrPrevChar(const Start, Current: PChar): PChar;
-{ Returns pointer to the character before Current, unless Current = Start.
-  Is MBCS-aware. }
+{ Returns pointer to the character before Current, unless Current = Start. }
 begin
-  {$IFNDEF UNICODE}
-  Result := CharPrev(Start, Current);
-  {$ELSE}
   Result := Current;
   if Result > Start then
     Dec(Result);
-  {$ENDIF}
 end;
 
 function PathStrScan(const S: PChar; const C: Char): PChar;
 { Returns pointer to first occurrence of C in S, or nil if there are no
-  occurrences. Like StrScan, but MBCS-aware.
-  Note: As with StrScan, specifying #0 for the search character is legal. }
+  occurrences. As with StrScan, specifying #0 for the search character is legal. }
 begin
   Result := S;
   while Result^ <> C do begin

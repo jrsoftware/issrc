@@ -1,12 +1,14 @@
-; *** Inno Setup version 6.1.0+ Catalan messages ***
+; *** Inno Setup version 6.4.0+ Catalan messages ***
 ;
-; Translated by Carles Millan (email: carles@carlesmillan.cat)
+; Translated by Carles Millan (email: carles24@carlesmillan.cat)
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
+; Setup adds the periods automatically (appending a period would result in
+; two periods being displayed).
 
 [LangOptions]
 
@@ -210,6 +212,13 @@ ErrorFileHash1=El hash del fitxer ha fallat: %1
 ErrorFileHash2=El hash del fitxer és invàlid: s'esperava %1, s'ha trobat %2
 ErrorProgress=Progrés invàlid: %1 de %2
 ErrorFileSize=Mida del fitxer invàlida: s'esperava %1, s'ha trobat %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extraient els fitxers addicionals...
+ButtonStopExtraction=&Atura l'extracció
+StopExtraction=Esteu segur que voleu aturar l'extracció?
+ErrorExtractionAborted=Extracció cancel·lada
+ErrorExtractionFailed=La descàrrega ha fallat: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparant la instal·lació

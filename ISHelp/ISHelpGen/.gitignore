@@ -1,3 +1,4 @@
-*.dcu
-*.dof
-*.cfg
+*.res
+*.dproj.local
+*.identcache
+*.exe

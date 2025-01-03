@@ -1,15 +1,26 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  $jrsoftware: ishelp/Staging/styles.css,v 1.7 2010/09/17 03:48:14 jr Exp $
+	Style sheet used by topic_*.htm
 */
 
+:root {
+  color-scheme: light dark;
+  --light-color: WindowText;
+  --dark-color: #d6d6d6;
+  --light-background-color: Window;
+  --dark-background-color: #1f1f1f;
+  --light-tool-background-color: ButtonFace;
+  --dark-tool-background-color: #403E41;
+}
 BODY {
 	font: small arial, sans-serif;
 	margin: 0;
+	color: light-dark(var(--light-color), var(--dark-color));
+	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 }
 PRE, TT {
 	font: small "courier new", monospace;
@@ -37,8 +48,22 @@ TD {
            (firefox 1.5 and opera 9 don't have this problem) */
 	vertical-align: baseline;
 }
-A:link, A:visited, A:active {
-	color: #008000;
+IMG {
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	padding-left: 2px;
+}
+A:link, A:visited {
+	color: hsl(206, 100%, 37%); /* for IE */
+	color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
+	background-color: transparent;
+	text-decoration: none;
+}
+A[href]:hover {
+	color: hsl(206, 100%, 30%); /* for IE */
+	color: light-dark(hsl(206, 100%, 30%), hsl(206, 100%, 43%));
+	text-decoration: underline;
 }
 A.highlighted {
 	background-color: #ffff00;
@@ -69,8 +94,10 @@ LI.compact {
 }
 
 .topicheading {
-	background: ButtonFace;
-	color: WindowText;
+	background-color: ButtonFace; /* for IE */
+	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	color: WindowText; /* for IE */
+	color: light-dark(var(--light-color), var(--dark-color));
 	padding: 4px 8px;
 	margin: 0;
 	font-size: 120%;
@@ -81,10 +108,13 @@ LI.compact {
 }
 
 .examplebox {
-	background: #f8f8f8;
-	color: black;
+	background-color: #f8f8f8; /* for IE */
+	background-color: light-dark(#f8f8f8, var(--dark-tool-background-color));
+	color: black; /* for IE */
+	color: light-dark(black, var(--dark-color));
 	padding: 4px;
-	border: 1px solid #e0e0e0;
+	border: 1px solid #e0e0e0; /* for IE */
+	border: 1px solid light-dark(#e0e0e0, #716f71);
 	/* on IE6, if the content of the box is wider than the page,
 	   the width of the box is increased. on firefox 1.5, by default
 	   the box width stays the same, and the content is drawn outside
@@ -133,7 +163,7 @@ TD.setuphdrr {
 
 #redirectbox {
 	position: absolute;
-	background: InfoBackground;
+	background-color: InfoBackground;
 	color: InfoText;
 	padding: 16px 24px;
 	border: 1px solid ThreeDDarkShadow;

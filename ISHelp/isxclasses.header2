@@ -1,13 +1,14 @@
 <body>
 
-<p>Below is the list of support classes that can be used from within the Pascal script. There are also three support objects available globally:</p>
+<p>Below is the list of support classes that can be used from within the Pascal script. There are also two support objects available globally:</p>
 
 <ul>
 <li><tt><a name="WizardForm">WizardForm</a></tt> of type <anchorlink name="TWizardForm">TWizardForm</anchorlink>.</li>
 <li><tt><a name="UninstallProgressForm">UninstallProgressForm</a></tt> of type <anchorlink name="TUninstallProgressForm">TUninstallProgressForm</anchorlink>.</li>
-<li><tt><a name="MainForm">MainForm</a></tt> of type <anchorlink name="TMainForm">TMainForm</anchorlink> (only visible if <link topic="setup_windowvisible">WindowVisible</link> is set to <tt>yes</tt>.)</li>
 </ul>
 
-<p>One special constant is available: <tt>crHand</tt> of type <tt>TControl.Cursor</tt>.</p>
+<p>Parameter type <tt>AnyString</tt> means both <tt>String</tt> and <tt>AnsiString</tt> can be used.</p>
 
-<p>Note: you may find it useful to also refer to the Delphi Visual Component Library (VCL) Help files by Embarcadero Technologies, since the classes below are mostly simple wrappers around the VCL classes Inno Setup uses internally. See <extlink href="http://docwiki.embarcadero.com/RADStudio/Rio/en/VCL">http://docwiki.embarcadero.com/RADStudio/Rio/en/VCL</extlink>.</p>
+<p>The <i>CodeClasses.iss</i> example script in the "Examples" subdirectory in your Inno Setup directory shows how to use these classes.</p>
+
+<p>Note: you may find it useful to also refer to the Delphi Visual Component Library (VCL) Help files by Embarcadero Technologies, since the classes below are mostly simple wrappers around the VCL classes Inno Setup uses internally. See <extlink href="http://docwiki.embarcadero.com/RADStudio/Alexandria/en/VCL">http://docwiki.embarcadero.com/RADStudio/Alexandria/en/VCL</extlink>.</p>

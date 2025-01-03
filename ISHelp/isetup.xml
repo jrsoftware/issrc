@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2023 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -54,7 +54,20 @@
     <contentstopic title="Using Custom Wizard Pages" topic="scriptpages" />
     <contentstopic title="Using DLLs and .NET assemblies" topic="scriptdll" />
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
-    <contentstopic title="Debugging" topic="scriptdebug" />
+    <contentstopic title="Run-time debugger" topic="scriptdebug" />
+  </contentsheading>
+  <contentsheading title="Inno Setup Preprocessor">
+    <contentstopic title="Introduction" topic="isppoverview" />
+    <contentstopic title="Directives Reference" topic="directives" />
+    <contentstopic title="Support Functions Reference" topic="funcs" />
+    <contentstopic title="User Defined Functions" topic="macros" />
+    <contentstopic title="Expression Syntax" topic="expressions" />
+    <contentstopic title="Predefined Variables" topic="predefinedvars" />
+    <contentstopic title="Line Spanning" topic="linespan" />
+    <contentstopic title="Visibility of Identifiers" topic="visibility" />
+    <contentstopic title="Example Script" topic="example" />
+    <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
+    <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
   </contentsheading>
   <contentsheading title="Other Information">
     <contentstopic title="Support Inno Setup" topic="donate" />
@@ -62,6 +75,7 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
+    <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
@@ -70,7 +84,8 @@
     <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
-    <contentstopic title="Compiler IDE Keyboard Commands" topic="compformshortcuts" />
+    <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
+    <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -87,9 +102,9 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.2.2</b><br/>
-<b>Copyright &copy; 1997-2023 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2023 Martijn Laan. All rights reserved.</b><br/>
+<b>Inno Setup version 6.4.0-dev</b><br/>
+<b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -101,9 +116,9 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 
 <ul>
 
-<li>Support for every Windows release since 2006, including: Windows 11, Windows 10, Windows 10 on ARM, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, Windows Server 2008 R2, Windows Server 2008, and Windows Vista. (No service packs are required.)</li>
+<li>Support for every Windows release since 2009, including: Windows 11, Windows 10, Windows 11 on Arm, Windows 10 on Arm, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, and Windows Server 2008 R2. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64, ARM64 and Itanium architectures are all supported.</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64 and Arm64 architectures are both supported.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -140,7 +155,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
-<li>Tiny footprint: only about 1.5 mB overhead with all features included.</li>
+<li>Tiny footprint: only 1.75 mB overhead with all features included.</li>
 
 <li>All features are fully documented.</li>
 
@@ -164,7 +179,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded with a BOM) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
@@ -228,7 +243,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
 
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
 <p><br/><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
@@ -252,8 +267,8 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="runsection">[Run] section</link><br/>
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
-<link topic="scriptintro">Pascal Scripting: Introduction</link>
-<link topic="compformshortcuts">Compiler IDE Keyboard Commands</link>
+<link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
+<link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
 
 </body>
@@ -562,7 +577,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="usercf">{usercf}</a></b></dt>
 <dd>
-<p>The path to the current user's Common Files directory. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
+<p>The path to the current user's Common Files folder. Only Windows 7 and later supports <tt>{usercf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs\Common</tt>.</p>
 </dd>
 
 <dt><b><a name="userdesktop">{userdesktop}</a></b> &amp; <b><a name="commondesktop">{commondesktop}</a></b></dt>
@@ -587,7 +602,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="userpf">{userpf}</a></b></dt>
 <dd>
-<p>The path to the current user's Program Files directory. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
+<p>The path to the current user's Program Files folder. Only Windows 7 and later supports <tt>{userpf}</tt>; if used on previous Windows versions, it will translate to the same directory as <tt>{localappdata}\Programs</tt>.</p>
 </dd>
 
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b></dt>
@@ -597,7 +612,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="usersavedgames">{usersavedgames}</a></b></dt>
 <dd>
-<p>The path to the current user's Saved Games directory.</p>
+<p>The path to the current user's Saved Games folder. (There is no common Saved Games folder.)</p>
 </dd>
 
 <dt><b><a name="usersendto">{usersendto}</a></b></dt>
@@ -725,7 +740,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="hwnd">{hwnd}</a></b></dt>
 <dd>
-<p><i>(Special-purpose)</i> Translates to the window handle of the Setup program's background window.</p>
+<p><i>Feature removed in 6.4.</i> Previously translated to the window handle of the background window that could be enabled via the <link topic="setup_windowvisible">WindowVisible</link> directive.</p>
 </dd>
 
 <dt><b><a name="wizardhwnd">{wizardhwnd}</a></b></dt>
@@ -831,7 +846,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="log">{log}</a></b></dt>
 <dd>
-<p>The log file name, or an empty string if <link topic="setup_setuplogging">logging</link> is not enabled.</p>
+<p>The log file name, or an empty string if <link topic="setup_setuplogging">logging</link> to a log file is not enabled.</p>
 </dd>
 
 </dl>
@@ -852,14 +867,14 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <param name="Languages">
 <p>A space separated list of language names, telling Setup to which languages the entry belongs. If the end user selects a language from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Languages</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>Besides space separated lists, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
+<p>Besides space separated lists, you may also use boolean expressions containing language names. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <example>
 <pre>Languages: en nl</pre>
 </example>
 </param>
 
 <param name="MinVersion">
-<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use "0" then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>MinVersion: 6.2</pre>
@@ -867,7 +882,8 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you put <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>If <tt>0</tt> is not used: should be higher than <tt>6.1</tt> otherwise the entry is never processed. (Windows Vista/Server 2008 are no longer supported.)</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>OnlyBelowVersion: 6.2</pre>
@@ -919,7 +935,7 @@ Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"; Components: ma
 </paramlist>
 
 <p><br/>
-Besides space separated lists, you may also use boolean expressions as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
+Besides space separated lists, you may also use boolean expressions containing component or task names as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
 
 <precode>
 [Components]
@@ -1090,6 +1106,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_uninstalldisplayname">UninstallDisplayName</link></li>
 <li><link topic="setup_uninstalldisplaysize">UninstallDisplaySize</link></li>
 <li><link topic="setup_uninstallfilesdir">UninstallFilesDir</link></li>
+<li><link topic="setup_uninstalllogging">UninstallLogging</link></li>
 <li><link topic="setup_uninstalllogmode">UninstallLogMode</link></li>
 <li><link topic="setup_uninstallrestartcomputer">UninstallRestartComputer</link></li>
 <li><link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link></li>
@@ -1107,18 +1124,10 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_appcopyright">AppCopyright</link></li>
-<li><link topic="setup_backcolor">BackColor</link></li>
-<li><link topic="setup_backcolor">BackColor2</link></li>
-<li><link topic="setup_backcolordirection">BackColorDirection</link></li>
-<li><link topic="setup_backsolid">BackSolid</link></li>
 <li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
 <li><link topic="setup_setupiconfile">SetupIconFile</link></li>
 <li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
 <li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
-<li><link topic="setup_windowshowcaption">WindowShowCaption</link></li>
-<li><link topic="setup_windowstartmaximized">WindowStartMaximized</link></li>
-<li><link topic="setup_windowresizable">WindowResizable</link></li>
-<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
@@ -1134,12 +1143,20 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_alwayscreateuninstallicon">AlwaysCreateUninstallIcon</link></li>
+<li><link topic="setup_windowvisible">BackColor</link></li>
+<li><link topic="setup_windowvisible">BackColor2</link></li>
+<li><link topic="setup_windowvisible">BackColorDirection</link></li>
+<li><link topic="setup_windowvisible">BackSolid</link></li>
 <li><link topic="setup_disableappenddir">DisableAppendDir</link></li>
 <li><link topic="setup_dontmergeduplicatefiles">DontMergeDuplicateFiles</link></li>
 <li><link topic="setup_messagesfile">MessagesFile</link></li>
 <li><link topic="setup_uninstalliconfile">UninstallIconFile</link></li>
 <li><link topic="setup_uninstalliconname">UninstallIconName</link></li>
 <li><link topic="setup_uninstallstyle">UninstallStyle</link></li>
+<li><link topic="setup_windowvisible">WindowResizable</link></li>
+<li><link topic="setup_windowvisible">WindowShowCaption</link></li>
+<li><link topic="setup_windowvisible">WindowStartMaximized</link></li>
+<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 </ul>
@@ -1515,7 +1532,6 @@ Name: "{app}\bin"
 
 <precode>
 [Files]
-Source: "CTL3DV2.DLL"; DestDir: "{sys}"; Flags: onlyifdoesntexist uninsneveruninstall
 Source: "MYPROG.EXE"; DestDir: "{app}"
 Source: "MYPROG.CHM"; DestDir: "{app}"
 Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
@@ -1577,18 +1593,6 @@ Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
 ExternalSize: 1048576; Flags: external
 </pre>
 </example>
-</param>
-
-<param name="CopyMode">
-<p>You should not use this parameter in any new scripts. This parameter was deprecated and replaced by flags in Inno Setup 3.0.5:</p>
-<p>
-<tt>CopyMode: normal -&gt; Flags: promptifolder</tt><br/>
-<tt>CopyMode: alwaysskipifsameorolder -&gt; </tt>no flags<br/>
-<tt>CopyMode: onlyifdoesntexist -&gt; Flags: onlyifdoesntexist</tt><br/>
-<tt>CopyMode: alwaysoverwrite -&gt; Flags: ignoreversion</tt><br/>
-<tt>CopyMode: dontcopy -&gt; Flags: dontcopy</tt>
-</p>
-<p>What was <tt>CopyMode: alwaysskipifsameorolder</tt> is now the default behavior. (The previous default was <tt>CopyMode: normal</tt>.)</p>
 </param>
 
 <param name="Attribs">
@@ -1734,8 +1738,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="regtypelib">
 <p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
-<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64 edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
-<p>Registering type libraries in 64-bit mode on Itanium editions of Windows is not supported.</p>
+<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64-compatible edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="replacesameversion">
@@ -1757,6 +1760,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="sign">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+</flag>
+<flag name="signcheck">
+<p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
@@ -1952,11 +1958,6 @@ Filename: "http://www.example.com/"
 <flag name="excludefromshowinnewinstall">
 <p>Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7 and additionally prevents the new shortcut from being automatically pinned the Start screen on Windows 8 (or later). Ignored on earlier Windows versions.</p>
 </flag>
-<flag name="foldershortcut">
-<p>Creates a special type of shortcut known as a "Folder Shortcut". Normally, when a shortcut to a folder is present on the Start Menu, clicking the item causes a separate Explorer window to open showing the target folder's contents. In contrast, a "folder shortcut" will show the contents of the target folder as a submenu instead of opening a separate window.</p>
-<p>This flag is currently ignored when running on Windows 7 (or later), as folder shortcuts do not expand properly on the Start Menu anymore. It is not known whether this is a bug in Windows 7 or a removed feature.</p>
-<p>When this flag is used, a folder name must be specified in the <tt>Filename</tt> parameter. Specifying the name of a file will result in a non-working shortcut.</p>
-</flag>
 <flag name="preventpinning">
 <p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
 </flag>
@@ -2124,7 +2125,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
-<p>If an Unicode file is used, it must be UTF-8 encoded with a BOM.</p>
+<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2135,7 +2136,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
@@ -2143,7 +2144,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
@@ -2152,7 +2153,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="InfoAfterFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 or UTF-16LE encoded with a BOM.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
@@ -2451,7 +2452,6 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>For this parameter to have an effect the current user must be able to change the permissions on the registry key. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
 <p>This parameter should <i>only</i> be used on registry keys private to your application. Never change the ACLs on a top-level key like HKEY_LOCAL_MACHINE\SOFTWARE, otherwise you can open up security holes on your users' systems.</p>
 <p>The specified permissions are set regardless of whether the registry key existed prior to installation. The permissions are not set if <tt>ValueType</tt> is <tt>none</tt> and the <tt>deletekey</tt> flag or <tt>deletevalue</tt> flag is used.</p>
-<p>On Itanium editions of Windows, this parameter is only effectual on 32-bit registry keys. (There is no such limitation on x64 editions of Windows.)</p>
 <p>This parameter can include one or more space separated values in the format:</p>
 <indent><p><tt><link topic="usergroupids">&lt;user or group identifier&gt;</link>-&lt;access type&gt;</tt></p></indent>
 <p>The following access types are supported for the [Registry] section:</p>
@@ -2623,6 +2623,10 @@ Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinst
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
+<flag name="logoutput">
+<p>If this flag is specified, the output of the program will be included in the log file.</p>
+<p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
+</flag>
 <flag name="nowait">
 <p>If this flag is specified, it will not wait for the process to finish executing before proceeding to the next [Run] entry, or completing Setup. Cannot be combined with <tt>waituntilidle</tt> or <tt>waituntilterminated</tt>.</p>
 </flag>
@@ -2769,10 +2773,10 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
   <ul>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files (but not UTF-16).</li>
+  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
   <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>.</li>
+  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li>
   <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
   <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
@@ -2941,13 +2945,15 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <li>If <link topic="setup_restartapplications">RestartApplications</link> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
-<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
+<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
-<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
+<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
 
 </ul>
 
 <p>All entries are processed by the installer in the order they appear in a section.</p>
+
+<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F7 (Step Into) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p> 
 
 <p>Changes are undone by the uninstaller in the <i>opposite</i> order in which the installer made them. This is because the uninstall log is parsed from end to beginning.</p>
 
@@ -3107,7 +3113,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </precode>
 </li>
 
-<li>The Inno Setup backup domain can be found at <extlink href="https://www.innosetup.nl/">www.innosetup.nl</extlink>. There's currently no website active on this domain but in case of emergencies it will be activated.</li>
+<li>The Inno Setup backup domain can be found at <extlink href="https://innosetup.nl/">innosetup.nl</extlink>. It currently just redirects to the main site but in case of emergencies this will be deactivated.</li>
 
 </ul>
 
@@ -3116,102 +3122,295 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 
-<topic name="compformshortcuts" title="Compiler IDE Keyboard Commands">
-<keyword value="Compiler IDE Keyboard Commands" />
+<topic name="compformshortcuts" title="Compiler IDE Keyboard And Mouse Commands">
+<keyword value="Compiler IDE Keyboard And Mouse Commands" />
 <keyword value="Keyboard commands" />
+<keyword value="Mouse commands" />
 <body>
 
-<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports the following additional keyboard commands:</p>
+<p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
+
+<p><u>If the Visual Studio Code column is empty then the shortcut for this command is the same as listed in the Classic column.</u></p>
+
+<p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
+
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
 
 <table>
+<tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
 <tr>
-  <td>Indent block.</td><td>Tab</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Unindent block.</td><td>Shift+Tab</td>
+  <td>Indent block</td><td>Tab</td>
 </tr>
 <tr>
-  <td>Delete to start of word.</td><td>Ctrl+Backspace</td>
+  <td>Unindent block</td><td>Shift+Tab</td>
 </tr>
 <tr>
-  <td>Delete to end of word.</td><td>Ctrl+Delete</td>
+  <td>Indent lines</td><td>-</td><td>Ctrl+]</td>
 </tr>
 <tr>
-  <td>Delete to start of line.</td><td>Ctrl+Shift+Backspace</td>
+  <td>Unindent lines</td><td>-</td><td>Ctrl+[</td>
 </tr>
 <tr>
-  <td>Delete to end of line.</td><td>Ctrl+Shift+Delete</td>
+  <td>Toggle lines comment</td><td>Ctrl+/</td>
 </tr>
 <tr>
-  <td>Go to start of document. Shift extends selection.</td><td>Ctrl+Home</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Go to start of line.</td><td>Alt+Home</td>
+  <td>Delete to start of word</td><td>Ctrl+Backspace</td>
 </tr>
 <tr>
-  <td>Go to end of document. Shift extends selection.</td><td>Ctrl+End</td>
+  <td>Delete to end of word</td><td>Ctrl+Delete</td>
 </tr>
 <tr>
-  <td>Go to end of line.</td><td>Alt+End</td>
+  <td>Delete to start of line</td><td>Ctrl+Shift+Backspace</td>
 </tr>
 <tr>
-  <td>Scroll up.</td><td>Ctrl+Up</td>
+  <td>Delete to end of line</td><td>Ctrl+Shift+Delete</td>
 </tr>
 <tr>
-  <td>Scroll down.</td><td>Ctrl+Down</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Cut line.</td><td>Ctrl+L</td>
+  <td>Go to start of document (Shift extends selection)</td><td>Ctrl+Home</td>
 </tr>
 <tr>
-  <td>Copy line.</td><td>Ctrl+Shift+T</td>
+  <td>Go to first non-blank character of line</td><td>Home</td>
 </tr>
 <tr>
-  <td>Delete line.</td><td>Ctrl+Shift+L</td>
+  <td>Go to start of line</td><td>Alt+Home or Home Home</td>
 </tr>
 <tr>
-  <td>Switch line with previous.</td><td>Ctrl+T</td>
+  <td>Go to end of document (Shift extends selection)</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Duplicate selection or line.</td><td>Ctrl+D</td>
+  <td>Go to next paragraph (Shift extends selection)</td><td>Ctrl+]</td><td>-</td>
 </tr>
 <tr>
-  <td>Go to previous paragraph. Shift extends selection.</td><td>Ctrl+[</td>
+  <td>Go to previous paragraph (Shift extends selection)</td><td>Ctrl+[</td><td>-</td>
 </tr>
 <tr>
-  <td>Go to next paragraph. Shift extends selection.</td><td>Ctrl+]</td>
+  <td>Go to end of line</td><td>End</td>
 </tr>
 <tr>
-  <td>Go to previous word. Shift extends selection.</td><td>Ctrl+Left</td>
+  <td>Go to end of wrapped line</td><td>Alt+End</td>
 </tr>
 <tr>
-  <td>Go to next word. Shift extends selection.</td><td>Ctrl+Right</td>
+  <td>Go to previous word (Shift extends selection)</td><td>Ctrl+Left</td>
 </tr>
 <tr>
-  <td>Go to previous word part. Shift extends selection.</td><td>Ctrl+/</td>
+  <td>Go to next word (Shift extends selection)</td><td>Ctrl+Right</td>
 </tr>
 <tr>
-  <td>Go to next word part. Shift extends selection.</td><td>Ctrl+\</td>
+  <td>Go to matching brace</td><td>Ctrl+Shift+\</td>
 </tr>
 <tr>
-  <td>Rectangular block selection.</td><td>Alt+Shift+Movement</td>
+  <td>Scroll up</td><td>Ctrl+Up</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to start of line.</td><td>Alt+Shift+Home</td>
+  <td>Scroll down</td><td>Ctrl+Down</td>
 </tr>
 <tr>
-  <td>Extend rectangular selection to end of line.</td><td>Alt+Shift+End</td>
+  <td>Scroll horizontally</td><td>Shift+MouseWheel</td>
 </tr>
 <tr>
-  <td>Complete word.</td><td>Ctrl+Space or Alt+Right</td>
+  <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Fillup complete word.</td><td>Space (for ISPP directives) or \ (for constants) or : (for constants and section parameters) or ] (for sections) or = (for section directives) or Tab or Enter.</td>
+  <td>Cut selection or line</td><td>Ctrl+X or Shift+Delete</td>
 </tr>
 <tr>
-  <td>Cancel complete word.</td><td>Esc</td>
+  <td>Copy selection or line</td><td>Ctrl+C or Ctrl+Insert</td>
+</tr>
+<tr>
+  <td>Cut lines</td><td>Ctrl+L</td>
+</tr>
+<tr>
+  <td>Copy lines</td><td>Ctrl+Shift+T</td>
+</tr>
+<tr>
+  <td>Delete line</td><td>Ctrl+Shift+L</td><td>Ctrl+Shift+K</td>
+</tr>
+<tr>
+  <td>Switch line with previous</td><td>Ctrl+T</td>
+</tr>
+<tr>
+  <td>Move selected lines up</td><td>Alt+Up</td>
+</tr>
+<tr>
+  <td>Move selected lines down</td><td>Alt+Down</td>
+</tr>
+<tr>
+  <td>Duplicate selection or copy lines down</td><td>Ctrl+D</td><td>-</td>
+</tr>
+<tr>
+  <td>Copy line down</td><td>-</td><td>Shift+Alt+Down</td>
+</tr>
+<tr>
+  <td>Lowercase lines</td><td>Ctrl+U</td>
+</tr>
+<tr>
+  <td>Uppercase lines</td><td>Ctrl+Shift+U</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Extend selection</td><td>Shift+Arrow</td>
+</tr>
+<tr>
+  <td>Select word</td><td>DoubleClick</td>
+</tr>
+<tr>
+  <td>Select line</td><td>TripleClick or Click on line number</td>
+</tr>
+<tr>
+  <td>Select all</td><td>Ctrl+A or Ctrl+Click on line number</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection</td><td>Ctrl+Click or Ctrl+Drag</td><td>Alt+Click or Alt+Drag</td>
+</tr>
+<tr>
+  <td>Remove a selection by clicking it</td><td>Ctrl+Click</td><td>Alt+Click</td>
+</tr>
+<tr>
+  <td>Add word as additional selection</td><td>Ctrl+DoubleClick</td><td>Alt+DoubleClick</td>
+</tr>
+<tr>
+  <td>Add line as additional selection</td><td>Ctrl+TripleClick</td><td>Alt+TripleClick</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection up</td><td>Ctrl+Alt+Up</td>
+</tr>
+<tr>
+  <td>Add additional cursor or selection down</td><td>Ctrl+Alt+Down</td>
+</tr>
+<tr>
+  <td>Add cursors to line ends</td><td>Shift+Alt+I</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Add next occurrence of current word or selected text as additional selection</td><td>Shift+Alt+.</td><td>Ctrl+D</td>
+</tr>
+<tr>
+  <td>Select all occurrences of current word or selected text</td><td>Shift+Alt+;</td><td>Ctrl+Shift+L or (only if classic menu keys are not active) Ctrl+F2</td>
+</tr>
+<tr>
+  <td>Select all matches of last find text (also works when find dialog is open)</td><td>Alt+Enter</td>
+</tr>
+<tr>
+  <td>Revert multiple selections into single one or single selection into empty one</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Perform rectangular block selection (mouse) (Shift extends selection)</td><td>Alt+Drag</td><td>Shift+Alt+Drag</td>
+</tr>
+<tr>
+  <td>Perform rectangular block selection (keyboard)</td><td>Shift+Alt+Arrow</td><td>Ctrl+Shift+Alt+Arrow</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to first non-blank character of line</td><td>Shift+Alt+Home</td><td>Ctrl+Shift+Alt+Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to start of line</td><td>Shift+Alt+Home Home</td><td>Ctrl+Shift+Alt+Home Home</td>
+</tr>
+<tr>
+  <td>Extend rectangular selection to end of line</td><td>Shift+Alt+End</td><td>Ctrl+Shift+Alt+End</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Fold section</td><td>Ctrl+Shift+[</td>
+</tr>
+<tr>
+  <td>Unfold section</td><td>Ctrl+Shift+]</td>
+</tr>
+<tr>
+  <td>Fold or unfold all sections</td><td>Ctrl+Shift+Click in folding margin</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Invoke autocomplete</td><td>Ctrl+Space or Ctrl+I</td>
+</tr>
+<tr>
+  <td>Select autocompletion</td><td>Tab or Enter</td>
+</tr>
+<tr>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives and Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives<br />( for [Code]</td>
+</tr>
+<tr>
+  <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>
+</tr>
+<tr>
+  <td>Cancel autocomplete or parameter hint</td><td>Esc</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td>Toggle overwrite</td><td>Insert</td>
+</tr>
+<tr>
+  <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
+</tr>
+<tr>
+  <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
 </tr>
 </table>
+
+</body>
+</topic>
+
+
+
+<topic name="compformregex" title="Compiler IDE Regular Expressions">
+<keyword value="Compiler IDE Regular Expressions" />
+<keyword value="Regular Expressions" />
+<keyword value="Regex" />
+<body>
+
+<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
+
+<p>When used, regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
+
+<p>Regular expressions must be written in the ECMAScript grammar, generally similar to the grammar used by JavaScript and the .NET languages. Invalid regular expressions will cause an error message.</p>
+
+<p>For more information about the grammar see:</p>
+<ul>
+<li><extlink href="https://cplusplus.com/reference/regex/ECMAScript/">https://cplusplus.com/reference/regex/ECMAScript/</extlink></li>
+<li><extlink href="https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp">https://learn.microsoft.com/en-us/cpp/standard-library/regular-expressions-cpp</extlink></li>
+<li><extlink href="https://regex101.com/r/fYE7S3/1">https://regex101.com/r/fYE7S3/1</extlink></li>
+</ul>
+
+<p>When replacing using regular expressions the replace string may contain the following special escape sequences:</p>
+
+<table>
+<tr><td><u>Escape Sequence</u></td><td><u>Meaning</u></td></tr>
+<tr>
+  <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
+</tr>
+<tr>
+  <td>$&amp; or \0</td><td>Complete match contents</td>
+</tr>
+<tr>
+  <td>$$</td><td>A literal '$' character</td>
+</tr>
+<tr>
+  <td>\\, \a, \b, \f, \r, \n, \t, \v</td><td>A literal '\', '\a', '\b', etc. character</td>
+</tr>
+</table>
+
+<p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "ampleExs". Or if the replace string was $1\r\n$2 this would put a newline between "Ex" and "amples".</p>
 
 </body>
 </topic>
@@ -3239,11 +3438,21 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
 
-<p>Valid options are: "/O-" to disable output (overriding any <tt>Output</tt> setting in the script), "/O+" to enable output (overriding any <tt>Output</tt> setting in the script), "/O" to specify an output path (overriding any <tt>OutputDir</tt> setting in the script), "/F" to specify an output filename (overriding any <tt>OutputBaseFilename</tt> setting in the script), "/S" to specify a Sign Tool (any Sign Tools configured using the Compiler IDE will be specified automatically), "/Q[p]" for quiet compile (print only error messages, "p" will show progress info), and "/?" to show a help screen.</p>
+<p>Valid options are:</p>
 
 <indent>
+<table>
+<tr><td>/O(+|-)</td><td>Enable or disable output (overrides <tt>Output</tt>)</td></tr>
+<tr><td>/O&lt;path&gt;</td><td>Output files to specified path (overrides <tt>OutputDir</tt>)</td></tr>
+<tr><td>/F&lt;filename&gt;</td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>)</td></tr>
+<tr><td>/S&lt;name&gt;=&lt;command></td><td>Sets a SignTool with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically)</td></tr>
+<tr><td>/Q</td><td>Quiet compile (print error messages only)</td></tr>
+<tr><td>/Qp</td><td>Enable quiet compile while still displaying progress</td></tr>
+</table>
 <example>iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</example>
 </indent>
+
+<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link> for additional options.</p>
 
 <p>ISCC will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid or an internal error occurred, or 2 if the compile failed.</p>
 </li>
@@ -3320,6 +3529,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <body>
 
 <p>The Setup program accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
+
+<p>Also see <link topic="uninstcmdline">Uninstaller Command Line Parameters</link>.</p>
 
 <dl>
 
@@ -3537,7 +3748,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="return codes" />
 <body>
 
-<p>Beginning with Inno Setup 3.0.3, the Setup program may return one of the following exit codes:</p>
+<p>The Setup program may return one of the following exit codes:</p>
 
 <table>
 
@@ -3594,14 +3805,14 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>7</b></td>
 <td>
-<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation.</p>
 </td>
 </tr>
 
 <tr>
 <td><b>8</b></td>
 <td>
-<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem. <i>(First introduced in Inno Setup 5.4.1.)</i></p>
+<p>The <link topic="wizardpages"><i>Preparing to Install</i></link> stage determined that Setup cannot proceed with installation, and that the system needs to be restarted in order to correct the problem.</p>
 </td>
 </tr>
 
@@ -3630,6 +3841,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 
 <p>The uninstaller program (unins???.exe) accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.</p>
+
+<p>Also see <link topic="setupcmdline">Setup Command Line Parameters</link>.</p>
 
 <dl>
 
@@ -3674,7 +3887,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="return codes" />
 <body>
 
-<p>Beginning with Inno Setup 4.0.8, the uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
+<p>The uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
 
 <p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the TEMP directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with /SILENT or /VERYSILENT).</p>
 
@@ -3732,8 +3945,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 
 
-<topic name="credits" title="Contributers">
-<keyword value="Contributers" />
+<topic name="credits" title="Contributors">
+<keyword value="Contributors" />
 <keyword value="Credits" />
 <body>
 
@@ -3781,7 +3994,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
 
-<li>Sergii Leonov: Code for the Compiler IDE's MessageBox Designer (6.1.0).</li>
+<li>Sergii Leonov: Code for the Compiler IDE's MsgBox tool (6.1.0) and initial work on its [Registry] tool (6.3.0).</li>
+
+<li>Jens Geyer: Initial work on closeable tabs in the Compiler IDE (6.3.0).</li>
+
+<li>ser163: Code for the Compiler IDE's [Files] tool (6.3.0).</li>
 
 </ul>
 
@@ -3812,41 +4029,6 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>This tells the compiler which type of Setup to create. If this is <tt>yes</tt>, it compiles all setup data into a single EXE. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes.</p>
 <p><i>Note:</i> Do not use <tt>UseSetupLdr=no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When <tt>UseSetupLdr</tt> is <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when <tt>UseSetupLdr</tt> is <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>UseSetupLdr=no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing a <tt>UseSetupLdr=no</tt> based Setup will lead to an invalid digital signature for Uninstall.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackColor" title="BackColor, BackColor2">
-<keyword value="BackColor2" />
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>rr</tt>, <tt>gg</tt>, and <tt>bb</tt> specify the two-digit intensities (in hexadecimal) for red, green, and blue respectively. Or it may be one of the following predefined color names: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite.</setupvalid>
-<setupdefault><tt>clBlue</tt> for <tt>BackColor</tt>,<br/><tt>clBlack</tt> for <tt>BackColor2</tt></setupdefault>
-<body>
-<p>The <tt>BackColor</tt> directive specifies the color to use at the top (or left, if <tt>BackColorDirection=lefttoright</tt>) of the setup window's gradient background. <tt>BackColor2</tt> specifies the color to use at the bottom (or right).</p>
-<p>The setting of <tt>BackColor2</tt> is ignored if <tt>BackSolid=yes</tt>.</p>
-<examples>
-<pre>
-BackColor=clBlue
-BackColor2=clBlack
-
-BackColor=$FF0000
-BackColor2=$000000
-</pre>
-</examples>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackColorDirection">
-<setupvalid><tt>toptobottom</tt> or <tt>lefttoright</tt></setupvalid>
-<setupdefault><tt>toptobottom</tt></setupdefault>
-<body>
-<p>This determines the direction of the gradient background on the setup window. If <tt>BackColorDirection</tt> is <tt>toptobottom</tt>, it is drawn from top to bottom; if it is <tt>lefttoright</tt>, it is drawn from left to right.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackSolid">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>This specifies whether to use a solid or gradient background on the setup window. If this is <tt>yes</tt>, the background is a solid color (the color specified by <tt>BackColor</tt>; <tt>BackColor2</tt> is ignored).</p>
 </body>
 </setuptopic>
 
@@ -3948,8 +4130,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 
 <setuptopic directive="AppCopyright">
 <body>
-<p>Specifies a copyright message that Setup will display in the bottom-right corner of Setup's background window when <link topic="setup_windowvisible">WindowVisible</link> is <tt>yes</tt>.</p>
-<p>The value of this directive is also used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
+<p>The value of this directive is used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
 <example><pre>AppCopyright=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
 </body>
 </setuptopic>
@@ -4063,10 +4244,10 @@ C:\Program Files\My Program
 </setuptopic>
 
 <setuptopic directive="Uninstallable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
+<p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
 <p>Setting this to a boolean expression can be useful if you want to offer the user a 'portable mode' option.</p>
 <example><pre>[Setup]
 Uninstallable=not IsTaskSelected('portablemode')
@@ -4081,6 +4262,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="MinVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupvalid><tt>6.1</tt> or higher</setupvalid>
 <setupdefault><tt>6.1sp1</tt> (Windows 7 with Service Pack 1 or Windows Server 2008 R2 with Service Pack 1)</setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software runs on. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
@@ -4090,9 +4272,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 
 <setuptopic directive="OnlyBelowVersion">
 <setupformat><tt><i>major</i>.<i>minor</i></tt></setupformat>
+<setupvalid><tt>0</tt> or higher than <tt>6.1</tt></setupvalid>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
-<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying "0" means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
+<p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
 <p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
 </body>
 </setuptopic>
@@ -4139,21 +4322,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><tt>admin</tt>, or <tt>lowest</tt></setupvalid>
 <setupdefault><tt>admin</tt></setupdefault>
 <body>
-<!--
-<p>The effect of this directive depends on which version of Windows the user is running:</p>
-<p><b>On Windows Vista and later:</b></p>
--->
 <p>This directive affects whether elevated rights are requested (via a User Account Control dialog) when the installation is started.</p>
 <p>When set to <tt>admin</tt> (the default), Setup will always run with administrative privileges and in <link topic="admininstallmode">administrative install mode</link>. If Setup was started by an unprivileged user, Windows will ask for the password to an account that has administrative privileges, and Setup will then run under that account.</p>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<!--
-<p><b>On earlier versions of Windows:</b></p>
-<p>This directive specifies the minimum user privileges required to run the installation.</p>
-<p>When set to <tt>admin</tt> (the default), Setup will only run if the user is a member of the Administrators group and will always run in <link topic="admininstallmode">administrative install mode</link>. Otherwise, it will display the following message and exit: "You must be logged in as an administrator when installing this program."</p>
-<p>When set to <tt>none</tt> Setup will not check the user's group membership. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
-<p>When set to <tt>lowest</tt> Setup will not check the user's group membership and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
--->
 <p><b>See also:</b><br/>
 <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link>
 </p>
@@ -4233,19 +4405,20 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (4 MB + 11 * dictionary size)</u></td></tr>
-<tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>3 MB</td></tr>
-<tr><td><tt>normal</tt></td><td>2 MB</td><td>26 MB</td></tr>
-<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>92 MB</td></tr>
-<tr><td><tt>ultra</tt></td><td>32 MB</td><td>356 MB</td></tr>
-<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>708 MB</td></tr>
-<tr><td></td><td>128 MB</td><td>1.38 GB</td></tr>
-<tr><td></td><td>256 MB</td><td>2.75 GB</td></tr>
-<tr><td></td><td>512 MB</td><td>5.5 GB</td></tr>
-<tr><td></td><td>1 GB</td><td>11 GB</td></tr>
+<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (6 MB + 11.5 * dictionary size)</u></td></tr>
+<tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
+<tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
+<tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
+<tr><td><tt>ultra</tt></td><td>32 MB</td><td>374 MB</td></tr>
+<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>742 MB</td></tr>
+<tr><td></td><td>128 MB</td><td>1.44 GB</td></tr>
+<tr><td></td><td>256 MB</td><td>2.88 GB</td></tr>
+<tr><td></td><td>512 MB</td><td>5.76 GB</td></tr>
+<tr><td></td><td>1 GB</td><td>11.51 GB</td></tr>
 </table>
+<p>The compression memory requirements are approximately 60% of the above when <link topic="setup_lzmamatchfinder">LZMAMatchFinder</link> is set to <tt>HC</tt> at the expense of compression ratio.</p>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). Like LZMA, it can consume a <i>lot</i> of memory; see the above table. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc., up to 1048576) and the midway points between them (6, 12, 24, etc., up to 786432). For instance, a dictionary size of 524289 (512 MB + 1 byte) has the same memory requirements as one of 786432 (768 MB).</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_solidcompression">SolidCompression</link><br/>
@@ -4303,10 +4476,10 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="CreateUninstallRegKey">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
+<p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
 <p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to the disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_uninstallable">Uninstallable</link>
@@ -4376,8 +4549,10 @@ DisableReadyPage=yes
 [Code]
 procedure CurPageChanged(CurPageID: Integer);
 begin
-  if CurPageID = wpSelectProgramGroup then
+  if CurPageID in [wpSelectProgramGroup, wpReady] then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
+  else if CurPageID = wpFinished then
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
   else
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
 end;</pre></example>
@@ -4492,6 +4667,17 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallIconName">
 <body>
 <p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <link topic="iconssection">[Icons]</link> section entry.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="UninstallLogging">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_setuplogging">SetupLogging</link></p>
 </body>
 </setuptopic>
 
@@ -4650,7 +4836,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard. This was the default behavior in Inno Setup 2.0.17 and earlier.</p>
+<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard.</p>
 <p>To fully disallow installation to network locations, you must also set <link topic="setup_allownetworkdrive">AllowNetworkDrive</link> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -4694,6 +4880,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>LicenseFile=license.txt</pre></example>
 </body>
 </setuptopic>
@@ -4702,6 +4889,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>InfoBeforeFile=infobefore.txt</pre></example>
 </body>
 </setuptopic>
@@ -4711,24 +4899,25 @@ DiskSliceSize=1457664
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <example><pre>InfoAfterFile=infoafter.txt</pre></example>
 </body>
 </setuptopic>
 
 <setuptopic directive="ChangesAssociations">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, Setup will tell Explorer to refresh its file associations information at the end of the installation, and Uninstall will do the same at the end of uninstallation.</p>
 <p>If your installation creates a file association but doesn't have <tt>ChangesAssociations</tt> set to <tt>yes</tt>, the correct icon for the file type likely won't be displayed until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="ChangesEnvironment">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">boolean expression</link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
+<p>When set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, at the end of the installation Setup will notify other running applications (notably Windows Explorer) that they should reload their environment variables from the registry.</p>
 <p>If your installation creates or changes an environment variable but doesn't have <tt>ChangesEnvironment</tt> set to <tt>yes</tt>, the new/changed environment variable will not be seen by applications launched from Explorer until the user logs off or restarts the computer.</p>
 </body>
 </setuptopic>
@@ -4805,7 +4994,7 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies a password you want to prompt the user for at the beginning of the installation.</p>
 <p>When using a password, you might consider setting <link topic="setup_encryption">Encryption</link> to <tt>yes</tt> as well, otherwise files will be stored as plain text and it would not be exceedingly difficult for someone to gain access to them through reverse engineering.</p>
-<p>The password itself is not stored as clear text; it's stored as a 160-bit SHA-1 hash, salted with a 64-bit random number. (Note: When encryption is enabled, this stored hash is <i>not</i> used for the encryption key; a different hash with a different salt is generated for that.)</p>
+<p>The password itself is not stored (neither as clear text nor as a hash) but you should still use a strong password.</p>
 </body>
 </setuptopic>
 
@@ -4859,39 +5048,16 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
-<setuptopic directive="WindowShowCaption">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
+<setuptopic directive="WindowVisible" title="BackColor, BackColor2, BackColorDirection, BackSolid, WindowResizable, WindowShowCaption, WindowStartMaximized, WindowVisible">
+<keyword value="BackColor" />
+<keyword value="BackColor2" />
+<keyword value="BackColorDirection" />
+<keyword value="BackSolid" />
+<keyword value="WindowResizable" />
+<keyword value="WindowShowCaption" />
+<keyword value="WindowStartMaximized" />
 <body>
-<p>If set to <tt>no</tt>, Setup will be truly "full screen" -- it won't have a caption bar or border, and it will be on top of the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowStartMaximized">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, the Setup program's background window will initially be displayed in a maximized state, where it won't cover over the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowResizable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>no</tt>, the user won't be able to resize the Setup program's background window when it's not maximized.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowVisible">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, there will be a gradient background window displayed behind the wizard.</p>
-<p>Note that this is considered a legacy feature; it likely will be removed at some point in the future.</p>
+<p><i>Feature removed in 6.4.</i> These directives are no longer supported. In past versions, they were used to configure a 1990s-style blue gradient background behind the wizard window.</p>
 </body>
 </setuptopic>
 
@@ -4917,7 +5083,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the images are larger or smaller than required.</p>
-<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required. (This corresponds to the default behavior of Inno Setup 4.1.2 and earlier.)</p>
+<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required.</p>
 </body>
 </setuptopic>
 
@@ -5039,7 +5205,6 @@ DiskSliceSize=1457664
 <body>
 <p>Specifies the name of the font that should be used in dialogs on languages that do not set <tt>DialogFontName</tt> in their <link topic="langoptionssection">[LangOptions] section</link>.</p>
 <p>If the specified font name does not exist on the user's system or is an empty string, 8-point Microsoft Sans Serif or MS Sans Serif will be substituted.</p>
-<p>Prior to the introduction of the <tt>DefaultDialogFontName</tt> directive in Inno Setup 5.3.9, the default dialog font name was always an empty string.</p>
 </body>
 </setuptopic>
 
@@ -5213,10 +5378,23 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using ARCFOUR encryption, with a 160-bit key derived from the value of the <link topic="setup_password">Password</link> [Setup] section directive.</p>
-<p>Because of encryption import/export laws in some countries, encryption support is not included in the main Inno Setup installer but downloaded by it instead. See the <extlink href="https://jrsoftware.org/isdl.php">Inno Setup Downloads</extlink> page for more information.</p>
+<p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>The key used for encryption is a 160-bit SHA-1 hash of 64-bit random salt plus the value of <link topic="setup_password">Password</link>.</p>
+<p>The 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link>, and the 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="EncryptionKeyDerivation">
+<keyword value="pbkdf2" />
+<setupvalid><tt>pbkdf2</tt><br/>
+<tt>pbkdf2/1</tt> through <tt>pbkdf2/2147483647</tt></setupvalid>
+<setupdefault><tt>pbkdf2/200000</tt></setupdefault>
+<body>
+<p>This specifies the key derivation function to use to derive the encryption key from the value of <link topic="setup_password">Password</link>, and optionally its parameters.</p>
+<p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 200000.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_encryption">Encryption</link>
+</p>
 </body>
 </setuptopic>
 
@@ -5234,21 +5412,104 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
+<topic name="archidentifiers" title="Architecture Identifiers">
+<keyword value="Architecture Identifiers" />
+<body>
+
+<p>These are used in the values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link>.</p>
+
+<dl>
+
+<dt><b>arm32compatible</b></dt>
+<dd>
+<p>Matches systems capable of running 32-bit Arm binaries. Arm64 Windows previously included such support, but Microsoft removed it in Windows 11 24H2.</p>
+</dd>
+
+<dt><b>arm64</b></dt>
+<dd>
+<p>Matches systems running Arm64 Windows.</p>
+</dd>
+
+<dt><b>win64</b></dt>
+<dd>
+<p>Matches systems running 64-bit Windows, regardless of OS architecture.</p>
+<p>This may be useful in an installer that doesn't ship any architecture-specific binaries, but requires access to something 64-bit, like <tt>HKLM64</tt> in the [Registry] section, or the native 64-bit Program Files directory.</p>
+</dd>
+
+<dt><b>x64compatible</b></dt>
+<dd>
+<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+</dd>
+
+<dt><b>x64os</b></dt>
+<dd>
+<p>Matches systems running x64 Windows only — not any other systems that have the ability to run x64 binaries via emulation.</p>
+<p>In most cases, <tt>x64compatible</tt> should be used instead of <tt>x64os</tt>, because <tt>x64compatible</tt> allows x64 apps to be installed on Arm64 Windows 11 systems as well.</p>
+<p>However, <tt>x64os</tt> is appropriate in unusual cases where an x64 app/binary is known to require true x64 Windows and cannot function under emulation. x64 device drivers are one example; x64 emulation isn't supported in kernel mode.</p>
+<p>Before Inno Setup 6.3, <tt>x64os</tt> was named <tt>x64</tt>. The compiler still accepts <tt>x64</tt> as an alias for <tt>x64os</tt>, but will emit a deprecation warning when used.</p>
+</dd>
+
+<dt><b>x86compatible</b></dt>
+<dd>
+<p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Given that Setup itself is currently always built as a 32-bit x86 binary, this always matches.</p>
+</dd>
+
+<dt><b>x86os</b></dt>
+<dd>
+<p>Matches systems running 32-bit x86 Windows only.</p>
+<p><tt>x86os</tt> usually only makes sense when installing 32-bit x86 device drivers. When installing a regular 32-bit app, <tt>x86compatible</tt> should be used instead (or just leave <tt>ArchitecturesAllowed</tt> unset).</p>
+<p>Before Inno Setup 6.3, <tt>x86os</tt> was named <tt>x86</tt>. The compiler still accepts <tt>x86</tt> as an alias for <tt>x86os</tt>.</p>
+</dd>
+
+</dl>
+<p><b>See also:</b><br/>
+<link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
+</body>
+</topic>
+
 <setuptopic directive="ArchitecturesAllowed">
-<keyword value="processors allowed" />
 <keyword value="x86" />
 <keyword value="AMD64" />
 <keyword value="x64" />
-<keyword value="IA-64" />
-<keyword value="Itanium" />
-<keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x86</tt> <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
-<setupdefault><i>(blank)</i></setupdefault>
+<keyword value="Arm64" />
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
+<!-- The default is actually an empty string, but in a 32-bit x86 build that's equivalent to x86compatible -->
+<setupdefault><tt>x86compatible</tt></setupdefault>
 <body>
-<p>Specifies which processor architecture(s) Setup is allowed to run on. If this directive is not specified or is blank, Setup will be allowed to run on all processor architectures capable of executing its 32-bit code (including ones it doesn't recognize). Otherwise, if a user's processor architecture is not one of those specified in this directive, Setup will display an error message and exit.</p>
-<p>If your application's binaries are all 32-bit and run in user mode, you should not change this directive from its default value (specifically, don't set it to <tt>x86</tt>), because normally such binaries will run without issue on the 64-bit Windows via the WOW64 emulator.</p>
-<p>If you install any 32-bit device drivers, you should set this directive to <tt>x86</tt>, as 32-bit device drivers cannot function on 64-bit Windows.</p>
-<p>If your application's binaries are built for the x64, ARM64 or Itanium architectures, you should set this directive to either <tt>x64</tt>, <tt>arm64</tt> or <tt>ia64</tt> respectively.</p>
+<p>Specifies which architectures Setup is allowed to run on. If none of the specified architecture identifiers match the current system, Setup will display an error message (<tt>WindowsVersionNotSupported</tt>) and exit.</p>
+<p>If your application's binaries are all 32-bit, then there is normally no need to set this directive; the default value of <tt>x86compatible</tt> is correct. If your application's binaries are built for the x64 or Arm64 architectures, you should set this directive to either <tt>x64compatible</tt> or <tt>arm64</tt> respectively.</p>
+<p>If you are installing device drivers, then the proper setting is <tt>x86os</tt>, <tt>x64os</tt>, or <tt>arm64</tt>, depending on the architecture of the drivers.</p>
+<examples>
+<pre>
+; Require two architecture identifier matches at the same time.
+; - An x64 app installer that includes some 32-bit x86 binaries:
+ArchitecturesAllowed=x64compatible and x86compatible
+; - An Arm64 app installer that includes some x64 binaries:
+ArchitecturesAllowed=arm64 and x64compatible
+
+; Only allow installation on systems that <i>aren't</i> x64-compatible.
+; Useful in a situation where you have separate x86 &amp; x64 installers,
+; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
+; erroneously running the x86 installer.
+ArchitecturesAllowed=x86compatible and not x64compatible
+
+; Allow installation on x64-compatible systems, but deny Arm64.
+; Useful if you provide a separate installer for Arm64 systems.
+ArchitecturesAllowed=x64compatible and not arm64
+
+; The "os" variant is appropriate when installing something that
+; cannot operate in an emulated environment, such as a device driver.
+ArchitecturesAllowed=x64os
+
+; Allow installation only on 64-bit Windows, but don't check the
+; architecture.
+; (Don't use this if installing any architecture-specific binaries.)
+ArchitecturesAllowed=win64
+</pre>
+</examples>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
 </body>
@@ -5259,16 +5520,24 @@ DiskSliceSize=1457664
 <keyword value="64-bit install mode" />
 <keyword value="AMD64" />
 <keyword value="x64" />
-<keyword value="IA-64" />
-<keyword value="Itanium" />
-<keyword value="ARM64" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>x64</tt> <br/><tt>arm64</tt> <br/><tt>ia64</tt></setupvalid>
+<keyword value="Arm64" />
+<setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
+Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the 64-bit processor architecture(s) on which Setup should install in <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always install in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
-<p>Normally, you should not change this directive from its default value unless your application contains native 64-bit binaries.</p>
+<p>Specifies the architectures on which Setup should enable <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always use <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
+<p>Generally, 64-bit install mode should only be enabled on installers that ship 64-bit binaries (x64 or Arm64).</p>
+<p>Since 64-bit install mode is only supported on systems running 64-bit Windows, the specified expression must never match systems running 32-bit Windows. So, for example, don't set this directive to a value like <tt>x86compatible</tt>, since that <i>will</i> match systems running 32-bit Windows. If the expression does indeed match a system running 32-bit Windows, Setup will display an error message and exit.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
-<p>If your application runs only on 64-bit processor architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<p>If your application runs only on 64-bit architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<example>
+<pre>
+; Only allow the installer to run on x64-compatible systems,
+; and enable 64-bit install mode.
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+</pre>
+</example>
 <p><b>See also:</b><br/>
 <link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
 </body>
@@ -5278,7 +5547,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs. This feature is new to version 5.1.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+<p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
 <p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <link topic="isxfunc_GetWinDir">GetWinDir</link> support function) on servers with Terminal Services installed in application mode.</p>
 <p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\WINDOWS", just as on systems that do not have Terminal Services installed.</p>
 <p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
@@ -5290,7 +5559,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>Specifies whether the compiler should set the "NX Compatible" flag in the headers of the Setup and Uninstall programs to mark them compatible with data execution prevention (DEP). This feature is new to version 5.5.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+<p>Specifies whether the compiler should set the "NX Compatible" flag in the headers of the Setup and Uninstall programs to mark them compatible with data execution prevention (DEP).</p>
 <p>Setting this to <tt>no</tt> might be needed if you're using a buggy third-party DLL from [Code].</p>
 </body>
 </setuptopic>
@@ -5299,7 +5568,7 @@ DiskSliceSize=1457664
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>Specifies whether the compiler should set the "Dynamic Base" flag in the headers of the Setup and Uninstall programs. This feature is new to version 5.5.7 and defaults to <tt>yes</tt>; previous versions never set the flag.</p>
+<p>Specifies whether the compiler should set the "Dynamic Base" flag in the headers of the Setup and Uninstall programs.</p>
 </body>
 </setuptopic>
 
@@ -5310,6 +5579,8 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, Setup will always create a log file. Equivalent to passing <link topic="setupcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_uninstalllogging">UninstallLogging</link></p>
 </body>
 </setuptopic>
 
@@ -5444,7 +5715,7 @@ SignTool=byparam format c:
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, the compiler will run Sign Tools in a minimized window.</p>
+<p>When set to <tt>yes</tt>, the compiler will run Sign Tools in a minimized window. Has no effect if the sign tool is a console program.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtool">SignTool</link></p>
 </body>
@@ -5496,7 +5767,7 @@ SignTool=byparam format c:
 <tt>BT</tt> otherwise</setupdefault>
 <body>
 <p>Controls the match finder method used by the LZMA and LZMA2 compressors.</p>
-<p>A value of <tt>HC</tt> enables the Hash Chain method with 4 hash bytes.</p>
+<p>A value of <tt>HC</tt> enables the Hash Chain method with 5 hash bytes.</p>
 <p>A value of <tt>BT</tt> enables the Binary Tree method with 4 hash bytes.</p>
 <p>The Binary Tree method can provide a better compression ratio at the expense of compression speed.</p>
 </body>
@@ -5594,8 +5865,7 @@ SignTool=byparam format c:
 <p>When a new version of an application is installed over an existing version, instead of creating a new uninstall log file (unins???.dat), Setup will by default look for and append to an existing uninstall log file that belongs to the <link topic="sameappnotes">same application</link> and is in the same directory. This way, when the application is uninstalled, changes made by all the different installations will be undone (starting with the most recent installation).</p>
 <p>The uninstaller will use the <link topic="messagessection">messages</link> from the most recent installation of the application. However, there is an exception: if an installation was built with an older version of Inno Setup that included an older version of the uninstaller than the existing one on the user's system, neither the existing uninstaller nor its messages will be replaced. In this case the uninstall log will still be appended to, though, since the file format is backward compatible.</p>
 <p>The application name displayed in the uninstaller will be the same as the value of the <tt>[Setup]</tt> section directive <link topic="setup_appname">AppName</link> from the most recent installation, unless <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is set to <tt>no</tt>.</p>
-<p>The uninstall log-appending feature is new to Inno Setup 1.3. If you wish to disable it, set the <tt>[Setup]</tt> section directive <link topic="setup_uninstalllogmode">UninstallLogMode</link>.</p>
-<p><i>Note:</i> Setup can only append to uninstall log files that were created by an Inno Setup 1.3.1 (or later) installation.</p>
+<p>To disable the uninstall log-appending feature set the <tt>[Setup]</tt> section directive <link topic="setup_uninstalllogmode">UninstallLogMode</link>.</p>
 </body>
 </topic>
 
@@ -5629,15 +5899,14 @@ SignTool=byparam format c:
 <p>The versions specified in <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> can optionally include build numbers and/or service pack levels.</p>
 <examples>
 <pre>
-5.0.2195
-5.0sp4
-5.0.2195sp4
+6.1sp1
+10.0.22000
 </pre>
 </examples>
 <p>If a build number is not specified or is zero, Setup will not check the system's build number.</p>
 <p>If a service pack level is not specified or is zero, Setup will not check the system's service pack level.</p>
-<p>When a service pack level is specified, Setup will only compare it against the system's service pack level if the specified major and minor versions match the system's version. For example, if <tt>MinVersion</tt> specifies <tt>5.0sp4</tt>, Setup will only check for SP4 on Windows 2000 (5.0) systems.</p>
-<p>In an <tt>OnlyBelowVersion</tt> parameter, if the specified version matches the system's version, then Setup will normally consider the system's version to be too high. However, when a service pack level is specified, the specified version is allowed to match the system's version. For example, on Windows 2000 SP4, values of <tt>5.0</tt> and <tt>5.0.2195</tt> will fail the <tt>OnlyBelowVersion</tt> test, but <tt>5.0sp5</tt> and <tt>5.0.2195sp5</tt> will pass (as SP4 &lt; <tt>sp5</tt>).</p>
+<p>When a service pack level is specified, Setup will only compare it against the system's service pack level if the specified major and minor versions match the system's version. For example, if <tt>MinVersion</tt> specifies <tt>6.1sp1</tt>, Setup will only check for SP1 on Windows 7 and Windows Server 2008 R2 (6.1) systems.</p>
+<p>In an <tt>OnlyBelowVersion</tt> parameter, if the specified version matches the system's version, then Setup will normally consider the system's version to be too high. However, when a service pack level is specified, the specified version is allowed to match the system's version.<!-- For example, on Windows 2000 SP4, values of <tt>5.0</tt> and <tt>5.0.2195</tt> will fail the <tt>OnlyBelowVersion</tt> test, but <tt>5.0sp5</tt> and <tt>5.0.2195sp5</tt> will pass (as SP4 &lt; <tt>sp5</tt>). --></p>
 </body>
 </topic>
 
@@ -5645,8 +5914,6 @@ SignTool=byparam format c:
 <keyword value="Windows Versions" />
 <body>
 <table>
-<tr><td>6.0.6000</td><td>Windows Vista</td></tr>
-<tr><td>6.0.6001</td><td>Windows Vista with Service Pack 1<br/>or Windows Server 2008</td></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
 <tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
@@ -5669,8 +5936,10 @@ SignTool=byparam format c:
 <tr><td>10.0.20348</td><td>Windows Server 2022 Version 21H2</td></tr>
 <tr><td>10.0.22000</td><td>Windows 11 Version 21H2 (original release)</td></tr>
 <tr><td>10.0.22621</td><td>Windows 11 Version 22H2 (2022 Update)</td></tr>
+<tr><td>10.0.22631</td><td>Windows 11 Version 23H2 (2023 Update)</td></tr>
+<tr><td>10.0.26100</td><td>Windows 11 Version 24H2 (2024 Update)</td></tr>
 </table>
-<p>Note that there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
+<p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
 </topic>
 
@@ -5683,6 +5952,7 @@ SignTool=byparam format c:
 <tr><td><tt>creatorowner</tt></td><td>Creator Owner</td></tr>
 <tr><td><tt>everyone</tt></td><td>Everyone group</td></tr>
 <tr><td><tt>guests</tt></td><td>Guests group</td></tr>
+<tr><td><tt>iisiusrs</tt></td><td>IIS users group</td></tr>
 <tr><td><tt>networkservice</tt></td><td>Network service account</td></tr>
 <tr><td><tt>service</tt></td><td>Local service account</td></tr>
 <tr><td><tt>system</tt></td><td>Local system account</td></tr>

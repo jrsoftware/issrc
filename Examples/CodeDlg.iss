@@ -79,7 +79,7 @@ begin
   DataDirPage := CreateInputDirPage(wpSelectDir,
     'Select Personal Data Directory', 'Where should personal data files be installed?',
     'Select the folder in which Setup should install personal data files, then click Next.',
-    False, '');
+    False, SetupMessage(msgNewFolderName));
   DataDirPage.Add('');
 
   { Set default values, using settings that were stored last time if possible }
@@ -153,7 +153,7 @@ begin
     finally
       ProgressPage.Hide;
     end;
-    if GetSHA1OfString('codedlg' + KeyPage.Values[0]) = '8013f310d340dab18a0d0cda2b5b115d2dcd97e4' then
+    if GetSHA256OfString('codedlg' + KeyPage.Values[0]) = '4c06e466ec3a2c977ac902a6cf4c602457f701b59309fc4282d9cb2234b7559b' then
       Result := True
     else begin
       MsgBox('You must enter a valid registration key. (Hint: The key is "inno".)', mbError, MB_OK);

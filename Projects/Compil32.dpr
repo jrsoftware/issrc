@@ -2,59 +2,88 @@ program Compil32;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Compiler
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.0}
-{$SETPESUBSYSVERSION 6.0}
-{$WEAKLINKRTTI ON}
-
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
   Forms,
-  PathFunc,
-  CompForm in 'CompForm.pas' {CompileForm},
-  CmnFunc in 'CmnFunc.pas',
-  CmnFunc2 in 'CmnFunc2.pas',
-  CompFunc in 'CompFunc.pas',
-  CompMsgs in 'CompMsgs.pas',
-  CompInt in 'CompInt.pas',
-  CompOptions in 'CompOptions.pas' {OptionsForm},
-  CompStartup in 'CompStartup.pas' {StartupForm},
-  CompWizard in 'CompWizard.pas' {WizardForm},
-  CompWizardFile in 'CompWizardFile.pas' {WizardFileForm},
-  CompFileAssoc in 'CompFileAssoc.pas',
-  TmSchema in '..\Components\TmSchema.pas',
-  UxTheme in '..\Components\UxTheme.pas',
-  DebugStruct in 'DebugStruct.pas',
-  BrowseFunc in 'BrowseFunc.pas',
-  CompSignTools in 'CompSignTools.pas' {SignToolsForm},
-  CompInputQueryCombo in 'CompInputQueryCombo.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  IDE.MainForm in 'Src\IDE.MainForm.pas' {MainForm},
+  Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
+  IDE.Messages in 'Src\IDE.Messages.pas',
+  Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
+  IDE.StartupForm in 'Src\IDE.StartupForm.pas' {StartupForm},
+  IDE.Wizard.WizardForm in 'Src\IDE.Wizard.WizardForm.pas' {WizardForm},
+  IDE.Wizard.WizardFileForm in 'Src\IDE.Wizard.WizardFileForm.pas' {WizardFileForm},
+  IDE.FileAssocFunc in 'Src\IDE.FileAssocFunc.pas',
+  NewUxTheme.TmSchema in '..\Components\NewUxTheme.TmSchema.pas',
+  NewUxTheme in '..\Components\NewUxTheme.pas',
+  Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
+  BrowseFunc in '..\Components\BrowseFunc.pas',
+  IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
+  IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas',
+  IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas',
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
-  ScintStylerInnoSetup in '..\Components\ScintStylerInnoSetup.pas',
+  IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',
   ModernColors in '..\Components\ModernColors.pas',
-  CompMessageBoxDesigner in 'CompMessageBoxDesigner.pas' {MBDForm},
-  CompScintEdit in 'CompScintEdit.pas';
+  IDE.MsgBoxDesignerForm in 'Src\IDE.MsgBoxDesignerForm.pas' {MsgBoxDesignerForm},
+  IDE.IDEScintEdit in 'Src\IDE.IDEScintEdit.pas',
+  IDE.FilesDesignerForm in 'Src\IDE.FilesDesignerForm.pas' {FilesDesignerForm},
+  IDE.Wizard.WizardFormFilesHelper in 'Src\IDE.Wizard.WizardFormFilesHelper.pas',
+  NewTabSet in '..\Components\NewTabSet.pas',
+  NewStaticText in '..\Components\NewStaticText.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  DropListBox in '..\Components\DropListBox.pas',
+  NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewNotebook in '..\Components\NewNotebook.pas',
+  TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
+  IDE.HtmlHelpFunc in 'Src\IDE.HtmlHelpFunc.pas',
+  UIStateForm in '..\Components\UIStateForm.pas',
+  Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
+  Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
+  Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',
+  IDE.RegistryDesignerForm in 'Src\IDE.RegistryDesignerForm.pas' {RegistryDesignerForm},
+  IDE.Wizard.WizardFormRegistryHelper in 'Src\IDE.Wizard.WizardFormRegistryHelper.pas',
+  ScintInt.InnoSetup in '..\Components\ScintInt.InnoSetup.pas',
+  Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
+  isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas',
+  IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule};
 
-{$R *.res}
-{$R Compil32.manifest.res}
-{$R CompDocIcon.res}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
+{$WEAKLINKRTTI ON}
+
+{$R Res\Compil32.docicon.res}
+{$R Res\Compil32.manifest.res}
+{$R Res\Compil32.versionandicon.res}
 
 procedure SetAppUserModelID;
 var
   Func: function(AppID: PWideChar): HRESULT; stdcall;
 begin
-  { On Windows 7, for the IDE to be pinnable and show a Jump List, it is
-    necessary to explicitly assign an AppUserModelID because by default the
-    taskbar excludes applications that have "Setup" in their name. }
+  { For the IDE to be pinnable and show a Jump List, it is necessary to
+    explicitly assign an AppUserModelID because by default the taskbar excludes
+    applications that have "Setup" in their name. }
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
@@ -89,7 +118,7 @@ begin
       if CommandLineCompile then
         CommandLine := '/CC ' + CommandLine;
     end;
-    
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
@@ -98,7 +127,7 @@ begin
 end;
 
 procedure CreateMutexes;
-{ Creates the two mutexes used by the Inno Setup's own installer/uninstaller to
+{ Creates the two mutexes used by Inno Setup's own installer/uninstaller to
   see if the compiler is still running.
   One of the mutexes is created in the global name space (which makes it
   possible to access the mutex across user sessions in Windows XP); the other
@@ -109,7 +138,7 @@ const
   MutexName = 'InnoSetupCompilerAppMutex';
 begin
   CreateMutex(MutexName);
-  CreateMutex('Global\' + MutexName);  { don't localize }
+  CreateMutex('Global\' + MutexName); { don't localize }
 end;
 
 var
@@ -153,7 +182,7 @@ begin
     end
     else if CompareText(S, '/UNASSOC') = 0 then begin
       try
-        UnregisterISSFileAssociation;
+        UnregisterISSFileAssociation(True);
       except
         MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
         Halt(2);
@@ -171,6 +200,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   InitialCurDir := GetCurrentDir;
   if not SetCurrentDir(PathExtractDir(NewParamStr(0))) then
     SetCurrentDir(GetSystemDir);
@@ -181,6 +214,9 @@ begin
   CheckParams;
   RegisterApplicationRestart;
 
+  if not CommandLineWizard then
+    Application.MainFormOnTaskBar := True;
+
   { The 'with' is so that the Delphi IDE doesn't mess with these }
   with Application do begin
     if CommandLineWizard then
@@ -189,6 +225,7 @@ begin
       Title := SCompilerFormCaption;
   end;
 
-  Application.CreateForm(TCompileForm, CompileForm);
+  Application.CreateForm(TImagesModule, ImagesModule);
+  Application.CreateForm(TMainForm, MainForm);
   Application.Run;
 end.

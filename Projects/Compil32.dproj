@@ -1,150 +1,185 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{9F7D921E-50D5-42DB-B7EE-8F08E82FB4F4}</ProjectGuid>
-			<MainSource>Compil32.dpr</MainSource>
-			<Config Condition="'$(Config)'==''">Debug</Config>
-			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-			<ProjectVersion>12.0</ProjectVersion>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
-			<Cfg_1>true</Cfg_1>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
-			<Cfg_2>true</Cfg_2>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Base)'!=''">
-			<DCC_DependencyCheckOutputName>Compil32.exe</DCC_DependencyCheckOutputName>
-			<DCC_UnitSearchPath>..\components;..\components\unips\source;ispp;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30</DCC_UsePackage>
-			<DCC_ImageBase>00400000</DCC_ImageBase>
-			<DCC_UnitAlias>WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;$(DCC_UnitAlias)</DCC_UnitAlias>
-			<DCC_Alignment>1</DCC_Alignment>
-			<DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
-			<DCC_Platform>x86</DCC_Platform>
-			<DCC_K>false</DCC_K>
-			<DCC_F>false</DCC_F>
-			<DCC_S>false</DCC_S>
-			<DCC_N>true</DCC_N>
-			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-			<DCC_WriteableConstants>true</DCC_WriteableConstants>
-			<DCC_E>false</DCC_E>
-			<DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-			<DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-			<DCC_DebugInformation>false</DCC_DebugInformation>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
-		</PropertyGroup>
-		<ItemGroup>
-			<DelphiCompile Include="Compil32.dpr">
-				<MainSource>MainSource</MainSource>
-			</DelphiCompile>
-			<DCCReference Include="SafeDLLPath.pas"/>
-			<DCCReference Include="CompForm.pas">
-				<Form>CompileForm</Form>
-			</DCCReference>
-			<DCCReference Include="CmnFunc.pas"/>
-			<DCCReference Include="CmnFunc2.pas"/>
-			<DCCReference Include="CompFunc.pas"/>
-			<DCCReference Include="CompMsgs.pas"/>
-			<DCCReference Include="CompInt.pas"/>
-			<DCCReference Include="CompOptions.pas">
-				<Form>OptionsForm</Form>
-			</DCCReference>
-			<DCCReference Include="CompStartup.pas">
-				<Form>StartupForm</Form>
-			</DCCReference>
-			<DCCReference Include="CompWizard.pas">
-				<Form>WizardForm</Form>
-			</DCCReference>
-			<DCCReference Include="CompWizardFile.pas">
-				<Form>WizardFileForm</Form>
-			</DCCReference>
-			<DCCReference Include="CompFileAssoc.pas"/>
-			<DCCReference Include="..\Components\TmSchema.pas"/>
-			<DCCReference Include="..\Components\UxTheme.pas"/>
-			<DCCReference Include="DebugStruct.pas"/>
-			<DCCReference Include="BrowseFunc.pas"/>
-			<DCCReference Include="CompSignTools.pas">
-				<Form>SignToolsForm</Form>
-			</DCCReference>
-			<DCCReference Include="CompInputQueryCombo.pas"/>
-			<DCCReference Include="CompMessageBoxDesigner.pas">
-				<Form>MBDForm</Form>
-			</DCCReference>
-			<DCCReference Include="..\Components\ScintInt.pas"/>
-			<DCCReference Include="..\Components\ScintEdit.pas"/>
-			<DCCReference Include="..\Components\ScintStylerInnoSetup.pas"/>
-			<DCCReference Include="CompScintEdit.pas"/>
-			<BuildConfiguration Include="Base">
-				<Key>Base</Key>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Debug">
-				<Key>Cfg_2</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Release">
-				<Key>Cfg_1</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-		</ItemGroup>
-		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
-		<ProjectExtensions>
-			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
-			<Borland.ProjectType>VCLApplication</Borland.ProjectType>
-			<BorlandProject>
-				<Delphi.Personality>
-					<Source>
-						<Source Name="MainSource">Compil32.dpr</Source>
-					</Source>
-					<Parameters>
-						<Parameters Name="UseLauncher">False</Parameters>
-						<Parameters Name="LoadAllSymbols">True</Parameters>
-						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-					</Parameters>
-					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
-						<VersionInfo Name="MajorVer">0</VersionInfo>
-						<VersionInfo Name="MinorVer">0</VersionInfo>
-						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">0</VersionInfo>
-						<VersionInfo Name="Debug">False</VersionInfo>
-						<VersionInfo Name="PreRelease">False</VersionInfo>
-						<VersionInfo Name="Special">False</VersionInfo>
-						<VersionInfo Name="Private">False</VersionInfo>
-						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">1033</VersionInfo>
-						<VersionInfo Name="CodePage">1252</VersionInfo>
-					</VersionInfo>
-					<VersionInfoKeys>
-						<VersionInfoKeys Name="CompanyName">Jordan Russell</VersionInfoKeys>
-						<VersionInfoKeys Name="FileDescription">Inno Setup Compiler</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">0.0.0.0</VersionInfoKeys>
-						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright">Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.</VersionInfoKeys>
-						<VersionInfoKeys Name="LegalTrademarks"/>
-						<VersionInfoKeys Name="OriginalFilename"/>
-						<VersionInfoKeys Name="ProductName">Inno Setup</VersionInfoKeys>
-						<VersionInfoKeys Name="ProductVersion">0.0.0.0</VersionInfoKeys>
-						<VersionInfoKeys Name="Comments">Inno Setup home page: http://www.innosetup.com</VersionInfoKeys>
-					</VersionInfoKeys>
-					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dcloffice2k120.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDS)\bin\dclofficexp120.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-					</Excluded_Packages>
-				</Delphi.Personality>
-			</BorlandProject>
-			<ProjectFileVersion>12</ProjectFileVersion>
-		</ProjectExtensions>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
+        <MainSource>Compil32.dpr</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Debug</Config>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+        <FrameworkType>VCL</FrameworkType>
+        <ProjectVersion>19.5</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
+        <DCC_DebugInformation>1</DCC_DebugInformation>
+        <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
+        <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Define>COMPIL32PROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
+        <SanitizedProjectName>Compil32</SanitizedProjectName>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_MajorVer>0</VerInfo_MajorVer>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=Jordan Russell;FileDescription=Inno Setup Compiler;FileVersion=0.0.0.0;InternalName=;LegalCopyright=Copyright (C) 1997-2008 Jordan Russell. Portions Copyright (C) 2000-2008 Martijn Laan.;LegalTrademarks=;OriginalFilename=;ProductName=Inno Setup;ProductVersion=0.0.0.0;Comments=Inno Setup home page: http://www.innosetup.com</VerInfo_Keys>
+        <DCC_Namespace>System;System.Win;Winapi;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
+        <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
+        <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
+        <DCC_EXPLICIT_STRING_CAST>false</DCC_EXPLICIT_STRING_CAST>
+        <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
+        <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
+        <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>(None)</Manifest_File>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_ExeOutput>..\Files</DCC_ExeOutput>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_ExeOutput>Bin</DCC_ExeOutput>
+        <Debugger_RunParams>Debug.iss</Debugger_RunParams>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="..\Components\SafeDLLPath.pas"/>
+        <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="Src\IDE.MainForm.pas">
+            <Form>MainForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\IDE.HelperFunc.pas"/>
+        <DCCReference Include="Src\IDE.Messages.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\IDE.OptionsForm.pas">
+            <Form>OptionsForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.StartupForm.pas">
+            <Form>StartupForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardForm.pas">
+            <Form>WizardForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardFileForm.pas">
+            <Form>WizardFileForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.FileAssocFunc.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.TmSchema.pas"/>
+        <DCCReference Include="..\Components\NewUxTheme.pas"/>
+        <DCCReference Include="Src\Shared.DebugStruct.pas"/>
+        <DCCReference Include="..\Components\BrowseFunc.pas"/>
+        <DCCReference Include="Src\IDE.SignToolsForm.pas">
+            <Form>SignToolsForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.InputQueryComboForm.pas"/>
+        <DCCReference Include="Src\IDE.InputQueryMemoForm.pas"/>
+        <DCCReference Include="..\Components\ScintInt.pas"/>
+        <DCCReference Include="..\Components\ScintEdit.pas"/>
+        <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>
+        <DCCReference Include="..\Components\ModernColors.pas"/>
+        <DCCReference Include="Src\IDE.MsgBoxDesignerForm.pas">
+            <Form>MsgBoxDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.IDEScintEdit.pas"/>
+        <DCCReference Include="Src\IDE.FilesDesignerForm.pas">
+            <Form>FilesDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardFormFilesHelper.pas"/>
+        <DCCReference Include="..\Components\NewTabSet.pas"/>
+        <DCCReference Include="..\Components\NewStaticText.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.pas"/>
+        <DCCReference Include="..\Components\DropListBox.pas"/>
+        <DCCReference Include="..\Components\NewCheckListBox.pas"/>
+        <DCCReference Include="..\Components\NewNotebook.pas"/>
+        <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
+        <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
+        <DCCReference Include="..\Components\UIStateForm.pas"/>
+        <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
+        <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
+        <DCCReference Include="Src\Shared.FileClass.pas"/>
+        <DCCReference Include="Src\Shared.Int64Em.pas"/>
+        <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
+        <DCCReference Include="Src\IDE.RegistryDesignerForm.pas">
+            <Form>RegistryDesignerForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.Wizard.WizardFormRegistryHelper.pas"/>
+        <DCCReference Include="..\Components\ScintInt.InnoSetup.pas"/>
+        <DCCReference Include="Src\Shared.ScriptFunc.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
+        <DCCReference Include="Src\Shared.Struct.pas"/>
+        <DCCReference Include="..\Components\SHA256.pas"/>
+        <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
+        <DCCReference Include="..\ISHelp\isxclasses_wordlists_generated.pas"/>
+        <DCCReference Include="Src\IDE.ImagesModule.pas">
+            <Form>ImagesModule</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">Compil32.dpr</Source>
+                </Source>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

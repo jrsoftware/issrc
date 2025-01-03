@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2021 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -59,15 +59,7 @@ function ensure_elements_visible(elementTop, elementBottom)
 	yTop -= viewportScrollTop;
 	yBottom -= viewportScrollTop;
 
-	var clientHeight;
-	if (typeof window.innerHeight != "undefined") {
-		// Opera 9.01 compatibility: document.documentElement.clientHeight
-		// returns the page content height, not the client area height,
-		// so we have to use this instead.
-		clientHeight = window.innerHeight;
-	} else {
-		clientHeight = get_viewport_element().clientHeight;
-	}
+	var clientHeight = get_viewport_element().clientHeight;
 
 	if (yTop < 0) {
 		// Scroll up to make the top of elementTop visible
@@ -88,7 +80,7 @@ function toggle_node(id)
 	objContent.style.display = expanding ? "" : "none";
 
 	document.getElementById("nodeimg_" + id).src =
-		expanding ? "images/contentsheadopen.png" : "images/contentsheadclosed.png";
+		expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
 
 	if (expanding) {
 		// Scroll expanded items into view. This is similar to calling scrollIntoView() but

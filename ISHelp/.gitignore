@@ -1,5 +1,3 @@
-c.bat
-compilesettings.bat
-e*.bat
 isxclasses_generated.xml
 isxfunc_generated.xml
+ispp_generated.xml

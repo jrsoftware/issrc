@@ -2,38 +2,41 @@ program SetupLdr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup Loader
 }
 
-{$SetPEFlags 1} 
+uses
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
+  SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup.XPTheme.pas',
+  Windows,
+  Messages,
+  SysUtils,
+  Compression.Base in 'Src\Compression.Base.pas',
+  Compression.LZMA1SmallDecompressor in 'Src\Compression.LZMA1SmallDecompressor.pas',
+  Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
+
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-uses
-  SafeDLLPath in 'SafeDLLPath.pas',
-  XPTheme in 'XPTheme.pas',
-  Windows,
-  Messages,
-  SysUtils,
-  Compress in 'Compress.pas',
-  LZMADecompSmall in 'LZMADecompSmall.pas',
-  SetupEnt in 'SetupEnt.pas',
-  PathFunc,
-  CmnFunc2 in 'CmnFunc2.pas',
-  Msgs in 'Msgs.pas',
-  MsgIDs in 'MsgIDs.pas',
-  Struct in 'Struct.pas',
-  InstFunc in 'InstFunc.pas',
-  FileClass in 'FileClass.pas';
-
-{$R *.RES}
-{$R SetupLdrVersion.res}
-{$R SetupLdrOffsetTable.res}
+{$R Res\Setup.icon.res}
+{$R Res\SetupLdr.version.res}
+{$R Res\SetupLdr.offsettable.res}
 
 procedure RaiseLastError(const Msg: TSetupMessageID);
 var
@@ -305,7 +308,7 @@ begin
           '/HELP, /?' + SNewLine +
            'Shows this information.' + SNewLine +
           '/SP-' + SNewLine +
-          'Disables the This will install... Do you wish to continue? prompt at the beginning of Setup.' + SNewLine +
+          'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
@@ -439,7 +442,7 @@ begin
         { Create a temporary directory, and extract the embedded setup program
           there }
         Randomize;
-        TempDir := CreateTempDir;
+        TempDir := CreateTempDir(IsAdminLoggedOn);
         S := AddBackslash(TempDir) + PathChangeExt(PathExtractName(SelfFilename), '.tmp');
         TempFile := S;  { assign only if string was successfully constructed }
 

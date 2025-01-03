@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="SDK">
+      <UniqueIdentifier>{093101f4-97ca-4829-85f2-95e38d5acd83}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Alloc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFind.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindMt.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Lzma2Enc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzmaEnc.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtCoder.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\Threads.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="islzma.c" />
+    <ClCompile Include="islzma_dll.c" />
+    <ClCompile Include="..\..\..\..\Components\Lzma2\CpuArch.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\MtDec.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\7zStream.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Components\Lzma2\LzFindOpt.c">
+      <Filter>SDK</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Alloc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFind.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzFindMt.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzHash.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Lzma2Enc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\LzmaEnc.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\MtCoder.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Threads.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Types.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="islzma.h" />
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zTypes.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\7zWindows.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Compiler.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\CpuArch.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Components\Lzma2\Precomp.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="islzma.def" />
+  </ItemGroup>
+</Project>

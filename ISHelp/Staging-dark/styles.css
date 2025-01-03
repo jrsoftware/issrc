@@ -1,0 +1,159 @@
+/*
+  Inno Setup
+  Copyright (C) 1997-2024 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+	Style sheet used by topic_*.htm
+*/
+
+BODY {
+	font: small arial, sans-serif;
+	margin: 0;
+	color: #d6d6d6;
+	background-color: #1f1f1f;
+}
+PRE, TT {
+	font: small "courier new", monospace;
+}
+P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .examplebox, DIV.margined {
+	/* only the end of paragraphs etc. has a margin */
+	margin-top: 0;
+	margin-bottom: 0.6em;
+}
+UL, DD {
+	/* specify both of these for firefox compat. */
+	margin-left: 0;
+	padding-left: 2em;
+}
+TABLE {
+	/* equivalent of cellspacing="0" */
+	border-collapse: collapse;
+}
+TD {
+	/* equivalent of cellpadding="0" */
+	padding: 0;
+	/* note: "baseline" is broken on IE6; it only aligns correctly when there's
+	   a single line of text, and that text is directly inside the <TD> tag
+	   (not inside a <DIV>). otherwise it behaves more like "top".
+           (firefox 1.5 and opera 9 don't have this problem) */
+	vertical-align: baseline;
+}
+IMG {
+	width: 16px;
+	height: 16px;
+	border-style: none;
+	padding-left: 2px;
+}
+A:link, A:visited {
+	color: hsl(206, 100%, 50%);
+	background-color: transparent;
+	text-decoration: none;
+}
+A[href]:hover {
+	color: hsl(206, 100%, 43%);
+	text-decoration: underline;
+}
+A.highlighted {
+	background-color: #ffff00;
+	color: black;
+}
+
+.small {
+	/* what we want is an 8pt font. 8pt/10pt = 80%, but on firefox that
+	   actually creates a font smaller than 8pt, so use 82% */
+	font-size: 82%;
+}
+.heading {
+	margin-top: 0.6em;
+	font-size: 120%;
+	font-weight: bold;
+}
+.notopmargin {
+	margin-top: 0;
+}
+.indent {
+	margin-left: 2em;
+}
+PRE.nomargin {
+	margin: 0;
+}
+LI.compact {
+	margin-bottom: 2px;
+}
+
+.topicheading {
+	background-color: #403E41;
+	color: #d6d6d6;
+	padding: 4px 8px;
+	margin: 0;
+	font-size: 120%;
+	font-weight: bold;
+}
+.topicbody {
+	padding: 8px;
+}
+
+.examplebox {
+	background-color: #403E41;
+	color: #d6d6d6;
+	padding: 4px;
+	border: 1px solid #716F71;
+	/* on IE6, if the content of the box is wider than the page,
+	   the width of the box is increased. on firefox 1.5, by default
+	   the box width stays the same, and the content is drawn outside
+	   the box. that looks ugly. "overflow: auto" tells it to put a
+	   scroll bar on the box when the content is too wide. (IE6
+	   apparently ignores "overflow: auto", at least here.) */
+	overflow: auto;
+}
+.exampleheader {
+	font-size: 82%;
+	font-weight: bold;
+	margin-bottom: 0.6em;
+}
+
+
+DT.paramlist {
+	margin-bottom: 0.6em;
+}
+DD.paramlist {
+	/* give a little extra spacing between items */
+	margin-bottom: 1.2em;
+}
+
+DT.flaglist {
+	font-weight: bold;
+}
+
+TD.cellleft {
+	white-space: nowrap;
+}
+TD.cellright {
+	padding-left: 2em;
+}
+
+TABLE.setuphdr {
+	margin: 0;
+}
+TD.setuphdrl {
+	font-weight: bold;
+	white-space: nowrap;
+}
+TD.setuphdrr {
+	padding-left: 1em;
+}
+
+
+#redirectbox {
+	position: absolute;
+	background-color: InfoBackground;
+	color: InfoText;
+	padding: 16px 24px;
+	border: 1px solid ThreeDDarkShadow;
+	font-size: 120%;
+	font-weight: bold;
+	        box-shadow: #808080 0 0 12px;
+	   -moz-box-shadow: #808080 0 0 12px;	/* for Firefox 3.6 */
+	-webkit-box-shadow: #808080 0 0 12px;	/* for Chrome 6.0 */
+}

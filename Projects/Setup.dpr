@@ -2,87 +2,108 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Setup program
 }
 
-{$SetPEFlags 1} 
-{$SETPEOSVERSION 6.1}
-{$SETPESUBSYSVERSION 6.1}
-{$WEAKLINKRTTI ON}
-
 uses
-  SafeDLLPath in 'SafeDLLPath.pas',
-  XPTheme in 'XPTheme.pas',
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
+  SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup.XPTheme.pas',
   Forms,
   Windows,
   SysUtils,
   Messages,
-  RichEditViewer,
-  CmnFunc in 'CmnFunc.pas',
-  CmnFunc2 in 'CmnFunc2.pas',
-  Main in 'Main.pas' {MainForm},
-  Install in 'Install.pas',
-  Msgs in 'Msgs.pas',
-  MsgIDs in 'MsgIDs.pas',
-  Undo in 'Undo.pas',
-  Struct in 'Struct.pas',
-  NewDisk in 'NewDisk.pas' {NewDiskForm},
-  InstFunc in 'InstFunc.pas',
-  InstFnc2 in 'InstFnc2.pas',
-  Wizard in 'Wizard.pas' {WizardForm},
-  ScriptFunc_R in 'ScriptFunc_R.pas',
-  ScriptFunc in 'ScriptFunc.pas',
-  SetupTypes in 'SetupTypes.pas',
-  ScriptRunner in 'ScriptRunner.pas',
-  ScriptDlg in 'ScriptDlg.pas',
-  ScriptClasses_R in 'ScriptClasses_R.pas',
-  SelLangForm in 'SelLangForm.pas' {SelectLanguageForm},
-  Extract in 'Extract.pas',
-  Int64Em in 'Int64Em.pas',
-  SelFolderForm in 'SelFolderForm.pas' {SelectFolderForm},
-  Compress in 'Compress.pas',
-  CompressZlib in 'CompressZlib.pas',
-  bzlib in 'bzlib.pas',
-  LZMADecomp in 'LZMADecomp.pas',
-  FileClass in 'FileClass.pas',
-  MD5 in 'MD5.pas',
-  SHA1 in 'SHA1.pas',
-  Logging in 'Logging.pas',
-  DebugClient in 'DebugClient.pas',
-  DebugStruct in 'DebugStruct.pas',
-  ArcFour in 'ArcFour.pas',
-  Uninstall in 'Uninstall.pas',
-  UninstProgressForm in 'UninstProgressForm.pas' {UninstProgressForm},
-  UninstSharedFileForm in 'UninstSharedFileForm.pas' {UninstSharedFileForm},
-  SimpleExpression in 'SimpleExpression.pas',
-  UIStateForm in 'UIStateForm.pas',
-  SetupForm in 'SetupForm.pas',
-  RegSvr in 'RegSvr.pas',
-  BrowseFunc in 'BrowseFunc.pas',
-  RedirFunc in 'RedirFunc.pas',
-  SecurityFunc in 'SecurityFunc.pas',
-  Helper in 'Helper.pas',
-  VerInfo in 'VerInfo.pas',
-  RegDLL in 'RegDLL.pas',
-  ResUpdate in 'ResUpdate.pas',
-  SpawnCommon in 'SpawnCommon.pas',
-  SpawnServer in 'SpawnServer.pas',
-  SpawnClient in 'SpawnClient.pas',
-  TaskDialog in 'TaskDialog.pas';
+  RichEditViewer in '..\Components\RichEditViewer.pas',
+  Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Setup.MainForm in 'Src\Setup.MainForm.pas',
+  Setup.MainFunc in 'Src\Setup.MainFunc.pas',
+  Setup.Install in 'Src\Setup.Install.pas',
+  SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Setup.UninstallLog in 'Src\Setup.UninstallLog.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  Setup.NewDiskForm in 'Src\Setup.NewDiskForm.pas' {NewDiskForm},
+  SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
+  Setup.InstFunc in 'Src\Setup.InstFunc.pas',
+  Setup.InstFunc.Ole in 'Src\Setup.InstFunc.Ole.pas',
+  Setup.WizardForm in 'Src\Setup.WizardForm.pas' {WizardForm},
+  Setup.ScriptFunc in 'Src\Setup.ScriptFunc.pas',
+  Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
+  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
+  Setup.ScriptRunner in 'Src\Setup.ScriptRunner.pas',
+  Setup.ScriptDlg in 'Src\Setup.ScriptDlg.pas',
+  Setup.ScriptClasses in 'Src\Setup.ScriptClasses.pas',
+  Setup.SelectLanguageForm in 'Src\Setup.SelectLanguageForm.pas' {SelectLanguageForm},
+  Setup.FileExtractor in 'Src\Setup.FileExtractor.pas',
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  Setup.SelectFolderForm in 'Src\Setup.SelectFolderForm.pas' {SelectFolderForm},
+  Compression.Base in 'Src\Compression.Base.pas',
+  Compression.Zlib in 'Src\Compression.Zlib.pas',
+  Compression.bzlib in 'Src\Compression.bzlib.pas',
+  Compression.LZMADecompressor in 'Src\Compression.LZMADecompressor.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  MD5 in '..\Components\MD5.pas',
+  SHA1 in '..\Components\SHA1.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  Setup.LoggingFunc in 'Src\Setup.LoggingFunc.pas',
+  Setup.DebugClient in 'Src\Setup.DebugClient.pas',
+  Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
+  Setup.Uninstall in 'Src\Setup.Uninstall.pas',
+  Setup.UninstallProgressForm in 'Src\Setup.UninstallProgressForm.pas' {UninstallProgressForm},
+  Setup.UninstallSharedFileForm in 'Src\Setup.UninstallSharedFileForm.pas' {UninstallSharedFileForm},
+  SimpleExpression in '..\Components\SimpleExpression.pas',
+  UIStateForm in '..\Components\UIStateForm.pas',
+  Setup.SetupForm in 'Src\Setup.SetupForm.pas',
+  Setup.RegSvr in 'Src\Setup.RegSvr.pas',
+  BrowseFunc in '..\Components\BrowseFunc.pas',
+  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
+  Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
+  Setup.Helper in 'Src\Setup.Helper.pas',
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  Setup.RegDLL in 'Src\Setup.RegDLL.pas',
+  Shared.ResUpdateFunc in 'Src\Shared.ResUpdateFunc.pas',
+  Setup.SpawnCommon in 'Src\Setup.SpawnCommon.pas',
+  Setup.SpawnServer in 'Src\Setup.SpawnServer.pas',
+  Setup.SpawnClient in 'Src\Setup.SpawnClient.pas',
+  Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  BidiCtrls in '..\Components\BidiCtrls.pas',
+  BitmapImage in '..\Components\BitmapImage.pas',
+  FolderTreeView in '..\Components\FolderTreeView.pas',
+  NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewNotebook in '..\Components\NewNotebook.pas',
+  NewProgressBar in '..\Components\NewProgressBar.pas',
+  NewStaticText in '..\Components\NewStaticText.pas',
+  PasswordEdit in '..\Components\PasswordEdit.pas',
+  NewUxTheme.TmSchema in '..\Components\NewUxTheme.TmSchema.pas',
+  RestartManager in '..\Components\RestartManager.pas',
+  Resample in '..\Components\Resample.pas',
+  ASMInline in '..\Components\ASMInline.pas',
+  TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
+  Setup.DotNetFunc in 'Src\Setup.DotNetFunc.pas',
+  Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
+  Setup.MsiFunc in 'Src\Setup.MsiFunc.pas',
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
+  NewUxTheme in '..\Components\NewUxTheme.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas',
+  PSStackHelper in '..\Components\PSStackHelper.pas',
+  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas';
 
-{$R *.RES}
-{$IFDEF UNICODE}
-{$R SetupVersionUnicode.res}
-{$ELSE}
-{$R SetupVersion.res}
-{$ENDIF}
-{$R IMAGES.RES}
+{$SETPEOSVERSION 6.1}
+{$SETPESUBSYSVERSION 6.1}
+{$WEAKLINKRTTI ON}
 
-{$I VERSION.INC}
+{$R Res\Setup.icon.res}
+{$R Res\Setup.images.res}
+{$R Res\Setup.version.res}
 
 procedure ShowExceptionMsg;
 var
@@ -137,8 +158,7 @@ begin
       end;
     WM_ENDSESSION: begin
         { Should only get here if RestartInitiatedByThisProcess is set or an
-          Uninstaller shutdown was allowed, or if the user forced a shutdown
-          on Vista or newer.
+          Uninstaller shutdown was allowed, or if the user forced a shutdown.
           Skip the default handling which calls Halt. No code of ours depends
           on the Halt call to clean up, and it could theoretically result in
           obscure reentrancy bugs.
@@ -159,31 +179,6 @@ begin
           AcceptedQueryEndSessionInProgress := False;
         Result := True;
       end;
-{$IFDEF IS_D12}
-    WM_STYLECHANGING: begin
-        { On Delphi 2009, we must suppress some of the VCL's manipulation of
-          the application window styles in order to prevent the taskbar button
-          from re-appearing after SetTaskbarButtonVisibility(False) was used
-          to hide it.
-          - The VCL tries to clear WS_EX_TOOLWINDOW whenever a form handle is
-            created (see TCustomForm.CreateParams). Since
-            SetTaskbarButtonVisibility uses the WS_EX_TOOLWINDOW style
-            internally to hide the taskbar button, we can't allow that.
-          - The VCL tries to set WS_EX_APPWINDOW on the application window
-            after the main form is created (see ChangeAppWindow in Forms).
-            The WS_EX_APPWINDOW style forces the window to show a taskbar
-            button, overriding WS_EX_TOOLWINDOW, so don't allow that either.
-            (It appears to be redundant anyway.) }
-        if Integer(Message.WParam) = GWL_EXSTYLE then begin
-          { SetTaskbarButtonVisibility sets TaskbarButtonHidden }
-          if TaskbarButtonHidden then
-            PStyleStruct(Message.LParam).styleNew :=
-              PStyleStruct(Message.LParam).styleNew or WS_EX_TOOLWINDOW;
-          PStyleStruct(Message.LParam).styleNew :=
-            PStyleStruct(Message.LParam).styleNew and not WS_EX_APPWINDOW;
-        end;
-      end;
-{$ENDIF}
   end;
 end;
 
@@ -191,8 +186,6 @@ procedure DisableWindowGhosting;
 var
   Proc: procedure; stdcall;
 begin
-  { Note: The documentation claims this function is only available in XP SP1,
-    but it's actually available on stock XP too. }
   Proc := GetProcAddress(GetModuleHandle(user32), 'DisableProcessWindowsGhosting');
   if Assigned(Proc) then
     Proc;
@@ -261,19 +254,34 @@ begin
 end;
 
 begin
-{$IFDEF IS_D12}
-  { Delphi 2009 initially sets WS_EX_TOOLWINDOW on the application window.
-    That will prevent our ShowWindow(Application.Handle, SW_SHOW) calls from
-    actually displaying the taskbar button as intended, so clear it. }
-  SetWindowLong(Application.Handle, GWL_EXSTYLE,
-    GetWindowLong(Application.Handle, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW);
-{$ENDIF}
-
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
     TRichEditViewer.CustomShellExecute := ShellExecuteAsOriginalUser;
+
+    { Don't respect the show command passed by the parent process.
+      "Maximized" makes no sense as our windows don't have maximize/restore
+      buttons, and "Minimized" is problematic as the VCL doesn't realize the
+      app is minimized (Application.Restore has no effect because
+      FAppIconic=False).
+      If the parent process is SetupLdr, then there shouldn't be a non-normal
+      show command because SetupLdr doesn't specify a show command when
+      starting Setup. So this should really only matter when UseSetupLdr=no.
+      First, overwrite the System.CmdShow variable to ensure that
+      Application.Run (if called) doesn't mess with the main form's
+      WindowState.
+      Second, because ShowWindow overrides the value of nCmdShow on the first
+      call if it's SW_SHOWNORMAL, SW_SHOW, or SW_SHOWDEFAULT (which isn't
+      specifically documented; I tested each value), make a first call to
+      ShowWindow here that doesn't actually do anything (the app window is
+      already hidden at this point, and SW_HIDE is not one of the values that
+      get overridden), so that when we show our first form, it will be the
+      second call to ShowWindow and won't have its SW_SHOWNORMAL nCmdShow
+      value overridden. }
+    CmdShow := SW_SHOWNORMAL;
+    ShowWindow(Application.Handle, SW_HIDE);
+
     SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }
@@ -285,16 +293,13 @@ begin
     Note: There's no need to localize the following line since it's changed in
     InitializeSetup }
   Application.Title := 'Setup';
-  { On Delphi 3+, the application window by default isn't visible until a form
-    is shown. Force it visible like Delphi 2. Note that due to the way
-    TApplication.UpdateVisible is coded, this should be permanent; if a form
-    is shown and hidden, the application window should still be visible. }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.ShowMainForm := False;
   Application.OnException := TMainForm.ShowException;
   try
     Application.Initialize;
+    Application.MainFormOnTaskBar := True;
     InitializeSetup;
-    Application.CreateForm(TMainForm, MainForm);
+    MainForm := TMainForm.Create(Application);
     MainForm.InitializeWizard;
   except
     { Halt on any exception }

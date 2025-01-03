@@ -1,0 +1,73 @@
+
+<!ELEMENT yasyx     (topic)*>
+<!ELEMENT topic     (title|subtopicstitle|keywords|syntax|description|(topic|section)*)+>
+<!ATTLIST topic
+  id      ID        #IMPLIED
+  popup   (yes|no)  "no"
+  usetitle (yes|no) "yes">
+
+<!ELEMENT title     (#PCDATA)*>
+<!ELEMENT subtopicstitle     (#PCDATA)*>
+
+<!ELEMENT keywords  (kwd)*>
+<!ELEMENT kwd       (#PCDATA)*>
+
+<!ELEMENT description (p|pre|table)*>
+<!ATTLIST description 
+  header (yes|no)   "yes">
+
+<!ELEMENT section (p|pre|table|ul)*>
+<!ATTLIST section
+  title  CDATA      #REQUIRED>
+
+<!ELEMENT p         (#PCDATA|tt|i|link|extlink)*>
+<!ELEMENT pre       (line)*>
+<!ELEMENT line      (#PCDATA|link|b)*>
+<!ELEMENT tt        (#PCDATA|i|link|extlink)*>
+<!ELEMENT code      (#PCDATA|b)*>
+<!ELEMENT link      (#PCDATA)*>
+<!ATTLIST link
+  href    CDATA     #IMPLIED
+  popup   (yes|no)  "no">
+<!ELEMENT extlink   (#PCDATA)*>
+<!ATTLIST extlink
+  href    CDATA     #REQUIRED>
+<!ELEMENT i         (#PCDATA)*>
+<!ELEMENT b         (#PCDATA)*>
+
+<!ELEMENT syntax (define)*>
+
+<!ELEMENT define (variant|cases|opt|txt|nt|group)*>
+<!ATTLIST define 
+  id    ID      #IMPLIED
+  inline (yes|no) "no">
+
+<!ELEMENT variant (txt|nt|opt|cases|group)*>
+<!ATTLIST variant
+  br      (yes|no)  "yes">
+
+<!ELEMENT group (txt|nt|opt|group|cases)*>
+<!ATTLIST group
+  repeated (yes|no) "no">
+
+<!ELEMENT txt (#PCDATA)>
+<!ELEMENT nt (#PCDATA)*>
+<!ATTLIST nt
+  doc    CDATA #IMPLIED
+  name   CDATA #IMPLIED>
+<!ELEMENT opt (txt|nt|opt|group)*>
+<!ATTLIST opt
+  repeated (yes|no) "no">
+
+<!ELEMENT cases (case)+>
+<!ATTLIST cases
+  repeated (yes|no) "no">
+
+<!ELEMENT case (txt|nt|opt|cases)*>
+
+<!ELEMENT table       (tr)*>
+<!ELEMENT tr          (td)*>
+<!ELEMENT td          (#PCDATA|b|i|link|extlink|table|code)*>
+
+<!ELEMENT ul          (li)*>
+<!ELEMENT li          (#PCDATA|tt|link|extlink|p|pre)*>

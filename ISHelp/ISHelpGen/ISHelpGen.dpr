@@ -10,10 +10,11 @@ uses
   ComObj,
   TypInfo,
   XMLParse in 'XMLParse.pas',
-  UIsxclassesParser in 'UIsxclassesParser.pas';
+  UIsxclassesParser in 'UIsxclassesParser.pas',
+  PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.13';
+  Version = '1.17';
 
   XMLFileVersion = '1';
 
@@ -71,22 +72,12 @@ type
 
 var
   SourceDir, OutputDir: String;
-  ISPP: Boolean;
+  NoContentsHtm: Boolean;
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
   CurrentListIsCompact: Boolean;
   CurrentTableColumnIndex: Integer;
-
-const
-  { When IE 6 is rendering a frame in Standards mode (due to a !DOCTYPE tag)
-    and a vertical scroll bar must be displayed, the scroll bar obscures the
-    right edge of the content. This hack works around that by forcing the
-    vertical scroll bar to always be shown. It is applied only to IE 6, since
-    neither IE 5.x nor IE 7 exhibit this behavior.
-    See http://groups.google.com/group/macromedia.dreamweaver/browse_thread/thread/fb755be2e0ee9267 }
-  IE6FramesHack =
-    '<!--[if IE 6]><style type="text/css">html{overflow-y:scroll}</style><![endif]-->';
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -404,7 +395,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -574,13 +565,12 @@ begin
   CurrentTopicName := '';
 
   S :=
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + SNewLine +
-    '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">' + SNewLine +
+    '<!DOCTYPE html>' + SNewLine +
+    '<html lang="en">' + SNewLine +
     '<head>' + SNewLine +
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' + SNewLine +
-    '<meta http-equiv="X-UA-Compatible" content="IE=8" />' + SNewLine +
+    '<meta http-equiv="X-UA-Compatible" content="IE=11" />' + SNewLine +
     '<title>' + EscapeHTML(TopicTitle, False) + '</title>' + SNewLine +
-    IE6FramesHack + SNewLine +
     '<link rel="stylesheet" type="text/css" href="styles.css" />' + SNewLine +
     '<script type="text/javascript" src="topic.js"></script>' + SNewLine +
     '</head>' + SNewLine +
@@ -672,11 +662,6 @@ var
       Node := Node.NextSibling;
     end;
     SL.Add('</ul>');
-    if not ISPP and (ParentNode = ContentsNode) then begin
-      { Don't put next 2 lines on 1 line or hhc will hang... }
-      SL.Add('<object type="text/sitemap">');
-      SL.Add('<param name="Merge" value="ispp.chm::\hh_generated_contents.hhc"></object>');
-    end;
   end;
 
 begin
@@ -701,7 +686,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.png" alt="" /></td>' +
+    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
       '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
@@ -908,6 +893,7 @@ procedure Go;
         SourceDir + 'isxclasses.header2',
         SourceDir + 'isxclasses.footer',
         SourceDir + 'isxclasses_generated.xml');
+      IsxclassesParser.SaveWordLists(SourceDir + 'isxclasses_wordlists_generated.pas');
     finally
       IsxclassesParser.Free;
     end;
@@ -946,8 +932,10 @@ procedure Go;
               begin
                 Writeln('  - Generating hh_generated_contents.hhc');
                 GenerateHTMLHelpContents(Node);
-                Writeln('  - Generating contents.htm');
-                GenerateStaticContents(Node);
+                if not NoContentsHtm then begin
+                  Writeln('  - Generating contents.htm');
+                  GenerateStaticContents(Node);
+                end;
               end;
             elSetupTopic: ParseTopic(Node, True);
             elTopic: ParseTopic(Node, False);
@@ -965,11 +953,9 @@ procedure Go;
 var
   I: Integer;
 begin
-  if not ISPP then begin
-    TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
-    GenerateIsxClassesFile;
-  end else
-    TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
+  TransformFile('isxfunc.xml', 'isxfunc.xsl', 'isxfunc_generated.xml');
+  GenerateIsxClassesFile;
+  TransformFile('ispp.xml', 'ispp.xsl', 'ispp_generated.xml');
 
   Keywords := TStringList.Create;
   Keywords.Duplicates := dupAccept;
@@ -982,20 +968,20 @@ begin
   SetupDirectives.Duplicates := dupError;
   SetupDirectives.Sorted := True;
   try
-    if not ISPP then begin
-      DoDoc('isetup.xml');
-      DoDoc('isx.xml');
-      DoDoc('isxfunc_generated.xml');
-      DoDoc('isxclasses_generated.xml');
-    end else
-      DoDoc('ispp_generated.xml');
+    DoDoc('isetup.xml');
+    DoDoc('isx.xml');
+    DoDoc('isxfunc_generated.xml');
+    DoDoc('isxclasses_generated.xml');
+    DoDoc('ispp_generated.xml');
 
     CheckForNonexistentTargetTopics;
 
     Writeln('- Generating hh_generated_index.hhk');
     GenerateHTMLHelpIndex;
-    Writeln('- Generating contentsindex.js');
-    GenerateStaticIndex;
+    if not NoContentsHtm then begin
+      Writeln('- Generating contentsindex.js');
+      GenerateStaticIndex;
+    end;
   finally
     SetupDirectives.Free;
     TargetTopics.Free;
@@ -1014,16 +1000,16 @@ begin
   try
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
-    if ParamCount <> 1 then begin
-      Writeln('usage: ISHelpGen [source-dir]');
+    if (ParamCount = 0) or (ParamCount > 2) then begin
+      Writeln('usage: ISHelpGen <source-dir> [postfix]');
       Halt(2);
     end;
     SourceDir := ParamStr(1) + '\';
-    OutputDir := SourceDir + 'Staging\';
+    OutputDir := SourceDir + 'Staging' + ParamStr(2) + '\';
 
-    ISPP := FileExists(SourceDir + 'ispp.xml');
-    if ISPP then
-      Writeln('Running in ISPP mode');
+    NoContentsHtm := not FileExists(OutputDir + 'contents-template.htm');
+    if NoContentsHtm then
+      Writeln('Running in NoContentsHtm mode');
 
     OleCheck(CoInitialize(nil));  { for MSXML }
 
