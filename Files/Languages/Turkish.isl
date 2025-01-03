@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Turkish messages ***
+﻿; *** Inno Setup version 6.4.0+ Turkish messages ***
 ; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren translator@zeron.net
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
