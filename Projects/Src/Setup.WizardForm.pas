@@ -742,17 +742,20 @@ constructor TWizardForm.Create(AOwner: TComponent);
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
   begin
-    { Find the image with the smallest area difference compared to the target area. }
-    TargetArea := TargetWidth*TargetHeight;
-    SmallestDifference := -1;
-    Result := nil;
-    for I := 0 to WizardImages.Count-1 do begin
-      Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
-      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-        Result := WizardImages[I];
-        SmallestDifference := Difference;
+    if WizardImages.Count <> 1 then begin
+      { Find the image with the smallest area difference compared to the target area. }
+      TargetArea := TargetWidth*TargetHeight;
+      SmallestDifference := -1;
+      Result := nil;
+      for I := 0 to WizardImages.Count-1 do begin
+        Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+        if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+          Result := WizardImages[I];
+          SmallestDifference := Difference;
+        end;
       end;
-    end;
+    end else
+      Result := WizardImages[0];
   end;
 
 var
