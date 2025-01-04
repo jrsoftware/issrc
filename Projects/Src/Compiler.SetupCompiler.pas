@@ -7642,7 +7642,7 @@ begin
       end;
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
     end else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['100', '150']);
+      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['150']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
@@ -7652,7 +7652,7 @@ begin
       end;
       WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
     end else
-      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['100', '125', '150', '175', '200', '225', '250']);
+      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['250']);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
