@@ -855,15 +855,14 @@ begin
         58x58 when the user is purposely using a smaller-than-default image
         (such as 55x55 or 32x32) and WizardImageStretch=yes.
       - Otherwise, it's unclear what size/shape the user prefers for the
-        control. Set the control size to 55x55, because that has historically
-        been the size of the (smallest) default images. }
+        control. Keep the default control size. }
     var NewWidth := TBitmap(WizardSmallImages[0]).Width;
     var NewHeight := TBitmap(WizardSmallImages[0]).Height;
     if (WizardSmallImages.Count > 1) or
        (NewWidth > 58) or
        (NewHeight > 58) then begin
-      NewWidth := 55;
-      NewHeight := 55;
+      NewWidth := 58;
+      NewHeight := 58;
     end;
 
     { Scale the new width and height }
