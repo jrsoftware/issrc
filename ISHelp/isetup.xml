@@ -5013,7 +5013,7 @@ DiskSliceSize=1457664
 <tr><td>225%</td><td>355x700</td></tr>
 <tr><td>250%</td><td>410x797</td></tr>
 </table>
-<p>If this directive is not specified or is blank, built-in wizard images supporting multiple DPI settings will be used.</p>
+<p>If this directive is not specified or is blank, a single built-in 246x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
@@ -5038,7 +5038,7 @@ DiskSliceSize=1457664
 <tr><td>225%</td><td>119x123</td></tr>
 <tr><td>250%</td><td>138x140</td></tr>
 </table>
-<p>If this directive is not specified or is blank, built-in wizard images supporting multiple DPI settings will be used.</p>
+<p>If this directive is not specified or is blank, a single built-in 138x140 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
