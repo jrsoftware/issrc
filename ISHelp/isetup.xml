@@ -5001,9 +5001,10 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified bitmap should have the same aspect ratio.</p>
+<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
 <tr><td>125%</td><td>202x386</td></tr>
@@ -5013,7 +5014,8 @@ DiskSliceSize=1457664
 <tr><td>225%</td><td>366x700</td></tr>
 <tr><td>250%</td><td>416x797</td></tr>
 </table>
-<p>If this directive is not specified or is blank, a single built-in 246x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>If this directive is not specified or is blank, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
@@ -5027,8 +5029,9 @@ DiskSliceSize=1457664
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified bitmap should be square as well.</p>
+<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>71x71</td></tr>
@@ -5038,7 +5041,9 @@ DiskSliceSize=1457664
 <tr><td>225%</td><td>129x129</td></tr>
 <tr><td>250%</td><td>147x147</td></tr>
 </table>
-<p>If this directive is not specified or is blank, a single built-in 138x140 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>Backward compatibility note: If a single bitmap smaller than 58x58 is specified, the bitmap will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
