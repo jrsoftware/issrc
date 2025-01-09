@@ -143,7 +143,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="setup_password">password-protected</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
-<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
+<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls.</li>
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
