@@ -2,7 +2,7 @@ unit Setup.NewDiskForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,8 +31,6 @@ type
     Filename: string;
     function GetSanitizedPath: String;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -89,15 +87,6 @@ begin
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
-end;
-
-procedure TNewDiskForm.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  { Make sure the form gets a taskbar button if WizardForm doesn't exist yet
-    or if it isn't visible because it's a very silent install }
-  if (WizardForm = nil) or not WizardForm.Visible then
-    Params.WndParent := 0;
 end;
 
 procedure TNewDiskForm.CMShowingChanged(var Message: TMessage);

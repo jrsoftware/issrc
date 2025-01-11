@@ -56,6 +56,7 @@ function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 
 implementation
 
@@ -241,21 +242,31 @@ begin
   if (Result = Application.Handle) and IsIconic(Result) then
     Exit(0);
 
+  if not IsWindowOnTaskbar(Result) then
+    Result := 0;
+end;
+
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+begin
   { Find the "root owner" window, which is what appears in the taskbar.
     We avoid GetAncestor(..., GA_ROOTOWNER) because it's broken in the same
     way as GetParent(): it stops if it reaches a top-level window that doesn't
     have the WS_POPUP style (i.e., a WS_OVERLAPPED window). }
-  var RootWnd := Result;
+  var RootWnd := Wnd;
   while True do begin
+    { Visible WS_EX_APPWINDOW windows have their own taskbar button regardless
+      of their root owner's visibility }
+    if (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_APPWINDOW <> 0) and
+       (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) then
+      Exit(True);
     var ParentWnd := HWND(GetWindowLongPtr(RootWnd, GWLP_HWNDPARENT));
     if ParentWnd = 0 then
       Break;
     RootWnd := ParentWnd;
   end;
 
-  if (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE = 0) or
-     (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
-    Result := 0;
+  Result := (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) and
+    (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0);
 end;
 
 function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;

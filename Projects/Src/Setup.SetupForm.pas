@@ -2,7 +2,7 @@ unit Setup.SetupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, Shared.SetupMessageIDs;
+  UIStateForm;
 
 type
   TSetupForm = class(TUIStateForm)
@@ -74,7 +74,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages, BidiUtils;
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc, BidiUtils;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -379,6 +379,21 @@ end;
 procedure TSetupForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
+  { With Application.MainFormOnTaskBar=True, by default, a form won't get a
+    taskbar button if the main form hasn't been created yet (due to the owner
+    being an invisible Application.Handle), or if the main form exists but
+    isn't visible (e.g., because it's a silent install). Force it to have a
+    taskbar button in those cases by specifying no owner for the window.
+    (Another method is to set WS_EX_APPWINDOW and leave WndParent set to
+    Application.Handle, but it doesn't quite work correctly: if the form
+    displays a message box, and you activate another app's window, clicking on
+    the form's taskbar button activates the message box again, but the taskbar
+    button doesn't change to a "selected" state.) }
+  if (Params.WndParent <> 0) and
+     (Application.MainFormOnTaskBar or (Params.WndParent <> Application.Handle)) and
+     not IsWindowOnTaskbar(Params.WndParent) then
+    Params.WndParent := 0;
+
   if FRightToLeft then
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
