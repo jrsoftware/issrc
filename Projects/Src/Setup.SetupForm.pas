@@ -47,6 +47,7 @@ type
     function ScalePixelsY(const N: Integer): Integer;
     function ShouldSizeX: Boolean;
     function ShouldSizeY: Boolean;
+    function ShowModal: Integer; override;
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
@@ -487,6 +488,18 @@ end;
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
   Result := MulDiv(N, BaseUnitY, OrigBaseUnitY);
+end;
+
+function TSetupForm.ShowModal: Integer;
+begin
+  { Work around VCL issue (Delphi 11.3): ShowModal calls DisableTaskWindows
+    without ensuring the form's handle has been created first. If the handle
+    is created after DisableTaskWindows, PopupMode=pmAuto breaks;
+    TCustomForm.CreateParams finds that the active window is disabled, and
+    doesn't use it as the owner. It then falls back to pmNone behavior, which
+    is to use the main form or application window as the owner. }
+  HandleNeeded;
+  Result := inherited;
 end;
 
 procedure TSetupForm.VisibleChanging;
