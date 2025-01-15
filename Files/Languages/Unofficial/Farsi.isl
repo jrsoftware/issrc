@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Farsi messages ***
+; *** Inno Setup version 6.4.0+ Farsi messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; two periods being displayed).
 ;
 ; Translated by:
-;   Peyman M. (peymanR34@outlook.com)
+;   Peyman Mohammadi (peymanr34@outlook.com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -226,6 +226,13 @@ ErrorFileHash2=هش نامعتبر فایل: مورد انتظار %، پیدا 
 ErrorProgress=پیشرفت نامعتبر: %1 از %2
 ErrorFileSize=اندازه فایل نامعتبر: مورد انتظار %، پیدا شده %2
 
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=در حال استخراج فایل های اضافی...
+ButtonStopExtraction=&توقف استخراج
+StopExtraction=آیا مطمئن هستید که می‌خواهید استخراج را متوقف کنید؟
+ErrorExtractionAborted=استخراج متوقف شد
+ErrorExtractionFailed=استخراج ناموفق: %1
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=در حال آماده سازی برای نصب
 PreparingDesc=نصب کننده در حال آماده سازی برای نصب [name] بر روی کامپیوتر شماست.
@@ -255,7 +262,7 @@ NoRadio=&نه، بعداً خودم کامپیوتر را راه‌اندازی 
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=اجرای %1
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=مشاهده %1
+RunEntryShellExec=مشاهده‌ی %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=نصب کننده به دیسک بعدی نیاز دارد
