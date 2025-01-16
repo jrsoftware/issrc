@@ -522,9 +522,9 @@ type
     function DestroyLineState(const AMemo: TIDEScintFileEdit): Boolean;
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
-    function EvaluateConstant(const S: String; var Output: String): Integer;
+    function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
-      var Output: String): Integer;
+      out Output: String): Integer;
     procedure FindNext(const ReverseDirection: Boolean);
     function FindSetupDirectiveValue(const DirectiveName,
       DefaultValue: String): String; overload;
@@ -6853,7 +6853,7 @@ begin
 end;
 
 function TMainForm.EvaluateConstant(const S: String;
-  var Output: String): Integer;
+  out Output: String): Integer;
 begin
   { This is about evaluating constants like 'app' and not [Code] variables }
   FReplyString := '';
@@ -6864,7 +6864,7 @@ begin
 end;
 
 function TMainForm.EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
-  var Output: String): Integer;
+  out Output: String): Integer;
 begin
   FReplyString := '';
   Result := SendCopyDataMessage(FDebugClientWnd, Handle, CD_DebugClient_EvaluateVariableEntry,
