@@ -5605,19 +5605,20 @@ end;
 
 procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
 
-  function GetCodeVariableDebugEntryFromFileLineCol(FileIndex, Line, Col: Integer): PVariableDebugEntry;
+  function GetCodeVariableDebugEntryFromFileLineCol(FileIndex, Line, Col: Integer; out DebugEntry: PVariableDebugEntry): Boolean;
   var
     I: Integer;
   begin
     { FVariableDebugEntries uses 1-based line and column numbers }
     Inc(Line);
     Inc(Col);
-    Result := nil;
+    Result := False;
     for I := 0 to FVariableDebugEntriesCount-1 do begin
       if (FVariableDebugEntries[I].FileIndex = FileIndex) and
          (FVariableDebugEntries[I].LineNumber = Line) and
          (FVariableDebugEntries[I].Col = Col) then begin
-        Result := @FVariableDebugEntries[I];
+        DebugEntry := @FVariableDebugEntries[I];
+        Result := True;
         Break;
       end;
     end;
@@ -5637,6 +5638,15 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     S := FActiveMemo.GetRawTextRange(LinePos, Pos);
     U := FActiveMemo.ConvertRawStringToString(S);
     Result := Length(U);
+  end;
+
+  function FindVarOrFuncRange(const Pos: Integer): TScintRange;
+  begin
+    { Note: The GetPositionAfter is needed so that when the mouse is over a '.'
+      between two words, it won't match the word to the left of the '.' }
+    FActiveMemo.SetDefaultWordChars;
+    Result.StartPos := FActiveMemo.GetWordStartPosition(FActiveMemo.GetPositionAfter(Pos), True);
+    Result.EndPos := FActiveMemo.GetWordEndPosition(Pos, True);
   end;
 
   function FindConstRange(const Pos: Integer): TScintRange;
@@ -5679,60 +5689,75 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     end;
   end;
 
-var
-  Pos, Line, I, J: Integer;
-  Output: String;
-  DebugEntry: PVariableDebugEntry;
-  ConstRange: TScintRange;
+  procedure UpdateInfo(var Info: TScintHintInfo; const HintStr: String; const Range: TScintRange; const Memo: TIDEScintEdit);
+  begin
+    Info.HintStr := HintStr;
+    Info.CursorRect.TopLeft := Memo.GetPointFromPosition(Range.StartPos);
+    Info.CursorRect.BottomRight := Memo.GetPointFromPosition(Range.EndPos);
+    Info.CursorRect.Bottom := Info.CursorRect.Top + Memo.LineHeight;
+    Info.HideTimeout := High(Integer); { infinite }
+  end;
+
 begin
-  if FDebugClientWnd = 0 then
-    Exit;
-  Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
+  var Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
   if Pos < 0 then
     Exit;
-  Line := FActiveMemo.GetLineFromPosition(Pos);
+  var Line := FActiveMemo.GetLineFromPosition(Pos);
 
-  { Check if cursor is over a [Code] variable }
-  if (FActiveMemo is TIDEScintFileEdit) and
-     (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode) then begin
-    { Note: The '+ 1' is needed so that when the mouse is over a '.'
-      between two words, it won't match the word to the left of the '.' }
-    FActiveMemo.SetDefaultWordChars;
-    I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
-    J := FActiveMemo.GetWordEndPosition(Pos, True);
-    if J > I then begin
-      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TIDEScintFileEdit).CompilerFileIndex,
-        Line, GetCodeColumnFromPosition(I));
-      if DebugEntry <> nil then begin
+  { Check if cursor is over a [Code] variable or function }
+  if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
+    var VarOrFuncRange := FindVarOrFuncRange(Pos);
+    if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
+      var HintStr := '';
+      var DebugEntry: PVariableDebugEntry;
+      if (FActiveMemo is TIDEScintFileEdit) and (FDebugClientWnd <> 0) and
+         GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TIDEScintFileEdit).CompilerFileIndex,
+           Line, GetCodeColumnFromPosition(VarOrFuncRange.StartPos), DebugEntry) then begin
+        var Output: String;
         case EvaluateVariableEntry(DebugEntry, Output) of
-          1: Info.HintStr := Output;
-          2: Info.HintStr := Output;
+          1: HintStr := Output;
+          2: HintStr := Output;
         else
-          Info.HintStr := 'Unknown error';
+          HintStr := 'Unknown error';
         end;
-        Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(I);
-        Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(J);
-        Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
-        Info.HideTimeout := High(Integer);  { infinite }
+      end else begin
+        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        var ClassMember := False;
+        var Index := 0;
+        var Count: Integer;
+        var Definition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        if Definition = '' then begin
+          ClassMember := not ClassMember;
+          Definition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        end;
+        while Index < Count-1 do begin
+          Inc(Index);
+          Definition := Definition + #13 + FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+        end;
+        HintStr := String(Definition);
+      end;
+
+      if HintStr <> '' then begin
+        UpdateInfo(Info, HintStr, VarOrFuncRange, FActiveMemo);
         Exit;
       end;
     end;
   end;
 
-  { Check if cursor is over a constant }
-  ConstRange := FindConstRange(Pos);
-  if ConstRange.EndPos > ConstRange.StartPos then begin
-    Info.HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
-    case EvaluateConstant(Info.HintStr, Output) of
-      1: Info.HintStr := Info.HintStr + ' = "' + Output + '"';
-      2: Info.HintStr := Info.HintStr + ' = Exception: ' + Output;
-    else
-      Info.HintStr := Info.HintStr + ' = Unknown error';
+  if FDebugClientWnd <> 0 then begin
+    { Check if cursor is over a constant }
+    var ConstRange := FindConstRange(Pos);
+    if ConstRange.EndPos > ConstRange.StartPos then begin
+      var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
+      var Output: String;
+      case EvaluateConstant(Info.HintStr, Output) of
+        1: HintStr := HintStr + ' = "' + Output + '"';
+        2: HintStr := HintStr + ' = Exception: ' + Output;
+      else
+        HintStr := HintStr + ' = Unknown error';
+      end;
+      UpdateInfo(Info, HintStr, ConstRange, FActiveMemo);
     end;
-    Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(ConstRange.StartPos);
-    Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(ConstRange.EndPos);
-    Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
-    Info.HideTimeout := High(Integer);  { infinite }
   end;
 end;
 

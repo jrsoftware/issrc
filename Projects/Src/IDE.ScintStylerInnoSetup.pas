@@ -141,7 +141,9 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
-      const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+      const Name: String; const Index: Integer; out Count: Integer): AnsiString; overload;
+    function GetScriptFunctionDefinition(const ClassMember: Boolean;
+      const Name: String; const Index: Integer): AnsiString; overload;
     function SectionHasFlag(const Section: TInnoSetupStylerSection; const Flag: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
@@ -936,6 +938,14 @@ begin
     Count := 0;
     Result := '';
   end;
+end;
+
+function TInnoSetupStyler.GetScriptFunctionDefinition(
+  const ClassMember: Boolean; const Name: String;
+  const Index: Integer): AnsiString;
+begin
+  var Count: Integer;
+  Result := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
 end;
 
 function TInnoSetupStyler.GetScriptWordList(
