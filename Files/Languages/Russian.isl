@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Russian messages ***
+; *** Inno Setup version 6.4.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, https://yktoo.com
 ;
@@ -8,9 +8,21 @@
 ; two periods being displayed).
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<0420><0443><0441><0441><043A><0438><0439>
 LanguageID=$0419
 LanguageCodePage=1251
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
