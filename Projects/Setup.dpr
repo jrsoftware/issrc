@@ -2,7 +2,7 @@ program Setup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,7 @@ uses
   RichEditViewer in '..\Components\RichEditViewer.pas',
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
-  Setup.MainForm in 'Src\Setup.MainForm.pas' {MainForm},
+  Setup.MainForm in 'Src\Setup.MainForm.pas',
   Setup.MainFunc in 'Src\Setup.MainFunc.pas',
   Setup.Install in 'Src\Setup.Install.pas',
   SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
@@ -93,7 +93,9 @@ uses
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   NewUxTheme in '..\Components\NewUxTheme.pas',
   PBKDF2 in '..\Components\PBKDF2.pas',
-  Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas';
+  Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas',
+  PSStackHelper in '..\Components\PSStackHelper.pas',
+  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -177,29 +179,6 @@ begin
           AcceptedQueryEndSessionInProgress := False;
         Result := True;
       end;
-    WM_STYLECHANGING: begin
-        { On Delphi 2009, we must suppress some of the VCL's manipulation of
-          the application window styles in order to prevent the taskbar button
-          from re-appearing after SetTaskbarButtonVisibility(False) was used
-          to hide it.
-          - The VCL tries to clear WS_EX_TOOLWINDOW whenever a form handle is
-            created (see TCustomForm.CreateParams). Since
-            SetTaskbarButtonVisibility uses the WS_EX_TOOLWINDOW style
-            internally to hide the taskbar button, we can't allow that.
-          - The VCL tries to set WS_EX_APPWINDOW on the application window
-            after the main form is created (see ChangeAppWindow in Forms).
-            The WS_EX_APPWINDOW style forces the window to show a taskbar
-            button, overriding WS_EX_TOOLWINDOW, so don't allow that either.
-            (It appears to be redundant anyway.) }
-        if Integer(Message.WParam) = GWL_EXSTYLE then begin
-          { SetTaskbarButtonVisibility sets TaskbarButtonHidden }
-          if TaskbarButtonHidden then
-            PStyleStruct(Message.LParam).styleNew :=
-              PStyleStruct(Message.LParam).styleNew or WS_EX_TOOLWINDOW;
-          PStyleStruct(Message.LParam).styleNew :=
-            PStyleStruct(Message.LParam).styleNew and not WS_EX_APPWINDOW;
-        end;
-      end;
   end;
 end;
 
@@ -275,17 +254,34 @@ begin
 end;
 
 begin
-  { Delphi 2009 initially sets WS_EX_TOOLWINDOW on the application window.
-    That will prevent our ShowWindow(Application.Handle, SW_SHOW) calls from
-    actually displaying the taskbar button as intended, so clear it. }
-  SetWindowLong(Application.Handle, GWL_EXSTYLE,
-    GetWindowLong(Application.Handle, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW);
-
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
     TRichEditViewer.CustomShellExecute := ShellExecuteAsOriginalUser;
+
+    { Don't respect the show command passed by the parent process.
+      "Maximized" makes no sense as our windows don't have maximize/restore
+      buttons, and "Minimized" is problematic as the VCL doesn't realize the
+      app is minimized (Application.Restore has no effect because
+      FAppIconic=False).
+      If the parent process is SetupLdr, then there shouldn't be a non-normal
+      show command because SetupLdr doesn't specify a show command when
+      starting Setup. So this should really only matter when UseSetupLdr=no.
+      First, overwrite the System.CmdShow variable to ensure that
+      Application.Run (if called) doesn't mess with the main form's
+      WindowState.
+      Second, because ShowWindow overrides the value of nCmdShow on the first
+      call if it's SW_SHOWNORMAL, SW_SHOW, or SW_SHOWDEFAULT (which isn't
+      specifically documented; I tested each value), make a first call to
+      ShowWindow here that doesn't actually do anything (the app window is
+      already hidden at this point, and SW_HIDE is not one of the values that
+      get overridden), so that when we show our first form, it will be the
+      second call to ShowWindow and won't have its SW_SHOWNORMAL nCmdShow
+      value overridden. }
+    CmdShow := SW_SHOWNORMAL;
+    ShowWindow(Application.Handle, SW_HIDE);
+
     SelectMode; { Only returns if we should run as Setup }
   except
     { Halt on any exception }
@@ -297,17 +293,14 @@ begin
     Note: There's no need to localize the following line since it's changed in
     InitializeSetup }
   Application.Title := 'Setup';
-  { On Delphi 3+, the application window by default isn't visible until a form
-    is shown. Force it visible like Delphi 2. Note that due to the way
-    TApplication.UpdateVisible is coded, this should be permanent; if a form
-    is shown and hidden, the application window should still be visible. }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.ShowMainForm := False;
   Application.OnException := TMainForm.ShowException;
   try
     Application.Initialize;
+    Application.MainFormOnTaskBar := True;
     InitializeSetup;
-    Application.CreateForm(TMainForm, MainForm);
-  MainForm.InitializeWizard;
+    MainForm := TMainForm.Create(Application);
+    MainForm.InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;

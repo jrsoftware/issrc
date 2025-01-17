@@ -57,14 +57,19 @@ type
     HighlightSelTextOccurrencesCheck: TCheckBox;
     Label5: TNewStaticText;
     MemoKeyMappingComboBox: TComboBox;
+    ShowWhiteSpaceCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure TabWidthEditChange(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
-    { Private declarations }
+    class var
+      FDropDownMemoKeyMappingComboBoxOnNextShow: Boolean;
+    var
+      {}
   public
-    { Public declarations }
+    class property DropDownMemoKeyMappingComboBoxOnNextShow: Boolean write FDropDownMemoKeyMappingComboBoxOnNextShow;
   end;
 
 implementation
@@ -90,6 +95,15 @@ begin
   ThemeComboBox.Items.Add('Light');
   ThemeComboBox.Items.Add('Dark');
   ThemeComboBox.Items.Add('Classic');
+end;
+
+procedure TOptionsForm.FormShow(Sender: TObject);
+begin
+  if FDropDownMemoKeyMappingComboBoxOnNextShow then begin
+    ActiveControl := MemoKeyMappingComboBox;
+    MemoKeyMappingComboBox.DroppedDown := True;
+    FDropDownMemoKeyMappingComboBoxOnNextShow := False;
+  end;
 end;
 
 procedure TOptionsForm.AssocButtonClick(Sender: TObject);

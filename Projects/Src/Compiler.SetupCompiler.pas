@@ -2,7 +2,7 @@ unit Compiler.SetupCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -123,7 +123,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
-    UseSetupLdr, DiskSpanning, BackSolid, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
+    UseSetupLdr, DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
@@ -1653,8 +1653,8 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 const
   UserConsts: array[0..0] of String = (
     'username');
-  Consts: array[0..42] of String = (
-    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts', 'hwnd',
+  Consts: array[0..41] of String = (
+    'src', 'srcexe', 'tmp', 'app', 'win', 'sys', 'sd', 'groupname', 'commonfonts',
     'commonpf', 'commonpf32', 'commonpf64', 'commoncf', 'commoncf32', 'commoncf64',
     'autopf', 'autopf32', 'autopf64', 'autocf', 'autocf32', 'autocf64',
     'computername', 'dao', 'cmd', 'wizardhwnd', 'sysuserinfoname', 'sysuserinfoorg',
@@ -2579,30 +2579,11 @@ begin
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);
       end;
-    ssBackColor: begin
-        try
-          SetupHeader.BackColor := StringToColor(Value);
-        except
-          Invalid;
-        end;
-      end;
-    ssBackColor2: begin
-        try
-          SetupHeader.BackColor2 := StringToColor(Value);
-        except
-          Invalid;
-        end;
-      end;
-    ssBackColorDirection: begin
-        if CompareText(Value, 'toptobottom') = 0 then
-          Exclude(SetupHeader.Options, shBackColorHorizontal)
-        else if CompareText(Value, 'lefttoright') = 0 then
-          Include(SetupHeader.Options, shBackColorHorizontal)
-        else
-          Invalid;
-      end;
+    ssBackColor,
+    ssBackColor2,
+    ssBackColorDirection,
     ssBackSolid: begin
-        BackSolid := StrToBool(Value);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssChangesAssociations: begin
         SetupHeader.ChangesAssociations := Value;
@@ -3153,17 +3134,11 @@ begin
         if not StrToVersionNumbers(Value, VersionInfoVersion) then
           Invalid;
       end;
-    ssWindowResizable: begin
-        SetSetupHeaderOption(shWindowResizable);
-      end;
-    ssWindowShowCaption: begin
-        SetSetupHeaderOption(shWindowShowCaption);
-      end;
-    ssWindowStartMaximized: begin
-        SetSetupHeaderOption(shWindowStartMaximized);
-      end;
+    ssWindowResizable,
+    ssWindowShowCaption,
+    ssWindowStartMaximized,
     ssWindowVisible: begin
-        SetSetupHeaderOption(shWindowVisible);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardImageAlphaFormat: begin
         if CompareText(Value, 'none') = 0 then
@@ -7385,7 +7360,6 @@ begin
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
-      shWindowStartMaximized, shWindowShowCaption, shWindowResizable,
       shUsePreviousAppDir, shUsePreviousGroup,
       shUsePreviousSetupType, shAlwaysShowComponentsList, shFlatComponentsList,
       shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
@@ -7398,15 +7372,12 @@ begin
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
     SetupHeader.DefaultUserInfoOrg := '{sysuserinfoorg}';
-    SetupHeader.BackColor := clBlue;
-    SetupHeader.BackColor2 := clBlack;
     SetupHeader.DisableDirPage := dpAuto;
     SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
-    BackSolid := False;
     DefaultDialogFontName := 'Tahoma';
     SignToolRetryCount := 2;
     SignToolRetryDelay := 500;
@@ -7505,8 +7476,6 @@ begin
     CheckConst(SetupHeader.DefaultUserInfoOrg, SetupHeader.MinVersion, []);
     LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
-    if BackSolid then
-      SetupHeader.BackColor2 := SetupHeader.BackColor;
     if not DiskSpanning then begin
       DiskSliceSize := MaxDiskSliceSize;
       DiskClusterSize := 1;
@@ -7673,7 +7642,7 @@ begin
       end;
       WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
     end else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['100', '150']);
+      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['150']);
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
@@ -7683,7 +7652,7 @@ begin
       end;
       WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
     end else
-      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['100', '125', '150', '175', '200', '225', '250']);
+      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['250']);
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }
@@ -8044,8 +8013,8 @@ begin
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I], True);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2024 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2024 Martijn Laan',0; @1: end;
+    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2025 Jordan Russell, '
+                  db 'Portions Copyright (C) 2000-2025 Martijn Laan',0; @1: end;
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally

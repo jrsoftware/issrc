@@ -211,8 +211,7 @@ type
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
+    procedure WMWindowPosChanging(var Message: TWMWindowPosChanging); message WM_WINDOWPOSCHANGING;
   public
     { Public declarations }
     PrepareToInstallFailureMessage: String;
@@ -743,17 +742,20 @@ constructor TWizardForm.Create(AOwner: TComponent);
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
   begin
-    { Find the image with the smallest area difference compared to the target area. }
-    TargetArea := TargetWidth*TargetHeight;
-    SmallestDifference := -1;
-    Result := nil;
-    for I := 0 to WizardImages.Count-1 do begin
-      Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
-      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-        Result := WizardImages[I];
-        SmallestDifference := Difference;
+    if WizardImages.Count <> 1 then begin
+      { Find the image with the smallest area difference compared to the target area. }
+      TargetArea := TargetWidth*TargetHeight;
+      SmallestDifference := -1;
+      Result := nil;
+      for I := 0 to WizardImages.Count-1 do begin
+        Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+        if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+          Result := WizardImages[I];
+          SmallestDifference := Difference;
+        end;
       end;
-    end;
+    end else
+      Result := WizardImages[0];
   end;
 
 var
@@ -761,10 +763,9 @@ var
   SystemMenu: HMENU;
   P: String;
   I, DefaultSetupTypeIndex: Integer;
-  DfmDefault, IgnoreInitComponents: Boolean;
+  IgnoreInitComponents: Boolean;
   TypeEntry: PSetupTypeEntry;
   ComponentEntry: PSetupComponentEntry;
-  SaveClientWidth, SaveClientHeight: Integer;
 begin
   inherited;
 
@@ -793,34 +794,17 @@ begin
   WelcomeLabel1.Font.Style := [fsBold];
   PageNameLabel.Font.Style := [fsBold];
 
-  if shWindowVisible in SetupHeader.Options then
-    Caption := SetupMessages[msgSetupAppTitle]
-  else if shDisableWelcomePage in SetupHeader.Options then
+  if shDisableWelcomePage in SetupHeader.Options then
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Set BorderStyle and BorderIcons:
-    -WindowVisible + WizardResizable = sizeable
-    -not WindowVisible + WizardResizable = sizeable + minimize
-    -WindowVisible + not WizardResizable = dialog = .dfm default = do nothing
-    -not WindowVisible + not WizardResizable = single + minimize }
-  DfmDefault := (shWindowVisible in SetupHeader.Options) and not (shWizardResizable in SetupHeader.Options);
-  if not DfmDefault then begin
-    { Save ClientWidth/ClientHeight and restore them after changing BorderStyle. }
-    SaveClientWidth := ClientWidth;
-    SaveClientHeight := ClientHeight;
-    if not(shWindowVisible in SetupHeader.Options) then
-      BorderIcons := BorderIcons + [biMinimize];
-    if not(shWizardResizable in SetupHeader.Options) then
-      BorderStyle := bsSingle
-    else
-      BorderStyle := bsSizeable;
+  if shWizardResizable in SetupHeader.Options then begin
+    const SaveClientWidth = ClientWidth;
+    const SaveClientHeight = ClientHeight;
+    BorderStyle := bsSizeable;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
-  end;
-
-  if shWizardResizable in SetupHeader.Options then begin
     EnableAnchorOuterPagesOnResize := True;
     { Do not allow user to resize it smaller than 100% nor larger than 150%. }
     Constraints.MinHeight := Height;
@@ -874,15 +858,14 @@ begin
         58x58 when the user is purposely using a smaller-than-default image
         (such as 55x55 or 32x32) and WizardImageStretch=yes.
       - Otherwise, it's unclear what size/shape the user prefers for the
-        control. Set the control size to 55x55, because that has historically
-        been the size of the (smallest) default images. }
+        control. Keep the default control size. }
     var NewWidth := TBitmap(WizardSmallImages[0]).Width;
     var NewHeight := TBitmap(WizardSmallImages[0]).Height;
     if (WizardSmallImages.Count > 1) or
        (NewWidth > 58) or
        (NewHeight > 58) then begin
-      NewWidth := 55;
-      NewHeight := 55;
+      NewWidth := 58;
+      NewHeight := 58;
     end;
 
     { Scale the new width and height }
@@ -1345,14 +1328,6 @@ begin
   FreeAndNil(InitialSelectedComponents);
   FreeAndNil(FPageList);
   inherited;
-end;
-
-procedure TWizardForm.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  { Ensure the form is *always* on top of MainForm by making MainForm
-    the "parent" of the form. }
-  Params.WndParent := MainForm.Handle;
 end;
 
 function TWizardForm.PageIndexFromID(const ID: Integer): Integer;
@@ -1865,10 +1840,8 @@ begin
     BackButton.Visible := False;
     NextButton.Visible := False;
     CancelButton.Enabled := False;
-    if InstallMode = imSilent then begin
-      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-      WizardForm.Show;
-    end;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
     WizardForm.Update;
     try
       DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
@@ -1879,7 +1852,8 @@ begin
       DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := False;
       UpdateCurPageButtonState;
     end;
-    Application.BringToFront;
+    if WindowState <> wsMinimized then  { VCL bug workaround }
+      Application.BringToFront;
   end;
   if Result <> '' then begin
     if PrepareToInstallNeedsRestart then
@@ -2559,10 +2533,8 @@ begin
               SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
               BackButton.Visible := False;
               NextButton.Visible := False;
-              if InstallMode = imSilent then begin
-                SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-                WizardForm.Show;
-              end;
+              if InstallMode = imSilent then
+                WizardForm.Visible := True;
               try
                 WizardForm.Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
@@ -2709,16 +2681,26 @@ end;
 
 procedure TWizardForm.WMSysCommand(var Message: TWMSysCommand);
 begin
-  if Message.CmdType and $FFF0 = SC_MINIMIZE then
-    { A minimize button is shown on the wizard form when (shWindowVisible in
-      SetupHeader.Options). When it is clicked we want to minimize the whole
-      application. }
-    Application.Minimize
-  else
   if Message.CmdType = 9999 then
     MainForm.ShowAboutBox
   else
     inherited;
+end;
+
+procedure TWizardForm.WMWindowPosChanging(var Message: TWMWindowPosChanging);
+begin
+  { Work around a VCL issue (Delphi 11.3) when MainFormOnTaskBar=True:
+    If Application.Restore is called while the main form is hidden
+    (Visible=False), the window can become visible because of the SW_RESTORE
+    command it uses, which both unminimizes and shows a window. Reproducer:
+      Application.Minimize;
+      Hide;
+      Application.Restore;
+    This blocks any attempt to show the window while Visible=False.
+    (SW_RESTORE will still unminimize the window; it just cannot show it.) }
+  inherited;
+  if not Visible then
+    Message.WindowPos.flags := Message.WindowPos.flags and not SWP_SHOWWINDOW;
 end;
 
 procedure TWizardForm.LicenseAcceptedRadioClick(Sender: TObject);
@@ -3040,14 +3022,10 @@ begin
         { After installation, we can't abort since e.g. a restart might be
           needed. Instead, to avoid getting stuck in a loop, show the wizard
           (even though this is a silent install) and let the user deal with the
-          problem on their own.
-          The taskbar button will be hidden at this point on very silent
-          installs (see SetupInstallMode); re-show it. }
+          problem on their own. }
         Log('Failed to proceed to next wizard page; showing wizard.');
-        SetTaskbarButtonVisibility(True);
+        WizardForm.Visible := True;
         Application.Restore;
-        SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-        WizardForm.Show;
         Break;
       end;
     end;

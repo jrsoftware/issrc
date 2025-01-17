@@ -1,6 +1,7 @@
 object MainForm: TMainForm
   Left = 206
   Top = 97
+  BorderStyle = bsNone
   Caption = '*'
   ClientHeight = 306
   ClientWidth = 361
@@ -367,6 +368,7 @@ object MainForm: TMainForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    Visible = False
     object UpdatePanelClosePaintBox: TPaintBox
       AlignWithMargins = True
       Left = 330
@@ -398,11 +400,11 @@ object MainForm: TMainForm
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
-      Width = 363
+      Width = 303
       Height = 17
       Caption = 
-        'Your version of Inno Setup has been updated. Click <a  id="whats' +
-        'new">here</a> to see what'#39's new.'
+        'Your version of Inno Setup has been updated! <a id="hwhatsnew">S' +
+        'ee what'#39's new</a>.'
       TabOrder = 0
       OnLinkClick = UpdateLinkLabelLinkClick
     end

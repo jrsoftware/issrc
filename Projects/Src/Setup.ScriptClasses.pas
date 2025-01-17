@@ -202,14 +202,6 @@ begin
   end;
 end;
 
-procedure RegisterMainForm_R(Cl: TPSRuntimeClassImporter);
-begin
-  with CL.Add(TMainForm) do
-  begin
-    RegisterMethod(@TMainForm.ShowAboutBox, 'ShowAboutBox');
-  end;
-end;
-
 procedure RegisterWizardForm_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TWizardForm) do
@@ -444,7 +436,6 @@ begin
 
     RegisterUIStateForm_R(Cl);
     RegisterSetupForm_R(Cl);
-    RegisterMainForm_R(Cl);
     RegisterWizardForm_R(Cl);
     RegisterUninstallProgressForm_R(Cl);
 
@@ -474,7 +465,6 @@ end;
 procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 begin
   SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('WIZARDFORM')), WizardForm);
-  SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('MAINFORM')), MainForm);
   SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('UNINSTALLPROGRESSFORM')), UninstallProgressForm);
 end;
 

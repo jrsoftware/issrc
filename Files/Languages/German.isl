@@ -1,6 +1,6 @@
 ﻿; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.1.0+ German messages      ***
+; *** Inno Setup version 6.4.0+ German messages      ***
 ; ***                                                ***
 ; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
@@ -242,6 +242,13 @@ ErrorFileHash1=Fehler beim Ermitteln der Datei-Prüfsumme: %1
 ErrorFileHash2=Ungültige Datei-Prüfsumme: erwartet %1, gefunden %2
 ErrorProgress=Ungültiger Fortschritt: %1 von %2
 ErrorFileSize=Ungültige Dateigröße: erwartet %1, gefunden %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Entpacke zusätzliche Dateien...
+ButtonStopExtraction=Entpacken &abbrechen
+StopExtraction=Sind Sie sicher, dass Sie das Entpacken abbrechen wollen?
+ErrorExtractionAborted=Entpacken abgebrochen
+ErrorExtractionFailed=Entpacken fehlgeschlagen: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Vorbereitung der Installation

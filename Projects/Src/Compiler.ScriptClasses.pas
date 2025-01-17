@@ -311,14 +311,6 @@ begin
   end;
 end;
 
-procedure RegisterMainForm_C(Cl: TPSPascalCompiler);
-begin
-  with CL.AddClassN(CL.FindClass('TSetupForm'), 'TMainForm') do
-  begin
-    RegisterMethod('procedure ShowAboutBox');
-  end;
-end;
-
 procedure RegisterWizardForm_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TSetupForm'), 'TWizardForm') do
@@ -675,7 +667,6 @@ begin
 
   RegisterUIStateForm_C(Cl);
   RegisterSetupForm_C(Cl);
-  RegisterMainForm_C(Cl);
   RegisterWizardForm_C(Cl);
   RegisterUninstallProgressForm_C(Cl);
 
@@ -694,7 +685,6 @@ begin
   RegisterHandCursor_C(Cl);
   
   AddImportedClassVariable(Cl, 'WizardForm', 'TWizardForm');
-  AddImportedClassVariable(Cl, 'MainForm', 'TMainForm');
   AddImportedClassVariable(Cl, 'UninstallProgressForm', 'TUninstallProgressForm');
 end;
 

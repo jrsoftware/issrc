@@ -1,6 +1,6 @@
-﻿; *** Inno Setup version 6.1.0+ Korean messages ***
+; *** Inno Setup version 6.4.0+ Korean messages ***
 
-; ▒ 6.2.2+ Translator: VenusGirl (venusgirl@outlook.com)
+; ▒ 6.4.0+ Translator: VenusGirl (venusgirl@outlook.com)
 ; ▒ 6.2.0+ Translator: Logan.Hwang (logan.hwang@blueant.kr)
 ; ▒ 6.0.3+ Translator: SungDong Kim (acroedit@gmail.com)
 ; ▒ 5.5.3+ Translator: Domddol (domddol@gmail.com)
@@ -121,7 +121,7 @@ NewFolderName=새 폴더
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=[name] 설치 마법사에 오신 것을 환영합니다
-WelcomeLabel2=컴퓨터에 [name/ver]가 설치됩니다.%n%n계속하기 전에 다른 모든 응용 프로그램을 닫는 것이 좋습니다.
+WelcomeLabel2=컴퓨터에 [name/ver]이(가) 설치됩니다.%n%n계속하기 전에 다른 모든 응용 프로그램을 닫는 것이 좋습니다.
 
 ; *** "Password" wizard page
 WizardPassword=암호
@@ -176,8 +176,8 @@ DirDoesntExist=폴더 %n%n%1%n%n이(가) 존재하지 않습니다, 폴더를 �
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=구성 요소 선택
-SelectComponentsDesc=어떤 구성 요소를 설치해야 합니까?
-SelectComponentsLabel2=설치할 구성 요소를 선택하고 설치하지 않을 구성 요소를 지웁니다. 계속할 준비가 되면 다음을 클릭합니다.
+SelectComponentsDesc=어떤 구성 요소를 설치하시겠습니까?
+SelectComponentsLabel2=설치하려는 구성 요소를 선택합니다; 설치하지 않으려는 구성 요소의 선택을 취소합니다. 계속할 준비가 되면 다음을 클릭합니다.
 FullInstallation=모두 설치
 ; 가능하면 'Compact'를 'Minimal'로 번역하지 마십시오 (귀하의 언어로 '최소'를 의미합니다).
 CompactInstallation=최소 설치
@@ -191,7 +191,7 @@ ComponentsDiskSpaceMBLabel=현재 선택은 최소 [mb] MB의 디스크 여유 �
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=추가 작업 선택
-SelectTasksDesc=어떤 추가 작업을 수행해야 합니까?
+SelectTasksDesc=어떤 추가 작업을 수행하시겠습니까?
 SelectTasksLabel2=[name]을(를) 설치하는 동안 수행할 추가 작업을 선택하고 다음을 클릭합니다.
 
 ; *** "Select Start Menu Folder" wizard page
@@ -225,9 +225,16 @@ ErrorDownloadAborted=다운로드가 중지되었습니다
 ErrorDownloadFailed=다운로드에 실패했습니다: %1 %2
 ErrorDownloadSizeFailed=크기를 가져오지 못했습니다: %1 %2
 ErrorFileHash1=파일 해시에 실패했습니다: %1
-ErrorFileHash2=잘못된 파일 해시: 예상 %1, 찾음 %2
+ErrorFileHash2=잘못된 파일 해시: %1 예상, %2 찾음
 ErrorProgress=잘못된 진행 상황: %1 / %2
-ErrorFileSize=잘못된 파일 크기: 예상 %1, 찾음 %2
+ErrorFileSize=잘못된 파일 크기: %1 예상, %2 찾음
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=추가 파일을 추출하는 중...
+ButtonStopExtraction=추출 중지(&S)
+StopExtraction=추출을 중지하시겠습니까?
+ErrorExtractionAborted=추출 중단됨
+ErrorExtractionFailed=추출 실패: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=설치 준비 중
@@ -334,7 +341,7 @@ ErrorRegisterTypeLib=유형 라이브러리를 등록할 수 없습니다: %1
 
 ; *** Uninstall display name markings
 ; 예를 들어 '내 프로그램'으로 사용됩니다 (32비트)'
-UninstallDisplayNameMark=%1 (%2)비트
+UninstallDisplayNameMark=%1 (%2)
 ; 예를 들어 '내 프로그램'으로 사용됩니다 (32비트, 모든 사용자)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32비트
@@ -384,8 +391,8 @@ CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
 UninstallProgram=%1 제거
 LaunchProgram=%1 실행
-AssocFileExtension=%1을 %2 파일 확장자에 연결
-AssocingFileExtension=%1을 %2 파일 확장자와 연결하는 중...
+AssocFileExtension=%1을(를) %2 파일 확장자에 연결
+AssocingFileExtension=%1을(를) %2 파일 확장자와 연결하는 중...
 AutoStartProgramGroupDescription=시작:
 AutoStartProgram=%1 자동 시작
 AddonHostProgramNotFound=%1을(를) 선택한 폴더에서 찾을 수 없습니다.%n%n계속하시겠습니까?

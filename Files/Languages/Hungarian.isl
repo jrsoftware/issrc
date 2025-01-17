@@ -1,9 +1,9 @@
-﻿; *** Inno Setup version 6.1.0+ Hungarian messages ***
-;	Based on the translation of Kornél Pál, kornelpal@gmail.com
-;	István Szabó, E-mail: istvanszabo890629@gmail.com
+; *** Inno Setup version 6.4.0+ Hungarian messages ***
+; Based on the translation of Kornél Pál, kornelpal@gmail.com
+; István Szabó, E-mail: istvanszabo890629@gmail.com
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -43,7 +43,7 @@ ErrorTitle=Hiba
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 telepítve lesz. Szeretné folytatni?
 LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva
-LdrCannotExecTemp=Fájl futattása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
+LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
 HelpTextNote=
 
 ; *** Startup error messages
@@ -58,8 +58,8 @@ WindowsServicePackRequired=A program futtatásához %1 Service Pack %2 vagy úja
 NotOnThisPlatform=Ez a program nem futtatható %1 alatt.
 OnlyOnThisPlatform=Ezt a programot %1 alatt kell futtatni.
 OnlyOnTheseArchitectures=A program kizárólag a következő processzor architektúrákhoz tervezett Windows-on telepíthető:%n%n%1
-WinVersionTooLowError=A program futtatásához %1 %2 verziója vagy későbbi szükséges.
-WinVersionTooHighError=Ez a program nem telepíthető %1 %2 vagy későbbire.
+WinVersionTooLowError=A program futtatásához %1 %2 verziója vagy újabb szükséges.
+WinVersionTooHighError=Ez a program nem telepíthető %1 %2 vagy újabb verzióra.
 AdminPrivilegesRequired=Csak rendszergazdai módban telepíthető ez a program.
 PowerUserPrivilegesRequired=Csak rendszergazdaként vagy kiemelt felhasználóként telepíthető ez a program.
 SetupAppRunningError=A telepítő úgy észlelte %1 jelenleg fut.%n%nZárja be az összes példányt, majd kattintson az 'OK'-ra a folytatáshoz, vagy a 'Mégse'-re a kilépéshez.
@@ -84,23 +84,23 @@ ExitSetupTitle=Kilépés a telepítőből
 ExitSetupMessage=A telepítés még folyamatban van. Ha most kilép, a program nem kerül telepítésre.%n%nMásik alkalommal is futtatható a telepítés befejezéséhez%n%nKilép a telepítőből?
 AboutSetupMenuItem=&Névjegy...
 AboutSetupTitle=Telepítő névjegye
-AboutSetupMessage=%1 %2 verzió%n%3%n%nAz %1 honlapja:%n%4
+AboutSetupMessage=%1 %2 verzió%n%3%n%nA(z) %1 honlapja:%n%4
 AboutSetupNote=
 TranslatorNote=
 
 ; *** Buttons
 ButtonBack=< &Vissza
 ButtonNext=&Tovább >
-ButtonInstall=&Telepít
-ButtonOK=OK
+ButtonInstall=T&elepítés
+ButtonOK=Rendben
 ButtonCancel=Mégse
 ButtonYes=&Igen
 ButtonYesToAll=&Mindet
 ButtonNo=&Nem
 ButtonNoToAll=&Egyiket se
 ButtonFinish=&Befejezés
-ButtonBrowse=&Tallózás...
-ButtonWizardBrowse=T&allózás...
+ButtonBrowse=T&allózás...
+ButtonWizardBrowse=Talló&zás...
 ButtonNewFolder=Új &könyvtár
 
 ; *** "Select Language" dialog messages
@@ -110,7 +110,7 @@ SelectLanguageLabel=Válassza ki a telepítés alatt használt nyelvet.
 ; *** Common wizard text
 ClickNext=A folytatáshoz kattintson a 'Tovább'-ra, a kilépéshez a 'Mégse'-re.
 BeveledLabel=
-BrowseDialogTitle=Válasszon könyvtárt 
+BrowseDialogTitle=Válasszon könyvtárt
 BrowseDialogLabel=Válasszon egy könyvtárat az alábbi listából, majd kattintson az 'OK'-ra.
 NewFolderName=Új könyvtár
 
@@ -219,10 +219,17 @@ StopDownload=Biztos, hogy leakarja állítani a letöltést?
 ErrorDownloadAborted=Letöltés megszakítva
 ErrorDownloadFailed=A letöltés meghiúsult: %1 %2
 ErrorDownloadSizeFailed=Hiba a fájlméret lekérése során: %1 %2
-ErrorFileHash1=Fájl Hash (hasítóérték) hiba: %1
+ErrorFileHash1=Fájl hash (hasítóérték) hiba: %1
 ErrorFileHash2=Érvénytelen hash fájl, várt érték: %1, számított: %2
 ErrorProgress=Érvénytelen folyamat: %1 : %2
 ErrorFileSize=Érvénytelen fájlméret, várt méret %1, számított: %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=További fájlok kicsomagolása...
+ButtonStopExtraction=&Kicsomagolás megszakítása
+StopExtraction=Biztosan meg akarja szakítani a kicsomagolást?
+ErrorExtractionAborted=A kicsomagolás megszakítva
+ErrorExtractionFailed=A kicsomagolás meghiúsult: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Felkészülés a telepítésre
@@ -295,7 +302,7 @@ ErrorRegCreateKey=Nem hozható létre a rendszerleíró kulcs:%n%1\%2
 ErrorRegWriteKey=Nem módosítható a rendszerleíró kulcs:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Hiba lépett fel az INI bejegyzés során, ebben a fájlban: "%1".
+ErrorIniEntry=Hiba lépett fel az INI bejegyzés létrehozása során, ebben a fájlban: "%1".
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
@@ -343,7 +350,7 @@ ErrorRestartingComputer=A Telepítő nem tudta újraindítani a számítógépet
 
 ; *** Uninstaller messages
 UninstallNotFound=A(z) "%1" fájl nem létezik. Nem távolítható el.
-UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el
+UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el.
 UninstallUnsupportedVer=A(z) "%1" eltávolítási naplófájl formátumát nem tudja felismerni az eltávolító jelen verziója. Az eltávolítás nem folytatható
 UninstallUnknownEntry=Egy ismeretlen bejegyzés (%1) található az eltávolítási naplófájlban
 ConfirmUninstall=Biztosan el kívánja távolítani a(z) %1 programot és minden összetevőjét?
@@ -374,8 +381,8 @@ ShutdownBlockReasonUninstallingApp=%1 eltávolítása.
 
 NameAndVersion=%1, verzió: %2
 AdditionalIcons=További parancsikonok:
-CreateDesktopIcon=&Asztali ikon létrehozása
-CreateQuickLaunchIcon=&Gyorsindító parancsikon létrehozása
+CreateDesktopIcon=&Asztali parancsikon létrehozása
+CreateQuickLaunchIcon=&Gyorsindító-parancsikon létrehozása
 ProgramOnTheWeb=%1 az interneten
 UninstallProgram=Eltávolítás - %1
 LaunchProgram=Indítás %1

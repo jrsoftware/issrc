@@ -268,12 +268,6 @@ end;</pre></example>
         <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
         <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
       </function>
-      <function>
-        <name>GetMainForm</name>
-        <prototype>function GetMainForm: TMainForm;</prototype>
-        <description><p>Returns the <tt>MainForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
-        <seealso><p><link topic="scriptclasses" anchor="MainForm">MainForm</link></p></seealso>
-      </function>
     </subcategory>
   </category>
   <category>
@@ -1899,17 +1893,20 @@ end;</pre>
 <p>Return True to allow the extraction to continue, False otherwise.</p>
 <p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
 <p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
-<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
--It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
--It does not support PPMd and BZip2 methods.<br />
--It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.<br />
--It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</p>
-<p>Additionally he wrote:<br /><br />
-You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
-7z.exe a archive.7z *.htm -r -mx -m0fb=255<br /><br />
-If you have big number of files in archive, and you need fast extracting, you can use partly-solid archives:<br /><br />
-7za.exe a archive.7z *.htm -ms=512K -r -mx -m0fb=255 -m0d=512K<br /><br />
-In that example 7-Zip will use 512KB solid blocks. So it needs to decompress only 512KB for extracting one file from such archive.</p></remarks>
+<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:</p>
+<ul>
+<li>It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.</li>
+<li>It does not support PPMd and BZip2 methods.</li>
+<li>It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</li>
+<li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
+</ul>
+<p>To expand on his comments about RAM consumption: When extracting a file, at least enough memory will always be allocated to hold the entire file, regardless of the block size. For example, extracting a 1 GB file using <tt>Extract7ZipArchive</tt> requires at least 1 GB of RAM. Consider using a different solution for extracting large files, such as embedding 7-Zip itself, which does not use as much RAM, into your installation.</p>
+<p>Additionally he wrote:</p>
+<ul>
+<li>You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br />
+<tt>7z.exe a archive.7z *.htm -r -mx -m0fb=255</tt></li>
+</ul>
+</remarks>
         <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
@@ -2736,12 +2733,12 @@ end;</pre></example>
       <function>
         <name>ScaleX</name>
         <prototype>function ScaleX(X: Integer): Integer;</prototype>
-        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then X is returned unchanged.</p></description>
+        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then X is returned unchanged.</p></description>
       </function>
       <function>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
-        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then Y is returned unchanged.</p></description>
+        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then Y is returned unchanged.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromIcon</name>

@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.4.0-dev';
-  SetupBinVersion = (6 shl 24) + (4 shl 16) + (0 shl 8) + 0;
+  SetupVersion = '6.4.1-dev';
+  SetupBinVersion = (6 shl 24) + (4 shl 16) + (1 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0.1)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
@@ -51,10 +51,9 @@ type
   end;
   TSetupHeaderOption = (shDisableStartupPrompt, shCreateAppDir,
     shAllowNoIcons, shAlwaysRestart, shAlwaysUsePersonalGroup,
-    shWindowVisible, shWindowShowCaption, shWindowResizable,
-    shWindowStartMaximized, shEnableDirDoesntExistWarning,
+    shEnableDirDoesntExistWarning,
     shPassword, shAllowRootDirectory, shDisableFinishedPage, shUsePreviousAppDir,
-    shBackColorHorizontal, shUsePreviousGroup, shUpdateUninstallLogAppName,
+    shUsePreviousGroup, shUpdateUninstallLogAppName,
     shUsePreviousSetupType, shDisableReadyMemo, shAlwaysShowComponentsList,
     shFlatComponentsList, shShowComponentSizes, shUsePreviousTasks,
     shDisableReadyPage, shAlwaysShowDirOnReadyPage, shAlwaysShowGroupOnReadyPage,
@@ -106,7 +105,6 @@ type
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    BackColor, BackColor2: Longint;
     WizardStyle: TSetupWizardStyle;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat

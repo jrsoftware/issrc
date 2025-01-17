@@ -114,7 +114,7 @@ var
 class function TFileExtractor.FindSliceFilename(const ASlice: Integer): String;
 var
   Major, Minor: Integer;
-  Prefix, F1, F2, Path: String;
+  Prefix, F1, Path: String;
 begin
   Prefix := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '');
   Major := ASlice div SetupHeader.SlicesPerDisk + 1;
@@ -123,21 +123,14 @@ begin
     F1 := Format('%s-%d.bin', [Prefix, Major])
   else
     F1 := Format('%s-%d%s.bin', [Prefix, Major, Chr(Ord('a') + Minor)]);
-  F2 := Format('..\DISK%d\', [Major]) + F1;
   if LastSourceDir <> '' then begin
     Result := AddBackslash(LastSourceDir) + F1;
     if NewFileExists(Result) then Exit;
   end;
   Result := AddBackslash(SourceDir) + F1;
   if NewFileExists(Result) then Exit;
-  if LastSourceDir <> '' then begin
-    Result := PathExpand(AddBackslash(LastSourceDir) + F2);
-    if NewFileExists(Result) then Exit;
-  end;
-  Result := PathExpand(AddBackslash(SourceDir) + F2);
-  if NewFileExists(Result) then Exit;
   Path := SourceDir;
-  LogFmt('Asking user for new disk containing "%s".', [F1]);  
+  LogFmt('Asking user for new disk containing "%s".', [F1]);
   if SelectDisk(Major, F1, Path) then begin
     LastSourceDir := Path;
     Result := AddBackslash(Path) + F1;
@@ -299,7 +292,7 @@ begin
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
-      ChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
+      XChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
 
     if Left = Res then
       Break

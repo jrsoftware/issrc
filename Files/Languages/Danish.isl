@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Danish messages ***
+; *** Inno Setup version 6.4.0+ Danish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -222,6 +222,13 @@ ErrorFileHash1=Fejl i hash: %1
 ErrorFileHash2=Fejl i fil hash værdi: forventet %1, fundet %2
 ErrorProgress=Fejl i trin: %1 af %2
 ErrorFileSize=Fejl i filstørrelse: forventet %1, fundet %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Udpakker øvrige filer...
+ButtonStopExtraction=&Afbryd udpakning
+StopExtraction=Er du sikker på at du ønsker at afbryde udpakningen?
+ErrorExtractionAborted=Udpakning afbrudt
+ErrorExtractionFailed=Fejl under udpakning: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Klargøring af installationen

@@ -22,14 +22,20 @@
 
 <div class="bluehead"><span class="head1">Inno Setup 6</span><br /><span class="head2">Revision History</span></div>
 
-<p>Copyright © 1997-2024 <a href="./">Jordan Russell</a>. All rights reserved.<br />
-Portions Copyright © 2000-2024 Martijn Laan. All rights reserved.<br />
+<p>Copyright © 1997-2025 <a href="./">Jordan Russell</a>. All rights reserved.<br />
+Portions Copyright © 2000-2025 Martijn Laan. All rights reserved.<br />
 For conditions of distribution and use, see <a href="files/is/license.txt">LICENSE.TXT</a>.
 </p>
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.4.0"></a><span class="ver">6.4.0-dev </span><span class="date">(?)</span></p>
+<p><a name="6.4.1"></a><span class="ver">6.4.1-dev </span><span class="date">(?)</span></p>
+
+<ul>
+  <li><i>Fix:</i> In 6.4.0, a custom form shown using <tt>[Code]</tt> didn't have a taskbar button if Setup's wizard was not visible at the time.</li>
+</ul>
+
+<p><a name="6.4.0"></a><span class="ver">6.4.0 </span><span class="date">(2025-01-09)</span></p>
 <p><span class="head2">Compiler IDE changes</span></p>
 <p>Updated the Scintilla editor component used by the Compiler IDE to the latest version.</p>
 <p>Multiple selection editing has been improved:</p>
@@ -68,6 +74,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Moved the <i>Word Wrap</i> option to the <i>View</i> menu and added a shortcut for it (Alt+Z).</li>
   <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
   <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
+  <li>Added new <i>Show whitespace</i> option. Disabled by default.</li>
   <li>Improved brace highlighting.</li>
   <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
 </ul>
@@ -90,7 +97,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Updated the encryption algorithm and key derivation function used by Inno Setup to XChaCha20 and PBKDF2-HMAC-SHA256 respectively, increasing security. This code is built-in: the separate ISCrypt.dll "encryption module" is no longer used and will be automatically deleted when you update.</li>
   <li>Added <tt>[Setup]</tt> section directive <tt>EncryptionKeyDerivation</tt> to change the number of PBKDF2-HMAC-SHA256 iterations to use from the default of 200000 to another value.</li>
   <li>Replaced all remaining use of MD5 and SHA-1 hashes with SHA-256 hashes, without removing the MD5 and SHA-1 Pascal Scripting and ISPP support functions.</li>
+  <li>At long last, Setup's wizard window now shows a thumbnail image on its taskbar button, and animates correctly when minimized and restored. As part of this work, support for the long-deprecated <tt>[Setup]</tt> section directive <tt>WindowVisible</tt>, which was used to enable a 1990s-style blue gradient background behind the wizard window, has been dropped.</li>
   <li>The aspect ratio of Setup's large and small wizard images (as specified by <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>) is now maintained when the window is scaled. Previously, depending on the font and font size used, they could have appeared horizontally stretched or squished.</li>
+  <li>The size of the small wizard image area has been extended to 58&times;58 (at standard DPI with the default font). Previous versions used a non-square 55&times;58 size, which made the default image look slightly stretched.</li>
+  <li>When disk spanning is enabled and Setup cannot find the needed disk slice file (e.g., <tt>setup-2.bin</tt>) in the source directory, it no longer automatically searches for it in a directory named <tt>DISKx</tt> one level up, where <tt>x</tt> is the disk number. Though consistent with old installers from the 16-bit era, this behavior wasn't documented.</li>
+  <li>The New Script Wizard now sets <tt>UninstallDisplayIcon</tt> when an .exe is chosen as the main executable file.</li>
   <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
   <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
   <li>Pascal Scripting changes:
@@ -99,7 +110,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
     <li>Added new <tt>StringJoin</tt>, <tt>StringSplit</tt>, and <tt>StringSplitEx</tt> support functions.</li>
     <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>
-    <li><tt>TInputDirWizardPage</tt>: Added new <tt>NewFolderName</tt> property to update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
+    <li>Added new <tt>NewFolderName</tt> property to support class <tt>TInputDirWizardPage</tt> update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
+    <li>Added new <tt>PopupMode</tt> and <tt>PopupParent</tt> properties to support class <tt>TForm</tt>.</li>
     <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
     <li>Renamed the <tt>FileCopy</tt> support function to <tt>CopyFile</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
     <li>Fixed support function <tt>TStream.CopyFrom</tt> by adding a <tt>BufferSize</tt> parameter which was required but missing. Using <tt>$100000</tt> as the value is recommended.</li>
@@ -109,7 +121,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </li>
   <li>ISPP change: Added support functions <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt>.</li>
   <li>Inno Setup's Delphi <a href="https://github.com/jrsoftware/issrc" target="_blank">source code</a> has been reorganized to use unit scope names and additionally various units have been renamed for clarity. This makes it a lot easier to get started with working with the Inno Setup source code and making contributions, even with the free <a href="https://www.embarcadero.com/products/delphi/starter/free-download">Delphi Community Edition</a>.</li>
-  <li>Added official Tamil translation.</li>
+  <li>Added official Swedish and Tamil translations.</li>
   <li>Various tweaks and improvements.</li>
 </ul>
 
@@ -126,7 +138,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </li>
 </ul>
 
-<p>Note: Not all official translations have been updated for these changes at this moment.</li>
+<p>Note: The official Icelandic translation has not yet been updated for these changes.</li>
 
 <p><a href="files/is6.3-whatsnew.htm">Inno Setup 6.3 Revision History</a></p>
 

@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -102,9 +102,9 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.4.0-dev</b><br/>
-<b>Copyright &copy; 1997-2024 Jordan Russell. All rights reserved.</b><br/>
-<b>Portions Copyright &copy; 2000-2024 Martijn Laan. All rights reserved.</b><br/>
+<b>Inno Setup version 6.4.1-dev</b><br/>
+<b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
+<b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
@@ -143,7 +143,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Support for <link topic="setup_password">password-protected</link> and <link topic="setup_encryption">encrypted</link> installs.</li>
 
-<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls, including dual signing (SHA1 &amp; SHA256).</li>
+<li>Support for <link topic="setup_signtool">digitally signed</link> installs and uninstalls.</li>
 
 <li><link topic="setupcmdline" anchor="SILENT">Silent install</link> and <link topic="uninstcmdline" anchor="SILENT">silent uninstall</link>.</li>
 
@@ -740,7 +740,7 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 
 <dt><b><a name="hwnd">{hwnd}</a></b></dt>
 <dd>
-<p><i>(Special-purpose)</i> Translates to the window handle of the Setup program's background window.</p>
+<p><i>Feature removed in 6.4.</i> Previously translated to the window handle of the background window that could be enabled via the <link topic="setup_windowvisible">WindowVisible</link> directive.</p>
 </dd>
 
 <dt><b><a name="wizardhwnd">{wizardhwnd}</a></b></dt>
@@ -1124,18 +1124,10 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_appcopyright">AppCopyright</link></li>
-<li><link topic="setup_backcolor">BackColor</link></li>
-<li><link topic="setup_backcolor">BackColor2</link></li>
-<li><link topic="setup_backcolordirection">BackColorDirection</link></li>
-<li><link topic="setup_backsolid">BackSolid</link></li>
 <li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
 <li><link topic="setup_setupiconfile">SetupIconFile</link></li>
 <li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
 <li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
-<li><link topic="setup_windowshowcaption">WindowShowCaption</link></li>
-<li><link topic="setup_windowstartmaximized">WindowStartMaximized</link></li>
-<li><link topic="setup_windowresizable">WindowResizable</link></li>
-<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
@@ -1151,12 +1143,20 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_alwayscreateuninstallicon">AlwaysCreateUninstallIcon</link></li>
+<li><link topic="setup_windowvisible">BackColor</link></li>
+<li><link topic="setup_windowvisible">BackColor2</link></li>
+<li><link topic="setup_windowvisible">BackColorDirection</link></li>
+<li><link topic="setup_windowvisible">BackSolid</link></li>
 <li><link topic="setup_disableappenddir">DisableAppendDir</link></li>
 <li><link topic="setup_dontmergeduplicatefiles">DontMergeDuplicateFiles</link></li>
 <li><link topic="setup_messagesfile">MessagesFile</link></li>
 <li><link topic="setup_uninstalliconfile">UninstallIconFile</link></li>
 <li><link topic="setup_uninstalliconname">UninstallIconName</link></li>
 <li><link topic="setup_uninstallstyle">UninstallStyle</link></li>
+<li><link topic="setup_windowvisible">WindowResizable</link></li>
+<li><link topic="setup_windowvisible">WindowShowCaption</link></li>
+<li><link topic="setup_windowvisible">WindowStartMaximized</link></li>
+<li><link topic="setup_windowvisible">WindowVisible</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 </ul>
@@ -4032,41 +4032,6 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 </body>
 </setuptopic>
 
-<setuptopic directive="BackColor" title="BackColor, BackColor2">
-<keyword value="BackColor2" />
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>rr</tt>, <tt>gg</tt>, and <tt>bb</tt> specify the two-digit intensities (in hexadecimal) for red, green, and blue respectively. Or it may be one of the following predefined color names: clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray, clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite.</setupvalid>
-<setupdefault><tt>clBlue</tt> for <tt>BackColor</tt>,<br/><tt>clBlack</tt> for <tt>BackColor2</tt></setupdefault>
-<body>
-<p>The <tt>BackColor</tt> directive specifies the color to use at the top (or left, if <tt>BackColorDirection=lefttoright</tt>) of the setup window's gradient background. <tt>BackColor2</tt> specifies the color to use at the bottom (or right).</p>
-<p>The setting of <tt>BackColor2</tt> is ignored if <tt>BackSolid=yes</tt>.</p>
-<examples>
-<pre>
-BackColor=clBlue
-BackColor2=clBlack
-
-BackColor=$FF0000
-BackColor2=$000000
-</pre>
-</examples>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackColorDirection">
-<setupvalid><tt>toptobottom</tt> or <tt>lefttoright</tt></setupvalid>
-<setupdefault><tt>toptobottom</tt></setupdefault>
-<body>
-<p>This determines the direction of the gradient background on the setup window. If <tt>BackColorDirection</tt> is <tt>toptobottom</tt>, it is drawn from top to bottom; if it is <tt>lefttoright</tt>, it is drawn from left to right.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="BackSolid">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>This specifies whether to use a solid or gradient background on the setup window. If this is <tt>yes</tt>, the background is a solid color (the color specified by <tt>BackColor</tt>; <tt>BackColor2</tt> is ignored).</p>
-</body>
-</setuptopic>
-
 <setuptopic directive="AppName">
 <body>
 <p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <link topic="setup_appversion">AppVersion</link> and/or <link topic="setup_appvername">AppVerName</link> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
@@ -4165,8 +4130,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 
 <setuptopic directive="AppCopyright">
 <body>
-<p>Specifies a copyright message that Setup will display in the bottom-right corner of Setup's background window when <link topic="setup_windowvisible">WindowVisible</link> is <tt>yes</tt>.</p>
-<p>The value of this directive is also used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
+<p>The value of this directive is used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
 <example><pre>AppCopyright=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
 </body>
 </setuptopic>
@@ -5037,19 +5001,21 @@ DiskSliceSize=1457664
 <setuptopic directive="WizardImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the wizard. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified bitmap should have the same aspect ratio.</p>
+<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
-<tr><td>125%</td><td>192x386</td></tr>
-<tr><td>150%</td><td>246x459</td></tr>
-<tr><td>175%</td><td>273x556</td></tr>
-<tr><td>200%</td><td>328x604</td></tr>
-<tr><td>225%</td><td>355x700</td></tr>
-<tr><td>250%</td><td>410x797</td></tr>
+<tr><td>125%</td><td>202x386</td></tr>
+<tr><td>150%</td><td>240x459</td></tr>
+<tr><td>175%</td><td>290x556</td></tr>
+<tr><td>200%</td><td>315x604</td></tr>
+<tr><td>225%</td><td>366x700</td></tr>
+<tr><td>250%</td><td>416x797</td></tr>
 </table>
-<p>If this directive is not specified or is blank, built-in wizard images supporting multiple DPI settings will be used.</p>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>If this directive is not specified or is blank, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
@@ -5063,18 +5029,21 @@ DiskSliceSize=1457664
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>256-color bitmaps may not display correctly in 256-color mode, since it does not handle palettes.</p>
-<p>When multiple files are specified, Setup will automatically select the one which best matches the system's DPI setting. The recommended size of the bitmap per DPI setting is:</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified bitmap should be square as well.</p>
+<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
-<tr><td>100%</td><td>55x55</td></tr>
-<tr><td>125%</td><td>64x68</td></tr>
-<tr><td>150%</td><td>83x80</td></tr>
-<tr><td>175%</td><td>92x97</td></tr>
-<tr><td>200%</td><td>110x106</td></tr>
-<tr><td>225%</td><td>119x123</td></tr>
-<tr><td>250%</td><td>138x140</td></tr>
+<tr><td>100%</td><td>58x58</td></tr>
+<tr><td>125%</td><td>71x71</td></tr>
+<tr><td>150%</td><td>85x85</td></tr>
+<tr><td>175%</td><td>103x103</td></tr>
+<tr><td>200%</td><td>112x112</td></tr>
+<tr><td>225%</td><td>129x129</td></tr>
+<tr><td>250%</td><td>147x147</td></tr>
 </table>
-<p>If this directive is not specified or is blank, built-in wizard images supporting multiple DPI settings will be used.</p>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>Backward compatibility note: If a single bitmap smaller than 58x58 is specified, the bitmap will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
@@ -5084,39 +5053,16 @@ DiskSliceSize=1457664
 </body>
 </setuptopic>
 
-<setuptopic directive="WindowShowCaption">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
+<setuptopic directive="WindowVisible" title="BackColor, BackColor2, BackColorDirection, BackSolid, WindowResizable, WindowShowCaption, WindowStartMaximized, WindowVisible">
+<keyword value="BackColor" />
+<keyword value="BackColor2" />
+<keyword value="BackColorDirection" />
+<keyword value="BackSolid" />
+<keyword value="WindowResizable" />
+<keyword value="WindowShowCaption" />
+<keyword value="WindowStartMaximized" />
 <body>
-<p>If set to <tt>no</tt>, Setup will be truly "full screen" -- it won't have a caption bar or border, and it will be on top of the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowStartMaximized">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, the Setup program's background window will initially be displayed in a maximized state, where it won't cover over the taskbar.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowResizable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
-<body>
-<p>If set to <tt>no</tt>, the user won't be able to resize the Setup program's background window when it's not maximized.</p>
-<p>This directive has no effect if <tt>WindowVisible</tt> is not set to <tt>yes</tt>.</p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WindowVisible">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
-<body>
-<p>If set to <tt>yes</tt>, there will be a gradient background window displayed behind the wizard.</p>
-<p>Note that this is considered a legacy feature; it likely will be removed at some point in the future.</p>
+<p><i>Feature removed in 6.4.</i> These directives are no longer supported. In past versions, they were used to configure a 1990s-style blue gradient background behind the wizard window.</p>
 </body>
 </setuptopic>
 
@@ -5481,7 +5427,7 @@ DiskSliceSize=1457664
 
 <dt><b>arm32compatible</b></dt>
 <dd>
-<p>Matches systems capable of running 32-bit Arm binaries. Only Arm64 Windows includes such support.</p>
+<p>Matches systems capable of running 32-bit Arm binaries. Arm64 Windows previously included such support, but Microsoft removed it in Windows 11 24H2.</p>
 </dd>
 
 <dt><b>arm64</b></dt>
@@ -5548,8 +5494,6 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 ArchitecturesAllowed=x64compatible and x86compatible
 ; - An Arm64 app installer that includes some x64 binaries:
 ArchitecturesAllowed=arm64 and x64compatible
-; - An Arm64 app installer that includes some Arm32 binaries:
-ArchitecturesAllowed=arm64 and arm32compatible
 
 ; Only allow installation on systems that <i>aren't</i> x64-compatible.
 ; Useful in a situation where you have separate x86 &amp; x64 installers,

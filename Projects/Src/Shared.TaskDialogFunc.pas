@@ -49,15 +49,8 @@ begin
     Config.cbSize := SizeOf(Config);
     if RightToLeft then
       Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
-    { If the application window isn't currently visible, show the task dialog
-      with no owner window so it'll get a taskbar button } 
     Config.hInstance := HInstance;
-    if IsIconic(Application.Handle) or
-       (GetWindowLong(Application.Handle, GWL_STYLE) and WS_VISIBLE = 0) or
-       (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW <> 0) then
-      Config.hWndParent := 0
-    else
-      Config.hwndParent := hWnd;
+    Config.hwndParent := hWnd;
     Config.dwCommonButtons := CommonButtons;
     Config.pszWindowTitle := Caption;
     Config.pszMainIcon := Icon;
@@ -85,7 +78,7 @@ begin
       end;
       TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
       ActiveWindow := GetActiveWindow;
-      WindowList := DisableTaskWindows(0);
+      WindowList := DisableTaskWindows(Config.hwndParent);
       try
         Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, pfVerificationFlagChecked) = S_OK;
       finally
@@ -116,6 +109,7 @@ var
   NButtonLabelsAvailable: Integer;
   ButtonIDs: array of Integer;
 begin
+  Application.Restore; { See comments in AppMessageBox }
   if Icon <> '' then
     IconP := PChar(Icon)
   else begin
@@ -177,7 +171,7 @@ begin
   end;
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
     DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels');
-  if not DoTaskDialog(Application.Handle, PChar(Instruction), PChar(Text),
+  if not DoTaskDialog(GetOwnerWndForMessageBox, PChar(Instruction), PChar(Text),
            GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
     Result := 0;

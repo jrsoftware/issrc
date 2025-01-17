@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Bulgarian messages ***
+﻿; *** Inno Setup version 6.4.0+ Bulgarian messages ***
 ; Ventsislav Dimitrov <nightravenanm@protonmail.com>
 ;
 ; За да изтеглите преводи на този файл, предоставени от потребители, посетете:
@@ -221,6 +221,13 @@ ErrorFileHash1=Неуспешна контролна сума на файл: %1
 ErrorFileHash2=Невалидна контролна сума на файл: очаквана %1, открита %2
 ErrorProgress=Невалиден напредък: %1 of %2
 ErrorFileSize=Невалиден размер на файл: очакван %1, открит %2
+
+; *** Страница "TExtractionWizardPage" на съветника и Extract7ZipArchive
+ExtractionLabel=Извличане на допълнителни файлове...
+ButtonStopExtraction=&Спри извличането
+StopExtraction=Сигурни ли сте, че искате да спрете извличането?
+ErrorExtractionAborted=Прекратено извличане
+ErrorExtractionFailed=Извличането беше неуспешно: %1
 
 ; *** Страница "Подготовка за инсталиране" на съветника
 WizardPreparing=Подготовка за инсталиране

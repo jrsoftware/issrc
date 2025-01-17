@@ -14,7 +14,7 @@ interface
 type
   TScriptFuncTableID = (sftScriptDlg, sftNewDiskForm, sftBrowseFunc, sftCommonFuncVcl,
     sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainFunc, sftMessages,
-    sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftOle2, sftLoggingFunc,
+    sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftActiveX, sftLoggingFunc,
     sftOther);
   TScriptTable = array of AnsiString;
 
@@ -400,8 +400,6 @@ initialization
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;',
-    { Actually access MainForm.pas }
-    'function GetMainForm: TMainForm;',
     { Actually access WizardForm.pas }
     'function GetWizardForm: TWizardForm;',
     'function WizardIsComponentSelected(const Components: String): Boolean;',
@@ -491,7 +489,7 @@ initialization
     'procedure CharToOemBuff(var S: AnsiString);'
   ];
 
-  ScriptFuncTables[sftOle2] :=
+  ScriptFuncTables[sftActiveX] :=
   [
     'procedure CoFreeUnusedLibraries;'
   ];

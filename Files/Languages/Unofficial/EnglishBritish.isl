@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ English (British) messages ***
+﻿; *** Inno Setup version 6.4.0+ English (British) messages ***
 ;
 ; Translated by Boris Kotov <doctor.z01db3rg@gmail.com>
 ; Translation updated by Andrew Truckle <trucklesoft@outlook.com>
@@ -37,6 +37,7 @@ ErrorTitle=Error
 SetupLdrStartupMessage=This will install %1. Do you wish to continue?
 LdrCannotCreateTemp=Unable to create a temporary file. Setup aborted
 LdrCannotExecTemp=Unable to execute file in the temporary directory. Setup aborted
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nError %2: %3
@@ -215,6 +216,13 @@ ErrorFileHash1=File hash failed: %1
 ErrorFileHash2=Invalid file hash: expected %1, found %2
 ErrorProgress=Invalid progress: %1 of %2
 ErrorFileSize=Invalid file size: expected %1, found %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extracting additional files...
+ButtonStopExtraction=&Stop extraction
+StopExtraction=Are you sure you want to stop the extraction?
+ErrorExtractionAborted=Extraction aborted
+ErrorExtractionFailed=Extraction failed: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install

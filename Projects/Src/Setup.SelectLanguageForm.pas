@@ -2,7 +2,7 @@ unit Setup.SelectLanguageForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -36,7 +36,8 @@ function AskForLanguage: Boolean;
 implementation
 
 uses
-  Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainFunc;
+  Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
+  Setup.MainFunc, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
 
@@ -48,7 +49,7 @@ var
   I, J: Integer;
   LangEntry: PSetupLanguageEntry;
 begin
-  LangForm := TSelectLanguageForm.Create(Application);
+  LangForm := AppCreateForm(TSelectLanguageForm) as TSelectLanguageForm;
   try
     for I := 0 to Entries[seLanguage].Count-1 do begin
       LangEntry := Entries[seLanguage][I];

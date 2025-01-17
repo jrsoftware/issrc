@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.1.0+ Czech messages        ***
+; *** Inno Setup version 6.4.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -102,7 +102,7 @@ SelectLanguageLabel=Zvolte jazyk, který se má použít bìhem instalace.
 ; *** Common wizard text
 ClickNext=Pokraèujte klepnutím na tlaèítko Další, nebo ukonèete prùvodce instalací tlaèítkem Zrušit.
 BeveledLabel=
-BrowseDialogTitle=Vyhledat složku
+BrowseDialogTitle=Zvolte složku
 BrowseDialogLabel=Z níže uvedeného seznamu vyberte složku a klepnìte na tlaèítko OK.
 NewFolderName=Nová složka
 
@@ -215,6 +215,13 @@ ErrorFileHash1=Nepodaøilo se urèit kontrolní souèet souboru: %1
 ErrorFileHash2=Neplatný kontrolní souèet souboru: oèekáváno %1, nalezeno %2
 ErrorProgress=Neplatný prùbìh: %1 of %2
 ErrorFileSize=Neplatná velikost souboru: oèekáváno %1, nalezeno %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extrahují se další soubory...
+ButtonStopExtraction=&Zastavit extrahování
+StopExtraction=Urèitì chcete extrahování zastavit?
+ErrorExtractionAborted=Extrahování pøerušeno
+ErrorExtractionFailed=Extrahování selhalo: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pøíprava k instalaci

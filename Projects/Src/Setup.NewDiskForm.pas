@@ -2,7 +2,7 @@ unit Setup.NewDiskForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -30,6 +30,7 @@ type
     { Private declarations }
     Filename: string;
     function GetSanitizedPath: String;
+    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -41,19 +42,21 @@ implementation
 
 uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
-  Setup.MainFunc, Setup.WizardForm;
+  Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}
 
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
+  Application.Restore;  { see comments in AppMessageBox }
+
   with TNewDiskForm.Create(Application) do
     try
       Filename := AFilename;
       SelectDiskLabel.Caption := FmtSetupMessage(msgSelectDiskLabel2, [IntToStr(DiskNumber)]);
       PathEdit.Text := Path;
-      Beep;
+      ActiveControl := OKButton;
       Result := ShowModal = mrOK;
       if Result then
         Path := GetSanitizedPath;
@@ -84,6 +87,14 @@ begin
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+end;
+
+procedure TNewDiskForm.CMShowingChanged(var Message: TMessage);
+begin
+  inherited;
+  { This usually just makes the taskbar button flash }
+  if Showing then
+    SetForegroundWindow(Handle);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;

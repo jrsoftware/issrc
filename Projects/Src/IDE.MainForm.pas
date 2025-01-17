@@ -2,7 +2,7 @@
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -83,7 +83,8 @@ type
   TUpdatePanelMessage = class
     Msg, ConfigIdent: String;
     ConfigValue: Integer;
-    constructor Create(AMsg, AConfigIdent: String; AConfigValue: Integer);
+    Color: TColor;
+    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor);
   end;
 
   TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
@@ -423,6 +424,7 @@ type
       CursorPastEOL: Boolean;
       TabWidth: Integer;
       UseTabCharacter: Boolean;
+      ShowWhiteSpace: Boolean;
       UseFolding: Boolean;
       FindRegEx: Boolean;
       WordWrap: Boolean;
@@ -502,6 +504,7 @@ type
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
+    class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
     function AskToDetachDebugger: Boolean;
     procedure BringToForeground;
@@ -519,15 +522,16 @@ type
     function DestroyLineState(const AMemo: TIDEScintFileEdit): Boolean;
     procedure DestroyDebugInfo;
     procedure DetachDebugger;
-    function EvaluateConstant(const S: String; var Output: String): Integer;
+    function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
-      var Output: String): Integer;
+      out Output: String): Integer;
     procedure FindNext(const ReverseDirection: Boolean);
     function FindSetupDirectiveValue(const DirectiveName,
       DefaultValue: String): String; overload;
     function FindSetupDirectiveValue(const DirectiveName: String;
       DefaultValue: Boolean): Boolean; overload;
     function FromCurrentPPI(const XY: Integer): Integer;
+    function GetBorderStyle: TFormBorderStyle;
     procedure Go(AStepMode: TStepMode);
     procedure HideError;
     procedure InitializeFindText(Dlg: TFindDialog);
@@ -583,6 +587,7 @@ type
     procedure ResetAllMemosLineState;
     procedure StartProcess;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
+    procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
@@ -656,6 +661,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
+  published
+    property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
 
 var
@@ -703,12 +710,13 @@ const
 
 { TUpdatePanelMessage }
 
-constructor TUpdatePanelMessage.Create(AMsg, AConfigIdent: String;
-  AConfigValue: Integer);
+constructor TUpdatePanelMessage.Create(const AMsg, AConfigIdent: String;
+  const AConfigValue: Integer; const AColor: TColor);
 begin
   Msg := AMsg;
   ConfigIdent := AConfigIdent;
   ConfigValue := AConfigValue;
+  Color := AColor;
 end;
 
 { TMainFormPopupMenu }
@@ -804,11 +812,11 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String);
+    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor);
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color));
   end;
 
   procedure ReadConfig;
@@ -844,6 +852,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.CursorPastEOL := Ini.ReadBool('Options', 'EditorCursorPastEOL', False);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
+      FOptions.ShowWhiteSpace := Ini.ReadBool('Options', 'ShowWhiteSpace', False);
       FOptions.UseFolding := Ini.ReadBool('Options', 'UseFolding', True);
       FOptions.FindRegEx := Ini.ReadBool('Options', 'FindRegEx', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
@@ -871,9 +880,11 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { UpdatePanel visibility }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        'Your version of Inno Setup has been updated. Click <a id="hwhatsnew">here</a> to see what''s new.');
+        'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
+        $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'Support for Visual Studio Code-style editor shortcuts has been added. Click <a id="toptions">here</a> to open the Options dialog and change the Editor Keys option.');
+        'Support for Visual Studio Code-style editor shortcuts has been added! Use the Options dialog and <a id="toptions-vscode">change the Editor Keys option</a>.',
+        $FFD399); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
       { Debug options }
@@ -974,7 +985,6 @@ begin
 
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
-  UpdatePanel.Color := $ABE3AB; //MGreen with HSL lightness changed from 40% to 78%
   UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
 
   UpdateImages;
@@ -1101,7 +1111,11 @@ destructor TMainForm.Destroy;
       Ini.WriteInteger('State', 'WindowTop', WindowPlacement.rcNormalPosition.Top);
       Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
       Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
-      Ini.WriteBool('State', 'WindowMaximized', WindowState = wsMaximized);
+      { The GetWindowPlacement docs claim that "flags" is always zero.
+        Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
+        window is either currently maximized, or currently minimized from a
+        previous maximized state. }
+      Ini.WriteBool('State', 'WindowMaximized', WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }
@@ -1145,10 +1159,61 @@ begin
   inherited;
 end;
 
+function TMainForm.GetBorderStyle: TFormBorderStyle;
+begin
+  Result := inherited BorderStyle;
+end;
+
+procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
+begin
+  { Hack: To stop the Delphi IDE from adding Explicit* properties to the .dfm
+    file every time the unit is saved, we set BorderStyle=bsNone on the form.
+    At run-time, ignore that setting so that BorderStyle stays at the default
+    value, bsSizeable.
+    It would be simpler to change BorderStyle from bsNone to bsSizeable in the
+    form's constructor, but it doesn't quite work: when a form's handle is
+    created while BorderStyle=bsNone, Position=poDefault behaves like
+    poDefaultPosOnly (see TCustomForm.CreateParams). }
+
+  if Value <> bsNone then
+    inherited BorderStyle := Value;
+end;
+
 class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
 begin
   AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
     MB_OK or MB_ICONSTOP);
+end;
+
+class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
+begin
+  { As of Delphi 11.3, the default code in TApplication.GetActiveFormHandle
+    (which runs after this handler) calls GetActiveWindow, and if that returns
+    0, it calls GetLastActivePopup(Application.Handle).
+    The problem is that when the application isn't in the foreground,
+    GetActiveWindow returns 0, and when MainFormOnTaskBar=True, the
+    GetLastActivePopup call normally just returns Application.Handle (since
+    there are no popups owned by the application window).
+    So if the application calls Application.MessageBox while it isn't in the
+    foreground, that message box will be owned by Application.Handle, not by
+    the last-active window as it should be. That can lead to the message box
+    falling behind the main form in z-order.
+    To rectify that, when no window is active and MainFormOnTaskBar=True, we
+    fall back to returning the handle of the main form's last active popup,
+    which is the window that would be activated if the main form's taskbar
+    button were clicked. (If Application.Handle is active, we treat that the
+    same as no active window because Application.Handle shouldn't be the owner
+    of any windows when MainFormOnTaskBar=True.)
+    If there is no assigned main form or if MainFormOnTaskBar=False, then we
+    fall back to the default handling. }
+
+  if Application.MainFormOnTaskBar then begin
+    AHandle := GetActiveWindow;
+    if ((AHandle = 0) or (AHandle = Application.Handle)) and
+       Assigned(Application.MainForm) and
+       Application.MainForm.HandleAllocated then
+      AHandle := GetLastActivePopup(Application.MainFormHandle);
+  end;
 end;
 
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
@@ -1164,7 +1229,7 @@ end;
 procedure TMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
-  if IsWindowEnabled(Application.Handle) then
+  if IsWindowEnabled(Handle) then
     CanClose := ConfirmCloseFile(True)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
@@ -2429,12 +2494,14 @@ end;
 procedure TMainForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
+  WhiteSpaceStyles: array[Boolean] of Integer = (SCWS_INVISIBLE, SCWS_VISIBLEALWAYS);
 var
   Memo: TIDEScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
     Memo.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.Call(SCI_SETVIEWWS, WhiteSpaceStyles[FOptions.ShowWhiteSpace], 0);
 
     if FOptions.CursorPastEOL then
       Memo.VirtualSpaceOptions := [svsRectangularSelection, svsUserAccessible, svsNoWrapLineStart]
@@ -3401,12 +3468,9 @@ begin
 end;
 
 procedure TMainForm.BOpenOutputFolderClick(Sender: TObject);
-var
-  Dir: String;
 begin
-  Dir := GetWinDir;
-  ShellExecute(Application.Handle, 'open', PChar(AddBackslash(Dir) + 'explorer.exe'),
-    PChar(Format('/select,"%s"', [FCompiledExe])), PChar(Dir), SW_SHOWNORMAL);
+  LaunchFileOrURL(AddBackslash(GetSystemWinDir) + 'explorer.exe',
+    Format('/select,"%s"', [FCompiledExe]));
 end;
 
 procedure TMainForm.HShortcutsDocClick(Sender: TObject);
@@ -3429,26 +3493,22 @@ end;
 
 procedure TMainForm.HExamplesClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'Examples'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'Examples');
 end;
 
 procedure TMainForm.HFaqClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'isfaq.url'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'isfaq.url');
 end;
 
 procedure TMainForm.HWhatsNewClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open',
-    PChar(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm'), nil, nil, SW_SHOWNORMAL);
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm');
 end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
 begin
-  ShellExecute(Application.Handle, 'open', 'https://jrsoftware.org/isinfo.php', nil,
-    nil, SW_SHOWNORMAL);
+  LaunchFileOrURL('https://jrsoftware.org/isinfo.php');
 end;
 
 procedure TMainForm.HMailingListClick(Sender: TObject);
@@ -3479,8 +3539,8 @@ begin
     String(FCompilerVersion.Version) + SNewLine;
   if FCompilerVersion.Title <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2024 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2024 Martijn Laan' + SNewLine +
+  S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
+    'Portions Copyright (C) 2000-2025 Martijn Laan' + SNewLine +
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/' + SNewLine2 +
@@ -4223,10 +4283,11 @@ begin
   var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
   var SquigglyWidth := ToCurrentPPI(100); { 100 = 1 pixel }
   var CaretWidth := ToCurrentPPI(2);
+  var WhiteSpaceSize := CaretWidth;
 
   for var Memo in FMemos do
-    Memo.UpdateMarginsAndSquigglyAndCaretWidths(IconMarkersWidth, BaseChangeHistoryWidth,
-      FolderMarkersWidth, LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth);
+    Memo.UpdateWidthsAndSizes(IconMarkersWidth, BaseChangeHistoryWidth, FolderMarkersWidth,
+      LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth, WhiteSpaceSize);
 end;
 
 procedure TMainForm.SplitPanelMouseMove(Sender: TObject;
@@ -4380,6 +4441,7 @@ begin
     OptionsForm.CursorPastEOLCheck.Checked := FOptions.CursorPastEOL;
     OptionsForm.TabWidthEdit.Text := IntToStr(FOptions.TabWidth);
     OptionsForm.UseTabCharacterCheck.Checked := FOptions.UseTabCharacter;
+    OptionsForm.ShowWhiteSpaceCheck.Checked := FOptions.ShowWhiteSpace;
     OptionsForm.UseFoldingCheck.Checked := FOptions.UseFolding;
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
@@ -4413,6 +4475,7 @@ begin
     FOptions.CursorPastEOL := OptionsForm.CursorPastEOLCheck.Checked;
     FOptions.TabWidth := StrToInt(OptionsForm.TabWidthEdit.Text);
     FOptions.UseTabCharacter := OptionsForm.UseTabCharacterCheck.Checked;
+    FOptions.ShowWhiteSpace := OptionsForm.ShowWhiteSpaceCheck.Checked;
     FOptions.UseFolding := OptionsForm.UseFoldingCheck.Checked;
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
@@ -4462,6 +4525,7 @@ begin
       Ini.WriteBool('Options', 'EditorCursorPastEOL', FOptions.CursorPastEOL);
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
+      Ini.WriteBool('Options', 'ShowWhiteSpace', FOptions.ShowWhiteSpace);
       Ini.WriteBool('Options', 'UseFolding', FOptions.UseFolding);
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);
@@ -5503,8 +5567,16 @@ begin
   end else if FActiveMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
-      if FOptions.AutoCallTips then
+      if FOptions.AutoCallTips then begin
         InitiateCallTip(Ch);
+        if not FActiveMemo.CallTipActive then begin
+          { Normally the calltip activation means any active autocompletion gets
+            cancelled by Scintilla but if the current word has no call tip then
+            we should make sure ourselves that the added brace still cancels
+            the currently active autocompletion }
+          DoAutoComplete := True;
+        end;
+      end;
     end else if Ch = ')' then
       Dec(FCallTipState.BraceCount)
     else
@@ -5518,8 +5590,8 @@ begin
 
   if DoAutoComplete then begin
     case Ch of
-      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<':
-        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete then
+      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<', '0'..'9':
+        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
@@ -6417,6 +6489,7 @@ begin
     var MessageToShowIndex := FUpdatePanelMessages.Count-1;
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
+    UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
   end;
   UpdateBevel1Visibility;
 end;
@@ -6670,7 +6743,7 @@ begin
   Info.cbSize := SizeOf(Info);
   Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
     SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
-  Info.Wnd := Application.Handle;
+  Info.Wnd := Handle;
   if FOptions.RunAsDifferentUser then
     Info.lpVerb := 'runas'
   else
@@ -6680,19 +6753,21 @@ begin
   WorkingDir := PathExtractDir(RunFilename);
   Info.lpDirectory := PChar(WorkingDir);
   Info.nShow := SW_SHOWNORMAL;
-  { Disable windows so that the user can't click other things while a "Run as"
-    dialog is up but is not system modal (which it is currently) }
+  { When the RunAsDifferentUser option is enabled, it's this process that
+    waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
+    prevent the user from clicking other things before the UAC dialog is
+    dismissed (which is definitely a possibility if the "Switch to the secure
+    desktop when prompting for elevation" setting is disabled in Group
+    Policy). }
   SaveFocusWindow := GetFocus;
-  WindowList := DisableTaskWindows(0);
+  WindowList := DisableTaskWindows(Handle);
   try
     { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed if the UAC dialog doesn't come to
-      the foreground for some reason (e.g. if the following SetActiveWindow call
-      is removed). }
+      still receive keystrokes. This is needed if Windows doesn't switch to
+      the secure desktop immediately and instead shows a flashing taskbar
+      button that the user must click (which happened on Windows Vista; I'm
+      unable to reproduce it on Windows 11). }
     Windows.SetFocus(0);
-    { We have to make the application window the active window, otherwise the
-      UAC dialog doesn't come to the foreground automatically. }
-    SetActiveWindow(Application.Handle);
     ShellExecuteResult := ShellExecuteEx(@Info);
     ErrorCode := GetLastError;
   finally
@@ -6778,7 +6853,7 @@ begin
 end;
 
 function TMainForm.EvaluateConstant(const S: String;
-  var Output: String): Integer;
+  out Output: String): Integer;
 begin
   { This is about evaluating constants like 'app' and not [Code] variables }
   FReplyString := '';
@@ -6789,7 +6864,7 @@ begin
 end;
 
 function TMainForm.EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
-  var Output: String): Integer;
+  out Output: String): Integer;
 begin
   FReplyString := '';
   Result := SendCopyDataMessage(FDebugClientWnd, Handle, CD_DebugClient_EvaluateVariableEntry,
@@ -7322,7 +7397,7 @@ begin
 
     { If it has been, offer to reload it }
     if Changed then begin
-      if IsWindowEnabled(Application.Handle) then begin
+      if IsWindowEnabled(Handle) then begin
         if MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
            SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
           if ConfirmCloseFile(False) then begin
@@ -7732,9 +7807,10 @@ begin
   var Handled := True;
   if (LinkType = sltID) and (Link = 'hwhatsnew') then
     HWhatsNew.Click
-  else if (LinkType = sltID) and (Link = 'toptions') then
+  else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
+    TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  else
+  end else
     Handled := False;
   if Handled then
     UpdatePanelClosePaintBoxClick(Sender);
@@ -7811,6 +7887,7 @@ begin
 end;
 
 initialization
+  Application.OnGetActiveFormHandle := TMainForm.AppOnGetActiveFormHandle;
   InitThemeLibrary;
   InitHtmlHelpLibrary;
   { For ClearType support, try to make the default font Microsoft Sans Serif }

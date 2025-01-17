@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Corsican messages ***
+﻿; *** Inno Setup version 6.4.0+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -13,15 +13,16 @@
 ; E-mail: Patrick.Santa-Maria[at]LaPoste.Net
 ;
 ; Changes:
-; February 11th, 2024 - Changes to current version 6.1.0+
-; November 14th, 2020 - Changes to current version 6.1.0+
-; July 25th, 2020 - Update to version 6.1.0+
-; July 1st, 2020 - Update to version 6.0.6+
-; October 6th, 2019 - Update to version 6.0.3+
-; January 20th, 2019 - Update to version 6.0.0+
-; April 9th, 2016 - Changes to current version 5.5.3+
-; January 3rd, 2013 - Update to version 5.5.3+
-; August 8th, 2012 - Update to version 5.5.0+
+; November 18th, 2024 - Update to version 6.4.0
+; February 11th, 2024 - Changes to version 6.3.0
+; November 14th, 2020 - Changes to version 6.1.2
+; July 25th, 2020 - Update to version 6.1.0
+; July 1st, 2020 - Update to version 6.0.5+
+; October 6th, 2019 - Update to version 6.0.3
+; January 20th, 2019 - Update to version 6.0.0
+; April 9th, 2016 - Changes to version 5.6.0
+; January 3rd, 2013 - Update to version 5.5.3
+; August 29th, 2012 - Update to version 5.5.2
 ; September 17th, 2011 - Creation for version 5.1.11
 
 [LangOptions]
@@ -217,7 +218,7 @@ NoProgramGroupCheck2=Ùn creà &micca di cartulare in u listinu « Démarrer �
 ; *** "Ready to Install" wizard page
 WizardReady=Prontu à Installà
 ReadyLabel1=Avà l’assistente hè prontu à principià l’installazione di [name] nant’à l’urdinatore.
-ReadyLabel2a=Sceglie Installà per cuntinuà l’installazione, o nant’à Precedente per rivede o cambià qualchì preferenza.
+ReadyLabel2a=Sceglie Installà per cuntinuà l’installazione, o nant’à Precedente per rivede o cambià qualchì parametru.
 ReadyLabel2b=Sceglie Installà per cuntinuà l’installazione.
 ReadyMemoUserInfo=Infurmazioni di l’utilizatore :
 ReadyMemoDir=Cartulare d’installazione :
@@ -237,6 +238,13 @@ ErrorFileHash1=Fiascu di u tazzeghju di u schedariu : %1
 ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %1, trovu %2
 ErrorProgress=Prugressione inaccettevule : %1 di %2
 ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %1, trovu %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Estrazzione di i schedarii addiziunali…
+ButtonStopExtraction=&Piantà l’estrazzione
+StopExtraction=Da veru, vulete piantà l’estrazzione ?
+ErrorExtractionAborted=Estrazzione interrotta
+ErrorExtractionFailed=Fiascu di l’estrazzione : %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione di l’installazione
