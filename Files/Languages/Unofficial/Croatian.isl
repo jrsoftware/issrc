@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Croatian messages ***
+﻿; *** Inno Setup version 6.4.0+ Croatian messages ***
 ; Translated by: Milo Ivir (mail@milotype.de)
 ; Based on translation by Elvis Gambiraža (el.gambo@gmail.com)
 ; Based on translation by Krunoslav Kanjuh (krunoslav.kanjuh@zg.t-com.hr)
@@ -225,6 +225,13 @@ ErrorFileHash2=Neispravan kontrolni zbroj datoteke: očekivano %1, pronađeno %2
 ErrorProgress=Neispravan napredak: %1 od %2
 ErrorFileSize=Neispravna veličina datoteke: očekivano %1, pronađeno %2
 
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Raspakiravanje dodatnih datoteka …
+ButtonStopExtraction=&Prekini raspakiravanje
+StopExtraction=Stvarno želiš prekinuti raspakiravanje?
+ErrorExtractionAborted=Raspakiravanje prekinuto
+ErrorExtractionFailed=Raspakiravanje neuspjelo: %1
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Priprema za instaliranje
 PreparingDesc=Instalacija se priprema za instaliranje programa [name].
@@ -273,7 +280,7 @@ AbortRetryIgnoreCancel=Prekini s instaliranjem
 ; *** Installation status messages
 StatusClosingApplications=Zatvaranje programa …
 StatusCreateDirs=Stvaranje mapa …
-StatusExtractFiles=Izdvajanje datoteka …
+StatusExtractFiles=Raspakiravanje datoteka …
 StatusCreateIcons=Stvaranje prečaca …
 StatusCreateIniEntries=Stvaranje INI unosa …
 StatusCreateRegistryEntries=Stvaranje unosa u registar …
