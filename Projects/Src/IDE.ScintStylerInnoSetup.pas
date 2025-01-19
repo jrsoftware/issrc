@@ -74,7 +74,12 @@ type
     stISPPReservedWord, stISPPString, stISPPNumber);
 
   TWordsBySection = TObjectDictionary<TInnoSetupStylerSection, TStringList>;
-  TFunctionDefinitions = array of AnsiString;
+  TFunctionDefinition = record
+    ScriptFuncWithoutHeader: AnsiString;
+    WasFunction, HasParams: Boolean;
+    constructor Create(const ScriptFunc: AnsiString);
+  end;
+  TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
   TInnoSetupStyler = class(TScintCustomStyler)
@@ -141,7 +146,9 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
-      const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+      const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
+    function GetScriptFunctionDefinition(const ClassMember: Boolean;
+      const Name: String; const Index: Integer): TFunctionDefinition; overload;
     function SectionHasFlag(const Section: TInnoSetupStylerSection; const Flag: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
@@ -565,6 +572,14 @@ begin
   Result := True;
 end;
 
+{ TFunctionDefinition }
+
+constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
+begin
+  ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, WasFunction);
+  HasParams := ScriptFuncHasParameters(ScriptFunc);
+end;
+
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
@@ -794,20 +809,18 @@ procedure TInnoSetupStyler.BuildScriptFunctionsLists(
   const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
-    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
-    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    var FunctionDefinition := TFunctionDefinition.Create(ScriptFunc);
+    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
     var DoAddWordToList := True;
-    if ScriptFuncHasParameters(ScriptFunc) then begin
-      var Key := String(ScriptFuncName);
-      if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [ScriptFuncWithoutHeader]) then begin
-        { Function has multiple prototypes }
-        var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
-        var N := Length(ScriptFunctions);
-        SetLength(ScriptFunctions, N+1);
-        ScriptFunctions[N] := ScriptFuncWithoutHeader;
-        FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
-        DoAddWordToList := False; { Already added it when the first prototype was found }
-      end;
+    var Key := String(ScriptFuncName);
+    if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [FunctionDefinition]) then begin
+      { Function has multiple prototypes }
+      var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
+      var N := Length(ScriptFunctions);
+      SetLength(ScriptFunctions, N+1);
+      ScriptFunctions[N] := FunctionDefinition;
+      FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
+      DoAddWordToList := False; { Already added it when the first prototype was found }
     end;
     if DoAddWordToList then
       AddWordToList(SL, ScriptFuncName, awtScriptFunction);
@@ -923,7 +936,7 @@ begin
 end;
 
 function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
 begin
   var ScriptFunctions: TFunctionDefinitions;
   if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then begin
@@ -932,10 +945,16 @@ begin
     if ResultIndex >= Count then
       ResultIndex := Count-1;
     Result := ScriptFunctions[ResultIndex]
-  end else begin
+  end else
     Count := 0;
-    Result := '';
-  end;
+end;
+
+function TInnoSetupStyler.GetScriptFunctionDefinition(
+  const ClassMember: Boolean; const Name: String;
+  const Index: Integer): TFunctionDefinition;
+begin
+  var Count: Integer;
+  Result := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
 end;
 
 function TInnoSetupStyler.GetScriptWordList(
