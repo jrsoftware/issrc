@@ -5394,9 +5394,10 @@ begin
     FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
-  if Word <> '' then begin
-    FCallTipState.FunctionDefinition := Word;
+  var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+  if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
+     (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
+    FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
     if FCallTipState.MaxCallTips > 1 then
       FCallTipState.FunctionDefinition := AnsiString(Format(#1'%d of %d'#2'%s', [FCallTipState.CurrentCallTip+1, FCallTipState.MaxCallTips, FCallTipState.FunctionDefinition]));
 
@@ -5721,20 +5722,27 @@ begin
           HintStr := 'Unknown error';
         end;
       end else begin
-        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var ClassMember := False;
+        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Index := 0;
         var Count: Integer;
-        var Definition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
-        if Definition = '' then begin
+        var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        if Count = 0 then begin
           ClassMember := not ClassMember;
-          Definition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+          FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
         end;
-        while Index < Count-1 do begin
+        while Index < Count do begin
+          if Index <> 0 then
+            FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+          if HintStr <> '' then
+            HintStr := HintStr + #13;
+          if FunctionDefinition.WasFunction then
+            HintStr := HintStr + 'function '
+          else
+            HintStr := HintStr + 'procedure ';
+          HintStr := HintStr + String(FunctionDefinition.ScriptFuncWithoutHeader);
           Inc(Index);
-          Definition := Definition + #13 + FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
         end;
-        HintStr := String(Definition);
       end;
 
       if HintStr <> '' then begin
