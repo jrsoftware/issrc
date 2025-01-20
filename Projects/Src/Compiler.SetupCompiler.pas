@@ -3784,7 +3784,7 @@ var
   MenuKeyCaps: array[TMenuKeyCap] of string = (
     'BkSp', 'Tab', 'Esc', 'Enter', 'Space', 'PgUp',
     'PgDn', 'End', 'Home', 'Left', 'Up', 'Right',
-    'Down', 'Ins', 'Del', 'Shift', 'Ctrl+', 'Alt+');
+    'Down', 'Ins', 'Del', 'Shift+', 'Ctrl+', 'Alt+');
 
 procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
 
