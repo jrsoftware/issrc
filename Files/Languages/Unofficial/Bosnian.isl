@@ -1,6 +1,6 @@
-﻿; *** Inno Setup version 6.1.0+ Bosnian messages ***
+﻿; *** Inno Setup version 6.4.0+ Bosnian messages ***
 ; Translated by: Almedin Maleškić (malmedin@gmail.com)
-; Based on translation by Kenan Dervisevic (kenan3008@gmail.com)
+; Based on translation by Kenan Dervišević (kenan3008@gmail.com)
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -223,6 +223,13 @@ ErrorFileHash1=Heš datoteke nije uspio: %1
 ErrorFileHash2=Neispravan heš datoteke: očekivan %1, pronađen %2
 ErrorProgress=Neispravan napredak: %1 od %2
 ErrorFileSize=Neispravna veličina datoteke: očekivana %1, pronađena %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Raspakujem dodatne datoteke...
+ButtonStopExtraction=&Prekini raspakivanje
+StopExtraction=Jeste li sigurni da želite prekinuti raspakivanje?
+ErrorExtractionAborted=Raspakivanje je prekinuto
+ErrorExtractionFailed=Raspakivanje nije uspjelo: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pripremam instalaciju

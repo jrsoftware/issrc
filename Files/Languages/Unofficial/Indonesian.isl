@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Indonesian messages ***
+﻿; *** Inno Setup version 6.4.0+ Indonesian messages ***
 ;
 ; Untuk mengunduh terjemahan kontribusi-pengguna dari berkas ini, buka:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -140,7 +140,7 @@ DirDoesntExist=Map:%n%n%1%n%ntidak ada. Buat map?
 
 WizardSelectComponents=Pilih Komponen
 SelectComponentsDesc=Komponen mana sajakah yang sebaiknya dipasang?
-SelectComponentsLabel2=Centang komponen yang Anda inginkan; batalkan centang dari komponen yang tidak Anda inginkan. Klik Maju saat Anda siap meneruskan.
+SelectComponentsLabel2=Centang komponen yang Anda inginkan; hapus centang dari komponen yang tidak Anda inginkan. Klik Maju saat Anda siap meneruskan.
 FullInstallation=Instalasi penuh
 CompactInstallation=Instalasi padat
 CustomInstallation=Instalasi kustom
@@ -189,6 +189,13 @@ ErrorFileHash1=Ceksum berkas gagal: %1
 ErrorFileHash2=Ceksum berkas tidak sah: seharusnya %1, yang kami dapatkan %2
 ErrorProgress=Langkah tidak sah: %1 dari %2
 ErrorFileSize=Ukuran berkas tidak sah: seharusnya %1, yang kami dapatkan %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Mengektrasi berkas tambahan...
+ButtonStopExtraction=&Hentikan ekstrasi
+StopExtraction=Anda yakin ingin menghentikan ekstrasi?
+ErrorExtractionAborted=Ekstrasi dibatalkan
+ErrorExtractionFailed=Ekstraksi gagal: %1
 ;Inno6
 
 WizardPreparing=Bersiap Memasang

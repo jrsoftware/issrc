@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Albanian messages ***
+﻿; *** Inno Setup version 6.4.0+ Albanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -225,6 +225,13 @@ ErrorFileHash1=E pamundur të merrej hashi i skedarit: %1
 ErrorFileHash2=Hashi i skedarit është i pasaktë: pritej %1, doli %2
 ErrorProgress=Vazhdim i pasaktë: %1 of %2
 ErrorFileSize=Madhësia e skedarit është e pasaktë: pritej %1, doli %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Nxjerr skedarët shtesë...
+ButtonStopExtraction=&Ndaloj nxjerrjen
+StopExtraction=E konfirmoni ndalimin e nxjerrjes?
+ErrorExtractionAborted=Nxjerrja u ndërpre
+ErrorExtractionFailed=E pamundur të nxirrej: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Gati për instalim
