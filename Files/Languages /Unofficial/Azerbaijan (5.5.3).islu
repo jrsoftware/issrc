@@ -1,1 +1,302 @@
-5.5.3
+; *** İnno Tərtibat versiyası 5.5.3+ Azərbaycan Dili məlumatlar ***
+;Language            "Dil"                    ::::::    Azərbaycan Dili
+;Translator Company  "Tərcümə Edən Şirkət"    ::::::    Azari Proqramlar Korporasiyası
+;Translate           "Tərcüməçi "             ::::::    Miryusif Rəhimov
+;E-mail              "Elektron Poçt"          ::::::    miryusifrahimov@gmail.com & apk@gmail.com
+;Web Site            "Veb Sayt"               ::::::    http://www.apk.az
+;Facebook Page       "Facebook Səhifəsi"      ::::::    http://www.fb.com/apk.az
+;Youtube Canal       "Youtube Kanalı"         ::::::    http://www.youtube.com/apk.az
+;
+
+[LangOptions]
+LanguageName=Az<0259>rbaycan Dili
+LanguageID=$042C
+LanguageCodePage=0
+
+[Messages]
+
+; *** Tətbiqi adlar
+SetupAppTitle=Yükləmə Tərtibatı
+SetupWindowTitle=Yükləmə - %1
+UninstallAppTitle=Silmə Tərtibatı
+UninstallAppFullTitle=%1 Sil
+
+; *** Ümumi müxtəlif
+InformationTitle=Məlumat
+ConfirmTitle=Təsdiq et
+ErrorTitle=Xəta
+
+; *** Tərtibat Yükləyicisi məlumatları
+SetupLdrStartupMessage=Yükləməya hazırlanır %1. Davam etmək istəyirsinizmi?
+LdrCannotCreateTemp=Müvəqqəti fayllar yaradılır. Tərtibat dayandı
+LdrCannotExecTemp=Müvəqqəti kataloqda faylı yerinə yetirmək üçün. Tərtibat dayandı
+
+; *** Buraxılma xəta məlumatları
+LastErrorMessage=%1.%n%nXəta %2: %3
+SetupFileMissing=%1 adlı fayl quraşdırılma mövqesində tapıla bilmədi. Zəhmət olmasa problemi düzəldin və ya proqramın təzə bir kopiyasını əldə edin.
+SetupFileCorrupt=Yükləmə faylları xarabdır. Zəhmət olmasa proqramın təzə bir kopiyasını əldə edin.
+SetupFileCorruptOrWrongVer=Yükləmə faylları xarab olub və ya Yükləmənın bu versiyası ilə uyğunlaşmır. Zəhmət olmasa problemi düzəldin və ya Proqramın təzə bir kopiyasını əldə edin.
+NotOnThisPlatform=Bu proqram %1 üzərində işlədilə biliməz.
+OnlyOnThisPlatform=Bu proqram sadəcə %1 üzərində işlədilməlidir.
+OnlyOnTheseArchitectures=Bu proqram sadəcə %n%n%1 arxitekturadakı prosessorlar üçün təşkil edilmiş Windows'larda işləyər
+MissingWOW64APIs=İstifadə etdiyiniz Windows versiyası Yükləmə'nın 64-bit yükləmə edə bilməsi üçün lazımlı olan xüsusiyyətlərə sahib deyil. Bu problemi aradan qaldırmaq üçün zəhmət olmasa "Service Pack %1" yükləyin.
+WinVersionTooLowError=Bu proqramı işlədə bilmək üçün %1 %2 versiyası və ya daha yüksək versiyası yüklü olmalıdır.
+WinVersionTooHighError=Bu proqram %1 %2 versiyası və ya növbəti versiyasında işləməz.
+AdminPrivilegesRequired=Bu proqram qurularkən İdarəçi olaraq iclas açılmalıdır.
+PowerUserPrivilegesRequired=Bu proqram qurularkən İdarəçi və ya Güc İdarəçisi Qrupu üzvü olaraq daxil olmaq lazımdır.
+SetupAppRunningError=Yükləmə %1 proqramının işlədiyini müəyyən etdi.%n%nZəhmət olmasa bu proqramın işləyən bütün hissələrini indi bağlayın, daha sonra davam etmək üçün Təsdiq et düyməsinə və ya çıxmaq üçün Ləğv et düyməsinə basın.
+UninstallAppRunningError=Sil %1 proqramının işlədiyini müəyyən etdi.%n%nZəhmət olmasa bu proqramın işləyən bütün hissələrini indi bağlayın, daha sonra davam etmək üçün Təsdiq et düyməsinə və ya çıxmaq üçün Ləğv et düyməsinə basın.
+
+; *** Müxtəlif xətalar
+ErrorCreatingDir=Quraşdır " %1 " mövqey yaradıla bilmədi.
+ErrorTooManyFilesInDir=" %1 " mövqesində bir fayl yaradıla bilmədi. Çünki mövqe həddən çox fayl ehtiva edir.
+
+; *** Ümumi tərtibat məlumatları
+ExitSetupTitle=Yükləmədan Çıx
+ExitSetupMessage=Yükləmə başa çatmadı. İndi çıxsanız Yükləmə başa çatmayacaq.%n%nProqramı daha sonra istəsəniz qura bilərsiniz.%n%nÇıxmaq istəyirsinizmi?
+AboutSetupMenuItem=&Yükləmə Haqqında...
+AboutSetupTitle=Yükləmə Haqqında
+AboutSetupMessage=%1 versiya %2%n%3%n%n%1 Veb Səhifə:%n%4
+AboutSetupNote=Azari Proqramlar Korporasiyası%nhttp://www.apk.az%nhttp://www.fb.com/apk.az%nhttp://www.youtube.com/apk.az%n%nElektron Poçt%napk@gmail.com %nmiryusifrahimov@gmail.com
+TranslatorNote=İnno Setup Compiler - Azari Proqramlar Korporasiyası'nın yaradıcısı Miryusif Rəhimov tərəfindən Azərbaycan Dili'nə tərcümə edilmişdir. Azərbaycan'ın ən mükəmməl proqram təminat şirkəti olan Azari Proqramlar Korporasiyası peşəkarlıqla Azərbaycan Dili'ndə proqramlar yaradır və yaradılmış digər proqramları Azərbaycan Dili'nə tərçümə edir.
+
+; *** Düymələr
+ButtonBack=< &Geri
+ButtonNext=&İrəli >
+ButtonInstall=&Quraşdır
+ButtonOK=Təsdiq et
+ButtonCancel=Çıxış
+ButtonYes=&Bəli
+ButtonYesToAll=&Hamısına Bəli
+ButtonNo=&Xeyir
+ButtonNoToAll=&Hamısına Xeyir
+ButtonFinish=&Bağla
+ButtonBrowse=&Bax...
+ButtonWizardBrowse=&Bax...
+ButtonNewFolder=&Təzə Qovluq Yarat
+
+; *** "Dil Seçimləri" dialog messages
+SelectLanguageTitle=Yükləmə Dilini Seçin
+SelectLanguageLabel=Yükləmə əsnasında istifadə etmək üçün Yükləmə dilini seçin:
+
+; *** Ümumi sehrbaz mətnləri
+ClickNext=Davam etmək üçün İrəli düyməsinə, çıxmaq üçün isə Çıxış düyməsinə  basın.
+BeveledLabel=
+BrowseDialogTitle=Qovluğa bax
+BrowseDialogLabel=Siyahıdakı qovluqlardan birini seçin və Təsdiq et düyməsinə basın
+NewFolderName=Təzə Qovluq
+
+; *** "Xoş Gəldiniz" sehrbaz səhifəsi
+WelcomeLabel1=[name] Yükləmə Tərtibatına Xoş Gəldiniz
+WelcomeLabel2=Bu Yükləmə Tərtibatı [name/ver] proqramını kompüterinizə yükləyəcək.%n%nDigər bütün tətbiqlərdən və proqramlardan çıxmanızı tövsiyə edirik.
+
+; *** "Şifrə" sehrbaz səhifəsi
+WizardPassword=Şifrə
+PasswordLabel1=Bu Yükləmə şifrə tələb edir.
+PasswordLabel3=Zəhmət olmasa şifrəni daxil edin və davam etmək üçün İrəli düyməsinə basın. Proqram  böyük-kiçik hərfə həssasdır
+PasswordEditLabel=&Şifrə:
+IncorrectPassword=Şifrəni düz deyil. Zəhmət olmasa təkrar yoxlayın.
+
+; *** "Lisenziya Müqaviləsi" sehrbaz səhifəsi
+WizardLicense=Lisenziya Müqaviləsi
+LicenseLabel=Zəhmət olmasa bu müqaviləni oxuyub qəbul etdikdən sonra davam edin.
+LicenseLabel3=Zəhmət olmasa Lisenziya müqaviləsini oxuyun. Müqavilədəki şərtləri diqqətlə oxumağınızı məsləhət görürük. Qəbul edirsinizsə İrəli düyməsinə, qəbul etmirsinizsə Çıxış düyməsinə basın.
+LicenseAccepted=Oxuduğum lisenziya müqaviləsini &qəbul edirəm.
+LicenseNotAccepted=Oxuduğum lisenziya müqaviləsini qəbul &etmirəm.
+
+; *** "Məlumatlandırma" sehrbaz səhifəsi
+WizardInfoBefore=Məlumatlandırma
+InfoBeforeLabel=Zəhmət olmasa proqram ilə əlaqədar əhəmiyyətli məlumatları oxuduqdan sonra davam edin.
+InfoBeforeClickLabel=Oxuyub quracaqsınızsa davam etmək üçün İrəli düyməsinə basın.
+WizardInfoAfter=Məlumatlandırma
+InfoAfterLabel=Zəhmət olmasa proqram ilə əlaqədar əhəmiyyətli məlumatları oxuduqdan sonra davam edin
+InfoAfterClickLabel=Oxuyub quracaqsınızsa davam etmək üçün İrəli düyməsinə basın.
+
+; *** "İstifadəçi Məlumatları" sehrbaz səhifəsi
+WizardUserInfo=İstifadəçi Məlumatları
+UserInfoDesc=Zəhmət olmasa məlumatlarınızı daxil edin.
+UserInfoName=&İstifadəçi Adı:
+UserInfoOrg=&Quruluş Adı:
+UserInfoSerial=&Ardıcıl Nömrə:
+UserInfoNameRequired=Bir ad girməlisiniz.
+
+; *** "Proqramın Qurulacağı Qovluğu Seçin" sehrbaz səhifəsi
+WizardSelectDir=Proqramın Qurulacağı Qovluğu Seçin
+SelectDirDesc=[name] proqramını hara quracaqsınız?
+SelectDirLabel3=[name] proqramı seçilən qovluğa qurulacaq.
+SelectDirBrowseLabel=Davam etmək üçün İrəli düyməsinə basın. Təyin edilən qovluğun xaricində qovluq təyin etmək üçün Bax düyməsinə basın.
+DiskSpaceMBLabel= Yükləmə üçün [mb] MB boş sahə lazımdır.
+ToUNCPathname=Yükləmə UNC növündəki mövqe yollarına (Məsələn:\\yol vs.) quraşdırılma edə bilməz. Əgər bu Yükləmənı şəbəkə üzərindən edirsinizsə zəhmət olmasa şəbəkə şəxsiyyətinizidə daxil edin.
+InvalidPath=Sürücü adıyla qovluğun tam yolunu yazmalısınız; Məsələn %nC:\APP%n%n və ya bir UNC yolunu %n%n\\server\paylaşma%n%n şəklində girməlisiniz.
+InvalidDrive=Seçdiyiniz sürücü tapılmır və ya müraciət edilə bilmir. Zəhmət olmasa başqa bir sürücü seçin.
+DiskSpaceWarningTitle=Qeyri-kafi disk sahəsi
+DiskSpaceWarning=Quraşdır ən az %1 KB istifadə edilə bilər disk sahəsi tələb etməkdədir. Ancaq seçili diskdə %2 KB boş sahə var.%n%nYenə də davam etmək istəyirsinizmi?
+DirNameTooLong=Mövqe adı və ya yolu çox uzundur.
+InvalidDirName=Mövqe adı etibarsızdır.
+BadDirName32=Mövqe adı təqib edən xarakterlərdən hər hansı birini ehtiva edə bilməz:%n%n%1
+DirExistsTitle=Mövqe Tapıldı
+DirExists=Mövqe:%n%n%1%n%n onsuz da var. Yenə də bu mövqeyə qurmaq istədiyinizdən əminsinizmi?
+DirDoesntExistTitle=Mövqe Tapılmadı
+DirDoesntExist=Mövqe:%n%n%1%n%nyoxdur. Bu mövqeni yaratmaq istəyirsinizmi?
+
+; *** "Komponentlərin Seçimi" sehrbaz səhifəsi
+WizardSelectComponents=Komponentlərin Seçimi
+SelectComponentsDesc=Hansı komponentləri Yükləməya daxil etmək istəyirsiniz?
+SelectComponentsLabel2=Zəhmət olmasa Yükləməya daxil olacaq komponentləri seçin. Seçiminizi edib İrəli düyməsinə basın.
+FullInstallation=Tam Yükləmə
+; if possible don't translate 'Compact' as 'Minimun' (I mean 'Minimal' in your language)
+CompactInstallation=Normal Yükləmə
+CustomInstallation=Xüsusi Yükləmə
+NoUninstallWarningTitle=Mövcud Komponentlər
+NoUninstallWarning=Seçdiyiniz proqram komponentləri kompüterinizə qurulacaq:%n%n%1%n%nSeçilməyən komponentləri daha sonra qura bilərsiniz%nYenə də davam etmək istəyirsinizmi?
+ComponentSize1=%1 KB
+ComponentSize2=%1 MB
+ComponentsDiskSpaceMBLabel=Seçdiyiniz komponentlələ birlikdə [mb] MB boş sahə lazımdır.
+
+; *** "Əlavə Qısayolların Seçimi" sehrbaz səhifəsi
+WizardSelectTasks=Əlavə Qısayolların Seçimi
+SelectTasksDesc=Proqramın qısayollarının əlavə olunacağı yerləri seçin?
+SelectTasksLabel2=[name] proqramı üçün əlavə qısayolları seçə bilər və ya heç birini seçmədən Yükləməya davam edə bilərsiniz, davam etmək üçün İrəli düyməsinə basın.
+
+; *** "Başlat Menyusu Qovluğu Seçimi" sehrbaz səhifəsi
+WizardSelectProgramGroup=Başlat Menyusu Qovluğu Seçimi
+SelectStartMenuFolderDesc=Başlat menyusu qısayolları hansı qovluğa yaradılacaq?
+SelectStartMenuFolderLabel3=Bura proqram şirkətinin veb saytı, silmə proqramı və digər qısayolları əlavə olunacaq.
+SelectStartMenuFolderBrowseLabel=Davam etmək üçün İrəli düyməsini, fərqli qovluq seçmək üçün isə Bax düyməsini basın.
+MustEnterGroupName=Bir qovluq adı girməlisiniz.
+GroupNameTooLong=Qovluq adı çox uzundur.
+InvalidGroupName=Qovluq adı yaradıla bilmədi.
+BadGroupName=Qovluq adı növbəti xarakterlərin heç birini daxil edə bilmir:%n%n%1
+NoProgramGroupCheck2=&Başlat Menyusuna Qısayol Əlavə Etmək
+
+; *** "Yükləmənı Başlatmaq Üçün Oxuyun" sehrbaz səhifəsi
+WizardReady=Yükləmənı Başlatmaq Üçün Oxuyun
+ReadyLabel1=[name] proqramı kompüterinizə qurulmağa hazır vəziyyətdədir
+ReadyLabel2a=Aşağıda seçdiyiniz Yükləmə xüsusiyyətləri yer götürməkdədir. Bunlarla davam etmək üçün İrəli düyməsinə, dəyişdirmək üçün isə Geri düyməsinə basın
+ReadyLabel2b=Bu xüsusiyyətlərlə qurmaq üçün İrəli düyməsinə basın.
+ReadyMemoUserInfo=İstifadəçi Məlumatları:
+ReadyMemoDir=Qurulacaq Qovluq Ünvanı:
+ReadyMemoType=Yükləmə Növü:
+ReadyMemoComponents=Seçilmiş Komponentlər:
+ReadyMemoGroup=Başlat menyusu qısayol qovluğu:
+ReadyMemoTasks=Əlavə Vəzifələr:
+
+; *** "Yükləməya Hazırdı" sehrbaz səhifəsi
+WizardPreparing=Yükləməya Hazırdı
+PreparingDesc=[name]proqramı kompüterinizə qurulmağa hazırdı.
+PreviousInstallNotCompleted=Bir əvvəlki Yükləmə/Sil proqramına aid əməliyyat başa çatmayıb. Əvvəlki Yükləmə əməliyyatının başa çatması üçün kompüterinizi təzədən başlatmalısınız.%n%nKompüteriniz təkrar başladıqdan sonra,Yükləmənı təkrar işlədərək [name] proqramını qurma əməliyyatına davam edə bilərsiniz.
+CannotContinue=Yükləmə davam edilə bilmir. Zəhmət olmasa Ləğv et düyməsinə basıb çıxın.
+
+; *** "Quraşdırılır" sehrbaz səhifəsi
+WizardInstalling=Quraşdırılır
+InstallingLabel=[name] proqramı kompüterinizə qurulur. Zəhmət olmasa gözləyin.
+
+; *** "Yükləmə Tərtibatı başa çatdırıldı" sehrbaz səhifəsi
+FinishedHeadingLabel=[name] Yükləmə Tərtibatı başa çatdırıldı
+FinishedLabelNoIcons=Yükləmə [name] proqramını kompüterinizə qurma əməliyyatını başa çatdırdı.
+FinishedLabel=Yükləmə [name] proqramını kompüterinizə qurma əməliyyatını başa çatdırdı. Proqram yüklənən qısayol ikonlarına basılaraq işlədilə bilər.
+ClickFinish=Yükləmə'dan çıxmaq üçün "Son" düyməsinə basın.
+FinishedRestartLabel=[name] proqramının Yükləməsını başa çatdırmaq üçün, Yükləmə kompüterinizi təzədən başladacaq. Kompüteriniz təzədən başladılsınmı?
+FinishedRestartMessage=[name] Yükləməsını başa çatdırmaq üçün, kompüterinizin təzədən başladılması lazımdır.%n%nKompüteriniz təzədən başladılsınmı?
+ShowReadmeCheck=Məni Oxu faylını oxumaq istəyirəm.
+YesRadio=&Bəli , kompüter təzədən başladılsın.
+NoRadio=&Xeyir, daha sonra təzədən başladaram.
+; used for example as 'Run MyProg.exe'
+RunEntryExec=%1 tətbiqini İşlət
+; used for example as 'View Readme.txt'
+RunEntryShellExec=%1 faylını göstər
+
+; *** "Yükləmə üçün digər diskə ehtiyac var" material
+ChangeDiskTitle=Yükləmə üçün digər diskə ehtiyac var
+SelectDiskLabel2=Zəhmət olmasa %1 . diski taxın və Təsdiq et düyməsinə basın.%n%nƏgər faylları digər diskdən deyildə başqa bir qovluqdan götürmək istəyirsinizsə Bax düyməsinə basın
+PathLabel=&Mövqe:
+FileNotInDir2=" %1 " adlı fayl " %2 " mövqesində tapıla bilmədi. Zəhmət olmasa düzgün diski və ya faylı seçin.
+SelectDirectoryLabel=Zəhmət olmasa sonrakı diskin yerini təyin edin.
+
+; *** İnstalyasiya mərhələ məlumatları
+SetupAborted=Yükləmə başa çatdırılmadı.%n%nZəhmət olmasa problemi həll etmək üçün Yükləməğı təkrar yoxlayın.
+EntryAbortRetryIgnore=Təkrar sınamaq üçün Təzədən Sına düyməsinə basın və ya Yükləmənı təkrar başladın
+
+; *** İnstalyasiya status məlumatları
+StatusCreateDirs=;Lazımlı qovluqlar yaradılır...
+StatusExtractFiles=Fayllar ayırd ediyir...
+StatusCreateIcons=Qısayollar yaradılır...
+StatusCreateIniEntries=INI faylları məlumatları daxil edilir...
+StatusCreateRegistryEntries=Qeyd dəftəri nizamları daxil edilir...
+StatusRegisterFiles=Fayllar qeyd edilir...
+StatusSavingUninstall=Proqramı silmə məlumatları daxil edilir...
+StatusRunProgram=Yükləmə başa çatdırılır...
+StatusRollback=Nizamlar geri yüklənilir...
+
+; *** Müxtəlif xətalar
+ErrorInternal2=İç Xəta: %1
+ErrorFunctionFailedNoCode=%1 Kod
+ErrorFunctionFailed=%1 Xətalı; Kod %2
+ErrorFunctionFailedWithMessage=%1 Xətalı; Kod %2.%n%3
+ErrorExecutingProgram=%1 adlı dosya çalıştırılamadı.
+
+; *** Qeydiyyat xətaları
+ErrorRegOpenKey=Qeydiyyat açarları açmada xəta:%n%1\%2
+ErrorRegCreateKey=Qeydiyyat açarları yaratmada xəta:%n%1\%2
+ErrorRegWriteKey=Qeydiyyat açarları yazmada xəta:%n%1\%2
+
+; *** INI xətalar
+ErrorIniEntry=INI məlumatları yaratmada xəta "%1".
+
+; *** Fayl köçürmə xətaları
+FileAbortRetryIgnore=Təzədən sınamaq üçün Təzədən Sına düyməsinə, əhəmiyyət verməmək üçün və ya ləğv etmək üçün (tövsiyə edilməz) Çıxış süyməsinə basın.
+FileAbortRetryIgnore2= Təzədən sınamaq üçün Təzədən Sına düyməsinə, əhəmiyyət verməmək üçün və ya ləğv etmək üçün (tövsiyə edilməz) Çıxış düyməsinə basın.
+SourceIsCorrupted=Fayl mənbəəsi xarab vəziyyətdədir
+SourceDoesntExist=%1 adlı Mənbəə Faylı tapıla bilmədi.
+ExistingFileReadOnly=Fayl Tam Oxunar.%n%nTam Oxunar xüsusiyyətini silib təzədən sınamaq üçün Təzədən Sına düyməsini, faylı keçmək üçün Yoxsay düyməsini, Yükləmənı ləğv etmək üçün isə Ləğv et düyməsini basın.
+ErrorReadingExistingDest=Faylı oxuyarkən bir xəta yarandı :
+FileExists=Fayl onsuz da var.%n%nYükləmənın üstünə yazmasını istəyirsinizmi?
+ExistingFileNewer=Onsuz da var olan fayl Yükləmənın yükləmək istədiyi fayldan daha təzədir. Var olan faylı saxlamanız məsləhətdir.%n%nVar olan fayl saxlansınmı? 
+ErrorChangingAttr=Onsuz da var olan faylın xüsusiyyəti dəyişdirilərkən bir xəta yarandı:
+ErrorCreatingTemp=Hədəf mövqeydə fayl yaradılarkən bir xəta yarandı:
+ErrorReadingSource=Mənbəə fayl oxunarkən bir xəta yarandı:
+ErrorCopying=Bir fayl kopiyalanarkən bir xəta yarandı:
+ErrorReplacingExistingFile=Onsuz da var olan fayl dəyişdirilərkən bir xəta yarandı:
+ErrorRestartReplace=Əvəz etmək üçün yenidən başlatma uğursuz oldu:
+ErrorRenamingTemp=Hədəf mövqesində olan faylın adı dəyişdirilərkən bir xəta yarandı:
+ErrorRegisterServer=%1 adlı DLL/OCX sistemə tanıdıla bilmədi.
+ErrorRegisterServerMissingExport=DllRegisterServer çıxışı tapıla bilmədi
+ErrorRegisterTypeLib=%1 adlı növ kitabxanası (Type Library) sistemə tanıdıla bilmədi
+
+; *** Məni Oxu instalyasiya xətaları
+ErrorOpeningReadme=Məni Oxu faylı açılarkən xəta yarandı.
+ErrorRestartingComputer=Yükləmə kompüteri təzədən başlada bilmədi. Zəhmət olmasa özünüz təzədən başladın.
+
+; *** Silmə məlumatları
+UninstallNotFound="%1" faylı mövcud deyil. Silinmir.
+UninstallOpenError="%1" faylı açılmır. Silinmir.
+UninstallUnsupportedVer=%1 adlı Sil məlumat faylı silmə proqramının bu versiyası ilə uyğunlaşmır. Silmə proqramı işlədilə bilmədi.
+UninstallUnknownEntry=Sil Məlumat faylındakı %1 adlı sətir aydın ola bilmədi
+ConfirmUninstall=%1 və komponentlərini silmək istədiyinizdən əminsinizmi?
+UninstallOnlyOnWin64=Bu Yükləmə sadəcə 64-bit Windows'lardan silinə bilər.
+OnlyAdminCanUninstall=Bu Yükləmə sadəcə idarəçi səlahiyyətinə sahib istifadəçilər tərəfindən silinə bilər.
+UninstallStatusLabel=Z'hm't olmasa %1 proqramı kompüterinizdən silərkən gözləyin...
+UninstalledAll=%1 proqramı kompüterinizdən tamamilə silindi.
+UninstalledMost=%1 proqramının silinmə əməliyyatı başa çatdı.%n%nBəzi komponentlər silinə bilmədi. Bu faylları özünüz silə bilərsiniz.
+UninstalledAndNeedsRestart=%1 proqramının silinməsi başa çatdı, Kompüterinizi təzədən başlatmalısınız.%n%nİndi təzədən başladılsınmı?
+UninstallDataCorrupted="%1" adlı fayl xarabdır. . Silinmə proqramı işlədilə bilmədi.
+
+; *** Silmə mərhələsi məlumatları
+ConfirmDeleteSharedFileTitle=Paylaşılan fayl silinsinmi?
+ConfirmDeleteSharedFile2=Sistemdə paylaşılan bəzi faylların artıq heç bir proqram tərəfindən istifadə edilmədiyini ifadə edir. Sil bu paylaşılan faylları silsinmi?%n%n Bu fayl bəzi proqramlar tərəfindən istifadə edilirsə və silinməsini istəsəniz, bu proqramalar düzgün işəməyə bilər. Əmin deyilsinizsə, Xeyr düyməsinə basın. Faylın sisteminizdə qalması heç bir zərər verməz.
+SharedFileNameLabel=Fayl Adı:
+SharedFileLocationLabel=Mövqe:
+WizardUninstalling=Silmə Vəziyyəti
+StatusUninstalling=%1 Silinir...
+
+[CustomMessages]
+
+NameAndVersion=%1 %2
+AdditionalIcons=Əlavə işarələr:
+CreateDesktopIcon=İş stolu qısayolu yarat
+CreateQuickLaunchIcon=Vəzifə Çubuğu qısayolu yarat
+ProgramOnTheWeb=%1 Veb Saytı
+UninstallProgram=Silmə %1
+LaunchProgram=%1 proqramını başlat
+AssocFileExtension=%1 ile %2 fayl uzadılmalarını birləşdir
+AssocingFileExtension=%2 fayl uzadılmaları %1 ilə əlaqələndirilir...
