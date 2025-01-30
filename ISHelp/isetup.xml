@@ -3379,7 +3379,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="Regex" />
 <body>
 
-<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
+<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Ctrl+Alt+R or Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
 
 <p>When used, regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
 
