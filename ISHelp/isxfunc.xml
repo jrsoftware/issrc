@@ -563,10 +563,10 @@ end;</pre></example>
         <prototype>function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;</prototype>
         <description><p>Returns True if the .NET Framework with the specified MinVersion and MinServicePack parameters is installed.</p>
 <p>TDotNetVersion is defined as:</p>
-<p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48);</tt></p></description>
+<p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);</tt></p></description>
         <example><pre>function InitializeSetup: Boolean;
 begin
-  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8
+  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
   if not Result then
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
 end;</pre></example>
