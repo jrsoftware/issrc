@@ -2,7 +2,7 @@ unit Shared.CommonFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -112,8 +112,8 @@ function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
 function ConstPos(const Ch: Char; const S: String): Integer;
 function SkipPastConst(const S: String; const Start: Integer): Integer;
-function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
-function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String; AllowDWord: Boolean = False): Boolean;
+function RegQueryMultiStringValue(H: HKEY; Name: PChar; out ResultStr: String): Boolean;
 function RegValueExists(H: HKEY; Name: PChar): Boolean;
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   Reserved: DWORD; lpClass: PChar; dwOptions: DWORD; samDesired: REGSAM;
@@ -823,8 +823,8 @@ begin
   SetLength(S, Res);
 end;
 
-function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String;
-  Type1, Type2: DWORD): Boolean;
+function InternalRegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String;
+  Type1, Type2, Type3: DWORD): Boolean;
 var
   Typ, Size: DWORD;
   Len: Integer;
@@ -835,8 +835,15 @@ begin
   Result := False;
 1:Size := 0;
   if (RegQueryValueEx(H, Name, nil, @Typ, nil, @Size) = ERROR_SUCCESS) and
-     ((Typ = Type1) or (Typ = Type2)) then begin
-    if Size = 0 then begin
+     ((Typ = Type1) or (Typ = Type2) or ((Type3 <> REG_NONE) and (Typ = Type3))) then begin
+    if Typ = REG_DWORD then begin
+      var Data: DWORD;
+      Size := SizeOf(Data);
+      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
+        ResultStr := Data.ToString;
+        Result := True;
+      end;
+    end else if Size = 0 then begin
       { It's an empty string with no null terminator.
         (Must handle those here since we can't pass a nil lpData pointer on
         the second RegQueryValueEx call.) }
@@ -859,7 +866,7 @@ begin
         goto 1;
       end;
       if (ErrorCode = ERROR_SUCCESS) and
-         ((Typ = Type1) or (Typ = Type2)) then begin
+         ((Typ = Type1) or (Typ = Type2) or (Typ = Type3)) then begin
         { If Size isn't a multiple of SizeOf(S[1]), we disregard the partial
           character, like RegGetValue }
         Len := Size div SizeOf(S[1]);
@@ -883,22 +890,27 @@ begin
   end;
 end;
 
-function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String; AllowDWord: Boolean): Boolean;
 { Queries the specified REG_SZ or REG_EXPAND_SZ registry key/value, and returns
   the value in ResultStr. Returns True if successful. When False is returned,
-  ResultStr is unmodified. }
+  ResultStr is unmodified. Optionally supports REG_DWORD. }
 begin
+  var Type3: DWORD;
+  if AllowDWord then
+    Type3 := REG_DWORD
+  else
+    Type3 := REG_NONE;
   Result := InternalRegQueryStringValue(H, Name, ResultStr, REG_SZ,
-    REG_EXPAND_SZ);
+    REG_EXPAND_SZ, Type3);
 end;
 
-function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
+function RegQueryMultiStringValue(H: HKEY; Name: PChar; out ResultStr: String): Boolean;
 { Queries the specified REG_MULTI_SZ registry key/value, and returns the value
   in ResultStr. Returns True if successful. When False is returned, ResultStr
   is unmodified. }
 begin
   Result := InternalRegQueryStringValue(H, Name, ResultStr, REG_MULTI_SZ,
-    REG_MULTI_SZ);
+    REG_MULTI_SZ, REG_NONE);
 end;
 
 function RegValueExists(H: HKEY; Name: PChar): Boolean;

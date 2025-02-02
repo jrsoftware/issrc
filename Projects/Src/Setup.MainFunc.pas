@@ -2,7 +2,7 @@ unit Setup.MainFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -863,7 +863,7 @@ function ExpandIndividualConst(Cnst: String;
                  PChar(ExpandConstEx(Subkey, CustomConsts)),
                  0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
                 RegQueryStringValue(K, PChar(ExpandConstEx(Value, CustomConsts)),
-                  Result);
+                  Result, True); { also allows REG_DWORD }
                 RegCloseKey(K);
               end;
               Exit;

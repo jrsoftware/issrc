@@ -792,9 +792,10 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li>HK<i>xx</i> specifies the root key; see the <link topic="registrysection">[Registry]</link> section documentation for a list of possible root keys.</li>
 <li><i>SubkeyName</i> specifies the name of the subkey to read from.</li>
 <li><i>ValueName</i> specifies the name of the value to read; leave <i>ValueName</i> blank if you wish to read the "default" value of a key.</li>
-<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ).</li>
+<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ) and also not a REG_DWORD-type.</li>
 <li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
+<li>If the value is not a string type (REG_SZ or REG_EXPAND_SZ) but a REG_DWORD-type then its value as a decimal string is embedded.</li>
 </ul>
 <example>
 <pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
