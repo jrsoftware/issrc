@@ -112,8 +112,8 @@ function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
 function ConstPos(const Ch: Char; const S: String): Integer;
 function SkipPastConst(const S: String; const Start: Integer): Integer;
-function RegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String; AllowDWord: Boolean = False): Boolean;
-function RegQueryMultiStringValue(H: HKEY; Name: PChar; out ResultStr: String): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String; AllowDWord: Boolean = False): Boolean;
+function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
 function RegValueExists(H: HKEY; Name: PChar): Boolean;
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   Reserved: DWORD; lpClass: PChar; dwOptions: DWORD; samDesired: REGSAM;
@@ -823,7 +823,7 @@ begin
   SetLength(S, Res);
 end;
 
-function InternalRegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String;
+function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String;
   Type1, Type2, Type3: DWORD): Boolean;
 var
   Typ, Size: DWORD;
@@ -839,7 +839,8 @@ begin
     if Typ = REG_DWORD then begin
       var Data: DWORD;
       Size := SizeOf(Data);
-      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
+      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and
+         (Typ = REG_DWORD) and (Size = Sizeof(Data)) then begin
         ResultStr := Data.ToString;
         Result := True;
       end;
@@ -890,7 +891,7 @@ begin
   end;
 end;
 
-function RegQueryStringValue(H: HKEY; Name: PChar; out ResultStr: String; AllowDWord: Boolean): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String; AllowDWord: Boolean): Boolean;
 { Queries the specified REG_SZ or REG_EXPAND_SZ registry key/value, and returns
   the value in ResultStr. Returns True if successful. When False is returned,
   ResultStr is unmodified. Optionally supports REG_DWORD. }
@@ -904,7 +905,7 @@ begin
     REG_EXPAND_SZ, Type3);
 end;
 
-function RegQueryMultiStringValue(H: HKEY; Name: PChar; out ResultStr: String): Boolean;
+function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
 { Queries the specified REG_MULTI_SZ registry key/value, and returns the value
   in ResultStr. Returns True if successful. When False is returned, ResultStr
   is unmodified. }
