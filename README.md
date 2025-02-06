@@ -162,9 +162,9 @@ Source code tips
   
 - When building the projects in Release mode it outputs to [Files].
   
-- All of the forms in the Setup project, with the exception of Setup.MainForm.dfm, have
-  Scaled set to False. This is because they dynamically scale themselves at
-  run-time by calling a function named InitializeFont.
+- All of the forms in the Setup project have Scaled set to False. This is
+  because they dynamically scale themselves at run-time by calling a function
+  named InitializeFont.
 
 - A note for those curious: The Setup Compiler creates single EXE Setups by
   first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
