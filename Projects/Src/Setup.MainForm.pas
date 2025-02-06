@@ -24,12 +24,12 @@ type
     destructor Destroy; override;
     procedure Close;
     procedure Finish(const FromPreparingPage: Boolean);
-    procedure InitializeWizard;
+    class procedure InitializeWizard;
     function Install: Boolean;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
     class procedure ShowExceptionMsg(const S: String);
-    procedure ShowAboutBox;
+    class procedure ShowAboutBox;
   end;
 
 var
@@ -49,15 +49,13 @@ begin
   inherited;
 end;
 
-procedure TMainForm.ShowAboutBox;
-var
-  S: String;
+class procedure TMainForm.ShowAboutBox;
 begin
   { Removing the About box or modifying any existing text inside it is a
     violation of the Inno Setup license agreement; see LICENSE.TXT.
     However, adding additional lines to the end of the About box is
     permitted. }
-  S := SetupTitle + ' version ' + SetupVersion + SNewLine;
+  var S := SetupTitle + ' version ' + SetupVersion + SNewLine;
   if SetupTitle <> 'Inno Setup' then
     S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
   S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
@@ -105,7 +103,7 @@ begin
   end;
 end;
 
-procedure TMainForm.InitializeWizard;
+class procedure TMainForm.InitializeWizard;
 begin
   WizardForm := AppCreateForm(TWizardForm) as TWizardForm;
   if CodeRunner <> nil then begin
