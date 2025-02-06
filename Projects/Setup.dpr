@@ -300,7 +300,7 @@ begin
     Application.MainFormOnTaskBar := True;
     InitializeSetup;
     MainForm := TMainForm.Create(Application);
-    MainForm.InitializeWizard;
+    InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;

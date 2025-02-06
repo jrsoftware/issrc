@@ -51,7 +51,6 @@ var
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
 procedure OnlyUninstallFuncError(const C: AnsiString); overload;
-function GetMainForm: TMainForm;
 function GetWizardForm: TWizardForm;
 function GetUninstallProgressForm: TUninstallProgressForm;
 function GetMsgBoxCaption: String;
@@ -108,13 +107,6 @@ end;
 procedure OnlyUninstallFuncError(const C: AnsiString); overload;
 begin
   InternalError(Format('Cannot call "%s" function during Setup', [C]));
-end;
-
-function GetMainForm: TMainForm;
-begin
-  Result := MainForm;
-  if Result = nil then
-    InternalError('An attempt was made to access MainForm before it has been created'); 
 end;
 
 function GetWizardForm: TWizardForm;

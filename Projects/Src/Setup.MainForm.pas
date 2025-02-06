@@ -5,15 +5,13 @@ unit Setup.MainForm;
   Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
-
-  Background form
 }
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes,
-  Shared.Struct, Setup.MainFunc, Shared.SetupSteps;
+  Windows, SysUtils, Classes,
+  Shared.SetupSteps;
 
 type
   TMainForm = class(TComponent)
@@ -24,12 +22,10 @@ type
     destructor Destroy; override;
     procedure Close;
     procedure Finish(const FromPreparingPage: Boolean);
-    class procedure InitializeWizard;
     function Install: Boolean;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
     class procedure ShowExceptionMsg(const S: String);
-    class procedure ShowAboutBox;
   end;
 
 var
@@ -38,39 +34,17 @@ var
 implementation
 
 uses
-  Forms, Graphics, ShlObj, SHA256, RestartManager,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc, Setup.Install,
-  Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc, Shared.SetupTypes;
+  Messages, ShlObj,
+  Forms,
+  SHA256, RestartManager,
+  Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.Messages, Setup.Install,
+  Setup.MainFunc, Setup.InstFunc, Setup.WizardForm, Setup.LoggingFunc, Shared.SetupTypes;
 
 destructor TMainForm.Destroy;
 begin
   MainForm := nil;  { just to detect use-after-free }
   inherited;
-end;
-
-class procedure TMainForm.ShowAboutBox;
-begin
-  { Removing the About box or modifying any existing text inside it is a
-    violation of the Inno Setup license agreement; see LICENSE.TXT.
-    However, adding additional lines to the end of the About box is
-    permitted. }
-  var S := SetupTitle + ' version ' + SetupVersion + SNewLine;
-  if SetupTitle <> 'Inno Setup' then
-    S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
-  S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
-    'Portions Copyright (C) 2000-2025 Martijn Laan' + SNewLine +
-    'All rights reserved.' + SNewLine2 +
-    'Inno Setup home page:' + SNewLine +
-    'https://www.innosetup.com/');
-  S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
-    'https://www.remobjects.com/ps';
-  if SetupMessages[msgAboutSetupNote] <> '' then
-    S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
-  if SetupMessages[msgTranslatorNote] <> '' then
-    S := S + SNewLine2 + SetupMessages[msgTranslatorNote];
-  StringChangeEx(S, '(C)', #$00A9, True);
-  LoggedMsgBox(S, SetupMessages[msgAboutSetupTitle], mbInformation, MB_OK, False, 0);
 end;
 
 class procedure TMainForm.ShowExceptionMsg(const S: String);
@@ -101,27 +75,6 @@ begin
       end;
     end;
   end;
-end;
-
-class procedure TMainForm.InitializeWizard;
-begin
-  WizardForm := AppCreateForm(TWizardForm) as TWizardForm;
-  if CodeRunner <> nil then begin
-    try
-      CodeRunner.RunProcedures('InitializeWizard', [''], False);
-    except
-      Log('InitializeWizard raised an exception (fatal).');
-      raise;
-    end;
-  end;
-  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
-  WizardForm.SetCurPage(wpWelcome);
-  if InstallMode = imNormal then begin
-    WizardForm.ClickToStartPage; { this won't go past wpReady  }
-    WizardForm.Visible := True;
-  end
-  else
-    WizardForm.ClickThroughPages;
 end;
 
 procedure TerminateApp;

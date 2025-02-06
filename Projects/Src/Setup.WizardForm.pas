@@ -2681,9 +2681,28 @@ end;
 
 procedure TWizardForm.WMSysCommand(var Message: TWMSysCommand);
 begin
-  if Message.CmdType = 9999 then
-    MainForm.ShowAboutBox
-  else
+  if Message.CmdType = 9999 then begin
+    { Removing the About box or modifying any existing text inside it is a
+      violation of the Inno Setup license agreement; see LICENSE.TXT.
+      However, adding additional lines to the end of the About box is
+      permitted. }
+    var S := SetupTitle + ' version ' + SetupVersion + SNewLine;
+    if SetupTitle <> 'Inno Setup' then
+      S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
+    S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
+      'Portions Copyright (C) 2000-2025 Martijn Laan' + SNewLine +
+      'All rights reserved.' + SNewLine2 +
+      'Inno Setup home page:' + SNewLine +
+      'https://www.innosetup.com/');
+    S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
+      'https://www.remobjects.com/ps';
+    if SetupMessages[msgAboutSetupNote] <> '' then
+      S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
+    if SetupMessages[msgTranslatorNote] <> '' then
+      S := S + SNewLine2 + SetupMessages[msgTranslatorNote];
+    StringChangeEx(S, '(C)', #$00A9, True);
+    LoggedMsgBox(S, SetupMessages[msgAboutSetupTitle], mbInformation, MB_OK, False, 0)
+  end else
     inherited;
 end;
 

@@ -186,6 +186,7 @@ procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
+procedure InitializeWizard;
 procedure InitMainNonSHFolderConsts;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
@@ -3390,6 +3391,27 @@ begin
     end;
     Inc6464(MinimumSpace, MinimumTypeSpace);
   end;
+end;
+
+procedure InitializeWizard;
+begin
+  WizardForm := AppCreateForm(TWizardForm) as TWizardForm;
+  if CodeRunner <> nil then begin
+    try
+      CodeRunner.RunProcedures('InitializeWizard', [''], False);
+    except
+      Log('InitializeWizard raised an exception (fatal).');
+      raise;
+    end;
+  end;
+  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
+  WizardForm.SetCurPage(wpWelcome);
+  if InstallMode = imNormal then begin
+    WizardForm.ClickToStartPage; { this won't go past wpReady  }
+    WizardForm.Visible := True;
+  end
+  else
+    WizardForm.ClickThroughPages;
 end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
