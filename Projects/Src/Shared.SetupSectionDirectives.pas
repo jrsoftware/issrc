@@ -2,7 +2,7 @@ unit Shared.SetupSectionDirectives;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -53,6 +53,7 @@ type
     ssChangesEnvironment,
     ssCloseApplications,
     ssCloseApplicationsFilter,
+    ssCloseApplicationsFilterExcludes,
     ssCompression,
     ssCompressionThreads,
     ssCreateAppDir,

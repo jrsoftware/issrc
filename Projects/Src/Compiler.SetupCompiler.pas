@@ -2600,14 +2600,17 @@ begin
           Exclude(SetupHeader.Options, shForceCloseApplications);
         end;
       end;
-    ssCloseApplicationsFilter: begin
+    ssCloseApplicationsFilter, ssCloseApplicationsFilterExcludes: begin
         if Value = '' then
           Invalid;
         AIncludes := TStringList.Create;
         try
           ProcessWildcardsParameter(Value, AIncludes,
-            Format(SCompilerDirectivePatternTooLong, ['CloseApplicationsFilter']));
-          SetupHeader.CloseApplicationsFilter := StringsToCommaString(AIncludes);
+            Format(SCompilerDirectivePatternTooLong, [KeyName]));
+          if Directive = ssCloseApplicationsFilter then
+            SetupHeader.CloseApplicationsFilter := StringsToCommaString(AIncludes)
+          else
+            SetupHeader.CloseApplicationsFilterExcludes := StringsToCommaString(AIncludes);
         finally
           AIncludes.Free;
         end;

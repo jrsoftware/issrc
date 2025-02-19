@@ -110,7 +110,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImages: TList;
   WizardSmallImages: TList;
-  CloseApplicationsFilterList: TStringList;
+  CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
 
   { User options }
   ActiveLanguage: Integer = -1;
@@ -1915,7 +1915,7 @@ var
 begin
   Filename := AFilename;
 
-  { First: check filter and self. }
+  { First: check filters and self. }
   if Filename <> '' then begin
     CheckFilter := Boolean(Param);
     if CheckFilter then begin
@@ -1927,6 +1927,15 @@ begin
           Break;
         end;
       end;
+      if Match then begin
+        for I := 0 to CloseApplicationsFilterExcludesList.Count-1 do begin
+          if WildcardMatch(PChar(Text), PChar(CloseApplicationsFilterExcludesList[I])) then begin
+            Match := False;
+            Break;
+          end;
+        end;
+      end;
+
       if not Match then begin
         { No match with filter so exit but don't return an error. }
         Result := True;
@@ -3197,6 +3206,7 @@ begin
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
       RmSessionStarted := True;
       SetStringsFromCommaString(CloseApplicationsFilterList, SetupHeader.CloseApplicationsFilter);
+      SetStringsFromCommaString(CloseApplicationsFilterExcludesList, SetupHeader.CloseApplicationsFilterExcludes);
     end;
   end;
 
@@ -3787,6 +3797,7 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
+  CloseApplicationsFilterExcludesList := TStringList.Create;
   WizardImages := TList.Create;
   WizardSmallImages := TList.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
@@ -3794,6 +3805,7 @@ initialization
 
 finalization
   FreeWizardImages;
+  FreeAndNil(CloseApplicationsFilterExcludesList);
   FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);

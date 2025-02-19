@@ -2,7 +2,7 @@ unit Shared.Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.4.1';
-  SetupBinVersion = (6 shl 24) + (4 shl 16) + (1 shl 8) + 0;
+  SetupVersion = '6.4.2-dev';
+  SetupBinVersion = (6 shl 24) + (4 shl 16) + (2 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0.1)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.2)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
@@ -86,7 +86,7 @@ const
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
 
 const
-  SetupHeaderStrings = 32;
+  SetupHeaderStrings = 33;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -97,7 +97,7 @@ type
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
       SetupMutex, ChangesEnvironment, ChangesAssociations,
-      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: String;
+      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode, CloseApplicationsFilterExcludes: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,

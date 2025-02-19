@@ -102,7 +102,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.4.1</b><br/>
+<b>Inno Setup version 6.4.2-dev</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -1066,6 +1066,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
 <li><link topic="setup_closeapplications">CloseApplications</link></li>
 <li><link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></li>
+<li><link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link></li>
 <li><link topic="setup_createappdir">CreateAppDir</link></li>
 <li><link topic="setup_createuninstallregkey">CreateUninstallRegKey</link></li>
 <li><link topic="setup_defaultdialogfontname">DefaultDialogFontName</link></li>
@@ -5827,6 +5828,22 @@ SignTool=byparam format c:
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link><br/>
+<link topic="setup_restartapplications">RestartApplications</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="CloseApplicationsFilterExcludes">
+<setupvalid>A list of file name wildcards, separated by commas</setupvalid>
+<body>
+<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>.</p>
+<p>For example, to check all files except MyProg.exe:</p>
+<example><pre>[Setup]
+CloseApplicationsFilter=*.*
+CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="setup_restartapplications">RestartApplications</link></p>
 </body>
 </setuptopic>
