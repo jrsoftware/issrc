@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Greek messages ***
+﻿; *** Inno Setup version 6.4.0+ Greek messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -10,7 +10,7 @@
 ;
 ; Originally translated by Anastasis Chatzioglou, baldycom@hotmail.com
 ; Updated by XhmikosR [XhmikosR, my_nickname at yahoo dot com]
-; Updated to version 6.1.0+ by Vasileios Karamichail, v.karamichail@outlook.com
+; Updated to version 6.4.0+ by Vasileios Karamichail, v.karamichail@outlook.com
 ;
 
 [LangOptions]
@@ -226,6 +226,13 @@ ErrorFileHash1=Αποτυχία υπολογισμού hash: %1
 ErrorFileHash2=Μη έγκυρο hash: αναμενόμενο %1, βρέθηκε %2
 ErrorProgress=Μη έγκυρη πρόοδος: %1 από %2
 ErrorFileSize=Μη έγκυρο μέγεθος αρχείου: αναμενόμενο %1, βρέθηκε %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Αποσυμπίεση πρόσθετων αρχείων...
+ButtonStopExtraction=&Διακοπή αποσυμπίεσης
+StopExtraction=Είστε βέβαιοι ότι θέλετε να διακόψετε την αποσυμπίεση;
+ErrorExtractionAborted=Η αποσυμπίεση ακυρώθηκε
+ErrorExtractionFailed=Η αποσυμπίεση απέτυχε: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Προετοιμασία Εγκατάστασης
