@@ -38,7 +38,7 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 11.3 Alexandria.
+   We compile all of Inno Setup's projects under Delphi 12.1 Athens with Patch 1 installed.
 
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
