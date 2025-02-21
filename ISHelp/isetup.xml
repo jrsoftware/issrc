@@ -5110,7 +5110,7 @@ DiskSliceSize=1457664
 <setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
 <setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
 <body>
-<p>Lets you increase the default size of all Setup and Uninstall wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
+<p>Lets you increase the default size of all Setup wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
 <example><pre>WizardSizePercent=120</pre></example>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
@@ -5147,7 +5147,7 @@ DiskSliceSize=1457664
 <setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>
