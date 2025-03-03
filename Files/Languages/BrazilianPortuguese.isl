@@ -179,7 +179,7 @@ NoUninstallWarningTitle=O Componente Existe
 NoUninstallWarning=O instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não desinstalará eles.%n%nVocê gostaria de continuar de qualquer maneira?
 ComponentSize1=%1 KBs
 ComponentSize2=%1 MBs
-ComponentsDiskSpaceGBLabel=A seleção atual requer pelo menos [gb] MBs de espaço em disco.
+ComponentsDiskSpaceGBLabel=A seleção atual requer pelo menos [gb] GBs de espaço em disco.
 ComponentsDiskSpaceMBLabel=A seleção atual requer pelo menos [mb] MBs de espaço em disco.
 
 ; *** "Select Additional Tasks" wizard page
