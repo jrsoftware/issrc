@@ -1,7 +1,7 @@
-﻿; *** Inno Setup version 6.1.0+ Galician messages ***
+; *** Inno Setup version 6.4.0+ Galician messages ***
 ;
-; Maintained by: Julio Mojon Fuentes
-; (juliomf AT edu.xunta.gal)
+; Originally translated by: Julio Mojon Fuentes (juliomf AT edu.xunta.gal)
+; Updated to version 6.4.0+ by: Lorena García (theca11.dev AT gmail.com)
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -205,6 +205,13 @@ ErrorFileHash1=Non se puido calcular o hash do arquivo: %1
 ErrorFileHash2=Hash do arquivo inválido: esperado %1, atopado %2
 ErrorProgress=Progreso inválido: %1 de %2
 ErrorFileSize=Tamaño de arquivo inválido: esperado %1, atopado %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extraendo arquivos adicionais...
+ButtonStopExtraction=&Parar a extracción
+StopExtraction=Estás seguro de que queres deter a extracción?
+ErrorExtractionAborted=Extracción abortada
+ErrorExtractionFailed=Fallou a extracción: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=A prepararse para instalar
