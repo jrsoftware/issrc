@@ -1,4 +1,4 @@
-unit Shared.CompilerInt;
+unit Shared.CompilerInt.Struct;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit Shared.CompilerInt;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler interface
+  Compiler interface records and other types
 }
 
 interface
@@ -159,19 +159,6 @@ type
     Version: PAnsiChar;    { Version number text }
     BinVersion: Cardinal;  { Version number as an integer }
   end;
-
-const
-  ISCmplrDLL = 'ISCmplr.dll';
-
-{ The ISDllCompileScript function begins compilation of a script. See the above
-  description of the TCompileScriptParams record. Return value is one of the
-  isce* constants. }
-function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
-  stdcall; external ISCmplrDLL name 'ISDllCompileScriptW';
-
-{ The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which
-  contains information about the compiler version. }
-function ISDllGetVersion: PCompilerVersionInfo; stdcall; external ISCmplrDLL;
 
 implementation
 
