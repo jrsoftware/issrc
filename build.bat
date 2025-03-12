@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2024 Jordan Russell
+rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -19,7 +19,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.4.2-dev
+set VER=6.4.2
 
 echo Building Inno Setup %VER%...
 echo.
