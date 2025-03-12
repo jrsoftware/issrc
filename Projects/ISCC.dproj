@@ -77,8 +77,10 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\TrustFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
         <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>

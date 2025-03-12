@@ -17,16 +17,38 @@ uses
 const
   ISCmplrDLL = 'ISCmplr.dll';
 
+var
+  ISCmplrLibary: HMODULE;
+
 { The ISDllCompileScript function begins compilation of a script. See the above
   description of the TCompileScriptParams record. Return value is one of the
   isce* constants. }
-function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;
-  stdcall; external ISCmplrDLL name 'ISDllCompileScriptW';
+  ISDllCompileScript: function(const Params: TCompileScriptParamsEx): Integer; stdcall;
 
 { The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which
   contains information about the compiler version. }
-function ISDllGetVersion: PCompilerVersionInfo; stdcall; external ISCmplrDLL;
+  ISDllGetVersion: function: PCompilerVersionInfo; stdcall;
 
 implementation
 
+uses
+  Windows,
+  SysUtils,
+  PathFunc, TrustFunc;
+
+initialization
+  var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
+  if TrustedFile(FileName) then begin
+    ISCmplrLibary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+    if ISCmplrLibary <> 0 then begin
+      ISDllCompileScript := GetProcAddress(ISCmplrLibary, 'ISDllCompileScriptW');
+      ISDllGetVersion := GetProcAddress(ISCmplrLibary, 'ISDllGetVersion');
+      if not Assigned(ISDllCompileScript) or not Assigned(ISDllGetVersion) then begin
+        FreeLibrary(ISCmplrLibary);
+        ISCmplrLibary := 0;
+        ISDllCompileScript := nil;
+        ISDllGetVersion := nil;
+      end;
+    end;
+  end;
 end.

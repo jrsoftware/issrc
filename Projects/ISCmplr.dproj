@@ -79,7 +79,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\Compiler.Compile.pas"/>
         <DCCReference Include="Src\Compiler.SetupCompiler.pas"/>

@@ -15,12 +15,14 @@ uses
   SysUtils,
   Forms,
   PathFunc in '..\Components\PathFunc.pas',
+  TrustFunc in '..\Components\TrustFunc.pas',
   IDE.MainForm in 'Src\IDE.MainForm.pas' {MainForm},
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
   IDE.StartupForm in 'Src\IDE.StartupForm.pas' {StartupForm},
   IDE.Wizard.WizardForm in 'Src\IDE.Wizard.WizardForm.pas' {WizardForm},
@@ -200,6 +202,13 @@ begin
 end;
 
 begin
+  {$IFNDEF STATICCOMPILER}
+  if ISCmplrLibary = 0 then begin
+    MessageBox(0, PChar(Format('Could not load %s.', [ISCmplrDLL])), nil, MB_OK or MB_ICONSTOP);
+    Halt(3);
+  end;
+  {$ENDIF}
+
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;
   {$ENDIF}
