@@ -52,6 +52,12 @@ call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 
+call .\sign.bat files\iscmplr.dll
+powershell.exe -Command "Write-Host -NoNewline 'ISCmplr.dll SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path files\iscmplr.dll).Hash.ToLower()"
+echo Simpletrustfunc first run: put this hash in TrustFunc.pas, save current ISCmplr.dll and abort+restart build
+echo Simpletrustfunc second run: replace current ISCmplr.dll with saved
+pause
+
 cd ishelp
 if errorlevel 1 goto failed
 call .\compile.bat

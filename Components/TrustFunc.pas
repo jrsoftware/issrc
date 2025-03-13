@@ -39,7 +39,7 @@ begin
 {$IFNDEF TRUSTALL}
   try
     var Hash := GetSHA256OfFileAsString(FileName);
-    Result := (Hash = 'todo') or //ISCmplr.dll
+    Result := (Hash = '363b1d094b0ee65683f925d69453abd5c09ecb2089b5928784b0d2bf97206550') or //ISCmplr.dll
               (Hash = '062c808fab6f6f948652fd5708ccca4b4b91c33b8a66af1c3c6da5cdd94f113c');   //isscint.dll
   except
     Result := False;
