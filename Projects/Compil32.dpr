@@ -209,6 +209,11 @@ begin
   end;
   {$ENDIF}
 
+  if IsscintLibary = 0 then begin
+    MessageBox(0, PChar(Format('Could not load %s.', [IsscintDLL])), nil, MB_OK or MB_ICONSTOP);
+    Halt(4);
+  end;
+
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;
   {$ENDIF}

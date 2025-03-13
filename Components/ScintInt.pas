@@ -1346,15 +1346,19 @@ type
   SciFnDirectStatus = function(ptr: Pointer; iMessage: Cardinal;
     wParam: WPARAM; lParam: LPARAM; var Status: Integer): LRESULT; cdecl;
 
+const
+  IsscintDLL = 'isscint.dll';
+
 var
   IsscintLibary: HMODULE;
 
 implementation
 
 uses
-  PathFunc;
+  PathFunc, TrustFunc;
 
 initialization
-  IsscintLibary := LoadLibrary(PChar(AddBackslash(PathExtractPath(ParamStr(0))) + 'isscint.dll'));
-
+  var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
+  if TrustedFile(FileName) then
+    IsscintLibary := LoadLibrary(PChar(FileName));
 end.
