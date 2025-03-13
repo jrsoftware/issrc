@@ -19,33 +19,31 @@ implementation
 
 {$IFNDEF TRUSTALL}
 uses
-  Winapi.Windows;
+  SysUtils, Classes, Hash;
+
+function GetSHA256OfFileAsString(const FileName: String): String;
+begin
+  var FileStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    var Hash := THashSHA2.Create;
+    var HashBytes := Hash.GetHashBytes(FileStream);
+    Result := THash.DigestAsString(HashBytes);
+  finally
+    FileStream.Free;
+  end;
+end;
 {$ENDIF}
 
 function TrustedFile(const FileName: string): Boolean;
 begin
 {$IFNDEF TRUSTALL}
-  var FileInfo: TWinTrustFileInfo;
-  ZeroMemory(@FileInfo, SizeOf(FileInfo));
-  FileInfo.cbStruct := SizeOf(FileInfo);
-  FileInfo.pcwszFilePath := PChar(FileName);
-
-  var WinTrustData: TWinTrustData;
-  ZeroMemory(@WinTrustData, SizeOf(WinTrustData));
-  WinTrustData.cbStruct := SizeOf(WinTrustData);
-  WinTrustData.dwUIChoice := WTD_UI_NONE;
-  WinTrustData.fdwRevocationChecks := WTD_REVOKE_NONE;
-  WinTrustData.dwUnionChoice := WTD_CHOICE_FILE;
-  WinTrustData.pFile := @FileInfo;
-  WinTrustData.dwStateAction := WTD_STATEACTION_VERIFY;
-  WinTrustData.dwProvFlags := WTD_REVOCATION_CHECK_NONE;
-
-  var PolicyGUID := WINTRUST_ACTION_GENERIC_VERIFY_V2;
-
-  Result := WinVerifyTrust(0, PolicyGUID, @WinTrustData) = 0;
-
-  WinTrustData.dwStateAction := WTD_STATEACTION_CLOSE;
-  WinVerifyTrust(0, PolicyGUID, @WinTrustData);
+  try
+    var Hash := GetSHA256OfFileAsString(FileName);
+    Result := (Hash = 'todo') or //ISCmplr.dll
+              (Hash = '062c808fab6f6f948652fd5708ccca4b4b91c33b8a66af1c3c6da5cdd94f113c');   //isscint.dll
+  except
+    Result := False;
+  end;
 {$ELSE}
   Result := True;
 {$ENDIF}
