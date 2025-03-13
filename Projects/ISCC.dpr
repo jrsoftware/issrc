@@ -561,7 +561,7 @@ begin
   end;
 
   {$IFNDEF STATICCOMPILER}
-  if ISCmplrLibary = 0 then begin
+  if ISCmplrLibrary = 0 then begin
     WriteStdErr(Format('Could not load %s.', [ISCmplrDLL]), True);
     Halt(1);
   end;

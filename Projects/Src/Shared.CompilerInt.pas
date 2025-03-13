@@ -18,7 +18,7 @@ const
   ISCmplrDLL = 'ISCmplr.dll';
 
 var
-  ISCmplrLibary: HMODULE;
+  ISCmplrLibrary: HMODULE;
 
 { The ISDllCompileScript function begins compilation of a script. See the above
   description of the TCompileScriptParams record. Return value is one of the
@@ -39,13 +39,13 @@ uses
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
   if TrustedFile(FileName) then begin
-    ISCmplrLibary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
-    if ISCmplrLibary <> 0 then begin
-      ISDllCompileScript := GetProcAddress(ISCmplrLibary, 'ISDllCompileScriptW');
-      ISDllGetVersion := GetProcAddress(ISCmplrLibary, 'ISDllGetVersion');
+    ISCmplrLibrary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+    if ISCmplrLibrary <> 0 then begin
+      ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
+      ISDllGetVersion := GetProcAddress(ISCmplrLibrary, 'ISDllGetVersion');
       if not Assigned(ISDllCompileScript) or not Assigned(ISDllGetVersion) then begin
-        FreeLibrary(ISCmplrLibary);
-        ISCmplrLibary := 0;
+        FreeLibrary(ISCmplrLibrary);
+        ISCmplrLibrary := 0;
         ISDllCompileScript := nil;
         ISDllGetVersion := nil;
       end;

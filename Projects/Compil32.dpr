@@ -203,7 +203,7 @@ end;
 
 begin
   {$IFNDEF STATICCOMPILER}
-  if ISCmplrLibary = 0 then begin
+  if ISCmplrLibrary = 0 then begin
     MessageBox(0, PChar(Format('Could not load %s.', [ISCmplrDLL])), nil, MB_OK or MB_ICONSTOP);
     Halt(3);
   end;
