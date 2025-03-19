@@ -37,7 +37,17 @@
         text-underline-offset: 2px;
         transition: all 0.2s ease-in-out;
     }
-    tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
+    tt,
+    pre {
+        font-family: "SF Mono", "Menlo", monospace;
+        font-size: calc(13 / 16 * 1rem); 
+        line-height: calc(21 / 16); 
+        color: inherit;
+        background-color: #f0f0f0;
+        padding: 0.25rem 0.5rem; 
+        border-radius: 0.25rem;
+        white-space: pre-wrap; 
+    }
     pre          { line-height: normal; padding: 10px; border-radius: 6px }
     li, div.limargins { margin-top: 5px; margin-bottom: 5px }
     div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
