@@ -12,7 +12,24 @@
         color: #282828;
         background-color: #ffffff;
     }    
-    a:link, a:visited { color: hsl(206, 100%, 37%); background-color: transparent; text-decoration: none }
+    a:link,
+    a:visited {
+        color: hsl(206, 100%, 37%); 
+        background-color: transparent;
+        text-decoration: none;
+        transition: color 0.2s ease-in-out;
+    }
+    
+
+    a:hover {
+        color: hsl(206, 100%, 45%);
+    }
+    
+
+    a:focus {
+        outline: 2px solid hsl(206, 100%, 37%);
+        outline-offset: 2px;
+    }
     a[href]:hover { color: hsl(206, 100%, 30%); text-decoration: underline }
     tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
     pre          { line-height: normal; padding: 10px; border-radius: 6px }
