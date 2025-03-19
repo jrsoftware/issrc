@@ -5,17 +5,194 @@
 <title>Inno Setup 6 Revision History</title>
 <base href="https://jrsoftware.org/" />
 <style type="text/css">
-    body         { font: calc(14rem/16)/1.5 "Segoe UI", sans-serif; color: #282828; background-color: white }
-    a:link, a:visited { color: hsl(206, 100%, 37%); background-color: transparent; text-decoration: none }
-    a[href]:hover { color: hsl(206, 100%, 30%); text-decoration: underline }
-    tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
-    pre          { line-height: normal; padding: 10px; border-radius: 6px }
-    li, div.limargins { margin-top: 5px; margin-bottom: 5px }
-    div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
-    .date        { font-size: calc(11rem/16); font-weight: bold }
-    .head1       { font-size: calc(32rem/16) }
-    .head2       { font-size: calc(20rem/16) }
-    .ver         { font-size: calc(20rem/16); font-weight: bold }
+   body {
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+    color: #282828;
+    background-color: white;
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 25px;
+    font-size: 16px;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a:link, a:visited {
+    color: hsl(206, 100%, 37%);
+    background-color: transparent;
+    text-decoration: none;
+    transition: color 0.15s ease, text-decoration 0.15s ease;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+}
+
+a[href]:hover {
+    color: hsl(206, 100%, 30%);
+    border-bottom-color: currentColor;
+    text-decoration: none;
+}
+
+tt, pre {
+    font-family: "Consolas", "Menlo", "Monaco", "Courier New", monospace;
+    color: inherit;
+    background-color: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    letter-spacing: -0.01em;
+}
+
+pre {
+    line-height: 1.5;
+    padding: 15px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+    margin: 16px 0;
+}
+
+li, div.limargins {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+ul {
+    padding-left: 28px;
+    margin: 14px 0;
+}
+
+ul ul {
+    margin: 10px 0;
+}
+
+div.bluehead {
+    text-align: center;
+    color: white;
+    background-color: hsl(206, 100%, 30%);
+    padding: 24px 20px;
+    font-weight: bold;
+    line-height: normal;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+.date {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #555;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.head1 {
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+    display: block;
+    letter-spacing: -0.02em;
+}
+
+.head2 {
+    font-size: 1.3rem;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    display: block;
+    font-weight: bold;
+    letter-spacing: -0.01em;
+}
+
+.ver {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: hsl(206, 100%, 30%);
+    letter-spacing: -0.01em;
+}
+
+p {
+    margin: 0 0 16px 0;
+}
+
+a[name] {
+    display: block;
+    position: relative;
+    top: -25px;
+    visibility: hidden;
+}
+
+p[class*="ver"] {
+    border-top: 1px solid #eee;
+    padding-top: 25px;
+    margin-top: 35px;
+}
+
+p[class*="ver"]:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+ul + p {
+    margin-top: 24px;
+}
+
+ul ul {
+    margin-left: 8px;
+}
+
+li i {
+    color: #555;
+    font-style: italic;
+    font-weight: 500;
+}
+
+a[href^="#"] {
+    text-decoration: none;
+}
+
+body > p:last-of-type {
+    margin-top: 35px;
+    padding-top: 22px;
+    border-top: 1px solid #eee;
+}
+
+i {
+    color: #444;
+}
+
+p:empty {
+    display: none;
+}
+
+ul + ul {
+    margin-top: -5px;
+}
+
+[href$=".txt"],
+[href$=".php"],
+[href$=".htm"] {
+    font-weight: 500;
+}
+
+[href^="https"]::after {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z' fill='%230366d6'/%3E%3C/svg%3E");
+    background-size: contain;
+    margin-left: 5px;
+    opacity: 0.7;
+}
+
+:target {
+    animation: target-highlight 2s ease;
+}
+
+@keyframes target-highlight {
+    0% { background-color: rgba(255, 255, 140, 0.7); }
+    100% { background-color: transparent; }
+}
 </style>
 </head>
 <body>
