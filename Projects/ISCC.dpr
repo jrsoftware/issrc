@@ -649,6 +649,12 @@ begin
     Halt(ExitCode);
 end;
 
+function ISPPInstalled: Boolean;
+begin
+  var Filename := PathExtractPath(NewParamStr(0)) + 'ISPP.dll';
+  Result := NewFileExists(Filename) and TrustedFile(Filename);
+end;
+
 begin
   SignTools := TStringList.Create;
   try
@@ -659,7 +665,7 @@ begin
     StdErrHandleIsConsole := GetConsoleMode(StdErrHandle, Mode);
     SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
     try
-      IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
+      IsppMode := ISPPInstalled;
       ProcessCommandLine;
       Go;
     except

@@ -1,4 +1,4 @@
-unit IDE.HelperFunc;
+﻿unit IDE.HelperFunc;
 
 {
   Inno Setup
@@ -85,7 +85,7 @@ implementation
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
+  TrustFunc, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
@@ -233,7 +233,8 @@ end;
 
 function ISPPInstalled: Boolean;
 begin
-  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+  var Filename := PathExtractPath(NewParamStr(0)) + 'ISPP.dll';
+  Result := NewFileExists(Filename) and TrustedFile(Filename);
 end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;
