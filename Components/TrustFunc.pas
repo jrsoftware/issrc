@@ -40,7 +40,8 @@ begin
   try
     var Hash := GetSHA256OfFileAsString(FileName);
     Result := (Hash = '363b1d094b0ee65683f925d69453abd5c09ecb2089b5928784b0d2bf97206550') or //ISCmplr.dll
-              (Hash = '5ae5dcd47ae9cd0929e0d6b2591e2ecc14cb8dfe4e04fb37a6cef5f1896edd11');   //isscint.dll
+              (Hash = '5ae5dcd47ae9cd0929e0d6b2591e2ecc14cb8dfe4e04fb37a6cef5f1896edd11') or //isscint.dll
+              (Hash = 'todo') //ISPP.dll
   except
     Result := False;
   end;
