@@ -291,7 +291,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
@@ -518,10 +518,8 @@ begin
 {$IFNDEF STATICPREPROC}
   Filename := CompilerDir + 'ISPP.dll';
   Attr := GetFileAttributes(PChar(Filename));
-  if (Attr = $FFFFFFFF) and (GetLastError = ERROR_FILE_NOT_FOUND) then begin
-    { ISPP unavailable; fall back to built-in preprocessor }
-  end
-  else begin
+  if not ((Attr = $FFFFFFFF) and (GetLastError = ERROR_FILE_NOT_FOUND)) and
+     TrustedFile(Filename) then begin
     M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
       AbortCompileFmt('Failed to load preprocessor DLL "%s" (%d)',
@@ -529,7 +527,7 @@ begin
     PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
       AbortCompileFmt('Failed to get address of functions in "%s"', [Filename]);
-  end;
+  end; { else ISPP unavailable; fall back to built-in preprocessor }
 {$ELSE}
   PreprocessScriptProc := ISPreprocessScript;
 {$ENDIF}
