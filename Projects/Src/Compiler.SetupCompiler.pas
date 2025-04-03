@@ -506,21 +506,13 @@ begin
 end;
 
 procedure TSetupCompiler.InitPreprocessor;
-{$IFNDEF STATICPREPROC}
-var
-  Filename: String;
-  Attr: DWORD;
-  M: HMODULE;
-{$ENDIF}
 begin
   if PreprocessorInitialized then
     Exit;
 {$IFNDEF STATICPREPROC}
-  Filename := CompilerDir + 'ISPP.dll';
-  Attr := GetFileAttributes(PChar(Filename));
-  if not ((Attr = $FFFFFFFF) and (GetLastError = ERROR_FILE_NOT_FOUND)) and
-     TrustedFile(Filename) then begin
-    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+  var Filename := CompilerDir + 'ISPP.dll';
+  if NewFileExists(Filename) and TrustedFile(Filename) then begin
+    var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
       AbortCompileFmt('Failed to load preprocessor DLL "%s" (%d)',
         [Filename, GetLastError]);
