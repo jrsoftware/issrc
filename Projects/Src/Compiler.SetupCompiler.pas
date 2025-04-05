@@ -518,7 +518,7 @@ begin
 {$IFNDEF STATICPREPROC}
   Filename := CompilerDir + 'ISPP.dll';
   Attr := GetFileAttributes(PChar(Filename));
-  if (Attr = $FFFFFFFF) and (GetLastError = ERROR_FILE_NOT_FOUND) then begin
+  if (Attr = INVALID_FILE_ATTRIBUTES) and (GetLastError = ERROR_FILE_NOT_FOUND) then begin
     { ISPP unavailable; fall back to built-in preprocessor }
   end
   else begin

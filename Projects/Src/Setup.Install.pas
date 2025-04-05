@@ -300,7 +300,7 @@ var
 begin
   if Attribs <> 0 then begin
     ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
-    if ExistingAttr <> $FFFFFFFF then
+    if ExistingAttr <> INVALID_FILE_ATTRIBUTES then
       SetFileAttributesRedir(DisableFsRedir, Filename,
         (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
   end;
@@ -994,7 +994,7 @@ var
     begin
       if PermsEntry <> -1 then begin
         Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
-        if (Attr <> $FFFFFFFF) and (Attr and FILE_ATTRIBUTE_DIRECTORY = 0) then begin
+        if (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and FILE_ATTRIBUTE_DIRECTORY = 0) then begin
           LogFmt('Setting permissions on file: %s', [Filename]);
           P := Entries[sePermission][PermsEntry];
           if not GrantPermissionOnFile(DisableFsRedir, Filename,
@@ -1075,7 +1075,6 @@ var
     DestFileExists, DestFileExistedBefore, CheckedDestFileExistedBefore,
       TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart, DoBreak,
       DoContinue: Boolean;
-    ExistingFileAttr: Integer;
     Failed: String;
     CurFileVersionInfoValid: Boolean;
     CurFileVersionInfo, ExistingVersionInfo: TFileVersionNumbers;
@@ -1363,8 +1362,8 @@ var
 
           { Check if existing file is read-only }
           while True do begin
-            ExistingFileAttr := GetFileAttributesRedir(DisableFsRedir, DestFile);
-            if (ExistingFileAttr <> -1) and
+            var ExistingFileAttr := GetFileAttributesRedir(DisableFsRedir, DestFile);
+            if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
                (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then begin
               if not(foOverwriteReadOnly in CurFile^.Options) and
                  AbortRetryIgnoreTaskDialogMsgBox(
@@ -1953,7 +1952,7 @@ var
       DesktopIniFilename, S: String;
     begin
       Attr := GetFileAttributes(PChar(Dir));
-      if (Attr <> $FFFFFFFF) and (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) then begin
+      if (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) then begin
         { To be sure this is really a folder shortcut and not a regular folder,
           look for a desktop.ini file specifying CLSID_FolderShortcut }
         DesktopIniFilename := PathCombine(Dir, 'desktop.ini');

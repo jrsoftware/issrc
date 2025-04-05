@@ -170,7 +170,7 @@ begin
     current directory as us }
   Filename := PathExpand(Filename);
   Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
-  if Attr = $FFFFFFFF then begin
+  if Attr = INVALID_FILE_ATTRIBUTES then begin
     Result := False;
     Exit;
   end;
