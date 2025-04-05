@@ -233,8 +233,7 @@ end;
 
 function ISPPInstalled: Boolean;
 begin
-  var Filename := PathExtractPath(NewParamStr(0)) + 'ISPP.dll';
-  Result := NewFileExists(Filename) and TrustedFile(Filename);
+  Result := TrustedFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
 end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;

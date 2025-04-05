@@ -38,7 +38,7 @@ uses
 
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
-  if TrustedFile(FileName) then begin
+  if TrustedFileExists(FileName) then begin
     ISCmplrLibrary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
     if ISCmplrLibrary <> 0 then begin
       ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
