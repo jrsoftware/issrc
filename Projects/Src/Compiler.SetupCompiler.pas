@@ -511,14 +511,13 @@ begin
     Exit;
 {$IFNDEF STATICPREPROC}
   var Filename := CompilerDir + 'ISPP.dll';
-  if NewFileExists(Filename) and TrustedFile(Filename) then begin
+  if TrustedFileExists(Filename) then begin
     var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
-      AbortCompileFmt('Failed to load preprocessor DLL "%s" (%d)',
-        [Filename, GetLastError]);
+      AbortCompileFmt('Failed to load ISPP.dll (%d)', [GetLastError]);
     PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
-      AbortCompileFmt('Failed to get address of functions in "%s"', [Filename]);
+      AbortCompile('Failed to get address of functions in ISPP.dll');
   end; { else ISPP unavailable; fall back to built-in preprocessor }
 {$ELSE}
   PreprocessScriptProc := ISPreprocessScript;
@@ -532,11 +531,15 @@ var
 begin
   if ZipInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'iszlib.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load iszlib.dll (%d)', [GetLastError]);
-  if not ZlibInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in iszlib.dll');
+  var Filename := CompilerDir + 'iszlib.dll';
+  if TrustedFileExists(Filename) then begin
+    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    if M = 0 then
+      AbortCompileFmt('Failed to load iszlib.dll (%d)', [GetLastError]);
+    if not ZlibInitCompressFunctions(M) then
+      AbortCompile('Failed to get address of functions in iszlib.dll');
+  end else
+    AbortCompile('Failed to load iszlib.dll (not trusted)');
   ZipInitialized := True;
 end;
 
@@ -546,11 +549,15 @@ var
 begin
   if BzipInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'isbzip.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load isbzip.dll (%d)', [GetLastError]);
-  if not BZInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in isbzip.dll');
+  var Filename := CompilerDir + 'isbzip.dll';
+  if TrustedFileExists(Filename) then begin
+    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    if M = 0 then
+      AbortCompileFmt('Failed to load isbzip.dll (%d)', [GetLastError]);
+    if not BZInitCompressFunctions(M) then
+      AbortCompile('Failed to get address of functions in isbzip.dll');
+  end else
+    AbortCompile('Failed to load isbzip.dll (not trusted)');
   BzipInitialized := True;
 end;
 
@@ -560,11 +567,15 @@ var
 begin
   if LZMAInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'islzma.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load islzma.dll (%d)', [GetLastError]);
-  if not LZMAInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in islzma.dll');
+  var Filename := CompilerDir + 'islzma.dll';
+  if TrustedFileExists(Filename) then begin
+    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    if M = 0 then
+      AbortCompileFmt('Failed to load islzma.dll (%d)', [GetLastError]);
+    if not LZMAInitCompressFunctions(M) then
+      AbortCompile('Failed to get address of functions in islzma.dll');
+  end else
+    AbortCompile('Failed to load islzma.dll (not trusted)');
   LZMAInitialized := True;
 end;
 

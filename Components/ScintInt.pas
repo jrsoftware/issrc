@@ -1366,6 +1366,6 @@ uses
 
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  if TrustedFile(FileName) then
+  if TrustedFileExists(FileName) then
     IsscintLibary := LoadLibrary(PChar(FileName));
 end.

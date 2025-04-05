@@ -13,16 +13,14 @@ unit TrustFunc;
 
 interface
 
-function TrustedFile(const FileName: string): Boolean;
+function TrustedFileExists(const FileName: String): Boolean;
 
 implementation
 
-{$IFNDEF TRUSTALL}
 uses
-  Winapi.Windows;
-{$ENDIF}
+  Winapi.Windows {$IFDEF TRUSTALL}, System.SysUtils {$ENDIF};
 
-function TrustedFile(const FileName: string): Boolean;
+function TrustedFileExists(const FileName: String): Boolean;
 begin
 {$IFNDEF TRUSTALL}
   var FileInfo: TWinTrustFileInfo;
@@ -47,7 +45,8 @@ begin
   WinTrustData.dwStateAction := WTD_STATEACTION_CLOSE;
   WinVerifyTrust(0, PolicyGUID, @WinTrustData);
 {$ELSE}
-  Result := True;
+  var Attr := GetFileAttributes(PChar(FileName));
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
 {$ENDIF}
 end;
 
