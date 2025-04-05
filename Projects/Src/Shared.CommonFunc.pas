@@ -194,7 +194,7 @@ function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
   external shell32 name 'SHGetPathFromIDListW';
 
 
-function InternalGetFileAttr(const Name: String): Integer;
+function InternalGetFileAttr(const Name: String): DWORD;
 begin
   Result := GetFileAttributes(PChar(RemoveBackslashUnlessRoot(Name)));
 end;
@@ -205,11 +205,9 @@ function NewFileExists(const Name: String): Boolean;
   on files in directories that don't have "list" permission. There is, however,
   one other difference: FileExists allows wildcards, but this function does
   not. }
-var
-  Attr: Integer;
 begin
-  Attr := GetFileAttributes(PChar(Name));
-  Result := (Attr <> -1) and (Attr and faDirectory = 0);
+  var Attr := GetFileAttributes(PChar(Name));
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
 end;
 
 function DirExists(const Name: String): Boolean;
@@ -218,18 +216,16 @@ function DirExists(const Name: String): Boolean;
   NOTE: Delphi's FileCtrl unit has a similar function called DirectoryExists.
   However, the implementation is different between Delphi 1 and 2. (Delphi 1
   does not count hidden or system directories as existing.) }
-var
-  Attr: Integer;
 begin
-  Attr := InternalGetFileAttr(Name);
-  Result := (Attr <> -1) and (Attr and faDirectory <> 0);
+  var Attr := InternalGetFileAttr(Name);
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory <> 0);
 end;
 
 function FileOrDirExists(const Name: String): Boolean;
 { Returns True if the specified directory or file name exists. The specified
   name may include a trailing backslash. }
 begin
-  Result := InternalGetFileAttr(Name) <> -1;
+  Result := InternalGetFileAttr(Name) <> INVALID_FILE_ATTRIBUTES;
 end;
 
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
@@ -240,7 +236,7 @@ var
   Attr: DWORD;
 begin
   Attr := GetFileAttributes(PChar(Name));
-  Result := (Attr <> $FFFFFFFF) and
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and
     (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) and
     (Attr and FILE_ATTRIBUTE_REPARSE_POINT = 0);
 end;

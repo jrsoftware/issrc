@@ -272,7 +272,7 @@ var
 begin
   Attribs := GetFileAttributesRedir(DisableFsRedir, DirName);
   { Does the directory exist? }
-  if (Attribs <> $FFFFFFFF) and
+  if (Attribs <> INVALID_FILE_ATTRIBUTES) and
      (Attribs and FILE_ATTRIBUTE_DIRECTORY <> 0) then begin
     LogFmt('Deleting directory: %s', [DirName]);
     { If the directory has the read-only attribute, strip it first }
@@ -592,7 +592,7 @@ var
       LogFmt('Deleting file: %s', [FileName]);
       if RemoveReadOnly then begin
         ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
-        if (ExistingAttr <> $FFFFFFFF) and
+        if (ExistingAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingAttr and FILE_ATTRIBUTE_READONLY <> 0) then
           if SetFileAttributesRedir(DisableFsRedir, Filename,
              ExistingAttr and not FILE_ATTRIBUTE_READONLY) then

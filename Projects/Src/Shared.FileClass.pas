@@ -252,18 +252,21 @@ begin
     FILE_ATTRIBUTE_NORMAL, 0);
 end;
 
+const
+  INVALID_SET_FILE_POINTER = DWORD($FFFFFFFF);
+
 function TFile.GetPosition: Integer64;
 begin
   Result.Hi := 0;
   Result.Lo := SetFilePointer(FHandle, 0, @Result.Hi, FILE_CURRENT);
-  if (Result.Lo = $FFFFFFFF) and (GetLastError <> 0) then
+  if (Result.Lo = INVALID_SET_FILE_POINTER) and (GetLastError <> 0) then
     RaiseLastError;
 end;
 
 function TFile.GetSize: Integer64;
 begin
   Result.Lo := GetFileSize(FHandle, @Result.Hi);
-  if (Result.Lo = $FFFFFFFF) and (GetLastError <> 0) then
+  if (Result.Lo = INVALID_FILE_SIZE) and (GetLastError <> 0) then
     RaiseLastError;
 end;
 
@@ -277,7 +280,7 @@ end;
 procedure TFile.Seek64(Offset: Integer64);
 begin
   if (SetFilePointer(FHandle, Integer(Offset.Lo), @Offset.Hi,
-      FILE_BEGIN) = $FFFFFFFF) and (GetLastError <> 0) then
+      FILE_BEGIN) = INVALID_SET_FILE_POINTER) and (GetLastError <> 0) then
     RaiseLastError;
 end;
 
@@ -286,7 +289,7 @@ var
   DistanceHigh: Integer;
 begin
   DistanceHigh := 0;
-  if (SetFilePointer(FHandle, 0, @DistanceHigh, FILE_END) = $FFFFFFFF) and
+  if (SetFilePointer(FHandle, 0, @DistanceHigh, FILE_END) = INVALID_SET_FILE_POINTER) and
      (GetLastError <> 0) then
     RaiseLastError;
 end;

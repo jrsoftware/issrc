@@ -300,7 +300,7 @@ var
   ErrorCode: DWORD;
 begin
   if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := $FFFFFFFF;
+    Result := INVALID_FILE_ATTRIBUTES;
     Exit;
   end;
   try
