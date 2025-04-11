@@ -17,16 +17,19 @@ uses
 type
   TECDSAInt256 = array[0..31] of Byte;
   TECDSAPublicKey = packed record
-    Public_X: TECDSAInt256;
-    Public_Y: TECDSAInt256;
+    Public_x: TECDSAInt256;
+    Public_y: TECDSAInt256;
+    procedure Clear;
   end;
   TECDSAPrivateKey = packed record
     PublicKey: TECDSAPublicKey;
     Private_d: TECDSAInt256;
+    procedure Clear;
   end;
   TECDSASignature = packed record
     Sig_r: TECDSAInt256;
     Sig_s: TECDSAInt256;
+    procedure Clear;
   end;
 
   TECDSAKey = class
@@ -41,6 +44,7 @@ type
     destructor Destroy; override;
     procedure DestroyKey;
     procedure ExportPrivateKey(out APrivateKey: TECDSAPrivateKey);
+    procedure ExportPublicKey(out APublicKey: TECDSAPublicKey);
     procedure GenerateKeyPair;
     procedure ImportPrivateKey([ref] const APrivateKey: TECDSAPrivateKey);
     procedure ImportPublicKey([ref] const APublicKey: TECDSAPublicKey);
@@ -117,15 +121,52 @@ type
   { ECDSA-P256 key blob formats specific to BCrypt }
   TBCryptPrivateKeyBlob = record
     Header: BCRYPT_ECCKEY_BLOB;
-    Public_X: TECDSAInt256;
-    Public_Y: TECDSAInt256;
+    Public_x: TECDSAInt256;
+    Public_y: TECDSAInt256;
     Private_d: TECDSAInt256;
+    procedure Clear;
   end;
   TBCryptPublicKeyBlob = record
     Header: BCRYPT_ECCKEY_BLOB;
-    Public_X: TECDSAInt256;
-    Public_Y: TECDSAInt256;
+    Public_x: TECDSAInt256;
+    Public_y: TECDSAInt256;
+    procedure Clear;
   end;
+
+{ TBCryptPrivateKeyBlob }
+
+procedure TBCryptPrivateKeyBlob.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+end;
+
+{ TBCryptPublicKeyBlob }
+
+procedure TBCryptPublicKeyBlob.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+end;
+
+{ TECDSAPublicKey }
+
+procedure TECDSAPublicKey.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+end;
+
+{ TECDSAPrivateKey }
+
+procedure TECDSAPrivateKey.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+end;
+
+{ TECDSASignature }
+
+procedure TECDSASignature.Clear;
+begin
+  FillChar(Self, SizeOf(Self), 0);
+end;
 
 { TECDSAKey }
 
@@ -171,7 +212,7 @@ begin
   var KeyBlob: TBCryptPrivateKeyBlob;
   { Initially clear KeyBlob just to make it easier to verify that
     BCryptExportKey overwrites the entire record }
-  FillChar(KeyBlob, SizeOf(KeyBlob), 0);
+  KeyBlob.Clear;
   try
     var ResultSize: ULONG;
     CheckStatus('BCryptExportKey',
@@ -182,15 +223,44 @@ begin
       raise EECDSAError.Create('BCryptExportKey result invalid (1)');
     if KeyBlob.Header.dwMagic <> BCRYPT_ECDSA_PRIVATE_P256_MAGIC then
       raise EECDSAError.Create('BCryptExportKey result invalid (2)');
-    if KeyBlob.Header.cbKey <> 32 then
+    if KeyBlob.Header.cbKey <> SizeOf(KeyBlob.Public_x) then
       raise EECDSAError.Create('BCryptExportKey result invalid (3)');
 
-    APrivateKey.PublicKey.Public_X := KeyBlob.Public_X;
-    APrivateKey.PublicKey.Public_Y := KeyBlob.Public_Y;
+    APrivateKey.PublicKey.Public_x := KeyBlob.Public_x;
+    APrivateKey.PublicKey.Public_y := KeyBlob.Public_y;
     APrivateKey.Private_d := KeyBlob.Private_d;
   finally
     { Security: don't leave copy of private key on the stack }
-    FillChar(KeyBlob, SizeOf(KeyBlob), 0);
+    KeyBlob.Clear;
+  end;
+end;
+
+procedure TECDSAKey.ExportPublicKey(out APublicKey: TECDSAPublicKey);
+begin
+  KeyHandleRequired;
+
+  var KeyBlob: TBCryptPublicKeyBlob;
+  { Initially clear KeyBlob just to make it easier to verify that
+    BCryptExportKey overwrites the entire record }
+  KeyBlob.Clear;
+  try
+    var ResultSize: ULONG;
+    CheckStatus('BCryptExportKey',
+      BCryptExportKey(FKeyHandle, 0, BCRYPT_ECCPUBLIC_BLOB, KeyBlob,
+        SizeOf(KeyBlob), ResultSize, 0));
+
+    if ResultSize <> SizeOf(KeyBlob) then
+      raise EECDSAError.Create('BCryptExportKey result invalid (1)');
+    if KeyBlob.Header.dwMagic <> BCRYPT_ECDSA_PUBLIC_P256_MAGIC then
+      raise EECDSAError.Create('BCryptExportKey result invalid (2)');
+    if KeyBlob.Header.cbKey <> SizeOf(KeyBlob.Public_x) then
+      raise EECDSAError.Create('BCryptExportKey result invalid (3)');
+
+    APublicKey.Public_x := KeyBlob.Public_x;
+    APublicKey.Public_y := KeyBlob.Public_y;
+  finally
+    { There's no private key, but clear anyway for consistency }
+    KeyBlob.Clear;
   end;
 end;
 
@@ -218,9 +288,9 @@ begin
   var KeyBlob: TBCryptPrivateKeyBlob;
   try
     KeyBlob.Header.dwMagic := BCRYPT_ECDSA_PRIVATE_P256_MAGIC;
-    KeyBlob.Header.cbKey := 32;
-    KeyBlob.Public_X := APrivateKey.PublicKey.Public_X;
-    KeyBlob.Public_Y := APrivateKey.PublicKey.Public_Y;
+    KeyBlob.Header.cbKey := SizeOf(KeyBlob.Public_x);
+    KeyBlob.Public_x := APrivateKey.PublicKey.Public_x;
+    KeyBlob.Public_y := APrivateKey.PublicKey.Public_y;
     KeyBlob.Private_d := APrivateKey.Private_d;
 
     var LKeyHandle: BCRYPT_KEY_HANDLE;
@@ -230,7 +300,7 @@ begin
     FKeyHandle := LKeyHandle;  { assign only on success }
   finally
     { Security: don't leave copy of private key on the stack }
-    FillChar(KeyBlob, SizeOf(KeyBlob), 0);
+    KeyBlob.Clear;
   end;
 end;
 
@@ -241,9 +311,9 @@ begin
   var KeyBlob: TBCryptPublicKeyBlob;
   try
     KeyBlob.Header.dwMagic := BCRYPT_ECDSA_PUBLIC_P256_MAGIC;
-    KeyBlob.Header.cbKey := 32;
-    KeyBlob.Public_X := APublicKey.Public_X;
-    KeyBlob.Public_Y := APublicKey.Public_Y;
+    KeyBlob.Header.cbKey := SizeOf(KeyBlob.Public_x);
+    KeyBlob.Public_x := APublicKey.Public_x;
+    KeyBlob.Public_y := APublicKey.Public_y;
 
     var LKeyHandle: BCRYPT_KEY_HANDLE;
     CheckStatus('BCryptImportKeyPair',
@@ -252,7 +322,7 @@ begin
     FKeyHandle := LKeyHandle;  { assign only on success }
   finally
     { There's no private key, but clear anyway for consistency }
-    FillChar(KeyBlob, SizeOf(KeyBlob), 0);
+    KeyBlob.Clear;
   end;
 end;
 
@@ -269,11 +339,11 @@ begin
 
   { Initially clear ASignature just to make it easier to verify that
     BCryptSignHash overwrites the entire record }
-  FillChar(ASignature, SizeOf(ASignature), 0);
+  ASignature.Clear;
 
   var ResultSize: ULONG;
   CheckStatus('BCryptSignHash',
-    BCryptSignHash(FKeyHandle, nil, AHash[0], Length(AHash), ASignature,
+    BCryptSignHash(FKeyHandle, nil, AHash[0], ULONG(Length(AHash)), ASignature,
       SizeOf(ASignature), ResultSize, 0));
 
   if ResultSize <> SizeOf(ASignature) then
@@ -286,7 +356,7 @@ begin
   KeyHandleRequired;
 
   const Status = BCryptVerifySignature(FKeyHandle, nil, AHash[0],
-    Length(AHash), ASignature, SizeOf(ASignature), 0);
+    ULONG(Length(AHash)), ASignature, SizeOf(ASignature), 0);
   if Status = STATUS_INVALID_SIGNATURE then
     Result := False
   else begin
