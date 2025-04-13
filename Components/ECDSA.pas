@@ -76,46 +76,47 @@ const
 
   STATUS_INVALID_SIGNATURE = NTSTATUS($C000A000);
 
-  bcrypt = 'bcrypt.dll';
+var
+  BCryptFunctionsInitialized: BOOL;
 
-function BCryptCloseAlgorithmProvider(hAlgorithm: BCRYPT_ALG_HANDLE;
-  dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptCloseAlgorithmProvider: function(hAlgorithm: BCRYPT_ALG_HANDLE;
+    dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptDestroyKey(hKey: BCRYPT_KEY_HANDLE): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptDestroyKey: function(hKey: BCRYPT_KEY_HANDLE): NTSTATUS;
+    stdcall;
 
-function BCryptExportKey(hKey: BCRYPT_KEY_HANDLE; hExportKey: BCRYPT_KEY_HANDLE;
-  pszBlobType: LPCWSTR; var pbOutput; cbOutput: ULONG; out pcbResult: ULONG;
-  dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptExportKey: function(hKey: BCRYPT_KEY_HANDLE; hExportKey: BCRYPT_KEY_HANDLE;
+    pszBlobType: LPCWSTR; var pbOutput; cbOutput: ULONG; out pcbResult: ULONG;
+    dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptFinalizeKeyPair(hKey: BCRYPT_KEY_HANDLE; dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptFinalizeKeyPair: function(hKey: BCRYPT_KEY_HANDLE; dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptGenerateKeyPair(hAlgorithm: BCRYPT_ALG_HANDLE;
-  out phKey: BCRYPT_KEY_HANDLE; dwLength: ULONG; dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptGenerateKeyPair: function(hAlgorithm: BCRYPT_ALG_HANDLE;
+    out phKey: BCRYPT_KEY_HANDLE; dwLength: ULONG; dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptImportKeyPair(hAlgorithm: BCRYPT_ALG_HANDLE;
-  hImportKey: BCRYPT_KEY_HANDLE; pszBlobType: LPCWSTR;
-  out phKey: BCRYPT_KEY_HANDLE; const pbInput; cbInput: ULONG;
-  dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptImportKeyPair: function(hAlgorithm: BCRYPT_ALG_HANDLE;
+    hImportKey: BCRYPT_KEY_HANDLE; pszBlobType: LPCWSTR;
+    out phKey: BCRYPT_KEY_HANDLE; const pbInput; cbInput: ULONG;
+    dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptOpenAlgorithmProvider(out phAlgorithm: BCRYPT_ALG_HANDLE;
-  pszAlgId: LPCWSTR; pszImplementation: LPCWSTR; dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptOpenAlgorithmProvider: function(out phAlgorithm: BCRYPT_ALG_HANDLE;
+    pszAlgId: LPCWSTR; pszImplementation: LPCWSTR; dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptSignHash(hKey: BCRYPT_KEY_HANDLE; pPaddingInfo: Pointer;
-  const pbInput; cbInput: ULONG; var pbOutput; cbOutput: ULONG;
-  out pcbResult: ULONG; dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptSignHash: function(hKey: BCRYPT_KEY_HANDLE; pPaddingInfo: Pointer;
+    const pbInput; cbInput: ULONG; var pbOutput; cbOutput: ULONG;
+    out pcbResult: ULONG; dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
-function BCryptVerifySignature(hKey: BCRYPT_KEY_HANDLE; pPaddingInfo: Pointer;
-  const pbHash; cbHash: ULONG; const pbSignature; cbSignature: ULONG;
-  dwFlags: ULONG): NTSTATUS;
-  stdcall; external bcrypt;
+  BCryptVerifySignature: function(hKey: BCRYPT_KEY_HANDLE; pPaddingInfo: Pointer;
+    const pbHash; cbHash: ULONG; const pbSignature; cbSignature: ULONG;
+    dwFlags: ULONG): NTSTATUS;
+    stdcall;
 
 type
   { ECDSA-P256 key blob formats specific to BCrypt }
@@ -132,6 +133,45 @@ type
     Public_y: TECDSAInt256;
     procedure Clear;
   end;
+
+procedure InitBCryptFunctions;
+var
+  M: HMODULE;
+
+  procedure InitFunc(out AProc: Pointer; const AProcName: PAnsiChar);
+  begin
+    AProc := GetProcAddress(M, AProcName);
+    if not Assigned(AProc) then
+      raise EECDSAError.CreateFmt('Failed to get address of %s in bcrypt.dll',
+        [AProcName]);
+  end;
+
+var
+  SystemDir: array[0..MAX_PATH-1] of Char;
+begin
+  if BCryptFunctionsInitialized then begin
+    MemoryBarrier;
+    Exit;
+  end;
+
+  GetSystemDirectory(SystemDir, SizeOf(SystemDir) div SizeOf(SystemDir[0]));
+  M := LoadLibrary(PChar(SystemDir + '\bcrypt.dll'));
+  if M = 0 then
+    raise EECDSAError.Create('Failed to load bcrypt.dll');
+
+  InitFunc(@BCryptCloseAlgorithmProvider, 'BCryptCloseAlgorithmProvider');
+  InitFunc(@BCryptDestroyKey, 'BCryptDestroyKey');
+  InitFunc(@BCryptExportKey, 'BCryptExportKey');
+  InitFunc(@BCryptFinalizeKeyPair, 'BCryptFinalizeKeyPair');
+  InitFunc(@BCryptGenerateKeyPair, 'BCryptGenerateKeyPair');
+  InitFunc(@BCryptImportKeyPair, 'BCryptImportKeyPair');
+  InitFunc(@BCryptOpenAlgorithmProvider, 'BCryptOpenAlgorithmProvider');
+  InitFunc(@BCryptSignHash, 'BCryptSignHash');
+  InitFunc(@BCryptVerifySignature, 'BCryptVerifySignature');
+
+  MemoryBarrier;
+  BCryptFunctionsInitialized := True;
+end;
 
 { TBCryptPrivateKeyBlob }
 
@@ -173,6 +213,7 @@ end;
 constructor TECDSAKey.Create;
 begin
   inherited;
+  InitBCryptFunctions;
   var LAlgorithmHandle: BCRYPT_ALG_HANDLE;
   CheckStatus('BCryptOpenAlgorithmProvider',
     BCryptOpenAlgorithmProvider(LAlgorithmHandle, BCRYPT_ECDSA_P256_ALGORITHM,
