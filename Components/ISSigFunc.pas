@@ -176,7 +176,7 @@ begin
   if Length(AText) > ISSigTextFileLengthLimit then
     Exit(vsrMalformed);
 
-  var SS := TStringScanner.Init(AText);
+  var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
      (TextValues.Format <> 'issig-v1') or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
@@ -273,7 +273,7 @@ begin
   if Length(AText) > ISSigTextFileLengthLimit then
     Exit;
 
-  var SS := TStringScanner.Init(AText);
+  var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 16, 17, NonControlASCIICharsSet) then
     Exit;
   var HasPrivateKey := False;

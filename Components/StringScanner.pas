@@ -22,7 +22,7 @@ type
     function GetReachedEnd: Boolean;
     function GetRemainingCount: Integer;
   public
-    class function Init(const AString: String): TStringScanner; static;
+    class function Create(const AString: String): TStringScanner; static;
     function Consume(const C: Char): Boolean; overload;
     function Consume(const S: String): Boolean; overload;
     function ConsumeMulti(const C: TSysCharSet; const AMinChars: Integer = 1;
@@ -41,7 +41,7 @@ implementation
 
 { TStringScanner }
 
-class function TStringScanner.Init(const AString: String): TStringScanner;
+class function TStringScanner.Create(const AString: String): TStringScanner;
 begin
   Result.FPosition := 1;
   Result.FStr := AString;
@@ -109,7 +109,7 @@ end;
 function TStringScanner.GetRemainingCount: Integer;
 begin
   { The "<= 0" check exists to protect against OOB reads in case someone calls
-    into an instance that was never properly initialized (via Init).
+    into an instance that was never properly initialized (via Create).
     Inside TStringScanner, FStr[FPosition] must not be accessed unless
     GetRemainingCount is called first and returns a nonzero value. }
 
