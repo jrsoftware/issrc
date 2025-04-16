@@ -202,8 +202,8 @@ end;
 
 procedure ShowUsage;
 begin
-  Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filename>');
-  Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filename>');
+  Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filenames>');
+  Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filenames>');
   Writeln(ErrOutput, 'or to read generate private key:  issigtool [options] generate-private-key');
   Writeln(ErrOutput, 'Options:');
   Writeln(ErrOutput, '  --key-file=<filename> Specifies a key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
