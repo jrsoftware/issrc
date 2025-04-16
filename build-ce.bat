@@ -53,6 +53,12 @@ call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 
 echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
+echo Compiling Inno Setup done
+
+call .\issig.bat
+if errorlevel 1 goto failed
+echo ISSigTool done
+pause
 
 cd ishelp
 if errorlevel 1 goto failed

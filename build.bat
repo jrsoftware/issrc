@@ -50,7 +50,11 @@ pause
 call .\compile.bat
 if errorlevel 1 goto failed
 echo Compiling Inno Setup done
-pause
+
+call .\issig.bat
+if errorlevel 1 goto failed
+echo ISSigTool done
+paue
 
 :setup
 echo - Setup.exe
