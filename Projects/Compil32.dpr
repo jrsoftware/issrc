@@ -69,7 +69,10 @@ uses
   SHA256 in '..\Components\SHA256.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas',
-  IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule};
+  IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule},
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

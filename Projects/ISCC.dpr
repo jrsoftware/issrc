@@ -30,7 +30,11 @@ uses
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
-  Shared.Int64Em in 'Src\Shared.Int64Em.pas';
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

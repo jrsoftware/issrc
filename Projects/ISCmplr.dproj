@@ -119,6 +119,9 @@ $(PostBuildEvent)]]></PostBuildEvent>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
