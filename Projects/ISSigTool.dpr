@@ -187,9 +187,6 @@ end;
 
 procedure Go;
 begin
-  if KeyFilename = '' then
-    KeyFilename := GetEnv('ISSIGTOOL_KEY_FILE');
-
   const ArgList = TStringList.Create;
   try
     for var I := 1 to NewParamCount do
@@ -215,9 +212,12 @@ begin
     const Command = ArgList[0];
     ArgList.Delete(0);
 
-    if KeyFilename = '' then
-      RaiseFatalError('"--key-file=" option must be specified, ' +
-        'or set the ISSIGTOOL_KEY_FILE environment variable');
+    if KeyFilename = '' then begin
+      KeyFilename := GetEnv('ISSIGTOOL_KEY_FILE');
+      if KeyFilename = '' then
+        RaiseFatalError('"--key-file=" option must be specified, ' +
+          'or set the ISSIGTOOL_KEY_FILE environment variable');
+    end;
 
     if Command = 'generate-private-key' then begin
       if ArgList.Count <> 0 then
