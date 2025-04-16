@@ -73,6 +73,8 @@
         <DCC_ExeOutput>Bin</DCC_ExeOutput>
         <Debugger_HostApplication>Bin\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
+        <PostBuildEvent><![CDATA[..\Files\ISSigTool.exe sign $(OUTPUTPATH)
+$(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
