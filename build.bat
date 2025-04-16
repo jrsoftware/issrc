@@ -12,7 +12,7 @@ rem
 rem  This batch files does the following things:
 rem  -Compile ISHelpGen
 rem  -Compile ISetup*.chm
-rem  -Compile Inno Setup
+rem  -Compile Inno Setup including ISSigTool
 rem  -Create Inno Setup installer
 rem
 rem  Once done the installer can be found in Output

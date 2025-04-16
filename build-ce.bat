@@ -10,7 +10,7 @@ rem
 rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
 rem
 rem  This batch files does the following things:
-rem  -Ask the user to compile Inno Setup and ISHelpGen after clearing output first
+rem  -Ask the user to compile Inno Setup including ISSigTool and ISHelpGen after clearing output first
 rem  -Compile ISetup*.chm
 rem  -Create Inno Setup installer
 rem
@@ -34,6 +34,7 @@ call :deletefile files\iscmplr.dll
 call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
 call :deletefile files\setupldr.e32
+call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo.
@@ -47,6 +48,7 @@ call :waitforfile files\iscmplr.dll
 call :waitforfile files\ispp.dll
 call :waitforfile files\setup.e32
 call :waitforfile files\setupldr.e32
+call :waitforfile files\issigtool.exe
 call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 
 echo Found all, waiting 2 seconds more...

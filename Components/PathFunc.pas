@@ -2,7 +2,7 @@ unit PathFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -46,6 +46,8 @@ function RemoveBackslash(const S: String): String;
 function RemoveBackslashUnlessRoot(const S: String): String;
 
 implementation
+
+{$ZEROBASEDSTRINGS OFF}
 
 uses
   Windows, SysUtils;
@@ -386,7 +388,7 @@ begin
   if S = '' then
     Result := nil
   else
-    Result := PathStrPrevChar(Pointer(S), @S[Length(S)+1]);
+    Result := @S[High(S)];
 end;
 
 function PathLastDelimiter(const Delimiters, S: string): Integer;
