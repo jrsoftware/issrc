@@ -20,6 +20,11 @@ copy ..\..\Files\ISetup-dark.chm
 copy ..\..\Files\WizClassicSmallImage.bmp
 copy ..\..\whatsnew.htm
 
+del *.exp
+del *.lib
+del *.pdb
+del *.bsc
+
 echo - Synching files done
 
 if "%1"=="nopause" goto :eof
