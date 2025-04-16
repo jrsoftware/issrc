@@ -27,7 +27,8 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R *.res}
+{$R Res\ISSigTool.manifest.res}
+{$R Res\ISSigTool.versionandicon.res}
 
 var
   KeyFilename: String;
@@ -82,6 +83,8 @@ begin
     var PrivateKeyText: String;
     ISSigExportPrivateKeyText(Key, PrivateKeyText);
     ISSigSaveTextToFile(KeyFilename, PrivateKeyText);
+
+    Writeln(KeyFilename, ': OK');
   finally
     Key.Free;
   end;
@@ -100,7 +103,10 @@ begin
   end;
 
   const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
-  ISSigSaveTextToFile(AFilename + '.issig', SigText);
+  const ISSigFilename = AFilename + '.issig';
+  ISSigSaveTextToFile(ISSigFilename, SigText);
+
+   Writeln(ISSigFilename, ': OK')
 end;
 
 procedure CommandSign(const AFilenames: TStringList);
@@ -185,6 +191,25 @@ begin
   end;
 end;
 
+procedure ShowBanner;
+begin
+  Writeln('Inno Setup Command-Line Signature Tool');
+  Writeln('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
+  Writeln('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  Writeln('https://www.innosetup.com');
+  Writeln('');
+end;
+
+procedure ShowUsage;
+begin
+  Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filename>');
+  Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filename>');
+  Writeln(ErrOutput, 'or to read generate private key:  issigtool [options] generate-private-key');
+  Writeln(ErrOutput, 'Options:');
+  Writeln(ErrOutput, '  --key-file=<filename> Specifies a key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
+  Writeln(ErrOutput, '');
+end;
+
 procedure Go;
 begin
   const ArgList = TStringList.Create;
@@ -207,8 +232,10 @@ begin
       end;
     end;
 
-    if ArgList.Count = 0 then
+    if ArgList.Count = 0 then begin
+      ShowUsage;
       RaiseFatalError('Missing command argument');
+    end;
     const Command = ArgList[0];
     ArgList.Delete(0);
 
@@ -241,6 +268,7 @@ end;
 
 begin
   try
+    ShowBanner;
     Go;
   except
     Writeln(ErrOutput, 'issigtool fatal error: ', GetExceptMessage);

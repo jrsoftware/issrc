@@ -65,6 +65,11 @@ mkdir Dcu\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\Setup.dpr -DSETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
+echo - ISSigTool.dpr
+mkdir Dcu\ISSigTool.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISSigTool.dpr ISSigTool.dpr
+if errorlevel 1 goto failed
+
 echo - Renaming E32 files
 cd ..\Files
 if errorlevel 1 goto failed
