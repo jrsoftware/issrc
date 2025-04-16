@@ -33,7 +33,7 @@ rem  if multiple projects are specified on the command line.
 set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
 
 cd Projects
-if errorlevel 1 goto exit
+if errorlevel 1 goto failed
 
 echo - ISPP.dpr
 mkdir Dcu\ISPP.dpr 2>nul
@@ -78,8 +78,10 @@ if errorlevel 1 goto failed
 move Setup.exe Setup.e32
 if errorlevel 1 goto failed
 
-echo Success!
 cd ..
+if errorlevel 1 goto failed
+
+echo Success!
 goto exit
 
 :failed
