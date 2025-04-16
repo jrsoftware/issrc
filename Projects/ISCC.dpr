@@ -651,7 +651,7 @@ end;
 
 function ISPPInstalled: Boolean;
 begin
-  Result := TrustedFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
 end;
 
 begin

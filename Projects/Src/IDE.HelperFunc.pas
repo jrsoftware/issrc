@@ -85,7 +85,7 @@ implementation
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages, DwmApi, Consts,
-  TrustFunc, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
@@ -233,7 +233,7 @@ end;
 
 function ISPPInstalled: Boolean;
 begin
-  Result := TrustedFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
 end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;
