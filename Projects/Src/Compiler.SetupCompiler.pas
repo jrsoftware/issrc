@@ -511,13 +511,16 @@ begin
     Exit;
 {$IFNDEF STATICPREPROC}
   var Filename := CompilerDir + 'ISPP.dll';
-  if TrustedFileExists(Filename) then begin
-    var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
-    if M = 0 then
-      AbortCompileFmt('Failed to load ISPP.dll (%d)', [GetLastError]);
-    PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
-    if not Assigned(PreprocessScriptProc) then
-      AbortCompile('Failed to get address of functions in ISPP.dll');
+  if NewFileExists(Filename) then begin
+    if TrustedFileExists(Filename) then begin
+      var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+      if M = 0 then
+        AbortCompileFmt('Failed to load ISPP.dll (%d)', [GetLastError]);
+      PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
+      if not Assigned(PreprocessScriptProc) then
+        AbortCompile('Failed to get address of functions in ISPP.dll');
+    end else
+      AbortCompile('Failed to load ISPP.dll (not trusted)');
   end; { else ISPP unavailable; fall back to built-in preprocessor }
 {$ELSE}
   PreprocessScriptProc := ISPreprocessScript;
@@ -526,14 +529,12 @@ begin
 end;
 
 procedure TSetupCompiler.InitZipDLL;
-var
-  M: HMODULE;
 begin
   if ZipInitialized then
     Exit;
   var Filename := CompilerDir + 'iszlib.dll';
   if TrustedFileExists(Filename) then begin
-    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
       AbortCompileFmt('Failed to load iszlib.dll (%d)', [GetLastError]);
     if not ZlibInitCompressFunctions(M) then
@@ -544,14 +545,12 @@ begin
 end;
 
 procedure TSetupCompiler.InitBzipDLL;
-var
-  M: HMODULE;
 begin
   if BzipInitialized then
     Exit;
   var Filename := CompilerDir + 'isbzip.dll';
   if TrustedFileExists(Filename) then begin
-    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
       AbortCompileFmt('Failed to load isbzip.dll (%d)', [GetLastError]);
     if not BZInitCompressFunctions(M) then
@@ -562,14 +561,12 @@ begin
 end;
 
 procedure TSetupCompiler.InitLZMADLL;
-var
-  M: HMODULE;
 begin
   if LZMAInitialized then
     Exit;
   var Filename := CompilerDir + 'islzma.dll';
   if TrustedFileExists(Filename) then begin
-    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if M = 0 then
       AbortCompileFmt('Failed to load islzma.dll (%d)', [GetLastError]);
     if not LZMAInitCompressFunctions(M) then
