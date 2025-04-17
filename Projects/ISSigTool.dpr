@@ -71,6 +71,23 @@ begin
   RaiseFatalError('Unknown import key result');
 end;
 
+procedure CommandExportPublicKey(const AFilename: String);
+begin
+  const Key = TECDSAKey.Create;
+  try
+    CheckImportKeyResult(ISSigImportKeyText(Key,
+      ISSigLoadTextFromFile(KeyFilename), True));
+
+    var PublicKeyText: String;
+    ISSigExportPublicKeyText(Key, PublicKeyText);
+    ISSigSaveTextToFile(AFilename, PublicKeyText);
+
+    Writeln(AFilename, ': OK');
+  finally
+    Key.Free;
+  end;
+end;
+
 procedure CommandGeneratePrivateKey;
 begin
   if NewFileExists(KeyFilename) then
@@ -204,9 +221,10 @@ procedure ShowUsage;
 begin
   Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filenames>');
   Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filenames>');
-  Writeln(ErrOutput, 'or to generate a private key:  issigtool [options] generate-private-key');
+  Writeln(ErrOutput, 'or to export the public key:  issigtool [options] export-public-key <filename>');
+  Writeln(ErrOutput, 'or to generate a new private key:  issigtool [options] generate-private-key');
   Writeln(ErrOutput, 'Options:');
-  Writeln(ErrOutput, '  --key-file=<filename> Specifies a key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
+  Writeln(ErrOutput, '  --key-file=<filename> Specifies the private key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
   Writeln(ErrOutput, '');
 end;
 
@@ -246,17 +264,23 @@ begin
           'or set the ISSIGTOOL_KEY_FILE environment variable');
     end;
 
-    if Command = 'generate-private-key' then begin
+    if Command = 'export-public-key' then begin
+      if ArgList.Count = 0 then
+        RaiseFatalError('Missing filename argument')
+      else if ArgList.Count <> 1 then
+        RaiseFatalError('Too many arguments');
+      CommandExportPublicKey(ArgList[0]);
+    end else if Command = 'generate-private-key' then begin
       if ArgList.Count <> 0 then
         RaiseFatalError('Too many arguments');
       CommandGeneratePrivateKey;
     end else if Command = 'sign' then begin
       if ArgList.Count = 0 then
-        RaiseFatalError('Missing filename argument');
+        RaiseFatalError('Missing filename argument(s)');
       CommandSign(ArgList);
     end else if Command = 'verify' then begin
       if ArgList.Count = 0 then
-        RaiseFatalError('Missing filename argument');
+        RaiseFatalError('Missing filename argument(s)');
       if not CommandVerify(ArgList) then
         Halt(1);
     end else
