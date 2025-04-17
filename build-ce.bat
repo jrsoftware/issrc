@@ -29,6 +29,20 @@ cd /d %~dp0
 if "%1"=="setup" goto setup
 if not "%1"=="" goto failed
 
+if not exist files\issigtool.exe (
+  echo Missing ISSigTool
+  echo Now open Projects\Projects.groupproj and build ISSigTool in Release mode
+
+  echo Waiting for file...
+  call :waitforfile files\issigtool.exe
+  echo Compiling ISSigTool done
+)
+
+call .\issig.bat embed
+if errorlevel 1 goto failed
+echo ISSigTool embed done
+
+echo.
 call :deletefile files\compil32.exe
 call :deletefile files\iscc.exe
 call :deletefile files\iscmplr.dll
@@ -38,7 +52,6 @@ call :deletefile files\setupldr.e32
 call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
-echo.
 echo Clearing compilation output done
 echo Now open Projects\Projects.groupproj and build all projects in Release mode
 
@@ -60,9 +73,9 @@ if exist .\setup-presign.bat (
   call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
 )
 
-call .\issig.bat
+call .\issig.bat sign
 if errorlevel 1 goto failed
-echo ISSigTool done
+echo ISSigTool sign done
 pause
 
 cd ishelp

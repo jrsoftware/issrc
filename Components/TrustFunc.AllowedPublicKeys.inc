@@ -1,8 +1,10 @@
 { Inno Setup build: the second key in this file should be replaced by your
-  own.
+  own and this will happen automatically when using build.bat or build-ce.bat.
+  To ignore this change consider using Git's assume-unchanged or skip-worktree
+  functionality.
   
   Other builds: if you need only one key you can set AllowedPublicKey2Text To
-  an empty string. }
+  an empty string and remove the '//end' marker. }
 
 AllowedPublicKey1Text := '''
 format issig-public-key
@@ -18,4 +20,4 @@ key-id def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28
 public-x 515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097
 public-y f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61
 
-''';
+''';//end

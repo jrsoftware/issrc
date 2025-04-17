@@ -48,6 +48,17 @@ if errorlevel 1 goto failed
 echo Compiling ISetup*.chm done
 pause
 
+if not exist files\issigtool.exe (
+  echo Missing ISSigTool
+  call .\compile.bat issigtool
+  if errorlevel 1 goto failed
+  echo Compiling ISSigTool done
+)
+
+call .\issig.bat embed
+if errorlevel 1 goto failed
+echo ISSigTool embed done
+
 call .\compile.bat
 if errorlevel 1 goto failed
 echo Compiling Inno Setup done
@@ -56,10 +67,10 @@ if exist .\setup-presign.bat (
   call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
 ) 
 
-call .\issig.bat
+call .\issig.bat sign
 if errorlevel 1 goto failed
-echo ISSigTool done
-paue
+echo ISSigTool sign done
+pause
 
 :setup
 echo - Setup.exe

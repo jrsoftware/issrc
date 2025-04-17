@@ -26,6 +26,9 @@ if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
+if "%1"=="issigtool" goto issigtool
+if not "%1"=="" goto failed
+
 rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
@@ -65,17 +68,20 @@ mkdir Dcu\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\Setup.dpr -DSETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
-echo - ISSigTool.dpr
-mkdir Dcu\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISSigTool.dpr ISSigTool.dpr
-if errorlevel 1 goto failed
-
 echo - Renaming E32 files
 cd ..\Files
 if errorlevel 1 goto failed
 move SetupLdr.exe SetupLdr.e32
 if errorlevel 1 goto failed
 move Setup.exe Setup.e32
+if errorlevel 1 goto failed
+cd ..\Projects
+if errorlevel 1 goto failed
+
+:issigtool
+echo - ISSigTool.dpr
+mkdir Dcu\ISSigTool.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISSigTool.dpr ISSigTool.dpr
 if errorlevel 1 goto failed
 
 cd ..
