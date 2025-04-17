@@ -512,7 +512,7 @@ begin
 {$IFNDEF STATICPREPROC}
   var Filename := CompilerDir + 'ISPP.dll';
   if NewFileExists(Filename) then begin
-    if TrustedFileExists(Filename) then begin
+    if {$IFNDEF DEBUG} TrustedFileExists(Filename) {$ELSE} True {$ENDIF} then begin
       var M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
       if M = 0 then
         AbortCompileFmt('Failed to load ISPP.dll (%d)', [GetLastError]);

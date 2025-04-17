@@ -34,11 +34,11 @@ implementation
 uses
   Windows,
   SysUtils,
-  PathFunc, TrustFunc;
+  PathFunc {$IFNDEF DEBUG}, TrustFunc{$ENDIF};
 
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
-  if TrustedFileExists(FileName) then begin
+  if {$IFNDEF DEBUG} TrustedFileExists(FileName) {$ELSE} True {$ENDIF} then begin
     ISCmplrLibrary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
     if ISCmplrLibrary <> 0 then begin
       ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
