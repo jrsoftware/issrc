@@ -7,7 +7,8 @@ rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to prepare a release
 rem
-rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
+rem  Calls setup-sign.bat if it exists to create a signed build, otherwise creates setup.exe without signing
+rem  Signed build also require a setup-presign.bat to exist which should sign all files passed to it
 rem
 rem  This batch files does the following things:
 rem  -Ask the user to compile Inno Setup including ISSigTool and ISHelpGen after clearing output first
@@ -54,6 +55,10 @@ call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 echo Compiling Inno Setup done
+
+if exist .\setup-presign.bat (
+  call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
+)
 
 call .\issig.bat
 if errorlevel 1 goto failed
