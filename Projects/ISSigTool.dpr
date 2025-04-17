@@ -210,7 +210,7 @@ end;
 
 procedure ShowBanner;
 begin
-  Writeln('Inno Setup Command-Line Signature Tool');
+  Writeln('Inno Setup Signature Tool');
   Writeln('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
   Writeln('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
   Writeln('https://www.innosetup.com');
