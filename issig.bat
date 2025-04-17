@@ -12,14 +12,15 @@ setlocal
 cd /d %~dp0
 
 if not "%ISSIGTOOL_KEY_FILE%"=="" goto keyfilefound
-echo ISSIGTOOL_KEY_FILE is missing or incomplete. It needs to be created
-echo with the following line, adjusted for your system:
+echo ISSIGTOOL_KEY_FILE environment variable missing. It needs to be
+echo created using the following commands, adjusted for your system:
 echo.
 echo   set ISSIGTOOL_KEY_FILE=x:\path\MyKey.isprivatekey
+echo   setx ISSIGTOOL_KEY_FILE x:\path\MyKey.isprivatekey
 echo.
-echo To create this file use the following command:
+echo Once done create the key file using the following command:
 echo.
-echo   Files\ISSigTool.exe --key-file=x:\path\MyKey.isprivatekey generate-private-key
+echo   Files\ISSigTool.exe generate-private-key
 echo.
 echo Do not share the file with others!
 goto failed2
