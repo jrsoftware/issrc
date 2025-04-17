@@ -111,7 +111,7 @@ because they can function independently from Inno Setup.
 Overview
 --------
 
-Inno Setup consists of six projects:
+Inno Setup consists of seven projects:
 
 **Compil32** - This is the GUI front-end for the compiler, also known as
 the Compiler IDE. Compil32 does not do the actual compilation itself; it
@@ -135,6 +135,10 @@ performs all (un)installation-related tasks.
 **SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
+
+**ISSigTool** - This is a command-line tool which can be used to sign and verify
+any file. Compil32, ISCC, and ISCmplr use these signatures to verify the
+authenticity of a number of DLL files before loading them.
 
 How do the projects link together?
 
