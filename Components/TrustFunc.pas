@@ -27,16 +27,16 @@ begin
     try
       const AllowedPublicKey1Text = '''
 format issig-public-key
-key-id abcdef0ab475e78d6d8a259b08b1a1875d3381ea522eb6928defd15cf4d94808
-public-x acb1f30b47cab5a79e7964df28e52e893dc4d12fd2056811b20a73186576071e
-public-y 2edbc9a82bc94e1a54fe5812cba13e4b1384d46eb5fa0df52c7b80776be1bcb2
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+public-x e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d
+public-y e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650
 
 ''';
       const AllowedPublicKey2Text = '''
 format issig-public-key
-key-id c2587f3885b12463bafdadb799f23435f26c03944c1afc1716aabc6a43f2426f
-public-x f9a30c72189077370a8846015ac3ec1e9a1cf425d2996d34dc25bd4f4923dd1b
-public-y f754897b7819da5bbbc5ac568311eee922fbea492578748e07f453dc1289c532
+key-id def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28
+public-x 515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097
+public-y f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61
 
 ''';
       var Key1: TECDSAKey := nil;
