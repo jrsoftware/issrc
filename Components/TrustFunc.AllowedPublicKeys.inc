@@ -1,3 +1,9 @@
+{ Inno Setup build: the second key in this file should be replaced by your
+  own.
+  
+  Other builds: if you need only one key you can set AllowedPublicKey2Text To
+  an empty string. }
+
 AllowedPublicKey1Text := '''
 format issig-public-key
 key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38

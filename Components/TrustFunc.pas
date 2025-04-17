@@ -5,6 +5,8 @@ unit TrustFunc;
   Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
+
+  Trust support functons using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
 }
 
 {.$DEFINE TRUSTALL}
@@ -33,16 +35,24 @@ begin
         Key1 := TECDSAKey.Create;
         if ISSigImportKeyText(Key1, AllowedPublicKey1Text, False) <> ikrSuccess then
           raise Exception.Create('ISSigImportKeyText failed');
-        Key2 := TECDSAKey.Create;
-        if ISSigImportKeyText(Key2, AllowedPublicKey2Text, False) <> ikrSuccess then
-          raise Exception.Create('ISSigImportKeyText failed');
+        if AllowedPublicKey2Text <> '' then begin
+          Key2 := TECDSAKey.Create;
+          if ISSigImportKeyText(Key2, AllowedPublicKey2Text, False) <> ikrSuccess then
+            raise Exception.Create('ISSigImportKeyText failed');
+        end;
+
+        var AllowedKeys: array of TECDSAKey;
+        if Key2 <> nil then
+          AllowedKeys := [Key1, Key2]
+        else
+          AllowedKeys := [Key1];
 
         const SigFileName = FileName + '.issig';
         const SigText = ISSigLoadTextFromFile(SigFileName);
 
         var ExpectedFileSize: Int64;
         var ExpectedFileHash: TSHA256Digest;
-        if ISSigVerifySignatureText([Key1, Key2], SigText, ExpectedFileSize,
+        if ISSigVerifySignatureText(AllowedKeys, SigText, ExpectedFileSize,
            ExpectedFileHash) <> vsrSuccess then
           raise Exception.CreateFmt('Signature file "%s" is not valid',
             [SigFileName]);
