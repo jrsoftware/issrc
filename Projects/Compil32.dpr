@@ -213,7 +213,7 @@ begin
   {$ENDIF}
 
   if IsscintLibary = 0 then begin
-    MessageBox(0, PChar(Format('Could not load %s.', [IsscintDLL])), nil, MB_OK or MB_ICONSTOP);
+    MessageBox(0, PChar(Format('Could not load %s.' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF} , [IsscintDLL])), nil, MB_OK or MB_ICONSTOP);
     Halt(4);
   end;
 
