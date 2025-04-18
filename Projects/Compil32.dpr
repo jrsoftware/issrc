@@ -13,6 +13,7 @@ uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
+  StrUtils,
   Forms,
   PathFunc in '..\Components\PathFunc.pas',
   TrustFunc in '..\Components\TrustFunc.pas',
@@ -207,13 +208,15 @@ end;
 begin
   {$IFNDEF STATICCOMPILER}
   if ISCmplrLibrary = 0 then begin
-    MessageBox(0, PChar(Format('Could not load %s.', [ISCmplrDLL])), nil, MB_OK or MB_ICONSTOP);
+    MessageBox(0, PChar(Format('Could not load %s%s.',
+      [ISCmplrDLL, IfThen(ISCmplrLibraryTrustFail, ' (not trusted)', '')])), nil, MB_OK or MB_ICONSTOP);
     Halt(3);
   end;
   {$ENDIF}
 
-  if IsscintLibary = 0 then begin
-    MessageBox(0, PChar(Format('Could not load %s.' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF} , [IsscintDLL])), nil, MB_OK or MB_ICONSTOP);
+  if IsscintLibrary = 0 then begin
+    MessageBox(0, PChar(Format('Could not load %s%s.' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF} ,
+      [IsscintDLL, IfThen(IsscintLibraryTrustFail, ' (not trusted)', '')])), nil, MB_OK or MB_ICONSTOP);
     Halt(4);
   end;
 

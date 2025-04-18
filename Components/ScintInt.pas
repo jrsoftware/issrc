@@ -1357,7 +1357,8 @@ const
   IsscintDLL = 'isscint.dll';
 
 var
-  IsscintLibary: HMODULE;
+  IsscintLibrary: HMODULE;
+  IsscintLibraryTrustFail: Boolean;
 
 implementation
 
@@ -1366,6 +1367,5 @@ uses
 
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  if TrustedFileExists(FileName) then
-    IsscintLibary := LoadLibrary(PChar(FileName));
+  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), IsscintLibraryTrustFail);
 end.

@@ -19,6 +19,7 @@ const
 
 var
   ISCmplrLibrary: HMODULE;
+  ISCmplrLibraryTrustFail: Boolean;
 
 { The ISDllCompileScript function begins compilation of a script. See the above
   description of the TCompileScriptParams record. Return value is one of the
@@ -34,21 +35,19 @@ implementation
 uses
   Windows,
   SysUtils,
-  PathFunc {$IFNDEF DEBUG}, TrustFunc{$ENDIF};
+  PathFunc, TrustFunc;
 
 initialization
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
-  if {$IFNDEF DEBUG} TrustedFileExists(FileName) {$ELSE} True {$ENDIF} then begin
-    ISCmplrLibrary := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
-    if ISCmplrLibrary <> 0 then begin
-      ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
-      ISDllGetVersion := GetProcAddress(ISCmplrLibrary, 'ISDllGetVersion');
-      if not Assigned(ISDllCompileScript) or not Assigned(ISDllGetVersion) then begin
-        FreeLibrary(ISCmplrLibrary);
-        ISCmplrLibrary := 0;
-        ISDllCompileScript := nil;
-        ISDllGetVersion := nil;
-      end;
+  ISCmplrLibrary := LoadTrustedLibrary(FileName, ISCmplrLibraryTrustFail, True);
+  if ISCmplrLibrary <> 0 then begin
+    ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
+    ISDllGetVersion := GetProcAddress(ISCmplrLibrary, 'ISDllGetVersion');
+    if not Assigned(ISDllCompileScript) or not Assigned(ISDllGetVersion) then begin
+      FreeLibrary(ISCmplrLibrary);
+      ISCmplrLibrary := 0;
+      ISDllCompileScript := nil;
+      ISDllGetVersion := nil;
     end;
   end;
 end.

@@ -13,17 +13,21 @@ unit TrustFunc;
 
 interface
 
-function TrustedFileExists(const FileName: String): Boolean;
+function TrustedFileExists(const FileName: String; const CheckExists: Boolean = True): Boolean;
+function LoadTrustedLibrary(const FileName: String; out TrustFail: Boolean; const TrustAllOnDebug: Boolean = False): HMODULE;
 
 implementation
 
 uses
   Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, System.Classes, ECDSA, SHA256, ISSigFunc {$ENDIF};
 
-function TrustedFileExists(const FileName: String): Boolean;
+function TrustedFileExists(const FileName: String; const CheckExists: Boolean): Boolean;
 begin
-  var Attr := GetFileAttributes(PChar(FileName));
-  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
+  if CheckExists then begin
+    var Attr := GetFileAttributes(PChar(FileName));
+    Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
+  end else
+    Result := True;
 {$IFNDEF TRUSTALL}
   if Result then begin
     try
@@ -77,6 +81,34 @@ begin
     end;
   end;
 {$ENDIF}
+end;
+
+function LoadTrustedLibrary(const FileName: String; out TrustFail: Boolean; const TrustAllOnDebug: Boolean): HMODULE;
+begin
+  TrustFail := False;
+{$IFDEF DEBUG}
+  if TrustAllOnDebug then begin
+    Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+    Exit;
+  end;
+{$ENDIF}
+  try
+    { First open a temporary regular handle to the library to protect it from changes
+      between the trust check and the load }
+    const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    try
+      if TrustedFileExists(FileName, False) then
+        Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX)
+      else begin
+        TrustFail := True;
+        Result := 0;
+      end;
+    finally
+      F.Free;
+    end;
+  except
+    Result := 0;
+  end;
 end;
 
 end.
