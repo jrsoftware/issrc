@@ -68,7 +68,7 @@ if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo Creating Inno Setup installer done
-powershell.exe -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
 
 echo All done!
 pause
