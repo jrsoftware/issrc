@@ -13,8 +13,8 @@ cd /d %~dp0
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
-echo compilesettings.bat is missing or incomplete. It needs to be created
-echo with the following line, adjusted for your system:
+echo compilesettings.bat is missing or incomplete. It needs to contain
+echo the following line, adjusted for your system:
 echo.
 echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\20.0 [Path to Delphi 10.4 Sydney (or later)]
 goto failed2

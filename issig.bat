@@ -6,43 +6,50 @@ rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to embed the public key in TrustFunc.AllowedPublicKeys.inc (before compilation) or to create ISCmplr.dll.issig and ISPP.dll.issig (after compilation)
+rem  Also generates a new private key if needed
 
 setlocal
 
 cd /d %~dp0
 
-if not "%ISSIGTOOL_KEY_FILE%"=="" goto keyfilefound
-echo ISSIGTOOL_KEY_FILE environment variable missing. It needs to be
-echo created using the following commands, adjusted for your system:
+if exist compilesettings.bat goto compilesettingsfound
+:compilesettingserror
+echo compilesettings.bat is missing or incomplete. It needs to contain
+echo the following line, adjusted for your system:
 echo.
 echo   set ISSIGTOOL_KEY_FILE=x:\path\MyKey.isprivatekey
-echo   setx ISSIGTOOL_KEY_FILE x:\path\MyKey.isprivatekey
-echo.
-echo Once done create the key file using the following command:
-echo.
-echo   Files\ISSigTool.exe generate-private-key
-echo.
-echo Do not share the file with others!
 goto failed2
 
-:keyfilefound
+:compilesettingsfound
+set ISSIGTOOL_KEY_FILE=
+call .\compilesettings.bat
+if "%ISSIGTOOL_KEY_FILE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
+
+cd Files
+if errorlevel 1 goto failed
+
+if not exist "%ISSIGTOOL_KEY_FILE%" (
+  echo Missing key file
+  ISSigTool.exe generate-private-key
+  if errorlevel 1 goto failed
+  if not exist "%ISSIGTOOL_KEY_FILE%" goto failed
+  echo Generating key file done - do not share with others!
+)
 
 if "%1"=="embed" goto embed
 if "%1"=="sign" goto sign
 if not "%1"=="" goto failed
 
 :embed
-cd Files
-if errorlevel 1 goto failed
 set targetfile=..\Components\TrustFunc.AllowedPublicKeys.inc
 if not exist "%targetfile%" goto failed
 set publickeyfile=_temp.ispublickey
-ISSigTool export-public-key "%publickeyfile%"
+ISSigTool.exe export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
-powershell -NoProfile -Command "& { $filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = \"AllowedPublicKey2Text := '''\"; $endMarker = \"''';//end\"; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; [string] $pattern = '(?s)' + [regex]::Escape($startMarker) + '.*?' + [regex]::Escape($endMarker); if ($content -match $pattern) { $replacement = $startMarker + \"`r`n\" + $replacementText + \"`r`n\" + $endMarker; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host 'Embedded key.'; } else { Write-Host 'Markers not found.'; exit 1; } } catch { Write-Error ('Error: ' + $_.Exception.Message); exit 1; } }"
+powershell.exe -NoProfile -Command "& { $filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = \"AllowedPublicKey2Text := '''\"; $endMarker = \"''';//end\"; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; [string] $pattern = '(?s)' + [regex]::Escape($startMarker) + '.*?' + [regex]::Escape($endMarker); if ($content -match $pattern) { $replacement = $startMarker + \"`r`n\" + $replacementText + \"`r`n\" + $endMarker; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host 'Embedded key.'; } else { Write-Host 'Markers not found.'; exit 1; } } catch { Write-Error ('Error: ' + $_.Exception.Message); exit 1; } }"
 if errorlevel 1 goto failed
 del "%publickeyfile%"
 if errorlevel 1 goto failed
@@ -53,9 +60,7 @@ echo Success!
 goto exit
 
 :sign
-cd Files
-if errorlevel 1 goto failed
-ISSigTool sign ISCmplr.dll ISPP.dll
+ISSigTool.exe sign ISCmplr.dll ISPP.dll
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
