@@ -109,6 +109,8 @@ end;
 
 procedure SignSingleFile(const AKey: TECDSAKey; const AFilename: String);
 begin
+  Write(AFilename, ': ');
+
   var FileSize: Int64;
   var FileHash: TSHA256Digest;
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
@@ -119,11 +121,31 @@ begin
     F.Free;
   end;
 
-  const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
-  const ISSigFilename = AFilename + '.issig';
-  ISSigSaveTextToFile(ISSigFilename, SigText);
+  const SigFilename = AFilename + '.issig';
 
-   Writeln(ISSigFilename, ': OK')
+  { ECDSA signature output is non-deterministic: signing the same hash with
+    the same key produces a totally different signature each time. To avoid
+    unnecessary alterations to the "sig-r" and "sig-s" values when a file is
+    being re-signed but its contents haven't changed, we attempt to load and
+    verify the existing .issig file. If the key, file size, and file hash are
+    all up to date, then we skip creation of a new .issig file. }
+  if NewFileExists(SigFilename) then begin
+    const ExistingSigText = ISSigLoadTextFromFile(SigFilename);
+    var ExistingFileSizeValue: Int64;
+    var ExistingFileHashValue: TSHA256Digest;
+    if ISSigVerifySignatureText([AKey], ExistingSigText, ExistingFileSizeValue,
+       ExistingFileHashValue) = vsrSuccess then begin
+      if (FileSize = ExistingFileSizeValue) and
+         SHA256DigestsEqual(FileHash, ExistingFileHashValue) then begin
+        Writeln('signature unchanged');
+        Exit;
+      end;
+    end;
+  end;
+
+  const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
+  ISSigSaveTextToFile(SigFilename, SigText);
+  Writeln('signature written');
 end;
 
 procedure CommandSign(const AFilenames: TStringList);
