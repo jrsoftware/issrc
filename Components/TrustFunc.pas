@@ -30,54 +30,50 @@ begin
     Result := True;
 {$IFNDEF TRUSTALL}
   if Result then begin
+    var AllowedPublicKey1Text, AllowedPublicKey2Text: String;
+    {$I TrustFunc.AllowedPublicKeys.inc}
+    var Key1: TECDSAKey := nil;
+    var Key2: TECDSAKey := nil;
     try
-      var AllowedPublicKey1Text, AllowedPublicKey2Text: String;
-      {$I TrustFunc.AllowedPublicKeys.inc}
-      var Key1: TECDSAKey := nil;
-      var Key2: TECDSAKey := nil;
-      try
-        Key1 := TECDSAKey.Create;
-        if ISSigImportKeyText(Key1, AllowedPublicKey1Text, False) <> ikrSuccess then
+      Key1 := TECDSAKey.Create;
+      if ISSigImportKeyText(Key1, AllowedPublicKey1Text, False) <> ikrSuccess then
+        raise Exception.Create('ISSigImportKeyText failed');
+      if AllowedPublicKey2Text <> '' then begin
+        Key2 := TECDSAKey.Create;
+        if ISSigImportKeyText(Key2, AllowedPublicKey2Text, False) <> ikrSuccess then
           raise Exception.Create('ISSigImportKeyText failed');
-        if AllowedPublicKey2Text <> '' then begin
-          Key2 := TECDSAKey.Create;
-          if ISSigImportKeyText(Key2, AllowedPublicKey2Text, False) <> ikrSuccess then
-            raise Exception.Create('ISSigImportKeyText failed');
-        end;
-
-        var AllowedKeys: array of TECDSAKey;
-        if Key2 <> nil then
-          AllowedKeys := [Key1, Key2]
-        else
-          AllowedKeys := [Key1];
-
-        const SigFileName = FileName + '.issig';
-        const SigText = ISSigLoadTextFromFile(SigFileName);
-
-        var ExpectedFileSize: Int64;
-        var ExpectedFileHash: TSHA256Digest;
-        if ISSigVerifySignatureText(AllowedKeys, SigText, ExpectedFileSize,
-           ExpectedFileHash) <> vsrSuccess then
-          raise Exception.CreateFmt('Signature file "%s" is not valid',
-            [SigFileName]);
-
-        const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
-        try
-          if F.Size <> ExpectedFileSize then
-            raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
-              [FileName]);
-          if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
-            raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
-              [FileName]);
-        finally
-          F.Free;
-        end;
-      finally
-        Key2.Free;
-        Key1.Free;
       end;
-    except
-      Result := False;
+
+      var AllowedKeys: array of TECDSAKey;
+      if Key2 <> nil then
+        AllowedKeys := [Key1, Key2]
+      else
+        AllowedKeys := [Key1];
+
+      const SigFileName = FileName + '.issig';
+      const SigText = ISSigLoadTextFromFile(SigFileName);
+
+      var ExpectedFileSize: Int64;
+      var ExpectedFileHash: TSHA256Digest;
+      if ISSigVerifySignatureText(AllowedKeys, SigText, ExpectedFileSize,
+         ExpectedFileHash) <> vsrSuccess then
+        raise Exception.CreateFmt('Signature file "%s" is not valid',
+          [SigFileName]);
+
+      const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+      try
+        if F.Size <> ExpectedFileSize then
+          raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
+            [FileName]);
+        if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
+          raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
+            [FileName]);
+      finally
+        F.Free;
+      end;
+    finally
+      Key2.Free;
+      Key1.Free;
     end;
   end;
 {$ENDIF}
