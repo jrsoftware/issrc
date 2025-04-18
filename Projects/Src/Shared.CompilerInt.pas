@@ -19,7 +19,6 @@ const
 
 var
   ISCmplrLibrary: HMODULE;
-  ISCmplrLibraryTrustFail: Boolean;
 
 { The ISDllCompileScript function begins compilation of a script. See the above
   description of the TCompileScriptParams record. Return value is one of the
@@ -30,6 +29,8 @@ var
   contains information about the compiler version. }
   ISDllGetVersion: function: PCompilerVersionInfo; stdcall;
 
+procedure InitISCmplrLibrary;
+
 implementation
 
 uses
@@ -37,9 +38,10 @@ uses
   SysUtils,
   PathFunc, TrustFunc;
 
-initialization
+procedure InitISCmplrLibrary;
+begin
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + ISCmplrDLL;
-  ISCmplrLibrary := LoadTrustedLibrary(FileName, ISCmplrLibraryTrustFail, True);
+  ISCmplrLibrary := LoadTrustedLibrary(FileName, True);
   if ISCmplrLibrary <> 0 then begin
     ISDllCompileScript := GetProcAddress(ISCmplrLibrary, 'ISDllCompileScriptW');
     ISDllGetVersion := GetProcAddress(ISCmplrLibrary, 'ISDllGetVersion');
@@ -50,4 +52,6 @@ initialization
       ISDllGetVersion := nil;
     end;
   end;
+end;
+
 end.

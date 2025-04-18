@@ -20,7 +20,6 @@ uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
-  StrUtils,
   Classes,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   PathFunc in '..\Components\PathFunc.pas',
@@ -566,9 +565,15 @@ begin
   end;
 
   {$IFNDEF STATICCOMPILER}
-  if ISCmplrLibrary = 0 then begin
-    WriteStdErr(Format('Could not load %s%s.', [ISCmplrDLL, IfThen(ISCmplrLibraryTrustFail, ' (not trusted)', '')]), True);
-    Halt(1);
+  try
+    InitISCmplrLibrary;
+    if ISCmplrLibrary = 0 then
+      raise Exception.Create(Win32ErrorString(GetLastError));
+  except on E: Exception do
+    begin
+      WriteStdErr(Format('Could not load %s: %s.', [ISCmplrDLL, E.Message]), True);
+      Halt(1);
+    end;
   end;
   Ver := ISDllGetVersion;
   {$ELSE}

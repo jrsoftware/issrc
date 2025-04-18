@@ -13,7 +13,6 @@ uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   Windows,
   SysUtils,
-  StrUtils,
   Forms,
   PathFunc in '..\Components\PathFunc.pas',
   TrustFunc in '..\Components\TrustFunc.pas',
@@ -207,17 +206,29 @@ end;
 
 begin
   {$IFNDEF STATICCOMPILER}
-  if ISCmplrLibrary = 0 then begin
-    MessageBox(0, PChar(Format('Could not load %s%s.',
-      [ISCmplrDLL, IfThen(ISCmplrLibraryTrustFail, ' (not trusted)', '')])), nil, MB_OK or MB_ICONSTOP);
-    Halt(3);
+  try
+    InitISCmplrLibrary;
+    if ISCmplrLibrary = 0 then
+      raise Exception.Create(Win32ErrorString(GetLastError));
+  except on E: Exception do
+    begin
+      MessageBox(0, PChar(Format('Could not load %s: %s.',
+        [ISCmplrDLL, E.Message])), nil, MB_OK or MB_ICONSTOP);
+      Halt(3);
+    end;
   end;
   {$ENDIF}
 
-  if IsscintLibrary = 0 then begin
-    MessageBox(0, PChar(Format('Could not load %s%s.' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF} ,
-      [IsscintDLL, IfThen(IsscintLibraryTrustFail, ' (not trusted)', '')])), nil, MB_OK or MB_ICONSTOP);
-    Halt(4);
+  try
+    InitIsscintLibrary;
+    if IsscintLibrary = 0 then
+      raise Exception.Create(Win32ErrorString(GetLastError));
+  except on E: Exception do
+    begin
+      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
+        [IsscintDLL, E.Message])), nil, MB_OK or MB_ICONSTOP);
+      Halt(4);
+    end;
   end;
 
   {$IFDEF DEBUG}

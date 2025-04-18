@@ -502,6 +502,20 @@ begin
   end;
 end;
 
+function LoadCompilerDLL(const Filename: String; const TrustAllOnDebug: Boolean = False): HMODULE;
+begin
+  try
+    Result := LoadTrustedLibrary(FileName, TrustAllOnDebug);
+    if Result = 0 then
+      raise Exception.Create(Win32ErrorString(GetLastError));
+  except on E: Exception do
+    begin
+      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s.', [PathExtractName(Filename), E.Message]);
+      Result := 0; //silence compiler
+    end;
+  end;
+end;
+
 procedure TSetupCompiler.InitPreprocessor;
 begin
   if PreprocessorInitialized then
@@ -509,12 +523,7 @@ begin
 {$IFNDEF STATICPREPROC}
   var Filename := CompilerDir + 'ISPP.dll';
   if NewFileExists(Filename) then begin
-    var TrustFail: Boolean;
-    var M := LoadTrustedLibrary(Filename, TrustFail, True);
-    if TrustFail then
-      AbortCompile('Failed to load ISPP.dll (not trusted)')
-    else if M = 0 then
-      AbortCompileFmt('Failed to load ISPP.dll (%d)', [GetLastError]);
+    var M := LoadCompilerDLL(Filename, True);
     PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
       AbortCompile('Failed to get address of functions in ISPP.dll');
@@ -530,12 +539,7 @@ begin
   if ZipInitialized then
     Exit;
   var Filename := CompilerDir + 'iszlib.dll';
-  var TrustFail: Boolean;
-  var M := LoadTrustedLibrary(Filename, TrustFail);
-  if TrustFail then
-    AbortCompile('Failed to load iszlib.dll (not trusted)')
-  else if M = 0 then
-    AbortCompileFmt('Failed to load iszlib.dll (%d)', [GetLastError]);
+  var M := LoadCompilerDLL(Filename);
   if not ZlibInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in iszlib.dll');
   ZipInitialized := True;
@@ -546,12 +550,7 @@ begin
   if BzipInitialized then
     Exit;
   var Filename := CompilerDir + 'isbzip.dll';
-  var TrustFail: Boolean;
-  var M := LoadTrustedLibrary(Filename, TrustFail);
-  if TrustFail then
-    AbortCompile('Failed to load isbzip.dll (not trusted)')
-  else if M = 0 then
-    AbortCompileFmt('Failed to load isbzip.dll (%d)', [GetLastError]);
+  var M := LoadCompilerDLL(Filename);
   if not BZInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in isbzip.dll');
   BzipInitialized := True;
@@ -562,12 +561,7 @@ begin
   if LZMAInitialized then
     Exit;
   var Filename := CompilerDir + 'islzma.dll';
-  var TrustFail: Boolean;
-  var M := LoadTrustedLibrary(Filename, TrustFail);
-  if TrustFail then
-    AbortCompile('Failed to load islzma.dll (not trusted)')
-  else if M = 0 then
-    AbortCompileFmt('Failed to load islzma.dll (%d)', [GetLastError]);
+  var M := LoadCompilerDLL(Filename);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in islzma.dll');
   LZMAInitialized := True;

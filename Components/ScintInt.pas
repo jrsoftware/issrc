@@ -1358,14 +1358,18 @@ const
 
 var
   IsscintLibrary: HMODULE;
-  IsscintLibraryTrustFail: Boolean;
+
+procedure InitIsscintLibrary;
 
 implementation
 
 uses
   PathFunc, TrustFunc;
 
-initialization
+procedure InitIsscintLibrary;
+begin
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), IsscintLibraryTrustFail);
+  IsscintLibrary := LoadTrustedLibrary(PChar(FileName));
+end;
+
 end.
