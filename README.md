@@ -59,14 +59,15 @@ Getting Started
    from the Community Edition, which means there's two different build
    scripts.
 
-   Community Edition: To build all files run **build-ce.bat** and follow the
-   instructions.
+   Community Edition: To build all files in Release mode run **build-ce.bat**
+   and follow the instructions.
 
-   Otherwise: To build all files run **build.bat** and follow the instructions.
+   Otherwise: To build all files in Release mode run **build.bat** and follow
+   the instructions.
 
-   To just compile Inno Setup run **compile.bat** and follow the instructions.
-   This batch file cannot be used with the Community Edition, open
-   Projects\Projects.groupproj instead.
+   To just compile Inno Setup in Release mode run **compile.bat** and follow
+   the instructions. This batch file cannot be used with the Community Edition,
+   open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
@@ -152,7 +153,8 @@ Source code tips
 
 - When building the projects in Debug mode it outputs to [Projects\Bin] and when
   debugging it will run from within this directory. To prepare this directory
-  with some extra files you must run **Projects\Bin\synch-isfiles.bat**.
+  with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
+  the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
 - When debugging the Setup project you should first build all projects in Debug
   mode, then run the Compil32 project and compile the Debug.iss script which
