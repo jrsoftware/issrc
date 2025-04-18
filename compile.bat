@@ -26,9 +26,6 @@ if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-if "%1"=="issigtool" goto issigtool
-if not "%1"=="" goto failed
-
 rem  Compile each project separately because it seems Delphi
 rem  carries some settings (e.g. $APPTYPE) between projects
 rem  if multiple projects are specified on the command line.
@@ -37,6 +34,9 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 
 cd Projects
 if errorlevel 1 goto failed
+
+if "%1"=="issigtool" goto issigtool
+if not "%1"=="" goto failed
 
 echo - ISPP.dpr
 mkdir Dcu\ISPP.dpr 2>nul
