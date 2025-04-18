@@ -6,7 +6,7 @@ unit TrustFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Trust support functons using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
+  Trust support functions using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
 }
 
 {.$DEFINE TRUSTALL}
