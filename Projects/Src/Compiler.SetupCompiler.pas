@@ -160,11 +160,8 @@ type
     procedure AddStatus(const S: String; const Warning: Boolean = False);
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
       const Warning: Boolean);
-    procedure AbortCompile(const Msg: String);
-    procedure AbortCompileOnLine(const Msg: String);
-    procedure AbortCompileOnLineFmt(const Msg: String;
-      const Args: array of const);
-    procedure AbortCompileParamError(const Msg, ParamName: String);
+    class procedure AbortCompile(const Msg: String);
+    class procedure AbortCompileParamError(const Msg, ParamName: String);
     function PrependDirName(const Filename, Dir: String): String;
     function PrependSourceDirName(const Filename: String): String;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
@@ -261,7 +258,7 @@ type
     CompilerDir, SourceDir, OriginalSourceDir: String;
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
-    procedure AbortCompileFmt(const Msg: String; const Args: array of const);
+    class procedure AbortCompileFmt(const Msg: String; const Args: array of const);
     procedure AddBytesCompressedSoFar(const Value: Cardinal); overload;
     procedure AddBytesCompressedSoFar(const Value: Integer64); overload;
     procedure AddPreprocOption(const Value: String);
@@ -1175,12 +1172,12 @@ var
           { Section tag }
           I := Pos(']', L);
           if (I < 3) or (I <> Length(L)) then
-            AbortCompileOnLine(SCompilerSectionTagInvalid);
+            AbortCompile(SCompilerSectionTagInvalid);
           L := Copy(L, 2, I-2);
           if L[1] = '/' then begin
             L := Copy(L, 2, Maxint);
             if (LastSection = '') or (CompareText(L, LastSection) <> 0) then
-              AbortCompileOnLineFmt(SCompilerSectionBadEndTag, [L]);
+              AbortCompileFmt(SCompilerSectionBadEndTag, [L]);
             FoundSection := False;
             LastSection := '';
           end
@@ -1192,7 +1189,7 @@ var
         else begin
           if not FoundSection then begin
             if LastSection = '' then
-              AbortCompileOnLine(SCompilerTextNotInSection);
+              AbortCompile(SCompilerTextNotInSection);
             Continue;  { not on the right section }
           end;
           if Verbose then begin
@@ -1237,7 +1234,7 @@ procedure TSetupCompiler.ExtractParameters(S: PChar;
         Exit;
       end;
     { Unknown parameter }
-    AbortCompileOnLineFmt(SCompilerParamUnknownParam, [AName]);
+    AbortCompileFmt(SCompilerParamUnknownParam, [AName]);
     Result := -1;
   end;
 
@@ -1258,7 +1255,7 @@ begin
     ParamName := ExtractWords(S, ':');
     ParamIndex := GetParamIndex(ParamName);
     if S^ <> ':' then
-      AbortCompileOnLineFmt(SCompilerParamHasNoValue, [ParamName]);
+      AbortCompileFmt(SCompilerParamHasNoValue, [ParamName]);
     Inc(S);
 
     { Parameter value }
@@ -1266,7 +1263,7 @@ begin
     if S^ <> '"' then begin
       Data := ExtractWords(S, ';');
       if Pos('"', Data) <> 0 then
-        AbortCompileOnLineFmt(SCompilerParamQuoteError, [ParamName]);
+        AbortCompileFmt(SCompilerParamQuoteError, [ParamName]);
       if S^ = ';' then
         Inc(S);
     end
@@ -1275,7 +1272,7 @@ begin
       Data := '';
       while True do begin
         if S^ = #0 then
-          AbortCompileOnLineFmt(SCompilerParamMissingClosingQuote, [ParamName]);
+          AbortCompileFmt(SCompilerParamMissingClosingQuote, [ParamName]);
         if S^ = '"' then begin
           Inc(S);
           if S^ <> '"' then
@@ -1289,7 +1286,7 @@ begin
         #0 : ;
         ';': Inc(S);
       else
-        AbortCompileOnLineFmt(SCompilerParamQuoteError, [ParamName]);
+        AbortCompileFmt(SCompilerParamQuoteError, [ParamName]);
       end;
     end;
 
@@ -1324,31 +1321,19 @@ begin
   AddStatus(Format(Msg, Args), Warning);
 end;
 
-procedure TSetupCompiler.AbortCompile(const Msg: String);
+class procedure TSetupCompiler.AbortCompile(const Msg: String);
 begin
   raise EISCompileError.Create(Msg);
 end;
 
-procedure TSetupCompiler.AbortCompileFmt(const Msg: String; const Args: array of const);
+class procedure TSetupCompiler.AbortCompileFmt(const Msg: String; const Args: array of const);
 begin
   AbortCompile(Format(Msg, Args));
 end;
 
-procedure TSetupCompiler.AbortCompileOnLine(const Msg: String);
-{ AbortCompileOnLine is now equivalent to AbortCompile }
+class procedure TSetupCompiler.AbortCompileParamError(const Msg, ParamName: String);
 begin
-  AbortCompile(Msg);
-end;
-
-procedure TSetupCompiler.AbortCompileOnLineFmt(const Msg: String;
-  const Args: array of const);
-begin
-  AbortCompileOnLine(Format(Msg, Args));
-end;
-
-procedure TSetupCompiler.AbortCompileParamError(const Msg, ParamName: String);
-begin
-  AbortCompileOnLineFmt(Msg, [ParamName]);
+  AbortCompileFmt(Msg, [ParamName]);
 end;
 
 function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
@@ -1689,7 +1674,7 @@ begin
         { Find the closing brace, skipping over any embedded constants }
         I := SkipPastConst(S, I);
         if I = 0 then  { unclosed constant? }
-          AbortCompileOnLineFmt(SCompilerUnterminatedConst, [Copy(S, Start+1, Maxint)]);
+          AbortCompileFmt(SCompilerUnterminatedConst, [Copy(S, Start+1, Maxint)]);
         Dec(I);  { 'I' now points to the closing brace }
 
         { Now check the constant }
@@ -1700,37 +1685,37 @@ begin
             goto 1;
           if Cnst[1] = '%' then begin
             if not CheckEnvConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadEnvConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadEnvConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 4) = 'reg:' then begin
             if not CheckRegConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadRegConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadRegConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 4) = 'ini:' then begin
             if not CheckIniConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadIniConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadIniConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 6) = 'param:' then begin
             if not CheckParamConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadParamConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadParamConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 5) = 'code:' then begin
             if not CheckCodeConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadCodeConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadCodeConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 6) = 'drive:' then begin
             if not CheckDriveConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadDriveConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadDriveConst, [Cnst]);
             goto 1;
           end;
           if Copy(Cnst, 1, 3) = 'cm:' then begin
             if not CheckCustomMessageConst(Cnst) then
-              AbortCompileOnLineFmt(SCompilerBadCustomMessageConst, [Cnst]);
+              AbortCompileFmt(SCompilerBadCustomMessageConst, [Cnst]);
             goto 1;
           end;
           for K := Low(UserConsts) to High(UserConsts) do
@@ -1752,11 +1737,11 @@ begin
           for C := Low(C) to High(C) do
             if Cnst = AllowedConstsNames[C] then begin
               if not(C in AllowedConsts) then
-                AbortCompileOnLineFmt(SCompilerConstCannotUse, [Cnst]);
+                AbortCompileFmt(SCompilerConstCannotUse, [Cnst]);
               goto 1;
             end;
          end;
-         AbortCompileOnLineFmt(SCompilerUnknownConst, [Cnst]);
+         AbortCompileFmt(SCompilerUnknownConst, [Cnst]);
 
       1:{ Constant is OK }
       end;
@@ -1821,14 +1806,14 @@ begin
           SimpleExpression.Free;
         end;
       except
-        AbortCompileOnLineFmt(SCompilerExpressionError, [ParamName,
+        AbortCompileFmt(SCompilerExpressionError, [ParamName,
           GetExceptMessage]);
       end;
     end;
   end
   else begin
     if Kind = cikDirectiveCheck then
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', ParamName]); 
+      AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', ParamName]);
   end;
 end;
 
@@ -1899,7 +1884,7 @@ begin
   else begin
     { Inside a language file }
     if Pos('.', S) <> 0 then
-      SetupCompiler.AbortCompileOnLine(SCompilerCantSpecifyLanguage);
+      SetupCompiler.AbortCompile(SCompilerCantSpecifyLanguage);
     Result := LanguageEntryIndex;
   end;
 end;
@@ -2010,7 +1995,7 @@ begin
         SimpleExpression.Free;
       end;
     except
-      AbortCompileOnLineFmt(SCompilerExpressionError, [ParamName,
+      AbortCompileFmt(SCompilerExpressionError, [ParamName,
         GetExceptMessage]);
     end;
   end;
@@ -2029,7 +2014,7 @@ begin
     { Impose a reasonable limit on the length of the string so
       that WildcardMatch can't overflow the stack }
     if Length(AWildcard) >= MAX_PATH then
-      AbortCompileOnLine(TooLongMsg);
+      AbortCompile(TooLongMsg);
     AWildcards.Add(AWildcard);
   end;
 end;
@@ -2133,7 +2118,7 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
         ASid := KnownSids[I].Sid;
         Exit;
       end;
-    AbortCompileOnLineFmt(SCompilerPermissionsUnknownSid, [AName]);
+    AbortCompileFmt(SCompilerPermissionsUnknownSid, [AName]);
   end;
 
   procedure GetAccessMaskFromName(const AName: String; var AAccessMask: DWORD);
@@ -2145,7 +2130,7 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
         AAccessMask := AccessMasks[I].Mask;
         Exit;
       end;
-    AbortCompileOnLineFmt(SCompilerPermissionsUnknownMask, [AName]);
+    AbortCompileFmt(SCompilerPermissionsUnknownMask, [AName]);
   end;
 
 var
@@ -2163,7 +2148,7 @@ begin
       Break;
     P := Pos('-', S);
     if P = 0 then
-      AbortCompileOnLineFmt(SCompilerPermissionsInvalidValue, [S]);
+      AbortCompileFmt(SCompilerPermissionsInvalidValue, [S]);
     FillChar(Entry, SizeOf(Entry), 0);
     GetSidFromName(Copy(S, 1, P-1), Entry.Sid);
     GetAccessMaskFromName(Copy(S, P+1, Maxint), Entry.AccessMask);
@@ -2171,7 +2156,7 @@ begin
     Perms := Perms + E;
     Inc(PermsCount);
     if PermsCount > MaxGrantPermissionEntries then
-      AbortCompileOnLineFmt(SCompilerPermissionsValueLimitExceeded, [MaxGrantPermissionEntries]);
+      AbortCompileFmt(SCompilerPermissionsValueLimitExceeded, [MaxGrantPermissionEntries]);
   end;
 
   if Perms = '' then begin
@@ -2191,7 +2176,7 @@ begin
     NewPermissionEntry.Permissions := Perms;
     I := PermissionEntries.Add(NewPermissionEntry);
     if I > High(PermissionsEntry) then
-      AbortCompileOnLine(SCompilerPermissionsTooMany);
+      AbortCompile(SCompilerPermissionsTooMany);
     PermissionsEntry := I;
   end;
 end;
@@ -2259,9 +2244,9 @@ begin
   if P^ <> #0 then begin
     Key := ExtractWords(P, '=');
     if Key = '' then
-      AbortCompileOnLine(SCompilerDirectiveNameMissing);
+      AbortCompile(SCompilerDirectiveNameMissing);
     if P^ <> '=' then
-      AbortCompileOnLineFmt(SCompilerDirectiveHasNoValue, [Key]);
+      AbortCompileFmt(SCompilerDirectiveHasNoValue, [Key]);
     Inc(P);
     SkipWhitespace(P);
     Value := ExtractWords(P, #0);
@@ -2306,7 +2291,7 @@ var
 
   procedure Invalid;
   begin
-    AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', KeyName]);
+    AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', KeyName]);
   end;
 
   function StrToBool(const S: String): Boolean;
@@ -2473,10 +2458,10 @@ begin
     Exit;
   I := GetEnumValue(TypeInfo(TSetupSectionDirective), 'ss' + KeyName);
   if I = -1 then
-    AbortCompileOnLineFmt(SCompilerUnknownDirective, ['Setup', KeyName]);
+    AbortCompileFmt(SCompilerUnknownDirective, ['Setup', KeyName]);
   Directive := TSetupSectionDirective(I);
   if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
-    AbortCompileOnLineFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
+    AbortCompileFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
   case Directive of
     ssAllowCancelDuringInstall: begin
@@ -2748,7 +2733,7 @@ begin
         if I <> 0 then
           Invalid;
         if (DiskClusterSize < 1) or (DiskClusterSize > 32768) then
-          AbortCompileOnLine(SCompilerDiskClusterSizeInvalid);
+          AbortCompile(SCompilerDiskClusterSizeInvalid);
       end;
     ssDiskSliceSize: begin
         if CompareText(Value, 'max') = 0 then
@@ -2857,15 +2842,15 @@ begin
         DontMergeDuplicateFiles := not StrToBool(Value);
       end;
     ssMessagesFile: begin
-        AbortCompileOnLine(SCompilerMessagesFileObsolete);
+        AbortCompile(SCompilerMessagesFileObsolete);
       end;
     ssMinVersion: begin
         if not StrToSetupVersionData(Value, SetupHeader.MinVersion) then
           Invalid;
         if SetupHeader.MinVersion.WinVersion <> 0 then
-          AbortCompileOnLine(SCompilerMinVersionWinMustBeZero);
+          AbortCompile(SCompilerMinVersionWinMustBeZero);
         if SetupHeader.MinVersion.NTVersion < $06010000 then
-          AbortCompileOnLineFmt(SCompilerMinVersionNTTooLow, ['6.1']);
+          AbortCompileFmt(SCompilerMinVersionNTTooLow, ['6.1']);
       end;
     ssMissingMessagesWarning: begin
         MissingMessagesWarning := StrToBool(Value);
@@ -2878,7 +2863,7 @@ begin
           Invalid;
         if (SetupHeader.OnlyBelowVersion.NTVersion <> 0) and
            (SetupHeader.OnlyBelowVersion.NTVersion <= $06010000) then
-          AbortCompileOnLineFmt(SCompilerOnlyBelowVersionNTTooLow, ['6.1']);
+          AbortCompileFmt(SCompilerOnlyBelowVersionNTTooLow, ['6.1']);
       end;
     ssOutput: begin
         if not FixedOutput then
@@ -3193,7 +3178,7 @@ begin
         Exit;
       end;
     end;
-    AbortCompileOnLineFmt(SCompilerUnknownLanguage, [AName]);
+    AbortCompileFmt(SCompilerUnknownLanguage, [AName]);
   end;
 
   for I := 0 to LanguageEntries.Count-1 do begin
@@ -3203,7 +3188,7 @@ begin
     end;
   end;
   Result := -1;
-  AbortCompileOnLineFmt(SCompilerUnknownLanguage, [AName]);
+  AbortCompileFmt(SCompilerUnknownLanguage, [AName]);
 end;
 
 function TSetupCompiler.FindSignToolIndexByName(const AName: String): Integer;
@@ -3229,7 +3214,7 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
 
     procedure Invalid;
     begin
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['LangOptions', KeyName]);
+      AbortCompileFmt(SCompilerEntryInvalid2, ['LangOptions', KeyName]);
     end;
 
     function StrToIntCheck(const S: String): Integer;
@@ -3244,12 +3229,12 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
   begin
     I := GetEnumValue(TypeInfo(TLangOptionsSectionDirective), 'ls' + KeyName);
     if I = -1 then
-      AbortCompileOnLineFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
+      AbortCompileFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
     Directive := TLangOptionsSectionDirective(I);
     case Directive of
       lsLanguageCodePage: begin
           if AffectsMultipleLangs then
-            AbortCompileOnLineFmt(SCompilerCantSpecifyLangOption, [KeyName]);
+            AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
           PreLangData.LanguageCodePage := StrToIntCheck(Value);
           if (PreLangData.LanguageCodePage <> 0) and
              not IsValidCodePage(PreLangData.LanguageCodePage) then
@@ -3282,7 +3267,7 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
 
     procedure Invalid;
     begin
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['LangOptions', KeyName]);
+      AbortCompileFmt(SCompilerEntryInvalid2, ['LangOptions', KeyName]);
     end;
 
     function StrToIntCheck(const S: String): Integer;
@@ -3328,7 +3313,7 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
   begin
     I := GetEnumValue(TypeInfo(TLangOptionsSectionDirective), 'ls' + KeyName);
     if I = -1 then
-      AbortCompileOnLineFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
+      AbortCompileFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
     Directive := TLangOptionsSectionDirective(I);
     case Directive of
       lsCopyrightFontName: begin
@@ -3348,17 +3333,17 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
         end;
       lsLanguageCodePage: begin
           if AffectsMultipleLangs then
-            AbortCompileOnLineFmt(SCompilerCantSpecifyLangOption, [KeyName]);
+            AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
           StrToIntCheck(Value);
         end;
       lsLanguageID: begin
           if AffectsMultipleLangs then
-            AbortCompileOnLineFmt(SCompilerCantSpecifyLangOption, [KeyName]);
+            AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
           LangOptions.LanguageID := StrToIntCheck(Value);
         end;
       lsLanguageName: begin
           if AffectsMultipleLangs then
-            AbortCompileOnLineFmt(SCompilerCantSpecifyLangOption, [KeyName]);
+            AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
           LangOptions.LanguageName := ConvertLanguageName(Value);
         end;
       lsRightToLeft: begin
@@ -3457,7 +3442,7 @@ begin
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
       if (toIsCustom in Options) and IsCustomTypeAlreadyDefined then
-        AbortCompileOnLine(SCompilerTypesCustomTypeAlreadyDefined);
+        AbortCompile(SCompilerTypesCustomTypeAlreadyDefined);
 
       CheckConst(Description, MinVersion, []);
       CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
@@ -3528,14 +3513,14 @@ begin
       Name := LowerCase(Values[paName].Data);
       StringChange(Name, '/', '\');
       if not IsValidIdentString(Name, True, False) then
-        AbortCompileOnLine(SCompilerComponentsOrTasksBadName);
+        AbortCompile(SCompilerComponentsOrTasksBadName);
       Level := CountChars(Name, '\');
       if ComponentEntries.Count > 0 then
         PrevLevel := PSetupComponentEntry(ComponentEntries[ComponentEntries.Count-1]).Level
       else
         PrevLevel := -1;
       if Level > PrevLevel + 1 then
-        AbortCompileOnLine(SCompilerComponentsInvalidLevel);
+        AbortCompile(SCompilerComponentsInvalidLevel);
 
       { Description }
       Description := Values[paDescription].Data;
@@ -3568,7 +3553,7 @@ begin
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
       if (coDontInheritCheck in Options) and (coExclusive in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'dontinheritcheck', 'exclusive']);
 
       CheckConst(Description, MinVersion, []);
@@ -3631,14 +3616,14 @@ begin
       Name := LowerCase(Values[paName].Data);
       StringChange(Name, '/', '\');
       if not IsValidIdentString(Name, True, False) then
-        AbortCompileOnLine(SCompilerComponentsOrTasksBadName);
+        AbortCompile(SCompilerComponentsOrTasksBadName);
       Level := CountChars(Name, '\');
       if TaskEntries.Count > 0 then
         PrevLevel := PSetupTaskEntry(TaskEntries[TaskEntries.Count-1]).Level
       else
         PrevLevel := -1;
       if Level > PrevLevel + 1 then
-        AbortCompileOnLine(SCompilerTasksInvalidLevel);
+        AbortCompile(SCompilerTasksInvalidLevel);
 
       { Description }
       Description := Values[paDescription].Data;
@@ -3654,7 +3639,7 @@ begin
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
       if (toDontInheritCheck in Options) and (toExclusive in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'dontinheritcheck', 'exclusive']);
 
       CheckConst(Description, MinVersion, []);
@@ -3755,12 +3740,12 @@ begin
 
       if (doUninsNeverUninstall in Options) and
          (doUninsAlwaysUninstall in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsneveruninstall', 'uninsalwaysuninstall']);
 
       if (doSetNTFSCompression in Options) and
          (doUnsetNTFSCompression in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'setntfscompression', 'unsetntfscompression']);
 
       CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
@@ -3967,7 +3952,7 @@ begin
         try
           IconIndex := StrToInt(Values[paIconIndex].Data);
         except
-          AbortCompileOnLine(SCompilerIconsIconIndexInvalid);
+          AbortCompile(SCompilerIconsIconIndexInvalid);
         end;
       end;
 
@@ -3995,7 +3980,7 @@ begin
       if Pos('"', IconName) <> 0 then
         AbortCompileParamError(SCompilerParamNoQuotes2, ParamIconsName);
       if PathPos('\', IconName) = 0 then
-        AbortCompileOnLine(SCompilerIconsNamePathNotSpecified);
+        AbortCompile(SCompilerIconsNamePathNotSpecified);
 
       if (IconIndex <> 0) and (IconFilename = '') then
         IconFilename := Filename;
@@ -4098,11 +4083,11 @@ begin
 
       if (ioUninsDeleteEntry in Options) and
          (ioUninsDeleteEntireSection in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeleteentry', 'uninsdeletesection']);
       if (ioUninsDeleteEntireSection in Options) and
          (ioUninsDeleteSectionIfEmpty in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeletesection', 'uninsdeletesectionifempty']);
 
       CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
@@ -4344,25 +4329,25 @@ begin
 
       if (roUninsDeleteEntireKey in Options) and
          (roUninsDeleteEntireKeyIfEmpty in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeletekey', 'uninsdeletekeyifempty']);
       if (roUninsDeleteEntireKey in Options) and
          (roUninsClearValue in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsclearvalue', 'uninsdeletekey']);
       if (roUninsDeleteValue in Options) and
          (roUninsDeleteEntireKey in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeletevalue', 'uninsdeletekey']);
       if (roUninsDeleteValue in Options) and
          (roUninsClearValue in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeletevalue', 'uninsclearvalue']);
 
       { Safety checks }
       if ((roUninsDeleteEntireKey in Options) or (roDeleteKey in Options)) and
          (CompareText(Subkey, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment') = 0) then
-        AbortCompileOnLine(SCompilerRegistryDeleteKeyProhibited);
+        AbortCompile(SCompilerRegistryDeleteKeyProhibited);
 
       case Typ of
         rtString, rtExpandString, rtMultiString:
@@ -4596,25 +4581,25 @@ type
         SysWow64Dir := GetSysWow64Dir;
         if (PathCompare(SourceFileDir, GetSystemDir) = 0) or
            ((SysWow64Dir <> '') and ((PathCompare(SourceFileDir, SysWow64Dir) = 0))) then
-        AbortCompileOnLine(SCompilerFilesSystemDirUsed);
+        AbortCompile(SCompilerFilesSystemDirUsed);
       end;
       { CTL3D32.DLL }
       if not ExternalFile and
          (CompareText(Filename, 'CTL3D32.DLL') = 0) and
          (NewFileEntry^.MinVersion.WinVersion <> 0) and
          FileSizeAndCRCIs(SourceFile, 27136, $28A66C20) then
-        AbortCompileOnLineFmt(SCompilerFilesUnsafeFile, ['CTL3D32.DLL, Windows NT-specific version']);
+        AbortCompileFmt(SCompilerFilesUnsafeFile, ['CTL3D32.DLL, Windows NT-specific version']);
       { Remaining files }
       for I := Low(UnsafeSysFiles) to High(UnsafeSysFiles) do
         if CompareText(Filename, UnsafeSysFiles[I]) = 0 then
-          AbortCompileOnLineFmt(SCompilerFilesUnsafeFile, [UnsafeSysFiles[I]]);
+          AbortCompileFmt(SCompilerFilesUnsafeFile, [UnsafeSysFiles[I]]);
     end
     else begin
       { Files that MUST be deployed to the user's System directory }
       if IsRegistered then
         for I := Low(UnsafeNonSysRegFiles) to High(UnsafeNonSysRegFiles) do
           if CompareText(Filename, UnsafeNonSysRegFiles[I]) = 0 then
-            AbortCompileOnLineFmt(SCompilerFilesSystemDirNotUsed, [UnsafeNonSysRegFiles[I]]);
+            AbortCompileFmt(SCompilerFilesSystemDirNotUsed, [UnsafeNonSysRegFiles[I]]);
     end;
   end;
 
@@ -4790,7 +4775,7 @@ type
     const NewSign: TSetupFileLocationSign; const ErrorMessage: String);
   begin
     if not (Sign in [fsNoSetting, NewSign]) then
-      AbortCompileOnLineFmt(ErrorMessage,
+      AbortCompileFmt(ErrorMessage,
         [ParamCommonFlags, SignFlags[Sign], SignFlags[NewSign]])
     else
       Sign := NewSign;
@@ -5221,7 +5206,7 @@ begin
                { ExternalSize }
                if Values[paExternalSize].Found then begin
                  if not ExternalFile then
-                   AbortCompileOnLine(SCompilerFilesCantHaveNonExternalExternalSize);
+                   AbortCompile(SCompilerFilesCantHaveNonExternalExternalSize);
                  if not StrToInteger64(Values[paExternalSize].Data, ExternalSize) then
                    AbortCompileParamError(SCompilerParamInvalid2, ParamFilesExternalSize);
                  Include(Options, foExternalSizePreset);
@@ -5253,22 +5238,22 @@ begin
           Include(Options, foDeleteAfterInstall);
         if foDeleteAfterInstall in Options then begin
           if foRestartReplace in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['restartreplace']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['restartreplace']);
           if foUninsNeverUninstall in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['uninsneveruninstall']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['uninsneveruninstall']);
           if foRegisterServer in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['regserver']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['regserver']);
           if foRegisterTypeLib in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['regtypelib']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['regtypelib']);
           if foSharedFile in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['sharedfile']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['sharedfile']);
           if foGacInstall in Options then
-            AbortCompileOnLineFmt(SCompilerFilesTmpBadFlag, ['gacinstall']);
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['gacinstall']);
           Include(Options, foUninsNeverUninstall);
         end;
 
         if (fo32Bit in Options) and (fo64Bit in Options) then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, '32bit', '64bit']);
 
         if AInstallFontName <> '' then begin
@@ -5278,18 +5263,18 @@ begin
         end;
 
         if (foGacInstall in Options) and (AStrongAssemblyName = '') then
-          AbortCompileOnLine(SCompilerFilesStrongAssemblyNameMustBeSpecified);
+          AbortCompile(SCompilerFilesStrongAssemblyNameMustBeSpecified);
         if AStrongAssemblyName <> '' then
           StrongAssemblyName := AStrongAssemblyName;
 
         if not NoCompression and (foDontVerifyChecksum in Options) then
-          AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
+          AbortCompileFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
         if ExternalFile then begin
           if (AExcludes.Count > 0) then
-            AbortCompileOnLine(SCompilerFilesCantHaveExternalExclude)
+            AbortCompile(SCompilerFilesCantHaveExternalExclude)
           else if Sign <> fsNoSetting then
-            AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+            AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
         
@@ -5297,11 +5282,11 @@ begin
           Sign := fsNoSetting;
 
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
-          AbortCompileOnLineFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
+          AbortCompileFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
 
         if (foSetNTFSCompression in Options) and
            (foUnsetNTFSCompression in Options) then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, 'setntfscompression', 'unsetntfscompression']);
 
         if (foSharedFile in Options) and
@@ -5315,7 +5300,7 @@ begin
           CheckConst(SourceWildcard, MinVersion, []);
         end;
         if (ADestName <> '') and SourceIsWildcard then
-          AbortCompileOnLine(SCompilerFilesDestNameCantBeSpecified);
+          AbortCompile(SCompilerFilesDestNameCantBeSpecified);
         CheckConst(ADestDir, MinVersion, []);
         ADestDir := AddBackslash(ADestDir);
         CheckConst(ADestName, MinVersion, []);
@@ -5353,9 +5338,9 @@ begin
           { Nothing found. Can only happen if not external. }
           if not(foSkipIfSourceDoesntExist in NewFileEntry^.Options) then begin
             if SourceIsWildcard then
-              AbortCompileOnLineFmt(SCompilerFilesWildcardNotMatched, [SourceWildcard])
+              AbortCompileFmt(SCompilerFilesWildcardNotMatched, [SourceWildcard])
             else
-              AbortCompileOnLineFmt(SCompilerSourceFileDoesntExist, [SourceWildcard]);
+              AbortCompileFmt(SCompilerSourceFileDoesntExist, [SourceWildcard]);
           end;
         end;
       finally
@@ -5435,13 +5420,13 @@ begin
           -1: AbortCompileParamError(SCompilerParamUnknownFlag2, ParamCommonFlags);
           0: begin
                if WaitFlagSpecified then
-                 AbortCompileOnLine(SCompilerRunMultipleWaitFlags);
+                 AbortCompile(SCompilerRunMultipleWaitFlags);
                Wait := rwNoWait;
                WaitFlagSpecified := True;
              end;
           1: begin
                if WaitFlagSpecified then
-                 AbortCompileOnLine(SCompilerRunMultipleWaitFlags);
+                 AbortCompile(SCompilerRunMultipleWaitFlags);
                Wait := rwWaitUntilIdle;
                WaitFlagSpecified := True;
              end;
@@ -5479,7 +5464,7 @@ begin
           12: ShowCmd := SW_HIDE;
           13: begin
                if WaitFlagSpecified then
-                 AbortCompileOnLine(SCompilerRunMultipleWaitFlags);
+                 AbortCompile(SCompilerRunMultipleWaitFlags);
                Wait := rwWaitUntilTerminated;
                WaitFlagSpecified := True;
              end;
@@ -5503,7 +5488,7 @@ begin
       end;
 
       if RunAsOriginalUser and RunAsCurrentUser then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'runasoriginaluser', 'runascurrentuser']);
       if RunAsOriginalUser or
          (not RunAsCurrentUser and (roPostInstall in Options)) then
@@ -5511,16 +5496,16 @@ begin
 
       if roLogOutput in Options then begin
         if roShellExec in Options then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, 'logoutput', 'shellexec']);
         if (Wait <> rwWaitUntilTerminated) then
-          AbortCompileOnLineFmt(SCompilerParamFlagMissing,
+          AbortCompileFmt(SCompilerParamFlagMissing,
             ['waituntilterminated', 'logoutput']);
         if RunAsOriginalUser then
-          AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, 'logoutput', 'runasoriginaluser']);
         if roRunAsOriginalUser in Options then
-          AbortCompileOnLineFmt(SCompilerParamFlagMissing3,
+          AbortCompileFmt(SCompilerParamFlagMissing3,
             ['runascurrentuser', 'logoutput', 'postinstall']);
       end;
 
@@ -5536,14 +5521,14 @@ begin
       { RunOnceId }
       if Values[paRunOnceId].Data <> '' then begin
         if Ext = 0 then
-          AbortCompileOnLine(SCompilerRunCantUseRunOnceId);
+          AbortCompile(SCompilerRunCantUseRunOnceId);
       end else if Ext = 1 then
         MissingRunOnceIds := True;
       RunOnceId := Values[paRunOnceId].Data;
 
       { Description }
       if (Ext = 1) and (Values[paDescription].Data <> '') then
-        AbortCompileOnLine(SCompilerUninstallRunCantUseDescription);
+        AbortCompile(SCompilerUninstallRunCantUseDescription);
       Description := Values[paDescription].Data;
 
       { StatusMsg }
@@ -5551,7 +5536,7 @@ begin
 
       { Verb }
       if not (roShellExec in Options) and Values[paVerb].Found then
-        AbortCompileOnLineFmt(SCompilerParamFlagMissing2,
+        AbortCompileFmt(SCompilerParamFlagMissing2,
           ['shellexec', 'Verb']);
       Verb := Values[paVerb].Data;
 
@@ -5566,13 +5551,13 @@ begin
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
       if (roRun32Bit in Options) and (roRun64Bit in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, '32bit', '64bit']);
       if (roRun32Bit in Options) and (roShellExec in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, '32bit', 'shellexec']);
       if (roRun64Bit in Options) and (roShellExec in Options) then
-        AbortCompileOnLineFmt(SCompilerParamErrorBadCombo2,
+        AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, '64bit', 'shellexec']);
 
       CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
@@ -5632,7 +5617,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompileOnLine(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesBadName);
     NewPreLangData.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -5666,7 +5651,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompileOnLine(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesBadName);
     NewLanguageEntry.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -5711,14 +5696,14 @@ var
 begin
   P := StrScan(Line, '=');
   if P = nil then
-    AbortCompileOnLine(SCompilerMessagesMissingEquals);
+    AbortCompile(SCompilerMessagesMissingEquals);
   SetString(N, Line, P - Line);
   N := Trim(N);
   LangIndex := ExtractLangIndex(Self, N, Ext, False);
   ID := GetEnumValue(TypeInfo(TSetupMessageID), 'msg' + N);
   if ID = -1 then begin
     if LangIndex = -2 then
-      AbortCompileOnLineFmt(SCompilerMessagesNotRecognizedDefault, [N])
+      AbortCompileFmt(SCompilerMessagesNotRecognizedDefault, [N])
     else begin
       if NotRecognizedMessagesWarning then begin
         if LineFilename = '' then
@@ -5787,7 +5772,7 @@ var
 begin
   P := StrScan(Line, '=');
   if P = nil then
-    AbortCompileOnLine(SCompilerMessagesMissingEquals);
+    AbortCompile(SCompilerMessagesMissingEquals);
   SetString(N, Line, P - Line);
   N := Trim(N);
   LangIndex := ExtractLangIndex(Self, N, Ext, False);
@@ -5797,7 +5782,7 @@ begin
   NewCustomMessageEntry := AllocMem(SizeOf(TSetupCustomMessageEntry));
   try
     if not IsValidIdentString(N, False, True) then
-      AbortCompileOnLine(SCompilerCustomMessageBadName);
+      AbortCompile(SCompilerCustomMessageBadName);
 
     { Delete existing entries}
     for I := CustomMessageEntries.Count-1 downto 0 do begin
@@ -7555,17 +7540,17 @@ begin
     CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
     if Output and (OutputDir = '') then begin
       LineNumber := SetupDirectiveLines[ssOutput];
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
+      AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
     if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
       LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
+      AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
     end else if OutputBaseFileName = 'setup' then { Warn even if Output is False }
       WarningsList.Add(SCompilerOutputBaseFileNameSetup);
     if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
        ((Output and (OutputManifestFile = '')) or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
       LineNumber := SetupDirectiveLines[ssOutputManifestFile];
-      AbortCompileOnLineFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
+      AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
