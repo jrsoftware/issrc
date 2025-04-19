@@ -86,6 +86,7 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
+    <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -2955,7 +2956,7 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <p>All entries are processed by the installer in the order they appear in a section.</p>
 
-<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F7 (Step Into) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p> 
+<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F7 (Step Into) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p>
 
 <p>Changes are undone by the uninstaller in the <i>opposite</i> order in which the installer made them. This is because the uninstall log is parsed from end to beginning.</p>
 
@@ -3136,7 +3137,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
@@ -3485,6 +3486,96 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
+</ul>
+
+</body>
+</topic>
+
+
+
+<topic name="issigtool" title="Inno Setup Signature Tool">
+<keyword value="ISSigTool" />
+<body>
+
+<p>Inno Setup includes a command-line tool, ISSigTool.exe. This tool is designed to sign and verify files using cryptographic signatures.</p>
+
+<p>ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all. If you are looking for more information about this topic see <link topic="setup_signtool">SignTool</link> instead.</p>
+
+<p>Command line usage is as follows:</p>
+
+<indent>
+<p>issigtool <i>[options]</i> <i>&lt;command&gt;</i> <i>&lt;arguments&gt;</i></p>
+</indent>
+
+<p>Available commands:</p>
+
+<indent>
+<table>
+<tr>
+<td>sign <i>&lt;file names&gt;</i></td>
+<td>Signs each specified file. Requires a private key.</td>
+</tr>
+<tr>
+<td>verify <i>&lt;file names&gt;</i></td>
+<td>Verifies the signature of each specified file against the key.</td>
+</tr>
+<tr>
+<td>export-public-key <i>&lt;file name&gt;</i></td>
+<td>Exports the public key used in the signing process to the specified file.</td>
+</tr>
+<tr>
+<td>generate-private-key</td>
+<td>Generates a new private key for signing operations.</td>
+</tr>
+</table>
+</indent>
+
+<p>Valid options are:</p>
+
+<indent>
+<table>
+<tr>
+<td>--key-file=&lt;filename&gt;</td>
+<td>Specifies the private key filename required for signing. This option overriddes the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
+</tr>
+</table>
+</indent>
+
+<p>Examples:</p>
+
+<indent>
+<examples noheader="1">
+issigtool --key-file=MyKey.isprivatekey sign MyProg.dll<br/>
+issigtool --key-file=MyKey.ispublickey verify MyProg.dll<br/>
+issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey<br/>
+issigtool --key-file=MyKey.isprivatekey generate-private-key
+</examples>
+</indent>
+
+<p>Exit codes:</p>
+
+<indent>
+<table>
+<tr>
+<td>0</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>1</td>
+<td>A signature verification failed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Command line parameters were invalid or a fatal error occurred</td>
+</tr>
+</table>
+</indent>
+
+<p>Notes:</p>
+
+<ul>
+<li>Filenames that include spaces must be enclosed in quotes.</li>
+<li>Ensure the private key file is secure, as its compromise can affect the validity of your signatures.</li>
 </ul>
 
 </body>
@@ -5665,7 +5756,7 @@ SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr ht
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
 [Setup]
-SignTool=byparam format c: 
+SignTool=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>

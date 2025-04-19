@@ -5,6 +5,7 @@ program ISHelpGen;
 uses
   Windows,
   SysUtils,
+  StrUtils,
   Classes,
   ActiveX,
   ComObj,
@@ -331,7 +332,8 @@ begin
   Result := '';
   Node := Node.FirstChild;
   while Assigned(Node) do begin
-    case ElementFromNode(Node) of
+    var Element := ElementFromNode(Node);
+    case Element of
       el_Text:
         Result := Result + EscapeHTML(Node.Text, False);
       elA:
@@ -354,12 +356,14 @@ begin
         Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
       elDT:
         Result := Result + '<dt>' + ParseFormattedText(Node) + '</dt>';
-      elExample:
-        Result := Result + '<div class="examplebox">' + SNewLine +
-          '<div class="exampleheader">Example:</div>' + ParseFormattedText(Node) + '</div>';
-      elExamples:
-        Result := Result + '<div class="examplebox">' + SNewLine +
-          '<div class="exampleheader">Examples:</div>' + ParseFormattedText(Node) + '</div>';
+      elExample, elExamples:
+        begin
+          Result := Result + '<div class="examplebox">';
+          if Node.OptionalAttributes['noheader'] <> '1' then
+            Result := Result + SNewLine +
+              '<div class="exampleheader">Example' + IfThen(Element = elExamples, 's', '') + ':</div>';
+          Result := Result + ParseFormattedText(Node) + '</div>';
+        end;
       elFlag:
         begin
           S := Node.Attributes['name'];
