@@ -3545,10 +3545,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <indent>
 <examples noheader="1">
+issigtool --key-file=MyKey.isprivatekey generate-private-key<br/>
 issigtool --key-file=MyKey.isprivatekey sign MyProg.dll<br/>
-issigtool --key-file=MyKey.ispublickey verify MyProg.dll<br/>
 issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey<br/>
-issigtool --key-file=MyKey.isprivatekey generate-private-key
+issigtool --key-file=MyKey.ispublickey verify MyProg.dll
 </examples>
 </indent>
 
