@@ -358,10 +358,9 @@ begin
         Result := Result + '<dt>' + ParseFormattedText(Node) + '</dt>';
       elExample, elExamples:
         begin
-          Result := Result + '<div class="examplebox">';
+          Result := Result + '<div class="examplebox">' + SNewLine;
           if Node.OptionalAttributes['noheader'] <> '1' then
-            Result := Result + SNewLine +
-              '<div class="exampleheader">Example' + IfThen(Element = elExamples, 's', '') + ':</div>';
+            Result := Result + '<div class="exampleheader">Example' + IfThen(Element = elExamples, 's', '') + ':</div>';
           Result := Result + ParseFormattedText(Node) + '</div>';
         end;
       elFlag:
