@@ -3497,9 +3497,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="ISSigTool" />
 <body>
 
-<p>Inno Setup includes a command-line tool, ISSigTool.exe. This tool is designed to sign and verify files using cryptographic signatures.</p>
+<p>Inno Setup includes a command-line tool, ISSigTool.exe. This tool is designed to sign files using cryptographic signatures.</p>
 
-<p>ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all. If you are looking for more information about this topic see <link topic="setup_signtool">SignTool</link> instead.</p>
+<p>Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all. If you are looking for more information about this topic see <link topic="setup_signtool">SignTool</link> instead.</p>
 
 <p>Command line usage is as follows:</p>
 
