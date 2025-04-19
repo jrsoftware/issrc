@@ -13,7 +13,7 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.4.2
+AppVersion=6.4.3-dev
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -117,7 +117,8 @@ Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isccexe
   #define isccexe "ISCC.exe"
 #endif
@@ -125,7 +126,8 @@ Source: "files\{#isccexe}"; DestName: "ISCC.exe"; DestDir: "{app}"; Flags: ignor
 #ifndef iscmplrdll
   #define iscmplrdll "ISCmplr.dll"
 #endif
-Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -135,16 +137,26 @@ Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touc
 Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef islzmadll
   #define islzmadll "islzma.dll"
 #endif
-Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+#ifndef isppdll
+  #define isppdll "ispp.dll"
+#endif
+Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISSigTool.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "Examples\64Bit.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64BitTwoArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
@@ -186,11 +198,6 @@ Source: "Examples\MyDll\C#\MyDll.sln"; DestDir: "{app}\Examples\MyDll\C#"; Flags
 Source: "Examples\MyDll\C#\packages.config"; DestDir: "{app}\Examples\MyDll\C#"; Flags: ignoreversion touch
 Source: "Examples\MyDll\C#\Properties\AssemblyInfo.cs"; DestDir: "{app}\Examples\MyDll\C#\Properties"; Flags: ignoreversion touch
 Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
-#ifndef isppdll
-  #define isppdll "ispp.dll"
-#endif
-Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 
 [INI]
 Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "https://jrsoftware.org/isfaq.php" 

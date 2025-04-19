@@ -858,8 +858,8 @@ end;
 
 procedure TScintEdit.CreateWnd;
 begin
-  if IsscintLibary = 0 then
-    Error('CreateWnd: IsscintLibary is 0');
+  if IsscintLibrary = 0 then
+    Error('CreateWnd: IsscintLibrary is 0');
   inherited;
   FDirectPtr := Pointer(SendMessage(Handle, SCI_GETDIRECTPOINTER, 0, 0));
   if FDirectPtr = nil then

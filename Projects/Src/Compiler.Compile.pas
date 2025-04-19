@@ -12,7 +12,7 @@ unit Compiler.Compile;
 interface
 
 uses
-  Shared.CompilerInt;
+  Shared.CompilerInt.Struct;
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;
   const PropagateExceptions: Boolean): Integer;

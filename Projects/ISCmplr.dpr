@@ -12,7 +12,7 @@ library ISCmplr;
 uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   SysUtils,
-  Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   Shared.PreprocInt in 'Src\Shared.PreprocInt.pas',
   Compiler.Compile in 'Src\Compiler.Compile.pas',
   Compiler.SetupCompiler in 'Src\Compiler.SetupCompiler.pas',
@@ -36,6 +36,7 @@ uses
   ChaCha20 in '..\Components\ChaCha20.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   PathFunc in '..\Components\PathFunc.pas',
+  TrustFunc in '..\Components\TrustFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA256 in '..\Components\SHA256.pas',
@@ -48,7 +49,10 @@ uses
   Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
-  PBKDF2 in '..\Components\PBKDF2.pas';
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

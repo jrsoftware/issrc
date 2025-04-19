@@ -50,7 +50,8 @@ jobs:
             'tmp-unsigned\iscc /Sissigntool256="${{github.workspace}}\home\bin\run-signtool.bat $f" /DSIGNTOOL setup.iss'
       - name: build issrc
         run: |
-          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii compilesettings.bat
+          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
+          "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\home\bin\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
           .\build.bat

@@ -77,12 +77,18 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\TrustFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
         <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
+        <DCCReference Include="..\Components\SHA256.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -79,7 +79,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\Compiler.Compile.pas"/>
         <DCCReference Include="Src\Compiler.SetupCompiler.pas"/>
@@ -103,6 +103,7 @@
         <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\TrustFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
@@ -116,6 +117,9 @@
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

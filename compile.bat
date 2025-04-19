@@ -13,8 +13,8 @@ cd /d %~dp0
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
-echo compilesettings.bat is missing or incomplete. It needs to be created
-echo with the following line, adjusted for your system:
+echo compilesettings.bat is missing or incomplete. It needs to contain
+echo the following line, adjusted for your system:
 echo.
 echo   set DELPHIXEROOT=C:\Program Files\Embarcadero\RAD Studio\20.0 [Path to Delphi 10.4 Sydney (or later)]
 goto failed2
@@ -34,6 +34,9 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 
 cd Projects
 if errorlevel 1 goto failed
+
+if "%1"=="issigtool" goto issigtool
+if not "%1"=="" goto failed
 
 echo - ISPP.dpr
 mkdir Dcu\ISPP.dpr 2>nul
@@ -65,17 +68,20 @@ mkdir Dcu\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi;Vcl -Q -B -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release;..\Components\UniPs\Source" -E..\Files -NUDcu\Setup.dpr -DSETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS Setup.dpr
 if errorlevel 1 goto failed
 
-echo - ISSigTool.dpr
-mkdir Dcu\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISSigTool.dpr ISSigTool.dpr
-if errorlevel 1 goto failed
-
 echo - Renaming E32 files
 cd ..\Files
 if errorlevel 1 goto failed
 move SetupLdr.exe SetupLdr.e32
 if errorlevel 1 goto failed
 move Setup.exe Setup.e32
+if errorlevel 1 goto failed
+cd ..\Projects
+if errorlevel 1 goto failed
+
+:issigtool
+echo - ISSigTool.dpr
+mkdir Dcu\ISSigTool.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSSystem;System.Win;Winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" -E..\Files -NUDcu\ISSigTool.dpr ISSigTool.dpr
 if errorlevel 1 goto failed
 
 cd ..

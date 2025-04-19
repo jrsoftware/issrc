@@ -20,7 +20,7 @@ interface
 uses
   Windows, SysUtils, Classes, Generics.Collections,
   SimpleExpression, SHA256, ChaCha20,
-  Shared.Struct, Shared.CompilerInt, Shared.PreprocInt, Shared.SetupMessageIDs,
+  Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
 
@@ -288,7 +288,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
@@ -502,31 +502,30 @@ begin
   end;
 end;
 
+function LoadCompilerDLL(const Filename: String; const TrustAllOnDebug: Boolean = False): HMODULE;
+begin
+  try
+    Result := LoadTrustedLibrary(FileName, TrustAllOnDebug);
+  except
+    begin
+      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s', [PathExtractName(Filename), GetExceptMessage]);
+      Result := 0; //silence compiler
+    end;
+  end;
+end;
+
 procedure TSetupCompiler.InitPreprocessor;
-{$IFNDEF STATICPREPROC}
-var
-  Filename: String;
-  Attr: DWORD;
-  M: HMODULE;
-{$ENDIF}
 begin
   if PreprocessorInitialized then
     Exit;
 {$IFNDEF STATICPREPROC}
-  Filename := CompilerDir + 'ISPP.dll';
-  Attr := GetFileAttributes(PChar(Filename));
-  if (Attr = INVALID_FILE_ATTRIBUTES) and (GetLastError = ERROR_FILE_NOT_FOUND) then begin
-    { ISPP unavailable; fall back to built-in preprocessor }
-  end
-  else begin
-    M := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
-    if M = 0 then
-      AbortCompileFmt('Failed to load preprocessor DLL "%s" (%d)',
-        [Filename, GetLastError]);
+  var Filename := CompilerDir + 'ISPP.dll';
+  if NewFileExists(Filename) then begin
+    var M := LoadCompilerDLL(Filename, True);
     PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
-      AbortCompileFmt('Failed to get address of functions in "%s"', [Filename]);
-  end;
+      AbortCompile('Failed to get address of functions in ISPP.dll');
+  end; { else ISPP unavailable; fall back to built-in preprocessor }
 {$ELSE}
   PreprocessScriptProc := ISPreprocessScript;
 {$ENDIF}
@@ -534,42 +533,33 @@ begin
 end;
 
 procedure TSetupCompiler.InitZipDLL;
-var
-  M: HMODULE;
 begin
   if ZipInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'iszlib.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load iszlib.dll (%d)', [GetLastError]);
+  var Filename := CompilerDir + 'iszlib.dll';
+  var M := LoadCompilerDLL(Filename);
   if not ZlibInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in iszlib.dll');
   ZipInitialized := True;
 end;
 
 procedure TSetupCompiler.InitBzipDLL;
-var
-  M: HMODULE;
 begin
   if BzipInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'isbzip.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load isbzip.dll (%d)', [GetLastError]);
+  var Filename := CompilerDir + 'isbzip.dll';
+  var M := LoadCompilerDLL(Filename);
   if not BZInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in isbzip.dll');
   BzipInitialized := True;
 end;
 
 procedure TSetupCompiler.InitLZMADLL;
-var
-  M: HMODULE;
 begin
   if LZMAInitialized then
     Exit;
-  M := SafeLoadLibrary(CompilerDir + 'islzma.dll', SEM_NOOPENFILEERRORBOX);
-  if M = 0 then
-    AbortCompileFmt('Failed to load islzma.dll (%d)', [GetLastError]);
+  var Filename := CompilerDir + 'islzma.dll';
+  var M := LoadCompilerDLL(Filename);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in islzma.dll');
   LZMAInitialized := True;

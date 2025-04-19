@@ -78,6 +78,7 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\TrustFunc.pas"/>
         <DCCReference Include="Src\IDE.MainForm.pas">
             <Form>MainForm</Form>
         </DCCReference>
@@ -86,6 +87,7 @@
         <DCCReference Include="Src\IDE.HelperFunc.pas"/>
         <DCCReference Include="Src\IDE.Messages.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\IDE.OptionsForm.pas">
             <Form>OptionsForm</Form>
         </DCCReference>
@@ -153,6 +155,9 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

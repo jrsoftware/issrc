@@ -23,12 +23,18 @@ uses
   Classes,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   PathFunc in '..\Components\PathFunc.pas',
+  TrustFunc in '..\Components\TrustFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
-  Shared.Int64Em in 'Src\Shared.Int64Em.pas';
+  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -559,6 +565,14 @@ begin
   end;
 
   {$IFNDEF STATICCOMPILER}
+  try
+    InitISCmplrLibrary;
+  except
+    begin
+      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
+      Halt(1);
+    end;
+  end;
   Ver := ISDllGetVersion;
   {$ELSE}
   Ver := ISGetVersion;
@@ -643,6 +657,11 @@ begin
     Halt(ExitCode);
 end;
 
+function ISPPInstalled: Boolean;
+begin
+  Result := NewFileExists(PathExtractPath(NewParamStr(0)) + 'ISPP.dll');
+end;
+
 begin
   SignTools := TStringList.Create;
   try
@@ -653,7 +672,7 @@ begin
     StdErrHandleIsConsole := GetConsoleMode(StdErrHandle, Mode);
     SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
     try
-      IsppMode := FileExists(ExtractFilePath(NewParamStr(0)) + 'ispp.dll');
+      IsppMode := ISPPInstalled;
       ProcessCommandLine;
       Go;
     except
