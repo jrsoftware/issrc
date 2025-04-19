@@ -208,12 +208,10 @@ begin
   {$IFNDEF STATICCOMPILER}
   try
     InitISCmplrLibrary;
-    if ISCmplrLibrary = 0 then
-      raise Exception.Create(Win32ErrorString(GetLastError));
-  except on E: Exception do
+  except
     begin
-      MessageBox(0, PChar(Format('Could not load %s: %s.',
-        [ISCmplrDLL, E.Message])), nil, MB_OK or MB_ICONSTOP);
+      MessageBox(0, PChar(Format('Could not load %s: %s',
+        [ISCmplrDLL, AddPeriod(GetExceptMessage)])), nil, MB_OK or MB_ICONSTOP);
       Halt(3);
     end;
   end;
@@ -221,12 +219,10 @@ begin
 
   try
     InitIsscintLibrary;
-    if IsscintLibrary = 0 then
-      raise Exception.Create(Win32ErrorString(GetLastError));
-  except on E: Exception do
+  except
     begin
       MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
-        [IsscintDLL, E.Message])), nil, MB_OK or MB_ICONSTOP);
+        [IsscintDLL, AddPeriod(GetExceptMessage)])), nil, MB_OK or MB_ICONSTOP);
       Halt(4);
     end;
   end;

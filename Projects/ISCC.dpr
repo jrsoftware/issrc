@@ -567,11 +567,9 @@ begin
   {$IFNDEF STATICCOMPILER}
   try
     InitISCmplrLibrary;
-    if ISCmplrLibrary = 0 then
-      raise Exception.Create(Win32ErrorString(GetLastError));
-  except on E: Exception do
+  except
     begin
-      WriteStdErr(Format('Could not load %s: %s.', [ISCmplrDLL, E.Message]), True);
+      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, AddPeriod(GetExceptMessage)]), True);
       Halt(1);
     end;
   end;

@@ -506,11 +506,9 @@ function LoadCompilerDLL(const Filename: String; const TrustAllOnDebug: Boolean 
 begin
   try
     Result := LoadTrustedLibrary(FileName, TrustAllOnDebug);
-    if Result = 0 then
-      raise Exception.Create(Win32ErrorString(GetLastError));
-  except on E: Exception do
+  except
     begin
-      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s.', [PathExtractName(Filename), E.Message]);
+      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s', [PathExtractName(Filename), AddPeriod(GetExceptMessage)]);
       Result := 0; //silence compiler
     end;
   end;

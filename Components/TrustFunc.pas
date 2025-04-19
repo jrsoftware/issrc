@@ -78,11 +78,33 @@ begin
 {$ENDIF}
 end;
 
+function Win32ErrorString(ErrorCode: Integer): String;
+{ Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
+  which allows the function to succeed on errors like 129 }
+var
+  Len: Integer;
+  Buffer: array[0..1023] of Char;
+begin
+  Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+    FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
+    ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
+  while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
+    Dec(Len);
+  SetString(Result, Buffer, Len);
+end;
+
+function DoLoadLibrary(const FileName: String): HMODULE;
+begin
+  Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+  if Result = 0 then
+    raise Exception.Create(Win32ErrorString(GetLastError));
+end;
+
 function LoadTrustedLibrary(const FileName: String; const TrustAllOnDebug: Boolean): HMODULE;
 begin
 {$IFDEF DEBUG}
   if TrustAllOnDebug then begin
-    Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+    Result := DoLoadLibrary(FileName);
     Exit;
   end;
 {$ENDIF}
@@ -91,7 +113,7 @@ begin
   const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
   try
     CheckFileTrust(FileName, False);
-    Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX)
+    Result := DoLoadLibrary(FileName);
   finally
     F.Free;
   end;
