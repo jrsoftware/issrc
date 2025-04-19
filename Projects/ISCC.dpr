@@ -569,7 +569,7 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, AddPeriod(GetExceptMessage)]), True);
+      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
       Halt(1);
     end;
   end;

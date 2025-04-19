@@ -508,7 +508,7 @@ begin
     Result := LoadTrustedLibrary(FileName, TrustAllOnDebug);
   except
     begin
-      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s', [PathExtractName(Filename), AddPeriod(GetExceptMessage)]);
+      TSetupCompiler.AbortCompileFmt('Failed to load %s: %s', [PathExtractName(Filename), GetExceptMessage]);
       Result := 0; //silence compiler
     end;
   end;
