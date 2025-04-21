@@ -332,7 +332,7 @@ begin
   Result := '';
   Node := Node.FirstChild;
   while Assigned(Node) do begin
-    var Element := ElementFromNode(Node);
+    const Element = ElementFromNode(Node);
     case Element of
       el_Text:
         Result := Result + EscapeHTML(Node.Text, False);
