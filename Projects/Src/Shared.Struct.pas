@@ -258,9 +258,9 @@ type
     SHA256Sum: TSHA256Digest;
     SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
-    Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
-      foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
-      foChunkEncrypted, foChunkCompressed, foSolidBreak);
+    Flags: set of (floVersionInfoValid, floVersionInfoNotValid, floTimeStampInUTC,
+      floIsUninstExe, floCallInstructionOptimized, floApplyTouchDateTime,
+      floChunkEncrypted, floChunkCompressed, floSolidBreak);
     Sign: TSetupFileLocationSign;
   end;
 const
