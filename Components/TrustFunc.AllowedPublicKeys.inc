@@ -4,7 +4,7 @@
   functionality.
   
   Other builds: if you need only one key you can set AllowedPublicKey2Text To
-  an empty string and remove the '//end' marker. }
+  an empty string. }
 
 AllowedPublicKey1Text :=
 'format issig-public-key' + #13#10 +
@@ -16,4 +16,4 @@ AllowedPublicKey2Text :=
 'format issig-public-key' + #13#10 +
 'key-id def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28' + #13#10 +
 'public-x 515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097' + #13#10 +
-'public-y f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61' + #13#10;//end
+'public-y f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61' + #13#10;
