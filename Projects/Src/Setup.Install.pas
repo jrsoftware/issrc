@@ -1171,7 +1171,7 @@ var
           DeleteFlags := DeleteFlags or utDeleteFile_ExistedBeforeInstall;
 
         if Assigned(CurFileLocation) then begin
-          if foTimeStampInUTC in CurFileLocation^.Flags then
+          if floTimeStampInUTC in CurFileLocation^.Flags then
             CurFileDate := CurFileLocation^.SourceTimeStamp
           else
             LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
@@ -1204,7 +1204,7 @@ var
             AllowTimeStampComparison := False;
             { Read version info of file being installed }
             if Assigned(CurFileLocation) then begin
-              CurFileVersionInfoValid := foVersionInfoValid in CurFileLocation^.Flags;
+              CurFileVersionInfoValid := floVersionInfoValid in CurFileLocation^.Flags;
               CurFileVersionInfo.MS := CurFileLocation^.FileVersionMS;
               CurFileVersionInfo.LS := CurFileLocation^.FileVersionLS;
             end
@@ -3295,7 +3295,7 @@ begin
       FileExtractor.DecompressFile(CurFileLocation^, DestF, nil,
         not (foDontVerifyChecksum in CurFile^.Options));
 
-      if foTimeStampInUTC in CurFileLocation^.Flags then
+      if floTimeStampInUTC in CurFileLocation^.Flags then
         CurFileDate := CurFileLocation^.SourceTimeStamp
       else
         LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);

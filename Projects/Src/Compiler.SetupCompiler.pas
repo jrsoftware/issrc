@@ -4897,27 +4897,27 @@ type
           FileLocationEntryFilenames.Add(SourceFile);
           NewFileEntry^.LocationEntry := FileLocationEntries.Count-1;
           if NewFileEntry^.FileType = ftUninstExe then
-            Include(NewFileLocationEntry^.Flags, foIsUninstExe);
+            Include(NewFileLocationEntry^.Flags, floIsUninstExe);
           Inc6464(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
-            Include(NewFileLocationEntry^.Flags, foChunkCompressed);
+            Include(NewFileLocationEntry^.Flags, floChunkCompressed);
           if shEncryptionUsed in SetupHeader.Options then
-            Include(NewFileLocationEntry^.Flags, foChunkEncrypted);
+            Include(NewFileLocationEntry^.Flags, floChunkEncrypted);
           if SolidBreak and UseSolidCompression then begin
-            Include(NewFileLocationEntry^.Flags, foSolidBreak);
+            Include(NewFileLocationEntry^.Flags, floSolidBreak);
             { If the entry matches multiple files, it should only break prior
               to compressing the first one }
             SolidBreak := False;
           end;
         end;
         if Touch then
-          Include(NewFileLocationEntry^.Flags, foApplyTouchDateTime);
+          Include(NewFileLocationEntry^.Flags, floApplyTouchDateTime);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
-          Exclude(NewFileLocationEntry^.Flags, foChunkCompressed);
+          Exclude(NewFileLocationEntry^.Flags, floChunkCompressed);
         if NoEncryption then
-          Exclude(NewFileLocationEntry^.Flags, foChunkEncrypted);
+          Exclude(NewFileLocationEntry^.Flags, floChunkEncrypted);
         if Sign <> fsNoSetting then
           ApplyNewSign(NewFileLocationEntry.Sign, Sign, SCompilerParamErrorBadCombo3);
       end
@@ -4928,15 +4928,15 @@ type
 
       { Read version info }
       if not ExternalFile and not(foIgnoreVersion in NewFileEntry^.Options) and
-         (NewFileLocationEntry^.Flags * [foVersionInfoValid, foVersionInfoNotValid] = []) then begin
+         (NewFileLocationEntry^.Flags * [floVersionInfoValid, floVersionInfoNotValid] = []) then begin
         AddStatus(Format(SCompilerStatusFilesVerInfo, [SourceFile]));
         if GetVersionNumbers(SourceFile, VersionNumbers) then begin
           NewFileLocationEntry^.FileVersionMS := VersionNumbers.MS;
           NewFileLocationEntry^.FileVersionLS := VersionNumbers.LS;
-          Include(NewFileLocationEntry^.Flags, foVersionInfoValid);
+          Include(NewFileLocationEntry^.Flags, floVersionInfoValid);
         end
         else
-          Include(NewFileLocationEntry^.Flags, foVersionInfoNotValid);
+          Include(NewFileLocationEntry^.Flags, floVersionInfoNotValid);
       end;
 
       { Safety checks }
@@ -6952,13 +6952,13 @@ var
             AbortCompileFmt(SCompilerSourceFileNotSigned, [FileLocationEntryFilenames[I]]);
         end;
 
-        if foVersionInfoValid in FL.Flags then
-          AddStatus(Format(StatusFilesStoringOrCompressingVersionStrings[foChunkCompressed in FL.Flags],
+        if floVersionInfoValid in FL.Flags then
+          AddStatus(Format(StatusFilesStoringOrCompressingVersionStrings[floChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I],
              LongRec(FL.FileVersionMS).Hi, LongRec(FL.FileVersionMS).Lo,
              LongRec(FL.FileVersionLS).Hi, LongRec(FL.FileVersionLS).Lo]))
         else
-          AddStatus(Format(StatusFilesStoringOrCompressingStrings[foChunkCompressed in FL.Flags],
+          AddStatus(Format(StatusFilesStoringOrCompressingStrings[floChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I]]));
         CallIdleProc;
         
@@ -6972,16 +6972,16 @@ var
               - the compression or encryption status of this file is
                 different from the previous file(s) in the chunk }
             if not UseSolidCompression or
-               (foSolidBreak in FL.Flags) or
-               (ChunkCompressed <> (foChunkCompressed in FL.Flags)) or
-               (CH.ChunkEncrypted <> (foChunkEncrypted in FL.Flags)) then
+               (floSolidBreak in FL.Flags) or
+               (ChunkCompressed <> (floChunkCompressed in FL.Flags)) or
+               (CH.ChunkEncrypted <> (floChunkEncrypted in FL.Flags)) then
               FinalizeChunk(CH, I-1);
           end;
           { Start a new chunk if needed }
           if not CH.ChunkStarted then begin
-            ChunkCompressed := (foChunkCompressed in FL.Flags);
+            ChunkCompressed := (floChunkCompressed in FL.Flags);
             CH.NewChunk(GetCompressorClass(ChunkCompressed), CompressLevel,
-              CompressProps, foChunkEncrypted in FL.Flags, CryptKey);
+              CompressProps, floChunkEncrypted in FL.Flags, CryptKey);
           end;
 
           FL.FirstSlice := CH.ChunkFirstSlice;
@@ -6996,20 +6996,20 @@ var
           end;
           if TimeStampsInUTC then begin
             FL.SourceTimeStamp := FT;
-            Include(FL.Flags, foTimeStampInUTC);
+            Include(FL.Flags, floTimeStampInUTC);
           end
           else
             FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
-          if foApplyTouchDateTime in FL.Flags then
+          if floApplyTouchDateTime in FL.Flags then
             ApplyTouchDateTime(FL.SourceTimeStamp);
           if TimeStampRounding > 0 then
             Dec64(Integer64(FL.SourceTimeStamp), Mod64(Integer64(FL.SourceTimeStamp), TimeStampRounding * 10000000));
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
-            Include(FL.Flags, foCallInstructionOptimized);
+            Include(FL.Flags, floCallInstructionOptimized);
 
           CH.CompressFile(SourceFile, FL.OriginalSize,
-            foCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
+            floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
         finally
           SourceFile.Free;
         end;
@@ -7290,8 +7290,8 @@ var
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
-          FileTimeToString(FL.SourceTimeStamp, foTimeStampInUTC in FL.Flags) + #9;
-        if foVersionInfoValid in FL.Flags then
+          FileTimeToString(FL.SourceTimeStamp, floTimeStampInUTC in FL.Flags) + #9;
+        if floVersionInfoValid in FL.Flags then
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
             FL.FileVersionLS and $FFFF]);
@@ -7302,7 +7302,7 @@ var
           IntToStr(FL.StartOffset) + #9 +
           Integer64ToStr(FL.ChunkSuboffset) + #9 +
           Integer64ToStr(FL.ChunkCompressedSize) + #9 +
-          EncryptedStrings[foChunkEncrypted in FL.Flags];
+          EncryptedStrings[floChunkEncrypted in FL.Flags];
         F.WriteLine(S);
       end;
     finally
