@@ -1,6 +1,7 @@
 *.dll
 *.exe
 *.e32
+*.issig
 Setup-*.bin
 Setup.log
 Default.isl
