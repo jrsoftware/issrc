@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.2)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.3)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
@@ -101,7 +101,7 @@ type
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
-      NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
+      NumISSigKeyEntries, NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
@@ -216,6 +216,14 @@ type
     PermissionsEntry: Smallint;
     Options: set of (doUninsNeverUninstall, doDeleteAfterInstall,
       doUninsAlwaysUninstall, doSetNTFSCompression, doUnsetNTFSCompression);
+  end;
+const
+  SetupISSigKeyEntryStrings = 3;
+  SetupISSigKeyEntryAnsiStrings = 0;
+type
+  PSetupISSigKeyEntry = ^TSetupISSigKeyEntry;
+  TSetupISSigKeyEntry = packed record
+    Name, PublicX, PublicY: String;
   end;
 const
   SetupFileEntryStrings = 10;

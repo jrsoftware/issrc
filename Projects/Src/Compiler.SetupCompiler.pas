@@ -76,6 +76,7 @@ type
     ComponentEntries,
     TaskEntries,
     DirEntries,
+    ISSigKeyEntries,
     FileEntries,
     FileLocationEntries,
     IconEntries,
@@ -189,6 +190,7 @@ type
     procedure EnumLanguagesProc(const Line: PChar; const Ext: Integer);
     procedure EnumRegistryProc(const Line: PChar; const Ext: Integer);
     procedure EnumDeleteProc(const Line: PChar; const Ext: Integer);
+    procedure EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
     procedure EnumFilesProc(const Line: PChar; const Ext: Integer);
     procedure EnumRunProc(const Line: PChar; const Ext: Integer);
     procedure EnumSetupProc(const Line: PChar; const Ext: Integer);
@@ -288,7 +290,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, TrustFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, ISSigFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
@@ -352,6 +354,7 @@ begin
   ComponentEntries := TLowFragList.Create;
   TaskEntries := TLowFragList.Create;
   DirEntries := TLowFragList.Create;
+  ISSigKeyEntries := TLowFragList.Create;
   FileEntries := TLowFragList.Create;
   FileLocationEntries := TLowFragList.Create;
   IconEntries := TLowFragList.Create;
@@ -419,6 +422,7 @@ begin
   IconEntries.Free;
   FileLocationEntries.Free;
   FileEntries.Free;
+  ISSigKeyEntries.Free;
   DirEntries.Free;
   TaskEntries.Free;
   ComponentEntries.Free;
@@ -4451,6 +4455,52 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
+type
+  TParam = (paName, paPublicX, paPublicY);
+const
+  ParamISSigKeysName = 'Name';
+  ParamISSigKeysPublicX = 'PublicX';
+  ParamISSigKeysPublicY = 'PublicY';
+  ParamInfo: array[TParam] of TParamInfo = (
+    (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysPublicX; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysPublicY; Flags: [piRequired, piNoEmpty]));
+var
+  Values: array[TParam] of TParamValue;
+  NewISSigKeyEntry: PSetupISSigKeyEntry;
+begin
+  ExtractParameters(Line, ParamInfo, Values);
+
+  NewISSigKeyEntry := AllocMem(SizeOf(TSetupISSigKeyEntry));
+  try
+    with NewISSigKeyEntry^ do begin
+      { Name }
+      if not IsValidIdentString(Values[paName].Data, False, False) then
+        AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
+      Name := LowerCase(Values[paName].Data);
+
+      { PublicX & PublicY }
+      PublicX := LowerCase(Values[paPublicX].Data);
+      try
+        ISSigCheckValidPublicXOrY(PublicX);
+      except
+        AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicX, GetExceptMessage]);
+      end;
+      PublicY := LowerCase(Values[paPublicY].Data);
+      try
+        ISSigCheckValidPublicXOrY(PublicY);
+      except
+        AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicY, GetExceptMessage]);
+      end;
+    end;
+  except
+    SEFreeRec(NewISSigKeyEntry, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
+    raise;
+  end;
+  ISSigKeyEntries.Add(NewISSigKeyEntry);
+end;
+
 procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 
   function EscapeBraces(const S: String): String;
@@ -5609,7 +5659,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
     NewPreLangData.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -5643,7 +5693,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
     NewLanguageEntry.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -6597,6 +6647,7 @@ var
     SetupHeader.NumComponentEntries := ComponentEntries.Count;
     SetupHeader.NumTaskEntries := TaskEntries.Count;
     SetupHeader.NumDirEntries := DirEntries.Count;
+    SetupHeader.NumISSigKeyEntries := ISSigKeyEntries.Count;
     SetupHeader.NumFileEntries := FileEntries.Count;
     SetupHeader.NumFileLocationEntries := FileLocationEntries.Count;
     SetupHeader.NumIconEntries := IconEntries.Count;
@@ -6638,6 +6689,9 @@ var
       for J := 0 to DirEntries.Count-1 do
         SECompressedBlockWrite(W, DirEntries[J]^, SizeOf(TSetupDirEntry),
           SetupDirEntryStrings, SetupDirEntryAnsiStrings);
+      for J := 0 to ISSigKeyEntries.Count-1 do
+        SECompressedBlockWrite(W, ISSigKeyEntries[J]^, SizeOf(TSetupISSigKeyEntry),
+          SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
       for J := 0 to FileEntries.Count-1 do
         SECompressedBlockWrite(W, FileEntries[J]^, SizeOf(TSetupFileEntry),
           SetupFileEntryStrings, SetupFileEntryAnsiStrings);
@@ -7792,6 +7846,9 @@ begin
     if MissingRunOnceIdsWarning and MissingRunOnceIds then
       WarningsList.Add(Format(SCompilerMissingRunOnceIdsWarning, ['UninstallRun', 'RunOnceId']));
 
+    EnumIniSection(EnumISSigKeysProc, 'ISSigKeys', 0, True, True, '', False, False);
+    CallIdleProc;
+
     { Read [Files] section }
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then
       EnumFilesProc('', 1);
@@ -8013,6 +8070,7 @@ begin
     FreeListItems(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
     FreeListItems(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     FreeListItems(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
+    FreeListItems(ISSigKeyEntries, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
     FreeListItems(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
     FreeListItems(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
     FreeListItems(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);

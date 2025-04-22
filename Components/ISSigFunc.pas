@@ -37,6 +37,8 @@ procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 
+procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
+
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
 
 implementation
@@ -311,6 +313,11 @@ begin
   end else
     AKey.ImportPublicKey(PrivateKey.PublicKey);
   Result := ikrSuccess;
+end;
+
+procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
+begin
+  ECDSAInt256FromString(PublicXOrY);
 end;
 
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;

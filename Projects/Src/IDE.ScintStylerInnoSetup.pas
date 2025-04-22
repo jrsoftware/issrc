@@ -46,6 +46,7 @@ type
     scComponents,
     scCustomMessages,
     scDirs,
+    scISSigKeys,
     scFiles,
     scIcons,
     scINI,
@@ -183,11 +184,12 @@ type
   end;
 
 const
-  SectionMap: array[0..17] of TSectionMapItem = (
+  SectionMap: array[0..18] of TSectionMapItem = (
     (Name: 'Code'; Section: scCode),
     (Name: 'Components'; Section: scComponents),
     (Name: 'CustomMessages'; Section: scCustomMessages),
     (Name: 'Dirs'; Section: scDirs),
+    (Name: 'ISSigKeys'; Section: scISSigKeys),
     (Name: 'Files'; Section: scFiles),
     (Name: 'Icons'; Section: scIcons),
     (Name: 'INI'; Section: scINI),
@@ -230,6 +232,10 @@ const
   DirsSectionFlags: array of TScintRawString = [
     'deleteafterinstall', 'setntfscompression', 'uninsalwaysuninstall',
     'uninsneveruninstall', 'unsetntfscompression'
+  ];
+
+  ISSigKeysSectionParameters: array of TScintRawString = [
+    'Name', 'PublicX', 'PublicY'
   ];
 
   FilesSectionParameters: array of TScintRawString = [
@@ -603,6 +609,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildKeywordsWordLists;
   begin
+    BuildKeywordsWordList(scISSigKeys, ISSigKeysSectionParameters);
     BuildKeywordsWordList(scFiles, FilesSectionParameters);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
@@ -1717,6 +1724,7 @@ begin
       scComponents: HandleParameterSection(ComponentsSectionParameters);
       scCustomMessages: HandleKeyValueSection(Section);
       scDirs: HandleParameterSection(DirsSectionParameters);
+      scISSigKeys: HandleParameterSection(ISSigKeysSectionParameters);
       scFiles: HandleParameterSection(FilesSectionParameters);
       scIcons: HandleParameterSection(IconsSectionParameters);
       scINI: HandleParameterSection(INISectionParameters);
