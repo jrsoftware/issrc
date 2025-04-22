@@ -611,6 +611,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   begin
     BuildKeywordsWordList(scISSigKeys, ISSigKeysSectionParameters);
     BuildKeywordsWordList(scFiles, FilesSectionParameters);
+    BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
+    BuildKeywordsWordList(scDirs, DirsSectionParameters);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
