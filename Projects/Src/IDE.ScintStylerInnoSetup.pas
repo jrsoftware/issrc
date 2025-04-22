@@ -604,6 +604,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   procedure BuildKeywordsWordLists;
   begin
     BuildKeywordsWordList(scFiles, FilesSectionParameters);
+    BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
+    BuildKeywordsWordList(scDirs, DirsSectionParameters);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
