@@ -4457,13 +4457,15 @@ end;
 
 procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
 type
-  TParam = (paName, paPublicX, paPublicY);
+  TParam = (paName, paKeyID, paPublicX, paPublicY);
 const
   ParamISSigKeysName = 'Name';
+  ParamISSigKeysKeyID = 'KeyID';
   ParamISSigKeysPublicX = 'PublicX';
   ParamISSigKeysPublicY = 'PublicY';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysKeyID; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysPublicX; Flags: [piRequired, piNoEmpty]),
     (Name: ParamISSigKeysPublicY; Flags: [piRequired, piNoEmpty]));
 var
@@ -4481,7 +4483,7 @@ begin
       Name := LowerCase(Values[paName].Data);
 
       { PublicX & PublicY }
-      PublicX := LowerCase(Values[paPublicX].Data);
+      PublicX := Values[paPublicX].Data;
       try
         ISSigCheckValidPublicXOrY(PublicX);
       except
@@ -4492,6 +4494,18 @@ begin
         ISSigCheckValidPublicXOrY(PublicY);
       except
         AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicY, GetExceptMessage]);
+      end;
+
+      { KeyID }
+      var KeyID := Values[paKeyID].Data;
+      if KeyID <> '' then begin
+        try
+          ISSigCheckValidKeyID(KeyID);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysKeyID, GetExceptMessage]);
+        end;
+        if not ISSigIsValidKeyIDForPublicXY(KeyID, PublicX, PublicY) then
+          AbortCompile(SCompilerISSigKeysBadKeyID);
       end;
     end;
   except

@@ -37,7 +37,9 @@ procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 
+procedure ISSigCheckValidKeyID(const KeyID: String);
 procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
+function ISSigIsValidKeyIDForPublicXY(const KeyID, PublicX, PublicY: String): Boolean;
 
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
 
@@ -315,9 +317,24 @@ begin
   Result := ikrSuccess;
 end;
 
+procedure ISSigCheckValidKeyID(const KeyID: String);
+begin
+  SHA256DigestFromString(KeyID);
+end;
+
 procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
 begin
   ECDSAInt256FromString(PublicXOrY);
+end;
+
+function ISSigIsValidKeyIDForPublicXY(const KeyID, PublicX, PublicY: String): Boolean;
+begin
+  var PublicKey: TECDSAPublicKey;
+  PublicKey.Public_x := ECDSAInt256FromString(PublicX);
+  PublicKey.Public_y := ECDSAInt256FromString(PublicY);
+
+  Result := SHA256DigestsEqual(SHA256DigestFromString(KeyID),
+     CalcKeyID(PublicKey));
 end;
 
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
