@@ -4912,6 +4912,8 @@ type
         end;
         if Touch then
           Include(NewFileLocationEntry^.Flags, floApplyTouchDateTime);
+        if foISSigVerify in NewFileEntry^.Options then
+          Include(NewFileLocationEntry^.Flags, floISSigVerify);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then

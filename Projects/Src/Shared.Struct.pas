@@ -268,7 +268,7 @@ type
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (floVersionInfoValid, floVersionInfoNotValid, floTimeStampInUTC,
       floIsUninstExe, floCallInstructionOptimized, floApplyTouchDateTime,
-      floChunkEncrypted, floChunkCompressed, floSolidBreak);
+      floChunkEncrypted, floChunkCompressed, floSolidBreak, floISSigVerify);
     Sign: TSetupFileLocationSign;
   end;
 const
