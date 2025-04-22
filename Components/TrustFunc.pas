@@ -19,9 +19,13 @@ function LoadTrustedLibrary(const FileName: String; const TrustAllOnDebug: Boole
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, System.Classes, ECDSA, SHA256, ISSigFunc {$ENDIF};
+  Winapi.Windows, System.SysUtils, System.Classes {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc {$ENDIF};
 
 procedure CheckFileTrust(const FileName: String; const CheckExists: Boolean);
+{$IFNDEF TRUSTALL}
+var
+  AllowedKeys: array of TECDSAKey;
+{$ENDIF}
 begin
   if CheckExists then begin
     var Attr := GetFileAttributes(PChar(FileName));
@@ -44,7 +48,6 @@ begin
         raise Exception.Create('ISSigImportKeyText failed');
     end;
 
-    var AllowedKeys: array of TECDSAKey;
     if Key2 <> nil then
       AllowedKeys := [Key1, Key2]
     else
