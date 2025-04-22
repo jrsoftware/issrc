@@ -4569,7 +4569,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..40] of PChar = (
+  Flags: array[0..41] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4580,7 +4580,8 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck');
+    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
+    'issigverify');
   SignFlags: array[TSetupFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -5183,6 +5184,7 @@ begin
                    38: ApplyNewSign(Sign, fsYes, SCompilerParamErrorBadCombo2);
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
+                   41: Include(Options, foISSigVerify);
                  end;
 
                { Source }
@@ -5331,11 +5333,17 @@ begin
             AbortCompile(SCompilerFilesCantHaveExternalExclude)
           else if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
+              [ParamCommonFlags, 'external', SignFlags[Sign]])
+          else if foISSigVerify in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
         
         if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
-          Sign := fsNoSetting;
+          Sign := fsNoSetting
+        else if (Sign = fsYes) and (foISSigVerify in Options) then
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'sign', 'issigverify']);
 
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);

@@ -248,7 +248,7 @@ const
   FilesSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
     'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
-    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme',
+    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme', 'issigverify',
     'nocompression', 'noencryption', 'noregerror', 'onlyifdestfileexists',
     'onlyifdoesntexist', 'overwritereadonly', 'promptifolder', 'recursesubdirs',
     'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
