@@ -31,7 +31,9 @@ uses
 {$R Res\ISSigTool.versionandicon.res}
 
 var
-  KeyFilename: String;
+  Options: record
+    KeyFile: String;
+  end;
 
 procedure RaiseFatalError(const Msg: String);
 begin
@@ -58,31 +60,32 @@ begin
   Result := SHA256Final(Context);
 end;
 
-procedure CheckImportKeyResult(const AResult: TISSigImportKeyResult);
+procedure ImportKey(const AKey: TECDSAKey; const ANeedPrivateKey: Boolean);
 begin
-  case AResult of
-    ikrSuccess:
-      Exit;
-    ikrMalformed:
-      RaiseFatalError('Key file is malformed');
-    ikrNotPrivateKey:
-      RaiseFatalError('Key file must be a private key when signing');
+  const ImportResult = ISSigImportKeyText(AKey,
+    ISSigLoadTextFromFile(Options.KeyFile), ANeedPrivateKey);
+  if ImportResult <> ikrSuccess then begin
+    case ImportResult of
+      ikrMalformed:
+        RaiseFatalError('Key file is malformed');
+      ikrNotPrivateKey:
+        RaiseFatalError('Key file must be a private key when signing');
+    end;
+    RaiseFatalError('Unknown import key result');
   end;
-  RaiseFatalError('Unknown import key result');
 end;
 
 procedure CommandExportPublicKey(const AFilename: String);
 begin
   const Key = TECDSAKey.Create;
   try
-    CheckImportKeyResult(ISSigImportKeyText(Key,
-      ISSigLoadTextFromFile(KeyFilename), True));
+    ImportKey(Key, False);
 
     var PublicKeyText: String;
     ISSigExportPublicKeyText(Key, PublicKeyText);
     ISSigSaveTextToFile(AFilename, PublicKeyText);
 
-    Writeln(AFilename, ': OK');
+    Writeln('Public key file created: ', AFilename);
   finally
     Key.Free;
   end;
@@ -90,7 +93,7 @@ end;
 
 procedure CommandGeneratePrivateKey;
 begin
-  if NewFileExists(KeyFilename) then
+  if NewFileExists(Options.KeyFile) then
     RaiseFatalError('Key file already exists');
 
   const Key = TECDSAKey.Create;
@@ -99,9 +102,9 @@ begin
 
     var PrivateKeyText: String;
     ISSigExportPrivateKeyText(Key, PrivateKeyText);
-    ISSigSaveTextToFile(KeyFilename, PrivateKeyText);
+    ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
 
-    Writeln(KeyFilename, ': OK');
+    Writeln('Private key file created: ', Options.KeyFile);
   finally
     Key.Free;
   end;
@@ -152,8 +155,7 @@ procedure CommandSign(const AFilenames: TStringList);
 begin
   const Key = TECDSAKey.Create;
   try
-    CheckImportKeyResult(ISSigImportKeyText(Key,
-      ISSigLoadTextFromFile(KeyFilename), True));
+    ImportKey(Key, True);
 
     for var CurFilename in AFilenames do
       SignSingleFile(Key, CurFilename);
@@ -218,8 +220,7 @@ function CommandVerify(const AFilenames: TStringList): Boolean;
 begin
   const Key = TECDSAKey.Create;
   try
-    CheckImportKeyResult(ISSigImportKeyText(Key,
-      ISSigLoadTextFromFile(KeyFilename), False));
+    ImportKey(Key, False);
 
     Result := True;
     for var CurFilename in AFilenames do
@@ -230,17 +231,13 @@ begin
   end;
 end;
 
-procedure ShowBanner;
-begin
-  Writeln('Inno Setup Signature Tool');
-  Writeln('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-  Writeln('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
-  Writeln('https://www.innosetup.com');
-  Writeln('');
-end;
-
 procedure ShowUsage;
 begin
+  Writeln(ErrOutput, 'Inno Setup Signature Tool');
+  Writeln(ErrOutput, 'Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
+  Writeln(ErrOutput, 'Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  Writeln(ErrOutput, 'https://www.innosetup.com');
+  Writeln(ErrOutput, '');
   Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filenames>');
   Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filenames>');
   Writeln(ErrOutput, 'or to export the public key:  issigtool [options] export-public-key <filename>');
@@ -261,7 +258,7 @@ begin
     while J < ArgList.Count do begin
       const S = ArgList[J];
       if S.StartsWith('--key-file=') then begin
-        KeyFilename := S.Substring(Length('--key-file='));
+        Options.KeyFile := S.Substring(Length('--key-file='));
         ArgList.Delete(J);
       end else begin
         if S.StartsWith('-') then
@@ -279,9 +276,9 @@ begin
     const Command = ArgList[0];
     ArgList.Delete(0);
 
-    if KeyFilename = '' then begin
-      KeyFilename := GetEnv('ISSIGTOOL_KEY_FILE');
-      if KeyFilename = '' then
+    if Options.KeyFile = '' then begin
+      Options.KeyFile := GetEnv('ISSIGTOOL_KEY_FILE');
+      if Options.KeyFile = '' then
         RaiseFatalError('"--key-file=" option must be specified, ' +
           'or set the ISSIGTOOL_KEY_FILE environment variable');
     end;
@@ -314,7 +311,6 @@ end;
 
 begin
   try
-    ShowBanner;
     Go;
   except
     Writeln(ErrOutput, 'issigtool fatal error: ', GetExceptMessage);
