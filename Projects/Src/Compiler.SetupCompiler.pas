@@ -6984,6 +6984,7 @@ var
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try
+          var ExpectedFileHash: TSHA256Digest;
           if floISSigVerify in FL.Flags then begin
             if Length(ISSigKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigKeys) = 0']);
@@ -6992,7 +6993,6 @@ var
               AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [FileLocationEntryFilenames[I]]);
             const SigText = ISSigLoadTextFromFile(SigFilename);
             var ExpectedFileSize: Int64;
-            var ExpectedFileHash: TSHA256Digest;
             const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
               ExpectedFileSize, ExpectedFileHash);
             if VerifyResult <> vsrSuccess then begin
@@ -7011,6 +7011,7 @@ var
             if Int64(SourceFile.Size) <> ExpectedFileSize then
               AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
+            { ExpectedFileHash checked below after compression }
           end;
 
           if CH.ChunkStarted then begin
@@ -7058,6 +7059,11 @@ var
 
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
+
+          if floISSigVerify in FL.Flags then
+            if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
         finally
           SourceFile.Free;
         end;
