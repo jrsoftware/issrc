@@ -231,17 +231,13 @@ begin
   end;
 end;
 
-procedure ShowBanner;
-begin
-  Writeln('Inno Setup Signature Tool');
-  Writeln('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-  Writeln('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
-  Writeln('https://www.innosetup.com');
-  Writeln('');
-end;
-
 procedure ShowUsage;
 begin
+  Writeln(ErrOutput, 'Inno Setup Signature Tool');
+  Writeln(ErrOutput, 'Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
+  Writeln(ErrOutput, 'Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  Writeln(ErrOutput, 'https://www.innosetup.com');
+  Writeln(ErrOutput, '');
   Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filenames>');
   Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filenames>');
   Writeln(ErrOutput, 'or to export the public key:  issigtool [options] export-public-key <filename>');
@@ -315,7 +311,6 @@ end;
 
 begin
   try
-    ShowBanner;
     Go;
   except
     Writeln(ErrOutput, 'issigtool fatal error: ', GetExceptMessage);
