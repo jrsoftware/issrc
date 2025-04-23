@@ -63,11 +63,15 @@ call .\compile.bat
 if errorlevel 1 goto failed
 echo Compiling Inno Setup done
 
+set signfiles=files\compil32.exe files\iscmplr.dll files\ispp.dll
+
 if exist .\setup-presign.bat (
-  call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
+  echo - Presigning
+  call .\setup-presign.bat %signfiles%
+  echo Presign done
 ) 
 
-call .\issig.bat sign
+call .\issig.bat sign %signfiles%
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

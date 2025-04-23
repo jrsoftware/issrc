@@ -8,7 +8,7 @@ rem
 rem  Batch file to embed the public key in TrustFunc.AllowedPublicKeys.inc (before compilation) or to create ISCmplr.dll.issig and ISPP.dll.issig (after compilation)
 rem  Also generates a new private key if needed
 
-setlocal
+setlocal enabledelayedexpansion
 
 cd /d %~dp0
 
@@ -27,9 +27,6 @@ if "%ISSIGTOOL_KEY_FILE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-cd Files
-if errorlevel 1 goto failed
-
 if not exist "%ISSIGTOOL_KEY_FILE%" (
   echo Missing key file
   ISSigTool.exe generate-private-key
@@ -43,26 +40,30 @@ if "%1"=="sign" goto sign
 if not "%1"=="" goto failed
 
 :embed
-set targetfile=..\Components\TrustFunc.AllowedPublicKeys.inc
+set targetfile=Components\TrustFunc.AllowedPublicKeys.inc
 if not exist "%targetfile%" goto failed
-set publickeyfile=_temp.ispublickey
-ISSigTool.exe export-public-key "%publickeyfile%"
+set publickeyfile=Files\_temp.ispublickey
+Files\ISSigTool.exe export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
 powershell.exe -NoProfile -Command "$filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = 'AllowedPublicKey2Text :='; $endMarker = ';'; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; $replacementText = $replacementText -replace \"`r`n\", \"' + #13#10 +`r`n'\"; $replacementText = \"'\" + $replacementText + \"'\"; $replacementText = $replacementText -replace \" \+`r`n''\", \"\"; [string] $pattern = '(?s)' + [regex]::Escape($startMarker) + '.*?' + [regex]::Escape($endMarker); if ($content -match $pattern) { $replacement = $startMarker + \"`r`n\" + $replacementText  + $endMarker; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host 'Embedded key.'; } else { Write-Host 'Markers not found.'; exit 1; } } catch { Write-Error ('Error: ' + $_.Exception.Message); exit 1; }"
 if errorlevel 1 goto failed
 del "%publickeyfile%"
 if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
 
 echo Success!
 goto exit
 
 :sign
-ISSigTool.exe sign ISCmplr.dll ISPP.dll
-if errorlevel 1 goto failed
-cd ..
+set signfiles=
+shift  
+:signfilesloop  
+if "%1"=="" goto signfilesdone  
+set "signfiles=!signfiles! %1"  
+shift  
+goto signfilesloop
+:signfilesdone
+Files\ISSigTool.exe sign %signfiles%
 if errorlevel 1 goto failed
 
 echo Success!

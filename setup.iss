@@ -120,7 +120,7 @@ Name: mykey2; KeyID: def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isccexe

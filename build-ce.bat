@@ -33,7 +33,7 @@ if not exist files\issigtool.exe (
   echo Missing ISSigTool
   echo Now open Projects\Projects.groupproj and build ISSigTool in Release mode
 
-  echo Waiting for file...
+  echo - Waiting for file...
   call :waitforfile files\issigtool.exe
   echo Compiling ISSigTool done
 )
@@ -55,7 +55,7 @@ call :deletefile ishelp\ishelpgen\ishelpgen.exe
 echo Clearing compilation output done
 echo Now open Projects\Projects.groupproj and build all projects in Release mode
 
-echo Waiting for files...
+echo - Waiting for files...
 call :waitforfile files\compil32.exe
 call :waitforfile files\iscc.exe
 call :waitforfile files\iscmplr.dll
@@ -69,11 +69,15 @@ echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 echo Compiling Inno Setup done
 
+set signfiles=files\compil32.exe files\iscmplr.dll files\ispp.dll
+
 if exist .\setup-presign.bat (
-  call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
+  echo - Presigning
+  call .\setup-presign.bat %signfiles%
+  echo Presign done
 )
 
-call .\issig.bat sign
+call .\issig.bat sign %signfiles%
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause
