@@ -40,7 +40,7 @@ type
     constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
     destructor Destroy; override;
     procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
-      const CallOptimize: Boolean; var SHA256Sum: TSHA256Digest);
+      const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
     procedure EndChunk;
     procedure Finish;
     procedure NewChunk(const ACompressorClass: TCustomCompressorClass;
@@ -243,7 +243,7 @@ begin
 end;
 
 procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
-  Bytes: Integer64; const CallOptimize: Boolean; var SHA256Sum: TSHA256Digest);
+  Bytes: Integer64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
 var
   Context: TSHA256Context;
   AddrOffset: LongWord;
