@@ -290,7 +290,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, TrustFunc, ISSigFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
@@ -5340,6 +5340,9 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
+
+        if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
+          Exclude(Options, foISSigVerify);
         
         if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
           Sign := fsNoSetting
@@ -6902,6 +6905,7 @@ var
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
     HdrChecksum, ErrorCode: DWORD;
+    ISSigKeys: array of TECDSAKey;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -6915,7 +6919,20 @@ var
 
     ChunkCompressed := False;  { avoid warning }
     CH := TCompressionHandler.Create(Self, FirstDestFile);
+    SetLength(ISSigKeys, ISSigKeyEntries.Count);
+    for I := 0 to ISSigKeyEntries.Count-1 do
+      ISSigKeys[I] := nil;
     try
+      for I := 0 to ISSigKeyEntries.Count-1 do begin
+        const ISSigKeyEntry = PSetupISSigKeyEntry(ISSigKeyEntries[I]);
+        ISSigKeys[I] := TECDSAKey.Create;
+        try
+          ISSigImportPublicKey(ISSigKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY); { shouldn't fail: values checked already }
+        except
+          AbortCompileFmt(SCompilerCompressInternalError, ['ISSigImportPublicKey failed:' + GetExceptMessage]);
+        end;
+      end;
+
       if DiskSpanning then begin
         if not CH.ReserveBytesOnSlice(BytesToReserveOnFirstDisk) then
           AbortCompile(SCompilerNotEnoughSpaceOnFirstDisk);
@@ -6967,6 +6984,35 @@ var
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try
+          if floISSigVerify in FL.Flags then begin
+            if Length(ISSigKeys) = 0 then { shouldn't fail: flag stripped already }
+              AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigKeys) = 0']);
+            const SigFilename = FileLocationEntryFilenames[I] + '.issig';
+            if not NewFileExists(SigFilename) then
+              AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [FileLocationEntryFilenames[I]]);
+            const SigText = ISSigLoadTextFromFile(SigFilename);
+            var ExpectedFileSize: Int64;
+            var ExpectedFileHash: TSHA256Digest;
+            const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
+              ExpectedFileSize, ExpectedFileHash);
+            if VerifyResult <> vsrSuccess then begin
+              case VerifyResult of
+                vsrMalformed, vsrBadSignature:
+                  AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                    [FileLocationEntryFilenames[I], SCompilerSourceFileISSigMalformedOrBadSignature]);
+                vsrKeyNotFound:
+                  AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                    [FileLocationEntryFilenames[I], SCompilerSourceFileISSigKeyNotFound]);
+              else
+                AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                  [FileLocationEntryFilenames[I], SCompilerSourceFileISSigUnknownVerifyResult]);
+              end;
+            end;
+            if Int64(SourceFile.Size) <> ExpectedFileSize then
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
+          end;
+
           if CH.ChunkStarted then begin
             { End the current chunk if one of the following conditions is true:
               - we're not using solid compression
@@ -7022,6 +7068,8 @@ var
       CH.Finish;
     finally
       CompressionInProgress := False;
+      for I := 0 to Length(ISSigKeys)-1 do
+        ISSigKeys[I].Free;
       CH.Free;
     end;
 

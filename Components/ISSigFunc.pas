@@ -36,6 +36,8 @@ procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
   var APublicKeyText: String);
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
+function ISSigImportPublicKey(const AKey: TECDSAKey;
+  const KeyID, PublicX, PublicY: String): TISSigImportKeyResult;
 
 procedure ISSigCheckValidKeyID(const KeyID: String);
 procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
@@ -314,6 +316,24 @@ begin
     AKey.ImportPrivateKey(PrivateKey);
   end else
     AKey.ImportPublicKey(PrivateKey.PublicKey);
+  Result := ikrSuccess;
+end;
+
+function ISSigImportPublicKey(const AKey: TECDSAKey;
+  const KeyID, PublicX, PublicY: String): TISSigImportKeyResult;
+begin
+  var Publickey: TECDSAPublickey;
+  PublicKey.Public_x := ECDSAInt256FromString(PublicX);
+  PublicKey.Public_y := ECDSAInt256FromString(PublicY);
+
+  if KeyID <> '' then begin
+    { Verify that the key ID is correct for the public key values }
+    if not SHA256DigestsEqual(SHA256DigestFromString(KeyID),
+       CalcKeyID(PublicKey)) then
+      Exit(ikrMalformed);
+  end;
+
+  AKey.ImportPublicKey(PublicKey);
   Result := ikrSuccess;
 end;
 

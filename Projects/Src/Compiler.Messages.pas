@@ -84,9 +84,15 @@ const
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
+  SCompilerSourceFileISSigMissingFile = 'Signature file does not exist for source file "%s"';
+  SCompilerSourceFileISSigInvalidSignature = 'Signature is not valid for source file "%s" (%s)';
+  SCompilerSourceFileISSigMalformedOrBadSignature = 'malformed or bad signature';
+  SCompilerSourceFileISSigKeyNotFound = 'incorrect key ID';
+  SCompilerSourceFileISSigUnknownVerifyResult = 'unknown verify result';
+  SCompilerSourceFileISSigFileSizeIncorrect = 'file size incorrect';
   SCompilerCopyError3 = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
-  SCompilerCompressError2 = 'An internal error occurred while trying to compress "%s"';
+  SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
