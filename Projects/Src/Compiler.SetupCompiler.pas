@@ -88,6 +88,7 @@ type
     UninstallRunEntries: TList;
 
     FileLocationEntryFilenames: THashStringList;
+    FileLocationEntryExtraInfos: TList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingMessagesWarning, MissingRunOnceIdsWarning, MissingRunOnceIds, NotRecognizedMessagesWarning, UsedUserAreasWarning: Boolean;
@@ -309,6 +310,14 @@ type
     Name, Command: String;
   end;
 
+  TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
+  PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
+  TFileLocationEntryExtraInfo = packed record
+    Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
+      floSolidBreak, floISSigVerify);
+    Sign: TFileLocationSign;
+  end;
+
 var
   ZipInitialized, BzipInitialized, LZMAInitialized: Boolean;
   PreprocessorInitialized: Boolean;
@@ -365,6 +374,7 @@ begin
   RunEntries := TLowFragList.Create;
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
+  FileLocationEntryExtraInfos := TLowFragList.Create;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -412,6 +422,7 @@ begin
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
+  FileLocationEntryExtraInfos.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
   RunEntries.Free;
@@ -4582,7 +4593,7 @@ const
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
     'issigverify');
-  SignFlags: array[TSetupFileLocationSign] of String = (
+  SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
     'readonly', 'hidden', 'system', 'notcontentindexed');
@@ -4594,12 +4605,13 @@ var
   Values: array[TParam] of TParamValue;
   NewFileEntry, PrevFileEntry: PSetupFileEntry;
   NewFileLocationEntry: PSetupFileLocationEntry;
+  NewFileLocationEntryExtraInfo: PFileLocationEntryExtraInfo;
   VersionNumbers: TFileVersionNumbers;
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
     AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak: Boolean;
-  Sign: TSetupFileLocationSign;
+  Sign: TFileLocationSign;
 type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
@@ -4828,8 +4840,8 @@ type
     end;
   end;
 
-  procedure ApplyNewSign(var Sign: TSetupFileLocationSign;
-    const NewSign: TSetupFileLocationSign; const ErrorMessage: String);
+  procedure ApplyNewSign(var Sign: TFileLocationSign;
+    const NewSign: TFileLocationSign; const ErrorMessage: String);
   begin
     if not (Sign in [fsNoSetting, NewSign]) then
       AbortCompileFmt(ErrorMessage,
@@ -4887,33 +4899,36 @@ type
           J := FileLocationEntryFilenames.CaseInsensitiveIndexOf(SourceFile);
           if J <> -1 then begin
             NewFileLocationEntry := FileLocationEntries[J];
+            NewFileLocationEntryExtraInfo := FileLocationEntryExtraInfos[J];
             NewFileEntry^.LocationEntry := J;
           end;
         end;
         if NewFileLocationEntry = nil then begin
           NewFileLocationEntry := AllocMem(SizeOf(TSetupFileLocationEntry));
+          NewFileLocationEntryExtraInfo := AllocMem(SizeOf(TFileLocationEntryExtraInfo));
           SetupHeader.CompressMethod := CompressMethod;
           FileLocationEntries.Add(NewFileLocationEntry);
+          FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
           FileLocationEntryFilenames.Add(SourceFile);
           NewFileEntry^.LocationEntry := FileLocationEntries.Count-1;
           if NewFileEntry^.FileType = ftUninstExe then
-            Include(NewFileLocationEntry^.Flags, floIsUninstExe);
+            Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
           Inc6464(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
           if shEncryptionUsed in SetupHeader.Options then
             Include(NewFileLocationEntry^.Flags, floChunkEncrypted);
           if SolidBreak and UseSolidCompression then begin
-            Include(NewFileLocationEntry^.Flags, floSolidBreak);
+            Include(NewFileLocationEntryExtraInfo^.Flags, floSolidBreak);
             { If the entry matches multiple files, it should only break prior
               to compressing the first one }
             SolidBreak := False;
           end;
         end;
         if Touch then
-          Include(NewFileLocationEntry^.Flags, floApplyTouchDateTime);
+          Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
         if foISSigVerify in NewFileEntry^.Options then
-          Include(NewFileLocationEntry^.Flags, floISSigVerify);
+          Include(NewFileLocationEntryExtraInfo^.Flags, floISSigVerify);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -4921,7 +4936,7 @@ type
         if NoEncryption then
           Exclude(NewFileLocationEntry^.Flags, floChunkEncrypted);
         if Sign <> fsNoSetting then
-          ApplyNewSign(NewFileLocationEntry.Sign, Sign, SCompilerParamErrorBadCombo3);
+          ApplyNewSign(NewFileLocationEntryExtraInfo.Sign, Sign, SCompilerParamErrorBadCombo3);
       end
       else begin
         NewFileEntry^.SourceFilename := SourceFile;
@@ -4930,7 +4945,8 @@ type
 
       { Read version info }
       if not ExternalFile and not(foIgnoreVersion in NewFileEntry^.Options) and
-         (NewFileLocationEntry^.Flags * [floVersionInfoValid, floVersionInfoNotValid] = []) then begin
+         (NewFileLocationEntry^.Flags * [floVersionInfoValid] = []) and
+         (NewFileLocationEntryExtraInfo^.Flags * [floVersionInfoNotValid] = []) then begin
         AddStatus(Format(SCompilerStatusFilesVerInfo, [SourceFile]));
         if GetVersionNumbers(SourceFile, VersionNumbers) then begin
           NewFileLocationEntry^.FileVersionMS := VersionNumbers.MS;
@@ -4938,7 +4954,7 @@ type
           Include(NewFileLocationEntry^.Flags, floVersionInfoValid);
         end
         else
-          Include(NewFileLocationEntry^.Flags, floVersionInfoNotValid);
+          Include(NewFileLocationEntryExtraInfo^.Flags, floVersionInfoNotValid);
       end;
 
       { Safety checks }
@@ -6901,6 +6917,7 @@ var
     ChunkCompressed: Boolean;
     I: Integer;
     FL: PSetupFileLocationEntry;
+    FLExtraInfo: PFileLocationEntryExtraInfo;
     FT: TFileTime;
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
@@ -6943,10 +6960,11 @@ var
 
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
+        FLExtraInfo := FileLocationEntryExtraInfos[I];
 
-        if FL.Sign <> fsNoSetting then begin
+        if FLExtraInfo.Sign <> fsNoSetting then begin
           var SignatureFound := False;
-          if FL.Sign in [fsOnce, fsCheck] then begin
+          if FLExtraInfo.Sign in [fsOnce, fsCheck] then begin
             { Check the file for a signature }
             SourceFile := TFile.Create(FileLocationEntryFilenames[I],
               fdOpenExisting, faRead, fsRead);
@@ -6961,13 +6979,13 @@ var
             end;
           end;
 
-          if (FL.Sign = fsYes) or ((FL.Sign = fsOnce) and not SignatureFound) then begin
+          if (FLExtraInfo.Sign = fsYes) or ((FLExtraInfo.Sign = fsOnce) and not SignatureFound) then begin
             AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilenames[I]]));
             Sign(FileLocationEntryFilenames[I]);
             CallIdleProc;
-          end else if FL.Sign = fsOnce then
+          end else if FLExtraInfo.Sign = fsOnce then
             AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilenames[I]]))
-          else if (FL.Sign = fsCheck) and not SignatureFound then
+          else if (FLExtraInfo.Sign = fsCheck) and not SignatureFound then
             AbortCompileFmt(SCompilerSourceFileNotSigned, [FileLocationEntryFilenames[I]]);
         end;
 
@@ -6985,7 +7003,7 @@ var
           fdOpenExisting, faRead, fsRead);
         try
           var ExpectedFileHash: TSHA256Digest;
-          if floISSigVerify in FL.Flags then begin
+          if floISSigVerify in FLExtraInfo.Flags then begin
             if Length(ISSigKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigKeys) = 0']);
             const SigFilename = FileLocationEntryFilenames[I] + '.issig';
@@ -7019,7 +7037,7 @@ var
               - the compression or encryption status of this file is
                 different from the previous file(s) in the chunk }
             if not UseSolidCompression or
-               (floSolidBreak in FL.Flags) or
+               (floSolidBreak in FLExtraInfo.Flags) or
                (ChunkCompressed <> (floChunkCompressed in FL.Flags)) or
                (CH.ChunkEncrypted <> (floChunkEncrypted in FL.Flags)) then
               FinalizeChunk(CH, I-1);
@@ -7047,7 +7065,7 @@ var
           end
           else
             FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
-          if floApplyTouchDateTime in FL.Flags then
+          if floApplyTouchDateTime in FLExtraInfo.Flags then
             ApplyTouchDateTime(FL.SourceTimeStamp);
           if TimeStampRounding > 0 then
             Dec64(Integer64(FL.SourceTimeStamp), Mod64(Integer64(FL.SourceTimeStamp), TimeStampRounding * 10000000));
@@ -7058,7 +7076,7 @@ var
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
 
-          if floISSigVerify in FL.Flags then
+          if floISSigVerify in FLExtraInfo.Flags then
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
               AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);

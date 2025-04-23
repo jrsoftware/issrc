@@ -255,7 +255,6 @@ const
   SetupFileLocationEntryStrings = 0;
   SetupFileLocationEntryAnsiStrings = 0;
 type
-  TSetupFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PSetupFileLocationEntry = ^TSetupFileLocationEntry;
   TSetupFileLocationEntry = packed record
     FirstSlice, LastSlice: Integer;
@@ -266,10 +265,8 @@ type
     SHA256Sum: TSHA256Digest;
     SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
-    Flags: set of (floVersionInfoValid, floVersionInfoNotValid, floTimeStampInUTC,
-      floIsUninstExe, floCallInstructionOptimized, floApplyTouchDateTime,
-      floChunkEncrypted, floChunkCompressed, floSolidBreak, floISSigVerify);
-    Sign: TSetupFileLocationSign;
+    Flags: set of (floVersionInfoValid, floTimeStampInUTC, floCallInstructionOptimized,
+      floChunkEncrypted, floChunkCompressed);
   end;
 const
   SetupIconEntryStrings = 13;
