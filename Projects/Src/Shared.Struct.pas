@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.2)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.3)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
@@ -247,7 +247,6 @@ const
   SetupFileLocationEntryStrings = 0;
   SetupFileLocationEntryAnsiStrings = 0;
 type
-  TSetupFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PSetupFileLocationEntry = ^TSetupFileLocationEntry;
   TSetupFileLocationEntry = packed record
     FirstSlice, LastSlice: Integer;
@@ -258,10 +257,8 @@ type
     SHA256Sum: TSHA256Digest;
     SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
-    Flags: set of (floVersionInfoValid, floVersionInfoNotValid, floTimeStampInUTC,
-      floIsUninstExe, floCallInstructionOptimized, floApplyTouchDateTime,
-      floChunkEncrypted, floChunkCompressed, floSolidBreak);
-    Sign: TSetupFileLocationSign;
+    Flags: set of (floVersionInfoValid, floTimeStampInUTC, floCallInstructionOptimized,
+      floChunkEncrypted, floChunkCompressed);
   end;
 const
   SetupIconEntryStrings = 13;
