@@ -6996,17 +6996,15 @@ var
             const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
               ExpectedFileSize, ExpectedFileHash);
             if VerifyResult <> vsrSuccess then begin
+              var VerifyResultAsString: String;
               case VerifyResult of
-                vsrMalformed, vsrBadSignature:
-                  AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
-                    [FileLocationEntryFilenames[I], SCompilerSourceFileISSigMalformedOrBadSignature]);
-                vsrKeyNotFound:
-                  AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
-                    [FileLocationEntryFilenames[I], SCompilerSourceFileISSigKeyNotFound]);
+                vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
+                vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
               else
-                AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
-                  [FileLocationEntryFilenames[I], SCompilerSourceFileISSigUnknownVerifyResult]);
+                VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
               end;
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], VerifyResultAsString]);
             end;
             if Int64(SourceFile.Size) <> ExpectedFileSize then
               AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
