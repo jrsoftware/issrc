@@ -112,12 +112,16 @@ Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
 ; Remove old ISCrypt.dll
 Type: files; Name: "{app}\ISCrypt.dll"
 
+[ISSigKeys]
+Name: mykey1; KeyID: def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38; PublicX: e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d; PublicY: e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650
+Name: mykey2; KeyID: def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28; PublicX: 515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097; PublicY: f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61
+
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isccexe
   #define isccexe "ISCC.exe"
@@ -126,8 +130,8 @@ Source: "files\{#isccexe}"; DestName: "ISCC.exe"; DestDir: "{app}"; Flags: ignor
 #ifndef iscmplrdll
   #define iscmplrdll "ISCmplr.dll"
 #endif
-Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
-Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\{#iscmplrdll}.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -137,24 +141,24 @@ Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touc
 Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef islzmadll
   #define islzmadll "islzma.dll"
 #endif
-Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
-Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\{#islzmadll}.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 #ifndef isppdll
   #define isppdll "ispp.dll"
 #endif
-Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
-Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\{#isppdll}.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISSigTool.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
