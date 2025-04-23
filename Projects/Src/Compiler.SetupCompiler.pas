@@ -316,6 +316,7 @@ type
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
       floSolidBreak, floISSigVerify);
     Sign: TFileLocationSign;
+    ISSigKeyID: String;
   end;
 
 var
@@ -7012,7 +7013,7 @@ var
             const SigText = ISSigLoadTextFromFile(SigFilename);
             var ExpectedFileSize: Int64;
             const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
-              ExpectedFileSize, ExpectedFileHash);
+              ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyID);
             if VerifyResult <> vsrSuccess then begin
               var VerifyResultAsString: String;
               case VerifyResult of
@@ -7347,6 +7348,7 @@ var
   var
     F: TTextFileWriter;
     FL: PSetupFileLocationEntry;
+    FLExtraInfo: PFileLocationEntryExtraInfo;
     S: String;
     I: Integer;
   begin
@@ -7356,11 +7358,13 @@ var
       S := 'Index' + #9 + 'SourceFilename' + #9 + 'TimeStamp' + #9 +
         'Version' + #9 + 'SHA256Sum' + #9 + 'OriginalSize' + #9 +
         'FirstSlice' + #9 + 'LastSlice' + #9 + 'StartOffset' + #9 +
-        'ChunkSuboffset' + #9 + 'ChunkCompressedSize' + #9 + 'Encrypted';
+        'ChunkSuboffset' + #9 + 'ChunkCompressedSize' + #9 + 'Encrypted' + #9 +
+        'ISSigKeyID';
       F.WriteLine(S);
 
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
+        FLExtraInfo := FileLocationEntryExtraInfos[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
           FileTimeToString(FL.SourceTimeStamp, floTimeStampInUTC in FL.Flags) + #9;
         if floVersionInfoValid in FL.Flags then
@@ -7374,7 +7378,8 @@ var
           IntToStr(FL.StartOffset) + #9 +
           Integer64ToStr(FL.ChunkSuboffset) + #9 +
           Integer64ToStr(FL.ChunkCompressedSize) + #9 +
-          EncryptedStrings[floChunkEncrypted in FL.Flags];
+          EncryptedStrings[floChunkEncrypted in FL.Flags] + #9 +
+          FLExtraInfo.ISSigKeyID;
         F.WriteLine(S);
       end;
     finally

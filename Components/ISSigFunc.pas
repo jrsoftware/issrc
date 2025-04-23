@@ -28,7 +28,10 @@ function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
   const AText: String; out AFileSize: Int64;
-  out AFileHash: TSHA256Digest): TISSigVerifySignatureResult;
+  out AFileHash: TSHA256Digest): TISSigVerifySignatureResult; overload;
+function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
+  const AText: String; out AFileSize: Int64;
+  out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult; overload;
 
 procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
   var APrivateKeyText: String);
@@ -168,7 +171,7 @@ end;
 
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
   const AText: String; out AFileSize: Int64;
-  out AFileHash: TSHA256Digest): TISSigVerifySignatureResult;
+  out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult;
 var
   TextValues: record
     Format, FileSize, FileHash, KeyID, Sig_r, Sig_s: String;
@@ -221,9 +224,18 @@ begin
   if KeyUsed.VerifySignature(HashToSign, Sig) then begin
     AFileSize := UnverifiedFileSize;
     AFileHash := UnverifiedFileHash;
+    AKeyUsedID := TextValues.KeyID;
     Result := vsrSuccess;
   end else
     Result := vsrBadSignature;
+end;
+
+function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
+  const AText: String; out AFileSize: Int64;
+  out AFileHash: TSHA256Digest): TISSigVerifySignatureResult;
+begin
+  var KeyUsedID: String;
+  Result := ISSigVerifySignatureText(AAllowedKeys, AText, AFileSize, AFileHash, KeyUsedID);
 end;
 
 procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
