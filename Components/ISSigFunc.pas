@@ -37,11 +37,11 @@ procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 function ISSigImportPublicKey(const AKey: TECDSAKey;
-  const KeyID, PublicX, PublicY: String): TISSigImportKeyResult;
+  const AKeyID, APublicX, APublicY: String): TISSigImportKeyResult;
 
-procedure ISSigCheckValidKeyID(const KeyID: String);
-procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
-function ISSigIsValidKeyIDForPublicXY(const KeyID, PublicX, PublicY: String): Boolean;
+procedure ISSigCheckValidKeyID(const AKeyID: String);
+procedure ISSigCheckValidPublicXOrY(const APublicXOrY: String);
+function ISSigIsValidKeyIDForPublicXY(const AKeyID, APublicX, APublicY: String): Boolean;
 
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
 
@@ -320,15 +320,15 @@ begin
 end;
 
 function ISSigImportPublicKey(const AKey: TECDSAKey;
-  const KeyID, PublicX, PublicY: String): TISSigImportKeyResult;
+  const AKeyID, APublicX, APublicY: String): TISSigImportKeyResult;
 begin
   var Publickey: TECDSAPublickey;
-  PublicKey.Public_x := ECDSAInt256FromString(PublicX);
-  PublicKey.Public_y := ECDSAInt256FromString(PublicY);
+  PublicKey.Public_x := ECDSAInt256FromString(APublicX);
+  PublicKey.Public_y := ECDSAInt256FromString(APublicY);
 
-  if KeyID <> '' then begin
+  if AKeyID <> '' then begin
     { Verify that the key ID is correct for the public key values }
-    if not SHA256DigestsEqual(SHA256DigestFromString(KeyID),
+    if not SHA256DigestsEqual(SHA256DigestFromString(AKeyID),
        CalcKeyID(PublicKey)) then
       Exit(ikrMalformed);
   end;
@@ -337,23 +337,23 @@ begin
   Result := ikrSuccess;
 end;
 
-procedure ISSigCheckValidKeyID(const KeyID: String);
+procedure ISSigCheckValidKeyID(const AKeyID: String);
 begin
-  SHA256DigestFromString(KeyID);
+  SHA256DigestFromString(AKeyID);
 end;
 
-procedure ISSigCheckValidPublicXOrY(const PublicXOrY: String);
+procedure ISSigCheckValidPublicXOrY(const APublicXOrY: String);
 begin
-  ECDSAInt256FromString(PublicXOrY);
+  ECDSAInt256FromString(APublicXOrY);
 end;
 
-function ISSigIsValidKeyIDForPublicXY(const KeyID, PublicX, PublicY: String): Boolean;
+function ISSigIsValidKeyIDForPublicXY(const AKeyID, APublicX, APublicY: String): Boolean;
 begin
   var PublicKey: TECDSAPublicKey;
-  PublicKey.Public_x := ECDSAInt256FromString(PublicX);
-  PublicKey.Public_y := ECDSAInt256FromString(PublicY);
+  PublicKey.Public_x := ECDSAInt256FromString(APublicX);
+  PublicKey.Public_y := ECDSAInt256FromString(APublicY);
 
-  Result := SHA256DigestsEqual(SHA256DigestFromString(KeyID),
+  Result := SHA256DigestsEqual(SHA256DigestFromString(AKeyID),
      CalcKeyID(PublicKey));
 end;
 
