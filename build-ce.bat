@@ -69,15 +69,13 @@ echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 echo Compiling Inno Setup done
 
-set signfiles=files\compil32.exe files\iscmplr.dll files\ispp.dll
-
 if exist .\setup-presign.bat (
   echo - Presigning
-  call .\setup-presign.bat %signfiles%
+  call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
   echo Presign done
 )
 
-call .\issig.bat sign %signfiles%
+call .\issig.bat sign
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

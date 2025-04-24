@@ -118,7 +118,7 @@ Type: files; Name: "{app}\ISCrypt.dll"
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef isccexe
