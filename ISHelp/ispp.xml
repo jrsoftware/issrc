@@ -24,8 +24,8 @@
  <!ENTITY endsub  '<tt><link href="sub">endsub</link></tt>'>
  <!ENTITY for     '<tt><link href="for">for</link></tt>'>
  <!ENTITY expr    '<tt>expr</tt>'> <!-- not a directive -->
- <!ENTITY curtrans '<link href="current-translation" popup="yes">current preprocessor output</link>'>
- <!ENTITY translation '<link href="translation" popup="yes">preprocessor output</link>'>
+ <!ENTITY curtrans '<link href="current-translation">current preprocessor output</link>'>
+ <!ENTITY translation '<link href="translation">preprocessor output</link>'>
  <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
  <!ENTITY dash "&#8211;">
 ]>
@@ -2114,13 +2114,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Example: <tt>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>
 		</topic>
-		<topic id="translation" popup="yes">
+		<topic id="translation" unlisted="yes">
 			<title>Preprocessor output</title>
 			<description header="no">
 				<p>Preprocessor output refers to the preprocessed version of the script.</p>
 			</description>
 		</topic>
-		<topic id="current-translation" popup="yes">
+		<topic id="current-translation" unlisted="yes">
 			<title>Current preprocessor output</title>
 			<description header="no">
 				<p>Current preprocessor output refers to the &translation; up to the line which ISPP is currently processing.</p>
