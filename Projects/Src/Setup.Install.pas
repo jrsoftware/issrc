@@ -256,11 +256,11 @@ begin
   raise Exception.Create(AReason);
 end;
 
-procedure CopySourceFileToDestFile(const SourceF, DestF: TFile; const ISSigVerify: Boolean;
-  const SourceFilename: String; AMaxProgress: Integer64);
+procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
+  const ISSigVerify: Boolean; [Ref] const ISSigKeys: array of TECDSAKey;
+  const ISSigFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
-  goes. Assumes file pointers of both are 0. SourceFilename is only used if
-  ISSigVerify is True. }
+  goes. Assumes file pointers of both are 0. }
 const
   ISSigMissingFile = 'Signature file does not exist';
   ISSigMalformedOrBadSignature = 'Malformed or bad signature';
@@ -273,23 +273,13 @@ var
   NewProgress: Integer64;
   BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
-  ISSigKeys: array of TECDSAKey;
   Context: TSHA256Context;
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
-    SetLength(ISSigKeys, Entries[seISSigKey].Count);
-    for var N := 0 to Entries[seISSigKey].Count-1 do begin
-      var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
-      ISSigKeys[N] := TECDSAKey.Create;
-      if ISSigImportPublicKey(ISSigKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
-        InternalError('ISSigImportPublicKey failed')
-    end;
-
-    const SigFilename = SourceFilename + '.issig';
-    if not NewFileExists(SigFilename) then
+    if not NewFileExists(ISSigFilename) then
       ISSigVerifyError(ISSigMissingFile);
-    const SigText = ISSigLoadTextFromFile(SigFilename);
+    const SigText = ISSigLoadTextFromFile(ISSigFilename);
     var ExpectedFileSize: Int64;
     const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
       ExpectedFileSize, ExpectedFileHash);
@@ -306,9 +296,6 @@ begin
     if Int64(SourceF.Size) <> ExpectedFileSize then
       ISSigVerifyError(ISSigFileSizeIncorrect);
     { ExpectedFileHash checked below after copy }
-
-    for var N := 0 to Length(ISSigKeys)-1 do
-      ISSigKeys[N].Free;
 
     SHA256Init(Context);
   end;
@@ -402,6 +389,7 @@ var
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
+  ISSigKeys: array of TECDSAKey;
 
   function GetLocalTimeAsStr: String;
   var
@@ -1502,9 +1490,9 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, False, '', CurFileLocation^.OriginalSize)
+                  CopySourceFileToDestFile(SourceF, DestF, False, [], '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, SourceFile, AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, ISSigKeys, SourceFile + '.issig', AExternalSize);
               finally
                 SourceF.Free;
               end;
@@ -3124,6 +3112,7 @@ begin
   AppendUninstallData := False;
   UninstLogCleared := False;
   RegisterFilesList := nil;
+  SetLength(ISSigKeys, 0);
   UninstLog := TSetupUninstallLog.Create;
   try
     try
@@ -3160,6 +3149,14 @@ begin
       RecordCompiledCode;
 
       RegisterFilesList := TList.Create;
+
+      SetLength(ISSigKeys, Entries[seISSigKey].Count);
+      for var N := 0 to Entries[seISSigKey].Count-1 do begin
+        var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
+        ISSigKeys[N] := TECDSAKey.Create;
+        if ISSigImportPublicKey(ISSigKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+          InternalError('ISSigImportPublicKey failed')
+      end;
 
       { Process Component entries, if any }
       ProcessComponentEntries;
@@ -3321,6 +3318,8 @@ begin
       Exit;
     end;
   finally
+    for I := 0 to Length(ISSigKeys)-1 do
+      ISSigKeys[I].Free;
     if Assigned(RegisterFilesList) then begin
       for I := RegisterFilesList.Count-1 downto 0 do
         Dispose(PRegisterFilesListRec(RegisterFilesList[I]));
