@@ -41,13 +41,6 @@
 			<p>Note: the preprocessor works exclusively at compile-time, and has no run-time functionality.</p>
     </description>
 		<subtopicstitle>All topics</subtopicstitle>
-    <topic id="example">
-      <title>Example Script</title>
-      <description header="no">
-        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
-        <p>Also see &builtins;.</p>
-      </description>
-    </topic>
 		<topic id="directives">
 			<title>Directives Reference</title>
  			<description header="no">
@@ -2061,12 +2054,6 @@ The first group of options (<tt>option</tt>) controls the general options, while
         <p>The default line spanning symbol is "\" which can be changed using &pragma;.</p>
       </description>
     </topic>
-		<topic id="builtinsiss">
-			<title>ISPPBuiltins.iss</title>
-			<description header="no">
-				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</p>
-			</description>
-		</topic>
 		<topic id="visibility">
 			<keywords>
 				<kwd>private</kwd>
@@ -2097,8 +2084,21 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</p>
 			</description>
 		</topic>
+    <topic id="example">
+      <title>Example Script</title>
+      <description header="no">
+        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+        <p>Also see &builtins;.</p>
+      </description>
+    </topic>
+		<topic id="builtinsiss">
+			<title>ISPPBuiltins.iss</title>
+			<description header="no">
+				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</p>
+			</description>
+		</topic>
 		<topic id="isppcc">
-			<title>Command Line Compiler</title>
+			<title>Extended Command Line Compiler</title>
 			<description header="no">
 				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra parameters to control Inno Setup Preprocessor:</p>
 				<table>
