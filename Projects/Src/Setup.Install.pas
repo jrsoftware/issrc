@@ -264,7 +264,7 @@ procedure CopySourceFileToDestFile(const SourceF, DestF: TFile; const ISSigVerif
 const
   ISSigMissingFile = 'Signature file does not exist';
   ISSigMalformedOrBadSignature = 'Malformed or bad signature';
-  ISSigKeyNotFound = 'Incorrect key ID';
+  ISSigKeyNotFound = 'No matching key found';
   ISSigUnknownVerifyResult  = 'Unknown verify result';
   ISSigFileSizeIncorrect = 'File size incorrect';
   ISSigFileHashIncorrect = 'File hash incorrect';
