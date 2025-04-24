@@ -277,6 +277,7 @@ var
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
+    { See Compiler.SetupCompiler's TSetupCompiler.Compile for similar code }
     if not NewFileExists(ISSigFilename) then
       ISSigVerifyError(ISSigMissingFile);
     const SigText = ISSigLoadTextFromFile(ISSigFilename);

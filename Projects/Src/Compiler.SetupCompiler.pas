@@ -7002,6 +7002,7 @@ var
         try
           var ExpectedFileHash: TSHA256Digest;
           if floISSigVerify in FLExtraInfo.Flags then begin
+            { See Setup.Install's CopySourceFileToDestFile for similar code }
             if Length(ISSigKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigKeys) = 0']);
             const SigFilename = FileLocationEntryFilenames[I] + '.issig';
