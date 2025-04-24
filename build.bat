@@ -65,7 +65,7 @@ echo Compiling Inno Setup done
 
 if exist .\setup-presign.bat (
   echo - Presigning
-  call .\setup-presign.bat Files\ISCmplr.dll Files\ISPP.dll
+  call .\setup-presign.bat Files\ISCC.exe Files\ISCmplr.dll Files\ISPP.dll
   echo Presign done
 ) 
 
