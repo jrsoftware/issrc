@@ -125,14 +125,8 @@ Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
 Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-#ifndef isccexe
-  #define isccexe "ISCC.exe"
-#endif
-Source: "files\{#isccexe}"; DestName: "ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-#ifndef iscmplrdll
-  #define iscmplrdll "ISCmplr.dll"
-#endif
-Source: "files\{#iscmplrdll}"; DestName: "ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
+Source: "files\ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
+Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -149,17 +143,11 @@ Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce to
 Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
 Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-#ifndef islzmadll
-  #define islzmadll "islzma.dll"
-#endif
-Source: "files\{#islzmadll}"; DestName: "islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
 Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-#ifndef isppdll
-  #define isppdll "ispp.dll"
-#endif
-Source: "files\{#isppdll}"; DestName: "ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
+Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISSigTool.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
