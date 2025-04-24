@@ -37,6 +37,8 @@ procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
   var APrivateKeyText: String);
 procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
   var APublicKeyText: String);
+procedure ISSigExportPublicKeyXY(const AKey: TECDSAKey;
+  out APublicX, APublicY: String);
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 function ISSigImportPublicKey(const AKey: TECDSAKey;
@@ -278,6 +280,19 @@ begin
       [SHA256DigestToString(CalcKeyID(PublicKey)),
        ECDSAInt256ToString(PublicKey.Public_x),
        ECDSAInt256ToString(PublicKey.Public_y)]);
+  finally
+    PublicKey.Clear;
+  end;
+end;
+
+procedure ISSigExportPublicKeyXY(const AKey: TECDSAKey;
+  out APublicX, APublicY: String);
+begin
+  var PublicKey: TECDSAPublicKey;
+  try
+    AKey.ExportPublicKey(PublicKey);
+    APublicX := ECDSAInt256ToString(PublicKey.Public_x);
+    APublicY := ECDSAInt256ToString(PublicKey.Public_y);
   finally
     PublicKey.Clear;
   end;

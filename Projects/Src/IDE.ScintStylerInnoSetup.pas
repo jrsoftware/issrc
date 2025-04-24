@@ -235,7 +235,7 @@ const
   ];
 
   ISSigKeysSectionParameters: array of TScintRawString = [
-    'Name', 'KeyID', 'PublicX', 'PublicY'
+    'Name', 'KeyFile', 'KeyID', 'PublicX', 'PublicY'
   ];
 
   FilesSectionParameters: array of TScintRawString = [

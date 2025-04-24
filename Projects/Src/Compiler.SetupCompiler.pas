@@ -4469,17 +4469,19 @@ end;
 
 procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
 type
-  TParam = (paName, paKeyID, paPublicX, paPublicY);
+  TParam = (paName, paKeyFile, paKeyID, paPublicX, paPublicY);
 const
   ParamISSigKeysName = 'Name';
+  ParamISSigKeysKeyFile = 'KeyFile';
   ParamISSigKeysKeyID = 'KeyID';
   ParamISSigKeysPublicX = 'PublicX';
   ParamISSigKeysPublicY = 'PublicY';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysKeyFile; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysKeyID; Flags: [piNoEmpty]),
-    (Name: ParamISSigKeysPublicX; Flags: [piRequired, piNoEmpty]),
-    (Name: ParamISSigKeysPublicY; Flags: [piRequired, piNoEmpty]));
+    (Name: ParamISSigKeysPublicX; Flags: [piNoEmpty]),
+    (Name: ParamISSigKeysPublicY; Flags: [piNoEmpty]));
 var
   Values: array[TParam] of TParamValue;
   NewISSigKeyEntry: PSetupISSigKeyEntry;
@@ -4494,18 +4496,45 @@ begin
         AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
       Name := LowerCase(Values[paName].Data);
 
-      { PublicX & PublicY }
+      { KeyFile & PublicX & PublicY }
+      var KeyFile := Values[paKeyFile].Data;
       PublicX := Values[paPublicX].Data;
-      try
-        ISSigCheckValidPublicXOrY(PublicX);
-      except
-        AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicX, GetExceptMessage]);
-      end;
-      PublicY := LowerCase(Values[paPublicY].Data);
-      try
-        ISSigCheckValidPublicXOrY(PublicY);
-      except
-        AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicY, GetExceptMessage]);
+      PublicY := Values[paPublicY].Data;
+
+      if (KeyFile = '') and (PublicX = '') and (PublicY = '') then
+        AbortCompile(SCompilerISSigKeysKeyNotSpecified)
+      else if KeyFile <> '' then begin
+        if PublicX <> '' then
+          AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicX])
+        else if PublicY <> '' then
+          AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicY]);
+        var Key := TECDSAKey.Create;
+        try
+          var SigText := ISSigLoadTextFromFile(KeyFile);
+          const ImportResult = ISSigImportKeyText(Key, SigText, False);
+          if ImportResult = ikrMalformed then
+            AbortCompile(SCompilerISSigKeysBadKeyFile)
+          else if ImportResult <> ikrSuccess then
+            AbortCompile(SCompilerISSigKeysUnknownKeyImportResult);
+          ISSigExportPublicKeyXY(Key, PublicX, PublicY);
+        finally
+          Key.Free;
+        end;
+      end else begin
+        if PublicX = '' then
+          AbortCompileParamError(SCompilerParamNotSpecified, ParamISSigKeysPublicX)
+        else if PublicY = '' then
+          AbortCompileParamError(SCompilerParamNotSpecified, ParamISSigKeysPublicY);
+        try
+          ISSigCheckValidPublicXOrY(PublicX);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicX, GetExceptMessage]);
+        end;
+        try
+          ISSigCheckValidPublicXOrY(PublicY);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicY, GetExceptMessage]);
+        end;
       end;
 
       { KeyID }

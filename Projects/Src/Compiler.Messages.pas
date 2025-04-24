@@ -202,6 +202,7 @@ const
   SCompilerParamDataTooLong = 'Data on parameter "%s" is too long';
   SCompilerParamUnknownParam = 'Unrecognized parameter name "%s"';
   SCompilerParamDuplicated = 'Cannot have multiple "%s" parameters';
+  SCompilerParamConflict = 'Cannot have both the "%s" and "%s" parameters';
   SCompilerParamEmpty2 = 'Parameter "%s" is empty';
   SCompilerParamNotSpecified = 'Required parameter "%s" not specified';
   SCompilerParamNoQuotes2 = 'Parameter "%s" cannot include quotes (")';
@@ -246,9 +247,12 @@ const
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "PublicX" and "PublicY" values.';
+  SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
+  SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
+  SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
+  SCompilerISSigKeysUnknownKeyImportResult = 'Unknown import key result';
 
   { [Languages] }
   SCompilerParamUnknownLanguage = 'Parameter "%s" includes an unknown language';
