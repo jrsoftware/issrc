@@ -308,6 +308,9 @@
 				</description>
 				<section title="Examples">
 					<pre>
+						<line>[Setup]</line>
+						<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(SourcePath) + "MyProg.exe")}</line>
+						<line></line>
 						<line>[Files]</line>
 						<line>#emit 'Source: "file1.ext"; DestDir: ' + MyDestDir</line>
 						<line>Source: "file2.ext"; DestDir: &ob;#MyDestDir&cb;</line>
@@ -690,12 +693,20 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using ISPP directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using directive &emit;:</p>
         <pre>
-          <line>#define MyAppVer GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")</line>
+          <line>#define MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")</line>
           <line></line>
           <line>[Setup]</line>
           <line>AppVerName=MyProg version {#MyAppVer}</line>
+        </pre>
+				<p>Built-in support functions can also be called directly from directive &emit;. For example:</p>
+        <pre>
+          <line>#define MyAppEnterprise</line>
+  				<line></line>
+  	      <line>[Setup]</line>
+          <line>AppName=MyProg{#<link href="defined">Defined</link> MyAppEnterprise?" Enterprise Edition":""}</line>
+					<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")}</line>
         </pre>
       </description>
 			<section title="Function prototypes documenting conventions">
