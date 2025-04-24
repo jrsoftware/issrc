@@ -31,7 +31,8 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Compression.Base, SHA256, PathFunc, ECDSA, ISSigFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
@@ -249,16 +250,69 @@ begin
   end;
 end;
 
-procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  AMaxProgress: Integer64);
+procedure ISSigVerifyError(const AReason: String);
+begin
+  Log('ISSig verification error: ' + AddPeriod(AReason));
+  raise Exception.Create(AReason);
+end;
+
+procedure CopySourceFileToDestFile(const SourceF, DestF: TFile; const ISSigVerify: Boolean;
+  const SourceFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
-  goes. Assumes file pointers of both are 0. }
+  goes. Assumes file pointers of both are 0. SourceFilename is only used if
+  ISSigVerify is True. }
+const
+  ISSigMissingFile = 'Signature file does not exist';
+  ISSigMalformedOrBadSignature = 'Malformed or bad signature';
+  ISSigKeyNotFound = 'Incorrect key ID';
+  ISSigUnknownVerifyResult  = 'Unknown verify result';
+  ISSigFileSizeIncorrect = 'File size incorrect';
+  ISSigFileHashIncorrect = 'File hash incorrect';
 var
   BytesLeft: Integer64;
   NewProgress: Integer64;
   BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
+  ISSigKeys: array of TECDSAKey;
+  Context: TSHA256Context;
 begin
+  var ExpectedFileHash: TSHA256Digest;
+  if ISSigVerify then begin
+    SetLength(ISSigKeys, Entries[seISSigKey].Count);
+    for var N := 0 to Entries[seISSigKey].Count-1 do begin
+      var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
+      ISSigKeys[N] := TECDSAKey.Create;
+      if ISSigImportPublicKey(ISSigKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+        InternalError('ISSigImportPublicKey failed')
+    end;
+
+    const SigFilename = SourceFilename + '.issig';
+    if not NewFileExists(SigFilename) then
+      ISSigVerifyError(ISSigMissingFile);
+    const SigText = ISSigLoadTextFromFile(SigFilename);
+    var ExpectedFileSize: Int64;
+    const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
+      ExpectedFileSize, ExpectedFileHash);
+    if VerifyResult <> vsrSuccess then begin
+      var VerifyResultAsString: String;
+      case VerifyResult of
+        vsrMalformed, vsrBadSignature: VerifyResultAsString := ISSigMalformedOrBadSignature;
+        vsrKeyNotFound: VerifyResultAsString := ISSigKeyNotFound;
+      else
+        VerifyResultAsString := ISSigUnknownVerifyResult;
+      end;
+      ISSigVerifyError(VerifyResultAsString);
+    end;
+    if Int64(SourceF.Size) <> ExpectedFileSize then
+      ISSigVerifyError(ISSigFileSizeIncorrect);
+    { ExpectedFileHash checked below after copy }
+
+    for var N := 0 to Length(ISSigKeys)-1 do
+      ISSigKeys[N].Free;
+
+    SHA256Init(Context);
+  end;
+
   Inc6464(AMaxProgress, CurProgress);
   BytesLeft := SourceF.Size;
 
@@ -279,6 +333,9 @@ begin
     DestF.WriteBuffer(Buf, BufSize);
     Dec64(BytesLeft, BufSize);
 
+    if ISSigVerify then
+      SHA256Update(Context, Buf, BufSize);
+
     NewProgress := CurProgress;
     Inc64(NewProgress, BufSize);
     if Compare64(NewProgress, AMaxProgress) > 0 then
@@ -287,6 +344,10 @@ begin
 
     ProcessEvents;
   end;
+
+  if ISSigVerify then
+    if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
+      ISSigVerifyError(ISSigFileHashIncorrect);
 
   { In case the source file was shorter than we thought it was, bump the
     progress bar to the maximum amount }
@@ -1441,9 +1502,9 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, CurFileLocation^.OriginalSize)
+                  CopySourceFileToDestFile(SourceF, DestF, False, '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, SourceFile, AExternalSize);
               finally
                 SourceF.Free;
               end;

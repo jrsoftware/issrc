@@ -5352,9 +5352,6 @@ begin
             AbortCompile(SCompilerFilesCantHaveExternalExclude)
           else if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
-              [ParamCommonFlags, 'external', SignFlags[Sign]])
-          else if foISSigVerify in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
 
