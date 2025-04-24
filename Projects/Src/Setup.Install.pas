@@ -253,7 +253,7 @@ end;
 procedure ISSigVerifyError(const AReason: String);
 begin
   Log('ISSig verification error: ' + AddPeriod(AReason));
-  raise Exception.Create(AReason);
+  raise Exception.Create(SetupMessages[msgSourceIsCorrupted]);
 end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
