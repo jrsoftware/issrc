@@ -181,9 +181,12 @@ begin
     properly checking the function result }
   AFileSize := -1;
   FillChar(AFileHash, SizeOf(AFileHash), 0);
+  AKeyUsedID := '';
 
   if Length(AText) > ISSigTextFileLengthLimit then
-    Exit(vsrMalformed);
+    Exit(vsrMalformed)
+  else if Length(AAllowedKeys) = 0 then
+    Exit(vsrKeyNotFound);
 
   var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
@@ -214,6 +217,7 @@ begin
   end;
   if KeyUsed = nil then
     Exit(vsrKeyNotFound);
+  AKeyUsedID := TextValues.KeyID;
 
   const UnverifiedFileSize = StrToInt64(TextValues.FileSize);
   const UnverifiedFileHash = SHA256DigestFromString(TextValues.FileHash);
@@ -224,7 +228,6 @@ begin
   if KeyUsed.VerifySignature(HashToSign, Sig) then begin
     AFileSize := UnverifiedFileSize;
     AFileHash := UnverifiedFileHash;
-    AKeyUsedID := TextValues.KeyID;
     Result := vsrSuccess;
   end else
     Result := vsrBadSignature;
