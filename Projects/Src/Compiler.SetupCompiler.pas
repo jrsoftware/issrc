@@ -4497,7 +4497,7 @@ begin
       Name := LowerCase(Values[paName].Data);
 
       { KeyFile & PublicX & PublicY }
-      var KeyFile := Values[paKeyFile].Data;
+      var KeyFile := PrependSourceDirName(Values[paKeyFile].Data);
       PublicX := Values[paPublicX].Data;
       PublicY := Values[paPublicY].Data;
 
