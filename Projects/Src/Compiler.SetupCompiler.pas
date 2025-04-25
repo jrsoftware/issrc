@@ -312,7 +312,7 @@ type
 
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
-  TFileLocationEntryExtraInfo = packed record
+  TFileLocationEntryExtraInfo = record
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
       floSolidBreak, floISSigVerify);
     Sign: TFileLocationSign;

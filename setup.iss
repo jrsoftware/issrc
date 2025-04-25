@@ -112,7 +112,7 @@ Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
 ; Remove old ISCrypt.dll
 Type: files; Name: "{app}\ISCrypt.dll"
 
-#include "setup.allowedpublicKeys.iss"
+#include "setup.allowedpublickeys.iss"
 
 #ifdef SIGNTOOL
   #define signcheck "signcheck"
