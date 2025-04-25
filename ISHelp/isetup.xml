@@ -1708,6 +1708,11 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Don't compare version info at all; replace existing files regardless of their version number.</p>
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
+<flag name="issigverify">
+<p>This flag instructs the compiler and Setup to verify the file when compiled into the installation files by the compiler or when copied from an existing file by Setup, using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>. Ignored if the [ISSigKeys] section is empty or doesn't exist.</p>
+<p>If the verification fails the compiler will abort the compilation and Setup will ask the user to abort, retry, or ignore.</p>
+<p>This flag cannot be combined with the <tt>sign</tt>, or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
+</flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
@@ -1765,12 +1770,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="sign">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="signcheck">
 <p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
@@ -2763,7 +2770,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 <keyword value="ISSigKeys" />
 <body>
 
-<p>This optional section defines any keys the compiler and Setup can use to verify files they compress or copy.</p>
+<p>This optional section defines any keys the compiler and Setup can use to verify files using <link topic="filessection">[Files]</link> section's <tt>issigverify</tt> flag.</p>
 
 <p>Here is an example of an <tt>[ISSigKeys]</tt> section:</p>
 
@@ -2812,6 +2819,8 @@ Name: "MyKey2; KeyID: "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652
 <heading>Remarks</heading>
 
 <p>Keys and key files should be created using <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+
+<p>Created key files are human readable and can be opened with any text editor to get a key's <tt>KeyID</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> values. Note that none of these values are required if you set the <tt>KeyFile</tt> parameter instead.</p>
 
 </body>
 </topic>
