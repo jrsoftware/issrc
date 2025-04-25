@@ -2785,7 +2785,7 @@ Name: "MyKey2; KeyID: "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652
 </param>
 
 <param name="KeyID">
-<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, <tt>PublicY</tt>.</p>
+<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>.</p>
 <example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
 </param>
 
@@ -2796,13 +2796,13 @@ Name: "MyKey2; KeyID: "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652
 </param>
 
 <param name="PublicX">
-<p>Specifies the keys "public-x" value.</p>
+<p>Specifies the "public-x" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
 <example><pre>PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
 </param>
 
 <param name="PublicY">
-<p>Specifies the keys "public-y" value.</p>
+<p>Specifies the "public-y" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
 <example><pre>PublicX: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
 </param>
