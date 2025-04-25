@@ -39,6 +39,7 @@
     <contentstopic title="[Run] section" topic="runsection" />
     <contentstopic title="[UninstallDelete] section" topic="uninstalldeletesection" />
     <contentstopic title="[UninstallRun] section" topic="runsection" />
+    <contentstopic title="[ISSigKeys] section" topic="issigkeyssection" />
   </contentsheading>
   <contentsheading title="Pascal Scripting">
     <contentstopic title="Introduction" topic="scriptintro" />
@@ -268,6 +269,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="runsection">[Run] section</link><br/>
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
+<link topic="issigkeyssection">[ISSigKeys] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
 <link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
@@ -2750,6 +2752,66 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p><b><link topic="componentstasksparams">Components and Tasks Parameters</link></b></p>
 
 <p><b><link topic="commonparams">Common Parameters</link></b></p>
+
+</body>
+</topic>
+
+
+
+<topic name="issigkeyssection" title="[ISSigKeys] section">
+<keyword value="[ISSigKeys] section" />
+<keyword value="ISSigKeys" />
+<body>
+
+<p>This optional section defines any keys the compiler and Setup can use to verify files they compress or copy.</p>
+
+<p>Here is an example of an <tt>[ISSigKeys]</tt> section:</p>
+
+<precode>
+[ISSigKeys]
+Name: "MyKey1; KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; KeyFile: "MyKey1.ispublickey"
+Name: "MyKey2; KeyID: "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+</precode>
+
+<p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
+
+<p>The following is a list of the supported <link topic="params">parameters</link>:</p>
+
+<paramlist>
+
+<param name="Name" required="yes">
+<p>The internal name of the key, which you can set to anything you like.</p>
+<example><pre>Name: "MyKey"</pre></example>
+</param>
+
+<param name="KeyID">
+<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, <tt>PublicY</tt>.</p>
+<example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
+</param>
+
+<param name="KeyFile">
+<p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
+<p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
+<example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
+</param>
+
+<param name="PublicX">
+<p>Specifies the keys "public-x" value.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
+</param>
+
+<param name="PublicY">
+<p>Specifies the keys "public-y" value.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicX: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+</param>
+
+</paramlist>
+
+<heading>Remarks</heading>
+
+<p>Keys and key files should be created using <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
 
 </body>
 </topic>
