@@ -33,6 +33,7 @@ uses
 var
   Options: record
     KeyFile: String;
+    Quiet: Boolean;
   end;
 
 procedure RaiseFatalError(const Msg: String);
@@ -43,6 +44,28 @@ end;
 procedure RaiseFatalErrorFmt(const Msg: String; const Args: array of const);
 begin
   raise Exception.CreateFmt(Msg, Args);
+end;
+
+procedure Print(const S: String; const IncludeNewLine: Boolean = True);
+begin
+  if IncludeNewLine then
+    Writeln(S)
+  else
+    Write(S);
+end;
+
+procedure PrintUnlessQuiet(const S: String;
+  const IncludeNewLine: Boolean = True);
+begin
+  if not Options.Quiet then
+    Print(S, IncludeNewLine);
+end;
+
+procedure PrintFmtUnlessQuiet(const S: String; const Args: array of const;
+  const IncludeNewLine: Boolean = True);
+begin
+  if not Options.Quiet then
+    Print(Format(S, Args), IncludeNewLine);
 end;
 
 function CalcFileHash(const AFile: TFile): TSHA256Digest;
@@ -85,7 +108,7 @@ begin
     ISSigExportPublicKeyText(Key, PublicKeyText);
     ISSigSaveTextToFile(AFilename, PublicKeyText);
 
-    Writeln('Public key file created: ', AFilename);
+    PrintFmtUnlessQuiet('Public key file created: "%s"', [AFilename]);
   finally
     Key.Free;
   end;
@@ -104,7 +127,7 @@ begin
     ISSigExportPrivateKeyText(Key, PrivateKeyText);
     ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
 
-    Writeln('Private key file created: ', Options.KeyFile);
+    PrintFmtUnlessQuiet('Private key file created: "%s"', [Options.KeyFile]);
   finally
     Key.Free;
   end;
@@ -112,7 +135,7 @@ end;
 
 procedure SignSingleFile(const AKey: TECDSAKey; const AFilename: String);
 begin
-  Write(AFilename, ': ');
+  PrintFmtUnlessQuiet('%s: ', [AFilename], False);
 
   var FileSize: Int64;
   var FileHash: TSHA256Digest;
@@ -140,7 +163,7 @@ begin
        ExistingFileHashValue) = vsrSuccess then begin
       if (FileSize = ExistingFileSizeValue) and
          SHA256DigestsEqual(FileHash, ExistingFileHashValue) then begin
-        Writeln('signature unchanged');
+        PrintUnlessQuiet('signature unchanged');
         Exit;
       end;
     end;
@@ -148,7 +171,7 @@ begin
 
   const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
   ISSigSaveTextToFile(SigFilename, SigText);
-  Writeln('signature written');
+  PrintUnlessQuiet('signature written');
 end;
 
 procedure CommandSign(const AFilenames: TStringList);
@@ -167,16 +190,16 @@ end;
 function VerifySingleFile(const AKey: TECDSAKey; const AFilename: String): Boolean;
 begin
   Result := False;
-  Write(AFilename, ': ');
+  PrintFmtUnlessQuiet('%s: ', [AFilename], False);
 
   if not NewFileExists(AFilename) then begin
-    Writeln('MISSINGFILE (File does not exist)');
+    PrintUnlessQuiet('MISSINGFILE (File does not exist)');
     Exit;
   end;
 
   const SigFilename = AFilename + '.issig';
   if not NewFileExists(SigFilename) then begin
-    Writeln('MISSINGSIGFILE (Signature file does not exist)');
+    PrintUnlessQuiet('MISSINGSIGFILE (Signature file does not exist)');
     Exit;
   end;
 
@@ -188,9 +211,9 @@ begin
   if VerifyResult <> vsrSuccess then begin
     case VerifyResult of
       vsrMalformed, vsrBadSignature:
-        Writeln('BADSIGFILE (Signature file is not valid)');
+        PrintUnlessQuiet('BADSIGFILE (Signature file is not valid)');
       vsrKeyNotFound:
-        Writeln('UNKNOWNKEY (Incorrect key ID)');
+        PrintUnlessQuiet('UNKNOWNKEY (Incorrect key ID)');
     else
       RaiseFatalError('Unknown verify result');
     end;
@@ -200,19 +223,19 @@ begin
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try
     if Int64(F.Size) <> ExpectedFileSize then begin
-      Writeln('WRONGSIZE (File size is incorrect)');
+      PrintUnlessQuiet('WRONGSIZE (File size is incorrect)');
       Exit;
     end;
     const ActualFileHash = CalcFileHash(F);
     if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then begin
-      Writeln('WRONGHASH (File hash is incorrect)');
+      PrintUnlessQuiet('WRONGHASH (File hash is incorrect)');
       Exit;
     end;
   finally
     F.Free;
   end;
 
-  Writeln('OK');
+  PrintUnlessQuiet('OK');
   Result := True;
 end;
 
@@ -244,6 +267,8 @@ begin
   Writeln(ErrOutput, 'or to generate a new private key:  issigtool [options] generate-private-key');
   Writeln(ErrOutput, 'Options:');
   Writeln(ErrOutput, '  --key-file=<filename> Specifies the private key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
+  Writeln(ErrOutput, '  --quiet, -q           Suppresses status messages that are normally printed to standard output');
+  Writeln(ErrOutput, '  --help, -?            Prints this information');
   Writeln(ErrOutput, '');
 end;
 
@@ -254,15 +279,24 @@ begin
     for var I := 1 to NewParamCount do
       ArgList.Add(NewParamStr(I));
 
+    const InitialArgListCount = ArgList.Count;
     var J := 0;
     while J < ArgList.Count do begin
       const S = ArgList[J];
-      if S.StartsWith('--key-file=') then begin
-        Options.KeyFile := S.Substring(Length('--key-file='));
+      if S.StartsWith('-') then begin
+        if (S = '--help') or (S = '-?') then begin
+          ShowUsage;
+          if InitialArgListCount <> 1 then
+            RaiseFatalErrorFmt('"%s" option cannot be combined with other arguments', [S]);
+          Exit;
+        end else if (S = '--quiet') or (S = '-q') then begin
+          Options.Quiet := True;
+        end else if S.StartsWith('--key-file=') then begin
+          Options.KeyFile := S.Substring(Length('--key-file='));
+        end else
+          RaiseFatalErrorFmt('Unknown option "%s".', [S]);
         ArgList.Delete(J);
       end else begin
-        if S.StartsWith('-') then
-          RaiseFatalErrorFmt('Unknown option "%s"', [S]);
         if S = '' then
           RaiseFatalError('Empty arguments not allowed');
         Inc(J);
