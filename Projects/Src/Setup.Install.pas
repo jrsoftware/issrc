@@ -250,10 +250,10 @@ begin
   end;
 end;
 
-procedure ISSigVerifyError(const AReason: String);
+procedure ISSigVerifyError(const AReason, AExceptionMessage: String);
 begin
   Log('ISSig verification error: ' + AddPeriod(AReason));
-  raise Exception.Create(SetupMessages[msgSourceIsCorrupted]);
+  raise Exception.Create(AExceptionMessage);
 end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
@@ -279,7 +279,7 @@ begin
   if ISSigVerify then begin
     { See Compiler.SetupCompiler's TSetupCompiler.Compile for similar code }
     if not NewFileExists(ISSigFilename) then
-      ISSigVerifyError(ISSigMissingFile);
+      ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, ISSigFilename));
     const SigText = ISSigLoadTextFromFile(ISSigFilename);
     var ExpectedFileSize: Int64;
     const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
@@ -292,10 +292,10 @@ begin
       else
         VerifyResultAsString := ISSigUnknownVerifyResult;
       end;
-      ISSigVerifyError(VerifyResultAsString);
+      ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
     end;
     if Int64(SourceF.Size) <> ExpectedFileSize then
-      ISSigVerifyError(ISSigFileSizeIncorrect);
+      ISSigVerifyError(ISSigFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
     { ExpectedFileHash checked below after copy }
 
     SHA256Init(Context);
@@ -335,7 +335,7 @@ begin
 
   if ISSigVerify then
     if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
-      ISSigVerifyError(ISSigFileHashIncorrect);
+      ISSigVerifyError(ISSigFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
 
   { In case the source file was shorter than we thought it was, bump the
     progress bar to the maximum amount }
