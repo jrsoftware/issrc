@@ -37,8 +37,12 @@ procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
   var APrivateKeyText: String);
 procedure ISSigExportPublicKeyText(const AKey: TECDSAKey;
   var APublicKeyText: String);
-procedure ISSigExportPublicKeyXY(const AKey: TECDSAKey;
+procedure ISSigConvertPublicKeyToStrings(const APublicKey: TECDSAPublicKey;
   out APublicX, APublicY: String);
+function ISSigParsePrivateKeyText(const AText: String;
+  out APrivateKey: TECDSAPrivateKey): TISSigImportKeyResult;
+function ISSigParsePublicKeyText(const AText: String;
+  out APublicKey: TECDSAPublicKey): TISSigImportKeyResult;
 function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 function ISSigImportPublicKey(const AKey: TECDSAKey;
@@ -285,20 +289,15 @@ begin
   end;
 end;
 
-procedure ISSigExportPublicKeyXY(const AKey: TECDSAKey;
+procedure ISSigConvertPublicKeyToStrings(const APublicKey: TECDSAPublicKey;
   out APublicX, APublicY: String);
 begin
-  var PublicKey: TECDSAPublicKey;
-  try
-    AKey.ExportPublicKey(PublicKey);
-    APublicX := ECDSAInt256ToString(PublicKey.Public_x);
-    APublicY := ECDSAInt256ToString(PublicKey.Public_y);
-  finally
-    PublicKey.Clear;
-  end;
+  APublicX := ECDSAInt256ToString(APublicKey.Public_x);
+  APublicY := ECDSAInt256ToString(APublicKey.Public_y);
 end;
 
-function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
+function InternalParseKeyText(const AText: String;
+  out APrivateKey: TECDSAPrivateKey;
   const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
 var
   TextValues: record
@@ -330,23 +329,53 @@ begin
   if not SS.ReachedEnd then
     Exit;
 
-  var PrivateKey: TECDSAPrivateKey;
-  PrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
-  PrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
+  APrivateKey.Clear;  { just because Private_d isn't always set }
+  APrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
+  APrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
 
   { Verify that the key ID is correct for the public key values }
   if not SHA256DigestsEqual(SHA256DigestFromString(TextValues.KeyID),
-     CalcKeyID(PrivateKey.PublicKey)) then
+     CalcKeyID(APrivateKey.PublicKey)) then
     Exit;
 
   if ANeedPrivateKey then begin
     if not HasPrivateKey then
       Exit(ikrNotPrivateKey);
-    PrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
-    AKey.ImportPrivateKey(PrivateKey);
-  end else
-    AKey.ImportPublicKey(PrivateKey.PublicKey);
+    APrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
+  end;
   Result := ikrSuccess;
+end;
+
+function ISSigParsePrivateKeyText(const AText: String;
+  out APrivateKey: TECDSAPrivateKey): TISSigImportKeyResult;
+begin
+  Result := InternalParseKeyText(AText, APrivateKey, True);
+end;
+
+function ISSigParsePublicKeyText(const AText: String;
+  out APublicKey: TECDSAPublicKey): TISSigImportKeyResult;
+begin
+  var PrivateKey: TECDSAPrivateKey;  { only PublicKey part is used }
+  Result := InternalParseKeyText(AText, PrivateKey, False);
+  if Result = ikrSuccess then
+    APublicKey := PrivateKey.PublicKey;
+end;
+
+function ISSigImportKeyText(const AKey: TECDSAKey; const AText: String;
+  const ANeedPrivateKey: Boolean): TISSigImportKeyResult;
+begin
+  var PrivateKey: TECDSAPrivateKey;
+  try
+    Result := InternalParseKeyText(AText, PrivateKey, ANeedPrivateKey);
+    if Result = ikrSuccess then begin
+      if ANeedPrivateKey then
+        AKey.ImportPrivateKey(PrivateKey)
+      else
+        AKey.ImportPublicKey(PrivateKey.PublicKey);
+    end;
+  finally
+    PrivateKey.Clear;
+  end;
 end;
 
 function ISSigImportPublicKey(const AKey: TECDSAKey;

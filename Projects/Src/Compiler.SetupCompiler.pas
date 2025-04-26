@@ -4508,18 +4508,14 @@ begin
           AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicX])
         else if PublicY <> '' then
           AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicY]);
-        var Key := TECDSAKey.Create;
-        try
-          var SigText := ISSigLoadTextFromFile(KeyFile);
-          const ImportResult = ISSigImportKeyText(Key, SigText, False);
-          if ImportResult = ikrMalformed then
-            AbortCompile(SCompilerISSigKeysBadKeyFile)
-          else if ImportResult <> ikrSuccess then
-            AbortCompile(SCompilerISSigKeysUnknownKeyImportResult);
-          ISSigExportPublicKeyXY(Key, PublicX, PublicY);
-        finally
-          Key.Free;
-        end;
+        var SigText := ISSigLoadTextFromFile(KeyFile);
+        var PublicKey: TECDSAPublicKey;
+        const ParseResult = ISSigParsePublicKeyText(SigText, PublicKey);
+        if ParseResult = ikrMalformed then
+          AbortCompile(SCompilerISSigKeysBadKeyFile)
+        else if ParseResult <> ikrSuccess then
+          AbortCompile(SCompilerISSigKeysUnknownKeyImportResult);
+        ISSigConvertPublicKeyToStrings(PublicKey, PublicX, PublicY);
       end else begin
         if PublicX = '' then
           AbortCompileParamError(SCompilerParamNotSpecified, ParamISSigKeysPublicX)
