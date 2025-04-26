@@ -194,8 +194,10 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
       {
         const char defaultChar = '_';
         BOOL defUsed;
+        const char *pDefaultChar = (codePage == CP_UTF7 || codePage == CP_UTF8) ? NULL : &defaultChar;
+        BOOL *pDefUsed = pDefaultChar ? NULL : &defUsed;
         const unsigned numChars = (unsigned)WideCharToMultiByte(
-            codePage, 0, (LPCWSTR)s, (int)len, (char *)buf->data, (int)size, &defaultChar, &defUsed);
+            codePage, 0, (LPCWSTR)s, (int)len, (char *)buf->data, (int)size, pDefaultChar, pDefUsed);
         if (numChars == 0 || numChars >= size)
           return SZ_ERROR_FAIL;
         buf->data[numChars] = 0;
