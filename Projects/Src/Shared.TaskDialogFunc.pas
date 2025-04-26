@@ -47,6 +47,7 @@ begin
   if Assigned(TaskDialogIndirectFunc) then begin
     ZeroMemory(@Config, Sizeof(Config));
     Config.cbSize := SizeOf(Config);
+    Config.dwFlags := TDF_SIZE_TO_CONTENT;
     if RightToLeft then
       Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
     Config.hInstance := HInstance;
