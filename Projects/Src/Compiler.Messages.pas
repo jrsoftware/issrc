@@ -305,6 +305,7 @@ const
   SCompilerFilesWarningSharedFileSysWow64 = 'DestDir should not be set to ' +
     '"{syswow64}" when the "sharedfile" flag is used. See the "sharedfile" ' +
     'documentation in the help file for details.';
+  SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

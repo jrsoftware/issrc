@@ -5385,8 +5385,8 @@ begin
         end;
 
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
-          Exclude(Options, foISSigVerify);
-        
+          AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
+
         if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
           Sign := fsNoSetting
         else if (Sign = fsYes) and (foISSigVerify in Options) then

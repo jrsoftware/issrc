@@ -1709,7 +1709,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
 <flag name="issigverify">
-<p>This flag instructs the compiler and Setup to verify the file when compiled into the installation files by the compiler or when copied from an existing file by Setup, using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>. Ignored if the [ISSigKeys] section is empty or doesn't exist.</p>
+<p>This flag instructs the compiler and Setup to verify the file when compiled into the installation files by the compiler or when copied from an existing file by Setup, using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>.</p>
+<p>The verification requires an .issig signature file to be present next to the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
 <p>If the verification fails the compiler will abort the compilation and Setup will ask the user to abort, retry, or ignore.</p>
 <p>This flag cannot be combined with the <tt>sign</tt>, or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
