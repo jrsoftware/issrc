@@ -4508,9 +4508,9 @@ begin
           AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicX])
         else if PublicY <> '' then
           AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicY]);
-        var SigText := ISSigLoadTextFromFile(KeyFile);
+        var KeyText := ISSigLoadTextFromFile(KeyFile);
         var PublicKey: TECDSAPublicKey;
-        const ParseResult = ISSigParsePublicKeyText(SigText, PublicKey);
+        const ParseResult = ISSigParsePublicKeyText(KeyText, PublicKey);
         if ParseResult = ikrMalformed then
           AbortCompile(SCompilerISSigKeysBadKeyFile)
         else if ParseResult <> ikrSuccess then
