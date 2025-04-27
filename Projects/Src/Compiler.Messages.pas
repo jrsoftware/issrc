@@ -249,6 +249,7 @@ const
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
   SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerISSigKeysNameDuplicated = 'Cannot have multiple entries named "%s"';
   SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
   SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
   SCompilerISSigKeysBadKeyFile = 'Key file is malformed';

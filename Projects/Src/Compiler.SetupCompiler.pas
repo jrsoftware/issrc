@@ -89,6 +89,7 @@ type
 
     FileLocationEntryFilenames: THashStringList;
     FileLocationEntryExtraInfos: TList;
+    ISSigKeysNames: THashStringList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingMessagesWarning, MissingRunOnceIdsWarning, MissingRunOnceIds, NotRecognizedMessagesWarning, UsedUserAreasWarning: Boolean;
@@ -376,6 +377,8 @@ begin
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
   FileLocationEntryExtraInfos := TLowFragList.Create;
+  ISSigKeysNames := THashStringList.Create;
+  ISSigKeysNames.IgnoreDuplicates := True;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -423,6 +426,7 @@ begin
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
+  ISSigKeysNames.Free;
   FileLocationEntryExtraInfos.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
@@ -4495,6 +4499,8 @@ begin
       if not IsValidIdentString(Values[paName].Data, False, False) then
         AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
       Name := LowerCase(Values[paName].Data);
+      if ISSigKeysNames.Add(Name) = -1 then
+        AbortCompileFmt(SCompilerISSigKeysNameDuplicated, [Name]);
 
       { KeyFile & PublicX & PublicY }
       var KeyFile := PrependSourceDirName(Values[paKeyFile].Data);
@@ -8179,6 +8185,7 @@ begin
     CallPreprocessorCleanupProc;
     UsedUserAreas.Clear;
     WarningsList.Clear;
+    ISSigKeysNames.Clear;
     { Free all the data }
     DecompressorDLL.Free;
     SetupE32.Free;
