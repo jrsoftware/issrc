@@ -7968,6 +7968,7 @@ begin
     if MissingRunOnceIdsWarning and MissingRunOnceIds then
       WarningsList.Add(Format(SCompilerMissingRunOnceIdsWarning, ['UninstallRun', 'RunOnceId']));
 
+    { Read [ISSigKeys] section - must be done before reading [Files] section }
     EnumIniSection(EnumISSigKeysProc, 'ISSigKeys', 0, True, True, '', False, False);
     CallIdleProc;
 
