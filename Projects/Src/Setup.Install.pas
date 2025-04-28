@@ -333,9 +333,11 @@ begin
     ProcessEvents;
   end;
 
-  if ISSigVerify then
+  if ISSigVerify then begin
     if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
       ISSigVerifyError(ISSigFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+    Log('ISSig verification successful.');
+  end;
 
   { In case the source file was shorter than we thought it was, bump the
     progress bar to the maximum amount }

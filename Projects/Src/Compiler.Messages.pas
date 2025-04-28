@@ -53,6 +53,7 @@ const
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
+  SCompilerStatusFilesISSigVerified = '      ISSig verification successful.';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';

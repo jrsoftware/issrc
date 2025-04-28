@@ -7106,10 +7106,12 @@ var
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
 
-          if floISSigVerify in FLExtraInfo.Flags then
+          if floISSigVerify in FLExtraInfo.Flags then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
               AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
+            AddStatus(SCompilerStatusFilesISSigVerified);
+          end;
         finally
           SourceFile.Free;
         end;
