@@ -69,7 +69,7 @@ if exist .\setup-presign.bat (
   echo Presign done
 ) 
 
-call .\issig.bat sign
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause
@@ -90,7 +90,10 @@ if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo Creating Inno Setup installer done
+call .\issig.bat sign output\innosetup-%VER%.exe
+if errorlevel 1 goto failed
 powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+if errorlevel 1 goto failed
 
 echo All done!
 pause
