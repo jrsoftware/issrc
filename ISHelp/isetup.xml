@@ -1713,6 +1713,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>The verification requires an .issig signature file to be present next to the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
 <p>If the verification fails the compiler will abort the compilation and Setup will ask the user to abort, retry, or ignore.</p>
 <p>This flag cannot be combined with the <tt>sign</tt>, or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
+<p>Note that the verification is skipped if the file already exists on the user's system and is not actually replaced.</p>
 </flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
