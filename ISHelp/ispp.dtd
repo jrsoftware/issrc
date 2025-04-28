@@ -3,7 +3,7 @@
 <!ELEMENT topic     (title|subtopicstitle|keywords|syntax|description|(topic|section)*)+>
 <!ATTLIST topic
   id      ID        #IMPLIED
-  popup   (yes|no)  "no"
+  unlisted (yes|no) "no"
   usetitle (yes|no) "yes">
 
 <!ELEMENT title     (#PCDATA)*>

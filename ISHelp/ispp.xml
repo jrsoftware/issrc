@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <!DOCTYPE yasyx SYSTEM "ispp.dtd" [
- <!ENTITY ob      "{">
- <!ENTITY cb      "}">
- <!ENTITY bs      "\">
  <!ENTITY sp      "&#160;">
  <!ENTITY dsp     "&#160;&#160;">
  <!ENTITY define  '<tt><link href="define">define</link></tt>'>
@@ -27,8 +24,8 @@
  <!ENTITY endsub  '<tt><link href="sub">endsub</link></tt>'>
  <!ENTITY for     '<tt><link href="for">for</link></tt>'>
  <!ENTITY expr    '<tt>expr</tt>'> <!-- not a directive -->
- <!ENTITY curtrans '<link href="current-translation" popup="yes">current preprocessor output</link>'>
- <!ENTITY translation '<link href="translation" popup="yes">preprocessor output</link>'>
+ <!ENTITY curtrans '<link href="current-translation">current preprocessor output</link>'>
+ <!ENTITY translation '<link href="translation">preprocessor output</link>'>
  <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
  <!ENTITY dash "&#8211;">
 ]>
@@ -36,21 +33,14 @@
 	<topic id="isppoverview">
 		<title>Introduction</title>
 		<description header="no">
-			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time ISPP variable &dash; containing your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without ISPP, you would need to change all occurrences of your application name throughout the script.</p>
-			<p>Another example of using ISPP would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appvername">AppVerName</link> [Setup] section directive or anywhere else. Without ISPP, you would have to modify your script each time the version of your application changes.</p>
-			<p>ISPP can even scan your source folder and generate script lines for the found files. Without ISPP, you would have to manually maintain the list of files.</p>
-			<p>Conditional in- and exclusion of portions of script is also possible by using ISPP: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional). Without ISPP, you would need multiple scripts.</p>
-			<p>Finally, ISPP makes it possible to split long lines using a line spanning symbol.</p>
-			<p>Note: ISPP works exclusively at compile-time, and has no run-time functionality.</p>
+			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time preprocessor variable &dash; containing your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without the preprocessor, you would need to change all occurrences of your application name throughout the script.</p>
+			<p>Another example of using the preprocessor would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appvername">AppVerName</link> [Setup] section directive or anywhere else. Without the preprocessor, you would have to modify your script each time the version of your application changes.</p>
+			<p>The preprocessor can even scan your source folder and generate script lines for the found files. Without the preprocessor, you would have to manually maintain the list of files.</p>
+			<p>Conditional in- and exclusion of portions of script is also possible by using the preprocessor: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional). Without the preprocessor, you would need multiple scripts.</p>
+			<p>Finally, the preprocessor makes it possible to split long lines using a line spanning symbol.</p>
+			<p>Note: the preprocessor works exclusively at compile-time, and has no run-time functionality.</p>
     </description>
 		<subtopicstitle>All topics</subtopicstitle>
-    <topic id="example">
-      <title>Example Script</title>
-      <description header="no">
-        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
-        <p>Also see &builtins;.</p>
-      </description>
-    </topic>
 		<topic id="directives">
 			<title>Directives Reference</title>
  			<description header="no">
@@ -253,8 +243,8 @@
 				<section title="Examples">
 					<pre>
 						<line>#include &lt;file.iss&gt;</line>
-						<line>#include "c:&bs;dir&bs;file.iss"</line>
-						<line>#include AddBackslash(<link href="predefinedvars">CompilerPath</link>) + "common.iss"</line>
+						<line>#include "c:\dir\file.iss"</line>
+						<line>#include <link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">CompilerPath</link>) + "common.iss"</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -278,7 +268,7 @@
 				<section title="Examples">
 					<pre>
 						<line>[Setup]</line>
-						<line>LicenseFile=&ob;#file "mylic.txt"&cb;</line>
+						<line>LicenseFile={#file "mylic.txt"}</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -308,14 +298,17 @@
 				</description>
 				<section title="Examples">
 					<pre>
+						<line>[Setup]</line>
+						<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(SourcePath) + "MyProg.exe")}</line>
+						<line></line>
 						<line>[Files]</line>
 						<line>#emit 'Source: "file1.ext"; DestDir: ' + MyDestDir</line>
-						<line>Source: "file2.ext"; DestDir: &ob;#MyDestDir&cb;</line>
+						<line>Source: "file2.ext"; DestDir: {#MyDestDir}</line>
 						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
 						<line></line>
 						<line>[Code]</line>
 						<line>const</line>
-						<line>&dsp;AppName = '&ob;#<link href="setupsetting">SetupSetting</link>("AppName")&cb;';</line>
+						<line>&dsp;AppName = '{#<link href="setupsetting">SetupSetting</link>("AppName")}';</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -431,7 +424,7 @@
 						<line>#define Lang</line>
 						<line></line>
 						<line>[Tasks]</line>
-						<line>#if "English" == Lang = <link href="ReadIni">ReadIni</link>(<link href="SetupSetting">SetupSetting</link>("MessagesFile"), &bs;</line>
+						<line>#if "English" == Lang = <link href="ReadIni">ReadIni</link>(<link href="SetupSetting">SetupSetting</link>("MessagesFile"), \</line>
 						<line>&dsp;"LangOptions", "LanguageName")</line>
 						<line>&dsp;Description: "For all users"; Name: all</line>
 						<line>#elif "German" == Lang</line>
@@ -475,10 +468,10 @@
 					<pre>
 						<line>[Files]</line>
 						<line>#ifexist "myfile.ext"</line>
-						<line>&dsp;Filename: "myfile.ext"; DestDir: &ob;app&cb;</line>
+						<line>&dsp;Filename: "myfile.ext"; DestDir: {app}</line>
 						<line>#endif</line>
 						<line>#ifdef Enterpise</line>
-						<line>&dsp;Filename: "extra.dll"; DestDir: &ob;app&cb;</line>
+						<line>&dsp;Filename: "extra.dll"; DestDir: {app}</line>
 						<line>#endif</line>
 					</pre>
 				</section>
@@ -491,7 +484,7 @@
 				<keywords><kwd>for</kwd></keywords>
 				<syntax>
 					<define id="for-directive">
-						<txt>for</txt><txt>&sp;</txt><txt>&ob;</txt><nt>expr1</nt><txt>;</txt><nt>expr2</nt><txt>;</txt><nt>expr3</nt><txt>&cb;</txt><nt>expr4</nt>
+						<txt>for</txt><txt>&sp;</txt><txt>{</txt><nt>expr1</nt><txt>;</txt><nt>expr2</nt><txt>;</txt><nt>expr3</nt><txt>}</txt><nt>expr4</nt>
 					</define>
 				</syntax>
 				<description>
@@ -506,7 +499,7 @@
 				<section title="Examples">
 					<pre>
 						<line>// Call AddFile user defined procedure 200 times</line>
-						<line>#for &ob;i = 200; i &gt; 0; i--&cb; AddFile</line>
+						<line>#for {i = 200; i &gt; 0; i--} AddFile</line>
 					</pre>
 				</section>
 				<section title="More examples">
@@ -540,9 +533,9 @@
 					<pre>
 						<line>#sub AddFile</line>
 						<line>&dsp;#if <link href="Copy">Copy</link>(FileName, 1, 1) == "A"</line>
-						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;&bs;A</line>
+						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}\A</line>
 						<line>&dsp;#else</line>
-						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;</line>
+						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}</line>
 						<line>&dsp;#endif</line>
 						<line>#endsub</line>
 					</pre>
@@ -613,7 +606,7 @@
 					<p>The "pragma-option" variant of &pragma; directive controls the options which ISPP uses to read the source. Each option has an assigned letter and you specify options by typing group name (<tt>option</tt> or <tt>parseroption</tt>),
 then the letter prefixed by a dash. After the letter a plus must be used to turn the option on and minus turn it off. Multiple options can be specified at once (see syntax).
 The first group of options (<tt>option</tt>) controls the general options, while the second group (<tt>parseroption</tt>) controls options specific to parser. The list of options is provided at the end of this topic.</p>
-					<p>The "pragma-itokens" variant is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<tt>inlinestart</tt> or <tt>inlineend</tt>) a string type expression must follow. It must not evaluate to an empty string. It is allowed to specify the same token for both starting and ending terminators. By default, <tt>&ob;#</tt> (opening brace and a pound sign) and <tt>&cb;</tt> (closing brace) are assumed.</p>
+					<p>The "pragma-itokens" variant is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<tt>inlinestart</tt> or <tt>inlineend</tt>) a string type expression must follow. It must not evaluate to an empty string. It is allowed to specify the same token for both starting and ending terminators. By default, <tt>{#</tt> (opening brace and a pound sign) and <tt>}</tt> (closing brace) are assumed.</p>
 					<p>The "pramga-msg" variant issues a message of the type specified by the keyword following the directive name. Messages and warnings are sent to the messages window of the compiler. Errors are shown (by the compiler) using message boxes. Expression must be of type string. Also see the &error; directive.</p>
 					<p>The "pragma-verblev" variant turns on verbose mode and sets the level of verbosity which controls the importance of messages (see below). Least important messages will show up only when highest verbose level is set.</p>
 					<p>The "pragma-include"  variant sets the include path. Expression may specify multiple paths delimited with semicolons. The list of these directories is used when ISPP tries to find a file, mentioned in &include; directive.</p>
@@ -655,7 +648,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<line>#pragma verboselevel 9</line>
 						<line>#pragma inlinestart "$("</line>
 						<line>#pragma inlineend ")"</line>
-						<line>#pragma include __INCLUDE__ + ";D:&bs;INCLUDE"</line>
+						<line>#pragma include __INCLUDE__ + ";D:\INCLUDE"</line>
 						<line>#pragma spansymbol "_"</line>
 					</pre>
 				</section>
@@ -690,12 +683,20 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using ISPP directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using directive &emit;:</p>
         <pre>
-          <line>#define MyAppVer GetVersionNumbersString(AddBackslash(SourcePath) + "MyProg.exe")</line>
+          <line>#define MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")</line>
           <line></line>
           <line>[Setup]</line>
           <line>AppVerName=MyProg version {#MyAppVer}</line>
+        </pre>
+				<p>Built-in support functions can also be called directly from directive &emit;. For example:</p>
+        <pre>
+          <line>#define MyAppEnterprise</line>
+  				<line></line>
+  	      <line>[Setup]</line>
+          <line>AppName=MyProg{#<link href="defined">Defined</link> MyAppEnterprise?" Enterprise Edition":""}</line>
+					<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")}</line>
         </pre>
       </description>
 			<section title="Function prototypes documenting conventions">
@@ -1016,7 +1017,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose"/></tt> functions, otherwise the return value is 0.</p>
-					<p>The first parameter is the directory and file name mask, including wildcard characters. For example, <tt>'.&bs;*.*'</tt> specifies all files in the current directory).</p>
+					<p>The first parameter is the directory and file name mask, including wildcard characters. For example, <tt>'.\*.*'</tt> specifies all files in the current directory).</p>
 					<p>The second parameter specifies the special files to include in addition to all normal files. Choose from these file attribute constants defined in &builtins; when specifying this parameter:</p>
 					<table>
 						<tr><td><code>faReadOnly</code></td><td>Read-only files</td></tr>
@@ -1040,13 +1041,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<line>#sub ProcessFoundFile</line>
 						<line>&dsp;#define FileName FindGetFileName(FindHandle)</line>
 						<line>&dsp;#if LowerCase(Copy(FileName, 1, 4)) == "ispp"</line>
-						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;&bs;ispp</line>
+						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}\ispp</line>
 						<line>&dsp;#else</line>
-						<line>&dsp;&dsp;Source: &ob;#FileName&cb;; DestDir: &ob;app&cb;</line>
+						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}</line>
 						<line>&dsp;#endif</line>
 						<line>#endsub</line>
 						<line></line>
-						<line>#for &ob;FindHandle = FindResult = FindFirst(Mask, 0); FindResult; FindResult = FindNext(FindHandle)&cb; ProcessFoundFile</line>
+						<line>#for {FindHandle = FindResult = FindFirst(Mask, 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile</line>
 						<line>#if FindHandle</line>
 						<line>&dsp;#expr FindClose(FindHandle)</line>
 						<line>#endif</line>
@@ -1110,9 +1111,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<line>&dsp;#define FileLine = FileRead(FileHandle)</line>
 						<line>&dsp;#pragma message FileLine</line>
 						<line>#endsub</line>
-						<line>#for &ob;FileHandle = FileOpen("c:&bs;autoexec.bat"); &bs;</line>
-						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""&cb;
-							&bs;</line>
+						<line>#for {FileHandle = FileOpen("c:\autoexec.bat"); \</line>
+						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""}
+							\</line>
 						<line>&dsp;ProcessFileLine</line>
 						<line>#if FileHandle</line>
 						<line>&dsp;#expr <link href="FileClose">FileClose</link>(FileHandle)</line>
@@ -1905,9 +1906,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<section title="Local array">
         <p>In context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
-          <line>#define DeleteToFirstPeriod(str *S) /* user defined function declaration */ &bs;</line>
-          <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), &bs;</line>
-          <line>&dsp;S = Copy(S, Local[0] + 1), &bs;</line>
+          <line>#define DeleteToFirstPeriod(str *S) /* user defined function declaration */ \</line>
+          <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), \</line>
+          <line>&dsp;S = Copy(S, Local[0] + 1), \</line>
           <line>&dsp;Local[1]</line>
         </pre>
 			</section>
@@ -1950,7 +1951,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 				<p>Please note that line spanning feature is triggered before any further processing, so this is also a valid comment:</p>
 				<pre>
-					<line>#emit Var1 + Var2 ; this is &bs;</line>
+					<line>#emit Var1 + Var2 ; this is \</line>
 					<line>&dsp;still a comment</line>
 				</pre>
         <p>Comments may also be placed anywhere by starting a line with two slashes. For example:</p>
@@ -2047,18 +2048,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
       <description header="no">
         <p>By ending lines with ISPP's line spanning symbol preceded with a space, you can split long lines. For example:</p>
         <pre>
-          <line>#define MyAppName &bs;</line>
+          <line>#define MyAppName \</line>
           <line>&dsp;"My Program"</line>
         </pre>
-        <p>The default line spanning symbol is "&bs;" which can be changed using &pragma;.</p>
+        <p>The default line spanning symbol is "\" which can be changed using &pragma;.</p>
       </description>
     </topic>
-		<topic id="builtinsiss">
-			<title>ISPPBuiltins.iss</title>
-			<description header="no">
-				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</p>
-			</description>
-		</topic>
 		<topic id="visibility">
 			<keywords>
 				<kwd>private</kwd>
@@ -2089,8 +2084,21 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</p>
 			</description>
 		</topic>
+    <topic id="example">
+      <title>Example Script</title>
+      <description header="no">
+        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+        <p>Also see &builtins;.</p>
+      </description>
+    </topic>
+		<topic id="builtinsiss">
+			<title>ISPPBuiltins.iss</title>
+			<description header="no">
+				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</p>
+			</description>
+		</topic>
 		<topic id="isppcc">
-			<title>Command Line Compiler</title>
+			<title>Extended Command Line Compiler</title>
 			<description header="no">
 				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra parameters to control Inno Setup Preprocessor:</p>
 				<table>
@@ -2106,13 +2114,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Example: <tt>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>
 		</topic>
-		<topic id="translation" popup="yes">
+		<topic id="translation" unlisted="yes">
 			<title>Preprocessor output</title>
 			<description header="no">
 				<p>Preprocessor output refers to the preprocessed version of the script.</p>
 			</description>
 		</topic>
-		<topic id="current-translation" popup="yes">
+		<topic id="current-translation" unlisted="yes">
 			<title>Current preprocessor output</title>
 			<description header="no">
 				<p>Current preprocessor output refers to the &translation; up to the line which ISPP is currently processing.</p>
@@ -2129,13 +2137,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
       <p>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</p>
       <p>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer parameter and which makes the loop "body." After that you declare "outer" loop, which is used for iterating:</p>
       <pre> 
-        <line>#define LoopBody(int I) Str(I) + "th iteration&bs;n"</line>
+        <line>#define LoopBody(int I) Str(I) + "th iteration\n"</line>
         <line></line>
-        <line>#define Loop(int LoopRoof = 10) &bs; </line>
-        <line>&dsp;LoopRoof ?&sp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* if LoopTop is not zero */ &bs;</line>
-        <line>&dsp;&dsp;LoopBody(LoopRoof) +&sp;/* call the body */ &bs; </line>
-        <line>&dsp;&dsp;Loop(LoopRoof - 1)&sp;&dsp;/* next iteration*/ &bs;</line>
-        <line>&dsp;:&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* else */ &bs;</line>
+        <line>#define Loop(int LoopRoof = 10) \ </line>
+        <line>&dsp;LoopRoof ?&sp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* if LoopTop is not zero */ \</line>
+        <line>&dsp;&dsp;LoopBody(LoopRoof) +&sp;/* call the body */ \ </line>
+        <line>&dsp;&dsp;Loop(LoopRoof - 1)&sp;&dsp;/* next iteration*/ \</line>
+        <line>&dsp;:&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* else */ \</line>
         <line>&dsp;&dsp;""&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&sp;/* return empty string */</line>
       </pre>
       <p>With these two macros declared, this command:</p>
