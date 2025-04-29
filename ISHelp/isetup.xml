@@ -1709,11 +1709,16 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
 <flag name="issigverify">
-<p>This flag instructs the compiler and Setup to verify the file when compiled into the installation files by the compiler or when copied from an existing file by Setup, using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>.</p>
-<p>The verification requires an .issig signature file to be present next to the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
-<p>If the verification fails the compiler will abort the compilation and Setup will ask the user to abort, retry, or ignore.</p>
-<p>This flag cannot be combined with the <tt>sign</tt>, or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
-<p>Note that the verification is skipped if the file already exists on the user's system and is not actually replaced.</p>
+<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>.</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+<p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
+<ul>
+<li>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</li>
+<li><p>When used with the <tt>external</tt> flag, Setup will verify the source file during the installation process while it is being copied to the destination directory. Files are always created with temporary names (<tt>*.tmp</tt>) initially. If the verification fails, the temporary file will be deleted and an error message will be displayed (with Skip, Try Again, and Cancel options). If the verification succeeds, the temporary file will be renamed to the correct destination name.</p>
+<p>When a file entry with the <tt>external</tt> flag is skipped (i.e., not installed), the source file isn't copied anywhere, so no verification takes place.</p></li>
+</ul>
+<p>Since verification occurs while source files are being compressed/copied, and not in a separate pass, each file's contents are only read once. Thus, enabling verification has little performance impact; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. This approach also ensures there is no TOCTOU problem; each source file is kept open the entire time it is being compressed/copied and verified without allowing other processes write access.</p>
+<p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
