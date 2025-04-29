@@ -3536,7 +3536,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <table>
 <tr>
 <td>--key-file=&lt;filename&gt;</td>
-<td>Specifies the private key filename required for signing. This option overriddes the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
+<td>Specifies the private key filename required for signing. This option overrides the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
 </tr>
 <tr>
 <td>--quiet, -q</td>
