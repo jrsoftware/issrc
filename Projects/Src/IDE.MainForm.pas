@@ -3803,13 +3803,14 @@ end;
 
 function TMainForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  if Sender is TFindDialog then begin
-    with Sender as TFindDialog do begin
+  { TReplaceDialog is a subclass of TFindDialog must check for TReplaceDialog first }
+  if Sender is TReplaceDialog then begin
+    with Sender as TReplaceDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end else begin
-    with Sender as TReplaceDialog do begin
+    with Sender as TFindDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
