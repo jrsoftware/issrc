@@ -6977,7 +6977,7 @@ var
         try
           ISSigImportPublicKey(ISSigKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY); { shouldn't fail: values checked already }
         except
-          AbortCompileFmt(SCompilerCompressInternalError, ['ISSigImportPublicKey failed:' + GetExceptMessage]);
+          AbortCompileFmt(SCompilerCompressInternalError, ['ISSigImportPublicKey failed: ' + GetExceptMessage]);
         end;
       end;
 
