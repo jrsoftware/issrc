@@ -5389,11 +5389,13 @@ begin
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
           AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
 
-        if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
-          Sign := fsNoSetting
-        else if (Sign = fsYes) and (foISSigVerify in Options) then
-          AbortCompileFmt(SCompilerParamErrorBadCombo2,
-            [ParamCommonFlags, 'sign', 'issigverify']);
+        if Sign in [fsYes, fsOnce] then begin
+          if foISSigVerify in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2,
+              [ParamCommonFlags, SignFlags[Sign], 'issigverify'])
+          else if SignTools.Count = 0 then
+            Sign := fsNoSetting
+        end;
 
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
