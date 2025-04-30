@@ -21,7 +21,10 @@ UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 
 [ISSigKeys]
-Name: mykey; KeyID: def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28; PublicX: 515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097; PublicY: f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61
+Name: "mykey"; \
+  KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
+  PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
+  PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
 
 [Files]
 ; Place any regular files here
