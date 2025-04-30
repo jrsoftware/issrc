@@ -308,9 +308,13 @@ type
     Name, Command: String;
   end;
 
+const
+  FileLocationEntryExtraInfoStrings = 1;
+  FileLocationEntryExtraInfoAnsiStrings = 0;
+type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
-  TFileLocationEntryExtraInfo = packed record
+  TFileLocationEntryExtraInfo = record
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
       floSolidBreak);
     Sign: TFileLocationSign;
@@ -8039,6 +8043,7 @@ begin
     FreeListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FreeListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
+    FreeListItems(FileLocationEntryExtraInfos, FileLocationEntryExtraInfoStrings, FileLocationEntryExtraInfoAnsiStrings);
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
     FreePreLangData;
