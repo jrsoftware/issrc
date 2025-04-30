@@ -3,6 +3,7 @@
 
 /* Changes by Martijn Laan for Inno Setup:
    -Use CP_UTF8 in PrintString
+   -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules 
    -Change main to mainW to support Unicode archive names
    -Add specific error text for SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
@@ -194,8 +195,9 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
       {
         const char defaultChar = '_';
         BOOL defUsed;
-        const char *pDefaultChar = (codePage == CP_UTF7 || codePage == CP_UTF8) ? NULL : &defaultChar;
-        BOOL *pDefUsed = pDefaultChar ? NULL : &defUsed;
+        const BOOL codePageIsUtf7Or8 = codePage == CP_UTF7 || codePage == CP_UTF8;
+        const char *pDefaultChar = codePageIsUtf7Or8 ? NULL : &defaultChar;
+        BOOL *pDefUsed = codePageIsUtf7Or8 ? NULL : &defUsed;
         const unsigned numChars = (unsigned)WideCharToMultiByte(
             codePage, 0, (LPCWSTR)s, (int)len, (char *)buf->data, (int)size, pDefaultChar, pDefUsed);
         if (numChars == 0 || numChars >= size)
