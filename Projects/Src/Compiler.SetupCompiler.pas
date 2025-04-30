@@ -311,6 +311,10 @@ type
     Name, Command: String;
   end;
 
+const
+  FileLocationEntryExtraInfoStrings = 1;
+  FileLocationEntryExtraInfoAnsiStrings = 0;
+type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
@@ -8213,6 +8217,7 @@ begin
     FreeListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FreeListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
+    FreeListItems(FileLocationEntryExtraInfos, FileLocationEntryExtraInfoStrings, FileLocationEntryExtraInfoAnsiStrings);
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
     FreePreLangData;

@@ -607,7 +607,7 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateFindRegExPanel;
+    procedure UpdateFindRegExUI;
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -895,7 +895,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateTheme;
-      UpdateFindRegExPanel;
+      UpdateFindRegExUI;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -3803,13 +3803,14 @@ end;
 
 function TMainForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  if Sender is TFindDialog then begin
-    with Sender as TFindDialog do begin
+  { TReplaceDialog is a subclass of TFindDialog must check for TReplaceDialog first }
+  if Sender is TReplaceDialog then begin
+    with Sender as TReplaceDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end else begin
-    with Sender as TReplaceDialog do begin
+    with Sender as TFindDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
@@ -3996,7 +3997,7 @@ begin
     SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
   else begin
     FOptions.FindRegEx := not FOptions.FindRegEx;
-    UpdateFindRegExPanel;
+    UpdateFindRegExUI;
     var Ini := TConfigIniFile.Create;
     try
       Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
@@ -4850,11 +4851,18 @@ begin
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
 
-procedure TMainForm.UpdateFindRegExPanel;
+procedure TMainForm.UpdateFindRegExUI;
 const
   FindRegExText: array[Boolean] of String = ('', '.*');
 begin
   StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
+  if FOptions.FindRegEx then begin
+    FindDialog.Options := FindDialog.Options + [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options + [frHideWholeWord];
+  end else begin
+    FindDialog.Options := FindDialog.Options - [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options - [frHideWholeWord];
+  end;
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;

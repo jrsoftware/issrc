@@ -1287,6 +1287,7 @@ end;
 
 class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
 begin
+  { Note: Scintilla ignores SCFIND_WHOLEWORD when SCFIND_REGEXP is set }
   Result := 0;
   if sfoMatchCase in Options then
     Result := Result or SCFIND_MATCHCASE;
