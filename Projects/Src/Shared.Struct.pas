@@ -218,12 +218,12 @@ type
       doUninsAlwaysUninstall, doSetNTFSCompression, doUnsetNTFSCompression);
   end;
 const
-  SetupISSigKeyEntryStrings = 3;
+  SetupISSigKeyEntryStrings = 2;
   SetupISSigKeyEntryAnsiStrings = 0;
 type
   PSetupISSigKeyEntry = ^TSetupISSigKeyEntry;
   TSetupISSigKeyEntry = packed record
-    Name, PublicX, PublicY: String;
+    PublicX, PublicY: String;
   end;
 const
   SetupFileEntryStrings = 10;

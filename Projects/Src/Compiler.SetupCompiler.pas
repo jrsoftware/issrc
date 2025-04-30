@@ -89,7 +89,8 @@ type
 
     FileLocationEntryFilenames: THashStringList;
     FileLocationEntryExtraInfos: TList;
-    ISSigKeysNames: THashStringList;
+    ISSigKeyEntryNames: THashStringList;
+    ISSigKeyEntryExtraInfos: TList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingMessagesWarning, MissingRunOnceIdsWarning, MissingRunOnceIds, NotRecognizedMessagesWarning, UsedUserAreasWarning: Boolean;
@@ -312,6 +313,15 @@ type
   end;
 
 const
+  ISSigKeyEntryExtraInfoStrings = 1;
+  ISSigKeyEntryExtraInfoAnsiStrings = 0;
+type
+  PISSigKeyEntryExtraInfo = ^TISSigKeyEntryExtraInfo;
+  TISSigKeyEntryExtraInfo = record
+    Name: String;
+  end;
+
+const
   FileLocationEntryExtraInfoStrings = 1;
   FileLocationEntryExtraInfoAnsiStrings = 0;
 type
@@ -381,8 +391,9 @@ begin
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
   FileLocationEntryExtraInfos := TLowFragList.Create;
-  ISSigKeysNames := THashStringList.Create;
-  ISSigKeysNames.IgnoreDuplicates := True;
+  ISSigKeyEntryNames := THashStringList.Create;
+  ISSigKeyEntryNames.IgnoreDuplicates := True;
+  ISSIgKeyEntryExtraInfos := TLowFragList.Create;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -430,7 +441,8 @@ begin
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
-  ISSigKeysNames.Free;
+  ISSigKeyEntryExtraInfos.Free;
+  ISSigKeyEntryNames.Free;
   FileLocationEntryExtraInfos.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
@@ -4493,19 +4505,25 @@ const
 var
   Values: array[TParam] of TParamValue;
   NewISSigKeyEntry: PSetupISSigKeyEntry;
+  NewISSigKeyEntryExtraInfo: PISSigKeyEntryExtraInfo;
 begin
   ExtractParameters(Line, ParamInfo, Values);
 
-  NewISSigKeyEntry := AllocMem(SizeOf(TSetupISSigKeyEntry));
+  NewISSigKeyEntry := nil;
+  NewISSigKeyEntryExtraInfo := nil;
   try
-    with NewISSigKeyEntry^ do begin
+    NewISSigKeyEntryExtraInfo := AllocMem(SizeOf(TISSigKeyEntryExtraInfo));
+    with NewISSigKeyEntryExtraInfo^ do begin
       { Name }
       if not IsValidIdentString(Values[paName].Data, False, False) then
         AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
       Name := LowerCase(Values[paName].Data);
-      if ISSigKeysNames.Add(Name) = -1 then
+      if ISSigKeyEntryNames.Add(Name) = -1 then
         AbortCompileFmt(SCompilerISSigKeysNameDuplicated, [Name]);
+    end;
 
+    NewISSigKeyEntry := AllocMem(SizeOf(TSetupISSigKeyEntry));
+    with NewISSigKeyEntry^ do begin
       { KeyFile & PublicX & PublicY }
       var KeyFile := PrependSourceDirName(Values[paKeyFile].Data);
       PublicX := Values[paPublicX].Data;
@@ -4557,9 +4575,11 @@ begin
     end;
   except
     SEFreeRec(NewISSigKeyEntry, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
+    SEFreeRec(NewISSigKeyEntryExtraInfo, ISSigKeyEntryExtraInfoStrings, ISSigKeyEntryExtraInfoAnsiStrings);
     raise;
   end;
   ISSigKeyEntries.Add(NewISSigKeyEntry);
+  ISSigKeyEntryExtraInfos.Add(NewISSigKeyEntryExtraInfo);
 end;
 
 procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
@@ -8193,7 +8213,6 @@ begin
     CallPreprocessorCleanupProc;
     UsedUserAreas.Clear;
     WarningsList.Clear;
-    ISSigKeysNames.Clear;
     { Free all the data }
     DecompressorDLL.Free;
     SetupE32.Free;
@@ -8218,6 +8237,8 @@ begin
     FreeListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
     FreeListItems(FileLocationEntryExtraInfos, FileLocationEntryExtraInfoStrings, FileLocationEntryExtraInfoAnsiStrings);
+    ISSigKeyEntryNames.Clear;
+    FreeListItems(ISSigKeyEntryExtraInfos, ISSigKeyEntryExtraInfoStrings, ISSigKeyEntryExtraInfoAnsiStrings);
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
     FreePreLangData;
