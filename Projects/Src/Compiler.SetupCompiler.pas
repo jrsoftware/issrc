@@ -89,7 +89,6 @@ type
 
     FileLocationEntryFilenames: THashStringList;
     FileLocationEntryExtraInfos: TList;
-    ISSigKeyEntryNames: THashStringList;
     ISSigKeyEntryExtraInfos: TList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
@@ -383,8 +382,6 @@ begin
   UninstallRunEntries := TLowFragList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
   FileLocationEntryExtraInfos := TLowFragList.Create;
-  ISSigKeyEntryNames := THashStringList.Create;
-  ISSigKeyEntryNames.IgnoreDuplicates := True;
   ISSIgKeyEntryExtraInfos := TLowFragList.Create;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
@@ -434,7 +431,6 @@ begin
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
   ISSigKeyEntryExtraInfos.Free;
-  ISSigKeyEntryNames.Free;
   FileLocationEntryExtraInfos.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
@@ -4511,8 +4507,11 @@ begin
       if not IsValidIdentString(Values[paName].Data, False, False) then
         AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
       Name := LowerCase(Values[paName].Data);
-      if ISSigKeyEntryNames.Add(Name) = -1 then
-        AbortCompileFmt(SCompilerISSigKeysNameDuplicated, [Name]);
+      for var I := 0 to ISSigKeyEntryExtraInfos.Count-1 do begin
+        var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]);
+        if SameText(ISSigKeyEntryExtraInfo.Name, Name) then
+          AbortCompileFmt(SCompilerISSigKeysNameDuplicated, [Name]);
+      end;
     end;
 
     NewISSigKeyEntry := AllocMem(SizeOf(TSetupISSigKeyEntry));
@@ -8237,7 +8236,6 @@ begin
     FreeSEListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
     FreeListItems(FileLocationEntryExtraInfos);
-    ISSigKeyEntryNames.Clear;
     FreeListItems(ISSigKeyEntryExtraInfos);
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
