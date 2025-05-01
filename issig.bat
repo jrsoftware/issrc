@@ -59,15 +59,7 @@ echo Success!
 goto exit
 
 :sign
-set signfiles=
-shift  
-:signfilesloop  
-if "%1"=="" goto signfilesdone  
-set "signfiles=!signfiles! %1"  
-shift  
-goto signfilesloop
-:signfilesdone
-Files\ISSigTool.exe sign %signfiles%
+Files\ISSigTool.exe %*
 if errorlevel 1 goto failed
 
 echo Success!
