@@ -716,7 +716,7 @@ var
           elContentsHeading:
             begin
               Inc(CurHeadingID);
-              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.png" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
+              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.svg" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
                 '<td><a href="javascript:toggle_node(%d);">%s</a></td></tr>',
                 [CurHeadingID, CurHeadingID, CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
               SL.Add(Format('<tr id="nodecontent_%d"><td></td><td>', [CurHeadingID]));
