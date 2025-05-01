@@ -141,14 +141,14 @@ Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -174,11 +174,11 @@ Source: "Examples\ISPPExample1.iss"; DestDir: "{app}\Examples"; Flags: ignorever
 Source: "Examples\ISPPExample1License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
-Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
-Source: "Examples\MyProg-Arm64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
-Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion signonce touch
+Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
+Source: "Examples\MyProg-Arm64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
+Source: "Examples\MyProg-x64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
 Source: "Examples\PowerShell.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Readme-Dutch.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
