@@ -4841,6 +4841,7 @@ type
         if NewFileLocationEntry = nil then begin
           NewFileLocationEntry := AllocMem(SizeOf(TSetupFileLocationEntry));
           New(NewFileLocationEntryExtraInfo);
+          FillChar(NewFileLocationEntryExtraInfo^, SizeOf(TFileLocationEntryExtraInfo), 0);
           SetupHeader.CompressMethod := CompressMethod;
           FileLocationEntries.Add(NewFileLocationEntry);
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
