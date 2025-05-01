@@ -2,7 +2,7 @@ unit Compression.LZMACompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -155,6 +155,7 @@ type
     FThread: THandle;
     FLZMAHandle: TLZMACompressorHandle;
     FReadLock, FWriteLock, FProgressLock: Integer;
+    FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
       Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
@@ -433,10 +434,17 @@ end;
 
 function WorkerThreadFunc(Parameter: Pointer): Integer;
 begin
+  const T = TLZMAWorkerThread(Parameter);
   try
-    TLZMAWorkerThread(Parameter).WorkerThreadProc;
+    T.WorkerThreadProc;
   except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    T.FSavedFatalException := Ex;
   end;
+  { Be extra sure FSavedFatalException (and everything else) is made visible
+    prior to thread termination. (Likely redundant, but you never know...) }
+  MemoryBarrier;
   Result := 0;
 end;
 
@@ -460,6 +468,7 @@ begin
     LZMA_End(FLZMAHandle);
   if Assigned(FShared) then
     VirtualFree(FShared, 0, MEM_RELEASE);
+  FreeAndNil(FSavedFatalException);
   inherited;
 end;
 
@@ -490,7 +499,16 @@ end;
 
 procedure TLZMAWorkerThread.UnexpectedTerminationError;
 begin
-  LZMAInternalError('Worker thread terminated unexpectedly');
+  if Assigned(FSavedFatalException) then begin
+    var Msg: String;
+    if FSavedFatalException is Exception then
+      Msg := (FSavedFatalException as Exception).Message
+    else
+      Msg := FSavedFatalException.ClassName;
+    LZMAInternalErrorFmt('Worker thread terminated unexpectedly with exception: %s',
+      [Msg]);
+  end else
+    LZMAInternalError('Worker thread terminated unexpectedly; no exception');
 end;
 
 procedure TLZMAWorkerThread.WorkerThreadProc;
