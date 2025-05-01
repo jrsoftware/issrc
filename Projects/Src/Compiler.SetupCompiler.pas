@@ -308,10 +308,6 @@ type
     Name, Command: String;
   end;
 
-const
-  FileLocationEntryExtraInfoStrings = 1;
-  FileLocationEntryExtraInfoAnsiStrings = 0;
-type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
@@ -4844,7 +4840,7 @@ type
         end;
         if NewFileLocationEntry = nil then begin
           NewFileLocationEntry := AllocMem(SizeOf(TSetupFileLocationEntry));
-          NewFileLocationEntryExtraInfo := AllocMem(SizeOf(TFileLocationEntryExtraInfo));
+          New(NewFileLocationEntryExtraInfo);
           SetupHeader.CompressMethod := CompressMethod;
           FileLocationEntries.Add(NewFileLocationEntry);
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
@@ -6523,12 +6519,18 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeListItems(const List: TList; const NumStrings, NumAnsiStrings: Integer);
-  var
-    I: Integer;
+  procedure FreeSEListItems(const List: TList; const NumStrings, NumAnsiStrings: Integer);
   begin
-    for I := List.Count-1 downto 0 do begin
+    for var I := List.Count-1 downto 0 do begin
       SEFreeRec(List[I], NumStrings, NumAnsiStrings);
+      List.Delete(I);
+    end;
+  end;
+
+  procedure FreeListItems(const List: TList);
+  begin
+    for var I := List.Count-1 downto 0 do begin
+      Dispose(List[I]);
       List.Delete(I);
     end;
   end;
@@ -8026,24 +8028,24 @@ begin
     SetupE32.Free;
     WizardSmallImages.Free;
     WizardImages.Free;
-    FreeListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
-    FreeListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
-    FreeListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
-    FreeListItems(TypeEntries, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
-    FreeListItems(ComponentEntries, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
-    FreeListItems(TaskEntries, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
-    FreeListItems(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
-    FreeListItems(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
-    FreeListItems(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
-    FreeListItems(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
-    FreeListItems(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
-    FreeListItems(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
-    FreeListItems(InstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-    FreeListItems(UninstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-    FreeListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
-    FreeListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
+    FreeSEListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
+    FreeSEListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
+    FreeSEListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
+    FreeSEListItems(TypeEntries, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
+    FreeSEListItems(ComponentEntries, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
+    FreeSEListItems(TaskEntries, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
+    FreeSEListItems(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
+    FreeSEListItems(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
+    FreeSEListItems(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
+    FreeSEListItems(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
+    FreeSEListItems(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
+    FreeSEListItems(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
+    FreeSEListItems(InstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
+    FreeSEListItems(UninstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
+    FreeSEListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
+    FreeSEListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
-    FreeListItems(FileLocationEntryExtraInfos, FileLocationEntryExtraInfoStrings, FileLocationEntryExtraInfoAnsiStrings);
+    FreeListItems(FileLocationEntryExtraInfos);
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
     FreePreLangData;
