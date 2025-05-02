@@ -6520,7 +6520,7 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeSEListItems(const List: TList; const NumStrings, NumAnsiStrings: Integer);
+  procedure ClearSEList(const List: TList; const NumStrings, NumAnsiStrings: Integer);
   begin
     for var I := List.Count-1 downto 0 do begin
       SEFreeRec(List[I], NumStrings, NumAnsiStrings);
@@ -6528,7 +6528,7 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreePreLangData;
+  procedure ClearPreLangDataList;
   var
     I: Integer;
   begin
@@ -6538,7 +6538,7 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeLangData;
+  procedure ClearLangDataList;
   var
     I: Integer;
   begin
@@ -6548,7 +6548,7 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeScriptFiles;
+  procedure ClearScriptFiles;
   var
     I: Integer;
     SL: TObject;
@@ -6560,7 +6560,7 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeLineInfoList(L: TStringList);
+  procedure ClearLineInfoList(L: TStringList);
   var
     I: Integer;
     LineInfo: TLineInfo;
@@ -8013,40 +8013,40 @@ begin
     { Note: Removing or modifying the copyright text is a violation of the
       Inno Setup license agreement; see LICENSE.TXT. }
   finally
+    { Free / clear all the data }
     CallPreprocessorCleanupProc;
     UsedUserAreas.Clear;
     WarningsList.Clear;
-    { Free all the data }
     DecompressorDLL.Free;
     SetupE32.Free;
     WizardSmallImages.Free;
     WizardImages.Free;
-    FreeSEListItems(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
-    FreeSEListItems(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
-    FreeSEListItems(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
-    FreeSEListItems(TypeEntries, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
-    FreeSEListItems(ComponentEntries, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
-    FreeSEListItems(TaskEntries, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
-    FreeSEListItems(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
-    FreeSEListItems(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
-    FreeSEListItems(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
-    FreeSEListItems(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
-    FreeSEListItems(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
-    FreeSEListItems(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
-    FreeSEListItems(InstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-    FreeSEListItems(UninstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-    FreeSEListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
-    FreeSEListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
+    ClearSEList(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
+    ClearSEList(CustomMessageEntries, SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
+    ClearSEList(PermissionEntries, SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
+    ClearSEList(TypeEntries, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
+    ClearSEList(ComponentEntries, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
+    ClearSEList(TaskEntries, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
+    ClearSEList(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
+    ClearSEList(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
+    ClearSEList(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
+    ClearSEList(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
+    ClearSEList(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
+    ClearSEList(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
+    ClearSEList(InstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
+    ClearSEList(UninstallDeleteEntries, SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
+    ClearSEList(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
+    ClearSEList(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
     for I := FileLocationEntryExtraInfos.Count-1 downto 0 do begin
       Dispose(PFileLocationEntryExtraInfo(FileLocationEntryExtraInfos[I]));
       FileLocationEntryExtraInfos.Delete(I);
     end;
-    FreeLineInfoList(ExpectedCustomMessageNames);
-    FreeLangData;
-    FreePreLangData;
-    FreeScriptFiles;
-    FreeLineInfoList(CodeText);
+    ClearLineInfoList(ExpectedCustomMessageNames);
+    ClearLangDataList;
+    ClearPreLangDataList;
+    ClearScriptFiles;
+    ClearLineInfoList(CodeText);
     FreeAndNil(CompressProps);
     FreeAndNil(InternalCompressProps);
   end;
