@@ -10,6 +10,8 @@ rem  TrustFunc.AllowedPublicKeys.inc and setup.allowedpublickeys.iss (before
 rem  compilation) or to sign files using it (after compilation)
 rem
 rem  If the key is missing it will be generated
+rem
+rem  Also used by build(-ce).bat to verify some precompiled files
 
 setlocal
 
@@ -39,7 +41,8 @@ if not exist "%ISSIGTOOL_KEY_FILE%" (
 )
 
 if "%1"=="embed" goto embed
-if "%1"=="sign" goto sign
+if "%1"=="sign" goto signorverify
+if "%1"=="verify" goto signorverify
 if not "%1"=="" goto failed
 
 :embed
@@ -61,7 +64,7 @@ if errorlevel 1 goto failed
 echo Success!
 goto exit
 
-:sign
+:signorverify
 Files\ISSigTool.exe %*
 if errorlevel 1 goto failed
 

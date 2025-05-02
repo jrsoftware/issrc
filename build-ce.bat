@@ -38,6 +38,17 @@ if not exist files\issigtool.exe (
   echo Compiling ISSigTool done
 )
 
+rem  Verify precompiled binaries which are used during compilation
+rem  Note: Other precompiled binaries are verified by Setup.iss
+call .\issig.bat verify --key-file=issig.ispublickey1 ^
+  Projects\Src\Setup.HelperEXEs.res ^
+  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
+  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj ^
+  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj
+if errorlevel 1 goto failed
+echo ISSigTool verify done
+
+rem  Embed user's public key into sources
 call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
@@ -75,6 +86,7 @@ if exist .\setup-presign.bat (
   echo Presign done
 )
 
+rem  Sign using user's private key
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll
 if errorlevel 1 goto failed
 echo ISSigTool sign done
