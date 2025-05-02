@@ -6,12 +6,12 @@ rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to embed the user's public key from compilesettings.bat in
-rem  TrustFunc.AllowedPublicKeys.inc (before compilation) or to sign files
-rem  using it (after compilation)
+rem  TrustFunc.AllowedPublicKeys.inc and setup.allowedpublickeys.iss (before
+rem  compilation) or to sign files using it (after compilation)
 rem
 rem  If the key is missing it will be generated
 
-setlocal enabledelayedexpansion
+setlocal
 
 cd /d %~dp0
 
