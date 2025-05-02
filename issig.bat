@@ -5,8 +5,11 @@ rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to embed the public key in TrustFunc.AllowedPublicKeys.inc (before compilation) or to create ISCmplr.dll.issig and ISPP.dll.issig (after compilation)
-rem  Also generates a new private key if needed
+rem  Batch file to embed the user's public key from compilesettings.bat in
+rem  TrustFunc.AllowedPublicKeys.inc (before compilation) or to sign files
+rem  using it (after compilation)
+rem
+rem  If the key is missing it will be generated
 
 setlocal enabledelayedexpansion
 
