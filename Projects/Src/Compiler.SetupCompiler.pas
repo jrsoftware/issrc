@@ -6528,14 +6528,6 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-  procedure FreeListItems(const List: TList);
-  begin
-    for var I := List.Count-1 downto 0 do begin
-      Dispose(List[I]);
-      List.Delete(I);
-    end;
-  end;
-
   procedure FreePreLangData;
   var
     I: Integer;
@@ -8046,7 +8038,10 @@ begin
     FreeSEListItems(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FreeSEListItems(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
-    FreeListItems(FileLocationEntryExtraInfos);
+    for I := FileLocationEntryExtraInfos.Count-1 downto 0 do begin
+      Dispose(PFileLocationEntryExtraInfo(FileLocationEntryExtraInfos[I]));
+      FileLocationEntryExtraInfos.Delete(I);
+    end;
     FreeLineInfoList(ExpectedCustomMessageNames);
     FreeLangData;
     FreePreLangData;
