@@ -4500,8 +4500,7 @@ begin
   NewISSigKeyEntry := nil;
   NewISSigKeyEntryExtraInfo := nil;
   try
-    New(NewISSigKeyEntryExtraInfo);
-    FillChar(NewISSigKeyEntryExtraInfo^, SizeOf(TISSigKeyEntryExtraInfo), 0);
+    NewISSigKeyEntryExtraInfo := AllocMem(SizeOf(TISSigKeyEntryExtraInfo));
     with NewISSigKeyEntryExtraInfo^ do begin
       { Name }
       if not IsValidIdentString(Values[paName].Data, False, False) then
