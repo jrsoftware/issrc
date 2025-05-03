@@ -2,11 +2,11 @@ unit Compiler.StringLists;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Special string list classes used by TSetupCompiler and TCompressionHandler
+  Special string list classes used by TSetupCompiler
 }
 
 interface
@@ -15,26 +15,6 @@ uses
   Classes;
 
 type
-  TLowFragList = class(TList)
-  protected
-    procedure Grow; override;
-  end;
-
-  TLowFragStringList = class
-  private
-    FInternalList: TLowFragList;
-    function Get(Index: Integer): String;
-    function GetCount: Integer;
-    procedure Put(Index: Integer; const Value: String);
-  public
-    constructor Create;
-    destructor Destroy; override;
-    function Add(const S: String): Integer;
-    procedure Clear;
-    property Count: Integer read GetCount;
-    property Strings[Index: Integer]: String read Get write Put; default;
-  end;
-
   THashStringItem = record
     Hash: Longint;
     Str: String;
@@ -73,7 +53,7 @@ type
 
   TScriptFileLines = class
   private
-    FLines: TLowFragList;
+    FLines: TList;
     function Get(Index: Integer): PScriptFileLine;
     function GetCount: Integer;
     function GetText: String;
@@ -91,71 +71,6 @@ implementation
 
 uses
   PathFunc, Compression.Base;
-
-{ TLowFragList }
-
-procedure TLowFragList.Grow;
-var
-  Delta: Integer;
-begin
-  { Delphi 2's TList.Grow induces memory fragmentation big time. This is the
-    Grow code from Delphi 3 and later. }
-  if Capacity > 64 then Delta := Capacity div 4 else
-    if Capacity > 8 then Delta := 16 else
-      Delta := 4;
-  SetCapacity(Capacity + Delta);
-end;
-
-{ TLowFragStringList }
-
-constructor TLowFragStringList.Create;
-begin
-  inherited;
-  FInternalList := TLowFragList.Create;
-end;
-
-destructor TLowFragStringList.Destroy;
-begin
-  if Assigned(FInternalList) then begin
-    Clear;
-    FInternalList.Free;
-  end;
-  inherited;
-end;
-
-function TLowFragStringList.Add(const S: String): Integer;
-var
-  P: Pointer;
-begin
-  FInternalList.Expand;
-  P := nil;
-  String(P) := S;  { bump the ref count }
-  Result := FInternalList.Add(P);
-end;
-
-procedure TLowFragStringList.Clear;
-begin
-  if FInternalList.Count <> 0 then
-    Finalize(String(FInternalList.List[0]), FInternalList.Count);
-  FInternalList.Clear;
-end;
-
-function TLowFragStringList.Get(Index: Integer): String;
-begin
-  Result := String(FInternalList[Index]);
-end;
-
-function TLowFragStringList.GetCount: Integer;
-begin
-  Result := FInternalList.Count;
-end;
-
-procedure TLowFragStringList.Put(Index: Integer; const Value: String);
-begin
-  if (Index < 0) or (Index >= FInternalList.Count) then
-    raise EListError.CreateFmt('List index out of bounds (%d)', [Index]);
-  String(FInternalList.List[Index]) := Value;
-end;
 
 { THashStringList }
 
@@ -236,7 +151,7 @@ end;
 constructor TScriptFileLines.Create;
 begin
   inherited;
-  FLines := TLowFragList.Create;
+  FLines := TList.Create;
 end;
 
 destructor TScriptFileLines.Destroy;

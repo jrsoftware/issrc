@@ -2,7 +2,7 @@ unit Compiler.CompressionHandler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,13 +12,14 @@ unit Compiler.CompressionHandler;
 interface
 
 uses
+  Classes,
   SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
-  Compiler.StringLists, Compiler.SetupCompiler;
+  Compiler.SetupCompiler;
 
 type
   TCompressionHandler = class
   private
-    FCachedCompressors: TLowFragList;
+    FCachedCompressors: TList;
     FCompiler: TSetupCompiler;
     FCompressor: TCustomCompressor;
     FChunkBytesRead: Integer64;
@@ -69,7 +70,7 @@ begin
   inherited Create;
   FCompiler := ACompiler;
   FCurSlice := -1;
-  FCachedCompressors := TLowFragList.Create;
+  FCachedCompressors := TList.Create;
   NewSlice(InitialSliceFilename);
 end;
 
