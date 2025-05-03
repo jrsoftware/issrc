@@ -314,6 +314,8 @@ type
   PISSigKeyEntryExtraInfo = ^TISSigKeyEntryExtraInfo;
   TISSigKeyEntryExtraInfo = record
     Name: String;
+    GroupNames: array of String;
+    function HasGroupName(const GroupName: String): Boolean;
   end;
 
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
@@ -355,6 +357,16 @@ begin
     Result := Trim(Copy(S, 1, I-1));
     S := Trim(Copy(S, I+1, Maxint));
   until (Result <> '') or (S = '');
+end;
+
+{ TISSigKeyEntryExtraInfo }
+
+function TISSigKeyEntryExtraInfo.HasGroupName(const GroupName: String): Boolean;
+begin
+  for var I := 0 to Length(GroupNames)-1 do
+    if SameText(GroupNames[I], GroupName) then
+      Exit(True);
+  Result := False;
 end;
 
 { TSetupCompiler }
@@ -4476,16 +4488,30 @@ begin
 end;
 
 procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
+
+  function ISSigKeysNameExists(const Name: String; const CheckGroupNames: Boolean): Boolean;
+  begin
+    for var I := 0 to ISSigKeyEntryExtraInfos.Count-1 do begin
+      var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]);
+      if SameText(ISSigKeyEntryExtraInfo.Name, Name) or
+         (CheckGroupNames and ISSigKeyEntryExtraInfo.HasGroupName(Name)) then
+        Exit(True)
+    end;
+    Result := False;
+  end;
+
 type
-  TParam = (paName, paKeyFile, paKeyID, paPublicX, paPublicY);
+  TParam = (paName, paGroup, paKeyFile, paKeyID, paPublicX, paPublicY);
 const
   ParamISSigKeysName = 'Name';
+  ParamISSigKeysGroup = 'Group';
   ParamISSigKeysKeyFile = 'KeyFile';
   ParamISSigKeysKeyID = 'KeyID';
   ParamISSigKeysPublicX = 'PublicX';
   ParamISSigKeysPublicY = 'PublicY';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysGroup; Flags: []),
     (Name: ParamISSigKeysKeyFile; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysKeyID; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysPublicX; Flags: [piNoEmpty]),
@@ -4503,13 +4529,27 @@ begin
     NewISSigKeyEntryExtraInfo := AllocMem(SizeOf(TISSigKeyEntryExtraInfo));
     with NewISSigKeyEntryExtraInfo^ do begin
       { Name }
-      if not IsValidIdentString(Values[paName].Data, False, False) then
-        AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
-      Name := LowerCase(Values[paName].Data);
-      for var I := 0 to ISSigKeyEntryExtraInfos.Count-1 do begin
-        var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]);
-        if SameText(ISSigKeyEntryExtraInfo.Name, Name) then
-          AbortCompileFmt(SCompilerISSigKeysNameDuplicated, [Name]);
+      Name := Values[paName].Data;
+      if not IsValidIdentString(Name, False, False) then
+        AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadName, [ParamISSigKeysName])
+      else if ISSigKeysNameExists(Name, True) then
+        AbortCompileFmt(SCompilerISSigKeysNameExists, [Name]);
+
+      { Group }
+      var S := Values[paGroup].Data;
+      while True do begin
+        const GroupName = ExtractStr(S, ' ');
+        if GroupName = '' then
+          Break;
+        if not IsValidIdentString(GroupName, False, False) then
+          AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadGroupName, [ParamISSigKeysGroup])
+        else if SameText(Name, GroupName) or ISSigKeysNameExists(GroupName, False) then
+          AbortCompileFmt(SCompilerISSigKeysNameExists, [GroupName]);
+        if not HasGroupName(GroupName) then begin
+          const N = Length(GroupNames);
+          SetLength(GroupNames, N+1);
+          GroupNames[N] := GroupName;
+        end;
       end;
     end;
 

@@ -2799,8 +2799,13 @@ Name: "MyKey2; \
 <paramlist>
 
 <param name="Name" required="yes">
-<p>The internal name of the key, which you can set to anything you like.</p>
+<p>The internal name of the key.</p>
 <example><pre>Name: "MyKey"</pre></example>
+</param>
+
+<param name="Group">
+<p>A space separated list of internal group names, specifying how to group the key.</p>
+<example><pre>Group: "exesigner docsigner"</pre></example>
 </param>
 
 <param name="KeyID">

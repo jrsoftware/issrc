@@ -249,8 +249,9 @@ const
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
   SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
-  SCompilerLanguagesOrISSigKeysBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerISSigKeysNameDuplicated = 'Cannot have multiple entries named "%s"';
+  SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerISSigKeysNameExists = 'Name "%s" is already in use"';
   SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
   SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
   SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
