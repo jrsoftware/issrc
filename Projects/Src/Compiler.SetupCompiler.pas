@@ -375,26 +375,26 @@ constructor TSetupCompiler.Create(AOwner: TComponent);
 begin
   inherited Create;
   ScriptFiles := TStringList.Create;
-  LanguageEntries := TLowFragList.Create;
-  CustomMessageEntries := TLowFragList.Create;
-  PermissionEntries := TLowFragList.Create;
-  TypeEntries := TLowFragList.Create;
-  ComponentEntries := TLowFragList.Create;
-  TaskEntries := TLowFragList.Create;
-  DirEntries := TLowFragList.Create;
-  ISSigKeyEntries := TLowFragList.Create;
-  FileEntries := TLowFragList.Create;
-  FileLocationEntries := TLowFragList.Create;
-  IconEntries := TLowFragList.Create;
-  IniEntries := TLowFragList.Create;
-  RegistryEntries := TLowFragList.Create;
-  InstallDeleteEntries := TLowFragList.Create;
-  UninstallDeleteEntries := TLowFragList.Create;
-  RunEntries := TLowFragList.Create;
-  UninstallRunEntries := TLowFragList.Create;
+  LanguageEntries := TList.Create;
+  CustomMessageEntries := TList.Create;
+  PermissionEntries := TList.Create;
+  TypeEntries := TList.Create;
+  ComponentEntries := TList.Create;
+  TaskEntries := TList.Create;
+  DirEntries := TList.Create;
+  ISSigKeyEntries := TList.Create;
+  FileEntries := TList.Create;
+  FileLocationEntries := TList.Create;
+  IconEntries := TList.Create;
+  IniEntries := TList.Create;
+  RegistryEntries := TList.Create;
+  InstallDeleteEntries := TList.Create;
+  UninstallDeleteEntries := TList.Create;
+  RunEntries := TList.Create;
+  UninstallRunEntries := TList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
-  FileLocationEntryExtraInfos := TLowFragList.Create;
-  ISSIgKeyEntryExtraInfos := TLowFragList.Create;
+  FileLocationEntryExtraInfos := TList.Create;
+  ISSIgKeyEntryExtraInfos := TList.Create;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -403,9 +403,9 @@ begin
   UsedUserAreas.Duplicates := dupIgnore;
   PreprocIncludedFilenames := TStringList.Create;
   DefaultLangData := TLangData.Create;
-  PreLangDataList := TLowFragList.Create;
-  LangDataList := TLowFragList.Create;
-  SignToolList := TLowFragList.Create;
+  PreLangDataList := TList.Create;
+  LangDataList := TList.Create;
+  SignToolList := TList.Create;
   SignTools := TStringList.Create;
   SignToolsParams := TStringList.Create;
   DebugInfo := TMemoryStream.Create;
@@ -841,7 +841,7 @@ var
   Data: PPreCompilerData;
   Filename: String;
   I: Integer;
-  Lines: TLowFragStringList;
+  Lines: TStringList;
   F: TTextFileReader;
   L: String;
 begin
@@ -862,7 +862,7 @@ begin
       Exit;
     end;
 
-  Lines := TLowFragStringList.Create;
+  Lines := TStringList.Create;
   try
     if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
@@ -903,12 +903,12 @@ function PreLineInProc(CompilerData: TPreprocCompilerData;
   FileHandle: TPreprocFileHandle; LineIndex: Integer): PChar; stdcall;
 var
   Data: PPreCompilerData;
-  Lines: TLowFragStringList;
+  Lines: TStringList;
 begin
   Data := CompilerData;
   if (FileHandle >= 0) and (FileHandle < Data.InFiles.Count) and
      (LineIndex >= 0) then begin
-    Lines := TLowFragStringList(Data.InFiles.Objects[FileHandle]);
+    Lines := TStringList(Data.InFiles.Objects[FileHandle]);
     if LineIndex < Lines.Count then begin
       Data.CurInLine := Lines[LineIndex];
       Result := PChar(Data.CurInLine);
@@ -985,12 +985,12 @@ end;
 function TSetupCompiler.ReadScriptFile(const Filename: String;
   const UseCache: Boolean; const AnsiConvertCodePage: Cardinal): TScriptFileLines;
 
-  function ReadMainScriptLines: TLowFragStringList;
+  function ReadMainScriptLines: TStringList;
   var
     Reset: Boolean;
     Data: TCompilerCallbackData;
   begin
-    Result := TLowFragStringList.Create;
+    Result := TStringList.Create;
     try
       Reset := True;
       while True do begin
@@ -1008,7 +1008,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
     end;
   end;
 
-  function SelectPreprocessor(const Lines: TLowFragStringList): TPreprocessScriptProc;
+  function SelectPreprocessor(const Lines: TStringList): TPreprocessScriptProc;
   var
     S: String;
   begin
@@ -1083,7 +1083,7 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
 
       ResultCode := ispePreprocessError;
       if FileLoaded then begin
-        PreProc := SelectPreprocessor(TLowFragStringList(Data.InFiles.Objects[0]));
+        PreProc := SelectPreprocessor(TStringList(Data.InFiles.Objects[0]));
         if Filename = '' then
           AddStatus(SCompilerStatusPreprocessing);
         ResultCode := PreProc(Params);
@@ -5483,8 +5483,8 @@ begin
         CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
       end;
 
-      FileList := TLowFragList.Create();
-      DirList := TLowFragList.Create();
+      FileList := TList.Create();
+      DirList := TList.Create();
       try
         if not ExternalFile then begin
           BuildFileList(PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard), FileList, DirList, foCreateAllSubDirs in NewFileEntry.Options);
