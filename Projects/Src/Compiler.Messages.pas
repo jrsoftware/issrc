@@ -309,6 +309,9 @@ const
     '"{syswow64}" when the "sharedfile" flag is used. See the "sharedfile" ' +
     'documentation in the help file for details.';
   SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
+  SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
+  SCompilerFilesISSigAllowedKeysConflict = 'Parameter "ISSigAllowedKeys" cannot allow different keys on the same source file';
+  SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

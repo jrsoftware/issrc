@@ -241,8 +241,8 @@ const
   FilesSectionParameters: array of TScintRawString = [
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
     'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'Flags', 'FontInstall',
-    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Source',
-    'StrongAssemblyName', 'Tasks'
+    'ISSigAllowedKeys', 'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions',
+    'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
