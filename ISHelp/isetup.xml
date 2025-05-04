@@ -1650,6 +1650,13 @@ ExternalSize: 1048576; Flags: external
 </example>
 </param>
 
+<param name="ISSigAllowedKeys">
+<p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
+<example>
+<pre>ISSigAllowedKeys: "exesigner"</pre>
+</example>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -1709,7 +1716,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
 <flag name="issigverify">
-<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>.</p>
+<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
 <p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
 <p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
 <ul>
