@@ -5209,17 +5209,6 @@ type
     end;
   end;
 
-  procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
-  begin
-    { ISSigAllowedKeys should start out empty. If you then only use this function
-      to update it, SameStr can be used for comparisons. }
-    const ByteIndex = KeyIndex div 8;
-    if ByteIndex >= Length(ISSigAllowedKeys) then
-      ISSigAllowedKeys := ISSigAllowedKeys + #0;
-    const BitIndex = KeyIndex mod 8;
-    ISSigAllowedKeys[ByteIndex+1] := AnsiChar(Byte(ISSigAllowedKeys[ByteIndex+1]) or (1 shl BitIndex));
-  end;
-
 var
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
@@ -7026,36 +7015,6 @@ var
       end;
     end;
 
-    function IsISSigAllowedKey(const ISSigAllowedKeys: AnsiString; const KeyIndex: Integer): Boolean;
-    begin
-      const ByteIndex = KeyIndex div 8;
-      if ByteIndex >= Length(ISSigAllowedKeys) then
-        Exit(False);
-      const BitIndex = KeyIndex mod 8;
-      Result := Byte(ISSigAllowedKeys[ByteIndex+1]) and (1 shl BitIndex) <> 0;
-    end;
-
-    type
-      TArrayOfECDSAKey = array of TECDSAKey;
-
-    function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
-      const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
-    begin
-      if ISSigAllowedKeys <> '' then begin
-        const NAvailable = Length(ISSigAvailableKeys);
-        SetLength(Result, NAvailable);
-        var NAdded := 0;
-        for var I := 0 to NAvailable-1 do begin
-          if IsISSigAllowedKey(ISSigAllowedKeys, I) then begin
-            Result[NAdded] := ISSigAvailableKeys[I];
-            Inc(NAdded);
-          end;
-        end;
-        SetLength(Result, NAdded);
-      end else
-        Result := ISSigAvailableKeys;
-    end;
-
   const
     StatusFilesStoringOrCompressingVersionStrings: array [Boolean] of String = (
      SCompilerStatusFilesStoringVersion,
@@ -7073,9 +7032,7 @@ var
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
     HdrChecksum, ErrorCode: DWORD;
-    ISSigAvailableKeys, PrevISSigAllowedKeys: TArrayOfECDSAKey;
-    PrevISSigAllowedKeysAsString: AnsiString;
-    GotPrevISSigAllowedKeys: Boolean;
+    ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -7102,7 +7059,6 @@ var
           AbortCompileFmt(SCompilerCompressInternalError, ['ISSigImportPublicKey failed: ' + GetExceptMessage]);
         end;
       end;
-      GotPrevISSigAllowedKeys := False;
 
       if DiskSpanning then begin
         if not CH.ReserveBytesOnSlice(BytesToReserveOnFirstDisk) then
@@ -7166,12 +7122,8 @@ var
               AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [FileLocationEntryFilenames[I]]);
             const SigText = ISSigLoadTextFromFile(SigFilename);
             var ExpectedFileSize: Int64;
-            if not GotPrevISSigAllowedKeys or not SameStr(PrevISSigAllowedKeysAsString, FLExtraInfo.ISSigAllowedKeys) then begin
-              PrevISSigAllowedKeysAsString := FLExtraInfo.ISSigAllowedKeys;
-              PrevISSigAllowedKeys := GetISSigAllowedKeys(ISSigAvailableKeys, PrevISSigAllowedKeysAsString);
-              GotPrevISSigAllowedKeys := True;
-            end;
-            const VerifyResult = ISSigVerifySignatureText(PrevISSigAllowedKeys, SigText,
+            const VerifyResult = ISSigVerifySignatureText(
+              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys), SigText,
               ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID);
             if VerifyResult <> vsrSuccess then begin
               var VerifyResultAsString: String;

@@ -257,8 +257,8 @@ begin
 end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: array of TECDSAKey;
-  const ISSigFilename: String; AMaxProgress: Integer64);
+  const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString; const ISSigFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
 const
@@ -282,7 +282,8 @@ begin
       ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, ISSigFilename));
     const SigText = ISSigLoadTextFromFile(ISSigFilename);
     var ExpectedFileSize: Int64;
-    const VerifyResult = ISSigVerifySignatureText(ISSigAvailableKeys, SigText,
+    const VerifyResult = ISSigVerifySignatureText(
+      GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys), SigText,
       ExpectedFileSize, ExpectedFileHash);
     if VerifyResult <> vsrSuccess then begin
       var VerifyResultAsString: String;
@@ -392,7 +393,7 @@ var
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
-  ISSigAvailableKeys: array of TECDSAKey;
+  ISSigAvailableKeys: TArrayOfECDSAKey;
 
   function GetLocalTimeAsStr: String;
   var
@@ -1493,9 +1494,11 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, False, [], '', CurFileLocation^.OriginalSize)
+                  CopySourceFileToDestFile(SourceF, DestF, False,
+                    [], '', '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, ISSigAvailableKeys, SourceFile + '.issig', AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
+                    ISSigAvailableKeys, CurFile^.ISSigAllowedKeys, SourceFile + '.issig', AExternalSize);
               finally
                 SourceF.Free;
               end;

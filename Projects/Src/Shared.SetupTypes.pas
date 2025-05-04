@@ -12,7 +12,7 @@ unit Shared.SetupTypes;
 interface
 
 uses
-  SysUtils, Classes, Shared.Struct;
+  SysUtils, Classes, ECDSA, Shared.Struct;
 
 const
   { Predefined page identifiers }
@@ -37,6 +37,8 @@ type
 
   TRenamedConstantCallBack = procedure(const Cnst, CnstRenamed: String) of object;
 
+  TArrayOfECDSAKey = array of TECDSAKey;
+
 const
   crHand = 1;
 
@@ -53,11 +55,15 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
 procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
 procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
   const Iterations: Integer; out Key: TSetupEncryptionKey);
+procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
+function IsISSigAllowedKey(const ISSigAllowedKeys: AnsiString; const KeyIndex: Integer): Boolean;
+function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
 
 implementation
 
 uses
-  PBKDF2, Shared.CommonFunc;
+  AnsiStrings, PBKDF2, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -304,6 +310,57 @@ begin
   var KeyLength := SizeOf(Key);
   var KeyBytes := PBKDF2SHA256(Password, SaltBytes, Iterations, KeyLength);
   Move(KeyBytes[0], Key[0], KeyLength);
+end;
+
+{ Actually only used by ISCmplr and not by Setup - kept here anyway because IsISSigAllowedKey is}
+procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
+begin
+  { ISSigAllowedKeys should start out empty. If you then only use this function
+    to update it, SameStr can be used for comparisons. }
+  const ByteIndex = KeyIndex div 8;
+  if ByteIndex >= Length(ISSigAllowedKeys) then
+    ISSigAllowedKeys := ISSigAllowedKeys + #0;
+  const BitIndex = KeyIndex mod 8;
+  ISSigAllowedKeys[ByteIndex+1] := AnsiChar(Byte(ISSigAllowedKeys[ByteIndex+1]) or (1 shl BitIndex));
+end;
+
+function IsISSigAllowedKey(const ISSigAllowedKeys: AnsiString; const KeyIndex: Integer): Boolean;
+begin
+  const ByteIndex = KeyIndex div 8;
+  if ByteIndex >= Length(ISSigAllowedKeys) then
+    Exit(False);
+  const BitIndex = KeyIndex mod 8;
+  Result := Byte(ISSigAllowedKeys[ByteIndex+1]) and (1 shl BitIndex) <> 0;
+end;
+
+var
+  PrevISSigAllowedKeys: TArrayOfECDSAKey;
+  PrevISSigAllowedKeysAsString: AnsiString;
+  GotPrevISSigAllowedKeys: Boolean;
+
+function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
+begin
+  if not GotPrevISSigAllowedKeys or not SameStr(PrevISSigAllowedKeysAsString, ISSigAllowedKeys) then begin
+    if ISSigAllowedKeys <> '' then begin
+      const NAvailable = Length(ISSigAvailableKeys);
+      SetLength(PrevISSigAllowedKeys, NAvailable);
+      var NAdded := 0;
+      for var I := 0 to NAvailable-1 do begin
+        if IsISSigAllowedKey(ISSigAllowedKeys, I) then begin
+          PrevISSigAllowedKeys[NAdded] := ISSigAvailableKeys[I];
+          Inc(NAdded);
+        end;
+      end;
+      SetLength(PrevISSigAllowedKeys, NAdded);
+    end else
+      PrevISSigAllowedKeys := ISSigAvailableKeys;
+
+    PrevISSigAllowedKeysAsString := ISSigAllowedKeys;
+    GotPrevISSigAllowedKeys := True;
+  end;
+
+  Result := PrevISSigAllowedKeys;
 end;
 
 end.
