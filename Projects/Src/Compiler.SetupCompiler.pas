@@ -7038,7 +7038,7 @@ var
     type
       TArrayOfECDSAKey = array of TECDSAKey;
 
-    function GetISSigAllowedKeys(const ISSigAvailableKeys: TArrayOfECDSAKey;
+    function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
       const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
     begin
       if ISSigAllowedKeys <> '' then begin

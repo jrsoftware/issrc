@@ -257,7 +257,7 @@ begin
 end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  const ISSigVerify: Boolean; [Ref] const ISSigKeys: array of TECDSAKey;
+  const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: array of TECDSAKey;
   const ISSigFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
@@ -282,7 +282,7 @@ begin
       ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, ISSigFilename));
     const SigText = ISSigLoadTextFromFile(ISSigFilename);
     var ExpectedFileSize: Int64;
-    const VerifyResult = ISSigVerifySignatureText(ISSigKeys, SigText,
+    const VerifyResult = ISSigVerifySignatureText(ISSigAvailableKeys, SigText,
       ExpectedFileSize, ExpectedFileHash);
     if VerifyResult <> vsrSuccess then begin
       var VerifyResultAsString: String;
@@ -392,7 +392,7 @@ var
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
-  ISSigKeys: array of TECDSAKey;
+  ISSigAvailableKeys: array of TECDSAKey;
 
   function GetLocalTimeAsStr: String;
   var
@@ -1495,7 +1495,7 @@ var
                 if Assigned(CurFileLocation) then
                   CopySourceFileToDestFile(SourceF, DestF, False, [], '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, ISSigKeys, SourceFile + '.issig', AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options, ISSigAvailableKeys, SourceFile + '.issig', AExternalSize);
               finally
                 SourceF.Free;
               end;
@@ -3115,7 +3115,7 @@ begin
   AppendUninstallData := False;
   UninstLogCleared := False;
   RegisterFilesList := nil;
-  SetLength(ISSigKeys, 0);
+  SetLength(ISSigAvailableKeys, 0);
   UninstLog := TSetupUninstallLog.Create;
   try
     try
@@ -3153,11 +3153,11 @@ begin
 
       RegisterFilesList := TList.Create;
 
-      SetLength(ISSigKeys, Entries[seISSigKey].Count);
+      SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
       for var N := 0 to Entries[seISSigKey].Count-1 do begin
         var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
-        ISSigKeys[N] := TECDSAKey.Create;
-        if ISSigImportPublicKey(ISSigKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+        ISSigAvailableKeys[N] := TECDSAKey.Create;
+        if ISSigImportPublicKey(ISSigAvailableKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
           InternalError('ISSigImportPublicKey failed')
       end;
 
@@ -3321,8 +3321,8 @@ begin
       Exit;
     end;
   finally
-    for I := 0 to Length(ISSigKeys)-1 do
-      ISSigKeys[I].Free;
+    for I := 0 to Length(ISSigAvailableKeys)-1 do
+      ISSigAvailableKeys[I].Free;
     if Assigned(RegisterFilesList) then begin
       for I := RegisterFilesList.Count-1 downto 0 do
         Dispose(PRegisterFilesListRec(RegisterFilesList[I]));
