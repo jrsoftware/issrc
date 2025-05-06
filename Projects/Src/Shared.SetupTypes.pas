@@ -315,9 +315,9 @@ end;
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 begin
   { ISSigAllowedKeys should start out empty. If you then only use this function
-    to update it, SameStr can be used for comparisons. }
+    to update it, regular string comparison can be used for comparisons. }
   const ByteIndex = KeyIndex div 8;
-  if ByteIndex >= Length(ISSigAllowedKeys) then
+  while ByteIndex >= Length(ISSigAllowedKeys) do
     ISSigAllowedKeys := ISSigAllowedKeys + #0;
   const BitIndex = KeyIndex mod 8;
   ISSigAllowedKeys[ByteIndex+1] := AnsiChar(Byte(ISSigAllowedKeys[ByteIndex+1]) or (1 shl BitIndex));

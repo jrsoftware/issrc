@@ -5015,7 +5015,7 @@ type
             SolidBreak := False;
           end;
           NewFileLocationEntryExtraInfo^.ISSigAllowedKeys := NewFileEntry^.ISSigAllowedKeys;
-        end else if not SameStr(NewFileLocationEntryExtraInfo^.ISSigAllowedKeys, NewFileEntry^.ISSigAllowedKeys) then
+        end else if NewFileLocationEntryExtraInfo^.ISSigAllowedKeys <> NewFileEntry^.ISSigAllowedKeys then
           AbortCompile(SCompilerFilesISSigAllowedKeysConflict);
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
