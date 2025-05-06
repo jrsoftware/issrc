@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -8,20 +8,20 @@
 */
 
 BODY {
-	font: small arial, sans-serif;
+	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
 	margin: 0;
 	color: #d6d6d6;
 	background-color: #1f1f1f;
 }
 PRE, TT {
-	font: small "courier new", monospace;
+	font: calc(13rem/16) Consolas, monospace;
 }
 P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .examplebox, DIV.margined {
 	/* only the end of paragraphs etc. has a margin */
 	margin-top: 0;
-	margin-bottom: 0.6em;
+	margin-bottom: 1em;
 }
-UL, DD {
+UL, OL, DD {
 	/* specify both of these for firefox compat. */
 	margin-left: 0;
 	padding-left: 2em;
@@ -65,7 +65,7 @@ A.highlighted {
 	font-size: 82%;
 }
 .heading {
-	margin-top: 0.6em;
+	margin-top: 1em;
 	font-size: 120%;
 	font-weight: bold;
 }
@@ -94,32 +94,34 @@ LI.compact {
 	padding: 8px;
 }
 
-.examplebox {
+TT, .examplebox {
 	background-color: #403E41;
 	color: #d6d6d6;
-	padding: 4px;
 	border: 1px solid #716F71;
-	/* on IE6, if the content of the box is wider than the page,
-	   the width of the box is increased. on firefox 1.5, by default
-	   the box width stays the same, and the content is drawn outside
-	   the box. that looks ugly. "overflow: auto" tells it to put a
-	   scroll bar on the box when the content is too wide. (IE6
-	   apparently ignores "overflow: auto", at least here.) */
-	overflow: auto;
+	border-radius: 4px;
+}
+TT {
+	padding: 1px 3px;
+	display: inline-block;
+}
+.examplebox {
+	padding: 6px;
+	overflow-x: auto;
 }
 .exampleheader {
-	font-size: 82%;
+	font-size: calc(12rem/16);
 	font-weight: bold;
-	margin-bottom: 0.6em;
+	line-height: normal;
+	margin-bottom: 0.5em;
 }
 
 
 DT.paramlist {
-	margin-bottom: 0.6em;
+	margin-bottom: 0.5em;
 }
 DD.paramlist {
 	/* give a little extra spacing between items */
-	margin-bottom: 1.2em;
+	margin-bottom: 1.5em;
 }
 
 DT.flaglist {
