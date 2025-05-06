@@ -43,7 +43,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </ul>
 <p>Changes to <tt>[Files]</tt> section to make use of the new section for verification of files:</p>
 <ul>
-  <li>Added a new <tt>issigverify</tt> flag for enforcing cryptographic signature verification of source files using a key from the <tt>[ISSigKeys]</tt> section, enhancing security during both the compilation and installation phases.</li>
+  <li>Added a new <tt>issigverify</tt> flag for enforcing cryptographic signature verification of source files using a key from the <tt>[ISSigKeys]</tt> section, enhancing security during both compilation and installation.</li>
   <li>When used without the <tt>external</tt> flag, verification is performed during compilation, aborting if it fails. When used with the <tt>external</tt> flag, verification occurs during installation, ensuring the integrity of files as they are copied.</li>
   <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
   <li>Has little performance impact since verification occurs while source files are being compressed/copied; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. This approach also ensures there is no Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>

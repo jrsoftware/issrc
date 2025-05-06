@@ -2807,22 +2807,25 @@ Name: "MyKey2; \
 
 <param name="Name" required="yes">
 <p>The internal name of the key.</p>
+<p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key names, like the names of developers.</p>
 <example><pre>Name: "MyKey"</pre></example>
 </param>
 
 <param name="Group">
 <p>A space separated list of internal group names, specifying how to group the key.</p>
+<p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key group names, like the names of developer groups.</p>
 <example><pre>Group: "exesigner docsigner"</pre></example>
 </param>
 
 <param name="KeyID">
-<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>.</p>
+<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>. Is not used for anything else.</p>
 <example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
 </param>
 
 <param name="KeyFile">
 <p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
 <p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
+<p>If a private key file is specified, only it's public information is stored in the resulting Setup file(s).</p>
 <example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
 </param>
 
@@ -5332,7 +5335,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
