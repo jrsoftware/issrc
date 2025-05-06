@@ -332,34 +332,22 @@ begin
   Result := Byte(ISSigAllowedKeys[ByteIndex+1]) and (1 shl BitIndex) <> 0;
 end;
 
-var
-  PrevISSigAllowedKeys: TArrayOfECDSAKey;
-  PrevISSigAllowedKeysAsString: AnsiString;
-  GotPrevISSigAllowedKeys: Boolean;
-
 function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
 begin
-  if not GotPrevISSigAllowedKeys or not SameStr(PrevISSigAllowedKeysAsString, ISSigAllowedKeys) then begin
-    if ISSigAllowedKeys <> '' then begin
-      const NAvailable = Length(ISSigAvailableKeys);
-      SetLength(PrevISSigAllowedKeys, NAvailable);
-      var NAdded := 0;
-      for var I := 0 to NAvailable-1 do begin
-        if IsISSigAllowedKey(ISSigAllowedKeys, I) then begin
-          PrevISSigAllowedKeys[NAdded] := ISSigAvailableKeys[I];
-          Inc(NAdded);
-        end;
+  if ISSigAllowedKeys <> '' then begin
+    const NAvailable = Length(ISSigAvailableKeys);
+    SetLength(Result, NAvailable);
+    var NAdded := 0;
+    for var I := 0 to NAvailable-1 do begin
+      if IsISSigAllowedKey(ISSigAllowedKeys, I) then begin
+        Result[NAdded] := ISSigAvailableKeys[I];
+        Inc(NAdded);
       end;
-      SetLength(PrevISSigAllowedKeys, NAdded);
-    end else
-      PrevISSigAllowedKeys := ISSigAvailableKeys;
-
-    PrevISSigAllowedKeysAsString := ISSigAllowedKeys;
-    GotPrevISSigAllowedKeys := True;
-  end;
-
-  Result := PrevISSigAllowedKeys;
+    end;
+    SetLength(Result, NAdded);
+  end else
+    Result := ISSigAvailableKeys;
 end;
 
 end.
