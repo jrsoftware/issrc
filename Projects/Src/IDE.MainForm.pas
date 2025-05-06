@@ -4886,7 +4886,7 @@ procedure TMainForm.UpdatePreprocMemos;
     const NewCloseButtons: TBoolList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
+       (FMainMemo.Lines.Text.TrimRight <> FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       NewCloseButtons.Add(False);
