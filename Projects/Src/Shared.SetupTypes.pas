@@ -62,7 +62,7 @@ function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
 implementation
 
 uses
-  AnsiStrings, PBKDF2, Shared.CommonFunc;
+  PBKDF2, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
