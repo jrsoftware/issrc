@@ -61,8 +61,10 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
   <li>Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all.</li>
   <li>Example commands:
-    <pre>
-...</pre>
+    <pre>issigtool --key-file=MyKey.isprivatekey generate-private-key
+issigtool --key-file=MyKey.isprivatekey sign MyProg.dll
+issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey
+issigtool --key-file=MyKey.ispublickey verify MyProg.dll</pre>
   </li>
 </ul>
 
