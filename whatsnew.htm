@@ -30,8 +30,40 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
 <p><a name="6.5.0"></a><span class="ver">6.5.0-dev </span><span class="date">(?)</span></p>
+<span class="head2">Introducing Inno Setup Signature Tool</span>
+<p>A new <tt>[ISSigKeys]</tt> section was added:</p>
 <ul>
-  <li>...</li>
+  <li>Added a new optional <tt>[ISSigKeys]</tt> section for defining keys used by the compiler and Setup to verify file signatures.</li>
+  <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, and parameter <tt>KeyID</tt> to double-check the key values.</li>
+  <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
+  <li>Example section:
+    <pre>
+...</pre>
+  </li>
+  </ul>
+<p>Changes to <tt>[Files]</tt> section to make use of the new section for verification of files:</p>
+<ul>
+  <li>Added a new <tt>issigverify</tt> flag for enforcing cryptographic signature verification of source files using a key from the <tt>[ISSigKeys]</tt> section, enhancing security during both the compilation and installation phases.</li>
+  <li>When used without the <tt>external</tt> flag, verification is performed during compilation, aborting if it fails. When used with the <tt>external</tt> flag, verification occurs during installation, ensuring the integrity of files as they are copied.</li>
+  <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
+  <li>Has little performance impact since verification occurs while source files are being compressed/copied; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. This approach also ensures there is no Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
+  <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the updated <i>CodeDownloadFiles.iss</i> example script for an example.</li>
+  <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
+  <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
+  <li>Example section:
+    <pre>
+...</pre>
+  </li>
+</ul>
+<p>Inno Setup Signature Tool was added to create signatures:</p>
+<ul>
+  <li>Added ISSigTool.exe, a new command-line tool designed to sign files using ECDSA P-256 cryptographic signatures.</li>
+  <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
+  <li>Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all.</li>
+  <li>Example commands:
+    <pre>
+...</pre>
+  </li>
 </ul>
 
 <p><a href="files/is6.4-whatsnew.htm">Inno Setup 6.4 Revision History</a></p>
