@@ -30,6 +30,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
 <p><a name="6.5.0"></a><span class="ver">6.5.0-dev </span><span class="date">(?)</span></p>
+<span class="head2">New signature-verification capability</span>
 <p>Inno Setup now includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
 <p>Any type of file may be signed and verified and creation of signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
 <p>Note, however, that these signatures cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority.</p>
@@ -73,6 +74,10 @@ issigtool --key-file=MyKey.ispublickey verify MyProg.dll</pre>
     </li>
   </ul>
   </li>
+</ul>
+<span class="head2">Other changes</span>
+<ul>
+  <li>...</li>
 </ul>
 
 <p><a href="files/is6.4-whatsnew.htm">Inno Setup 6.4 Revision History</a></p>
