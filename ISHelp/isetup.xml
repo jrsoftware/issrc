@@ -87,6 +87,7 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
+    <contentstopic title=".issig Signatures: Introduction" topic="issig" />
     <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
@@ -3582,6 +3583,133 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>As shown in the example above, wizard names and filenames that include spaces must be enclosed in quotes.</p>
 
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
+</li>
+
+</ul>
+
+</body>
+</topic>
+
+
+
+<topic name="issig" title=".issig Signatures: Introduction">
+<body>
+
+<p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
+
+<p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>issigtool</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
+
+<p>Creation of <tt>.issig</tt> signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
+
+<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority.</p>
+
+<heading>Quick start: Verifying files at compile time</heading>
+
+<p>On the <tt>issigtool</tt> commands below, prepend the path of your Inno Setup installation, and include quotes. For example: <tt>"%ProgramFiles(x86)%\Inno Setup 6\issigtool"</tt></p>
+
+<ol>
+
+<li>
+<p>At the command line, generate a new private key file that will be used for signing:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" generate-private-key
+</precode>
+<p>A file named <tt>MyKey.isprivatekey</tt> will be created in the current directory. You may include a pathname if you wish.</p>
+<p>The file should not be shared with others, and should never be committed into a public repository. To reduce the risk of accidental disclosure, it is best to keep the file outside of your source tree.</p>
+</li>
+
+<li>
+<p>Create the file we want to sign, then create the signature:</p>
+<precode>
+echo Hello &gt; MyFile.txt
+issigtool --key-file="MyKey.isprivatekey" sign MyFile.txt
+</precode>
+<p>A signature file named <tt>MyFile.txt.issig</tt> is created.</p>
+</li>
+
+<li>
+<p>Inside your Inno Setup script, add an <link topic="issigkeyssection">[ISSigKeys] section</link> entry linking to your key file, and a <link topic="filessection">[Files] section</link> entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
+<precode>
+[ISSigKeys]
+Name: MyKey; KeyFile: "MyKey.isprivatekey"
+
+[Files]
+Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
+</precode>
+<p>Note: Specifying a <i>public</i> key file instead is preferred; see the <link topic="issig" anchor="tips">Tips &amp; Recommendations</link> section below.</p>
+</li>
+
+<li>
+<p>Compile the script. In the compiler output, you should see a line indicating the file was successfully verified:</p>
+<precode>
+   Compressing: MyFile.txt
+      ISSig verification successful.
+</precode>
+</li>
+
+<li>
+<p>Now let's confirm that the compiler actually does catch corruption or tampering within the file.</p>
+<p>Make a modification to <tt>MyFile.txt</tt> — for example, add or change a character.</p>
+</li>
+
+<li>
+<p>Compile the script again. This time, you should get an error like the following:</p>
+<precode>
+Signature is not valid for source file "MyFile.txt": file hash incorrect.
+</precode>
+</li>
+
+</ol>
+
+<heading>Verifying external files during installation</heading>
+
+<p>The procedure for setting up verification of <tt>external</tt> files is essentially the same as the procedure shown above for compile-time verification, except:</p>
+
+<ul>
+
+<li>
+<p>The <tt>[Files]</tt> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
+<precode>
+[Files]
+Source: "{src}\MyFile.txt"; DestDir: "{app}"; Flags: external issigverify
+</precode>
+</li>
+
+<li>
+<p>The signature file — <tt>MyFile.txt.issig</tt> in this example — must exist in the same directory as the <tt>Source</tt> file during the installation process. (No compile-time verification occurs on <tt>external</tt> files.)</p>
+</li>
+
+</ul>
+
+<heading><a name="tips">Tips &amp; Recommendations</a></heading>
+
+<ul>
+
+<li>
+<p>Although an <link topic="issigkeyssection">[ISSigKeys] section</link> entry's <tt>KeyFile</tt> parameter can point to a private key file as demonstrated above, it is recommended that a <i>public</i> key file be specified instead whenever possible. Unlike a private key file, a public key file does not have to be kept secret, and <i>can</i> be safely committed into a version control repository.</p>
+<p>To create a public key file (<tt>MyKey.ispublickey</tt>) from an existing private key file (<tt>MyKey.isprivatekey</tt>), run this command:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
+</precode>
+<p>Alternatively, the public key values may be specified directly inside your script by using the <tt>PublicX</tt> and <tt>PublicY</tt> parameters instead of <tt>KeyFile</tt>.</p>
+</li>
+
+<li>
+<p>To avoid having to repeat the same <tt>--key-file=</tt> parameter on every <tt>issigtool</tt> command invocation, you may instead set the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable to the path of your key file.</p>
+<p>In <tt>cmd.exe</tt> or a batch file:</p>
+<precode>
+set ISSIGTOOL_KEY_FILE=MyKey.isprivatekey
+</precode>
+<p>In PowerShell:</p>
+<precode>
+$env:ISSIGTOOL_KEY_FILE = "MyKey.isprivatekey"
+</precode>
+<p>The above variable assignments are non-persistent; they only affect the current <tt>cmd.exe</tt> or PowerShell session.</p>
+<p>Afterward, you may simply run:</p>
+<precode>
+issigtool sign MyFile.txt
+issigtool verify MyFile.txt
+</precode>
 </li>
 
 </ul>
