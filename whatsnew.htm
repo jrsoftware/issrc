@@ -47,7 +47,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     </li>
   </ul>
   </li>
-  <li>Extended <tt>[Files]</tt> section:
+  <li>Updated <tt>[Files]</tt> section:
   <ul>
     <li>Added a new <tt>issigverify</tt> flag for enforcing cryptographic signature verification of source files using a key from the <tt>[ISSigKeys]</tt> section, enhancing security during both compilation and installation.</li>
     <li>When used without the <tt>external</tt> flag, verification is performed during compilation, aborting if it fails. When used with the <tt>external</tt> flag, verification occurs during installation, ensuring the integrity of files as they are copied.</li>
@@ -64,7 +64,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </li>
   <li>New Inno Setup Signature Tool:</li>
   <ul>
-    <li>Added ISSigTool.exe, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
+    <li>Added <tt>ISSigTool.exe</tt>, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
     <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
     <li>Example commands:
       <pre>issigtool --key-file=MyKey.isprivatekey generate-private-key
@@ -72,6 +72,15 @@ issigtool --key-file=MyKey.isprivatekey sign MyProg.dll
 issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey
 issigtool --key-file=MyKey.ispublickey verify MyProg.dll</pre>
     </li>
+  </ul>
+  </li>
+  <li>New and updated documentation topics:</li>
+  <ul>
+    <li>[ISSigKeys] section</li>
+    <li>[Files] section</li>
+    <li>.issig Signatures: Introduction</li>
+    <li>.issig File Format Specifications</li>
+    <li>Inno Setup Signature Tool</li>
   </ul>
   </li>
 </ul>
