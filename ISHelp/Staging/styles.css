@@ -108,20 +108,18 @@ LI.compact {
 }
 
 TT, .examplebox {
-	background-color: #f8f8f8; /* for IE */
-	background-color: light-dark(#f8f8f8, var(--dark-tool-background-color));
+	background-color: #f0f0f0; /* for IE */
+	background-color: light-dark(#f0f0f0, var(--dark-tool-background-color));
 	color: black; /* for IE */
 	color: light-dark(black, var(--dark-color));
-	border: 1px solid #e0e0e0; /* for IE */
-	border: 1px solid light-dark(#e0e0e0, #716f71);
 	border-radius: 4px;
 }
 TT {
-	padding: 1px 3px;
+	padding: 2px 4px;
 	display: inline-block;
 }
 .examplebox {
-	padding: 6px;
+	padding: 8px;
 	overflow-x: auto;
 }
 .exampleheader {
