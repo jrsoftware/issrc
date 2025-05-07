@@ -3597,11 +3597,11 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
 
-<p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>issigtool</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
+<p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>ISSigTool.exe</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
 
 <p>Creation of <tt>.issig</tt> signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
 
-<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority.</p>
+<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority. You can however use both <tt>signtool.exe</tt> and <tt>ISSigTool.exe</tt> on a single file, in that order. If you are looking for more information about <tt>signtool.exe</tt> see <link topic="setup_signtool">SignTool</link> instead.</p>
 
 <heading>Quick start: Verifying files at compile time</heading>
 
@@ -3723,9 +3723,7 @@ issigtool verify MyFile.txt
 <keyword value="ISSigTool" />
 <body>
 
-<p>Inno Setup includes a command-line tool, ISSigTool.exe. This tool is designed to sign files using ECDSA P-256 cryptographic signatures.</p>
-
-<p>Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all. If you are looking for more information about this topic see <link topic="setup_signtool">SignTool</link> instead.</p>
+<p>Inno Setup includes a command-line utility, <tt>ISSigTool.exe</tt>. This utility is designed to sign files using ECDSA P-256 cryptographic <link topic="issig">signatures</link>.</p>
 
 <p>Command line usage is as follows:</p>
 
@@ -5924,7 +5922,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
-<p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
+<p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
 <p>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</p>
 <p>If a file generated by this directive is deleted, it will be recreated automatically if necessary on the next compile.</p>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
