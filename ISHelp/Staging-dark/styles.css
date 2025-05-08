@@ -97,15 +97,14 @@ LI.compact {
 TT, .examplebox {
 	background-color: #403E41;
 	color: #d6d6d6;
-	border: 1px solid #716F71;
 	border-radius: 4px;
 }
 TT {
-	padding: 1px 3px;
+	padding: 2px 4px;
 	display: inline-block;
 }
 .examplebox {
-	padding: 6px;
+	padding: 8px;
 	overflow-x: auto;
 }
 .exampleheader {
