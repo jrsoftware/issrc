@@ -42,8 +42,14 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, and parameter <tt>KeyID</tt> to double-check the key values.</li>
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
-      <pre>
-  ...</pre>
+      <pre>[ISSigKeys]
+Name: anna: KeyFile: "anna.ispubkey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispubkey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispubkey"; Group: docsigner
+; max is trusted for both exe and doc signing
+Name: max; KeyFile: "max.ispubkey"; Group: exesigner docsigner
+; the boss has also has a key
+Name: bosskey; KeyFile: "boss.ispubkey"</pre>
     </li>
   </ul>
   </li>
@@ -57,8 +63,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
-      <pre>
-  ...</pre>
+      <pre>[Files]
+Source: "MyProg.exe"; DestDir: "{app}"; Flags: issigverify; ISSigAllowedKeys: exesigner bosskey
+Source: "MyProg.chm"; DestDir: "{app}"; Flags: issigverify; ISSigAllowedKeys: docsigner bosskey</pre>
     </li>
   </ul>
   </li>
