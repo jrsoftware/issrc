@@ -7678,27 +7678,25 @@ begin
 end;
 
 procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
-var
-  I, Line: Integer;
 begin
-  for I := 0 to FDebugEntriesCount-1 do
+  for var I := 0 to FDebugEntriesCount-1 do
     if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
        (FDebugEntries[I].LineNumber >= FirstLine) then
       Inc(FDebugEntries[I].LineNumber, Count);
 
   if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
     { Grow FStateLine if necessary }
-    I := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
-    if I > 0 then begin
-      if I < LineStateGrowAmount then
-        I := LineStateGrowAmount;
-      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + I));
-      Inc(Memo.LineStateCapacity, I);
+    var GrowAmount := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
+    if GrowAmount > 0 then begin
+      if GrowAmount < LineStateGrowAmount then
+        GrowAmount := LineStateGrowAmount;
+      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + GrowAmount));
+      Inc(Memo.LineStateCapacity, GrowAmount);
     end;
     { Shift existing line states and clear the new ones }
-    for I := Memo.LineStateCount-1 downto FirstLine do
+    for var I := Memo.LineStateCount-1 downto FirstLine do
       Memo.LineState[I + Count] := Memo.LineState[I];
-    for I := FirstLine to FirstLine + Count - 1 do
+    for var I := FirstLine to FirstLine + Count - 1 do
       Memo.LineState[I] := lnUnknown;
     Inc(Memo.LineStateCount, Count);
   end;
@@ -7709,8 +7707,8 @@ begin
     Inc(Memo.ErrorLine, Count);
 
   var BreakPointsChanged := False;
-  for I := 0 to Memo.BreakPoints.Count-1 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := 0 to Memo.BreakPoints.Count-1 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       Memo.BreakPoints[I] := Line + Count;
       BreakPointsChanged := True;
@@ -7724,12 +7722,9 @@ end;
 
 procedure TMainForm.MemoLinesDeleted(Memo: TIDEScintFileEdit; FirstLine, Count,
   FirstAffectedLine: Integer);
-var
-  I, Line: Integer;
-  DebugEntry: PDebugEntry;
 begin
-  for I := 0 to FDebugEntriesCount-1 do begin
-    DebugEntry := @FDebugEntries[I];
+  for var I := 0 to FDebugEntriesCount-1 do begin
+    const DebugEntry: PDebugEntry = @FDebugEntries[I];
     if (DebugEntry.FileIndex = Memo.CompilerFileIndex) and
        (DebugEntry.LineNumber >= FirstLine) then begin
       if DebugEntry.LineNumber < FirstLine + Count then
@@ -7742,7 +7737,7 @@ begin
   if Assigned(Memo.LineState) then begin
     { Shift existing line states }
     if FirstLine < Memo.LineStateCount - Count then begin
-      for I := FirstLine to Memo.LineStateCount - Count - 1 do
+      for var I := FirstLine to Memo.LineStateCount - Count - 1 do
         Memo.LineState[I] := Memo.LineState[I + Count];
       Dec(Memo.LineStateCount, Count);
     end
@@ -7768,8 +7763,8 @@ begin
   end;
 
   var BreakPointsChanged := False;
-  for I := Memo.BreakPoints.Count-1 downto 0 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := Memo.BreakPoints.Count-1 downto 0 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       if Line < FirstLine + Count then begin
         Memo.BreakPoints.Delete(I);
