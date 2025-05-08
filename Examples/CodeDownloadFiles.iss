@@ -2,10 +2,11 @@
 ;
 ; This script shows how the CreateDownloadPage support function can be used to
 ; download temporary files while showing the download progress to the user.
+; One of the files is a 7-Zip archive and the script shows how to extract it.
 ;
 ; To verify the downloaded files, this script shows two methods:
-; -For innosetup-latest.exe: using the Inno Setup Signature Tool, the [ISSigKeys]
-;  section, and the issigverify flag
+; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using the Inno Setup
+;  Signature Tool, the [ISSigKeys] section, and the issigverify flag
 ; -For iscrypt.dll: using a simple SHA256 check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
 ; need to be changed when the downloaded file changes, so any installers built
@@ -34,6 +35,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 ; These files will be downloaded
 Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
+Source: "{tmp}\MyProg-ExtraReadmes\*.txt"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify  
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
@@ -41,6 +43,7 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 [Code]
 var
   DownloadPage: TDownloadWizardPage;
+  ExtractionPage: TExtractionWizardPage;
 
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
 begin
@@ -49,10 +52,18 @@ begin
   Result := True;
 end;
 
+function OnExtractionProgress(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if Progress = ProgressMax then
+    Log(Format('Successfully extracted archive to {tmp}\MyProg-ExtraReadmes: %s', [ArchiveName]));
+  Result := True;
+end;
+
 procedure InitializeWizard;
 begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
   DownloadPage.ShowBaseNameInsteadOfUrl := True;
+  ExtractionPage := CreateExtractionPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnExtractionProgress);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -63,10 +74,12 @@ begin
     DownloadPage.Add('https://jrsoftware.org/download.php/is.exe?dontcount=1', 'innosetup-latest.exe', '');
     DownloadPage.Add('https://jrsoftware.org/download.php/is.exe.issig?dontcount=1', 'innosetup-latest.exe.issig', '');
     DownloadPage.Add('https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
+    DownloadPage.Add('https://jrsoftware.org/download.php/myprog-extrareadmes.7z?dontcount=1', 'MyProg-ExtraReadmes.7z', '');
     DownloadPage.Show;
     try
       try
-        DownloadPage.Download; // This downloads the files to {tmp}
+        // Downloads the files to {tmp}
+        DownloadPage.Download;
         Result := True;
       except
         if DownloadPage.AbortedByUser then
@@ -78,6 +91,31 @@ begin
     finally
       DownloadPage.Hide;
     end;
+    
+    if not Result then
+      Exit;
+      
+    ExtractionPage.Clear;
+    ExtractionPage.Add(ExpandConstant('{tmp}\MyProg-ExtraReadmes.7z'), ExpandConstant('{tmp}\MyProg-ExtraReadmes'), True);
+    ExtractionPage.Show;
+    try
+      try
+        // Extracts the archive to {tmp}\MyProg-ExtraReadmes
+        // Please see the Extract7ZipArchive topic in the help file for limitations before using this for you own archives
+        // Note that each file in this archive come with an .issig signature file
+        // These signature files are used by the [Files] section to verify the archive's content
+        ExtractionPage.Extract; 
+        Result := True;
+      except
+        if ExtractionPage.AbortedByUser then
+          Log('Aborted by user.')
+        else
+          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+        Result := False;
+      end;
+    finally
+      ExtractionPage.Hide;
+    end;
   end else
-    Result := True;
+    Result := True;    
 end;
