@@ -136,7 +136,7 @@ function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 begin
   { File size is limited to 16 digits (enough for >9 EB) }
-  if (AFileSize < 0) or (AFileSize > 9_999_999_999_999_999) then
+  if (AFileSize < 0) or (AFileSize > {$IF CompilerVersion >= 36.0} 9_999_999_999_999_999 {$ELSE} 9999999999999999 {$ENDIF} ) then
     raise Exception.Create('File size out of range');
 
   var PublicKey: TECDSAPublicKey;
