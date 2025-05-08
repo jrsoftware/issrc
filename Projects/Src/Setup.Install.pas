@@ -2,7 +2,7 @@ unit Setup.Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,7 +31,8 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Compression.Base, SHA256, PathFunc, ECDSA, ISSigFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
@@ -249,16 +250,58 @@ begin
   end;
 end;
 
+procedure ISSigVerifyError(const AReason, AExceptionMessage: String);
+begin
+  Log('ISSig verification error: ' + AddPeriod(AReason));
+  raise Exception.Create(AExceptionMessage);
+end;
+
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  AMaxProgress: Integer64);
+  const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString; const ISSigFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
+const
+  ISSigMissingFile = 'Signature file does not exist';
+  ISSigMalformedOrBadSignature = 'Malformed or bad signature';
+  ISSigKeyNotFound = 'No matching key found';
+  ISSigUnknownVerifyResult  = 'Unknown verify result';
+  ISSigFileSizeIncorrect = 'File size incorrect';
+  ISSigFileHashIncorrect = 'File hash incorrect';
 var
   BytesLeft: Integer64;
   NewProgress: Integer64;
   BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
+  Context: TSHA256Context;
 begin
+  var ExpectedFileHash: TSHA256Digest;
+  if ISSigVerify then begin
+    { See Compiler.SetupCompiler's TSetupCompiler.Compile for similar code }
+    if not NewFileExists(ISSigFilename) then
+      ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, ISSigFilename));
+    const SigText = ISSigLoadTextFromFile(ISSigFilename);
+    var ExpectedFileSize: Int64;
+    const VerifyResult = ISSigVerifySignatureText(
+      GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys), SigText,
+      ExpectedFileSize, ExpectedFileHash);
+    if VerifyResult <> vsrSuccess then begin
+      var VerifyResultAsString: String;
+      case VerifyResult of
+        vsrMalformed, vsrBadSignature: VerifyResultAsString := ISSigMalformedOrBadSignature;
+        vsrKeyNotFound: VerifyResultAsString := ISSigKeyNotFound;
+      else
+        VerifyResultAsString := ISSigUnknownVerifyResult;
+      end;
+      ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
+    end;
+    if Int64(SourceF.Size) <> ExpectedFileSize then
+      ISSigVerifyError(ISSigFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
+    { ExpectedFileHash checked below after copy }
+
+    SHA256Init(Context);
+  end;
+
   Inc6464(AMaxProgress, CurProgress);
   BytesLeft := SourceF.Size;
 
@@ -279,6 +322,9 @@ begin
     DestF.WriteBuffer(Buf, BufSize);
     Dec64(BytesLeft, BufSize);
 
+    if ISSigVerify then
+      SHA256Update(Context, Buf, BufSize);
+
     NewProgress := CurProgress;
     Inc64(NewProgress, BufSize);
     if Compare64(NewProgress, AMaxProgress) > 0 then
@@ -286,6 +332,12 @@ begin
     SetProgress(NewProgress);
 
     ProcessEvents;
+  end;
+
+  if ISSigVerify then begin
+    if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
+      ISSigVerifyError(ISSigFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+    Log('ISSig verification successful.');
   end;
 
   { In case the source file was shorter than we thought it was, bump the
@@ -341,6 +393,7 @@ var
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
+  ISSigAvailableKeys: TArrayOfECDSAKey;
 
   function GetLocalTimeAsStr: String;
   var
@@ -1441,9 +1494,11 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, CurFileLocation^.OriginalSize)
+                  CopySourceFileToDestFile(SourceF, DestF, False,
+                    [], '', '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
+                    ISSigAvailableKeys, CurFile^.ISSigAllowedKeys, SourceFile + '.issig', AExternalSize);
               finally
                 SourceF.Free;
               end;
@@ -3063,6 +3118,7 @@ begin
   AppendUninstallData := False;
   UninstLogCleared := False;
   RegisterFilesList := nil;
+  SetLength(ISSigAvailableKeys, 0);
   UninstLog := TSetupUninstallLog.Create;
   try
     try
@@ -3099,6 +3155,14 @@ begin
       RecordCompiledCode;
 
       RegisterFilesList := TList.Create;
+
+      SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
+      for var N := 0 to Entries[seISSigKey].Count-1 do begin
+        var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
+        ISSigAvailableKeys[N] := TECDSAKey.Create;
+        if ISSigImportPublicKey(ISSigAvailableKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+          InternalError('ISSigImportPublicKey failed')
+      end;
 
       { Process Component entries, if any }
       ProcessComponentEntries;
@@ -3260,6 +3324,8 @@ begin
       Exit;
     end;
   finally
+    for I := 0 to Length(ISSigAvailableKeys)-1 do
+      ISSigAvailableKeys[I].Free;
     if Assigned(RegisterFilesList) then begin
       for I := RegisterFilesList.Count-1 downto 0 do
         Dispose(PRegisterFilesListRec(RegisterFilesList[I]));

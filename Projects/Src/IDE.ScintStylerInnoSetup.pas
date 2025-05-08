@@ -46,6 +46,7 @@ type
     scComponents,
     scCustomMessages,
     scDirs,
+    scISSigKeys,
     scFiles,
     scIcons,
     scINI,
@@ -183,11 +184,12 @@ type
   end;
 
 const
-  SectionMap: array[0..17] of TSectionMapItem = (
+  SectionMap: array[0..18] of TSectionMapItem = (
     (Name: 'Code'; Section: scCode),
     (Name: 'Components'; Section: scComponents),
     (Name: 'CustomMessages'; Section: scCustomMessages),
     (Name: 'Dirs'; Section: scDirs),
+    (Name: 'ISSigKeys'; Section: scISSigKeys),
     (Name: 'Files'; Section: scFiles),
     (Name: 'Icons'; Section: scIcons),
     (Name: 'INI'; Section: scINI),
@@ -232,17 +234,21 @@ const
     'uninsneveruninstall', 'unsetntfscompression'
   ];
 
+  ISSigKeysSectionParameters: array of TScintRawString = [
+    'Name', 'Group', 'KeyFile', 'KeyID', 'PublicX', 'PublicY'
+  ];
+
   FilesSectionParameters: array of TScintRawString = [
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
     'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'Flags', 'FontInstall',
-    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Source',
-    'StrongAssemblyName', 'Tasks'
+    'ISSigAllowedKeys', 'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions',
+    'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
     'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
-    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme',
+    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme', 'issigverify',
     'nocompression', 'noencryption', 'noregerror', 'onlyifdestfileexists',
     'onlyifdoesntexist', 'overwritereadonly', 'promptifolder', 'recursesubdirs',
     'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
@@ -603,6 +609,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildKeywordsWordLists;
   begin
+    BuildKeywordsWordList(scISSigKeys, ISSigKeysSectionParameters);
     BuildKeywordsWordList(scFiles, FilesSectionParameters);
     BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
     BuildKeywordsWordList(scDirs, DirsSectionParameters);
@@ -1719,6 +1726,7 @@ begin
       scComponents: HandleParameterSection(ComponentsSectionParameters);
       scCustomMessages: HandleKeyValueSection(Section);
       scDirs: HandleParameterSection(DirsSectionParameters);
+      scISSigKeys: HandleParameterSection(ISSigKeysSectionParameters);
       scFiles: HandleParameterSection(FilesSectionParameters);
       scIcons: HandleParameterSection(IconsSectionParameters);
       scINI: HandleParameterSection(INISectionParameters);

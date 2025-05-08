@@ -53,6 +53,7 @@ const
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
+  SCompilerStatusFilesISSigVerified = '      ISSig verification successful.';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
@@ -84,9 +85,16 @@ const
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
+  SCompilerSourceFileISSigMissingFile = 'Signature file does not exist for source file "%s"';
+  SCompilerSourceFileISSigInvalidSignature = 'Signature is not valid for source file "%s": %s';
+  SCompilerSourceFileISSigMalformedOrBadSignature = 'malformed or bad signature';
+  SCompilerSourceFileISSigKeyNotFound = 'no matching key found';
+  SCompilerSourceFileISSigUnknownVerifyResult = 'unknown verify result';
+  SCompilerSourceFileISSigFileSizeIncorrect = 'file size incorrect';
+  SCompilerSourceFileISSigFileHashIncorrect = 'file hash incorrect';
   SCompilerCopyError3 = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
-  SCompilerCompressError2 = 'An internal error occurred while trying to compress "%s"';
+  SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
@@ -195,12 +203,14 @@ const
   SCompilerParamDataTooLong = 'Data on parameter "%s" is too long';
   SCompilerParamUnknownParam = 'Unrecognized parameter name "%s"';
   SCompilerParamDuplicated = 'Cannot have multiple "%s" parameters';
+  SCompilerParamConflict = 'Cannot have both the "%s" and "%s" parameters';
   SCompilerParamEmpty2 = 'Parameter "%s" is empty';
   SCompilerParamNotSpecified = 'Required parameter "%s" not specified';
   SCompilerParamNoQuotes2 = 'Parameter "%s" cannot include quotes (")';
   SCompilerParamNoBackslash = 'Parameter "%s" cannot include backslashes (\)';
   SCompilerParamNoPrecedingBackslash = 'Parameter "%s" cannot begin with a backslash (\)';
   SCompilerParamInvalid2 = 'Parameter "%s" is not a valid value';
+  SCompilerParamInvalidWithError = 'Parameter "%s" is not a valid value: %s';
 
   { Flags }
   SCompilerParamUnknownFlag2 = 'Parameter "%s" includes an unknown flag';
@@ -234,12 +244,18 @@ const
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
 
-  { [Components], [Tasks], [Languages] }
+  { [Components], [Tasks], [Languages], [ISSigKeys] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
-  SCompilerLanguagesBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
+  SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerISSigKeysNameExists = 'Name "%s" is already in use"';
+  SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
+  SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
+  SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
+  SCompilerISSigKeysUnknownKeyImportResult = 'Unknown import key result';
 
   { [Languages] }
   SCompilerParamUnknownLanguage = 'Parameter "%s" includes an unknown language';
@@ -292,6 +308,10 @@ const
   SCompilerFilesWarningSharedFileSysWow64 = 'DestDir should not be set to ' +
     '"{syswow64}" when the "sharedfile" flag is used. See the "sharedfile" ' +
     'documentation in the help file for details.';
+  SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
+  SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
+  SCompilerFilesISSigAllowedKeysConflict = 'Parameter "ISSigAllowedKeys" cannot allow different keys on the same source file';
+  SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

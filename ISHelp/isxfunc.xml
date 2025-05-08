@@ -1892,21 +1892,20 @@ end;</pre>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p>
 <p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
-<p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
-<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:</p>
+<p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p></remarks>
+        <limitations><p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
 <li>It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.</li>
 <li>It does not support PPMd and BZip2 methods.</li>
 <li>It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</li>
 <li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
 </ul>
-<p>To expand on his comments about RAM consumption: When extracting a file, at least enough memory will always be allocated to hold the entire file, regardless of the block size. For example, extracting a 1 GB file using <tt>Extract7ZipArchive</tt> requires at least 1 GB of RAM. Consider using a different solution for extracting large files, such as embedding 7-Zip itself, which does not use as much RAM, into your installation.</p>
+<p>To expand on his comments about RAM consumption: When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using <tt>Extract7ZipArchive</tt> requires at least 1 GB of RAM. Consider using a different solution for extracting large files, such as embedding 7-Zip itself, which does not use as much RAM, into your installation.</p>
 <p>Additionally he wrote:</p>
 <ul>
 <li>You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br />
 <tt>7z.exe a archive.7z *.htm -r -mx -m0fb=255</tt></li>
-</ul>
-</remarks>
+</ul></limitations>
         <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
@@ -2682,7 +2681,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
 <p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link> for other considerations and the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p></example>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>

@@ -18,7 +18,7 @@ uses
 
 type
   TEntryType = (seLanguage, seCustomMessage, sePermission, seType, seComponent,
-    seTask, seDir, seFile, seFileLocation, seIcon, seIni, seRegistry,
+    seTask, seDir, seISSigKey, seFile, seFileLocation, seIcon, seIni, seRegistry,
     seInstallDelete, seUninstallDelete, seRun, seUninstallRun);
 
   TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
@@ -29,18 +29,18 @@ const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
     SetupCustomMessageEntryStrings, SetupPermissionEntryStrings,
     SetupTypeEntryStrings, SetupComponentEntryStrings, SetupTaskEntryStrings,
-    SetupDirEntryStrings, SetupFileEntryStrings, SetupFileLocationEntryStrings,
-    SetupIconEntryStrings, SetupIniEntryStrings, SetupRegistryEntryStrings,
-    SetupDeleteEntryStrings, SetupDeleteEntryStrings, SetupRunEntryStrings,
-    SetupRunEntryStrings);
+    SetupDirEntryStrings, SetupISSigKeyEntryStrings, SetupFileEntryStrings,
+    SetupFileLocationEntryStrings, SetupIconEntryStrings, SetupIniEntryStrings,
+    SetupRegistryEntryStrings, SetupDeleteEntryStrings, SetupDeleteEntryStrings,
+    SetupRunEntryStrings, SetupRunEntryStrings);
 
   EntryAnsiStrings: array[TEntryType] of Integer = (SetupLanguageEntryAnsiStrings,
     SetupCustomMessageEntryAnsiStrings, SetupPermissionEntryAnsiStrings,
     SetupTypeEntryAnsiStrings, SetupComponentEntryAnsiStrings, SetupTaskEntryAnsiStrings,
-    SetupDirEntryAnsiStrings, SetupFileEntryAnsiStrings, SetupFileLocationEntryAnsiStrings,
-    SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings, SetupRegistryEntryAnsiStrings,
-    SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupRunEntryAnsiStrings,
-    SetupRunEntryAnsiStrings);
+    SetupDirEntryAnsiStrings, SetupISSigKeyEntryAnsiStrings, SetupFileEntryAnsiStrings,
+    SetupFileLocationEntryAnsiStrings, SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings,
+    SetupRegistryEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings,
+    SetupRunEntryAnsiStrings, SetupRunEntryAnsiStrings);
 
   { Exit codes that are assigned to the SetupExitCode variable.
     Note: SetupLdr also returns exit codes with the same numbers. }
@@ -3067,6 +3067,8 @@ begin
         ReadEntries(seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
           Integer(@PSetupDirEntry(nil).MinVersion),
           Integer(@PSetupDirEntry(nil).OnlyBelowVersion));
+        { ISSigKey entries }
+        ReadEntriesWithoutVersion(seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
         { File entries }
         ReadEntries(seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
           Integer(@PSetupFileEntry(nil).MinVersion),

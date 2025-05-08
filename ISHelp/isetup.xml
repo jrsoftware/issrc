@@ -39,6 +39,7 @@
     <contentstopic title="[Run] section" topic="runsection" />
     <contentstopic title="[UninstallDelete] section" topic="uninstalldeletesection" />
     <contentstopic title="[UninstallRun] section" topic="runsection" />
+    <contentstopic title="[ISSigKeys] section" topic="issigkeyssection" />
   </contentsheading>
   <contentsheading title="Pascal Scripting">
     <contentstopic title="Introduction" topic="scriptintro" />
@@ -86,6 +87,7 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
+    <contentstopic title=".issig Signatures: Introduction" topic="issig" />
     <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
@@ -103,7 +105,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.4.3</b><br/>
+<b>Inno Setup version 6.5.0-dev</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -268,6 +270,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="runsection">[Run] section</link><br/>
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
+<link topic="issigkeyssection">[ISSigKeys] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
 <link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
@@ -1648,6 +1651,13 @@ ExternalSize: 1048576; Flags: external
 </example>
 </param>
 
+<param name="ISSigAllowedKeys">
+<p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
+<example>
+<pre>ISSigAllowedKeys: "exesigner"</pre>
+</example>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -1706,6 +1716,18 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Don't compare version info at all; replace existing files regardless of their version number.</p>
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
 </flag>
+<flag name="issigverify">
+<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+<p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
+<ul>
+<li>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</li>
+<li><p>When used with the <tt>external</tt> flag, Setup will verify the source file during the installation process while it is being copied to the destination directory. Files are always created with temporary names (<tt>*.tmp</tt>) initially. If the verification fails, the temporary file will be deleted and a &quot;The source file is corrupted&quot; error message will be displayed to the user (with Skip, Try Again, and Cancel options) and a more detailed error is logged. If the verification succeeds, the temporary file will be renamed to the correct destination name.</p>
+<p>When a file entry with the <tt>external</tt> flag is skipped (i.e., not installed - for example because the <tt>ignoreversion</tt> flag wasn't used), the source file isn't copied anywhere, so no verification takes place.</p></li>
+</ul>
+<p>Since verification occurs while source files are being compressed/copied, and not in a separate pass, each file's contents are only read once. Thus, enabling verification has little performance impact; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. This approach also ensures there is no Time-Of-Check to Time-Of-Use (TOCTOU) problem; each source file is kept open the entire time it is being compressed/copied and verified without allowing other processes write access.</p>
+<p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
+</flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
@@ -1763,12 +1785,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="sign">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="signcheck">
 <p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
@@ -2756,6 +2780,81 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 
 
+<topic name="issigkeyssection" title="[ISSigKeys] section">
+<keyword value="[ISSigKeys] section" />
+<keyword value="ISSigKeys" />
+<body>
+
+<p>This optional section defines any keys the compiler and Setup can use to verify files using <link topic="filessection">[Files]</link> section's <tt>issigverify</tt> flag.</p>
+
+<p>Here is an example of an <tt>[ISSigKeys]</tt> section:</p>
+
+<precode>
+[ISSigKeys]
+Name: "MyKey1; \
+  KeyID:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
+  KeyFile: "MyKey1.ispublickey"
+Name: "MyKey2; \
+  KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
+  PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
+  PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+</precode>
+
+<p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
+
+<p>The following is a list of the supported <link topic="params">parameters</link>:</p>
+
+<paramlist>
+
+<param name="Name" required="yes">
+<p>The internal name of the key.</p>
+<p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key names, like the names of developers.</p>
+<example><pre>Name: "MyKey"</pre></example>
+</param>
+
+<param name="Group">
+<p>A space separated list of internal group names, specifying how to group the key.</p>
+<p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key group names, like the names of developer groups.</p>
+<example><pre>Group: "exesigner docsigner"</pre></example>
+</param>
+
+<param name="KeyID">
+<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>. Is not used for anything else.</p>
+<example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
+</param>
+
+<param name="KeyFile">
+<p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
+<p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
+<p>If a private key file is specified, only it's public information is stored in the resulting Setup file(s).</p>
+<example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
+</param>
+
+<param name="PublicX">
+<p>Specifies the "public-x" value of the key.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
+</param>
+
+<param name="PublicY">
+<p>Specifies the "public-y" value of the key.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicX: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+</param>
+
+</paramlist>
+
+<heading>Remarks</heading>
+
+<p>Keys and key files should be created using <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+
+<p>Created key files are human readable and can be opened with any text editor to get a key's <tt>KeyID</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> values. Note that none of these values are required if you set the <tt>KeyFile</tt> parameter instead.</p>
+
+</body>
+</topic>
+
+
+
 <topic name="examples" title="Example Scripts">
 <keyword value="Example Scripts" />
 <body>
@@ -3493,13 +3592,138 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 
+<topic name="issig" title=".issig Signatures: Introduction">
+<body>
+
+<p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
+
+<p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>ISSigTool.exe</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
+
+<p>Creation of <tt>.issig</tt> signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
+
+<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority. You can however use both <tt>signtool.exe</tt> and <tt>ISSigTool.exe</tt> on a single file, in that order. If you are looking for more information about <tt>signtool.exe</tt> see <link topic="setup_signtool">SignTool</link> instead.</p>
+
+<heading>Quick start: Verifying files at compile time</heading>
+
+<p>On the <tt>issigtool</tt> commands below, prepend the path of your Inno Setup installation, and include quotes. For example: <tt>"%ProgramFiles(x86)%\Inno Setup 6\issigtool"</tt></p>
+
+<ol>
+
+<li>
+<p>At the command line, generate a new private key file that will be used for signing:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" generate-private-key
+</precode>
+<p>A file named <tt>MyKey.isprivatekey</tt> will be created in the current directory. You may include a pathname if you wish.</p>
+<p>The file should not be shared with others, and should never be committed into a public repository. To reduce the risk of accidental disclosure, it is best to keep the file outside of your source tree.</p>
+</li>
+
+<li>
+<p>Create the file we want to sign, then create the signature:</p>
+<precode>
+echo Hello &gt; MyFile.txt
+issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
+</precode>
+<p>A signature file named <tt>MyFile.txt.issig</tt> is created.</p>
+</li>
+
+<li>
+<p>Inside your Inno Setup script, add an <link topic="issigkeyssection">[ISSigKeys] section</link> entry linking to your key file, and a <link topic="filessection">[Files] section</link> entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
+<precode>
+[ISSigKeys]
+Name: MyKey; KeyFile: "MyKey.isprivatekey"
+
+[Files]
+Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
+</precode>
+<p>Note: Specifying a <i>public</i> key file instead is preferred; see the <link topic="issig" anchor="tips">Tips &amp; Recommendations</link> section below.</p>
+</li>
+
+<li>
+<p>Compile the script. In the compiler output, you should see a line indicating the file was successfully verified:</p>
+<precode>
+   Compressing: MyFile.txt
+      ISSig verification successful.
+</precode>
+</li>
+
+<li>
+<p>Now let's confirm that the compiler actually does catch corruption or tampering within the file.</p>
+<p>Make a modification to <tt>MyFile.txt</tt> — for example, add or change a character.</p>
+</li>
+
+<li>
+<p>Compile the script again. This time, you should get an error like the following:</p>
+<precode>
+Signature is not valid for source file "MyFile.txt": file hash incorrect.
+</precode>
+</li>
+
+</ol>
+
+<heading>Verifying external files during installation</heading>
+
+<p>The procedure for setting up verification of <tt>external</tt> files is essentially the same as the procedure shown above for compile-time verification, except:</p>
+
+<ul>
+
+<li>
+<p>The <tt>[Files]</tt> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
+<precode>
+[Files]
+Source: "{src}\MyFile.txt"; DestDir: "{app}"; Flags: external issigverify
+</precode>
+</li>
+
+<li>
+<p>The signature file — <tt>MyFile.txt.issig</tt> in this example — must exist in the same directory as the <tt>Source</tt> file during the installation process. (No compile-time verification occurs on <tt>external</tt> files.)</p>
+</li>
+
+</ul>
+
+<heading><a name="tips">Tips &amp; Recommendations</a></heading>
+
+<ul>
+
+<li>
+<p>Although an <link topic="issigkeyssection">[ISSigKeys] section</link> entry's <tt>KeyFile</tt> parameter can point to a private key file as demonstrated above, it is recommended that a <i>public</i> key file be specified instead whenever possible. Unlike a private key file, a public key file does not have to be kept secret, and <i>can</i> be safely committed into a version control repository.</p>
+<p>To create a public key file (<tt>MyKey.ispublickey</tt>) from an existing private key file (<tt>MyKey.isprivatekey</tt>), run this command:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
+</precode>
+<p>Alternatively, the public key values may be specified directly inside your script by using the <tt>PublicX</tt> and <tt>PublicY</tt> parameters instead of <tt>KeyFile</tt>.</p>
+</li>
+
+<li>
+<p>To avoid having to repeat the same <tt>--key-file=</tt> parameter on every <tt>issigtool</tt> command invocation, you may instead set the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable to the path of your key file.</p>
+<p>In <tt>cmd.exe</tt> or a batch file:</p>
+<precode>
+set ISSIGTOOL_KEY_FILE=MyKey.isprivatekey
+</precode>
+<p>In PowerShell:</p>
+<precode>
+$env:ISSIGTOOL_KEY_FILE = "MyKey.isprivatekey"
+</precode>
+<p>The above variable assignments are non-persistent; they only affect the current <tt>cmd.exe</tt> or PowerShell session.</p>
+<p>Afterward, you may simply run:</p>
+<precode>
+issigtool sign "MyFile.txt"
+issigtool verify "MyFile.txt"
+</precode>
+</li>
+
+</ul>
+
+</body>
+</topic>
+
+
+
 <topic name="issigtool" title="Inno Setup Signature Tool">
 <keyword value="ISSigTool" />
 <body>
 
-<p>Inno Setup includes a command-line tool, ISSigTool.exe. This tool is designed to sign files using ECDSA P-256 cryptographic signatures.</p>
-
-<p>Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all. If you are looking for more information about this topic see <link topic="setup_signtool">SignTool</link> instead.</p>
+<p>Inno Setup includes a command-line utility, <tt>ISSigTool.exe</tt>. This utility is designed to sign files using ECDSA P-256 cryptographic <link topic="issig">signatures</link>.</p>
 
 <p>Command line usage is as follows:</p>
 
@@ -3553,10 +3777,10 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <indent>
 <examples noheader="1">
-issigtool --key-file=MyKey.isprivatekey generate-private-key<br/>
-issigtool --key-file=MyKey.isprivatekey sign MyProg.dll<br/>
-issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey<br/>
-issigtool --key-file=MyKey.ispublickey verify MyProg.dll
+issigtool --key-file="MyKey.isprivatekey" generate-private-key<br/>
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"<br/>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"<br/>
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 </examples>
 </indent>
 
@@ -5237,7 +5461,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
@@ -5698,7 +5922,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
-<p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
+<p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
 <p>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</p>
 <p>If a file generated by this directive is deleted, it will be recreated automatically if necessary on the next compile.</p>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>

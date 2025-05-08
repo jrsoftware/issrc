@@ -20,7 +20,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.4.3
+set VER=6.5.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -55,6 +55,17 @@ if not exist files\issigtool.exe (
   echo Compiling ISSigTool done
 )
 
+rem  Verify precompiled binaries which are used during compilation
+rem  Note: Other precompiled binaries are verified by Setup.iss
+call .\issig.bat verify --key-file=issig.ispublickey1 ^
+  Projects\Src\Setup.HelperEXEs.res ^
+  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
+  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj ^
+  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj
+if errorlevel 1 goto failed
+echo ISSigTool verify done
+
+rem  Embed user's public key into sources
 call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
@@ -64,10 +75,13 @@ if errorlevel 1 goto failed
 echo Compiling Inno Setup done
 
 if exist .\setup-presign.bat (
+  echo - Presigning
   call .\setup-presign.bat Files\ISCC.exe Files\ISCmplr.dll Files\ISPP.dll
+  echo Presign done
 ) 
 
-call .\issig.bat sign
+rem  Sign using user's private key
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause
@@ -88,7 +102,10 @@ if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo Creating Inno Setup installer done
+call .\issig.bat sign output\innosetup-%VER%.exe
+if errorlevel 1 goto failed
 powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+if errorlevel 1 goto failed
 
 echo All done!
 pause

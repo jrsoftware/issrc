@@ -95,7 +95,10 @@ uses
   PBKDF2 in '..\Components\PBKDF2.pas',
   Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas',
   PSStackHelper in '..\Components\PSStackHelper.pas',
-  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas';
+  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

@@ -17,7 +17,7 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.4.3';
+  SetupVersion = '6.5.0-dev';
   SetupBinVersion = (6 shl 24) + (4 shl 16) + (3 shl 8) + 0;
 
 type
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.3)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.5.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
@@ -101,7 +101,7 @@ type
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
-      NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
+      NumISSigKeyEntries, NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
@@ -218,13 +218,22 @@ type
       doUninsAlwaysUninstall, doSetNTFSCompression, doUnsetNTFSCompression);
   end;
 const
+  SetupISSigKeyEntryStrings = 2;
+  SetupISSigKeyEntryAnsiStrings = 0;
+type
+  PSetupISSigKeyEntry = ^TSetupISSigKeyEntry;
+  TSetupISSigKeyEntry = packed record
+    PublicX, PublicY: String;
+  end;
+const
   SetupFileEntryStrings = 10;
-  SetupFileEntryAnsiStrings = 0;
+  SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
+    ISSigAllowedKeys: AnsiString;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
     Attribs: Integer;
@@ -240,7 +249,7 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall);
+      foUnsetNTFSCompression, foGacInstall, foISSigVerify);
     FileType: (ftUserFile, ftUninstExe);
   end;
 const

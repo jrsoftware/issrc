@@ -6,10 +6,12 @@ rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to embed the user's public key from compilesettings.bat in
-rem  TrustFunc.AllowedPublicKeys.inc (before compilation) or to sign files
-rem  using it (after compilation)
+rem  TrustFunc.AllowedPublicKeys.inc and setup.allowedpublickeys.iss (before
+rem  compilation) or to sign files using it (after compilation)
 rem
 rem  If the key is missing it will be generated
+rem
+rem  Also used by build(-ce).bat to verify some precompiled files
 
 setlocal
 
@@ -30,42 +32,40 @@ if "%ISSIGTOOL_KEY_FILE%"=="" goto compilesettingserror
 
 rem -------------------------------------------------------------------------
 
-cd Files
-if errorlevel 1 goto failed
-
 if not exist "%ISSIGTOOL_KEY_FILE%" (
   echo Missing key file
-  ISSigTool.exe generate-private-key
+  Files\ISSigTool.exe generate-private-key
   if errorlevel 1 goto failed
   if not exist "%ISSIGTOOL_KEY_FILE%" goto failed
   echo Generating key file done - do not share with others!
 )
 
 if "%1"=="embed" goto embed
-if "%1"=="sign" goto sign
+if "%1"=="sign" goto signorverify
+if "%1"=="verify" goto signorverify
 if not "%1"=="" goto failed
 
 :embed
-set targetfile=..\Components\TrustFunc.AllowedPublicKeys.inc
-if not exist "%targetfile%" goto failed
 set publickeyfile=_temp.ispublickey
-ISSigTool.exe export-public-key "%publickeyfile%"
+Files\ISSigTool.exe export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
-powershell.exe -NoProfile -Command "$filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = 'AllowedPublicKey2Text :='; $endMarker = ';'; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; $replacementText = $replacementText -replace \"`r`n\", \"' + #13#10 +`r`n'\"; $replacementText = \"'\" + $replacementText + \"'\"; $replacementText = $replacementText -replace \" \+`r`n''\", \"\"; [string] $pattern = '(?s)' + [regex]::Escape($startMarker) + '.*?' + [regex]::Escape($endMarker); if ($content -match $pattern) { $replacement = $startMarker + \"`r`n\" + $replacementText  + $endMarker; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host 'Embedded key.'; } else { Write-Host 'Markers not found.'; exit 1; } } catch { Write-Error ('Error: ' + $_.Exception.Message); exit 1; }"
+set targetfile=Components\TrustFunc.AllowedPublicKeys.inc
+if not exist "%targetfile%" goto failed
+powershell.exe -NoProfile -Command "$filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = 'AllowedPublicKey2Text :='; $endMarker = ';'; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; $replacementText = $replacementText -replace \"`r`n\", \"' + #13#10 +`r`n'\"; $replacementText = \"'\" + $replacementText + \"'\"; $replacementText = $replacementText -replace \" \+`r`n''\", \"\"; [string] $pattern = '(?s)' + [regex]::Escape($startMarker) + '.*?' + [regex]::Escape($endMarker); if ($content -match $pattern) { $replacement = $startMarker + \"`r`n\" + $replacementText  + $endMarker; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host \"Embedded public key in $filePath.\"; } else { Write-Host \"Pattern not found in $filePath.\"; exit 1; } } catch { Write-Error (\"Error: $_.Exception.Message\"); exit 1; }"
+if errorlevel 1 goto failed
+set targetfile=setup.allowedpublickeys.iss
+if not exist "%targetfile%" goto failed
+powershell.exe -NoProfile -Command "$filePath = '%targetfile%'; $replacementFilePath = '%publickeyfile%'; $startMarker = 'Name: mykey2; '; try { $content = Get-Content -Raw -Path $filePath; $replacementText = Get-Content -Raw -Path $replacementFilePath; $replacementText = $replacementText -replace \"`r`n\", \"; \"; $replacementText = $replacementText.Substring(0, $replacementText.Length - 2); $replacementText = $replacementText -replace 'format issig-public-key; key-id', 'KeyID:'; $replacementText = $replacementText -replace 'public-x', 'PublicX:'; $replacementText = $replacementText -replace 'public-y', 'PublicY:'; [string] $pattern = [regex]::Escape($startMarker) + '.*?$'; if ($content -match $pattern) { $replacement = $startMarker + $replacementText; $newContent = $content -replace $pattern, $replacement; $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($false); [System.IO.File]::WriteAllText($filePath, $newContent, $utf8NoBomEncoding); Write-Host \"Embedded public key in $filePath.\"; } else { Write-Host \"Pattern not found in $filePath.\"; exit 1; } } catch { Write-Error (\"Error: $_.Exception.Message\"); exit 1; }"
 if errorlevel 1 goto failed
 del "%publickeyfile%"
-if errorlevel 1 goto failed
-cd ..
 if errorlevel 1 goto failed
 
 echo Success!
 goto exit
 
-:sign
-ISSigTool.exe sign ISCmplr.dll ISPP.dll
-if errorlevel 1 goto failed
-cd ..
+:signorverify
+Files\ISSigTool.exe %*
 if errorlevel 1 goto failed
 
 echo Success!
@@ -73,7 +73,6 @@ goto exit
 
 :failed
 echo *** FAILED ***
-cd ..
 :failed2
 exit /b 1
 

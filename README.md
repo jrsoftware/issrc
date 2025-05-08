@@ -137,9 +137,9 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
-**ISSigTool** - This is a command-line tool which can be used to sign and verify
+**ISSigTool** - This is a command-line utility which can be used to sign and verify
 any file. Compil32, ISCC, and ISCmplr use these signatures to verify the
-authenticity of a number of DLL files before loading them. Note: this tool does
+authenticity of a number of DLL files before loading them. Note: this utility does
 not replace Microsoft's signtool.exe in any way and is in fact not related to
 Authenticode Code Signing at all.
 

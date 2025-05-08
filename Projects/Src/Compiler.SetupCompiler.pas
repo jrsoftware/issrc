@@ -76,6 +76,7 @@ type
     ComponentEntries,
     TaskEntries,
     DirEntries,
+    ISSigKeyEntries,
     FileEntries,
     FileLocationEntries,
     IconEntries,
@@ -88,6 +89,7 @@ type
 
     FileLocationEntryFilenames: THashStringList;
     FileLocationEntryExtraInfos: TList;
+    ISSigKeyEntryExtraInfos: TList;
     WarningsList: THashStringList;
     ExpectedCustomMessageNames: TStringList;
     MissingMessagesWarning, MissingRunOnceIdsWarning, MissingRunOnceIds, NotRecognizedMessagesWarning, UsedUserAreasWarning: Boolean;
@@ -190,6 +192,7 @@ type
     procedure EnumLanguagesProc(const Line: PChar; const Ext: Integer);
     procedure EnumRegistryProc(const Line: PChar; const Ext: Integer);
     procedure EnumDeleteProc(const Line: PChar; const Ext: Integer);
+    procedure EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
     procedure EnumFilesProc(const Line: PChar; const Ext: Integer);
     procedure EnumRunProc(const Line: PChar; const Ext: Integer);
     procedure EnumSetupProc(const Line: PChar; const Ext: Integer);
@@ -289,7 +292,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, TrustFunc, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
@@ -308,12 +311,21 @@ type
     Name, Command: String;
   end;
 
+  PISSigKeyEntryExtraInfo = ^TISSigKeyEntryExtraInfo;
+  TISSigKeyEntryExtraInfo = record
+    Name: String;
+    GroupNames: array of String;
+    function HasGroupName(const GroupName: String): Boolean;
+  end;
+
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
-      floSolidBreak);
+      floSolidBreak, floISSigVerify);
     Sign: TFileLocationSign;
+    ISSigAllowedKeys: AnsiString;
+    ISSigKeyUsedID: String;
   end;
 
 var
@@ -348,6 +360,16 @@ begin
   until (Result <> '') or (S = '');
 end;
 
+{ TISSigKeyEntryExtraInfo }
+
+function TISSigKeyEntryExtraInfo.HasGroupName(const GroupName: String): Boolean;
+begin
+  for var I := 0 to Length(GroupNames)-1 do
+    if SameText(GroupNames[I], GroupName) then
+      Exit(True);
+  Result := False;
+end;
+
 { TSetupCompiler }
 
 constructor TSetupCompiler.Create(AOwner: TComponent);
@@ -361,6 +383,7 @@ begin
   ComponentEntries := TList.Create;
   TaskEntries := TList.Create;
   DirEntries := TList.Create;
+  ISSigKeyEntries := TList.Create;
   FileEntries := TList.Create;
   FileLocationEntries := TList.Create;
   IconEntries := TList.Create;
@@ -372,6 +395,7 @@ begin
   UninstallRunEntries := TList.Create;
   FileLocationEntryFilenames := THashStringList.Create;
   FileLocationEntryExtraInfos := TList.Create;
+  ISSIgKeyEntryExtraInfos := TList.Create;
   WarningsList := THashStringList.Create;
   WarningsList.IgnoreDuplicates := True;
   ExpectedCustomMessageNames := TStringList.Create;
@@ -419,6 +443,7 @@ begin
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
   WarningsList.Free;
+  ISSigKeyEntryExtraInfos.Free;
   FileLocationEntryExtraInfos.Free;
   FileLocationEntryFilenames.Free;
   UninstallRunEntries.Free;
@@ -430,6 +455,7 @@ begin
   IconEntries.Free;
   FileLocationEntries.Free;
   FileEntries.Free;
+  ISSigKeyEntries.Free;
   DirEntries.Free;
   TaskEntries.Free;
   ComponentEntries.Free;
@@ -4462,6 +4488,132 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer);
+
+  function ISSigKeysNameExists(const Name: String; const CheckGroupNames: Boolean): Boolean;
+  begin
+    for var I := 0 to ISSigKeyEntryExtraInfos.Count-1 do begin
+      var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]);
+      if SameText(ISSigKeyEntryExtraInfo.Name, Name) or
+         (CheckGroupNames and ISSigKeyEntryExtraInfo.HasGroupName(Name)) then
+        Exit(True)
+    end;
+    Result := False;
+  end;
+
+type
+  TParam = (paName, paGroup, paKeyFile, paKeyID, paPublicX, paPublicY);
+const
+  ParamISSigKeysName = 'Name';
+  ParamISSigKeysGroup = 'Group';
+  ParamISSigKeysKeyFile = 'KeyFile';
+  ParamISSigKeysKeyID = 'KeyID';
+  ParamISSigKeysPublicX = 'PublicX';
+  ParamISSigKeysPublicY = 'PublicY';
+  ParamInfo: array[TParam] of TParamInfo = (
+    (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
+    (Name: ParamISSigKeysGroup; Flags: []),
+    (Name: ParamISSigKeysKeyFile; Flags: [piNoEmpty]),
+    (Name: ParamISSigKeysKeyID; Flags: [piNoEmpty]),
+    (Name: ParamISSigKeysPublicX; Flags: [piNoEmpty]),
+    (Name: ParamISSigKeysPublicY; Flags: [piNoEmpty]));
+var
+  Values: array[TParam] of TParamValue;
+  NewISSigKeyEntry: PSetupISSigKeyEntry;
+  NewISSigKeyEntryExtraInfo: PISSigKeyEntryExtraInfo;
+begin
+  ExtractParameters(Line, ParamInfo, Values);
+
+  NewISSigKeyEntry := nil;
+  NewISSigKeyEntryExtraInfo := nil;
+  try
+    NewISSigKeyEntryExtraInfo := AllocMem(SizeOf(TISSigKeyEntryExtraInfo));
+    with NewISSigKeyEntryExtraInfo^ do begin
+      { Name }
+      Name := Values[paName].Data;
+      if not IsValidIdentString(Name, False, False) then
+        AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadName, [ParamISSigKeysName])
+      else if ISSigKeysNameExists(Name, True) then
+        AbortCompileFmt(SCompilerISSigKeysNameExists, [Name]);
+
+      { Group }
+      var S := Values[paGroup].Data;
+      while True do begin
+        const GroupName = ExtractStr(S, ' ');
+        if GroupName = '' then
+          Break;
+        if not IsValidIdentString(GroupName, False, False) then
+          AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadGroupName, [ParamISSigKeysGroup])
+        else if SameText(Name, GroupName) or ISSigKeysNameExists(GroupName, False) then
+          AbortCompileFmt(SCompilerISSigKeysNameExists, [GroupName]);
+        if not HasGroupName(GroupName) then begin
+          const N = Length(GroupNames);
+          SetLength(GroupNames, N+1);
+          GroupNames[N] := GroupName;
+        end;
+      end;
+    end;
+
+    NewISSigKeyEntry := AllocMem(SizeOf(TSetupISSigKeyEntry));
+    with NewISSigKeyEntry^ do begin
+      { KeyFile & PublicX & PublicY }
+      var KeyFile := PrependSourceDirName(Values[paKeyFile].Data);
+      PublicX := Values[paPublicX].Data;
+      PublicY := Values[paPublicY].Data;
+
+      if (KeyFile = '') and (PublicX = '') and (PublicY = '') then
+        AbortCompile(SCompilerISSigKeysKeyNotSpecified)
+      else if KeyFile <> '' then begin
+        if PublicX <> '' then
+          AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicX])
+        else if PublicY <> '' then
+          AbortCompileFmt(SCompilerParamConflict, [ParamISSigKeysKeyFile, ParamISSigKeysPublicY]);
+        var KeyText := ISSigLoadTextFromFile(KeyFile);
+        var PublicKey: TECDSAPublicKey;
+        const ParseResult = ISSigParsePublicKeyText(KeyText, PublicKey);
+        if ParseResult = ikrMalformed then
+          AbortCompile(SCompilerISSigKeysBadKeyFile)
+        else if ParseResult <> ikrSuccess then
+          AbortCompile(SCompilerISSigKeysUnknownKeyImportResult);
+        ISSigConvertPublicKeyToStrings(PublicKey, PublicX, PublicY);
+      end else begin
+        if PublicX = '' then
+          AbortCompileParamError(SCompilerParamNotSpecified, ParamISSigKeysPublicX)
+        else if PublicY = '' then
+          AbortCompileParamError(SCompilerParamNotSpecified, ParamISSigKeysPublicY);
+        try
+          ISSigCheckValidPublicXOrY(PublicX);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicX, GetExceptMessage]);
+        end;
+        try
+          ISSigCheckValidPublicXOrY(PublicY);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysPublicY, GetExceptMessage]);
+        end;
+      end;
+
+      { KeyID }
+      var KeyID := Values[paKeyID].Data;
+      if KeyID <> '' then begin
+        try
+          ISSigCheckValidKeyID(KeyID);
+        except
+          AbortCompileFmt(SCompilerParamInvalidWithError, [ParamISSigKeysKeyID, GetExceptMessage]);
+        end;
+        if not ISSigIsValidKeyIDForPublicXY(KeyID, PublicX, PublicY) then
+          AbortCompile(SCompilerISSigKeysBadKeyID);
+      end;
+    end;
+  except
+    SEFreeRec(NewISSigKeyEntry, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
+    Dispose(NewISSigKeyEntryExtraInfo);
+    raise;
+  end;
+  ISSigKeyEntries.Add(NewISSigKeyEntry);
+  ISSigKeyEntryExtraInfos.Add(NewISSigKeyEntryExtraInfo);
+end;
+
 procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 
   function EscapeBraces(const S: String): String;
@@ -4483,8 +4635,8 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
     paPermissions, paFontInstall, paExcludes, paExternalSize, paStrongAssemblyName,
-    paComponents, paTasks, paLanguages, paCheck, paBeforeInstall, paAfterInstall,
-    paMinVersion, paOnlyBelowVersion);
+    paISSigAllowedKeys, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
+    paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -4496,6 +4648,7 @@ const
   ParamFilesExcludes = 'Excludes';
   ParamFilesExternalSize = 'ExternalSize';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
+  ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamFilesSource; Flags: [piRequired, piNoEmpty, piNoQuotes]),
@@ -4508,6 +4661,7 @@ const
     (Name: ParamFilesExcludes; Flags: []),
     (Name: ParamFilesExternalSize; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
+    (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
     (Name: ParamCommonTasks; Flags: []),
     (Name: ParamCommonLanguages; Flags: []),
@@ -4516,7 +4670,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..40] of PChar = (
+  Flags: array[0..41] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4527,7 +4681,8 @@ const
     'noencryption', 'nocompression', 'dontverifychecksum',
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
-    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck');
+    'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
+    'issigverify');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -4859,9 +5014,13 @@ type
               to compressing the first one }
             SolidBreak := False;
           end;
-        end;
+          NewFileLocationEntryExtraInfo^.ISSigAllowedKeys := NewFileEntry^.ISSigAllowedKeys;
+        end else if NewFileLocationEntryExtraInfo^.ISSigAllowedKeys <> NewFileEntry^.ISSigAllowedKeys then
+          AbortCompile(SCompilerFilesISSigAllowedKeysConflict);
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
+        if foISSigVerify in NewFileEntry^.Options then
+          Include(NewFileLocationEntryExtraInfo^.Flags, floISSigVerify);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -5135,6 +5294,7 @@ begin
                    38: ApplyNewSign(Sign, fsYes, SCompilerParamErrorBadCombo2);
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
+                   41: Include(Options, foISSigVerify);
                  end;
 
                { Source }
@@ -5220,6 +5380,25 @@ begin
                  Include(Options, foExternalSizePreset);
                end;
 
+               { ISSigAllowedKeys }
+               var S := Values[paISSigAllowedKeys].Data;
+               while True do begin
+                 const KeyNameOrGroupName = ExtractStr(S, ' ');
+                 if KeyNameOrGroupName = '' then
+                   Break;
+                 var FoundKey := False;
+                 for var KeyIndex := 0 to ISSigKeyEntryExtraInfos.Count-1 do begin
+                   var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[KeyIndex]);
+                   if SameText(ISSigKeyEntryExtraInfo.Name, KeyNameOrGroupName) or
+                      ISSigKeyEntryExtraInfo.HasGroupName(KeyNameOrGroupName) then begin
+                     SetISSigAllowedKey(ISSigAllowedKeys, KeyIndex);
+                     FoundKey := True;
+                   end;
+                 end;
+                 if not FoundKey then
+                   AbortCompileFmt(SCompilerFilesUnkownISSigKeyNameOrGroupName, [ParamFilesISSigAllowedKeys]);
+               end;
+
                { Common parameters }
                ProcessExpressionParameter(ParamCommonComponents, Values[paComponents].Data, EvalComponentIdentifier, True, Components);
                ProcessExpressionParameter(ParamCommonTasks, Values[paTasks].Data, EvalTaskIdentifier, True, Tasks);
@@ -5285,9 +5464,19 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
         end;
-        
-        if (SignTools.Count = 0) and (Sign in [fsYes, fsOnce]) then
-          Sign := fsNoSetting;
+
+        if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
+          AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
+        if (ISSigAllowedKeys <> '') and not (foISSigVerify in Options) then
+          AbortCompile(SCompilerFilesISSigAllowedKeysMissingISSigVerify);
+
+        if Sign in [fsYes, fsOnce] then begin
+          if foISSigVerify in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2,
+              [ParamCommonFlags, SignFlags[Sign], 'issigverify'])
+          else if SignTools.Count = 0 then
+            Sign := fsNoSetting
+        end;
 
         if not RecurseSubdirs and (foCreateAllSubDirs in Options) then
           AbortCompileFmt(SCompilerParamFlagMissing, ['recursesubdirs', 'createallsubdirs']);
@@ -5625,7 +5814,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
     NewPreLangData.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -5659,7 +5848,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesBadName);
+      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
     NewLanguageEntry.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -6611,6 +6800,7 @@ var
     SetupHeader.NumComponentEntries := ComponentEntries.Count;
     SetupHeader.NumTaskEntries := TaskEntries.Count;
     SetupHeader.NumDirEntries := DirEntries.Count;
+    SetupHeader.NumISSigKeyEntries := ISSigKeyEntries.Count;
     SetupHeader.NumFileEntries := FileEntries.Count;
     SetupHeader.NumFileLocationEntries := FileLocationEntries.Count;
     SetupHeader.NumIconEntries := IconEntries.Count;
@@ -6652,6 +6842,9 @@ var
       for J := 0 to DirEntries.Count-1 do
         SECompressedBlockWrite(W, DirEntries[J]^, SizeOf(TSetupDirEntry),
           SetupDirEntryStrings, SetupDirEntryAnsiStrings);
+      for J := 0 to ISSigKeyEntries.Count-1 do
+        SECompressedBlockWrite(W, ISSigKeyEntries[J]^, SizeOf(TSetupISSigKeyEntry),
+          SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
       for J := 0 to FileEntries.Count-1 do
         SECompressedBlockWrite(W, FileEntries[J]^, SizeOf(TSetupFileEntry),
           SetupFileEntryStrings, SetupFileEntryAnsiStrings);
@@ -6839,6 +7032,7 @@ var
     SourceFile: TFile;
     SignatureAddress, SignatureSize: Cardinal;
     HdrChecksum, ErrorCode: DWORD;
+    ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
@@ -6852,7 +7046,20 @@ var
 
     ChunkCompressed := False;  { avoid warning }
     CH := TCompressionHandler.Create(Self, FirstDestFile);
+    SetLength(ISSigAvailableKeys, ISSigKeyEntries.Count);
+    for I := 0 to ISSigKeyEntries.Count-1 do
+      ISSigAvailableKeys[I] := nil;
     try
+      for I := 0 to ISSigKeyEntries.Count-1 do begin
+        const ISSigKeyEntry = PSetupISSigKeyEntry(ISSigKeyEntries[I]);
+        ISSigAvailableKeys[I] := TECDSAKey.Create;
+        try
+          ISSigImportPublicKey(ISSigAvailableKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY); { shouldn't fail: values checked already }
+        except
+          AbortCompileFmt(SCompilerCompressInternalError, ['ISSigImportPublicKey failed: ' + GetExceptMessage]);
+        end;
+      end;
+
       if DiskSpanning then begin
         if not CH.ReserveBytesOnSlice(BytesToReserveOnFirstDisk) then
           AbortCompile(SCompilerNotEnoughSpaceOnFirstDisk);
@@ -6905,6 +7112,36 @@ var
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try
+          var ExpectedFileHash: TSHA256Digest;
+          if floISSigVerify in FLExtraInfo.Flags then begin
+            { See Setup.Install's CopySourceFileToDestFile for similar code }
+            if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
+              AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
+            const SigFilename = FileLocationEntryFilenames[I] + '.issig';
+            if not NewFileExists(SigFilename) then
+              AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [FileLocationEntryFilenames[I]]);
+            const SigText = ISSigLoadTextFromFile(SigFilename);
+            var ExpectedFileSize: Int64;
+            const VerifyResult = ISSigVerifySignatureText(
+              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys), SigText,
+              ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID);
+            if VerifyResult <> vsrSuccess then begin
+              var VerifyResultAsString: String;
+              case VerifyResult of
+                vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
+                vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
+              else
+                VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
+              end;
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], VerifyResultAsString]);
+            end;
+            if Int64(SourceFile.Size) <> ExpectedFileSize then
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
+            { ExpectedFileHash checked below after compression }
+          end;
+
           if CH.ChunkStarted then begin
             { End the current chunk if one of the following conditions is true:
               - we're not using solid compression
@@ -6950,6 +7187,13 @@ var
 
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
+
+          if floISSigVerify in FLExtraInfo.Flags then begin
+            if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
+            AddStatus(SCompilerStatusFilesISSigVerified);
+          end;
         finally
           SourceFile.Free;
         end;
@@ -6960,6 +7204,8 @@ var
       CH.Finish;
     finally
       CompressionInProgress := False;
+      for I := 0 to Length(ISSigAvailableKeys)-1 do
+        ISSigAvailableKeys[I].Free;
       CH.Free;
     end;
 
@@ -7215,6 +7461,7 @@ var
   var
     F: TTextFileWriter;
     FL: PSetupFileLocationEntry;
+    FLExtraInfo: PFileLocationEntryExtraInfo;
     S: String;
     I: Integer;
   begin
@@ -7224,11 +7471,13 @@ var
       S := 'Index' + #9 + 'SourceFilename' + #9 + 'TimeStamp' + #9 +
         'Version' + #9 + 'SHA256Sum' + #9 + 'OriginalSize' + #9 +
         'FirstSlice' + #9 + 'LastSlice' + #9 + 'StartOffset' + #9 +
-        'ChunkSuboffset' + #9 + 'ChunkCompressedSize' + #9 + 'Encrypted';
+        'ChunkSuboffset' + #9 + 'ChunkCompressedSize' + #9 + 'Encrypted' + #9 +
+        'ISSigKeyID';
       F.WriteLine(S);
 
       for I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
+        FLExtraInfo := FileLocationEntryExtraInfos[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
           FileTimeToString(FL.SourceTimeStamp, floTimeStampInUTC in FL.Flags) + #9;
         if floVersionInfoValid in FL.Flags then
@@ -7242,7 +7491,8 @@ var
           IntToStr(FL.StartOffset) + #9 +
           Integer64ToStr(FL.ChunkSuboffset) + #9 +
           Integer64ToStr(FL.ChunkCompressedSize) + #9 +
-          EncryptedStrings[floChunkEncrypted in FL.Flags];
+          EncryptedStrings[floChunkEncrypted in FL.Flags] + #9 +
+          FLExtraInfo.ISSigKeyUsedID;
         F.WriteLine(S);
       end;
     finally
@@ -7808,6 +8058,10 @@ begin
     if MissingRunOnceIdsWarning and MissingRunOnceIds then
       WarningsList.Add(Format(SCompilerMissingRunOnceIdsWarning, ['UninstallRun', 'RunOnceId']));
 
+    { Read [ISSigKeys] section - must be done before reading [Files] section }
+    EnumIniSection(EnumISSigKeysProc, 'ISSigKeys', 0, True, True, '', False, False);
+    CallIdleProc;
+
     { Read [Files] section }
     if not TryStrToBoolean(SetupHeader.Uninstallable, Uninstallable) or Uninstallable then
       EnumFilesProc('', 1);
@@ -8029,6 +8283,7 @@ begin
     ClearSEList(DirEntries, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
     ClearSEList(FileEntries, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     ClearSEList(FileLocationEntries, SetupFileLocationEntryStrings, SetupFileLocationEntryAnsiStrings);
+    ClearSEList(ISSigKeyEntries, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
     ClearSEList(IconEntries, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
     ClearSEList(IniEntries, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
     ClearSEList(RegistryEntries, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
@@ -8040,6 +8295,10 @@ begin
     for I := FileLocationEntryExtraInfos.Count-1 downto 0 do begin
       Dispose(PFileLocationEntryExtraInfo(FileLocationEntryExtraInfos[I]));
       FileLocationEntryExtraInfos.Delete(I);
+    end;
+    for I := ISSigKeyEntryExtraInfos.Count-1 downto 0 do begin
+      Dispose(PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]));
+      ISSigKeyEntryExtraInfos.Delete(I);
     end;
     ClearLineInfoList(ExpectedCustomMessageNames);
     ClearLangDataList;

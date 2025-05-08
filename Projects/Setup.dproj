@@ -168,6 +168,9 @@
         <DCCReference Include="Src\Compression.SevenZipDecoder.pas"/>
         <DCCReference Include="..\Components\PSStackHelper.pas"/>
         <DCCReference Include="Src\Setup.ScriptFunc.HelperFunc.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
