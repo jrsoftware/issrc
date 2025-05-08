@@ -1750,6 +1750,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     H: THandle;
     FindData: TWin32FindData;
   begin
+    { Also see RecurseExternalCopyFiles in Setup.Install }
     SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
     Result := True;
 

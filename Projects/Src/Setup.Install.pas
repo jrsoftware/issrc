@@ -1797,6 +1797,7 @@ var
       Size: Integer64;
       Flags: TMakeDirFlags;
     begin
+      { Also see RecurseExternalFiles in Setup.MainFunc }
       SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
       Result := False;
 
