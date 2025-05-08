@@ -74,20 +74,20 @@ Source: "MyProg.chm"; DestDir: "{app}"; Flags: issigverify; ISSigAllowedKeys: do
     <li>Added <tt>ISSigTool.exe</tt>, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
     <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
     <li>Example commands:
-      <pre>issigtool --key-file=MyKey.isprivatekey generate-private-key
-issigtool --key-file=MyKey.isprivatekey sign MyProg.dll
-issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey
-issigtool --key-file=MyKey.ispublickey verify MyProg.dll</pre>
+      <pre>issigtool --key-file="MyKey.isprivatekey" generate-private-key
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     </li>
   </ul>
   </li>
   <li>New and updated documentation topics:</li>
   <ul>
-    <li>[ISSigKeys] section</li>
-    <li>[Files] section</li>
-    <li>.issig Signatures: Introduction</li>
+    <li><a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection">[ISSigKeys] section</a></li>
+    <li><a href="https://jrsoftware.org/ishelp/index.php?topic=filessection">[Files] section</a></li>
+    <li><a href="https://jrsoftware.org/ishelp/index.php?topic=issig">.issig Signatures: Introduction</a></li>
+    <li><a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a></li>
     <li>.issig File Format Specifications</li>
-    <li>Inno Setup Signature Tool</li>
   </ul>
   </li>
 </ul>

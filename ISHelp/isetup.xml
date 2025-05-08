@@ -3622,7 +3622,7 @@ issigtool --key-file="MyKey.isprivatekey" generate-private-key
 <p>Create the file we want to sign, then create the signature:</p>
 <precode>
 echo Hello &gt; MyFile.txt
-issigtool --key-file="MyKey.isprivatekey" sign MyFile.txt
+issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
 </precode>
 <p>A signature file named <tt>MyFile.txt.issig</tt> is created.</p>
 </li>
@@ -3707,8 +3707,8 @@ $env:ISSIGTOOL_KEY_FILE = "MyKey.isprivatekey"
 <p>The above variable assignments are non-persistent; they only affect the current <tt>cmd.exe</tt> or PowerShell session.</p>
 <p>Afterward, you may simply run:</p>
 <precode>
-issigtool sign MyFile.txt
-issigtool verify MyFile.txt
+issigtool sign "MyFile.txt"
+issigtool verify "MyFile.txt"
 </precode>
 </li>
 
@@ -3777,10 +3777,10 @@ issigtool verify MyFile.txt
 
 <indent>
 <examples noheader="1">
-issigtool --key-file=MyKey.isprivatekey generate-private-key<br/>
-issigtool --key-file=MyKey.isprivatekey sign MyProg.dll<br/>
-issigtool --key-file=MyKey.isprivatekey export-public-key MyKey.ispublickey<br/>
-issigtool --key-file=MyKey.ispublickey verify MyProg.dll
+issigtool --key-file="MyKey.isprivatekey" generate-private-key<br/>
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"<br/>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"<br/>
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 </examples>
 </indent>
 
