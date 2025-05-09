@@ -1654,7 +1654,7 @@ ExternalSize: 1048576; Flags: external
 <param name="ISSigAllowedKeys">
 <p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
 <example>
-<pre>ISSigAllowedKeys: "exesigner"</pre>
+<pre>ISSigAllowedKeys: "exesigner bosskey"</pre>
 </example>
 </param>
 
@@ -2787,7 +2787,7 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <p>This optional section defines any keys the compiler and Setup can use to verify files using <link topic="filessection">[Files]</link> section's <tt>issigverify</tt> flag.</p>
 
-<p>Here is an example of an <tt>[ISSigKeys]</tt> section:</p>
+<p>Here are two examples of an <tt>[ISSigKeys]</tt> section:</p>
 
 <precode>
 [ISSigKeys]
@@ -2798,6 +2798,17 @@ Name: "MyKey2; \
   KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
   PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+</precode>
+
+<precode>
+[ISSigKeys]
+Name: anna: KeyFile: "anna.ispubkey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispubkey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispubkey"; Group: docsigner
+; max is trusted for both exe and doc signing
+Name: max; KeyFile: "max.ispubkey"; Group: exesigner docsigner
+; the boss also has a key
+Name: bosskey; KeyFile: "boss.ispubkey"
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
