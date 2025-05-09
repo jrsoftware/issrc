@@ -2802,13 +2802,13 @@ Name: "MyKey2; \
 
 <precode>
 [ISSigKeys]
-Name: anna: KeyFile: "anna.ispubkey"; Group: exesigner
-Name: ryan; KeyFile: "ryan.ispubkey"; Group: exesigner
-Name: ivan; KeyFile: "ivan.ispubkey"; Group: docsigner
+Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
 ; max is trusted for both exe and doc signing
-Name: max; KeyFile: "max.ispubkey"; Group: exesigner docsigner
+Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
 ; the boss also has a key
-Name: bosskey; KeyFile: "boss.ispubkey"
+Name: bosskey; KeyFile: "boss.ispublickey"
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
