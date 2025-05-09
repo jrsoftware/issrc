@@ -9,17 +9,19 @@
 
 :root {
   color-scheme: light dark;
-  --light-color: WindowText;
+  --light-color: #282828;
   --dark-color: #d6d6d6;
-  --light-background-color: Window;
+  --light-background-color: white;
   --dark-background-color: #1f1f1f;
-  --light-tool-background-color: ButtonFace;
+  --light-tool-background-color: #e0e0e0;
   --dark-tool-background-color: #403E41;
 }
 BODY {
 	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
 	margin: 0;
+	color: #282828; /* for IE */
 	color: light-dark(var(--light-color), var(--dark-color));
+	background-color: white; /* for IE */
 	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 }
 PRE, TT {
@@ -61,8 +63,8 @@ A:link, A:visited {
 	text-decoration: none;
 }
 A[href]:hover {
-	color: hsl(206, 100%, 30%); /* for IE */
-	color: light-dark(hsl(206, 100%, 30%), hsl(206, 100%, 43%));
+	color: hsl(206, 100%, 27%); /* for IE */
+	color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
 	text-decoration: underline;
 }
 A.highlighted {
@@ -71,13 +73,11 @@ A.highlighted {
 }
 
 .small {
-	/* what we want is an 8pt font. 8pt/10pt = 80%, but on firefox that
-	   actually creates a font smaller than 8pt, so use 82% */
-	font-size: 82%;
+	font-size: calc(12rem/16);
 }
 .heading {
 	margin-top: 1em;
-	font-size: 120%;
+	font-size: calc(20rem/16);
 	font-weight: bold;
 }
 .notopmargin {
@@ -90,17 +90,16 @@ PRE.nomargin {
 	margin: 0;
 }
 LI.compact {
-	margin-bottom: 2px;
+	margin-bottom: calc(2rem/16);
 }
 
 .topicheading {
-	background-color: ButtonFace; /* for IE */
+	background-color: #e0e0e0; /* for IE */
 	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
+	color: inherit;
 	padding: 4px 8px;
 	margin: 0;
-	font-size: 120%;
+	font-size: calc(20rem/16);
 	font-weight: bold;
 }
 .topicbody {
@@ -110,16 +109,16 @@ LI.compact {
 TT, .examplebox {
 	background-color: #f0f0f0; /* for IE */
 	background-color: light-dark(#f0f0f0, var(--dark-tool-background-color));
-	color: black; /* for IE */
-	color: light-dark(black, var(--dark-color));
-	border-radius: 4px;
+	color: inherit;
 }
 TT {
 	padding: 2px 4px;
+	border-radius: 4px;
 	display: inline-block;
 }
 .examplebox {
-	padding: 8px;
+	padding: 10px;
+	border-radius: 6px;
 	overflow-x: auto;
 }
 .exampleheader {
