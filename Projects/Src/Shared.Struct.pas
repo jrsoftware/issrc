@@ -226,7 +226,7 @@ type
     PublicX, PublicY: String;
   end;
 const
-  SetupFileEntryStrings = 10;
+  SetupFileEntryStrings = 11;
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
