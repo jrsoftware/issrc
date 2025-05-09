@@ -1941,7 +1941,7 @@ var
             end
             else
               SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-            Excludes.CommaText := CurFile^.Excludes;
+            Excludes.DelimitedText := CurFile^.Excludes;
             ProgressBefore := CurProgress;
             repeat
               SetProgress(ProgressBefore);

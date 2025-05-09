@@ -1832,7 +1832,7 @@ begin
         else begin
           { External file }
           SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          Excludes.CommaText := CurFile^.Excludes;
+          Excludes.DelimitedText := CurFile^.Excludes;
           if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
              PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then begin
             Result := False;

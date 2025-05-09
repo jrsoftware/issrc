@@ -5389,7 +5389,7 @@ begin
           if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
-          Excludes := AExcludes.CommaText;
+          Excludes := AExcludes.DelimitedText;
         end;
 
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
