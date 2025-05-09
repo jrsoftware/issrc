@@ -64,8 +64,12 @@ Name: bosskey; KeyFile: "boss.ispubkey"</pre>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
       <pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; Flags: issigverify; ISSigAllowedKeys: exesigner bosskey
-Source: "MyProg.chm"; DestDir: "{app}"; Flags: issigverify; ISSigAllowedKeys: docsigner bosskey</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; Flags: issigverify; \
+  ISSigAllowedKeys: exesigner bosskey
+Source: "MyProg.chm"; DestDir: "{app}"; Flags: issigverify; \
+  ISSigAllowedKeys: docsigner bosskey
+Source: "{src}\Extra\*.chm"; DestDir: "{app}"; Flags: issigverify external; \
+  ISSigAllowedKeys: docsigner bosskey; Excludes: "*.issig"</pre>
     </li>
   </ul>
   </li>
@@ -94,6 +98,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
 <span class="head2">Other changes</span>
 <ul>
   <li>Compiler IDE: the <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
+  <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Example script <i>CodeDownloadFiles.iss</i> now also demonstrates how to use the <tt>CreateExtractionPage</tt> support function to extract a 7-Zip archive. See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">Extract7ZipArchive help topic</a> for information about this function's limitations.</li>
 </ul>
 
