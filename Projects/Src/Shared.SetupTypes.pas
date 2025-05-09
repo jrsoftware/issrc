@@ -58,11 +58,12 @@ procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSal
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
+function IsExcluded(Text: String; const AExcludes: TStringList): Boolean;
 
 implementation
 
 uses
-  PBKDF2, Shared.CommonFunc;
+  PBKDF2, PathFunc, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -348,6 +349,77 @@ begin
     SetLength(Result, NAdded);
   end else
     Result := ISSigAvailableKeys;
+end;
+
+function IsExcluded(Text: String; const AExcludes: TStringList): Boolean;
+
+  function CountBackslashes(S: PChar): Integer;
+  begin
+    Result := 0;
+    while True do begin
+      S := PathStrScan(S, '\');
+      if S = nil then
+        Break;
+      Inc(Result);
+      Inc(S);
+    end;
+  end;
+
+begin
+  if AExcludes.Count > 0 then begin
+    Text := PathLowercase(Text);
+    UniqueString(Text);
+    const T = PChar(Text);
+    const TB = CountBackslashes(T);
+
+    for var AExclude in AExcludes do begin
+      var P := PChar(AExclude);
+
+      { Leading backslash in an exclude pattern means 'match at the front
+        instead of the end' }
+      var MatchFront := False;
+      if P^ = '\' then begin
+        MatchFront := True;
+        Inc(P);
+      end;
+
+      const PB = CountBackslashes(P);
+      { The text must contain at least as many backslashes as the pattern
+        for a match to be possible }
+      if TB >= PB then begin
+        var TStart := T;
+        var TEnd: PChar;
+        if not MatchFront then begin
+          { If matching at the end, advance TStart so that TStart and P point
+            to the same number of components }
+          for var I := 1 to TB - PB do
+            TStart := PathStrScan(TStart, '\') + 1;
+          TEnd := nil;
+        end
+        else begin
+          { If matching at the front, clip T to the same number of
+            components as P }
+          TEnd := T;
+          for var J := 1 to PB do
+            TEnd := PathStrScan(TEnd, '\') + 1;
+          TEnd := PathStrScan(TEnd, '\');
+          if Assigned(TEnd) then
+            TEnd^ := #0;
+        end;
+
+        if WildcardMatch(TStart, P) then begin
+          Result := True;
+          Exit;
+        end;
+
+        { Put back any backslash that was temporarily null'ed }
+        if Assigned(TEnd) then
+          TEnd^ := '\';
+      end;
+    end;
+  end;
+
+  Result := False;
 end;
 
 end.

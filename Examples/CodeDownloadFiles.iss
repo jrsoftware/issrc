@@ -35,7 +35,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 ; These files will be downloaded
 Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
-Source: "{tmp}\MyProg-ExtraReadmes\*.txt"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify  
+Source: "{tmp}\MyProg-ExtraReadmes\*"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify  
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"

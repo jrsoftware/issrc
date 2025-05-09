@@ -226,13 +226,13 @@ type
     PublicX, PublicY: String;
   end;
 const
-  SetupFileEntryStrings = 10;
+  SetupFileEntryStrings = 11;
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileEntry = packed record
-    SourceFilename, DestName, InstallFontName, StrongAssemblyName: String;
-    Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
+    SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
+    Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes: String;
     ISSigAllowedKeys: AnsiString;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;

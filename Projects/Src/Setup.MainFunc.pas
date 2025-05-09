@@ -1744,7 +1744,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const CurFile: PSetupFileEntry): Boolean;
+    const SourceIsWildcard: Boolean; const Excludes: TStringList; const CurFile: PSetupFileEntry): Boolean;
   var
     SearchFullPath, DestName: String;
     H: THandle;
@@ -1763,6 +1763,9 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if SourceIsWildcard then
               if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
                 Continue;
+
+            if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
+              Continue;
 
             DestName := ExpandConst(CurFile^.DestName);
             if not(foCustomDestName in CurFile^.Options) then
@@ -1788,7 +1791,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsRecurseableDirectory(FindData) then
               if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                 SourceIsWildcard, CurFile) then begin
+                 SourceIsWildcard, Excludes, CurFile) then begin
                 Result := False;
                 Exit;
               end;
@@ -1809,28 +1812,37 @@ begin
   Result := True;
 
   { [Files] }
-  for I := 0 to Entries[seFile].Count-1 do begin
-    CurFile := PSetupFileEntry(Entries[seFile][I]);
-    if (CurFile^.FileType = ftUserFile) and
-       ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-      DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
-      if CurFile^.LocationEntry <> -1 then begin
-        { Non-external file }
-        if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
-          Result := False;
-          Exit;
-        end;
-      end
-      else begin
-        { External file }
-        SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-        if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-           PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
-          Result := False;
-          Exit;
+  const Excludes = TStringList.Create;
+  try
+    Excludes.StrictDelimiter := True;
+    Excludes.Delimiter := ',';
+
+    for I := 0 to Entries[seFile].Count-1 do begin
+      CurFile := PSetupFileEntry(Entries[seFile][I]);
+      if (CurFile^.FileType = ftUserFile) and
+         ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
+        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+        if CurFile^.LocationEntry <> -1 then begin
+          { Non-external file }
+          if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+            Result := False;
+            Exit;
+          end;
+        end
+        else begin
+          { External file }
+          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+          Excludes.DelimitedText := CurFile^.Excludes;
+          if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+             PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then begin
+            Result := False;
+            Exit;
+          end;
         end;
       end;
     end;
+  finally
+    Excludes.Free;
   end;
 
   { [InstallDelete] }

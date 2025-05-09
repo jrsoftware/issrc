@@ -1580,7 +1580,7 @@ DestDir: "{app}\subdir"
 </param>
 
 <param name="Excludes">
-<p>Specifies a list of patterns to exclude, separated by commas. This parameter cannot be combined with the <tt>external</tt> flag.</p>
+<p>Specifies a list of patterns to exclude, separated by commas.</p>
 <p>Patterns may include wildcard characters ("*" and "?"). Note that unlike the <tt>Source</tt> parameter, a simple Unix-style pattern matching routine is used for <tt>Excludes</tt>. Dots in the pattern are always significant, thus "*.*" will not exclude a file with no extension (instead, use just "*"). Also, question marks always match exactly one character, thus "?????" will not exclude files with names less than five characters long.</p>
 <p>If a pattern starts with a backslash ("\") it is matched against the start of a path name, otherwise it is matched against the end of a path name. Thus "\foo" will only exclude a file named "foo" at the base of the tree. On the other hand, "foo" will exclude any file named "foo" anywhere in the tree.</p>
 <p>The patterns may include backslashes. "foo\bar" will exclude both "foo\bar" and "subdir\foo\bar". "\foo\bar" will only exclude "foo\bar".</p>

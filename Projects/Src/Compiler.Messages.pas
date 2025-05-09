@@ -287,8 +287,6 @@ const
     'the "Source" parameter contains wildcards';
   SCompilerFilesStrongAssemblyNameMustBeSpecified = 'Parameter "StrongAssemblyName" must be specified if ' +
     'the flag "gacinstall" is used';
-  SCompilerFilesCantHaveExternalExclude = 'Parameter "Excludes" may not be used when ' +
-    'the "external" flag is used';
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
     'the "external" flag is used';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
