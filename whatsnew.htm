@@ -5,10 +5,19 @@
 <title>Inno Setup 6 Revision History</title>
 <base href="https://jrsoftware.org/" />
 <style type="text/css">
-    body         { font: calc(14rem/16)/1.5 "Segoe UI", sans-serif; color: #282828; background-color: white }
-    a:link, a:visited { color: hsl(206, 100%, 37%); background-color: transparent; text-decoration: none }
-    a[href]:hover { color: hsl(206, 100%, 30%); text-decoration: underline }
-    tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: #f0f0f0; padding: 2px 4px; border-radius: 4px }
+    :root {
+      color-scheme: light dark;
+      --light-color: #282828;
+      --dark-color: #d6d6d6;
+      --light-background-color: white;
+      --dark-background-color: #1f1f1f;
+      --light-tool-background-color: #e0e0e0;
+      --dark-tool-background-color: #403E41;
+    }
+    body { font: calc(14rem/16)/1.5 "Segoe UI", sans-serif; color: light-dark(var(--light-color), var(--dark-color)); background-color: light-dark(var(--light-background-color), var(--dark-background-color)) }
+    a:link, a:visited { color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%)); background-color: transparent; text-decoration: none }
+    a[href]:hover { color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%)); text-decoration: underline }
+    tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: light-dark(#f0f0f0, var(--dark-tool-background-color)); padding: 2px 4px; border-radius: 4px }
     pre          { line-height: normal; padding: 10px; border-radius: 6px }
     li, div.limargins { margin-top: 5px; margin-bottom: 5px }
     div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
