@@ -32,7 +32,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><a name="6.5.0"></a><span class="ver">6.5.0-dev </span><span class="date">(?)</span></p>
 <span class="head2">New signature-verification capability</span>
 <p>Inno Setup now includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
-<p>Any type of file may be signed and verified and creation of signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
+<p>Any type of file may be signed and verified, and creation of signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
 <p>Note, however, that these signatures cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority.</p>
 <p>A more detailed summary:</p>
 <ul>
@@ -48,7 +48,7 @@ Name: ryan; KeyFile: "ryan.ispubkey"; Group: exesigner
 Name: ivan; KeyFile: "ivan.ispubkey"; Group: docsigner
 ; max is trusted for both exe and doc signing
 Name: max; KeyFile: "max.ispubkey"; Group: exesigner docsigner
-; the boss has also has a key
+; the boss also has a key
 Name: bosskey; KeyFile: "boss.ispubkey"</pre>
     </li>
   </ul>
