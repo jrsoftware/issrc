@@ -1787,7 +1787,7 @@ var
 
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
-      const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
+      const Excludes: TStringList; const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
       var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
     var
@@ -1814,6 +1814,9 @@ var
               end
               else
                 FileName := SearchWildcard;  { use the case specified in the script }
+
+              if IsExcluded(SearchSubDir + FileName, Excludes) then
+                Continue;
 
               Result := True;
               SourceFile := SearchBaseDir + SearchSubDir + FileName;
@@ -1848,7 +1851,7 @@ var
               if IsRecurseableDirectory(FindData) then
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                  SourceIsWildcard, CurFile, FileLocationFileNames,
+                  SourceIsWildcard, Excludes, CurFile, FileLocationFileNames,
                   ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts) or Result;
             until not FindNextFile(H, FindData);
@@ -1882,7 +1885,6 @@ var
     end;
 
   var
-    FileLocationFilenames: TStringList;
     I: Integer;
     CurFileNumber: Integer;
     CurFile: PSetupFileEntry;
@@ -1897,10 +1899,17 @@ var
     PromptIfOlderOverwriteAll := oaUnknown;
     WarnedPerUserFonts := False;
 
-    FileLocationFilenames := TStringList.Create;
+    var FileLocationFilenames: TStringList := nil;
+    var Excludes: TStringList := nil;
     try
+      FileLocationFilenames := TStringList.Create;
       for I := 0 to Entries[seFileLocation].Count-1 do
         FileLocationFilenames.Add('');
+
+      Excludes := TStringList.Create;
+      Excludes.StrictDelimiter := True;
+      Excludes.Delimiter := ',';
+
       for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
         CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
         if ((CurFile^.FileType <> ftUninstExe) or Uninstallable) and
@@ -1932,13 +1941,14 @@ var
             end
             else
               SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+            Excludes.CommaText := CurFile^.Excludes;
             ProgressBefore := CurProgress;
             repeat
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
               FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
                 PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
-                IsWildcard(SourceWildcard), CurFile, FileLocationFileNames,
+                IsWildcard(SourceWildcard), Excludes, CurFile, FileLocationFileNames,
                 ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts);
             until FoundFiles or
@@ -1956,6 +1966,7 @@ var
         end;
       end;
     finally
+      Excludes.Free;
       FileLocationFilenames.Free;
     end;
   end;

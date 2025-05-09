@@ -5147,6 +5147,8 @@ begin
 
   AExcludes := TStringList.Create();
   try
+    AExcludes.StrictDelimiter := True;
+    AExcludes.Delimiter := ',';
     PrevFileEntry := nil;
     NewFileEntry := AllocMem(SizeOf(TSetupFileEntry));
     try
@@ -5295,7 +5297,7 @@ begin
                AStrongAssemblyName := Values[paStrongAssemblyName].Data;
 
                { Excludes }
-               ProcessWildcardsParameter(Values[paExcludes].Data, AExcludes, SCompilerFilesExcludeTooLong);
+               ProcessWildcardsParameter(Values[paExcludes].Data, AExcludes, SCompilerFilesExcludeTooLong); { for an external file the Excludes field is set below }
 
                { ExternalSize }
                if Values[paExternalSize].Found then begin
@@ -5384,11 +5386,10 @@ begin
           AbortCompileFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
         if ExternalFile then begin
-          if (AExcludes.Count > 0) then
-            AbortCompile(SCompilerFilesCantHaveExternalExclude)
-          else if Sign <> fsNoSetting then
+          if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
+          Excludes := AExcludes.CommaText;
         end;
 
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
