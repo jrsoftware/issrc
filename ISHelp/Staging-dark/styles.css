@@ -60,13 +60,11 @@ A.highlighted {
 }
 
 .small {
-	/* what we want is an 8pt font. 8pt/10pt = 80%, but on firefox that
-	   actually creates a font smaller than 8pt, so use 82% */
-	font-size: 82%;
+	font-size: calc(12rem/16);
 }
 .heading {
 	margin-top: 1em;
-	font-size: 120%;
+	font-size: calc(20rem/16);
 	font-weight: bold;
 }
 .notopmargin {
@@ -79,15 +77,15 @@ PRE.nomargin {
 	margin: 0;
 }
 LI.compact {
-	margin-bottom: 2px;
+	margin-bottom: calc(2rem/16);
 }
 
 .topicheading {
 	background-color: #403E41;
-	color: #d6d6d6;
+	color: inherit;
 	padding: 4px 8px;
 	margin: 0;
-	font-size: 120%;
+	font-size: calc(20rem/16);
 	font-weight: bold;
 }
 .topicbody {
@@ -96,15 +94,16 @@ LI.compact {
 
 TT, .examplebox {
 	background-color: #403E41;
-	color: #d6d6d6;
-	border-radius: 4px;
+	color: inherit;
 }
 TT {
 	padding: 2px 4px;
+	border-radius: 4px;
 	display: inline-block;
 }
 .examplebox {
-	padding: 8px;
+	padding: 10px;
+	border-radius: 6px;
 	overflow-x: auto;
 }
 .exampleheader {
