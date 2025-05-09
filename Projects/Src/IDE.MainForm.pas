@@ -608,6 +608,8 @@ type
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
     procedure UpdateFindRegExUI;
+    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+      const NewLine, NewLineStartPos: Integer);
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -3867,6 +3869,7 @@ begin
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+        { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
         var Prefix := Format('  Line %d: ', [Line+1]);
         var FindResult := TFindResult.Create;
@@ -7677,12 +7680,38 @@ begin
   end;
 end;
 
+procedure TMainForm.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+  const NewLine, NewLineStartPos: Integer);
+begin
+  { Also see FindInFilesDialogFind }
+  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResult.Line := NewLine;
+  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
+  FindResult.PrefixStringLength := Length(NewPrefix);
+  const PosChange = NewLineStartPos - FindResult.LineStartPos;
+  FindResult.LineStartPos := NewLineStartPos;
+  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
+  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
+end;
+
 procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
 begin
   for var I := 0 to FDebugEntriesCount-1 do
     if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
        (FDebugEntries[I].LineNumber >= FirstLine) then
       Inc(FDebugEntries[I].LineNumber, Count);
+
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        const NewLine = FindResult.Line + Count;
+        UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+      end;
+    end;
+  end;
 
   if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
     { Grow FStateLine if necessary }
@@ -7731,6 +7760,21 @@ begin
         DebugEntry.LineNumber := -1
       else
         Dec(DebugEntry.LineNumber, Count);
+    end;
+  end;
+
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        if FindResult.Line < FirstLine + Count then
+          FindResultsList.Items.Delete(I)
+        else begin
+          const NewLine = FindResult.Line - Count;
+          UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+        end;
+      end;
     end;
   end;
 
