@@ -4762,80 +4762,6 @@ type
     end;
   end;
 
-  function IsExcluded(Text: String): Boolean;
-
-    function CountBackslashes(S: PChar): Integer;
-    begin
-      Result := 0;
-      while True do begin
-        S := PathStrScan(S, '\');
-        if S = nil then
-          Break;
-        Inc(Result);
-        Inc(S);
-      end;
-    end;
-
-  var
-    I, J, TB, PB: Integer;
-    T, P, TStart, TEnd: PChar;
-    MatchFront: Boolean;
-  begin
-    if AExcludes.Count > 0 then begin
-      Text := PathLowercase(Text);
-      UniqueString(Text);
-      T := PChar(Text);
-      TB := CountBackslashes(T);
-
-      for I := 0 to AExcludes.Count-1 do begin
-        P := PChar(AExcludes[I]);
-
-        { Leading backslash in an exclude pattern means 'match at the front
-          instead of the end' }
-        MatchFront := False;
-        if P^ = '\' then begin
-          MatchFront := True;
-          Inc(P);
-        end;
-
-        PB := CountBackslashes(P);
-        { The text must contain at least as many backslashes as the pattern
-          for a match to be possible }
-        if TB >= PB then begin
-          TStart := T;
-          if not MatchFront then begin
-            { If matching at the end, advance TStart so that TStart and P point
-              to the same number of components }
-            for J := 1 to TB - PB do
-              TStart := PathStrScan(TStart, '\') + 1;
-            TEnd := nil;
-          end
-          else begin
-            { If matching at the front, clip T to the same number of
-              components as P }
-            TEnd := T;
-            for J := 1 to PB do
-              TEnd := PathStrScan(TEnd, '\') + 1;
-            TEnd := PathStrScan(TEnd, '\');
-            if Assigned(TEnd) then
-              TEnd^ := #0;
-          end;
-
-          if WildcardMatch(TStart, P) then begin
-            Result := True;
-            Exit;
-          end;
-
-          { Put back any backslash that was temporarily null'ed }
-          if Assigned(TEnd) then
-            TEnd^ := '\';
-        end;
-      end;
-    end;
-
-    Result := False;
-  end;
-
   procedure AddToFileList(const FileList: TList; const Filename: String;
     const SizeLo, SizeHi: LongWord);
   var
@@ -4888,7 +4814,7 @@ type
           else
             FileName := SearchWildcard;  { use the case specified in the script }
 
-          if IsExcluded(SearchSubDir + FileName) then
+          if IsExcluded(SearchSubDir + FileName, AExcludes) then
             Continue;
 
           AddToFileList(FileList, SearchSubDir + FileName, FindData.nFileSizeLow,
@@ -4911,7 +4837,7 @@ type
                (FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN = 0) and
                (StrComp(FindData.cFileName, '.') <> 0) and
                (StrComp(FindData.cFileName, '..') <> 0) and
-               not IsExcluded(SearchSubDir + FindData.cFileName) then
+               not IsExcluded(SearchSubDir + FindData.cFileName, AExcludes) then
               BuildFileList(SearchBaseDir, SearchSubDir + FindData.cFileName + '\',
                 SearchWildcard, FileList, DirList, CreateAllSubDirs);
           until not FindNextFile(H, FindData);
