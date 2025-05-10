@@ -15,6 +15,7 @@
   --dark-background-color: #1f1f1f;
   --light-tool-background-color: #e0e0e0;
   --dark-tool-background-color: #403E41;
+  --link-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
 }
 BODY {
 	font: calc(12rem/16) "Segoe UI", sans-serif;
@@ -29,34 +30,31 @@ INPUT {
 
 #tabbar {
 	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
-	padding-top: 6px;
-	cursor: default;
-	-moz-user-select: none;
-}
-#tabbar TD {
-	padding: 0;
-	font-weight: bold;
-}
-#tabbar TD.selectedtab {
-	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
-	padding: 2px 6px 3px 6px;
-	border-bottom: none;
-}
-#tabbar TD.unselectedtab {
-	padding: 3px 7px 2px 7px;
-	cursor: pointer;
-}
-#tabbar A {
-	color: inherit;
-	background-color: transparent;
-	text-decoration: none;
-	outline: none;
-}
-#tabbar TD.selectedtab A {
-	cursor: default;
-}
-#tabbar TD.unselectedtab:hover A {
-	color: #0078D4;
+	padding-block-start: 8px;
+	padding-inline-start: 8px;
+	display: flex;
+	align-items: end;
+
+	& > A {
+		/* Height of tabs should match topic heading */
+		line-height: calc((20rem/16) * 1.5 - 2px);
+		font-size: calc(14rem/16);
+		font-weight: bold;
+		color: inherit;
+		background-color: transparent;
+		text-decoration: none;
+		padding-inline: calc(10rem/16);
+		user-select: none;
+
+		&.selectedtab {
+			background-color: light-dark(var(--light-background-color), var(--dark-background-color));
+			border-block-start: 2px solid var(--link-color);
+			cursor: default;
+		}
+		&.unselectedtab:hover {
+			color: var(--link-color);
+		}
+	}
 }
 
 
