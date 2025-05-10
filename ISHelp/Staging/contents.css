@@ -9,20 +9,17 @@
 
 :root {
   color-scheme: light dark;
-  --light-color: WindowText;
+  --light-color: #282828;
   --dark-color: #d6d6d6;
-  --light-background-color: Window;
+  --light-background-color: white;
   --dark-background-color: #1f1f1f;
-  --light-tool-background-color: ButtonFace;
+  --light-tool-background-color: #e0e0e0;
   --dark-tool-background-color: #403E41;
 }
 BODY {
-	font-family: "Segoe UI", Tahoma, sans-serif;
-	font-size: 75%;   /* 9pt (12px/16px) */
+	font: calc(12rem/16) "Segoe UI", sans-serif;
 	margin: 0;
-	color: WindowText; /* for IE */
 	color: light-dark(var(--light-color), var(--dark-color));
-	background-color: Window; /* for IE */
 	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 }
 INPUT {
@@ -31,10 +28,7 @@ INPUT {
 
 
 #tabbar {
-	background-color: ButtonFace; /* for IE */
 	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
 	padding-top: 6px;
 	cursor: default;
 	-moz-user-select: none;
@@ -44,7 +38,6 @@ INPUT {
 	font-weight: bold;
 }
 #tabbar TD.selectedtab {
-	background-color: Window; /* for IE */
 	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
 	padding: 2px 6px 3px 6px;
 	border-bottom: none;
@@ -54,9 +47,8 @@ INPUT {
 	cursor: pointer;
 }
 #tabbar A {
+	color: inherit;
 	background-color: transparent;
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
 	text-decoration: none;
 	outline: none;
 }
@@ -78,8 +70,7 @@ INPUT {
 #tabbody-contents A:link,
 #tabbody-contents A:visited,
 #tabbody-contents A:active {
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
+	color: inherit;
 	background-color: transparent;
 	text-decoration: none;
 }
@@ -89,18 +80,14 @@ INPUT {
 }
 #tabbody-contents A.selectedlink:link,
 #tabbody-contents A.selectedlink:visited {
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
-	background-color: ButtonFace; /* for IE */
-	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	color: inherit;
+	background-color: light-dark(#f0f0f0, var(--dark-tool-background-color));
 }
 /* It would be cleaner to use :focus, but IE<8 doesn't support it */
 #tabbody-contents A.focusedlink:link,
 #tabbody-contents A.focusedlink:visited {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText; /* for IE */
-	outline-color: light-dark(var(--light-color), var(--dark-color));   /* needed for focus rect to appear on Firefox (3.5) */
 }
 #tabbody-contents TABLE {
 	border-collapse: collapse;
@@ -129,8 +116,7 @@ INPUT {
 #tabbody-index A:link,
 #tabbody-index A:visited,
 #tabbody-index A:active {
-	color: WindowText; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
+	color: inherit;
 	background-color: transparent;
 	text-decoration: none;
 }
@@ -141,6 +127,4 @@ INPUT {
 #tabbody-index A:focus {
 	color: HighlightText;
 	background-color: Highlight;
-	outline-color: WindowText; /* for IE */
-	outline-color: light-dark(var(--light-color), var(--dark-color));   /* needed for focus rect to appear on Firefox (3.5) */
 }
