@@ -22,6 +22,9 @@ BODY {
 	margin: 0;
 	color: light-dark(var(--light-color), var(--dark-color));
 	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
+	display: grid;
+	grid-template-rows: max-content auto;
+	height: 100vh;
 }
 INPUT {
 	font: inherit;
@@ -58,6 +61,10 @@ INPUT {
 }
 
 
+#tabbody-contents {
+	overflow: auto;
+	padding: 4px;
+}
 #tabbody-contents A {
 	/* Using inline-block because otherwise, second line of wrapped text
 	   doesn't line up with first, and on IE6, the focus rect doesn't extend
@@ -102,9 +109,9 @@ INPUT {
 
 
 #tabbody-index {
-	padding: 4px 2px;
+	overflow: auto;
+	padding: 4px;
 	white-space: nowrap;
-	-moz-user-select: none;
 }
 #tabbody-index A {
 	display: inline-block;

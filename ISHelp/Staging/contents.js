@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -45,8 +45,10 @@ function ensure_elements_visible(elementTop, elementBottom)
 		return;
 	}
 
-	var yTop = get_absolute_top(elementTop);
-	var yBottom = get_absolute_top(elementBottom) + elementBottom.offsetHeight;
+	const scrollerElement = document.getElementById("tabbody-contents");
+
+	let yTop = get_absolute_top(elementTop);
+	let yBottom = get_absolute_top(elementBottom) + elementBottom.offsetHeight;
 
 	// Subtract 1 from yTop so that if elementTop contains a link with text that starts at
 	// exactly yTop, the link's focus rectangle won't get chopped off on Firefox (3.x),
@@ -55,21 +57,19 @@ function ensure_elements_visible(elementTop, elementBottom)
 	if (yTop > 0) yTop--;
 
 	// Make yTop and yBottom relative to the top of the visible client area
-	var viewportScrollTop = get_viewport_element().scrollTop;
-	yTop -= viewportScrollTop;
-	yBottom -= viewportScrollTop;
-
-	var clientHeight = get_viewport_element().clientHeight;
+	const scrollerTop = get_absolute_top(scrollerElement) + scrollerElement.scrollTop;
+	yTop -= scrollerTop;
+	yBottom -= scrollerTop;
 
 	if (yTop < 0) {
 		// Scroll up to make the top of elementTop visible
-		window.scrollBy(0, yTop);
-	} else if (yBottom > clientHeight) {
+		scrollerElement.scrollBy(0, yTop);
+	} else if (yBottom > scrollerElement.clientHeight) {
 		// How far do we have to scroll down for elementBottom to be entirely visible?
-		var delta = yBottom - clientHeight;
+		let delta = yBottom - scrollerElement.clientHeight;
 		// Don't allow any part of elementTop to be scrolled off the top
 		if (delta > yTop) delta = yTop;
-		if (delta > 0) window.scrollBy(0, delta);
+		if (delta > 0) scrollerElement.scrollBy(0, delta);
 	}
 }
 
