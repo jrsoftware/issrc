@@ -40,7 +40,7 @@ if not exist files\issigtool.exe (
 
 rem  Verify precompiled binaries which are used during compilation
 rem  Note: Other precompiled binaries are verified by Setup.iss
-call .\issig.bat verify --key-file=issig.ispublickey1 ^
+call .\issig.bat verify --key-file=def01.ispublickey ^
   Projects\Src\Setup.HelperEXEs.res ^
   Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
   Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj ^
