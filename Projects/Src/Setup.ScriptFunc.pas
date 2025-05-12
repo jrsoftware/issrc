@@ -21,7 +21,7 @@ implementation
 uses
   Windows,
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections,
-  uPSUtils, PathFunc, BrowseFunc, MD5, SHA1, SHA256, BitmapImage, PSStackHelper,
+  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapImage, PSStackHelper,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole,
@@ -879,6 +879,10 @@ var
     RegisterScriptFunc('GETSHA256OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+    end);
+    RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfStream(TStream(Stack.GetClass(PStart-1)))));
     end);
     RegisterScriptFunc('GETSHA256OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1803,6 +1807,78 @@ var
       end else
         Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));
       Stack.SetArray(PStart, Parts);
+    end);
+    RegisterScriptFunc('ISSigLoadTextFromFile', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetString(PStart, ISSigLoadTextFromFile(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('ISSigVerify', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      const AllowedKeysTexts = Stack.GetStringArray(PStart-1);
+      const Filename = Stack.GetString(PStart-2);
+      const KeepOpen = Stack.GetBool(PStart-3);
+
+      { Following is same as ISSigTool's VerifySingleFile but uses TFileStream
+        instead of TFile because we want to return one and scripts don't known TFile }
+
+      if not NewFileExists(Filename) then
+        raise Exception.Create('File does not exist');
+
+      const SigFilename = Filename + '.issig';
+      if not NewFileExists(SigFilename) then
+        raise Exception.Create('Signature file does not exist');
+
+      var AllowedKeys: TArrayOfECDSAKey;
+      const NAllowedKeys = Length(AllowedKeysTexts);
+      SetLength(AllowedKeys, NAllowedKeys);
+      for var I := 0 to NAllowedKeys-1 do
+        AllowedKeys[I] := nil;
+      var F: TFileStream;
+      try
+        { Import keys }
+        for var I := 0 to NAllowedKeys-1 do begin
+          AllowedKeys[I] := TECDSAKey.Create;
+          const ImportResult = ISSigImportKeyText(AllowedKeys[I], AllowedKeysTexts[I], False);
+          if ImportResult = ikrMalformed then
+            InternalError('Key text is malformed')
+          else if ImportResult <> ikrSuccess then
+            InternalError('Unknown import key result');
+        end;
+
+        { Verify signature }
+        const SigText = ISSigLoadTextFromFile(SigFilename);
+        var ExpectedFileSize: Int64;
+        var ExpectedFileHash: TSHA256Digest;
+        const VerifyResult = ISSigVerifySignatureText(AllowedKeys, SigText,
+          ExpectedFileSize, ExpectedFileHash);
+        if VerifyResult <> vsrSuccess then begin
+          case VerifyResult of
+            vsrMalformed, vsrBadSignature:
+              raise Exception.Create('Signature file is not valid');
+            vsrKeyNotFound:
+              raise Exception.Create('Incorrect key ID');
+          else
+            InternalError('Unknown verify result');
+          end;
+        end;
+
+        { Verify file, keeping open afterwards if requested }
+        F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
+        try
+          if Int64(F.Size) <> ExpectedFileSize then
+            raise Exception.Create('File size is incorrect');
+          const ActualFileHash = GetSHA256OfStream(F);
+          if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
+            raise Exception.Create('File hash is incorrect');
+        finally
+          if not KeepOpen then
+            FreeAndNil(F);
+        end;
+      finally
+        for var I := 0 to NAllowedKeys-1 do
+          AllowedKeys[I].Free;
+      end;
+      Stack.SetClass(PStart, F);
     end);
   end;
 

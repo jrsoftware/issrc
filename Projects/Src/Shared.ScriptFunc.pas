@@ -338,6 +338,7 @@ initialization
     'function GetSHA1OfString(const S: AnsiString): String;',
     'function GetSHA1OfUnicodeString(const S: String): String;',
     'function GetSHA256OfFile(const Filename: String): String;',
+    'function GetSHA256OfStream(const Stream: TStream): String;',
     'function GetSHA256OfString(const S: AnsiString): String;',
     'function GetSHA256OfUnicodeString(const S: String): String;',
     'function GetSpaceOnDisk(const DriveRoot: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
@@ -542,7 +543,9 @@ initialization
     'function Debugging: Boolean;',
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',
-    'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;'
+    'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;',
+    'function ISSigLoadTextFromFile(const AFilename: String): String;',
+    'function ISSigVerify(const AllowedKeysTexts: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;'
   ];
 
   {$IFDEF COMPIL32PROJ}
