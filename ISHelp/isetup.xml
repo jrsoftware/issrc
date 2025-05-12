@@ -2837,7 +2837,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <param name="KeyFile">
 <p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
 <p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
-<p>If a private key file is specified, only it's public information is stored in the resulting Setup file(s).</p>
+<p>If a private key file is specified, only its public information is stored in the resulting Setup file(s).</p>
 <example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
 </param>
 
@@ -2850,7 +2850,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <param name="PublicY">
 <p>Specifies the "public-y" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
-<example><pre>PublicX: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+<example><pre>PublicY: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
 </param>
 
 </paramlist>
