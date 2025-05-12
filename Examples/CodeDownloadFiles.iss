@@ -35,7 +35,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 ; These files will be downloaded
 Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
-Source: "{tmp}\MyProg-ExtraReadmes\*"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify  
+Source: "{tmp}\MyProg-ExtraReadmes\*"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
@@ -91,10 +91,10 @@ begin
     finally
       DownloadPage.Hide;
     end;
-    
+
     if not Result then
       Exit;
-      
+
     ExtractionPage.Clear;
     ExtractionPage.Add(ExpandConstant('{tmp}\MyProg-ExtraReadmes.7z'), ExpandConstant('{tmp}\MyProg-ExtraReadmes'), True);
     ExtractionPage.Show;
@@ -102,9 +102,9 @@ begin
       try
         // Extracts the archive to {tmp}\MyProg-ExtraReadmes
         // Please see the Extract7ZipArchive topic in the help file for limitations before using this for you own archives
-        // Note that each file in this archive come with an .issig signature file
+        // Note that each file in this archive comes with an .issig signature file
         // These signature files are used by the [Files] section to verify the archive's content
-        ExtractionPage.Extract; 
+        ExtractionPage.Extract;
         Result := True;
       except
         if ExtractionPage.AbortedByUser then
@@ -117,5 +117,5 @@ begin
       ExtractionPage.Hide;
     end;
   end else
-    Result := True;    
+    Result := True;
 end;
