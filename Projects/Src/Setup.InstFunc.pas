@@ -12,7 +12,7 @@ unit Setup.InstFunc;
 interface
 
 uses
-  Windows, SysUtils, Classes, Shared.Int64Em, SHA256, Shared.CommonFunc;
+  Windows, SysUtils, Shared.Int64Em, SHA256, Shared.CommonFunc;
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
@@ -59,7 +59,6 @@ function GetComputerNameString: String;
 function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
 function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
-function GetSHA256OfStream(const Stream: TStream): TSHA256Digest;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
@@ -103,7 +102,7 @@ implementation
 uses
   Messages, ShellApi, PathFunc, SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Shared.FileClass, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
-  RegStr, Math;
+  Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);
 begin
@@ -571,23 +570,6 @@ begin
     end;
   finally
     F.Free;
-  end;
-  Result := SHA256Final(Context);
-end;
-
-function GetSHA256OfStream(const Stream: TStream): TSHA256Digest;
-{ Gets SHA-256 sum as a string of the stream. An exception will be raised upon
-  failure. }
-var
-  Buf: array[0..65535] of Byte;
-begin
-  var Context: TSHA256Context;
-  SHA256Init(Context);
-  while True do begin
-    var NumRead := Stream.Read(Buf, SizeOf(Buf));
-    if NumRead = 0 then
-      Break;
-    SHA256Update(Context, Buf, NumRead);
   end;
   Result := SHA256Final(Context);
 end;

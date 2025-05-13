@@ -882,7 +882,7 @@ var
     end);
     RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfStream(TStream(Stack.GetClass(PStart-1)))));
+      Stack.SetString(PStart, SHA256DigestToString(ISSigCalcStreamHash(TStream(Stack.GetClass(PStart-1)))));
     end);
     RegisterScriptFunc('GETSHA256OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1831,8 +1831,6 @@ var
       var AllowedKeys: TArrayOfECDSAKey;
       const NAllowedKeys = Length(AllowedKeysTexts);
       SetLength(AllowedKeys, NAllowedKeys);
-      for var I := 0 to NAllowedKeys-1 do
-        AllowedKeys[I] := nil;
       var F: TFileStream;
       try
         { Import keys }
@@ -1867,13 +1865,15 @@ var
         try
           if Int64(F.Size) <> ExpectedFileSize then
             raise Exception.Create('File size is incorrect');
-          const ActualFileHash = GetSHA256OfStream(F);
+          const ActualFileHash = ISSigCalcStreamHash(F);
           if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
             raise Exception.Create('File hash is incorrect');
-        finally
-          if not KeepOpen then
-            FreeAndNil(F);
+        except
+          FreeAndNil(F);
+          raise;
         end;
+        if not KeepOpen then
+          FreeAndNil(F);
       finally
         for var I := 0 to NAllowedKeys-1 do
           AllowedKeys[I].Free;

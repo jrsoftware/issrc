@@ -3169,8 +3169,6 @@ begin
       RegisterFilesList := TList.Create;
 
       SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
-      for var N := 0 to Entries[seISSigKey].Count-1 do
-        ISSigAvailableKeys[N] := nil;
       for var N := 0 to Entries[seISSigKey].Count-1 do begin
         var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
         ISSigAvailableKeys[N] := TECDSAKey.Create;
