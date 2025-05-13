@@ -340,7 +340,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>System</p></description>
+    <description>System</description>
     <subcategory>
       <function>
         <name>IsAdmin</name>
@@ -765,7 +765,7 @@ begin
     </subcategory>
   </category>
   <category>
-    <description><p>String</p></description>
+    <description>String</description>
     <subcategory>
       <function>
         <name>Chr</name>
@@ -1290,7 +1290,7 @@ end;
     </subcategory>
   </category>
   <category>
-    <description><p>Array</p></description>
+    <description>Array</description>
     <subcategory>
       <function>
         <name>GetArrayLength</name>
@@ -1305,7 +1305,18 @@ end;
     </subcategory>
   </category>
   <category>
-    <description><p>Variant</p></description>
+    <description>Stream</description>
+    <subcategory>
+      <function>
+        <name>GetSHA256OfStream</name>
+        <prototype>function GetSHA256OfStream(const Stream: TStream): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified stream, as a string. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_GetSHA256OfFile">GetSHA256OfFile</link></p></seealso>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description>Variant</description>
     <subcategory>
       <function>
         <name>Null</name>
@@ -1385,7 +1396,7 @@ const
     </subcategory>
   </category>
   <category>
-    <description><p>File System</p></description>
+    <description>File System</description>
     <subcategory>
       <function>
         <name>DirExists</name>
@@ -1646,6 +1657,7 @@ end;</pre></example>
         <name>GetSHA256OfFile</name>
         <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
         <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1684,7 +1696,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>File</p></description>
+    <description>File</description>
     <subcategory>
       <function>
         <name>Exec</name>
@@ -2132,7 +2144,7 @@ end;</pre>
     </subcategory>
   </category>
   <category>
-    <description><p>File Version</p></description>
+    <description>File Version</description>
     <subcategory>
       <function>
         <name>GetVersionNumbers</name>
@@ -2227,7 +2239,7 @@ end;</pre>
     </subcategory>
   </category>
   <category>
-    <description><p>Registry</p></description>
+    <description>Registry</description>
     <subcategory>
       <function>
         <name>RegKeyExists</name>
@@ -2402,7 +2414,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>INI File</p></description>
+    <description>INI File</description>
     <subcategory>
       <function>
         <name>IniKeyExists</name>
@@ -2463,7 +2475,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Custom Setup Wizard Page</p></description>
+    <description>Custom Setup Wizard Page</description>
     <subcategory>
       <function>
         <name>CreateInputQueryPage</name>
@@ -2767,7 +2779,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Dialog</p></description>
+    <description>Dialog</description>
     <subcategory>
       <function>
         <name>MsgBox</name>
@@ -2915,7 +2927,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>COM Automation objects support</p></description>
+    <description>COM Automation objects support</description>
     <subcategory>
       <function>
         <name>CreateOleObject</name>
@@ -2969,7 +2981,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Setup Logging</p></description>
+    <description>Setup Logging</description>
     <subcategory>
       <function>
         <name>Log</name>
@@ -3056,7 +3068,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Other</p></description>
+    <description>Other</description>
     <subcategory>
       <function>
         <name>Sleep</name>
@@ -3095,7 +3107,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Deprecated</p></description>
+    <description>Deprecated</description>
     <subcategory>
       <function>
         <name>LoadDLL</name>
