@@ -1644,24 +1644,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>GetMD5OfFile</name>
-        <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
-      </function>
-      <function>
-        <name>GetSHA1OfFile</name>
-        <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
-      </function>
-      <function>
-        <name>GetSHA256OfFile</name>
-        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
-        <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>
@@ -1922,6 +1904,24 @@ end;</pre>
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetMD5OfFile</name>
+        <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA1OfFile</name>
+        <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
