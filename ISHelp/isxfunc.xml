@@ -1926,6 +1926,36 @@ end;</pre>
     </subcategory>
     <subcategory>
       <function>
+        <name>ISSigLoadTextFromFile</name>
+        <prototype>function ISSigLoadTextFromFile(const Filename: String): String;</prototype>
+        <description><p>Preferred, hardened function for loading specified Inno Setup Signature Tool key file text. Can also load .issig file text. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_ISSigVerify">ISSigVerify</link></p></seealso>
+      </function>
+      <function>
+        <name>ISSigVerify</name>
+        <prototype>function ISSigVerify(const AllowedKeysTexts: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;</prototype>
+        <description><p>Verifies the signature of specified file using the specified key texts. An exception will be raised upon failure.</p>
+<p>Returns a handle to the still open file if True is specified in the KeepOpen parameter, <tt>nil</tt> otherwise. It is recommended that you always specify True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p>
+<p>Key text from files should be loaded using <link topic="isxfunc_ISSigLoadTextFromFile">ISSigLoadTextFromFile</link>.</p></description>
+        <example><pre>var
+  AllowedKeyText: String;
+  AllowedKeysText: TArrayOfString;
+begin
+  AllowedKeyText := ISSigLoadTextFromFile(KeyFilename);
+  SetLength(AllowedKeysText, 1);
+  AllowedKeysText[0] := AllowedKeyText;
+  F := ISSigVerify(AllowedKeysText, Filename, True);
+  try
+    // Use file
+  finally
+    F.Free;
+  end;
+end;</pre></example>
+        <seealso><p><link topic="issig">.issig Signatures: Introduction</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
         <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
