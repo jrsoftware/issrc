@@ -16,6 +16,11 @@
   --light-tool-background-color: #e0e0e0;
   --dark-tool-background-color: #403E41;
 }
+HTML {
+	/* Ensure that anchor targets don't get hidden underneath the sticky header.
+	   This is the height of .topicheading plus an extra 2rem of breathing room. */
+	scroll-padding-block-start: calc((20rem/16) * 1.5 + 8px + 2rem);
+}
 BODY {
 	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
 	margin: 0;
@@ -101,6 +106,13 @@ LI.compact {
 	margin: 0;
 	font-size: calc(20rem/16);
 	font-weight: bold;
+	/* Can't allow wrapping because the scroll-padding setting expects a fixed height */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	/* IE doesn't support sticky or scroll-padding */
+	position: sticky;
+	inset-block-start: 0;
 }
 .topicbody {
 	padding: 8px;
