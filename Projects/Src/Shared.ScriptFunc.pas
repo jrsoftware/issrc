@@ -544,7 +544,7 @@ initialization
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',
     'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;',
-    'function ISSigLoadTextFromFile(const AFilename: String): String;',
+    'function ISSigLoadTextFromFile(const Filename: String): String;',
     'function ISSigVerify(const AllowedKeysTexts: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;'
   ];
 
