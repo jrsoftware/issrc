@@ -4,17 +4,17 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-	Style sheet used by topic_*.htm
+  Style sheet used by topic_*.htm
 */
 
 :root {
-  color-scheme: light dark;
-  --light-color: #282828;
-  --dark-color: #d6d6d6;
-  --light-background-color: white;
-  --dark-background-color: #1f1f1f;
-  --light-tool-background-color: #e0e0e0;
-  --dark-tool-background-color: #403E41;
+	color-scheme: light dark;
+	--main-fg-color: light-dark(#282828, #d6d6d6);
+	--main-bg-color: light-dark(white, #1f1f1f);
+	--link-fg-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
+	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
+	--header-bg-color: light-dark(#e0e0e0, #403e41);
+	--code-bg-color: light-dark(#f0f0f0, #403e41);
 }
 HTML {
 	/* Ensure that anchor targets don't get hidden underneath the sticky header.
@@ -25,9 +25,9 @@ BODY {
 	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
 	margin: 0;
 	color: #282828; /* for IE */
-	color: light-dark(var(--light-color), var(--dark-color));
+	color: var(--main-fg-color);
 	background-color: white; /* for IE */
-	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
+	background-color: var(--main-bg-color);
 }
 PRE, TT {
 	font: calc(13rem/16) Consolas, monospace;
@@ -63,13 +63,13 @@ IMG {
 }
 A:link, A:visited {
 	color: hsl(206, 100%, 37%); /* for IE */
-	color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
+	color: var(--link-fg-color);
 	background-color: transparent;
 	text-decoration: none;
 }
 A[href]:hover {
 	color: hsl(206, 100%, 27%); /* for IE */
-	color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
+	color: var(--link-hover-fg-color);
 	text-decoration: underline;
 }
 A.highlighted {
@@ -100,7 +100,7 @@ LI.compact {
 
 .topicheading {
 	background-color: #e0e0e0; /* for IE */
-	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	background-color: var(--header-bg-color);
 	color: inherit;
 	padding: 4px 8px;
 	margin: 0;
@@ -120,7 +120,7 @@ LI.compact {
 
 TT, .examplebox {
 	background-color: #f0f0f0; /* for IE */
-	background-color: light-dark(#f0f0f0, var(--dark-tool-background-color));
+	background-color: var(--code-bg-color);
 	color: inherit;
 }
 TT {
