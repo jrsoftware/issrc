@@ -8,20 +8,20 @@
 */
 
 :root {
-  color-scheme: light dark;
-  --light-color: #282828;
-  --dark-color: #d6d6d6;
-  --light-background-color: white;
-  --dark-background-color: #1f1f1f;
-  --light-tool-background-color: #e0e0e0;
-  --dark-tool-background-color: #403E41;
-  --link-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
+	color-scheme: light dark;
+	--main-fg-color: light-dark(#282828, #d6d6d6);
+	--main-bg-color: light-dark(white, #1f1f1f);
+	--link-fg-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
+	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
+	--header-bg-color: light-dark(#e0e0e0, #403e41);
+	--code-bg-color: light-dark(#f0f0f0, #403e41);
+	--selected-bg-color: var(--header-bg-color);
 }
 BODY {
 	font: calc(12rem/16) "Segoe UI", sans-serif;
 	margin: 0;
-	color: light-dark(var(--light-color), var(--dark-color));
-	background-color: light-dark(var(--light-background-color), var(--dark-background-color));
+	color: var(--main-fg-color);
+	background-color: var(--main-bg-color);
 	display: grid;
 	grid-template-rows: max-content auto;
 	height: 100vh;
@@ -32,11 +32,12 @@ INPUT {
 
 
 #tabbar {
-	background-color: light-dark(var(--light-tool-background-color), var(--dark-tool-background-color));
+	background-color: var(--header-bg-color);
 	padding-block-start: 8px;
 	padding-inline-start: 8px;
 	display: flex;
 	align-items: end;
+	overflow-x: hidden;
 
 	& > A {
 		/* Height of tabs should match topic heading */
@@ -50,12 +51,12 @@ INPUT {
 		user-select: none;
 
 		&.selectedtab {
-			background-color: light-dark(var(--light-background-color), var(--dark-background-color));
-			border-block-start: 2px solid var(--link-color);
+			background-color: var(--main-bg-color);
+			border-block-start: 2px solid var(--link-fg-color);
 			cursor: default;
 		}
 		&.unselectedtab:hover {
-			color: var(--link-color);
+			color: var(--link-fg-color);
 		}
 	}
 }
@@ -73,26 +74,23 @@ INPUT {
 	padding: 1px 2px;
 }
 #tabbody-contents A:link,
-#tabbody-contents A:visited,
-#tabbody-contents A:active {
+#tabbody-contents A:visited {
 	color: inherit;
 	background-color: transparent;
 	text-decoration: none;
 }
 #tabbody-contents A:hover {
-	color: #0078D4;
-	background-color: transparent;
+	color: var(--link-hover-fg-color);
+	text-decoration: underline;
 }
 #tabbody-contents A.selectedlink:link,
-#tabbody-contents A.selectedlink:visited {
-	color: inherit;
-	background-color: light-dark(#f0f0f0, var(--dark-tool-background-color));
-}
-/* It would be cleaner to use :focus, but IE<8 doesn't support it */
+#tabbody-contents A.selectedlink:visited,
 #tabbody-contents A.focusedlink:link,
 #tabbody-contents A.focusedlink:visited {
-	color: HighlightText;
-	background-color: Highlight;
+	color: inherit;
+	background-color: var(--selected-bg-color);
+	text-decoration: none;
+	border-radius: 4px;
 }
 #tabbody-contents TABLE {
 	border-collapse: collapse;
@@ -115,21 +113,23 @@ INPUT {
 }
 #tabbody-index A {
 	display: inline-block;
+	padding-inline: 2px;
+	box-sizing: border-box;
 	min-width: 100%;
-	overflow: visible;
 }
 #tabbody-index A:link,
-#tabbody-index A:visited,
-#tabbody-index A:active {
+#tabbody-index A:visited {
 	color: inherit;
 	background-color: transparent;
 	text-decoration: none;
 }
 #tabbody-index A:hover {
-	color: #0078D4;
-	background-color: transparent;
+	color: var(--link-hover-fg-color);
+	text-decoration: underline;
 }
 #tabbody-index A:focus {
-	color: HighlightText;
-	background-color: Highlight;
+	color: inherit;
+	background-color: var(--selected-bg-color);
+	text-decoration: none;
+	border-radius: 4px;
 }
