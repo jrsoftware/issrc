@@ -1,4 +1,4 @@
-﻿unit SevenZip;
+﻿unit Compression.SevenZipDllDecoder;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Minimal extraction interface to 7z(x)(a).dll
+  Interface to the 7-Zip 7z(x)(a).dll Decoder DLL's, used by Setup
 
   Based on the 7-zip source code and the 7-zip Delphi API by Henri Gourvest
   https://github.com/geoffsmith82/d7zip MPL 1.1 licensed
@@ -22,7 +22,8 @@ implementation
 uses
   System.Classes, System.SysUtils, System.IOUtils,
   Winapi.Windows, Winapi.ActiveX,
-  SevenZip.Interfaces, PathFunc;
+  Compression.SevenZipDllDecoder.Interfaces, PathFunc,
+  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TInStream = class(TInterfacedObject, IInStream)
@@ -66,7 +67,7 @@ type
     FInArchive: IInArchive;
     FExpandedDestDir, FPassword: String;
     FFullPaths: Boolean;
-    FHadError: Boolean;
+    FOpRes: UInt32;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -81,7 +82,7 @@ type
   public
     constructor Create(const InArchive: IInArchive;
       const DestDir, Password: String; const FullPaths: Boolean);
-    property HadError: Boolean read FHadError;
+    property OpRes: UInt32 read FOpRes;
   end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: TBStr): HRESULT;
@@ -241,7 +242,7 @@ begin
         if FFullPaths then begin
           var ExpandedDir: String;
           if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
-          ForceDirectories(ExpandedDir);
+          ForceDirectories(False, ExpandedDir);
         end;
         outStream := nil;
       end else begin
@@ -249,7 +250,7 @@ begin
           ItemPath := TPath.GetFileName(ItemPath);
         var ExpandedFileName: String;
         if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
-        ForceDirectories(TPath.GetDirectoryName(ExpandedFileName));
+        ForceDirectories(False, TPath.GetDirectoryName(ExpandedFileName));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileStream.Create(ExpandedFileName, fmCreate or fmShareDenyRead));
       end;
@@ -273,7 +274,8 @@ end;
 function TArchiveExtractCallback.SetOperationResult(opRes: Int32): HRESULT;
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
-  FHadError := opRes <> 0;
+  if opRes <> 0 then
+    FOpRes := opRes;
   Result := S_OK;
 end;
 
@@ -344,18 +346,27 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const
   end;
 
 begin
+  if ArchiveFileName = '' then
+    InternalError('ExtractArchive: Invalid ArchiveFileName value');
+  if DestDir = '' then
+    InternalError('ExtractArchive: Invalid DestDir value');
+
+  LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+
   var InArchive: IInArchive;
   if CreateSevenZipObject(GetHandler(TPath.GetExtension(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
-    raise Exception.Create('Cannot get class object'); { From Client7z.cpp }
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
   var InStream := TInStream.Create(TFileStream.Create(ArchiveFilename, fmOpenRead or fmShareDenyWrite));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   var OpenCallback := TArchiveOpenCallback.Create(Password);
   if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
-    raise Exception.Create('Cannot open file as archive'); { From Client7z.cpp }
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
   var ExtractCallback := TArchiveExtractCallback.Create(InArchive, DestDir, Password, FullPaths);
-  if (InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback) <> S_OK) or { From IArchive.h: 0xFFFFFFFF means "all files" }
-     ExtractCallback.HadError then
-    raise Exception.Create('Extraction failed');
+  var Res := InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
+  if Res <> S_OK then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%d (%s)', [Res, SysErrorMessage(Res)])]));
+  if ExtractCallback.OpRes <> 0 then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
 end;
 
 initialization
