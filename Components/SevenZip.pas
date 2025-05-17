@@ -1,0 +1,370 @@
+﻿unit SevenZip;
+
+{
+  Inno Setup
+  Copyright (C) 1997-2025 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Minimal extraction interface to 7z(x)(a).dll
+
+  Based on the 7-zip source code and the 7-zip Delphi API by Henri Gourvest
+  https://github.com/geoffsmith82/d7zip MPL 1.1 licensed
+}
+
+interface
+
+function InitSevenZipLibrary(const DllFilename: String): Boolean;
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean);
+
+implementation
+
+uses
+  System.Classes, System.SysUtils, System.IOUtils,
+  Winapi.Windows, Winapi.ActiveX,
+  SevenZip.Interfaces, PathFunc;
+
+type
+  TInStream = class(TInterfacedObject, IInStream)
+  private
+    FStream: TStream;
+  protected
+    function Read(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
+    function Seek(offset: Int64; seekOrigin: UInt32; newPosition: PUInt64): HRESULT; stdcall;
+  public
+    constructor Create(Stream: TStream);
+    destructor Destroy; override;
+  end;
+
+  TSequentialOutStream = class(TInterfacedObject, ISequentialOutStream)
+  private
+    FStream: TStream;
+  protected
+    function Write(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
+  public
+    constructor Create(Stream: TStream);
+    destructor Destroy; override;
+  end;
+
+  TArchiveOpenCallback = class(TInterfacedObject, IArchiveOpenCallback,
+    ICryptoGetTextPassword)
+  private
+    FPassword: String;
+  protected
+    { IArchiveOpenCallback }
+    function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
+    function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
+    { ICryptoGetTextPassword - queried for on openCallback }
+    function CryptoGetTextPassword(var password: TBStr): HRESULT; stdcall;
+  public
+    constructor Create(const Password: String);
+  end;
+
+  TArchiveExtractCallback = class(TInterfacedObject, IArchiveExtractCallback,
+    ICryptoGetTextPassword)
+  private
+    FInArchive: IInArchive;
+    FExpandedDestDir, FPassword: String;
+    FFullPaths: Boolean;
+    FHadError: Boolean;
+  protected
+    { IProgress }
+    function SetTotal(total: UInt64): HRESULT; stdcall;
+    function SetCompleted(completeValue: PUInt64): HRESULT; stdcall;
+    { IArchiveExtractCallback }
+    function GetStream(index: UInt32; out outStream: ISequentialOutStream;
+      askExtractMode: Int32): HRESULT; stdcall;
+    function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
+    function SetOperationResult(opRes: Int32): HRESULT; stdcall;
+    { ICryptoGetTextPassword - queried for on extractCallback }
+    function CryptoGetTextPassword(var password: TBStr): HRESULT; stdcall;
+  public
+    constructor Create(const InArchive: IInArchive;
+      const DestDir, Password: String; const FullPaths: Boolean);
+    property HadError: Boolean read FHadError;
+  end;
+
+function SevenZipSetPassword(const Password: String; var outPassword: TBStr): HRESULT;
+begin
+  try
+    if Password <> '' then begin
+      outPassword := SysAllocString(PChar(Password));
+      if outPassword = nil then
+        Result := E_OUTOFMEMORY
+      else
+        Result := S_OK;
+    end else
+      Result := E_ABORT
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+{ TInStream }
+
+constructor TInStream.Create(Stream: TStream);
+begin
+  inherited Create;
+  FStream := Stream;
+end;
+
+destructor TInStream.Destroy;
+begin
+  FStream.Free;
+  inherited;
+end;
+
+function TInStream.Read(data: Pointer; size: UInt32;
+  processedSize: PUInt32): HRESULT;
+begin
+  try
+    var BytesRead := FStream.Read(data^, size);
+    if processedSize <> nil then
+      processedSize^ := BytesRead;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+function TInStream.Seek(offset: Int64; seekOrigin: UInt32;
+  newPosition: PUInt64): HRESULT;
+begin
+  try
+    { MyWindows.h shows STREAM_SEEK is compatibke with TSeekOrigin }
+    FStream.Seek(offset, TSeekOrigin(seekOrigin));
+    if newPosition <> nil then
+      newPosition^ := FStream.Position;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+{ TSequentialOutStream }
+
+constructor TSequentialOutStream.Create(Stream: TStream);
+begin
+  inherited Create;
+  FStream := Stream;
+end;
+
+destructor TSequentialOutStream.Destroy;
+begin
+  FStream.Free;
+  inherited;
+end;
+
+function TSequentialOutStream.Write(data: Pointer; size: UInt32;
+  processedSize: PUInt32): HRESULT;
+begin
+  try
+    var BytesWritten := FStream.Write(data^, size);
+    if processedSize <> nil then
+      processedSize^ := BytesWritten;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+{ TArchiveOpenCallback }
+
+constructor TArchiveOpenCallback.Create(const Password: String);
+begin
+  inherited Create;
+  FPassword := Password;
+end;
+
+function TArchiveOpenCallback.SetCompleted(files,
+  bytes: PUInt64): HRESULT;
+begin
+  Result := S_OK;
+end;
+
+function TArchiveOpenCallback.SetTotal(files,
+  bytes: PUInt64): HRESULT;
+begin
+  Result := S_OK;
+end;
+
+function TArchiveOpenCallback.CryptoGetTextPassword(
+  var password: TBStr): HRESULT;
+begin
+  { Note: have not yet seen 7-Zip actually call this, so maybe it's not really needed }
+  Result := SevenZipSetPassword(FPassword, password);
+end;
+
+{ TArchiveExtractCallback }
+
+constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
+  const DestDir, Password: String; const FullPaths: Boolean);
+begin
+  inherited Create;
+  FInArchive := InArchive;
+  FExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  FPassword := Password;
+  FFullPaths := FullPaths;
+end;
+
+function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
+begin
+  Result := S_OK;
+end;
+
+function TArchiveExtractCallback.SetCompleted(completeValue: PUInt64): HRESULT;
+begin
+  Result := S_OK;
+end;
+
+function TArchiveExtractCallback.GetStream(index: UInt32;
+  out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
+begin
+  try
+    if askExtractMode = kExtract then begin
+      var ItemPath: OleVariant;
+      var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
+      if Res <> S_OK then Exit(Res);
+      if ItemPath = '' then Exit(E_FAIL);
+      var IsDir: OleVariant;
+      Res := FInArchive.GetProperty(index, kpidIsDir, IsDir);
+      if Res <> S_OK then Exit(Res);
+      if IsDir then begin
+        if FFullPaths then begin
+          var ExpandedDir: String;
+          if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
+          ForceDirectories(ExpandedDir)
+        end;
+        outStream := nil;
+      end else begin
+        if not FFullPaths then
+          ItemPath := TPath.GetFileName(ItemPath);
+        var ExpandedFileName: String;
+        if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
+        ForceDirectories(TPath.GetDirectoryName(ExpandedFileName));
+        { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
+        outstream := TSequentialOutStream.Create(TFileStream.Create(ExpandedFileName, fmCreate or fmShareDenyRead));
+      end;
+    end;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESULT;
+begin
+  Result := S_OK;
+end;
+
+function TArchiveExtractCallback.SetOperationResult(opRes: Int32): HRESULT;
+begin
+  { From IArchive.h:
+    -Can now can close the file, set attributes, timestamps and security information
+    -7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
+  FHadError := opRes <> 0;
+  Result := S_OK;
+end;
+
+function TArchiveExtractCallback.CryptoGetTextPassword(
+  var password: TBStr): HRESULT;
+begin
+  Result := SevenZipSetPassword(FPassword, password);
+end;
+
+{---}
+
+var
+  SevenZipLibrary: THandle;
+  CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
+
+procedure FreeSevenZipLibrary;
+begin
+  if SevenZipLibrary <> 0 then begin
+    FreeLibrary(SevenZipLibrary);
+    SevenZipLibrary := 0;
+    CreateSevenZipObject := nil;
+  end;
+end;
+
+function InitSevenZipLibrary(const DllFilename: String): Boolean;
+begin
+  if SevenZipLibrary = 0 then begin
+    SevenZipLibrary := LoadLibrary(PChar(DllFilename));
+    if SevenZipLibrary <> 0 then begin
+      CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
+      if not Assigned(CreateSevenZipObject) then
+        FreeSevenZipLibrary;
+    end;
+  end;
+  Result := SevenZipLibrary <> 0;
+end;
+
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean);
+
+  function GetHandler(const Ext: String): TGUID;
+  begin
+    if SameText(Ext, '.zip') then
+      Result := CLSID_HandlerZip
+    else if SameText(Ext, '.7z') then
+      Result := CLSID_Handler7z
+    else if SameText(Ext, '.rar') then
+      Result := CLSID_HandlerRar
+    else if SameText(Ext, '.bzip2') then
+      Result := CLSID_HandlerBZip2
+    else if SameText(Ext, '.tar') then
+      Result := CLSID_HandlerTar
+    else if SameText(Ext, '.gzip') then
+      Result := CLSID_HandlerGzip
+    else if SameText(Ext, '.iso') then
+      Result := CLSID_HandlerIso
+    else if SameText(Ext, '.cab') then
+      Result := CLSID_HandlerCab
+    else if SameText(Ext, '.lzma') then
+      Result := CLSID_HandlerLzma
+    else if SameText(Ext, '.wim') then
+      Result := CLSID_HandlerWim
+    else if SameText(Ext, '.rpm') then
+      Result := CLSID_HandlerRpm
+    else if SameText(Ext, '.deb') then
+      Result := CLSID_HandlerDeb
+    else
+      raise Exception.Create('Unknown extension');
+  end;
+
+begin
+  var InArchive: IInArchive;
+  if CreateSevenZipObject(GetHandler(TPath.GetExtension(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
+    raise Exception.Create('Cannot get class object'); { From Client7z.cpp }
+  var InStream := TInStream.Create(TFileStream.Create(ArchiveFilename, fmOpenRead or fmShareDenyWrite));
+  var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
+  var OpenCallback := TArchiveOpenCallback.Create(Password);
+  if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
+    raise Exception.Create('Cannot open file as archive'); { From Client7z.cpp }
+  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, DestDir, Password, FullPaths);
+  if (InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback) <> S_OK) or { From IArchive.h: 0xFFFFFFFF means "all files" }
+     ExtractCallback.HadError then
+    raise Exception.Create('Extraction failed');
+end;
+
+initialization
+
+finalization
+  FreeSevenZipLibrary;
+
+end.
