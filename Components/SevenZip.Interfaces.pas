@@ -139,7 +139,7 @@ type
   { From IPassword.h }
   ICryptoGetTextPassword = interface(IUnknown)
   ['{23170F69-40C1-278A-0000-000500100000}']
-    function CryptoGetTextPassword(var password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   end;
 
 implementation

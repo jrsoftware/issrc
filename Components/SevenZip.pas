@@ -55,7 +55,7 @@ type
     function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
     function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on openCallback }
-    function CryptoGetTextPassword(var password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   public
     constructor Create(const Password: String);
   end;
@@ -77,24 +77,20 @@ type
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
     function SetOperationResult(opRes: Int32): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on extractCallback }
-    function CryptoGetTextPassword(var password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   public
     constructor Create(const InArchive: IInArchive;
       const DestDir, Password: String; const FullPaths: Boolean);
     property HadError: Boolean read FHadError;
   end;
 
-function SevenZipSetPassword(const Password: String; var outPassword: TBStr): HRESULT;
+function SevenZipSetPassword(const Password: String; out outPassword: TBStr): HRESULT;
 begin
   try
-    if Password <> '' then begin
-      outPassword := SysAllocString(PChar(Password));
-      if outPassword = nil then
-        Result := E_OUTOFMEMORY
-      else
-        Result := S_OK;
-    end else
-      Result := E_ABORT
+    if Password = '' then Exit(S_FALSE);
+    outPassword := SysAllocString(PChar(Password));
+    if outPassword = nil then Exit(E_OUTOFMEMORY);
+    Result := S_OK;
   except
     on E: EAbort do
       Result := E_ABORT
@@ -201,7 +197,7 @@ begin
 end;
 
 function TArchiveOpenCallback.CryptoGetTextPassword(
-  var password: TBStr): HRESULT;
+  out password: TBStr): HRESULT;
 begin
   { Note: have not yet seen 7-Zip actually call this, so maybe it's not really needed }
   Result := SevenZipSetPassword(FPassword, password);
@@ -245,7 +241,7 @@ begin
         if FFullPaths then begin
           var ExpandedDir: String;
           if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
-          ForceDirectories(ExpandedDir)
+          ForceDirectories(ExpandedDir);
         end;
         outStream := nil;
       end else begin
@@ -269,20 +265,20 @@ end;
 
 function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESULT;
 begin
+  { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called
+    From IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
   Result := S_OK;
 end;
 
 function TArchiveExtractCallback.SetOperationResult(opRes: Int32): HRESULT;
 begin
-  { From IArchive.h:
-    -Can now can close the file, set attributes, timestamps and security information
-    -7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
+  { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   FHadError := opRes <> 0;
   Result := S_OK;
 end;
 
 function TArchiveExtractCallback.CryptoGetTextPassword(
-  var password: TBStr): HRESULT;
+  out password: TBStr): HRESULT;
 begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
