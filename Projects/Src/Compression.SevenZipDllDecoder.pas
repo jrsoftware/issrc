@@ -14,14 +14,18 @@
 
 interface
 
+type
+  TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
 function InitSevenZipLibrary(const DllFilename: String): Boolean;
-procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean);
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
 uses
-  System.Classes, System.SysUtils, System.IOUtils,
-  Winapi.Windows, Winapi.ActiveX,
+  Classes, SysUtils, IOUtils, Forms,
+  Windows, ActiveX,
   Compression.SevenZipDllDecoder.Interfaces, PathFunc,
   Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
@@ -67,6 +71,10 @@ type
     FInArchive: IInArchive;
     FExpandedDestDir, FPassword: String;
     FFullPaths: Boolean;
+    FExtractedArchiveName: String;
+    FOnExtractionProgress: TOnExtractionProgress;
+    FCurrentFilename, FLastReportedFilename: String;
+    FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
     FOpRes: UInt32;
   protected
     { IProgress }
@@ -81,7 +89,8 @@ type
     function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   public
     constructor Create(const InArchive: IInArchive;
-      const DestDir, Password: String; const FullPaths: Boolean);
+      const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+      const OnExtractionProgress: TOnExtractionProgress);
     property OpRes: UInt32 read FOpRes;
   end;
 
@@ -207,22 +216,29 @@ end;
 { TArchiveExtractCallback }
 
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
-  const DestDir, Password: String; const FullPaths: Boolean);
+  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+  const OnExtractionProgress: TOnExtractionProgress);
 begin
   inherited Create;
   FInArchive := InArchive;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
   FPassword := Password;
   FFullPaths := FullPaths;
+  FExtractedArchiveName := PathExtractName(ArchiveFileName);
+  FOnExtractionProgress := OnExtractionProgress;
 end;
 
 function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
 begin
+  { From IArchive.h: 7-Zip can call functions for IProgress or ICompressProgressInfo functions
+    from another threads simultaneously with calls for IArchiveExtractCallback interface }
+  InterlockedExchange64(Int64(FProgressMax), Int64(total));
   Result := S_OK;
 end;
 
 function TArchiveExtractCallback.SetCompleted(completeValue: PUInt64): HRESULT;
 begin
+  InterlockedExchange64(Int64(FProgress), Int64(completeValue^));
   Result := S_OK;
 end;
 
@@ -230,6 +246,7 @@ function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
+    FCurrentFilename := '';
     if askExtractMode = kExtract then begin
       var ItemPath: OleVariant;
       var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
@@ -240,6 +257,7 @@ begin
       if Res <> S_OK then Exit(Res);
       if IsDir then begin
         if FFullPaths then begin
+          FCurrentFilename := ItemPath + '\';
           var ExpandedDir: String;
           if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
           ForceDirectories(False, ExpandedDir);
@@ -248,6 +266,7 @@ begin
       end else begin
         if not FFullPaths then
           ItemPath := TPath.GetFileName(ItemPath);
+        FCurrentFilename := ItemPath;
         var ExpandedFileName: String;
         if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
         ForceDirectories(False, TPath.GetDirectoryName(ExpandedFileName));
@@ -268,7 +287,51 @@ function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESUL
 begin
   { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called
     From IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
-  Result := S_OK;
+  try
+    var Abort := False;
+
+    TThread.Synchronize(nil, procedure
+      begin
+        if FCurrentFilename <> '' then begin
+          if FCurrentFilename <> FLastReportedFilename then begin
+            LogFmt('- %s', [FCurrentFilename]);
+            FLastReportedFilename := FCurrentFilename;
+          end;
+
+          if Assigned(FOnExtractionProgress) then begin
+            { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+              -At start or finish
+              -Or if somehow Progress decreased or Max changed
+              -Or if at least 512 KB progress was made since last report
+            }
+            if (FProgress = 0) or (FProgress = FProgressMax) or
+               (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
+               ((FProgress - FLastReportedProgress) > 524288) then begin
+              try
+                if not FOnExtractionProgress(FExtractedArchiveName, FCurrentFilename, FProgress, FProgressMax) then
+                  Abort := True;
+              finally
+                FLastReportedProgress := FProgress;
+                FLastReportedProgressMax := FProgressMax;
+              end;
+            end;
+          end;
+        end;
+
+        if not Abort and DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages then
+          Application.ProcessMessages;
+      end);
+
+    if Abort then
+      SysUtils.Abort;
+
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 function TArchiveExtractCallback.SetOperationResult(opRes: Int32): HRESULT;
@@ -313,7 +376,8 @@ begin
   Result := SevenZipLibrary <> 0;
 end;
 
-procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean);
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
   function GetHandler(const Ext: String): TGUID;
   begin
@@ -361,10 +425,12 @@ begin
   var OpenCallback := TArchiveOpenCallback.Create(Password);
   if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
-  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, DestDir, Password, FullPaths);
+  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
   var Res := InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
-  if Res <> S_OK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%d (%s)', [Res, SysErrorMessage(Res)])]));
+  if Res = E_ABORT then
+    raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+  else if Res <> S_OK then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s (0x%s)', [SysErrorMessage(Res), IntToHex(Res)])]));
   if ExtractCallback.OpRes <> 0 then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
 end;
