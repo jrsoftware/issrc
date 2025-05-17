@@ -1,4 +1,4 @@
-﻿unit Compression.SevenZipDllDecoder;
+unit Compression.SevenZipDllDecoder;
 
 {
   Inno Setup
@@ -24,7 +24,7 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
 implementation
 
 uses
-  Classes, SysUtils, IOUtils, Forms,
+  Classes, SysUtils, Forms,
   Windows, ActiveX,
   Compression.SevenZipDllDecoder.Interfaces, PathFunc,
   Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
@@ -265,11 +265,11 @@ begin
         outStream := nil;
       end else begin
         if not FFullPaths then
-          ItemPath := TPath.GetFileName(ItemPath);
+          ItemPath := PathExtractName(ItemPath);
         FCurrentFilename := ItemPath;
         var ExpandedFileName: String;
         if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
-        ForceDirectories(False, TPath.GetDirectoryName(ExpandedFileName));
+        ForceDirectories(False, PathExtractPath(ExpandedFileName));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileStream.Create(ExpandedFileName, fmCreate or fmShareDenyRead));
       end;
@@ -419,7 +419,7 @@ begin
 
   { CreateObject }
   var InArchive: IInArchive;
-  if CreateSevenZipObject(GetHandler(TPath.GetExtension(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
+  if CreateSevenZipObject(GetHandler(PathExtractExt(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
 
   { Open }
