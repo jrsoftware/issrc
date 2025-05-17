@@ -417,14 +417,19 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
+  { CreateObject }
   var InArchive: IInArchive;
   if CreateSevenZipObject(GetHandler(TPath.GetExtension(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
+
+  { Open }
   var InStream := TInStream.Create(TFileStream.Create(ArchiveFilename, fmOpenRead or fmShareDenyWrite));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   var OpenCallback := TArchiveOpenCallback.Create(Password);
   if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
+
+  { Extract }
   var ExtractCallback := TArchiveExtractCallback.Create(InArchive, ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
   var Res := InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
   if Res = E_ABORT then
@@ -433,6 +438,8 @@ begin
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s (0x%s)', [SysErrorMessage(Res), IntToHex(Res)])]));
   if ExtractCallback.OpRes <> 0 then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
+
+  Log('Everything is Ok'); { Just like Compression.SevenZipDecoder }
 end;
 
 initialization
