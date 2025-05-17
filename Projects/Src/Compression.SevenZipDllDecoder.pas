@@ -299,7 +299,7 @@ begin
           end;
 
           if Assigned(FOnExtractionProgress) then begin
-            { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
+            { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
               -At start or finish
               -Or if somehow Progress decreased or Max changed
               -Or if at least 512 KB progress was made since last report
