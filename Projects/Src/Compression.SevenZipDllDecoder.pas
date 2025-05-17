@@ -27,27 +27,29 @@ uses
   Classes, SysUtils, Forms,
   Windows, ActiveX,
   Compression.SevenZipDllDecoder.Interfaces, PathFunc,
-  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TInStream = class(TInterfacedObject, IInStream)
   private
-    FStream: TStream;
+    FFile: TFile;
   protected
     function Read(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
     function Seek(offset: Int64; seekOrigin: UInt32; newPosition: PUInt64): HRESULT; stdcall;
   public
-    constructor Create(Stream: TStream);
+    constructor Create(AFile: TFile);
     destructor Destroy; override;
   end;
 
   TSequentialOutStream = class(TInterfacedObject, ISequentialOutStream)
   private
-    FStream: TStream;
+    FFile: TFile;
   protected
     function Write(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
   public
-    constructor Create(Stream: TStream);
+    constructor Create(AFile: TFile);
     destructor Destroy; override;
   end;
 
@@ -69,6 +71,7 @@ type
     ICryptoGetTextPassword)
   private
     FInArchive: IInArchive;
+    FDisableFsRedir: Boolean;
     FExpandedDestDir, FPassword: String;
     FFullPaths: Boolean;
     FExtractedArchiveName: String;
@@ -89,8 +92,8 @@ type
     function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   public
     constructor Create(const InArchive: IInArchive;
-      const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
-      const OnExtractionProgress: TOnExtractionProgress);
+      const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
+      const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     property OpRes: UInt32 read FOpRes;
   end;
 
@@ -111,15 +114,15 @@ end;
 
 { TInStream }
 
-constructor TInStream.Create(Stream: TStream);
+constructor TInStream.Create(AFile: TFile);
 begin
   inherited Create;
-  FStream := Stream;
+  FFile := AFile;
 end;
 
 destructor TInStream.Destroy;
 begin
-  FStream.Free;
+  FFile.Free;
   inherited;
 end;
 
@@ -127,7 +130,7 @@ function TInStream.Read(data: Pointer; size: UInt32;
   processedSize: PUInt32): HRESULT;
 begin
   try
-    var BytesRead := FStream.Read(data^, size);
+    var BytesRead := FFile.Read(data^, size);
     if processedSize <> nil then
       processedSize^ := BytesRead;
     Result := S_OK;
@@ -143,10 +146,13 @@ function TInStream.Seek(offset: Int64; seekOrigin: UInt32;
   newPosition: PUInt64): HRESULT;
 begin
   try
-    { MyWindows.h shows STREAM_SEEK is compatibke with TSeekOrigin }
-    FStream.Seek(offset, TSeekOrigin(seekOrigin));
+    case seekOrigin of
+      STREAM_SEEK_SET: FFile.Seek64(Integer64(offset));
+      STREAM_SEEK_CUR: FFile.Seek64(Integer64(Int64(FFile.Position) + offset));
+      STREAM_SEEK_END: FFile.Seek64(Integer64(Int64(FFile.Size) + offset));
+    end;
     if newPosition <> nil then
-      newPosition^ := FStream.Position;
+      newPosition^ := UInt64(FFile.Position);
     Result := S_OK;
   except
     on E: EAbort do
@@ -158,15 +164,15 @@ end;
 
 { TSequentialOutStream }
 
-constructor TSequentialOutStream.Create(Stream: TStream);
+constructor TSequentialOutStream.Create(AFile: TFile);
 begin
   inherited Create;
-  FStream := Stream;
+  FFile := AFile;
 end;
 
 destructor TSequentialOutStream.Destroy;
 begin
-  FStream.Free;
+  FFile.Free;
   inherited;
 end;
 
@@ -174,9 +180,9 @@ function TSequentialOutStream.Write(data: Pointer; size: UInt32;
   processedSize: PUInt32): HRESULT;
 begin
   try
-    var BytesWritten := FStream.Write(data^, size);
+    FFile.WriteBuffer(data^, size);
     if processedSize <> nil then
-      processedSize^ := BytesWritten;
+      processedSize^ := size;
     Result := S_OK;
   except
     on E: EAbort do
@@ -216,11 +222,12 @@ end;
 { TArchiveExtractCallback }
 
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
-  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
-  const OnExtractionProgress: TOnExtractionProgress);
+  const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
+  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   inherited Create;
   FInArchive := InArchive;
+  FDisableFsRedir := DisableFsRedir;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
   FPassword := Password;
   FFullPaths := FullPaths;
@@ -260,7 +267,7 @@ begin
           FCurrentFilename := ItemPath + '\';
           var ExpandedDir: String;
           if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
-          ForceDirectories(False, ExpandedDir);
+          ForceDirectories(FDisableFsRedir, ExpandedDir);
         end;
         outStream := nil;
       end else begin
@@ -269,9 +276,9 @@ begin
         FCurrentFilename := ItemPath;
         var ExpandedFileName: String;
         if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
-        ForceDirectories(False, PathExtractPath(ExpandedFileName));
+        ForceDirectories(FDisableFsRedir, PathExtractPath(ExpandedFileName));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
-        outstream := TSequentialOutStream.Create(TFileStream.Create(ExpandedFileName, fmCreate or fmShareDenyRead));
+        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, ExpandedFileName, fdCreateAlways, faWrite, fsNone));
       end;
     end;
     Result := S_OK;
@@ -417,20 +424,23 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
+  var DisableFsRedir := InstallDefaultDisableFsRedir;
+
   { CreateObject }
   var InArchive: IInArchive;
   if CreateSevenZipObject(GetHandler(PathExtractExt(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
 
   { Open }
-  var InStream := TInStream.Create(TFileStream.Create(ArchiveFilename, fmOpenRead or fmShareDenyWrite));
+  var InStream := TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   var OpenCallback := TArchiveOpenCallback.Create(Password);
   if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
 
   { Extract }
-  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
+  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
+    ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
   var Res := InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
   if Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
