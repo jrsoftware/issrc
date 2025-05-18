@@ -98,7 +98,9 @@ uses
   Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas',
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
-  StringScanner in '..\Components\StringScanner.pas';
+  StringScanner in '..\Components\StringScanner.pas',
+  Compression.SevenZipDllDecoder in 'Src\Compression.SevenZipDllDecoder.pas',
+  Compression.SevenZipDllDecoder.Interfaces in 'Src\Compression.SevenZipDllDecoder.Interfaces.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

@@ -6,7 +6,7 @@ unit Compression.SevenZipDllDecoder;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the 7-Zip 7z(x)(a).dll Decoder DLL's, used by Setup
+  Interface to the 7-Zip 7z(xa).dll Decoder DLL's, used by Setup
 
   Based on the 7-zip source code and the 7-zip Delphi API by Henri Gourvest
   https://github.com/geoffsmith82/d7zip MPL 1.1 licensed
@@ -14,12 +14,14 @@ unit Compression.SevenZipDllDecoder;
 
 interface
 
-type
-  TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+uses
+  Compression.SevenZipDecoder;
 
-function InitSevenZipLibrary(const DllFilename: String): Boolean;
-procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
-  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
+procedure InitSevenZipLibrary(const DllFilename: String);
+
+procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
+  const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
+  const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
@@ -370,20 +372,23 @@ begin
   end;
 end;
 
-function InitSevenZipLibrary(const DllFilename: String): Boolean;
+procedure InitSevenZipLibrary(const DllFilename: String);
 begin
   if SevenZipLibrary = 0 then begin
     SevenZipLibrary := LoadLibrary(PChar(DllFilename));
-    if SevenZipLibrary <> 0 then begin
-      CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
-      if not Assigned(CreateSevenZipObject) then
-        FreeSevenZipLibrary;
+    if SevenZipLibrary = 0 then
+      Win32ErrorMsg('LoadLibrary');
+    CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
+    if not Assigned(CreateSevenZipObject) then begin
+      var LastError := GetLastError;
+      FreeSevenZipLibrary;
+      Win32ErrorMsgEx('GetProcAddress', LastError);
     end;
   end;
-  Result := SevenZipLibrary <> 0;
 end;
 
-procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
+procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
+  const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
   function GetHandler(const Ext: String): TGUID;
@@ -417,6 +422,8 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
   end;
 
 begin
+  if not Assigned(CreateSevenZipObject) then
+    InternalError('ExtractArchive: 7z(xa).dll not loaded');
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
   if DestDir = '' then
@@ -424,24 +431,22 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  var DisableFsRedir := InstallDefaultDisableFsRedir;
-
   { CreateObject }
   var InArchive: IInArchive;
   if CreateSevenZipObject(GetHandler(PathExtractExt(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
 
   { Open }
-  var InStream := TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
+  const InStream = TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-  var OpenCallback := TArchiveOpenCallback.Create(Password);
+  const OpenCallback = TArchiveOpenCallback.Create(Password);
   if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
 
   { Extract }
-  var ExtractCallback := TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
+  const ExtractCallback = TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
     ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-  var Res := InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
+  const Res = InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
   if Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else if Res <> S_OK then
