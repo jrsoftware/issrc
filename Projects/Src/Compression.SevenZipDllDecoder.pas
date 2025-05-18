@@ -29,7 +29,7 @@ uses
   Classes, SysUtils, Forms,
   Windows, ActiveX,
   Compression.SevenZipDllDecoder.Interfaces, PathFunc,
-  Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs,
+  Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
   Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
@@ -451,7 +451,7 @@ begin
   if Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else if Res <> S_OK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s (0x%s)', [SysErrorMessage(Res), IntToHex(Res)])]));
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
   if ExtractCallback.OpRes <> 0 then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
 
