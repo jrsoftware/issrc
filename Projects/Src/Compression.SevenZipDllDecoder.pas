@@ -303,7 +303,7 @@ begin
       begin
         if FCurrentFilename <> '' then begin
           if FCurrentFilename <> FLastReportedFilename then begin
-            LogFmt('- %s', [FCurrentFilename]);
+            LogFmt('- %s', [FCurrentFilename]); { Just like 7zMain.c }
             FLastReportedFilename := FCurrentFilename;
           end;
 
@@ -455,7 +455,7 @@ begin
   if ExtractCallback.OpRes <> 0 then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
 
-  Log('Everything is Ok'); { Just like Compression.SevenZipDecoder }
+  Log('Everything is Ok'); { Just like 7zMain.c }
 end;
 
 initialization
