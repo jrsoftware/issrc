@@ -418,7 +418,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     else if SameText(Ext, '.deb') then
       Result := CLSID_HandlerDeb
     else
-      raise Exception.Create('Unknown extension');
+      InternalError('ExtractArchive: Unknown ArchiveFileName extension');
   end;
 
 begin
@@ -426,6 +426,7 @@ begin
     InternalError('ExtractArchive: 7z(xa).dll not loaded');
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
+  const clsid = GetHandler(PathExtractExt(ArchiveFilename));
   if DestDir = '' then
     InternalError('ExtractArchive: Invalid DestDir value');
 
@@ -433,7 +434,7 @@ begin
 
   { CreateObject }
   var InArchive: IInArchive;
-  if CreateSevenZipObject(GetHandler(PathExtractExt(ArchiveFilename)), IInArchive, InArchive) <> S_OK then
+  if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
 
   { Open }
