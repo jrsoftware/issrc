@@ -7044,27 +7044,30 @@ var
             { See Setup.Install's CopySourceFileToDestFile for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
-            const SigFilename = FileLocationEntryFilenames[I] + '.issig';
-            if not NewFileExists(SigFilename) then
-              AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [FileLocationEntryFilenames[I]]);
-            const SigText = ISSigLoadTextFromFile(SigFilename);
             var ExpectedFileSize: Int64;
-            const VerifyResult = ISSigVerifySignatureText(
-              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys), SigText,
-              ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID);
-            if VerifyResult <> vsrSuccess then begin
-              var VerifyResultAsString: String;
-              case VerifyResult of
-                vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
-                vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
-              else
-                VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
-              end;
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
-                [FileLocationEntryFilenames[I], VerifyResultAsString]);
-            end;
+            ISSigVerifySignature(FileLocationEntryFilenames[I],
+              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys),
+              ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
+              nil,
+              procedure(const Filename, SigFilename: String)
+              begin
+                AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [Filename]);
+              end,
+              procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+              begin
+                var VerifyResultAsString: String;
+                case VerifyResult of
+                  vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
+                  vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
+                else
+                  VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
+                end;
+                AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature1,
+                  [SigFilename, VerifyResultAsString]);
+              end
+            );
             if Int64(SourceFile.Size) <> ExpectedFileSize then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
             { ExpectedFileHash checked below after compression }
           end;
@@ -7117,7 +7120,7 @@ var
 
           if floISSigVerify in FLExtraInfo.Flags then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature,
+              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
             AddStatus(SCompilerStatusFilesISSigVerified);
           end;

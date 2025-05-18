@@ -1818,20 +1818,12 @@ var
       const Filename = Stack.GetString(PStart-2);
       const KeepOpen = Stack.GetBool(PStart-3);
 
-      { Following is same as ISSigTool's VerifySingleFile but uses TFileStream
-        instead of TFile because we want to return one and scripts don't known TFile }
-
-      if not NewFileExists(Filename) then
-        raise Exception.Create('File does not exist');
-
-      const SigFilename = Filename + '.issig';
-      if not NewFileExists(SigFilename) then
-        raise Exception.Create('Signature file does not exist');
+      var ExpectedFileSize: Int64;
+      var ExpectedFileHash: TSHA256Digest;
 
       var AllowedKeys: TArrayOfECDSAKey;
       const NAllowedKeys = Length(AllowedKeysTexts);
       SetLength(AllowedKeys, NAllowedKeys);
-      var F: TFileStream;
       try
         { Import keys }
         for var I := 0 to NAllowedKeys-1 do begin
@@ -1844,40 +1836,47 @@ var
         end;
 
         { Verify signature }
-        const SigText = ISSigLoadTextFromFile(SigFilename);
-        var ExpectedFileSize: Int64;
-        var ExpectedFileHash: TSHA256Digest;
-        const VerifyResult = ISSigVerifySignatureText(AllowedKeys, SigText,
-          ExpectedFileSize, ExpectedFileHash);
-        if VerifyResult <> vsrSuccess then begin
-          case VerifyResult of
-            vsrMalformed, vsrBadSignature:
-              raise Exception.Create('Signature file is not valid');
-            vsrKeyNotFound:
-              raise Exception.Create('Incorrect key ID');
-          else
-            InternalError('Unknown verify result');
-          end;
-        end;
-
-        { Verify file, keeping open afterwards if requested }
-        F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
-        try
-          if Int64(F.Size) <> ExpectedFileSize then
-            raise Exception.Create('File size is incorrect');
-          const ActualFileHash = ISSigCalcStreamHash(F);
-          if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
-            raise Exception.Create('File hash is incorrect');
-        except
-          FreeAndNil(F);
-          raise;
-        end;
-        if not KeepOpen then
-          FreeAndNil(F);
+        ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
+          procedure(const Filename: String)
+          begin
+            raise Exception.Create('File does not exist');
+          end,
+          procedure(const Filename, SigFilename: String)
+          begin
+            raise Exception.Create('Signature file does not exist');
+          end,
+          procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+          begin
+            case VerifyResult of
+              vsrMalformed, vsrBadSignature:
+                raise Exception.Create('Signature file is not valid');
+              vsrKeyNotFound:
+                raise Exception.Create('Incorrect key ID');
+            else
+              InternalError('Unknown verify result');
+            end;
+          end
+        );
       finally
         for var I := 0 to NAllowedKeys-1 do
           AllowedKeys[I].Free;
       end;
+
+      { Verify file, keeping open afterwards if requested }
+      var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
+      try
+        if Int64(F.Size) <> ExpectedFileSize then
+          raise Exception.Create('File size is incorrect');
+        const ActualFileHash = ISSigCalcStreamHash(F);
+        if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
+          raise Exception.Create('File hash is incorrect');
+      except
+        FreeAndNil(F);
+        raise;
+      end;
+      if not KeepOpen then
+        FreeAndNil(F);
+
       Stack.SetClass(PStart, F);
     end);
   end;

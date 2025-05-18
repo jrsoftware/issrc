@@ -147,30 +147,25 @@ begin
     F.Free;
   end;
 
-  const SigFilename = AFilename + '.issig';
-
   { ECDSA signature output is non-deterministic: signing the same hash with
     the same key produces a totally different signature each time. To avoid
     unnecessary alterations to the "sig-r" and "sig-s" values when a file is
     being re-signed but its contents haven't changed, we attempt to load and
     verify the existing .issig file. If the key, file size, and file hash are
     all up to date, then we skip creation of a new .issig file. }
-  if NewFileExists(SigFilename) then begin
-    const ExistingSigText = ISSigLoadTextFromFile(SigFilename);
-    var ExistingFileSizeValue: Int64;
-    var ExistingFileHashValue: TSHA256Digest;
-    if ISSigVerifySignatureText([AKey], ExistingSigText, ExistingFileSizeValue,
-       ExistingFileHashValue) = vsrSuccess then begin
-      if (FileSize = ExistingFileSizeValue) and
-         SHA256DigestsEqual(FileHash, ExistingFileHashValue) then begin
-        PrintUnlessQuiet('signature unchanged');
-        Exit;
-      end;
-    end;
+  var ExistingFileSizeValue: Int64;
+  var ExistingFileHashValue: TSHA256Digest;
+  var Verified := ISSigVerifySignature(AFilename, [AKey],
+    ExistingFileSizeValue, ExistingFileHashValue, nil, nil, nil);
+
+  if Verified and (FileSize = ExistingFileSizeValue) and
+     SHA256DigestsEqual(FileHash, ExistingFileHashValue) then begin
+    PrintUnlessQuiet('signature unchanged');
+    Exit;
   end;
 
   const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
-  ISSigSaveTextToFile(SigFilename, SigText);
+  ISSigSaveTextToFile(AFilename + ISSigExt, SigText);
   PrintUnlessQuiet('signature written');
 end;
 
@@ -192,33 +187,30 @@ begin
   Result := False;
   PrintFmtUnlessQuiet('%s: ', [AFilename], False);
 
-  if not NewFileExists(AFilename) then begin
-    PrintUnlessQuiet('MISSINGFILE (File does not exist)');
-    Exit;
-  end;
-
-  const SigFilename = AFilename + '.issig';
-  if not NewFileExists(SigFilename) then begin
-    PrintUnlessQuiet('MISSINGSIGFILE (Signature file does not exist)');
-    Exit;
-  end;
-
-  const SigText = ISSigLoadTextFromFile(SigFilename);
   var ExpectedFileSize: Int64;
   var ExpectedFileHash: TSHA256Digest;
-  const VerifyResult = ISSigVerifySignatureText([AKey], SigText,
-    ExpectedFileSize, ExpectedFileHash);
-  if VerifyResult <> vsrSuccess then begin
-    case VerifyResult of
-      vsrMalformed, vsrBadSignature:
-        PrintUnlessQuiet('BADSIGFILE (Signature file is not valid)');
-      vsrKeyNotFound:
-        PrintUnlessQuiet('UNKNOWNKEY (Incorrect key ID)');
-    else
-      RaiseFatalError('Unknown verify result');
-    end;
+  if not ISSigVerifySignature(AFilename, [AKey], ExpectedFileSize, ExpectedFileHash,
+    procedure(const Filename: String)
+    begin
+      PrintUnlessQuiet('MISSINGFILE (File does not exist)');
+    end,
+    procedure(const Filename, SigFilename: String)
+    begin
+      PrintUnlessQuiet('MISSINGSIGFILE (Signature file does not exist)');
+    end,
+    procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+    begin
+      case VerifyResult of
+        vsrMalformed, vsrBadSignature:
+          PrintUnlessQuiet('BADSIGFILE (Signature file is not valid)');
+        vsrKeyNotFound:
+          PrintUnlessQuiet('UNKNOWNKEY (Incorrect key ID)');
+      else
+        RaiseFatalError('Unknown verify result');
+      end;
+    end
+  ) then
     Exit;
-  end;
 
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try

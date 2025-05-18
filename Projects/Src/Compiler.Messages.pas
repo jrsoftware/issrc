@@ -86,7 +86,8 @@ const
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
   SCompilerSourceFileISSigMissingFile = 'Signature file does not exist for source file "%s"';
-  SCompilerSourceFileISSigInvalidSignature = 'Signature is not valid for source file "%s": %s';
+  SCompilerSourceFileISSigInvalidSignature1 = 'Signature file "%s" is not valid: %s';
+  SCompilerSourceFileISSigInvalidSignature2 = 'Signature for source file "%s" is not valid: %s';
   SCompilerSourceFileISSigMalformedOrBadSignature = 'malformed or bad signature';
   SCompilerSourceFileISSigKeyNotFound = 'no matching key found';
   SCompilerSourceFileISSigUnknownVerifyResult = 'unknown verify result';

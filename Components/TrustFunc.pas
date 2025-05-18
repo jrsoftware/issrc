@@ -34,6 +34,9 @@ begin
         [FileName]);
   end;
 {$IFNDEF TRUSTALL}
+  var ExpectedFileSize: Int64;
+  var ExpectedFileHash: TSHA256Digest;
+
   var AllowedPublicKey1Text, AllowedPublicKey2Text: String;
   {$I TrustFunc.AllowedPublicKeys.inc}
   var Key1: TECDSAKey := nil;
@@ -53,30 +56,27 @@ begin
     else
       AllowedKeys := [Key1];
 
-    const SigFileName = FileName + '.issig';
-    const SigText = ISSigLoadTextFromFile(SigFileName);
-
-    var ExpectedFileSize: Int64;
-    var ExpectedFileHash: TSHA256Digest;
-    if ISSigVerifySignatureText(AllowedKeys, SigText, ExpectedFileSize,
-       ExpectedFileHash) <> vsrSuccess then
-      raise Exception.CreateFmt('Signature file "%s" is not valid',
-        [SigFileName]);
-
-    const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
-    try
-      if F.Size <> ExpectedFileSize then
-        raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
-          [FileName]);
-      if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
-        raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
-          [FileName]);
-    finally
-      F.Free;
-    end;
+    ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash, nil, nil,
+      procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+      begin
+        if VerifyResult <> vsrSuccess then
+          raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFileName]);
+      end);
   finally
     Key2.Free;
     Key1.Free;
+  end;
+  
+  const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  try
+    if F.Size <> ExpectedFileSize then
+      raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
+        [FileName]);
+    if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
+      raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
+        [FileName]);
+  finally
+    F.Free;
   end;
 {$ENDIF}
 end;

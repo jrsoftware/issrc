@@ -258,7 +258,7 @@ end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
-  const ISSigAllowedKeys: AnsiString; const ISSigFilename: String; AMaxProgress: Integer64);
+  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
 const
@@ -277,24 +277,27 @@ var
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
-    { See Compiler.SetupCompiler's TSetupCompiler.Compile for similar code }
-    if not NewFileExists(ISSigFilename) then
-      ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, ISSigFilename));
-    const SigText = ISSigLoadTextFromFile(ISSigFilename);
     var ExpectedFileSize: Int64;
-    const VerifyResult = ISSigVerifySignatureText(
-      GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys), SigText,
-      ExpectedFileSize, ExpectedFileHash);
-    if VerifyResult <> vsrSuccess then begin
-      var VerifyResultAsString: String;
-      case VerifyResult of
-        vsrMalformed, vsrBadSignature: VerifyResultAsString := ISSigMalformedOrBadSignature;
-        vsrKeyNotFound: VerifyResultAsString := ISSigKeyNotFound;
-      else
-        VerifyResultAsString := ISSigUnknownVerifyResult;
-      end;
-      ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
-    end;
+    ISSigVerifySignature(ISSigSourceFilename,
+      GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+      ExpectedFileSize, ExpectedFileHash,
+      nil,
+      procedure(const Filename, SigFilename: String)
+      begin
+        ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, SigFilename));
+      end,
+      procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+      begin
+        var VerifyResultAsString: String;
+        case VerifyResult of
+          vsrMalformed, vsrBadSignature: VerifyResultAsString := ISSigMalformedOrBadSignature;
+          vsrKeyNotFound: VerifyResultAsString := ISSigKeyNotFound;
+        else
+          VerifyResultAsString := ISSigUnknownVerifyResult;
+        end;
+        ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
+      end
+    );
     if Int64(SourceF.Size) <> ExpectedFileSize then
       ISSigVerifyError(ISSigFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
     { ExpectedFileHash checked below after copy }
@@ -1498,7 +1501,7 @@ var
                     [], '', '', CurFileLocation^.OriginalSize)
                 else
                   CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
-                    ISSigAvailableKeys, CurFile^.ISSigAllowedKeys, SourceFile + '.issig', AExternalSize);
+                    ISSigAvailableKeys, CurFile^.ISSigAllowedKeys, SourceFile, AExternalSize);
               finally
                 SourceF.Free;
               end;
