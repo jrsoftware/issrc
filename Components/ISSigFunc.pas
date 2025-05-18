@@ -19,6 +19,9 @@ type
   TISSigVerifySignatureResult = (vsrSuccess, vsrMalformed, vsrKeyNotFound,
     vsrBadSignature);
   TISSigImportKeyResult = (ikrSuccess, ikrMalformed, ikrNotPrivateKey);
+  TISSigVerifySignatureFileMissingErrorProc = reference to procedure(const Filename: String);
+  TISSigVerifySignatureSigFileMissingErrorProc = reference to procedure(const Filename, SigFilename: String);
+  TISSigVerifySignatureVerificationFailedErrorProc = reference to procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult);
 
 { Preferred, hardened functions for loading/saving .issig and key file text }
 function ISSigLoadTextFromFile(const AFilename: String): String;
@@ -32,6 +35,17 @@ function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
   const AText: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult; overload;
+
+function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
+  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest; out AKeyUsedID: String;
+  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
+  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
+  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean; overload;
+function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
+  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
+  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
+  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean; overload;
 
 procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
   var APrivateKeyText: String);
@@ -53,6 +67,9 @@ procedure ISSigCheckValidPublicXOrY(const APublicXOrY: String);
 function ISSigIsValidKeyIDForPublicXY(const AKeyID, APublicX, APublicY: String): Boolean;
 
 function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
+
+var
+  ISSigExt: String = '.issig';
 
 implementation
 
@@ -245,6 +262,54 @@ function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
 begin
   var KeyUsedID: String;
   Result := ISSigVerifySignatureText(AAllowedKeys, AText, AFileSize, AFileHash, KeyUsedID);
+end;
+
+function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
+  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest; out AKeyUsedID: String;
+  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
+  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
+  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
+  
+  function NewFileExists(const Name: String): Boolean;
+  { Returns True if the specified file exists.
+    This function is better than Delphi's FileExists function because it works
+    on files in directories that don't have "list" permission. There is, however,
+    one other difference: FileExists allows wildcards, but this function does
+    not. }
+  begin
+    var Attr := GetFileAttributes(PChar(Name));
+    Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
+  end;
+
+begin
+  if Assigned(AFileMissingErrorProc) and not NewFileExists(AFilename) then begin
+    AFileMissingErrorProc(AFilename);
+    Exit(False);
+  end;
+  const SigFilename = AFilename + ISSigExt;
+  if not NewFileExists(SigFilename) then begin
+    if Assigned(ASigFileMissingErrorProc) then
+      ASigFileMissingErrorProc(AFilename, SigFilename);
+    Exit(False);
+  end;
+  const SigText = ISSigLoadTextFromFile(SigFilename);
+  const VerifyResult = ISSigVerifySignatureText(AAllowedKeys, SigText,
+    AExpectedFileSize, AExpectedFileHash, AKeyUsedID);
+  Result := VerifyResult = vsrSuccess;
+  if not Result and Assigned(AVerificationFailedErrorProc) then
+    AVerificationFailedErrorProc(SigFilename, VerifyResult);
+end;
+
+function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
+  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
+  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
+  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
+begin
+  var KeyUsedID: String;
+  Result := ISSigVerifySignature(AFilename, AAllowedKeys, AExpectedFileSize,
+    AExpectedFileHash, KeyUsedID, AFileMissingErrorProc, ASigFileMissingErrorProc,
+    AVerificationFailedErrorProc);
 end;
 
 procedure ISSigExportPrivateKeyText(const AKey: TECDSAKey;
