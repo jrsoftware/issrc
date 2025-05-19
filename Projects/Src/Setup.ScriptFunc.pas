@@ -1844,7 +1844,7 @@ var
         end;
 
         { Verify signature }
-        ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
+        if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
           procedure(const Filename: String)
           begin
             raise Exception.Create('File does not exist');
@@ -1864,7 +1864,8 @@ var
               InternalError('Unknown verify result');
             end;
           end
-        );
+        ) then
+          InternalError('Unexpected ISSigVerifySignature result');
       finally
         for var I := 0 to NAllowedKeys-1 do
           AllowedKeys[I].Free;
