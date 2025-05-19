@@ -2,7 +2,7 @@ unit Setup.UninstallLog;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -245,7 +245,7 @@ begin
   Result := False;
 end;
 
-procedure LoggedRestartDeleteDir(const DisableFsRedir: Boolean; Dir: String);
+procedure LoggedRestartDeleteDirRedir(const DisableFsRedir: Boolean; Dir: String);
 begin
   Dir := PathExpand(Dir);
   if not DisableFsRedir then begin
@@ -262,7 +262,7 @@ const
   drFalse = '0';
   drTrue = '1';
 
-function LoggedDeleteDir(const DisableFsRedir: Boolean; const DirName: String;
+function LoggedDeleteDirRedir(const DisableFsRedir: Boolean; const DirName: String;
   const DirsNotRemoved, RestartDeleteDirList: TSimpleStringList): Boolean;
 const
   FILE_ATTRIBUTE_REPARSE_POINT = $00000400;
@@ -278,7 +278,7 @@ begin
     { If the directory has the read-only attribute, strip it first }
     if Attribs and FILE_ATTRIBUTE_READONLY <> 0 then begin
       if (Attribs and FILE_ATTRIBUTE_REPARSE_POINT <> 0) or
-         IsDirEmpty(DisableFsRedir, DirName) then begin
+         IsDirEmptyRedir(DisableFsRedir, DirName) then begin
         if SetFileAttributesRedir(DisableFsRedir, DirName, Attribs and not FILE_ATTRIBUTE_READONLY) then
           Log('Stripped read-only attribute.')
         else
@@ -299,7 +299,7 @@ begin
          ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
         LogFmt('Failed to delete directory (%d). Will delete on restart (if empty).',
           [LastError]);
-        LoggedRestartDeleteDir(DisableFsRedir, DirName);
+        LoggedRestartDeleteDirRedir(DisableFsRedir, DirName);
       end
       else
         LogFmt('Failed to delete directory (%d).', [LastError]);
@@ -452,7 +452,7 @@ type
 function LoggedDeleteDirProc(const DisableFsRedir: Boolean; const DirName: String;
   const Param: Pointer): Boolean;
 begin
-  Result := LoggedDeleteDir(DisableFsRedir, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
+  Result := LoggedDeleteDirRedir(DisableFsRedir, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
 function LoggedDeleteFileProc(const DisableFsRedir: Boolean; const FileName: String;
@@ -608,7 +608,7 @@ var
           LogFmt('The file appears to be in use (%d). Will delete on restart.',
             [LastError]);
           try
-            RestartReplace(DisableFsRedir, Filename, '');
+            RestartReplaceRedir(DisableFsRedir, Filename, '');
             NeedRestart := True;
             { Add the file's directory to the list of directories that should
               be restart-deleted later }
@@ -715,7 +715,7 @@ var
         (e.g. '0C:\Program Files\My Program') }
       DisableFsRedir := (S[1] = drTrue);
       System.Delete(S, 1, 1);
-      LoggedDeleteDir(DisableFsRedir, S, nil, RestartDeleteDirList[DisableFsRedir]);
+      LoggedDeleteDirRedir(DisableFsRedir, S, nil, RestartDeleteDirList[DisableFsRedir]);
     end;
   end;
   
@@ -817,7 +817,7 @@ begin
                   try
                     if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
                       OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
-                    if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
+                    if not InstExecRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                        CurRecData[0], CurRecData[1], CurRecData[2], Wait,
                        ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
                       LogFmt('CreateProcess failed (%d).', [ErrorCode]);
@@ -964,7 +964,7 @@ begin
             end;
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
-              if DelTree(CurRec^.ExtraData and utDeleteDirOrFiles_DisableFsRedir <> 0,
+              if DelTreeRedir(CurRec^.ExtraData and utDeleteDirOrFiles_DisableFsRedir <> 0,
                  CurRecData[0], CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,

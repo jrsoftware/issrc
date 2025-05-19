@@ -237,7 +237,7 @@ begin
       Sleep(500);
   end;
   UninstallExitCode := 0;
-  DelayDeleteFile(False, UninstExeFilename, 13, 50, 250);
+  DelayDeleteFileRedir(False, UninstExeFilename, 13, 50, 250);
   if Debugging then
     DebugNotifyUninstExe('');
   { Pre-Windows 2000 Add/Remove Programs will try to bring itself to the
@@ -371,8 +371,8 @@ begin
   TempFile := AddBackslash(TempDir) + '_unins.tmp';
   if not TempDirExisted then
     try
-      RestartReplace(False, TempFile, '');
-      RestartReplace(False, TempDir, '');
+      RestartReplaceRedir(False, TempFile, '');
+      RestartReplaceRedir(False, TempDir, '');
     except
       { ignore exceptions }
     end;

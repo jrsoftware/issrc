@@ -2,7 +2,7 @@ unit Setup.ScriptFunc.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -65,8 +65,8 @@ procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
   var RootKey: HKEY);
 function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetMD5OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
+function GetSHA1OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
@@ -76,7 +76,7 @@ procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; 
 procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 function CustomMessage(const MsgName: String): String;
 function NewExtractRelativePath(BaseName, DestName: string): string;
-function NewFileSearch(const DisableFsRedir: Boolean;
+function NewFileSearchRedir(const DisableFsRedir: Boolean;
   const Name, DirList: String): String;
 function GetExceptionMessage(const Caller: TPSExec): String;
 function GetCodePreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
@@ -301,7 +301,7 @@ begin
   Result := True;
 end;
 
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
+function GetMD5OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
 { Gets MD5 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -323,7 +323,7 @@ begin
   Result := MD5Final(Context);
 end;
 
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetSHA1OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
 { Gets SHA-1 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -455,7 +455,7 @@ end;
   - it uses NewFileExistsRedir instead of FileExists
   - it doesn't search the current directory unless it's told to
   - it always returns a fully-qualified path }
-function NewFileSearch(const DisableFsRedir: Boolean;
+function NewFileSearchRedir(const DisableFsRedir: Boolean;
   const Name, DirList: String): String;
 var
   I, P, L: Integer;
