@@ -170,11 +170,11 @@ end;
 class function TRedir<T>.RedirIf(const Disable: Boolean; const FailResult: T; const Func: TFunc<T>): T;
 begin
   var PrevState: TPreviousFsRedirectionState;
-  var ErrorCode: DWORD;
   if not DisableFsRedirectionIf(Disable, PrevState) then begin
     Result := FailResult;
     Exit;
   end;
+  var ErrorCode: DWORD;
   try
     Result := Func;
     ErrorCode := GetLastError;
