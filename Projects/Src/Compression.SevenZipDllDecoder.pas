@@ -438,22 +438,25 @@ begin
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
 
   { Open }
-  const InStream = TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
+  const InStream: IInStream =
+    TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-  const OpenCallback = TArchiveOpenCallback.Create(Password);
-  if InArchive.Open(InStream, @ScanSize, OpenCallback as IArchiveOpenCallback) <> S_OK then
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
+  if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
 
   { Extract }
-  const ExtractCallback = TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
-    ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-  const Res = InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback as IArchiveExtractCallback);
+  const ExtractCallback: IArchiveExtractCallback =
+    TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
+      ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
+  const Res = InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback);
   if Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else if Res <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
-  if ExtractCallback.OpRes <> 0 then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [ExtractCallback.OpRes.ToString]));
+  var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
+  if OpRes <> 0 then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [OpRes.ToString]));
 
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
