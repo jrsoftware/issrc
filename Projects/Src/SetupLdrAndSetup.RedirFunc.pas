@@ -195,41 +195,21 @@ end;
 function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
   const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
   const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
 begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
-      CreationDisposition, FlagsAndAttributes, TemplateFile);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
+  Result := TRedir<THandle>.RedirIf(DisableFsRedir, INVALID_HANDLE_VALUE, function: THandle
+    begin
+      Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
+        CreationDisposition, FlagsAndAttributes, TemplateFile);
+    end);
 end;
 
 function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
   const SecurityAttributes: PSecurityAttributes): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
 begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := CreateDirectory(PChar(Filename), SecurityAttributes);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
+  Result := TRedir<BOOL>.RedirIf(DisableFsRedir, function: BOOL
+    begin
+      Result := CreateDirectory(PChar(Filename), SecurityAttributes);
+  	end);
 end;
 
 function CreateProcessRedir(const DisableFsRedir: Boolean;
