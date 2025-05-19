@@ -56,12 +56,18 @@ begin
     else
       AllowedKeys := [Key1];
 
-    ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash, nil, nil,
+    if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
+      nil,
+      procedure(const Filename, SigFilename: String)
+      begin
+        raise Exception.CreateFmt('Signature file "%s" does not exist', [SigFileName]);
+      end,
       procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
       begin
-        if VerifyResult <> vsrSuccess then
-          raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFileName]);
-      end);
+        raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFileName]);
+      end
+    ) then
+      raise Exception.Create('Unexpected ISSigVerifySignature result');
   finally
     Key2.Free;
     Key1.Free;

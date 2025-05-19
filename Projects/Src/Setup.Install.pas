@@ -278,7 +278,7 @@ begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
     var ExpectedFileSize: Int64;
-    ISSigVerifySignature(ISSigSourceFilename,
+    if not ISSigVerifySignature(ISSigSourceFilename,
       GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
       ExpectedFileSize, ExpectedFileHash,
       nil,
@@ -297,7 +297,8 @@ begin
         end;
         ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
       end
-    );
+    ) then
+      InternalError('Unexpected ISSigVerifySignature result');
     if Int64(SourceF.Size) <> ExpectedFileSize then
       ISSigVerifyError(ISSigFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
     { ExpectedFileHash checked below after copy }

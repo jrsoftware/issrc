@@ -7045,7 +7045,7 @@ var
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
             var ExpectedFileSize: Int64;
-            ISSigVerifySignature(FileLocationEntryFilenames[I],
+            if not ISSigVerifySignature(FileLocationEntryFilenames[I],
               GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys),
               ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
               nil,
@@ -7065,7 +7065,8 @@ var
                 AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature1,
                   [SigFilename, VerifyResultAsString]);
               end
-            );
+            ) then
+              AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if Int64(SourceFile.Size) <> ExpectedFileSize then
               AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
                 [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
