@@ -19,12 +19,18 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
 type
+  TRedir<T> = class
+    class function RedirIf(const Disable: Boolean; const FailResult: T; const Func: TFunc<T>): T; overload;
+    class function RedirIf(const Disable: Boolean; const Func: TFunc<T>): T; overload;
+  end;
+
+function AreFsRedirectionFunctionsAvailable: Boolean;
+
+type
   TPreviousFsRedirectionState = record
     DidDisable: Boolean;
     OldValue: Pointer;
   end;
-
-function AreFsRedirectionFunctionsAvailable: Boolean;
 function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
@@ -157,6 +163,31 @@ procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState)
 begin
   if PreviousState.DidDisable then
     Wow64RevertWow64FsRedirectionFunc(PreviousState.OldValue);
+end;
+
+{ TRedir<T> }
+
+class function TRedir<T>.RedirIf(const Disable: Boolean; const FailResult: T; const Func: TFunc<T>): T;
+begin
+  var PrevState: TPreviousFsRedirectionState;
+  var ErrorCode: DWORD;
+  if not DisableFsRedirectionIf(Disable, PrevState) then begin
+    Result := FailResult;
+    Exit;
+  end;
+  try
+    Result := Func;
+    ErrorCode := GetLastError;
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
+  SetLastError(ErrorCode)
+end;
+
+class function TRedir<T>.RedirIf(const Disable: Boolean;
+  const Func: TFunc<T>): T;
+begin
+  Result := RedirIf(Disable, Default(T), Func);
 end;
 
 { *Redir functions }
