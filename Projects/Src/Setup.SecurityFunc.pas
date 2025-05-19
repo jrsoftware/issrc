@@ -2,7 +2,7 @@ unit Setup.SecurityFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,7 +14,7 @@ interface
 uses
   Windows, SysUtils, Shared.CommonFunc, Shared.Struct;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFileRedir(const DisableFsRedir: Boolean; Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   const Subkey: String; const Entries: TGrantPermissionEntry;
@@ -157,7 +157,7 @@ const
   OBJECT_INHERIT_ACE    = 1;
   CONTAINER_INHERIT_ACE = 2;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFileRedir(const DisableFsRedir: Boolean; Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 { Grants the specified access to the specified file/directory. Returns True if
   successful. On failure, the thread's last error code is set. }

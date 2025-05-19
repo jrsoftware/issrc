@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.RedirFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -29,7 +29,11 @@ function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
 
-function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
+function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
+  const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
+  const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
+function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
+  const SecurityAttributes: PSecurityAttributes = nil): BOOL;
 function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpApplicationName: PChar; const lpCommandLine: PChar;
   const lpProcessAttributes, lpThreadAttributes: PSecurityAttributes;
@@ -157,7 +161,29 @@ end;
 
 { *Redir functions }
 
-function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
+function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
+  const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
+  const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
+var
+  PrevState: TPreviousFsRedirectionState;
+  ErrorCode: DWORD;
+begin
+  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
+    Result := INVALID_HANDLE_VALUE;
+    Exit;
+  end;
+  try
+    Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
+      CreationDisposition, FlagsAndAttributes, TemplateFile);
+    ErrorCode := GetLastError;
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
+  SetLastError(ErrorCode);
+end;
+
+function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
+  const SecurityAttributes: PSecurityAttributes): BOOL;
 var
   PrevState: TPreviousFsRedirectionState;
   ErrorCode: DWORD;
@@ -167,7 +193,7 @@ begin
     Exit;
   end;
   try
-    Result := CreateDirectory(PChar(Filename), nil);
+    Result := CreateDirectory(PChar(Filename), SecurityAttributes);
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);

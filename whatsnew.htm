@@ -112,7 +112,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
 <ul>
   <li>Compiler IDE: the <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
-  <li>Pascal Scripting: Added new <tt>GetSHA256OfStream</tt> support function.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added new <tt>GetSHA256OfStream</tt> support function.</li>
+    <li><tt>Extract7ZipArchive</tt> now honors the file system redirection state set by <tt>EnableFsRedirection</tt> or 64-bit install mode.</li>
+  </ul>
+  </li>
   <li>Example script <i>CodeDownloadFiles.iss</i> now also demonstrates how to use the <tt>CreateExtractionPage</tt> support function to extract a 7-Zip archive. See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">Extract7ZipArchive help topic</a> for information about this function's limitations.</li>
   <li>Documentation improvements.</li>
 </ul>

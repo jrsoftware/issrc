@@ -2,7 +2,7 @@ unit Setup.ScriptDlg;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1185,7 +1185,7 @@ begin
 
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages before extraction since we already process messages ourselves. }
-    Extract7ZipArchive(A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
+    Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
   end;
 end;
 

@@ -15,18 +15,21 @@ interface
 type
   TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
-procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
-  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
+procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
+  const ArchiveFileName, DestDir: String; const FullPaths: Boolean;
+  const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
 uses
   Windows, SysUtils, Forms,
   PathFunc,
-  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record
+    DisableFsRedir: Boolean;
     ExpandedArchiveFileName, ExpandedDestDir: String;
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
@@ -51,7 +54,7 @@ function __CreateDirectoryW(lpPathName: LPCWSTR;
 begin
   var ExpandedDir: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
-    Result := CreateDirectoryW(PChar(ExpandedDir), lpSecurityAttributes)
+    Result := CreateDirectoryRedir(State.DisableFsRedir, ExpandedDir, lpSecurityAttributes)
   else begin
     Result := False;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -82,7 +85,9 @@ begin
       (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
      ((dwDesiredAccess = GENERIC_WRITE) and
       ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName)) then
-    Result := CreateFileW(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
+    Result := CreateFileRedir(State.DisableFsRedir, ExpandedFileName,
+      dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+      dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -110,7 +115,7 @@ end;
 
 function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
-  Result := SetFileAttributesW(lpFileName, dwFileAttributes);
+  Result := SetFileAttributesRedir(State.DisableFsRedir, lpFileName, dwFileAttributes);
 end;
 
 function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
@@ -266,8 +271,9 @@ begin
     State.Aborted := True;
 end;
 
-procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String;
-  const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
+procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
+  const ArchiveFileName, DestDir: String; const FullPaths: Boolean;
+  const OnExtractionProgress: TOnExtractionProgress);
 begin
   if ArchiveFileName = '' then
     InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
@@ -277,9 +283,10 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
   var SaveCurDir := GetCurrentDir;
-  if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
+  if not ForceDirectoriesRedir(False, DestDir) or not SetCurrentDir(DestDir) then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
   try
+    State.DisableFsRedir := DisableFsRedir;
     State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
     State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.LogBuffer := '';

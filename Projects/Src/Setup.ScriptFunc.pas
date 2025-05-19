@@ -838,15 +838,15 @@ var
     end);
     RegisterScriptFunc('DELAYDELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      DelayDeleteFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
+      DelayDeleteFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
     end);
     RegisterScriptFunc('DELTREE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
+      Stack.SetBool(PStart, DelTreeRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
     end);
     RegisterScriptFunc('GENERATEUNIQUENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, GenerateUniqueName(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetString(PStart, GenerateUniqueNameRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('GETCOMPUTERNAMESTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -854,7 +854,7 @@ var
     end);
     RegisterScriptFunc('GETMD5OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, MD5DigestToString(GetMD5OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, MD5DigestToString(GetMD5OfFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETMD5OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -866,7 +866,7 @@ var
     end);
     RegisterScriptFunc('GETSHA1OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETSHA1OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -878,7 +878,7 @@ var
     end);
     RegisterScriptFunc('GETSHA256OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -895,7 +895,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var FreeBytes, TotalBytes: Integer64;
-      if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDiskRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         if Stack.GetBool(PStart-2) then begin
           Div64(FreeBytes, 1024*1024);
           Div64(TotalBytes, 1024*1024);
@@ -914,7 +914,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var FreeBytes, TotalBytes: Integer64;
-      if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDiskRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         Stack.SetInt64(PStart-2, Int64(FreeBytes.Hi) shl 32 + FreeBytes.Lo);
         Stack.SetInt64(PStart-3, Int64(TotalBytes.Hi) shl 32 + TotalBytes.Lo);
         Stack.SetBool(PStart, True);
@@ -1011,7 +1011,7 @@ var
     end);
     RegisterScriptFunc('ISPROTECTEDSYSTEMFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetBool(PStart, IsProtectedSystemFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, IsProtectedSystemFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('MAKEPENDINGFILERENAMEOPERATIONSCHECKSUM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1040,11 +1040,11 @@ var
     end);
     RegisterScriptFunc('RESTARTREPLACE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
+      RestartReplaceRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetBool(PStart, ForceDirectories(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, ForceDirectoriesRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
     end);
   end;
 
@@ -1178,7 +1178,7 @@ var
     end);
     RegisterScriptFunc('REGISTEREXTRACLOSEAPPLICATIONSRESOURCE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetBool(PStart, CodeRegisterExtraCloseApplicationsResource(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetBool(PStart, CodeRegisterExtraCloseApplicationsResourceRedir(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('GETWIZARDFORM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1326,7 +1326,7 @@ var
     end);
     RegisterScriptFunc('FILESEARCH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetString(PStart, NewFileSearch(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetString(PStart, NewFileSearchRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('RENAMEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1786,7 +1786,7 @@ var
     end);
     RegisterScriptFunc('EXTRACT7ZIPARCHIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
+      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
     end);
     RegisterScriptFunc('INIT7ZIPLIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

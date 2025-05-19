@@ -2,7 +2,7 @@ unit Setup.RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -98,9 +98,9 @@ begin
   DeleteOldTempFiles(PathExtractPath(SelfFilename));
   NewFilename := RenameToNonRandomTempName(SelfFilename);
   if NewFilename <> '' then
-    RestartReplace(False, NewFilename, '')
+    RestartReplaceRedir(False, NewFilename, '')
   else
-    RestartReplace(False, SelfFilename, '');
+    RestartReplaceRedir(False, SelfFilename, '');
 end;
 
 procedure RunRegSvr;
