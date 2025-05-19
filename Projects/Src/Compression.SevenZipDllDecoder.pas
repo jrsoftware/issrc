@@ -269,7 +269,7 @@ begin
           FCurrentFilename := ItemPath + '\';
           var ExpandedDir: String;
           if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
-          ForceDirectories(FDisableFsRedir, ExpandedDir);
+          ForceDirectoriesRedir(FDisableFsRedir, ExpandedDir);
         end;
         outStream := nil;
       end else begin
@@ -278,7 +278,7 @@ begin
         FCurrentFilename := ItemPath;
         var ExpandedFileName: String;
         if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
-        ForceDirectories(FDisableFsRedir, PathExtractPath(ExpandedFileName));
+        ForceDirectoriesRedir(FDisableFsRedir, PathExtractPath(ExpandedFileName));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, ExpandedFileName, fdCreateAlways, faWrite, fsNone));
       end;
