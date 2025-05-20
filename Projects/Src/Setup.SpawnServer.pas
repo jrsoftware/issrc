@@ -2,7 +2,7 @@ unit Setup.SpawnServer;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -379,7 +379,7 @@ begin
           TExecWait(EWait), EShowCmd, ProcessMessagesProc, FResultCode);
       end
       else begin
-        ExecResult := InstExecRedir(EDisableFsRedir <> 0, EFilename, EParams, EWorkingDir,
+        ExecResult := InstExec(EDisableFsRedir <> 0, EFilename, EParams, EWorkingDir,
           TExecWait(EWait), EShowCmd, ProcessMessagesProc, nil, FResultCode);
       end;
       if ExecResult then

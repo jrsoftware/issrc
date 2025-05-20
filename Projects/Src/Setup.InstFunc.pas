@@ -47,7 +47,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
-function DelTreeRedir(const DisableFsRedir: Boolean; const Path: String;
+function DelTree(const DisableFsRedir: Boolean; const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -56,20 +56,20 @@ procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesPr
 function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean;
   Path: String; var TempDir: String): Boolean;
 function GetComputerNameString: String;
-function GetFileDateTimeRedir(const DisableFsRedir: Boolean; const Filename: String;
+function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
-function GetSHA256OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
+function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
-function GetSpaceOnDiskRedir(const DisableFsRedir: Boolean; const DriveRoot: String;
+function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
   var FreeBytes, TotalBytes: Integer64): Boolean;
-function GetSpaceOnNearestMountPointRedir(const DisableFsRedir: Boolean;
+function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
   const StartDir: String; var FreeBytes, TotalBytes: Integer64): Boolean;
 function GetUserNameString: String;
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
-function InstExecRedir(const DisableFsRedir: Boolean; const Filename, Params: String;
+function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: Integer): Boolean;
@@ -78,8 +78,8 @@ function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
 procedure InternalError(const Id: String);
 procedure InternalErrorFmt(const S: String; const Args: array of const);
-function IsDirEmptyRedir(const DisableFsRedir: Boolean; const Dir: String): Boolean;
-function IsProtectedSystemFileRedir(const DisableFsRedir: Boolean;
+function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
+function IsProtectedSystemFile(const DisableFsRedir: Boolean;
   const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
@@ -89,11 +89,11 @@ procedure RefreshEnvironment;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-procedure RestartReplaceRedir(const DisableFsRedir: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectoriesRedir(const DisableFsRedir: Boolean; Dir: String): Boolean;
+function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 
 implementation
 
@@ -252,7 +252,7 @@ begin
   Result := Path;
 end;
 
-procedure RestartReplaceRedir(const DisableFsRedir: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
 { Renames TempFile to DestFile the next time Windows is started. If DestFile
   already existed, it will be overwritten. If DestFile is '' then TempFile
   will be deleted.. }
@@ -274,7 +274,7 @@ begin
     Win32ErrorMsg('MoveFileEx');
 end;
 
-function DelTreeRedir(const DisableFsRedir: Boolean; const Path: String;
+function DelTree(const DisableFsRedir: Boolean; const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -325,7 +325,7 @@ begin
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTreeRedir(DisableFsRedir, BasePath + S, True, True, True, BreakOnError,
+                if not DelTree(DisableFsRedir, BasePath + S, True, True, True, BreakOnError,
                    DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;
@@ -348,7 +348,7 @@ begin
   end;
 end;
 
-function IsDirEmptyRedir(const DisableFsRedir: Boolean; const Dir: String): Boolean;
+function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
 { Returns True if Dir contains no files or subdirectories.
   Note: If Dir does not exist or lacks list permission, False will be
   returned. }
@@ -530,7 +530,7 @@ begin
   end;
 end;
 
-function GetFileDateTimeRedir(const DisableFsRedir: Boolean; const Filename: String;
+function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
 var
   Handle: THandle;
@@ -550,7 +550,7 @@ begin
   DateTime.dwHighDateTime := 0;
 end;
 
-function GetSHA256OfFileRedir(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
+function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
 { Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -586,7 +586,7 @@ var
   SFCInitialized: Boolean;
   SfcIsFileProtectedFunc: function(RpcHandle: THandle; ProtFileName: PWideChar): BOOL; stdcall;
 
-function IsProtectedSystemFileRedir(const DisableFsRedir: Boolean;
+function IsProtectedSystemFile(const DisableFsRedir: Boolean;
   const Filename: String): Boolean;
 { Returns True if the specified file is protected by Windows File Protection
   (and therefore can't be replaced). }
@@ -656,7 +656,7 @@ begin
   end;
 end;
 
-function InstExecRedir(const DisableFsRedir: Boolean; const Filename, Params: String;
+function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: Integer): Boolean;
@@ -950,7 +950,7 @@ begin
     SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 end;
 
-function GetSpaceOnDiskRedir(const DisableFsRedir: Boolean; const DriveRoot: String;
+function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
   var FreeBytes, TotalBytes: Integer64): Boolean;
 var
   GetDiskFreeSpaceExFunc: function(lpDirectoryName: PChar;
@@ -993,7 +993,7 @@ begin
   end;
 end;
 
-function GetSpaceOnNearestMountPointRedir(const DisableFsRedir: Boolean;
+function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
   const StartDir: String; var FreeBytes, TotalBytes: Integer64): Boolean;
 { Gets the free and total space available on the specified directory. If that
   fails (e.g. if the directory does not exist), then it strips off the last
@@ -1007,7 +1007,7 @@ begin
   Dir := RemoveBackslashUnlessRoot(StartDir);
   LastLen := 0;
   while Length(Dir) <> LastLen do begin
-    if GetSpaceOnDiskRedir(DisableFsRedir, Dir, FreeBytes, TotalBytes) then begin
+    if GetSpaceOnDisk(DisableFsRedir, Dir, FreeBytes, TotalBytes) then begin
       Result := True;
       Break;
     end;
@@ -1053,13 +1053,13 @@ begin
   AValue := '';
 end;
 
-function ForceDirectoriesRedir(const DisableFsRedir: Boolean; Dir: String): Boolean;
+function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
   if (PathExtractPath(Dir) = Dir) or DirExistsRedir(DisableFsRedir, Dir) then
     Result := True
   else
-    Result := ForceDirectoriesRedir(DisableFsRedir, PathExtractPath(Dir)) and
+    Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
       CreateDirectoryRedir(DisableFsRedir, Dir);
 end;
 

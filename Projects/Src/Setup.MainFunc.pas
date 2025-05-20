@@ -206,7 +206,7 @@ procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
-function CodeRegisterExtraCloseApplicationsResourceRedir(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveInf(const FileName: String);
@@ -1483,7 +1483,7 @@ begin
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
-    if not DelTreeRedir(False, TempInstallDir, True, True, True, False, nil,
+    if not DelTree(False, TempInstallDir, True, True, True, False, nil,
        TempDeleteFileProc, Pointer(GetTickCount())) then
       Log('Failed to remove temporary directory: ' + TempInstallDir);
   end;
@@ -1742,7 +1742,7 @@ end;
 function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   const WizardComponents, WizardTasks: TStringList; const Param: Pointer): Boolean;
 
-  function RecurseExternalFilesRedir(const DisableFsRedir: Boolean;
+  function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStringList; const CurFile: PSetupFileEntry): Boolean;
   var
@@ -1789,7 +1789,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
         try
           repeat
             if IsRecurseableDirectory(FindData) then
-              if not RecurseExternalFilesRedir(DisableFsRedir, SearchBaseDir,
+              if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                  SourceIsWildcard, Excludes, CurFile) then begin
                 Result := False;
@@ -1833,7 +1833,7 @@ begin
           { External file }
           SourceWildcard := ExpandConst(CurFile^.SourceFilename);
           Excludes.DelimitedText := CurFile^.Excludes;
-          if not RecurseExternalFilesRedir(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+          if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
              PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then begin
             Result := False;
             Exit;
@@ -1851,13 +1851,13 @@ begin
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTreeRedir(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTreeRedir(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
@@ -1874,7 +1874,7 @@ end;
 var
   CheckForFileSL: TStringList;
 
-function CheckForFileProc(const DisableFsRedir: Boolean; const AFilename: String;
+function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
 var
   Filename: String;
@@ -1905,7 +1905,7 @@ begin
     EnumFileReplaceOperationsFilenames(EnumProc, CheckForFileSL);
     if CheckForFileSL.Count = 0 then
       Exit;
-    Result := EnumFiles(CheckForFileProc, WizardComponents, WizardTasks, nil);
+    Result := EnumFiles(CheckForFile, WizardComponents, WizardTasks, nil);
   finally
     CheckForFileSL.Free;
   end;
@@ -1919,17 +1919,18 @@ var
   RegisterFileBatchFilenames: PArrayOfPWideChar;
   RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
-function RegisterFileRedir(const DisableFsRedir: Boolean; const AFilename: String;
-  const CheckFilter: Boolean): Boolean;
+function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
+  const Param: Pointer): Boolean;
 var
   Filename, Text: String;
   I, Len: Integer;
-  Match: Boolean;
+  CheckFilter, Match: Boolean;
 begin
   Filename := AFilename;
 
   { First: check filters and self. }
   if Filename <> '' then begin
+    CheckFilter := Boolean(Param);
     if CheckFilter then begin
       Match := False;
       Text := PathLowercase(PathExtractName(Filename));
@@ -1998,20 +1999,14 @@ begin
   Result := RmSessionStarted; { Break the enum if there was an error, else continue. }
 end;
 
-function RegisterFileProc(const DisableFsRedir: Boolean; const AFilename: String;
-  const Param: Pointer): Boolean;
-begin
-  Result := RegisterFileRedir(DisableFsRedir, AFilename, Boolean(Param));
-end;
-
 { Helper function for [Code] to register extra files. }
 var
   AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
 
-function CodeRegisterExtraCloseApplicationsResourceRedir(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 begin
   if AllowCodeRegisterExtraCloseApplicationsResource then
-    Result := RegisterFileRedir(DisableFsRedir, AFilename, False)
+    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
   else begin
     InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
     Result := False;
@@ -2030,7 +2025,7 @@ begin
   try
     { Register our files. }
     RmRegisteredFilesCount := 0;
-    EnumFiles(RegisterFileProc, WizardComponents, WizardTasks, Pointer(True));
+    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
     { Ask [Code] for more files. }
     if CodeRunner <> nil then begin
       AllowCodeRegisterExtraCloseApplicationsResource := True;
@@ -2047,7 +2042,7 @@ begin
     end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
-      RegisterFileRedir(False, '', False);
+      RegisterFile(False, '', nil);
   finally
     for I := 0 to RegisterFileFilenamesBatchCount-1 do
       FreeMem(RegisterFileBatchFilenames[I]);
@@ -2691,7 +2686,7 @@ var
       InstallMode := imSilent;
   end;
 
-  function RecurseExternalGetSizeOfFilesRedir(const DisableFsRedir: Boolean;
+  function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const RecurseSubDirs: Boolean): Integer64;
   var
@@ -2727,7 +2722,7 @@ var
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              I := RecurseExternalGetSizeOfFilesRedir(DisableFsRedir, SearchBaseDir,
+              I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, RecurseSubDirs);
               Inc6464(Result, I);
@@ -3390,7 +3385,7 @@ begin
               SourceWildcard := NewParamStr(0)
             else
               SourceWildcard := ExpandConst(SourceFilename);
-            ExternalSize := RecurseExternalGetSizeOfFilesRedir(
+            ExternalSize := RecurseExternalGetSizeOfFiles(
               ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
               PathExtractPath(SourceWildcard),
               '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
