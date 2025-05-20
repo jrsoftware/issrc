@@ -111,6 +111,10 @@ type
   end;
 
   { From IArchive.h }
+  TNOperationResult = (kOK, kUnsupportedMethod, kDataError, kCRCError,
+    kUnavailable, kUnexpectedEnd, kDataAfterEnd, kIsNotArc, kHeadersError,
+    kWrongPassword);
+
   IArchiveOpenCallback = interface
   ['{23170F69-40C1-278A-0000-000600100000}']
     function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
@@ -122,7 +126,7 @@ type
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; stdcall;
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
-    function SetOperationResult(opRes: Int32): HRESULT; stdcall;
+    function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
   end;
 
   IInArchive = interface

@@ -80,7 +80,7 @@ type
     FOnExtractionProgress: TOnExtractionProgress;
     FCurrentFilename, FLastReportedFilename: String;
     FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
-    FOpRes: UInt32;
+    FOpRes: TNOperationResult;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -89,14 +89,14 @@ type
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; stdcall;
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
-    function SetOperationResult(opRes: Int32): HRESULT; stdcall;
+    function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on extractCallback }
     function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
   public
     constructor Create(const InArchive: IInArchive;
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
-    property OpRes: UInt32 read FOpRes;
+    property OpRes: TNOperationResult read FOpRes;
   end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: TBStr): HRESULT;
@@ -343,11 +343,32 @@ begin
   end;
 end;
 
-function TArchiveExtractCallback.SetOperationResult(opRes: Int32): HRESULT;
+function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
+
+  function OperationResultToString(const opRes: TNOperationResult): String;
+  begin
+    case opRes of
+      kOK: Result := 'OK';
+      kUnsupportedMethod: Result := 'Unsupported method';
+      kDataError: Result := 'Data error';
+      kCRCError: Result := 'CRC error';
+      kUnavailable: Result := 'Unavailable';
+      kUnexpectedEnd: Result := 'Unexpected end';
+      kDataAfterEnd: Result := 'Data after end';
+      kIsNotArc: Result := 'Is not an archive';
+      kHeadersError: Result := 'Headers error';
+      kWrongPassword: Result := 'Wrong password';
+    else
+      Result := Format('Unknown result %d', [Ord(opRes)]);
+    end;
+  end;
+
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
-  if opRes <> 0 then
+  if opRes <> kOK then begin
     FOpRes := opRes;
+    LogFmt('ERROR: %s', [OperationResultToString(opRes)]);  { Just like 7zMain.c }
+  end;
   Result := S_OK;
 end;
 
@@ -455,8 +476,8 @@ begin
   else if Res <> S_OK then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
   var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
-  if OpRes <> 0 then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [OpRes.ToString]));
+  if OpRes <> kOK then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]));
 
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
