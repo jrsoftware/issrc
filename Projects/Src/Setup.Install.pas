@@ -238,12 +238,12 @@ begin
     Result := '(invalid)';
 end;
 
-function TryToGetSHA256OfFileRedir(const DisableFsRedir: Boolean; const Filename: String;
+function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
   var Sum: TSHA256Digest): Boolean;
 { Like GetSHA256OfFile but traps exceptions locally. Returns True if successful. }
 begin
   try
-    Sum := GetSHA256OfFileRedir(DisableFsRedir, Filename);
+    Sum := GetSHA256OfFile(DisableFsRedir, Filename);
     Result := True;
   except
     Result := False;
@@ -349,7 +349,7 @@ begin
   SetProgress(AMaxProgress);
 end;
 
-procedure AddAttributesToFileRedir(const DisableFsRedir: Boolean;
+procedure AddAttributesToFile(const DisableFsRedir: Boolean;
   const Filename: String; Attribs: Integer);
 var
   ExistingAttr: DWORD;
@@ -804,7 +804,7 @@ var
   type
     TMakeDirFlags = set of (mdNoUninstall, mdAlwaysUninstall, mdDeleteAfterInstall,
       mdNotifyChange);
-  function MakeDirRedir(const DisableFsRedir: Boolean; Dir: String;
+  function MakeDir(const DisableFsRedir: Boolean; Dir: String;
     const Flags: TMakeDirFlags): Boolean;
   { Returns True if a new directory was created.
     Note: If DisableFsRedir is True, the mdNotifyChange flag should not be
@@ -822,7 +822,7 @@ var
         Exit;
     end
     else begin
-      MakeDirRedir(DisableFsRedir, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
+      MakeDir(DisableFsRedir, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
       LogFmt('Creating directory: %s', [Dir]);
       if not CreateDirectoryRedir(DisableFsRedir, Dir) then begin
         ErrorCode := GetLastError;
@@ -854,7 +854,7 @@ var
   procedure CreateDirs;
   { Creates the application's directories }
 
-    procedure ApplyPermissionsRedir(const DisableFsRedir: Boolean;
+    procedure ApplyPermissions(const DisableFsRedir: Boolean;
       const Filename: String; const PermsEntry: Integer);
     var
       P: PSetupPermissionEntry;
@@ -862,14 +862,14 @@ var
       if PermsEntry <> -1 then begin
         LogFmt('Setting permissions on directory: %s', [Filename]);
         P := Entries[sePermission][PermsEntry];
-        if not GrantPermissionOnFileRedir(DisableFsRedir, Filename,
+        if not GrantPermissionOnFile(DisableFsRedir, Filename,
            TGrantPermissionEntry(Pointer(P.Permissions)^),
            Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
           LogFmt('Failed to set permissions on directory (%d).', [GetLastError]);
       end;
     end;
 
-    procedure ApplyNTFSCompressionRedir(const DisableFsRedir: Boolean;
+    procedure ApplyNTFSCompression(const DisableFsRedir: Boolean;
       const Filename: String; const Compress: Boolean);
     begin
       if Compress then
@@ -886,7 +886,7 @@ var
     N: String;
   begin
     { Create main application directory }
-    MakeDirRedir(InstallDefaultDisableFsRedir, WizardDirValue, []);
+    MakeDir(InstallDefaultDisableFsRedir, WizardDirValue, []);
 
     { Create the rest of the directories, if any }
     for CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -899,11 +899,11 @@ var
           if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
           if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
           N := RemoveBackslashUnlessRoot(PathExpand(ExpandConst(DirName)));
-          MakeDirRedir(InstallDefaultDisableFsRedir, N, Flags);
-          AddAttributesToFileRedir(InstallDefaultDisableFsRedir, N, Attribs);
-          ApplyPermissionsRedir(InstallDefaultDisableFsRedir, N, PermissionsEntry);
+          MakeDir(InstallDefaultDisableFsRedir, N, Flags);
+          AddAttributesToFile(InstallDefaultDisableFsRedir, N, Attribs);
+          ApplyPermissions(InstallDefaultDisableFsRedir, N, PermissionsEntry);
           if (doSetNTFSCompression in Options) or (doUnsetNTFSCompression in Options) then
-            ApplyNTFSCompressionRedir(InstallDefaultDisableFsRedir, N, doSetNTFSCompression in Options);
+            ApplyNTFSCompression(InstallDefaultDisableFsRedir, N, doSetNTFSCompression in Options);
           NotifyAfterInstallEntry(AfterInstall);
         end;
       end;
@@ -1043,7 +1043,7 @@ var
       FileLocationFilenames.Objects[LocationEntry] := Pointer(Hash);
     end;
 
-    procedure ApplyPermissionsRedir(const DisableFsRedir: Boolean;
+    procedure ApplyPermissions(const DisableFsRedir: Boolean;
       const Filename: String; const PermsEntry: Integer);
     var
       Attr: DWORD;
@@ -1054,7 +1054,7 @@ var
         if (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and FILE_ATTRIBUTE_DIRECTORY = 0) then begin
           LogFmt('Setting permissions on file: %s', [Filename]);
           P := Entries[sePermission][PermsEntry];
-          if not GrantPermissionOnFileRedir(DisableFsRedir, Filename,
+          if not GrantPermissionOnFile(DisableFsRedir, Filename,
              TGrantPermissionEntry(Pointer(P.Permissions)^),
              Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
             LogFmt('Failed to set permissions on file (%d).', [GetLastError]);
@@ -1062,7 +1062,7 @@ var
       end;
     end;
 
-    procedure ApplyNTFSCompressionRedir(const DisableFsRedir: Boolean;
+    procedure ApplyNTFSCompression(const DisableFsRedir: Boolean;
       const Filename: String; const Compress: Boolean);
     begin
       if Compress then
@@ -1085,7 +1085,7 @@ var
           'Will replace on restart.', [Func, LastError]);
         LastOperation := SetupMessages[msgErrorRestartReplace];
         NeedsRestart := True;
-        RestartReplaceRedir(DisableFsRedir, TempFile, DestFile);
+        RestartReplace(DisableFsRedir, TempFile, DestFile);
         ReplaceOnRestart := True;
         DoBreak := True;
         DoContinue := False;
@@ -1213,7 +1213,7 @@ var
         end;
 
         { See if it's a protected system file.  }
-        if IsProtectedSystemFileRedir(DisableFsRedir, DestFile) then begin
+        if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
           Log('Dest file is protected by Windows File Protection.');
           IsProtectedFile := (CurFile^.FileType = ftUserFile);
         end else
@@ -1235,7 +1235,7 @@ var
           CurFileDateValid := True;
         end
         else
-          CurFileDateValid := GetFileDateTimeRedir(DisableFsRedir, ASourceFile, CurFileDate);
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, ASourceFile, CurFileDate);
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
         else
@@ -1250,7 +1250,7 @@ var
 
           LastOperation := SetupMessages[msgErrorReadingExistingDest];
 
-          ExistingFileDateValid := GetFileDateTimeRedir(DisableFsRedir, DestFile, ExistingFileDate);
+          ExistingFileDateValid := GetFileDateTime(DisableFsRedir, DestFile, ExistingFileDate);
           if ExistingFileDateValid then
             LogFmt('Time stamp of existing file: %s', [FileTimeToStr(ExistingFileDate)])
           else
@@ -1311,7 +1311,7 @@ var
                    not(foOverwriteSameVersion in CurFile^.Options) then begin
                   if foReplaceSameVersionIfContentsDiffer in CurFile^.Options then begin
                     { Get the two files' SHA-256 hashes and compare them }
-                    if TryToGetSHA256OfFileRedir(DisableFsRedir, DestFile, ExistingFileHash) then begin
+                    if TryToGetSHA256OfFile(DisableFsRedir, DestFile, ExistingFileHash) then begin
                       if Assigned(CurFileLocation) then
                         CurFileHash := CurFileLocation^.SHA256Sum
                       else begin
@@ -1319,7 +1319,7 @@ var
                         { This GetSHA256OfFile call could raise an exception, but
                           it's very unlikely since we were already able to
                           successfully read the file's version info. }
-                        CurFileHash := GetSHA256OfFileRedir(DisableFsRedir, ASourceFile);
+                        CurFileHash := GetSHA256OfFile(DisableFsRedir, ASourceFile);
                         LastOperation := SetupMessages[msgErrorReadingExistingDest];
                       end;
                       { If the two files' SHA-256 hashes are equal, skip the file }
@@ -1474,11 +1474,11 @@ var
         { Extract or copy the file to a temporary file. Create the destination
           file's directory if it didn't already exist. }
         LastOperation := SetupMessages[msgErrorCreatingTemp];
-        TempFile := GenerateUniqueNameRedir(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
+        TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
         Flags := [];
         if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
         if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-        MakeDirRedir(DisableFsRedir, PathExtractDir(TempFile), Flags);
+        MakeDir(DisableFsRedir, PathExtractDir(TempFile), Flags);
         DestF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faReadWrite, fsNone);
         try
           TempFileLeftOver := True;
@@ -1609,7 +1609,7 @@ var
               DeleteFilesAfterInstallList.AddObject(DestFile, Pointer(Ord(DisableFsRedir)));
             { Set file attributes *after* renaming the file since Novell
               reportedly can't rename read-only files. }
-            AddAttributesToFileRedir(DisableFsRedir, DestFile, CurFile^.Attribs);
+            AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
           end;
         end;
 
@@ -1625,7 +1625,7 @@ var
           Log('Leaving temporary file in place for now.');
           if AllowFileToBeDuplicated then
             SetFileLocationFilename(CurFile^.LocationEntry, TempFile);
-          AddAttributesToFileRedir(DisableFsRedir, TempFile, CurFile^.Attribs);
+          AddAttributesToFile(DisableFsRedir, TempFile, CurFile^.Attribs);
         end;
 
         { If it's a font, register it }
@@ -1716,17 +1716,17 @@ var
         { Apply permissions (even if the file wasn't replaced) }
         LastOperation := '';
         if TempFile <> '' then
-          ApplyPermissionsRedir(DisableFsRedir, TempFile, CurFile^.PermissionsEntry)
+          ApplyPermissions(DisableFsRedir, TempFile, CurFile^.PermissionsEntry)
         else
-          ApplyPermissionsRedir(DisableFsRedir, DestFile, CurFile^.PermissionsEntry);
+          ApplyPermissions(DisableFsRedir, DestFile, CurFile^.PermissionsEntry);
 
         { Set NTFS compression (even if the file wasn't replaced) }
         if (foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options) then begin
           LastOperation := '';
           if TempFile <> '' then
-            ApplyNTFSCompressionRedir(DisableFsRedir, TempFile, foSetNTFSCompression in CurFile^.Options)
+            ApplyNTFSCompression(DisableFsRedir, TempFile, foSetNTFSCompression in CurFile^.Options)
           else
-            ApplyNTFSCompressionRedir(DisableFsRedir, DestFile, foSetNTFSCompression in CurFile^.Options);
+            ApplyNTFSCompression(DisableFsRedir, DestFile, foSetNTFSCompression in CurFile^.Options);
         end;
 
         { Install into GAC (even if the file wasn't replaced) }
@@ -1789,7 +1789,7 @@ var
   procedure CopyFiles(const Uninstallable: Boolean);
   { Copies all the application's files }
 
-    function RecurseExternalCopyFilesRedir(const DisableFsRedir: Boolean;
+    function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
       const Excludes: TStringList; const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
       var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
@@ -1853,7 +1853,7 @@ var
           try
             repeat
               if IsRecurseableDirectory(FindData) then
-                Result := RecurseExternalCopyFilesRedir(DisableFsRedir, SearchBaseDir,
+                Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                   SourceIsWildcard, Excludes, CurFile, FileLocationFileNames,
                   ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
@@ -1877,7 +1877,7 @@ var
           Flags := [];
           if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
           if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-          MakeDirRedir(DisableFsRedir, DestName, Flags);
+          MakeDir(DisableFsRedir, DestName, Flags);
           Result := True;
         end;
       end;
@@ -1950,7 +1950,7 @@ var
             repeat
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
-              FoundFiles := RecurseExternalCopyFilesRedir(DisableFsRedir,
+              FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
                 PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
                 IsWildcard(SourceWildcard), Excludes, CurFile, FileLocationFileNames,
                 ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
@@ -2072,7 +2072,7 @@ var
         ProbableFilename := LinkFilename;
       LogFmt('Dest filename: %s', [ProbableFilename]);
       SetFilenameLabelText(ProbableFilename, True);
-      MakeDirRedir(False, PathExtractDir(ProbableFilename), Flags);
+      MakeDir(False, PathExtractDir(ProbableFilename), Flags);
 
       { Delete any old files first }
       DeleteFile(LinkFilename);
@@ -2234,7 +2234,7 @@ var
             if IniDir <> '' then begin
               while True do begin
                 try
-                  MakeDirRedir(False, IniDir, []);
+                  MakeDir(False, IniDir, []);
                   Break;
                 except
                   if AbortRetryIgnoreTaskDialogMsgBox(
@@ -2569,7 +2569,7 @@ var
         NumRead: Cardinal;
         Buf: array[0..16383] of Byte;
       begin
-        ExeFilename := GenerateUniqueNameRedir(False, Dir, '.exe');
+        ExeFilename := GenerateUniqueName(False, Dir, '.exe');
         DestF := nil;
         SourceF := TFile.Create(NewParamStr(0), fdOpenExisting, faRead, fsRead);
         try
@@ -2794,10 +2794,10 @@ var
           NotifyBeforeInstallEntry(BeforeInstall);
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              DelTreeRedir(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
+              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
                 nil, nil, nil);
             dfDirIfEmpty:
-              DelTreeRedir(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, False, nil, nil, nil);
+              DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, False, nil, nil, nil);
           end;
           NotifyAfterInstallEntry(AfterInstall);
         end;
@@ -2940,7 +2940,7 @@ var
       when using a 64-bit Uninstall key) }
     BaseDir := ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
     LogFmt('Directory for uninstall files: %s', [BaseDir]);
-    MakeDirRedir(False, BaseDir, []);
+    MakeDir(False, BaseDir, []);
 
     FillChar(ExistingFiles, SizeOf(ExistingFiles), 0);  { set all to False }
     FindFiles;
@@ -3369,7 +3369,7 @@ begin
   const DisableFsRedir = False; { Like everything else working on the temp dir }
 
   if CreateDirs then
-    ForceDirectoriesRedir(DisableFsRedir, PathExtractPath(DestFile));
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
   DestF := TFileRedir.Create(DisableFsRedir, DestFile, fdCreateAlways, faWrite, fsNone);
   try
     try
@@ -3389,7 +3389,7 @@ begin
     DeleteFileRedir(DisableFsRedir, DestFile);
     raise;
   end;
-  AddAttributesToFileRedir(DisableFsRedir, DestFile, CurFile^.Attribs);
+  AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
 end;
 
 procedure ExtractTemporaryFile(const BaseName: String);
@@ -3589,15 +3589,15 @@ begin
   { Prepare directory }
   if FileExists(DestFile) then begin
     if (RequiredSHA256OfFile <> '') and
-       (RequiredSHA256OfFile = SHA256DigestToString(GetSHA256OfFileRedir(DisableFsRedir, DestFile))) then begin
+       (RequiredSHA256OfFile = SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
     end;
     SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
-    DelayDeleteFileRedir(DisableFsRedir, DestFile, 13, 50, 250);
+    DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
   end else
-    ForceDirectoriesRedir(DisableFsRedir, PathExtractPath(DestFile));
+    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
 
   HTTPDataReceiver := nil;
   HTTPClient := nil;
@@ -3620,7 +3620,7 @@ begin
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
     { Create temporary file }
-    TempFile := GenerateUniqueNameRedir(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
+    TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
     TempF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faWrite, fsNone);
     TempFileLeftOver := True;
 
@@ -3652,7 +3652,7 @@ begin
       { Check hash if specified, otherwise check everything else we can check }
       if RequiredSHA256OfFile <> '' then begin
         try
-          SHA256OfFile := SHA256DigestToString(GetSHA256OfFileRedir(DisableFsRedir, TempFile));
+          SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
         except on E: Exception do
           raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
         end;

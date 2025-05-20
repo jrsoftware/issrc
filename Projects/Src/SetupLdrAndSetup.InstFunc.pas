@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,7 +21,7 @@ type
 function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
   var Protected: Boolean): String; overload;
 function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String; overload;
-procedure DelayDeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String;
+procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
@@ -35,7 +35,7 @@ function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: Str
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean; overload;
 function IntToBase32(Number: Longint): String;
-function GenerateUniqueNameRedir(const DisableFsRedir: Boolean; Path: String;
+function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 
 implementation
@@ -146,7 +146,7 @@ begin
   end;
 end;
 
-function GenerateUniqueNameRedir(const DisableFsRedir: Boolean; Path: String;
+function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 var
   Rand, RandOrig: Longint;
@@ -177,7 +177,7 @@ var
   ErrorCode: DWORD;
 begin
   while True do begin
-    Dir := GenerateUniqueNameRedir(False, GetTempDir, '.tmp');
+    Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
     if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode, Protected) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
@@ -235,7 +235,7 @@ begin
     WM_QUERYENDSESSION and WM_ENDSESSION messages. }
 end;
 
-procedure DelayDeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String;
+procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
 { Attempts to delete Filename up to MaxTries times, retrying if the file is
   in use. It sleeps FirstRetryDelayMS msec after the first try, and

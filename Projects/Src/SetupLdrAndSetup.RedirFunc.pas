@@ -19,18 +19,12 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
 type
-  TRedir<T> = class
-    class function RedirIf(const Disable: Boolean; const FailResult: T; const Func: TFunc<T>): T; overload;
-    class function RedirIf(const Disable: Boolean; const Func: TFunc<T>): T; overload;
-  end;
-
-function AreFsRedirectionFunctionsAvailable: Boolean;
-
-type
   TPreviousFsRedirectionState = record
     DidDisable: Boolean;
     OldValue: Pointer;
   end;
+
+function AreFsRedirectionFunctionsAvailable: Boolean;
 function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
@@ -165,51 +159,46 @@ begin
     Wow64RevertWow64FsRedirectionFunc(PreviousState.OldValue);
 end;
 
-{ TRedir<T> }
-
-class function TRedir<T>.RedirIf(const Disable: Boolean; const FailResult: T; const Func: TFunc<T>): T;
-begin
-  var PrevState: TPreviousFsRedirectionState;
-  if not DisableFsRedirectionIf(Disable, PrevState) then begin
-    Result := FailResult;
-    Exit;
-  end;
-  var ErrorCode: DWORD;
-  try
-    Result := Func;
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode)
-end;
-
-class function TRedir<T>.RedirIf(const Disable: Boolean;
-  const Func: TFunc<T>): T;
-begin
-  Result := RedirIf(Disable, Default(T), Func);
-end;
-
 { *Redir functions }
 
 function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
   const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
   const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
+var
+  PrevState: TPreviousFsRedirectionState;
+  ErrorCode: DWORD;
 begin
-  Result := TRedir<THandle>.RedirIf(DisableFsRedir, INVALID_HANDLE_VALUE, function: THandle
-    begin
-      Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
-        CreationDisposition, FlagsAndAttributes, TemplateFile);
-    end);
+  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
+    Result := INVALID_HANDLE_VALUE;
+    Exit;
+  end;
+  try
+    Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
+      CreationDisposition, FlagsAndAttributes, TemplateFile);
+    ErrorCode := GetLastError;
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
+  SetLastError(ErrorCode);
 end;
 
 function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
   const SecurityAttributes: PSecurityAttributes): BOOL;
+var
+  PrevState: TPreviousFsRedirectionState;
+  ErrorCode: DWORD;
 begin
-  Result := TRedir<BOOL>.RedirIf(DisableFsRedir, function: BOOL
-    begin
-      Result := CreateDirectory(PChar(Filename), SecurityAttributes);
-  	end);
+  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
+    Result := False;
+    Exit;
+  end;
+  try
+    Result := CreateDirectory(PChar(Filename), SecurityAttributes);
+    ErrorCode := GetLastError;
+  finally
+    RestoreFsRedirection(PrevState);
+  end;
+  SetLastError(ErrorCode);
 end;
 
 function CreateProcessRedir(const DisableFsRedir: Boolean;

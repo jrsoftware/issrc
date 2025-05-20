@@ -2,7 +2,7 @@ unit Setup.WizardForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -2374,7 +2374,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
 
     if InstallMode = imNormal then begin
       { Check if there's enough free disk space }
-      if GetSpaceOnNearestMountPointRedir(False, T, FreeSpace, TotalSpace) then begin
+      if GetSpaceOnNearestMountPoint(False, T, FreeSpace, TotalSpace) then begin
         if Compare64(FreeSpace, MinimumSpace) < 0 then
           { If not, show warning }
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
@@ -2414,7 +2414,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
 
     if InstallMode = imNormal then begin
-      if GetSpaceOnNearestMountPointRedir(False, DirEdit.Text, FreeSpace, TotalSpace) then begin
+      if GetSpaceOnNearestMountPoint(False, DirEdit.Text, FreeSpace, TotalSpace) then begin
         if Compare64(FreeSpace, CurrentComponentsSpace) < 0 then
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
                [IntToKBStr(CurrentComponentsSpace), IntToKBStr(FreeSpace)]),

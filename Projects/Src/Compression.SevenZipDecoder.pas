@@ -283,7 +283,7 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
   var SaveCurDir := GetCurrentDir;
-  if not ForceDirectoriesRedir(False, DestDir) or not SetCurrentDir(DestDir) then
+  if not ForceDirectories(False, DestDir) or not SetCurrentDir(DestDir) then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
   try
     State.DisableFsRedir := DisableFsRedir;

@@ -2,7 +2,7 @@ program SetupLdr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2024 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -509,7 +509,7 @@ begin
         { Even though Setup has terminated by now, the system may still have
           the file locked for a short period of time (esp. on multiprocessor
           systems), so use DelayDeleteFile to delete it. }
-        DelayDeleteFileRedir(False, TempFile, 13, 50, 250);
+        DelayDeleteFile(False, TempFile, 13, 50, 250);
       if TempDir <> '' then
         RemoveDirectory(PChar(TempDir));
       if SetupLdrWnd <> 0 then
