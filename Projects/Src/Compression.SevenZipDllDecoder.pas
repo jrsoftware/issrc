@@ -368,8 +368,9 @@ begin
   if opRes <> kOK then begin
     FOpRes := opRes;
     LogFmt('ERROR: %s', [OperationResultToString(opRes)]);  { Just like 7zMain.c }
-  end;
-  Result := S_OK;
+    Result := E_FAIL;
+  end else
+    Result := S_OK;
 end;
 
 function TArchiveExtractCallback.CryptoGetTextPassword(
@@ -473,11 +474,13 @@ begin
   const Res = InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback);
   if Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-  else if Res <> S_OK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
-  var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
-  if OpRes <> kOK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]));
+  else begin
+    var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
+    if OpRes <> kOK then
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
+    else if Res <> S_OK then
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
+  end;
 
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
