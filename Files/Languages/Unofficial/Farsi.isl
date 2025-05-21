@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Farsi messages ***
+﻿; *** Inno Setup version 6.4.0+ Farsi messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -16,7 +16,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Farsi
 LanguageID=$0429
-LanguageCodePage=1256
+LanguageCodePage=0
 RightToLeft=yes
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.

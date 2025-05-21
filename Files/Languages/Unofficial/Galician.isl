@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Galician messages ***
+﻿; *** Inno Setup version 6.4.0+ Galician messages ***
 ;
 ; Originally translated by: Julio Mojon Fuentes (juliomf AT edu.xunta.gal)
 ; Updated to version 6.4.0+ by: Lorena García (theca11.dev AT gmail.com)
@@ -9,7 +9,7 @@
 [LangOptions]
 LanguageName=Galego
 LanguageID=$0456
-LanguageCodePage=1252
+LanguageCodePage=0
 
 [Messages]
 ; *** Application titles

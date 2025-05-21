@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Belarusian messages ***
+﻿; *** Inno Setup version 6.1.0+ Belarusian messages ***
 ;
 ; Translated from English by Alyaksandr Koshal, alk85@pm.me
 ;
@@ -10,7 +10,7 @@
 [LangOptions]
 LanguageName=<0411><0435><043B><0430><0440><0443><0441><043A><0430><044F>
 LanguageID=$0423
-LanguageCodePage=1251
+LanguageCodePage=0
 
 [Messages]
 

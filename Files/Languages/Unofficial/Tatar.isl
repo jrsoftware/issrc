@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Tatar messages ***
+﻿; *** Inno Setup version 5.5.3+ Tatar messages ***
 ;
 ; Translate by: Irek Khaziev
 ; E-Mail: khazirek@mail.ru
@@ -10,7 +10,7 @@
 [LangOptions]
 LanguageName=<0422><0430><0442><0430><0440>
 LanguageID=$0444
-LanguageCodePage=65001
+LanguageCodePage=0
 
 [Messages]
 
