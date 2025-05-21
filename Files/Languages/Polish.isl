@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Polish messages ***
+﻿; *** Inno Setup version 6.4.0+ Polish messages ***
 ; Original translations up to 5.5.7:
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ; Proofreading, corrections and 5.5.7-6.4.0+ updates:
@@ -17,7 +17,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Polski
 LanguageID=$0415
-LanguageCodePage=1250
+LanguageCodePage=0
 
 [Messages]
 

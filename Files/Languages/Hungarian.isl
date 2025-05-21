@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Hungarian messages ***
+﻿; *** Inno Setup version 6.4.0+ Hungarian messages ***
 ; Based on the translation of Kornél Pál, kornelpal@gmail.com
 ; István Szabó, E-mail: istvanszabo890629@gmail.com
 ;
@@ -15,7 +15,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Magyar
 LanguageID=$040E
-LanguageCodePage=1250
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=

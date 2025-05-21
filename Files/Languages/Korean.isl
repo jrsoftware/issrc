@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Korean messages ***
+﻿; *** Inno Setup version 6.4.0+ Korean messages ***
 
 ; ▒ 6.4.0+ Translator: VenusGirl (venusgirl@outlook.com)
 ; ▒ 6.2.0+ Translator: Logan.Hwang (logan.hwang@blueant.kr)
@@ -20,7 +20,7 @@
 ; '[LangOptions] 섹션' 항목을 읽고 이해하십시오.
 LanguageName=한국어
 LanguageID=$0412
-LanguageCodePage=949
+LanguageCodePage=0
 ; 번역할 언어가 특수 글꼴 또는 크기를 필요로 하는 경우
 ; 다음 항목 중 하나를 주석 해제하고 적절하게 변경하십시오.
 ;DialogFontName=

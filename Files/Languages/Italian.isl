@@ -1,4 +1,4 @@
-; bovirus@gmail.com
+﻿; bovirus@gmail.com
 ; *** Inno Setup version 6.4.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
@@ -20,7 +20,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Italiano
 LanguageID=$0410
-LanguageCodePage=1252
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
