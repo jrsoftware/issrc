@@ -15,7 +15,7 @@
 [LangOptions]
 LanguageName=<0423><043A><0440><0430><0457><043D><0441><044C><043A><0430>
 LanguageID=$0422
-LanguageCodePage=1251
+LanguageCodePage=0
 
 [Messages]
 

@@ -7,7 +7,7 @@
 [LangOptions]                
 LanguageName=Nederlands      
 LanguageID=$0413 
-LanguageCodePage=1252
+LanguageCodePage=0
 
 [Messages]
 

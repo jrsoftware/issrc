@@ -23,7 +23,7 @@
 [LangOptions]
 LanguageName=Sloven<010D>ina
 LanguageID=$041b
-LanguageCodePage=1250
+LanguageCodePage=0
 
 [Messages]
 

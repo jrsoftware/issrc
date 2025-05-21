@@ -8,7 +8,7 @@
 
 LanguageName=<00CD>slenska
 LanguageID=$040F
-LanguageCodePage=1252
+LanguageCodePage=0
 
 [Messages]
 
