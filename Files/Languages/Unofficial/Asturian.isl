@@ -1,4 +1,4 @@
-; Translation made with Translator 1.32 (http://www2.arnes.si/~sopjsimo/translator.html)
+ï»¿; Translation made with Translator 1.32 (http://www2.arnes.si/~sopjsimo/translator.html)
 ; $Translator:NL=%n:TB=%t
 ;
 ; *** Inno Setup version 4.0.x Asturian messages ***
@@ -16,8 +16,8 @@
 [LangOptions]
 LanguageName=Asturianu
 LanguageID=$0409
-; Si el lenguaje al cual está traduciendo requiere un tipo de letra o
-; tamaño, quite el comentario de alguna de las siguientes entradas y cámbielas según el caso.
+; Si el lenguaje al cual estÃ¡ traduciendo requiere un tipo de letra o
+; tamaÃ±o, quite el comentario de alguna de las siguientes entradas y cÃ¡mbielas segÃºn el caso.
 ;DialogFontName=MS Shell Dlg
 ;DialogFontSize=8
 ;DialogFontStandardHeight=13
@@ -38,39 +38,39 @@ UninstallAppTitle=Desinstalar
 UninstallAppFullTitle=Desinstalar - %1
 
 ; *** Misc. common
-InformationTitle=Información
+InformationTitle=InformaciÃ³n
 ConfirmTitle=Confirmar
 ErrorTitle=Fallu
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Instalaráse %1. ¿Quier seguir?
-LdrCannotCreateTemp=Nun pudo crease l'archivu temporal. Instalación parada
-LdrCannotExecTemp=Nun s'executó l'archivu nel directoriu temporal. Instalación parada
+SetupLdrStartupMessage=InstalarÃ¡se %1. Â¿Quier seguir?
+LdrCannotCreateTemp=Nun pudo crease l'archivu temporal. InstalaciÃ³n parada
+LdrCannotExecTemp=Nun s'executÃ³ l'archivu nel directoriu temporal. InstalaciÃ³n parada
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFallu %2: %3
-SetupFileMissing=Nun s'alcuentra l'archivu %1 de la carpeta d'instalación. Por favor, corrixa'l problema o garre otra copia del programa.
-SetupFileCorrupt=Los archivos d'instalación tan frayaos. Por favor, garre otra copia del programa.
-SetupFileCorruptOrWrongVer=Los archivos d'instalación tan frayaos, o son incompatibles cola su versión d'instalación. Por favor, arregle'l fallu o garre otra copia del programa.
+SetupFileMissing=Nun s'alcuentra l'archivu %1 de la carpeta d'instalaciÃ³n. Por favor, corrixa'l problema o garre otra copia del programa.
+SetupFileCorrupt=Los archivos d'instalaciÃ³n tan frayaos. Por favor, garre otra copia del programa.
+SetupFileCorruptOrWrongVer=Los archivos d'instalaciÃ³n tan frayaos, o son incompatibles cola su versiÃ³n d'instalaciÃ³n. Por favor, arregle'l fallu o garre otra copia del programa.
 NotOnThisPlatform=Esti programa nun va furrular en %1.
 OnlyOnThisPlatform=Esti programa tien que executase en %1.
-WinVersionTooLowError=Esti programa necesita %1 versión %2 o superior.
-WinVersionTooHighError=Esti programa nun furrula en %1 versión %2 o superior.
-AdminPrivilegesRequired=Tien qu'entamar la sesión comu alministraor cuando instale esti programa.
+WinVersionTooLowError=Esti programa necesita %1 versiÃ³n %2 o superior.
+WinVersionTooHighError=Esti programa nun furrula en %1 versiÃ³n %2 o superior.
+AdminPrivilegesRequired=Tien qu'entamar la sesiÃ³n comu alministraor cuando instale esti programa.
 PowerUserPrivilegesRequired=Tien que tar conectau comu Alministrador o ser miembru del grupu d'Usuarios Avanzaos pa instalar esti programa.
-SetupAppRunningError=La instalación detectó que %1 ta executandose agora.%n%nPor favor, ciérrelu, llueu calque Bien pa seguir, o Cancelar para colar.
-UninstallAppRunningError=La desinstalación detectó que %1 ta executandose agora.%n%nPor favor, ciérrelu, llueu calque Bien pa seguir, o Cancelar para colar.
+SetupAppRunningError=La instalaciÃ³n detectÃ³ que %1 ta executandose agora.%n%nPor favor, ciÃ©rrelu, llueu calque Bien pa seguir, o Cancelar para colar.
+UninstallAppRunningError=La desinstalaciÃ³n detectÃ³ que %1 ta executandose agora.%n%nPor favor, ciÃ©rrelu, llueu calque Bien pa seguir, o Cancelar para colar.
 
 ; *** Misc. errors
 ErrorCreatingDir=Nun se pue facer la carpeta "%1"
 ErrorTooManyFilesInDir=Nun se puede facer un archivu ena carpeta "%1" porque tien demasiaos archivos.
 
 ; *** Setup common messages
-ExitSetupTitle=Zarrar la Instalación
-ExitSetupMessage=La instalación nun ta completa. Si la cierra agora, el programa nun s'instalará.%n%nPuede executar el programa d'instalación otra vegá pa completala.%n%n¿Zarrar la Instalación?
+ExitSetupTitle=Zarrar la InstalaciÃ³n
+ExitSetupMessage=La instalaciÃ³n nun ta completa. Si la cierra agora, el programa nun s'instalarÃ¡.%n%nPuede executar el programa d'instalaciÃ³n otra vegÃ¡ pa completala.%n%nÂ¿Zarrar la InstalaciÃ³n?
 AboutSetupMenuItem=&Acerca d'Instalar...
 AboutSetupTitle=Acerca d'Instalar
-AboutSetupMessage=%1 versión %2%n%3%n%n%1 páxina web:%n%4
+AboutSetupMessage=%1 versiÃ³n %2%n%3%n%n%1 pÃ¡xina web:%n%4
 AboutSetupNote=
 
 ; *** Buttons
@@ -79,8 +79,8 @@ ButtonNext=&Seguir >
 ButtonInstall=&Instalar
 ButtonOK=Bien
 ButtonCancel=Cancelar
-ButtonYes=&Sí
-ButtonYesToAll=Sí a &Tou
+ButtonYes=&SÃ­
+ButtonYesToAll=SÃ­ a &Tou
 ButtonNo=&Non
 ButtonNoToAll=N&on a Tou
 ButtonFinish=&Finar
@@ -88,106 +88,106 @@ ButtonBrowse=&Examinar...
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Escueya l'idioma del instalaor
-SelectLanguageLabel=Escueya l'idioma pala instalación:
+SelectLanguageLabel=Escueya l'idioma pala instalaciÃ³n:
 
 ; *** Common wizard text
 ClickNext=Calque Seguir pa continuar, Cancelar pa colar.
 BeveledLabel=
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Bienveniu al programa d'instalación de [name].
-WelcomeLabel2=Esti programa instalará [name/ver] nel su sistema.%n%nRecomiendase enantes de seguir, zarrar toles demás aplicaciones que ten furrulando pa evitar conflictos durante la instalación.
+WelcomeLabel1=Bienveniu al programa d'instalaciÃ³n de [name].
+WelcomeLabel2=Esti programa instalarÃ¡ [name/ver] nel su sistema.%n%nRecomiendase enantes de seguir, zarrar toles demÃ¡s aplicaciones que ten furrulando pa evitar conflictos durante la instalaciÃ³n.
 
 ; *** "Password" wizard page
-WizardPassword=Contraseña
-PasswordLabel1=Esta instalación ta protexida.
-PasswordLabel3=Por favor enxerte la su contraseña, calque'n Seguir para continuar. Les contraseñes diferencien les mayúscules de les minúscules.
-PasswordEditLabel=&Contraseña:
-IncorrectPassword=La contraseña nun val. Por favor, inténtelu otra vegá.
+WizardPassword=ContraseÃ±a
+PasswordLabel1=Esta instalaciÃ³n ta protexida.
+PasswordLabel3=Por favor enxerte la su contraseÃ±a, calque'n Seguir para continuar. Les contraseÃ±es diferencien les mayÃºscules de les minÃºscules.
+PasswordEditLabel=&ContraseÃ±a:
+IncorrectPassword=La contraseÃ±a nun val. Por favor, intÃ©ntelu otra vegÃ¡.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Contratu de Llicencia
-LicenseLabel=Por favor, llea la siguiente información enantes de seguir.
-LicenseLabel3=Por favor, llea detenidamente el siguiente contratu de llicencia. Tien que aceptar los términos d'esti contratu enantes de seguir cola instalación.
+LicenseLabel=Por favor, llea la siguiente informaciÃ³n enantes de seguir.
+LicenseLabel3=Por favor, llea detenidamente el siguiente contratu de llicencia. Tien que aceptar los tÃ©rminos d'esti contratu enantes de seguir cola instalaciÃ³n.
 LicenseAccepted=A&ceptu'l contratu
 LicenseNotAccepted=&Nun aceptu'll contratu
 
 ; *** "Information" wizard pages
-WizardInfoBefore=Información
-InfoBeforeLabel=Por favor, llea la siguiente información enantes de seguir.
-InfoBeforeClickLabel=Cuandu te llistu pa continuar cola instalación, calque Seguir.
-WizardInfoAfter=Información
-InfoAfterLabel=Por favor, llea la siguiente información enantes de seguir.
+WizardInfoBefore=InformaciÃ³n
+InfoBeforeLabel=Por favor, llea la siguiente informaciÃ³n enantes de seguir.
+InfoBeforeClickLabel=Cuandu te llistu pa continuar cola instalaciÃ³n, calque Seguir.
+WizardInfoAfter=InformaciÃ³n
+InfoAfterLabel=Por favor, llea la siguiente informaciÃ³n enantes de seguir.
 InfoAfterClickLabel=Cuando te llistu pa continuar, calque Seguir.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Información d'usuariu
-UserInfoDesc=Por favor, introduzca la su información.
+WizardUserInfo=InformaciÃ³n d'usuariu
+UserInfoDesc=Por favor, introduzca la su informaciÃ³n.
 UserInfoName=Nome d'&Usuariu:
-UserInfoOrg=&Organización/Empresa:
-UserInfoSerial=Númberu de &Serie:
+UserInfoOrg=&OrganizaciÃ³n/Empresa:
+UserInfoSerial=NÃºmberu de &Serie:
 UserInfoNameRequired=Tien qu'enxertar un nome.
 
 ; *** "Select Destination Directory" wizard page
-WizardSelectDir=Seleción de la Carpeta Destinu
-SelectDirDesc=¿Au tien qu'instalase [name]?
+WizardSelectDir=SeleciÃ³n de la Carpeta Destinu
+SelectDirDesc=Â¿Au tien qu'instalase [name]?
 SelectDirLabel=Escueya la carpeta ena que quier instalar [name] y calque Seguir.
 DiskSpaceMBLabel=Necesita polo menos [mb] MB d'espaciu llibre en discu.
-ToUNCPathname=Nun puede instalase nun directoriu UNC. Si quier instalar en rede, tien que mapear una unidá de la rede.
+ToUNCPathname=Nun puede instalase nun directoriu UNC. Si quier instalar en rede, tien que mapear una unidÃ¡ de la rede.
 InvalidPath=Tien qu'enxertar una ruta completa cola lletra d'unidad; por exemplu:%n%nC:\APP%n%no una ruta UNC de la siguiente mena:%n%n\\servior\compartiu
-InvalidDrive=La unidá o ruta UNC que elixió nun existe o nun ta accesible. Por favor, escueya otra.
+InvalidDrive=La unidÃ¡ o ruta UNC que elixiÃ³ nun existe o nun ta accesible. Por favor, escueya otra.
 DiskSpaceWarningTitle=Nun hay espaciu suficiente'n discu
-DiskSpaceWarning=Necesita polo menos %1 KB de espaciu llibre pala instalación, pero la unidá que elixió namás tiene %2 KB llibres.%n%n¿Quier seguir?
+DiskSpaceWarning=Necesita polo menos %1 KB de espaciu llibre pala instalaciÃ³n, pero la unidÃ¡ que elixiÃ³ namÃ¡s tiene %2 KB llibres.%n%nÂ¿Quier seguir?
 BadDirName32=El nome de la carpeta nun puede incluir dalgun de los siguientes carauteres:%n%n%1
 DirExistsTitle=La Carpeta ya Existe
-DirExists=La carpeta:%n%n%1%n%nya existe. ¿Quier instalar n'esta carpeta entá?
+DirExists=La carpeta:%n%n%1%n%nya existe. Â¿Quier instalar n'esta carpeta entÃ¡?
 DirDoesntExistTitle=La Carpeta Nun Existe
-DirDoesntExist=La carpeta:%n%n%1%n%n nun existe. ¿Quier facela?
+DirDoesntExist=La carpeta:%n%n%1%n%n nun existe. Â¿Quier facela?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Seleción de Componentes
-SelectComponentsDesc=¿Qué componentes tienen qu'instalase?
+WizardSelectComponents=SeleciÃ³n de Componentes
+SelectComponentsDesc=Â¿QuÃ© componentes tienen qu'instalase?
 SelectComponentsLabel2=Escueya los componentes a instalar; desmarque los componentes que nun quier instalar. Calque Seguir cuandu tea llistu.
-FullInstallation=Instalación Completa
+FullInstallation=InstalaciÃ³n Completa
 ; Si es posible no traduzca 'Compacta' a 'Minima' (Me refiero a 'Minima' en su lenguaje)
-CompactInstallation=Instalación Compacta
-CustomInstallation=Instalación Personalizada
+CompactInstallation=InstalaciÃ³n Compacta
+CustomInstallation=InstalaciÃ³n Personalizada
 NoUninstallWarningTitle=Componentes Existentes
-NoUninstallWarning=La Instalación detectó que los siguientes componentes tan instalaos ena computaora:%n%n%1%n%nDesmarcando estos componentes, nun s'instalarán.%n%n¿Desea continuar de todos modos?
+NoUninstallWarning=La InstalaciÃ³n detectÃ³ que los siguientes componentes tan instalaos ena computaora:%n%n%1%n%nDesmarcando estos componentes, nun s'instalarÃ¡n.%n%nÂ¿Desea continuar de todos modos?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=La selección fecha requier polo menos [mb] MB d'espaciu llibre'n discu.
+ComponentsDiskSpaceMBLabel=La selecciÃ³n fecha requier polo menos [mb] MB d'espaciu llibre'n discu.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Selección de Tarees Adicionales
-SelectTasksDesc=¿Qué tarees adicionales tienen que realizase?
-SelectTasksLabel2=Seleccione les tarees adicionales que quiera facer durante la instalación de [name] y calque Seguir.
+WizardSelectTasks=SelecciÃ³n de Tarees Adicionales
+SelectTasksDesc=Â¿QuÃ© tarees adicionales tienen que realizase?
+SelectTasksLabel2=Seleccione les tarees adicionales que quiera facer durante la instalaciÃ³n de [name] y calque Seguir.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Selección de la carpeta del Menú d'entamu
-SelectStartMenuFolderDesc=¿Au tiene que pones los iconos de programa?
-SelectStartMenuFolderLabel=Escueya la carpeta del Menú d'entamu au quier que'l programa de instalación faiga los iconos de programa y calque Seguir.
-NoIconsCheck=&Nun facer nengún iconu
+WizardSelectProgramGroup=SelecciÃ³n de la carpeta del MenÃº d'entamu
+SelectStartMenuFolderDesc=Â¿Au tiene que pones los iconos de programa?
+SelectStartMenuFolderLabel=Escueya la carpeta del MenÃº d'entamu au quier que'l programa de instalaciÃ³n faiga los iconos de programa y calque Seguir.
+NoIconsCheck=&Nun facer nengÃºn iconu
 MustEnterGroupName=Tien qu'enxertar un nome de carpeta.
-BadGroupName=El nome de la carpeta nun puede tener nengún de los siguientes caracteres:%n%n%1
-NoProgramGroupCheck2=&Nun facer grupu nel Menú d'entamu
+BadGroupName=El nome de la carpeta nun puede tener nengÃºn de los siguientes caracteres:%n%n%1
+NoProgramGroupCheck2=&Nun facer grupu nel MenÃº d'entamu
 
 ; *** "Ready to Install" wizard page
 WizardReady=Llistu pa Instalar
-ReadyLabel1=Agora el programa ta llistu pa entamar la instalación de [name].
-ReadyLabel2a=Calque Instalar pa seguir cola instalación, o Tornar si quier revisar o camudar dalguna configuración.
-ReadyLabel2b=Calque Instalar para seguir cola instalación.
-ReadyMemoUserInfo=Información d'usuariu:
+ReadyLabel1=Agora el programa ta llistu pa entamar la instalaciÃ³n de [name].
+ReadyLabel2a=Calque Instalar pa seguir cola instalaciÃ³n, o Tornar si quier revisar o camudar dalguna configuraciÃ³n.
+ReadyLabel2b=Calque Instalar para seguir cola instalaciÃ³n.
+ReadyMemoUserInfo=InformaciÃ³n d'usuariu:
 ReadyMemoDir=Carpeta de Destinu:
-ReadyMemoType=Tipu d'Instalación:
+ReadyMemoType=Tipu d'InstalaciÃ³n:
 ReadyMemoComponents=Componentes Seleccionaos:
-ReadyMemoGroup=Carpeta del Menú d'entamu:
+ReadyMemoGroup=Carpeta del MenÃº d'entamu:
 ReadyMemoTasks=Tarees Adicionales:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Preparándose pa Instalar
+WizardPreparing=PreparÃ¡ndose pa Instalar
 PreparingDesc=El programa ta preparandose pa instalar [name].
-PreviousInstallNotCompleted=La instalación/desinstalación previa d'otru programa nun finó. Tien que reiniciar l'equipu pa finar la instalación.%n%nEncuantes reinicie la computaora, execute'l programa de nueu pa completar la instalación de [name].
+PreviousInstallNotCompleted=La instalaciÃ³n/desinstalaciÃ³n previa d'otru programa nun finÃ³. Tien que reiniciar l'equipu pa finar la instalaciÃ³n.%n%nEncuantes reinicie la computaora, execute'l programa de nueu pa completar la instalaciÃ³n de [name].
 CannotContinue=El programa nun puede continuar. Por favor, calque Cancelar pa colar.
 
 ; *** "Installing" wizard page
@@ -195,31 +195,31 @@ WizardInstalling=Instalando
 InstallingLabel=Por favor, espere mientres s'instala [name] en su computaora.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Finando la instalación de [name]
-FinishedLabelNoIcons=El programa finó la instalación de [name].
-FinishedLabel=El programa finó la instalación de [name]. Puede executar la aplicación calcando'l iconu instalau.
-ClickFinish=Calque Finar pa zarrar la Instalación.
-FinishedRestartLabel=Pa finar la instalación de [name], tien que reiniciar la su computaora. ¿Quier reiniciar agora?
-FinishedRestartMessage=Pa finar la instalación de [name], tien que reiniciar la su computaora.%n%n¿Quier reiniciar agora?
-ShowReadmeCheck=Sí, quiero ver l'archivu LLÉAME.
-YesRadio=&Sí, quiero reiniciar la computaora agora
-NoRadio=&Non, yo reiniciaré la computaora más alantre
+FinishedHeadingLabel=Finando la instalaciÃ³n de [name]
+FinishedLabelNoIcons=El programa finÃ³ la instalaciÃ³n de [name].
+FinishedLabel=El programa finÃ³ la instalaciÃ³n de [name]. Puede executar la aplicaciÃ³n calcando'l iconu instalau.
+ClickFinish=Calque Finar pa zarrar la InstalaciÃ³n.
+FinishedRestartLabel=Pa finar la instalaciÃ³n de [name], tien que reiniciar la su computaora. Â¿Quier reiniciar agora?
+FinishedRestartMessage=Pa finar la instalaciÃ³n de [name], tien que reiniciar la su computaora.%n%nÂ¿Quier reiniciar agora?
+ShowReadmeCheck=SÃ­, quiero ver l'archivu LLÃ‰AME.
+YesRadio=&SÃ­, quiero reiniciar la computaora agora
+NoRadio=&Non, yo reiniciarÃ© la computaora mÃ¡s alantre
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Executar %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Ver %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=La Instalación Necesita el Siguiente Discu
+ChangeDiskTitle=La InstalaciÃ³n Necesita el Siguiente Discu
 SelectDirectory=Escueya Carpeta
 SelectDiskLabel2=Por favor, enxerte'l Discu %1 y calque Bien.%n%nSi los archivos pueden alcontrase nuna carpeta diferente a la d'abaxo, plumie la ruta correuta o calque Examinar.
 PathLabel=&Ruta:
 FileNotInDir2=L'archivu "%1" nun puede localizase en "%2". Por favor, enxerte'l discu correutu o escueya otra carpeta.
-SelectDirectoryLabel=Por favor, especifique la llocalización del siguiente discu.
+SelectDirectoryLabel=Por favor, especifique la llocalizaciÃ³n del siguiente discu.
 
 ; *** Installation phase messages
-SetupAborted=La instalación nun pudo completase.%n%nPor favor, arregle'l fallu y execute Instalar otra vegá.
-EntryAbortRetryIgnore=Calque Reintentar pa intentalu de nueu, Omitir para continuar y que seya lo que dios quiera, o Anular pa finar la instalación.
+SetupAborted=La instalaciÃ³n nun pudo completase.%n%nPor favor, arregle'l fallu y execute Instalar otra vegÃ¡.
+EntryAbortRetryIgnore=Calque Reintentar pa intentalu de nueu, Omitir para continuar y que seya lo que dios quiera, o Anular pa finar la instalaciÃ³n.
 
 ; *** Installation status messages
 StatusCreateDirs=Faciendo carpetas...
@@ -228,15 +228,15 @@ StatusCreateIcons=Faciendo iconos del programa...
 StatusCreateIniEntries=Faciendo entraes nel INI...
 StatusCreateRegistryEntries=Faciendo entraes de rexistru...
 StatusRegisterFiles=Rexistrando archivos...
-StatusSavingUninstall=Guardando información pa desinstalar...
-StatusRunProgram=Finando la instalación...
+StatusSavingUninstall=Guardando informaciÃ³n pa desinstalar...
+StatusRunProgram=Finando la instalaciÃ³n...
 StatusRollback=Desfaciendo cambios...
 
 ; *** Misc. errors
 ErrorInternal2=Fallu Internu: %1
-ErrorFunctionFailedNoCode=%1 falló
-ErrorFunctionFailed=%1 falló; códigu %2
-ErrorFunctionFailedWithMessage=%1 falló; códigu %2.%n%3
+ErrorFunctionFailedNoCode=%1 fallÃ³
+ErrorFunctionFailed=%1 fallÃ³; cÃ³digu %2
+ErrorFunctionFailedWithMessage=%1 fallÃ³; cÃ³digu %2.%n%3
 ErrorExecutingProgram=Nun puede executase l'archivu:%n%1
 
 ; *** Registry errors
@@ -247,14 +247,14 @@ ErrorRegWriteKey=Fallu plumiando nuna clave de rexistru:%n%1\%2
 ; *** INI errors
 ErrorIniEntry=Fallu faciendo entrada nel archivu INI "%1".
 ; *** File copying errors
-FileAbortRetryIgnore=Calque Reintentar pa intentalu otra vegá, Omitir pa omitir esti archivu (nun recomendau), o Anular pa cancelar la instalación.
-FileAbortRetryIgnore2=Calque Reintentar pa intentalu otra vegá, Ignorar pa seguir de cualisquier mena (nun recomendau), o Anular pa finar la instalación.
-SourceIsCorrupted=L'archivu d'orixen ta dañau
+FileAbortRetryIgnore=Calque Reintentar pa intentalu otra vegÃ¡, Omitir pa omitir esti archivu (nun recomendau), o Anular pa cancelar la instalaciÃ³n.
+FileAbortRetryIgnore2=Calque Reintentar pa intentalu otra vegÃ¡, Ignorar pa seguir de cualisquier mena (nun recomendau), o Anular pa finar la instalaciÃ³n.
+SourceIsCorrupted=L'archivu d'orixen ta daÃ±au
 SourceDoesntExist=L'archivu d'orixen "%1" nun existe
-ExistingFileReadOnly=L'archivu existente ta marcau comu namas-llectura.%n%nCalque Reintentar pa quitar l'atributu namas-llectura y intentalu otra vegá, Ignorar pa omitir esti archivu, o Anular pa finar la instalación.
+ExistingFileReadOnly=L'archivu existente ta marcau comu namas-llectura.%n%nCalque Reintentar pa quitar l'atributu namas-llectura y intentalu otra vegÃ¡, Ignorar pa omitir esti archivu, o Anular pa finar la instalaciÃ³n.
 ErrorReadingExistingDest=Hebo un fallu al lleer l'archivu existente:
-FileExists=L'archivu ya existe.%n%n¿Quier machacalu?
-ExistingFileNewer=L'archivu existente ye más modernu que'l que ta instalando. Sería meyor dexar l'archivu existente.%n%n¿Quier dexar l'archivu existente?
+FileExists=L'archivu ya existe.%n%nÂ¿Quier machacalu?
+ExistingFileNewer=L'archivu existente ye mÃ¡s modernu que'l que ta instalando. SerÃ­a meyor dexar l'archivu existente.%n%nÂ¿Quier dexar l'archivu existente?
 ErrorChangingAttr=Hebo un fallu al camudar los atributos del archivu:
 ErrorCreatingTemp=Hebo un fallu al facer un archivu ena carpeta de destinu:
 ErrorReadingSource=Hebo un fallu al lleer l'archivu d'orixen:
@@ -264,29 +264,29 @@ ErrorRestartReplace=Nun pudo machacase:
 ErrorRenamingTemp=Hebo un fallu al renomar un archivu ena carpeta de destin:
 ErrorRegisterServer=Nun pudo rexistrar el DLL/OCX: %1
 ErrorRegisterServerMissingExport=Nun s'alcuentra DllRegisterServer export
-ErrorRegisterTypeLib=Nun pudo rexistrar la llibrería de tipu: %1
+ErrorRegisterTypeLib=Nun pudo rexistrar la llibrerÃ­a de tipu: %1
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Hebo un fallu tratando d'abrir l'archivu LLÉAME.
-ErrorRestartingComputer=El programa d'Instalación nun puede reiniciar la computaora. Por favor, fáigalo manualmente.
+ErrorOpeningReadme=Hebo un fallu tratando d'abrir l'archivu LLÃ‰AME.
+ErrorRestartingComputer=El programa d'InstalaciÃ³n nun puede reiniciar la computaora. Por favor, fÃ¡igalo manualmente.
 
 ; *** Uninstaller messages
 UninstallNotFound=L'archivu "%1" nun existe. Nun puede desinstalase.
 UninstallOpenError=Archivu "%1" nun pudo abrise. Nun puede desinstalase.
 
 ; *** Uninstallation phase messages
-UninstallUnsupportedVer=L'archivu de rexistru pa desinstalar "%1" ta nun formatu nun reconociu por esta versión de desinstalar. Nun puede desinstalase
+UninstallUnsupportedVer=L'archivu de rexistru pa desinstalar "%1" ta nun formatu nun reconociu por esta versiÃ³n de desinstalar. Nun puede desinstalase
 UninstallUnknownEntry=Alcontrose una entrada desconocia (%1) nel rexistru pa desinstalar
-ConfirmUninstall=¿Ta seguru que quier esborrar %1 y tolos sus componentes?
-OnlyAdminCanUninstall=Esti programa namás pue desinstalalu un usuariu con privilexios d'alministraor.
+ConfirmUninstall=Â¿Ta seguru que quier esborrar %1 y tolos sus componentes?
+OnlyAdminCanUninstall=Esti programa namÃ¡s pue desinstalalu un usuariu con privilexios d'alministraor.
 UninstallStatusLabel=Por favor, espere demientres %1 quitase de su computaora.
 UninstalledAll=%1 quitose de su computaora.
-UninstalledMost=La desinstalación de %1 finó.%n%nDalgunes coses nun pudieron esborrase. Pue usté quitales manualmente.
-UninstalledAndNeedsRestart=Pa finar la desinstalación de %1, la tien que reiniciar la computaora.%n%n¿Quier reiniciala agora?
+UninstalledMost=La desinstalaciÃ³n de %1 finÃ³.%n%nDalgunes coses nun pudieron esborrase. Pue ustÃ© quitales manualmente.
+UninstalledAndNeedsRestart=Pa finar la desinstalaciÃ³n de %1, la tien que reiniciar la computaora.%n%nÂ¿Quier reiniciala agora?
 UninstallDataCorrupted=L'archivu "%1" ta frayau. Nun puede desinstalase.
-ConfirmDeleteSharedFileTitle=¿Quitar Archivos Compartios?
-ConfirmDeleteSharedFile2=El sistema diz que esti archivu compartiu nun lo usa nengún otru programa. ¿Quier quitar esti archivu compartiu?%n%nSi otros programes usen esti archivu y lo quita, podien dexar de furrular bien. Si nun ta seguru, escueya Non. Si nun quita l'archivu nu fairá nengún dañu.
+ConfirmDeleteSharedFileTitle=Â¿Quitar Archivos Compartios?
+ConfirmDeleteSharedFile2=El sistema diz que esti archivu compartiu nun lo usa nengÃºn otru programa. Â¿Quier quitar esti archivu compartiu?%n%nSi otros programes usen esti archivu y lo quita, podien dexar de furrular bien. Si nun ta seguru, escueya Non. Si nun quita l'archivu nu fairÃ¡ nengÃºn daÃ±u.
 SharedFileNameLabel=Nome d'archivu:
-SharedFileLocationLabel=Llocalización:
-WizardUninstalling=Estau de la Desinstalación
+SharedFileLocationLabel=LlocalizaciÃ³n:
+WizardUninstalling=Estau de la DesinstalaciÃ³n
 StatusUninstalling=Desinstalando %1...

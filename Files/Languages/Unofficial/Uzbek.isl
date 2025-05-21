@@ -1,4 +1,4 @@
-; *** Inno Setup version 5.5.3+ Uzbek messages ***
+ï»¿; *** Inno Setup version 5.5.3+ Uzbek messages ***
 ;
 ; Translated from Russian by Shamsiddinov Zafar, zfrx94@mail.ru
 ; Updated translating version
@@ -11,15 +11,15 @@
 [LangOptions]
 LanguageName=<004F><2018><007A><0062><0065><006B><0063><0068><0061>
 LanguageID=$0443
-LanguageCodePage=1251
+LanguageCodePage=0
 
 [Messages]
 
 ; *** Application titles
-SetupAppTitle=O‘rnatish
-SetupWindowTitle=%1 — O‘rnatish
+SetupAppTitle=Oâ€˜rnatish
+SetupWindowTitle=%1 â€” Oâ€˜rnatish
 UninstallAppTitle=Uzoqlashtirish
-UninstallAppFullTitle=%1 — Uzoqlashtirish
+UninstallAppFullTitle=%1 â€” Uzoqlashtirish
 
 ; *** Misc. common
 InformationTitle=Ma'lumot
@@ -27,37 +27,37 @@ ConfirmTitle=Tasdiqlash
 ErrorTitle=Xatolik
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Ushbu %1 dasturi sizning kompyuteringizga o‘rnatiladi, davom etirilsinmi?
-LdrCannotCreateTemp=Vaqtinchalik faylni yaratib bo‘lmadi. O‘rnatish bekor qilindi
-LdrCannotExecTemp=Vaqtinchalik katalogdagi faylni bajarib bo‘lmadi. O‘rnatish bekor qilindi
+SetupLdrStartupMessage=Ushbu %1 dasturi sizning kompyuteringizga oâ€˜rnatiladi, davom etirilsinmi?
+LdrCannotCreateTemp=Vaqtinchalik faylni yaratib boâ€˜lmadi. Oâ€˜rnatish bekor qilindi
+LdrCannotExecTemp=Vaqtinchalik katalogdagi faylni bajarib boâ€˜lmadi. Oâ€˜rnatish bekor qilindi
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nXatolik %2: %3
-SetupFileMissing=%1 fayli o‘rnatish jildda mavjud emas. Iltimos, muammoni bartaraf eting yoki dasturning yangi versiyasini oling.
-SetupFileCorrupt=O‘rnatiladigan fayllar shikastlangan. Iltimos, dasturning yangi to‘liq nusxasini oling.
-SetupFileCorruptOrWrongVer=Ushbu o‘rnatiladigan fayl shikastlangan yoki o‘rnatish dasturi versiyasiga muvofiq emas. Iltimos, muammoni bartaraf eting yoki dasturning yangi nusxasini oling.
+SetupFileMissing=%1 fayli oâ€˜rnatish jildda mavjud emas. Iltimos, muammoni bartaraf eting yoki dasturning yangi versiyasini oling.
+SetupFileCorrupt=Oâ€˜rnatiladigan fayllar shikastlangan. Iltimos, dasturning yangi toâ€˜liq nusxasini oling.
+SetupFileCorruptOrWrongVer=Ushbu oâ€˜rnatiladigan fayl shikastlangan yoki oâ€˜rnatish dasturi versiyasiga muvofiq emas. Iltimos, muammoni bartaraf eting yoki dasturning yangi nusxasini oling.
 InvalidParameter=Buyruqlar satrida ruxsat etilmagan parametr bor:%n%n%1
-SetupAlreadyRunning=O‘rnatish dasturi allaqachon ishga solingan.
-WindowsVersionNotSupported=Ushbu o‘rnatiladigan dastur, Windows versiyasini qo‘llamaydi.
+SetupAlreadyRunning=Oâ€˜rnatish dasturi allaqachon ishga solingan.
+WindowsVersionNotSupported=Ushbu oâ€˜rnatiladigan dastur, Windows versiyasini qoâ€˜llamaydi.
 WindowsServicePackRequired=Bu dasturga %1 Service Pack %2 yoki undan oldingi versiya kerak.
 NotOnThisPlatform=Bu dastur %1 da ishlamaydi.
 OnlyOnThisPlatform=Bu dasturni faqat %1 da ishga solish mumkin.
-OnlyOnTheseArchitectures=Ushbu dasturni Windows tizimining quyidagi arxitektorli prossesiriga o‘rnatish mumkin:%n%n%1
-MissingWOW64APIs=Siz ishlatayotgan Windows versiyasida, 64-bitli o‘rnatishni bajarish funksiyasi mavjud emas. Bu muammoni bartaraf etish uchun (Service Pack) %1 paketini o‘rnatish kerak bo‘ladi.
+OnlyOnTheseArchitectures=Ushbu dasturni Windows tizimining quyidagi arxitektorli prossesiriga oâ€˜rnatish mumkin:%n%n%1
+MissingWOW64APIs=Siz ishlatayotgan Windows versiyasida, 64-bitli oâ€˜rnatishni bajarish funksiyasi mavjud emas. Bu muammoni bartaraf etish uchun (Service Pack) %1 paketini oâ€˜rnatish kerak boâ€˜ladi.
 WinVersionTooLowError=Bu dasturga %1 versiya %2 yoki undan yuqorisi kerak.
-WinVersionTooHighError=Dastur %1 da %2 versiyasida o‘rnatishning imkoni yo‘q.
-AdminPrivilegesRequired=Ushbu dasturni o‘rnatish uchun siz "Admin" tarzida tizimga kirishingiz kerak.
-PowerUserPrivilegesRequired=Ushbu dasturni o‘rnatish uchun siz "Admin" yoki «Îïûòíûå ïîëüçîâàòåëè» (Power Users) tarzida kirishingiz kerak.
-SetupAppRunningError=Aynan o‘z nusxasi ishlab turgani aniqlandi %1.%n%nIltmos, dasturning barcha nusxalarini yoping, so‘ngra davom etish uchun «OK» tugmasini bosing yoki chiqish uchun «Bekor qilmoq» tugmasini bosing.
-UninstallAppRunningError=Uzoqlashtirgich dastur ishga solinganligini aniqladi %1.%n%nIltimos, uzoqlashtirishdan oldin ushbu dasturni yoping, so‘ng davom etish uchun «OK» tugmasini bosing yoki chiqish uchun «Bekor qilmoq» tugmasini bosing.
+WinVersionTooHighError=Dastur %1 da %2 versiyasida oâ€˜rnatishning imkoni yoâ€˜q.
+AdminPrivilegesRequired=Ushbu dasturni oâ€˜rnatish uchun siz "Admin" tarzida tizimga kirishingiz kerak.
+PowerUserPrivilegesRequired=Ushbu dasturni oâ€˜rnatish uchun siz "Admin" yoki Â«ĞĞ¿Ñ‹Ñ‚Ğ½Ñ‹Ğµ Ğ¿Ğ¾Ğ»ÑŒĞ·Ğ¾Ğ²Ğ°Ñ‚ĞµĞ»Ğ¸Â» (Power Users) tarzida kirishingiz kerak.
+SetupAppRunningError=Aynan oâ€˜z nusxasi ishlab turgani aniqlandi %1.%n%nIltmos, dasturning barcha nusxalarini yoping, soâ€˜ngra davom etish uchun Â«OKÂ» tugmasini bosing yoki chiqish uchun Â«Bekor qilmoqÂ» tugmasini bosing.
+UninstallAppRunningError=Uzoqlashtirgich dastur ishga solinganligini aniqladi %1.%n%nIltimos, uzoqlashtirishdan oldin ushbu dasturni yoping, soâ€˜ng davom etish uchun Â«OKÂ» tugmasini bosing yoki chiqish uchun Â«Bekor qilmoqÂ» tugmasini bosing.
 
 ; *** Misc. errors
-ErrorCreatingDir="%1" jildini hosil qilib bo‘lmadi
-ErrorTooManyFilesInDir="%1" katalogida fayl yaratib bo‘lmadi, unda juda ko‘p fayllar bor
+ErrorCreatingDir="%1" jildini hosil qilib boâ€˜lmadi
+ErrorTooManyFilesInDir="%1" katalogida fayl yaratib boâ€˜lmadi, unda juda koâ€˜p fayllar bor
 
 ; *** Setup common messages
-ExitSetupTitle=O‘rnatish dasturidan chiqish
-ExitSetupMessage=O‘rnatish tugallanmadi. Agar chiqsangiz, dastur o‘rnatilmay qoladi.%n%nO‘rnatishni tugallash uchun dasturga keyinroq kirishingiz ham mumkin.%n%nO‘rnatish dasturidan chiqilsinmi?
+ExitSetupTitle=Oâ€˜rnatish dasturidan chiqish
+ExitSetupMessage=Oâ€˜rnatish tugallanmadi. Agar chiqsangiz, dastur oâ€˜rnatilmay qoladi.%n%nOâ€˜rnatishni tugallash uchun dasturga keyinroq kirishingiz ham mumkin.%n%nOâ€˜rnatish dasturidan chiqilsinmi?
 AboutSetupMenuItem=&Dastur haqida...
 AboutSetupTitle=Dastur haqida
 AboutSetupMessage=%1, versiya %2%n%3%n%nSayt %1:%n%4
@@ -67,185 +67,185 @@ TranslatorNote=Uzbek translation by Shamsiddinov Zafar // zfrx94@mail.ru
 ; *** Buttons
 ButtonBack=< &Ortga
 ButtonNext=&Keyingi >
-ButtonInstall=&O‘rnatmoq
+ButtonInstall=&Oâ€˜rnatmoq
 ButtonOK=OK
 ButtonCancel=Bekor qilmoq
 ButtonYes=&Ha
 ButtonYesToAll=Hammasiga &Ha
-ButtonNo=&Yo‘q
-ButtonNoToAll=H&ammasiga Yo‘q
+ButtonNo=&Yoâ€˜q
+ButtonNoToAll=H&ammasiga Yoâ€˜q
 ButtonFinish=&Tugallamoq
 ButtonBrowse=&Tanlov...
 ButtonWizardBrowse=&Tanlov...
 ButtonNewFolder=&Jild yaratmoq
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=O‘rnatish tilini tanlang
-SelectLanguageLabel=O‘rnatish jarayonida ishlatiladigan, tilni tanlang:
+SelectLanguageTitle=Oâ€˜rnatish tilini tanlang
+SelectLanguageLabel=Oâ€˜rnatish jarayonida ishlatiladigan, tilni tanlang:
 
 ; *** Common wizard text
-ClickNext=Davom etish uchun «Keyingi» tugmasini bosing yoki bekor qilish uchun, «Bekor qilmoq» tugmasini bosing.
+ClickNext=Davom etish uchun Â«KeyingiÂ» tugmasini bosing yoki bekor qilish uchun, Â«Bekor qilmoqÂ» tugmasini bosing.
 BeveledLabel=
 BrowseDialogTitle=Jild tanlovi
-BrowseDialogLabel=Ro‘yxatdan jildni tanlang va «ÎÊ»ni bosing.
+BrowseDialogLabel=Roâ€˜yxatdan jildni tanlang va Â«ĞĞšÂ»ni bosing.
 NewFolderName=Yangi jild
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=[name]ni O‘rnatishga Xush kelibsiz
-WelcomeLabel2=[name/ver] dasturi sizning kompyuteringizga o‘rnatiladi.%n%nO‘rnatishdan oldin, boshqa dasturlarni yopish tavsiya etiladi.
+WelcomeLabel1=[name]ni Oâ€˜rnatishga Xush kelibsiz
+WelcomeLabel2=[name/ver] dasturi sizning kompyuteringizga oâ€˜rnatiladi.%n%nOâ€˜rnatishdan oldin, boshqa dasturlarni yopish tavsiya etiladi.
 
 ; *** "Password" wizard page
 WizardPassword=Parol
 PasswordLabel1=Bu dastur parol bilan himoyalangan.
-PasswordLabel3=Iltimos, parolni kiriting, so‘ngra «Keyingi» tugmasini bosing. Parol kiritiloyotganda harflar katta-kichikligi inobatga olinishi kerak.
+PasswordLabel3=Iltimos, parolni kiriting, soâ€˜ngra Â«KeyingiÂ» tugmasini bosing. Parol kiritiloyotganda harflar katta-kichikligi inobatga olinishi kerak.
 PasswordEditLabel=&Parol:
-IncorrectPassword=Siz parolni noto‘g‘ri kirtingiz. Iltimos, qaytadan urinib ko‘ring.
+IncorrectPassword=Siz parolni notoâ€˜gâ€˜ri kirtingiz. Iltimos, qaytadan urinib koâ€˜ring.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Litsenzion kelishuv
-LicenseLabel=Marhamat, davom etish uchun quyidagi muhim ma'lumotni o‘qib chiqing.
-LicenseLabel3=Iltimos, quyidagi Litsenzion kelishuvni o‘qib chiqing. Davom etirish oldidan siz kelishuv shartiga rozi bo‘lishingiz kerak.
+LicenseLabel=Marhamat, davom etish uchun quyidagi muhim ma'lumotni oâ€˜qib chiqing.
+LicenseLabel3=Iltimos, quyidagi Litsenzion kelishuvni oâ€˜qib chiqing. Davom etirish oldidan siz kelishuv shartiga rozi boâ€˜lishingiz kerak.
 LicenseAccepted=Men &kelishuv shartiga roziman
 LicenseNotAccepted=Men &kelishuv shartiga rozi emasman
 
 ; *** "Information" wizard pages
-WizardInfoBefore=Ma’lumot
-InfoBeforeLabel=Iltimos, davom etirishdan oldin, quyidagi ma’lumotni o‘qib chiqing.
-InfoBeforeClickLabel=O‘rnatishga tayyor bo‘lsangiz, «Keyingi» tugmasini bosing.
-WizardInfoAfter=Ma’lumot
-InfoAfterLabel=Iltimos, davom etirishdan oldin, muhim ma’lumot bilan tanishib chiqing.
-InfoAfterClickLabel=O‘rnatishga tayyor bo‘lsangiz, «Keyingi» tugmasini bosing.
+WizardInfoBefore=Maâ€™lumot
+InfoBeforeLabel=Iltimos, davom etirishdan oldin, quyidagi maâ€™lumotni oâ€˜qib chiqing.
+InfoBeforeClickLabel=Oâ€˜rnatishga tayyor boâ€˜lsangiz, Â«KeyingiÂ» tugmasini bosing.
+WizardInfoAfter=Maâ€™lumot
+InfoAfterLabel=Iltimos, davom etirishdan oldin, muhim maâ€™lumot bilan tanishib chiqing.
+InfoAfterClickLabel=Oâ€˜rnatishga tayyor boâ€˜lsangiz, Â«KeyingiÂ» tugmasini bosing.
 
 ; *** "User Information" wizard page
-WizardUserInfo=Foydalanuvchi haqida ma’lumot
-UserInfoDesc=Iltimos, o‘zingiz haqingizda ma’lumot kiriting.
+WizardUserInfo=Foydalanuvchi haqida maâ€™lumot
+UserInfoDesc=Iltimos, oâ€˜zingiz haqingizda maâ€™lumot kiriting.
 UserInfoName=&Foydalanuvchining ism-sharifi:
 UserInfoOrg=&Tashkilot:
 UserInfoSerial=&Seriya raqami:
 UserInfoNameRequired=Siz ism (nom) kiritishingiz kerak.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=O‘rnatish jildi tanlovi
-SelectDirDesc=[name] dasturini qayerga o‘rnatishni xohlaysiz?
-SelectDirLabel3=[name] dasturi quyidagi jildga o‘rnatiladi.
-SelectDirBrowseLabel=Davom etish uchun «Keyingi» tugmasini bosing. Agar boshqa jildni tanlamoqchi bo‘lsangiz, unda «Tanlov» tugmasini bosing.
-DiskSpaceMBLabel=O‘rnatishga [mb] Mb qattiq diskdan bo‘sh joy kerak.
-CannotInstallToNetworkDrive=O‘rnatishni tarmoq qattiq disklarida amalga oshirib bo‘lmaydi.
-CannotInstallToUNCPath=O‘rnatishni UNC-yo‘lagi jildida amalga oshirib bo‘lmadi.
-InvalidPath=Siz to‘liq diskning harflari bilan yo‘lakni ko‘rsatishingiz kerak; masalan:%n%nC:\APP%n%nyoki UNC: shaklida%n%n\\server_nomi\resurs_nomi
-InvalidDrive=Tanlagan diskingiz yoki tarmoq diski mavjud emas yoki kirishga ruxsat yo‘q. Iltimos, boshqasini tanlang.
-DiskSpaceWarningTitle=Qattiq diskda kerakli bo‘sh joy yo‘q
-DiskSpaceWarning=O‘rnatishga kamida %1 Kb bo‘sh joy kerak, ammo siz tanlagan diskda %2 Kb bo‘sh joy bor.%n%nKamiga davom etirishni xohlaysizmi?
+WizardSelectDir=Oâ€˜rnatish jildi tanlovi
+SelectDirDesc=[name] dasturini qayerga oâ€˜rnatishni xohlaysiz?
+SelectDirLabel3=[name] dasturi quyidagi jildga oâ€˜rnatiladi.
+SelectDirBrowseLabel=Davom etish uchun Â«KeyingiÂ» tugmasini bosing. Agar boshqa jildni tanlamoqchi boâ€˜lsangiz, unda Â«TanlovÂ» tugmasini bosing.
+DiskSpaceMBLabel=Oâ€˜rnatishga [mb] Mb qattiq diskdan boâ€˜sh joy kerak.
+CannotInstallToNetworkDrive=Oâ€˜rnatishni tarmoq qattiq disklarida amalga oshirib boâ€˜lmaydi.
+CannotInstallToUNCPath=Oâ€˜rnatishni UNC-yoâ€˜lagi jildida amalga oshirib boâ€˜lmadi.
+InvalidPath=Siz toâ€˜liq diskning harflari bilan yoâ€˜lakni koâ€˜rsatishingiz kerak; masalan:%n%nC:\APP%n%nyoki UNC: shaklida%n%n\\server_nomi\resurs_nomi
+InvalidDrive=Tanlagan diskingiz yoki tarmoq diski mavjud emas yoki kirishga ruxsat yoâ€˜q. Iltimos, boshqasini tanlang.
+DiskSpaceWarningTitle=Qattiq diskda kerakli boâ€˜sh joy yoâ€˜q
+DiskSpaceWarning=Oâ€˜rnatishga kamida %1 Kb boâ€˜sh joy kerak, ammo siz tanlagan diskda %2 Kb boâ€˜sh joy bor.%n%nKamiga davom etirishni xohlaysizmi?
 DirNameTooLong=Jild nomi yoki uning nomining uzunligi ruxsat etilgandan oshgan.
-InvalidDirName=Ko‘rsatilgan jild nomiga ruxsat yo‘q.
-BadDirName32=Jild nomida quyidagi belgilar bo‘lmasligi kerak: %n%n%1
+InvalidDirName=Koâ€˜rsatilgan jild nomiga ruxsat yoâ€˜q.
+BadDirName32=Jild nomida quyidagi belgilar boâ€˜lmasligi kerak: %n%n%1
 DirExistsTitle=Jild mavjud
-DirExists=%n%n%1%n%njildi allaqachon mavjud. Ushbu jildga o‘rnatishga hammasi to‘g‘rimi?
+DirExists=%n%n%1%n%njildi allaqachon mavjud. Ushbu jildga oâ€˜rnatishga hammasi toâ€˜gâ€˜rimi?
 DirDoesntExistTitle=Jild mavjud emas
 DirDoesntExist=%n%n%1%n%jildi mavjud emas. Uni hosil qilishni xohlaysizmi?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponentlar tanlovi
-SelectComponentsDesc=Qaysi komponentlar o‘rnatilishi kerak?
-SelectComponentsLabel2=Kerakli komponentlarni o‘rnatish uchun belgilang; o‘rnatish kerak bo‘lmaganlariga esa belgi olib tashlang. O‘rnatishga tayyor bo‘lgandan so‘ng «Keyingi» tugmasini bosing.
-FullInstallation=To‘liq o‘rnatish
+SelectComponentsDesc=Qaysi komponentlar oâ€˜rnatilishi kerak?
+SelectComponentsLabel2=Kerakli komponentlarni oâ€˜rnatish uchun belgilang; oâ€˜rnatish kerak boâ€˜lmaganlariga esa belgi olib tashlang. Oâ€˜rnatishga tayyor boâ€˜lgandan soâ€˜ng Â«KeyingiÂ» tugmasini bosing.
+FullInstallation=Toâ€˜liq oâ€˜rnatish
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Qulay qilib o‘rnatish
-CustomInstallation=Tanlovli o‘rnatish
-NoUninstallWarningTitle=O‘rnatiladigan komponentlar
-NoUninstallWarning=O‘rnatish dasturi aniqladiki, quyidagi komponentlar sizning kompyuteringizga allaqachon o‘rnatilgan:%n%n%1%n%nUlarni o‘chirmasdan tanlangan komponent(lar)ni bekor qiling.%n%nDavom etasizmi?
+CompactInstallation=Qulay qilib oâ€˜rnatish
+CustomInstallation=Tanlovli oâ€˜rnatish
+NoUninstallWarningTitle=Oâ€˜rnatiladigan komponentlar
+NoUninstallWarning=Oâ€˜rnatish dasturi aniqladiki, quyidagi komponentlar sizning kompyuteringizga allaqachon oâ€˜rnatilgan:%n%n%1%n%nUlarni oâ€˜chirmasdan tanlangan komponent(lar)ni bekor qiling.%n%nDavom etasizmi?
 ComponentSize1=%1 Kb
 ComponentSize2=%1 Mb
 ComponentsDiskSpaceMBLabel=Joriy tanlov kamida [mb] Mb qattiq diskda joy oladi.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Qo‘shimcha topshiriqlarni tanlash
-SelectTasksDesc=Qaysi qo‘shimcha topshiriqlar bajarilishi kerak?
-SelectTasksLabel2=[name]ni o‘rnatish davomida qaysi qo‘shimcha topshiriqlar bajarilishi kerakligini tanlang, undan so‘ng «Keyingi» tugmasini bosing:
+WizardSelectTasks=Qoâ€˜shimcha topshiriqlarni tanlash
+SelectTasksDesc=Qaysi qoâ€˜shimcha topshiriqlar bajarilishi kerak?
+SelectTasksLabel2=[name]ni oâ€˜rnatish davomida qaysi qoâ€˜shimcha topshiriqlar bajarilishi kerakligini tanlang, undan soâ€˜ng Â«KeyingiÂ» tugmasini bosing:
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=«Ïóñê» menyusida jild tanlovi
-SelectStartMenuFolderDesc=O‘rnatish dasturi qayerga yorliq hosil qilsin?
-SelectStartMenuFolderLabel3=Dastur «Ïóñê» menyusining quyidagi jildiga yorliq hosil qiladi.
-SelectStartMenuFolderBrowseLabel=Davom etish uchun «Keyingi» tugmasini bosing. Agar boshqa jildni tanlashni xohlasangiz, «Tanlov» tugmasini bosing.
+WizardSelectProgramGroup=Â«ĞŸÑƒÑĞºÂ» menyusida jild tanlovi
+SelectStartMenuFolderDesc=Oâ€˜rnatish dasturi qayerga yorliq hosil qilsin?
+SelectStartMenuFolderLabel3=Dastur Â«ĞŸÑƒÑĞºÂ» menyusining quyidagi jildiga yorliq hosil qiladi.
+SelectStartMenuFolderBrowseLabel=Davom etish uchun Â«KeyingiÂ» tugmasini bosing. Agar boshqa jildni tanlashni xohlasangiz, Â«TanlovÂ» tugmasini bosing.
 MustEnterGroupName=Jild nomini kiritishingiz kerak.
-GroupNameTooLong=Jild guruhi nomi yoki uning yo‘lagi nomi uzunligi cheklovdan oshgan.
-InvalidGroupName=Ko‘rsatilgan jild nomiga ruxsat etilmagan.
-BadGroupName=Jild nomiga quyidagi belgilar bo‘lmasligi kerak:%n%n%1
-NoProgramGroupCheck2=«Ïóñê» &menyusida jild yaratmaslik
+GroupNameTooLong=Jild guruhi nomi yoki uning yoâ€˜lagi nomi uzunligi cheklovdan oshgan.
+InvalidGroupName=Koâ€˜rsatilgan jild nomiga ruxsat etilmagan.
+BadGroupName=Jild nomiga quyidagi belgilar boâ€˜lmasligi kerak:%n%n%1
+NoProgramGroupCheck2=Â«ĞŸÑƒÑĞºÂ» &menyusida jild yaratmaslik
 
 ; *** "Ready to Install" wizard page
-WizardReady=O‘rnatishga barchasi tayyor
-ReadyLabel1=O‘rnatuvchi dasturi [name]ni kompyuteringizga o‘rnatishga tayyor.
-ReadyLabel2a=Davom etish uchun «O‘rnatmoq» tugmasini bosing, agar siz o‘rnatish tanlovini o‘zgartirmoqchi bo‘lsangiz «Ortga» tugmasini bosing.
-ReadyLabel2b=Davom etirish uchun «O‘rnatmoq» tugmasini bosing.
-ReadyMemoUserInfo=Foydalanuvchi haqida ma’lumot:
-ReadyMemoDir=O‘rnatish jildi:
-ReadyMemoType=O‘rnatish turi:
+WizardReady=Oâ€˜rnatishga barchasi tayyor
+ReadyLabel1=Oâ€˜rnatuvchi dasturi [name]ni kompyuteringizga oâ€˜rnatishga tayyor.
+ReadyLabel2a=Davom etish uchun Â«Oâ€˜rnatmoqÂ» tugmasini bosing, agar siz oâ€˜rnatish tanlovini oâ€˜zgartirmoqchi boâ€˜lsangiz Â«OrtgaÂ» tugmasini bosing.
+ReadyLabel2b=Davom etirish uchun Â«Oâ€˜rnatmoqÂ» tugmasini bosing.
+ReadyMemoUserInfo=Foydalanuvchi haqida maâ€™lumot:
+ReadyMemoDir=Oâ€˜rnatish jildi:
+ReadyMemoType=Oâ€˜rnatish turi:
 ReadyMemoComponents=Tanlagan komponentlar:
-ReadyMemoGroup=«Ïóñê» menyusidagi jild:
-ReadyMemoTasks=Qo‘shimcha topshiriqlar:
+ReadyMemoGroup=Â«ĞŸÑƒÑĞºÂ» menyusidagi jild:
+ReadyMemoTasks=Qoâ€˜shimcha topshiriqlar:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=O‘rnatishga tayyorlash
-PreparingDesc=O‘rnatish dasturi kompyuteringizga [name]ni o‘rnatishga tayyorlayapti.
-PreviousInstallNotCompleted=Oldingi dastur versiyasini o‘rnatish yoki o‘chirish tugamadi O‘rnatish tugallash uchun sizdan kompyuterni qayta qo‘shish talab etiladi.%n%nQayta qo‘shilgandan so‘ng, [name]ni o‘rnatishni tugallash uchun yangidan O‘rnatish dasturiga kiring.
-CannotContinue=O‘rnatishni davom etirishning imkoni yo‘q. Dasturdan chiqish uchun «Bekor qilmoq» tugmasini bosing.
-ApplicationsFound=Quyidagi dastur fayllardan foydalanmoqda, shunday bo‘lsa ham o‘rnatish dasturi uni yangilasi kerak. O‘rnatish dasturi ushbu dasturni avtomatik yopishi tavsiya etiladi.
-ApplicationsFound2=Quyidagi dastur fayllardan foydalanmoqda, shunday bo‘lsa ham o‘rnatish dasturi uni yangilasi kerak. O‘rnatish dasturi ushbu dasturni avtomatik yopishi tavsiya etiladi. O‘rnatilib bo‘lgandan so‘ng, o‘rnatish dasturi uni qayta ishga solib ko‘radi.
+WizardPreparing=Oâ€˜rnatishga tayyorlash
+PreparingDesc=Oâ€˜rnatish dasturi kompyuteringizga [name]ni oâ€˜rnatishga tayyorlayapti.
+PreviousInstallNotCompleted=Oldingi dastur versiyasini oâ€˜rnatish yoki oâ€˜chirish tugamadi Oâ€˜rnatish tugallash uchun sizdan kompyuterni qayta qoâ€˜shish talab etiladi.%n%nQayta qoâ€˜shilgandan soâ€˜ng, [name]ni oâ€˜rnatishni tugallash uchun yangidan Oâ€˜rnatish dasturiga kiring.
+CannotContinue=Oâ€˜rnatishni davom etirishning imkoni yoâ€˜q. Dasturdan chiqish uchun Â«Bekor qilmoqÂ» tugmasini bosing.
+ApplicationsFound=Quyidagi dastur fayllardan foydalanmoqda, shunday boâ€˜lsa ham oâ€˜rnatish dasturi uni yangilasi kerak. Oâ€˜rnatish dasturi ushbu dasturni avtomatik yopishi tavsiya etiladi.
+ApplicationsFound2=Quyidagi dastur fayllardan foydalanmoqda, shunday boâ€˜lsa ham oâ€˜rnatish dasturi uni yangilasi kerak. Oâ€˜rnatish dasturi ushbu dasturni avtomatik yopishi tavsiya etiladi. Oâ€˜rnatilib boâ€˜lgandan soâ€˜ng, oâ€˜rnatish dasturi uni qayta ishga solib koâ€˜radi.
 CloseApplications=&Bu dasturni avtomatik yopish
 DontCloseApplications=&Bu dasturi yopmang
-ErrorCloseApplications=O‘rnatish dasturi avtomatik hamma dasturlarni yopa olmadi. O‘rnatishni davom etirishdan oldin hamma taalluqli dasturlarni yopish tavsiya etiladi.
+ErrorCloseApplications=Oâ€˜rnatish dasturi avtomatik hamma dasturlarni yopa olmadi. Oâ€˜rnatishni davom etirishdan oldin hamma taalluqli dasturlarni yopish tavsiya etiladi.
 
 ; *** "Installing" wizard page
-WizardInstalling=O‘rnatilmoqda...
-InstallingLabel=Iltimos, [name] dasturi kompyuteringizga o‘rnatilgungacha, kuting.
+WizardInstalling=Oâ€˜rnatilmoqda...
+InstallingLabel=Iltimos, [name] dasturi kompyuteringizga oâ€˜rnatilgungacha, kuting.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=[name] dasturini o‘rnatishni tugallash
-FinishedLabelNoIcons=[name] dasturi kompyuteringizga o‘rnatildi.
-FinishedLabel=[name] dasturi kompyuteringizga o‘rnatildi. Dasturga tegishli yorliq yordamida kirish mumkin.
-ClickFinish=O‘rnatish dasturidan  chiqish uchun «Tugallamoq» tugmasini bosing.
-FinishedRestartLabel=[name] o‘rnatishni tugallash uchun komyuterni qayta qo‘shish kerak. Hoziroq qaytqo‘shish amalga oshirilsinmi?
-FinishedRestartMessage=[name]  o‘rnatishni tugallash uchun komyuterni qayta qo‘shish kerak.%n%nHoziroq qayta qo‘shilsinmi?
-ShowReadmeCheck=Men README faylini ko‘rishni xohlayman
-YesRadio=&Ha, hoziroq kompyuter qayta qo‘shilsin
-NoRadio=&Yo‘q, keyinroq
+FinishedHeadingLabel=[name] dasturini oâ€˜rnatishni tugallash
+FinishedLabelNoIcons=[name] dasturi kompyuteringizga oâ€˜rnatildi.
+FinishedLabel=[name] dasturi kompyuteringizga oâ€˜rnatildi. Dasturga tegishli yorliq yordamida kirish mumkin.
+ClickFinish=Oâ€˜rnatish dasturidan  chiqish uchun Â«TugallamoqÂ» tugmasini bosing.
+FinishedRestartLabel=[name] oâ€˜rnatishni tugallash uchun komyuterni qayta qoâ€˜shish kerak. Hoziroq qaytqoâ€˜shish amalga oshirilsinmi?
+FinishedRestartMessage=[name]  oâ€˜rnatishni tugallash uchun komyuterni qayta qoâ€˜shish kerak.%n%nHoziroq qayta qoâ€˜shilsinmi?
+ShowReadmeCheck=Men README faylini koâ€˜rishni xohlayman
+YesRadio=&Ha, hoziroq kompyuter qayta qoâ€˜shilsin
+NoRadio=&Yoâ€˜q, keyinroq
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=%1ni ishga tushirish
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=%1ni ko‘rish
+RunEntryShellExec=%1ni koâ€˜rish
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Keyingi diskni joylash kerak
-SelectDiskLabel2=Iltimos, %1 diskini qo‘ying va «OK» tugmasini bosing.%n%nAgar fayllar ushbu diskdagi quyidagi ko‘rsatilgan farq qiladigan jilddan topilsa, to‘g‘ri yo‘lakni kiriting yoki «Tanlov» tugmasini bosing.
-PathLabel=&Yo‘lak:
-FileNotInDir2="%1" fayli "%2" dan topilmadi. Iltimos, muvofiq diskni qo‘ying yoki boshqa jildni tanlang.
-SelectDirectoryLabel=Iltimos, keyingi disk yo‘lagini ko‘rsating.
+SelectDiskLabel2=Iltimos, %1 diskini qoâ€˜ying va Â«OKÂ» tugmasini bosing.%n%nAgar fayllar ushbu diskdagi quyidagi koâ€˜rsatilgan farq qiladigan jilddan topilsa, toâ€˜gâ€˜ri yoâ€˜lakni kiriting yoki Â«TanlovÂ» tugmasini bosing.
+PathLabel=&Yoâ€˜lak:
+FileNotInDir2="%1" fayli "%2" dan topilmadi. Iltimos, muvofiq diskni qoâ€˜ying yoki boshqa jildni tanlang.
+SelectDirectoryLabel=Iltimos, keyingi disk yoâ€˜lagini koâ€˜rsating.
 
 ; *** Installation phase messages
-SetupAborted=O‘rnatishni tugallab bo‘lmadi.%n%nIltimos, muammoni bartaraf eting va qaytadan o‘rnating.
-EntryAbortRetryIgnore=Takroran urinib ko‘rish uchun «Ïîâòîğ» tugmasini bosing, faylni o‘tkazib yuborish uchun «Ïğîïóñòèòü» tugmasini, yoki o‘rnatishni bekor qilish uchun «Îòêàç» tugmasini bosing.
+SetupAborted=Oâ€˜rnatishni tugallab boâ€˜lmadi.%n%nIltimos, muammoni bartaraf eting va qaytadan oâ€˜rnating.
+EntryAbortRetryIgnore=Takroran urinib koâ€˜rish uchun Â«ĞŸĞ¾Ğ²Ñ‚Ğ¾Ñ€Â» tugmasini bosing, faylni oâ€˜tkazib yuborish uchun Â«ĞŸÑ€Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ñ‚ÑŒÂ» tugmasini, yoki oâ€˜rnatishni bekor qilish uchun Â«ĞÑ‚ĞºĞ°Ğ·Â» tugmasini bosing.
 
 ; *** Installation status messages
 StatusClosingApplications=Dastur yopilmoqda...
 StatusCreateDirs=Jild yaratilmoqda...
-StatusExtractFiles=Fayllar o‘rnatilmoqda...
+StatusExtractFiles=Fayllar oâ€˜rnatilmoqda...
 StatusCreateIcons=Dastur yorliq(lar) yaratilmoqda...
 StatusCreateIniEntries=INI-fayl yaratilmoqda...
 StatusCreateRegistryEntries=Ryestrda qaydlar yaratilmoqda...
 StatusRegisterFiles=Fayllarni qayd etilmoqda...
-StatusSavingUninstall=Uzoqlashtirish uchun ma’lumot yaratilmoqda...
-StatusRunProgram=O‘rnatish tugallanmmoqda...
+StatusSavingUninstall=Uzoqlashtirish uchun maâ€™lumot yaratilmoqda...
+StatusRunProgram=Oâ€˜rnatish tugallanmmoqda...
 StatusRestartingApplications=Dastur qayta ishga tushirilmoqda...
-StatusRollback=O‘rnatilganlarni bekor qilish...
+StatusRollback=Oâ€˜rnatilganlarni bekor qilish...
 
 ; *** Misc. errors
 ErrorInternal2=Ichki xatolik: %1
 ErrorFunctionFailedNoCode=%1: uzilish
 ErrorFunctionFailed=%1: uzilish; kod %2
 ErrorFunctionFailedWithMessage=%1: uzilish; kod %2.%n%3
-ErrorExecutingProgram=Faylini bajarib bo‘lmadi:%n%1
+ErrorExecutingProgram=Faylini bajarib boâ€˜lmadi:%n%1
 
 ; *** Registry errors
 ErrorRegOpenKey=Ryestr kalitini ochishda xatolik:%n%1\%2
@@ -256,46 +256,46 @@ ErrorRegWriteKey=Ryestrga yozilmalarni yozishda xatolik:%n%1\%2
 ErrorIniEntry="%1" INI-faylini yozishni yaratishda xatolik.
 
 ; *** File copying errors
-FileAbortRetryIgnore=Takrorlash uchun «Ïîâòîğ» tugmasini, faylni o‘tkazib yuborish uchun (tavsiya etilmaydi) «Ïğîïóñòèòü», yoki  chiqish uchun «Îòêàç» tugmasini bosing.
-FileAbortRetryIgnore2=Takrorlash uchun «Ïîâòîğ» tugmasini, xatolikni inobatga olmaslik uchun (tavsiya etilmaydi) «Ïğîïóñòèòü», yoki  chiqish uchun «Îòêàç» tugmalaridan birini bosing.
-SourceIsCorrupted=Boshlang‘ich fayl shikastlangan
-SourceDoesntExist="%1" boshlang‘ich faylni mavjud emas
-ExistingFileReadOnly=Mavjud fayl «faqat o‘chish uchun» tarzida belgilangan.%n%n«faqat o‘qish uchun» atributini olib tashlash uchun «Ïîâòîğ» tugmasini bosing, faylni o‘tkazib yuborish uchun «Ïğîïóñòèòü», yoki chiqish uchun «Îòêàç» tugmasini bosing.
-ErrorReadingExistingDest=Mavjud fayllarni o‘qish vaqtida xatolik:
+FileAbortRetryIgnore=Takrorlash uchun Â«ĞŸĞ¾Ğ²Ñ‚Ğ¾Ñ€Â» tugmasini, faylni oâ€˜tkazib yuborish uchun (tavsiya etilmaydi) Â«ĞŸÑ€Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ñ‚ÑŒÂ», yoki  chiqish uchun Â«ĞÑ‚ĞºĞ°Ğ·Â» tugmasini bosing.
+FileAbortRetryIgnore2=Takrorlash uchun Â«ĞŸĞ¾Ğ²Ñ‚Ğ¾Ñ€Â» tugmasini, xatolikni inobatga olmaslik uchun (tavsiya etilmaydi) Â«ĞŸÑ€Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ñ‚ÑŒÂ», yoki  chiqish uchun Â«ĞÑ‚ĞºĞ°Ğ·Â» tugmalaridan birini bosing.
+SourceIsCorrupted=Boshlangâ€˜ich fayl shikastlangan
+SourceDoesntExist="%1" boshlangâ€˜ich faylni mavjud emas
+ExistingFileReadOnly=Mavjud fayl Â«faqat oâ€˜chish uchunÂ» tarzida belgilangan.%n%nÂ«faqat oâ€˜qish uchunÂ» atributini olib tashlash uchun Â«ĞŸĞ¾Ğ²Ñ‚Ğ¾Ñ€Â» tugmasini bosing, faylni oâ€˜tkazib yuborish uchun Â«ĞŸÑ€Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ñ‚ÑŒÂ», yoki chiqish uchun Â«ĞÑ‚ĞºĞ°Ğ·Â» tugmasini bosing.
+ErrorReadingExistingDest=Mavjud fayllarni oâ€˜qish vaqtida xatolik:
 FileExists=Fayl oldindan mavjud.%n%nQayta yozilsinmi?
-ExistingFileNewer=Mavjud fayl, o‘rnatiladiganiga nisbatan ancha yangi. Mavjud faylni saqlab qolish tavsiya etiladi.%n%nSiz mavjud faylni saqlab qo‘lishni xohlaysizmi?
-ErrorChangingAttr=Mavjud fayl atributini o‘zgartirish vaqtida xatolik ro‘y berdi:
-ErrorCreatingTemp=Belgilangan jildga fayllarni yozish vaqtida xatolik ro‘y berdi:
-ErrorReadingSource=Boshlang‘ich faylni o‘qish vaqtida xatolik ro‘y berdi:
-ErrorCopying=Fayllarni nusxallash vaqtida xatolik ro‘y berdi:
-ErrorReplacingExistingFile=Mavjud faylni almashtirish vaqtida xatolik ro‘y berdi:
+ExistingFileNewer=Mavjud fayl, oâ€˜rnatiladiganiga nisbatan ancha yangi. Mavjud faylni saqlab qolish tavsiya etiladi.%n%nSiz mavjud faylni saqlab qoâ€˜lishni xohlaysizmi?
+ErrorChangingAttr=Mavjud fayl atributini oâ€˜zgartirish vaqtida xatolik roâ€˜y berdi:
+ErrorCreatingTemp=Belgilangan jildga fayllarni yozish vaqtida xatolik roâ€˜y berdi:
+ErrorReadingSource=Boshlangâ€˜ich faylni oâ€˜qish vaqtida xatolik roâ€˜y berdi:
+ErrorCopying=Fayllarni nusxallash vaqtida xatolik roâ€˜y berdi:
+ErrorReplacingExistingFile=Mavjud faylni almashtirish vaqtida xatolik roâ€˜y berdi:
 ErrorRestartReplace=RestartReplace xatoligi:
-ErrorRenamingTemp=Belgilangan jilddagi faylni qaytanomlashda xatolik ro‘y berdi:
-ErrorRegisterServer=DLL/OCXni qayd etib bo‘lmadi: %1
+ErrorRenamingTemp=Belgilangan jilddagi faylni qaytanomlashda xatolik roâ€˜y berdi:
+ErrorRegisterServer=DLL/OCXni qayd etib boâ€˜lmadi: %1
 ErrorRegSvr32Failed=RegSvr32 bajarishda xatolik, qaytish kodi %1
-ErrorRegisterTypeLib=Manba tiplarini qayd etishning imkoni yo‘q (Type Library): %1
+ErrorRegisterTypeLib=Manba tiplarini qayd etishning imkoni yoâ€˜q (Type Library): %1
 
 ; *** Post-installation errors
 ErrorOpeningReadme=README faylini ochish vaqtida xatolik.
-ErrorRestartingComputer=O‘rnatish dasturi kompyuterni qayta qo‘sha olmadi. Iltimos, buni o‘zingiz bajaring.
+ErrorRestartingComputer=Oâ€˜rnatish dasturi kompyuterni qayta qoâ€˜sha olmadi. Iltimos, buni oâ€˜zingiz bajaring.
 
 ; *** Uninstaller messages
-UninstallNotFound="%1" fayli mavjud emas, uzoqlashtirishning imkoni yo‘q.
-UninstallOpenError="%1" faylini ochishning imkoni yo‘q. Dasturni o‘chirib bo‘lmaydi
-UninstallUnsupportedVer=Uzoqlashtirish protokoli "%1" ushbu uzoqlashtirish-dasturi uchun noaniq. Uzoqlashtirishning imkoni yo‘q
-UninstallUnknownEntry=Uzoqlashtirish protokoli uchun faylda noma’lum punktga duch kelindi (%1)
-ConfirmUninstall=Siz haqiqatan ham %1 dasturining hamma komponentlarini o‘chirmoqchimisiz?
-UninstallOnlyOnWin64=Ushbu dasturni faqat 64-bitli Windows muhitida o‘chirish mumkin.
-OnlyAdminCanUninstall=Bu dasturni faqat "Admin" o‘chirishi mumkin.
+UninstallNotFound="%1" fayli mavjud emas, uzoqlashtirishning imkoni yoâ€˜q.
+UninstallOpenError="%1" faylini ochishning imkoni yoâ€˜q. Dasturni oâ€˜chirib boâ€˜lmaydi
+UninstallUnsupportedVer=Uzoqlashtirish protokoli "%1" ushbu uzoqlashtirish-dasturi uchun noaniq. Uzoqlashtirishning imkoni yoâ€˜q
+UninstallUnknownEntry=Uzoqlashtirish protokoli uchun faylda nomaâ€™lum punktga duch kelindi (%1)
+ConfirmUninstall=Siz haqiqatan ham %1 dasturining hamma komponentlarini oâ€˜chirmoqchimisiz?
+UninstallOnlyOnWin64=Ushbu dasturni faqat 64-bitli Windows muhitida oâ€˜chirish mumkin.
+OnlyAdminCanUninstall=Bu dasturni faqat "Admin" oâ€˜chirishi mumkin.
 UninstallStatusLabel=Iltimos, %1 dasturi sizning kompyuteringizdan uzoqlashtirilgunga qadar, kutib turing.
-UninstalledAll=%1  dasturi to‘liq kompyuteringizdan uzoqlashtirildi.
-UninstalledMost=%1 uzoqlashtirish bajarildi.%n%nBir qancha elementlarni o‘chirib bo‘lmadi. Siz u(lar)ni o‘zingiz o‘chirishingiz mumkin.
-UninstalledAndNeedsRestart=%1 uzoqlashtirishni tugallash uchun kompyuterni qayta qo‘shish kerak bo‘ladi.%n%nHoziroq qayta qo‘shish bajarilsinmi?
-UninstallDataCorrupted="%1" fayli shikastlangan. Uzoqlashtirishning imkoni yo‘q
+UninstalledAll=%1  dasturi toâ€˜liq kompyuteringizdan uzoqlashtirildi.
+UninstalledMost=%1 uzoqlashtirish bajarildi.%n%nBir qancha elementlarni oâ€˜chirib boâ€˜lmadi. Siz u(lar)ni oâ€˜zingiz oâ€˜chirishingiz mumkin.
+UninstalledAndNeedsRestart=%1 uzoqlashtirishni tugallash uchun kompyuterni qayta qoâ€˜shish kerak boâ€˜ladi.%n%nHoziroq qayta qoâ€˜shish bajarilsinmi?
+UninstallDataCorrupted="%1" fayli shikastlangan. Uzoqlashtirishning imkoni yoâ€˜q
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Birgalikda ishlatiladigan fayl o‘chirilsinmi?
-ConfirmDeleteSharedFile2=Tizim ko‘rsatdiki, quyidagi birgalikda ishlatiladigan fayl boshqa dasturlar tomonidan ishlatilmayapti. Faylni o‘chirish tasdiqlansinmi?%n%nAgar keyinchalik qandaydir bir dastur bu faylni ishlatmoqchi bo‘lsa lekin fayl o‘chirilsa, o‘sha dastur soz ishlamasligi mumkin. Agar qolishini xohlasangiz, «Yo‘q» ni bosing. Qoloyotgan fayl tizimga xavf solmaydi.
+ConfirmDeleteSharedFileTitle=Birgalikda ishlatiladigan fayl oâ€˜chirilsinmi?
+ConfirmDeleteSharedFile2=Tizim koâ€˜rsatdiki, quyidagi birgalikda ishlatiladigan fayl boshqa dasturlar tomonidan ishlatilmayapti. Faylni oâ€˜chirish tasdiqlansinmi?%n%nAgar keyinchalik qandaydir bir dastur bu faylni ishlatmoqchi boâ€˜lsa lekin fayl oâ€˜chirilsa, oâ€˜sha dastur soz ishlamasligi mumkin. Agar qolishini xohlasangiz, Â«Yoâ€˜qÂ» ni bosing. Qoloyotgan fayl tizimga xavf solmaydi.
 SharedFileNameLabel=Fayl nomi:
 SharedFileLocationLabel=Joylashgan joyi:
 WizardUninstalling=Uzoqlashtirish holati
@@ -303,7 +303,7 @@ StatusUninstalling=%1 ni Uzoqlashtirish...
 
 
 ; *** Shutdown block reasons
-ShutdownBlockReasonInstallingApp=%1 ni O‘rnatish.
+ShutdownBlockReasonInstallingApp=%1 ni Oâ€˜rnatish.
 ShutdownBlockReasonUninstallingApp=%1 ni Uzoqlashtirish.
 
 ; The custom messages below aren't used by Setup itself, but if you make
@@ -312,7 +312,7 @@ ShutdownBlockReasonUninstallingApp=%1 ni Uzoqlashtirish.
 [CustomMessages]
 
 NameAndVersion=%1, versiya %2
-AdditionalIcons=Qo‘shimcha yorliqlar:
+AdditionalIcons=Qoâ€˜shimcha yorliqlar:
 CreateDesktopIcon=Ishchi stolda yorliq yaratish
 CreateQuickLaunchIcon=&Tezkor ishga tushirish panelida yoriliq yaratish
 ProgramOnTheWeb=%1ning Internetdagi Sayti
@@ -322,4 +322,4 @@ AssocFileExtension=%1 fayli bilan, %2 kengaytmada &birikadi
 AssocingFileExtension=%1 fayli bilan %2 birikmoqda...
 AutoStartProgramGroupDescription=Avtomatik tushirish solish:
 AutoStartProgram=Avtomatik %1ni ishga tushirish
-AddonHostProgramNotFound=%1 ko‘rsatgan jildingizdan topilmadi.%n%nSiz xuddi shunday davom etirmoqchimisiz?
+AddonHostProgramNotFound=%1 koâ€˜rsatgan jildingizdan topilmadi.%n%nSiz xuddi shunday davom etirmoqchimisiz?

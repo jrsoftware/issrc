@@ -1,9 +1,9 @@
-; *** Inno Setup version 5.5.3+ Estonian messages ***
+Ôªø; *** Inno Setup version 5.5.3+ Estonian messages ***
 ;
 ; Estonian translation by LiivaneLord
 ; E-mail: liivane.lord@mail.ee
 ; Last modification date: 2013-01-09
-; Tılge baseerub rix'i tılkele, mida on parandatud ja kohandatud uuemale versioonile.
+; T√µlge baseerub rix'i t√µlkele, mida on parandatud ja kohandatud uuemale versioonile.
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -18,7 +18,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Eesti
 LanguageID=$0425
-LanguageCodePage=1257
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -44,42 +44,42 @@ ConfirmTitle=Kinnita
 ErrorTitle=Viga
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Paigaldatakse %1. Kas soovid j‰tkata?
+SetupLdrStartupMessage=Paigaldatakse %1. Kas soovid j√§tkata?
 LdrCannotCreateTemp=Ei saanud luua ajutist faili. Paigaldamine katkestati
-LdrCannotExecTemp=Ei saanud k‰ivitada faili ajutises kataloogis. Paigaldamine katkestati
+LdrCannotExecTemp=Ei saanud k√§ivitada faili ajutises kataloogis. Paigaldamine katkestati
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nViga %2: %3
-SetupFileMissing=%1 on paigaldamise kaustast kadunud. Palun paranda see viga vıi hangi programmi uus koopia.
+SetupFileMissing=%1 on paigaldamise kaustast kadunud. Palun paranda see viga v√µi hangi programmi uus koopia.
 SetupFileCorrupt=Paigaldaja failid on rikutud. Palun hangi programmi uus koopia.
-SetupFileCorruptOrWrongVer=Paigaldaja failid on kas rikutud vıi ei tˆˆta selle paigaldaja versiooniga. Palun paranda see viga vıi hangi programmi uus koopia.
-InvalidParameter=K‰sureale anti vale parameeter:%n%n%1
-SetupAlreadyRunning=Paigaldaja alles tˆˆtab.
-WindowsVersionNotSupported=Seda programmi ei saa selle Windowsi versiooniga kasutada, mis arvutis praegu tˆˆtab.
-WindowsServicePackRequired=See programm vajab %1 Service Pack (Hoolduspakett) %2 vıi uuemat.
-NotOnThisPlatform=See programm ei tˆˆta %1'i platvormil.
-OnlyOnThisPlatform=See programm peab tˆˆtama %1'i platvormil.
-OnlyOnTheseArchitectures=Seda programmi saab paigaldada ainult neile Windowsi versioonidele, mis on v‰lja tˆˆtatud j‰rgmistele protsessori arhitektuuridele:%n%n%1
-MissingWOW64APIs=Sinu arvutis tˆˆtaval Windowsil puuduvad 64-bitise paigaldamise jaoks vajalik funktsionaalsus. Selle probleemi parandamiseks paigalda palun Service Pack (Hoolduspakett) %1.
-WinVersionTooLowError=See programm vajab %1 versiooniga %2 vıi uuemat.
-WinVersionTooHighError=Seda programmi ei saa paigaldada %1 versiooniga %2 vıi uuema puhul.
+SetupFileCorruptOrWrongVer=Paigaldaja failid on kas rikutud v√µi ei t√∂√∂ta selle paigaldaja versiooniga. Palun paranda see viga v√µi hangi programmi uus koopia.
+InvalidParameter=K√§sureale anti vale parameeter:%n%n%1
+SetupAlreadyRunning=Paigaldaja alles t√∂√∂tab.
+WindowsVersionNotSupported=Seda programmi ei saa selle Windowsi versiooniga kasutada, mis arvutis praegu t√∂√∂tab.
+WindowsServicePackRequired=See programm vajab %1 Service Pack (Hoolduspakett) %2 v√µi uuemat.
+NotOnThisPlatform=See programm ei t√∂√∂ta %1'i platvormil.
+OnlyOnThisPlatform=See programm peab t√∂√∂tama %1'i platvormil.
+OnlyOnTheseArchitectures=Seda programmi saab paigaldada ainult neile Windowsi versioonidele, mis on v√§lja t√∂√∂tatud j√§rgmistele protsessori arhitektuuridele:%n%n%1
+MissingWOW64APIs=Sinu arvutis t√∂√∂taval Windowsil puuduvad 64-bitise paigaldamise jaoks vajalik funktsionaalsus. Selle probleemi parandamiseks paigalda palun Service Pack (Hoolduspakett) %1.
+WinVersionTooLowError=See programm vajab %1 versiooniga %2 v√µi uuemat.
+WinVersionTooHighError=Seda programmi ei saa paigaldada %1 versiooniga %2 v√µi uuema puhul.
 AdminPrivilegesRequired=Selle programmi paigaldamiseks pead olema administraatorina sisse logitud.
-PowerUserPrivilegesRequired=Selle programmi paigaldamiseks pead olema sisse logitud administraatorina vıi Power user liikmena.
-SetupAppRunningError=Paigaldaja tuvastas, et %1 tˆˆtab hetkel.%n%nPalun sulge see programm ning seej‰rel j‰tkamiseks vajuta OK, katkestamiseks Katkesta.
-UninstallAppRunningError=Eemaldaja tuvastas, et %1 tˆˆtab hetkel.%n%nPalun sulge see programm ning seej‰rel j‰tkamiseks vajuta OK, katkestamiseks Katkesta.
+PowerUserPrivilegesRequired=Selle programmi paigaldamiseks pead olema sisse logitud administraatorina v√µi Power user liikmena.
+SetupAppRunningError=Paigaldaja tuvastas, et %1 t√∂√∂tab hetkel.%n%nPalun sulge see programm ning seej√§rel j√§tkamiseks vajuta OK, katkestamiseks Katkesta.
+UninstallAppRunningError=Eemaldaja tuvastas, et %1 t√∂√∂tab hetkel.%n%nPalun sulge see programm ning seej√§rel j√§tkamiseks vajuta OK, katkestamiseks Katkesta.
 
 ; *** Misc. errors
 ErrorCreatingDir=Paigaldaja ei saanud luua kataloogi "%1"
 ErrorTooManyFilesInDir=Ei saanud luua faili kataloogi "%1", kuna seal on juba liiga palju faile
 
 ; *** Setup common messages
-ExitSetupTitle=V‰lju paigaldajast
-ExitSetupMessage=Paigaldamine pole valmis. Kui praegu v‰ljud, siis programmi ei paigaldata.%n%nPaigaldamise lıpetamiseks vıid paigaldaja mıni teine kord uuesti k‰ivitada.%n%nSoovid v‰ljuda paigaldajast?
+ExitSetupTitle=V√§lju paigaldajast
+ExitSetupMessage=Paigaldamine pole valmis. Kui praegu v√§ljud, siis programmi ei paigaldata.%n%nPaigaldamise l√µpetamiseks v√µid paigaldaja m√µni teine kord uuesti k√§ivitada.%n%nSoovid v√§ljuda paigaldajast?
 AboutSetupMenuItem=&Teave paigaldajast...
 AboutSetupTitle=Teave paigaldajast
 AboutSetupMessage=%1 versiooniga %2%n%3%n%n%1 koduleht:%n%4
 AboutSetupNote=
-TranslatorNote=Tılkis LiivaneLord (liivane[dot]lord[at]mail[dot]ee)
+TranslatorNote=T√µlkis LiivaneLord (liivane[dot]lord[at]mail[dot]ee)
 
 ; *** Buttons
 ButtonBack=< &Tagasi
@@ -88,9 +88,9 @@ ButtonInstall=&Paigalda
 ButtonOK=OK
 ButtonCancel=Katkesta
 ButtonYes=&Jah
-ButtonYesToAll=Kıikidele J&ah
+ButtonYesToAll=K√µikidele J&ah
 ButtonNo=&Ei
-ButtonNoToAll=Kıikidele E&i
+ButtonNoToAll=K√µikidele E&i
 ButtonFinish=&Valmis
 ButtonBrowse=&Sirvi...
 ButtonWizardBrowse=S&irvi...
@@ -98,10 +98,10 @@ ButtonNewFolder=&Loo uus kaust
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Vali paigaldaja keel
-SelectLanguageLabel=Vali keel, mida soovid kasutada paigaldamise k‰igus:
+SelectLanguageLabel=Vali keel, mida soovid kasutada paigaldamise k√§igus:
 
 ; *** Common wizard text
-ClickNext=J‰tkamiseks vajuta Edasi, paigaldajast v‰ljumiseks vajuta Katkesta.
+ClickNext=J√§tkamiseks vajuta Edasi, paigaldajast v√§ljumiseks vajuta Katkesta.
 BeveledLabel=
 BrowseDialogTitle=Sirvi kausta
 BrowseDialogLabel=Vali allolevast nimekirjast kaust ja vajuta OK.
@@ -109,29 +109,29 @@ NewFolderName=Uus kaust
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Tere tulemast [name] paigaldaja viisardisse
-WelcomeLabel2=Sinu arvutisse paigaldatakse [name/ver].%n%nEnne j‰tkamist on soovitatav sulgeda kıik muud programmid.
+WelcomeLabel2=Sinu arvutisse paigaldatakse [name/ver].%n%nEnne j√§tkamist on soovitatav sulgeda k√µik muud programmid.
 
 ; *** "Password" wizard page
 WizardPassword=Parool
 PasswordLabel1=See paigaldaja on kaitstud parooliga.
-PasswordLabel3=Palun sisesta parool ja vajuta Edasi. Paroolid on tıstutundlikud.
+PasswordLabel3=Palun sisesta parool ja vajuta Edasi. Paroolid on t√µstutundlikud.
 PasswordEditLabel=&Parool:
 IncorrectPassword=Sisestatud parool on vale. Palun proovi uuesti.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Litsentsileping
-LicenseLabel=Palun loe enne j‰tkamist see informatsioon l‰bi.
-LicenseLabel3=Palun loe j‰rgnevat litsentsilepingut. Paigaldamise j‰tkamiseks pead nıustuma selle lepingu tingimustega.
-LicenseAccepted=Ma &nıustun lepinguga
-LicenseNotAccepted=Ma &ei nıustu lepinguga
+LicenseLabel=Palun loe enne j√§tkamist see informatsioon l√§bi.
+LicenseLabel3=Palun loe j√§rgnevat litsentsilepingut. Paigaldamise j√§tkamiseks pead n√µustuma selle lepingu tingimustega.
+LicenseAccepted=Ma &n√µustun lepinguga
+LicenseNotAccepted=Ma &ei n√µustu lepinguga
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informatsioon
-InfoBeforeLabel=Palun loe enne j‰tkamist see oluline informatsioon l‰bi.
-InfoBeforeClickLabel=Kui oled valmis j‰tkama paigaldamist, vajuta Edasi.
+InfoBeforeLabel=Palun loe enne j√§tkamist see oluline informatsioon l√§bi.
+InfoBeforeClickLabel=Kui oled valmis j√§tkama paigaldamist, vajuta Edasi.
 WizardInfoAfter=Informatsioon
-InfoAfterLabel=Palun loe enne j‰tkamist see oluline informatsioon l‰bi.
-InfoAfterClickLabel=Kui oled valmis j‰tkama paigaldamist, vajuta Edasi.
+InfoAfterLabel=Palun loe enne j√§tkamist see oluline informatsioon l√§bi.
+InfoAfterClickLabel=Kui oled valmis j√§tkama paigaldamist, vajuta Edasi.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Andmed kasutaja kohta
@@ -144,18 +144,18 @@ UserInfoNameRequired=Pead sisestama nime.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Vali programmile kaust
 SelectDirDesc=Kuhu [name] paigaldada?
-SelectDirLabel3=Paigaldaja paigaldab [name]'i j‰rgnevasse kausta.
-SelectDirBrowseLabel=J‰tkamiseks vajuta Edasi. Kui soovid valida muu kausta, vajuta Sirvi.
-DiskSpaceMBLabel=Programm vajab v‰hemalt [mb] MB vaba ruumi.
-CannotInstallToNetworkDrive=Programmi ei saa paigaldada vırgudraivile.
+SelectDirLabel3=Paigaldaja paigaldab [name]'i j√§rgnevasse kausta.
+SelectDirBrowseLabel=J√§tkamiseks vajuta Edasi. Kui soovid valida muu kausta, vajuta Sirvi.
+DiskSpaceMBLabel=Programm vajab v√§hemalt [mb] MB vaba ruumi.
+CannotInstallToNetworkDrive=Programmi ei saa paigaldada v√µrgudraivile.
 CannotInstallToUNCPath=Programmi ei saa paigaldada UNC kataloogi.
-InvalidPath=Pead sisestama t‰ispika draivitee koos draivit‰hisega; n‰iteks:%n%nC:\APP%n%nvıi UNC kataloog kujul:%n%n\\server\share
-InvalidDrive=Sinu valitud draivi vıi UNC kataloogi ei eksisteeri vıi puudub sellele ligip‰‰s. Palun vali mıni teine.
+InvalidPath=Pead sisestama t√§ispika draivitee koos draivit√§hisega; n√§iteks:%n%nC:\APP%n%nv√µi UNC kataloog kujul:%n%n\\server\share
+InvalidDrive=Sinu valitud draivi v√µi UNC kataloogi ei eksisteeri v√µi puudub sellele ligip√§√§s. Palun vali m√µni teine.
 DiskSpaceWarningTitle=Pole piisavalt ruumi
-DiskSpaceWarning=Paigaldamiseks on vaja v‰hemalt %1 KB vaba ruumi, aga valitud draivil on vaba ainult %2 KB.%n%nKas soovid sellegipoolest j‰tkata?
-DirNameTooLong=Kausta nimi vıi kaustatee on liiga pikk
+DiskSpaceWarning=Paigaldamiseks on vaja v√§hemalt %1 KB vaba ruumi, aga valitud draivil on vaba ainult %2 KB.%n%nKas soovid sellegipoolest j√§tkata?
+DirNameTooLong=Kausta nimi v√µi kaustatee on liiga pikk
 InvalidDirName=Kausta nimi on vale.
-BadDirName32=Kausta nimed ei tohi sisaldada ¸htegi j‰rgnevatest s¸mbolitest:%n%n%1
+BadDirName32=Kausta nimed ei tohi sisaldada √ºhtegi j√§rgnevatest s√ºmbolitest:%n%n%1
 DirExistsTitle=Kaust on olemas
 DirExists=Kaust:%n%n%1%n%non juba olemas. Kas soovid sellegipoolest sinna paigaldada?
 DirDoesntExistTitle=Kaust puudub
@@ -164,85 +164,85 @@ DirDoesntExist=Kaust:%n%n%1%n%npuudub. Kas soovid, et see kaust luuakse?
 ; *** "Select Components" wizard page
 WizardSelectComponents=Vali komponendid
 SelectComponentsDesc=Millised komponendid paigaldada?
-SelectComponentsLabel2=Vali komponendid, mida paigaldada; eemalda m‰rgid komponentidelt, mida ei soovi paigaldada. Kui oled valmis j‰tkama, vajuta Edasi.
-FullInstallation=T‰ielik paigaldamine
+SelectComponentsLabel2=Vali komponendid, mida paigaldada; eemalda m√§rgid komponentidelt, mida ei soovi paigaldada. Kui oled valmis j√§tkama, vajuta Edasi.
+FullInstallation=T√§ielik paigaldamine
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompaktne paigaldamine
 CustomInstallation=Kohandatud paigaldamine
 NoUninstallWarningTitle=Komponendid on juba olemas
-NoUninstallWarning=Paigaldaja tuvastas, et j‰rgnevad komponendid on sinu arvutis juba olemas:%n%n%1%n%nNende mittevalimine ei eemalda neid.%n%nKas soovid sellegipoolest j‰tkata?
+NoUninstallWarning=Paigaldaja tuvastas, et j√§rgnevad komponendid on sinu arvutis juba olemas:%n%n%1%n%nNende mittevalimine ei eemalda neid.%n%nKas soovid sellegipoolest j√§tkata?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceMBLabel=Praegune valik vajab v‰hemalt [mb] MB vaba ruumi.
+ComponentsDiskSpaceMBLabel=Praegune valik vajab v√§hemalt [mb] MB vaba ruumi.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Vali t‰iendavad ¸lesanded
-SelectTasksDesc=Milliseid t‰iendavaid ¸lesanded t‰ita?
-SelectTasksLabel2=Vali, milliseid t‰iendavaid ¸lesandeid [name] paigaldaja peab t‰itma ja vajuta Edasi.
+WizardSelectTasks=Vali t√§iendavad √ºlesanded
+SelectTasksDesc=Milliseid t√§iendavaid √ºlesanded t√§ita?
+SelectTasksLabel2=Vali, milliseid t√§iendavaid √ºlesandeid [name] paigaldaja peab t√§itma ja vajuta Edasi.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Vali Start men¸¸ kaust
+WizardSelectProgramGroup=Vali Start men√º√º kaust
 SelectStartMenuFolderDesc=Kuhu luua programmi otseteed?
-SelectStartMenuFolderLabel3=Paigaldaja loob programmi otseteed j‰rgnevasse Start men¸¸ kausta.
-SelectStartMenuFolderBrowseLabel=J‰tkamiseks vajuta Edasi. Kui soovid valida muu kausta, vajuta Sirvi.
+SelectStartMenuFolderLabel3=Paigaldaja loob programmi otseteed j√§rgnevasse Start men√º√º kausta.
+SelectStartMenuFolderBrowseLabel=J√§tkamiseks vajuta Edasi. Kui soovid valida muu kausta, vajuta Sirvi.
 MustEnterGroupName=Pead sisestama kausta nime.
-GroupNameTooLong=Kausta nimi vıi kaustatee on liiga pikk.
+GroupNameTooLong=Kausta nimi v√µi kaustatee on liiga pikk.
 InvalidGroupName=Kausta nimi on vale.
-BadGroupName=Kausta nimi ei tohi sisaldada j‰rgnevatest s¸mbolitest:%n%n%1
-NoProgramGroupCheck2=&ƒra loo Start men¸¸ kausta
+BadGroupName=Kausta nimi ei tohi sisaldada j√§rgnevatest s√ºmbolitest:%n%n%1
+NoProgramGroupCheck2=&√Ñra loo Start men√º√º kausta
 
 ; *** "Ready to Install" wizard page
 WizardReady=Valmis paigaldama
 ReadyLabel1=Paigaldaja on valmis paigaldama [name]'i sinu arvutisse.
-ReadyLabel2a=Paigaldamise j‰tkamiseks vajuta Paigalda vıi vajuta Tagasi, et n‰ha vıi muuta seadeid.
-ReadyLabel2b=Paigaldamise j‰tkamiseks vajuta Paigalda.
+ReadyLabel2a=Paigaldamise j√§tkamiseks vajuta Paigalda v√µi vajuta Tagasi, et n√§ha v√µi muuta seadeid.
+ReadyLabel2b=Paigaldamise j√§tkamiseks vajuta Paigalda.
 ReadyMemoUserInfo=Kasutaja andmed:
 ReadyMemoDir=Sihtkaust:
-ReadyMemoType=Paigalduse t¸¸p:
+ReadyMemoType=Paigalduse t√º√ºp:
 ReadyMemoComponents=Valitud komponendid:
-ReadyMemoGroup=Start men¸¸ kaust:
-ReadyMemoTasks=Lisa¸lesanded:
+ReadyMemoGroup=Start men√º√º kaust:
+ReadyMemoTasks=Lisa√ºlesanded:
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Paigaldamiseks valmistumine
 PreparingDesc=Paigaldaja valmistub paigaldama [name]'i sinu arvutisse.
-PreviousInstallNotCompleted=Eelmise programmi paigaldamine/eemaldamine ei ole lıpetatud. Paigaldamise lıpetamiseks pead arvuti taask‰ivitama.%n%nP‰rast taask‰ivitust k‰ivitage [name]'i paigaldaja uuesti, et lıpetada paigaldamine.
-CannotContinue=Paigaldaja ei saa j‰tkata. V‰ljumiseks vajuta palun Katkesta.
-ApplicationsFound=J‰rgnevad rakendused kasutavad faile, mida paigaldaja peab uuendama. Soovitatav on lubada paigaldajal need rakendused automaatselt sulgeda.
-ApplicationsFound2=J‰rgnevad rakendused kasutavad faile, mida paigaldaja peab uuendama. Soovitatav on lubada paigaldajal need rakendused automaatselt sulgeda. P‰rasta paigaldamise lıpetamist ¸ritab paigaldaja need rakendused taask‰ivitada.
+PreviousInstallNotCompleted=Eelmise programmi paigaldamine/eemaldamine ei ole l√µpetatud. Paigaldamise l√µpetamiseks pead arvuti taask√§ivitama.%n%nP√§rast taask√§ivitust k√§ivitage [name]'i paigaldaja uuesti, et l√µpetada paigaldamine.
+CannotContinue=Paigaldaja ei saa j√§tkata. V√§ljumiseks vajuta palun Katkesta.
+ApplicationsFound=J√§rgnevad rakendused kasutavad faile, mida paigaldaja peab uuendama. Soovitatav on lubada paigaldajal need rakendused automaatselt sulgeda.
+ApplicationsFound2=J√§rgnevad rakendused kasutavad faile, mida paigaldaja peab uuendama. Soovitatav on lubada paigaldajal need rakendused automaatselt sulgeda. P√§rasta paigaldamise l√µpetamist √ºritab paigaldaja need rakendused taask√§ivitada.
 CloseApplications=&Sulge rakendused automaatselt
-DontCloseApplications=ƒra s&ulge rakendusi
-ErrorCloseApplications=Paigaldaja ei saanud kıiki rakendusi automaatselt sulgeda. Enne j‰tkamist on soovitatav sul sulgeda kıik rakendused, mis kasutavad faile, mida paigaldaja peab uuendama.
+DontCloseApplications=√Ñra s&ulge rakendusi
+ErrorCloseApplications=Paigaldaja ei saanud k√µiki rakendusi automaatselt sulgeda. Enne j√§tkamist on soovitatav sul sulgeda k√µik rakendused, mis kasutavad faile, mida paigaldaja peab uuendama.
 
 ; *** "Installing" wizard page
 WizardInstalling=Paigaldamine
 InstallingLabel=Palun oota, kuni [name] paigaldatakse sinu arvutisse.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=[name]'i paigaldamise lıpetamine
-FinishedLabelNoIcons=[name]'i paigaldamine on lıpetatud.
-FinishedLabel=[name]'i paigaldamine on lıpetatud. Programmi saab k‰ivitada paigaldatud ikoonide abil.
-ClickFinish=Paigaldajast v‰ljumiseks vajuta Valmis.
-FinishedRestartLabel=[name]'i paigaldamise lıpetamiseks peab arvuti taask‰ivituma. Kas soovid kohe taask‰ivitada?
-FinishedRestartMessage=[name]'i paigaldamise lıpetamiseks peab arvuti taask‰ivituma.%n%nKas soovid kohe taask‰ivitada?
-ShowReadmeCheck=Jah, sooviksin n‰ha Readme (LoeMind) faili
-YesRadio=&Jah, taask‰ivita arvuti kohe
-NoRadio=&Ei, taask‰ivitan arvuti hiljem
+FinishedHeadingLabel=[name]'i paigaldamise l√µpetamine
+FinishedLabelNoIcons=[name]'i paigaldamine on l√µpetatud.
+FinishedLabel=[name]'i paigaldamine on l√µpetatud. Programmi saab k√§ivitada paigaldatud ikoonide abil.
+ClickFinish=Paigaldajast v√§ljumiseks vajuta Valmis.
+FinishedRestartLabel=[name]'i paigaldamise l√µpetamiseks peab arvuti taask√§ivituma. Kas soovid kohe taask√§ivitada?
+FinishedRestartMessage=[name]'i paigaldamise l√µpetamiseks peab arvuti taask√§ivituma.%n%nKas soovid kohe taask√§ivitada?
+ShowReadmeCheck=Jah, sooviksin n√§ha Readme (LoeMind) faili
+YesRadio=&Jah, taask√§ivita arvuti kohe
+NoRadio=&Ei, taask√§ivitan arvuti hiljem
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=K‰ivita %1
+RunEntryExec=K√§ivita %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Vaata %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Paigaldaja vajab j‰rgmist diski
-SelectDiskLabel2=Palun sisesta disk %1 ja vajuta OK.%n%nKui diskil olevad failid asuvad kuskil mujal, siis sisesta ıige kaustatee vıi vajuta Sirvi.
+ChangeDiskTitle=Paigaldaja vajab j√§rgmist diski
+SelectDiskLabel2=Palun sisesta disk %1 ja vajuta OK.%n%nKui diskil olevad failid asuvad kuskil mujal, siis sisesta √µige kaustatee v√µi vajuta Sirvi.
 PathLabel=&Asukoht:
-FileNotInDir2=Fail "%1" ei asu kohas "%2". Palun sisesta ıige disk vıi vali teine kaust.
-SelectDirectoryLabel=Palun t‰psusta j‰rgmise diski asukoht.
+FileNotInDir2=Fail "%1" ei asu kohas "%2". Palun sisesta √µige disk v√µi vali teine kaust.
+SelectDirectoryLabel=Palun t√§psusta j√§rgmise diski asukoht.
 
 ; *** Installation phase messages
-SetupAborted=Paigaldamist ei lıpetatud.%n%nPalun paranda viga ja k‰ivita paigaldaja uuesti.
-EntryAbortRetryIgnore=Uuesti proovimiseks vajuta Proovi uuesti, j‰tkamiseks Ignoreeri vıi lıpetamiseks Katkesta.
+SetupAborted=Paigaldamist ei l√µpetatud.%n%nPalun paranda viga ja k√§ivita paigaldaja uuesti.
+EntryAbortRetryIgnore=Uuesti proovimiseks vajuta Proovi uuesti, j√§tkamiseks Ignoreeri v√µi l√µpetamiseks Katkesta.
 
 ; *** Installation status messages
 StatusClosingApplications=Rakenduste sulgemine...
@@ -253,40 +253,40 @@ StatusCreateIniEntries=INI kirjete loomine...
 StatusCreateRegistryEntries=Registri kirjete loomine...
 StatusRegisterFiles=Failide registreerimine...
 StatusSavingUninstall=Eemaldamise teabe salvestamine...
-StatusRunProgram=Paigaldamise lıpetamine...
-StatusRestartingApplications=Rakenduste taask‰ivitamine...
-StatusRollback=Muudatuste tagasivıtmine...
+StatusRunProgram=Paigaldamise l√µpetamine...
+StatusRestartingApplications=Rakenduste taask√§ivitamine...
+StatusRollback=Muudatuste tagasiv√µtmine...
 
 ; *** Misc. errors
 ErrorInternal2=Sisemine viga: %1
 ErrorFunctionFailedNoCode=%1 luhtus
 ErrorFunctionFailed=%1 luhtus; kood %2
 ErrorFunctionFailedWithMessage=%1 luhtus; kood %2.%n%3
-ErrorExecutingProgram=Ei saanud k‰ivitada faili:%n%1
+ErrorExecutingProgram=Ei saanud k√§ivitada faili:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Ei saanud avada registri vıtit:%n%1\%2
-ErrorRegCreateKey=Ei saanud luua registri vıtit:%n%1\%2
-ErrorRegWriteKey=Ei saanud kirjutada registri vıtit:%n%1\%2
+ErrorRegOpenKey=Ei saanud avada registri v√µtit:%n%1\%2
+ErrorRegCreateKey=Ei saanud luua registri v√µtit:%n%1\%2
+ErrorRegWriteKey=Ei saanud kirjutada registri v√µtit:%n%1\%2
 
 ; *** INI errors
 ErrorIniEntry=Viga INI kirje loomisel failis "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Uuesti proovimiseks vajuta Proovi uuesti, faili vahelej‰tmiseks Ignoreeri (mittesoovitatav) vıi paigaldamisest loobumiseks Katkesta.
-FileAbortRetryIgnore2=Uuesti proovimiseks vajuta Proovi uuesti, j‰tkamiseks Ignoreeri (mittesoovitatav) vıi paigaldamisest loobumiseks Katkesta.
-SourceIsCorrupted=L‰htefail on rikutud
-SourceDoesntExist=L‰htefaili "%1" ei eksisteeri
-ExistingFileReadOnly=Fail on m‰rgitud kui kirjutuskaitstud.%n%nKirjutuskaitstuse mahavıtmiseks vajuta Proovi uuesti ja proovi uuesti, faili vahelej‰tmiseks Ignoreeri vıi paigaldamisest loobumiseks Katkesta.
+FileAbortRetryIgnore=Uuesti proovimiseks vajuta Proovi uuesti, faili vahelej√§tmiseks Ignoreeri (mittesoovitatav) v√µi paigaldamisest loobumiseks Katkesta.
+FileAbortRetryIgnore2=Uuesti proovimiseks vajuta Proovi uuesti, j√§tkamiseks Ignoreeri (mittesoovitatav) v√µi paigaldamisest loobumiseks Katkesta.
+SourceIsCorrupted=L√§htefail on rikutud
+SourceDoesntExist=L√§htefaili "%1" ei eksisteeri
+ExistingFileReadOnly=Fail on m√§rgitud kui kirjutuskaitstud.%n%nKirjutuskaitstuse mahav√µtmiseks vajuta Proovi uuesti ja proovi uuesti, faili vahelej√§tmiseks Ignoreeri v√µi paigaldamisest loobumiseks Katkesta.
 ErrorReadingExistingDest=Faili lugemisel ilmnes viga:
-FileExists=Fail on juba olemas.%n%nKas soovid, et paigaldaja selle ¸le kirjutaks?
-ExistingFileNewer=Olemasolev fail on uuem kui see, mida paigaldaja ¸ritab paigaldada. Soovitatav on olemasolev fail alles j‰tta.%n%nKas soovid olemasoleva faili alles j‰tta?
+FileExists=Fail on juba olemas.%n%nKas soovid, et paigaldaja selle √ºle kirjutaks?
+ExistingFileNewer=Olemasolev fail on uuem kui see, mida paigaldaja √ºritab paigaldada. Soovitatav on olemasolev fail alles j√§tta.%n%nKas soovid olemasoleva faili alles j√§tta?
 ErrorChangingAttr=Faili atribuutide muutmisel ilmnes viga:
 ErrorCreatingTemp=Faili loomisel sihtkataloogi ilmnes viga:
-ErrorReadingSource=L‰htefaili lugemisel ilmnes viga:
+ErrorReadingSource=L√§htefaili lugemisel ilmnes viga:
 ErrorCopying=Faili kopeerimisel ilmnes viga:
 ErrorReplacingExistingFile=Olemasoleva faili asendamisel ilmnes viga:
-ErrorRestartReplace=Faili asendamine peale taask‰ivitust ei ınnestunud:
+ErrorRestartReplace=Faili asendamine peale taask√§ivitust ei √µnnestunud:
 ErrorRenamingTemp=Faili nime muutmisel sihtkataloogis ilmnes viga:
 ErrorRegisterServer=Ei saanud registreerida DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 luhtus koodiga %1
@@ -294,25 +294,25 @@ ErrorRegisterTypeLib=Unable to register the type library: %1
 
 ; *** Post-installation errors
 ErrorOpeningReadme=README (LoeMind) faili avamisel ilmnes viga.
-ErrorRestartingComputer=Paigaldaja ei suutnud arvutit taask‰ivitada. Palun tee seda k‰sitsi.
+ErrorRestartingComputer=Paigaldaja ei suutnud arvutit taask√§ivitada. Palun tee seda k√§sitsi.
 
 ; *** Uninstaller messages
 UninstallNotFound=Faili "%1" ei ole olemas. Ei saa eemaldada.
 UninstallOpenError=Faili "%1" ei saanud avada. Ei saa eemaldada.
 UninstallUnsupportedVer=Eemaldamise logifaili "%1" formaat on tundmatu selle versiooni eemaldaja jaoks. Ei saa eemaldada
 UninstallUnknownEntry=Eemaldaja logis on tundmatu kirje (%1)
-ConfirmUninstall=Oled kindel, et soovid eemaldada %1'i ja kıik selle komponendid?
+ConfirmUninstall=Oled kindel, et soovid eemaldada %1'i ja k√µik selle komponendid?
 UninstallOnlyOnWin64=Seda paigaldamist saab eemaldada ainult 64-bitises Windowsis.
-OnlyAdminCanUninstall=Seda paigaldamist saab eemaldada ainult administraatoriıigustega kasutaja.
+OnlyAdminCanUninstall=Seda paigaldamist saab eemaldada ainult administraatori√µigustega kasutaja.
 UninstallStatusLabel=Palun oota, kuni %1 eemaldatakse sinu arvutist.
 UninstalledAll=%1 eemaldati sinu arvutist edukalt.
-UninstalledMost=%1'i eemaldamine ınnestus.%n%nMıned elemendid j‰id alles. Need vıib k‰sitsi kustutada.
-UninstalledAndNeedsRestart=%1'i eemaldamise lıpetamiseks peab arvuti taask‰ivituma.%n%nKas soovid kohe taask‰ivitada?
+UninstalledMost=%1'i eemaldamine √µnnestus.%n%nM√µned elemendid j√§id alles. Need v√µib k√§sitsi kustutada.
+UninstalledAndNeedsRestart=%1'i eemaldamise l√µpetamiseks peab arvuti taask√§ivituma.%n%nKas soovid kohe taask√§ivitada?
 UninstallDataCorrupted="%1" fail on rikutud. Ei saa eemaldada
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Kas kustutan ¸hiskasutuses oleva faili?
-ConfirmDeleteSharedFile2=S¸steem kinnitab, et ¸hiskasutuses olevat faili ei kasuta ¸kski teine programm. Kas soovid, et eemaldaja selle ¸hiskasutuses oleva faili kustutaks?%n%nKui mıni programm seda siiski veel kasutab, siis ei pruugi see enam korralikult tˆˆtada. Kui sa pole kindel, vali Ei. Faili allesj‰tmine ei tekita probleeme.
+ConfirmDeleteSharedFileTitle=Kas kustutan √ºhiskasutuses oleva faili?
+ConfirmDeleteSharedFile2=S√ºsteem kinnitab, et √ºhiskasutuses olevat faili ei kasuta √ºkski teine programm. Kas soovid, et eemaldaja selle √ºhiskasutuses oleva faili kustutaks?%n%nKui m√µni programm seda siiski veel kasutab, siis ei pruugi see enam korralikult t√∂√∂tada. Kui sa pole kindel, vali Ei. Faili allesj√§tmine ei tekita probleeme.
 SharedFileNameLabel=Faili nimi:
 SharedFileLocationLabel=Asukoht:
 WizardUninstalling=Eemaldamise staatus
@@ -328,14 +328,14 @@ ShutdownBlockReasonUninstallingApp=%1'i eemaldamine.
 [CustomMessages]
 
 NameAndVersion=%1 versiooniga %2
-AdditionalIcons=T‰iendavad ikoonid:
-CreateDesktopIcon=Loo &tˆˆlaua ikoon
-CreateQuickLaunchIcon=Loo &kiirk‰ivituse ikoon
+AdditionalIcons=T√§iendavad ikoonid:
+CreateDesktopIcon=Loo &t√∂√∂laua ikoon
+CreateQuickLaunchIcon=Loo &kiirk√§ivituse ikoon
 ProgramOnTheWeb=%1 veebis
 UninstallProgram=%1 - eemalda
-LaunchProgram=K‰ivita %1
+LaunchProgram=K√§ivita %1
 AssocFileExtension=&Seosta %1 %2 faililaiendiga
 AssocingFileExtension=Seostan %1 %2 faililaiendiga...
-AutoStartProgramGroupDescription=K‰ivitus:
-AutoStartProgram=K‰ivita %1 automaatselt
-AddonHostProgramNotFound=%1 ei asu sinu valitud kaustas.%n%nKas soovid sellegipoolest j‰tkata?
+AutoStartProgramGroupDescription=K√§ivitus:
+AutoStartProgram=K√§ivita %1 automaatselt
+AddonHostProgramNotFound=%1 ei asu sinu valitud kaustas.%n%nKas soovid sellegipoolest j√§tkata?

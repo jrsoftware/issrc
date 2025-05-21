@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Lithuanian messages ***
+ï»¿; *** Inno Setup version 6.4.0+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -16,7 +16,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Lietuvi<0173>
 LanguageID=$0427
-LanguageCodePage=1257
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
@@ -33,8 +33,8 @@ LanguageCodePage=1257
 ; *** Application titles
 SetupAppTitle=Diegimas
 SetupWindowTitle=Diegimas - %1
-UninstallAppTitle=Pağalinimas
-UninstallAppFullTitle=„%1“ pağalinimas
+UninstallAppTitle=PaÅ¡alinimas
+UninstallAppFullTitle=â€%1â€œ paÅ¡alinimas
 
 ; *** Misc. common
 InformationTitle=Informacija
@@ -42,49 +42,49 @@ ConfirmTitle=Patvirtinimas
 ErrorTitle=Klaida
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=%1 diegimas. Norite tæsti?
+SetupLdrStartupMessage=%1 diegimas. Norite tÄ™sti?
 LdrCannotCreateTemp=Negaliu sukurti laikinojo failo. Diegimas nutraukiamas
-LdrCannotExecTemp=Negaliu ávykdyti failo laikinajame kataloge. Diegimas nutraukiamas
+LdrCannotExecTemp=Negaliu Ä¯vykdyti failo laikinajame kataloge. Diegimas nutraukiamas
 HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nKlaida %2: %3
-SetupFileMissing=Diegimo kataloge nerastas „%1“ failas. Pağalinkite ğià problemà arba ásigykite naujà programos kopijà.
-SetupFileCorrupt=Ádiegiami failai sugadinti. Ásigykite naujà programos kopijà.
-SetupFileCorruptOrWrongVer=Ádiegiami failai yra sugadinti arba nesuderinami su diegimo programa. Iğtaisykite problemà arba ásigykite naujà programos kopijà.
-InvalidParameter=Klaidingas parametras buvo gautas iğ komandinës eilutës:%n%n%1
+SetupFileMissing=Diegimo kataloge nerastas â€%1â€œ failas. PaÅ¡alinkite Å¡iÄ… problemÄ… arba Ä¯sigykite naujÄ… programos kopijÄ….
+SetupFileCorrupt=Ä®diegiami failai sugadinti. Ä®sigykite naujÄ… programos kopijÄ….
+SetupFileCorruptOrWrongVer=Ä®diegiami failai yra sugadinti arba nesuderinami su diegimo programa. IÅ¡taisykite problemÄ… arba Ä¯sigykite naujÄ… programos kopijÄ….
+InvalidParameter=Klaidingas parametras buvo gautas iÅ¡ komandinÄ—s eilutÄ—s:%n%n%1
 SetupAlreadyRunning=Diegimo programa jau yra paleista.
-WindowsVersionNotSupported=Ği programa nesuderinama su Jûsø kompiuteryje ádiegta Windows versija.
-WindowsServicePackRequired=Ği programa reikalauja %1 Service Pack %2 ar vëlesnës versijos.
-NotOnThisPlatform=Ği programa negali bûti paleista %1 aplinkoje.
-OnlyOnThisPlatform=Ği programa turi bûti leidşiama %1 aplinkoje.
-OnlyOnTheseArchitectures=Ği programa gali bûti ádiegta tik Windows versijose, turinèiose ğias procesoriaus architektûras:%n%n%1
-WinVersionTooLowError=Ği programa reikalauja %1 %2 ar vëlesnës versijos.
-WinVersionTooHighError=Ği programa negali bûti ádiegta %1 %2 ar vëlesnës versijos aplinkoje.
-AdminPrivilegesRequired=Ğios programos diegimui privalote bûti prisijungæs Administratoriaus teisëmis.
-PowerUserPrivilegesRequired=Ğios programos diegimui privalote bûti prisijungæs Administratoriaus arba „Power Users“ grupës nario teisëmis.
-SetupAppRunningError=Diegimo programa aptiko, kad yra paleista „%1“.%n%nUşdarykite visas paleistas ğios programos kopijas ir, jei norite tæsti, paspauskite „Gerai“ arba „Atğaukti“, jei norite nutraukti diegimà.
-UninstallAppRunningError=Pağalinimo programa aptiko, kad yra paleista „%1“.%n%nUşdarykite visas paleistas ğios programos kopijas ir, jei norite tæsti, paspauskite „Gerai“ arba „Atğaukti“, jei norite nutraukti diegimà.
+WindowsVersionNotSupported=Å i programa nesuderinama su JÅ«sÅ³ kompiuteryje Ä¯diegta Windows versija.
+WindowsServicePackRequired=Å i programa reikalauja %1 Service Pack %2 ar vÄ—lesnÄ—s versijos.
+NotOnThisPlatform=Å i programa negali bÅ«ti paleista %1 aplinkoje.
+OnlyOnThisPlatform=Å i programa turi bÅ«ti leidÅ¾iama %1 aplinkoje.
+OnlyOnTheseArchitectures=Å i programa gali bÅ«ti Ä¯diegta tik Windows versijose, turinÄiose Å¡ias procesoriaus architektÅ«ras:%n%n%1
+WinVersionTooLowError=Å i programa reikalauja %1 %2 ar vÄ—lesnÄ—s versijos.
+WinVersionTooHighError=Å i programa negali bÅ«ti Ä¯diegta %1 %2 ar vÄ—lesnÄ—s versijos aplinkoje.
+AdminPrivilegesRequired=Å ios programos diegimui privalote bÅ«ti prisijungÄ™s Administratoriaus teisÄ—mis.
+PowerUserPrivilegesRequired=Å ios programos diegimui privalote bÅ«ti prisijungÄ™s Administratoriaus arba â€Power Usersâ€œ grupÄ—s nario teisÄ—mis.
+SetupAppRunningError=Diegimo programa aptiko, kad yra paleista â€%1â€œ.%n%nUÅ¾darykite visas paleistas Å¡ios programos kopijas ir, jei norite tÄ™sti, paspauskite â€Geraiâ€œ arba â€AtÅ¡auktiâ€œ, jei norite nutraukti diegimÄ….
+UninstallAppRunningError=PaÅ¡alinimo programa aptiko, kad yra paleista â€%1â€œ.%n%nUÅ¾darykite visas paleistas Å¡ios programos kopijas ir, jei norite tÄ™sti, paspauskite â€Geraiâ€œ arba â€AtÅ¡auktiâ€œ, jei norite nutraukti diegimÄ….
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Diegimo reşimo pasirinkimas
-PrivilegesRequiredOverrideInstruction=Pasirinkite diegimo reşimà
-PrivilegesRequiredOverrideText1=%1 gali bûti ádiegta visiems naudotojams (reikalingos administratoriaus teisës) arba tik jums.
-PrivilegesRequiredOverrideText2=%1 gali bûti ádiegta arba tik jums arba visiems naudotojams (reikalingos administratoriaus teisës).
-PrivilegesRequiredOverrideAllUsers=Ádiegti &visiems naudotojams
-PrivilegesRequiredOverrideAllUsersRecommended=Ádiegti &visiems naudotojams (rekomenduojama)
-PrivilegesRequiredOverrideCurrentUser=Ádiegti tik &man
-PrivilegesRequiredOverrideCurrentUserRecommended=Ádiegti tik &man (rekomenduojama)
+PrivilegesRequiredOverrideTitle=Diegimo reÅ¾imo pasirinkimas
+PrivilegesRequiredOverrideInstruction=Pasirinkite diegimo reÅ¾imÄ…
+PrivilegesRequiredOverrideText1=%1 gali bÅ«ti Ä¯diegta visiems naudotojams (reikalingos administratoriaus teisÄ—s) arba tik jums.
+PrivilegesRequiredOverrideText2=%1 gali bÅ«ti Ä¯diegta arba tik jums arba visiems naudotojams (reikalingos administratoriaus teisÄ—s).
+PrivilegesRequiredOverrideAllUsers=Ä®diegti &visiems naudotojams
+PrivilegesRequiredOverrideAllUsersRecommended=Ä®diegti &visiems naudotojams (rekomenduojama)
+PrivilegesRequiredOverrideCurrentUser=Ä®diegti tik &man
+PrivilegesRequiredOverrideCurrentUserRecommended=Ä®diegti tik &man (rekomenduojama)
 
 ; *** Misc. errors
-ErrorCreatingDir=Diegimo programa negali sukurti katalogo „%1“
-ErrorTooManyFilesInDir=Neámanoma sukurti failo „%1“ kataloge, nes jame per daug failø
+ErrorCreatingDir=Diegimo programa negali sukurti katalogo â€%1â€œ
+ErrorTooManyFilesInDir=NeÄ¯manoma sukurti failo â€%1â€œ kataloge, nes jame per daug failÅ³
 
 ; *** Setup common messages
-ExitSetupTitle=Uşdaryti diegimo programà
-ExitSetupMessage=Diegimas nebaigtas. Jei baigsite dabar, programa nebus ádiegta.%n%nJûs galite paleisti diegimo programà kità kartà, kad pabaigtumëte diegimà.%n%nUşdaryti diegimo programà?
-AboutSetupMenuItem=&Apie diegimo programà...
-AboutSetupTitle=Apie diegimo programà
+ExitSetupTitle=UÅ¾daryti diegimo programÄ…
+ExitSetupMessage=Diegimas nebaigtas. Jei baigsite dabar, programa nebus Ä¯diegta.%n%nJÅ«s galite paleisti diegimo programÄ… kitÄ… kartÄ…, kad pabaigtumÄ—te diegimÄ….%n%nUÅ¾daryti diegimo programÄ…?
+AboutSetupMenuItem=&Apie diegimo programÄ…...
+AboutSetupTitle=Apie diegimo programÄ…
 AboutSetupMessage=%1 versija %2%n%3%n%n%1 puslapis internete:%n%4
 AboutSetupNote=
 TranslatorNote=
@@ -92,11 +92,11 @@ TranslatorNote=
 ; *** Buttons
 ButtonBack=< &Atgal
 ButtonNext=&Pirmyn >
-ButtonInstall=Á&diegti
+ButtonInstall=Ä®&diegti
 ButtonOK=Gerai
-ButtonCancel=Atğaukti
+ButtonCancel=AtÅ¡aukti
 ButtonYes=&Taip
-ButtonYesToAll=Taip &viskà
+ButtonYesToAll=Taip &viskÄ…
 ButtonNo=&Ne
 ButtonNoToAll=N&e nieko
 ButtonFinish=&Pabaiga
@@ -105,276 +105,276 @@ ButtonWizardBrowse=Nu&rodyti...
 ButtonNewFolder=&Naujas katalogas
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Pasirinkite diegimo programos kalbà
-SelectLanguageLabel=Pasirinkite diegimo metu naudojamà kalbà.
+SelectLanguageTitle=Pasirinkite diegimo programos kalbÄ…
+SelectLanguageLabel=Pasirinkite diegimo metu naudojamÄ… kalbÄ….
 
 ; *** Common wizard text
-ClickNext=Paspauskite „Pirmyn“, jei norite tæsti, arba „Atğaukti“, jei norite iğeiti iğ diegimo programos.
+ClickNext=Paspauskite â€Pirmynâ€œ, jei norite tÄ™sti, arba â€AtÅ¡auktiâ€œ, jei norite iÅ¡eiti iÅ¡ diegimo programos.
 BeveledLabel=
-BrowseDialogTitle=Nurodykite katalogà
-BrowseDialogLabel=Pasirinkite katalogà iğ sàrağo ir paspauskite „Gerai“.
+BrowseDialogTitle=Nurodykite katalogÄ…
+BrowseDialogLabel=Pasirinkite katalogÄ… iÅ¡ sÄ…raÅ¡o ir paspauskite â€Geraiâ€œ.
 NewFolderName=Naujas katalogas
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Sveiki! Èia „[name]“ diegimo programa.
-WelcomeLabel2=Diegimo programa ádiegs „[name]“ Jûsø kompiuteryje.%n%nPrieğ tæsiant diegimà, rekomenduojama uşdaryti visas nereikalingas programas.
+WelcomeLabel1=Sveiki! ÄŒia â€[name]â€œ diegimo programa.
+WelcomeLabel2=Diegimo programa Ä¯diegs â€[name]â€œ JÅ«sÅ³ kompiuteryje.%n%nPrieÅ¡ tÄ™siant diegimÄ…, rekomenduojama uÅ¾daryti visas nereikalingas programas.
 
 ; *** "Password" wizard page
-WizardPassword=Slaptaşodis
-PasswordLabel1=Ğis diegimas yra apsaugotas slaptaşodşiu.
-PasswordLabel3=Áveskite slaptaşodá ir spauskite „Pirmyn“, jei norite tæsti diegimà. Atkreipkite dëmesá: didşiosios ir maşosios raidës vertinamos skirtingai (case sensitive).
-PasswordEditLabel=&Slaptaşodis:
-IncorrectPassword=Ávestas slaptaşodis yra neteisingas. Pabandykite iğ naujo.
+WizardPassword=SlaptaÅ¾odis
+PasswordLabel1=Å is diegimas yra apsaugotas slaptaÅ¾odÅ¾iu.
+PasswordLabel3=Ä®veskite slaptaÅ¾odÄ¯ ir spauskite â€Pirmynâ€œ, jei norite tÄ™sti diegimÄ…. Atkreipkite dÄ—mesÄ¯: didÅ¾iosios ir maÅ¾osios raidÄ—s vertinamos skirtingai (case sensitive).
+PasswordEditLabel=&SlaptaÅ¾odis:
+IncorrectPassword=Ä®vestas slaptaÅ¾odis yra neteisingas. Pabandykite iÅ¡ naujo.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Licencinë sutartis
-LicenseLabel=Perskaitykite ğià informacijà prieğ tæsdami diegimà.
-LicenseLabel3=Perskaitykite Licencijos sutartá. Prieğ tæsdami diegimà Jûs turite sutikti su reikalavimais.
-LicenseAccepted=Ağ &sutinku su reikalavimais
-LicenseNotAccepted=Ağ &nesutinku su reikalavimais
+WizardLicense=LicencinÄ— sutartis
+LicenseLabel=Perskaitykite Å¡iÄ… informacijÄ… prieÅ¡ tÄ™sdami diegimÄ….
+LicenseLabel3=Perskaitykite Licencijos sutartÄ¯. PrieÅ¡ tÄ™sdami diegimÄ… JÅ«s turite sutikti su reikalavimais.
+LicenseAccepted=AÅ¡ &sutinku su reikalavimais
+LicenseNotAccepted=AÅ¡ &nesutinku su reikalavimais
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informacija
-InfoBeforeLabel=Perskaitykite ğià informacijà prieğ tæsiant diegimà.
-InfoBeforeClickLabel=Kai bûsite pasiruoğæs tæsti diegimà, spauskite „Pirmyn“.
+InfoBeforeLabel=Perskaitykite Å¡iÄ… informacijÄ… prieÅ¡ tÄ™siant diegimÄ….
+InfoBeforeClickLabel=Kai bÅ«site pasiruoÅ¡Ä™s tÄ™sti diegimÄ…, spauskite â€Pirmynâ€œ.
 WizardInfoAfter=Informacija
-InfoAfterLabel=Perskaitykite ğià informacijà prieğ tæsiant diegimà.
-InfoAfterClickLabel=Spauskite „Pirmyn“, kai bûsite pasiruoğæ tæsti diegimà.
+InfoAfterLabel=Perskaitykite Å¡iÄ… informacijÄ… prieÅ¡ tÄ™siant diegimÄ….
+InfoAfterClickLabel=Spauskite â€Pirmynâ€œ, kai bÅ«site pasiruoÅ¡Ä™ tÄ™sti diegimÄ….
 
 ; *** "User Information" wizard page
-WizardUserInfo=Informacija apie naudotojà
-UserInfoDesc=Áveskite naudotojo duomenis.
+WizardUserInfo=Informacija apie naudotojÄ…
+UserInfoDesc=Ä®veskite naudotojo duomenis.
 UserInfoName=&Naudotojo vardas:
 UserInfoOrg=&Organizacija:
 UserInfoSerial=&Serijinis numeris:
-UserInfoNameRequired=Jûs privalote ávesti vardà.
+UserInfoNameRequired=JÅ«s privalote Ä¯vesti vardÄ….
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Pasirinkite diegimo katalogà
-SelectDirDesc=Kur turi bûti ádiegta „[name]“?
-SelectDirLabel3=Diegimo programa ádiegs „[name]“ á nurodytà katalogà.
-SelectDirBrowseLabel=Norëdami tæsti diegimà spauskite „Pirmyn“. Jei norite pasirinkti kità katalogà, spauskite „Nurodyti“.
-DiskSpaceGBLabel=Reikia maşiausiai [gb] GB laisvos vietos kietajame diske.
-DiskSpaceMBLabel=Reikia maşiausiai [mb] MB laisvos vietos kietajame diske.
-CannotInstallToNetworkDrive=Diegimo programa negali diegti á tinkliná diskà.
-CannotInstallToUNCPath=Diegimo programa negali diegti á UNC tipo katalogà.
-InvalidPath=Jûs privalote árağyti pilnà kelià su disko raide; pavyzdşiui:%n%nC:\APP%n% ir negalima nurodyti UNC tipo katalogà:%n%n\\Serveris\share
-InvalidDrive=Diskas, kurá nurodëte, neegzistuoja arba yra neprieinamas. Nurodykite kità diskà ir/arba katalogà.
+WizardSelectDir=Pasirinkite diegimo katalogÄ…
+SelectDirDesc=Kur turi bÅ«ti Ä¯diegta â€[name]â€œ?
+SelectDirLabel3=Diegimo programa Ä¯diegs â€[name]â€œ Ä¯ nurodytÄ… katalogÄ….
+SelectDirBrowseLabel=NorÄ—dami tÄ™sti diegimÄ… spauskite â€Pirmynâ€œ. Jei norite pasirinkti kitÄ… katalogÄ…, spauskite â€Nurodytiâ€œ.
+DiskSpaceGBLabel=Reikia maÅ¾iausiai [gb] GB laisvos vietos kietajame diske.
+DiskSpaceMBLabel=Reikia maÅ¾iausiai [mb] MB laisvos vietos kietajame diske.
+CannotInstallToNetworkDrive=Diegimo programa negali diegti Ä¯ tinklinÄ¯ diskÄ….
+CannotInstallToUNCPath=Diegimo programa negali diegti Ä¯ UNC tipo katalogÄ….
+InvalidPath=JÅ«s privalote Ä¯raÅ¡yti pilnÄ… keliÄ… su disko raide; pavyzdÅ¾iui:%n%nC:\APP%n% ir negalima nurodyti UNC tipo katalogÄ…:%n%n\\Serveris\share
+InvalidDrive=Diskas, kurÄ¯ nurodÄ—te, neegzistuoja arba yra neprieinamas. Nurodykite kitÄ… diskÄ… ir/arba katalogÄ….
 DiskSpaceWarningTitle=Nepakanka laisvos vietos diske
-DiskSpaceWarning=Diegimui reikia bent %1 KB laisvos vietos, bet nurodytame diske yra tik %2 KB laisvos vietos.%n%nVis tiek norite tæsti?
+DiskSpaceWarning=Diegimui reikia bent %1 KB laisvos vietos, bet nurodytame diske yra tik %2 KB laisvos vietos.%n%nVis tiek norite tÄ™sti?
 DirNameTooLong=Katalogo pavadinimas ar kelias iki jo per ilgas.
-InvalidDirName=Nekorektiğkas katalogo pavadinimas.
-BadDirName32=Katalogo pavadinime neturi bûti simboliø:%n%n%1
-DirExistsTitle=Tokio katalogo nëra
-DirExists=Katalogas:%n%n%1%n%n jau yra. Vis tiek norite diegti programà tame kataloge?
-DirDoesntExistTitle=Tokio katalogo nëra.
-DirDoesntExist=Katalogas:%n%n%1%n%n neegzistuoja. Norite kad katalogas bûtø sukurtas?
+InvalidDirName=NekorektiÅ¡kas katalogo pavadinimas.
+BadDirName32=Katalogo pavadinime neturi bÅ«ti simboliÅ³:%n%n%1
+DirExistsTitle=Tokio katalogo nÄ—ra
+DirExists=Katalogas:%n%n%1%n%n jau yra. Vis tiek norite diegti programÄ… tame kataloge?
+DirDoesntExistTitle=Tokio katalogo nÄ—ra.
+DirDoesntExist=Katalogas:%n%n%1%n%n neegzistuoja. Norite kad katalogas bÅ«tÅ³ sukurtas?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Komponentø pasirinkimas
-SelectComponentsDesc=Kurie komponentai turi bûti ádiegti?
-SelectComponentsLabel2=Paşymëkite komponentus, kuriuos norite ádiegti; nuimkite şymes nuo komponentø, kuriø nenorite diegti. Kai bûsite pasiruoğæs tæsti, spauskite „Pirmyn“.
-FullInstallation=Pilnas visø komponentø diegimas
+WizardSelectComponents=KomponentÅ³ pasirinkimas
+SelectComponentsDesc=Kurie komponentai turi bÅ«ti Ä¯diegti?
+SelectComponentsLabel2=PaÅ¾ymÄ—kite komponentus, kuriuos norite Ä¯diegti; nuimkite Å¾ymes nuo komponentÅ³, kuriÅ³ nenorite diegti. Kai bÅ«site pasiruoÅ¡Ä™s tÄ™sti, spauskite â€Pirmynâ€œ.
+FullInstallation=Pilnas visÅ³ komponentÅ³ diegimas
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Glaustas diegimas
 CustomInstallation=Pasirinktinis diegimas
 NoUninstallWarningTitle=Komponentai egzistuoja
-NoUninstallWarning=Diegimo programa aptiko, kad ğie komponentai jau ádiegti Jûsø kompiuteryje:%n%n%1%n%nJei nuimsite şymes nuo ğiø komponentø, jie vis tiek nebus iğtrinti.%n%nVis tiek norite tæsti diegimà?
+NoUninstallWarning=Diegimo programa aptiko, kad Å¡ie komponentai jau Ä¯diegti JÅ«sÅ³ kompiuteryje:%n%n%1%n%nJei nuimsite Å¾ymes nuo Å¡iÅ³ komponentÅ³, jie vis tiek nebus iÅ¡trinti.%n%nVis tiek norite tÄ™sti diegimÄ…?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Dabartinis Jûsø pasirinkimas reikalauja [gb] GB laisvos vietos diske.
-ComponentsDiskSpaceMBLabel=Dabartinis Jûsø pasirinkimas reikalauja [mb] MB laisvos vietos diske.
+ComponentsDiskSpaceGBLabel=Dabartinis JÅ«sÅ³ pasirinkimas reikalauja [gb] GB laisvos vietos diske.
+ComponentsDiskSpaceMBLabel=Dabartinis JÅ«sÅ³ pasirinkimas reikalauja [mb] MB laisvos vietos diske.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Nurodykite papildomus veiksmus
 SelectTasksDesc=Kokius papildomus veiksmus reikia atlikti?
-SelectTasksLabel2=Nurodykite papildomus veiksmus, kuriuos diegimo programa turës atlikti „[name]“ diegimo metu. Kai bûsite pasiruoğæs tæsti diegimà, spauskite „Pirmyn“.
+SelectTasksLabel2=Nurodykite papildomus veiksmus, kuriuos diegimo programa turÄ—s atlikti â€[name]â€œ diegimo metu. Kai bÅ«site pasiruoÅ¡Ä™s tÄ™sti diegimÄ…, spauskite â€Pirmynâ€œ.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Nurodykite „Start Menu“ katalogà
-SelectStartMenuFolderDesc=Kur diegimo programa turëtø sukurti nuorodas?
-SelectStartMenuFolderLabel3=Nuorodos bus sukurtos ğiame „Start Menu“ kataloge.
-SelectStartMenuFolderBrowseLabel=Norëdami tæsti diegimà spauskite „Pirmyn“. Jei norite parinkti kità katalogà, spauskite „Nurodyti“.
-MustEnterGroupName=Jûs privalote ávesti katalogo pavadinimà.
+WizardSelectProgramGroup=Nurodykite â€Start Menuâ€œ katalogÄ…
+SelectStartMenuFolderDesc=Kur diegimo programa turÄ—tÅ³ sukurti nuorodas?
+SelectStartMenuFolderLabel3=Nuorodos bus sukurtos Å¡iame â€Start Menuâ€œ kataloge.
+SelectStartMenuFolderBrowseLabel=NorÄ—dami tÄ™sti diegimÄ… spauskite â€Pirmynâ€œ. Jei norite parinkti kitÄ… katalogÄ…, spauskite â€Nurodytiâ€œ.
+MustEnterGroupName=JÅ«s privalote Ä¯vesti katalogo pavadinimÄ….
 GroupNameTooLong=Katalogo pavadinimas ar kelias iki jo per ilgas.
-InvalidGroupName=Katalogo pavadinimas yra nekorektiğkas.
-BadGroupName=Katalogo pavadinime neturi bûti simboliø:%n%n%1
-NoProgramGroupCheck2=&Nekurti „Start Menu“ katalogo
+InvalidGroupName=Katalogo pavadinimas yra nekorektiÅ¡kas.
+BadGroupName=Katalogo pavadinime neturi bÅ«ti simboliÅ³:%n%n%1
+NoProgramGroupCheck2=&Nekurti â€Start Menuâ€œ katalogo
 
 ; *** "Ready to Install" wizard page
 WizardReady=Pasirengta diegimui
-ReadyLabel1=Diegimo programa pasirengusi diegti „[name]“ Jûsø kompiuteryje.
-ReadyLabel2a=Spauskite „Ádiegti“, jei norite tæsti diegimà, arba „Atgal“, jeigu norite perşiûrëti nustatymus arba juos pakeisti.
-ReadyLabel2b=Spauskite „Ádiegti“, jei norite tæsti diegimà.
+ReadyLabel1=Diegimo programa pasirengusi diegti â€[name]â€œ JÅ«sÅ³ kompiuteryje.
+ReadyLabel2a=Spauskite â€Ä®diegtiâ€œ, jei norite tÄ™sti diegimÄ…, arba â€Atgalâ€œ, jeigu norite perÅ¾iÅ«rÄ—ti nustatymus arba juos pakeisti.
+ReadyLabel2b=Spauskite â€Ä®diegtiâ€œ, jei norite tÄ™sti diegimÄ….
 ReadyMemoUserInfo=Naudotojo informacija:
 ReadyMemoDir=Katalogas diegimui:
 ReadyMemoType=Diegimo tipas:
 ReadyMemoComponents=Pasirinkti komponentai:
-ReadyMemoGroup=„Start Menu“ katalogas:
+ReadyMemoGroup=â€Start Menuâ€œ katalogas:
 ReadyMemoTasks=Papildomi veiksmai:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Parsisiunèiami papildomi failai...
-ButtonStopDownload=&Stabdyti parsisiuntimà
-StopDownload=Ar tikrai norite sustabdyti parsisiuntimà?
+DownloadingLabel=ParsisiunÄiami papildomi failai...
+ButtonStopDownload=&Stabdyti parsisiuntimÄ…
+StopDownload=Ar tikrai norite sustabdyti parsisiuntimÄ…?
 ErrorDownloadAborted=Parsisiuntimas nutrauktas
-ErrorDownloadFailed=Parsisiøsti nepavyko: %1 %2
-ErrorDownloadSizeFailed=Nepavyko gauti dydşio: %1 %2
+ErrorDownloadFailed=ParsisiÅ³sti nepavyko: %1 %2
+ErrorDownloadSizeFailed=Nepavyko gauti dydÅ¾io: %1 %2
 ErrorFileHash1=Failo patikrinimas nepavyko: %1
-ErrorFileHash2=Neteisinga failo „hash“ reikğmë: numatyta %1, rasta %2
-ErrorProgress=Netinkama eiga: %1 iğ %2
+ErrorFileHash2=Neteisinga failo â€hashâ€œ reikÅ¡mÄ—: numatyta %1, rasta %2
+ErrorProgress=Netinkama eiga: %1 iÅ¡ %2
 ErrorFileSize=Neteisingas failo dydis: numatytas %1, rastas %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Papildomø failø iğtraukimas...
-ButtonStopExtraction=&Stabdyti iğtraukimà
-StopExtraction=Ar tikrai norite sustabdyti iğtraukimà?
-ErrorExtractionAborted=Iğtraukimas nutrauktas
-ErrorExtractionFailed=Nepavyko iğtraukti: %1
+ExtractionLabel=PapildomÅ³ failÅ³ iÅ¡traukimas...
+ButtonStopExtraction=&Stabdyti iÅ¡traukimÄ…
+StopExtraction=Ar tikrai norite sustabdyti iÅ¡traukimÄ…?
+ErrorExtractionAborted=IÅ¡traukimas nutrauktas
+ErrorExtractionFailed=Nepavyko iÅ¡traukti: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pasirengimas diegimui
-PreparingDesc=Diegimo programa pasirengusi „[name]“ diegimui Jûsø kompiuteryje.
-PreviousInstallNotCompleted=Ankstesnës programos diegimas/ğalinimas buvo neuşbaigtas. Jums reikëtø perkrauti kompiuterá, kad uşbaigtumëte diegimà.%n%nKai perkrausite kompiuterá, paleiskite diegimo programà dar kartà, kad pabaigtumëte „[name]“ diegimà.
-CannotContinue=Diegimas negali bûti tæsiamas. Paspauskite „Atğaukti“ diegimo uşbaigimui.
-ApplicationsFound=Ğios programos naudoja failus, kurie turi bûti perrağyti diegimo metu. Rekomenduojama leisti diegimo programai automatiğkai uşdaryti ğias programas.
-ApplicationsFound2=Ğios programos naudoja failus, kurie turi bûti perrağyti diegimo metu. Rekomenduojama leisti diegimo programai automatiğkai uşdaryti ğias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys iğ naujo paleisti ğias programas.
-CloseApplications=&Automatiğkai uşdaryti programas
-DontCloseApplications=&Neuşdarinëti programø
-ErrorCloseApplications=Diegimo programai nepavyko automatiğkai uşdaryti visø programø. Prieğ tæsiant diegimà, rekomeduojama uşdaryti visas programas, naudojanèias failus, kurie turi bûti perrağyti diegimo metu.
-PrepareToInstallNeedsRestart=Diegimo programai reikia perkrauti kompiuterá. Po perkovimo, vël paleiskite diegimo programà „[name]“ diegimo uşbaigimui.%n%nNorite perkrauti já dabar?
+PreparingDesc=Diegimo programa pasirengusi â€[name]â€œ diegimui JÅ«sÅ³ kompiuteryje.
+PreviousInstallNotCompleted=AnkstesnÄ—s programos diegimas/Å¡alinimas buvo neuÅ¾baigtas. Jums reikÄ—tÅ³ perkrauti kompiuterÄ¯, kad uÅ¾baigtumÄ—te diegimÄ….%n%nKai perkrausite kompiuterÄ¯, paleiskite diegimo programÄ… dar kartÄ…, kad pabaigtumÄ—te â€[name]â€œ diegimÄ….
+CannotContinue=Diegimas negali bÅ«ti tÄ™siamas. Paspauskite â€AtÅ¡auktiâ€œ diegimo uÅ¾baigimui.
+ApplicationsFound=Å ios programos naudoja failus, kurie turi bÅ«ti perraÅ¡yti diegimo metu. Rekomenduojama leisti diegimo programai automatiÅ¡kai uÅ¾daryti Å¡ias programas.
+ApplicationsFound2=Å ios programos naudoja failus, kurie turi bÅ«ti perraÅ¡yti diegimo metu. Rekomenduojama leisti diegimo programai automatiÅ¡kai uÅ¾daryti Å¡ias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys iÅ¡ naujo paleisti Å¡ias programas.
+CloseApplications=&AutomatiÅ¡kai uÅ¾daryti programas
+DontCloseApplications=&NeuÅ¾darinÄ—ti programÅ³
+ErrorCloseApplications=Diegimo programai nepavyko automatiÅ¡kai uÅ¾daryti visÅ³ programÅ³. PrieÅ¡ tÄ™siant diegimÄ…, rekomeduojama uÅ¾daryti visas programas, naudojanÄias failus, kurie turi bÅ«ti perraÅ¡yti diegimo metu.
+PrepareToInstallNeedsRestart=Diegimo programai reikia perkrauti kompiuterÄ¯. Po perkovimo, vÄ—l paleiskite diegimo programÄ… â€[name]â€œ diegimo uÅ¾baigimui.%n%nNorite perkrauti jÄ¯ dabar?
 
 ; *** "Installing" wizard page
 WizardInstalling=Vyksta diegimas
-InstallingLabel=Palaukite kol diegimo programa ádiegs „[name]“ Jûsø kompiuteryje.
+InstallingLabel=Palaukite kol diegimo programa Ä¯diegs â€[name]â€œ JÅ«sÅ³ kompiuteryje.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=„[name]“ diegimas baigtas
-FinishedLabelNoIcons=Diegimo programa baigë „[name]“ diegimà Jûsø kompiuteryje.
-FinishedLabel=Diegimo programa baigë „[name]“ diegimà Jûsø kompiuteryje. Programa gali bûti paleista pasirinkus atitinkamas nuorodas.
-ClickFinish=Spauskite „Pabaiga“, kad uşdarytumëte diegimo programà.
-FinishedRestartLabel=„[name]“ diegimo uşbaigimui, reikia perkrauti kompiuterá. Norite perkrauti já dabar?
-FinishedRestartMessage=„[name]“ diegimo uşbaigimui, reikia perkrauti kompiuterá.%n%nNorite perkrauti já dabar?
-ShowReadmeCheck=Taip, ağ norëèiau perskaityti „README“ failà
-YesRadio=&Taip, ağ noriu perkrauti kompiuterá dabar
-NoRadio=&Ne, ağ perkrausiu kompiuterá vëliau
+FinishedHeadingLabel=â€[name]â€œ diegimas baigtas
+FinishedLabelNoIcons=Diegimo programa baigÄ— â€[name]â€œ diegimÄ… JÅ«sÅ³ kompiuteryje.
+FinishedLabel=Diegimo programa baigÄ— â€[name]â€œ diegimÄ… JÅ«sÅ³ kompiuteryje. Programa gali bÅ«ti paleista pasirinkus atitinkamas nuorodas.
+ClickFinish=Spauskite â€Pabaigaâ€œ, kad uÅ¾darytumÄ—te diegimo programÄ….
+FinishedRestartLabel=â€[name]â€œ diegimo uÅ¾baigimui, reikia perkrauti kompiuterÄ¯. Norite perkrauti jÄ¯ dabar?
+FinishedRestartMessage=â€[name]â€œ diegimo uÅ¾baigimui, reikia perkrauti kompiuterÄ¯.%n%nNorite perkrauti jÄ¯ dabar?
+ShowReadmeCheck=Taip, aÅ¡ norÄ—Äiau perskaityti â€READMEâ€œ failÄ…
+YesRadio=&Taip, aÅ¡ noriu perkrauti kompiuterÄ¯ dabar
+NoRadio=&Ne, aÅ¡ perkrausiu kompiuterÄ¯ vÄ—liau
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Vykdyti „%1“
+RunEntryExec=Vykdyti â€%1â€œ
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=Perşiûrëti „%1“
+RunEntryShellExec=PerÅ¾iÅ«rÄ—ti â€%1â€œ
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Diegimo programai reikia kito diskelio
-SelectDiskLabel2=Idëkite diskelá %1 ir spauskite „Gerai“.%n%nJeigu reikiami failai gali bûti rasti kitame kataloge, nei pavaizduota şemiau, áveskite teisingà kelià arba spauskite „Nurodyti“.
+SelectDiskLabel2=IdÄ—kite diskelÄ¯ %1 ir spauskite â€Geraiâ€œ.%n%nJeigu reikiami failai gali bÅ«ti rasti kitame kataloge, nei pavaizduota Å¾emiau, Ä¯veskite teisingÄ… keliÄ… arba spauskite â€Nurodytiâ€œ.
 PathLabel=&Katalogas:
-FileNotInDir2=„%1“ failas nerastas „%2“ kataloge. Ádëkite teisingà diskelá arba nurodykite teisingà kelià.
-SelectDirectoryLabel=Nurodykite kito diskelio vietà.
+FileNotInDir2=â€%1â€œ failas nerastas â€%2â€œ kataloge. Ä®dÄ—kite teisingÄ… diskelÄ¯ arba nurodykite teisingÄ… keliÄ….
+SelectDirectoryLabel=Nurodykite kito diskelio vietÄ….
 
 ; *** Installation phase messages
-SetupAborted=Diegimas nebuvo baigtas.%n%nPağalinkite prieşàstá ir pakartokite diegimà vël.
-AbortRetryIgnoreSelectAction=Pasirinkite veiksmà
-AbortRetryIgnoreRetry=Pabandyti dar kar&tà
-AbortRetryIgnoreIgnore=&Ignoruoti klaidà ir tæsti
-AbortRetryIgnoreCancel=Nutraukti diegimà
+SetupAborted=Diegimas nebuvo baigtas.%n%nPaÅ¡alinkite prieÅ¾Ä…stÄ¯ ir pakartokite diegimÄ… vÄ—l.
+AbortRetryIgnoreSelectAction=Pasirinkite veiksmÄ…
+AbortRetryIgnoreRetry=Pabandyti dar kar&tÄ…
+AbortRetryIgnoreIgnore=&Ignoruoti klaidÄ… ir tÄ™sti
+AbortRetryIgnoreCancel=Nutraukti diegimÄ…
 
 ; *** Installation status messages
-StatusClosingApplications=Uşdaromos programos...
+StatusClosingApplications=UÅ¾daromos programos...
 StatusCreateDirs=Kuriami katalogai...
-StatusExtractFiles=Iğpakuojami failai...
+StatusExtractFiles=IÅ¡pakuojami failai...
 StatusCreateIcons=Kuriamos nuorodos...
-StatusCreateIniEntries=Kuriami INI árağai...
-StatusCreateRegistryEntries=Kuriami registro árağai...
+StatusCreateIniEntries=Kuriami INI Ä¯raÅ¡ai...
+StatusCreateRegistryEntries=Kuriami registro Ä¯raÅ¡ai...
 StatusRegisterFiles=Registruojami failai...
-StatusSavingUninstall=Iğsaugoma informacija programos pağalinimui...
+StatusSavingUninstall=IÅ¡saugoma informacija programos paÅ¡alinimui...
 StatusRunProgram=Baigiamas diegimas...
-StatusRestartingApplications=Iğ naujo paleidşiamos programos...
+StatusRestartingApplications=IÅ¡ naujo paleidÅ¾iamos programos...
 StatusRollback=Anuliuojami pakeitimai...
 
 ; *** Misc. errors
-ErrorInternal2=Vidinë klaida: %1
+ErrorInternal2=VidinÄ— klaida: %1
 ErrorFunctionFailedNoCode=%1 nepavyko
 ErrorFunctionFailed=%1 nepavyko; kodas %2
 ErrorFunctionFailedWithMessage=%1 nepavyko; kodas %2.%n%3
 ErrorExecutingProgram=Nepavyko paleisti failo:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Klaida skaitant registro árağà:%n%1\%2
-ErrorRegCreateKey=Klaida sukuriant registro árağà:%n%1\%2
-ErrorRegWriteKey=Klaida rağant registro árağà:%n%1\%2
+ErrorRegOpenKey=Klaida skaitant registro Ä¯raÅ¡Ä…:%n%1\%2
+ErrorRegCreateKey=Klaida sukuriant registro Ä¯raÅ¡Ä…:%n%1\%2
+ErrorRegWriteKey=Klaida raÅ¡ant registro Ä¯raÅ¡Ä…:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Klaida rağant INI árağà „%1“ faile.
+ErrorIniEntry=Klaida raÅ¡ant INI Ä¯raÅ¡Ä… â€%1â€œ faile.
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=Pralei&sti ğá failà (nerekomenduojama)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Ignoruoti klaidà ir tæsti (nerekomenduojama)
+FileAbortRetryIgnoreSkipNotRecommended=Pralei&sti Å¡Ä¯ failÄ… (nerekomenduojama)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignoruoti klaidÄ… ir tÄ™sti (nerekomenduojama)
 SourceIsCorrupted=Pradinis failas sugadintas
-SourceDoesntExist=Pradinio failo „%1“ nëra
-ExistingFileReadOnly2=Esamas failas yra paşymëtas „Tik skaitymui“ todël negali bûti pakeistas.
-ExistingFileReadOnlyRetry=Pağalinkite at&ributà „Tik skaitymui“ ir bandykite vël
-ExistingFileReadOnlyKeepExisting=Pali&kti esamà failà
-ErrorReadingExistingDest=Skaitant esamà failà ávyko klaida:
-FileExistsSelectAction=Pasirinkite veiksmà
+SourceDoesntExist=Pradinio failo â€%1â€œ nÄ—ra
+ExistingFileReadOnly2=Esamas failas yra paÅ¾ymÄ—tas â€Tik skaitymuiâ€œ todÄ—l negali bÅ«ti pakeistas.
+ExistingFileReadOnlyRetry=PaÅ¡alinkite at&ributÄ… â€Tik skaitymuiâ€œ ir bandykite vÄ—l
+ExistingFileReadOnlyKeepExisting=Pali&kti esamÄ… failÄ…
+ErrorReadingExistingDest=Skaitant esamÄ… failÄ… Ä¯vyko klaida:
+FileExistsSelectAction=Pasirinkite veiksmÄ…
 FileExists2=Toks failas jau yra.
-FileExistsOverwriteExisting=&Perrağyti esamà failà
-FileExistsKeepExisting=Pali&kti esamà failà
+FileExistsOverwriteExisting=&PerraÅ¡yti esamÄ… failÄ…
+FileExistsKeepExisting=Pali&kti esamÄ… failÄ…
 FileExistsOverwriteOrKeepAll=&Daryti taip ir esant kitiems konfliktams
-ExistingFileNewerSelectAction=Pasirinkite veiksmà
-ExistingFileNewer=Esamas failas yra naujesnis uş tà, kurá diegimo programa bando árağyti. Rekomenduojama palikti esamà failà.%n%nPalikti naujesná failà?
-ExistingFileNewer2=Esamas failas yra naujesnis uş tà, kurá diegimo programa bando árağyti.
-ExistingFileNewerOverwriteExisting=&Perrağyti esamà failà
-ExistingFileNewerKeepExisting=Pali&kti esamà failà (rekomenduojama)
+ExistingFileNewerSelectAction=Pasirinkite veiksmÄ…
+ExistingFileNewer=Esamas failas yra naujesnis uÅ¾ tÄ…, kurÄ¯ diegimo programa bando Ä¯raÅ¡yti. Rekomenduojama palikti esamÄ… failÄ….%n%nPalikti naujesnÄ¯ failÄ…?
+ExistingFileNewer2=Esamas failas yra naujesnis uÅ¾ tÄ…, kurÄ¯ diegimo programa bando Ä¯raÅ¡yti.
+ExistingFileNewerOverwriteExisting=&PerraÅ¡yti esamÄ… failÄ…
+ExistingFileNewerKeepExisting=Pali&kti esamÄ… failÄ… (rekomenduojama)
 ExistingFileNewerOverwriteOrKeepAll=&Daryti taip ir esant kitiems konfliktams
-ErrorChangingAttr=Keièiant failo atributus ávyko klaida:
-ErrorCreatingTemp=Kuriant failà pasirinktame kataloge ávyko klaida:
-ErrorReadingSource=Skaitant diegiamàjá failà ávyko klaida:
-ErrorCopying=Kopijuojant failà ávyko klaida:
-ErrorReplacingExistingFile=Perrağant esamà failà ávyko klaida:
-ErrorRestartReplace=Perkrovimas/Perrağymas nepavyko:
-ErrorRenamingTemp=Pervadinant failà pasirinktame kataloge ávyko klaida:
-ErrorRegisterServer=Nepavyko uşregistruoti DLL/OCX bibliotekos: „%1“
+ErrorChangingAttr=KeiÄiant failo atributus Ä¯vyko klaida:
+ErrorCreatingTemp=Kuriant failÄ… pasirinktame kataloge Ä¯vyko klaida:
+ErrorReadingSource=Skaitant diegiamÄ…jÄ¯ failÄ… Ä¯vyko klaida:
+ErrorCopying=Kopijuojant failÄ… Ä¯vyko klaida:
+ErrorReplacingExistingFile=PerraÅ¡ant esamÄ… failÄ… Ä¯vyko klaida:
+ErrorRestartReplace=Perkrovimas/PerraÅ¡ymas nepavyko:
+ErrorRenamingTemp=Pervadinant failÄ… pasirinktame kataloge Ä¯vyko klaida:
+ErrorRegisterServer=Nepavyko uÅ¾registruoti DLL/OCX bibliotekos: â€%1â€œ
 ErrorRegSvr32Failed=RegSvr32 registracijos klaida %1
-ErrorRegisterTypeLib=Nepavyko uşregistruoti tipø bibliotekos: „%1“
+ErrorRegisterTypeLib=Nepavyko uÅ¾registruoti tipÅ³ bibliotekos: â€%1â€œ
 
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bitø
-UninstallDisplayNameMark64Bit=64-bitø
+UninstallDisplayNameMark32Bit=32-bitÅ³
+UninstallDisplayNameMark64Bit=64-bitÅ³
 UninstallDisplayNameMarkAllUsers=Visiems naudotojams
 UninstallDisplayNameMarkCurrentUser=Esamam naudotojui
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Bandant atidaryti „README“ failà ávyko klaida.
-ErrorRestartingComputer=Diegimo programa negali perkrauti kompiuterio. Perkraukite kompiuterá áprastu bûdu.
+ErrorOpeningReadme=Bandant atidaryti â€READMEâ€œ failÄ… Ä¯vyko klaida.
+ErrorRestartingComputer=Diegimo programa negali perkrauti kompiuterio. Perkraukite kompiuterÄ¯ Ä¯prastu bÅ«du.
 
 ; *** Uninstaller messages
-UninstallNotFound=„%1“ failo nëra. Pağalinti neámanoma.
-UninstallOpenError=„%1“ failas negali bûti atidarytas. Pağalinti neámanoma.
-UninstallUnsupportedVer=Pağalinimo şurnalo failas „%1“ yra pağalinimo programai nesuprantamo formato. Pağalinti neámanoma.
-UninstallUnknownEntry=Neşinomas árağas (%1) rastas pağalinimo şurnalo faile.
-ConfirmUninstall=Esate tikri, kad norite pağalinti „%1“ ir visus priklausanèius komponentus?
-UninstallOnlyOnWin64=Ğis diegimas gali bûti pağalintas tik 64 bitø Windows sistemose.
-OnlyAdminCanUninstall=Tik administratoriaus teises turintis naudotojas gali pağalinti programà.
-UninstallStatusLabel=Palaukite, kol „%1“ bus pağalinta iğ Jûsø kompiuterio.
-UninstalledAll=„%1“ buvo sëkmingai pağalinta iğ Jûsø kompiuterio.
-UninstalledMost=„%1“ pağalinimas sëkmingai baigtas.%n%nKai kurie elementai nebuvo iğtrinti - juos galite pağalinti rankiniu bûdu.
-UninstalledAndNeedsRestart=„%1“ pağalinimui uşbaigti Jûsø kompiuteris turi bûti perkrautas.%n%nNorite perkrauti já dabar?
-UninstallDataCorrupted=„%1“ failas yra sugadintas. Programos pağalinti neámanoma.
+UninstallNotFound=â€%1â€œ failo nÄ—ra. PaÅ¡alinti neÄ¯manoma.
+UninstallOpenError=â€%1â€œ failas negali bÅ«ti atidarytas. PaÅ¡alinti neÄ¯manoma.
+UninstallUnsupportedVer=PaÅ¡alinimo Å¾urnalo failas â€%1â€œ yra paÅ¡alinimo programai nesuprantamo formato. PaÅ¡alinti neÄ¯manoma.
+UninstallUnknownEntry=NeÅ¾inomas Ä¯raÅ¡as (%1) rastas paÅ¡alinimo Å¾urnalo faile.
+ConfirmUninstall=Esate tikri, kad norite paÅ¡alinti â€%1â€œ ir visus priklausanÄius komponentus?
+UninstallOnlyOnWin64=Å is diegimas gali bÅ«ti paÅ¡alintas tik 64 bitÅ³ Windows sistemose.
+OnlyAdminCanUninstall=Tik administratoriaus teises turintis naudotojas gali paÅ¡alinti programÄ….
+UninstallStatusLabel=Palaukite, kol â€%1â€œ bus paÅ¡alinta iÅ¡ JÅ«sÅ³ kompiuterio.
+UninstalledAll=â€%1â€œ buvo sÄ—kmingai paÅ¡alinta iÅ¡ JÅ«sÅ³ kompiuterio.
+UninstalledMost=â€%1â€œ paÅ¡alinimas sÄ—kmingai baigtas.%n%nKai kurie elementai nebuvo iÅ¡trinti - juos galite paÅ¡alinti rankiniu bÅ«du.
+UninstalledAndNeedsRestart=â€%1â€œ paÅ¡alinimui uÅ¾baigti JÅ«sÅ³ kompiuteris turi bÅ«ti perkrautas.%n%nNorite perkrauti jÄ¯ dabar?
+UninstallDataCorrupted=â€%1â€œ failas yra sugadintas. Programos paÅ¡alinti neÄ¯manoma.
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Iğtrinti bendruosius failus?
-ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrøjø failø. Norite iğtrinti bendruosius failus? %n%nJeigu kurios nors programos naudoja ğiuos failus, ir jie bus iğtrinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Failo palikimas Jûsø kompiuteryje nesukels jokiø problemø.
+ConfirmDeleteSharedFileTitle=IÅ¡trinti bendruosius failus?
+ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrÅ³jÅ³ failÅ³. Norite iÅ¡trinti bendruosius failus? %n%nJeigu kurios nors programos naudoja Å¡iuos failus, ir jie bus iÅ¡trinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite â€Neâ€œ. Failo palikimas JÅ«sÅ³ kompiuteryje nesukels jokiÅ³ problemÅ³.
 SharedFileNameLabel=Failo pavadinimas:
 SharedFileLocationLabel=Vieta:
-WizardUninstalling=Pağalinimo eiga
-StatusUninstalling=Ğalinama „%1“...
+WizardUninstalling=PaÅ¡alinimo eiga
+StatusUninstalling=Å alinama â€%1â€œ...
 
 ; *** Shutdown block reasons
-ShutdownBlockReasonInstallingApp=Diegiama „%1“.
-ShutdownBlockReasonUninstallingApp=Ğalinama „%1“.
+ShutdownBlockReasonInstallingApp=Diegiama â€%1â€œ.
+ShutdownBlockReasonUninstallingApp=Å alinama â€%1â€œ.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -383,13 +383,13 @@ ShutdownBlockReasonUninstallingApp=Ğalinama „%1“.
 
 NameAndVersion=%1 versija %2
 AdditionalIcons=Papildomos nuorodos:
-CreateDesktopIcon=Sukurti nuorodà &Darbalaukyje
-CreateQuickLaunchIcon=Sukurti Sparèiosios &Paleisties nuorodà
-ProgramOnTheWeb=„%1“ şiniatinklyje
-UninstallProgram=Pağalinti „%1“
-LaunchProgram=Paleisti „%1“
-AssocFileExtension=&Susieti „%1“ programà su failo plëtiniu %2
-AssocingFileExtension=„%1“ programa susiejama su failo plëtiniu %2...
-AutoStartProgramGroupDescription=Automatinë paleistis:
-AutoStartProgram=Automatiğkai paleisti „%1“
-AddonHostProgramNotFound=„%1“ nerasta Jûsø nurodytame kataloge.%n%nVis tiek norite tæsti?
+CreateDesktopIcon=Sukurti nuorodÄ… &Darbalaukyje
+CreateQuickLaunchIcon=Sukurti SparÄiosios &Paleisties nuorodÄ…
+ProgramOnTheWeb=â€%1â€œ Å¾iniatinklyje
+UninstallProgram=PaÅ¡alinti â€%1â€œ
+LaunchProgram=Paleisti â€%1â€œ
+AssocFileExtension=&Susieti â€%1â€œ programÄ… su failo plÄ—tiniu %2
+AssocingFileExtension=â€%1â€œ programa susiejama su failo plÄ—tiniu %2...
+AutoStartProgramGroupDescription=AutomatinÄ— paleistis:
+AutoStartProgram=AutomatiÅ¡kai paleisti â€%1â€œ
+AddonHostProgramNotFound=â€%1â€œ nerasta JÅ«sÅ³ nurodytame kataloge.%n%nVis tiek norite tÄ™sti?

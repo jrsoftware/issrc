@@ -1,4 +1,4 @@
-; *** Inno Setup version 4.0.5+ Norsk, nynorsk messages ***
+ï»¿; *** Inno Setup version 4.0.5+ Norsk, nynorsk messages ***
 ;
 ; Translated by/omsett av: Magnar Myrtveit
 ;
@@ -52,21 +52,21 @@ ErrorTitle=Feil
 ; *** SetupLdr messages
 SetupLdrStartupMessage=Dette vil installera %1. Vil du halda fram?
 LdrCannotCreateTemp=Kan ikkje laga midlertidig fil. Installasjonen er avbroten
-LdrCannotExecTemp=Kan ikkje køyra fila i den midlertidige katalogen. Installasjonen er avbroten
+LdrCannotExecTemp=Kan ikkje kÃ¸yra fila i den midlertidige katalogen. Installasjonen er avbroten
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFeil %2: %3
-SetupFileMissing=Fila %1 finst ikkje i installasjonskatalogen. Ver venleg og fiks problemet eller få tak i ein ny kopi av programmet.
-SetupFileCorrupt=Installasjonsfila er øydelagt. Ver venleg og få tak i ein ny kopi av programmet.
-SetupFileCorruptOrWrongVer=Installasjonsfilane er øydelagde, eller ikkje kompatible med dette installasjonsprogrammet.Ver venleg og fiks problemet eller få tak i ein ny kopi av programmet.
-NotOnThisPlatform=Dette programmet køyrer ikkje på %1.
-OnlyOnThisPlatform=Dette programmet køyrer berre på %1.
+SetupFileMissing=Fila %1 finst ikkje i installasjonskatalogen. Ver venleg og fiks problemet eller fÃ¥ tak i ein ny kopi av programmet.
+SetupFileCorrupt=Installasjonsfila er Ã¸ydelagt. Ver venleg og fÃ¥ tak i ein ny kopi av programmet.
+SetupFileCorruptOrWrongVer=Installasjonsfilane er Ã¸ydelagde, eller ikkje kompatible med dette installasjonsprogrammet.Ver venleg og fiks problemet eller fÃ¥ tak i ein ny kopi av programmet.
+NotOnThisPlatform=Dette programmet kÃ¸yrer ikkje pÃ¥ %1.
+OnlyOnThisPlatform=Dette programmet kÃ¸yrer berre pÃ¥ %1.
 WinVersionTooLowError=Dette programmet krev %1 versjon %2 eller nyare.
-WinVersionTooHighError=Dette programmet kan ikkje bli installert på %1 versjon %2 eller nyare.
-AdminPrivilegesRequired=Du må vera logga inn som administrator når du installerer dette programmet.
-PowerUserPrivilegesRequired=Du må vera logga inn som administrator eller ha administrator-rettar når du installerer dette programmet.
-SetupAppRunningError=Installasjonen har oppdaga at %1 køyrer.%n%nVer venleg og lukk det no, og trykk OK for å halda fram, eller Avbryt for å avslutta.
-UninstallAppRunningError=Avinstallasjonen har oppdaga at %1 køyrer.%n%nVer venleg og lukk det no, og trykk OK for å halda fram, eller Avbryt for å avslutta.
+WinVersionTooHighError=Dette programmet kan ikkje bli installert pÃ¥ %1 versjon %2 eller nyare.
+AdminPrivilegesRequired=Du mÃ¥ vera logga inn som administrator nÃ¥r du installerer dette programmet.
+PowerUserPrivilegesRequired=Du mÃ¥ vera logga inn som administrator eller ha administrator-rettar nÃ¥r du installerer dette programmet.
+SetupAppRunningError=Installasjonen har oppdaga at %1 kÃ¸yrer.%n%nVer venleg og lukk det no, og trykk OK for Ã¥ halda fram, eller Avbryt for Ã¥ avslutta.
+UninstallAppRunningError=Avinstallasjonen har oppdaga at %1 kÃ¸yrer.%n%nVer venleg og lukk det no, og trykk OK for Ã¥ halda fram, eller Avbryt for Ã¥ avslutta.
 
 ; *** Misc. errors
 ErrorCreatingDir=Installasjonsprogrammet kunne ikkje laga katalogen "%1"
@@ -74,7 +74,7 @@ ErrorTooManyFilesInDir=Kunne ikkje laga ei fil i mappa "%1" fordi den inneheld f
 
 ; *** Setup common messages
 ExitSetupTitle=Avslutt installasjonen
-ExitSetupMessage=Installasjonen er ikkje ferdig. Viss du avsluttar no, vil ikkje programmet bli installert.%n%nDu kan køyra installasjonen på nytt seinare for å fullføra installsajonen.%n%nVil du avslutta installasjonen?
+ExitSetupMessage=Installasjonen er ikkje ferdig. Viss du avsluttar no, vil ikkje programmet bli installert.%n%nDu kan kÃ¸yra installasjonen pÃ¥ nytt seinare for Ã¥ fullfÃ¸ra installsajonen.%n%nVil du avslutta installasjonen?
 AboutSetupMenuItem=&Om installasjonsprogrammet...
 AboutSetupTitle=Om installasjonsprogrammet
 AboutSetupMessage=%1 versjon %2%n%3%n%n%1 heimeside:%n%4
@@ -94,38 +94,38 @@ ButtonFinish=&Ferdig
 ButtonBrowse=&Bla gjennom...
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Vel installasjonsspråk
-SelectLanguageLabel=Vel språket som skal brukast under installasjonen:
+SelectLanguageTitle=Vel installasjonssprÃ¥k
+SelectLanguageLabel=Vel sprÃ¥ket som skal brukast under installasjonen:
 
 ; *** Common wizard text
-ClickNext=Trykk Neste for å halda fram, eller Avbryt for å avslutta installasjonen.
+ClickNext=Trykk Neste for Ã¥ halda fram, eller Avbryt for Ã¥ avslutta installasjonen.
 BeveledLabel=
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Velkomen til installasjonen av [name]
-WelcomeLabel2=Dette vil installera [name/ver] på di datamaskin.%n%nDet er anbefalt at du lukkar alle andre program før du fortset.
+WelcomeLabel2=Dette vil installera [name/ver] pÃ¥ di datamaskin.%n%nDet er anbefalt at du lukkar alle andre program fÃ¸r du fortset.
 
 ; *** "Password" wizard page
 WizardPassword=Passord
 PasswordLabel1=Denne installasjonen er passordbeskytta.
-PasswordLabel3=Ver venleg og skriv inn passordet, og trykk Neste for å halda fram. Store og små bokstavar blir behandla ulikt.
+PasswordLabel3=Ver venleg og skriv inn passordet, og trykk Neste for Ã¥ halda fram. Store og smÃ¥ bokstavar blir behandla ulikt.
 PasswordEditLabel=&Passord:
-IncorrectPassword=Passordet du skreiv inn er feil. Ver venleg og prøv igjen.
+IncorrectPassword=Passordet du skreiv inn er feil. Ver venleg og prÃ¸v igjen.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Lisensvilkår
-LicenseLabel=Ver venleg og les den fylgjande viktige informasjonen før du fortset.
-LicenseLabel3=Ver venleg og les dei fylgjande lisensvilkåra. Du må godta innehaldet i denne avtalen før du fortset installasjonen.
+WizardLicense=LisensvilkÃ¥r
+LicenseLabel=Ver venleg og les den fylgjande viktige informasjonen fÃ¸r du fortset.
+LicenseLabel3=Ver venleg og les dei fylgjande lisensvilkÃ¥ra. Du mÃ¥ godta innehaldet i denne avtalen fÃ¸r du fortset installasjonen.
 LicenseAccepted=Eg &godtar avtalen
 LicenseNotAccepted=Eg godtar &ikkje avtalen
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informasjon
-InfoBeforeLabel=Ver venleg og les den fylgjande viktige informasjonen før du fortset.
-InfoBeforeClickLabel=Når du er klar til å halda fram med installasjonen, trykk Neste.
+InfoBeforeLabel=Ver venleg og les den fylgjande viktige informasjonen fÃ¸r du fortset.
+InfoBeforeClickLabel=NÃ¥r du er klar til Ã¥ halda fram med installasjonen, trykk Neste.
 WizardInfoAfter=Informasjon
-InfoAfterLabel=Ver venleg og les den fylgjande viktige informasjonen før du fortset.
-InfoAfterClickLabel=Når du er klar til å fullføra installasjonen, trykk Neste.
+InfoAfterLabel=Ver venleg og les den fylgjande viktige informasjonen fÃ¸r du fortset.
+InfoAfterClickLabel=NÃ¥r du er klar til Ã¥ fullfÃ¸ra installasjonen, trykk Neste.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Brukarinformasjon
@@ -133,18 +133,18 @@ UserInfoDesc=Ver venleg og skriv inn din informasjon.
 UserInfoName=&Brukarnamn:
 UserInfoOrg=&Organisasjon:
 UserInfoSerial=&Serienummer:
-UserInfoNameRequired=Du må skriva inn eit namn.
+UserInfoNameRequired=Du mÃ¥ skriva inn eit namn.
 
 ; *** "Select Destination Directory" wizard page
-WizardSelectDir=Vel målmappe
+WizardSelectDir=Vel mÃ¥lmappe
 SelectDirDesc=Kvar skal [name] bli installert?
 SelectDirLabel=Vel mappa der du vil at [name] skal bli installert, og trykk Neste.
 DiskSpaceMBLabel=Programmet krev minst [mb] MB diskplass.
-ToUNCPathname=Kan ikkje installera til ei UNC-bane. Viss du prøver å installera i eit nettverk, må du skriva inn nettverksmålstasjonen.
-InvalidPath=Du må skriva inn ei full bane med stasjonsbokstav; for eksempel:%n%nC:\APP%n%neller ei UNC-bane som:%n%n\\server\share
+ToUNCPathname=Kan ikkje installera til ei UNC-bane. Viss du prÃ¸ver Ã¥ installera i eit nettverk, mÃ¥ du skriva inn nettverksmÃ¥lstasjonen.
+InvalidPath=Du mÃ¥ skriva inn ei full bane med stasjonsbokstav; for eksempel:%n%nC:\APP%n%neller ei UNC-bane som:%n%n\\server\share
 InvalidDrive=Den valte stasjonen eller UNC-delinga finst ikkje, eller er ikkje tilgjengeleg. Ver venleg og vel ein annan.
 DiskSpaceWarningTitle=Ikkje nok diskplass
-DiskSpaceWarning=Installasjonsprogrammet krev minst %1 KB ledig plass for å installera, men den valte stasjonen har berre %2 KB ledig.%n%nVil du halda fram likevel?
+DiskSpaceWarning=Installasjonsprogrammet krev minst %1 KB ledig plass for Ã¥ installera, men den valte stasjonen har berre %2 KB ledig.%n%nVil du halda fram likevel?
 BadDirName32=Katalognamn kan ikkje innehalda nokon av dei fylgjande teikna:%n%n%1
 DirExistsTitle=Katalogen finst
 DirExists=Katalogen:%n%n%1%n%nfinst allereie. Vil du installera til denne katalogen likevel?
@@ -154,65 +154,65 @@ DirDoesntExist=Katalogen:%n%n%1%n%nfinst ikkje. Vil du at katalogen skal bli lag
 ; *** "Select Components" wizard page
 WizardSelectComponents=Vel komponentar
 SelectComponentsDesc=Kva komponentar skal installerast?
-SelectComponentsLabel2=Vel dei komponentane du vil installera; vel vekk dei komponentane du ikkje vil installera. Trykk Neste når du er klar til å halda fram.
+SelectComponentsLabel2=Vel dei komponentane du vil installera; vel vekk dei komponentane du ikkje vil installera. Trykk Neste nÃ¥r du er klar til Ã¥ halda fram.
 FullInstallation=Full installasjon
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompakt installasjon
 CustomInstallation=Eigendefinert installasjon
 NoUninstallWarningTitle=Komponentane finst
-NoUninstallWarning=Installasjonen har oppdaga at desse komponentane allereie er installerte på datamaskina:%n%n%1%n%nDesse komponentane blir ikkje avinstallerte sjølv om du vel dei vekk.%n%nVil du halda fram likevel?
+NoUninstallWarning=Installasjonen har oppdaga at desse komponentane allereie er installerte pÃ¥ datamaskina:%n%n%1%n%nDesse komponentane blir ikkje avinstallerte sjÃ¸lv om du vel dei vekk.%n%nVil du halda fram likevel?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceMBLabel=Valte alternativ krev minst [mb] MB ledig diskplass.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Vel tilleggsoppgåver
-SelectTasksDesc=Kva tilleggsoppgåver skal utførast?
-SelectTasksLabel2=Vel dei tilleggsoppgåvene som skal utførast mens [name] blir installert, trykk deretter Neste.
+WizardSelectTasks=Vel tilleggsoppgÃ¥ver
+SelectTasksDesc=Kva tilleggsoppgÃ¥ver skal utfÃ¸rast?
+SelectTasksLabel2=Vel dei tilleggsoppgÃ¥vene som skal utfÃ¸rast mens [name] blir installert, trykk deretter Neste.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Vel mappe i Start-menyen
 SelectStartMenuFolderDesc=Kvar skal snarvegane plasserast?
 SelectStartMenuFolderLabel=Vel mappa i Start-menyen der du vil at snarvegane skal bli plasserte. Trykk deretter Neste.
 NoIconsCheck=&Ikkje lag ikon
-MustEnterGroupName=Du må skriva inn eit katalognamn.
+MustEnterGroupName=Du mÃ¥ skriva inn eit katalognamn.
 BadGroupName=Katalognamn kan ikkje innehalda nokon av dei fylgjande teikna:%n%n%1
 NoProgramGroupCheck2=&Ikkje lag mappe i Start-menyen
 
 ; *** "Ready to Install" wizard page
-WizardReady=Klar til å installera
-ReadyLabel1=Installasjonsprogrammet er no klart til å starta installasjonen av [name] på di datamaskin.
-ReadyLabel2a=Trykk Installer for å halda fram med installasjonen, eller trykk Tilbake viss du vil sjå på eller endra instillingane.
-ReadyLabel2b=Trykk Installer for å halda fram med installasjonen.
+WizardReady=Klar til Ã¥ installera
+ReadyLabel1=Installasjonsprogrammet er no klart til Ã¥ starta installasjonen av [name] pÃ¥ di datamaskin.
+ReadyLabel2a=Trykk Installer for Ã¥ halda fram med installasjonen, eller trykk Tilbake viss du vil sjÃ¥ pÃ¥ eller endra instillingane.
+ReadyLabel2b=Trykk Installer for Ã¥ halda fram med installasjonen.
 ReadyMemoUserInfo=Brukarinformasjon:
-ReadyMemoDir=Målmappe:
+ReadyMemoDir=MÃ¥lmappe:
 ReadyMemoType=Installasjonstype:
 ReadyMemoComponents=Valte komponentar:
 ReadyMemoGroup=Mappe i Start-menyen:
-ReadyMemoTasks=Tilleggsoppgåver:
+ReadyMemoTasks=TilleggsoppgÃ¥ver:
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Førebur installasjonen
-PreparingDesc=Installasjonsprogrammet førebur installasjonen av [name] på di datamaskin.
-PreviousInstallNotCompleted=Installasjonen/fjerninga av eit tidlegare program blei ikkje fullført. Du må starta maskina på nytt for å fullføra den installasjonen.%n%nEtter omstarten må du køyra installasjonsprogrammet på nytt for å fullføra installasjonen av [name].
-CannotContinue=Installasjonsprogrammet kan ikkje halda fram. Ver venleg og trykk Avbryt for å avslutta.
+WizardPreparing=FÃ¸rebur installasjonen
+PreparingDesc=Installasjonsprogrammet fÃ¸rebur installasjonen av [name] pÃ¥ di datamaskin.
+PreviousInstallNotCompleted=Installasjonen/fjerninga av eit tidlegare program blei ikkje fullfÃ¸rt. Du mÃ¥ starta maskina pÃ¥ nytt for Ã¥ fullfÃ¸ra den installasjonen.%n%nEtter omstarten mÃ¥ du kÃ¸yra installasjonsprogrammet pÃ¥ nytt for Ã¥ fullfÃ¸ra installasjonen av [name].
+CannotContinue=Installasjonsprogrammet kan ikkje halda fram. Ver venleg og trykk Avbryt for Ã¥ avslutta.
 
 ; *** "Installing" wizard page
 WizardInstalling=Installerer
-InstallingLabel=Ver venleg og vent mens [name] blir installert på di datamaskin.
+InstallingLabel=Ver venleg og vent mens [name] blir installert pÃ¥ di datamaskin.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Fullfører installasjonsvegvisaren for [name]
-FinishedLabelNoIcons=Installasjonen av [name] er fullført.
-FinishedLabel=Installasjonen av [name] er fullført. Du kan starta programmet ved å trykka på eit av dei installerte ikona.
-ClickFinish=Trykk Ferdig for å avslutta installasjonen.
-FinishedRestartLabel=For å fullføra installasjonen av [name], må maskina bli starta på nytt. Vil du starta på nytt no?
-FinishedRestartMessage=For å fullføra installasjonen av [name], må maskina bli starta på nytt.%n%nVil du starta på nytt no?
-ShowReadmeCheck=Ja, eg vil sjå LESMEG-fila
-YesRadio=&Ja, start maskina på nytt no
-NoRadio=&Nei, eg vil starta på nytt seinare
+FinishedHeadingLabel=FullfÃ¸rer installasjonsvegvisaren for [name]
+FinishedLabelNoIcons=Installasjonen av [name] er fullfÃ¸rt.
+FinishedLabel=Installasjonen av [name] er fullfÃ¸rt. Du kan starta programmet ved Ã¥ trykka pÃ¥ eit av dei installerte ikona.
+ClickFinish=Trykk Ferdig for Ã¥ avslutta installasjonen.
+FinishedRestartLabel=For Ã¥ fullfÃ¸ra installasjonen av [name], mÃ¥ maskina bli starta pÃ¥ nytt. Vil du starta pÃ¥ nytt no?
+FinishedRestartMessage=For Ã¥ fullfÃ¸ra installasjonen av [name], mÃ¥ maskina bli starta pÃ¥ nytt.%n%nVil du starta pÃ¥ nytt no?
+ShowReadmeCheck=Ja, eg vil sjÃ¥ LESMEG-fila
+YesRadio=&Ja, start maskina pÃ¥ nytt no
+NoRadio=&Nei, eg vil starta pÃ¥ nytt seinare
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Køyr %1
+RunEntryExec=KÃ¸yr %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Vis %1
 
@@ -225,8 +225,8 @@ FileNotInDir2=Finn ikkje fila "%1" i "%2". Ver venleg og set inn riktig diskett 
 SelectDirectoryLabel=Ver venleg og skriv inn plasseringa til den neste disketten.
 
 ; *** Installation phase messages
-SetupAborted=Installasjonen blei ikkje fullført.%n%nVer venleg og fiks problemet og køyr installasjonen på nytt.
-EntryAbortRetryIgnore=Tykkk Prøv på nytt for å prøva på nytt, Ignorér for å halda fram, eller Avbryt for å avslutta installasjonen.
+SetupAborted=Installasjonen blei ikkje fullfÃ¸rt.%n%nVer venleg og fiks problemet og kÃ¸yr installasjonen pÃ¥ nytt.
+EntryAbortRetryIgnore=Tykkk PrÃ¸v pÃ¥ nytt for Ã¥ prÃ¸va pÃ¥ nytt, IgnorÃ©r for Ã¥ halda fram, eller Avbryt for Ã¥ avslutta installasjonen.
 
 ; *** Installation status messages
 StatusCreateDirs=Oppretter katalogar...
@@ -236,7 +236,7 @@ StatusCreateIniEntries=Oppretter INI-instillingar...
 StatusCreateRegistryEntries=Opprettter register-instillingar...
 StatusRegisterFiles=Registrerer filar...
 StatusSavingUninstall=Lagrar avinstallasjonsinformasjon...
-StatusRunProgram=Fullfører installasjonen...
+StatusRunProgram=FullfÃ¸rer installasjonen...
 StatusRollback=Tilbakestiller endringar...
 
 ; *** Misc. errors
@@ -244,56 +244,56 @@ ErrorInternal2=Intern feil: %1
 ErrorFunctionFailedNoCode=%1 gjekk gale
 ErrorFunctionFailed=%1 gjekk gale; kode %2
 ErrorFunctionFailedWithMessage=%1 gjekk gale; kode %2.%n%3
-ErrorExecutingProgram=Kunne ikkje køyre fila:%n%1
+ErrorExecutingProgram=Kunne ikkje kÃ¸yre fila:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Feil under opning av registernøkkel:%n%1\%2
-ErrorRegCreateKey=Feil under oppretting av registernøkkel:%n%1\%2
-ErrorRegWriteKey=Feil under skriving til registernøkkel:%n%1\%2
+ErrorRegOpenKey=Feil under opning av registernÃ¸kkel:%n%1\%2
+ErrorRegCreateKey=Feil under oppretting av registernÃ¸kkel:%n%1\%2
+ErrorRegWriteKey=Feil under skriving til registernÃ¸kkel:%n%1\%2
 
 ; *** INI errors
 ErrorIniEntry=Feil under oppretting av innstillingar i fila "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnore=Trykk Prøv på nytt for å prøva på nytt, Ignorér for å hoppa over denne fila (ikkje anbefalt), eller Avbryt for å avslutta installasjonen.
-FileAbortRetryIgnore2=Trykk Prøv på nytt for å prøva på nytt, Ignorér for å halda fram (ikkje anbefalt), eller Avbryt for å avslutta installasjonen.
-SourceIsCorrupted=Kjeldefila er øydelagt
+FileAbortRetryIgnore=Trykk PrÃ¸v pÃ¥ nytt for Ã¥ prÃ¸va pÃ¥ nytt, IgnorÃ©r for Ã¥ hoppa over denne fila (ikkje anbefalt), eller Avbryt for Ã¥ avslutta installasjonen.
+FileAbortRetryIgnore2=Trykk PrÃ¸v pÃ¥ nytt for Ã¥ prÃ¸va pÃ¥ nytt, IgnorÃ©r for Ã¥ halda fram (ikkje anbefalt), eller Avbryt for Ã¥ avslutta installasjonen.
+SourceIsCorrupted=Kjeldefila er Ã¸ydelagt
 SourceDoesntExist=Kjeldefila "%1" finst ikkje
-ExistingFileReadOnly=Den eksisterande fila er skrivebeskytta.%n%nTrykk Prøv på nytt for å fjerna skrivebeskyttinga og prøva på nytt, Ignorér for å hoppa over denne fila, eller Avbryt for å avslutta installasjonen.
+ExistingFileReadOnly=Den eksisterande fila er skrivebeskytta.%n%nTrykk PrÃ¸v pÃ¥ nytt for Ã¥ fjerna skrivebeskyttinga og prÃ¸va pÃ¥ nytt, IgnorÃ©r for Ã¥ hoppa over denne fila, eller Avbryt for Ã¥ avslutta installasjonen.
 ErrorReadingExistingDest=Ein feil oppstod under lesing av den eksisterande fila:
 FileExists=Fila finst allereie.%n%nVil du at installasjonsprogrammet skal skriva over den?
-ExistingFileNewer=Den eksisterande fila er nyare enn den installasjonen prøver å installera. Det er anbefalt at du beheld den eksisterande fila.%n%nVil du behalda den eksisterande fila?
-ErrorChangingAttr=Ein feil oppstod under forsøk på å endra attributtar i den eksisterande fila:
-ErrorCreatingTemp=Ein feil oppstod under forsøk på å oppretta ei fil i målmappa:
-ErrorReadingSource=Ein feil oppstod under forsøk på å lesa kjeldefila:
-ErrorCopying=Ein feil oppstod under forsøk på å kopiera fila:
-ErrorReplacingExistingFile=Ein feil oppstod under forsøk på å erstatta den eksisterande fila:
+ExistingFileNewer=Den eksisterande fila er nyare enn den installasjonen prÃ¸ver Ã¥ installera. Det er anbefalt at du beheld den eksisterande fila.%n%nVil du behalda den eksisterande fila?
+ErrorChangingAttr=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ endra attributtar i den eksisterande fila:
+ErrorCreatingTemp=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ oppretta ei fil i mÃ¥lmappa:
+ErrorReadingSource=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ lesa kjeldefila:
+ErrorCopying=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ kopiera fila:
+ErrorReplacingExistingFile=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ erstatta den eksisterande fila:
 ErrorRestartReplace=RestartReplace gjekk gale:
-ErrorRenamingTemp=Ein feil oppstod under forsøk på å gje nytt namnt til ei fil i målmappa:
+ErrorRenamingTemp=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ gje nytt namnt til ei fil i mÃ¥lmappa:
 ErrorRegisterServer=Kunne ikkje registrera DLL/OCX: %1
 ErrorRegisterServerMissingExport=DllRegisterServer-eksportering blei ikkje funne
 ErrorRegisterTypeLib=Kunne ikkje registrera typebiblioteket: %1
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Ein feil oppstod under forsøk på å opna LESMEG-fila.
-ErrorRestartingComputer=Installasjonsprogrammet kunne ikkje starta maskina på nytt. Ver venleg og gjer dette manuelt.
+ErrorOpeningReadme=Ein feil oppstod under forsÃ¸k pÃ¥ Ã¥ opna LESMEG-fila.
+ErrorRestartingComputer=Installasjonsprogrammet kunne ikkje starta maskina pÃ¥ nytt. Ver venleg og gjer dette manuelt.
 
 ; *** Uninstaller messages
 UninstallNotFound=Kan ikkje avinstallera. Fila "%1" finst ikkje.
 UninstallOpenError=Kan ikkje avinstallera. Fila "%1" kunne ikkje opnast.
-UninstallUnsupportedVer=Kan ikkje avinstallera. Avinstallasjonsloggfila "%1" er i eit format som denne versjonen av avinstallasjonsprogrammet ikkje forstår
+UninstallUnsupportedVer=Kan ikkje avinstallera. Avinstallasjonsloggfila "%1" er i eit format som denne versjonen av avinstallasjonsprogrammet ikkje forstÃ¥r
 UninstallUnknownEntry=Ein ukjend parameter (%1) blei funne i avinstallasjonsloggen
-ConfirmUninstall=Er du sikker på at du vil fjerna %1 og alle tilhøyrande komponentar?
+ConfirmUninstall=Er du sikker pÃ¥ at du vil fjerna %1 og alle tilhÃ¸yrande komponentar?
 OnlyAdminCanUninstall=Denne installasjonen kan berre avinstallerast av ein brukar med administrator-rettar.
-UninstallStatusLabel=Ver venleg og vent mens %1 blir fjerna frå di datamaskin.
+UninstallStatusLabel=Ver venleg og vent mens %1 blir fjerna frÃ¥ di datamaskin.
 UninstalledAll=Fjerninga av %1 var vellukka.
-UninstalledMost=Avinstalleringa av %1 er fullført.%n%nNokre element kunne ikkje bli sletta. Desse kan slettast manuelt.
-UninstalledAndNeedsRestart=For å fullføra avinstallasjonen av %1, må datamaskina startast på nytt.%n%nVil du starta på nytt no?
-UninstallDataCorrupted=Kan ikkje avinstallera. "%1"-fila er øydelagd.
+UninstalledMost=Avinstalleringa av %1 er fullfÃ¸rt.%n%nNokre element kunne ikkje bli sletta. Desse kan slettast manuelt.
+UninstalledAndNeedsRestart=For Ã¥ fullfÃ¸ra avinstallasjonen av %1, mÃ¥ datamaskina startast pÃ¥ nytt.%n%nVil du starta pÃ¥ nytt no?
+UninstallDataCorrupted=Kan ikkje avinstallera. "%1"-fila er Ã¸ydelagd.
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Fjerna delt fil?
-ConfirmDeleteSharedFile2=Systemet indikerer at den fylgjande delte fila ikkje blir brukt av nokon program. Vil du at avinstallasjonsprogrammet skal fjerna denne delte fila?%n%nViss nokre program framleis brukar denne fila, og den blir fjerna, kan du risikere at dei ikkje verkar som dei skal. Viss du er usikker, vel Nei. Å la denne fila vera på systemet vil ikkje gjera nokon skade.
+ConfirmDeleteSharedFile2=Systemet indikerer at den fylgjande delte fila ikkje blir brukt av nokon program. Vil du at avinstallasjonsprogrammet skal fjerna denne delte fila?%n%nViss nokre program framleis brukar denne fila, og den blir fjerna, kan du risikere at dei ikkje verkar som dei skal. Viss du er usikker, vel Nei. Ã… la denne fila vera pÃ¥ systemet vil ikkje gjera nokon skade.
 SharedFileNameLabel=Filnamn:
 SharedFileLocationLabel=Plassering:
 WizardUninstalling=Avinstallasjons-status
