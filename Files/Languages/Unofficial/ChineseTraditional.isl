@@ -13,7 +13,7 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<7e41><9ad4><4e2d><6587>
 LanguageID=$0404
-LanguageCodepage=950
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=

@@ -10,7 +10,7 @@
 [LangOptions]
 LanguageName=Latviski
 LanguageID=$0426
-LanguageCodePage=1257
+LanguageCodePage=0
 
 [Messages]
 
