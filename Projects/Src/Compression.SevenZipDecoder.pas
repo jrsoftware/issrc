@@ -115,7 +115,14 @@ end;
 
 function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
-  Result := SetFileAttributesRedir(State.DisableFsRedir, lpFileName, dwFileAttributes);
+  { See above }
+  var ExpandedFileName: String;
+  if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
+    Result := SetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName, dwFileAttributes)
+  else begin
+    Result := False;
+    SetLastError(ERROR_ACCESS_DENIED);
+  end;
 end;
 
 function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
