@@ -115,7 +115,14 @@ end;
 
 function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
-  Result := SetFileAttributesRedir(State.DisableFsRedir, lpFileName, dwFileAttributes);
+  { See above }
+  var ExpandedFileName: String;
+  if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
+    Result := SetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName, dwFileAttributes)
+  else begin
+    Result := False;
+    SetLastError(ERROR_ACCESS_DENIED);
+  end;
 end;
 
 function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
@@ -282,32 +289,28 @@ begin
 
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  var SaveCurDir := GetCurrentDir;
-  if not ForceDirectories(DisableFsRedir, DestDir) or not SetCurrentDir(DestDir) then
+  if not ForceDirectories(DisableFsRedir, DestDir) then
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
-  try
-    State.DisableFsRedir := DisableFsRedir;
-    State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
-    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-    State.LogBuffer := '';
-    State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
-    State.OnExtractionProgress := OnExtractionProgress;
-    State.LastReportedProgress := 0;
-    State.LastReportedProgressMax := 0;
-    State.Aborted := False;
 
-    var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
+  State.DisableFsRedir := DisableFsRedir;
+  State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
+  State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  State.LogBuffer := '';
+  State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
+  State.OnExtractionProgress := OnExtractionProgress;
+  State.LastReportedProgress := 0;
+  State.LastReportedProgressMax := 0;
+  State.Aborted := False;
 
-    if State.LogBuffer <> '' then
-      Log(State.LogBuffer);
+  var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
 
-    if State.Aborted then
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-    else if Res <> 0 then
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString]))
-  finally
-    SetCurrentDir(SaveCurDir);
-  end;
+  if State.LogBuffer <> '' then
+    Log(State.LogBuffer);
+
+  if State.Aborted then
+    raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+  else if Res <> 0 then
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString]));
 end;
 
 end.
