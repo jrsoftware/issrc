@@ -72,14 +72,24 @@ type
   TArchiveExtractCallback = class(TInterfacedObject, IArchiveExtractCallback,
     ICryptoGetTextPassword)
   private
-    FInArchive: IInArchive;
-    FDisableFsRedir: Boolean;
-    FExpandedDestDir, FPassword: String;
-    FFullPaths: Boolean;
-    FExtractedArchiveName: String;
-    FOnExtractionProgress: TOnExtractionProgress;
-    FCurrentFilename, FLastReportedFilename: String;
-    FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
+    type
+      TCurrent = record
+        Path, ExpandedPath: String;
+        HasAttrib: Boolean;
+        Attrib: DWORD;
+        procedure Clear;
+        procedure SetAttrib(const AAttrib: DWORD);
+      end;
+    var
+      FInArchive: IInArchive;
+      FDisableFsRedir: Boolean;
+      FExpandedDestDir, FPassword: String;
+      FFullPaths: Boolean;
+      FExtractedArchiveName: String;
+      FOnExtractionProgress: TOnExtractionProgress;
+      FCurrent: TCurrent;
+      FLastReportedCurrentPath: String;
+      FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
     FOpRes: TNOperationResult;
   protected
     { IProgress }
@@ -223,6 +233,19 @@ end;
 
 { TArchiveExtractCallback }
 
+ procedure TArchiveExtractCallback.TCurrent.Clear;
+begin
+  Path := '';
+  HasAttrib := False;
+  Attrib := 0;
+end;
+
+procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
+begin
+  Attrib := AAttrib;
+  HasAttrib := True;
+end;
+
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
   const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
@@ -255,7 +278,7 @@ function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
-    FCurrentFilename := '';
+    FCurrent.Clear;
     if askExtractMode = kExtract then begin
       var ItemPath: OleVariant;
       var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
@@ -266,21 +289,23 @@ begin
       if Res <> S_OK then Exit(Res);
       if IsDir then begin
         if FFullPaths then begin
-          FCurrentFilename := ItemPath + '\';
-          var ExpandedDir: String;
-          if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedDir) then Exit(E_ACCESSDENIED);
-          ForceDirectories(FDisableFsRedir, ExpandedDir);
+          FCurrent.Path := ItemPath + '\';
+          if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, FCurrent.ExpandedPath) then Exit(E_ACCESSDENIED);
+          ForceDirectories(FDisableFsRedir, FCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
+        var Attrib: OleVariant;
+        Res := FInArchive.GetProperty(index, kpidAttrib, Attrib);
+        if Res <> S_OK then Exit(Res);
+        FCurrent.SetAttrib(Attrib);
         if not FFullPaths then
           ItemPath := PathExtractName(ItemPath);
-        FCurrentFilename := ItemPath;
-        var ExpandedFileName: String;
-        if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, ExpandedFileName) then Exit(E_ACCESSDENIED);
-        ForceDirectories(FDisableFsRedir, PathExtractPath(ExpandedFileName));
+        FCurrent.Path := ItemPath;
+        if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, FCurrent.ExpandedPath) then Exit(E_ACCESSDENIED);
+        ForceDirectories(FDisableFsRedir, PathExtractPath(FCurrent.ExpandedPath));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
-        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, ExpandedFileName, fdCreateAlways, faWrite, fsNone));
+        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, FCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
       end;
     end;
     Result := S_OK;
@@ -301,10 +326,10 @@ begin
 
     TThread.Synchronize(nil, procedure
       begin
-        if FCurrentFilename <> '' then begin
-          if FCurrentFilename <> FLastReportedFilename then begin
-            LogFmt('- %s', [FCurrentFilename]); { Just like 7zMain.c }
-            FLastReportedFilename := FCurrentFilename;
+        if FCurrent.Path <> '' then begin
+          if FCurrent.Path <> FLastReportedCurrentPath then begin
+            LogFmt('- %s', [FCurrent.Path]); { Just like 7zMain.c }
+            FLastReportedCurrentPath := FCurrent.Path;
           end;
 
           if Assigned(FOnExtractionProgress) then begin
@@ -317,7 +342,7 @@ begin
                (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
                ((FProgress - FLastReportedProgress) > 524288) then begin
               try
-                if not FOnExtractionProgress(FExtractedArchiveName, FCurrentFilename, FProgress, FProgressMax) then
+                if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, FProgress, FProgressMax) then
                   Abort := True;
               finally
                 FLastReportedProgress := FProgress;
@@ -365,12 +390,24 @@ function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): H
 
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
-  if opRes <> kOK then begin
-    FOpRes := opRes;
-    LogFmt('ERROR: %s', [OperationResultToString(opRes)]);  { Just like 7zMain.c }
-    Result := E_FAIL;
-  end else
-    Result := S_OK;
+  try
+    if opRes <> kOK then begin
+      FOpRes := opRes;
+      LogFmt('ERROR: %s', [OperationResultToString(opRes)]);  { Just like 7zMain.c }
+      Result := E_FAIL;
+    end else begin
+      if (FCurrent.ExpandedPath <> '') and FCurrent.HasAttrib and
+         not SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, FCurrent.Attrib) then
+        Result := E_FAIL
+      else
+        Result := S_OK;
+    end;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 function TArchiveExtractCallback.CryptoGetTextPassword(

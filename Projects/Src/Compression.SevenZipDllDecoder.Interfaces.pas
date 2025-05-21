@@ -82,6 +82,7 @@ const
   { From PropID.h}
   kpidPath = 3;
   kpidIsDir = 6;
+  kpidAttrib = 9;
 
   { From IArchive.h}
   kExtract = 0;
