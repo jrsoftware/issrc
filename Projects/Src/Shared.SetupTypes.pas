@@ -312,11 +312,10 @@ begin
   Move(KeyBytes[0], Key[0], KeyLength);
 end;
 
-{ Actually only used by ISCmplr and not by Setup - kept here anyway because IsISSigAllowedKey is}
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
+{ ISSigAllowedKeys should start out empty. If you then only use this function
+  to update it, regular string comparison can be used for comparisons. }
 begin
-  { ISSigAllowedKeys should start out empty. If you then only use this function
-    to update it, regular string comparison can be used for comparisons. }
   const ByteIndex = KeyIndex div 8;
   while ByteIndex >= Length(ISSigAllowedKeys) do
     ISSigAllowedKeys := ISSigAllowedKeys + #0;
@@ -335,6 +334,7 @@ end;
 
 function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
+{ Returns all keys if ISSigAllowedKeys is empty! }
 begin
   if ISSigAllowedKeys <> '' then begin
     const NAvailable = Length(ISSigAvailableKeys);
