@@ -106,6 +106,7 @@ var
     'function Write(Buffer: AnyString; ByteCount: Longint): Longint;',
     'procedure Add(ArchiveFileName, DestDir: String; FullPaths: Boolean);',
     'procedure Add(Url, BaseName, RequiredSHA256OfFile: String);',
+    'procedure AddEx(ArchiveFileName, DestDir, Password: String; FullPaths: Boolean);',
     'procedure AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);',
     'procedure AddStrings(Strings: TStrings);',
     'procedure Animate;',
