@@ -20,6 +20,7 @@ uses
 procedure InitSevenZipLibrary(const DllFilename: String);
 
 function IsExtractArchiveRedirAvailable: Boolean;
+function GetSevenZipLibraryName: String;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
@@ -434,6 +435,11 @@ end;
 function IsExtractArchiveRedirAvailable: Boolean;
 begin
   Result := Assigned(CreateSevenZipObject);
+end;
+
+function GetSevenZipLibraryName: String;
+begin
+  Result := SevenZipLibraryName;
 end;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;

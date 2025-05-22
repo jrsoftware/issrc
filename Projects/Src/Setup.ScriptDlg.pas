@@ -1187,14 +1187,13 @@ begin
 end;
 
 procedure TExtractionWizardPage.Extract;
-const
-  SExtractionMode: array[Boolean] of String = ('Built-in', 'Using 7z(xa).dll');
 begin
   FAbortedByUser := False;
 
   const ExtractArchiveRedirAvailable = IsExtractArchiveRedirAvailable;
 
-  LogFmt('Archive extraction mode: %s', [SExtractionMode[ExtractArchiveRedirAvailable]]);
+  LogFmt('Archive extraction mode: %s',
+    [IfThen(ExtractArchiveRedirAvailable, Format('Using %s', [GetSevenZipLibraryName]), 'Built-in')]);
 
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
