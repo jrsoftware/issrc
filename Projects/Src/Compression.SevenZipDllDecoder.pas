@@ -371,31 +371,11 @@ begin
 end;
 
 function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
-
-  function OperationResultToString(const opRes: TNOperationResult): String;
-  begin
-    case opRes of
-      kOK: Result := 'OK';
-      kUnsupportedMethod: Result := 'Unsupported method';
-      kDataError: Result := 'Data error';
-      kCRCError: Result := 'CRC error';
-      kUnavailable: Result := 'Unavailable';
-      kUnexpectedEnd: Result := 'Unexpected end';
-      kDataAfterEnd: Result := 'Data after end';
-      kIsNotArc: Result := 'Is not an archive';
-      kHeadersError: Result := 'Headers error';
-      kWrongPassword: Result := 'Wrong password';
-    else
-      Result := Format('Unknown result %d', [Ord(opRes)]);
-    end;
-  end;
-
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   try
     if opRes <> kOK then begin
       FOpRes := opRes;
-      LogFmt('ERROR: %s', [OperationResultToString(opRes)]);  { Just like 7zMain.c }
       Result := E_FAIL;
     end else begin
       if (FCurrent.ExpandedPath <> '') and FCurrent.HasAttrib and
@@ -487,6 +467,24 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       InternalError('ExtractArchive: Unknown ArchiveFileName extension');
   end;
 
+  function OperationResultToString(const opRes: TNOperationResult): String;
+  begin
+    case opRes of
+      kOK: Result := 'OK';
+      kUnsupportedMethod: Result := 'Unsupported method';
+      kDataError: Result := 'Data error';
+      kCRCError: Result := 'CRC error';
+      kUnavailable: Result := 'Unavailable';
+      kUnexpectedEnd: Result := 'Unexpected end';
+      kDataAfterEnd: Result := 'Data after end';
+      kIsNotArc: Result := 'Is not an archive';
+      kHeadersError: Result := 'Headers error';
+      kWrongPassword: Result := 'Wrong password';
+    else
+      Result := Format('Unknown result %d', [Ord(opRes)]);
+    end;
+  end;
+
 begin
   if not IsExtractArchiveRedirAvailable then
     InternalError('ExtractArchive: 7z(xa).dll not loaded');
@@ -500,16 +498,20 @@ begin
 
   { CreateObject }
   var InArchive: IInArchive;
-  if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot get class object'])); { From Client7z.cpp }
+  if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then begin
+    Log('ERROR: Cannot get class object'); { Just like 7zMain.c and Client7z.cpp }
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
+  end;
 
   { Open }
   const InStream: IInStream =
     TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
-  if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['Cannot open file as archive'])); { From Client7z.cpp }
+  if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
+    Log('ERROR: Cannot open file as archive'); { Just like 7zMain.c and Client7z.cpp }
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-2']));
+  end;
 
   { Extract }
   const ExtractCallback: IArchiveExtractCallback =
@@ -520,9 +522,10 @@ begin
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else begin
     var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
-    if OpRes <> kOK then
+    if OpRes <> kOK then begin
+      LogFmt('ERROR: %s', [OperationResultToString(opRes)]); { Just like 7zMain.c }
       raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
-    else if Res <> S_OK then
+    end else if Res <> S_OK then
       raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
   end;
 
