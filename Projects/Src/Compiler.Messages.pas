@@ -252,7 +252,7 @@ const
   SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerISSigKeysNameExists = 'Name "%s" is already in use"';
+  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use"';
   SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
   SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
   SCompilerISSigKeysBadKeyFile = 'Key file is malformed';

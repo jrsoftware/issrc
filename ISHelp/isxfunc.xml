@@ -1926,25 +1926,14 @@ end;</pre>
     </subcategory>
     <subcategory>
       <function>
-        <name>ISSigLoadTextFromFile</name>
-        <prototype>function ISSigLoadTextFromFile(const Filename: String): String;</prototype>
-        <description><p>Preferred, hardened function for loading specified Inno Setup Signature Tool key file text. Can also load .issig file text. An exception will be raised upon failure.</p></description>
-        <seealso><p><link topic="isxfunc_ISSigVerify">ISSigVerify</link></p></seealso>
-      </function>
-      <function>
         <name>ISSigVerify</name>
-        <prototype>function ISSigVerify(const AllowedKeysTexts: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;</prototype>
-        <description><p>Verifies the signature of specified file using the specified key texts. An exception will be raised upon failure.</p>
-<p>Returns a handle to the still open file if True is specified in the KeepOpen parameter, <tt>nil</tt> otherwise. It is recommended that you always specify True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p>
-<p>Key text from files should be loaded using <link topic="isxfunc_ISSigLoadTextFromFile">ISSigLoadTextFromFile</link>.</p></description>
+        <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;</prototype>
+        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using [ISSigKeys] section parameter <tt>RuntimeID</tt>. If no keys are specified then all keys are allowed. An exception will be raised upon failure.</p>
+<p>Returns a handle to the still open file if True is specified in the KeepOpen parameter, <tt>nil</tt> otherwise. It is recommended that you always specify True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre>var
-  AllowedKeyText: String;
-  AllowedKeysText: TArrayOfString;
+  F: TFileStream;
 begin
-  AllowedKeyText := ISSigLoadTextFromFile(KeyFilename);
-  SetLength(AllowedKeysText, 1);
-  AllowedKeysText[0] := AllowedKeyText;
-  F := ISSigVerify(AllowedKeysText, Filename, True);
+  F := ISSigVerify([], Filename, True);
   try
     // Use file
   finally

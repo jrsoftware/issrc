@@ -111,6 +111,7 @@ var
   WizardImages: TList;
   WizardSmallImages: TList;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
+  ISSigAvailableKeys: TArrayOfECDSAKey;
 
   { User options }
   ActiveLanguage: Integer = -1;
@@ -236,7 +237,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -3228,6 +3229,15 @@ begin
   { Set install mode }
   SetupInstallMode;
 
+  { Init ISSigAvailableKeys }
+  SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
+  for I := 0 to Entries[seISSigKey].Count-1 do begin
+    var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][I]);
+    ISSigAvailableKeys[I] := TECDSAKey.Create;
+    if ISSigImportPublicKey(ISSigAvailableKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+      InternalError('ISSigImportPublicKey failed')
+  end;
+
   { Load and initialize code }
   if SetupHeader.CompiledCodeText <> '' then begin
     CodeRunner := TScriptRunner.Create();
@@ -3472,6 +3482,9 @@ begin
     RemoveDirectoryRedir(DeleteDirsAfterInstallList.Objects[I] <> nil,
       DeleteDirsAfterInstallList[I]);
   DeleteDirsAfterInstallList.Clear;
+
+  for I := 0 to Length(ISSigAvailableKeys)-1 do
+    ISSigAvailableKeys[I].Free;
 
   FreeFileExtractor;
 

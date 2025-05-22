@@ -31,7 +31,7 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, ECDSA, ISSigFunc, Shared.CommonFunc.Vcl,
+  Compression.Base, SHA256, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
@@ -397,7 +397,6 @@ var
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
   RegisterFilesList: TList;
   ExpandedAppId: String;
-  ISSigAvailableKeys: TArrayOfECDSAKey;
 
   function GetLocalTimeAsStr: String;
   var
@@ -3134,7 +3133,6 @@ begin
   AppendUninstallData := False;
   UninstLogCleared := False;
   RegisterFilesList := nil;
-  SetLength(ISSigAvailableKeys, 0);
   UninstLog := TSetupUninstallLog.Create;
   try
     try
@@ -3171,14 +3169,6 @@ begin
       RecordCompiledCode;
 
       RegisterFilesList := TList.Create;
-
-      SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
-      for var N := 0 to Entries[seISSigKey].Count-1 do begin
-        var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][N]);
-        ISSigAvailableKeys[N] := TECDSAKey.Create;
-        if ISSigImportPublicKey(ISSigAvailableKeys[N], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
-          InternalError('ISSigImportPublicKey failed')
-      end;
 
       { Process Component entries, if any }
       ProcessComponentEntries;
@@ -3340,8 +3330,6 @@ begin
       Exit;
     end;
   finally
-    for I := 0 to Length(ISSigAvailableKeys)-1 do
-      ISSigAvailableKeys[I].Free;
     if Assigned(RegisterFilesList) then begin
       for I := RegisterFilesList.Count-1 downto 0 do
         Dispose(PRegisterFilesListRec(RegisterFilesList[I]));
