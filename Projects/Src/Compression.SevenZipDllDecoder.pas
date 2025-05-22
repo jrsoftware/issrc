@@ -441,28 +441,30 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   begin
     if SameText(Ext, '.zip') then
       Result := CLSID_HandlerZip
-    else if SameText(Ext, '.7z') then
-      Result := CLSID_Handler7z
-    else if SameText(Ext, '.rar') then
-      Result := CLSID_HandlerRar
     else if SameText(Ext, '.bzip2') then
       Result := CLSID_HandlerBZip2
-    else if SameText(Ext, '.tar') then
-      Result := CLSID_HandlerTar
-    else if SameText(Ext, '.gzip') then
-      Result := CLSID_HandlerGzip
-    else if SameText(Ext, '.iso') then
-      Result := CLSID_HandlerIso
+    else if SameText(Ext, '.rar') then
+      Result := CLSID_HandlerRar
+    else if SameText(Ext, '.7z') then
+      Result := CLSID_Handler7z
     else if SameText(Ext, '.cab') then
       Result := CLSID_HandlerCab
     else if SameText(Ext, '.lzma') then
       Result := CLSID_HandlerLzma
+    else if SameText(Ext, '.xz') then
+      Result := CLSID_HandlerXz
     else if SameText(Ext, '.wim') then
       Result := CLSID_HandlerWim
+    else if SameText(Ext, '.iso') then
+      Result := CLSID_HandlerIso
     else if SameText(Ext, '.rpm') then
       Result := CLSID_HandlerRpm
     else if SameText(Ext, '.deb') then
       Result := CLSID_HandlerDeb
+    else if SameText(Ext, '.tar') then
+      Result := CLSID_HandlerTar
+    else if SameText(Ext, '.gzip') then
+      Result := CLSID_HandlerGzip
     else
       InternalError('ExtractArchive: Unknown ArchiveFileName extension');
   end;
