@@ -56,25 +56,11 @@ var
   DownloadPage: TDownloadWizardPage;
   ExtractionPage: TExtractionWizardPage;
 
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
-begin
-  if Progress = ProgressMax then
-    Log(Format('Successfully downloaded file to {tmp}: %s', [FileName]));
-  Result := True;
-end;
-
-function OnExtractionProgress(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;
-begin
-  if Progress = ProgressMax then
-    Log(Format('Successfully extracted archive to {tmp}\MyProg-ExtraReadmes: %s', [ArchiveName]));
-  Result := True;
-end;
-
 procedure InitializeWizard;
 begin
-  DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
+  DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
   DownloadPage.ShowBaseNameInsteadOfUrl := True;
-  ExtractionPage := CreateExtractionPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnExtractionProgress);
+  ExtractionPage := CreateExtractionPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
