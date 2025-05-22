@@ -23,6 +23,8 @@ echo compilesettings.bat is missing or incomplete. It needs to contain
 echo the following line, adjusted for your system:
 echo.
 echo   set ISSIGTOOL_KEY_FILE=x:\path\MyKey.isprivatekey
+echo.
+echo Keep the path outside of your source tree!
 goto failed2
 
 :compilesettingsfound
