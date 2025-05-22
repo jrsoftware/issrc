@@ -2723,7 +2723,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
 <p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link> for other considerations and the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDownloadFiles2.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
