@@ -27,7 +27,18 @@ Name: "mykey"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
   PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
 
+// Uncomment the following line to use the 7-Zip library for extraction
+//#define USE7ZDLL
+// Please see the Init7ZipLibrary topic in the help file for more information
+//
+#ifdef USE7ZDLL
+  #define _7ZDLL "7zxa.dll"
+#endif
+//
 [Files]
+#ifdef USE7ZDLL 
+Source: "{#_7ZDLL}"; Flags: dontcopy
+#endif
 ; Place any regular files here
 Source: "MyProg.exe"; DestDir: "{app}";
 Source: "MyProg.chm"; DestDir: "{app}";
@@ -96,13 +107,20 @@ begin
       Exit;
 
     ExtractionPage.Clear;
+    // Use AddEx to specify a password
     ExtractionPage.Add(ExpandConstant('{tmp}\MyProg-ExtraReadmes.7z'), ExpandConstant('{tmp}\MyProg-ExtraReadmes'), True);
     ExtractionPage.Show;
     try
       try
+        #ifdef USE7ZDLL
+          // Extract and initialize the 7-Zip library
+          // This which will make the ExtractionPage switch from using Extract7ZipArchive to using ExtractArchive
+          ExtractTemporaryFile('{#_7ZDLL}');
+          Init7ZipLibrary(ExpandConstant('{tmp}\{#_7ZDLL}'));
+        #endif
         // Extracts the archive to {tmp}\MyProg-ExtraReadmes
-        // Please see the Extract7ZipArchive topic in the help file for limitations before using this for you own archives
-        // Note that each file in this archive comes with an .issig signature file
+        // Please see the Extract7ZipArchive or ExtractArchive topic in the help file for limitations
+        // Note that each file in the MyProg-ExtraReadmes.7z example archive comes with an .issig signature file
         // These signature files are used by the [Files] section to verify the archive's content
         ExtractionPage.Extract;
         Result := True;

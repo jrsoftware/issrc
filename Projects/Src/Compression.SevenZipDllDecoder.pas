@@ -19,6 +19,8 @@ uses
 
 procedure InitSevenZipLibrary(const DllFilename: String);
 
+function IsExtractArchiveRedirAvailable: Boolean;
+
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
@@ -446,6 +448,11 @@ begin
   end;
 end;
 
+function IsExtractArchiveRedirAvailable: Boolean;
+begin
+  Result := Assigned(CreateSevenZipObject);
+end;
+
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
@@ -481,7 +488,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   end;
 
 begin
-  if not Assigned(CreateSevenZipObject) then
+  if not IsExtractArchiveRedirAvailable then
     InternalError('ExtractArchive: 7z(xa).dll not loaded');
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');

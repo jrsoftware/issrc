@@ -240,7 +240,7 @@ uses
   StrUtils,
   Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
+  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Compression.SevenZipDllDecoder;
 
 const
   DefaultLabelHeight = 14;
@@ -251,7 +251,7 @@ const
 
 procedure SetCtlParent(const AControl, AParent: TWinControl);
 { Like assigning to AControl.Parent, but puts the control at the *bottom* of
-  the z-order instead of the top, for MSAA compatibility. }
+  the z-order instead of the top, for MSAA compatibility }
 var
   OldVisible: Boolean;
 begin
@@ -1071,7 +1071,7 @@ begin
 
   Result := 0;
   for var F in FFiles do begin
-    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves. }
+    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
   end;
@@ -1180,12 +1180,21 @@ begin
 end;
 
 procedure TExtractionWizardPage.Extract;
+const
+  SExtractionMode: array[Boolean] of String = ('Built-in', 'Using 7z(xa).dll');
 begin
   FAbortedByUser := False;
 
+  const ExtractArchiveRedirAvailable = IsExtractArchiveRedirAvailable;
+
+  LogFmt('Archive extraction mode: %s', [SExtractionMode[ExtractArchiveRedirAvailable]]);
+
   for var A in FArchives do begin
-    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves. }
-    Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
+    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
+    if ExtractArchiveRedirAvailable then
+      ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, '', A.FullPaths, InternalOnExtractionProgress)
+    else
+      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
   end;
 end;
 
