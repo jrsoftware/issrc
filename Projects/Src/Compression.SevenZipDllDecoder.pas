@@ -402,6 +402,7 @@ end;
 
 var
   SevenZipLibrary: THandle;
+  SevenZipLibraryName: String;
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
 
 procedure FreeSevenZipLibrary;
@@ -409,6 +410,7 @@ begin
   if SevenZipLibrary <> 0 then begin
     FreeLibrary(SevenZipLibrary);
     SevenZipLibrary := 0;
+    SevenZipLibraryName := '';
     CreateSevenZipObject := nil;
   end;
 end;
@@ -425,6 +427,7 @@ begin
       FreeSevenZipLibrary;
       Win32ErrorMsgEx('GetProcAddress', LastError);
     end;
+    SevenZipLibraryName := PathExtractName(DllFilename);
   end;
 end;
 
@@ -497,6 +500,8 @@ begin
     InternalError('ExtractArchive: Invalid DestDir value');
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+
+  LogFmt('%s Decoder : Igor Pavlov', [SevenZipLibraryName]); { Just like 7zMain.c }
 
   { CreateObject }
   var InArchive: IInArchive;
