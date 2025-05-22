@@ -440,7 +440,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 
-  function GetHandler(const Ext: String): TGUID;
+  function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
   begin
     if SameText(Ext, '.zip') then
       Result := CLSID_HandlerZip
@@ -469,7 +469,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     else if SameText(Ext, '.gzip') then
       Result := CLSID_HandlerGzip
     else
-      InternalError('ExtractArchive: Unknown ArchiveFileName extension');
+      InternalError(NotFoundErrorMsg);
   end;
 
   function OperationResultToString(const opRes: TNOperationResult): String;
@@ -495,7 +495,8 @@ begin
     InternalError('ExtractArchive: 7z(xa).dll not loaded');
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
-  const clsid = GetHandler(PathExtractExt(ArchiveFilename));
+  const clsid = GetHandler(PathExtractExt(ArchiveFilename),
+    'ExtractArchive: Unknown ArchiveFileName extension');
   if DestDir = '' then
     InternalError('ExtractArchive: Invalid DestDir value');
 
