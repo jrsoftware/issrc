@@ -1844,12 +1844,12 @@ begin
       WizardForm.Visible := True;
     WizardForm.Update;
     try
-      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
+      DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
       CodeNeedsRestart := False;
       Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
       PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
     finally
-      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := False;
+      DownloadTemporaryFileOrExtractArchiveProcessMessages := False;
       UpdateCurPageButtonState;
     end;
     if WindowState <> wsMinimized then  { VCL bug workaround }

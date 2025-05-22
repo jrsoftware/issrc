@@ -152,7 +152,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtractArchiveProcessMessages: Boolean;
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;

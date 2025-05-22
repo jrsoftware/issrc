@@ -3504,7 +3504,7 @@ begin
     end;
   end;
 
-  if not Abort and DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages then
+  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
     Application.ProcessMessages;
 
   if Abort then
