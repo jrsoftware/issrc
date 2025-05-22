@@ -340,6 +340,7 @@ begin
   with CL.Add(TExtractionWizardPage) do
   begin
     RegisterMethod(@TExtractionWizardPage.Add, 'Add');
+    RegisterMethod(@TExtractionWizardPage.AddEx, 'AddEx');
     RegisterMethod(@TExtractionWizardPage.Clear, 'Clear');
     RegisterMethod(@TExtractionWizardPage.Extract, 'Extract');
     RegisterMethod(@TExtractionWizardPage.Show, 'Show');

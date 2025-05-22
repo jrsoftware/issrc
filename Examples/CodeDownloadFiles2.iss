@@ -18,11 +18,11 @@ Name: "mykey"; \
   PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
 
 // Uncomment the following line to use the 7-Zip library for extraction
-//#define USE7ZDLL
-// Please see the Init7ZipLibrary topic in the help file for more information
-//
+#define USE7ZDLL
 #ifdef USE7ZDLL
-  #define _7ZDLL "7zxa.dll"
+  #define _7ZDLL "7z.dll"     ; if you need .zip support, or other formats, with password support
+  //#define _7ZDLL "7zxa.dll" ; if you only need .7z support, with password support
+  //#define _7ZDLL "7zxr.dll" ; if you only need .7z support, without password support
 #endif
 //
 [Files]
