@@ -106,7 +106,7 @@ const
   restartmanagerlib = 'Rstrtmgr.dll';
 
 var
-  RestartManagerLibrary: THandle;
+  RestartManagerLibrary: HMODULE;
   ReferenceCount: Integer;  // We have to keep track of several load/unload calls.
 
 procedure FreeRestartManagerLibrary;
