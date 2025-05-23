@@ -335,15 +335,17 @@ begin
           -Or if somehow Progress decreased or Max changed
           -Or if at least 512 KB progress was made since last report
         }
-        if (FProgress = 0) or (FProgress = FProgressMax) or
-           (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
-           ((FProgress - FLastReportedProgress) > 524288) then begin
+        const Progress = UInt64(InterlockedExchangeAdd64(Int64(FProgress), 0));
+        const ProgressMax = UInt64(InterlockedExchangeAdd64(Int64(FProgressMax), 0));
+        if (Progress = 0) or (Progress = ProgressMax) or
+           (Progress < FLastReportedProgress) or (ProgressMax <> FLastReportedProgressMax) or
+           ((Progress - FLastReportedProgress) > 524288) then begin
           try
-            if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, FProgress, FProgressMax) then
+            if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, Progress, ProgressMax) then
               Abort := True;
           finally
-            FLastReportedProgress := FProgress;
-            FLastReportedProgressMax := FProgressMax;
+            FLastReportedProgress := Progress;
+            FLastReportedProgressMax := ProgressMax;
           end;
         end;
       end;
