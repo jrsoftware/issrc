@@ -90,7 +90,7 @@ begin
       try
         #ifdef USE7ZDLL
           // Extract and initialize the 7-Zip library
-          // This which will make the ExtractionPage switch from using Extract7ZipArchive to using ExtractArchive
+          // This will make the ExtractionPage switch from using Extract7ZipArchive to using ExtractArchive
           ExtractTemporaryFile('{#_7ZDLL}');
           Init7ZipLibrary(ExpandConstant('{tmp}\{#_7ZDLL}'));
         #endif
