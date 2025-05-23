@@ -4302,7 +4302,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Julian Seward: Creator of the <extlink href="http://www.bzip.org/">bzlib</extlink> compression library that Inno Setup uses.</li>
 
-<li>Igor Pavlov: Creator of the <extlink href="http://www.7-zip.org/sdk.html">LZMA</extlink> compression library that Inno Setup uses.</li>
+<li>Igor Pavlov: Creator of the <extlink href="https://7-zip.org/">7-Zip</extlink> and <extlink href="http://www.7-zip.org/sdk.html">LZMA SDK</extlink> libraries that Inno Setup uses.</li>
 
 <li>Vince Valenti: Most of the code for the "Window" <tt>[Setup]</tt> section directives (1.12.4).</li>
 
