@@ -316,40 +316,41 @@ function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESUL
 begin
   { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called
     From IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
+
+  if GetCurrentThreadId <> MainThreadID then
+    Exit(E_FAIL);
+
   try
     var Abort := False;
 
-    TThread.Synchronize(nil, procedure
-      begin
-        if FCurrent.Path <> '' then begin
-          if FCurrent.Path <> FLastReportedCurrentPath then begin
-            LogFmt('- %s', [FCurrent.Path]); { Just like 7zMain.c }
-            FLastReportedCurrentPath := FCurrent.Path;
-          end;
+    if FCurrent.Path <> '' then begin
+      if FCurrent.Path <> FLastReportedCurrentPath then begin
+        LogFmt('- %s', [FCurrent.Path]); { Just like 7zMain.c }
+        FLastReportedCurrentPath := FCurrent.Path;
+      end;
 
-          if Assigned(FOnExtractionProgress) then begin
-            { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
-              -At start or finish
-              -Or if somehow Progress decreased or Max changed
-              -Or if at least 512 KB progress was made since last report
-            }
-            if (FProgress = 0) or (FProgress = FProgressMax) or
-               (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
-               ((FProgress - FLastReportedProgress) > 524288) then begin
-              try
-                if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, FProgress, FProgressMax) then
-                  Abort := True;
-              finally
-                FLastReportedProgress := FProgress;
-                FLastReportedProgressMax := FProgressMax;
-              end;
-            end;
+      if Assigned(FOnExtractionProgress) then begin
+        { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
+          -At start or finish
+          -Or if somehow Progress decreased or Max changed
+          -Or if at least 512 KB progress was made since last report
+        }
+        if (FProgress = 0) or (FProgress = FProgressMax) or
+           (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
+           ((FProgress - FLastReportedProgress) > 524288) then begin
+          try
+            if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, FProgress, FProgressMax) then
+              Abort := True;
+          finally
+            FLastReportedProgress := FProgress;
+            FLastReportedProgressMax := FProgressMax;
           end;
         end;
+      end;
+    end;
 
-        if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-          Application.ProcessMessages;
-      end);
+    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+      Application.ProcessMessages;
 
     if Abort then
       SysUtils.Abort;
