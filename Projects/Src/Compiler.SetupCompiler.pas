@@ -4618,7 +4618,7 @@ begin
       end;
 
       RuntimeID := Values[paRuntimeID].Data;
-      if ISSigKeysRuntimeIDExists(RuntimeID) then
+      if (RuntimeID <> '') and ISSigKeysRuntimeIDExists(RuntimeID) then
         AbortCompileFmt(SCompilerISSigKeysNameOrRuntimeIDExists, [ParamISSigKeysRuntimeID, RuntimeID]);
     end;
   except
