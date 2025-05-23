@@ -6,6 +6,8 @@ echo - Synching files from Files to Projects\Bin
 
 copy ..\..\Files\Default.isl
 copy ..\..\Files\ISPPBuiltins.iss
+copy ..\..\Files\is7z*.dll
+copy ..\..\Files\is7z*.dll.issig
 copy ..\..\Files\is*zip.dll
 copy ..\..\Files\isbzip.dll.issig
 copy ..\..\Files\is*zlib.dll
