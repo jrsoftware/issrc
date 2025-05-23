@@ -6,10 +6,12 @@ unit Compression.SevenZipDllDecoder.Interfaces;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Minimal extraction interfaces from 7z(x)(a).dll
+  Minimal extraction interfaces from 7-Zip Decoder DLLs
 }
 
 interface
+
+{$MINENUMSIZE 4}
 
 uses
   Winapi.ActiveX;
@@ -144,7 +146,7 @@ type
   { From IPassword.h }
   ICryptoGetTextPassword = interface(IUnknown)
   ['{23170F69-40C1-278A-0000-000500100000}']
-    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
   end;
 
 implementation

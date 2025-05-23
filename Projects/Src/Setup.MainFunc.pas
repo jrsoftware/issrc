@@ -244,7 +244,7 @@ uses
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
-  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm;
+  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDllDecoder;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -3483,8 +3483,9 @@ begin
   if DecompressorDLLHandle <> 0 then
     FreeLibrary(DecompressorDLLHandle);
 
-  { Free the shfolder.dll handles }
+  { Free the shfolder.dll and 7z.dll handles }
   UnloadSHFolderDLL;
+  FreeSevenZipLibrary;
 
   { Remove TempInstallDir, stopping the 64-bit helper first if necessary }
   RemoveTempInstallDir;

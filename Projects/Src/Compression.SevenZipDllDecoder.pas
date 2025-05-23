@@ -6,9 +6,9 @@ unit Compression.SevenZipDllDecoder;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Interface to the 7-Zip 7z(xa).dll Decoder DLL's, used by Setup
+  Interface to the 7-Zip Decoder DLLs, used by Setup
 
-  Based on the 7-zip source code and the 7-zip Delphi API by Henri Gourvest
+  Based on the 7-Zip source code and the 7-Zip Delphi API by Henri Gourvest
   https://github.com/geoffsmith82/d7zip MPL 1.1 licensed
 }
 
@@ -18,6 +18,7 @@ uses
   Compression.SevenZipDecoder;
 
 procedure InitSevenZipLibrary(const DllFilename: String);
+procedure FreeSevenZipLibrary;
 
 function IsExtractArchiveRedirAvailable: Boolean;
 function GetSevenZipLibraryName: String;
@@ -67,7 +68,7 @@ type
     function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
     function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on openCallback }
-    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
   public
     constructor Create(const Password: String);
   end;
@@ -80,7 +81,6 @@ type
         Path, ExpandedPath: String;
         HasAttrib: Boolean;
         Attrib: DWORD;
-        procedure Clear;
         procedure SetAttrib(const AAttrib: DWORD);
       end;
     var
@@ -104,7 +104,7 @@ type
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on extractCallback }
-    function CryptoGetTextPassword(out password: TBStr): HRESULT; stdcall;
+    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
   public
     constructor Create(const InArchive: IInArchive;
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
@@ -112,12 +112,11 @@ type
     property OpRes: TNOperationResult read FOpRes;
   end;
 
-function SevenZipSetPassword(const Password: String; out outPassword: TBStr): HRESULT;
+function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
 begin
   try
     if Password = '' then Exit(S_FALSE);
-    outPassword := SysAllocString(PChar(Password));
-    if outPassword = nil then Exit(E_OUTOFMEMORY);
+    outPassword := Password;
     Result := S_OK;
   except
     on E: EAbort do
@@ -228,20 +227,13 @@ begin
 end;
 
 function TArchiveOpenCallback.CryptoGetTextPassword(
-  out password: TBStr): HRESULT;
+  out password: WideString): HRESULT;
 begin
   { Note: have not yet seen 7-Zip actually call this, so maybe it's not really needed }
   Result := SevenZipSetPassword(FPassword, password);
 end;
 
 { TArchiveExtractCallback }
-
- procedure TArchiveExtractCallback.TCurrent.Clear;
-begin
-  Path := '';
-  HasAttrib := False;
-  Attrib := 0;
-end;
 
 procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
 begin
@@ -281,7 +273,7 @@ function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
-    FCurrent.Clear;
+    FCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
       var ItemPath: OleVariant;
       var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
@@ -394,7 +386,7 @@ begin
 end;
 
 function TArchiveExtractCallback.CryptoGetTextPassword(
-  out password: TBStr): HRESULT;
+  out password: WideString): HRESULT;
 begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
@@ -402,7 +394,7 @@ end;
 {---}
 
 var
-  SevenZipLibrary: THandle;
+  SevenZipLibrary: HMODULE;
   SevenZipLibraryName: String;
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
 
@@ -545,10 +537,5 @@ begin
 
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
-
-initialization
-
-finalization
-  FreeSevenZipLibrary;
 
 end.
