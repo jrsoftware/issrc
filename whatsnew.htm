@@ -48,7 +48,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>New <tt>[ISSigKeys]</tt> section:
   <ul>
     <li>Added a new optional <tt>[ISSigKeys]</tt> section for defining keys used by the compiler and Setup to verify file signatures.</li>
-    <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, and parameter <tt>KeyID</tt> to double-check the key values.</li>
+    <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, parameter <tt>KeyID</tt> to double-check the key values, and parameter <tt>RuntimeID</tt> for runtime identification of the key.</li>
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
       <pre>[ISSigKeys]

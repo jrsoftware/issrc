@@ -2819,13 +2819,13 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 
 <param name="Name" required="yes">
 <p>The internal name of the key.</p>
-<p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key names, like the names of developers.</p>
+<p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developers.</p>
 <example><pre>Name: "MyKey"</pre></example>
 </param>
 
 <param name="Group">
 <p>A space separated list of internal group names, specifying how to group the key.</p>
-<p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in your key group names, like the names of developer groups.</p>
+<p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developer groups.</p>
 <example><pre>Group: "exesigner docsigner"</pre></example>
 </param>
 
@@ -2851,6 +2851,12 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p>Specifies the "public-y" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
 <example><pre>PublicY: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+</param>
+
+<param name="RuntimeID">
+<p>Specifies the runtime ID of the key, used by <link topic="isxfunc_ISSigVerify">ISSigVerify</link>.</p>
+<p>Runtime ID's are stored in the resulting Setup file(s), so you should <i>not</i> use personal or non-public information in them.</p>
+<example><pre>RuntimeID: "def01"</pre></example>
 </param>
 
 </paramlist>

@@ -1816,60 +1816,58 @@ var
         Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));
       Stack.SetArray(PStart, Parts);
     end);
-    RegisterScriptFunc('ISSigLoadTextFromFile', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      Stack.SetString(PStart, ISSigLoadTextFromFile(Stack.GetString(PStart-1)));
-    end);
     RegisterScriptFunc('ISSigVerify', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      const AllowedKeysTexts = Stack.GetStringArray(PStart-1);
+      const AllowedKeysRuntimeIDs = Stack.GetStringArray(PStart-1);
       const Filename = Stack.GetString(PStart-2);
       const KeepOpen = Stack.GetBool(PStart-3);
 
+      { Import keys }
+      var ISSigAllowedKeys: AnsiString;
+      for var I := 0 to Length(AllowedKeysRuntimeIDs)-1 do begin
+        const RuntimeID = AllowedKeysRuntimeIDs[I];
+        if RuntimeID = '' then
+          InternalError('RuntimeID cannot be empty');
+        var Found := False;
+        for var KeyIndex := 0 to Entries[seISSigKey].Count-1 do begin
+          var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][KeyIndex]);
+          if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then begin
+            SetISSigAllowedKey(ISSigAllowedKeys, KeyIndex);
+            Found := True;
+            Break;
+          end;
+        end;
+        if not Found then
+          InternalError(Format('Unknown RuntimeID ''%s''', [RuntimeID]));
+      end;
+
+      { Verify signature }
       var ExpectedFileSize: Int64;
       var ExpectedFileHash: TSHA256Digest;
-
-      var AllowedKeys: TArrayOfECDSAKey;
-      const NAllowedKeys = Length(AllowedKeysTexts);
-      SetLength(AllowedKeys, NAllowedKeys);
-      try
-        { Import keys }
-        for var I := 0 to NAllowedKeys-1 do begin
-          AllowedKeys[I] := TECDSAKey.Create;
-          const ImportResult = ISSigImportKeyText(AllowedKeys[I], AllowedKeysTexts[I], False);
-          if ImportResult = ikrMalformed then
-            InternalError('Key text is malformed')
-          else if ImportResult <> ikrSuccess then
-            InternalError('Unknown import key result');
-        end;
-
-        { Verify signature }
-        if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
-          procedure(const Filename: String)
-          begin
-            raise Exception.Create('File does not exist');
-          end,
-          procedure(const Filename, SigFilename: String)
-          begin
-            raise Exception.Create('Signature file does not exist');
-          end,
-          procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
-          begin
-            case VerifyResult of
-              vsrMalformed, vsrBadSignature:
-                raise Exception.Create('Signature file is not valid');
-              vsrKeyNotFound:
-                raise Exception.Create('Incorrect key ID');
-            else
-              InternalError('Unknown verify result');
-            end;
-          end
-        ) then
-          InternalError('Unexpected ISSigVerifySignature result');
-      finally
-        for var I := 0 to NAllowedKeys-1 do
-          AllowedKeys[I].Free;
-      end;
+      if not ISSigVerifySignature(Filename,
+        GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+        ExpectedFileSize, ExpectedFileHash,
+        procedure(const Filename: String)
+        begin
+          raise Exception.Create('File does not exist');
+        end,
+        procedure(const Filename, SigFilename: String)
+        begin
+          raise Exception.Create('Signature file does not exist');
+        end,
+        procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+        begin
+          case VerifyResult of
+            vsrMalformed, vsrBadSignature:
+              raise Exception.Create('Signature file is not valid');
+            vsrKeyNotFound:
+              raise Exception.Create('Incorrect key ID');
+          else
+            InternalError('Unknown verify result');
+          end;
+        end
+      ) then
+        InternalError('Unexpected ISSigVerifySignature result');
 
       { Verify file, keeping open afterwards if requested }
       var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);

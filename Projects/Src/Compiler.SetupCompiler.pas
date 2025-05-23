@@ -4501,8 +4501,18 @@ procedure TSetupCompiler.EnumISSigKeysProc(const Line: PChar; const Ext: Integer
     Result := False;
   end;
 
+  function ISSigKeysRuntimeIDExists(const RuntimeID: String): Boolean;
+  begin
+    for var I := 0 to ISSigKeyEntries.Count-1 do begin
+      var ISSigKeyEntry := PSetupISSigKeyEntry(ISSigKeyEntries[I]);
+      if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then
+        Exit(True)
+    end;
+    Result := False;
+  end;
+
 type
-  TParam = (paName, paGroup, paKeyFile, paKeyID, paPublicX, paPublicY);
+  TParam = (paName, paGroup, paKeyFile, paKeyID, paPublicX, paPublicY, paRuntimeID);
 const
   ParamISSigKeysName = 'Name';
   ParamISSigKeysGroup = 'Group';
@@ -4510,13 +4520,15 @@ const
   ParamISSigKeysKeyID = 'KeyID';
   ParamISSigKeysPublicX = 'PublicX';
   ParamISSigKeysPublicY = 'PublicY';
+  ParamISSigKeysRuntimeID = 'RuntimeID';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamISSigKeysName; Flags: [piRequired, piNoEmpty]),
     (Name: ParamISSigKeysGroup; Flags: []),
     (Name: ParamISSigKeysKeyFile; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysKeyID; Flags: [piNoEmpty]),
     (Name: ParamISSigKeysPublicX; Flags: [piNoEmpty]),
-    (Name: ParamISSigKeysPublicY; Flags: [piNoEmpty]));
+    (Name: ParamISSigKeysPublicY; Flags: [piNoEmpty]),
+    (Name: ParamISSigKeysRuntimeID; Flags: [piNoEmpty]));
 var
   Values: array[TParam] of TParamValue;
   NewISSigKeyEntry: PSetupISSigKeyEntry;
@@ -4534,7 +4546,7 @@ begin
       if not IsValidIdentString(Name, False, False) then
         AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadName, [ParamISSigKeysName])
       else if ISSigKeysNameExists(Name, True) then
-        AbortCompileFmt(SCompilerISSigKeysNameExists, [Name]);
+        AbortCompileFmt(SCompilerISSigKeysNameOrRuntimeIDExists, [ParamISSigKeysName, Name]);
 
       { Group }
       var S := Values[paGroup].Data;
@@ -4545,7 +4557,7 @@ begin
         if not IsValidIdentString(GroupName, False, False) then
           AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadGroupName, [ParamISSigKeysGroup])
         else if SameText(Name, GroupName) or ISSigKeysNameExists(GroupName, False) then
-          AbortCompileFmt(SCompilerISSigKeysNameExists, [GroupName]);
+          AbortCompileFmt(SCompilerISSigKeysNameOrRuntimeIDExists, [ParamISSigKeysName, GroupName]);
         if not HasGroupName(GroupName) then begin
           const N = Length(GroupNames);
           SetLength(GroupNames, N+1);
@@ -4604,6 +4616,10 @@ begin
         if not ISSigIsValidKeyIDForPublicXY(KeyID, PublicX, PublicY) then
           AbortCompile(SCompilerISSigKeysBadKeyID);
       end;
+
+      RuntimeID := Values[paRuntimeID].Data;
+      if ISSigKeysRuntimeIDExists(RuntimeID) then
+        AbortCompileFmt(SCompilerISSigKeysNameOrRuntimeIDExists, [ParamISSigKeysRuntimeID, RuntimeID]);
     end;
   except
     SEFreeRec(NewISSigKeyEntry, SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
