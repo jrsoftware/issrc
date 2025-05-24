@@ -3204,7 +3204,7 @@ begin
   { Create temporary directory and extract 64-bit helper EXE if necessary }
   CreateTempInstallDirAndExtract64BitHelper;
 
-  { Load system's "shfolder.dll" or extract "_shfoldr.dll" to TempInstallDir, and load it }
+  { Load system's "shfolder.dll", and load it }
   LoadSHFolderDLL;
 
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
