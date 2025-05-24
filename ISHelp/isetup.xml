@@ -4731,7 +4731,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled and code-signed. Compared to basic, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled and code-signed. It still only supports .7z archives, but they may be password-protected.</p>
-<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled and code-signed. It supports many archive formats.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled and code-signed. It supports multiple archive formats.</p>
 <p>The following table summarizes the differences between these methods</p>
 <indent>
 <table>
