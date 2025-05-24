@@ -10,6 +10,10 @@ DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
+;Use "ArchiveExtraction=enhanced/nopassword" if your archive has large files
+;Use "ArchiveExtraction=enhanced" if your archive has large files *and* a password
+;Use "ArchiveExtraction=full" if your archive is not a .7z file but for example a .zip file
+ArchiveExtraction=basic
 
 [ISSigKeys]
 Name: "mykey"; \
@@ -17,18 +21,7 @@ Name: "mykey"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
   PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
 
-// Uncomment the following line to use the 7-Zip library for extraction
-#define USE7ZDLL
-#ifdef USE7ZDLL
-  #define _7ZDLL "7z.dll"     ; if you need .zip support, or other formats, with password support
-  //#define _7ZDLL "7zxa.dll" ; if you only need .7z support, with password support
-  //#define _7ZDLL "7zxr.dll" ; if you only need .7z support, without password support
-#endif
-//
 [Files]
-#ifdef USE7ZDLL 
-Source: "{#_7ZDLL}"; Flags: dontcopy
-#endif
 ; Place any regular files here
 Source: "MyProg.exe"; DestDir: "{app}";
 Source: "MyProg.chm"; DestDir: "{app}";
@@ -88,14 +81,7 @@ begin
     ExtractionPage.Show;
     try
       try
-        #ifdef USE7ZDLL
-          // Extract and initialize the 7-Zip library
-          // This will make the ExtractionPage switch from using Extract7ZipArchive to using ExtractArchive
-          ExtractTemporaryFile('{#_7ZDLL}');
-          Init7ZipLibrary(ExpandConstant('{tmp}\{#_7ZDLL}'));
-        #endif
         // Extracts the archive to {tmp}\MyProg-ExtraReadmes
-        // Please see the Extract7ZipArchive or ExtractArchive topic in the help file for limitations
         // Note that each file in the MyProg-ExtraReadmes.7z example archive comes with an .issig signature file
         // These signature files are used by the [Files] section to verify the archive's content
         ExtractionPage.Extract;
