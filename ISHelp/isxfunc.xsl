@@ -108,13 +108,6 @@
 </xsl:choose>
 
 <xsl:choose>
-<xsl:when test="limitations">
-<p margin="no"><b>Limitations:</b></p>
-<xsl:apply-templates select="limitations"/>
-</xsl:when>
-</xsl:choose>
-
-<xsl:choose>
 <xsl:when test="example">
 <p margin="no"><b>Example:</b></p>
 <xsl:apply-templates select="example"/>
