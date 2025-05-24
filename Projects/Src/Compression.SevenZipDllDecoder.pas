@@ -18,7 +18,6 @@ uses
   Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
-function IsExtractArchiveRedirAvailable: Boolean;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
@@ -399,11 +398,6 @@ var
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
 begin
   CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
-  Result := Assigned(CreateSevenZipObject);
-end;
-
-function IsExtractArchiveRedirAvailable: Boolean;
-begin
   Result := Assigned(CreateSevenZipObject);
 end;
 

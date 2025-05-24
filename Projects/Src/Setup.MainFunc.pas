@@ -185,6 +185,7 @@ function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
+procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
@@ -2512,6 +2513,18 @@ end;
 procedure Log64BitInstallMode;
 begin
   LogFmt('64-bit install mode: %s', [SYesNo[Is64BitInstallMode]]);
+end;
+
+var
+  LoggedArchiveExtractionMode: Boolean;
+
+procedure LogArchiveExtractionModeOnce;
+begin
+  if not LoggedArchiveExtractionMode then begin
+    LogFmt('Archive extraction mode: %s',
+      [IfThen(SetupHeader.SevenZipLibraryName <> '', Format('Using %s', [SetupHeader.SevenZipLibraryName]), 'Basic')]);
+    LoggedArchiveExtractionMode := True;
+  end;
 end;
 
 procedure InitializeSetup;

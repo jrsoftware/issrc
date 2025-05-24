@@ -1190,14 +1190,11 @@ procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  const ExtractArchiveRedirAvailable = IsExtractArchiveRedirAvailable;
-
-  LogFmt('Archive extraction mode: %s',
-    [IfThen(ExtractArchiveRedirAvailable, Format('Using %s', [SetupHeader.SevenZipLibraryName]), 'Built-in')]);
+  LogArchiveExtractionModeOnce;
 
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
-    if ExtractArchiveRedirAvailable then
+    if SetupHeader.SevenZipLibraryName <> '' then
       ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
     else
       Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);

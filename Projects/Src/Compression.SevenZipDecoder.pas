@@ -290,7 +290,7 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
   if Password <> '' then begin
-    Log('ERROR: Password not supported by built-in extraction'); { Just like 7zMain.c }
+    Log('ERROR: Password not supported by basic archive extraction'); { Just like 7zMain.c }
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-2']))
   end else if not ForceDirectories(DisableFsRedir, DestDir) then begin
     Log('ERROR: Failed to create destination directory'); { Just like 7zMain.c }

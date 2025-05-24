@@ -1784,13 +1784,24 @@ var
       var AscendingTrySizes := Stack.GetIntArray(PStart-4);
       Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
     end);
-    RegisterScriptFunc('EXTRACT7ZIPARCHIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['Extract7ZipArchive', 'ExtractArchive'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), '', Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
-    end);
-    RegisterScriptFunc('EXTRACTARCHIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3), TOnExtractionProgress(Stack.GetProc(PStart-4, Caller)));
+      LogArchiveExtractionModeOnce;
+
+      var Password: String;
+      var FullDirsItemNo: Longint;
+      if OrgName = 'Extract7ZipArchive' then begin
+        Password := '';
+        FullDirsItemNo := PStart-2;
+      end else begin
+        Password := Stack.GetString(PStart-2);
+        FullDirsItemNo := PStart-3;
+      end;
+
+      if SetupHeader.SevenZipLibraryName <> '' then
+        ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)))
+      else
+        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
     end);
     RegisterScriptFunc('DEBUGGING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
