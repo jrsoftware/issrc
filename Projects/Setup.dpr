@@ -99,8 +99,8 @@ uses
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
   StringScanner in '..\Components\StringScanner.pas',
-  Compression.SevenZipDllDecoder in 'Src\Compression.SevenZipDllDecoder.pas',
-  Compression.SevenZipDllDecoder.Interfaces in 'Src\Compression.SevenZipDllDecoder.Interfaces.pas';
+  Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
+  Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

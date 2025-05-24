@@ -1,4 +1,4 @@
-unit Compression.SevenZipDllDecoder.Interfaces;
+unit Compression.SevenZipDLLDecoder.Interfaces;
 
 {
   Inno Setup

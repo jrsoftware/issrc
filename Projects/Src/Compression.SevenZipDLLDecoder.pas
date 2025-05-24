@@ -1,4 +1,4 @@
-unit Compression.SevenZipDllDecoder;
+unit Compression.SevenZipDLLDecoder;
 
 {
   Inno Setup
@@ -28,7 +28,7 @@ implementation
 uses
   Classes, SysUtils, Forms,
   Windows, ActiveX,
-  Compression.SevenZipDllDecoder.Interfaces, PathFunc,
+  Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
   Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;

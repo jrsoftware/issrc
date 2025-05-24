@@ -29,7 +29,7 @@ uses
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
   Shared.Int64Em, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
-  Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDllDecoder,
+  Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc;
 
 type

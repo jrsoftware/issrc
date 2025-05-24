@@ -241,7 +241,7 @@ uses
   StrUtils,
   Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Compression.SevenZipDllDecoder;
+  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Compression.SevenZipDLLDecoder;
 
 const
   DefaultLabelHeight = 14;
