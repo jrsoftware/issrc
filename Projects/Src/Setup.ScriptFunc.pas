@@ -1788,10 +1788,6 @@ var
     begin
       Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), '', Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
     end);
-    RegisterScriptFunc('INIT7ZIPLIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      InitSevenZipLibrary(Stack.GetString(PStart));
-    end);
     RegisterScriptFunc('EXTRACTARCHIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3), TOnExtractionProgress(Stack.GetProc(PStart-4, Caller)));

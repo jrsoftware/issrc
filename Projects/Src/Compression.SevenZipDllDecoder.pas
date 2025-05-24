@@ -17,11 +17,8 @@ interface
 uses
   Compression.SevenZipDecoder;
 
-procedure InitSevenZipLibrary(const DllFilename: String);
-procedure FreeSevenZipLibrary;
-
+function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
 function IsExtractArchiveRedirAvailable: Boolean;
-function GetSevenZipLibraryName: String;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
@@ -397,44 +394,17 @@ end;
 {---}
 
 var
-  SevenZipLibrary: HMODULE;
-  SevenZipLibraryName: String;
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
 
-procedure FreeSevenZipLibrary;
+function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
 begin
-  if SevenZipLibrary <> 0 then begin
-    FreeLibrary(SevenZipLibrary);
-    SevenZipLibrary := 0;
-    SevenZipLibraryName := '';
-    CreateSevenZipObject := nil;
-  end;
-end;
-
-procedure InitSevenZipLibrary(const DllFilename: String);
-begin
-  if SevenZipLibrary = 0 then begin
-    SevenZipLibrary := LoadLibrary(PChar(DllFilename));
-    if SevenZipLibrary = 0 then
-      Win32ErrorMsg('LoadLibrary');
-    CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
-    if not Assigned(CreateSevenZipObject) then begin
-      var LastError := GetLastError;
-      FreeSevenZipLibrary;
-      Win32ErrorMsgEx('GetProcAddress', LastError);
-    end;
-    SevenZipLibraryName := PathExtractName(DllFilename);
-  end;
+  CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
+  Result := Assigned(CreateSevenZipObject);
 end;
 
 function IsExtractArchiveRedirAvailable: Boolean;
 begin
   Result := Assigned(CreateSevenZipObject);
-end;
-
-function GetSevenZipLibraryName: String;
-begin
-  Result := SevenZipLibraryName;
 end;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
@@ -492,8 +462,6 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   end;
 
 begin
-  if not IsExtractArchiveRedirAvailable then
-    InternalError('ExtractArchive: 7z(xa).dll not loaded');
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
   const clsid = GetHandler(PathExtractExt(ArchiveFilename),
@@ -503,7 +471,7 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  LogFmt('%s Decoder : Igor Pavlov', [SevenZipLibraryName]); { Just like 7zMain.c }
+  LogFmt('%s Decoder : Igor Pavlov', [SetupHeader.SevenZipLibraryName]); { Just like 7zMain.c }
 
   { CreateObject }
   var InArchive: IInArchive;

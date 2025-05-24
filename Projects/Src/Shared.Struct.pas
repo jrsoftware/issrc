@@ -86,7 +86,7 @@ const
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
 
 const
-  SetupHeaderStrings = 33;
+  SetupHeaderStrings = 34;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -97,7 +97,8 @@ type
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
       SetupMutex, ChangesEnvironment, ChangesAssociations,
-      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode, CloseApplicationsFilterExcludes: String;
+      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode, CloseApplicationsFilterExcludes,
+      SevenZipLibraryName: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,

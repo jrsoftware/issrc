@@ -1193,7 +1193,7 @@ begin
   const ExtractArchiveRedirAvailable = IsExtractArchiveRedirAvailable;
 
   LogFmt('Archive extraction mode: %s',
-    [IfThen(ExtractArchiveRedirAvailable, Format('Using %s', [GetSevenZipLibraryName]), 'Built-in')]);
+    [IfThen(ExtractArchiveRedirAvailable, Format('Using %s', [SetupHeader.SevenZipLibraryName]), 'Built-in')]);
 
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }

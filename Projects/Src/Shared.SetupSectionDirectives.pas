@@ -44,6 +44,7 @@ type
     ssAppVersion,
     ssArchitecturesAllowed,
     ssArchitecturesInstallIn64BitMode,
+    ssArchiveExtraction,
     ssASLRCompatible,
     ssBackColor,
     ssBackColor2,
