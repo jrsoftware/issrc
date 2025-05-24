@@ -134,7 +134,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 <li>Complete <link topic="setup_uninstallable">uninstall</link> capabilities.</li>
 
 <li>Installation of <link topic="filessection">files</link>:<br/>
-Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, and install fonts.</li>
+Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download files, and extract archives.</li>
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start Menu and on the desktop.</li>
 
@@ -1066,6 +1066,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_appversion"><b>AppVersion</b></link></li>
 <li><link topic="setup_architecturesallowed">ArchitecturesAllowed</link></li>
 <li><link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></li>
+<li><link topic="setup_archiveextraction">ArchiveExtraction</link></li>
 <li><link topic="setup_changesassociations">ChangesAssociations</link></li>
 <li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
 <li><link topic="setup_closeapplications">CloseApplications</link></li>
@@ -4714,6 +4715,45 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
 <p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the [Files] section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="ArchiveExtraction">
+<keyword value=".7z" />
+<keyword value=".zip" />
+<setupvalid><tt>basic</tt><br/>
+<tt>enhanced/nopassword</tt><br/>
+<tt>enhanced</tt><br/>
+<tt>full</tt></setupvalid>
+<setupdefault><tt>basic</tt></setupdefault>
+<body>
+<p>This specifies the method of archive extraction.</p>
+<p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced/nopassword</tt> uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled and code-signed. Compared to basic, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled and code-signed. It still only supports .7z archives, but they may be password-protected.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled and code-signed. It supports many archive formats.</p>
+<p>The following table summarizes the differences between these methods</p>
+<indent>
+<table>
+<tr><td></td><td><u>Memory Requirements</u></td><td><u>Password-protected Archives</u></td><td><u>Setup Size Increase</u></td><td><u>Archive Formats</u></td></tr>
+<tr><td><tt>basic</tt> (default)</td><td>High for large files*</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
+<tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>101 KB</td><td>.7z</td></tr>
+<tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>124 KB</td><td>.7z</td></tr>
+<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>614 KB</td><td>.7z, .zip, .bzip2, .rar, .cab, .lzma, .xz, .wim, .iso, .rpm, .deb, .tar, .gzip</td></tr>
+</table>
+<p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for archives that contain large files: their memory requirements depend on the dictionary size only.</p>
+</indent>
+<p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
+<ul>
+<li>It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.</li>
+<li>It does not support PPMd and BZip2 methods.</li>
+<li>It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</li>
+<li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
+</ul>
+<p><b>See also:</b><br/>
+<link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>
+</p>
 </body>
 </setuptopic>
 
