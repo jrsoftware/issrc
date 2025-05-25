@@ -27,7 +27,7 @@ implementation
 
 uses
   Classes, SysUtils, Forms, Variants,
-  Windows, ActiveX,
+  Windows, ActiveX, ComObj,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -79,6 +79,7 @@ type
         Attrib: DWORD;
         procedure SetAttrib(const AAttrib: DWORD);
       end;
+      TVarTypeSet = set of varEmpty..varUInt64; { Incomplete but don't need others }
     var
       FInArchive: IInArchive;
       FDisableFsRedir: Boolean;
@@ -89,7 +90,17 @@ type
       FCurrent: TCurrent;
       FLastReportedCurrentPath: String;
       FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
-    FOpRes: TNOperationResult;
+      FOpRes: TNOperationResult;
+    procedure GetProperty(const index: UInt32; const propID: PROPID;
+      const allowedTypes: TVarTypeSet; out value: OleVariant;
+      out valueIsEmpty: Boolean); overload;
+    procedure GetProperty(index: UInt32; propID: PROPID; out value: String;
+      out valueIsEmpty: Boolean); overload;
+    procedure GetProperty(index: UInt32; propID: PROPID; out value: UInt32;
+      out valueIsEmpty: Boolean); overload;
+    procedure GetProperty(index: UInt32; propID: PROPID; out value: Boolean;
+      out valueIsEmpty: Boolean); overload;
+    procedure GetProperty(index: UInt32; propID: PROPID; out value: Boolean); overload;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -111,7 +122,8 @@ type
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
 begin
   try
-    if Password = '' then Exit(S_FALSE);
+    if Password = '' then
+      Exit(S_FALSE);
     outPassword := Password;
     Result := S_OK;
   except
@@ -266,42 +278,80 @@ begin
   Result := S_OK;
 end;
 
+procedure TArchiveExtractCallback.GetProperty(const index: UInt32;
+  const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant;
+  out valueIsEmpty: Boolean);
+begin
+  var Res := FInArchive.GetProperty(index, propID, value);
+  if Res <> S_OK then
+    OleError(Res);
+  valueIsEmpty := VarIsEmpty(value);
+  if not valueIsEmpty and not (VarType(value) in allowedTypes) then
+    OleError(E_FAIL);
+end;
+
+procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: String; out valueIsEmpty: Boolean);
+begin
+  var varValue: OleVariant;
+  GetProperty(index, propID, [varOleStr], varValue, valueIsEmpty);
+  value := varValue;
+end;
+
+procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Cardinal; out valueIsEmpty: Boolean);
+begin
+  var varValue: OleVariant;
+  GetProperty(index, propID, [varUInt32], varValue, valueIsEmpty);
+  value := varValue;
+end;
+
+procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Boolean; out valueIsEmpty: Boolean);
+begin
+  var varValue: OleVariant;
+  GetProperty(index, propID, [varBoolean], varValue, valueIsEmpty);
+  value := varValue;
+end;
+
+procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Boolean);
+begin
+  var valueIsEmpty: Boolean;
+  GetProperty(index, propID, value, valueIsEmpty);
+end;
+
 function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
     FCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
-      var ItemPath: OleVariant;
-      var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
-      if Res <> S_OK then Exit(Res);
-      if VarIsEmpty(ItemPath) then
-        ItemPath := PathChangeExt(FExtractedArchiveName, '')
-      else if VarType(ItemPath) <> varOleStr then Exit(E_FAIL);
-      var IsDir: OleVariant;
-      Res := FInArchive.GetProperty(index, kpidIsDir, IsDir);
-      if Res <> S_OK then Exit(Res);
-      if not VarType(IsDir) in [varEmpty, varBoolean] then Exit(E_FAIL);
+      var Path: String;
+      var IsEmpty: Boolean;
+      GetProperty(index, kpidPath, Path, IsEmpty);
+      if IsEmpty then
+        Path := PathChangeExt(FExtractedArchiveName, '');
+      var IsDir: Boolean;
+      GetProperty(index, kpidIsDir, IsDir);
       if IsDir then begin
         if FFullPaths then begin
-          FCurrent.Path := ItemPath + '\';
-          if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, FCurrent.ExpandedPath) then Exit(E_ACCESSDENIED);
+          FCurrent.Path := Path + '\';
+          if not ValidateAndCombinePath(FExpandedDestDir, Path, FCurrent.ExpandedPath) then
+            OleError(E_ACCESSDENIED);
           ForceDirectories(FDisableFsRedir, FCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
-        var Attrib: OleVariant;
-        Res := FInArchive.GetProperty(index, kpidAttrib, Attrib);
-        if Res <> S_OK then Exit(Res);
-        if not VarIsEmpty(Attrib) then begin
-          if VarType(Attrib) <> varUInt32 then
-            Exit(E_FAIL);
+        var Attrib: DWORD;
+        GetProperty(index, kpidAttrib, Attrib, IsEmpty);
+        if not IsEmpty then
           FCurrent.SetAttrib(Attrib);
-        end;
         if not FFullPaths then
-          ItemPath := PathExtractName(ItemPath);
-        FCurrent.Path := ItemPath;
-        if not ValidateAndCombinePath(FExpandedDestDir, ItemPath, FCurrent.ExpandedPath) then Exit(E_ACCESSDENIED);
+          Path := PathExtractName(Path);
+        FCurrent.Path := Path;
+        if not ValidateAndCombinePath(FExpandedDestDir, Path, FCurrent.ExpandedPath) then
+          OleError(E_ACCESSDENIED);
         ForceDirectories(FDisableFsRedir, PathExtractPath(FCurrent.ExpandedPath));
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, FCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
@@ -309,6 +359,8 @@ begin
     end;
     Result := S_OK;
   except
+    on E: EOleSysError do
+      Result := E.ErrorCode;
     on E: EAbort do
       Result := E_ABORT
     else
