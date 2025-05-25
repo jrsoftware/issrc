@@ -4745,7 +4745,6 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </indent>
 <p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
-<li>It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.</li>
 <li>It does not support PPMd and BZip2 methods.</li>
 <li>It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</li>
 <li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
