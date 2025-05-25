@@ -4729,9 +4729,9 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This specifies the method of archive extraction.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
-<p><tt>enhanced/nopassword</tt> uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled and code-signed. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
-<p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled and code-signed. It still only supports .7z archives, but they may be password-protected.</p>
-<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled and code-signed. It supports multiple archive formats.</p>
+<p><tt>enhanced/nopassword</tt> uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size.</p>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
@@ -4739,7 +4739,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tr><td><tt>basic</tt> (default)</td><td>High for large files*</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>101 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>124 KB</td><td>.7z</td></tr>
-<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>614 KB</td><td>.7z, .zip, .bzip2, .rar, .cab, .lzma, .xz, .wim, .iso, .rpm, .deb, .tar, .gzip</td></tr>
+<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>453 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg</td></tr>
 </table>
 <p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for archives that contain large files: their memory requirements depend on the dictionary size only.</p>
 </indent>

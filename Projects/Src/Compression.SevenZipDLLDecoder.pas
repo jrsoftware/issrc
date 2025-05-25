@@ -407,32 +407,40 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 
   function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
   begin
-    if SameText(Ext, '.zip') then
-      Result := CLSID_HandlerZip
-    else if SameText(Ext, '.bzip2') then
-      Result := CLSID_HandlerBZip2
-    else if SameText(Ext, '.rar') then
-      Result := CLSID_HandlerRar
-    else if SameText(Ext, '.7z') then
+    if SameText(Ext, '.7z') then
       Result := CLSID_Handler7z
-    else if SameText(Ext, '.cab') then
-      Result := CLSID_HandlerCab
-    else if SameText(Ext, '.lzma') then
-      Result := CLSID_HandlerLzma
+    else if SameText(Ext, '.zip') then
+      Result := CLSID_HandlerZip
+    else if SameText(Ext, '.gz') then
+      Result := CLSID_HandlerGzip
+    else if SameText(Ext, '.bz2') then
+      Result := CLSID_HandlerBZip2
     else if SameText(Ext, '.xz') then
       Result := CLSID_HandlerXz
-    else if SameText(Ext, '.wim') then
-      Result := CLSID_HandlerWim
-    else if SameText(Ext, '.iso') then
-      Result := CLSID_HandlerIso
-    else if SameText(Ext, '.rpm') then
-      Result := CLSID_HandlerRpm
-    else if SameText(Ext, '.deb') then
-      Result := CLSID_HandlerDeb
     else if SameText(Ext, '.tar') then
       Result := CLSID_HandlerTar
-    else if SameText(Ext, '.gzip') then
-      Result := CLSID_HandlerGzip
+    else if SameText(Ext, '.rar') then
+      Result := CLSID_HandlerRar
+    else if SameText(Ext, '.iso') then
+      Result := CLSID_HandlerIso
+    else if SameText(Ext, '.msi') then
+      Result := CLSID_HandlerCompound
+    else if SameText(Ext, '.cab') then
+      Result := CLSID_HandlerCab
+    else if SameText(Ext, '.rpm') then
+      Result := CLSID_HandlerRpm
+    else if SameText(Ext, '.vhd') then
+      Result := CLSID_HandlerVhd
+    else if SameText(Ext, '.vhdx') then
+      Result := CLSID_HandlerVhdx
+    else if SameText(Ext, '.vdi') then
+      Result := CLSID_HandlerVDI
+    else if SameText(Ext, '.vmdk') then
+      Result := CLSID_HandlerVMDK
+    else if SameText(Ext, '.wim') then
+      Result := CLSID_HandlerWim
+    else if SameText(Ext, '.dmg') then
+      Result := CLSID_HandlerDmg
     else
       InternalError(NotFoundErrorMsg);
   end;
