@@ -26,7 +26,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 implementation
 
 uses
-  Classes, SysUtils, Forms,
+  Classes, SysUtils, Forms, Variants,
   Windows, ActiveX,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
@@ -275,11 +275,13 @@ begin
       var ItemPath: OleVariant;
       var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
       if Res <> S_OK then Exit(Res);
-      if ItemPath = '' then
-        ItemPath := PathChangeExt(FExtractedArchiveName, '');
+      if VarIsEmpty(ItemPath) then
+        ItemPath := PathChangeExt(FExtractedArchiveName, '')
+      else if VarType(ItemPath) <> varOleStr then Exit(E_FAIL);
       var IsDir: OleVariant;
       Res := FInArchive.GetProperty(index, kpidIsDir, IsDir);
       if Res <> S_OK then Exit(Res);
+      if not VarType(IsDir) in [varEmpty, varBoolean] then Exit(E_FAIL);
       if IsDir then begin
         if FFullPaths then begin
           FCurrent.Path := ItemPath + '\';
@@ -291,7 +293,11 @@ begin
         var Attrib: OleVariant;
         Res := FInArchive.GetProperty(index, kpidAttrib, Attrib);
         if Res <> S_OK then Exit(Res);
-        FCurrent.SetAttrib(Attrib);
+        if not VarIsEmpty(Attrib) then begin
+          if VarType(Attrib) <> varUInt32 then
+            Exit(E_FAIL);
+          FCurrent.SetAttrib(Attrib);
+        end;
         if not FFullPaths then
           ItemPath := PathExtractName(ItemPath);
         FCurrent.Path := ItemPath;
