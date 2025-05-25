@@ -249,6 +249,7 @@ begin
   FFullPaths := FullPaths;
   FExtractedArchiveName := PathExtractName(ArchiveFileName);
   FOnExtractionProgress := OnExtractionProgress;
+  FOpRes := kOK;
 end;
 
 function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
