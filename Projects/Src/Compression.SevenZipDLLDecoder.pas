@@ -275,7 +275,8 @@ begin
       var ItemPath: OleVariant;
       var Res := FInArchive.GetProperty(index, kpidPath, ItemPath);
       if Res <> S_OK then Exit(Res);
-      if ItemPath = '' then Exit(E_FAIL);
+      if ItemPath = '' then
+        ItemPath := PathChangeExt(FExtractedArchiveName, '');
       var IsDir: OleVariant;
       Res := FInArchive.GetProperty(index, kpidIsDir, IsDir);
       if Res <> S_OK then Exit(Res);
