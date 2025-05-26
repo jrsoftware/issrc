@@ -4741,7 +4741,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>124 KB</td><td>.7z</td></tr>
 <tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>453 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg</td></tr>
 </table>
-<p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for archives that contain large files: their memory requirements depend on the dictionary size only.</p>
+<p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for .7z archives that contain large files: their memory requirements depend on the dictionary size only.</p>
 </indent>
 <p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
