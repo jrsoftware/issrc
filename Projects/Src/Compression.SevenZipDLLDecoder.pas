@@ -331,8 +331,11 @@ begin
         outStream := nil;
       end else begin
         var Attrib: DWORD;
-        if GetProperty(index, kpidAttrib, Attrib) then
+        if GetProperty(index, kpidAttrib, Attrib) then begin
+          if Attrib and $F0000000 <> 0 then
+            Attrib := Attrib and $3FFF; { "PosixHighDetect", just like FileDir.cpp and similar to 7zMain.c }
           FCurrent.SetAttrib(Attrib);
+        end;
         if not FFullPaths then
           Path := PathExtractName(Path);
         FCurrent.Path := Path;
