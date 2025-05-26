@@ -91,16 +91,11 @@ type
       FLastReportedCurrentPath: String;
       FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
       FOpRes: TNOperationResult;
-    procedure GetProperty(const index: UInt32; const propID: PROPID;
-      const allowedTypes: TVarTypeSet; out value: OleVariant;
-      out valueIsEmpty: Boolean); overload;
-    procedure GetProperty(index: UInt32; propID: PROPID; out value: String;
-      out valueIsEmpty: Boolean); overload;
-    procedure GetProperty(index: UInt32; propID: PROPID; out value: UInt32;
-      out valueIsEmpty: Boolean); overload;
-    procedure GetProperty(index: UInt32; propID: PROPID; out value: Boolean;
-      out valueIsEmpty: Boolean); overload;
-    procedure GetProperty(index: UInt32; propID: PROPID; out value: Boolean); overload;
+    function GetProperty(const index: UInt32; const propID: PROPID;
+      const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
+    function GetProperty(index: UInt32; propID: PROPID; out value: String): Boolean; overload;
+    function GetProperty(index: UInt32; propID: PROPID; out value: UInt32): Boolean; overload;
+    function GetProperty(index: UInt32; propID: PROPID; out value: Boolean): Boolean; overload;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -278,47 +273,41 @@ begin
   Result := S_OK;
 end;
 
-procedure TArchiveExtractCallback.GetProperty(const index: UInt32;
-  const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant;
-  out valueIsEmpty: Boolean);
+function TArchiveExtractCallback.GetProperty(const index: UInt32;
+  const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean;
+{ Raises an exception on error but otherwise always sets value, returning True if
+  it's not empty }
 begin
   var Res := FInArchive.GetProperty(index, propID, value);
   if Res <> S_OK then
     OleError(Res);
-  valueIsEmpty := VarIsEmpty(value);
-  if not valueIsEmpty and not (VarType(value) in allowedTypes) then
+  Result := not VarIsEmpty(Value);
+  if Result and not (VarType(value) in allowedTypes) then
     OleError(E_FAIL);
 end;
 
-procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: String; out valueIsEmpty: Boolean);
+function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: String): Boolean;
 begin
   var varValue: OleVariant;
-  GetProperty(index, propID, [varOleStr], varValue, valueIsEmpty);
+  Result := GetProperty(index, propID, [varOleStr], varValue);
   value := varValue;
 end;
 
-procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: Cardinal; out valueIsEmpty: Boolean);
+function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Cardinal): Boolean;
 begin
   var varValue: OleVariant;
-  GetProperty(index, propID, [varUInt32], varValue, valueIsEmpty);
+  Result := GetProperty(index, propID, [varUInt32], varValue);
   value := varValue;
 end;
 
-procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: Boolean; out valueIsEmpty: Boolean);
+function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Boolean): Boolean;
 begin
   var varValue: OleVariant;
-  GetProperty(index, propID, [varBoolean], varValue, valueIsEmpty);
+  Result := GetProperty(index, propID, [varBoolean], varValue);
   value := varValue;
-end;
-
-procedure TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: Boolean);
-begin
-  var valueIsEmpty: Boolean;
-  GetProperty(index, propID, value, valueIsEmpty);
 end;
 
 function TArchiveExtractCallback.GetStream(index: UInt32;
@@ -328,9 +317,7 @@ begin
     FCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
       var Path: String;
-      var IsEmpty: Boolean;
-      GetProperty(index, kpidPath, Path, IsEmpty);
-      if IsEmpty then
+      if not GetProperty(index, kpidPath, Path) then
         Path := PathChangeExt(FExtractedArchiveName, '');
       var IsDir: Boolean;
       GetProperty(index, kpidIsDir, IsDir);
@@ -344,8 +331,7 @@ begin
         outStream := nil;
       end else begin
         var Attrib: DWORD;
-        GetProperty(index, kpidAttrib, Attrib, IsEmpty);
-        if not IsEmpty then
+        if GetProperty(index, kpidAttrib, Attrib) then
           FCurrent.SetAttrib(Attrib);
         if not FFullPaths then
           Path := PathExtractName(Path);
