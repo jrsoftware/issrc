@@ -113,6 +113,18 @@ begin
   Result := ReadFile(hFile, Buffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 end;
 
+function __GetFileAttributesW(lpFileName: LPCWSTR): DWORD; cdecl;
+begin
+  { See above }
+  var ExpandedFileName: String;
+  if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
+    Result := GetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName)
+  else begin
+    Result := INVALID_FILE_ATTRIBUTES;
+    SetLastError(ERROR_ACCESS_DENIED);
+  end;
+end;
+
 function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
   { See above }

@@ -9,6 +9,7 @@
    -Return res on errors instead of always returning 1
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
+   -Add support for overwriting read-only files
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -840,6 +841,14 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           }
           else
           {
+            #ifdef USE_WINDOWS_FILE
+            {
+              const UInt32 existingattrib = GetFileAttributesW((LPCWSTR)destPath);
+              if (existingattrib != INVALID_FILE_ATTRIBUTES && (existingattrib & FILE_ATTRIBUTE_READONLY))
+                SetFileAttributesW((LPCWSTR)destPath, existingattrib & ~FILE_ATTRIBUTE_READONLY);
+            }
+            #endif
+
             const WRes wres = OutFile_OpenUtf16(&outFile, destPath);
             if (wres != 0)
             {
@@ -850,7 +859,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           }
 
           processedSize = outSizeProcessed;
-          
+
           {
             const WRes wres = File_Write(&outFile, outBuffer + offset, &processedSize);
             if (wres != 0 || processedSize != outSizeProcessed)
