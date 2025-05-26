@@ -342,6 +342,10 @@ begin
         if not ValidateAndCombinePath(FExpandedDestDir, Path, FCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
         ForceDirectories(FDisableFsRedir, PathExtractPath(FCurrent.ExpandedPath));
+        const ExistingFileAttr = GetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath);
+        if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
+           (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
+          SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, FCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
       end;
