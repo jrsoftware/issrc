@@ -39,6 +39,9 @@ DWORD _GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
 BOOL _ReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped);
 #define ReadFile _ReadFile
 
+DWORD _GetFileAttributesW(LPCWSTR lpFileName);
+#define GetFileAttributesW _GetFileAttributesW
+
 BOOL _SetFileAttributesW(LPCWSTR lpFileName, DWORD dwFileAttributes);
 #define SetFileAttributesW _SetFileAttributesW
 
