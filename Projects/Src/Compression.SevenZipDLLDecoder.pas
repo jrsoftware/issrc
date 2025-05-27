@@ -78,6 +78,18 @@ type
         HasAttrib: Boolean;
         Attrib: DWORD;
         procedure SetAttrib(const AAttrib: DWORD);
+        procedure MakeUnique;
+      end;
+      TProgress = record
+        Current: TCurrent;
+        Progress, ProgressMax: UInt64;
+        Abort: Boolean;
+        procedure MakeUnique;
+      end;
+      TResult = record
+        SavedFatalException: TObject;
+        Res: HRESULT;
+        OpRes: TNOperationResult;
       end;
       TVarTypeSet = set of varEmpty..varUInt64; { Incomplete but don't need others }
     var
@@ -87,10 +99,11 @@ type
       FFullPaths: Boolean;
       FExtractedArchiveName: String;
       FOnExtractionProgress: TOnExtractionProgress;
-      FCurrent: TCurrent;
-      FLastReportedCurrentPath: String;
-      FProgress, FProgressMax, FLastReportedProgress, FLastReportedProgressMax: UInt64;
-      FOpRes: TNOperationResult;
+      FProgressAndLogQueueLock: TObject;
+      FProgress: TProgress;
+      FLogQueue: TStringList;
+      FLastReportedProgress, FLastReportedProgressMax: UInt64;
+      FResult: TResult;
     function GetProperty(const index: UInt32; const propID: PROPID;
       const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: String): Boolean; overload;
@@ -111,7 +124,7 @@ type
     constructor Create(const InArchive: IInArchive;
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
-    property OpRes: TNOperationResult read FOpRes;
+    destructor Destroy; override;
   end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
@@ -238,10 +251,21 @@ end;
 
 { TArchiveExtractCallback }
 
+procedure TArchiveExtractCallback.TCurrent.MakeUnique;
+begin
+  UniqueString(Path);
+  UniqueString(ExpandedPath);
+end;
+
 procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
 begin
   Attrib := AAttrib;
   HasAttrib := True;
+end;
+
+procedure TArchiveExtractCallback.TProgress.MakeUnique;
+begin
+  Current.MakeUnique;
 end;
 
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
@@ -256,21 +280,56 @@ begin
   FFullPaths := FullPaths;
   FExtractedArchiveName := PathExtractName(ArchiveFileName);
   FOnExtractionProgress := OnExtractionProgress;
-  FOpRes := kOK;
+  FProgressAndLogQueueLock := TObject.Create;
+  FLogQueue := TStringList.Create;
+  FResult.OpRes := kOK;
+end;
+
+destructor TArchiveExtractCallback.Destroy;
+begin
+  FLogQueue.Free;
+  FProgressAndLogQueueLock.Free;
+  FResult.SavedFatalException.Free;
 end;
 
 function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
 begin
   { From IArchive.h: 7-Zip can call functions for IProgress or ICompressProgressInfo functions
     from another threads simultaneously with calls for IArchiveExtractCallback interface }
-  InterlockedExchange64(Int64(FProgressMax), Int64(total));
-  Result := S_OK;
+  try
+    System.TMonitor.Enter(FProgressAndLogQueueLock);
+    try
+      FProgress.ProgressMax := total;
+    finally
+      System.TMonitor.Exit(FProgressAndLogQueueLock);
+    end;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 function TArchiveExtractCallback.SetCompleted(completeValue: PUInt64): HRESULT;
 begin
-  InterlockedExchange64(Int64(FProgress), Int64(completeValue^));
-  Result := S_OK;
+  try
+    System.TMonitor.Enter(FProgressAndLogQueueLock);
+    try
+      if FProgress.Abort then
+        SysUtils.Abort;
+      FProgress.Progress := completeValue^;
+    finally
+      System.TMonitor.Exit(FProgressAndLogQueueLock);
+    end;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 function TArchiveExtractCallback.GetProperty(const index: UInt32;
@@ -314,7 +373,7 @@ function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
-    FCurrent := Default(TCurrent);
+    var NewCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
       var Path: String;
       if not GetProperty(index, kpidPath, Path) then
@@ -323,10 +382,10 @@ begin
       GetProperty(index, kpidIsDir, IsDir);
       if IsDir then begin
         if FFullPaths then begin
-          FCurrent.Path := Path + '\';
-          if not ValidateAndCombinePath(FExpandedDestDir, Path, FCurrent.ExpandedPath) then
+          NewCurrent.Path := Path + '\';
+          if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
-          ForceDirectories(FDisableFsRedir, FCurrent.ExpandedPath);
+          ForceDirectories(FDisableFsRedir, NewCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
@@ -334,21 +393,31 @@ begin
         if GetProperty(index, kpidAttrib, Attrib) then begin
           if Attrib and $F0000000 <> 0 then
             Attrib := Attrib and $3FFF; { "PosixHighDetect", just like FileDir.cpp and similar to 7zMain.c }
-          FCurrent.SetAttrib(Attrib);
+          NewCurrent.SetAttrib(Attrib);
         end;
         if not FFullPaths then
           Path := PathExtractName(Path);
-        FCurrent.Path := Path;
-        if not ValidateAndCombinePath(FExpandedDestDir, Path, FCurrent.ExpandedPath) then
+        NewCurrent.Path := Path;
+        if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
-        ForceDirectories(FDisableFsRedir, PathExtractPath(FCurrent.ExpandedPath));
-        const ExistingFileAttr = GetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath);
+        ForceDirectories(FDisableFsRedir, PathExtractPath(NewCurrent.ExpandedPath));
+        const ExistingFileAttr = GetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath);
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
-          SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
+          SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
-        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, FCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
+        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
       end;
+    end;
+    System.TMonitor.Enter(FProgressAndLogQueueLock);
+    try
+      if FProgress.Abort then
+        SysUtils.Abort;
+      FProgress.Current := NewCurrent;
+      if NewCurrent.Path <> '' then
+        FLogQueue.Append(NewCurrent.Path)
+    finally
+      System.TMonitor.Exit(FProgressAndLogQueueLock);
     end;
     Result := S_OK;
   except
@@ -363,56 +432,8 @@ end;
 
 function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESULT;
 begin
-  { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called
-    From IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
-
-  if GetCurrentThreadId <> MainThreadID then
-    Exit(E_FAIL);
-
-  try
-    var Abort := False;
-
-    if FCurrent.Path <> '' then begin
-      if FCurrent.Path <> FLastReportedCurrentPath then begin
-        LogFmt('- %s', [FCurrent.Path]); { Just like 7zMain.c }
-        FLastReportedCurrentPath := FCurrent.Path;
-      end;
-
-      if Assigned(FOnExtractionProgress) then begin
-        { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
-          -At start or finish
-          -Or if somehow Progress decreased or Max changed
-          -Or if at least 512 KB progress was made since last report
-        }
-        const Progress = UInt64(InterlockedExchangeAdd64(Int64(FProgress), 0));
-        const ProgressMax = UInt64(InterlockedExchangeAdd64(Int64(FProgressMax), 0));
-        if (Progress = 0) or (Progress = ProgressMax) or
-           (Progress < FLastReportedProgress) or (ProgressMax <> FLastReportedProgressMax) or
-           ((Progress - FLastReportedProgress) > 524288) then begin
-          try
-            if not FOnExtractionProgress(FExtractedArchiveName, FCurrent.Path, Progress, ProgressMax) then
-              Abort := True;
-          finally
-            FLastReportedProgress := Progress;
-            FLastReportedProgressMax := ProgressMax;
-          end;
-        end;
-      end;
-    end;
-
-    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-      Application.ProcessMessages;
-
-    if Abort then
-      SysUtils.Abort;
-
-    Result := S_OK;
-  except
-    on E: EAbort do
-      Result := E_ABORT
-    else
-      Result := E_FAIL;
-  end;
+  { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called }
+  Result := S_OK;
 end;
 
 function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
@@ -420,11 +441,13 @@ begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   try
     if opRes <> kOK then begin
-      FOpRes := opRes;
-      Result := E_FAIL;
+      FResult.OpRes := opRes;
+      Result := E_FAIL; { Make sure it doesn't continue with the next file }
     end else begin
-      if (FCurrent.ExpandedPath <> '') and FCurrent.HasAttrib and
-         not SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, FCurrent.Attrib) then
+      { GetStream is the only writer to ExpandedPath and HasAttrib so we don't need a lock because of this note from
+        IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
+      if (FProgress.Current.ExpandedPath <> '') and FProgress.Current.HasAttrib and
+         not SetFileAttributesRedir(FDisableFsRedir, FProgress.Current.ExpandedPath, FProgress.Current.Attrib) then
         Result := E_FAIL
       else
         Result := S_OK;
@@ -452,6 +475,29 @@ function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
 begin
   CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
   Result := Assigned(CreateSevenZipObject);
+end;
+
+function ExtractThreadFunc(Parameter: Pointer): Integer;
+begin
+  const E = TArchiveExtractCallback(Parameter);
+  try
+    { We're calling 7-Zip's Extract in a separate thread. This is because packing
+      our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
+      GetStream and PrepareOperation and SetOperationResult were *all* called by
+      7-Zip from a secondary thread. So we can't block our main thread as well
+      because then we can't communicate progress to it. Having this extra thread
+      has the added bonus of being able to communicate progress more often from
+      SetCompleted. }
+    E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
+  except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    E.FResult.SavedFatalException := Ex;
+  end;
+  { Be extra sure FSavedFatalException (and everything else) is made visible
+    prior to thread termination. (Likely redundant, but you never know...) }
+  MemoryBarrier;
+  Result := 0;
 end;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
@@ -496,6 +542,58 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       Result := CLSID_HandlerDmg
     else
       InternalError(NotFoundErrorMsg);
+  end;
+
+  procedure HandleProgress(const E: TArchiveExtractCallback);
+  begin
+    var Progress: TArchiveExtractCallback.TProgress;
+
+    System.TMonitor.Enter(E.FProgressAndLogQueueLock);
+    try
+      Progress := E.FProgress;
+      Progress.MakeUnique;
+      for var S in E.FLogQueue do
+        LogFmt('- %s', [S]); { Just like 7zMain.c }
+      E.FLogQueue.Clear;
+    finally
+      System.TMonitor.Exit(E.FProgressAndLogQueueLock);
+    end;
+
+    if Progress.Abort then
+      Exit;
+
+    var Abort := False;
+
+    if (Progress.Current.Path <> '') and Assigned(E.FOnExtractionProgress) then begin
+      { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
+        -At start or finish
+        -Or if somehow Progress decreased or Max changed
+        -Or if at least 512 KB progress was made since last report
+      }
+      if (Progress.Progress = 0) or (Progress.Progress = Progress.ProgressMax) or
+         (Progress.Progress < E.FLastReportedProgress) or (Progress.ProgressMax <> E.FLastReportedProgressMax) or
+         ((Progress.Progress - E.FLastReportedProgress) > 524288) then begin
+        try
+          if not E.FOnExtractionProgress(E.FExtractedArchiveName, Progress.Current.Path, Progress.Progress, Progress.ProgressMax) then
+            Abort := True;
+        finally
+          E.FLastReportedProgress := Progress.Progress;
+          E.FLastReportedProgressMax := Progress.ProgressMax;
+        end;
+      end;
+    end;
+
+    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+      Application.ProcessMessages;
+
+    if Abort then begin
+      System.TMonitor.Enter(E.FProgressAndLogQueueLock);
+      try
+        Progress.Abort := True;
+      finally
+        System.TMonitor.Exit(E.FProgressAndLogQueueLock);
+      end;
+    end;
   end;
 
   function OperationResultToString(const opRes: TNOperationResult): String;
@@ -549,16 +647,47 @@ begin
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
       ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-  const Res = InArchive.Extract(nil, $FFFFFFFF, 0, ExtractCallback);
-  if Res = E_ABORT then
+  const E = ExtractCallback as TArchiveExtractCallback;
+
+  var ThreadID: TThreadID; { Not used but BeginThread requires it }
+  const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, E, 0, ThreadID);
+  if ThreadHandle = 0 then begin
+    const LastError = GetLastError;
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
+      [Format('%s %s', [Win32ErrorString(LastError), IntToHexStr8(LastError)])]));
+  end;
+
+  while True do begin
+    case WaitForSingleObject(ThreadHandle, 50) of
+      WAIT_OBJECT_0: Break;
+      WAIT_TIMEOUT: HandleProgress(E);
+    else
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
+    end;
+  end;
+
+  CloseHandle(ThreadHandle);
+
+  if E.FLastReportedProgress <> E.FProgress.ProgressMax then
+    HandleProgress(E);
+
+  if Assigned(E.FResult.SavedFatalException) then begin
+    var Msg: String;
+    if E.FResult.SavedFatalException is Exception then
+      Msg := (E.FResult.SavedFatalException as Exception).Message
+    else
+      Msg := E.FResult.SavedFatalException.ClassName;
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Msg]));
+  end else if E.FResult.Res = E_ABORT then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else begin
-    var OpRes := (ExtractCallback as TArchiveExtractCallback).OpRes;
+    var OpRes := E.FResult.OpRes;
     if OpRes <> kOK then begin
-      LogFmt('ERROR: %s', [OperationResultToString(opRes)]); { Just like 7zMain.c }
+      LogFmt('ERROR: %s', [OperationResultToString(E.FResult.OpRes)]); { Just like 7zMain.c }
       raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
-    end else if Res <> S_OK then
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Format('%s %s', [Win32ErrorString(Res), IntToHexStr8(Res)])]));
+    end else if E.FResult.Res <> S_OK then
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
+        [Format('%s %s', [Win32ErrorString(E.FResult.Res), IntToHexStr8(E.FResult.Res)])]));
   end;
 
   Log('Everything is Ok'); { Just like 7zMain.c }
