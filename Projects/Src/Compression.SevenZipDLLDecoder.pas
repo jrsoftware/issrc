@@ -555,7 +555,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     if Abort then begin
       System.TMonitor.Enter(E.FProgressAndLogQueueLock);
       try
-        Progress.Abort := True;
+        E.FProgress.Abort := True;
       finally
         System.TMonitor.Exit(E.FProgressAndLogQueueLock);
       end;
