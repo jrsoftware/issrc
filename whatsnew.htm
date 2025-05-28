@@ -82,7 +82,7 @@ Source: "{src}\Extra\*.chm"; DestDir: "{app}"; Flags: issigverify external; \
     </li>
   </ul>
   </li>
-  <li>New Inno Setup Signature Tool:</li>
+  <li>New Inno Setup Signature Tool:
   <ul>
     <li>Added <tt>ISSigTool.exe</tt>, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
     <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
@@ -94,7 +94,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     </li>
   </ul>
   </li>
-  <li>Updated documentation:</li>
+  <li>Updated documentation:
   <ul>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection">[ISSigKeys] section</a> topic.</li>
     <li>Updated <a href="https://jrsoftware.org/ishelp/index.php?topic=filessection">[Files] section</a> topic.</li>
@@ -102,23 +102,35 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a> topic.</li>
   </ul>
   </li>
-  <li>Updated Pascal Scripting:</li>
+  <li>Updated Pascal Scripting:
   <ul>
     <li>Added new <tt>ISSigLoadTextFromFile</tt> and <tt>ISSigVerify</tt> support functions.</li>
   </ul>
   </li>
 </ul>
+<span class="head2">Improved archive extraction</span>
+<p>Support for extraction of downloaded archives has been improved. It's now possible to enable support for password-protected archives and for multiple archive formats other than .7z such as .zip. This can also be used to lower the memory requirements for extraction of .7z archives that contain large files.</p>
+<p>All of this is optional and does <i>not</i> increase the size of Setup if not used.</p>
+<ul>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> to specify the method of archive extraction used by support functions <tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt>:
+    <ul>
+    <li><tt>basic</tt> (default) is the method introduced by Inno Setup 6.4.0. It only supports .7z archives that are not password-protected.</li>
+    <li><tt>enhanced/nopassword</tt> is a new method and internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</li>
+    <li><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</li>
+    <li><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats (.7z, .zip, .rar, and more), although not as many as the original 7z.dll, to reduce its size.</li>
+    </ul>
+    New documentation <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a> topic has a table summarizing the differences between these methods.
+  </li>
+  <li>Added example script <i>CodeDownloadFiles2.iss</i> to demonstrate how to use the <tt>CreateExtractionPage</tt> support function to verify and extract a downloaded archive.</li>
+  <li>Support function <tt>ExtractArchive</tt> is new and replaces <tt>Extract7ZipArchive</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
+  <li>Archive extraction now overwrites read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
+  <li>Archive extraction now honors the file system redirection state set by 64-bit install mode and support function <tt>EnableFsRedirection</tt>.</li>
+</ul>
 <span class="head2">Other changes</span>
 <ul>
   <li>Compiler IDE: the <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
-  <li>Pascal Scripting changes:
-  <ul>
-    <li>Added new <tt>GetSHA256OfStream</tt> support function.</li>
-    <li><tt>Extract7ZipArchive</tt> now honors the file system redirection state set by <tt>EnableFsRedirection</tt> or 64-bit install mode.</li>
-  </ul>
-  </li>
-  <li>Added example script <i>CodeDownloadFiles2.iss</i> to demonstrate how to use the <tt>CreateExtractionPage</tt> support function to verify and extract a downloaded archive.</li>
+  <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
   <li>Documentation improvements.</li>
 </ul>
 
