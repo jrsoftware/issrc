@@ -125,6 +125,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
   <li>Support function <tt>ExtractArchive</tt> is new and replaces <tt>Extract7ZipArchive</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
   <li>Archive extraction now overwrites read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
   <li>Archive extraction now honors the file system redirection state set by 64-bit install mode and support function <tt>EnableFsRedirection</tt>.</li>
+  <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
 </ul>
 <span class="head2">Other changes</span>
 <ul>

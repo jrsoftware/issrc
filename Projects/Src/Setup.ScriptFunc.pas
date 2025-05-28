@@ -1786,8 +1786,6 @@ var
     end);
     RegisterScriptFunc(['Extract7ZipArchive', 'ExtractArchive'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      LogArchiveExtractionModeOnce;
-
       var Password: String;
       var FullDirsItemNo: Longint;
       if OrgName = 'Extract7ZipArchive' then begin

@@ -1190,8 +1190,6 @@ procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  LogArchiveExtractionModeOnce;
-
   for var A in FArchives do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
     if SetupHeader.SevenZipLibraryName <> '' then

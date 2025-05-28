@@ -294,6 +294,8 @@ procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 begin
+  LogArchiveExtractionModeOnce;
+
   if ArchiveFileName = '' then
     InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
   if DestDir = '' then

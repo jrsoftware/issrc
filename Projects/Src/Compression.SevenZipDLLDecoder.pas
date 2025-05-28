@@ -679,6 +679,8 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   end;
 
 begin
+  LogArchiveExtractionModeOnce;
+
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
   const clsid = GetHandler(PathExtractExt(ArchiveFilename),
