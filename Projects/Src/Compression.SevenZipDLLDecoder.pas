@@ -99,7 +99,7 @@ type
       FOnExtractionProgress: TOnExtractionProgress;
       FProgressAndLogQueueLock: TObject;
       FProgress: TProgress;
-      FLogQueue: TStringList;
+      FLogQueue: TStrings;
       FResult: TResult;
     function GetProperty(const index: UInt32; const propID: PROPID;
       const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
@@ -273,9 +273,9 @@ end;
 
 destructor TArchiveExtractCallback.Destroy;
 begin
+  FResult.SavedFatalException.Free;
   FLogQueue.Free;
   FProgressAndLogQueueLock.Free;
-  FResult.SavedFatalException.Free;
 end;
 
 function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
@@ -673,8 +673,7 @@ begin
     except
       SevenZipWin32Error('CreateFile');
     end;
-    const InStream: IInStream =
-      TInStream.Create(F);
+    const InStream: IInStream = TInStream.Create(F);
     var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
     const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
     if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
