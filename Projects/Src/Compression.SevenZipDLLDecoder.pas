@@ -72,11 +72,15 @@ type
   TArchiveExtractCallback = class(TInterfacedObject, IArchiveExtractCallback,
     ICryptoGetTextPassword)
   private
+    const
+      varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
     type
       TCurrent = record
         Path, ExpandedPath: String;
         HasAttrib: Boolean;
         Attrib: DWORD;
+        CTime, MTime: TFileTime;
+        outStream: ISequentialOutStream;
         procedure SetAttrib(const AAttrib: DWORD);
       end;
       TProgress = record
@@ -89,7 +93,7 @@ type
         Res: HRESULT;
         OpRes: TNOperationResult;
       end;
-      TVarTypeSet = set of varEmpty..varUInt64; { Incomplete but don't need others }
+      TVarTypeSet = set of varEmpty..varFileTime; { Incomplete but don't need others }
     var
       FInArchive: IInArchive;
       FDisableFsRedir: Boolean;
@@ -106,6 +110,7 @@ type
     function GetProperty(index: UInt32; propID: PROPID; out value: String): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: UInt32): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: Boolean): Boolean; overload;
+    function GetProperty(index: UInt32; propID: PROPID; out value: TFileTime): Boolean; overload;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -122,6 +127,11 @@ type
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
+  end;
+
+  TFileTimeHelper = record helper for TFileTime
+    procedure Clear;
+    function HasTime: Boolean;
   end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
@@ -355,6 +365,17 @@ begin
   value := varValue;
 end;
 
+function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: TFileTime): Boolean;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(index, propID, [varFileTime], varValue);
+  if Result then
+    value := TFileTime(TVarData(varValue).VInt64)
+  else
+    value.Clear;
+end;
+
 function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
@@ -381,6 +402,8 @@ begin
             Attrib := Attrib and $3FFF; { "PosixHighDetect", just like FileDir.cpp and similar to 7zMain.c }
           NewCurrent.SetAttrib(Attrib);
         end;
+        GetProperty(index, kpidCTime, NewCurrent.CTime);
+        GetProperty(index, kpidMTime, NewCurrent.MTime);
         if not FFullPaths then
           Path := PathExtractName(Path);
         NewCurrent.Path := Path;
@@ -393,6 +416,7 @@ begin
           SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
         outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
+        NewCurrent.outStream := outStream;
       end;
     end;
     System.TMonitor.Enter(FProgressAndLogQueueLock);
@@ -426,17 +450,23 @@ function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): H
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   try
-    if opRes <> kOK then begin
-      FResult.OpRes := opRes;
-      Result := E_FAIL; { Make sure it doesn't continue with the next file }
-    end else begin
-      { GetStream is the only writer to ExpandedPath and HasAttrib so we don't need a lock because of this note from
-        IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
-      if (FProgress.Current.ExpandedPath <> '') and FProgress.Current.HasAttrib and
-         not SetFileAttributesRedir(FDisableFsRedir, FProgress.Current.ExpandedPath, FProgress.Current.Attrib) then
-        Result := E_FAIL
-      else
+    try
+      if opRes <> kOK then begin
+        FResult.OpRes := opRes;
+        Result := E_FAIL; { Make sure it doesn't continue with the next file }
+      end else begin
+        { GetStream is the only writer to outStream and ExpandedPath and HasAttrib so we don't need a lock because of this note from
+          IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
+        if (FProgress.Current.outStream <> nil) and (FProgress.Current.CTime.HasTime or FProgress.Current.MTime.HasTime) then
+          SetFileTime((FProgress.Current.outStream as TSequentialOutStream).FFile.Handle,
+            @FProgress.Current.CTime, nil, @FProgress.Current.MTime);
+        FProgress.Current.outStream := nil; { Like 7zMain.c close the file before setting attributes - note that 7-Zip has cleared its own reference as well already }
+        if (FProgress.Current.ExpandedPath <> '') and FProgress.Current.HasAttrib then
+          SetFileAttributesRedir(FDisableFsRedir, FProgress.Current.ExpandedPath, FProgress.Current.Attrib);
         Result := S_OK;
+      end;
+    finally
+      FProgress.Current.outStream := nil;
     end;
   except
     on E: EAbort do
@@ -692,6 +722,22 @@ begin
     else
       raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
+end;
+
+{ TFileTimeHelper }
+
+procedure TFileTimeHelper.Clear;
+begin
+  { SetFileTime regards a pointer to a FILETIME structure with both members
+    set to 0 the same as a NULL pointer and we make use of that. Note that
+    7-Zip may return a value with both members set to 0 as well. }
+  dwLowDateTime := 0;
+  dwHighDateTime := 0;
+end;
+
+function TFileTimeHelper.HasTime: Boolean;
+begin
+  Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
 
 end.

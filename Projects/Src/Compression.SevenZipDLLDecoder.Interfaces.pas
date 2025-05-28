@@ -85,6 +85,8 @@ const
   kpidPath = 3;
   kpidIsDir = 6;
   kpidAttrib = 9;
+  kpidCTime = 10;
+  kpidMTime = 12;
 
   { From IArchive.h}
   kExtract = 0;
