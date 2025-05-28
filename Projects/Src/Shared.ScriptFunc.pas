@@ -2,7 +2,7 @@ unit Shared.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -540,6 +540,7 @@ initialization
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
+    'procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
     'function Debugging: Boolean;',
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',

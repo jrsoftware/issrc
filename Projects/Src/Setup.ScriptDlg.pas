@@ -204,7 +204,7 @@ type
   end;
   
   TArchive = class
-    FileName, DestDir: String;
+    FileName, DestDir, Password: String;
     FullPaths: Boolean;
   end;
   TArchives = TObjectList<TArchive>;
@@ -224,6 +224,7 @@ type
       destructor Destroy; override;
       procedure Initialize; override;
       procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+      procedure AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean);
       procedure Clear;
       procedure Extract;
       property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
@@ -240,7 +241,7 @@ uses
   StrUtils,
   Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
+  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Compression.SevenZipDLLDecoder;
 
 const
   DefaultLabelHeight = 14;
@@ -251,7 +252,7 @@ const
 
 procedure SetCtlParent(const AControl, AParent: TWinControl);
 { Like assigning to AControl.Parent, but puts the control at the *bottom* of
-  the z-order instead of the top, for MSAA compatibility. }
+  the z-order instead of the top, for MSAA compatibility }
 var
   OldVisible: Boolean;
 begin
@@ -1071,7 +1072,7 @@ begin
 
   Result := 0;
   for var F in FFiles do begin
-    { Don't need to set DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages before downloading since we already process messages ourselves. }
+    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
   end;
@@ -1167,9 +1168,15 @@ end;
 
 procedure TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
 begin
-  var A := TArchive.Create;
+  AddEx(ArchiveFileName, DestDir, '', FullPaths);
+end;
+
+procedure TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean);
+begin
+  const A = TArchive.Create;
   A.FileName := ArchiveFileName;
   A.DestDir := DestDir;
+  A.Password := Password;
   A.FullPaths := FullPaths;
   FArchives.Add(A);
 end;
@@ -1184,8 +1191,11 @@ begin
   FAbortedByUser := False;
 
   for var A in FArchives do begin
-    { Don't need to set DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages before extraction since we already process messages ourselves. }
-    Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
+    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
+    if SetupHeader.SevenZipLibraryName <> '' then
+      ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+    else
+      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
   end;
 end;
 

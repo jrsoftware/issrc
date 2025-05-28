@@ -2588,6 +2588,17 @@ begin
         ProcessExpressionParameter(KeyName, LowerCase(Value),
           EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesInstallIn64BitMode);
       end;
+    ssArchiveExtraction: begin
+        Value := LowerCase(Trim(Value));
+        if Value = 'enhanced/nopassword' then begin
+          SetupHeader.SevenZipLibraryName := 'is7zxr.dll'
+        end else if Value = 'enhanced' then begin
+          SetupHeader.SevenZipLibraryName := 'is7zxa.dll'
+        end else if Value = 'full' then
+          SetupHeader.SevenZipLibraryName := 'is7z.dll'
+        else if Value <> 'basic' then
+          Invalid;
+      end;
     ssASLRCompatible: begin
         ASLRCompatible := StrToBool(Value);
       end;
@@ -6711,7 +6722,7 @@ var
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
   WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
-  DecompressorDLL: TMemoryStream;
+  DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   SetupLdrOffsetTable: TSetupLdrOffsetTable;
   SizeOfExe, SizeOfHeaders: Longint;
@@ -6821,6 +6832,8 @@ var
         WriteStream(WizardSmallImages[J], W);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
+      if SetupHeader.SevenZipLibraryName <> '' then
+        WriteStream(SevenZipDLL, W);
 
       W.Finish;
     finally
@@ -7518,6 +7531,7 @@ begin
   WizardSmallImages := nil;
   SetupE32 := nil;
   DecompressorDLL := nil;
+  SevenZipDLL := nil;
 
   try
     Finalize(SetupHeader);
@@ -8038,6 +8052,13 @@ begin
         end;
     end;
 
+    { Read 7-Zip DLL. Must be done after [Files] is parsed, since
+      SetupHeader.SevenZipLibraryName isn't set until then }
+    if SetupHeader.SevenZipLibraryName <> '' then begin
+      AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
+      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName);
+    end;
+
     { Add default types if necessary }
     if (ComponentEntries.Count > 0) and (TypeEntries.Count = 0) then begin
       AddDefaultSetupType(DefaultTypeEntryNames[0], [], ttDefaultFull);
@@ -8217,6 +8238,7 @@ begin
     CallPreprocessorCleanupProc;
     UsedUserAreas.Clear;
     WarningsList.Clear;
+    SevenZipDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
     WizardSmallImages.Free;

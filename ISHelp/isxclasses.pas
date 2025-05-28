@@ -788,6 +788,7 @@ TExtractionWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
   procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+  procedure AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean);
   procedure Clear;
   procedure Extract;
   property ShowArchiveInsteadOfFile: Boolean; read write;

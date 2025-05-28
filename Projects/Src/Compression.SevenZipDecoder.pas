@@ -16,7 +16,7 @@ type
   TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
 procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir: String; const FullPaths: Boolean;
+  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
@@ -283,7 +283,7 @@ begin
     end;
   end;
 
-  if not Abort and DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages then
+  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
     Application.ProcessMessages;
 
   if Abort then
@@ -291,9 +291,11 @@ begin
 end;
 
 procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir: String; const FullPaths: Boolean;
+  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 begin
+  LogArchiveExtractionModeOnce;
+
   if ArchiveFileName = '' then
     InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
   if DestDir = '' then
@@ -301,8 +303,13 @@ begin
 
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  if not ForceDirectories(DisableFsRedir, DestDir) then
+  if Password <> '' then begin
+    Log('ERROR: Password not supported by basic archive extraction'); { Just like 7zMain.c }
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-2']))
+  end else if not ForceDirectories(DisableFsRedir, DestDir) then begin
+    Log('ERROR: Failed to create destination directory'); { Just like 7zMain.c }
     raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
+  end;
 
   State.DisableFsRedir := DisableFsRedir;
   State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);

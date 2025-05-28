@@ -1,15 +1,6 @@
-; -- CodeDownloadFiles.iss --
-;
-; This script shows how the CreateDownloadPage support function can be used to
-; download temporary files while showing the download progress to the user.
-;
-; To verify the downloaded files, this script shows two methods:
-; -For innosetup-latest.exe: using the Inno Setup Signature Tool, the [ISSigKeys]
-;  section, and the issigverify flag
-; -For iscrypt.dll: using a simple SHA256 check
-; Using the Inno Setup Signature Tool has the benefit that the script does not
-; need to be changed when the downloaded file changes, so any installers built
-; will also keep working
+; -- CodeDownloadFiles2.iss --
+; Same as CodeDownloadFiles1.iss but additionally downloads a 7-Zip archive and
+; shows how to verify and extract it.
 
 [Setup]
 AppName=My Program
@@ -19,6 +10,10 @@ DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
+;Use "ArchiveExtraction=enhanced/nopassword" if your archive has large files
+;Use "ArchiveExtraction=enhanced" if your archive has large files *and* a password
+;Use "ArchiveExtraction=full" if your archive is not a .7z file but for example a .zip file
+ArchiveExtraction=basic
 
 [ISSigKeys]
 Name: "mykey"; \
@@ -34,6 +29,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 ; These files will be downloaded
 Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
+Source: "{tmp}\MyProg-ExtraReadmes\*"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external recursesubdirs ignoreversion issigverify
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
@@ -41,11 +37,13 @@ Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 [Code]
 var
   DownloadPage: TDownloadWizardPage;
+  ExtractionPage: TExtractionWizardPage;
 
 procedure InitializeWizard;
 begin
   DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
   DownloadPage.ShowBaseNameInsteadOfUrl := True;
+  ExtractionPage := CreateExtractionPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), nil);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -56,6 +54,7 @@ begin
     DownloadPage.Add('https://jrsoftware.org/download.php/is.exe?dontcount=1', 'innosetup-latest.exe', '');
     DownloadPage.Add('https://jrsoftware.org/download.php/is.exe.issig?dontcount=1', 'innosetup-latest.exe.issig', '');
     DownloadPage.Add('https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
+    DownloadPage.Add('https://jrsoftware.org/download.php/myprog-extrareadmes.7z?dontcount=1', 'MyProg-ExtraReadmes.7z', '');
     DownloadPage.Show;
     try
       try
@@ -71,6 +70,31 @@ begin
       end;
     finally
       DownloadPage.Hide;
+    end;
+
+    if not Result then
+      Exit;
+
+    ExtractionPage.Clear;
+    // Use AddEx to specify a password
+    ExtractionPage.Add(ExpandConstant('{tmp}\MyProg-ExtraReadmes.7z'), ExpandConstant('{tmp}\MyProg-ExtraReadmes'), True);
+    ExtractionPage.Show;
+    try
+      try
+        // Extracts the archive to {tmp}\MyProg-ExtraReadmes
+        // Note that each file in the MyProg-ExtraReadmes.7z example archive comes with an .issig signature file
+        // These signature files are used by the [Files] section to verify the archive's content
+        ExtractionPage.Extract;
+        Result := True;
+      except
+        if ExtractionPage.AbortedByUser then
+          Log('Aborted by user.')
+        else
+          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+        Result := False;
+      end;
+    finally
+      ExtractionPage.Hide;
     end;
   end else
     Result := True;

@@ -139,6 +139,9 @@ Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touc
 Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7z.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxa.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
@@ -164,6 +167,7 @@ Source: "Examples\CodeClasses.iss"; DestDir: "{app}\Examples"; Flags: ignorevers
 Source: "Examples\CodeDlg.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDll.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeDownloadFiles.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
+Source: "Examples\CodeDownloadFiles2.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodeExample1.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\CodePrepareToInstall.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Components.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch

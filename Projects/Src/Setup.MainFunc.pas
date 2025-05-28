@@ -153,7 +153,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtractArchiveProcessMessages: Boolean;
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
@@ -185,6 +185,7 @@ function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
+procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
@@ -245,7 +246,7 @@ uses
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
-  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm;
+  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDLLDecoder;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -256,7 +257,7 @@ var
   SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
     var ppszPath: PWideChar): HRESULT; stdcall;
 
-  DecompressorDLLHandle: HMODULE;
+  DecompressorDLLHandle, SevenZipDLLHandle: HMODULE;
 
 type
   TDummyClass = class
@@ -2514,11 +2515,23 @@ begin
   LogFmt('64-bit install mode: %s', [SYesNo[Is64BitInstallMode]]);
 end;
 
+var
+  LoggedArchiveExtractionMode: Boolean;
+
+procedure LogArchiveExtractionModeOnce;
+begin
+  if not LoggedArchiveExtractionMode then begin
+    LogFmt('Archive extraction mode: %s',
+      [IfThen(SetupHeader.SevenZipLibraryName <> '', Format('Using %s', [SetupHeader.SevenZipLibraryName]), 'Basic')]);
+    LoggedArchiveExtractionMode := True;
+  end;
+end;
+
 procedure InitializeSetup;
 { Initializes various vars used by the setup. This is called in the project
   source. }
 var
-  DecompressorDLL: TMemoryStream;
+  DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   function ExtractLongWord(var S: String): LongWord;
   var
@@ -2608,6 +2621,20 @@ var
         if not BZInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('BZInitDecompressFunctions failed');
     end;
+  end;
+
+  procedure LoadSevenZipDLL;
+  var
+    Filename: String;
+  begin
+    Filename := AddBackslash(TempInstallDir) + '_isetup\_is7z.dll';
+    SaveStreamToTempFile(SevenZipDLL, Filename);
+    FreeAndNil(SevenZipDLL);
+    SevenZipDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    if SevenZipDLLHandle = 0 then
+      InternalError(Format('Failed to load DLL "%s"', [Filename]))
+    else if not SevenZipDLLInit(SevenZipDLLHandle) then
+      InternalError('SevenZipDLLInit failed');
   end;
 
 var
@@ -3128,6 +3155,12 @@ begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(DecompressorDLL, Reader);
         end;
+        { SevenZip DLL }
+        SevenZipDLL := nil;
+        if SetupHeader.SevenZipLibraryName <> '' then begin
+          SevenZipDLL := TMemoryStream.Create;
+          ReadFileIntoStream(SevenZipDLL, Reader);
+        end;
       finally
         Reader.Free;
       end;
@@ -3210,6 +3243,10 @@ begin
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
+
+  { Extract "_is7z.dll" to TempInstallDir, and load it }
+  if SetupHeader.SevenZipLibraryName <> '' then
+    LoadSevenZipDLL;
 
   { Start RestartManager session }
   if InitCloseApplications or
@@ -3492,11 +3529,13 @@ begin
   if RmSessionStarted then
     RmEndSession(RmSessionHandle);
 
-  { Free the _isdecmp.dll handle }
+  { Free the _isdecmp.dll and _is7z.dll handles }
   if DecompressorDLLHandle <> 0 then
     FreeLibrary(DecompressorDLLHandle);
+  if SevenZipDLLHandle <> 0 then
+    FreeLibrary(SevenZipDLLHandle);
 
-  { Free the shfolder.dll handles }
+  { Free the shfolder.dll handle }
   UnloadSHFolderDLL;
 
   { Remove TempInstallDir, stopping the 64-bit helper first if necessary }
