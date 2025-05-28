@@ -78,13 +78,11 @@ type
         HasAttrib: Boolean;
         Attrib: DWORD;
         procedure SetAttrib(const AAttrib: DWORD);
-        procedure MakeUnique;
       end;
       TProgress = record
         Current: TCurrent;
         Progress, ProgressMax: UInt64;
         Abort: Boolean;
-        procedure MakeUnique;
       end;
       TResult = record
         SavedFatalException: TObject;
@@ -102,7 +100,6 @@ type
       FProgressAndLogQueueLock: TObject;
       FProgress: TProgress;
       FLogQueue: TStringList;
-      FLastReportedProgress, FLastReportedProgressMax: UInt64;
       FResult: TResult;
     function GetProperty(const index: UInt32; const propID: PROPID;
       const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
@@ -251,21 +248,10 @@ end;
 
 { TArchiveExtractCallback }
 
-procedure TArchiveExtractCallback.TCurrent.MakeUnique;
-begin
-  UniqueString(Path);
-  UniqueString(ExpandedPath);
-end;
-
 procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
 begin
   Attrib := AAttrib;
   HasAttrib := True;
-end;
-
-procedure TArchiveExtractCallback.TProgress.MakeUnique;
-begin
-  Current.MakeUnique;
 end;
 
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
@@ -544,7 +530,6 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     System.TMonitor.Enter(E.FProgressAndLogQueueLock);
     try
       Progress := E.FProgress;
-      Progress.MakeUnique;
       for var S in E.FLogQueue do
         LogFmt('- %s', [S]); { Just like 7zMain.c }
       E.FLogQueue.Clear;
@@ -558,22 +543,10 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     var Abort := False;
 
     if (Progress.Current.Path <> '') and Assigned(E.FOnExtractionProgress) then begin
-      { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
-        -At start or finish
-        -Or if somehow Progress decreased or Max changed
-        -Or if at least 512 KB progress was made since last report
-      }
-      if (Progress.Progress = 0) or (Progress.Progress = Progress.ProgressMax) or
-         (Progress.Progress < E.FLastReportedProgress) or (Progress.ProgressMax <> E.FLastReportedProgressMax) or
-         ((Progress.Progress - E.FLastReportedProgress) > 524288) then begin
-        try
-          if not E.FOnExtractionProgress(E.FExtractedArchiveName, Progress.Current.Path, Progress.Progress, Progress.ProgressMax) then
-            Abort := True;
-        finally
-          E.FLastReportedProgress := Progress.Progress;
-          E.FLastReportedProgressMax := Progress.ProgressMax;
-        end;
-      end;
+      { Calls to HandleProgress are already throttled so here we don't have to worry
+        about calling the script to often }
+      if not E.FOnExtractionProgress(E.FExtractedArchiveName, Progress.Current.Path, Progress.Progress, Progress.ProgressMax) then
+        Abort := True;
     end;
 
     if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
@@ -660,9 +633,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       CloseHandle(ThreadHandle);
     end;
 
-    if E.FLastReportedProgress <> E.FProgress.ProgressMax then
-      HandleProgress(E);
-
+    HandleProgress(E);
     HandleResult(E.FResult);
   end;
 
