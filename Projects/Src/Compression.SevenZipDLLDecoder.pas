@@ -647,16 +647,18 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
         [Format('%s %s', [Win32ErrorString(LastError), IntToHexStr8(LastError)])]));
     end;
 
-    while True do begin
-      case WaitForSingleObject(ThreadHandle, 50) of
-        WAIT_OBJECT_0: Break;
-        WAIT_TIMEOUT: HandleProgress(E);
-      else
-        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
+    try
+      while True do begin
+        case WaitForSingleObject(ThreadHandle, 50) of
+          WAIT_OBJECT_0: Break;
+          WAIT_TIMEOUT: HandleProgress(E);
+        else
+          raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
+        end;
       end;
+    finally
+      CloseHandle(ThreadHandle);
     end;
-
-    CloseHandle(ThreadHandle);
 
     if E.FLastReportedProgress <> E.FProgress.ProgressMax then
       HandleProgress(E);
