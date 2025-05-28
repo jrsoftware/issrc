@@ -320,8 +320,8 @@ end;
 
 function TArchiveExtractCallback.GetProperty(const index: UInt32;
   const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean;
-{ Raises an exception on error but otherwise always sets value, returning True if
-  it's not empty }
+{ Raises an EOleSysError exception on error but otherwise always sets value,
+  returning True if it's not empty }
 begin
   var Res := FInArchive.GetProperty(index, propID, value);
   if Res <> S_OK then
@@ -463,6 +463,22 @@ begin
   Result := Assigned(CreateSevenZipObject);
 end;
 
+procedure SevenZipError(const LogMessage, ExceptMessage: String);
+{ Do not call from secondary thread. LogMessage may contain non-localized text
+  ExceptMessage should not. }
+begin
+  LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
+  raise Exception.Create(ExceptMessage);
+end;
+
+procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
+begin
+  if LastError = 0 then
+    LastError := GetLastError;
+  const Msg = Format('%s (%u)', [Win32ErrorString(LastError), LastError]);
+  SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
+end;
+
 function ExtractThreadFunc(Parameter: Pointer): Integer;
 begin
   const E = TArchiveExtractCallback(Parameter);
@@ -576,7 +592,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       kHeadersError: Result := 'Headers error';
       kWrongPassword: Result := 'Wrong password';
     else
-      Result := Format('Unknown result %d', [Ord(opRes)]);
+      Result := Format('Unknown operation result: %d', [Ord(opRes)]);
     end;
   end;
 
@@ -588,17 +604,15 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
         Msg := (Result.SavedFatalException as Exception).Message
       else
         Msg := Result.SavedFatalException.ClassName;
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Msg]));
+      SevenZipError(Format('Worker thread terminated unexpectedly with exception: %s', [Msg]), Msg);
     end else if Result.Res = E_ABORT then
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+      Abort
     else begin
       var OpRes := Result.OpRes;
-      if OpRes <> kOK then begin
-        LogFmt('ERROR: %s', [OperationResultToString(Result.OpRes)]); { Just like 7zMain.c }
-        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
-      end else if Result.Res <> S_OK then
-        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
-          [Format('%s %s', [Win32ErrorString(Result.Res), IntToHexStr8(Result.Res)])]));
+      if OpRes <> kOK then
+        SevenZipError(OperationResultToString(Result.OpRes), Ord(OpRes).ToString)
+      else if Result.Res <> S_OK then
+        SevenZipWin32Error('Extract', Result.Res);
     end;
   end;
 
@@ -614,11 +628,8 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 
     var ThreadID: TThreadID; { Not used but BeginThread requires it }
     const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, E, 0, ThreadID);
-    if ThreadHandle = 0 then begin
-      const LastError = GetLastError;
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
-        [Format('%s %s', [Win32ErrorString(LastError), IntToHexStr8(LastError)])]));
-    end;
+    if ThreadHandle = 0 then
+      SevenZipWin32Error('BeginThread');
 
     try
       while True do begin
@@ -626,7 +637,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
           WAIT_OBJECT_0: Break;
           WAIT_TIMEOUT: HandleProgress(E);
         else
-          raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
+          SevenZipWin32Error('WaitForSingleObject');
         end;
       end;
     finally
@@ -649,30 +660,39 @@ begin
 
   LogFmt('%s Decoder : Igor Pavlov', [SetupHeader.SevenZipLibraryName]); { Just like 7zMain.c }
 
-  { CreateObject }
-  var InArchive: IInArchive;
-  if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then begin
-    Log('ERROR: Cannot get class object'); { Just like 7zMain.c and Client7z.cpp }
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
+  try
+    { CreateObject }
+    var InArchive: IInArchive;
+    if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then
+      SevenZipError('Cannot get class object' { Just like Client7z.cpp }, '-1');
+
+    { Open }
+    var F: TFile := nil; { Set to nil to silence compiler }
+    try
+      F := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+    except
+      SevenZipWin32Error('CreateFile');
+    end;
+    const InStream: IInStream =
+      TInStream.Create(F);
+    var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
+    const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
+    if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
+      SevenZipError('Cannot open file as archive' { Just like Client7z.cpp }, '-2');
+
+    { Extract }
+    const ExtractCallback: IArchiveExtractCallback =
+      TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
+        ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
+    Extract(ExtractCallback as TArchiveExtractCallback);
+
+    Log('Everything is Ok'); { Just like 7zMain.c }
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
-
-  { Open }
-  const InStream: IInStream =
-    TInStream.Create(TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead));
-  var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
-  if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
-    Log('ERROR: Cannot open file as archive'); { Just like 7zMain.c and Client7z.cpp }
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-2']));
-  end;
-
-  { Extract }
-  const ExtractCallback: IArchiveExtractCallback =
-    TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
-      ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-  Extract(ExtractCallback as TArchiveExtractCallback);
-
-  Log('Everything is Ok'); { Just like 7zMain.c }
 end;
 
 end.
