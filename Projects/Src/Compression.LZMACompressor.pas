@@ -481,7 +481,7 @@ procedure TLZMAWorkerThread.SetProps(const LZMA2: Boolean;
   const EncProps: TLZMAEncoderProps);
 var
   Res: TLZMASRes;
-  ThreadID: DWORD;
+  ThreadID: TThreadID;
 begin
   Res := LZMA_Init(LZMA2, FLZMAHandle);
   if Res = SZ_ERROR_MEM then

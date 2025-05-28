@@ -322,7 +322,7 @@ begin
   if State.Aborted then
     raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
   else if Res <> 0 then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString]));
+    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString])); { Already logged by 7zMain.c }
 end;
 
 end.
