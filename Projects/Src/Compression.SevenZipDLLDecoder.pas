@@ -481,13 +481,6 @@ function ExtractThreadFunc(Parameter: Pointer): Integer;
 begin
   const E = TArchiveExtractCallback(Parameter);
   try
-    { We're calling 7-Zip's Extract in a separate thread. This is because packing
-      our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
-      GetStream and PrepareOperation and SetOperationResult were *all* called by
-      7-Zip from a secondary thread. So we can't block our main thread as well
-      because then we can't communicate progress to it. Having this extra thread
-      has the added bonus of being able to communicate progress more often from
-      SetCompleted. }
     E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
   except
     const Ex = AcquireExceptionObject;
@@ -614,6 +607,63 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     end;
   end;
 
+  procedure HandleResult([Ref] const Result: TArchiveExtractCallback.TResult);
+  begin
+    if Assigned(Result.SavedFatalException) then begin
+      var Msg: String;
+      if Result.SavedFatalException is Exception then
+        Msg := (Result.SavedFatalException as Exception).Message
+      else
+        Msg := Result.SavedFatalException.ClassName;
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Msg]));
+    end else if Result.Res = E_ABORT then
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else begin
+      var OpRes := Result.OpRes;
+      if OpRes <> kOK then begin
+        LogFmt('ERROR: %s', [OperationResultToString(Result.OpRes)]); { Just like 7zMain.c }
+        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
+      end else if Result.Res <> S_OK then
+        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
+          [Format('%s %s', [Win32ErrorString(Result.Res), IntToHexStr8(Result.Res)])]));
+    end;
+  end;
+
+  procedure Extract(const E: TArchiveExtractCallback);
+  begin
+    { We're calling 7-Zip's Extract in a separate thread. This is because packing
+      our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
+      GetStream and PrepareOperation and SetOperationResult were *all* called by
+      7-Zip from a secondary thread. So we can't block our main thread as well
+      because then we can't communicate progress to it. Having this extra thread
+      has the added bonus of being able to communicate progress more often from
+      SetCompleted. }
+
+    var ThreadID: TThreadID; { Not used but BeginThread requires it }
+    const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, E, 0, ThreadID);
+    if ThreadHandle = 0 then begin
+      const LastError = GetLastError;
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
+        [Format('%s %s', [Win32ErrorString(LastError), IntToHexStr8(LastError)])]));
+    end;
+
+    while True do begin
+      case WaitForSingleObject(ThreadHandle, 50) of
+        WAIT_OBJECT_0: Break;
+        WAIT_TIMEOUT: HandleProgress(E);
+      else
+        raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
+      end;
+    end;
+
+    CloseHandle(ThreadHandle);
+
+    if E.FLastReportedProgress <> E.FProgress.ProgressMax then
+      HandleProgress(E);
+
+    HandleResult(E.FResult);
+  end;
+
 begin
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
@@ -647,48 +697,7 @@ begin
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
       ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-  const E = ExtractCallback as TArchiveExtractCallback;
-
-  var ThreadID: TThreadID; { Not used but BeginThread requires it }
-  const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, E, 0, ThreadID);
-  if ThreadHandle = 0 then begin
-    const LastError = GetLastError;
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
-      [Format('%s %s', [Win32ErrorString(LastError), IntToHexStr8(LastError)])]));
-  end;
-
-  while True do begin
-    case WaitForSingleObject(ThreadHandle, 50) of
-      WAIT_OBJECT_0: Break;
-      WAIT_TIMEOUT: HandleProgress(E);
-    else
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['WaitForSingleObject failed']));
-    end;
-  end;
-
-  CloseHandle(ThreadHandle);
-
-  if E.FLastReportedProgress <> E.FProgress.ProgressMax then
-    HandleProgress(E);
-
-  if Assigned(E.FResult.SavedFatalException) then begin
-    var Msg: String;
-    if E.FResult.SavedFatalException is Exception then
-      Msg := (E.FResult.SavedFatalException as Exception).Message
-    else
-      Msg := E.FResult.SavedFatalException.ClassName;
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Msg]));
-  end else if E.FResult.Res = E_ABORT then
-    raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-  else begin
-    var OpRes := E.FResult.OpRes;
-    if OpRes <> kOK then begin
-      LogFmt('ERROR: %s', [OperationResultToString(E.FResult.OpRes)]); { Just like 7zMain.c }
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Ord(OpRes).ToString]))
-    end else if E.FResult.Res <> S_OK then
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed,
-        [Format('%s %s', [Win32ErrorString(E.FResult.Res), IntToHexStr8(E.FResult.Res)])]));
-  end;
+  Extract(ExtractCallback as TArchiveExtractCallback);
 
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
