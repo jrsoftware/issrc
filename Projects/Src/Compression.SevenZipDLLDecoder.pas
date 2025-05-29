@@ -662,13 +662,29 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       SevenZipWin32Error('BeginThread');
 
     try
-      while True do begin
-        case WaitForSingleObject(ThreadHandle, 50) of
-          WAIT_OBJECT_0: Break;
-          WAIT_TIMEOUT: HandleProgress(E);
-        else
-          SevenZipWin32Error('WaitForSingleObject');
+      try
+        while True do begin
+          case WaitForSingleObject(ThreadHandle, 50) of
+            WAIT_OBJECT_0: Break;
+            WAIT_TIMEOUT: HandleProgress(E);
+          else
+            SevenZipWin32Error('WaitForSingleObject');
+          end;
         end;
+      except
+        { If an exception was raised during the loop (most likely it would
+          be from the user's OnExtractionProgress handler), request abort
+          and make one more attempt to wait on the thread. If we don't get
+          definitive confirmation that the thread terminated (WAIT_OBJECT_0),
+          then bump the object's reference count to prevent it from being
+          freed, because the thread could still be running and accessing the
+          object. Leaking memory isn't ideal, but a use-after-free problem
+          is worse. Realisitically, though, WaitForSingleObject should never
+          fail if given a valid handle. }
+        E.FProgress.Abort := True;
+        if WaitForSingleObject(ThreadHandle, INFINITE) <> WAIT_OBJECT_0 then
+          E._AddRef;
+        raise;
       end;
     finally
       CloseHandle(ThreadHandle);
