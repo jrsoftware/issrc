@@ -7174,13 +7174,23 @@ var
     CallIdleProc;
   end;
 
-  procedure CopyFileOrAbort(const SourceFile, DestFile: String);
+  procedure CopyFileOrAbort(const SourceFile, DestFile: String;
+    const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions);
   var
     ErrorCode: DWORD;
   begin
+    if CheckTrust then begin
+      try
+        CheckFileTrust(SourceFile, CheckFileTrustOptions);
+      except
+        AbortCompileFmt(SCompilerCopyError3a, [SourceFile, DestFile,
+          GetExceptMessage]);
+      end;
+    end;
+
     if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
       ErrorCode := GetLastError;
-      AbortCompileFmt(SCompilerCopyError3, [SourceFile, DestFile,
+      AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
         ErrorCode, Win32ErrorString(ErrorCode)]);
     end;
   end;
@@ -7320,7 +7330,7 @@ var
       E32Filename := CompilerDir + 'SETUP.E32';
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename);
+      CopyFileOrAbort(E32Filename, ConvertFilename, True, [cftoTrustAllOnDebug]);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
       if SetupIconFilename <> '' then begin
@@ -8114,7 +8124,7 @@ begin
           end;
         end
         else begin
-          CopyFileOrAbort(CompilerDir + 'SETUPLDR.E32', ExeFilename);
+          CopyFileOrAbort(CompilerDir + 'SETUPLDR.E32', ExeFilename, True, [cftoTrustAllOnDebug]);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if SetupIconFilename <> '' then begin

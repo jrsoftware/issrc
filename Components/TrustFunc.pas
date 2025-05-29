@@ -21,7 +21,7 @@ uses
   System.Classes;
 
 type
-  TCheckFileTrustOption = (cftoKeepOpen);
+  TCheckFileTrustOption = (cftoKeepOpen, cftoTrustAllOnDebug);
   TCheckFileTrustOptions = set of TCheckFileTrustOption;
   TLoadTrustedLibraryOption = (ltloTrustAllOnDebug);
   TLoadTrustedLibraryOptions = set of TLoadTrustedLibraryOption;
@@ -59,6 +59,10 @@ begin
   if (Attr = INVALID_FILE_ATTRIBUTES) or (Attr and faDirectory <> 0) then
     raise Exception.Create(Win32ErrorString(ERROR_FILE_NOT_FOUND));
 {$IFNDEF TRUSTALL}
+{$IFDEF DEBUG}
+  if cftoTrustAllOnDebug in Options then
+    Exit(nil);
+{$ENDIF}
   var ExpectedFileSize: Int64;
   var ExpectedFileHash: TSHA256Digest;
 
@@ -132,13 +136,10 @@ end;
 
 function LoadTrustedLibrary(const FileName: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
 begin
-{$IFDEF DEBUG}
-  if ltloTrustAllOnDebug in Options then begin
-    Result := DoLoadLibrary(FileName);
-    Exit;
-  end;
-{$ENDIF}
-  const F = CheckFileTrust(FileName, [cftoKeepOpen]);
+  var CheckFileTrustOptions: TCheckFileTrustOptions := [cftoKeepOpen];
+  if ltloTrustAllOnDebug in Options then
+    Include(CheckFileTrustOptions, cftoTrustAllOnDebug);
+  const F = CheckFileTrust(FileName, CheckFileTrustOptions);
   try
     Result := DoLoadLibrary(FileName);
   finally

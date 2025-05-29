@@ -93,7 +93,8 @@ const
   SCompilerSourceFileISSigUnknownVerifyResult = 'unknown verify result';
   SCompilerSourceFileISSigFileSizeIncorrect = 'file size incorrect';
   SCompilerSourceFileISSigFileHashIncorrect = 'file hash incorrect';
-  SCompilerCopyError3 = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
+  SCompilerCopyError3a = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %s';
+  SCompilerCopyError3b = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
   SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';

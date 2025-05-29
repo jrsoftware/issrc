@@ -87,7 +87,7 @@ if exist .\setup-presign.bat (
 )
 
 rem  Sign using user's private key
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause
