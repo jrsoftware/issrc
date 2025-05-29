@@ -264,27 +264,31 @@ end;
 
 procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
-  if Assigned(State.OnExtractionProgress) then begin
-    { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
-      -At start or finish
-      -Or if somehow Progress decreased or Max changed
-      -Or if at least 512 KB progress was made since last report
-    }
-    if (Progress = 0) or (Progress = ProgressMax) or
-       (Progress < State.LastReportedProgress) or (ProgressMax <> State.LastReportedProgressMax) or
-       ((Progress - State.LastReportedProgress) > 524288) then begin
-      try
-        if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
-          Abort := True;
-      finally
-        State.LastReportedProgress := Progress;
-        State.LastReportedProgressMax := ProgressMax;
+  try
+    if Assigned(State.OnExtractionProgress) then begin
+      { Make sure script isn't called crazy often because that would slow the extraction significantly. Only report:
+        -At start or finish
+        -Or if somehow Progress decreased or Max changed
+        -Or if at least 512 KB progress was made since last report
+      }
+      if (Progress = 0) or (Progress = ProgressMax) or
+         (Progress < State.LastReportedProgress) or (ProgressMax <> State.LastReportedProgressMax) or
+         ((Progress - State.LastReportedProgress) > 524288) then begin
+        try
+          if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
+            Abort := True;
+        finally
+          State.LastReportedProgress := Progress;
+          State.LastReportedProgressMax := ProgressMax;
+        end;
       end;
     end;
-  end;
 
-  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-    Application.ProcessMessages;
+    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+      Application.ProcessMessages;
+  except
+    Abort := True;
+  end;
 
   if Abort then
     State.Aborted := True;
