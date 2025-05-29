@@ -2,7 +2,7 @@ unit Compiler.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -68,7 +68,7 @@ const
 function IdentToColor(const Ident: string; var Color: Longint): Boolean;
 function StringToColor(const S: string): TColor;
 function IsRelativePath(const Filename: String): Boolean;
-function CreateMemoryStreamFromFile(const Filename: String): TMemoryStream;
+function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False): TMemoryStream;
 function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
   const CRC: Longint): Boolean;
 function IsX86OrX64Executable(const F: TFile): Boolean;
@@ -82,7 +82,7 @@ procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
 implementation
 
 uses
-  SysUtils, Shared.CommonFunc, Shared.Int64Em,
+  SysUtils, TrustFunc, Shared.CommonFunc, Shared.Int64Em,
   Compression.Base, Compiler.Messages;
 
 type
@@ -167,7 +167,7 @@ begin
     Result := False;
 end;
 
-function CreateMemoryStreamFromFile(const Filename: String): TMemoryStream;
+function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean): TMemoryStream;
 { Creates a TMemoryStream and loads the contents of the specified file into it }
 var
   F: TFile;
@@ -175,16 +175,25 @@ var
 begin
   Result := TMemoryStream.Create;
   try
-    { Why not use TMemoryStream.LoadFromFile here?
-      1. On Delphi 2 it opens files for exclusive access (not good).
-      2. It doesn't give specific error messages. }
-    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+    var FS: TFileStream;
+    if CheckTrust then
+      FS := CheckFileTrust(Filename, [cftoKeepOpen])
+    else
+      FS := nil;
     try
-      SizeOfFile := F.CappedSize;
-      Result.SetSize(SizeOfFile);
-      F.ReadBuffer(Result.Memory^, SizeOfFile);
+      { Why not use TMemoryStream.LoadFromFile here?
+        1. On Delphi 2 it opens files for exclusive access (not good).
+        2. It doesn't give specific error messages. }
+      F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+      try
+        SizeOfFile := F.CappedSize;
+        Result.SetSize(SizeOfFile);
+        F.ReadBuffer(Result.Memory^, SizeOfFile);
+      finally
+        F.Free;
+      end;
     finally
-      F.Free;
+      FS.Free;
     end;
   except
     Result.Free;

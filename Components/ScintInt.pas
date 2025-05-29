@@ -1369,7 +1369,7 @@ uses
 procedure InitIsscintLibrary;
 begin
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  IsscintLibrary := LoadTrustedLibrary(PChar(FileName));
+  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), []);
 end;
 
 end.

@@ -9,9 +9,9 @@ copy ..\..\Files\ISPPBuiltins.iss
 copy ..\..\Files\is7z*.dll
 copy ..\..\Files\is7z*.dll.issig
 copy ..\..\Files\is*zip.dll
-copy ..\..\Files\isbzip.dll.issig
+copy ..\..\Files\is*zip.dll.issig
 copy ..\..\Files\is*zlib.dll
-copy ..\..\Files\iszlib.dll.issig
+copy ..\..\Files\is*zlib.dll.issig
 copy ..\..\Files\isscint.dll
 copy ..\..\Files\isscint.dll.issig
 copy ..\..\Files\islzma.dll

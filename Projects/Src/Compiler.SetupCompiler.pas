@@ -539,10 +539,10 @@ begin
   end;
 end;
 
-function LoadCompilerDLL(const Filename: String; const TrustAllOnDebug: Boolean = False): HMODULE;
+function LoadCompilerDLL(const Filename: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
 begin
   try
-    Result := LoadTrustedLibrary(FileName, TrustAllOnDebug);
+    Result := LoadTrustedLibrary(FileName, Options);
   except
     begin
       TSetupCompiler.AbortCompileFmt('Failed to load %s: %s', [PathExtractName(Filename), GetExceptMessage]);
@@ -558,7 +558,7 @@ begin
 {$IFNDEF STATICPREPROC}
   var Filename := CompilerDir + 'ISPP.dll';
   if NewFileExists(Filename) then begin
-    var M := LoadCompilerDLL(Filename, True);
+    var M := LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
     PreprocessScriptProc := GetProcAddress(M, 'ISPreprocessScriptW');
     if not Assigned(PreprocessScriptProc) then
       AbortCompile('Failed to get address of functions in ISPP.dll');
@@ -574,7 +574,7 @@ begin
   if ZipInitialized then
     Exit;
   var Filename := CompilerDir + 'iszlib.dll';
-  var M := LoadCompilerDLL(Filename);
+  var M := LoadCompilerDLL(Filename, []);
   if not ZlibInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in iszlib.dll');
   ZipInitialized := True;
@@ -585,7 +585,7 @@ begin
   if BzipInitialized then
     Exit;
   var Filename := CompilerDir + 'isbzip.dll';
-  var M := LoadCompilerDLL(Filename);
+  var M := LoadCompilerDLL(Filename, []);
   if not BZInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in isbzip.dll');
   BzipInitialized := True;
@@ -596,7 +596,7 @@ begin
   if LZMAInitialized then
     Exit;
   var Filename := CompilerDir + 'islzma.dll';
-  var M := LoadCompilerDLL(Filename);
+  var M := LoadCompilerDLL(Filename, []);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in islzma.dll');
   LZMAInitialized := True;
@@ -8044,11 +8044,11 @@ begin
     case SetupHeader.CompressMethod of
       cmZip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll');
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll', True);
         end;
       cmBzip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll');
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll', True);
         end;
     end;
 
@@ -8056,7 +8056,7 @@ begin
       SetupHeader.SevenZipLibraryName isn't set until then }
     if SetupHeader.SevenZipLibraryName <> '' then begin
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
-      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName);
+      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName, True);
     end;
 
     { Add default types if necessary }

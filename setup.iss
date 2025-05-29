@@ -140,14 +140,19 @@ Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion t
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\is7z.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7z.dll.issig"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\is7zxa.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxa.dll.issig"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\is7zxr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isunzlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbunzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
