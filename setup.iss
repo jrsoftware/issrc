@@ -158,7 +158,9 @@ Source: "files\isbunzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma64.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch

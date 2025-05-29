@@ -17,6 +17,7 @@ copy ..\..\Files\isscint.dll.issig
 copy ..\..\Files\islzma.dll
 copy ..\..\Files\islzma.dll.issig
 copy ..\..\Files\islzma*.exe
+copy ..\..\Files\islzma*.exe.issig
 copy ..\..\Files\ISetup.chm
 copy ..\..\Files\ISetup-dark.chm
 copy ..\..\Files\WizClassicSmallImage.bmp

@@ -144,6 +144,9 @@ type
 
 implementation
 
+uses
+  Classes, TrustFunc, Shared.CommonFunc;
+
 const
   ISLZMA_EXE_VERSION = 102;
 
@@ -177,6 +180,7 @@ type
   private
     FProcess: THandle;
     FSharedMapping: THandle;
+    FCheckTrust: Boolean;
     FExeFilename: String;
   public
     constructor Create(const AEvents: PLZMACompressorSharedEvents); override;
@@ -185,6 +189,7 @@ type
     procedure SetProps(const LZMA2: Boolean; const EncProps: TLZMAEncoderProps);
       override;
     procedure UnexpectedTerminationError; override;
+    property CheckTrust: Boolean read FCheckTrust write FCheckTrust;
     property ExeFilename: String read FExeFilename write FExeFilename;
   end;
 
@@ -767,12 +772,24 @@ begin
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_FORCEOFFFEEDBACK;
-    if not CreateProcess(PChar(FExeFilename),
-       PChar(Format('islzma_exe %d 0x%x', [ISLZMA_EXE_VERSION, ProcessDataMapping])),
-       nil, nil, True, CREATE_DEFAULT_ERROR_MODE or CREATE_SUSPENDED, nil,
-       PChar(GetSystemDir), StartupInfo, ProcessInfo) then
-      LZMAWin32Error('CreateProcess');
 
+    var F: TFileStream := nil;
+    if FCheckTrust then begin
+      try
+        F := CheckFileTrust(FExeFilename, [cftoKeepOpen]);
+      except
+        LZMAInternalError(GetExceptMessage);
+      end;
+    end;
+    try
+      if not CreateProcess(PChar(FExeFilename),
+         PChar(Format('islzma_exe %d 0x%x', [ISLZMA_EXE_VERSION, ProcessDataMapping])),
+         nil, nil, True, CREATE_DEFAULT_ERROR_MODE or CREATE_SUSPENDED, nil,
+         PChar(GetSystemDir), StartupInfo, ProcessInfo) then
+        LZMAWin32Error('CreateProcess');
+    finally
+      F.Free;
+    end;
     try
       { We duplicate the handles instead of using inheritable handles so that
         if something outside this unit calls CreateProcess() while compression
@@ -900,6 +917,7 @@ begin
 
   if WorkerProcessFilename <> '' then begin
     FWorker := TLZMAWorkerProcess.Create(@FEvents);
+    (FWorker as TLZMAWorkerProcess).CheckTrust := True;
     (FWorker as TLZMAWorkerProcess).ExeFilename := WorkerProcessFilename;
   end
   else begin
