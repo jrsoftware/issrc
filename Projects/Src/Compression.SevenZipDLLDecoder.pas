@@ -664,7 +664,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
         while True do begin
           case WaitForSingleObject(ThreadHandle, 50) of
             WAIT_OBJECT_0: Break;
-            WAIT_TIMEOUT: HandleProgress(E);
+            WAIT_TIMEOUT: HandleProgress(E); { This calls the user's OnExtractionProgress handler! }
           else
             SevenZipWin32Error('WaitForSingleObject');
           end;
