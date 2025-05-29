@@ -1874,7 +1874,8 @@ var
       ) then
         InternalError('Unexpected ISSigVerifySignature result');
 
-      { Verify file, keeping open afterwards if requested }
+      { Verify file, keeping open afterwards if requested
+        Also see TrustFunc's CheckFileTrust }
       var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
       try
         if Int64(F.Size) <> ExpectedFileSize then

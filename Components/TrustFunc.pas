@@ -7,21 +7,28 @@ unit TrustFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Trust support functions using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
+
+  In Inno Setup these functions are only used by Compil32, ISCC, and ISCmplr. Verification of
+  the user's files by ISCmplr and Setup is done by calling ISSigFunc directly and uses the
+  user's key texts.
 }
 
 {.$DEFINE TRUSTALL}
 
 interface
 
-procedure CheckFileTrust(const FileName: String; const CheckExists: Boolean = True);
+uses
+  System.Classes;
+
+function CheckFileTrust(const FileName: String; const CheckExists: Boolean = True; const KeepOpen: Boolean = False): TFileStream;
 function LoadTrustedLibrary(const FileName: String; const TrustAllOnDebug: Boolean = False): HMODULE;
 
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, System.Classes {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc {$ENDIF};
+  Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc {$ENDIF};
 
-procedure CheckFileTrust(const FileName: String; const CheckExists: Boolean);
+function CheckFileTrust(const FileName: String; const CheckExists, KeepOpen: Boolean): TFileStream;
 {$IFNDEF TRUSTALL}
 var
   AllowedKeys: array of TECDSAKey;
@@ -42,6 +49,7 @@ begin
   var Key1: TECDSAKey := nil;
   var Key2: TECDSAKey := nil;
   try
+    { Import keys }
     Key1 := TECDSAKey.Create;
     if ISSigImportKeyText(Key1, AllowedPublicKey1Text, False) <> ikrSuccess then
       raise Exception.Create('ISSigImportKeyText failed');
@@ -56,6 +64,7 @@ begin
     else
       AllowedKeys := [Key1];
 
+    { Verify signature }
     if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
       nil,
       procedure(const Filename, SigFilename: String)
@@ -73,7 +82,9 @@ begin
     Key1.Free;
   end;
   
-  const F = TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+  { Verify file, keeping open afterwards if requested
+    Also see Setup.ScriptFunc's ISSigVerify }
+  var F := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
   try
     if F.Size <> ExpectedFileSize then
       raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
@@ -81,9 +92,16 @@ begin
     if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
       raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
         [FileName]);
-  finally
-    F.Free;
+  except
+    FreeAndNil(F);
+    raise;
   end;
+  if not KeepOpen then
+    FreeAndNil(F);
+
+  Result := F;
+{$ELSE}
+  Result := nil;
 {$ENDIF}
 end;
 
