@@ -102,9 +102,10 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a> topic.</li>
   </ul>
   </li>
-  <li>Updated Pascal Scripting:
+  <li>Other related changes:
   <ul>
-    <li>Added new <tt>ISSigVerify</tt> support function.</li>
+    <li>The compiler now verifies that precompiled files like <i>SetupLdr.e32</i> and <i>Setup.e32</i> remain unchanged before using them.</li>
+    <li>Pascal Scripting: Added new <tt>ISSigVerify</tt> support function.</li>
   </ul>
   </li>
 </ul>
@@ -133,6 +134,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
   <li>Documentation improvements.</li>
+  <li>Minor tweaks.</li>
 </ul>
 
 <p><a href="files/is6.4-whatsnew.htm">Inno Setup 6.4 Revision History</a></p>
