@@ -6625,7 +6625,7 @@ procedure TSetupCompiler.Compile;
     I: Integer;
     HasNumbers: Boolean;
   begin
-    { Delete SETUP.* and SETUP-*.BIN if they existed in the output directory }
+    { Delete Setup.* and Setup-*.bin if they existed in the output directory }
     if OutputBaseFilename <> '' then begin
       DelFile(OutputBaseFilename + '.exe');
       if OutputDir <> '' then begin
@@ -7327,20 +7327,20 @@ var
   begin
     TempFilename := '';
     try
-      E32Filename := CompilerDir + 'SETUP.E32';
+      E32Filename := CompilerDir + 'Setup.e32';
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
       CopyFileOrAbort(E32Filename, ConvertFilename, True, [cftoTrustAllOnDebug]);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
       if SetupIconFilename <> '' then begin
-        AddStatus(Format(SCompilerStatusUpdatingIcons, ['SETUP.E32']));
+        AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
         LineNumber := SetupDirectiveLines[ssSetupIconFile];
         { This also deletes the UninstallImage resource. Removing it makes UninstallProgressForm use the custom icon instead. }
         UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True);
         LineNumber := 0;
       end;
-      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['SETUP.E32']));
+      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.e32']));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
       try
         UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
@@ -8105,12 +8105,12 @@ begin
           CallIdleProc;
 
           if not DiskSpanning then begin
-            { Create SETUP-0.BIN and SETUP-1.BIN }
+            { Create Setup-0.bin and Setup-1.bin }
             CompressFiles('', 0);
             CreateSetup0File;
           end
           else begin
-            { Create SETUP-0.BIN and SETUP-*.BIN }
+            { Create Setup-0.bin and Setup-*.bin }
             SizeOfHeaders := CreateSetup0File;
             CompressFiles('', RoundToNearestClusterSize(SizeOfExe) +
               RoundToNearestClusterSize(SizeOfHeaders) +
@@ -8124,12 +8124,12 @@ begin
           end;
         end
         else begin
-          CopyFileOrAbort(CompilerDir + 'SETUPLDR.E32', ExeFilename, True, [cftoTrustAllOnDebug]);
+          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, [cftoTrustAllOnDebug]);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if SetupIconFilename <> '' then begin
             { update icons }
-            AddStatus(Format(SCompilerStatusUpdatingIcons, ['SETUP.EXE']));
+            AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             LineNumber := SetupDirectiveLines[ssSetupIconFile];
             UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False);
             LineNumber := 0;
@@ -8144,7 +8144,7 @@ begin
           CallIdleProc;
 
           { When disk spanning isn't used, place the compressed files inside
-            SETUP.EXE }
+            Setup.exe }
           if not DiskSpanning then
             CompressFiles(ExeFilename, 0);
 
@@ -8152,7 +8152,7 @@ begin
           try
             ExeFile.SeekToEnd;
 
-            { Move the data from SETUP.E?? into the SETUP.EXE, and write
+            { Move the data from Setup.e?? into the Setup.exe, and write
               header data }
             FillChar(SetupLdrOffsetTable, SizeOf(SetupLdrOffsetTable), 0);
             SetupLdrOffsetTable.ID := SetupLdrOffsetTableID;
@@ -8165,8 +8165,8 @@ begin
             SetupLdrOffsetTable.TotalSize := ExeFile.Size.Lo;
             if DiskSpanning then begin
               SetupLdrOffsetTable.Offset1 := 0;
-              { Compress the files in SETUP-*.BIN after we know the size of
-                SETUP.EXE }
+              { Compress the files in Setup-*.bin after we know the size of
+                Setup.exe }
               CompressFiles('',
                 RoundToNearestClusterSize(SetupLdrOffsetTable.TotalSize) +
                 RoundToNearestClusterSize(ReserveBytes));
@@ -8183,13 +8183,13 @@ begin
             SetupLdrOffsetTable.TableCRC := GetCRC32(SetupLdrOffsetTable,
               SizeOf(SetupLdrOffsetTable) - SizeOf(SetupLdrOffsetTable.TableCRC));
 
-            { Write SetupLdrOffsetTable to SETUP.EXE }
+            { Write SetupLdrOffsetTable to Setup.exe }
             if SeekToResourceData(ExeFile, Cardinal(RT_RCDATA), SetupLdrOffsetTableResID) <> SizeOf(SetupLdrOffsetTable) then
               AbortCompile('Wrong offset table resource size');
             ExeFile.WriteBuffer(SetupLdrOffsetTable, SizeOf(SetupLdrOffsetTable));
 
             { Update version info }
-            AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['SETUP.EXE']));
+            AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.exe']));
             UpdateVersionInfo(ExeFile, VersionInfoVersion, VersionInfoProductVersion, VersionInfoCompany,
               VersionInfoDescription, VersionInfoTextVersion,
               VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
@@ -8197,7 +8197,7 @@ begin
 
             { Update manifest if needed }
             if UseSetupLdr then begin
-              AddStatus(Format(SCompilerStatusUpdatingManifest, ['SETUP.EXE']));
+              AddStatus(Format(SCompilerStatusUpdatingManifest, ['Setup.exe']));
               PreventCOMCTL32Sideloading(ExeFile);
             end;
 
