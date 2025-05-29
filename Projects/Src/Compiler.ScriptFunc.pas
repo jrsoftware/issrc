@@ -152,7 +152,7 @@ begin
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
   ObsoleteFunctionWarnings.Add('IsX64', Format(SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs, ['IsX64', 'IsX64OS', 'IsX64Compatible', 'Architecture Identifiers']));
   ObsoleteFunctionWarnings.Add('FileCopy', Format(SCompilerCodeFunctionRenamed, ['FileCopy', 'CopyFile']));
-  ObsoleteFunctionWarnings.Add('Extract7ZipArchive', Format(SCompilerCodeFunctionRenamed, ['Extract7ZipArchive', 'ExtractArchive']));
+  ObsoleteFunctionWarnings.Add('Extract7ZipArchive', Format(SCompilerCodeFunctionDeprecatedWithHint, ['Extract7ZipArchive', 'ExtractArchive', SCompilerCodeFunctionExtractArchiveHint]));
 
   RegisterConst('MaxInt', MaxInt);
 

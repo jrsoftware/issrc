@@ -122,7 +122,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     New documentation <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a> topic has a table summarizing the differences between these methods.
   </li>
   <li>Added example script <i>CodeDownloadFiles2.iss</i> to demonstrate how to use the <tt>CreateExtractionPage</tt> support function to verify and extract a downloaded archive.</li>
-  <li>Support function <tt>ExtractArchive</tt> is new and replaces <tt>Extract7ZipArchive</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
+  <li>New support function <tt>ExtractArchive</tt> replaces the deprecated <tt>Extract7ZipArchive</tt>. <tt>ExtractArchive</tt> includes an additional parameter to optionally specify a password.</li>
   <li>Archive extraction now overwrites read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
   <li>Archive extraction now honors the file system redirection state set by 64-bit install mode and support function <tt>EnableFsRedirection</tt>.</li>
   <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
