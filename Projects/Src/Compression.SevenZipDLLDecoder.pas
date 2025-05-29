@@ -86,7 +86,6 @@ type
       TProgress = record
         Current: TCurrent;
         Progress, ProgressMax: UInt64;
-        Abort: Boolean;
       end;
       TResult = record
         SavedFatalException: TObject;
@@ -104,6 +103,7 @@ type
       FProgressAndLogQueueLock: TObject;
       FProgress: TProgress;
       FLogQueue: TStrings;
+      FAbort: Boolean;
       FResult: TResult;
     function GetProperty(const index: UInt32; const propID: PROPID;
       const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
@@ -311,10 +311,11 @@ end;
 function TArchiveExtractCallback.SetCompleted(completeValue: PUInt64): HRESULT;
 begin
   try
+    if FAbort then
+      SysUtils.Abort;
+
     System.TMonitor.Enter(FProgressAndLogQueueLock);
     try
-      if FProgress.Abort then
-        SysUtils.Abort;
       FProgress.Progress := completeValue^;
     finally
       System.TMonitor.Exit(FProgressAndLogQueueLock);
@@ -380,6 +381,9 @@ function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
+    if FAbort then
+      SysUtils.Abort;
+
     var NewCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
       var Path: String;
@@ -421,8 +425,6 @@ begin
     end;
     System.TMonitor.Enter(FProgressAndLogQueueLock);
     try
-      if FProgress.Abort then
-        SysUtils.Abort;
       FProgress.Current := NewCurrent;
       if NewCurrent.Path <> '' then
         FLogQueue.Append(NewCurrent.Path)
@@ -571,11 +573,14 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 
   procedure HandleProgress(const E: TArchiveExtractCallback);
   begin
-    var Progress: TArchiveExtractCallback.TProgress;
+    var CurrentPath: String;
+    var Progress, ProgressMax: UInt64;
 
     System.TMonitor.Enter(E.FProgressAndLogQueueLock);
     try
-      Progress := E.FProgress;
+      CurrentPath := E.FProgress.Current.Path;
+      Progress := E.FProgress.Progress;
+      ProgressMax := E.FProgress.ProgressMax;
       for var S in E.FLogQueue do
         LogFmt('- %s', [S]); { Just like 7zMain.c }
       E.FLogQueue.Clear;
@@ -583,29 +588,22 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
       System.TMonitor.Exit(E.FProgressAndLogQueueLock);
     end;
 
-    if Progress.Abort then
+    var Abort := E.FAbort;
+    if Abort then
       Exit;
 
-    var Abort := False;
-
-    if (Progress.Current.Path <> '') and Assigned(E.FOnExtractionProgress) then begin
+    if (CurrentPath <> '') and Assigned(E.FOnExtractionProgress) then begin
       { Calls to HandleProgress are already throttled so here we don't have to worry
         about calling the script to often }
-      if not E.FOnExtractionProgress(E.FExtractedArchiveName, Progress.Current.Path, Progress.Progress, Progress.ProgressMax) then
+      if not E.FOnExtractionProgress(E.FExtractedArchiveName, CurrentPath, Progress, ProgressMax) then
         Abort := True;
     end;
 
     if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
       Application.ProcessMessages;
 
-    if Abort then begin
-      System.TMonitor.Enter(E.FProgressAndLogQueueLock);
-      try
-        E.FProgress.Abort := True;
-      finally
-        System.TMonitor.Exit(E.FProgressAndLogQueueLock);
-      end;
-    end;
+    if Abort then
+      E.FAbort := Abort; { Atomic so no lock }
   end;
 
   function OperationResultToString(const opRes: TNOperationResult): String;
@@ -681,7 +679,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
           object. Leaking memory isn't ideal, but a use-after-free problem
           is worse. Realisitically, though, WaitForSingleObject should never
           fail if given a valid handle. }
-        E.FProgress.Abort := True;
+        E.FAbort := True; { Atomic so no lock }
         if WaitForSingleObject(ThreadHandle, INFINITE) <> WAIT_OBJECT_0 then
           E._AddRef;
         raise;
