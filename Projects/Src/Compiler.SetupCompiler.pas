@@ -5469,7 +5469,7 @@ begin
             Include(Options, foRecurseSubDirsExternal);
           CheckConst(SourceWildcard, MinVersion, []);
         end;
-        if (ADestName <> '') and SourceIsWildcard then
+        if (ADestName <> '') and (SourceIsWildcard or (foExtractArchive in Options)) then
           AbortCompile(SCompilerFilesDestNameCantBeSpecified);
         CheckConst(ADestDir, MinVersion, []);
         ADestDir := AddBackslash(ADestDir);

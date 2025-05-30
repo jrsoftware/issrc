@@ -291,7 +291,7 @@ const
     '"dontcopy" flag is used';
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
-    'the "Source" parameter contains wildcards';
+    'the "Source" parameter contains wildcards or flag "extractarchive" is used';
   SCompilerFilesStrongAssemblyNameMustBeSpecified = 'Parameter "StrongAssemblyName" must be specified if ' +
     'the flag "gacinstall" is used';
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +

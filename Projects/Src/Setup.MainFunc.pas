@@ -1747,15 +1747,13 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStringList; const CurFile: PSetupFileEntry): Boolean;
-  var
-    DestName: String;
-    H: THandle;
-    FindData: TWin32FindData;
   begin
-    { Also see RecurseExternalGetSizeOfFiles below and RecurseExternalCopyFiles in Setup.Install }
+    { Also see RecurseExternalGetSizeOfFiles below and RecurseExternalCopyFiles in Setup.Install
+      Also see RecurseExternalArchiveFiles directly below }
     Result := True;
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var FindData: TWin32FindData;
+    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1768,7 +1766,9 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
               Continue;
 
-            DestName := ExpandConst(CurFile^.DestName);
+            { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
+              see TSetupCompiler.EnumFilesProc.ProcessFileList }
+            var DestName := ExpandConst(CurFile^.DestName);
             if not(foCustomDestName in CurFile^.Options) then
               DestName := DestName + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
@@ -1792,14 +1792,37 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsRecurseableDirectory(FindData) then
               if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                 SourceIsWildcard, Excludes, CurFile) then begin
-                Result := False;
-                Exit;
-              end;
+                 SourceIsWildcard, Excludes, CurFile) then
+                Exit(False);
           until not FindNextFile(H, FindData);
         finally
           Windows.FindClose(H);
         end;
+      end;
+    end;
+  end;
+
+  function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
+    const ArchiveFilename, Password: String; const CurFile: PSetupFileEntry): Boolean;
+  begin
+    { See above }
+    Result := True;
+
+    var FindData: TWin32FindData;
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password , FindData);
+    if H <> INVALID_HANDLE_VALUE then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+            if foCustomDestName in CurFile^.Options then
+              InternalError('Unexpected custom DestName');
+            const DestName = ExpandConst(CurFile^.DestName) + FindData.cFileName;
+            if not EnumFilesProc(DisableFsRedir, DestName, Param) then
+              Exit(False);
+          end;
+        until not ArchiveFindNextFile(H, FindData);
+      finally
+        ArchiveFindClose(H);
       end;
     end;
   end;
@@ -1833,11 +1856,15 @@ begin
         else begin
           { External file }
           SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          Excludes.DelimitedText := CurFile^.Excludes;
-          if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-             PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then begin
-            Result := False;
-            Exit;
+          if foExtractArchive in CurFile^.Options then begin
+            if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+               CurFile^.ExtractArchivePassword, CurFile) then
+              Exit(False);
+          end else begin
+            Excludes.DelimitedText := CurFile^.Excludes;
+            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+              Exit(False);
           end;
         end;
       end;
@@ -2722,7 +2749,8 @@ var
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStringList; const RecurseSubDirs: Boolean): Integer64;
   begin
-    { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install }
+    { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
+      Also see RecurseExternalArchiveGetSizeOfFiles directly below }
     Result.Hi := 0;
     Result.Lo := 0;
 
@@ -2767,10 +2795,11 @@ var
     end;
   end;
 
-  function ExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
     const ArchiveFilename, Password: String): Integer64;
   begin
-  Result.Hi := 0;
+    { See above }
+    Result.Hi := 0;
     Result.Lo := 0;
 
     var FindData: TWin32FindData;
@@ -3462,7 +3491,7 @@ begin
 	        if not(foExternalSizePreset in Options) then begin
 	          try
 	            if foExtractArchive in Options then begin
-	              ExternalSize := ExternalArchiveGetSizeOfFiles(
+	              ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
 	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
 	                ExpandConst(SourceFilename), ExtractArchivePassword);
 	            end else begin
