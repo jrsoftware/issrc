@@ -31,7 +31,7 @@ uses
   Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl,
+  Compression.Base, SHA256, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
   Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
@@ -1234,7 +1234,7 @@ var
           CurFileDateValid := True;
         end
         else
-          CurFileDateValid := GetFileDateTime(DisableFsRedir, ASourceFile, CurFileDate);
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, ASourceFile, CurFileDate); {!!!}
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
         else
@@ -1456,7 +1456,7 @@ var
           { If the file is compressed in the setup package, has the same file
             already been copied somewhere else? If so, just make a duplicate of
             that file instead of extracting it over again. }
-          if (SourceFile = '') and
+          if (SourceFile = '') and (FileLocationFilenames <> nil) and
              (FileLocationFilenames[CurFile^.LocationEntry] <> '') and
              NewFileExistsRedir(DisableFsRedir, FileLocationFilenames[CurFile^.LocationEntry]) then
             SourceFile := FileLocationFilenames[CurFile^.LocationEntry];
@@ -1492,7 +1492,7 @@ var
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
             else begin
-              { Copy an external file, or a duplicated non-external file }
+              { Copy an external file, or a duplicated non-external file } {!!!}
               SourceF := TFileRedir.Create(DisableFsRedir, SourceFile, fdOpenExisting, faRead, fsRead);
               try
                 LastOperation := SetupMessages[msgErrorCopying];
@@ -1790,8 +1790,8 @@ var
 
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
-      const Excludes: TStringList; const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      const Excludes: TStringList; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+      var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
     begin
       { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc
@@ -1835,8 +1835,8 @@ var
                   files is greater than when we last checked }
                 Size := ExpectedBytesLeft;
               end;
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
-                FileLocationFilenames, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName, nil,
+                Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);
             end;
@@ -1854,8 +1854,8 @@ var
               if IsRecurseableDirectory(FindData) then
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                  SourceIsWildcard, Excludes, CurFile, FileLocationFileNames,
-                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  SourceIsWildcard, Excludes, CurFile, ExpectedBytesLeft,
+                  ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts) or Result;
             until not FindNextFile(H, FindData);
           finally
@@ -1885,6 +1885,47 @@ var
         be frozen for a long time when installing from a network. Calling
         ProcessEvents after every directory helps. }
       ProcessEvents;
+    end;
+
+     function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
+      const ArchiveFilename, Password: String; const CurFile: PSetupFileEntry;
+      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      var WarnedPerUserFonts: Boolean): Boolean;
+    begin
+      { See above }
+
+      Result := False;
+
+      var FindData: TWin32FindData;
+      var ArchiveIndex := 0;
+      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password, FindData);
+      if H <> INVALID_HANDLE_VALUE then begin
+        try
+          repeat
+            if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+              Result := True;
+              var SourceFile := ArchiveIndex.ToString; {!!!}
+              if foCustomDestName in CurFile^.Options then
+                InternalError('Unexpected custom DestName');
+              const DestName = ExpandConst(CurFile^.DestName) + FindData.cFileName;
+              var Size: Integer64;
+              Size.Hi := FindData.nFileSizeHigh;
+              Size.Lo := FindData.nFileSizeLow;
+              if Compare64(Size, ExpectedBytesLeft) > 0 then begin
+                { Don't allow the progress bar to overflow if the size of the
+                  files is greater than when we last checked }
+                Size := ExpectedBytesLeft;
+              end;
+              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
+                nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts);
+              Dec6464(ExpectedBytesLeft, Size);
+            end;
+          until not FindNextFile(H, FindData);
+        finally
+          Windows.FindClose(H);
+        end;
+      end;
     end;
 
   var
@@ -1949,11 +1990,17 @@ var
             repeat
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
-              FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
-                PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
-                IsWildcard(SourceWildcard), Excludes, CurFile, FileLocationFileNames,
-                ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts);
+              if foExtractArchive in CurFile^.Options then
+                FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
+                  SourceWildcard, CurFile^.ExtractArchivePassword, CurFile,
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts)
+              else
+                FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
+                  PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
+                  IsWildcard(SourceWildcard), Excludes, CurFile,
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
                   AbortRetryIgnoreTaskDialogMsgBox(
