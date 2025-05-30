@@ -5433,7 +5433,9 @@ begin
           if not ExternalFile then
             AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive'])
           else if SetupHeader.SevenZipLibraryName = '' then
-            AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
+            AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive'])
+          else if AExcludes.Count > 0 then
+            AbortCompileFmt(SCompilerParamFlagNotAllowed, [ParamFilesExcludes, 'extractarchive']);
         end;
 
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
