@@ -1882,7 +1882,7 @@ end;</pre>
 <p>An exception will be raised if there was an error.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
-<p>See <i>CodeDownloadFiles2.iss</i> for an example which uses <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link> instead.</p></description>
+<p>See <i>CodeDownloadFiles2.iss</i> for an example of archive extraction using just a [Files] entry.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
@@ -2700,7 +2700,8 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
 <p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles2.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
+<p>See <i>CodeDownloadFiles2.iss</i> for an example of archive extraction using just a [Files] entry.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <link topic="isxfunc_ExtractArchive">ExtractArchive</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
