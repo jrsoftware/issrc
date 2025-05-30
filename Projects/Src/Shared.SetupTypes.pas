@@ -56,7 +56,7 @@ procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback
 procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
   const Iterations: Integer; out Key: TSetupEncryptionKey);
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
-function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
 function IsExcluded(Text: String; const AExcludes: TStringList): Boolean;
 
@@ -332,7 +332,7 @@ begin
   Result := Byte(ISSigAllowedKeys[ByteIndex+1]) and (1 shl BitIndex) <> 0;
 end;
 
-function GetISSigAllowedKeys([Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
 { Returns all keys if ISSigAllowedKeys is empty! }
 begin

@@ -257,7 +257,7 @@ begin
 end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  const ISSigVerify: Boolean; [Ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigVerify: Boolean; [ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String; AMaxProgress: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
