@@ -146,7 +146,7 @@ type
 implementation
 
 uses
-  Classes, TrustFunc, Shared.CommonFunc;
+  Classes, TrustFunc, Shared.CommonFunc, Compiler.Messages;
 
 const
   ISLZMA_EXE_VERSION = 102;
@@ -779,7 +779,7 @@ begin
       try
         F := CheckFileTrust(FExeFilename, [cftoKeepOpen]);
       except
-        LZMAInternalError(GetExceptMessage);
+        LZMAInternalError(Format(SCompilerCheckPrecompiledFileTrustError, [GetExceptMessage]));
       end;
     end;
     try

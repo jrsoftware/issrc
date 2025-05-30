@@ -7187,8 +7187,9 @@ var
       try
         CheckFileTrust(SourceFile, CheckFileTrustOptions);
       except
-        AbortCompileFmt(SCompilerCopyError3a, [SourceFile, DestFile,
+        const Msg = Format(SCompilerCopyError3a, [SourceFile, DestFile,
           GetExceptMessage]);
+        AbortCompileFmt(SCompilerCheckPrecompiledFileTrustError, [Msg]);
       end;
     end;
 

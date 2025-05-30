@@ -176,9 +176,13 @@ begin
   Result := TMemoryStream.Create;
   try
     var FS: TFileStream;
-    if CheckTrust then
-      FS := CheckFileTrust(Filename, [cftoKeepOpen])
-    else
+    if CheckTrust then begin
+      try
+        FS := CheckFileTrust(Filename, [cftoKeepOpen])
+      except
+        raise Exception.CreateFmt(SCompilerCheckPrecompiledFileTrustError, [GetExceptMessage]);
+      end;
+    end else
       FS := nil;
     try
       { Why not use TMemoryStream.LoadFromFile here?
