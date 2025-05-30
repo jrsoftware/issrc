@@ -2721,15 +2721,12 @@ var
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const RecurseSubDirs: Boolean): Integer64;
-  var
-    H: THandle;
-    FindData: TWin32FindData;
-    I: Integer64;
   begin
     Result.Hi := 0;
     Result.Lo := 0;
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var FindData: TWin32FindData;
+    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       repeat
         if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
@@ -2738,6 +2735,7 @@ var
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
               Continue;
 
+          var I: Integer64;
           I.Hi := FindData.nFileSizeHigh;
           I.Lo := FindData.nFileSizeLow;
           Inc6464(Result, I);
@@ -2752,7 +2750,7 @@ var
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
+              var I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, RecurseSubDirs);
               Inc6464(Result, I);
@@ -2761,6 +2759,30 @@ var
         finally
           Windows.FindClose(H);
         end;
+      end;
+    end;
+  end;
+
+  function ExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
+    const ArchiveFilename, Password: String): Integer64;
+  begin
+  Result.Hi := 0;
+    Result.Lo := 0;
+
+    var FindData: TWin32FindData;
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password, FindData);
+    if H <> INVALID_HANDLE_VALUE then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+            var I: Integer64;
+            I.Hi := FindData.nFileSizeHigh;
+            I.Lo := FindData.nFileSizeLow;
+            Inc6464(Result, I);
+          end;
+        until not ArchiveFindNextFile(H, FindData);
+      finally
+        ArchiveFindClose(H);
       end;
     end;
   end;
@@ -3430,15 +3452,21 @@ begin
       end else begin
         if not(foExternalSizePreset in Options) then begin
           try
-            if FileType <> ftUserFile then
-              SourceWildcard := NewParamStr(0)
-            else
-              SourceWildcard := ExpandConst(SourceFilename);
-            ExternalSize := RecurseExternalGetSizeOfFiles(
-              ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-              PathExtractPath(SourceWildcard),
-              '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
-              foRecurseSubDirsExternal in Options);
+            if foExtractArchive in Options then begin
+              ExternalSize := ExternalArchiveGetSizeOfFiles(
+                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                ExpandConst(SourceFilename), ExtractArchivePassword);
+            end else begin
+              if FileType <> ftUserFile then
+                SourceWildcard := NewParamStr(0)
+              else
+                SourceWildcard := ExpandConst(SourceFilename);
+              ExternalSize := RecurseExternalGetSizeOfFiles(
+                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                PathExtractPath(SourceWildcard),
+                '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
+                foRecurseSubDirsExternal in Options);
+            end;
           except
             { Ignore exceptions. One notable exception we want to ignore is
               the one about "app" not being initialized. }
