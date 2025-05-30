@@ -1752,7 +1752,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     H: THandle;
     FindData: TWin32FindData;
   begin
-    { Also see RecurseExternalCopyFiles in Setup.Install }
+    { Also see RecurseExternalGetSizeOfFiles below and RecurseExternalCopyFiles in Setup.Install }
     Result := True;
 
     H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
@@ -2720,12 +2720,13 @@ var
 
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const RecurseSubDirs: Boolean): Integer64;
+    const SourceIsWildcard: Boolean; const Excludes: TStringList; const RecurseSubDirs: Boolean): Integer64;
   var
     H: THandle;
     FindData: TWin32FindData;
     I: Integer64;
   begin
+    { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install }
     Result.Hi := 0;
     Result.Lo := 0;
 
@@ -2737,6 +2738,9 @@ var
           if SourceIsWildcard then
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
               Continue;
+
+          if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
+            Continue;
 
           I.Hi := FindData.nFileSizeHigh;
           I.Lo := FindData.nFileSizeLow;
@@ -2754,7 +2758,7 @@ var
             if IsRecurseableDirectory(FindData) then begin
               I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                SourceIsWildcard, RecurseSubDirs);
+                SourceIsWildcard, Excludes, RecurseSubDirs);
               Inc6464(Result, I);
             end;
           until not FindNextFile(H, FindData);
@@ -3421,34 +3425,43 @@ begin
 
   MinimumSpace := SetupHeader.ExtraDiskSpaceRequired;
 
-  for I := 0 to Entries[seFile].Count-1 do begin
-    with PSetupFileEntry(Entries[seFile][I])^ do begin
-      if LocationEntry <> -1 then begin { not an "external" file }
-        if Components = '' then { no types or a file that doesn't belong to any component }
-          if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
-            Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
-      end else begin
-        if not(foExternalSizePreset in Options) then begin
-          try
-            if FileType <> ftUserFile then
-              SourceWildcard := NewParamStr(0)
-            else
-              SourceWildcard := ExpandConst(SourceFilename);
-            ExternalSize := RecurseExternalGetSizeOfFiles(
-              ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-              PathExtractPath(SourceWildcard),
-              '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
-              foRecurseSubDirsExternal in Options);
-          except
-            { Ignore exceptions. One notable exception we want to ignore is
-              the one about "app" not being initialized. }
+  const LExcludes = TStringList.Create;
+  try
+    LExcludes.StrictDelimiter := True;
+    LExcludes.Delimiter := ',';
+
+    for I := 0 to Entries[seFile].Count-1 do begin
+      with PSetupFileEntry(Entries[seFile][I])^ do begin
+        if LocationEntry <> -1 then begin { not an "external" file }
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
+              Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+        end else begin
+          if not(foExternalSizePreset in Options) then begin
+            try
+              if FileType <> ftUserFile then
+                SourceWildcard := NewParamStr(0)
+              else
+                SourceWildcard := ExpandConst(SourceFilename);
+              LExcludes.DelimitedText := Excludes;
+              ExternalSize := RecurseExternalGetSizeOfFiles(
+                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                PathExtractPath(SourceWildcard),
+                '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
+                LExcludes, foRecurseSubDirsExternal in Options);
+            except
+              { Ignore exceptions. One notable exception we want to ignore is
+                the one about "app" not being initialized. }
+            end;
           end;
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
+              Inc6464(MinimumSpace, ExternalSize);
         end;
-        if Components = '' then { no types or a file that doesn't belong to any component }
-          if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
-            Inc6464(MinimumSpace, ExternalSize);
       end;
     end;
+  finally
+    LExcludes.Free;
   end;
 
   for I := 0 to Entries[seComponent].Count-1 do

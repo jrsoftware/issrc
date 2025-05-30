@@ -1800,7 +1800,7 @@ var
       Size: Integer64;
       Flags: TMakeDirFlags;
     begin
-      { Also see RecurseExternalFiles in Setup.MainFunc }
+      { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc }
 
       Result := False;
 
