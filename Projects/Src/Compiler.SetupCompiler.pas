@@ -113,7 +113,7 @@ type
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
-    DontMergeDuplicateFiles: Boolean;
+    DontMergeDuplicateFiles, DontVerifyPrecompiledFiles: Boolean;
     Password: String;
     CryptKey: TSetupEncryptionKey;
     TimeStampsInUTC: Boolean;
@@ -3129,6 +3129,10 @@ begin
     ssUserInfoPage: begin
         SetSetupHeaderOption(shUserInfoPage);
       end;
+    ssVerifyPrecompiledFiles: begin
+      DontVerifyPrecompiledFiles := not StrToBool(Value);
+      CompressProps.WorkerProcessCheckTrust := not DontVerifyPrecompiledFiles;
+    end;
     ssVersionInfoCompany: begin
         VersionInfoCompany := Value;
       end;
@@ -7330,7 +7334,7 @@ var
       E32Filename := CompilerDir + 'Setup.e32';
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, True, [cftoTrustAllOnDebug]);
+      CopyFileOrAbort(E32Filename, ConvertFilename, not DontVerifyPrecompiledFiles, [cftoTrustAllOnDebug]);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
       if SetupIconFilename <> '' then begin
@@ -8055,18 +8059,18 @@ begin
     case SetupHeader.CompressMethod of
       cmZip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll', True);
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll', not DontVerifyPrecompiledFiles);
         end;
       cmBzip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll', True);
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll', not DontVerifyPrecompiledFiles);
         end;
     end;
 
     { Read 7-Zip DLL }
     if SetupHeader.SevenZipLibraryName <> '' then begin
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
-      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName, True);
+      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName, not DontVerifyPrecompiledFiles);
     end;
 
     { Add default types if necessary }
@@ -8124,7 +8128,7 @@ begin
           end;
         end
         else begin
-          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, [cftoTrustAllOnDebug]);
+          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not DontVerifyPrecompiledFiles, [cftoTrustAllOnDebug]);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if SetupIconFilename <> '' then begin

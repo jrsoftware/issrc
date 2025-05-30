@@ -155,6 +155,7 @@ type
     ssUsePreviousUserInfo,
     ssUseSetupLdr,
     ssUserInfoPage,
+    ssVerifyPrecompiledFiles,
     ssVersionInfoCompany,
     ssVersionInfoCopyright,
     ssVersionInfoDescription,

@@ -1022,6 +1022,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_terminalservicesaware">TerminalServicesAware</link></li>
 <li><link topic="setup_useduserareaswarning">UsedUserAreasWarning</link></li>
 <li><link topic="setup_usesetupldr">UseSetupLdr</link></li>
+<li><link topic="setup_verifyprecompiledfiles">VerifyPrecompiledFiles</link></li>
 <li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
 <li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
 <li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
@@ -5187,6 +5188,14 @@ DiskSliceSize=1457664
 <body>
 <p><i>Obsolete in 4.2.5.</i> Use <link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link> instead.</p>
 <p><tt>MergeDuplicateFiles=no</tt> is equivalent to <tt>DontMergeDuplicateFiles=yes</tt>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="VerifyPrecompiledFiles">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>Normally the compiler verifies that precompiled files like <i>SetupLdr.e32</i> and <i>Setup.e32</i> remain unchanged before using them. If you wish to disable this feature for some reason, set this directive to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
