@@ -240,18 +240,18 @@ const
 
   FilesSectionParameters: array of TScintRawString = [
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
-    'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'Flags', 'FontInstall',
-    'ISSigAllowedKeys', 'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions',
-    'Source', 'StrongAssemblyName', 'Tasks'
+    'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
+    'Flags', 'FontInstall', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
+    'OnlyBelowVersion', 'Permissions', 'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
     'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
-    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme', 'issigverify',
-    'nocompression', 'noencryption', 'noregerror', 'onlyifdestfileexists',
-    'onlyifdoesntexist', 'overwritereadonly', 'promptifolder', 'recursesubdirs',
-    'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
+    'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
+    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'noregerror',
+    'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
+    'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
     'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
     'skipifsourcedoesntexist', 'solidbreak', 'sortfilesbyextension',
     'sortfilesbyname', 'touch', 'uninsnosharedfileprompt', 'uninsremovereadonly',

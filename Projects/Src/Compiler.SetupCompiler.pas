@@ -4665,9 +4665,9 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
-    paPermissions, paFontInstall, paExcludes, paExternalSize, paStrongAssemblyName,
-    paISSigAllowedKeys, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
-    paAfterInstall, paMinVersion, paOnlyBelowVersion);
+    paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
+    paStrongAssemblyName, paISSigAllowedKeys, paComponents, paTasks, paLanguages,
+    paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -4678,6 +4678,7 @@ const
   ParamFilesFontInstall = 'FontInstall';
   ParamFilesExcludes = 'Excludes';
   ParamFilesExternalSize = 'ExternalSize';
+  ParamFilesExtractArchivePassword = 'ExtractArchivePassword';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
   ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
   ParamInfo: array[TParam] of TParamInfo = (
@@ -4691,6 +4692,7 @@ const
     (Name: ParamFilesFontInstall; Flags: [piNoEmpty]),
     (Name: ParamFilesExcludes; Flags: []),
     (Name: ParamFilesExternalSize; Flags: []),
+    (Name: ParamFilesExtractArchivePassword; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
     (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
@@ -4701,7 +4703,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..41] of PChar = (
+  Flags: array[0..42] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4713,7 +4715,7 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
-    'issigverify');
+    'issigverify', 'extractarchive');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -5254,6 +5256,7 @@ begin
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
                    41: Include(Options, foISSigVerify);
+                   42: Include(Options, foExtractArchive);
                  end;
 
                { Source }
@@ -5339,6 +5342,9 @@ begin
                  Include(Options, foExternalSizePreset);
                end;
 
+               { ExtractArchivePassword }
+               ExtractArchivePassword := Values[paExtractArchivePassword].Data;
+
                { ISSigAllowedKeys }
                var S := Values[paISSigAllowedKeys].Data;
                while True do begin
@@ -5421,6 +5427,13 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
           Excludes := AExcludes.DelimitedText;
+        end;
+
+        if foExtractArchive in Options then begin
+          if not ExternalFile then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive'])
+          else if SetupHeader.SevenZipLibraryName = '' then
+            AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
         end;
 
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
