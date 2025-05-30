@@ -1793,23 +1793,20 @@ var
       const Excludes: TStringList; const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
       var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
-    var
-      FileName, SourceFile, DestName: String;
-      H: THandle;
-      FindData: TWin32FindData;
-      Size: Integer64;
-      Flags: TMakeDirFlags;
     begin
-      { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc }
+      { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc
+        Also see RecurseExternalArchiveCopyFiles directly below }
 
       Result := False;
 
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+      var FindData: TWin32FindData;
+      var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
 
+              var FileName: String;
               if SourceIsWildcard then begin
                 if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
                   Continue;
@@ -1822,12 +1819,15 @@ var
                 Continue;
 
               Result := True;
-              SourceFile := SearchBaseDir + SearchSubDir + FileName;
-              DestName := ExpandConst(CurFile^.DestName);
+              var SourceFile := SearchBaseDir + SearchSubDir + FileName;
+              { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
+                see TSetupCompiler.EnumFilesProc.ProcessFileList }
+              var DestName := ExpandConst(CurFile^.DestName);
               if not(foCustomDestName in CurFile^.Options) then
                 DestName := DestName + SearchSubDir + FileName
               else if SearchSubDir <> '' then
                 DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
+              var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;
               Size.Lo := FindData.nFileSizeLow;
               if Compare64(Size, ExpectedBytesLeft) > 0 then begin
@@ -1868,12 +1868,12 @@ var
         { If Result is False this subdir won't be created, so create it now if
           CreateAllSubDirs was set }
         if (foCreateAllSubDirs in CurFile.Options) and not Result then begin
-          DestName := ExpandConst(CurFile^.DestName);
+          var DestName := ExpandConst(CurFile^.DestName); { See above }
           if not(foCustomDestName in CurFile^.Options) then
             DestName := DestName + SearchSubDir
           else
             DestName := PathExtractPath(DestName) + SearchSubDir;
-          Flags := [];
+          var Flags: TMakeDirFlags := [];
           if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
           if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
           MakeDir(DisableFsRedir, DestName, Flags);
