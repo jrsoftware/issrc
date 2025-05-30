@@ -8062,8 +8062,7 @@ begin
         end;
     end;
 
-    { Read 7-Zip DLL. Must be done after [Files] is parsed, since
-      SetupHeader.SevenZipLibraryName isn't set until then }
+    { Read 7-Zip DLL }
     if SetupHeader.SevenZipLibraryName <> '' then begin
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
       SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName, True);
