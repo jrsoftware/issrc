@@ -2633,8 +2633,13 @@ var
     SevenZipDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if SevenZipDLLHandle = 0 then
       InternalError(Format('Failed to load DLL "%s"', [Filename]))
-    else if not SevenZipDLLInit(SevenZipDLLHandle) then
-      InternalError('SevenZipDLLInit failed');
+    else begin
+      var VersionNumbers: TFileVersionNumbers;
+      if not GetVersionNumbers(Filename, VersionNumbers) then
+        FillChar(VersionNumbers, SizeOf(VersionNumbers), 0);
+      if not SevenZipDLLInit(SevenZipDLLHandle, VersionNumbers) then
+        InternalError('SevenZipDLLInit failed');
+    end;
   end;
 
 var

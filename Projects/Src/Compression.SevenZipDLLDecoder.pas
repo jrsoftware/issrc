@@ -15,9 +15,10 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Compression.SevenZipDecoder;
+  Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
-function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
+function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
+  [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
@@ -488,11 +489,17 @@ end;
 
 var
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
+  VersionBanner: String;
 
-function SevenZipDLLInit(const SevenZipLibrary: HMODULE): Boolean;
+function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
+  [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
 begin
   CreateSevenZipObject := GetProcAddress(SevenZipLibrary, 'CreateObject');
   Result := Assigned(CreateSevenZipObject);
+  if (VersionNumbers.MS <> 0) or (VersionNumbers.LS <> 0) then
+    VersionBanner := Format(' %u.%.2u', [(VersionNumbers.MS shr 16) and $FFFF, VersionNumbers.MS and $FFFF])
+  else
+    VersionBanner := '';
 end;
 
 procedure SevenZipError(const LogMessage, ExceptMessage: String);
@@ -624,7 +631,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
     end;
   end;
 
-  procedure HandleResult([Ref] const Result: TArchiveExtractCallback.TResult);
+  procedure HandleResult([ref] const Result: TArchiveExtractCallback.TResult);
   begin
     if Assigned(Result.SavedFatalException) then begin
       var Msg: String;
@@ -704,7 +711,7 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  LogFmt('%s Decoder : Igor Pavlov', [SetupHeader.SevenZipLibraryName]); { Just like 7zMain.c }
+  LogFmt('%s Decoder%s : Igor Pavlov', [SetupHeader.SevenZipLibraryName, VersionBanner]); { Just like 7zMain.c }
 
   try
     { CreateObject }
