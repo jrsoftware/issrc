@@ -15,7 +15,7 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Shared.VerInfoFunc, Compression.SevenZipDecoder;
+  Windows, Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
@@ -24,11 +24,16 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
+function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
+  const ArchiveFilename, Password: String; out FindFileData: TWin32FindData): THandle;
+function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32FindData): Boolean;
+function ArchiveFindClose(const FindFile: THandle): Boolean;
+
 implementation
 
 uses
   Classes, SysUtils, Forms, Variants,
-  Windows, ActiveX, ComObj,
+  ActiveX, ComObj, Generics.Collections,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -73,8 +78,6 @@ type
   TArchiveExtractCallback = class(TInterfacedObject, IArchiveExtractCallback,
     ICryptoGetTextPassword)
   private
-    const
-      varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
     type
       TCurrent = record
         Path, ExpandedPath: String;
@@ -93,7 +96,6 @@ type
         Res: HRESULT;
         OpRes: TNOperationResult;
       end;
-      TVarTypeSet = set of varEmpty..varFileTime; { Incomplete but don't need others }
     var
       FInArchive: IInArchive;
       FDisableFsRedir: Boolean;
@@ -106,12 +108,6 @@ type
       FLogQueue: TStrings;
       FAbort: Boolean;
       FResult: TResult;
-    function GetProperty(const index: UInt32; const propID: PROPID;
-      const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
-    function GetProperty(index: UInt32; propID: PROPID; out value: String): Boolean; overload;
-    function GetProperty(index: UInt32; propID: PROPID; out value: UInt32): Boolean; overload;
-    function GetProperty(index: UInt32; propID: PROPID; out value: Boolean): Boolean; overload;
-    function GetProperty(index: UInt32; propID: PROPID; out value: TFileTime): Boolean; overload;
   protected
     { IProgress }
     function SetTotal(total: UInt64): HRESULT; stdcall;
@@ -148,6 +144,74 @@ begin
     else
       Result := E_FAIL;
   end;
+end;
+
+const
+  varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
+type
+  TVarTypeSet = set of varEmpty..varFileTime; { Incomplete but don't need others }
+
+function GetProperty(const InArchive: IInArchive; const index: UInt32;
+  const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
+{ Raises an EOleSysError exception on error but otherwise always sets value,
+  returning True if it's not empty }
+begin
+  var Res := InArchive.GetProperty(index, propID, value);
+  if Res <> S_OK then
+    OleError(Res);
+  Result := not VarIsEmpty(Value);
+  if Result and not (VarType(value) in allowedTypes) then
+    OleError(E_FAIL);
+end;
+
+function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
+  out value: String): Boolean; overload;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(InArchive, index, propID, [varOleStr], varValue);
+  value := varValue;
+end;
+
+function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
+  out value: Cardinal): Boolean; overload;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(InArchive, index, propID, [varUInt32], varValue);
+  value := varValue;
+end;
+
+function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
+  out value: Boolean): Boolean; overload;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(InArchive, index, propID, [varBoolean], varValue);
+  value := varValue;
+end;
+
+function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
+  out value: Integer64): Boolean; overload;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(InArchive, index, propID, [varUInt64], varValue);
+  value := Integer64(UInt64(varValue));
+end;
+
+function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
+  out value: TFileTime): Boolean; overload;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(InArchive, index, propID, [varFileTime], varValue);
+  if Result then
+    value := TFileTime(TVarData(varValue).VInt64)
+  else
+    value.Clear;
+end;
+
+procedure PosixHighDetect(var Attrib: DWORD);
+begin
+  { "PosixHighDetect", just like FileDir.cpp and similar to 7zMain.c }
+  if Attrib and $F0000000 <> 0 then
+    Attrib := Attrib and $3FFF;
 end;
 
 { TInStream }
@@ -330,54 +394,6 @@ begin
   end;
 end;
 
-function TArchiveExtractCallback.GetProperty(const index: UInt32;
-  const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean;
-{ Raises an EOleSysError exception on error but otherwise always sets value,
-  returning True if it's not empty }
-begin
-  var Res := FInArchive.GetProperty(index, propID, value);
-  if Res <> S_OK then
-    OleError(Res);
-  Result := not VarIsEmpty(Value);
-  if Result and not (VarType(value) in allowedTypes) then
-    OleError(E_FAIL);
-end;
-
-function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: String): Boolean;
-begin
-  var varValue: OleVariant;
-  Result := GetProperty(index, propID, [varOleStr], varValue);
-  value := varValue;
-end;
-
-function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: Cardinal): Boolean;
-begin
-  var varValue: OleVariant;
-  Result := GetProperty(index, propID, [varUInt32], varValue);
-  value := varValue;
-end;
-
-function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: Boolean): Boolean;
-begin
-  var varValue: OleVariant;
-  Result := GetProperty(index, propID, [varBoolean], varValue);
-  value := varValue;
-end;
-
-function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
-  out value: TFileTime): Boolean;
-begin
-  var varValue: OleVariant;
-  Result := GetProperty(index, propID, [varFileTime], varValue);
-  if Result then
-    value := TFileTime(TVarData(varValue).VInt64)
-  else
-    value.Clear;
-end;
-
 function TArchiveExtractCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
@@ -388,10 +404,10 @@ begin
     var NewCurrent := Default(TCurrent);
     if askExtractMode = kExtract then begin
       var Path: String;
-      if not GetProperty(index, kpidPath, Path) then
+      if not GetProperty(FInArchive, index, kpidPath, Path) then
         Path := PathChangeExt(FExtractedArchiveName, '');
       var IsDir: Boolean;
-      GetProperty(index, kpidIsDir, IsDir);
+      GetProperty(FInArchive, index, kpidIsDir, IsDir);
       if IsDir then begin
         if FFullPaths then begin
           NewCurrent.Path := Path + '\';
@@ -402,13 +418,12 @@ begin
         outStream := nil;
       end else begin
         var Attrib: DWORD;
-        if GetProperty(index, kpidAttrib, Attrib) then begin
-          if Attrib and $F0000000 <> 0 then
-            Attrib := Attrib and $3FFF; { "PosixHighDetect", just like FileDir.cpp and similar to 7zMain.c }
+        if GetProperty(FInArchive, index, kpidAttrib, Attrib) then begin
+          PosixHighDetect(Attrib);
           NewCurrent.SetAttrib(Attrib);
         end;
-        GetProperty(index, kpidCTime, NewCurrent.CTime);
-        GetProperty(index, kpidMTime, NewCurrent.MTime);
+        GetProperty(FInArchive, index, kpidCTime, NewCurrent.CTime);
+        GetProperty(FInArchive, index, kpidMTime, NewCurrent.MTime);
         if not FFullPaths then
           Path := PathExtractName(Path);
         NewCurrent.Path := Path;
@@ -518,6 +533,69 @@ begin
   SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
 end;
 
+function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
+begin
+  if SameText(Ext, '.7z') then
+    Result := CLSID_Handler7z
+  else if SameText(Ext, '.zip') then
+    Result := CLSID_HandlerZip
+  else if SameText(Ext, '.gz') then
+    Result := CLSID_HandlerGzip
+  else if SameText(Ext, '.bz2') then
+    Result := CLSID_HandlerBZip2
+  else if SameText(Ext, '.xz') then
+    Result := CLSID_HandlerXz
+  else if SameText(Ext, '.tar') then
+    Result := CLSID_HandlerTar
+  else if SameText(Ext, '.rar') then
+    Result := CLSID_HandlerRar
+  else if SameText(Ext, '.iso') then
+    Result := CLSID_HandlerIso
+  else if SameText(Ext, '.msi') then
+    Result := CLSID_HandlerCompound
+  else if SameText(Ext, '.cab') then
+    Result := CLSID_HandlerCab
+  else if SameText(Ext, '.rpm') then
+    Result := CLSID_HandlerRpm
+  else if SameText(Ext, '.vhd') then
+    Result := CLSID_HandlerVhd
+  else if SameText(Ext, '.vhdx') then
+    Result := CLSID_HandlerVhdx
+  else if SameText(Ext, '.vdi') then
+    Result := CLSID_HandlerVDI
+  else if SameText(Ext, '.vmdk') then
+    Result := CLSID_HandlerVMDK
+  else if SameText(Ext, '.wim') then
+    Result := CLSID_HandlerWim
+  else if SameText(Ext, '.dmg') then
+    Result := CLSID_HandlerDmg
+  else
+    InternalError(NotFoundErrorMsg);
+end;
+
+function OpenArchiveRedir(const DisableFsRedir: Boolean;
+  const ArchiveFilename, Password: String; const clsid: TGUID): IInArchive;
+begin
+  { CreateObject }
+  if CreateSevenZipObject(clsid, IInArchive, Result) <> S_OK then
+    SevenZipError('Cannot get class object' { Just like Client7z.cpp }, '-1');
+
+  { Open }
+  var F: TFile := nil; { Set to nil to silence compiler }
+  try
+    F := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+  except
+    SevenZipWin32Error('CreateFile');
+  end;
+  const InStream: IInStream = TInStream.Create(F);
+  var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
+  if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
+    SevenZipError('Cannot open file as archive' { Just like Client7z.cpp }, '-2');
+end;
+
+{ ExtractArchiveRedir }
+
 function ExtractThreadFunc(Parameter: Pointer): Integer;
 begin
   const E = TArchiveExtractCallback(Parameter);
@@ -537,46 +615,6 @@ end;
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
-
-  function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
-  begin
-    if SameText(Ext, '.7z') then
-      Result := CLSID_Handler7z
-    else if SameText(Ext, '.zip') then
-      Result := CLSID_HandlerZip
-    else if SameText(Ext, '.gz') then
-      Result := CLSID_HandlerGzip
-    else if SameText(Ext, '.bz2') then
-      Result := CLSID_HandlerBZip2
-    else if SameText(Ext, '.xz') then
-      Result := CLSID_HandlerXz
-    else if SameText(Ext, '.tar') then
-      Result := CLSID_HandlerTar
-    else if SameText(Ext, '.rar') then
-      Result := CLSID_HandlerRar
-    else if SameText(Ext, '.iso') then
-      Result := CLSID_HandlerIso
-    else if SameText(Ext, '.msi') then
-      Result := CLSID_HandlerCompound
-    else if SameText(Ext, '.cab') then
-      Result := CLSID_HandlerCab
-    else if SameText(Ext, '.rpm') then
-      Result := CLSID_HandlerRpm
-    else if SameText(Ext, '.vhd') then
-      Result := CLSID_HandlerVhd
-    else if SameText(Ext, '.vhdx') then
-      Result := CLSID_HandlerVhdx
-    else if SameText(Ext, '.vdi') then
-      Result := CLSID_HandlerVDI
-    else if SameText(Ext, '.vmdk') then
-      Result := CLSID_HandlerVMDK
-    else if SameText(Ext, '.wim') then
-      Result := CLSID_HandlerWim
-    else if SameText(Ext, '.dmg') then
-      Result := CLSID_HandlerDmg
-    else
-      InternalError(NotFoundErrorMsg);
-  end;
 
   procedure HandleProgress(const E: TArchiveExtractCallback);
   begin
@@ -714,23 +752,8 @@ begin
   LogFmt('%s Decoder%s : Igor Pavlov', [SetupHeader.SevenZipLibraryName, VersionBanner]); { Just like 7zMain.c }
 
   try
-    { CreateObject }
-    var InArchive: IInArchive;
-    if CreateSevenZipObject(clsid, IInArchive, InArchive) <> S_OK then
-      SevenZipError('Cannot get class object' { Just like Client7z.cpp }, '-1');
-
     { Open }
-    var F: TFile := nil; { Set to nil to silence compiler }
-    try
-      F := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
-    except
-      SevenZipWin32Error('CreateFile');
-    end;
-    const InStream: IInStream = TInStream.Create(F);
-    var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-    const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
-    if InArchive.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
-      SevenZipError('Cannot open file as archive' { Just like Client7z.cpp }, '-2');
+    const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
 
     { Extract }
     const ExtractCallback: IArchiveExtractCallback =
@@ -745,6 +768,113 @@ begin
     else
       raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
+end;
+
+{ ArchiveFindFirstFileRedir & co }
+
+type
+  TArchiveFindState = record
+    InArchive: IInArchive;
+    ExtractedArchiveName: String;
+    currentIndex, numItems: UInt32;
+    function GetCurrentFindData: TWin32FindData;
+  end;
+
+  TArchiveFindStates = TList<TArchiveFindState>;
+
+var
+  ArchiveFindStates: TArchiveFindStates;
+
+function TArchiveFindState.GetCurrentFindData: TWin32FindData;
+begin
+  Result := Default(TWin32FindData);
+
+  var Path: String;
+  if not GetProperty(InArchive, currentIndex, kpidPath, Path) then
+    Path := PathChangeExt(ExtractedArchiveName, '');
+  if Length(Path) > MAX_PATH then
+    InternalError('GetCurrentFindData: Length(Path) > MAX_PATH');
+  StrPCopy(Result.cFileName, Path);
+
+  var IsDir: Boolean;
+  GetProperty(InArchive, currentIndex, kpidIsDir, IsDir);
+  if IsDir then
+    Result.dwFileAttributes := Result.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY
+  else begin
+    GetProperty(InArchive, currentIndex, kpidAttrib, Result.dwFileAttributes);
+    PosixHighDetect(Result.dwFileAttributes);
+    GetProperty(InArchive, currentIndex, kpidCTime, Result.ftCreationTime);
+    GetProperty(InArchive, currentIndex, kpidMTime, Result.ftLastWriteTime);
+    var Size: Integer64;
+    GetProperty(InArchive, currentIndex, kpidSize, Size);
+    Result.nFileSizeHigh := Size.Hi;
+    Result.nFileSizeLow := Size.Lo;
+  end;
+end;
+
+function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
+  const ArchiveFilename, Password: String; out FindFileData: TWin32FindData): THandle;
+begin
+  if ArchiveFileName = '' then
+    InternalError('ArchiveFindFirstFile: Invalid ArchiveFileName value');
+  const clsid = GetHandler(PathExtractExt(ArchiveFilename),
+    'ArchiveFindFirstFile: Unknown ArchiveFileName extension');
+
+  try
+    { Open }
+    var ArchiveFindState := Default(TArchiveFindState);
+    ArchiveFindState.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
+    if ArchiveFindState.InArchive.GetNumberOfItems(ArchiveFindState.numItems) <> S_OK then
+      SevenZipError('Cannot get number of items', '-3');
+
+    if ArchiveFindState.numItems <> 0 then begin
+      { Finish state }
+      ArchiveFindState.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+
+      { Save state }
+      if ArchiveFindStates = nil then
+        ArchiveFindStates := TArchiveFindStates.Create;
+      ArchiveFindStates.Add(ArchiveFindState);
+      Result := THandle(ArchiveFindStates.Count);
+
+      { Return first find data }
+      FindFileData := ArchiveFindState.GetCurrentFindData;
+    end else
+      Result := INVALID_HANDLE_VALUE;
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+  end;
+end;
+
+function CheckFindFileHandle(const FindFile: THandle): Integer;
+begin
+  Result := Integer(FindFile)-1;
+  if (Result < 0) or (Result >= ArchiveFindStates.Count) then
+    InternalError('CheckFindFileHandle failed');
+end;
+
+function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32FindData): Boolean;
+begin
+  const I = CheckFindFileHandle(FindFile);
+  var State := ArchiveFindStates[I];
+  Result := State.currentIndex < State.numItems-1;
+  if Result then begin
+    { Update state }
+    Inc(State.currentIndex);
+    ArchiveFindStates[I] := State;
+
+    { Return next find data }
+    FindFileData := State.GetCurrentFindData;
+  end;
+end;
+
+function ArchiveFindClose(const FindFile: THandle): Boolean;
+begin
+  ArchiveFindStates.Delete(CheckFindFileHandle(FindFile));
+  Result := True;
 end;
 
 { TFileTimeHelper }
@@ -762,5 +892,10 @@ function TFileTimeHelper.HasTime: Boolean;
 begin
   Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
+
+initialization
+
+finalization
+  ArchiveFindStates.Free;
 
 end.
