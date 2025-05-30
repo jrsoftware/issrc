@@ -1748,15 +1748,14 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStringList; const CurFile: PSetupFileEntry): Boolean;
   var
-    SearchFullPath, DestName: String;
+    DestName: String;
     H: THandle;
     FindData: TWin32FindData;
   begin
     { Also see RecurseExternalCopyFiles in Setup.Install }
-    SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
     Result := True;
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
+    H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -2723,16 +2722,14 @@ var
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const RecurseSubDirs: Boolean): Integer64;
   var
-    SearchFullPath: String;
     H: THandle;
     FindData: TWin32FindData;
     I: Integer64;
   begin
-    SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
     Result.Hi := 0;
     Result.Lo := 0;
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
+    H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       repeat
         if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin

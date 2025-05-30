@@ -1794,17 +1794,17 @@ var
       var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
     var
-      SearchFullPath, FileName, SourceFile, DestName: String;
+      FileName, SourceFile, DestName: String;
       H: THandle;
       FindData: TWin32FindData;
       Size: Integer64;
       Flags: TMakeDirFlags;
     begin
       { Also see RecurseExternalFiles in Setup.MainFunc }
-      SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
+
       Result := False;
 
-      H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
+      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
