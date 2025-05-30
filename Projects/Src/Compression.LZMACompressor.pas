@@ -40,6 +40,7 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    WorkerProcessCheckTrust: Boolean;
     WorkerProcessFilename: String;
     constructor Create;
   end;
@@ -882,7 +883,6 @@ const
 var
   EncProps: TLZMAEncoderProps;
   Props: TLZMACompressorProps;
-  WorkerProcessFilename: String;
 begin
   if (CompressionLevel < Low(algorithm)) or (CompressionLevel > High(algorithm)) then
     LZMAInternalError('TLZMACompressor.Create got invalid CompressionLevel ' + IntToStr(CompressionLevel));
@@ -894,6 +894,9 @@ begin
   EncProps.NumBlockThreads := -1;
   EncProps.NumFastBytes := numFastBytes[CompressionLevel];
   EncProps.NumThreads := -1;
+
+  var WorkerProcessCheckTrust := False;
+  var WorkerProcessFilename := '';
 
   if ACompressorProps is TLZMACompressorProps then begin
     Props := (ACompressorProps as TLZMACompressorProps);
@@ -910,6 +913,7 @@ begin
       EncProps.NumFastBytes := Props.NumFastBytes;
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
+    WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
   end;
 
@@ -917,7 +921,7 @@ begin
 
   if WorkerProcessFilename <> '' then begin
     FWorker := TLZMAWorkerProcess.Create(@FEvents);
-    (FWorker as TLZMAWorkerProcess).CheckTrust := True;
+    (FWorker as TLZMAWorkerProcess).CheckTrust := WorkerProcessCheckTrust;
     (FWorker as TLZMAWorkerProcess).ExeFilename := WorkerProcessFilename;
   end
   else begin

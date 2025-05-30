@@ -7562,6 +7562,7 @@ begin
     CompressMethod := cmLZMA2;
     CompressLevel := clLZMAMax;
     CompressProps := TLZMACompressorProps.Create;
+    CompressProps.WorkerProcessCheckTrust := True;
     UseSetupLdr := True;
     TerminalServicesAware := True;
     DEPCompatible := True;
