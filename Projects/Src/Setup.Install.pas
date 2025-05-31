@@ -963,7 +963,9 @@ var
   { Not external: AExternalSourceFile and ADestFile should be empty strings,
                   FileLocationFilenames should be set, AExternalSize is unused,
                   AExternalFileDate should not be set
-    External    : Opposite. AExternalFileDate should only be set if archive }
+    External    : Opposite except AExternalFileDate still not set
+    Ext. Archive: Same as external except AExternalFileDate set and
+                  AExternalSourceFile should be set to ArchiveFindHandle as a string }
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
@@ -1502,7 +1504,9 @@ var
             end
             else if foExtractArchive in CurFile^.Options then begin
               { Extract a file }
-              {!!!}
+              LastOperation := '...'; {!!!}
+              ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
+              {!!!} {foISSigVerify}
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -1915,7 +1919,6 @@ var
       const DestDir = ExpandConst(CurFile^.DestName);
 
       var FindData: TWin32FindData;
-      var ArchiveIndex := 0;
       var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
         Password, foRecurseSubDirsExternal in CurFile^.Options, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
@@ -1927,7 +1930,7 @@ var
                 Continue;
 
               Result := True;
-              var SourceFile := ArchiveIndex.ToString; {!!!}
+              var SourceFile := IntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
               var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;

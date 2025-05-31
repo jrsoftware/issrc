@@ -15,7 +15,7 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Windows, Shared.VerInfoFunc, Compression.SevenZipDecoder;
+  Windows, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
@@ -30,11 +30,14 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   subdir }
 type
   TArchiveFindHandle = type Cardinal;
+  TOnExtractToHandleProgress = procedure(Bytes: Cardinal);
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
   out FindFileData: TWin32FindData): TArchiveFindHandle;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
+procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
+  const OnExtractToHandleProgress: TOnExtractToHandleProgress);
 
 type
   TFileTimeHelper = record helper for TFileTime
@@ -48,7 +51,7 @@ uses
   Classes, SysUtils, Forms, Variants,
   ActiveX, ComObj, Generics.Collections,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
-  Shared.FileClass, Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
+  Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
   Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
@@ -60,17 +63,18 @@ type
     function Read(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
     function Seek(offset: Int64; seekOrigin: UInt32; newPosition: PUInt64): HRESULT; stdcall;
   public
-    constructor Create(AFile: TFile);
+    constructor Create(const AFile: TFile);
     destructor Destroy; override;
   end;
 
   TSequentialOutStream = class(TInterfacedObject, ISequentialOutStream)
   private
     FFile: TFile;
+    FOwnsFile: Boolean;
   protected
     function Write(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
   public
-    constructor Create(AFile: TFile);
+    constructor Create(const AFile: TFile; const AOwnsFile: Boolean = True);
     destructor Destroy; override;
   end;
 
@@ -158,6 +162,25 @@ type
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
+  end;
+
+  TArchiveExtractToHandleCallback = class(TArchiveExtractBaseCallback)
+  private
+    FIndex: UInt32;
+    FDestF: TFile;
+    FOnExtractToHandleProgress: TOnExtractToHandleProgress;
+    FPreviousProgress: UInt64;
+  protected
+    { IArchiveExtractCallback }
+    function GetStream(index: UInt32; out outStream: ISequentialOutStream;
+      askExtractMode: Int32): HRESULT; override; stdcall;
+    { Other }
+    function GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal; override;
+    procedure HandleProgress; override;
+  public
+    constructor Create(const InArchive: IInArchive; const Password: String;
+      const Index: UInt32; const DestF: TFile;
+      const OnExtractToHandleProgress: TOnExtractToHandleProgress);
   end;
 
 { Helper functions }
@@ -263,7 +286,7 @@ end;
 
 { TInStream }
 
-constructor TInStream.Create(AFile: TFile);
+constructor TInStream.Create(const AFile: TFile);
 begin
   inherited Create;
   FFile := AFile;
@@ -313,15 +336,17 @@ end;
 
 { TSequentialOutStream }
 
-constructor TSequentialOutStream.Create(AFile: TFile);
+constructor TSequentialOutStream.Create(const AFile: TFile; const AOwnsFile: Boolean);
 begin
   inherited Create;
   FFile := AFile;
+  FOwnsFile := AOwnsFile;
 end;
 
 destructor TSequentialOutStream.Destroy;
 begin
-  FFile.Free;
+  if FOwnsFile then
+    FFile.Free;
   inherited;
 end;
 
@@ -736,6 +761,82 @@ begin
     FAbort := Abort; { Atomic so no lock }
 end;
 
+{ TArchiveExtractToHandleCallback }
+
+
+constructor TArchiveExtractToHandleCallback.Create(const InArchive: IInArchive;
+  const Password: String; const Index: UInt32; const DestF: TFile;
+  const OnExtractToHandleProgress: TOnExtractToHandleProgress);
+begin
+  inherited Create(InArchive, Password);
+  FIndex := Index;
+  FDestF := DestF;
+  FOnExtractToHandleProgress := OnExtractToHandleProgress;
+end;
+
+function TArchiveExtractToHandleCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal;
+begin
+  SetLength(Result, 1);
+  Result[0] := FIndex;
+end;
+
+function TArchiveExtractToHandleCallback.GetStream(index: UInt32;
+  out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
+begin
+  try
+    if askExtractMode = kExtract then begin
+      var IsDir: Boolean;
+      GetProperty(FInArchive, index, kpidIsDir, IsDir);
+      if IsDir then
+        OleError(E_INVALIDARG);
+      var BytesLeft: Integer64;
+      if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
+        { To avoid file system fragmentation, preallocate all of the bytes in the
+          destination file }
+        FDestF.Seek64(BytesLeft);
+        FDestF.Truncate;
+        FDestF.Seek(0);
+      end;
+      outstream := TSequentialOutStream.Create(FDestF, False);
+    end;
+    Result := S_OK;
+  except
+    on E: EOleSysError do
+      Result := E.ErrorCode;
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+procedure TArchiveExtractToHandleCallback.HandleProgress;
+begin
+  if Assigned(FOnExtractToHandleProgress) then begin
+    var Progress: UInt64;
+
+    System.TMonitor.Enter(FLock);
+    try
+      Progress := FProgress;
+    finally
+      System.TMonitor.Exit(FLock);
+    end;
+
+    var Bytes := Progress - FPreviousProgress;
+    while Bytes > 0 do begin
+      var BytesToReport: Cardinal;
+      if Bytes > High(BytesToReport) then
+        BytesToReport := High(BytesToReport)
+      else
+        BytesToReport := Bytes;
+      FOnExtractToHandleProgress(BytesToReport);
+      Dec(Bytes, BytesToReport);
+    end;
+
+    FPreviousProgress := Progress;
+  end;
+end;
+
 { Additional helper functions }
 
 var
@@ -868,7 +969,7 @@ end;
 type
   TArchiveFindState = record
     InArchive: IInArchive;
-    ExpandedDestDir, ExtractedArchiveName: String;
+    ExpandedDestDir, ExtractedArchiveName, Password: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
     function GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
@@ -944,6 +1045,7 @@ begin
     if DestDir <> '' then
       State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+    State.Password := Password;
     State.RecurseSubDirs := RecurseSubDirs;
 
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
@@ -1000,6 +1102,24 @@ function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 begin
   ArchiveFindStates.Delete(CheckFindFileHandle(FindFile));
   Result := True;
+end;
+
+procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
+  const OnExtractToHandleProgress: TOnExtractToHandleProgress);
+begin
+  var State := ArchiveFindStates[CheckFindFileHandle(FindFile)];
+
+  try
+    const ExtractCallback: IArchiveExtractCallback =
+      TArchiveExtractToHandleCallback.Create(State.InArchive, State.Password,
+        State.currentIndex, DestF, OnExtractToHandleProgress);
+    (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+  end;
 end;
 
 { TFileTimeHelper }
