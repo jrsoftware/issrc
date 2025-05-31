@@ -785,8 +785,7 @@ type
     ExtractedArchiveName: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
-    function GetInitialCurrentFindData(const RecurseSubDirs: Boolean;
-      out FindData: TWin32FindData): Boolean;
+    function GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
     procedure FinishCurrentFindData(var FindData: TWin32FindData);
   end;
 
@@ -795,8 +794,7 @@ type
 var
   ArchiveFindStates: TArchiveFindStates;
 
-function TArchiveFindState.GetInitialCurrentFindData(const RecurseSubDirs: Boolean;
-  out FindData: TWin32FindData): Boolean;
+function TArchiveFindState.GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
 
   function SkipFile(const Path: String; const IsDir: Boolean): Boolean;
   begin
@@ -852,12 +850,12 @@ begin
     State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
     if State.InArchive.GetNumberOfItems(State.numItems) <> S_OK then
       SevenZipError('Cannot get number of items', '-3');
+    State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+    State.RecurseSubDirs := RecurseSubDirs;
 
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
-      if State.GetInitialCurrentFindData(RecurseSubDirs, FindFileData) then begin
+      if State.GetInitialCurrentFindData(FindFileData) then begin
         { Finish state }
-        State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
-        State.RecurseSubDirs := RecurseSubDirs;
         State.currentIndex := currentIndex;
 
         { Save state }
@@ -893,7 +891,7 @@ begin
 
   for var currentIndex := State.currentIndex+1 to State.numItems-1 do begin
     State.currentIndex := currentIndex;
-    if State.GetInitialCurrentFindData(State.RecurseSubDirs, FindFileData) then begin
+    if State.GetInitialCurrentFindData(FindFileData) then begin
       { Update state }
       ArchiveFindStates[I] := State; { This just updates currentIndex }
 
