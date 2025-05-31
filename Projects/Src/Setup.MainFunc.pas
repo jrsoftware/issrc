@@ -1746,7 +1746,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const Excludes: TStringList; const CurFile: PSetupFileEntry): Boolean;
+    const SourceIsWildcard: Boolean; const Excludes: TStrings; const CurFile: PSetupFileEntry): Boolean;
   begin
     { Also see RecurseExternalGetSizeOfFiles below and RecurseExternalCopyFiles in Setup.Install
       Also see RecurseExternalArchiveFiles directly below }
@@ -1803,7 +1803,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   end;
 
   function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
-    const ArchiveFilename, Password: String; const CurFile: PSetupFileEntry): Boolean;
+    const ArchiveFilename, Password: String; const Excludes: TStrings;
+    const CurFile: PSetupFileEntry): Boolean;
   begin
     { See above }
     Result := True;
@@ -1814,6 +1815,10 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
       try
         repeat
           if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+            if IsExcluded(FindData.cFileName, Excludes) then
+              Continue;
+
             if foCustomDestName in CurFile^.Options then
               InternalError('Unexpected custom DestName');
             const DestName = ExpandConst(CurFile^.DestName) + FindData.cFileName;
@@ -1856,12 +1861,12 @@ begin
         else begin
           { External file }
           SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+          Excludes.DelimitedText := CurFile^.Excludes;
           if foExtractArchive in CurFile^.Options then begin
             if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
-               CurFile^.ExtractArchivePassword, CurFile) then
+               CurFile^.ExtractArchivePassword, Excludes, CurFile) then
               Exit(False);
           end else begin
-            Excludes.DelimitedText := CurFile^.Excludes;
             if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
                PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
               Exit(False);
@@ -2747,7 +2752,8 @@ var
 
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const Excludes: TStringList; const RecurseSubDirs: Boolean): Integer64;
+    const SourceIsWildcard: Boolean; const Excludes: TStrings;
+    const RecurseSubDirs: Boolean): Integer64;
   begin
     { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
       Also see RecurseExternalArchiveGetSizeOfFiles directly below }
@@ -2796,7 +2802,7 @@ var
   end;
 
   function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
-    const ArchiveFilename, Password: String): Integer64;
+    const ArchiveFilename, Password: String; const Excludes: TStrings): Integer64;
   begin
     { See above }
     Result.Hi := 0;
@@ -2808,6 +2814,10 @@ var
       try
         repeat
           if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+            if IsExcluded(FindData.cFileName, Excludes) then
+              Continue;
+
             var I: Integer64;
             I.Hi := FindData.nFileSizeHigh;
             I.Lo := FindData.nFileSizeLow;
@@ -3490,16 +3500,16 @@ begin
 	      end else begin
 	        if not(foExternalSizePreset in Options) then begin
 	          try
+              LExcludes.DelimitedText := Excludes;
 	            if foExtractArchive in Options then begin
 	              ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
 	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-	                ExpandConst(SourceFilename), ExtractArchivePassword);
+	                ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes);
 	            end else begin
 	              if FileType <> ftUserFile then
 	                SourceWildcard := NewParamStr(0)
 	              else
 	                SourceWildcard := ExpandConst(SourceFilename);
-	              LExcludes.DelimitedText := Excludes;
 	              ExternalSize := RecurseExternalGetSizeOfFiles(
 	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
 	                PathExtractPath(SourceWildcard),

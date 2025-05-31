@@ -1790,7 +1790,7 @@ var
 
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
-      const Excludes: TStringList; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+      const Excludes: TStrings; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
       var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
     begin
@@ -1888,8 +1888,9 @@ var
     end;
 
      function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
-      const ArchiveFilename, Password: String; const CurFile: PSetupFileEntry;
-      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      const ArchiveFilename, Password: String; const Excludes: TStrings;
+      const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+      var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
     begin
       { See above }
@@ -1903,6 +1904,10 @@ var
         try
           repeat
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+              if IsExcluded(FindData.cFileName, Excludes) then
+                Continue;
+
               Result := True;
               var SourceFile := ArchiveIndex.ToString; {!!!}
               if foCustomDestName in CurFile^.Options then
@@ -1992,7 +1997,7 @@ var
               ExpectedBytesLeft := CurFile^.ExternalSize;
               if foExtractArchive in CurFile^.Options then
                 FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
-                  SourceWildcard, CurFile^.ExtractArchivePassword, CurFile,
+                  SourceWildcard, CurFile^.ExtractArchivePassword, Excludes, CurFile,
                   ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts)
               else
