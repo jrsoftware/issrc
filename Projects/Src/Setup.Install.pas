@@ -956,7 +956,7 @@ var
     TOverwriteAll = (oaUnknown, oaOverwrite, oaKeep);
 
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
-    const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
+    const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
     var WarnedPerUserFonts: Boolean);
@@ -1188,10 +1188,10 @@ var
           case CurFile^.FileType of
             ftUninstExe: DestFile := UninstallExeFilename;
           else
-            if ADestName = '' then
+            if ADestFile = '' then
               DestFile := ExpandConst(CurFile^.DestName)
             else
-              DestFile := ADestName;
+              DestFile := ADestFile;
           end;
           DestFile := PathExpand(DestFile);
         except
@@ -1234,7 +1234,7 @@ var
           CurFileDateValid := True;
         end
         else
-          CurFileDateValid := GetFileDateTime(DisableFsRedir, ASourceFile, CurFileDate); {!!!}
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate); {!!!}
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
         else
@@ -1265,8 +1265,8 @@ var
               CurFileVersionInfo.LS := CurFileLocation^.FileVersionLS;
             end
             else
-              CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir,
-                PathExpand(ASourceFile), CurFileVersionInfo);
+              CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir, {!!!}
+                PathExpand(AExternalSourceFile), CurFileVersionInfo);
             if CurFileVersionInfoValid then
               LogFmt('Version of our file: %u.%u.%u.%u',
                 [LongRec(CurFileVersionInfo.MS).Hi, LongRec(CurFileVersionInfo.MS).Lo,
@@ -1318,7 +1318,7 @@ var
                         { This GetSHA256OfFile call could raise an exception, but
                           it's very unlikely since we were already able to
                           successfully read the file's version info. }
-                        CurFileHash := GetSHA256OfFile(DisableFsRedir, ASourceFile);
+                        CurFileHash := GetSHA256OfFile(DisableFsRedir, AExternalSourceFile); {!!!}
                         LastOperation := SetupMessages[msgErrorReadingExistingDest];
                       end;
                       { If the two files' SHA-256 hashes are equal, skip the file }
@@ -1451,7 +1451,7 @@ var
         Log('Installing the file.');
 
         { Locate source file }
-        SourceFile := ASourceFile;
+        SourceFile := AExternalSourceFile; { Empty string if not external }
         if DisableFsRedir = InstallDefaultDisableFsRedir then begin
           { If the file is compressed in the setup package, has the same file
             already been copied somewhere else? If so, just make a duplicate of
@@ -1826,11 +1826,11 @@ var
               var SourceFile := SearchBaseDir + SearchSubDir + FileName;
               { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
                 see TSetupCompiler.EnumFilesProc.ProcessFileList }
-              var DestName := ExpandConst(CurFile^.DestName);
+              var DestFile := ExpandConst(CurFile^.DestName);
               if not(foCustomDestName in CurFile^.Options) then
-                DestName := DestName + SearchSubDir + FileName
+                DestFile := DestFile + SearchSubDir + FileName
               else if SearchSubDir <> '' then
-                DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
+                DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
               var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;
               Size.Lo := FindData.nFileSizeLow;
@@ -1839,7 +1839,7 @@ var
                   files is greater than when we last checked }
                 Size := ExpectedBytesLeft;
               end;
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName, nil,
+              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile, nil,
                 Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);
@@ -1919,7 +1919,7 @@ var
 
               Result := True;
               var SourceFile := ArchiveIndex.ToString; {!!!}
-              const DestName = DestDir + FindData.cFileName;
+              const DestFile = DestDir + FindData.cFileName;
               var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;
               Size.Lo := FindData.nFileSizeLow;
@@ -1928,7 +1928,7 @@ var
                   files is greater than when we last checked }
                 Size := ExpectedBytesLeft;
               end;
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
+              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile,
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);

@@ -1768,12 +1768,12 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
             { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
               see TSetupCompiler.EnumFilesProc.ProcessFileList }
-            var DestName := ExpandConst(CurFile^.DestName);
+            var DestFile := ExpandConst(CurFile^.DestName);
             if not(foCustomDestName in CurFile^.Options) then
-              DestName := DestName + SearchSubDir + FindData.cFileName
+              DestFile := DestFile + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
-              DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
-            if not EnumFilesProc(DisableFsRedir, DestName, Param) then begin
+              DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
+            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then begin
               Result := False;
               Exit;
             end;
@@ -1824,8 +1824,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            const DestName = DestDir + FindData.cFileName;
-            if not EnumFilesProc(DisableFsRedir, DestName, Param) then
+            const DestFile = DestDir + FindData.cFileName;
+            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then
               Exit(False);
           end;
         until not ArchiveFindNextFile(H, FindData);
