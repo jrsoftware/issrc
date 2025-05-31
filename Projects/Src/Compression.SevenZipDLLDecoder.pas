@@ -88,7 +88,7 @@ type
     constructor Create(const Password: String);
   end;
 
-  TArchiveExtractCallbackBase = class(TInterfacedObject)
+  TArchiveExtractBaseCallback = class(TInterfacedObject)
   private
     type
       TResult = record
@@ -122,7 +122,7 @@ type
     destructor Destroy; override;
   end;
 
-  TArchiveExtractCallback = class(TArchiveExtractCallbackBase, IArchiveExtractCallback,
+  TArchiveExtractAllCallback = class(TArchiveExtractBaseCallback, IArchiveExtractCallback,
     ICryptoGetTextPassword)
   private
     type
@@ -364,9 +364,9 @@ begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
 
-{ TArchiveExtractCallbackBase }
+{ TArchiveExtractBaseCallback }
 
-constructor TArchiveExtractCallbackBase.Create(const InArchive: IInArchive;
+constructor TArchiveExtractBaseCallback.Create(const InArchive: IInArchive;
   const Password: String);
 begin
   inherited Create;
@@ -376,14 +376,14 @@ begin
   FResult.OpRes := kOK;
 end;
 
-destructor TArchiveExtractCallbackBase.Destroy;
+destructor TArchiveExtractBaseCallback.Destroy;
 begin
   FResult.SavedFatalException.Free;
   FLock.Free;
   inherited;
 end;
 
-function TArchiveExtractCallbackBase.SetTotal(total: UInt64): HRESULT;
+function TArchiveExtractBaseCallback.SetTotal(total: UInt64): HRESULT;
 begin
   { From IArchive.h: 7-Zip can call functions for IProgress or ICompressProgressInfo functions
     from another threads simultaneously with calls for IArchiveExtractCallback interface }
@@ -403,7 +403,7 @@ begin
   end;
 end;
 
-function TArchiveExtractCallbackBase.SetCompleted(completeValue: PUInt64): HRESULT;
+function TArchiveExtractBaseCallback.SetCompleted(completeValue: PUInt64): HRESULT;
 begin
   try
     if FAbort then
@@ -424,13 +424,13 @@ begin
   end;
 end;
 
-function TArchiveExtractCallbackBase.PrepareOperation(askExtractMode: Int32): HRESULT;
+function TArchiveExtractBaseCallback.PrepareOperation(askExtractMode: Int32): HRESULT;
 begin
   { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called }
   Result := S_OK;
 end;
 
-function TArchiveExtractCallbackBase.SetOperationResult(
+function TArchiveExtractBaseCallback.SetOperationResult(
   opRes: TNOperationResult): HRESULT;
 begin
   try
@@ -447,13 +447,13 @@ begin
   end;
 end;
 
-function TArchiveExtractCallbackBase.CryptoGetTextPassword(
+function TArchiveExtractBaseCallback.CryptoGetTextPassword(
   out password: WideString): HRESULT;
 begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
 
-procedure TArchiveExtractCallbackBase.Extract;
+procedure TArchiveExtractBaseCallback.Extract;
 begin
   { We're calling 7-Zip's Extract in a separate thread. This is because packing
     our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
@@ -503,7 +503,7 @@ begin
   HandleResult;
 end;
 
-procedure TArchiveExtractCallbackBase.HandleResult;
+procedure TArchiveExtractBaseCallback.HandleResult;
 
   function OperationResultToString(const opRes: TNOperationResult): String;
   begin
@@ -542,9 +542,9 @@ begin
   end;
 end;
 
-{ TArchiveExtractCallback }
+{ TArchiveExtractAllCallback }
 
-procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
+procedure TArchiveExtractAllCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
 begin
   Attrib := AAttrib;
   HasAttrib := True;
@@ -552,7 +552,7 @@ end;
 
 function ArchiveExtractCallbackExtractThreadFunc(Parameter: Pointer): Integer;
 begin
-  const E = TArchiveExtractCallback(Parameter);
+  const E = TArchiveExtractAllCallback(Parameter);
   try
     E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
   except
@@ -566,7 +566,7 @@ begin
   Result := 0;
 end;
 
-constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
+constructor TArchiveExtractAllCallback.Create(const InArchive: IInArchive;
   const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
@@ -580,12 +580,12 @@ begin
   FLogQueue := TStringList.Create;
 end;
 
-destructor TArchiveExtractCallback.Destroy;
+destructor TArchiveExtractAllCallback.Destroy;
 begin
   FLogQueue.Free;
 end;
 
-function TArchiveExtractCallback.GetStream(index: UInt32;
+function TArchiveExtractAllCallback.GetStream(index: UInt32;
   out outStream: ISequentialOutStream; askExtractMode: Int32): HRESULT;
 begin
   try
@@ -658,7 +658,7 @@ begin
   end;
 end;
 
-function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
+function TArchiveExtractAllCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   try
@@ -685,7 +685,7 @@ begin
   end;
 end;
 
-procedure TArchiveExtractCallback.HandleProgress;
+procedure TArchiveExtractAllCallback.HandleProgress;
 begin
   var CurrentPath: String;
   var Progress, ProgressMax: UInt64;
@@ -823,9 +823,9 @@ begin
 
     { Extract }
     const ExtractCallback: IArchiveExtractCallback =
-      TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
+      TArchiveExtractAllCallback.Create(InArchive, DisableFsRedir,
         ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-    (ExtractCallback as TArchiveExtractCallback).Extract;
+    (ExtractCallback as TArchiveExtractAllCallback).Extract;
 
     Log('Everything is Ok'); { Just like 7zMain.c }
   except
@@ -990,7 +990,8 @@ end;
 initialization
 
 finalization
-  if (ArchiveFindStates <> nil) and (ArchiveFindStates.Count > 0) then { Not allowed because it has references to 7-Zip which is probably already unloaded }
+  if (ArchiveFindStates <> nil) and
+     (ArchiveFindStates.Count > 0) then { Not allowed because it has references to 7-Zip which is probably already unloaded }
     InternalError('ArchiveFindStates.Count > 0');
   ArchiveFindStates.Free;
 
