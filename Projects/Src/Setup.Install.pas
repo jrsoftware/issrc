@@ -1268,8 +1268,9 @@ var
               CurFileVersionInfo.LS := CurFileLocation^.FileVersionLS;
             end
             else
-              CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir, {!!!}
-                PathExpand(AExternalSourceFile), CurFileVersionInfo);
+              CurFileVersionInfoValid := not(foExtractArchive in CurFile^.Options) and
+                GetVersionNumbersRedir(DisableFsRedir,
+                  PathExpand(AExternalSourceFile), CurFileVersionInfo);
             if CurFileVersionInfoValid then
               LogFmt('Version of our file: %u.%u.%u.%u',
                 [LongRec(CurFileVersionInfo.MS).Hi, LongRec(CurFileVersionInfo.MS).Lo,
@@ -1287,7 +1288,7 @@ var
                  ((ExistingVersionInfo.MS > CurFileVersionInfo.MS) or
                   ((ExistingVersionInfo.MS = CurFileVersionInfo.MS) and
                    (ExistingVersionInfo.LS > CurFileVersionInfo.LS))) then begin
-                { Existing file is newer, ask user what to do unless we shouldn't }
+                { No version info, or existing file is newer, ask user what to do unless we shouldn't }
                 if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                   if PromptIfOlderOverwriteAll <> oaOverwrite then begin
                     Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
@@ -1321,7 +1322,9 @@ var
                         { This GetSHA256OfFile call could raise an exception, but
                           it's very unlikely since we were already able to
                           successfully read the file's version info. }
-                        CurFileHash := GetSHA256OfFile(DisableFsRedir, AExternalSourceFile); {!!!}
+                        if foExtractArchive in CurFile^.Options then
+                          InternalError('Unexpected extractarchive flag');
+                        CurFileHash := GetSHA256OfFile(DisableFsRedir, AExternalSourceFile);
                         LastOperation := SetupMessages[msgErrorReadingExistingDest];
                       end;
                       { If the two files' SHA-256 hashes are equal, skip the file }

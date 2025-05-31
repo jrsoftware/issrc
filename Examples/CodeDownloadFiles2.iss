@@ -29,7 +29,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
 ; Note that each file in the MyProg-ExtraReadmes.7z example archive comes with an .issig signature file
-Source: "{tmp}\MyProg-ExtraReadmes\MyProg-ExtraReadmes.7z"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external extractarchive ignoreversion issigverify
+Source: "{tmp}\MyProg-ExtraReadmes\MyProg-ExtraReadmes.7z"; Excludes: "*.issig"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion issigverify
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"

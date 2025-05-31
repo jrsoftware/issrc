@@ -5436,6 +5436,9 @@ begin
             AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
         end;
 
+        if (foIgnoreVersion in Options) and (foReplaceSameVersionIfContentsDiffer in Options) then
+          AbortCompileFmt(SCompilerParamErrorBadCombo2, ['Flags', 'ignoreversion', 'replacesameversion']);
+
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
           AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
         if (ISSigAllowedKeys <> '') and not (foISSigVerify in Options) then

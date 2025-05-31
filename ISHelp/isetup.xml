@@ -1689,7 +1689,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="createallsubdirs">
 <p>By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. This flag causes these directories to be created at install time (just like if you created [Dirs] entries for them).</p>
-<p>Must be combined with <tt>recursesubdirs</tt>.</p>
+<p>This flag must be combined with <tt>recursesubdirs</tt>.</p>
 </flag>
 <flag name="deleteafterinstall">
 <p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's [Run] section.</p>
@@ -1706,6 +1706,10 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="external">
 <p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
 </flag>
+<flag name="extractarchive">
+<p>...</p>
+<p>This flag must be combined with <tt>external</tt>.</p>
+</flag>
 <flag name="fontisnttruetype">
 <p>Specify this flag if the entry is installing a <i>non-TrueType</i> font with the <tt>FontInstall</tt> parameter.</p>
 </flag>
@@ -1717,6 +1721,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="ignoreversion">
 <p>Don't compare version info at all; replace existing files regardless of their version number.</p>
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag cannot be combined with <tt>replacesameversion</tt>.</p>
 </flag>
 <flag name="issigverify">
 <p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
@@ -1771,6 +1776,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="replacesameversion">
 <p>When this flag is used and the file already exists on the user's system and it has the same version number as the file being installed, Setup will compare the files and replace the existing file if their contents differ.</p>
 <p>The default behavior (i.e. when this flag isn't used) is to not replace an existing file with the same version number.</p>
+<p>This flag has no effect if combined with the <tt>extractarchive</tt> flag, or if used for a file that lacks a version number.</p>
+<p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
