@@ -419,8 +419,17 @@ begin
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
           SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
+        const DestF = TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
+        var BytesLeft: Integer64;
+        if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
+          { To avoid file system fragmentation, preallocate all of the bytes in the
+            destination file }
+          DestF.Seek64(BytesLeft);
+          DestF.Truncate;
+          DestF.Seek(0);
+        end;
         { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
-        outstream := TSequentialOutStream.Create(TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone));
+        outstream := TSequentialOutStream.Create(DestF);
         NewCurrent.outStream := outStream;
       end;
     end;
