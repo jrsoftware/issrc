@@ -1491,8 +1491,12 @@ var
               FileExtractor.DecompressFile(CurFileLocation^, DestF, ExtractorProgressProc,
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
+            else if foExtractArchive in CurFile^.Options then begin
+              { Extract a file }
+              {!!!}
+            end
             else begin
-              { Copy a duplicated non-external file, or an external file } {!!!}
+              { Copy a duplicated non-external file, or an external file }
               SourceF := TFileRedir.Create(DisableFsRedir, SourceFile, fdOpenExisting, faRead, fsRead);
               try
                 LastOperation := SetupMessages[msgErrorCopying];
@@ -1927,9 +1931,9 @@ var
                 WarnedPerUserFonts);
               Dec6464(ExpectedBytesLeft, Size);
             end;
-          until not FindNextFile(H, FindData);
+          until not ArchiveFindNextFile(H, FindData);
         finally
-          Windows.FindClose(H);
+          ArchiveFindClose(H);
         end;
       end;
     end;
