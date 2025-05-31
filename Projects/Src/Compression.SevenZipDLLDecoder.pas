@@ -88,7 +88,41 @@ type
     constructor Create(const Password: String);
   end;
 
-  TArchiveExtractCallback = class(TInterfacedObject, IArchiveExtractCallback,
+  TArchiveExtractCallbackBase = class(TInterfacedObject)
+  private
+    type
+      TResult = record
+        SavedFatalException: TObject;
+        Res: HRESULT;
+        OpRes: TNOperationResult;
+      end;
+    var
+      FInArchive: IInArchive;
+      FPassword: String;
+      FExtractThreadFunc: TThreadFunc;
+      FLock: TObject;
+      FProgress, FProgressMax: UInt64;
+      FAbort: Boolean;
+      FResult: TResult;
+  protected
+    { IProgress }
+    function SetTotal(total: UInt64): HRESULT; stdcall;
+    function SetCompleted(completeValue: PUInt64): HRESULT; stdcall;
+    { IArchiveExtractCallback }
+    function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
+    function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
+    { ICryptoGetTextPassword - queried for on extractCallback }
+    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
+    { Other }
+    procedure Extract;
+    procedure HandleProgress; virtual; abstract;
+    procedure HandleResult;
+  public
+    constructor Create(const InArchive: IInArchive; const Password: String);
+    destructor Destroy; override;
+  end;
+
+  TArchiveExtractCallback = class(TArchiveExtractCallbackBase, IArchiveExtractCallback,
     ICryptoGetTextPassword)
   private
     type
@@ -100,44 +134,45 @@ type
         outStream: ISequentialOutStream;
         procedure SetAttrib(const AAttrib: DWORD);
       end;
-      TProgress = record
-        Current: TCurrent;
-        Progress, ProgressMax: UInt64;
-      end;
-      TResult = record
-        SavedFatalException: TObject;
-        Res: HRESULT;
-        OpRes: TNOperationResult;
-      end;
     var
-      FInArchive: IInArchive;
       FDisableFsRedir: Boolean;
-      FExpandedDestDir, FPassword: String;
+      FExpandedDestDir: String;
       FFullPaths: Boolean;
       FExtractedArchiveName: String;
       FOnExtractionProgress: TOnExtractionProgress;
-      FProgressAndLogQueueLock: TObject;
-      FProgress: TProgress;
-      FLogQueue: TStrings;
-      FAbort: Boolean;
-      FResult: TResult;
+      FCurrent: TCurrent;  { Protected by base's FLock }
+      FLogQueue: TStrings; { Same }
   protected
-    { IProgress }
-    function SetTotal(total: UInt64): HRESULT; stdcall;
-    function SetCompleted(completeValue: PUInt64): HRESULT; stdcall;
     { IArchiveExtractCallback }
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; stdcall;
-    function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
-    { ICryptoGetTextPassword - queried for on extractCallback }
-    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
+    { Other }
+    procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive;
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
   end;
+
+{ Helper functions }
+
+procedure SevenZipError(const LogMessage, ExceptMessage: String);
+{ Do not call from secondary thread. LogMessage may contain non-localized text
+  ExceptMessage should not. }
+begin
+  LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
+  raise Exception.Create(ExceptMessage);
+end;
+
+procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
+begin
+  if LastError = 0 then
+    LastError := GetLastError;
+  const Msg = Format('%s (%u)', [Win32ErrorString(LastError), LastError]);
+  SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
+end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
 begin
@@ -329,6 +364,184 @@ begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
 
+{ TArchiveExtractCallbackBase }
+
+constructor TArchiveExtractCallbackBase.Create(const InArchive: IInArchive;
+  const Password: String);
+begin
+  inherited Create;
+  FInArchive := InArchive;
+  FPassword := Password;
+  FLock := TObject.Create;
+  FResult.OpRes := kOK;
+end;
+
+destructor TArchiveExtractCallbackBase.Destroy;
+begin
+  FResult.SavedFatalException.Free;
+  FLock.Free;
+  inherited;
+end;
+
+function TArchiveExtractCallbackBase.SetTotal(total: UInt64): HRESULT;
+begin
+  { From IArchive.h: 7-Zip can call functions for IProgress or ICompressProgressInfo functions
+    from another threads simultaneously with calls for IArchiveExtractCallback interface }
+  try
+    System.TMonitor.Enter(FLock);
+    try
+      FProgressMax := total;
+    finally
+      System.TMonitor.Exit(FLock);
+    end;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+function TArchiveExtractCallbackBase.SetCompleted(completeValue: PUInt64): HRESULT;
+begin
+  try
+    if FAbort then
+      SysUtils.Abort;
+
+    System.TMonitor.Enter(FLock);
+    try
+      FProgress := completeValue^;
+    finally
+      System.TMonitor.Exit(FLock);
+    end;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+function TArchiveExtractCallbackBase.PrepareOperation(askExtractMode: Int32): HRESULT;
+begin
+  { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called }
+  Result := S_OK;
+end;
+
+function TArchiveExtractCallbackBase.SetOperationResult(
+  opRes: TNOperationResult): HRESULT;
+begin
+  try
+    if opRes <> kOK then begin
+      FResult.OpRes := opRes;
+      Result := E_FAIL; { Make sure it doesn't continue with the next file }
+    end else
+      Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
+end;
+
+function TArchiveExtractCallbackBase.CryptoGetTextPassword(
+  out password: WideString): HRESULT;
+begin
+  Result := SevenZipSetPassword(FPassword, password);
+end;
+
+procedure TArchiveExtractCallbackBase.Extract;
+begin
+  { We're calling 7-Zip's Extract in a separate thread. This is because packing
+    our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
+    GetStream and PrepareOperation and SetOperationResult were *all* called by
+    7-Zip from a secondary thread. So we can't block our main thread as well
+    because then we can't communicate progress to it. Having this extra thread
+    has the added bonus of being able to communicate progress more often from
+    SetCompleted. }
+
+  var ThreadID: TThreadID; { Not used but BeginThread requires it }
+  if not Assigned(FExtractThreadFunc) then
+    InternalError('not Assigned(FExtractThreadFunc)');
+  const ThreadHandle = BeginThread(nil, 0, FExtractThreadFunc, Self, 0, ThreadID);
+  if ThreadHandle = 0 then
+    SevenZipWin32Error('BeginThread');
+
+  try
+    try
+      while True do begin
+        case WaitForSingleObject(ThreadHandle, 50) of
+          WAIT_OBJECT_0: Break;
+          WAIT_TIMEOUT: HandleProgress; { This calls the user's OnExtractionProgress handler! }
+        else
+          SevenZipWin32Error('WaitForSingleObject');
+        end;
+      end;
+    except
+      { If an exception was raised during the loop (most likely it would
+        be from the user's OnExtractionProgress handler), request abort
+        and make one more attempt to wait on the thread. If we don't get
+        definitive confirmation that the thread terminated (WAIT_OBJECT_0),
+        then bump the object's reference count to prevent it from being
+        freed, because the thread could still be running and accessing the
+        object. Leaking memory isn't ideal, but a use-after-free problem
+        is worse. Realisitically, though, WaitForSingleObject should never
+        fail if given a valid handle. }
+      FAbort := True; { Atomic so no lock }
+      if WaitForSingleObject(ThreadHandle, INFINITE) <> WAIT_OBJECT_0 then
+        _AddRef;
+      raise;
+    end;
+  finally
+    CloseHandle(ThreadHandle);
+  end;
+
+  HandleProgress;
+  HandleResult;
+end;
+
+procedure TArchiveExtractCallbackBase.HandleResult;
+
+  function OperationResultToString(const opRes: TNOperationResult): String;
+  begin
+    case opRes of
+      kOK: Result := 'OK';
+      kUnsupportedMethod: Result := 'Unsupported method';
+      kDataError: Result := 'Data error';
+      kCRCError: Result := 'CRC error';
+      kUnavailable: Result := 'Unavailable';
+      kUnexpectedEnd: Result := 'Unexpected end';
+      kDataAfterEnd: Result := 'Data after end';
+      kIsNotArc: Result := 'Is not an archive';
+      kHeadersError: Result := 'Headers error';
+      kWrongPassword: Result := 'Wrong password';
+    else
+      Result := Format('Unknown operation result: %d', [Ord(opRes)]);
+    end;
+  end;
+
+begin
+  if Assigned(FResult.SavedFatalException) then begin
+    var Msg: String;
+    if FResult.SavedFatalException is Exception then
+      Msg := (FResult.SavedFatalException as Exception).Message
+    else
+      Msg := FResult.SavedFatalException.ClassName;
+    SevenZipError(Format('Worker thread terminated unexpectedly with exception: %s', [Msg]), Msg);
+  end else if FResult.Res = E_ABORT then
+    Abort
+  else begin
+    var OpRes := FResult.OpRes;
+    if OpRes <> kOK then
+      SevenZipError(OperationResultToString(FResult.OpRes), Ord(OpRes).ToString)
+    else if FResult.Res <> S_OK then
+      SevenZipWin32Error('Extract', FResult.Res);
+  end;
+end;
+
 { TArchiveExtractCallback }
 
 procedure TArchiveExtractCallback.TCurrent.SetAttrib(const AAttrib: DWORD);
@@ -337,69 +550,39 @@ begin
   HasAttrib := True;
 end;
 
+function ArchiveExtractCallbackExtractThreadFunc(Parameter: Pointer): Integer;
+begin
+  const E = TArchiveExtractCallback(Parameter);
+  try
+    E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
+  except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    E.FResult.SavedFatalException := Ex;
+  end;
+  { Be extra sure FSavedFatalException (and everything else) is made visible
+    prior to thread termination. (Likely redundant, but you never know...) }
+  MemoryBarrier;
+  Result := 0;
+end;
+
 constructor TArchiveExtractCallback.Create(const InArchive: IInArchive;
   const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
-  inherited Create;
-  FInArchive := InArchive;
+  inherited Create(InArchive, Password);
+  FExtractThreadFunc := ArchiveExtractCallbackExtractThreadFunc;
   FDisableFsRedir := DisableFsRedir;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
-  FPassword := Password;
   FFullPaths := FullPaths;
   FExtractedArchiveName := PathExtractName(ArchiveFileName);
   FOnExtractionProgress := OnExtractionProgress;
-  FProgressAndLogQueueLock := TObject.Create;
   FLogQueue := TStringList.Create;
-  FResult.OpRes := kOK;
 end;
 
 destructor TArchiveExtractCallback.Destroy;
 begin
-  FResult.SavedFatalException.Free;
   FLogQueue.Free;
-  FProgressAndLogQueueLock.Free;
-end;
-
-function TArchiveExtractCallback.SetTotal(total: UInt64): HRESULT;
-begin
-  { From IArchive.h: 7-Zip can call functions for IProgress or ICompressProgressInfo functions
-    from another threads simultaneously with calls for IArchiveExtractCallback interface }
-  try
-    System.TMonitor.Enter(FProgressAndLogQueueLock);
-    try
-      FProgress.ProgressMax := total;
-    finally
-      System.TMonitor.Exit(FProgressAndLogQueueLock);
-    end;
-    Result := S_OK;
-  except
-    on E: EAbort do
-      Result := E_ABORT
-    else
-      Result := E_FAIL;
-  end;
-end;
-
-function TArchiveExtractCallback.SetCompleted(completeValue: PUInt64): HRESULT;
-begin
-  try
-    if FAbort then
-      SysUtils.Abort;
-
-    System.TMonitor.Enter(FProgressAndLogQueueLock);
-    try
-      FProgress.Progress := completeValue^;
-    finally
-      System.TMonitor.Exit(FProgressAndLogQueueLock);
-    end;
-    Result := S_OK;
-  except
-    on E: EAbort do
-      Result := E_ABORT
-    else
-      Result := E_FAIL;
-  end;
 end;
 
 function TArchiveExtractCallback.GetStream(index: UInt32;
@@ -456,13 +639,13 @@ begin
         NewCurrent.outStream := outStream;
       end;
     end;
-    System.TMonitor.Enter(FProgressAndLogQueueLock);
+    System.TMonitor.Enter(FLock);
     try
-      FProgress.Current := NewCurrent;
+      FCurrent := NewCurrent;
       if NewCurrent.Path <> '' then
         FLogQueue.Append(NewCurrent.Path)
     finally
-      System.TMonitor.Exit(FProgressAndLogQueueLock);
+      System.TMonitor.Exit(FLock);
     end;
     Result := S_OK;
   except
@@ -475,33 +658,24 @@ begin
   end;
 end;
 
-function TArchiveExtractCallback.PrepareOperation(askExtractMode: Int32): HRESULT;
-begin
-  { From Client7z.cpp: PrepareOperation is called *after* GetStream has been called }
-  Result := S_OK;
-end;
-
 function TArchiveExtractCallback.SetOperationResult(opRes: TNOperationResult): HRESULT;
 begin
   { From IArchive.h: Can now can close the file, set attributes, timestamps and security information }
   try
     try
-      if opRes <> kOK then begin
-        FResult.OpRes := opRes;
-        Result := E_FAIL; { Make sure it doesn't continue with the next file }
-      end else begin
+      Result := inherited;
+      if Result = S_OK then begin
         { GetStream is the only writer to outStream and ExpandedPath and HasAttrib so we don't need a lock because of this note from
           IArchive.h: 7-Zip doesn't call GetStream/PrepareOperation/SetOperationResult from different threads simultaneously }
-        if (FProgress.Current.outStream <> nil) and (FProgress.Current.CTime.HasTime or FProgress.Current.MTime.HasTime) then
-          SetFileTime((FProgress.Current.outStream as TSequentialOutStream).FFile.Handle,
-            @FProgress.Current.CTime, nil, @FProgress.Current.MTime);
-        FProgress.Current.outStream := nil; { Like 7zMain.c close the file before setting attributes - note that 7-Zip has cleared its own reference as well already }
-        if (FProgress.Current.ExpandedPath <> '') and FProgress.Current.HasAttrib then
-          SetFileAttributesRedir(FDisableFsRedir, FProgress.Current.ExpandedPath, FProgress.Current.Attrib);
-        Result := S_OK;
+        if (FCurrent.outStream <> nil) and (FCurrent.CTime.HasTime or FCurrent.MTime.HasTime) then
+          SetFileTime((FCurrent.outStream as TSequentialOutStream).FFile.Handle,
+            @FCurrent.CTime, nil, @FCurrent.MTime);
+        FCurrent.outStream := nil; { Like 7zMain.c close the file before setting attributes - note that 7-Zip has cleared its own reference as well already }
+        if (FCurrent.ExpandedPath <> '') and FCurrent.HasAttrib then
+          SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, FCurrent.Attrib);
       end;
     finally
-      FProgress.Current.outStream := nil;
+      FCurrent.outStream := nil;
     end;
   except
     on E: EAbort do
@@ -511,13 +685,42 @@ begin
   end;
 end;
 
-function TArchiveExtractCallback.CryptoGetTextPassword(
-  out password: WideString): HRESULT;
+procedure TArchiveExtractCallback.HandleProgress;
 begin
-  Result := SevenZipSetPassword(FPassword, password);
+  var CurrentPath: String;
+  var Progress, ProgressMax: UInt64;
+
+  System.TMonitor.Enter(FLock);
+  try
+    CurrentPath := FCurrent.Path;
+    Progress := FProgress;
+    ProgressMax := FProgressMax;
+    for var S in FLogQueue do
+      LogFmt('- %s', [S]); { Just like 7zMain.c }
+    FLogQueue.Clear;
+  finally
+    System.TMonitor.Exit(FLock);
+  end;
+
+  var Abort := FAbort;
+  if Abort then
+    Exit;
+
+  if (CurrentPath <> '') and Assigned(FOnExtractionProgress) then begin
+    { Calls to HandleProgress are already throttled so here we don't have to worry
+      about calling the script to often }
+    if not FOnExtractionProgress(FExtractedArchiveName, CurrentPath, Progress, ProgressMax) then
+      Abort := True;
+  end;
+
+  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+    Application.ProcessMessages;
+
+  if Abort then
+    FAbort := Abort; { Atomic so no lock }
 end;
 
-{---}
+{ Additional helper functions }
 
 var
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
@@ -532,22 +735,6 @@ begin
     VersionBanner := Format(' %u.%.2u', [(VersionNumbers.MS shr 16) and $FFFF, VersionNumbers.MS and $FFFF])
   else
     VersionBanner := '';
-end;
-
-procedure SevenZipError(const LogMessage, ExceptMessage: String);
-{ Do not call from secondary thread. LogMessage may contain non-localized text
-  ExceptMessage should not. }
-begin
-  LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
-  raise Exception.Create(ExceptMessage);
-end;
-
-procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
-begin
-  if LastError = 0 then
-    LastError := GetLastError;
-  const Msg = Format('%s (%u)', [Win32ErrorString(LastError), LastError]);
-  SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
 end;
 
 function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
@@ -613,147 +800,9 @@ end;
 
 { ExtractArchiveRedir }
 
-function ExtractThreadFunc(Parameter: Pointer): Integer;
-begin
-  const E = TArchiveExtractCallback(Parameter);
-  try
-    E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
-  except
-    const Ex = AcquireExceptionObject;
-    MemoryBarrier;
-    E.FResult.SavedFatalException := Ex;
-  end;
-  { Be extra sure FSavedFatalException (and everything else) is made visible
-    prior to thread termination. (Likely redundant, but you never know...) }
-  MemoryBarrier;
-  Result := 0;
-end;
-
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
-
-  procedure HandleProgress(const E: TArchiveExtractCallback);
-  begin
-    var CurrentPath: String;
-    var Progress, ProgressMax: UInt64;
-
-    System.TMonitor.Enter(E.FProgressAndLogQueueLock);
-    try
-      CurrentPath := E.FProgress.Current.Path;
-      Progress := E.FProgress.Progress;
-      ProgressMax := E.FProgress.ProgressMax;
-      for var S in E.FLogQueue do
-        LogFmt('- %s', [S]); { Just like 7zMain.c }
-      E.FLogQueue.Clear;
-    finally
-      System.TMonitor.Exit(E.FProgressAndLogQueueLock);
-    end;
-
-    var Abort := E.FAbort;
-    if Abort then
-      Exit;
-
-    if (CurrentPath <> '') and Assigned(E.FOnExtractionProgress) then begin
-      { Calls to HandleProgress are already throttled so here we don't have to worry
-        about calling the script to often }
-      if not E.FOnExtractionProgress(E.FExtractedArchiveName, CurrentPath, Progress, ProgressMax) then
-        Abort := True;
-    end;
-
-    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-      Application.ProcessMessages;
-
-    if Abort then
-      E.FAbort := Abort; { Atomic so no lock }
-  end;
-
-  function OperationResultToString(const opRes: TNOperationResult): String;
-  begin
-    case opRes of
-      kOK: Result := 'OK';
-      kUnsupportedMethod: Result := 'Unsupported method';
-      kDataError: Result := 'Data error';
-      kCRCError: Result := 'CRC error';
-      kUnavailable: Result := 'Unavailable';
-      kUnexpectedEnd: Result := 'Unexpected end';
-      kDataAfterEnd: Result := 'Data after end';
-      kIsNotArc: Result := 'Is not an archive';
-      kHeadersError: Result := 'Headers error';
-      kWrongPassword: Result := 'Wrong password';
-    else
-      Result := Format('Unknown operation result: %d', [Ord(opRes)]);
-    end;
-  end;
-
-  procedure HandleResult([ref] const Result: TArchiveExtractCallback.TResult);
-  begin
-    if Assigned(Result.SavedFatalException) then begin
-      var Msg: String;
-      if Result.SavedFatalException is Exception then
-        Msg := (Result.SavedFatalException as Exception).Message
-      else
-        Msg := Result.SavedFatalException.ClassName;
-      SevenZipError(Format('Worker thread terminated unexpectedly with exception: %s', [Msg]), Msg);
-    end else if Result.Res = E_ABORT then
-      Abort
-    else begin
-      var OpRes := Result.OpRes;
-      if OpRes <> kOK then
-        SevenZipError(OperationResultToString(Result.OpRes), Ord(OpRes).ToString)
-      else if Result.Res <> S_OK then
-        SevenZipWin32Error('Extract', Result.Res);
-    end;
-  end;
-
-  procedure Extract(const E: TArchiveExtractCallback);
-  begin
-    { We're calling 7-Zip's Extract in a separate thread. This is because packing
-      our example MyProg.exe into a (tiny) .7z and extracting it caused a problem:
-      GetStream and PrepareOperation and SetOperationResult were *all* called by
-      7-Zip from a secondary thread. So we can't block our main thread as well
-      because then we can't communicate progress to it. Having this extra thread
-      has the added bonus of being able to communicate progress more often from
-      SetCompleted. }
-
-    var ThreadID: TThreadID; { Not used but BeginThread requires it }
-    const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, E, 0, ThreadID);
-    if ThreadHandle = 0 then
-      SevenZipWin32Error('BeginThread');
-
-    try
-      try
-        while True do begin
-          case WaitForSingleObject(ThreadHandle, 50) of
-            WAIT_OBJECT_0: Break;
-            WAIT_TIMEOUT: HandleProgress(E); { This calls the user's OnExtractionProgress handler! }
-          else
-            SevenZipWin32Error('WaitForSingleObject');
-          end;
-        end;
-      except
-        { If an exception was raised during the loop (most likely it would
-          be from the user's OnExtractionProgress handler), request abort
-          and make one more attempt to wait on the thread. If we don't get
-          definitive confirmation that the thread terminated (WAIT_OBJECT_0),
-          then bump the object's reference count to prevent it from being
-          freed, because the thread could still be running and accessing the
-          object. Leaking memory isn't ideal, but a use-after-free problem
-          is worse. Realisitically, though, WaitForSingleObject should never
-          fail if given a valid handle. }
-        E.FAbort := True; { Atomic so no lock }
-        if WaitForSingleObject(ThreadHandle, INFINITE) <> WAIT_OBJECT_0 then
-          E._AddRef;
-        raise;
-      end;
-    finally
-      CloseHandle(ThreadHandle);
-    end;
-
-    HandleProgress(E);
-    HandleResult(E.FResult);
-  end;
-
 begin
   LogArchiveExtractionModeOnce;
 
@@ -776,7 +825,7 @@ begin
     const ExtractCallback: IArchiveExtractCallback =
       TArchiveExtractCallback.Create(InArchive, DisableFsRedir,
         ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-    Extract(ExtractCallback as TArchiveExtractCallback);
+    (ExtractCallback as TArchiveExtractCallback).Extract;
 
     Log('Everything is Ok'); { Just like 7zMain.c }
   except
