@@ -28,11 +28,13 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   FindClose with the exception that recursion is built-in and that the
   resulting FindFileData.cFilename contains not just a filename but also the
   subdir }
+type
+  TArchiveFindHandle = type Cardinal;
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
-  out FindFileData: TWin32FindData): THandle;
-function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32FindData): Boolean;
-function ArchiveFindClose(const FindFile: THandle): Boolean;
+  out FindFileData: TWin32FindData): TArchiveFindHandle;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
+function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 
 implementation
 
@@ -837,7 +839,7 @@ end;
 
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
-  out FindFileData: TWin32FindData): THandle;
+  out FindFileData: TWin32FindData): TArchiveFindHandle;
 begin
   if ArchiveFileName = '' then
     InternalError('ArchiveFindFirstFile: Invalid ArchiveFileName value');
@@ -865,7 +867,7 @@ begin
 
         { Finish find data & exit }
         State.FinishCurrentFindData(FindFileData);
-        Exit(THandle(ArchiveFindStates.Count));
+        Exit(ArchiveFindStates.Count-1);
       end;
     end;
     Result := INVALID_HANDLE_VALUE;
@@ -877,14 +879,14 @@ begin
   end;
 end;
 
-function CheckFindFileHandle(const FindFile: THandle): Integer;
+function CheckFindFileHandle(const FindFile: TArchiveFindHandle): Integer;
 begin
-  Result := Integer(FindFile)-1;
+  Result := Integer(FindFile);
   if (Result < 0) or (Result >= ArchiveFindStates.Count) then
     InternalError('CheckFindFileHandle failed');
 end;
 
-function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32FindData): Boolean;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 begin
   const I = CheckFindFileHandle(FindFile);
   var State := ArchiveFindStates[I];
@@ -903,7 +905,7 @@ begin
   Result := False;
 end;
 
-function ArchiveFindClose(const FindFile: THandle): Boolean;
+function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 begin
   ArchiveFindStates.Delete(CheckFindFileHandle(FindFile));
   Result := True;
