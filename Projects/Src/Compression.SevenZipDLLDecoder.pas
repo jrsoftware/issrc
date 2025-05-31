@@ -783,7 +783,8 @@ type
     ExtractedArchiveName: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
-    function GetInitialCurrentFindData: TWin32FindData;
+    function GetInitialCurrentFindData(const RecurseSubDirs: Boolean;
+      out FindData: TWin32FindData): Boolean;
     procedure FinishCurrentFindData(var FindData: TWin32FindData);
   end;
 
@@ -792,21 +793,30 @@ type
 var
   ArchiveFindStates: TArchiveFindStates;
 
-function TArchiveFindState.GetInitialCurrentFindData: TWin32FindData;
-begin
-  Result := Default(TWin32FindData);
+function TArchiveFindState.GetInitialCurrentFindData(const RecurseSubDirs: Boolean;
+  out FindData: TWin32FindData): Boolean;
 
+  function SkipFile(const Path: String; const IsDir: Boolean): Boolean;
+  begin
+    Result := not RecurseSubDirs and (IsDir or (PathPos('\', Path) <> 0));
+  end;
+
+begin
   var Path: String;
   if not GetProperty(InArchive, currentIndex, kpidPath, Path) then
     Path := PathChangeExt(ExtractedArchiveName, '');
-  if Length(Path) >= MAX_PATH then
-    InternalError('GetCurrentFindData: Length(Path) >= MAX_PATH');
-  StrPCopy(Result.cFileName, Path);
-
   var IsDir: Boolean;
   GetProperty(InArchive, currentIndex, kpidIsDir, IsDir);
-  if IsDir then
-    Result.dwFileAttributes := Result.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY;
+
+  Result := not SkipFile(Path, IsDir);
+  if Result then begin
+    FindData := Default(TWin32FindData);
+    if Length(Path) >= MAX_PATH then
+      InternalError('GetInitialCurrentFindData: Length(Path) >= MAX_PATH');
+    StrPCopy(FindData.cFileName, Path);
+    if IsDir then
+      FindData.dwFileAttributes := FindData.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY;
+  end;
 end;
 
 procedure TArchiveFindState.FinishCurrentFindData(var FindData: TWin32FindData);
@@ -823,13 +833,6 @@ begin
     FindData.nFileSizeHigh := Size.Hi;
     FindData.nFileSizeLow := Size.Lo;
   end;
-end;
-
-function SkipFileData(const RecurseSubDirs: Boolean; [ref] const FindFileData: TWin32FindData): Boolean;
-begin
-  Result := not RecurseSubDirs and
-            ((FindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) or
-             (PathPos('\', FindFileData.cFileName) <> 0));
 end;
 
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
@@ -849,8 +852,7 @@ begin
       SevenZipError('Cannot get number of items', '-3');
 
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
-      FindFileData := State.GetInitialCurrentFindData;
-      if not SkipFileData(RecurseSubDirs, FindFileData) then begin
+      if State.GetInitialCurrentFindData(RecurseSubDirs, FindFileData) then begin
         { Finish state }
         State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
         State.RecurseSubDirs := RecurseSubDirs;
@@ -889,8 +891,7 @@ begin
 
   for var currentIndex := State.currentIndex+1 to State.numItems-1 do begin
     State.currentIndex := currentIndex;
-    FindFileData := State.GetInitialCurrentFindData;
-    if not SkipFileData(State.RecurseSubDirs, FindFileData) then begin
+    if State.GetInitialCurrentFindData(State.RecurseSubDirs, FindFileData) then begin
       { Update state }
       ArchiveFindStates[I] := State; { This just updates currentIndex }
 
