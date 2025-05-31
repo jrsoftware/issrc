@@ -24,6 +24,10 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
+{ These functions work similar to Windows' FindFirstFile, FindNextFile, and
+  FindClose with the exception that recursion is built-in and that the
+  resulting FindFileData.cFilename contains not just a filename but also the
+  subdir }
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
   out FindFileData: TWin32FindData): THandle;
