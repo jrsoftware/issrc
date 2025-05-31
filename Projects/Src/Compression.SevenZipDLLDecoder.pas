@@ -941,7 +941,7 @@ end;
 initialization
 
 finalization
-  if ArchiveFindStates.Count > 0 then { Not allowed because it has references to 7-Zip which is probably already unloaded }
+  if (ArchiveFindStates <> nil) and (ArchiveFindStates.Count > 0) then { Not allowed because it has references to 7-Zip which is probably already unloaded }
     InternalError('ArchiveFindStates.Count > 0');
   ArchiveFindStates.Free;
 
