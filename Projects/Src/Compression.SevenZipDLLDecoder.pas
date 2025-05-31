@@ -31,7 +31,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 type
   TArchiveFindHandle = type Cardinal;
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
+  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
   out FindFileData: TWin32FindData): TArchiveFindHandle;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
@@ -782,7 +782,7 @@ end;
 type
   TArchiveFindState = record
     InArchive: IInArchive;
-    ExtractedArchiveName: String;
+    ExpandedDestDir, ExtractedArchiveName: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
     function GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
@@ -798,7 +798,8 @@ function TArchiveFindState.GetInitialCurrentFindData(out FindData: TWin32FindDat
 
   function SkipFile(const Path: String; const IsDir: Boolean): Boolean;
   begin
-    Result := not RecurseSubDirs and (IsDir or (PathPos('\', Path) <> 0));
+    Result := (not RecurseSubDirs and (IsDir or (PathPos('\', Path) <> 0))) or
+              not ValidateAndCombinePath(ExpandedDestDir, Path);
   end;
 
 begin
@@ -836,7 +837,7 @@ begin
 end;
 
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
+  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
   out FindFileData: TWin32FindData): TArchiveFindHandle;
 begin
   if ArchiveFileName = '' then
@@ -850,6 +851,8 @@ begin
     State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
     if State.InArchive.GetNumberOfItems(State.numItems) <> S_OK then
       SevenZipError('Cannot get number of items', '-3');
+    if DestDir <> '' then
+      State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
     State.RecurseSubDirs := RecurseSubDirs;
 

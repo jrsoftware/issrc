@@ -1809,9 +1809,13 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     { See above }
     Result := True;
 
+    if foCustomDestName in CurFile^.Options then
+      InternalError('Unexpected custom DestName');
+    const DestDir = ExpandConst(CurFile^.DestName);
+
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
-      foRecurseSubDirsExternal in CurFile^.Options, FindData);
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+      Password, foRecurseSubDirsExternal in CurFile^.Options, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1820,9 +1824,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            if foCustomDestName in CurFile^.Options then
-              InternalError('Unexpected custom DestName');
-            const DestName = ExpandConst(CurFile^.DestName) + FindData.cFileName;
+            const DestName = DestDir + FindData.cFileName;
             if not EnumFilesProc(DisableFsRedir, DestName, Param) then
               Exit(False);
           end;
@@ -2811,8 +2813,8 @@ var
     Result.Lo := 0;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
-      RecurseSubDirs, FindData);
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, '',
+      Password, RecurseSubDirs, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat

@@ -1901,10 +1901,14 @@ var
 
       Result := False;
 
+      if foCustomDestName in CurFile^.Options then
+        InternalError('Unexpected custom DestName');
+      const DestDir = ExpandConst(CurFile^.DestName);
+
       var FindData: TWin32FindData;
       var ArchiveIndex := 0;
-      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
-        foRecurseSubDirsExternal in CurFile^.Options, FindData);
+      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+        Password, foRecurseSubDirsExternal in CurFile^.Options, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
@@ -1915,9 +1919,7 @@ var
 
               Result := True;
               var SourceFile := ArchiveIndex.ToString; {!!!}
-              if foCustomDestName in CurFile^.Options then
-                InternalError('Unexpected custom DestName');
-              const DestName = ExpandConst(CurFile^.DestName) + FindData.cFileName;
+              const DestName = DestDir + FindData.cFileName;
               var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;
               Size.Lo := FindData.nFileSizeLow;
