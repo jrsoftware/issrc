@@ -960,6 +960,9 @@ var
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
     var WarnedPerUserFonts: Boolean);
+  { Not external: AExternalSourceFile and ADestFile should be empty strings,
+                  FileLocationFilenames should be set, AExternalSize is unused
+    Extern      : Opposite }
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
