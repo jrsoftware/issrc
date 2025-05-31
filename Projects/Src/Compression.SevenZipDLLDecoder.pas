@@ -88,7 +88,8 @@ type
     constructor Create(const Password: String);
   end;
 
-  TArchiveExtractBaseCallback = class(TInterfacedObject)
+  TArchiveExtractBaseCallback = class(TInterfacedObject, IArchiveExtractCallback,
+    ICryptoGetTextPassword)
   private
     type
       TResult = record
@@ -96,10 +97,10 @@ type
         Res: HRESULT;
         OpRes: TNOperationResult;
       end;
+      TArrayOfCardinal = array of Cardinal;
     var
       FInArchive: IInArchive;
       FPassword: String;
-      FExtractThreadFunc: TThreadFunc;
       FLock: TObject;
       FProgress, FProgressMax: UInt64;
       FAbort: Boolean;
@@ -109,11 +110,14 @@ type
     function SetTotal(total: UInt64): HRESULT; stdcall;
     function SetCompleted(completeValue: PUInt64): HRESULT; stdcall;
     { IArchiveExtractCallback }
+    function GetStream(index: UInt32; out outStream: ISequentialOutStream;
+      askExtractMode: Int32): HRESULT; virtual; stdcall; abstract;
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
     { ICryptoGetTextPassword - queried for on extractCallback }
     function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
     { Other }
+    function GetIndices: TArrayOfCardinal; virtual; abstract;
     procedure Extract;
     procedure HandleProgress; virtual; abstract;
     procedure HandleResult;
@@ -122,8 +126,7 @@ type
     destructor Destroy; override;
   end;
 
-  TArchiveExtractAllCallback = class(TArchiveExtractBaseCallback, IArchiveExtractCallback,
-    ICryptoGetTextPassword)
+  TArchiveExtractAllCallback = class(TArchiveExtractBaseCallback)
   private
     type
       TCurrent = record
@@ -145,9 +148,10 @@ type
   protected
     { IArchiveExtractCallback }
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
-      askExtractMode: Int32): HRESULT; stdcall;
+      askExtractMode: Int32): HRESULT; override; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
     { Other }
+    function GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal; override;
     procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive;
@@ -453,6 +457,32 @@ begin
   Result := SevenZipSetPassword(FPassword, password);
 end;
 
+function ExtractThreadFunc(Parameter: Pointer): Integer;
+begin
+  const E = TArchiveExtractBaseCallback(Parameter);
+  try
+    const Indices = E.GetIndices; { From IArchive.h: indices must be sorted }
+    const NIndices = Length(Indices);
+    if NIndices > 0 then begin
+      var NumberOfItems: UInt32;
+      E.FInArchive.GetNumberOfItems(NumberOfItems);
+      if UInt32(NIndices) > NumberOfItems then
+        InternalError('NIndices > NumberOfItems');
+      E.FResult.Res := E.FInArchive.Extract(@Indices[0], NIndices, 0, E)
+    end else
+      E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E)
+  except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    E.FResult.SavedFatalException := Ex;
+  end;
+  { Be extra sure FSavedFatalException (and everything else) is made visible
+    prior to thread termination. (Likely redundant, but you never know...) }
+  MemoryBarrier;
+  Result := 0;
+end;
+
+
 procedure TArchiveExtractBaseCallback.Extract;
 begin
   { We're calling 7-Zip's Extract in a separate thread. This is because packing
@@ -464,9 +494,7 @@ begin
     SetCompleted. }
 
   var ThreadID: TThreadID; { Not used but BeginThread requires it }
-  if not Assigned(FExtractThreadFunc) then
-    InternalError('not Assigned(FExtractThreadFunc)');
-  const ThreadHandle = BeginThread(nil, 0, FExtractThreadFunc, Self, 0, ThreadID);
+  const ThreadHandle = BeginThread(nil, 0, ExtractThreadFunc, Self, 0, ThreadID);
   if ThreadHandle = 0 then
     SevenZipWin32Error('BeginThread');
 
@@ -550,28 +578,11 @@ begin
   HasAttrib := True;
 end;
 
-function ArchiveExtractCallbackExtractThreadFunc(Parameter: Pointer): Integer;
-begin
-  const E = TArchiveExtractAllCallback(Parameter);
-  try
-    E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E);
-  except
-    const Ex = AcquireExceptionObject;
-    MemoryBarrier;
-    E.FResult.SavedFatalException := Ex;
-  end;
-  { Be extra sure FSavedFatalException (and everything else) is made visible
-    prior to thread termination. (Likely redundant, but you never know...) }
-  MemoryBarrier;
-  Result := 0;
-end;
-
 constructor TArchiveExtractAllCallback.Create(const InArchive: IInArchive;
   const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   inherited Create(InArchive, Password);
-  FExtractThreadFunc := ArchiveExtractCallbackExtractThreadFunc;
   FDisableFsRedir := DisableFsRedir;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
   FFullPaths := FullPaths;
@@ -583,6 +594,11 @@ end;
 destructor TArchiveExtractAllCallback.Destroy;
 begin
   FLogQueue.Free;
+end;
+
+function TArchiveExtractAllCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal;
+begin
+  SetLength(Result, 0); { No indices = extract all }
 end;
 
 function TArchiveExtractAllCallback.GetStream(index: UInt32;
