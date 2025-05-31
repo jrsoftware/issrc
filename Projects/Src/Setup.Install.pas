@@ -1899,7 +1899,8 @@ var
 
       var FindData: TWin32FindData;
       var ArchiveIndex := 0;
-      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password, FindData);
+      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
+        foRecurseSubDirsExternal in CurFile^.Options, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat

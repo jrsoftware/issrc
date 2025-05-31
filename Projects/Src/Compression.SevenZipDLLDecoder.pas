@@ -25,7 +25,8 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; out FindFileData: TWin32FindData): THandle;
+  const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
+  out FindFileData: TWin32FindData): THandle;
 function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: THandle): Boolean;
 
@@ -776,8 +777,10 @@ type
   TArchiveFindState = record
     InArchive: IInArchive;
     ExtractedArchiveName: String;
+    RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
-    function GetCurrentFindData: TWin32FindData;
+    function GetInitialCurrentFindData: TWin32FindData;
+    procedure FinishCurrentFindData(var FindData: TWin32FindData);
   end;
 
   TArchiveFindStates = TList<TArchiveFindState>;
@@ -785,7 +788,7 @@ type
 var
   ArchiveFindStates: TArchiveFindStates;
 
-function TArchiveFindState.GetCurrentFindData: TWin32FindData;
+function TArchiveFindState.GetInitialCurrentFindData: TWin32FindData;
 begin
   Result := Default(TWin32FindData);
 
@@ -799,21 +802,35 @@ begin
   var IsDir: Boolean;
   GetProperty(InArchive, currentIndex, kpidIsDir, IsDir);
   if IsDir then
-    Result.dwFileAttributes := Result.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY
-  else begin
-    GetProperty(InArchive, currentIndex, kpidAttrib, Result.dwFileAttributes);
-    PosixHighDetect(Result.dwFileAttributes);
-    GetProperty(InArchive, currentIndex, kpidCTime, Result.ftCreationTime);
-    GetProperty(InArchive, currentIndex, kpidMTime, Result.ftLastWriteTime);
+    Result.dwFileAttributes := Result.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY;
+end;
+
+procedure TArchiveFindState.FinishCurrentFindData(var FindData: TWin32FindData);
+begin
+  if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+    var Attrib: DWORD;
+    GetProperty(InArchive, currentIndex, kpidAttrib, Attrib);
+    PosixHighDetect(Attrib);
+    FindData.dwFileAttributes := FindData.dwFileAttributes or Attrib;
+    GetProperty(InArchive, currentIndex, kpidCTime, FindData.ftCreationTime);
+    GetProperty(InArchive, currentIndex, kpidMTime, FindData.ftLastWriteTime);
     var Size: Integer64;
     GetProperty(InArchive, currentIndex, kpidSize, Size);
-    Result.nFileSizeHigh := Size.Hi;
-    Result.nFileSizeLow := Size.Lo;
+    FindData.nFileSizeHigh := Size.Hi;
+    FindData.nFileSizeLow := Size.Lo;
   end;
 end;
 
+function SkipFileData(const RecurseSubDirs: Boolean; [ref] const FindFileData: TWin32FindData): Boolean;
+begin
+  Result := not RecurseSubDirs and
+            ((FindFileData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) or
+             (PathPos('\', FindFileData.cFileName) <> 0));
+end;
+
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; out FindFileData: TWin32FindData): THandle;
+  const ArchiveFilename, Password: String; const RecurseSubDirs: Boolean;
+  out FindFileData: TWin32FindData): THandle;
 begin
   if ArchiveFileName = '' then
     InternalError('ArchiveFindFirstFile: Invalid ArchiveFileName value');
@@ -822,25 +839,30 @@ begin
 
   try
     { Open }
-    var ArchiveFindState := Default(TArchiveFindState);
-    ArchiveFindState.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
-    if ArchiveFindState.InArchive.GetNumberOfItems(ArchiveFindState.numItems) <> S_OK then
+    var State := Default(TArchiveFindState);
+    State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
+    if State.InArchive.GetNumberOfItems(State.numItems) <> S_OK then
       SevenZipError('Cannot get number of items', '-3');
 
-    if ArchiveFindState.numItems <> 0 then begin
-      { Finish state }
-      ArchiveFindState.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+    for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
+      FindFileData := State.GetInitialCurrentFindData;
+      if not SkipFileData(RecurseSubDirs, FindFileData) then begin
+        { Finish state }
+        State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+        State.RecurseSubDirs := RecurseSubDirs;
+        State.currentIndex := currentIndex;
 
-      { Save state }
-      if ArchiveFindStates = nil then
-        ArchiveFindStates := TArchiveFindStates.Create;
-      ArchiveFindStates.Add(ArchiveFindState);
-      Result := THandle(ArchiveFindStates.Count);
+        { Save state }
+        if ArchiveFindStates = nil then
+          ArchiveFindStates := TArchiveFindStates.Create;
+        ArchiveFindStates.Add(State);
 
-      { Return first find data }
-      FindFileData := ArchiveFindState.GetCurrentFindData;
-    end else
-      Result := INVALID_HANDLE_VALUE;
+        { Finish find data & exit }
+        State.FinishCurrentFindData(FindFileData);
+        Exit(THandle(ArchiveFindStates.Count));
+      end;
+    end;
+    Result := INVALID_HANDLE_VALUE;
   except
     on E: EAbort do
       raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
@@ -860,15 +882,20 @@ function ArchiveFindNextFile(const FindFile: THandle; out FindFileData: TWin32Fi
 begin
   const I = CheckFindFileHandle(FindFile);
   var State := ArchiveFindStates[I];
-  Result := State.currentIndex < State.numItems-1;
-  if Result then begin
-    { Update state }
-    Inc(State.currentIndex);
-    ArchiveFindStates[I] := State;
 
-    { Return next find data }
-    FindFileData := State.GetCurrentFindData;
+  for var currentIndex := State.currentIndex+1 to State.numItems-1 do begin
+    State.currentIndex := currentIndex;
+    FindFileData := State.GetInitialCurrentFindData;
+    if not SkipFileData(State.RecurseSubDirs, FindFileData) then begin
+      { Update state }
+      ArchiveFindStates[I] := State; { This just updates currentIndex }
+
+      { Finish find data & exit }
+      State.FinishCurrentFindData(FindFileData);
+      Exit(True);
+    end;
   end;
+  Result := False;
 end;
 
 function ArchiveFindClose(const FindFile: THandle): Boolean;

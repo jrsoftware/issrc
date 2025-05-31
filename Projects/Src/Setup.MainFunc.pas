@@ -1810,7 +1810,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     Result := True;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password , FindData);
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
+      foRecurseSubDirsExternal in CurFile^.Options, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -2802,14 +2803,16 @@ var
   end;
 
   function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
-    const ArchiveFilename, Password: String; const Excludes: TStrings): Integer64;
+    const ArchiveFilename, Password: String; const Excludes: TStrings;
+    const RecurseSubDirs: Boolean): Integer64;
   begin
     { See above }
     Result.Hi := 0;
     Result.Lo := 0;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password, FindData);
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, Password,
+      RecurseSubDirs, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -3504,7 +3507,8 @@ begin
 	            if foExtractArchive in Options then begin
 	              ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
 	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-	                ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes);
+	                ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes,
+                  foRecurseSubDirsExternal in Options);
 	            end else begin
 	              if FileType <> ftUserFile then
 	                SourceWildcard := NewParamStr(0)
