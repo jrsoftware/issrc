@@ -1492,7 +1492,7 @@ var
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
             else begin
-              { Copy an external file, or a duplicated non-external file } {!!!}
+              { Copy a duplicated non-external file, or an external file } {!!!}
               SourceF := TFileRedir.Create(DisableFsRedir, SourceFile, fdOpenExisting, faRead, fsRead);
               try
                 LastOperation := SetupMessages[msgErrorCopying];
