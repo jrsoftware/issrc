@@ -777,6 +777,17 @@ begin
     InternalError(NotFoundErrorMsg);
 end;
 
+var
+  LoggedBanner: Boolean;
+
+procedure LogBannerOnce;
+begin
+  if not LoggedBanner then begin
+    LogFmt('%s Decoder%s : Igor Pavlov', [SetupHeader.SevenZipLibraryName, VersionBanner]); { Just like 7zMain.c }
+    LoggedBanner := True;
+  end;
+end;
+
 function OpenArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, Password: String; const clsid: TGUID): IInArchive;
 begin
@@ -815,7 +826,7 @@ begin
 
   LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  LogFmt('%s Decoder%s : Igor Pavlov', [SetupHeader.SevenZipLibraryName, VersionBanner]); { Just like 7zMain.c }
+  LogBannerOnce;
 
   try
     { Open }
@@ -899,10 +910,14 @@ function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
   out FindFileData: TWin32FindData): TArchiveFindHandle;
 begin
+  LogArchiveExtractionModeOnce;
+
   if ArchiveFileName = '' then
     InternalError('ArchiveFindFirstFile: Invalid ArchiveFileName value');
   const clsid = GetHandler(PathExtractExt(ArchiveFilename),
     'ArchiveFindFirstFile: Unknown ArchiveFileName extension');
+
+  LogBannerOnce;
 
   try
     { Open }
