@@ -795,8 +795,8 @@ begin
   var Path: String;
   if not GetProperty(InArchive, currentIndex, kpidPath, Path) then
     Path := PathChangeExt(ExtractedArchiveName, '');
-  if Length(Path) > MAX_PATH then
-    InternalError('GetCurrentFindData: Length(Path) > MAX_PATH');
+  if Length(Path) >= MAX_PATH then
+    InternalError('GetCurrentFindData: Length(Path) >= MAX_PATH');
   StrPCopy(Result.cFileName, Path);
 
   var IsDir: Boolean;
