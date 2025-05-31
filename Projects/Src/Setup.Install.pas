@@ -959,10 +959,11 @@ var
     const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
-    var WarnedPerUserFonts: Boolean);
+    var WarnedPerUserFonts: Boolean; const AExternalFileDate: PFileTime);
   { Not external: AExternalSourceFile and ADestFile should be empty strings,
-                  FileLocationFilenames should be set, AExternalSize is unused
-    Extern      : Opposite }
+                  FileLocationFilenames should be set, AExternalSize is unused,
+                  AExternalFileDate should not be set
+    External    : Opposite. AExternalFileDate should only be set if archive }
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
@@ -1235,9 +1236,11 @@ var
           else
             LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
           CurFileDateValid := True;
-        end
-        else
-          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate); {!!!}
+        end else if Assigned(AExternalFileDate) then begin
+          CurFileDate := AExternalFileDate^;
+          CurFileDateValid := CurFileDate.HasTime;
+        end else
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate);
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
         else
@@ -1847,7 +1850,7 @@ var
               end;
               ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile, nil,
                 Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts);
+                WarnedPerUserFonts, nil);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not FindNextFile(H, FindData);
@@ -1936,7 +1939,7 @@ var
               end;
               ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile,
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts);
+                WarnedPerUserFonts, @FindData.ftLastWriteTime);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not ArchiveFindNextFile(H, FindData);
@@ -1992,7 +1995,7 @@ var
             ExternalSize.Hi := 0;  { not used... }
             ExternalSize.Lo := 0;
             ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize,
-              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts);
+              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
           end
           else begin
             { File is an 'external' file }

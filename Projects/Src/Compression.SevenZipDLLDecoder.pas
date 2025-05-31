@@ -36,6 +36,12 @@ function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 
+type
+  TFileTimeHelper = record helper for TFileTime
+    procedure Clear;
+    function HasTime: Boolean;
+  end;
+
 implementation
 
 uses
@@ -131,11 +137,6 @@ type
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
-  end;
-
-  TFileTimeHelper = record helper for TFileTime
-    procedure Clear;
-    function HasTime: Boolean;
   end;
 
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
