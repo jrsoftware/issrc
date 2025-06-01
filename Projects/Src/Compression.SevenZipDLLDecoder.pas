@@ -139,8 +139,6 @@ type
 function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
 begin
   try
-    if Password = '' then
-      Exit(S_FALSE);
     outPassword := Password;
     Result := S_OK;
   except
