@@ -1884,7 +1884,7 @@ var
       if SearchSubDir <> '' then begin
         { If Result is False this subdir won't be created, so create it now if
           CreateAllSubDirs was set }
-        if (foCreateAllSubDirs in CurFile.Options) and not Result then begin
+        if not Result and (foCreateAllSubDirs in CurFile.Options) then begin
           var DestName := ExpandConst(CurFile^.DestName); { See above }
           if not(foCustomDestName in CurFile^.Options) then
             DestName := DestName + SearchSubDir
@@ -1946,6 +1946,12 @@ var
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, @FindData.ftLastWriteTime);
               Dec6464(ExpectedBytesLeft, Size);
+            end else if (foCreateAllSubDirs in CurFile.Options) then begin
+              var Flags: TMakeDirFlags := [];
+              if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+              if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+              MakeDir(DisableFsRedir, DestDir + FindData.cFileName, Flags);
+              Result := True;
             end;
           until not ArchiveFindNextFile(H, FindData);
         finally
