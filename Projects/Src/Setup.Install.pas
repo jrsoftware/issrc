@@ -1925,8 +1925,22 @@ var
       {!!!} {foISSigVerify}
 
       var FindData: TWin32FindData;
-      var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
-        Password, foRecurseSubDirsExternal in CurFile^.Options, True, FindData);
+      var H: TArchiveFindHandle := INVALID_HANDLE_VALUE;
+      var Failed: String;
+      repeat
+        try
+          H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+            Password, foRecurseSubDirsExternal in CurFile^.Options, True, FindData);
+          Failed := '';
+        except
+          if ExceptObject is EAbort then
+            raise;
+          Failed := GetExceptMessage;
+        end;
+      until (Failed = '') or
+            AbortRetryIgnoreTaskDialogMsgBox(
+              ArchiveFilename + SNewLine2 + SetupMessages[msgErrorReadingSource] + SNewLine + Failed,
+              [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
