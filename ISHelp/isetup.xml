@@ -1709,6 +1709,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="extractarchive">
 <p>...</p>
 <p>This flag must be combined with <tt>external</tt>.</p>
+<p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 </flag>
 <flag name="fontisnttruetype">
 <p>Specify this flag if the entry is installing a <i>non-TrueType</i> font with the <tt>FontInstall</tt> parameter.</p>
