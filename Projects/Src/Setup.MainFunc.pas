@@ -1862,17 +1862,22 @@ begin
           end;
         end
         else begin
-          { External file }
-          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          Excludes.DelimitedText := CurFile^.Excludes;
-          if foExtractArchive in CurFile^.Options then begin
-            if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
-               CurFile^.ExtractArchivePassword, Excludes, CurFile) then
-              Exit(False);
-          end else begin
-            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
-              Exit(False);
+          try
+            { External file }
+            SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+            Excludes.DelimitedText := CurFile^.Excludes;
+            if foExtractArchive in CurFile^.Options then begin
+              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+                 CurFile^.ExtractArchivePassword, Excludes, CurFile) then
+                Exit(False);
+            end else begin
+              if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+                Exit(False);
+            end;
+          except
+            { Ignore expections, just like minimum disk space calculation by
+              InitializeSetup does }
           end;
         end;
       end;
@@ -3529,7 +3534,7 @@ begin
 	            end;
 	          except
 	            { Ignore exceptions. One notable exception we want to ignore is
-	              the one about "app" not being initialized. }
+	              the one about "app" not being initialized. Also see EnumFiles. }
 	          end;
 	        end;
 	        if Components = '' then { no types or a file that doesn't belong to any component }
