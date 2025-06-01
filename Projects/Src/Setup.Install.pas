@@ -1505,7 +1505,7 @@ var
             else if foExtractArchive in CurFile^.Options then begin
               { Extract a file from archive. Note: foISSigVerify for archive has
                 already been handled by RecurseExternalArchiveCopyFiles. }
-              LastOperation := SetupMessages[msgErrorReadingSource];
+              LastOperation := SetupMessages[msgErrorCopying];
               ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
             end
             else begin
