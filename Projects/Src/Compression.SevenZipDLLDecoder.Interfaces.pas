@@ -88,6 +88,7 @@ const
   kpidAttrib = 9;
   kpidCTime = 10;
   kpidMTime = 12;
+  kpidSolid = 13;
 
   { From IArchive.h}
   kExtract = 0;
@@ -144,6 +145,7 @@ type
     function GetProperty(index: UInt32; propID: PROPID; out value: OleVariant): HRESULT; stdcall;
     function Extract(indices: Pointer; numItems: UInt32; testMode: Integer;
       extractCallback: IArchiveExtractCallback): HRESULT; stdcall;
+    function GetArchiveProperty(propID: PROPID; out value: OleVariant): HRESULT; stdcall;
   end;
 
   { From IPassword.h }

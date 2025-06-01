@@ -1922,7 +1922,7 @@ var
 
       var FindData: TWin32FindData;
       var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
-        Password, foRecurseSubDirsExternal in CurFile^.Options, FindData);
+        Password, foRecurseSubDirsExternal in CurFile^.Options, True, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat

@@ -32,7 +32,8 @@ type
   TArchiveFindHandle = type Cardinal;
   TOnExtractToHandleProgress = procedure(Bytes: Cardinal);
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
+  const ArchiveFilename, DestDir, Password: String;
+  const RecurseSubDirs, ExtractIntent: Boolean;
   out FindFileData: TWin32FindData): TArchiveFindHandle;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
@@ -224,9 +225,14 @@ type
 function GetProperty(const InArchive: IInArchive; const index: UInt32;
   const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
 { Raises an EOleSysError exception on error but otherwise always sets value,
-  returning True if it's not empty }
+  returning True if it's not empty. Set index to $FFFF to query an archive property
+  instead of an item propery }
 begin
-  var Res := InArchive.GetProperty(index, propID, value);
+  var Res: HRESULT;
+  if index = $FFFF then
+    Res := InArchive.GetArchiveProperty(propID, value)
+  else
+    Res := InArchive.GetProperty(index, propID, value);
   if Res <> S_OK then
     OleError(Res);
   Result := not VarIsEmpty(Value);
@@ -1029,8 +1035,8 @@ begin
 end;
 
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs: Boolean;
-  out FindFileData: TWin32FindData): TArchiveFindHandle;
+  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs,
+  ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
 begin
   LogArchiveExtractionModeOnce;
 
@@ -1062,6 +1068,11 @@ begin
         if ArchiveFindStates = nil then
           ArchiveFindStates := TArchiveFindStates.Create;
         ArchiveFindStates.Add(State);
+
+        { Warn about solid }
+        var Solid: Boolean;
+        if ExtractIntent and GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+          LogFmt('Archive %s is solid; extraction performance may degrade', [State.ExtractedArchiveName]);
 
         { Finish find data & exit }
         State.FinishCurrentFindData(FindFileData);

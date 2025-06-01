@@ -1815,7 +1815,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
-      Password, foRecurseSubDirsExternal in CurFile^.Options, FindData);
+      Password, foRecurseSubDirsExternal in CurFile^.Options, False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -2814,7 +2814,7 @@ var
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, '',
-      Password, RecurseSubDirs, FindData);
+      Password, RecurseSubDirs, False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat

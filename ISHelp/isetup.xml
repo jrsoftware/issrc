@@ -1708,6 +1708,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="extractarchive">
 <p>...</p>
+<p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 <p>This flag must be combined with <tt>external</tt>.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 </flag>
