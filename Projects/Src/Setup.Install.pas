@@ -1916,7 +1916,7 @@ var
     begin
       { See above }
 
-      Result := False;
+      Result := NewFileExistsRedir(DisableFsRedir, ArchiveFilename);
 
       if foCustomDestName in CurFile^.Options then
         InternalError('Unexpected custom DestName');
@@ -1949,7 +1949,6 @@ var
               if IsExcluded(FindData.cFileName, Excludes) then
                 Continue;
 
-              Result := True;
               var SourceFile := IntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
               var Size: Integer64;
