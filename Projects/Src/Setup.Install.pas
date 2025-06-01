@@ -1908,7 +1908,7 @@ var
       ProcessEvents;
     end;
 
-     function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
+    function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
       const ArchiveFilename, Password: String; const Excludes: TStrings;
       const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
       var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
@@ -1950,7 +1950,7 @@ var
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, @FindData.ftLastWriteTime);
               Dec6464(ExpectedBytesLeft, Size);
-            end else if (foCreateAllSubDirs in CurFile.Options) then begin
+            end else if foCreateAllSubDirs in CurFile.Options then begin
               var Flags: TMakeDirFlags := [];
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
               if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);

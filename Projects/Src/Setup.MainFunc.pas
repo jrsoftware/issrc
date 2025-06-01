@@ -2069,7 +2069,7 @@ begin
     try
       EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
     except
-      Log('EnumFiles(RegisterFiles) raised an exception.');
+      Log('EnumFiles(RegisterFile) raised an exception.');
       Application.HandleException(nil);
     end;
     { Ask [Code] for more files. }
