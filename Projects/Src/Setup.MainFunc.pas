@@ -2026,7 +2026,12 @@ begin
   try
     { Register our files. }
     RmRegisteredFilesCount := 0;
-    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    try
+      EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    except
+      Log('EnumFiles(RegisterFiles) raised an exception.');
+      Application.HandleException(nil);
+    end;
     { Ask [Code] for more files. }
     if CodeRunner <> nil then begin
       AllowCodeRegisterExtraCloseApplicationsResource := True;
