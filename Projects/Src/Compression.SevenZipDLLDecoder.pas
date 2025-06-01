@@ -101,7 +101,7 @@ type
         Res: HRESULT;
         OpRes: TNOperationResult;
       end;
-      TArrayOfCardinal = array of Cardinal;
+      TArrayOfUInt32 = array of UInt32;
     var
       FInArchive: IInArchive;
       FPassword: String;
@@ -121,7 +121,7 @@ type
     { ICryptoGetTextPassword - queried for on extractCallback }
     function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
     { Other }
-    function GetIndices: TArrayOfCardinal; virtual; abstract;
+    function GetIndices: TArrayOfUInt32; virtual; abstract;
     procedure Extract;
     procedure HandleProgress; virtual; abstract;
     procedure HandleResult;
@@ -155,7 +155,7 @@ type
       askExtractMode: Int32): HRESULT; override; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
     { Other }
-    function GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal; override;
+    function GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32; override;
     procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive;
@@ -175,7 +175,7 @@ type
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; override; stdcall;
     { Other }
-    function GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal; override;
+    function GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32; override;
     procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive; const Password: String;
@@ -486,13 +486,16 @@ function ExtractThreadFunc(Parameter: Pointer): Integer;
 begin
   const E = TArchiveExtractBaseCallback(Parameter);
   try
-    const Indices = E.GetIndices; { From IArchive.h: indices must be sorted }
+    const Indices = E.GetIndices;
     const NIndices = Length(Indices);
     if NIndices > 0 then begin
       var NumberOfItems: UInt32;
       E.FInArchive.GetNumberOfItems(NumberOfItems);
-      if UInt32(NIndices) > NumberOfItems then
-        InternalError('NIndices > NumberOfItems');
+       { From IArchive.h: indices must be sorted. Also: 7-Zip's code crashes if
+         sent an invalid index. So we check them fully. }
+      for var I := 0 to NIndices-1 do
+        if (Indices[I] >= NumberOfItems) or ((I > 0) and (Indices[I-1] >= Indices[I])) then
+          InternalError('NIndices invalid');
       E.FResult.Res := E.FInArchive.Extract(@Indices[0], NIndices, 0, E)
     end else
       E.FResult.Res := E.FInArchive.Extract(nil, $FFFFFFFF, 0, E)
@@ -621,7 +624,7 @@ begin
   FLogQueue.Free;
 end;
 
-function TArchiveExtractAllCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal;
+function TArchiveExtractAllCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32;
 begin
   SetLength(Result, 0); { No indices = extract all }
 end;
@@ -774,7 +777,7 @@ begin
   FOnExtractToHandleProgress := OnExtractToHandleProgress;
 end;
 
-function TArchiveExtractToHandleCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfCardinal;
+function TArchiveExtractToHandleCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32;
 begin
   SetLength(Result, 1);
   Result[0] := FIndex;
@@ -785,6 +788,8 @@ function TArchiveExtractToHandleCallback.GetStream(index: UInt32;
 begin
   try
     if askExtractMode = kExtract then begin
+      if index <> FIndex then
+        OleError(E_INVALIDARG);
       var IsDir: Boolean;
       GetProperty(FInArchive, index, kpidIsDir, IsDir);
       if IsDir then
@@ -1108,6 +1113,11 @@ procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TF
   const OnExtractToHandleProgress: TOnExtractToHandleProgress);
 begin
   var State := ArchiveFindStates[CheckFindFileHandle(FindFile)];
+
+  var FindData: TWin32FindData;
+  if not State.GetInitialCurrentFindData(FindData) or
+     (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) then
+    InternalError('ArchiveFindExtract: Invalid current');
 
   try
     const ExtractCallback: IArchiveExtractCallback =
