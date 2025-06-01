@@ -111,6 +111,7 @@ type
     function GetProperty(index: UInt32; propID: PROPID; out value: String): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: UInt32): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: Boolean): Boolean; overload;
+    function GetProperty(index: UInt32; propID: PROPID; out value: Integer64): Boolean; overload;
     function GetProperty(index: UInt32; propID: PROPID; out value: TFileTime): Boolean; overload;
   protected
     { IProgress }
@@ -368,6 +369,14 @@ begin
 end;
 
 function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
+  out value: Integer64): Boolean;
+begin
+  var varValue: OleVariant;
+  Result := GetProperty(index, propID, [varUInt64], varValue);
+  value := Integer64(UInt64(varValue));
+end;
+
+function TArchiveExtractCallback.GetProperty(index: UInt32; propID: PROPID;
   out value: TFileTime): Boolean;
 begin
   var varValue: OleVariant;
@@ -421,7 +430,7 @@ begin
           SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         const DestF = TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
         var BytesLeft: Integer64;
-        if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
+        if GetProperty(index, kpidSize, BytesLeft) then begin
           { To avoid file system fragmentation, preallocate all of the bytes in the
             destination file }
           DestF.Seek64(BytesLeft);
