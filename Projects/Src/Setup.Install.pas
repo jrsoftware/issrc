@@ -1503,10 +1503,10 @@ var
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
             else if foExtractArchive in CurFile^.Options then begin
-              { Extract a file }
-              LastOperation := '...'; {!!!}
+              { Extract a file from archive. Note: foISSigVerify for archive has
+                already been handled by RecurseExternalArchiveCopyFiles. }
+              LastOperation := SetupMessages[msgErrorReadingSource];
               ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
-              {!!!} {foISSigVerify}
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -1917,6 +1917,8 @@ var
       if foCustomDestName in CurFile^.Options then
         InternalError('Unexpected custom DestName');
       const DestDir = ExpandConst(CurFile^.DestName);
+
+      {!!!} {foISSigVerify}
 
       var FindData: TWin32FindData;
       var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
