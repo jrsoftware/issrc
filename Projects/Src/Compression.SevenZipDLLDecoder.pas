@@ -79,22 +79,26 @@ type
     destructor Destroy; override;
   end;
 
-  TArchiveOpenCallback = class(TInterfacedObject, IArchiveOpenCallback,
-    ICryptoGetTextPassword)
+  TArchiveCallback = class(TInterfacedObject, ICryptoGetTextPassword)
   private
     FPassword: String;
   protected
-    { IArchiveOpenCallback }
-    function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
-    function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
-    { ICryptoGetTextPassword - queried for on openCallback }
+    { ICryptoGetTextPassword - queried for by 7-Zip both on IArchiveOpenCallback
+      and IArchiveExtractCallback instances - note: have not yet seen 7-Zip actually
+      call it on an IArchiveOpenCallback instance }
     function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
   public
     constructor Create(const Password: String);
   end;
 
-  TArchiveExtractBaseCallback = class(TInterfacedObject, IArchiveExtractCallback,
-    ICryptoGetTextPassword)
+  TArchiveOpenCallback = class(TArchiveCallback, IArchiveOpenCallback)
+  protected
+    { IArchiveOpenCallback }
+    function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
+    function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
+  end;
+
+  TArchiveExtractBaseCallback = class(TArchiveCallback, IArchiveExtractCallback)
   private
     type
       TResult = record
@@ -105,7 +109,6 @@ type
       TArrayOfUInt32 = array of UInt32;
     var
       FInArchive: IInArchive;
-      FPassword: String;
       FLock: TObject;
       FProgress, FProgressMax: UInt64;
       FAbort: Boolean;
@@ -119,8 +122,6 @@ type
       askExtractMode: Int32): HRESULT; virtual; stdcall; abstract;
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
     function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
-    { ICryptoGetTextPassword - queried for on extractCallback }
-    function CryptoGetTextPassword(out password: WideString): HRESULT; stdcall;
     { Other }
     function GetIndices: TArrayOfUInt32; virtual; abstract;
     procedure Extract;
@@ -200,19 +201,6 @@ begin
     LastError := GetLastError;
   const Msg = Format('%s (%u)', [Win32ErrorString(LastError), LastError]);
   SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
-end;
-
-function SevenZipSetPassword(const Password: String; out outPassword: WideString): HRESULT;
-begin
-  try
-    outPassword := Password;
-    Result := S_OK;
-  except
-    on E: EAbort do
-      Result := E_ABORT
-    else
-      Result := E_FAIL;
-  end;
 end;
 
 const
@@ -370,13 +358,29 @@ begin
   end;
 end;
 
-{ TArchiveOpenCallback }
+{ TArchiveCallback }
 
-constructor TArchiveOpenCallback.Create(const Password: String);
+constructor TArchiveCallback.Create(const Password: String);
 begin
   inherited Create;
   FPassword := Password;
 end;
+
+function TArchiveCallback.CryptoGetTextPassword(
+  out password: WideString): HRESULT;
+begin
+  try
+    password := FPassword;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end
+end;
+
+{ TArchiveOpenCallback }
 
 function TArchiveOpenCallback.SetCompleted(files,
   bytes: PUInt64): HRESULT;
@@ -390,21 +394,13 @@ begin
   Result := S_OK;
 end;
 
-function TArchiveOpenCallback.CryptoGetTextPassword(
-  out password: WideString): HRESULT;
-begin
-  { Note: have not yet seen 7-Zip actually call this, so maybe it's not really needed }
-  Result := SevenZipSetPassword(FPassword, password);
-end;
-
 { TArchiveExtractBaseCallback }
 
 constructor TArchiveExtractBaseCallback.Create(const InArchive: IInArchive;
   const Password: String);
 begin
-  inherited Create;
+  inherited Create(Password);
   FInArchive := InArchive;
-  FPassword := Password;
   FLock := TObject.Create;
   FResult.OpRes := kOK;
 end;
@@ -478,12 +474,6 @@ begin
     else
       Result := E_FAIL;
   end;
-end;
-
-function TArchiveExtractBaseCallback.CryptoGetTextPassword(
-  out password: WideString): HRESULT;
-begin
-  Result := SevenZipSetPassword(FPassword, password);
 end;
 
 function ExtractThreadFunc(Parameter: Pointer): Integer;
