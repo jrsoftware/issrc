@@ -258,7 +258,8 @@ end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   const ISSigVerify: Boolean; [ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
-  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String; AMaxProgress: Integer64);
+  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
+  const AExpectedSize: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
 const
@@ -306,7 +307,8 @@ begin
     SHA256Init(Context);
   end;
 
-  Inc6464(AMaxProgress, CurProgress);
+  var MaxProgress := CurProgress;
+  Inc6464(MaxProgress, AExpectedSize);
   BytesLeft := SourceF.Size;
 
   { To avoid file system fragmentation, preallocate all of the bytes in the
@@ -331,8 +333,10 @@ begin
 
     NewProgress := CurProgress;
     Inc64(NewProgress, BufSize);
-    if Compare64(NewProgress, AMaxProgress) > 0 then
-      NewProgress := AMaxProgress;
+    { In case the source file was larger than we thought it was, stop the
+      progress bar at the maximum amount }
+    if Compare64(NewProgress, MaxProgress) > 0 then
+      NewProgress := MaxProgress;
     SetProgress(NewProgress);
 
     ProcessEvents;
@@ -346,7 +350,7 @@ begin
 
   { In case the source file was shorter than we thought it was, bump the
     progress bar to the maximum amount }
-  SetProgress(AMaxProgress);
+  SetProgress(MaxProgress);
 end;
 
 procedure AddAttributesToFile(const DisableFsRedir: Boolean;
