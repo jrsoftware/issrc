@@ -612,8 +612,7 @@ function ValidateAndCombinePath(const ADestDir, AFilename: String;
   Returns True if all security checks pass, with the combination of ADestDir
   and AFilename in AResultingPath.
   ADestDir is assumed to be normalized already and have a trailing backslash.
-  AFilename may be a file or directory name.
-  If ADestDir is empty then only AFilename is checked. }
+  AFilename may be a file or directory name. }
 begin
   { - Don't allow empty names
     - Don't allow forward slashes or repeated slashes
@@ -626,23 +625,20 @@ begin
      not PathIsRooted(AFilename) and
      not PathCharIsSlash(AFilename[High(AFilename)]) and
      not PathHasInvalidCharacters(AFilename, False) then begin
-    if ADestDir <> '' then begin
-      { Our validity checks passed. Now pass the combined path to PathExpand
-        (GetFullPathName) to see if it thinks the path needs normalization.
-        If the returned path isn't exactly what was passed in, then consider
-        the name invalid.
-        One way that can happen is if the path ends in an MS-DOS device name:
-        PathExpand('c:\path\NUL') returns '\\.\NUL'. Obviously we don't want
-        devices being opened, so that must be rejected. }
-      var CombinedPath := ADestDir + AFilename;
-      var TestExpandedPath: String;
-      if PathExpand(CombinedPath, TestExpandedPath) and
-         (CombinedPath = TestExpandedPath) then begin
-        AResultingPath := CombinedPath;
-        Result := True;
-      end;
-    end else
+    { Our validity checks passed. Now pass the combined path to PathExpand
+      (GetFullPathName) to see if it thinks the path needs normalization.
+      If the returned path isn't exactly what was passed in, then consider
+      the name invalid.
+      One way that can happen is if the path ends in an MS-DOS device name:
+      PathExpand('c:\path\NUL') returns '\\.\NUL'. Obviously we don't want
+      devices being opened, so that must be rejected. }
+    var CombinedPath := ADestDir + AFilename;
+    var TestExpandedPath: String;
+    if PathExpand(CombinedPath, TestExpandedPath) and
+       (CombinedPath = TestExpandedPath) then begin
+      AResultingPath := CombinedPath;
       Result := True;
+    end;
   end;
 end;
 

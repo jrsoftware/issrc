@@ -15,10 +15,11 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Windows, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
+procedure SevenZipDLLDeInit;
 
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
@@ -27,9 +28,11 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
 { These functions work similar to Windows' FindFirstFile, FindNextFile, and
   FindClose with the exception that recursion is built-in and that the
   resulting FindFileData.cFilename contains not just a filename but also the
-  subdir }
+  subdir. Also, ArchiveFindFirstFileRedir throws an exception for most errors:
+  INVALID_HANDLE_VALUE is only used if the archive is ok but no suitable file
+  was found. }
 type
-  TArchiveFindHandle = type Cardinal;
+  TArchiveFindHandle = type NativeUInt;
   TOnExtractToHandleProgress = procedure(Bytes: Cardinal);
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
@@ -46,11 +49,12 @@ type
     function HasTime: Boolean;
   end;
 
+  ESevenZipError = class(Exception);
+
 implementation
 
 uses
-  Classes, SysUtils, Forms, Variants,
-  ActiveX, ComObj, Generics.Collections,
+  Classes, Forms, Variants, ActiveX, ComObj, Generics.Collections,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -192,7 +196,7 @@ procedure SevenZipError(const LogMessage, ExceptMessage: String);
   ExceptMessage should not. }
 begin
   LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
-  raise Exception.Create(ExceptMessage);
+  raise ESevenZipError.Create(ExceptMessage);
 end;
 
 procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
@@ -483,10 +487,11 @@ begin
     const Indices = E.GetIndices;
     const NIndices = Length(Indices);
     if NIndices > 0 then begin
-      var NumberOfItems: UInt32;
-      E.FInArchive.GetNumberOfItems(NumberOfItems);
        { From IArchive.h: indices must be sorted. Also: 7-Zip's code crashes if
          sent an invalid index. So we check them fully. }
+      var NumberOfItems: UInt32;
+      if E.FInArchive.GetNumberOfItems(NumberOfItems) <> S_OK then
+        InternalError('GetNumberOfItems failed');
       for var I := 0 to NIndices-1 do
         if (Indices[I] >= NumberOfItems) or ((I > 0) and (Indices[I-1] >= Indices[I])) then
           InternalError('NIndices invalid');
@@ -1047,24 +1052,26 @@ begin
     State.Password := Password;
     State.RecurseSubDirs := RecurseSubDirs;
 
-    for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
-      if State.GetInitialCurrentFindData(FindFileData) then begin
-        { Finish state }
-        State.currentIndex := currentIndex;
+    if State.numItems > 0 then begin
+      for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
+        if State.GetInitialCurrentFindData(FindFileData) then begin
+          { Finish state }
+          State.currentIndex := currentIndex;
 
-        { Save state }
-        if ArchiveFindStates = nil then
-          ArchiveFindStates := TArchiveFindStates.Create;
-        ArchiveFindStates.Add(State);
+          { Save state }
+          if ArchiveFindStates = nil then
+            ArchiveFindStates := TArchiveFindStates.Create;
+          ArchiveFindStates.Add(State);
 
-        { Warn about solid }
-        var Solid: Boolean;
-        if ExtractIntent and GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
-          LogFmt('Archive %s is solid; extraction performance may degrade', [State.ExtractedArchiveName]);
+          { Warn about solid }
+          var Solid: Boolean;
+          if ExtractIntent and GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+            LogFmt('Archive %s is solid; extraction performance may degrade', [State.ExtractedArchiveName]);
 
-        { Finish find data & exit }
-        State.FinishCurrentFindData(FindFileData);
-        Exit(ArchiveFindStates.Count-1);
+          { Finish find data & exit }
+          State.FinishCurrentFindData(FindFileData);
+          Exit(ArchiveFindStates.Count-1);
+        end;
       end;
     end;
     Result := INVALID_HANDLE_VALUE;
@@ -1147,12 +1154,12 @@ begin
   Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
 
-initialization
+{ SevenZipDLLDeInit }
 
-finalization
-  if (ArchiveFindStates <> nil) and
-     (ArchiveFindStates.Count > 0) then { Not allowed because it has references to 7-Zip which is probably already unloaded }
-    InternalError('ArchiveFindStates.Count > 0');
+procedure SevenZipDLLDeInit;
+begin
+  { ArchiveFindStates has references to 7-Zip so must be cleared before the DLL is unloaded }
   ArchiveFindStates.Free;
+end;
 
 end.

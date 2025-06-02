@@ -1862,22 +1862,22 @@ begin
           end;
         end
         else begin
-          try
-            { External file }
-            SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-            Excludes.DelimitedText := CurFile^.Excludes;
-            if foExtractArchive in CurFile^.Options then begin
+          { External file }
+          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+          Excludes.DelimitedText := CurFile^.Excludes;
+          if foExtractArchive in CurFile^.Options then begin
+            try
               if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
                  CurFile^.ExtractArchivePassword, Excludes, CurFile) then
                 Exit(False);
-            end else begin
-              if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
-                Exit(False);
+            except on E: ESevenZipError do
+              { Ignore archive errors for now, will show up with proper UI during
+                installation }
             end;
-          except
-            { Ignore expections, just like minimum disk space calculation by
-              InitializeSetup does }
+          end else begin
+            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+              Exit(False);
           end;
         end;
       end;
@@ -2823,7 +2823,8 @@ var
     Result.Lo := 0;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, '',
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,
+      AddBackslash(TempInstallDir), { DestDir isn't known yet, pass a placeholder }
       Password, RecurseSubDirs, False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
@@ -3533,8 +3534,9 @@ begin
 	                LExcludes, foRecurseSubDirsExternal in Options);
 	            end;
 	          except
-	            { Ignore exceptions. One notable exception we want to ignore is
-	              the one about "app" not being initialized. Also see EnumFiles. }
+	            { Ignore exceptions. Two notable exceptions we want to ignore are
+	              the one about "app" not being initialized and also archive errors
+                (ESevenZipError). Also see EnumFiles. }
 	          end;
 	        end;
 	        if Components = '' then { no types or a file that doesn't belong to any component }
@@ -3630,8 +3632,10 @@ begin
   { Free the _isdecmp.dll and _is7z.dll handles }
   if DecompressorDLLHandle <> 0 then
     FreeLibrary(DecompressorDLLHandle);
-  if SevenZipDLLHandle <> 0 then
+  if SevenZipDLLHandle <> 0 then begin
+    SevenZipDLLDeInit;
     FreeLibrary(SevenZipDLLHandle);
+  end;
 
   { Free the shfolder.dll handle }
   UnloadSHFolderDLL;
