@@ -1086,7 +1086,8 @@ end;
 function CheckFindFileHandle(const FindFile: TArchiveFindHandle): Integer;
 begin
   Result := Integer(FindFile);
-  if (Result < 0) or (Result >= ArchiveFindStates.Count) then
+  if (Result < 0) or (Result >= ArchiveFindStates.Count) or
+     (ArchiveFindStates[Result].InArchive = nil) then
     InternalError('CheckFindFileHandle failed');
 end;
 
@@ -1111,14 +1112,17 @@ end;
 
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 begin
-  ArchiveFindStates.Delete(CheckFindFileHandle(FindFile));
+  const I = CheckFindFileHandle(FindFile);
+  var State := ArchiveFindStates[I];
+  State.InArchive := nil;
+  ArchiveFindStates[I] := State; { This just updates InArchive }
   Result := True;
 end;
 
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
   const OnExtractToHandleProgress: TOnExtractToHandleProgress);
 begin
-  var State := ArchiveFindStates[CheckFindFileHandle(FindFile)];
+  const State = ArchiveFindStates[CheckFindFileHandle(FindFile)];
 
   var FindData: TWin32FindData;
   if not State.GetInitialCurrentFindData(FindData) or
