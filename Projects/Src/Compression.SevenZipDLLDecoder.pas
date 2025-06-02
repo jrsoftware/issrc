@@ -196,7 +196,7 @@ procedure SevenZipError(const LogMessage, ExceptMessage: String);
   ExceptMessage should not. }
 begin
   LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
-  raise ESevenZipError.Create(ExceptMessage);
+  raise Exception.Create(ExceptMessage);
 end;
 
 procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
@@ -962,9 +962,9 @@ begin
     Log('Everything is Ok'); { Just like 7zMain.c }
   except
     on E: EAbort do
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
 end;
 
@@ -1077,9 +1077,9 @@ begin
     Result := INVALID_HANDLE_VALUE;
   except
     on E: EAbort do
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
 end;
 
@@ -1136,9 +1136,9 @@ begin
     (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
   except
     on E: EAbort do
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
 end;
 
