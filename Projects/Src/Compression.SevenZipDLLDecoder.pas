@@ -113,6 +113,7 @@ type
       TArrayOfUInt32 = array of UInt32;
     var
       FInArchive: IInArchive;
+      FnumItems: UInt32;
       FLock: TObject;
       FProgress, FProgressMax: UInt64;
       FAbort: Boolean;
@@ -132,7 +133,8 @@ type
     procedure HandleProgress; virtual; abstract;
     procedure HandleResult;
   public
-    constructor Create(const InArchive: IInArchive; const Password: String);
+    constructor Create(const InArchive: IInArchive; const numItems: UInt32;
+      const Password: String);
     destructor Destroy; override;
   end;
 
@@ -164,7 +166,7 @@ type
     function GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32; override;
     procedure HandleProgress; override;
   public
-    constructor Create(const InArchive: IInArchive;
+    constructor Create(const InArchive: IInArchive; const numItems: UInt32;
       const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
@@ -184,8 +186,8 @@ type
     function GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32; override;
     procedure HandleProgress; override;
   public
-    constructor Create(const InArchive: IInArchive; const Password: String;
-      const Index: UInt32; const DestF: TFile;
+    constructor Create(const InArchive: IInArchive; const numItems: UInt32;
+      const Password: String; const Index: UInt32; const DestF: TFile;
       const OnExtractToHandleProgress: TOnExtractToHandleProgress);
   end;
 
@@ -401,10 +403,11 @@ end;
 { TArchiveExtractBaseCallback }
 
 constructor TArchiveExtractBaseCallback.Create(const InArchive: IInArchive;
-  const Password: String);
+  const numItems: UInt32; const Password: String);
 begin
   inherited Create(Password);
   FInArchive := InArchive;
+  FnumItems := numItems;
   FLock := TObject.Create;
   FResult.OpRes := kOK;
 end;
@@ -489,11 +492,8 @@ begin
     if NIndices > 0 then begin
        { From IArchive.h: indices must be sorted. Also: 7-Zip's code crashes if
          sent an invalid index. So we check them fully. }
-      var NumberOfItems: UInt32;
-      if E.FInArchive.GetNumberOfItems(NumberOfItems) <> S_OK then
-        InternalError('GetNumberOfItems failed');
       for var I := 0 to NIndices-1 do
-        if (Indices[I] >= NumberOfItems) or ((I > 0) and (Indices[I-1] >= Indices[I])) then
+        if (Indices[I] >= E.FnumItems) or ((I > 0) and (Indices[I-1] >= Indices[I])) then
           InternalError('NIndices invalid');
       E.FResult.Res := E.FInArchive.Extract(@Indices[0], NIndices, 0, E)
     end else
@@ -606,10 +606,11 @@ begin
 end;
 
 constructor TArchiveExtractAllCallback.Create(const InArchive: IInArchive;
-  const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
+  const numItems: UInt32; const DisableFsRedir: Boolean;
+  const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
-  inherited Create(InArchive, Password);
+  inherited Create(InArchive, numItems, Password);
   FDisableFsRedir := DisableFsRedir;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
   FFullPaths := FullPaths;
@@ -767,10 +768,10 @@ end;
 
 
 constructor TArchiveExtractToHandleCallback.Create(const InArchive: IInArchive;
-  const Password: String; const Index: UInt32; const DestF: TFile;
-  const OnExtractToHandleProgress: TOnExtractToHandleProgress);
+  const numItems: UInt32; const Password: String; const Index: UInt32;
+  const DestF: TFile; const OnExtractToHandleProgress: TOnExtractToHandleProgress);
 begin
-  inherited Create(InArchive, Password);
+  inherited Create(InArchive, numItems, Password);
   FIndex := Index;
   FDestF := DestF;
   FOnExtractToHandleProgress := OnExtractToHandleProgress;
@@ -910,7 +911,7 @@ begin
 end;
 
 function OpenArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; const clsid: TGUID): IInArchive;
+  const ArchiveFilename, Password: String; const clsid: TGUID; out numItems: UInt32): IInArchive;
 begin
   { CreateObject }
   if CreateSevenZipObject(clsid, IInArchive, Result) <> S_OK then
@@ -928,6 +929,8 @@ begin
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
     SevenZipError('Cannot open file as archive' { Just like Client7z.cpp }, '-2');
+  if Result.GetNumberOfItems(numItems) <> S_OK then
+    SevenZipError('Cannot get number of items', '-3');
 end;
 
 { ExtractArchiveRedir }
@@ -945,17 +948,20 @@ begin
   if DestDir = '' then
     InternalError('ExtractArchive: Invalid DestDir value');
 
-  LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+  LogFmt('Extracting archive %s to %s. Full paths? %s', [ArchiveFileName,
+    RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
   LogBannerOnce;
 
   try
     { Open }
-    const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
+    var numItems: UInt32;
+    const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password,
+      clsid, numItems);
 
     { Extract }
     const ExtractCallback: IArchiveExtractCallback =
-      TArchiveExtractAllCallback.Create(InArchive, DisableFsRedir,
+      TArchiveExtractAllCallback.Create(InArchive, numItems, DisableFsRedir,
         ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
     (ExtractCallback as TArchiveExtractAllCallback).Extract;
 
@@ -1043,9 +1049,7 @@ begin
   try
     { Open }
     var State := Default(TArchiveFindState);
-    State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid);
-    if State.InArchive.GetNumberOfItems(State.numItems) <> S_OK then
-      SevenZipError('Cannot get number of items', '-3');
+    State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid, State.numItems);
     if DestDir <> '' then
       State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
     State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
@@ -1063,10 +1067,14 @@ begin
             ArchiveFindStates := TArchiveFindStates.Create;
           ArchiveFindStates.Add(State);
 
-          { Warn about solid }
-          var Solid: Boolean;
-          if ExtractIntent and GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
-            LogFmt('Archive %s is solid; extraction performance may degrade', [State.ExtractedArchiveName]);
+          { Log start of extraction }
+          if ExtractIntent then begin
+            LogFmt('Extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
+              RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
+            var Solid: Boolean;
+            if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+              Log('Archive is solid; extraction performance may degrade');
+          end;
 
           { Finish find data & exit }
           State.FinishCurrentFindData(FindFileData);
@@ -1131,8 +1139,8 @@ begin
 
   try
     const ExtractCallback: IArchiveExtractCallback =
-      TArchiveExtractToHandleCallback.Create(State.InArchive, State.Password,
-        State.currentIndex, DestF, OnExtractToHandleProgress);
+      TArchiveExtractToHandleCallback.Create(State.InArchive, State.numItems,
+        State.Password, State.currentIndex, DestF, OnExtractToHandleProgress);
     (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
   except
     on E: EAbort do
