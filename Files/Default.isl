@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ English messages ***
+; *** Inno Setup version 6.4.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -9,11 +9,12 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=English
 LanguageID=$0409
-LanguageCodePage=0
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=

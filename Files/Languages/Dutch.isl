@@ -1,12 +1,12 @@
-﻿; *** Inno Setup version 6.4.0+ Dutch messages ***
+; *** Inno Setup version 6.4.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
 ; Maintained by Martijn Laan (mlaan@innosetup.nl)
-                                     
-[LangOptions]                
-LanguageName=Nederlands      
-LanguageID=$0413 
+
+[LangOptions]
+LanguageName=Nederlands
+LanguageID=$0413
 LanguageCodePage=1252
 
 [Messages]
@@ -175,7 +175,7 @@ SelectStartMenuFolderDesc=Waar moeten de snelkoppelingen van het programma gepla
 SelectStartMenuFolderLabel3=Setup plaatst de snelkoppelingen van het programma in de volgende menu Start map.
 SelectStartMenuFolderBrowseLabel=Klik op Volgende om door te gaan. Klik op Bladeren om een andere map te kiezen.
 MustEnterGroupName=U moet een mapnaam invoeren.
-GroupNameTooLong=De mapnaam of het pad is te lang. 
+GroupNameTooLong=De mapnaam of het pad is te lang.
 InvalidGroupName=De mapnaam is ongeldig.
 BadGroupName=De mapnaam mag geen van de volgende tekens bevatten:%n%n%1
 NoProgramGroupCheck2=&Geen menu Start map maken
