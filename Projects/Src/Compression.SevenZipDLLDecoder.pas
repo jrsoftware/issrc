@@ -15,7 +15,7 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
+  Windows, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
@@ -49,12 +49,10 @@ type
     function HasTime: Boolean;
   end;
 
-  ESevenZipError = class(Exception);
-
 implementation
 
 uses
-  Classes, Forms, Variants, ActiveX, ComObj, Generics.Collections,
+  Classes, SysUtils, Forms, Variants, ActiveX, ComObj, Generics.Collections,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.Int64Em, Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -193,20 +191,14 @@ type
 
 { Helper functions }
 
-procedure SevenZipError(const LogMessage, ExceptMessage: String);
-{ Do not call from secondary thread. LogMessage may contain non-localized text
-  ExceptMessage should not. }
+procedure SevenZipWin32Error(const FunctionName: String; ErrorCode: DWORD = 0); overload;
 begin
-  LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
-  raise Exception.Create(ExceptMessage);
-end;
-
-procedure SevenZipWin32Error(const FunctionName: String; LastError: DWORD = 0); overload;
-begin
-  if LastError = 0 then
-    LastError := GetLastError;
-  const Msg = Format('%s (%u)', [Win32ErrorString(LastError), LastError]);
-  SevenZipError(Format('%s failed: %s', [FunctionName, Msg]), Msg);
+  if ErrorCode = 0 then
+    ErrorCode := GetLastError;
+  const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+    [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
+  const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
+  SevenZipError(ExceptMessage, LogMessage);
 end;
 
 const
@@ -560,22 +552,41 @@ end;
 
 procedure TArchiveExtractBaseCallback.HandleResult;
 
-  function OperationResultToString(const opRes: TNOperationResult): String;
+  procedure BadOperationResultError(const opRes: TNOperationResult);
   begin
+    var LogMessage: String;
     case opRes of
-      kOK: Result := 'OK';
-      kUnsupportedMethod: Result := 'Unsupported method';
-      kDataError: Result := 'Data error';
-      kCRCError: Result := 'CRC error';
-      kUnavailable: Result := 'Unavailable';
-      kUnexpectedEnd: Result := 'Unexpected end';
-      kDataAfterEnd: Result := 'Data after end';
-      kIsNotArc: Result := 'Is not an archive';
-      kHeadersError: Result := 'Headers error';
-      kWrongPassword: Result := 'Wrong password';
+      kUnsupportedMethod: LogMessage := 'Unsupported method';
+      kDataError: LogMessage := 'Data error';
+      kCRCError: LogMessage := 'CRC error';
+      kUnavailable: LogMessage := 'Unavailable data';
+      kUnexpectedEnd: LogMessage := 'Unexpected end';
+      kDataAfterEnd: LogMessage := 'Data after end';
+      kIsNotArc: LogMessage := 'Is not an archive';
+      kHeadersError: LogMessage := 'Headers error';
+      kWrongPassword: LogMessage := 'Wrong password';
     else
-      Result := Format('Unknown operation result: %d', [Ord(opRes)]);
+      LogMessage := Format('Unknown operation result: %d', [Ord(opRes)]);
     end;
+
+    case opRes of
+      kUnsupportedMethod:
+        SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat], LogMessage);
+      kDataError, kCRCError, kUnavailable, kUnexpectedEnd, kDataAfterEnd, kIsNotArc, kHeadersError:
+        SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], LogMessage);
+      kWrongPassword:
+        SevenZipError(SetupMessages[msgExtractArchiveIncorrectPassword], LogMessage);
+    else
+      SevenZipError(Ord(opRes).ToString, LogMessage);
+    end;
+  end;
+
+  procedure BadResultError(const Res: HRESULT);
+  begin
+    if Res = E_OUTOFMEMORY then
+      SevenZipError(SetupMessages[msgExtractArchiveOutOfMemory], 'Out of memory')
+    else
+      SevenZipWin32Error('Extract', FResult.Res);
   end;
 
 begin
@@ -585,15 +596,15 @@ begin
       Msg := (FResult.SavedFatalException as Exception).Message
     else
       Msg := FResult.SavedFatalException.ClassName;
-    SevenZipError(Format('Worker thread terminated unexpectedly with exception: %s', [Msg]), Msg);
+    InternalErrorFmt('Worker thread terminated unexpectedly with exception: %s', [Msg]);
   end else if FResult.Res = E_ABORT then
     Abort
   else begin
     var OpRes := FResult.OpRes;
     if OpRes <> kOK then
-      SevenZipError(OperationResultToString(FResult.OpRes), Ord(OpRes).ToString)
+      BadOperationResultError(OpRes)
     else if FResult.Res <> S_OK then
-      SevenZipWin32Error('Extract', FResult.Res);
+      BadResultError(FResult.Res);
   end;
 end;
 
@@ -915,7 +926,7 @@ function OpenArchiveRedir(const DisableFsRedir: Boolean;
 begin
   { CreateObject }
   if CreateSevenZipObject(clsid, IInArchive, Result) <> S_OK then
-    SevenZipError('Cannot get class object' { Just like Client7z.cpp }, '-1');
+    SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat], 'Cannot get class object' { Just like Client7z.cpp });
 
   { Open }
   var F: TFile := nil; { Set to nil to silence compiler }
@@ -928,9 +939,9 @@ begin
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
-    SevenZipError('Cannot open file as archive' { Just like Client7z.cpp }, '-2');
+    SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], 'Cannot open as archive' { Just like Client7z.cpp });
   if Result.GetNumberOfItems(numItems) <> S_OK then
-    SevenZipError('Cannot get number of items', '-3');
+    SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], 'Cannot get number of items');
 end;
 
 { ExtractArchiveRedir }

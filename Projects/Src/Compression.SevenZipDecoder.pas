@@ -12,8 +12,15 @@ unit Compression.SevenZipDecoder;
 
 interface
 
+uses
+  SysUtils;
+
 type
   TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
+
+  ESevenZipError = class(Exception);
+
+procedure SevenZipError(const ExceptMessage: String; const LogMessage: String = '');
 
 procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
@@ -22,10 +29,10 @@ procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
 implementation
 
 uses
-  Windows, SysUtils, Forms,
+  Windows, Forms,
   PathFunc,
-  Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
+  SetupLdrAndSetup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record
@@ -294,9 +301,43 @@ begin
     State.Aborted := True;
 end;
 
+procedure SevenZipError(const ExceptMessage, LogMessage: String);
+{ LogMessage may be non-localized or empty but ExceptMessage may be neither.
+  ExceptMessage should not already contain msgErrorExtractionFailed.
+  Should not be called from a secondary thread if LogMessage is not empty. }
+begin
+  if LogMessage <> '' then
+    LogFmt('ERROR: %s', [LogMessage]); { Just like 7zMain.c }
+  raise ESevenZipError.Create(ExceptMessage);
+end;
+
 procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
+
+  procedure BadResultError(const Res: Integer);
+  const
+    SZ_ERROR_DATA = 1;
+    SZ_ERROR_MEM = 2;
+    SZ_ERROR_CRC = 3;
+    SZ_ERROR_UNSUPPORTED = 4;
+    SZ_ERROR_ARCHIVE = 16;
+    SZ_ERROR_NO_ARCHIVE = 17;
+  begin
+    { Logging already done by 7zMain.c }
+
+    case Res of
+      SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
+        SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat]);
+      SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
+        SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted]);
+      SZ_ERROR_MEM:
+        SevenZipError(SetupMessages[msgExtractArchiveOutOfMemory]);
+    else
+      SevenZipError(Res.ToString);
+    end;
+  end;
+
 begin
   LogArchiveExtractionModeOnce;
 
@@ -304,36 +345,40 @@ begin
     InternalError('Extract7ZipArchive: Invalid ArchiveFileName value');
   if DestDir = '' then
     InternalError('Extract7ZipArchive: Invalid DestDir value');
+  if Password <> '' then
+    InternalError('Extract7ZipArchive: Invalid Password value');
 
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
 
-  if Password <> '' then begin
-    Log('ERROR: Password not supported by basic archive extraction'); { Just like 7zMain.c }
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-2']))
-  end else if not ForceDirectories(DisableFsRedir, DestDir) then begin
-    Log('ERROR: Failed to create destination directory'); { Just like 7zMain.c }
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, ['-1']));
+  try
+    if not ForceDirectories(DisableFsRedir, DestDir) then
+      SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
+
+    State.DisableFsRedir := DisableFsRedir;
+    State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
+    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+    State.LogBuffer := '';
+    State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
+    State.OnExtractionProgress := OnExtractionProgress;
+    State.LastReportedProgress := 0;
+    State.LastReportedProgressMax := 0;
+    State.Aborted := False;
+
+    var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
+
+    if State.LogBuffer <> '' then
+      Log(State.LogBuffer);
+
+    if State.Aborted then
+      Abort
+    else if Res <> 0 then
+      BadResultError(Res);
+  except
+    on E: EAbort do
+      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
+    else
+      raise ESevenZipError.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
   end;
-
-  State.DisableFsRedir := DisableFsRedir;
-  State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
-  State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-  State.LogBuffer := '';
-  State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
-  State.OnExtractionProgress := OnExtractionProgress;
-  State.LastReportedProgress := 0;
-  State.LastReportedProgressMax := 0;
-  State.Aborted := False;
-
-  var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
-
-  if State.LogBuffer <> '' then
-    Log(State.LogBuffer);
-
-  if State.Aborted then
-    raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-  else if Res <> 0 then
-    raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [Res.ToString])); { Already logged by 7zMain.c }
 end;
 
 end.

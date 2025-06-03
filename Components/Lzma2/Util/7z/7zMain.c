@@ -967,6 +967,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("decoder doesn't support this archive");
   else if (res == SZ_ERROR_MEM)
     PrintError("cannot allocate memory");
+  else if (res == SZ_ERROR_DATA)
+    PrintError("Data error");
   else if (res == SZ_ERROR_CRC)
     PrintError("CRC error");
   else if (res == SZ_ERROR_ARCHIVE)
