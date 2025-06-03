@@ -5432,6 +5432,8 @@ begin
         if foExtractArchive in Options then begin
           if not ExternalFile then
             AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive'])
+          else if not(foIgnoreVersion in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'extractarchive'])
           else if SetupHeader.SevenZipLibraryName = '' then
             AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
         end;

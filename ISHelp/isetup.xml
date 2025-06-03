@@ -1708,9 +1708,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="extractarchive">
 <p>...</p>
-<p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
-<p>This flag must be combined with <tt>external</tt>.</p>
+<p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
+<p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 </flag>
 <flag name="fontisnttruetype">
 <p>Specify this flag if the entry is installing a <i>non-TrueType</i> font with the <tt>FontInstall</tt> parameter.</p>

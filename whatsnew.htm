@@ -127,7 +127,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     <li>Added new <tt>[Files]</tt> section flag <tt>extractarchive</tt> and parameter <tt>ExtractArchivePassword</tt>, intended to enable the seamless integration and extraction of downloaded archives.
       <ul>
         <li>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the aforementioned <tt>ArchiveExtraction</tt> directive, that must not be set to <tt>basic</tt>.</li>
-        <li>Flags <tt>extractarchive</tt> must be combined with flag <tt>external</tt> and is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</li>
+        <li>Flag <tt>extractarchive</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. It is usually also combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</li>
         <li>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</li>
         <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with all other flags and parameters.</li>
         <li>Example script:
@@ -135,7 +135,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
 ArchiveExtraction=enhanced/nopassword
 
 [Files]
-Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs</pre>
+Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion</pre>
         </li>
       </ul>
     </li>

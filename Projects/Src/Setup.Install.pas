@@ -1271,14 +1271,15 @@ var
           if not(foIgnoreVersion in CurFile^.Options) then begin
             AllowTimeStampComparison := False;
             { Read version info of file being installed }
+            if foExtractArchive in CurFile^.Options then
+              InternalError('Unexpected extractarchive flag');
             if Assigned(CurFileLocation) then begin
               CurFileVersionInfoValid := floVersionInfoValid in CurFileLocation^.Flags;
               CurFileVersionInfo.MS := CurFileLocation^.FileVersionMS;
               CurFileVersionInfo.LS := CurFileLocation^.FileVersionLS;
             end
             else
-              CurFileVersionInfoValid := not(foExtractArchive in CurFile^.Options) and
-                GetVersionNumbersRedir(DisableFsRedir,
+              CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir,
                   PathExpand(AExternalSourceFile), CurFileVersionInfo);
             if CurFileVersionInfoValid then
               LogFmt('Version of our file: %u.%u.%u.%u',
