@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ French messages ***
+; *** Inno Setup version 6.4.0+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/

@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Bulgarian messages ***
+; *** Inno Setup version 6.4.0+ Bulgarian messages ***
 ; Ventsislav Dimitrov <nightravenanm@protonmail.com>
 ;
 ; За да изтеглите преводи на този файл, предоставени от потребители, посетете:
