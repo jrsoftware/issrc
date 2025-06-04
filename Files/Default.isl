@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ English messages ***
+; *** Inno Setup version 6.5.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -224,12 +224,17 @@ ErrorFileHash2=Invalid file hash: expected %1, found %2
 ErrorProgress=Invalid progress: %1 of %2
 ErrorFileSize=Invalid file size: expected %1, found %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractionLabel=Extracting additional files...
 ButtonStopExtraction=&Stop extraction
 StopExtraction=Are you sure you want to stop the extraction?
 ErrorExtractionAborted=Extraction aborted
 ErrorExtractionFailed=Extraction failed: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=The password is incorrect
+ArchiveIsCorrupted=The archive is corrupted
+ArchiveUnsupportedFormat=The archive format is unsupported
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install
