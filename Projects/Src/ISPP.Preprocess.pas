@@ -191,7 +191,7 @@ var
     end;
 
   const
-    SBuiltins = 'ISPPBuiltins.iss';
+    SBuiltins = {$IFDEF DEBUG} '..\..\Files\ISPPBuiltins.iss' {$ELSE} 'ISPPBuiltins.iss' {$ENDIF};
   var
     DelimPos: PChar;
     N: Integer;

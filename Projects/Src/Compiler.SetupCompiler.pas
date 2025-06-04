@@ -6116,12 +6116,16 @@ begin
   end;
 end;
 
+
+const
+  DefaultIsl = {$IFDEF DEBUG} 'compiler:..\..\Files\Default.isl' {$ELSE} 'Default.isl' {$ENDIF};
+
 procedure TSetupCompiler.ReadDefaultMessages;
 var
   J: TSetupMessageID;
 begin
   { Read messages from Default.isl into DefaultLangData }
-  EnumIniSection(EnumMessagesProc, 'Messages', -2, False, True, 'compiler:Default.isl', True, False);
+  EnumIniSection(EnumMessagesProc, 'Messages', -2, False, True, DefaultIsl, True, False);
   CallIdleProc;
 
   { Check for missing messages in Default.isl }
@@ -6149,7 +6153,7 @@ procedure TSetupCompiler.ReadMessagesFromScriptPre;
     end;
     PreLangDataList.Add(NewPreLangData);
 
-    ReadMessagesFromFilesPre('compiler:Default.isl', PreLangDataList.Count-1);
+    ReadMessagesFromFilesPre(DefaultIsl, PreLangDataList.Count-1);
   end;
 
 begin
@@ -6188,7 +6192,7 @@ procedure TSetupCompiler.ReadMessagesFromScript;
     LanguageEntries.Add(NewLanguageEntry);
     LangDataList.Add(NewLangData);
 
-    ReadMessagesFromFiles('compiler:Default.isl', LanguageEntries.Count-1);
+    ReadMessagesFromFiles(DefaultIsl, LanguageEntries.Count-1);
   end;
 
   function IsOptional(const MessageID: TSetupMessageID): Boolean;

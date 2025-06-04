@@ -4,8 +4,5 @@
 *.issig
 Setup-*.bin
 Setup.log
-Default.isl
-ISPPBuiltins.iss
-whatsnew.htm
 *.chm
 *.chw
