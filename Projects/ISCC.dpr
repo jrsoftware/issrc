@@ -327,7 +327,7 @@ procedure ProcessCommandLine;
       InlineEnd := '}';
     end;
 
-    Definitions := 'ISPPCC_INVOKED'#1;
+    Definitions := 'ISCC_INVOKED'#1'ISPPCC_INVOKED'#1;
     IncludePath := ExtractFileDir(NewParamStr(0));
     IncludeFiles := '';
   end;
