@@ -328,11 +328,11 @@ procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
 
     case Res of
       SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
-        SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat]);
+        SevenZipError(SetupMessages[msgArchiveUnsupportedFormat]);
       SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
-        SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted]);
+        SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
       SZ_ERROR_MEM:
-        SevenZipError(SetupMessages[msgExtractArchiveOutOfMemory]);
+        SevenZipError(Win32ErrorString(E_OUTOFMEMORY));
     else
       SevenZipError(Res.ToString);
     end;

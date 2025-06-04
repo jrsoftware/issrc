@@ -571,11 +571,11 @@ procedure TArchiveExtractBaseCallback.HandleResult;
 
     case opRes of
       kUnsupportedMethod:
-        SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat], LogMessage);
+        SevenZipError(SetupMessages[msgArchiveUnsupportedFormat], LogMessage);
       kDataError, kCRCError, kUnavailable, kUnexpectedEnd, kDataAfterEnd, kIsNotArc, kHeadersError:
-        SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], LogMessage);
+        SevenZipError(SetupMessages[msgArchiveIsCorrupted], LogMessage);
       kWrongPassword:
-        SevenZipError(SetupMessages[msgExtractArchiveIncorrectPassword], LogMessage);
+        SevenZipError(SetupMessages[msgArchiveIncorrectPassword], LogMessage);
     else
       SevenZipError(Ord(opRes).ToString, LogMessage);
     end;
@@ -584,7 +584,7 @@ procedure TArchiveExtractBaseCallback.HandleResult;
   procedure BadResultError(const Res: HRESULT);
   begin
     if Res = E_OUTOFMEMORY then
-      SevenZipError(SetupMessages[msgExtractArchiveOutOfMemory], 'Out of memory')
+      SevenZipError(Win32ErrorString(E_OUTOFMEMORY))
     else
       SevenZipWin32Error('Extract', FResult.Res);
   end;
@@ -926,7 +926,7 @@ function OpenArchiveRedir(const DisableFsRedir: Boolean;
 begin
   { CreateObject }
   if CreateSevenZipObject(clsid, IInArchive, Result) <> S_OK then
-    SevenZipError(SetupMessages[msgExtractArchiveUnsupportedFormat], 'Cannot get class object' { Just like Client7z.cpp });
+    SevenZipError(SetupMessages[msgArchiveUnsupportedFormat], 'Cannot get class object' { Just like Client7z.cpp });
 
   { Open }
   var F: TFile := nil; { Set to nil to silence compiler }
@@ -939,9 +939,9 @@ begin
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
-    SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], 'Cannot open as archive' { Just like Client7z.cpp });
+    SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   if Result.GetNumberOfItems(numItems) <> S_OK then
-    SevenZipError(SetupMessages[msgExtractArchiveIsCorrupted], 'Cannot get number of items');
+    SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot get number of items');
 end;
 
 { ExtractArchiveRedir }
