@@ -259,7 +259,7 @@
 #define AddBackslash(str S) \
   Copy(S, Len(S)) == "\" ? S : S + "\"
 
-#define RemoveBackslash(str S) \
+#define RemoveBackslashUnlessRoot(str S) \
   Local[0] = Len(S), \
   Local[0] > 0 ? \
     Copy(S, Local[0]) == "\" ? \
@@ -268,6 +268,9 @@
         Copy(S, 1, Local[0] - 1)) : \
       S : \
     ""
+#define RemoveBackslash(str S) \
+  WarnRenamedVersion("RemoveBackslash", "RemoveBackslashUnlessRoot"), \
+  RemoveBackslashUnlessRoot(S)
 
 #define Delete(str *S, int Index, int Count = MaxInt) \
   S = Copy(S, 1, Index - 1) + Copy(S, Index + Count)
