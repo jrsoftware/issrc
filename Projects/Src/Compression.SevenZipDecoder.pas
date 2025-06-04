@@ -305,7 +305,8 @@ begin
   if DestDir = '' then
     InternalError('Extract7ZipArchive: Invalid DestDir value');
 
-  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
+    RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
   if Password <> '' then begin
     Log('ERROR: Password not supported by basic archive extraction'); { Just like 7zMain.c }
