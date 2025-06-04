@@ -11,16 +11,31 @@ unit Setup.Install;
 
 interface
 
+uses
+  Classes, SHA256, Shared.FileClass;
+
+type
+  TISSigVerifySignatureError = (vseMissingFile, vseMalformedOrBadSignature, vseKeyNotFound,
+    vseUnknownVerifyResult, vseFileSizeIncorrect, vseFileHashIncorrect);
+
+procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const ACustomExceptionMessage: String = '');
+
+procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
+  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  out ExpectedFileHash: TSHA256Digest);
+
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
-
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadCredentials(const User, Pass: String);
@@ -28,10 +43,10 @@ procedure SetDownloadCredentials(const User, Pass: String);
 implementation
 
 uses
-  Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
+  Windows, SysUtils, Messages, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
-  Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
+  Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor,
+  Compression.Base, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
   Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
@@ -250,24 +265,28 @@ begin
   end;
 end;
 
-type
-  TISSigVerifySignatureError = (vseMissingFile, vseMalformedOrBadSignature, vseKeyNotFound,
-    vseUnknownVerifyResult, vseFileSizeIncorrect, vseFileHashIncorrect);
-
-procedure ISSigVerifyError(const AError: TISSigVerifySignatureError; const AExceptionMessage: String);
+procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const ACustomExceptionMessage: String);
 const
   ErrorStrings: array[TISSigVerifySignatureError] of String =
     ('Signature file does not exist', 'Malformed or bad signature', 'No matching key found',
       'Unknown verify result', 'File size incorrect', 'File hash incorrect');
 begin
   Log('ISSig verification error: ' + AddPeriod(ErrorStrings[AError]));
-  raise Exception.Create(AExceptionMessage);
+  var Msg := ACustomExceptionMessage;
+  if Msg = '' then
+    Msg := SetupMessages[msgSourceIsCorrupted];
+  raise Exception.Create(Msg);
 end;
 
-procedure DoISSigVerify(const SourceF: TFile; const SourceFilename: String;
-  const ISSigAllowedKeys: AnsiString; out ExpectedFileHash: TSHA256Digest);
-{ Caller must check ExpectedFileHash }
+procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
+  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  out ExpectedFileHash: TSHA256Digest);
+{ Either SourceF or SourceFS must be set. Caller must check ExpectedFileHash. }
 begin
+  if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
+    InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
+
   var ExpectedFileSize: Int64;
   if not ISSigVerifySignature(SourceFilename,
     GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
@@ -286,12 +305,17 @@ begin
       else
         VerifyError := vseUnknownVerifyResult;
       end;
-      ISSigVerifyError(VerifyError, SetupMessages[msgSourceIsCorrupted]);
+      ISSigVerifyError(VerifyError);
     end
   ) then
     InternalError('Unexpected ISSigVerifySignature result');
-  if Int64(SourceF.Size) <> ExpectedFileSize then
-    ISSigVerifyError(vseFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
+  var FileSize: Int64;
+  if SourceF <> nil then
+    FileSize := Int64(SourceF.Size)
+  else
+    FileSize := SourceFS.Size;
+  if FileSize <> ExpectedFileSize then
+    ISSigVerifyError(vseFileSizeIncorrect);
 end;
 
 const
@@ -311,7 +335,7 @@ var
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
-    DoISSigVerify(SourceF, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
+    DoISSigVerify(SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
     { ExpectedFileHash checked below after copy }
     SHA256Init(Context);
   end;
@@ -353,7 +377,7 @@ begin
 
   if ISSigVerify then begin
     if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
-      ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+      ISSigVerifyError(vseFileHashIncorrect);
     Log(ISSigVerificationSuccessfulLogMessage);
   end;
 
@@ -1943,11 +1967,11 @@ var
               if ISSigVerifySourceF = nil then
                 ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
               var ExpectedFileHash: TSHA256Digest;
-              DoISSigVerify(ISSigVerifySourceF, ArchiveFilename, CurFile^.ISSigAllowedKeys,
+              DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
                 ExpectedFileHash);
               { Can't get the SHA-256 while extracting so need to get and check it now }
-              const FileHash = GetSHA256OfFile(DisableFsRedir, ArchiveFilename);
-              if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+              const ActualFileHash = GetSHA256OfFile(DisableFsRedir, ArchiveFilename);
+              if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
                 ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
               Log(ISSigVerificationSuccessfulLogMessage);
               { Keeping ISSigVerifySourceF open until extraction has completed }
@@ -3670,7 +3694,9 @@ begin
     Log('Download is not using basic authentication');
 end;
 
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DestFile, TempFile: String;
   TempF: TFileRedir;
@@ -3760,8 +3786,15 @@ begin
       FreeAndNil(HandleStream);
       FreeAndNil(TempF);
 
-      { Check hash if specified, otherwise check everything else we can check }
-      if RequiredSHA256OfFile <> '' then begin
+      { Check .issig or hash if specified, otherwise check everything else we can check }
+      if ISSigVerify then begin
+        var ExpectedFileHash: TSHA256Digest;
+        DoISSigVerify(TempF, nil, TempFile, ISSigAllowedKeys, ExpectedFileHash);
+        const FileHash = GetSHA256OfFile(DisableFsRedir, TempFile);
+        if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+        Log(ISSigVerificationSuccessfulLogMessage);
+      end else if RequiredSHA256OfFile <> '' then begin
         try
           SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
         except on E: Exception do

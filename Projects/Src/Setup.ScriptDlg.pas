@@ -1074,7 +1074,7 @@ begin
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadCredentials(F.UserName, F.Password);
-    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
+    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,  False, '', InternalOnDownloadProgress);
   end;
   SetDownloadCredentials('', '');
 end;

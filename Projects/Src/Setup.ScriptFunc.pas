@@ -804,7 +804,7 @@ var
     end);
     RegisterScriptFunc('DownloadTemporaryFile', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
+      Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), False, '', TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
     end);
     RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1846,43 +1846,16 @@ var
           InternalError(Format('Unknown RuntimeID ''%s''', [RuntimeID]));
       end;
 
-      { Verify signature }
-      var ExpectedFileSize: Int64;
-      var ExpectedFileHash: TSHA256Digest;
-      if not ISSigVerifySignature(Filename,
-        GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
-        ExpectedFileSize, ExpectedFileHash,
-        procedure(const Filename: String)
-        begin
-          raise Exception.Create('File does not exist');
-        end,
-        procedure(const Filename, SigFilename: String)
-        begin
-          raise Exception.Create('Signature file does not exist');
-        end,
-        procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
-        begin
-          case VerifyResult of
-            vsrMalformed, vsrBadSignature:
-              raise Exception.Create('Signature file is not valid');
-            vsrKeyNotFound:
-              raise Exception.Create('Incorrect key ID');
-          else
-            InternalError('Unknown verify result');
-          end;
-        end
-      ) then
-        InternalError('Unexpected ISSigVerifySignature result');
-
-      { Verify file, keeping open afterwards if requested
+      { Verify signature & file, keeping open afterwards if requested
         Also see TrustFunc's CheckFileTrust }
       var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
       try
-        if Int64(F.Size) <> ExpectedFileSize then
-          raise Exception.Create('File size is incorrect');
+        var ExpectedFileHash: TSHA256Digest;
+        DoISSigVerify(nil, F, Filename, ISSigAllowedKeys, ExpectedFileHash);
+         { Couldn't get the SHA-256 while downloading so need to get and check it now }
         const ActualFileHash = ISSigCalcStreamHash(F);
         if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
-          raise Exception.Create('File hash is incorrect');
+          ISSigVerifyError(vseFileHashIncorrect);
       except
         FreeAndNil(F);
         raise;
