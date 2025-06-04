@@ -229,14 +229,10 @@
     (Local[0] < 0 ? Local[1] : Local[0] + 1)
 
 #define ExtractFilePath(str PathName) \
-  (Local[0] = \
+  Local[0] = \
     !(Local[1] = RPos("\", PathName)) ? \
       "" : \
-      Copy(PathName, 1, Local[1] - 1)), \
-  Local[0] + \
-    ((Local[2] = Len(Local[0])) == 2 && Copy(Local[0], Local[2]) == ":" ? \
-      "\" : \
-      "")
+      Copy(PathName, 1, Local[1])
 
 #define ExtractFileDir(str PathName) \
   RemoveBackslash(ExtractFilePath(PathName))
