@@ -3504,7 +3504,7 @@ end;
 
 procedure TMainForm.HWhatsNewClick(Sender: TObject);
 begin
-  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm');
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + {$IFDEF DEBUG} '..\..\' + {$ENDIF} 'whatsnew.htm');
 end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
