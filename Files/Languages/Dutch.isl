@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Dutch messages ***
+; *** Inno Setup version 6.5.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -30,8 +30,8 @@ LdrCannotExecTemp=Kan een bestand in de tijdelijke map niet uitvoeren. Setup wor
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFout %2: %3
 SetupFileMissing=Het bestand %1 ontbreekt in de installatiemap. Corrigeer dit probleem of gebruik een andere kopie van het programma.
-SetupFileCorrupt=De installatiebestanden zijn beschadigd. Gebruik een andere kopie van het programma.
-SetupFileCorruptOrWrongVer=De installatiebestanden zijn beschadigd, of zijn niet compatibel met deze versie van Setup. Corrigeer dit probleem of gebruik een andere kopie van het programma.
+SetupFileCorrupt=De installatiebestanden zijn corrupt. Gebruik een andere kopie van het programma.
+SetupFileCorruptOrWrongVer=De installatiebestanden zijn corrupt, of zijn niet compatibel met deze versie van Setup. Corrigeer dit probleem of gebruik een andere kopie van het programma.
 InvalidParameter=Er werd een ongeldige schakeloptie opgegeven op de opdrachtregel:%n%n%1
 SetupAlreadyRunning=Setup is al gestart.
 WindowsVersionNotSupported=Dit programma ondersteunt de versie van Windows die u gebruikt niet.
@@ -67,7 +67,7 @@ AboutSetupMenuItem=&Over Setup...
 AboutSetupTitle=Over Setup
 AboutSetupMessage=%1 versie %2%n%3%n%n%1-homepage:%n%4
 AboutSetupNote=
-TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@jrsoftware.org)
+TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@innosetup.nl)
 
 ; *** Buttons
 ButtonBack=< Vo&rige
@@ -204,12 +204,17 @@ ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
 ErrorProgress=Ongeldige voortgang: %1 van %2
 ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractionLabel=Bezig met het uitpakken van extra bestanden...
 ButtonStopExtraction=&Stop uitpakken
 StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
 ErrorExtractionAborted=Uitpakken gestopt
 ErrorExtractionFailed=Uitpakken mislukt: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Het wachtwoord is niet correct
+ArchiveIsCorrupted=Het archief is corrupt
+ArchiveUnsupportedFormat=Het archief formaat wordt niet ondersteund
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
@@ -285,7 +290,7 @@ ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Sla dit bestand over (niet aanbevolen)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Negeer de fout en ga door (niet aanbevolen)
-SourceIsCorrupted=Het bronbestand is beschadigd
+SourceIsCorrupted=Het bronbestand is corrupt
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
 ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
 ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
@@ -326,7 +331,7 @@ ErrorRestartingComputer=Setup kan de computer niet opnieuw opstarten. Doe dit ha
 
 ; *** Uninstaller messages
 UninstallNotFound=Bestand "%1" bestaat niet. Kan het programma niet verwijderen.
-UninstallUnsupportedVer=Het installatie-logbestand "%1" heeft een formaat dat niet herkend wordt door deze versie van het verwijderprogramma. Kan het programma niet verwijderen
+UninstallUnsupportedVer=Het installatie-logbestand "%1" heeft een formaat dat niet ondersteund wordt door deze versie van het verwijderprogramma. Kan het programma niet verwijderen
 UninstallUnknownEntry=Er is een onbekend gegeven (%1) aangetroffen in het installatie-logbestand
 ConfirmUninstall=Weet u zeker dat u %1 en alle bijbehorende componenten wilt verwijderen?
 UninstallOnlyOnWin64=Deze installatie kan alleen worden verwijderd onder 64-bit Windows.
@@ -336,7 +341,7 @@ UninstallOpenError=Bestand "%1" kon niet worden geopend. Kan het verwijderen nie
 UninstalledAll=%1 is met succes van deze computer verwijderd.
 UninstalledMost=Het verwijderen van %1 is voltooid.%n%nEnkele elementen konden niet verwijderd worden. Deze kunnen handmatig verwijderd worden.
 UninstalledAndNeedsRestart=Om het verwijderen van %1 te voltooien, moet uw computer opnieuw worden opgestart.%n%nWilt u nu opnieuw opstarten?
-UninstallDataCorrupted="%1" bestand is beschadigd. Kan verwijderen niet voltooien
+UninstallDataCorrupted="%1" bestand is corrupt. Kan verwijderen niet voltooien
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Gedeeld bestand verwijderen?
