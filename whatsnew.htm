@@ -115,7 +115,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
 <ul>
   <li>Updated <tt>[Setup]</tt> and <tt>[Files]</tt> section:
   <ul>
-    <li>Added new <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> to specify the method of archive extraction used by support functions <tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt>:
+    <li>Added new <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> to specify the method of archive extraction used by new <tt>[Files]</tt> section flag <tt>extractarchive</tt> (see below) and support functions <tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt>:
       <ul>
         <li><tt>basic</tt> (default) is the method introduced by Inno Setup 6.4.0. It only supports .7z archives that are not password-protected.</li>
         <li><tt>enhanced/nopassword</tt> is a new method and internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</li>
@@ -129,7 +129,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
         <li>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the aforementioned <tt>ArchiveExtraction</tt> directive, that must not be set to <tt>basic</tt>.</li>
         <li>Flag <tt>extractarchive</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. It is usually also combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</li>
         <li>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</li>
-        <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with all other flags and parameters.</li>
+        <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with same other flags and parameters.</li>
         <li>Example script:
           <pre>[Setup]
 ArchiveExtraction=enhanced/nopassword
