@@ -14,7 +14,8 @@
 LanguageName=English
 LanguageID=$0409
 ; LanguageCodePage should always be set if possible, even if this file is Unicode
-LanguageCodePage=1252
+; For English it's set to zero anyway because English only uses ASCII characters
+LanguageCodePage=0
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=

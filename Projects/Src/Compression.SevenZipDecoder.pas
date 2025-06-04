@@ -348,7 +348,8 @@ begin
   if Password <> '' then
     InternalError('Extract7ZipArchive: Invalid Password value');
 
-  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName, DestDir, SYesNo[FullPaths]]);
+  LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
+    RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
   try
     if not ForceDirectories(DisableFsRedir, DestDir) then
