@@ -2354,10 +2354,10 @@ RightToLeft=no
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
-<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any ASCII text in the language's files to Unicode text. Note that any text in the .iss file such as a [CustomMessages] entry for the language is never converted and should be in Unicode already.<br/>
+<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the .iss file such as a [CustomMessages] entry for the language is never converted and should be in Unicode already.<br/>
 If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to zero and only use Unicode text (UTF-8) in the languages's files.<br/>
 If the language only uses ASCII characters (like English), set <tt>LanguageCodePage</tt> to zero as well.<br/>
-If <tt>LanguageCodePage</tt> is set to zero but ASCII text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
+If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 

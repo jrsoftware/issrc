@@ -156,6 +156,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extrac
   <li>Compiler IDE: the <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
+  <li>All translations which still had a UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Stup 6.3.0.</li>
   <li>Documentation improvements.</li>
   <li>Minor tweaks.</li>
 </ul>

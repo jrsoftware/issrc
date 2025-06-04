@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Croatian messages ***
+; *** Inno Setup version 6.4.0+ Croatian messages ***
 ; Translated by: Milo Ivir (mail@milotype.de)
 ; Based on translation by Elvis Gambiraža (el.gambo@gmail.com)
 ; Based on translation by Krunoslav Kanjuh (krunoslav.kanjuh@zg.t-com.hr)
