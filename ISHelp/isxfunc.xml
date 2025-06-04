@@ -1082,12 +1082,14 @@ end;</pre></example>
       <function>
         <name>ExtractFileDir</name>
         <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractFilePath">ExtractFilePath</link></p></seealso>
       </function>
       <function>
         <name>ExtractFilePath</name>
         <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractFileDir">ExtractFileDir</link></p></seealso>
       </function>
       <function>
         <name>ExtractFileName</name>
