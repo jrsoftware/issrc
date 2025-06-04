@@ -1661,9 +1661,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the directory portion of the given filename with a backslash. If PathName doesn't contain a directory portion, the result is an empty string.</p>
+					<p>Returns the directory portion of the given filename, including a trailing backslash. If PathName doesn't contain a directory portion, the result is an empty string.</p>
           <p>Declared in &builtins;.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="ExtractFileDir">ExtractFileDir</link></tt></p>
+				</section>
 			</topic>
 			<topic id="ExtractFileDir">
 				<title>ExtractFileDir</title>
@@ -1673,9 +1676,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the directory portion of the given filename without a backslash (unless it is a root directory). If PathName doesn't contain a directory portion, the result is an empty string.</p>
+					<p>Returns the directory portion of the given filename, excluding a trailing backslash (unless it is a root directory). If PathName doesn't contain a directory portion, the result is an empty string.</p>
           <p>Declared in &builtins;.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="ExtractFilePath">ExtractFilePath</link></tt></p>
+				</section>
 			</topic>
 			<topic id="ExtractFileExt">
 				<title>ExtractFileExt</title>
@@ -1737,11 +1743,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
-			<topic id="RemoveBackslash">
-				<title>RemoveBackslash</title>
+			<topic id="RemoveBackslashUnlessRoot">
+				<title>RemoveBackslashUnlessRoot</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> RemoveBackslash(<b>str</b> S)</line>
+						<line><b>str</b> RemoveBackslashUnlessRoot(<b>str</b> S)</line>
 					</pre>
 				</section>
 				<description>
@@ -2000,15 +2006,16 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="predefinedvars">
 				<keywords>
 					<kwd>__COUNTER__</kwd>
-					<kwd>__FILE__</kwd>
+					<kwd>__FILENAME__</kwd>
 					<kwd>__INCLUDE__</kwd>
 					<kwd>__LINE__</kwd>
 					<kwd>__OPT_X__</kwd>
+					<kwd>__DIR__</kwd>
 					<kwd>__PATHFILENAME__</kwd>
 					<kwd>__POPT_X__</kwd>
 					<kwd>__WIN32__</kwd>
 					<kwd>ISPP_INVOKED</kwd>
-					<kwd>ISPPCC_INVOKED</kwd>
+					<kwd>ISCC_INVOKED</kwd>
 					<kwd>PREPROCVER</kwd>
 					<kwd>WINDOWS</kwd>
 					<kwd>UNICODE</kwd>
@@ -2023,20 +2030,21 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>There are a number of predefined variables provided ISPP:</p>
 				<table>
 					<tr><td><code>__COUNTER__</code></td><td><code><b>int</b></code>. Automatically increments each time it is used (afterwards).</td></tr>
-					<tr><td><code>__FILE__</code></td><td><code><b>str</b></code>. Returns the name of the current file. Empty string for the root file.</td></tr>
+					<tr><td><code>__FILENAME__</code></td><td><code><b>str</b></code>. Similar to __PATHFILENAME__, but returns only the filename portion.</td></tr>
 					<tr><td><code>__INCLUDE__</code></td><td><code><b>str</b></code>. Returns the current include path (or paths delimited with semicolons) set via <code>#pragma include</code>.</td></tr>
 					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file.</td></tr>
 					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
-					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Similar to __FILE__, but returns the full pathname of the file. Empty string for the root file.</td></tr>
+					<tr><td><code>__DIR__</code></td><td><code><b>str</b></code>. Similar to __PATHFILENAME__, but returns only the directory portion, excluding a trailing backslash (unless it is a root directory).</td></tr>
+					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Returns the full path of the current include file. Empty string for the root script file.</td></tr>
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
-					<tr><td><code>ISPPCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
+					<tr><td><code>ISCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
 					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of ISPP. Highest byte holds the major version, lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
-					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the current script is located, or the My Documents directory if the script has not yet been saved.</td></tr>
+					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the root script file is located, or the My Documents directory if the script has not yet been saved.</td></tr>
 					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte the minor version.</td></tr>
 					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 					<tr><td><code>Tab</code></td><td><code><b>str</b></code>. Returns the tab character. Declared in &builtins;.</td></tr>
