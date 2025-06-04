@@ -328,7 +328,9 @@ begin
   with CL.Add(TDownloadWizardPage) do
   begin
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.AddWithISSigVerify, 'AddWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
+    RegisterMethod(@TDownloadWizardPage.AddExWithISSigVerify, 'AddExWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
     RegisterMethod(@TDownloadWizardPage.Download, 'Download');
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');

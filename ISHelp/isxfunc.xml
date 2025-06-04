@@ -1915,8 +1915,8 @@ end;</pre>
     <subcategory>
       <function>
         <name>ISSigVerify</name>
-        <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TArrayOfString; const Filename: String; const KeepOpen: Boolean): TFileStream;</prototype>
-        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using [ISSigKeys] section parameter <tt>RuntimeID</tt>. If no keys are specified then all keys are allowed. An exception will be raised upon failure.</p>
+        <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const KeepOpen: Boolean): TFileStream;</prototype>
+        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using [ISSigKeys] section parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>. An exception will be raised upon failure.</p>
 <p>Returns a handle to the still open file if True is specified in the KeepOpen parameter, <tt>nil</tt> otherwise. It is recommended that you always specify True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre>var
   F: TFileStream;

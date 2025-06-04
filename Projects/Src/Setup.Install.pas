@@ -3784,29 +3784,32 @@ begin
       { Download completed, get temporary file size and close it }
       Result := HandleStream.Size;
       FreeAndNil(HandleStream);
-      FreeAndNil(TempF);
 
       { Check .issig or hash if specified, otherwise check everything else we can check }
       if ISSigVerify then begin
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(TempF, nil, TempFile, ISSigAllowedKeys, ExpectedFileHash);
+        DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(DisableFsRedir, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
           ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
         Log(ISSigVerificationSuccessfulLogMessage);
-      end else if RequiredSHA256OfFile <> '' then begin
-        try
-          SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
-        except on E: Exception do
-          raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
+      end else begin
+        FreeAndNil(TempF);
+        if RequiredSHA256OfFile <> '' then begin
+          try
+            SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
+          except on E: Exception do
+            raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
+          end;
+          if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
+            raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
+        end else if HTTPDataReceiver.ProgressMax > 0 then begin
+          if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+            raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
+          else if HTTPDataReceiver.ProgressMax <> Result then
+            raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
         end;
-        if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
-          raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
-      end else if HTTPDataReceiver.ProgressMax > 0 then begin
-        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
-        else if HTTPDataReceiver.ProgressMax <> Result then
-          raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
       end;
 
       { Rename the temporary file to the new name now, with retries if needed }

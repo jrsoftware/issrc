@@ -1823,28 +1823,9 @@ var
     end);
     RegisterScriptFunc('ISSigVerify', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      const AllowedKeysRuntimeIDs = Stack.GetStringArray(PStart-1);
+      const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(TStringList(Stack.GetClass(PStart-1)));
       const Filename = Stack.GetString(PStart-2);
       const KeepOpen = Stack.GetBool(PStart-3);
-
-      { Import keys }
-      var ISSigAllowedKeys: AnsiString;
-      for var I := 0 to Length(AllowedKeysRuntimeIDs)-1 do begin
-        const RuntimeID = AllowedKeysRuntimeIDs[I];
-        if RuntimeID = '' then
-          InternalError('RuntimeID cannot be empty');
-        var Found := False;
-        for var KeyIndex := 0 to Entries[seISSigKey].Count-1 do begin
-          var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][KeyIndex]);
-          if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then begin
-            SetISSigAllowedKey(ISSigAllowedKeys, KeyIndex);
-            Found := True;
-            Break;
-          end;
-        end;
-        if not Found then
-          InternalError(Format('Unknown RuntimeID ''%s''', [RuntimeID]));
-      end;
 
       { Verify signature & file, keeping open afterwards if requested
         Also see TrustFunc's CheckFileTrust }
