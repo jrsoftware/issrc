@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Serbian (Cyrillic) messages ***
+; *** Inno Setup version 6.4.0+ Serbian (Cyrillic) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/files/istrans/

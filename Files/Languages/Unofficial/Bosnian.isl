@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Bosnian messages ***
+; *** Inno Setup version 6.4.0+ Bosnian messages ***
 ; Translated by: Almedin Maleškić (malmedin@gmail.com)
 ; Based on translation by Kenan Dervišević (kenan3008@gmail.com)
 ;
