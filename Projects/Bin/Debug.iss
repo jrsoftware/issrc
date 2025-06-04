@@ -5,6 +5,8 @@
 
 #pragma message "ɯɐɹƃoɹd ʎɯ"
 
+#include "..\..\setup.allowedpublickeys.iss"
+
 #include "Debug2.iss"
 
 [Setup]
