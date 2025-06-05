@@ -6100,7 +6100,7 @@ end;
 
 
 const
-  DefaultIsl = {$IFDEF DEBUG} 'compiler:..\..\Files\Default.isl' {$ELSE} 'Default.isl' {$ENDIF};
+  DefaultIsl = {$IFDEF DEBUG} 'compiler:..\..\Files\Default.isl' {$ELSE} 'compiler:Default.isl' {$ENDIF};
 
 procedure TSetupCompiler.ReadDefaultMessages;
 var
