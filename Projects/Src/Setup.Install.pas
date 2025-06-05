@@ -16,10 +16,10 @@ uses
 
 type
   TISSigVerifySignatureError = (vseMissingFile, vseMalformedOrBadSignature, vseKeyNotFound,
-    vseUnknownVerifyResult, vseFileSizeIncorrect, vseFileHashIncorrect);
+    vseFileSizeIncorrect, vseFileHashIncorrect);
 
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
-  const ACustomExceptionMessage: String = '');
+  const ASigFilename: String = '');
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
   const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
@@ -266,23 +266,24 @@ begin
 end;
 
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
-  const ACustomExceptionMessage: String);
+  const ASigFilename: String);
 const
-  ErrorStrings: array[TISSigVerifySignatureError] of String =
-    ('Signature file does not exist', 'Malformed or bad signature', 'No matching key found',
-      'Unknown verify result', 'File size incorrect', 'File hash incorrect');
+  LogMessages: array[TISSigVerifySignatureError] of String =
+    ('Signature file does not exist', 'Malformed or bad signature',
+     'No matching key found', 'File size incorrect', 'File hash incorrect');
+  SetupMessageIDs: array[TISSigVerifySignatureError] of TSetupMessageID =
+    (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid,
+     msgVerificationKeyNotFound, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
 begin
-  Log('ISSig verification error: ' + AddPeriod(ErrorStrings[AError]));
-  var Msg := ACustomExceptionMessage;
-  if Msg = '' then
-    Msg := SetupMessages[msgSourceIsCorrupted];
-  raise Exception.Create(Msg);
+  Log('ISSig verification error: ' + AddPeriod(LogMessages[AError]));
+  raise Exception.Create(FmtSetupMessage1(msgSourceVerificationFailed,
+    FmtSetupMessage1(SetupMessageIDs[AError], ASigFilename))); { Not all messages actually have a %1 parameter but that's OK }
 end;
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
   const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
-{ Either SourceF or SourceFS must be set. Caller must check ExpectedFileHash. }
+{ Either SourceF or SourceFS must be set }
 begin
   if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
     InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
@@ -294,18 +295,18 @@ begin
     nil,
     procedure(const Filename, SigFilename: String)
     begin
-      ISSigVerifyError(vseMissingFile, FmtSetupMessage1(msgSourceDoesntExist, SigFilename));
+      ISSigVerifyError(vseMissingFile, SigFilename);
     end,
     procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
     begin
-      var VerifyError: TISSigVerifySignatureError;
       case VerifyResult of
-        vsrMalformed, vsrBadSignature: VerifyError := vseMalformedOrBadSignature;
-        vsrKeyNotFound: VerifyError := vseKeyNotFound;
+        vsrMalformed, vsrBadSignature:
+          ISSigVerifyError(vseMalformedOrBadSignature, SigFilename);
+        vsrKeyNotFound:
+          ISSigVerifyError(vseKeyNotFound);
       else
-        VerifyError := vseUnknownVerifyResult;
+        InternalError('Unknown ISSigVerifySignature result');
       end;
-      ISSigVerifyError(VerifyError);
     end
   ) then
     InternalError('Unexpected ISSigVerifySignature result');
@@ -316,6 +317,7 @@ begin
     FileSize := SourceFS.Size;
   if FileSize <> ExpectedFileSize then
     ISSigVerifyError(vseFileSizeIncorrect);
+  { Caller must check ExpectedFileHash }
 end;
 
 const
