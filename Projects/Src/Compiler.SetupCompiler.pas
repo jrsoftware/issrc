@@ -3481,7 +3481,7 @@ begin
 
       { Common parameters }
       ProcessExpressionParameter(ParamCommonLanguages, Values[paLanguages].Data, EvalLanguageIdentifier, False, Languages);
-      Check := Values[paCheck].Data;
+      CheckOnce := Values[paCheck].Data;
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
@@ -3489,7 +3489,7 @@ begin
         AbortCompile(SCompilerTypesCustomTypeAlreadyDefined);
 
       CheckConst(Description, MinVersion, []);
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
+      CheckCheckOrInstall(ParamCommonCheck, CheckOnce, cikCheck);
     end;
   except
     SEFreeRec(NewTypeEntry, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
@@ -3592,7 +3592,7 @@ begin
 
       { Common parameters }
       ProcessExpressionParameter(ParamCommonLanguages, Values[paLanguages].Data, EvalLanguageIdentifier, False, Languages);
-      Check := Values[paCheck].Data;
+      CheckOnce := Values[paCheck].Data;
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
@@ -3601,7 +3601,7 @@ begin
           [ParamCommonFlags, 'dontinheritcheck', 'exclusive']);
 
       CheckConst(Description, MinVersion, []);
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
+      CheckCheckOrInstall(ParamCommonCheck, CheckOnce, cikCheck);
     end;
   except
     SEFreeRec(NewComponentEntry, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
@@ -7395,7 +7395,7 @@ var
     NewTypeEntry := AllocMem(SizeOf(TSetupTypeEntry));
     NewTypeEntry.Name := Name;
     NewTypeEntry.Description := ''; //set at runtime
-    NewTypeEntry.Check := '';
+    NewTypeEntry.CheckOnce := '';
     NewTypeEntry.MinVersion := SetupHeader.MinVersion;
     NewTypeEntry.OnlyBelowVersion := SetupHeader.OnlyBelowVersion;
     NewTypeEntry.Options := Options;
