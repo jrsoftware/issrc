@@ -17,7 +17,7 @@ uses
 
 type
   TISSigVerifySignatureResult = (vsrSuccess, vsrMalformed, vsrKeyNotFound,
-    vsrBadSignature);
+    vsrBad);
   TISSigImportKeyResult = (ikrSuccess, ikrMalformed, ikrNotPrivateKey);
   TISSigVerifySignatureFileMissingErrorProc = reference to procedure(const Filename: String);
   TISSigVerifySignatureSigFileMissingErrorProc = reference to procedure(const Filename, SigFilename: String);
@@ -253,7 +253,7 @@ begin
     AFileHash := UnverifiedFileHash;
     Result := vsrSuccess;
   end else
-    Result := vsrBadSignature;
+    Result := vsrBad;
 end;
 
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;

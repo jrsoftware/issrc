@@ -7112,7 +7112,7 @@ var
               begin
                 var VerifyResultAsString: String;
                 case VerifyResult of
-                  vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
+                  vsrMalformed, vsrBad: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
                   vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
                 else
                   VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;

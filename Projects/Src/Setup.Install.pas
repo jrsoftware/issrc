@@ -15,8 +15,8 @@ uses
   Classes, SHA256, Shared.FileClass;
 
 type
-  TISSigVerifySignatureError = (vseMissingFile, vseMalformedOrBadSignature, vseKeyNotFound,
-    vseFileSizeIncorrect, vseFileHashIncorrect);
+  TISSigVerifySignatureError = (vseSignatureMissing, vseSignatureMalformed, vseKeyNotFound,
+    vseSignatureBad, vseFileSizeIncorrect, vseFileHashIncorrect);
 
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
   const ASigFilename: String = '');
@@ -269,11 +269,11 @@ procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
   const ASigFilename: String);
 const
   LogMessages: array[TISSigVerifySignatureError] of String =
-    ('Signature file does not exist', 'Malformed or bad signature',
-     'No matching key found', 'File size incorrect', 'File hash incorrect');
+    ('Signature file does not exist', 'Signature is malformed', 'No matching key found',
+     'Signature is bad', 'File size is incorrect', 'File hash is incorrect');
   SetupMessageIDs: array[TISSigVerifySignatureError] of TSetupMessageID =
-    (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid,
-     msgVerificationKeyNotFound, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
+    (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid, msgVerificationKeyNotFound,
+     msgVerificationSignatureInvalid, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
 begin
   Log('ISSig verification error: ' + AddPeriod(LogMessages[AError]));
   raise Exception.Create(FmtSetupMessage1(msgSourceVerificationFailed,
@@ -295,15 +295,14 @@ begin
     nil,
     procedure(const Filename, SigFilename: String)
     begin
-      ISSigVerifyError(vseMissingFile, SigFilename);
+      ISSigVerifyError(vseSignatureMissing, SigFilename);
     end,
     procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
     begin
       case VerifyResult of
-        vsrMalformed, vsrBadSignature:
-          ISSigVerifyError(vseMalformedOrBadSignature, SigFilename);
-        vsrKeyNotFound:
-          ISSigVerifyError(vseKeyNotFound);
+        vsrMalformed:  ISSigVerifyError(vseSignatureMalformed, SigFilename);
+        vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
+        vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound);
       else
         InternalError('Unknown ISSigVerifySignature result');
       end;
