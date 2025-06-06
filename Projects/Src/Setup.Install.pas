@@ -1541,7 +1541,7 @@ var
             else if foExtractArchive in CurFile^.Options then begin
               { Extract a file from archive. Note: foISSigVerify for archive has
                 already been handled by RecurseExternalArchiveCopyFiles. }
-              LastOperation := SetupMessages[msgErrorCopying];
+              LastOperation := SetupMessages[msgErrorExtracting];
               ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
             end
             else begin
@@ -1985,7 +1985,7 @@ var
           end;
         until (Failed = '') or
               AbortRetryIgnoreTaskDialogMsgBox(
-                ArchiveFilename + SNewLine2 + SetupMessages[msgErrorReadingSource] + SNewLine + Failed,
+                ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
                 [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
         if H <> INVALID_HANDLE_VALUE then begin
           try

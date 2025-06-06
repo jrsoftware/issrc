@@ -89,6 +89,7 @@ type
     msgErrorDownloadFailed,
     msgErrorDownloadSizeFailed,
     msgErrorExecutingProgram,
+    msgErrorExtracting,
     msgErrorExtractionAborted,
     msgErrorExtractionFailed,
     msgErrorFileHash1,

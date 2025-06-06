@@ -1050,49 +1050,42 @@ begin
 
   LogBannerOnce;
 
-  try
-    { Open }
-    var State := Default(TArchiveFindState);
-    State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid, State.numItems);
-    if DestDir <> '' then
-      State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-    State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
-    State.Password := Password;
-    State.RecurseSubDirs := RecurseSubDirs;
+  { Open }
+  var State := Default(TArchiveFindState);
+  State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid, State.numItems);
+  if DestDir <> '' then
+    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
+  State.Password := Password;
+  State.RecurseSubDirs := RecurseSubDirs;
 
-    if State.numItems > 0 then begin
-      for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
-        if State.GetInitialCurrentFindData(FindFileData) then begin
-          { Finish state }
-          State.currentIndex := currentIndex;
+  if State.numItems > 0 then begin
+    for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
+      if State.GetInitialCurrentFindData(FindFileData) then begin
+        { Finish state }
+        State.currentIndex := currentIndex;
 
-          { Save state }
-          if ArchiveFindStates = nil then
-            ArchiveFindStates := TArchiveFindStates.Create;
-          ArchiveFindStates.Add(State);
+        { Save state }
+        if ArchiveFindStates = nil then
+          ArchiveFindStates := TArchiveFindStates.Create;
+        ArchiveFindStates.Add(State);
 
-          { Log start of extraction }
-          if ExtractIntent then begin
-            LogFmt('Extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
-              RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
-            var Solid: Boolean;
-            if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
-              Log('Archive is solid; extraction performance may degrade');
-          end;
-
-          { Finish find data & exit }
-          State.FinishCurrentFindData(FindFileData);
-          Exit(ArchiveFindStates.Count-1);
+        { Log start of extraction }
+        if ExtractIntent then begin
+          LogFmt('Extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
+            RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
+          var Solid: Boolean;
+          if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+            Log('Archive is solid; extraction performance may degrade');
         end;
+
+        { Finish find data & exit }
+        State.FinishCurrentFindData(FindFileData);
+        Exit(ArchiveFindStates.Count-1);
       end;
     end;
-    Result := INVALID_HANDLE_VALUE;
-  except
-    on E: EAbort do
-      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
-    else
-      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
+  Result := INVALID_HANDLE_VALUE;
 end;
 
 function CheckFindFileHandle(const FindFile: TArchiveFindHandle): Integer;
@@ -1141,17 +1134,10 @@ begin
      (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) then
     InternalError('ArchiveFindExtract: Invalid current');
 
-  try
-    const ExtractCallback: IArchiveExtractCallback =
-      TArchiveExtractToHandleCallback.Create(State.InArchive, State.numItems,
-        State.Password, State.currentIndex, DestF, OnExtractToHandleProgress);
-    (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
-  except
-    on E: EAbort do
-      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
-    else
-      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
-  end;
+  const ExtractCallback: IArchiveExtractCallback =
+    TArchiveExtractToHandleCallback.Create(State.InArchive, State.numItems,
+      State.Password, State.currentIndex, DestF, OnExtractToHandleProgress);
+  (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
 end;
 
 { TFileTimeHelper }
