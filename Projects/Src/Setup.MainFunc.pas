@@ -3430,7 +3430,7 @@ begin
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
   for I := 0 to Entries[seType].Count-1 do begin
-    if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).Check) then begin
+    if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).CheckOnce) then begin
       SEFreeRec(Entries[seType][I], EntryStrings[seType], EntryAnsiStrings[seType]);
       { Don't delete it yet so that the entries can be processed sequentially }
       Entries[seType][I] := nil;
@@ -3446,7 +3446,7 @@ begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if (ComponentEntry.Level <= NextAllowedLevel) and
        (InstallOnThisVersion(ComponentEntry.MinVersion, ComponentEntry.OnlyBelowVersion) = irInstall) and
-       ShouldProcessEntry(nil, nil, '', '', ComponentEntry.Languages, ComponentEntry.Check) then begin
+       ShouldProcessEntry(nil, nil, '', '', ComponentEntry.Languages, ComponentEntry.CheckOnce) then begin
       NextAllowedLevel := ComponentEntry.Level + 1;
       LastShownComponentEntry := ComponentEntry;
     end

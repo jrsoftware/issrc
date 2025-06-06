@@ -168,7 +168,7 @@ type
   TSetupTypeType = (ttUser, ttDefaultFull, ttDefaultCompact, ttDefaultCustom);
   PSetupTypeEntry = ^TSetupTypeEntry;
   TSetupTypeEntry = packed record
-    Name, Description, Languages, Check: String;
+    Name, Description, Languages, CheckOnce: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: TSetupTypeOptions;
     Typ: TSetupTypeType;
@@ -181,7 +181,7 @@ const
 type
   PSetupComponentEntry = ^TSetupComponentEntry;
   TSetupComponentEntry = packed record
-    Name, Description, Types, Languages, Check: String;
+    Name, Description, Types, Languages, CheckOnce: String;
     ExtraDiskSpaceRequired: Integer64;
     Level: Integer;
     Used: Boolean;
