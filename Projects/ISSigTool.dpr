@@ -13,6 +13,7 @@ uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
   SysUtils,
   Classes,
+  Windows,
   PathFunc in '..\Components\PathFunc.pas',
   SHA256 in '..\Components\SHA256.pas',
   ECDSA in '..\Components\ECDSA.pas',
@@ -36,6 +37,9 @@ var
     Quiet: Boolean;
   end;
 
+  StdOutHandle, StdErrHandle: THandle;
+  StdOutHandleIsConsole, StdErrHandleIsConsole: Boolean;
+
 procedure RaiseFatalError(const Msg: String);
 begin
   raise Exception.Create(Msg);
@@ -46,12 +50,30 @@ begin
   raise Exception.CreateFmt(Msg, Args);
 end;
 
-procedure Print(const S: String; const IncludeNewLine: Boolean = True);
+procedure Print(const Handle: THandle; const HandleIsConsole: Boolean;
+  S: String; const IncludeNewLine: Boolean); overload;
 begin
   if IncludeNewLine then
-    Writeln(S)
-  else
-    Write(S);
+    S := S + #13#10;
+
+  if HandleIsConsole then begin
+    var CharsWritten: DWORD;
+    WriteConsole(Handle, @S[1], Length(S), CharsWritten, nil);
+  end else begin
+    var Utf8S := Utf8Encode(S);
+    var BytesWritten: DWORD;
+    WriteFile(Handle, Utf8S[1], Length(Utf8S), BytesWritten, nil);
+  end;
+end;
+
+procedure Print(const S: String; const IncludeNewLine: Boolean = True); overload;
+begin
+  Print(StdOutHandle, StdOutHandleIsConsole, S, IncludeNewLine);
+end;
+
+procedure PrintErrOutput(const S: String; const IncludeNewLine: Boolean = True); overload;
+begin
+  Print(StdErrHandle, StdErrHandleIsConsole, S, IncludeNewLine);
 end;
 
 procedure PrintUnlessQuiet(const S: String;
@@ -248,20 +270,20 @@ end;
 
 procedure ShowUsage;
 begin
-  Writeln(ErrOutput, 'Inno Setup Signature Tool');
-  Writeln(ErrOutput, 'Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-  Writeln(ErrOutput, 'Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
-  Writeln(ErrOutput, 'https://www.innosetup.com');
-  Writeln(ErrOutput, '');
-  Writeln(ErrOutput, 'Usage:  issigtool [options] sign <filenames>');
-  Writeln(ErrOutput, 'or to verify:  issigtool [options] verify <filenames>');
-  Writeln(ErrOutput, 'or to export the public key:  issigtool [options] export-public-key <filename>');
-  Writeln(ErrOutput, 'or to generate a new private key:  issigtool [options] generate-private-key');
-  Writeln(ErrOutput, 'Options:');
-  Writeln(ErrOutput, '  --key-file=<filename> Specifies the private key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
-  Writeln(ErrOutput, '  --quiet, -q           Suppresses status messages that are normally printed to standard output');
-  Writeln(ErrOutput, '  --help, -?            Prints this information');
-  Writeln(ErrOutput, '');
+  PrintErrOutput('Inno Setup Signature Tool');
+  PrintErrOutput('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
+  PrintErrOutput('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  PrintErrOutput('https://www.innosetup.com');
+  PrintErrOutput('');
+  PrintErrOutput('Usage:  issigtool [options] sign <filenames>');
+  PrintErrOutput('or to verify:  issigtool [options] verify <filenames>');
+  PrintErrOutput('or to export the public key:  issigtool [options] export-public-key <filename>');
+  PrintErrOutput('or to generate a new private key:  issigtool [options] generate-private-key');
+  PrintErrOutput('Options:');
+  PrintErrOutput('  --key-file=<filename> Specifies the private key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
+  PrintErrOutput('  --quiet, -q           Suppresses status messages that are normally printed to standard output');
+  PrintErrOutput('  --help, -?            Prints this information');
+  PrintErrOutput('');
 end;
 
 procedure Go;
@@ -336,10 +358,15 @@ begin
 end;
 
 begin
+  StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
+  StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
+  var Mode: DWORD;
+  StdOutHandleIsConsole := GetConsoleMode(StdOutHandle, Mode);
+  StdErrHandleIsConsole := GetConsoleMode(StdErrHandle, Mode);
   try
     Go;
   except
-    Writeln(ErrOutput, 'issigtool fatal error: ', GetExceptMessage);
+    PrintErrOutput('issigtool fatal error: ' + GetExceptMessage);
     Halt(2);
   end;
 end.
