@@ -979,9 +979,9 @@ begin
     Log('Everything is Ok'); { Just like 7zMain.c }
   except
     on E: EAbort do
-      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      raise ESevenZipError.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
+      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
   end;
 end;
 

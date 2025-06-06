@@ -376,9 +376,9 @@ begin
       BadResultError(Res);
   except
     on E: EAbort do
-      raise ESevenZipError.Create(SetupMessages[msgErrorExtractionAborted])
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      raise ESevenZipError.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
+      raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
   end;
 end;
 
