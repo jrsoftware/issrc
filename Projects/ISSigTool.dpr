@@ -153,13 +153,13 @@ begin
     being re-signed but its contents haven't changed, we attempt to load and
     verify the existing .issig file. If the key, file size, and file hash are
     all up to date, then we skip creation of a new .issig file. }
-  var ExistingFileSizeValue: Int64;
-  var ExistingFileHashValue: TSHA256Digest;
-  var Verified := ISSigVerifySignature(AFilename, [AKey],
-    ExistingFileSizeValue, ExistingFileHashValue, nil, nil, nil);
+  var ExistingFileSize: Int64;
+  var ExistingFileHash: TSHA256Digest;
+  const Verified = ISSigVerifySignature(AFilename, [AKey],
+    ExistingFileSize, ExistingFileHash, nil, nil, nil);
 
-  if Verified and (FileSize = ExistingFileSizeValue) and
-     SHA256DigestsEqual(FileHash, ExistingFileHashValue) then begin
+  if Verified and (FileSize = ExistingFileSize) and
+     SHA256DigestsEqual(FileHash, ExistingFileHash) then begin
     PrintUnlessQuiet('signature unchanged');
     Exit;
   end;
