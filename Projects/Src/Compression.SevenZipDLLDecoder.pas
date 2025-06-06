@@ -964,25 +964,18 @@ begin
 
   LogBannerOnce;
 
-  try
-    { Open }
-    var numItems: UInt32;
-    const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password,
-      clsid, numItems);
+  { Open }
+  var numItems: UInt32;
+  const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password,
+    clsid, numItems);
 
-    { Extract }
-    const ExtractCallback: IArchiveExtractCallback =
-      TArchiveExtractAllCallback.Create(InArchive, numItems, DisableFsRedir,
-        ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
-    (ExtractCallback as TArchiveExtractAllCallback).Extract;
+  { Extract }
+  const ExtractCallback: IArchiveExtractCallback =
+    TArchiveExtractAllCallback.Create(InArchive, numItems, DisableFsRedir,
+      ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
+  (ExtractCallback as TArchiveExtractAllCallback).Extract;
 
-    Log('Everything is Ok'); { Just like 7zMain.c }
-  except
-    on E: EAbort do
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-    else
-      raise Exception.Create(FmtSetupMessage(msgErrorExtractionFailed, [GetExceptMessage]));
-  end;
+  Log('Everything is Ok'); { Just like 7zMain.c }
 end;
 
 { ArchiveFindFirstFileRedir & co }

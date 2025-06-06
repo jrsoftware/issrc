@@ -1796,10 +1796,17 @@ var
         FullDirsItemNo := PStart-3;
       end;
 
-      if SetupHeader.SevenZipLibraryName <> '' then
-        ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)))
-      else
-        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
+      try
+        if SetupHeader.SevenZipLibraryName <> '' then
+          ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)))
+        else
+          Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
+      except
+        on E: EAbort do
+          raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+        else
+          raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
+      end;
     end);
     RegisterScriptFunc('DEBUGGING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

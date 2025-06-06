@@ -1248,12 +1248,19 @@ procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  for var A in FArchives do begin
-    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
-    if SetupHeader.SevenZipLibraryName <> '' then
-      ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+  try
+    for var A in FArchives do begin
+      { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
+      if SetupHeader.SevenZipLibraryName <> '' then
+        ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+      else
+        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+    end;
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+      raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
   end;
 end;
 

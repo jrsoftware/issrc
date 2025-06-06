@@ -351,35 +351,28 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
     RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
-  try
-    if not ForceDirectories(DisableFsRedir, DestDir) then
-      SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
+  if not ForceDirectories(DisableFsRedir, DestDir) then
+    SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
-    State.DisableFsRedir := DisableFsRedir;
-    State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
-    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
-    State.LogBuffer := '';
-    State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
-    State.OnExtractionProgress := OnExtractionProgress;
-    State.LastReportedProgress := 0;
-    State.LastReportedProgressMax := 0;
-    State.Aborted := False;
+  State.DisableFsRedir := DisableFsRedir;
+  State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
+  State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  State.LogBuffer := '';
+  State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
+  State.OnExtractionProgress := OnExtractionProgress;
+  State.LastReportedProgress := 0;
+  State.LastReportedProgressMax := 0;
+  State.Aborted := False;
 
-    var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
+  var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
 
-    if State.LogBuffer <> '' then
-      Log(State.LogBuffer);
+  if State.LogBuffer <> '' then
+    Log(State.LogBuffer);
 
-    if State.Aborted then
-      Abort
-    else if Res <> 0 then
-      BadResultError(Res);
-  except
-    on E: EAbort do
-      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-    else
-      raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
-  end;
+  if State.Aborted then
+    Abort
+  else if Res <> 0 then
+    BadResultError(Res);
 end;
 
 end.
