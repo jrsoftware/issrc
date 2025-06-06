@@ -12,7 +12,7 @@ unit Setup.InstFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, SHA256, Shared.CommonFunc;
+  Windows, SysUtils, Shared.Int64Em, SHA256, Shared.CommonFunc, Shared.FileClass;
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
@@ -58,7 +58,8 @@ function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean
 function GetComputerNameString: String;
 function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
-function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
+function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest; overload;
+function GetSHA256OfFile(const F: TFile): TSHA256Digest; overload;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
@@ -99,7 +100,7 @@ implementation
 
 uses
   Messages, ShellApi, PathFunc, SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, Shared.FileClass, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
+  Shared.SetupMessageIDs, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
   Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);
@@ -553,21 +554,28 @@ end;
 function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
 { Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
   failure. }
+begin
+  const F = TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  try
+    Result := GetSHA256OfFile(F);
+  finally
+    F.Free;
+  end;
+end;
+
+function GetSHA256OfFile(const F: TFile): TSHA256Digest;
+{ Gets SHA-256 sum as a string of the file F. An exception will be raised upon
+  failure. }
 var
   Buf: array[0..65535] of Byte;
 begin
   var Context: TSHA256Context;
   SHA256Init(Context);
-  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
-  try
-    while True do begin
-      var NumRead := F.Read(Buf, SizeOf(Buf));
-      if NumRead = 0 then
-        Break;
-      SHA256Update(Context, Buf, NumRead);
-    end;
-  finally
-    F.Free;
+  while True do begin
+    var NumRead := F.Read(Buf, SizeOf(Buf));
+    if NumRead = 0 then
+      Break;
+    SHA256Update(Context, Buf, NumRead);
   end;
   Result := SHA256Final(Context);
 end;

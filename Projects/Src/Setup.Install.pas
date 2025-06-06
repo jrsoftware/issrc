@@ -1968,7 +1968,7 @@ var
               DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
                 ExpectedFileHash);
               { Can't get the SHA-256 while extracting so need to get and check it now }
-              const ActualFileHash = GetSHA256OfFile(DisableFsRedir, ArchiveFilename);
+              const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
               if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
                 ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
               Log(ISSigVerificationSuccessfulLogMessage);
@@ -3722,9 +3722,26 @@ begin
   const DisableFsRedir = False; { Like everything else working on the temp dir }
 
   { Prepare directory }
-  if FileExists(DestFile) then begin
-    if (RequiredSHA256OfFile <> '') and
-       (RequiredSHA256OfFile = SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
+  if NewFileExists(DestFile) then begin
+    if ISSigVerify then begin
+      var ExistingFileSize: Int64;
+      var ExistingFileHash: TSHA256Digest;
+      if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+           ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
+        const DestF = TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
+        try
+          if (Int64(DestF.Size) = ExistingFileSize) and
+             (SHA256DigestsEqual(GetSHA256OfFile(DestF), ExistingFileHash)) then begin
+            Log('  File already downloaded.');
+            Result := 0;
+            Exit;
+          end;
+        finally
+          DestF.Free;
+        end;
+      end;
+    end else if (RequiredSHA256OfFile <> '') and
+                SameText(RequiredSHA256OfFile, SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
