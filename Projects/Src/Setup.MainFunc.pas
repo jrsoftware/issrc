@@ -3508,44 +3508,44 @@ begin
     LExcludes.StrictDelimiter := True;
     LExcludes.Delimiter := ',';
 
-	  for I := 0 to Entries[seFile].Count-1 do begin
-	    with PSetupFileEntry(Entries[seFile][I])^ do begin
-	      if LocationEntry <> -1 then begin { not an "external" file }
-	        if Components = '' then { no types or a file that doesn't belong to any component }
-	          if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
-	            Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
-	      end else begin
-	        if not(foExternalSizePreset in Options) then begin
-	          try
+    for I := 0 to Entries[seFile].Count-1 do begin
+      with PSetupFileEntry(Entries[seFile][I])^ do begin
+        if LocationEntry <> -1 then begin { not an "external" file }
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
+              Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+        end else begin
+          if not(foExternalSizePreset in Options) then begin
+            try
               LExcludes.DelimitedText := Excludes;
-	            if foExtractArchive in Options then begin
-	              ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
-	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-	                ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes,
+              if foExtractArchive in Options then begin
+                ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
+                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                  ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes,
                   foRecurseSubDirsExternal in Options);
-	            end else begin
-	              if FileType <> ftUserFile then
-	                SourceWildcard := NewParamStr(0)
-	              else
-	                SourceWildcard := ExpandConst(SourceFilename);
-	              ExternalSize := RecurseExternalGetSizeOfFiles(
-	                ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-	                PathExtractPath(SourceWildcard),
-	                '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
-	                LExcludes, foRecurseSubDirsExternal in Options);
-	            end;
-	          except
-	            { Ignore exceptions. Two notable exceptions we want to ignore are
-	              the one about "app" not being initialized and also archive errors
+              end else begin
+                if FileType <> ftUserFile then
+                  SourceWildcard := NewParamStr(0)
+                else
+                  SourceWildcard := ExpandConst(SourceFilename);
+                ExternalSize := RecurseExternalGetSizeOfFiles(
+                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                  PathExtractPath(SourceWildcard),
+                  '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
+                  LExcludes, foRecurseSubDirsExternal in Options);
+              end;
+            except
+              { Ignore exceptions. Two notable exceptions we want to ignore are
+                the one about "app" not being initialized and also archive errors
                 (ESevenZipError). Also see EnumFiles. }
-	          end;
-	        end;
-	        if Components = '' then { no types or a file that doesn't belong to any component }
-	          if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
-	            Inc6464(MinimumSpace, ExternalSize);
-	      end;
-	    end;
-	  end;
+            end;
+          end;
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
+              Inc6464(MinimumSpace, ExternalSize);
+        end;
+      end;
+    end;
   finally
     LExcludes.Free;
   end;
