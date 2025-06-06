@@ -271,9 +271,10 @@ const
     (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid, msgVerificationKeyNotFound,
      msgVerificationSignatureInvalid, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
 begin
+  { Also see Compiler.SetupCompiler for a similar function }
   Log('ISSig verification error: ' + AddPeriod(LogMessages[AError]));
   raise Exception.Create(FmtSetupMessage1(msgSourceVerificationFailed,
-    FmtSetupMessage1(SetupMessageIDs[AError], ASigFilename))); { Not all messages actually have a %1 parameter but that's OK }
+    FmtSetupMessage1(SetupMessageIDs[AError], PathExtractName(ASigFilename)))); { Not all messages actually have a %1 parameter but that's OK }
 end;
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;

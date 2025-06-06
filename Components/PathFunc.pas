@@ -365,8 +365,8 @@ end;
 
 function PathExtractName(const Filename: String): String;
 { Returns the filename portion of Filename (e.g. 'filename.txt'). If Filename
-  ends in a slash or consists only of a drive part, the result will be an empty
-  string.
+  ends in a slash or consists only of a drive part or is empty, the result will
+  be an empty string.
   This function is essentially the opposite of PathExtractPath. }
 var
   I: Integer;

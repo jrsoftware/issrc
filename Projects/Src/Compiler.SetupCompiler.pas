@@ -6612,8 +6612,9 @@ const
      SCompilerVerificationKeyNotFound, SCompilerVerificationSignatureBad,
      SCompilerVerificationFileSizeIncorrect, SCompilerVerificationFileHashIncorrect);
 begin
+  { Also see Setup.Install for a similar function }
   AbortCompileFmt(SCompilerSourceFileVerificationFailed,
-    [AFilename, Format(Messages[AError], [ASigFilename])]); { Not all messages actually have a %s parameter but that's OK }
+    [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
 end;
 
 procedure TSetupCompiler.Compile;
