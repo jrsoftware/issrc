@@ -12,11 +12,7 @@ unit Setup.Install;
 interface
 
 uses
-  Classes, SHA256, Shared.FileClass;
-
-type
-  TISSigVerifySignatureError = (vseSignatureMissing, vseSignatureMalformed, vseKeyNotFound,
-    vseSignatureBad, vseFileSizeIncorrect, vseFileHashIncorrect);
+  Classes, SHA256, Shared.FileClass, Shared.SetupTypes;
 
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
   const ASigFilename: String = '');
@@ -43,7 +39,7 @@ procedure SetDownloadCredentials(const User, Pass: String);
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
+  Windows, SysUtils, Messages, Forms, ShlObj, Shared.Struct, Setup.UninstallLog,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor,
   Compression.Base, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
@@ -297,7 +293,7 @@ begin
     begin
       ISSigVerifyError(vseSignatureMissing, SigFilename);
     end,
-    procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+    procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
     begin
       case VerifyResult of
         vsrMalformed:  ISSigVerifyError(vseSignatureMalformed, SigFilename);

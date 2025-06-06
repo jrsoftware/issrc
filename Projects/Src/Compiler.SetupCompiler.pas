@@ -19,7 +19,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Generics.Collections,
-  SimpleExpression, SHA256, ChaCha20,
+  SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
@@ -256,6 +256,8 @@ type
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
     function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+    procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+      const AFilename: String; const ASigFilename: String = '');
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -298,7 +300,7 @@ uses
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
 {$ENDIF}
-  Shared.SetupTypes, Compiler.CompressionHandler, Compiler.HelperFunc, Compiler.BuiltinPreproc;
+  Compiler.CompressionHandler, Compiler.HelperFunc, Compiler.BuiltinPreproc;
 
 type
   TLineInfo = class
@@ -6602,6 +6604,18 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const AFilename, ASigFilename: String);
+const
+  Messages: array[TISSigVerifySignatureError] of String =
+    (SCompilerVerificationSignatureDoesntExist, SCompilerVerificationSignatureMalformed,
+     SCompilerVerificationKeyNotFound, SCompilerVerificationSignatureBad,
+     SCompilerVerificationFileSizeIncorrect, SCompilerVerificationFileHashIncorrect);
+begin
+  AbortCompileFmt(SCompilerSourceFileVerificationFailed,
+    [AFilename, Format(Messages[AError], [ASigFilename])]); { Not all messages actually have a %s parameter but that's OK }
+end;
+
 procedure TSetupCompiler.Compile;
 
   procedure InitDebugInfo;
@@ -7106,25 +7120,23 @@ var
               nil,
               procedure(const Filename, SigFilename: String)
               begin
-                AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [Filename]);
+                ISSigVerifyError(vseSignatureMissing, Filename, SigFilename);
               end,
-              procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+              procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
               begin
                 var VerifyResultAsString: String;
                 case VerifyResult of
-                  vsrMalformed, vsrBad: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
-                  vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
+                  vsrMalformed: ISSigVerifyError(vseSignatureMalformed, SigFilename);
+                  vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
+                  vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, Filename, SigFilename);
                 else
-                  VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
+                  AbortCompileFmt(SCompilerCompressInternalError, ['Unknown ISSigVerifySignature result'])
                 end;
-                AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature1,
-                  [SigFilename, VerifyResultAsString]);
               end
             ) then
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if Int64(SourceFile.Size) <> ExpectedFileSize then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
-                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
+              ISSigVerifyError(vseFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }
           end;
 
@@ -7176,8 +7188,7 @@ var
 
           if floISSigVerify in FLExtraInfo.Flags then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
-                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
+              ISSigVerifyError(vseFileHashIncorrect, FileLocationEntryFilenames[I]);
             AddStatus(SCompilerStatusFilesISSigVerified);
           end;
         finally

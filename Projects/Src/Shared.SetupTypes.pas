@@ -39,6 +39,9 @@ type
 
   TArrayOfECDSAKey = array of TECDSAKey;
 
+  TISSigVerifySignatureError = (vseSignatureMissing, vseSignatureMalformed, vseKeyNotFound,
+    vseSignatureBad, vseFileSizeIncorrect, vseFileHashIncorrect);
+
 const
   crHand = 1;
 

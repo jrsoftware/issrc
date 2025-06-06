@@ -21,7 +21,7 @@ type
   TISSigImportKeyResult = (ikrSuccess, ikrMalformed, ikrNotPrivateKey);
   TISSigVerifySignatureFileMissingErrorProc = reference to procedure(const Filename: String);
   TISSigVerifySignatureSigFileMissingErrorProc = reference to procedure(const Filename, SigFilename: String);
-  TISSigVerifySignatureVerificationFailedErrorProc = reference to procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult);
+  TISSigVerifySignatureVerificationFailedErrorProc = reference to procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult);
 
 { Preferred, hardened functions for loading/saving .issig and key file text }
 function ISSigLoadTextFromFile(const AFilename: String): String;
@@ -297,7 +297,7 @@ begin
     AExpectedFileSize, AExpectedFileHash, AKeyUsedID);
   Result := VerifyResult = vsrSuccess;
   if not Result and Assigned(AVerificationFailedErrorProc) then
-    AVerificationFailedErrorProc(SigFilename, VerifyResult);
+    AVerificationFailedErrorProc(AFilename, SigFilename, VerifyResult);
 end;
 
 function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
