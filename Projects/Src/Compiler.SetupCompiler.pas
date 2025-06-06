@@ -7126,8 +7126,8 @@ var
               begin
                 var VerifyResultAsString: String;
                 case VerifyResult of
-                  vsrMalformed: ISSigVerifyError(vseSignatureMalformed, SigFilename);
-                  vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
+                  vsrMalformed: ISSigVerifyError(vseSignatureMalformed, Filename, SigFilename);
+                  vsrBad: ISSigVerifyError(vseSignatureBad, Filename, SigFilename);
                   vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, Filename, SigFilename);
                 else
                   AbortCompileFmt(SCompilerCompressInternalError, ['Unknown ISSigVerifySignature result'])

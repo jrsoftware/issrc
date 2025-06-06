@@ -298,7 +298,7 @@ begin
       case VerifyResult of
         vsrMalformed:  ISSigVerifyError(vseSignatureMalformed, SigFilename);
         vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
-        vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound);
+        vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, SigFilename);
       else
         InternalError('Unknown ISSigVerifySignature result');
       end;

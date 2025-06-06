@@ -89,9 +89,9 @@ const
   SCompilerVerificationSignatureDoesntExist = 'The signature file "%1" does not exist';
   SCompilerVerificationSignatureMalformed = 'The signature file "%1" is malformed';
   SCompilerVerificationSignatureBad = 'The signature file "%1" is bad';
-  SCompilerVerificationKeyNotFound = 'No matching key found';
-  SCompilerVerificationFileSizeIncorrect = 'The file size is incorrect';
-  SCompilerVerificationFileHashIncorrect = 'The file hash is incorrect';
+  SCompilerVerificationKeyNotFound = 'The signature file "%1" uses an unknown key';
+  SCompilerVerificationFileSizeIncorrect = 'The size of the file is incorrect';
+  SCompilerVerificationFileHashIncorrect = 'The hash of the file is incorrect';
   SCompilerCopyError3a = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %s';
   SCompilerCopyError3b = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
