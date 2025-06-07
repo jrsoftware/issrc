@@ -17,8 +17,8 @@ OutputDir=userdocs:Inno Setup Examples Output
 ; Place any prerequisite files here, for example:
 ; Source: "MyProg-Prerequisite-setup.exe"; Flags: dontcopy
 ; Place any regular files here, so *after* all your prerequisites.
-Source: "MyProg.exe"; DestDir: "{app}";
-Source: "MyProg.chm"; DestDir: "{app}";
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
 
 [Icons]
