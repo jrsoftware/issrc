@@ -17,9 +17,9 @@ uses
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
   const ASigFilename: String = '');
 
-procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
-  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
-  out ExpectedFileHash: TSHA256Digest);
+procedure DoISSigVerify(const DisableFsRedir: Boolean; const SourceF: TFile;
+  const SourceFS: TFileStream; const SourceFilename: String;
+  const ISSigAllowedKeys: AnsiString; out ExpectedFileHash: TSHA256Digest);
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
@@ -277,16 +277,16 @@ begin
     FmtSetupMessage1(SetupMessageIDs[AError], PathExtractName(ASigFilename)))); { Not all messages actually have a %1 parameter but that's OK }
 end;
 
-procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
-  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
-  out ExpectedFileHash: TSHA256Digest);
+procedure DoISSigVerify(const DisableFsRedir: Boolean; const SourceF: TFile;
+  const SourceFS: TFileStream; const SourceFilename: String;
+  const ISSigAllowedKeys: AnsiString; out ExpectedFileHash: TSHA256Digest);
 { Either SourceF or SourceFS must be set }
 begin
   if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
     InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
 
   var ExpectedFileSize: Int64;
-  if not ISSigVerifySignature(SourceFilename,
+  if not ISSigVerifySignatureRedir(DisableFsRedir, SourceFilename,
     GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
     ExpectedFileSize, ExpectedFileHash,
     nil,
@@ -319,7 +319,7 @@ end;
 const
   ISSigVerificationSuccessfulLogMessage = 'ISSig verification successful.';
 
-procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
+procedure CopySourceFileToDestFile(const DisableFsRedir: Boolean; const SourceF, DestF: TFile;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
   const AExpectedSize: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
@@ -333,7 +333,7 @@ var
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
-    DoISSigVerify(SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
+    DoISSigVerify(DisableFsRedir, SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
     { ExpectedFileHash checked below after copy }
     SHA256Init(Context);
   end;
@@ -1548,10 +1548,10 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, False,
+                  CopySourceFileToDestFile(DisableFsRedir, SourceF, DestF, False,
                     '', '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
+                  CopySourceFileToDestFile(DisableFsRedir, SourceF, DestF, foISSigVerify in CurFile^.Options,
                     CurFile^.ISSigAllowedKeys, SourceFile, AExternalSize);
               finally
                 SourceF.Free;
@@ -1963,7 +1963,7 @@ var
               if ISSigVerifySourceF = nil then
                 ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
               var ExpectedFileHash: TSHA256Digest;
-              DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
+              DoISSigVerify(DisableFsRedir, ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
                 ExpectedFileHash);
               { Can't get the SHA-256 while extracting so need to get and check it now }
               const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
@@ -3720,11 +3720,11 @@ begin
   const DisableFsRedir = False; { Like everything else working on the temp dir }
 
   { Prepare directory }
-  if NewFileExists(DestFile) then begin
+  if NewFileExistsRedir(DisableFsRedir, DestFile) then begin
     if ISSigVerify then begin
       var ExistingFileSize: Int64;
       var ExistingFileHash: TSHA256Digest;
-      if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+      if ISSigVerifySignatureRedir(DisableFsRedir, DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
            ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
         const DestF = TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
         try
@@ -3801,7 +3801,7 @@ begin
       { Check .issig or hash if specified, otherwise check everything else we can check }
       if ISSigVerify then begin
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        DoISSigVerify(DisableFsRedir, TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(DisableFsRedir, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
