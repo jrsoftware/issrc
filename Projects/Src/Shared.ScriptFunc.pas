@@ -316,7 +316,8 @@ initialization
   [
     'procedure ExtractTemporaryFile(const FileName: String);',
     'function ExtractTemporaryFiles(const Pattern: String): Integer;',
-    'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
+    'function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
+    'function DownloadTemporaryFileWithISSigVerify(const Url, IssigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;',
     'function DownloadTemporaryFileSize(const Url: String): Int64;',
     'function DownloadTemporaryFileDate(const Url: String): String;',
     'procedure SetDownloadCredentials(const User, Pass: String);'

@@ -802,13 +802,30 @@ var
     begin
       Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('DownloadTemporaryFile', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['DownloadTemporaryFile', 'DownloadTemporaryFileWithISSigVerify'], sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), False, '', TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
-    end);
-    RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
+      const ISSigVerify = OrgName = 'DownloadTemporaryFileWithISSigVerify';
+      var Url, ISSigUrl, BaseName, RequiredSHA256OfFile: String;
+      var ISSigAllowedKeys: AnsiString;
+      var OnDownloadProgress: TOnDownloadProgress;
+
+      if ISSigVerify then begin
+        Url := Stack.GetString(PStart-1);
+        ISSigUrl := Stack.GetString(PStart-2);
+        BaseName := Stack.GetString(PStart-3);
+        ISSigAllowedKeys := ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(TStringList(Stack.GetClass(PStart-4)));
+        OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-5, Caller));
+      end else begin
+        Url := Stack.GetString(PStart-1);
+        BaseName := Stack.GetString(PStart-2);
+        RequiredSHA256OfFile := Stack.GetString(PStart-3);
+        OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-4, Caller));
+      end;
+
+      { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
+      if ISSigVerify then
+        DownloadTemporaryFile(IssigUrl, BaseName + ISSigExt, '', False, '', OnDownloadProgress);
+      Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, RequiredSHA256OfFile, ISSigVerify, ISSigAllowedKeys, OnDownloadProgress));
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -817,6 +834,10 @@ var
     RegisterScriptFunc('DownloadTemporaryFileDate', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
     end);
   end;
 
