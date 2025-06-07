@@ -20,7 +20,7 @@ OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
 [Languages]
-Name: en; MessagesFile: "compiler:Default.isl"
+Name: en; MessagesFile: "..\..\Files\Default.isl"
 Name: nl; MessagesFile: "..\..\Files\Languages\Dutch.isl"
 
 [Files]
