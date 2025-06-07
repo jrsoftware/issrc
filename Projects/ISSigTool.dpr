@@ -220,10 +220,10 @@ begin
     begin
       PrintUnlessQuiet('MISSINGSIGFILE (Signature file does not exist)');
     end,
-    procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+    procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
     begin
       case VerifyResult of
-        vsrMalformed, vsrBadSignature:
+        vsrMalformed, vsrBad:
           PrintUnlessQuiet('BADSIGFILE (Signature file is not valid)');
         vsrKeyNotFound:
           PrintUnlessQuiet('UNKNOWNKEY (Incorrect key ID)');

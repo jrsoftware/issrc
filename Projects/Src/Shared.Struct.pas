@@ -36,7 +36,7 @@ const
   SetupID: TSetupID = 'Inno Setup Setup Data (6.5.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
@@ -227,13 +227,14 @@ type
     PublicX, PublicY, RuntimeID: String;
   end;
 const
-  SetupFileEntryStrings = 11;
+  SetupFileEntryStrings = 12;
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
-    Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes: String;
+    Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
+    ExtractArchivePassword: String;
     ISSigAllowedKeys: AnsiString;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
@@ -250,7 +251,7 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall, foISSigVerify);
+      foUnsetNTFSCompression, foGacInstall, foISSigVerify, foExtractArchive);
     FileType: (ftUserFile, ftUninstExe);
   end;
 const

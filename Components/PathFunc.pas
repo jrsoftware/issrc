@@ -47,7 +47,8 @@ function PathStrScan(const S: PChar; const C: Char): PChar;
 function RemoveBackslash(const S: String): String;
 function RemoveBackslashUnlessRoot(const S: String): String;
 function ValidateAndCombinePath(const ADestDir, AFilename: String;
-  out AResultingPath: String): Boolean;
+  out AResultingPath: String): Boolean; overload;
+function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean; overload;
 
 implementation
 
@@ -364,8 +365,8 @@ end;
 
 function PathExtractName(const Filename: String): String;
 { Returns the filename portion of Filename (e.g. 'filename.txt'). If Filename
-  ends in a slash or consists only of a drive part, the result will be an empty
-  string.
+  ends in a slash or consists only of a drive part or is empty, the result will
+  be an empty string.
   This function is essentially the opposite of PathExtractPath. }
 var
   I: Integer;
@@ -639,6 +640,12 @@ begin
       Result := True;
     end;
   end;
+end;
+
+function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean;
+begin
+  var ResultingPath: String;
+  Result := ValidateAndCombinePath(ADestDir, AFilename, ResultingPath);
 end;
 
 end.

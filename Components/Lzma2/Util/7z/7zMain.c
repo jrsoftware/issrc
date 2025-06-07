@@ -5,7 +5,7 @@
    -Use CP_UTF8 in PrintString
    -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules 
    -Change main to mainW to support Unicode archive names
-   -Add specific error text for SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
+   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
@@ -967,6 +967,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("decoder doesn't support this archive");
   else if (res == SZ_ERROR_MEM)
     PrintError("cannot allocate memory");
+  else if (res == SZ_ERROR_DATA)
+    PrintError("Data error");
   else if (res == SZ_ERROR_CRC)
     PrintError("CRC error");
   else if (res == SZ_ERROR_ARCHIVE)

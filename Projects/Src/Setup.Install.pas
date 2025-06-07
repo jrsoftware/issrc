@@ -11,16 +11,27 @@ unit Setup.Install;
 
 interface
 
+uses
+  Classes, SHA256, Shared.FileClass, Shared.SetupTypes;
+
+procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const ASigFilename: String = '');
+
+procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
+  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  out ExpectedFileHash: TSHA256Digest);
+
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
-
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadCredentials(const User, Pass: String);
@@ -28,10 +39,10 @@ procedure SetDownloadCredentials(const User, Pass: String);
 implementation
 
 uses
-  Windows, SysUtils, Messages, Classes, Forms, ShlObj, Shared.Struct, Setup.UninstallLog, Shared.SetupTypes,
+  Windows, SysUtils, Messages, Forms, ShlObj, Shared.Struct, Setup.UninstallLog,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
-  Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor, Shared.FileClass,
-  Compression.Base, SHA256, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl,
+  Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor,
+  Compression.Base, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
   Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
@@ -250,25 +261,69 @@ begin
   end;
 end;
 
-procedure ISSigVerifyError(const AReason, AExceptionMessage: String);
+procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const ASigFilename: String);
+const
+  LogMessages: array[TISSigVerifySignatureError] of String =
+    ('Signature file does not exist', 'Signature is malformed', 'No matching key found',
+     'Signature is bad', 'File size is incorrect', 'File hash is incorrect');
+  SetupMessageIDs: array[TISSigVerifySignatureError] of TSetupMessageID =
+    (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid, msgVerificationKeyNotFound,
+     msgVerificationSignatureInvalid, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
 begin
-  Log('ISSig verification error: ' + AddPeriod(AReason));
-  raise Exception.Create(AExceptionMessage);
+  { Also see Compiler.SetupCompiler for a similar function }
+  Log('ISSig verification error: ' + AddPeriod(LogMessages[AError]));
+  raise Exception.Create(FmtSetupMessage1(msgSourceVerificationFailed,
+    FmtSetupMessage1(SetupMessageIDs[AError], PathExtractName(ASigFilename)))); { Not all messages actually have a %1 parameter but that's OK }
 end;
 
+procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
+  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  out ExpectedFileHash: TSHA256Digest);
+{ Either SourceF or SourceFS must be set }
+begin
+  if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
+    InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
+
+  var ExpectedFileSize: Int64;
+  if not ISSigVerifySignature(SourceFilename,
+    GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+    ExpectedFileSize, ExpectedFileHash,
+    nil,
+    procedure(const Filename, SigFilename: String)
+    begin
+      ISSigVerifyError(vseSignatureMissing, SigFilename);
+    end,
+    procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+    begin
+      case VerifyResult of
+        vsrMalformed:  ISSigVerifyError(vseSignatureMalformed, SigFilename);
+        vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
+        vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, SigFilename);
+      else
+        InternalError('Unknown ISSigVerifySignature result');
+      end;
+    end
+  ) then
+    InternalError('Unexpected ISSigVerifySignature result');
+  var FileSize: Int64;
+  if SourceF <> nil then
+    FileSize := Int64(SourceF.Size)
+  else
+    FileSize := SourceFS.Size;
+  if FileSize <> ExpectedFileSize then
+    ISSigVerifyError(vseFileSizeIncorrect);
+  { Caller must check ExpectedFileHash }
+end;
+
+const
+  ISSigVerificationSuccessfulLogMessage = 'ISSig verification successful.';
+
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  const ISSigVerify: Boolean; [ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
-  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
   const AExpectedSize: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
-const
-  ISSigMissingFile = 'Signature file does not exist';
-  ISSigMalformedOrBadSignature = 'Malformed or bad signature';
-  ISSigKeyNotFound = 'No matching key found';
-  ISSigUnknownVerifyResult  = 'Unknown verify result';
-  ISSigFileSizeIncorrect = 'File size incorrect';
-  ISSigFileHashIncorrect = 'File hash incorrect';
 var
   BytesLeft: Integer64;
   NewProgress: Integer64;
@@ -278,32 +333,8 @@ var
 begin
   var ExpectedFileHash: TSHA256Digest;
   if ISSigVerify then begin
-    var ExpectedFileSize: Int64;
-    if not ISSigVerifySignature(ISSigSourceFilename,
-      GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
-      ExpectedFileSize, ExpectedFileHash,
-      nil,
-      procedure(const Filename, SigFilename: String)
-      begin
-        ISSigVerifyError(ISSigMissingFile, FmtSetupMessage1(msgSourceDoesntExist, SigFilename));
-      end,
-      procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
-      begin
-        var VerifyResultAsString: String;
-        case VerifyResult of
-          vsrMalformed, vsrBadSignature: VerifyResultAsString := ISSigMalformedOrBadSignature;
-          vsrKeyNotFound: VerifyResultAsString := ISSigKeyNotFound;
-        else
-          VerifyResultAsString := ISSigUnknownVerifyResult;
-        end;
-        ISSigVerifyError(VerifyResultAsString, SetupMessages[msgSourceIsCorrupted]);
-      end
-    ) then
-      InternalError('Unexpected ISSigVerifySignature result');
-    if Int64(SourceF.Size) <> ExpectedFileSize then
-      ISSigVerifyError(ISSigFileSizeIncorrect, SetupMessages[msgSourceIsCorrupted]);
+    DoISSigVerify(SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
     { ExpectedFileHash checked below after copy }
-
     SHA256Init(Context);
   end;
 
@@ -344,8 +375,8 @@ begin
 
   if ISSigVerify then begin
     if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
-      ISSigVerifyError(ISSigFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
-    Log('ISSig verification successful.');
+      ISSigVerifyError(vseFileHashIncorrect);
+    Log(ISSigVerificationSuccessfulLogMessage);
   end;
 
   { In case the source file was shorter than we thought it was, bump the
@@ -960,10 +991,16 @@ var
     TOverwriteAll = (oaUnknown, oaOverwrite, oaKeep);
 
   procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
-    const DisableFsRedir: Boolean; ASourceFile, ADestName: String;
+    const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
     const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
-    var WarnedPerUserFonts: Boolean);
+    var WarnedPerUserFonts: Boolean; const AExternalFileDate: PFileTime);
+  { Not external: AExternalSourceFile and ADestFile should be empty strings,
+                  FileLocationFilenames should be set, AExternalSize is unused,
+                  AExternalFileDate should not be set
+    External    : Opposite except AExternalFileDate still not set
+    Ext. Archive: Same as external except AExternalFileDate set and
+                  AExternalSourceFile should be set to ArchiveFindHandle as a string }
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
@@ -1192,10 +1229,10 @@ var
           case CurFile^.FileType of
             ftUninstExe: DestFile := UninstallExeFilename;
           else
-            if ADestName = '' then
+            if ADestFile = '' then
               DestFile := ExpandConst(CurFile^.DestName)
             else
-              DestFile := ADestName;
+              DestFile := ADestFile;
           end;
           DestFile := PathExpand(DestFile);
         except
@@ -1236,9 +1273,11 @@ var
           else
             LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
           CurFileDateValid := True;
-        end
-        else
-          CurFileDateValid := GetFileDateTime(DisableFsRedir, ASourceFile, CurFileDate);
+        end else if Assigned(AExternalFileDate) then begin
+          CurFileDate := AExternalFileDate^;
+          CurFileDateValid := CurFileDate.HasTime;
+        end else
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate);
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
         else
@@ -1263,6 +1302,8 @@ var
           if not(foIgnoreVersion in CurFile^.Options) then begin
             AllowTimeStampComparison := False;
             { Read version info of file being installed }
+            if foExtractArchive in CurFile^.Options then
+              InternalError('Unexpected extractarchive flag');
             if Assigned(CurFileLocation) then begin
               CurFileVersionInfoValid := floVersionInfoValid in CurFileLocation^.Flags;
               CurFileVersionInfo.MS := CurFileLocation^.FileVersionMS;
@@ -1270,7 +1311,7 @@ var
             end
             else
               CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir,
-                PathExpand(ASourceFile), CurFileVersionInfo);
+                  PathExpand(AExternalSourceFile), CurFileVersionInfo);
             if CurFileVersionInfoValid then
               LogFmt('Version of our file: %u.%u.%u.%u',
                 [LongRec(CurFileVersionInfo.MS).Hi, LongRec(CurFileVersionInfo.MS).Lo,
@@ -1288,7 +1329,7 @@ var
                  ((ExistingVersionInfo.MS > CurFileVersionInfo.MS) or
                   ((ExistingVersionInfo.MS = CurFileVersionInfo.MS) and
                    (ExistingVersionInfo.LS > CurFileVersionInfo.LS))) then begin
-                { Existing file is newer, ask user what to do unless we shouldn't }
+                { No version info, or existing file is newer, ask user what to do unless we shouldn't }
                 if (foPromptIfOlder in CurFile^.Options) and not IsProtectedFile then begin
                   if PromptIfOlderOverwriteAll <> oaOverwrite then begin
                     Overwrite := AskOverwrite(DestFile, SetupMessages[msgExistingFileNewerSelectAction],
@@ -1322,7 +1363,7 @@ var
                         { This GetSHA256OfFile call could raise an exception, but
                           it's very unlikely since we were already able to
                           successfully read the file's version info. }
-                        CurFileHash := GetSHA256OfFile(DisableFsRedir, ASourceFile);
+                        CurFileHash := GetSHA256OfFile(DisableFsRedir, AExternalSourceFile);
                         LastOperation := SetupMessages[msgErrorReadingExistingDest];
                       end;
                       { If the two files' SHA-256 hashes are equal, skip the file }
@@ -1455,12 +1496,12 @@ var
         Log('Installing the file.');
 
         { Locate source file }
-        SourceFile := ASourceFile;
+        SourceFile := AExternalSourceFile; { Empty string if not external }
         if DisableFsRedir = InstallDefaultDisableFsRedir then begin
           { If the file is compressed in the setup package, has the same file
             already been copied somewhere else? If so, just make a duplicate of
             that file instead of extracting it over again. }
-          if (SourceFile = '') and
+          if (SourceFile = '') and (FileLocationFilenames <> nil) and
              (FileLocationFilenames[CurFile^.LocationEntry] <> '') and
              NewFileExistsRedir(DisableFsRedir, FileLocationFilenames[CurFile^.LocationEntry]) then
             SourceFile := FileLocationFilenames[CurFile^.LocationEntry];
@@ -1495,17 +1536,23 @@ var
               FileExtractor.DecompressFile(CurFileLocation^, DestF, ExtractorProgressProc,
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
+            else if foExtractArchive in CurFile^.Options then begin
+              { Extract a file from archive. Note: foISSigVerify for archive has
+                already been handled by RecurseExternalArchiveCopyFiles. }
+              LastOperation := SetupMessages[msgErrorExtracting];
+              ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
+            end
             else begin
-              { Copy an external file, or a duplicated non-external file }
+              { Copy a duplicated non-external file, or an external file }
               SourceF := TFileRedir.Create(DisableFsRedir, SourceFile, fdOpenExisting, faRead, fsRead);
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
                   CopySourceFileToDestFile(SourceF, DestF, False,
-                    [], '', '', CurFileLocation^.OriginalSize)
+                    '', '', CurFileLocation^.OriginalSize)
                 else
                   CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
-                    ISSigAvailableKeys, CurFile^.ISSigAllowedKeys, SourceFile, AExternalSize);
+                    CurFile^.ISSigAllowedKeys, SourceFile, AExternalSize);
               finally
                 SourceF.Free;
               end;
@@ -1794,26 +1841,23 @@ var
 
     function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
       const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
-      const Excludes: TStringList; const CurFile: PSetupFileEntry; const FileLocationFilenames: TStringList;
-      var ExpectedBytesLeft: Integer64; var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      const Excludes: TStrings; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+      var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
-    var
-      FileName, SourceFile, DestName: String;
-      H: THandle;
-      FindData: TWin32FindData;
-      Size: Integer64;
-      Flags: TMakeDirFlags;
     begin
-      { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc }
+      { Also see RecurseExternalFiles and RecurseExternalGetSizeOfFiles in Setup.MainFunc
+        Also see RecurseExternalArchiveCopyFiles directly below }
 
       Result := False;
 
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+      var FindData: TWin32FindData;
+      var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
 
+              var FileName: String;
               if SourceIsWildcard then begin
                 if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
                   Continue;
@@ -1826,12 +1870,15 @@ var
                 Continue;
 
               Result := True;
-              SourceFile := SearchBaseDir + SearchSubDir + FileName;
-              DestName := ExpandConst(CurFile^.DestName);
+              var SourceFile := SearchBaseDir + SearchSubDir + FileName;
+              { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
+                see TSetupCompiler.EnumFilesProc.ProcessFileList }
+              var DestFile := ExpandConst(CurFile^.DestName);
               if not(foCustomDestName in CurFile^.Options) then
-                DestName := DestName + SearchSubDir + FileName
+                DestFile := DestFile + SearchSubDir + FileName
               else if SearchSubDir <> '' then
-                DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
+                DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
+              var Size: Integer64;
               Size.Hi := FindData.nFileSizeHigh;
               Size.Lo := FindData.nFileSizeLow;
               if Compare64(Size, ExpectedBytesLeft) > 0 then begin
@@ -1839,9 +1886,9 @@ var
                   files is greater than when we last checked }
                 Size := ExpectedBytesLeft;
               end;
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestName,
-                FileLocationFilenames, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts);
+              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile, nil,
+                Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                WarnedPerUserFonts, nil);
               Dec6464(ExpectedBytesLeft, Size);
             end;
           until not FindNextFile(H, FindData);
@@ -1858,8 +1905,8 @@ var
               if IsRecurseableDirectory(FindData) then
                 Result := RecurseExternalCopyFiles(DisableFsRedir, SearchBaseDir,
                   SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                  SourceIsWildcard, Excludes, CurFile, FileLocationFileNames,
-                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  SourceIsWildcard, Excludes, CurFile, ExpectedBytesLeft,
+                  ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts) or Result;
             until not FindNextFile(H, FindData);
           finally
@@ -1871,13 +1918,13 @@ var
       if SearchSubDir <> '' then begin
         { If Result is False this subdir won't be created, so create it now if
           CreateAllSubDirs was set }
-        if (foCreateAllSubDirs in CurFile.Options) and not Result then begin
-          DestName := ExpandConst(CurFile^.DestName);
+        if not Result and (foCreateAllSubDirs in CurFile.Options) then begin
+          var DestName := ExpandConst(CurFile^.DestName); { See above }
           if not(foCustomDestName in CurFile^.Options) then
             DestName := DestName + SearchSubDir
           else
             DestName := PathExtractPath(DestName) + SearchSubDir;
-          Flags := [];
+          var Flags: TMakeDirFlags := [];
           if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
           if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
           MakeDir(DisableFsRedir, DestName, Flags);
@@ -1889,6 +1936,92 @@ var
         be frozen for a long time when installing from a network. Calling
         ProcessEvents after every directory helps. }
       ProcessEvents;
+    end;
+
+    function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
+      const ArchiveFilename, Password: String; const Excludes: TStrings;
+      const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+      var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
+      var WarnedPerUserFonts: Boolean): Boolean;
+    begin
+      { See above }
+
+      Result := NewFileExistsRedir(DisableFsRedir, ArchiveFilename);
+
+      if foCustomDestName in CurFile^.Options then
+        InternalError('Unexpected custom DestName');
+      const DestDir = ExpandConst(CurFile^.DestName);
+
+      var ISSigVerifySourceF: TFile := nil;
+      try
+        var FindData: TWin32FindData;
+        var H: TArchiveFindHandle := INVALID_HANDLE_VALUE;
+        var Failed: String;
+        repeat
+          try
+            if foISSigVerify in CurFile^.Options then begin
+              if ISSigVerifySourceF = nil then
+                ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+              var ExpectedFileHash: TSHA256Digest;
+              DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
+                ExpectedFileHash);
+              { Can't get the SHA-256 while extracting so need to get and check it now }
+              const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
+              if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
+                ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+              Log(ISSigVerificationSuccessfulLogMessage);
+              { Keeping ISSigVerifySourceF open until extraction has completed }
+            end;
+
+            H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+              Password, foRecurseSubDirsExternal in CurFile^.Options, True, FindData);
+            Failed := '';
+          except
+            if ExceptObject is EAbort then
+              raise;
+            Failed := GetExceptMessage;
+          end;
+        until (Failed = '') or
+              AbortRetryIgnoreTaskDialogMsgBox(
+                ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
+                [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
+        if H <> INVALID_HANDLE_VALUE then begin
+          try
+            repeat
+              if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+                if IsExcluded(FindData.cFileName, Excludes) then
+                  Continue;
+
+                var SourceFile := IntToStr(H);
+                const DestFile = DestDir + FindData.cFileName;
+                var Size: Integer64;
+                Size.Hi := FindData.nFileSizeHigh;
+                Size.Lo := FindData.nFileSizeLow;
+                if Compare64(Size, ExpectedBytesLeft) > 0 then begin
+                  { Don't allow the progress bar to overflow if the size of the
+                    files is greater than when we last checked }
+                  Size := ExpectedBytesLeft;
+                end;
+                ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile,
+                  nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts, @FindData.ftLastWriteTime);
+                Dec6464(ExpectedBytesLeft, Size);
+              end else if foCreateAllSubDirs in CurFile.Options then begin
+                var Flags: TMakeDirFlags := [];
+                if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
+                if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
+                MakeDir(DisableFsRedir, DestDir + FindData.cFileName, Flags);
+                Result := True;
+              end;
+            until not ArchiveFindNextFile(H, FindData);
+          finally
+            ArchiveFindClose(H);
+          end;
+        end;
+      finally
+        ISSigVerifySourceF.Free;
+      end;
     end;
 
   var
@@ -1937,7 +2070,7 @@ var
             ExternalSize.Hi := 0;  { not used... }
             ExternalSize.Lo := 0;
             ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize,
-              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts);
+              ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
           end
           else begin
             { File is an 'external' file }
@@ -1953,11 +2086,17 @@ var
             repeat
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
-              FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
-                PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
-                IsWildcard(SourceWildcard), Excludes, CurFile, FileLocationFileNames,
-                ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts);
+              if foExtractArchive in CurFile^.Options then
+                FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
+                  SourceWildcard, CurFile^.ExtractArchivePassword, Excludes, CurFile,
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts)
+              else
+                FoundFiles := RecurseExternalCopyFiles(DisableFsRedir,
+                  PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard),
+                  IsWildcard(SourceWildcard), Excludes, CurFile,
+                  ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts);
             until FoundFiles or
                   (foSkipIfSourceDoesntExist in CurFile^.Options) or
                   AbortRetryIgnoreTaskDialogMsgBox(
@@ -3551,7 +3690,9 @@ begin
     Log('Download is not using basic authentication');
 end;
 
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DestFile, TempFile: String;
   TempF: TFileRedir;
@@ -3579,9 +3720,26 @@ begin
   const DisableFsRedir = False; { Like everything else working on the temp dir }
 
   { Prepare directory }
-  if FileExists(DestFile) then begin
-    if (RequiredSHA256OfFile <> '') and
-       (RequiredSHA256OfFile = SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
+  if NewFileExists(DestFile) then begin
+    if ISSigVerify then begin
+      var ExistingFileSize: Int64;
+      var ExistingFileHash: TSHA256Digest;
+      if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
+           ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
+        const DestF = TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
+        try
+          if (Int64(DestF.Size) = ExistingFileSize) and
+             (SHA256DigestsEqual(GetSHA256OfFile(DestF), ExistingFileHash)) then begin
+            Log('  File already downloaded.');
+            Result := 0;
+            Exit;
+          end;
+        finally
+          DestF.Free;
+        end;
+      end;
+    end else if (RequiredSHA256OfFile <> '') and
+                SameText(RequiredSHA256OfFile, SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
@@ -3639,22 +3797,32 @@ begin
       { Download completed, get temporary file size and close it }
       Result := HandleStream.Size;
       FreeAndNil(HandleStream);
-      FreeAndNil(TempF);
 
-      { Check hash if specified, otherwise check everything else we can check }
-      if RequiredSHA256OfFile <> '' then begin
-        try
-          SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
-        except on E: Exception do
-          raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
+      { Check .issig or hash if specified, otherwise check everything else we can check }
+      if ISSigVerify then begin
+        var ExpectedFileHash: TSHA256Digest;
+        DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        FreeAndNil(TempF);
+        const FileHash = GetSHA256OfFile(DisableFsRedir, TempFile);
+        if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+        Log(ISSigVerificationSuccessfulLogMessage);
+      end else begin
+        FreeAndNil(TempF);
+        if RequiredSHA256OfFile <> '' then begin
+          try
+            SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
+          except on E: Exception do
+            raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
+          end;
+          if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
+            raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
+        end else if HTTPDataReceiver.ProgressMax > 0 then begin
+          if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+            raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
+          else if HTTPDataReceiver.ProgressMax <> Result then
+            raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
         end;
-        if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
-          raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
-      end else if HTTPDataReceiver.ProgressMax > 0 then begin
-        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-          raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
-        else if HTTPDataReceiver.ProgressMax <> Result then
-          raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
       end;
 
       { Rename the temporary file to the new name now, with retries if needed }

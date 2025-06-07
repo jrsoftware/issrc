@@ -2,7 +2,7 @@ unit Compiler.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -85,14 +85,13 @@ const
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
-  SCompilerSourceFileISSigMissingFile = 'Signature file does not exist for source file "%s"';
-  SCompilerSourceFileISSigInvalidSignature1 = 'Signature file "%s" is not valid: %s';
-  SCompilerSourceFileISSigInvalidSignature2 = 'Signature for source file "%s" is not valid: %s';
-  SCompilerSourceFileISSigMalformedOrBadSignature = 'malformed or bad signature';
-  SCompilerSourceFileISSigKeyNotFound = 'no matching key found';
-  SCompilerSourceFileISSigUnknownVerifyResult = 'unknown verify result';
-  SCompilerSourceFileISSigFileSizeIncorrect = 'file size incorrect';
-  SCompilerSourceFileISSigFileHashIncorrect = 'file hash incorrect';
+  SCompilerSourceFileVerificationFailed = 'Verification of source file "%s" failed: %s';
+  SCompilerVerificationSignatureDoesntExist = 'The signature file "%1" does not exist';
+  SCompilerVerificationSignatureMalformed = 'The signature file "%1" is malformed';
+  SCompilerVerificationSignatureBad = 'The signature file "%1" is bad';
+  SCompilerVerificationKeyNotFound = 'The signature file "%1" uses an unknown key';
+  SCompilerVerificationFileSizeIncorrect = 'The size of the file is incorrect';
+  SCompilerVerificationFileHashIncorrect = 'The hash of the file is incorrect';
   SCompilerCopyError3a = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %s';
   SCompilerCopyError3b = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
@@ -110,6 +109,7 @@ const
   SCompilerEntrySuperseded2 = 'The [%s] section directive "%s" has been superseded by "%s" in this version of Inno Setup.';
   SCompilerEntryMissing2 = 'Required [%s] section directive "%s" not specified';
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
+  SCompilerEntryValueUnsupported = 'Value of [%s] section directive "%s" must not be "%s" if flag "%s" is used.';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
@@ -289,7 +289,7 @@ const
     '"dontcopy" flag is used';
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
-    'the "Source" parameter contains wildcards';
+    'the "Source" parameter contains wildcards or flag "extractarchive" is used';
   SCompilerFilesStrongAssemblyNameMustBeSpecified = 'Parameter "StrongAssemblyName" must be specified if ' +
     'the flag "gacinstall" is used';
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +

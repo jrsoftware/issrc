@@ -1689,7 +1689,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="createallsubdirs">
 <p>By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. This flag causes these directories to be created at install time (just like if you created [Dirs] entries for them).</p>
-<p>Must be combined with <tt>recursesubdirs</tt>.</p>
+<p>This flag must be combined with <tt>recursesubdirs</tt>.</p>
 </flag>
 <flag name="deleteafterinstall">
 <p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's [Run] section.</p>
@@ -1704,7 +1704,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Must be combined with <tt>nocompression</tt>.</p>
 </flag>
 <flag name="external">
-<p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
+<p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead to copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
+</flag>
+<flag name="extractarchive">
+<p>This flag instructs Inno Setup not to copy an existing archive file, but instead to extract it.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
+<p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 </flag>
 <flag name="fontisnttruetype">
 <p>Specify this flag if the entry is installing a <i>non-TrueType</i> font with the <tt>FontInstall</tt> parameter.</p>
@@ -1717,6 +1724,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="ignoreversion">
 <p>Don't compare version info at all; replace existing files regardless of their version number.</p>
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag cannot be combined with <tt>replacesameversion</tt>.</p>
 </flag>
 <flag name="issigverify">
 <p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
@@ -1727,7 +1735,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <li><p>When used with the <tt>external</tt> flag, Setup will verify the source file during the installation process while it is being copied to the destination directory. Files are always created with temporary names (<tt>*.tmp</tt>) initially. If the verification fails, the temporary file will be deleted and a &quot;The source file is corrupted&quot; error message will be displayed to the user (with Skip, Try Again, and Cancel options) and a more detailed error is logged. If the verification succeeds, the temporary file will be renamed to the correct destination name.</p>
 <p>When a file entry with the <tt>external</tt> flag is skipped (i.e., not installed - for example because the <tt>ignoreversion</tt> flag wasn't used), the source file isn't copied anywhere, so no verification takes place.</p></li>
 </ul>
-<p>Since verification occurs while source files are being compressed/copied, and not in a separate pass, each file's contents are only read once. Thus, enabling verification has little performance impact; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. This approach also ensures there is no Time-Of-Check to Time-Of-Use (TOCTOU) problem; each source file is kept open the entire time it is being compressed/copied and verified without allowing other processes write access.</p>
+<p>Since verification occurs while source files are being compressed/copied, and not in a separate pass, each file's contents are only read once. Thus, enabling verification has little performance impact; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read twice.</p>
+<p>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p>
 <p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
@@ -1771,6 +1780,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="replacesameversion">
 <p>When this flag is used and the file already exists on the user's system and it has the same version number as the file being installed, Setup will compare the files and replace the existing file if their contents differ.</p>
 <p>The default behavior (i.e. when this flag isn't used) is to not replace an existing file with the same version number.</p>
+<p>This flag has no effect if combined with the <tt>extractarchive</tt> flag, or if used for a file that lacks a version number.</p>
+<p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
@@ -4729,7 +4740,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <tt>full</tt></setupvalid>
 <setupdefault><tt>basic</tt></setupdefault>
 <body>
-<p>This specifies the method of archive extraction used by support functions <link topic="isxfunc_ExtractArchive">ExtractArchive</link> and <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>.</p>
+<p>This specifies the method of archive extraction used by [Files] section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <link topic="isxfunc_ExtractArchive">ExtractArchive</link> and <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>

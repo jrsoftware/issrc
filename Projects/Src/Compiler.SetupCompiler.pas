@@ -19,7 +19,7 @@ interface
 
 uses
   Windows, SysUtils, Classes, Generics.Collections,
-  SimpleExpression, SHA256, ChaCha20,
+  SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
@@ -256,6 +256,8 @@ type
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
     function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+    procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+      const AFilename: String; const ASigFilename: String = '');
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -298,7 +300,7 @@ uses
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
 {$ENDIF}
-  Shared.SetupTypes, Compiler.CompressionHandler, Compiler.HelperFunc, Compiler.BuiltinPreproc;
+  Compiler.CompressionHandler, Compiler.HelperFunc, Compiler.BuiltinPreproc;
 
 type
   TLineInfo = class
@@ -4665,9 +4667,9 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
-    paPermissions, paFontInstall, paExcludes, paExternalSize, paStrongAssemblyName,
-    paISSigAllowedKeys, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
-    paAfterInstall, paMinVersion, paOnlyBelowVersion);
+    paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
+    paStrongAssemblyName, paISSigAllowedKeys, paComponents, paTasks, paLanguages,
+    paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -4678,6 +4680,7 @@ const
   ParamFilesFontInstall = 'FontInstall';
   ParamFilesExcludes = 'Excludes';
   ParamFilesExternalSize = 'ExternalSize';
+  ParamFilesExtractArchivePassword = 'ExtractArchivePassword';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
   ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
   ParamInfo: array[TParam] of TParamInfo = (
@@ -4691,6 +4694,7 @@ const
     (Name: ParamFilesFontInstall; Flags: [piNoEmpty]),
     (Name: ParamFilesExcludes; Flags: []),
     (Name: ParamFilesExternalSize; Flags: []),
+    (Name: ParamFilesExtractArchivePassword; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
     (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
@@ -4701,7 +4705,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..41] of PChar = (
+  Flags: array[0..42] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4713,7 +4717,7 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
-    'issigverify');
+    'issigverify', 'extractarchive');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -5254,6 +5258,7 @@ begin
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
                    41: Include(Options, foISSigVerify);
+                   42: Include(Options, foExtractArchive);
                  end;
 
                { Source }
@@ -5339,6 +5344,9 @@ begin
                  Include(Options, foExternalSizePreset);
                end;
 
+               { ExtractArchivePassword }
+               ExtractArchivePassword := Values[paExtractArchivePassword].Data;
+
                { ISSigAllowedKeys }
                var S := Values[paISSigAllowedKeys].Data;
                while True do begin
@@ -5423,6 +5431,18 @@ begin
           Excludes := AExcludes.DelimitedText;
         end;
 
+        if foExtractArchive in Options then begin
+          if not ExternalFile then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive'])
+          else if not(foIgnoreVersion in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'extractarchive'])
+          else if SetupHeader.SevenZipLibraryName = '' then
+            AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
+        end;
+
+        if (foIgnoreVersion in Options) and (foReplaceSameVersionIfContentsDiffer in Options) then
+          AbortCompileFmt(SCompilerParamErrorBadCombo2, ['Flags', 'ignoreversion', 'replacesameversion']);
+
         if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
           AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
         if (ISSigAllowedKeys <> '') and not (foISSigVerify in Options) then
@@ -5454,7 +5474,7 @@ begin
             Include(Options, foRecurseSubDirsExternal);
           CheckConst(SourceWildcard, MinVersion, []);
         end;
-        if (ADestName <> '') and SourceIsWildcard then
+        if (ADestName <> '') and (SourceIsWildcard or (foExtractArchive in Options)) then
           AbortCompile(SCompilerFilesDestNameCantBeSpecified);
         CheckConst(ADestDir, MinVersion, []);
         ADestDir := AddBackslash(ADestDir);
@@ -6584,6 +6604,19 @@ begin
   end;
 end;
 
+procedure TSetupCompiler.ISSigVerifyError(const AError: TISSigVerifySignatureError;
+  const AFilename, ASigFilename: String);
+const
+  Messages: array[TISSigVerifySignatureError] of String =
+    (SCompilerVerificationSignatureDoesntExist, SCompilerVerificationSignatureMalformed,
+     SCompilerVerificationKeyNotFound, SCompilerVerificationSignatureBad,
+     SCompilerVerificationFileSizeIncorrect, SCompilerVerificationFileHashIncorrect);
+begin
+  { Also see Setup.Install for a similar function }
+  AbortCompileFmt(SCompilerSourceFileVerificationFailed,
+    [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
+end;
+
 procedure TSetupCompiler.Compile;
 
   procedure InitDebugInfo;
@@ -7088,25 +7121,23 @@ var
               nil,
               procedure(const Filename, SigFilename: String)
               begin
-                AbortCompileFmt(SCompilerSourceFileISSigMissingFile, [Filename]);
+                ISSigVerifyError(vseSignatureMissing, Filename, SigFilename);
               end,
-              procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+              procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
               begin
                 var VerifyResultAsString: String;
                 case VerifyResult of
-                  vsrMalformed, vsrBadSignature: VerifyResultAsString := SCompilerSourceFileISSigMalformedOrBadSignature;
-                  vsrKeyNotFound: VerifyResultAsString := SCompilerSourceFileISSigKeyNotFound;
+                  vsrMalformed: ISSigVerifyError(vseSignatureMalformed, Filename, SigFilename);
+                  vsrBad: ISSigVerifyError(vseSignatureBad, Filename, SigFilename);
+                  vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, Filename, SigFilename);
                 else
-                  VerifyResultAsString := SCompilerSourceFileISSigUnknownVerifyResult;
+                  AbortCompileFmt(SCompilerCompressInternalError, ['Unknown ISSigVerifySignature result'])
                 end;
-                AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature1,
-                  [SigFilename, VerifyResultAsString]);
               end
             ) then
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if Int64(SourceFile.Size) <> ExpectedFileSize then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
-                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileSizeIncorrect]);
+              ISSigVerifyError(vseFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }
           end;
 
@@ -7158,8 +7189,7 @@ var
 
           if floISSigVerify in FLExtraInfo.Flags then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
-              AbortCompileFmt(SCompilerSourceFileISSigInvalidSignature2,
-                [FileLocationEntryFilenames[I], SCompilerSourceFileISSigFileHashIncorrect]);
+              ISSigVerifyError(vseFileHashIncorrect, FileLocationEntryFilenames[I]);
             AddStatus(SCompilerStatusFilesISSigVerified);
           end;
         finally

@@ -39,6 +39,9 @@ type
 
   TArrayOfECDSAKey = array of TECDSAKey;
 
+  TISSigVerifySignatureError = (vseSignatureMissing, vseSignatureMalformed, vseKeyNotFound,
+    vseSignatureBad, vseFileSizeIncorrect, vseFileHashIncorrect);
+
 const
   crHand = 1;
 
@@ -58,7 +61,7 @@ procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSal
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
-function IsExcluded(Text: String; const AExcludes: TStringList): Boolean;
+function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
 
 implementation
 
@@ -351,7 +354,7 @@ begin
     Result := ISSigAvailableKeys;
 end;
 
-function IsExcluded(Text: String; const AExcludes: TStringList): Boolean;
+function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
 
   function CountBackslashes(S: PChar): Integer;
   begin

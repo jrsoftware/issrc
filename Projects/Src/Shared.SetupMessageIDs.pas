@@ -2,7 +2,7 @@ unit Shared.SetupMessageIDs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -29,6 +29,9 @@ type
     msgAdminPrivilegesRequired,
     msgApplicationsFound,
     msgApplicationsFound2,
+    msgArchiveIncorrectPassword,
+    msgArchiveIsCorrupted,
+    msgArchiveUnsupportedFormat,
     msgBadDirName32,
     msgBadGroupName,
     msgBeveledLabel,
@@ -86,6 +89,7 @@ type
     msgErrorDownloadFailed,
     msgErrorDownloadSizeFailed,
     msgErrorExecutingProgram,
+    msgErrorExtracting,
     msgErrorExtractionAborted,
     msgErrorExtractionFailed,
     msgErrorFileHash1,
@@ -225,6 +229,7 @@ type
     msgShutdownBlockReasonUninstallingApp,
     msgSourceDoesntExist,
     msgSourceIsCorrupted,
+    msgSourceVerificationFailed,
     msgStatusClosingApplications,
     msgStatusCreateDirs,
     msgStatusCreateIcons,
@@ -264,6 +269,11 @@ type
     msgUserInfoNameRequired,
     msgUserInfoOrg,
     msgUserInfoSerial,
+    msgVerificationFileHashIncorrect,
+    msgVerificationFileSizeIncorrect,
+    msgVerificationKeyNotFound,
+    msgVerificationSignatureDoesntExist,
+    msgVerificationSignatureInvalid,
     msgWelcomeLabel1,
     msgWelcomeLabel2,
     msgWindowsServicePackRequired,

@@ -174,6 +174,8 @@ type
 
   TDownloadFile = class
     Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+    ISSigVerify: Boolean;
+    ISSigAllowedKeys: AnsiString;
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
 
@@ -184,6 +186,9 @@ type
       FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
+        const UserName: String = ''; const Password: String = '';
+        const ISSigVerify: Boolean = False; const ISSigAllowedKeys: AnsiString = ''): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
@@ -191,8 +196,12 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
-      procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
+      function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+      function AddWithISSigVerify(const Url, IssigUrl, BaseName: String;
+        const AllowedKeysRuntimeIDs: TStringList): Integer;
+      function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
+      function AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName, Password: String;
+        const AllowedKeysRuntimeIDs: TStringList): Integer;
       procedure Clear;
       function Download: Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
@@ -223,8 +232,8 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
-      procedure AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean);
+      function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
+      function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
       procedure Clear;
       procedure Extract;
       property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
@@ -235,13 +244,16 @@ type
       property ShowArchiveInsteadOfFile: Boolean read FShowArchiveInsteadOfFile write FShowArchiveInsteadOfFile;
   end;
 
+function ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(const AllowedKeysRuntimeIDs: TStringList): AnsiString;
+
 implementation
 
 uses
-  StrUtils,
-  Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Compression.SevenZipDLLDecoder;
+  StrUtils, ISSigFunc,
+  Shared.Struct, Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc,
+  Compression.SevenZipDLLDecoder;
 
 const
   DefaultLabelHeight = 14;
@@ -1045,12 +1057,8 @@ begin
   FAbortButton.Visible := AVisible;
 end;
 
-procedure TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String);
-begin
-  AddEx(Url, BaseName, RequiredSHA256OfFile, '', '');
-end;
-
-procedure TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
+function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString): Integer;
 begin
   var F := TDownloadFile.Create;
   F.Url := Url;
@@ -1058,7 +1066,56 @@ begin
   F.RequiredSHA256OfFile := RequiredSHA256OfFile;
   F.UserName := UserName;
   F.Password := Password;
-  FFiles.Add(F);
+  F.ISSigVerify := ISSigVerify;
+  F.ISSigAllowedKeys := ISSigAllowedKeys;
+  Result := FFiles.Add(F);
+end;
+
+function ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(const AllowedKeysRuntimeIDs: TStringList): AnsiString;
+begin
+  Result := '';
+  if AllowedKeysRuntimeIDs <> nil then begin
+    for var I := 0 to AllowedKeysRuntimeIDs.Count-1 do begin
+      const RuntimeID = AllowedKeysRuntimeIDs[I];
+      if RuntimeID = '' then
+        InternalError('RuntimeID cannot be empty');
+      var Found := False;
+      for var KeyIndex := 0 to Entries[seISSigKey].Count-1 do begin
+        var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][KeyIndex]);
+        if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then begin
+          SetISSigAllowedKey(Result, KeyIndex);
+          Found := True;
+          Break;
+        end;
+      end;
+      if not Found then
+        InternalError(Format('Unknown RuntimeID ''%s''', [RuntimeID]));
+    end;
+  end;
+end;
+
+function TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+begin
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile);
+end;
+
+function TDownloadWizardPage.AddWithISSigVerify(const Url, IssigUrl, BaseName: String;
+  const AllowedKeysRuntimeIDs: TStringList): Integer;
+begin
+  Result := AddExWithISSigVerify(Url, IssigUrl, BaseName, '', '', AllowedKeysRuntimeIDs);
+end;
+
+function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
+begin
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password);
+end;
+
+function TDownloadWizardPage.AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName,
+  Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
+begin
+  const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
+  DoAdd(IssigUrl, BaseName + ISSigExt, '', UserName, Password, False, '');
+  Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys);
 end;
 
 procedure TDownloadWizardPage.Clear;
@@ -1074,7 +1131,8 @@ begin
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadCredentials(F.UserName, F.Password);
-    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
+    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,
+      F.ISSigVerify, F.ISSigAllowedKeys, InternalOnDownloadProgress);
   end;
   SetDownloadCredentials('', '');
 end;
@@ -1166,19 +1224,19 @@ begin
   FAbortButton.Visible := AVisible;
 end;
 
-procedure TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
 begin
-  AddEx(ArchiveFileName, DestDir, '', FullPaths);
+  Result := AddEx(ArchiveFileName, DestDir, '', FullPaths);
 end;
 
-procedure TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean);
+function TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
 begin
   const A = TArchive.Create;
   A.FileName := ArchiveFileName;
   A.DestDir := DestDir;
   A.Password := Password;
   A.FullPaths := FullPaths;
-  FArchives.Add(A);
+  Result := FArchives.Add(A);
 end;
 
 procedure TExtractionWizardPage.Clear;
@@ -1190,12 +1248,19 @@ procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  for var A in FArchives do begin
-    { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
-    if SetupHeader.SevenZipLibraryName <> '' then
-      ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+  try
+    for var A in FArchives do begin
+      { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
+      if SetupHeader.SevenZipLibraryName <> '' then
+        ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+      else
+        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+    end;
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
     else
-      Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+      raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
   end;
 end;
 

@@ -93,7 +93,7 @@ begin
       begin
         raise Exception.CreateFmt('Signature file "%s" does not exist', [SigFileName]);
       end,
-      procedure(const SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
+      procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
       begin
         raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFileName]);
       end
