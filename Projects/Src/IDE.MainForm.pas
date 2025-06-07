@@ -4063,6 +4063,12 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     end;
   end;
 
+  function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
+  begin
+    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
+    Result := FMemosStyler.HighlightAtCursorAllowed(Section, FActiveMemo.ConvertRawStringToString(Word));
+  end;
+
 begin
   { Add occurrence indicators for the word at cursor if there's any and the
     main selection is within this word. On top of those add occurrence indicators
@@ -4084,8 +4090,10 @@ begin
       var Word := AMemo.WordAtCaretRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        AMemo.GetSelections(Selections); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        if HighlightAtCursorAllowed(TextToIndicate) then begin
+          AMemo.GetSelections(Selections); { Gets any additional selections as well }
+          FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        end;
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);

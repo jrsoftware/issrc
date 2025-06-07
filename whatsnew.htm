@@ -160,7 +160,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
 </ul>
 <span class="head2">Other changes</span>
 <ul>
-  <li>Compiler IDE: the <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
+  <li>Compiler IDE:
+    <ul>
+      <li>The <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
+      <li>The <i>Highlight occurrences of current word</i> option (which is disabled by default) no longer highlights a section's directive names, parameter names, or Pascal keywords. The <i>Highlight occurrences of current selection</i> option (which is enabled by default) still does.</li>
+    </ul>
+  </li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>ISPP changes:
     <ul>
