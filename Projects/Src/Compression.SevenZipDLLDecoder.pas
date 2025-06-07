@@ -777,7 +777,6 @@ end;
 
 { TArchiveExtractToHandleCallback }
 
-
 constructor TArchiveExtractToHandleCallback.Create(const InArchive: IInArchive;
   const numItems: UInt32; const Password: String; const Index: UInt32;
   const DestF: TFile; const OnExtractToHandleProgress: TOnExtractToHandleProgress);
