@@ -16,13 +16,13 @@ copy ..\..\Files\islzma.dll
 copy ..\..\Files\islzma.dll.issig
 copy ..\..\Files\islzma*.exe
 copy ..\..\Files\islzma*.exe.issig
-copy ..\..\Files\ISetup.chm
-copy ..\..\Files\ISetup-dark.chm
 copy ..\..\Files\WizClassicSmallImage.bmp
 
 if exist Default.isl (del Default.isl)
 if exist ISPPBuiltins.iss (del ISPPBuiltins.iss)
 if exist whatsnew.htm (del whatsnew.htm)
+if exist ISetup.chm (del ISetup.chm)
+if exist ISetup-dark.chm (del ISetup-dark.chm)
 
 if exist *.exp (del *.exp)
 if exist *.lib (del *.lib)
