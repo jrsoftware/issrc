@@ -3615,7 +3615,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <topic name="issig" title=".issig Signatures: Introduction">
 <body>
 
-<p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
+<p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
 
 <p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>ISSigTool.exe</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
 
