@@ -837,7 +837,7 @@ var
     end);
     RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
+      SetDownloadTemporaryFileCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
     end);
   end;
 

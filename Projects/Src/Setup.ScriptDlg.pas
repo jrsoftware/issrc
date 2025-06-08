@@ -1131,11 +1131,11 @@ begin
   Result := 0;
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
-    SetDownloadCredentials(F.UserName, F.Password);
+    SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,
       F.ISSigVerify, F.ISSigAllowedKeys, InternalOnDownloadProgress);
   end;
-  SetDownloadCredentials('', '');
+  SetDownloadTemporaryFileCredentials('', '');
 end;
 
 {--- Extraction ---}

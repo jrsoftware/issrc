@@ -34,7 +34,7 @@ function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String
   const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
-procedure SetDownloadCredentials(const User, Pass: String);
+procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
 function GetISSigUrl(const Url, ISSigUrl: String): String;
 
 implementation
@@ -58,7 +58,6 @@ type
 var
   CurProgress: Integer64;
   ProgressShiftCount: Cardinal;
-  DownloadUser, DownloadPass: String;
 
 { TSetupUninstallLog }
 
@@ -3665,23 +3664,26 @@ begin
     Result := URL;
 end;
 
-procedure SetDownloadCredentials(const User, Pass: String);
+var
+  DownloadTemporaryFileUser, DownloadTemporaryFilePass: String;
+
+procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
 begin
-  DownloadUser := User;
-  DownloadPass := Pass;
+  DownloadTemporaryFileUser := User;
+  DownloadTemporaryFilePass := Pass;
 end;
 
-function GetCredentialsAndCleanUrl(const Url: String; var User, Pass, CleanUrl: String) : Boolean;
+function GetCredentialsAndCleanUrl(const Url, CustomUser, CustomPass: String; var User, Pass, CleanUrl: String) : Boolean;
 begin
   const Uri = TUri.Create(Url); { This is a record so no need to free }
-  if DownloadUser = '' then
+  if CustomUser = '' then
     User := TNetEncoding.URL.Decode(Uri.Username)
   else
-    User := DownloadUser;
-  if DownloadPass = '' then
+    User := CustomUser;
+  if CustomPass = '' then
     Pass := TNetEncoding.URL.Decode(Uri.Password, [TURLEncoding.TDecodeOption.PlusAsSpaces])
   else
-    Pass := DownloadPass;
+    Pass := CustomPass;
   Uri.Username := '';
   Uri.Password := '';
   CleanUrl := Uri.ToString;
@@ -3769,7 +3771,8 @@ begin
   HandleStream := nil;
 
   try
-    HasCredentials := GetCredentialsAndCleanUrl(URL, User, Pass, CleanUrl);
+    HasCredentials := GetCredentialsAndCleanUrl(URL,
+      DownloadTemporaryFileUser, DownloadTemporaryFilePass, User, Pass, CleanUrl);
 
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
@@ -3881,8 +3884,9 @@ var
 begin
   HTTPClient := THTTPClient.Create;
   Base64 := nil;
-  HasCredentials := GetCredentialsAndCleanUrl(Url, User, Pass, CleanUrl);
   try
+    HasCredentials := GetCredentialsAndCleanUrl(Url,
+      DownloadTemporaryFileUser, DownloadTemporaryFilePass, User, Pass, CleanUrl);
     if HasCredentials then begin
       Base64 := TBase64Encoding.Create(0);
       HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
