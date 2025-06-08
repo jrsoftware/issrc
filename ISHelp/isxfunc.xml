@@ -1860,8 +1860,9 @@ end;</pre>
       </function>
       <function>
         <name>DownloadTemporaryFileWithISSigVerify</name>
-        <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, IssigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Like <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
+<p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL and use the result as the URL to download the .issig signature file from.</p>        
 <p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
@@ -1873,8 +1874,7 @@ function InitializeSetup: Boolean;
 begin
   try
     DownloadTemporaryFileWithISSigVerify(
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z',
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z.issig',
+      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
       'myprog-extrareadmes.7z', nil, nil);
     Result := True;
   except

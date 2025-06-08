@@ -778,9 +778,9 @@ TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
   function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
-  function AddWithISSigVerify(const Url, IssigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
+  function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
   function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
-  function AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList: Integer;
+  function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList: Integer;
   procedure Clear;
   function Download: Int64;
   property ShowBaseNameInsteadOfUrl: Boolean; read write;

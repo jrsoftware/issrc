@@ -552,9 +552,9 @@ begin
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
     RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer');
-    RegisterMethod('function AddWithISSigVerify(const Url, IssigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
+    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
     RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer');
-    RegisterMethod('function AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
+    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }

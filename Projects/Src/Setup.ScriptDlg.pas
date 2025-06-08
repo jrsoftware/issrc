@@ -197,10 +197,10 @@ type
       destructor Destroy; override;
       procedure Initialize; override;
       function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
-      function AddWithISSigVerify(const Url, IssigUrl, BaseName: String;
+      function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
         const AllowedKeysRuntimeIDs: TStringList): Integer;
       function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
-      function AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName, Password: String;
+      function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
         const AllowedKeysRuntimeIDs: TStringList): Integer;
       procedure Clear;
       function Download: Int64;
@@ -1099,10 +1099,10 @@ begin
   Result := DoAdd(Url, BaseName, RequiredSHA256OfFile);
 end;
 
-function TDownloadWizardPage.AddWithISSigVerify(const Url, IssigUrl, BaseName: String;
+function TDownloadWizardPage.AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
   const AllowedKeysRuntimeIDs: TStringList): Integer;
 begin
-  Result := AddExWithISSigVerify(Url, IssigUrl, BaseName, '', '', AllowedKeysRuntimeIDs);
+  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, '', '', AllowedKeysRuntimeIDs);
 end;
 
 function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
@@ -1110,12 +1110,12 @@ begin
   Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password);
 end;
 
-function TDownloadWizardPage.AddExWithISSigVerify(const Url, IssigUrl, BaseName, UserName,
+function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
   Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
 begin
   { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
-  DoAdd(IssigUrl, BaseName + ISSigExt, '', UserName, Password, False, '');
+  DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '');
   Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys);
 end;
 
@@ -1131,11 +1131,11 @@ begin
   Result := 0;
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
-    SetDownloadCredentials(F.UserName, F.Password);
+    SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
     Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,
       F.ISSigVerify, F.ISSigAllowedKeys, InternalOnDownloadProgress);
   end;
-  SetDownloadCredentials('', '');
+  SetDownloadTemporaryFileCredentials('', '');
 end;
 
 {--- Extraction ---}
