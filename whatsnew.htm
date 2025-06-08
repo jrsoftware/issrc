@@ -172,11 +172,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
       <li>Added predefined variable <tt>__DIR__</tt>. Returns the directory of the current include file.</li>
       <li>Renamed predefined variables <tt>__FILE__</tt> to <tt>__FILENAME__</tt> and <tt>ISPPCC_INVOKED</tt> to <tt>ISCC_INVOKED</tt>. The old names still work.</li>
       <li>Renamed support function <tt>RemoveBackslash</tt> to <tt>RemoveBackslashUnlessRoot</tt>. The old name still works.</li>
-      <li><i>Fix:</i> The return value of support function <tt>ExtractFilePath</tt> did not always including a trailing backslash as intended.</li>
+      <li><i>Fix:</i> The return value of support function <tt>ExtractFilePath</tt> did not always include a trailing backslash as intended.</li>
     </ul>
   </li>
   <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
-  <li>All translations which still had a UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
+  <li>All translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
   <li>Documentation improvements.</li>
   <li>Minor tweaks.</li>
 </ul>
