@@ -30,8 +30,8 @@ type
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
-function DownloadFile(const Url: String; const DestF: TFile;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+function DownloadFile(const Url, CustomUserName, CustomPassword: String;
+  const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
@@ -1569,7 +1569,8 @@ var
             else if foDownload in CurFile^.Options then begin
               { Download a file }
               LastOperation := SetupMessages[msgErrorDownloading];
-              DownloadFile(SourceFile, DestF, foISSigVerify in CurFile^.Options, CurFile^.ISSigAllowedKeys, ExtractorProgressProc);
+              DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                DestF, foISSigVerify in CurFile^.Options, CurFile^.ISSigAllowedKeys, ExtractorProgressProc);
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -3765,8 +3766,8 @@ begin
   end;
 end;
 
-function DownloadFile(const Url: String; const DestF: TFile;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+function DownloadFile(const Url, CustomUserName, CustomPassword: String;
+  const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
 var
   DestFile: String;
@@ -3787,7 +3788,8 @@ begin
   HandleStream := nil;
 
   try
-    HasCredentials := GetCredentialsAndCleanUrl(URL, '', '', User, Pass, CleanUrl);
+    HasCredentials := GetCredentialsAndCleanUrl(URL,
+      CustomUserName, CustomPassword, User, Pass, CleanUrl);
 
     { Setup downloader }
     HTTPDataReceiver := THTTPDataReceiver.Create;
