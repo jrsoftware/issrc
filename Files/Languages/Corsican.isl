@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Corsican messages ***
+; *** Inno Setup version 6.5.0+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -9,22 +9,20 @@
 ; two periods being displayed).
 
 ; Created and maintained by Patriccollu di Santa Maria è Sichè, 2011-2025
-; Schedariu di traduzzione in lingua corsa da Patriccollu
-; E-mail: Patrick.Santa-Maria[at]LaPoste.Net
+; Schedariu di traduzzione in lingua corsa creatu è mantenutu da Patriccollu
 ;
-; Changes:
-; June 6h, 2025 - Update to version 6.4.3
-; November 18th, 2024 - Update to version 6.4.0
-; February 11th, 2024 - Changes to version 6.3.0
-; November 14th, 2020 - Changes to version 6.1.2
-; July 25th, 2020 - Update to version 6.1.0
-; July 1st, 2020 - Update to version 6.0.5+
-; October 6th, 2019 - Update to version 6.0.3
-; January 20th, 2019 - Update to version 6.0.0
-; April 9th, 2016 - Changes to version 5.6.0
-; January 3rd, 2013 - Update to version 5.5.3
-; August 29th, 2012 - Update to version 5.5.2
-; September 17th, 2011 - Creation for version 5.1.11
+; Latest update of Corsican translation file is available here:
+;	https://github.com/jrsoftware/issrc/blob/main/Files/Languages/Corsican.isl
+;
+; History of Corsican translation for InnoSetup:
+;	- Updated in 2025 by Patriccollu di Santa Maria è Sichè: June 6th (6.4.4), June 8th (6.5.0)
+;	- Updated in 2024 by Patriccollu di Santa Maria è Sichè: February 11th (6.3.0), November 18th (6.4.0)
+;	- Updated in 2020 by Patriccollu di Santa Maria è Sichè: July 1st (6.0.5+), July 25th (6.1.0), November 14th (6.1.2)
+;	- Updated in 2019 by Patriccollu di Santa Maria è Sichè: January 20th (6.0.0), October 6th (6.0.3)
+;	- Updated on April 9th, 2016 by Patriccollu di Santa Maria è Sichè for version 5.6.0
+;	- Updated on January 3rd, 2013 by Patriccollu di Santa Maria è Sichè for version 5.5.3
+;	- Updated on August 29th, 2012 by Patriccollu di Santa Maria è Sichè for version 5.5.2
+;	- Created on September 17th, 2011 by Patriccollu di Santa Maria è Sichè for version 5.1.11
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and
@@ -242,12 +240,17 @@ ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %1, trovu %2
 ErrorProgress=Prugressione inaccettevule : %1 di %2
 ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %1, trovu %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractionLabel=Estrazzione di i schedarii addiziunali…
 ButtonStopExtraction=&Piantà l’estrazzione
 StopExtraction=Da veru, vulete piantà l’estrazzione ?
 ErrorExtractionAborted=Estrazzione interrotta
 ErrorExtractionFailed=Fiascu di l’estrazzione : %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=A parolla d’intesa hè incurretta
+ArchiveIsCorrupted=L’archiviu hè deteriuratu
+ArchiveUnsupportedFormat=U furmatu di l’archiviu ùn hè micca accettatu
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione di l’installazione
@@ -327,6 +330,12 @@ FileAbortRetryIgnoreSkipNotRecommended=Ignurà stu &schedariu (micca ricumandatu
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignurà u sbagliu è cuntinuà (micca ricumandatu)
 SourceIsCorrupted=U schedariu d’origine hè alteratu
 SourceDoesntExist=U schedariu d’origine « %1 » ùn esiste micca
+SourceVerificationFailed=Fiascu di a verificazione di u schedariu d’origine : %1
+VerificationSignatureDoesntExist=U schedariu di segnatura « %1 » ùn esiste micca
+VerificationSignatureInvalid=U schedariu di segnatura « %1 » hè inaccettevule
+VerificationKeyNotFound=U schedariu di segnatura « %1 » impiegheghja una chjave scunnisciuta
+VerificationFileSizeIncorrect=A dimensione di u schedariu hè incurretta
+VerificationFileHashIncorrect=U tazzeghju di u schedariu hè incurrettu
 ExistingFileReadOnly2=U schedariu esistente hà un attributu di lettura-sola è ùn pò micca esse rimpiazzatu.
 ExistingFileReadOnlyRetry=&Caccià l’attributu di lettura-sola è pruvà torna
 ExistingFileReadOnlyKeepExisting=Cunservà u schedariu &esistente
@@ -345,6 +354,7 @@ ErrorChangingAttr=Un sbagliu hè accadutu pruvendu di cambià l’attributi di u
 ErrorCreatingTemp=Un sbagliu hè accadutu pruvendu di creà un schedariu in u cartulare di destinazione :
 ErrorReadingSource=Un sbagliu hè accadutu pruvendu di leghje u schedariu d’origine :
 ErrorCopying=Un sbagliu hè accadutu pruvendu di cupià un schedariu :
+ErrorExtracting=Un sbagliu hè accadutu pruvendu d’estrae un archiviu :
 ErrorReplacingExistingFile=Un sbagliu hè accadutu pruvendu di rimpiazzà u schedariu esistente :
 ErrorRestartReplace=Fiascu di Rimpiazzamentu di schedariu à u rilanciu di l’urdinatore :
 ErrorRenamingTemp=Un sbagliu hè accadutu pruvendu di rinuminà un schedariu in u cartulare di destinazione :
