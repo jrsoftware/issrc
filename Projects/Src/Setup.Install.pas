@@ -3671,6 +3671,12 @@ begin
         FLastReportedProgressMax := FProgressMax;
       end;
     end;
+
+    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+      Application.ProcessMessages;
+
+    if Abort then
+      FAborted := True
   end else if Assigned(FOnSimpleDownloadProgress) then begin
     { Also see Compression.SevenZipDLLDecoder TArchiveExtractToHandleCallback.HandleProgress }
     var Bytes := Progress - FLastReportedProgress;
@@ -3680,17 +3686,20 @@ begin
         BytesToReport := High(BytesToReport)
       else
         BytesToReport := Bytes;
-      FOnSimpleDownloadProgress(BytesToReport);
+      try
+        FOnSimpleDownloadProgress(BytesToReport);
+      except
+        if ExceptObject is EAbort then begin
+          Abort := True;
+          FAborted := True;
+          Break;
+        end else
+          raise;
+      end;
       Dec(Bytes, BytesToReport);
     end;
     FLastReportedProgress := Progress;
   end;
-
-  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-    Application.ProcessMessages;
-
-  if Abort then
-    FAborted := True
 end;
 
 procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
