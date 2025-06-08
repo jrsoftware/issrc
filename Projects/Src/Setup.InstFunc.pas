@@ -569,6 +569,7 @@ function GetSHA256OfFile(const F: TFile): TSHA256Digest;
 var
   Buf: array[0..65535] of Byte;
 begin
+  F.Seek(0);
   var Context: TSHA256Context;
   SHA256Init(Context);
   while True do begin
