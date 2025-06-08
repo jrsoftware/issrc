@@ -677,7 +677,7 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
@@ -890,8 +890,10 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
-      if FOptions.ShowCaretPosition then
-        StatusBar.Panels[spCaretPos].Width := StatusBar.Panels[spCaretPos].Width * 2;
+      if FOptions.ShowCaretPosition then begin
+        StatusBar.Panels[spCaretPos].Width := MulDiv(StatusBar.Panels[spCaretPos].Width, 7, 2);
+        StatusBar.Panels[spCaretPos].Alignment := taLeftJustify;
+      end;
 
       SyncEditorOptions;
       UpdateNewMainFileButtons;
@@ -4840,8 +4842,10 @@ begin
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
-    var CaretPos := FActiveMemo.CaretPosition;
-    Text := Format('%d@%d+%d:%s', [FActiveMemo.GetStyleAtPosition(CaretPos), CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+    const CaretPos = FActiveMemo.CaretPosition;
+    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
+    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
+      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;
   StatusBar.Panels[spCaretPos].Text := Text;
 

@@ -67,8 +67,9 @@ type
 
   { Starts at 1 instead of 0 to make sure ApplyStyle doesn't overwrite already applied stDefault
     styles which is needed for PreStyleInlineISPPDirectives to work properly when the inline
-    directive is inside a comment or string }
-  TInnoSetupStylerStyle = (stDefault = 1, stCompilerDirective,
+    directive is inside a comment or string. This is done by added a dummy 'st0' style. If done by
+    using 'stDefault = 1' then this enum looses its TypeInfo. }
+  TInnoSetupStylerStyle = (st0, stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
     stEventFunction, stConstant, stMessageArg,
     stPascalReservedWord, stPascalString, stPascalNumber,

@@ -1285,8 +1285,9 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 
 <param name="ExtraDiskSpaceRequired">
 <p>The extra disk space required by this component, similar to the <link topic="setup_extradiskspacerequired">ExtraDiskSpaceRequired</link> directive for the [Setup] section.</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
-<pre>ExtraDiskSpaceRequired: 0</pre>
+<pre>ExtraDiskSpaceRequired: 1_048_576</pre>
 </example>
 </param>
 
@@ -1599,9 +1600,10 @@ Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
 <p>This parameter must be combined with the <tt>external</tt> flag and specifies the size of the external file in bytes. If this parameter is not specified, Setup retrieves the file size at startup. Primarily useful for files that aren't available at startup, for example files located on a second disk when <link topic="setup_diskspanning">disk spanning</link> is being used.</p>
 <p>If the specified size does not match the actual size, Setup's progress bar will automatically adjust by skipping ahead or pausing as needed during installation.</p>
 <p>If the <tt>extractarchive</tt> flag is also used, the total uncompressed size of all extracted files must be specified.</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
 <pre>
-ExternalSize: 1048576; Flags: external
+ExternalSize: 1_048_576; Flags: external
 </pre>
 </example>
 </param>
@@ -2514,7 +2516,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </param>
 
 <param name="ValueData">
-<p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
+<p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. Supports digit separators if the data type is <tt>qword</tt>. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
 <p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's REG_SZ or REG_EXPAND_SZ), and vice versa.</p>
 <p>On a <tt>multisz</tt> type value, you may use a special constant called <tt>{break}</tt> in this parameter to embed line breaks (nulls).</p>
 <example>
@@ -4762,6 +4764,9 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
 <p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the [Files] section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
+<example><pre>[Setup]
+ExtraDiskSpaceRequired=1_048_576</pre></example>
 </body>
 </setuptopic>
 
@@ -5089,8 +5094,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallDisplaySize">
 <body>
 <p>On Windows 7 and later, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
-<p>Set in bytes. (1048576 bytes = 1 megabyte)</p>
-<example><pre>UninstallDisplaySize=1073741824</pre></example>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
+<example><pre>UninstallDisplaySize=1_073_741_824</pre></example>
 </body>
 </setuptopic>
 

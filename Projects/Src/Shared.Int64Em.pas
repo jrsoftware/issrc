@@ -221,22 +221,27 @@ end;
 function StrToInteger64(const S: String; var X: Integer64): Boolean;
 { Converts a string containing an unsigned decimal number, or hexadecimal
   number prefixed with '$', into an Integer64. Returns True if successful,
-  or False if invalid characters were encountered or an overflow occurred. }
+  or False if invalid characters were encountered or an overflow occurred.
+  Supports digits separators. }
 var
   Len, Base, StartIndex, I: Integer;
   V: Integer64;
   C: Char;
 begin
+  Result := False;
+
   Len := Length(S);
   Base := 10;
   StartIndex := 1;
-  if (Len > 0) and (S[1] = '$') then begin
-    Base := 16;
-    Inc(StartIndex);
+  if Len > 0 then begin
+    if S[1] = '$' then begin
+      Base := 16;
+      Inc(StartIndex);
+    end else if S[1] = '_' then
+      Exit;
   end;
 
-  Result := False;
-  if StartIndex > Len then
+  if (StartIndex > Len) or (S[StartIndex] = '_') then
     Exit;
   V.Lo := 0;
   V.Hi := 0;
@@ -259,6 +264,8 @@ begin
           if not Inc64(V, Ord(C) - (Ord('A') - 10)) then
             Exit;
         end;
+      '_':
+        { Ignore }
     else
       Exit;
     end;
