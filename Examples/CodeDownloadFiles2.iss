@@ -1,7 +1,8 @@
-; -- CodeDownloadFiles.iss --
+; -- CodeDownloadFiles2.iss --
 ;
-; This script shows how the [Files] section can be used to download files and
-; archives while showing the download and extraction progress to the user.
+; This script shows how the CreateDownloadPage support function can be used to
+; download files and archives while showing the download and extraction
+; progress to the user.
 ;
 ; To verify the downloaded files, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
@@ -35,11 +36,9 @@ Name: "mykey"; RuntimeID: "def02"; \
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; These files will be downloaded using [Files] only
-Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
-  ExternalSize: 7000000; Flags: external download ignoreversion issigverify
-; These files will be downloaded by [Code]. If you include flag issigverify here the file will be verified
+; These files will be downloaded. If you include flag issigverify here the file will be verified
 ; a second time while copying. Verification while copying is efficient, except for archives.
+Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
 
@@ -72,6 +71,9 @@ begin
   if CurPageID = wpReady then begin
     DownloadPage.Clear;
     // Use AddEx or AddExWithISSigVerify to specify a username and password
+    DownloadPage.AddWithISSigVerify(
+      'https://jrsoftware.org/download.php/is.exe?dontcount=1', '',
+      'innosetup-latest.exe', AllowedKeysRuntimeIDs);
     DownloadPage.AddWithISSigVerify(
       'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
       'MyProg-ExtraReadmes.7z', AllowedKeysRuntimeIDs);
