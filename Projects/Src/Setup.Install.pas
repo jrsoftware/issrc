@@ -35,6 +35,7 @@ function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadCredentials(const User, Pass: String);
+function GetISSigUrl(const Url, ISSigUrl: String): String;
 
 implementation
 
@@ -3669,10 +3670,8 @@ begin
 end;
 
 function GetCredentialsAndCleanUrl(const Url: String; var User, Pass, CleanUrl: String) : Boolean;
-var
-  Uri: TUri;
 begin
-  Uri := TUri.Create(Url);
+  const Uri = TUri.Create(Url); { This is a record so no need to free }
   if DownloadUser = '' then
     User := TNetEncoding.URL.Decode(Uri.Username)
   else
@@ -3689,6 +3688,17 @@ begin
     LogFmt('Download is using basic authentication: %s, ***', [User])
   else
     Log('Download is not using basic authentication');
+end;
+
+function GetISSigUrl(const Url, ISSigUrl: String): String;
+begin
+  if ISSigUrl <> '' then
+    Result := ISSigUrl
+  else begin
+    const Uri = TUri.Create(Url); { This is a record so no need to free }
+    Uri.Path := TNetEncoding.URL.Decode(Uri.Path) + ISSigExt;
+    Result := Uri.ToString;
+  end;
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;

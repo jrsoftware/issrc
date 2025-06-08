@@ -1115,7 +1115,7 @@ function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName,
 begin
   { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
-  DoAdd(ISSigUrl, BaseName + ISSigExt, '', UserName, Password, False, '');
+  DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '');
   Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys);
 end;
 

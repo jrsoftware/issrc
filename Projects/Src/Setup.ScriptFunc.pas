@@ -824,7 +824,7 @@ var
 
       { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
       if ISSigVerify then
-        DownloadTemporaryFile(ISSigUrl, BaseName + ISSigExt, '', False, '', OnDownloadProgress);
+        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', False, '', OnDownloadProgress);
       Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, RequiredSHA256OfFile, ISSigVerify, ISSigAllowedKeys, OnDownloadProgress));
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)

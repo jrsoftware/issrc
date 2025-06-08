@@ -72,17 +72,14 @@ begin
     DownloadPage.Clear;
     // Use AddEx or AddExWithISSigVerify to specify a username and password
     DownloadPage.AddWithISSigVerify(
-      'https://jrsoftware.org/download.php/is.exe?dontcount=1',
-      'https://jrsoftware.org/download.php/is.exe.issig',
+      'https://jrsoftware.org/download.php/is.exe?dontcount=1', '',
       'innosetup-latest.exe', AllowedKeysRuntimeIDs);
     DownloadPage.AddWithISSigVerify(
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z',
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z.issig',
+      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
       'MyProg-ExtraReadmes.7z', AllowedKeysRuntimeIDs);
     DownloadPage.Add(
       'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1',
-      'ISCrypt.dll',
-      '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
+      'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
     DownloadPage.Show;
     try
       try
