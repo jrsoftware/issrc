@@ -837,6 +837,7 @@ begin
       System.TMonitor.Exit(FLock);
     end;
 
+    { Also see Setup.Install THTTPDataReceiver.OnReceiveData }
     var Bytes := Progress - FPreviousProgress;
     while Bytes > 0 do begin
       var BytesToReport: Cardinal;
@@ -847,7 +848,6 @@ begin
       FOnExtractToHandleProgress(BytesToReport);
       Dec(Bytes, BytesToReport);
     end;
-
     FPreviousProgress := Progress;
   end;
 end;

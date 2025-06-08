@@ -227,14 +227,14 @@ type
     PublicX, PublicY, RuntimeID: String;
   end;
 const
-  SetupFileEntryStrings = 12;
+  SetupFileEntryStrings = 14;
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
     Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
-    ExtractArchivePassword: String;
+    DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
     ISSigAllowedKeys: AnsiString;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
@@ -251,7 +251,8 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall, foISSigVerify, foExtractArchive);
+      foUnsetNTFSCompression, foGacInstall, foISSigVerify, foDownload,
+      foExtractArchive);
     FileType: (ftUserFile, ftUninstExe);
   end;
 const

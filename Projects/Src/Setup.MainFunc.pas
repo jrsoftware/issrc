@@ -1811,7 +1811,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     Result := True;
 
     if foCustomDestName in CurFile^.Options then
-      InternalError('Unexpected custom DestName');
+      InternalError('Unexpected CustomDestName flag');
     const DestDir = ExpandConst(CurFile^.DestName);
 
     var FindData: TWin32FindData;
@@ -1864,21 +1864,29 @@ begin
         end
         else begin
           { External file }
-          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-          Excludes.DelimitedText := CurFile^.Excludes;
-          if foExtractArchive in CurFile^.Options then begin
-            try
-              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
-                 CurFile^.ExtractArchivePassword, Excludes, CurFile) then
-                Exit(False);
-            except on E: ESevenZipError do
-              { Ignore archive errors for now, will show up with proper UI during
-                installation }
-            end;
-          end else begin
-            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+          if foDownload in CurFile^.Options then begin
+            if not(foCustomDestName in CurFile^.Options) then
+              InternalError('Expected CustomDestName flag');
+            { CurFile^.DestName now includes a a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+            if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
               Exit(False);
+          end else begin
+            SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+            Excludes.DelimitedText := CurFile^.Excludes;
+            if foExtractArchive in CurFile^.Options then begin
+              try
+                if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+                   CurFile^.ExtractArchivePassword, Excludes, CurFile) then
+                  Exit(False);
+              except on E: ESevenZipError do
+                { Ignore archive errors for now, will show up with proper UI during
+                  installation }
+              end;
+            end else begin
+              if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+                Exit(False);
+            end;
           end;
         end;
       end;
@@ -3516,6 +3524,8 @@ begin
               Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
         end else begin
           if not(foExternalSizePreset in Options) then begin
+            if foDownload in Options then
+              InternalError('Unexpected download flag');
             try
               LExcludes.DelimitedText := Excludes;
               if foExtractArchive in Options then begin

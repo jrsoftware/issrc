@@ -26,9 +26,13 @@ procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
+  TOnSimpleDownloadProgress = procedure(Bytes: Cardinal);
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
+function DownloadFile(const Url: String; const DestF: TFile;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const OnDownloadProgress: TOnDownloadProgress): Int64;
@@ -73,11 +77,15 @@ begin
     WizardForm.FilenameLabel.Update;
 end;
 
-procedure SetStatusLabelText(const S: String);
+procedure SetStatusLabelText(const S: String; const CallUpdate: Boolean = True;
+  const ClearFilenameLabelText: Boolean = True);
 begin
-  WizardForm.StatusLabel.Caption := S;
-  WizardForm.StatusLabel.Update;
-  SetFilenameLabelText('', True);
+  if WizardForm.StatusLabel.Caption <> S then begin
+    WizardForm.StatusLabel.Caption := S;
+    WizardForm.StatusLabel.Update;
+  end;
+  if ClearFilenameLabelText then
+    SetFilenameLabelText('', True);
 end;
 
 procedure InstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
@@ -1000,7 +1008,9 @@ var
                   AExternalFileDate should not be set
     External    : Opposite except AExternalFileDate still not set
     Ext. Archive: Same as external except AExternalFileDate set and
-                  AExternalSourceFile should be set to ArchiveFindHandle as a string }
+                  AExternalSourceFile should be set to ArchiveFindHandle as a string
+    Ext. Downl. : Same as external except
+                  AExternalSourceFile should be set to an URL }
 
     procedure InstallFont(const Filename, FontName: String;
       const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
@@ -1243,6 +1253,10 @@ var
         end;
 
         { Update the filename label }
+        if foDownload in CurFile^.Options then
+          SetStatusLabelText(SetupMessages[msgStatusDownloadFiles], False)
+        else
+          SetStatusLabelText(SetupMessages[msgStatusExtractFiles], False);
         SetFilenameLabelText(DestFile, True);
         LogFmt('Dest filename: %s', [DestFile]);
         if DisableFsRedir <> InstallDefaultDisableFsRedir then begin
@@ -1267,6 +1281,7 @@ var
         if DestFileExistedBefore then
           DeleteFlags := DeleteFlags or utDeleteFile_ExistedBeforeInstall;
 
+        var CurFileDateDidRead := True; { Set to False later if needed }
         if Assigned(CurFileLocation) then begin
           if floTimeStampInUTC in CurFileLocation^.Flags then
             CurFileDate := CurFileLocation^.SourceTimeStamp
@@ -1276,11 +1291,15 @@ var
         end else if Assigned(AExternalFileDate) then begin
           CurFileDate := AExternalFileDate^;
           CurFileDateValid := CurFileDate.HasTime;
-        end else
-          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate);
+        end else if not(foDownload in CurFile^.Options) then
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate)
+        else begin
+          CurFileDateValid := False;
+          CurFileDateDidRead := False;
+        end;
         if CurFileDateValid then
           LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
-        else
+        else if CurFileDateDidRead then
           Log('Time stamp of our file: (failed to read)');
 
         if DestFileExists then begin
@@ -1302,8 +1321,10 @@ var
           if not(foIgnoreVersion in CurFile^.Options) then begin
             AllowTimeStampComparison := False;
             { Read version info of file being installed }
-            if foExtractArchive in CurFile^.Options then
-              InternalError('Unexpected extractarchive flag');
+            if foDownload in CurFile^.Options then
+              InternalError('Unexpected Download flag')
+            else if foExtractArchive in CurFile^.Options then
+              InternalError('Unexpected ExtractArchive flag');
             if Assigned(CurFileLocation) then begin
               CurFileVersionInfoValid := floVersionInfoValid in CurFileLocation^.Flags;
               CurFileVersionInfo.MS := CurFileLocation^.FileVersionMS;
@@ -1404,6 +1425,8 @@ var
           { Fall back to comparing time stamps if needed }
           if AllowTimeStampComparison and
              (foCompareTimeStamp in CurFile^.Options) then begin
+            if foDownload in CurFile^.Options then
+              InternalError('Unexpected Download flag');
             if not CurFileDateValid or not ExistingFileDateValid then begin
               { If we failed to read one of the time stamps, do the safe thing
                 and just skip the file }
@@ -1541,6 +1564,11 @@ var
                 already been handled by RecurseExternalArchiveCopyFiles. }
               LastOperation := SetupMessages[msgErrorExtracting];
               ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
+            end
+            else if foDownload in CurFile^.Options then begin
+              { Download a file }
+              LastOperation := SetupMessages[msgErrorDownloading];
+              DownloadFile(SourceFile, DestF, foISSigVerify in CurFile^.Options, CurFile^.ISSigAllowedKeys, ExtractorProgressProc);
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -2086,7 +2114,15 @@ var
             repeat
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
-              if foExtractArchive in CurFile^.Options then
+              if foDownload in CurFile^.Options then begin
+                if not(foCustomDestName in CurFile^.Options) then
+                  InternalError('Expected CustomDestName flag');
+                { CurFile^.DestName now includes a a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+                ProcessFileEntry(CurFile, DisableFsRedir, SourceWildcard, ExpandConst(CurFile^.DestName),
+                  nil, ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
+                  WarnedPerUserFonts, nil);
+                FoundFiles := True;
+              end else if foExtractArchive in CurFile^.Options then
                 FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
                   SourceWildcard, CurFile^.ExtractArchivePassword, Excludes, CurFile,
                   ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
@@ -3598,6 +3634,7 @@ type
   private
     FBaseName, FUrl: String;
     FOnDownloadProgress: TOnDownloadProgress;
+    FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
     FAborted: Boolean;
     FProgress, FProgressMax: Int64;
     FLastReportedProgress, FLastReportedProgressMax: Int64;
@@ -3605,6 +3642,7 @@ type
     property BaseName: String write FBaseName;
     property Url: String write FUrl;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property OnSimpleDownloadProgress: TOnSimpleDownloadProgress write FOnSimpleDownloadProgress;
     property Aborted: Boolean read FAborted;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
@@ -3633,6 +3671,19 @@ begin
         FLastReportedProgressMax := FProgressMax;
       end;
     end;
+  end else if Assigned(FOnSimpleDownloadProgress) then begin
+    { Also see Compression.SevenZipDLLDecoder TArchiveExtractToHandleCallback.HandleProgress }
+    var Bytes := Progress - FLastReportedProgress;
+    while Bytes > 0 do begin
+      var BytesToReport: Cardinal;
+      if Bytes > High(BytesToReport) then
+        BytesToReport := High(BytesToReport)
+      else
+        BytesToReport := Bytes;
+      FOnSimpleDownloadProgress(BytesToReport);
+      Dec(Bytes, BytesToReport);
+    end;
+    FLastReportedProgress := Progress;
   end;
 
   if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
@@ -3688,6 +3739,84 @@ begin
     LogFmt('Download is using basic authentication: %s, ***', [User])
   else
     Log('Download is not using basic authentication');
+end;
+
+function DownloadFile(const Url: String; const DestF: TFile;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
+var
+  DestFile: String;
+  HandleStream: THandleStream;
+  HTTPDataReceiver: THTTPDataReceiver;
+  HTTPClient: THTTPClient;
+  HTTPResponse: IHTTPResponse;
+  User, Pass, CleanUrl: String;
+  HasCredentials : Boolean;
+begin
+  if Url = '' then
+    InternalError('DownloadFile: Invalid Url value');
+
+  LogFmt('Downloading file from %s', [MaskPasswordInURL(Url)]);
+
+  HTTPDataReceiver := nil;
+  HTTPClient := nil;
+  HandleStream := nil;
+
+  try
+    HasCredentials := GetCredentialsAndCleanUrl(URL, User, Pass, CleanUrl);
+
+    { Setup downloader }
+    HTTPDataReceiver := THTTPDataReceiver.Create;
+    HTTPDataReceiver.Url := CleanUrl;
+    HTTPDataReceiver.OnSimpleDownloadProgress := OnSimpleDownloadProgress;
+
+    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
+
+    { Download to specified handle }
+    HandleStream := THandleStream.Create(DestF.Handle);
+    if HasCredentials then begin
+      const Base64 = TBase64Encoding.Create(0);
+      try
+        HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+      finally
+        Base64.Free;
+      end;
+    end;
+    HTTPResponse := HTTPClient.Get(CleanUrl, HandleStream);
+    Result := 0; { silence compiler }
+    if HTTPDataReceiver.Aborted then
+      Abort
+    else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
+      raise Exception.Create(Format('%d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText]))
+    else begin
+      { Download completed, get size and close it }
+      Result := HandleStream.Size;
+      FreeAndNil(HandleStream);
+
+      { Check .issig if specified, otherwise check everything else we can check }
+      if ISSigVerify then begin
+        var ExpectedFileHash: TSHA256Digest;
+        DoISSigVerify(DestF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        const FileHash = GetSHA256OfFile(DestF);
+        if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+        Log(ISSigVerificationSuccessfulLogMessage);
+      end else begin
+        if HTTPDataReceiver.ProgressMax > 0 then begin
+          if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+            raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
+          else if HTTPDataReceiver.ProgressMax <> Result then
+            raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
+        end;
+      end;
+    end;
+  finally
+    HandleStream.Free;
+    HTTPClient.Free;
+    HTTPDataReceiver.Free;
+  end;
 end;
 
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
