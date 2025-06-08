@@ -280,7 +280,7 @@ end;
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
   const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
-{ Either SourceF or SourceFS must be set }
+{ Either SourceF or SourceFS must be set. Does not disable FS redirection. }
 begin
   if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
     InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
@@ -3497,11 +3497,11 @@ begin
 
   Log('Extracting temporary file: ' + DestFile);
 
-  const DisableFsRedir = False; { Like everything else working on the temp dir }
+  { Does not disable FS redirection, like everything else working on the temp dir }
 
   if CreateDirs then
-    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
-  DestF := TFileRedir.Create(DisableFsRedir, DestFile, fdCreateAlways, faWrite, fsNone);
+    ForceDirectories(False, PathExtractPath(DestFile));
+  DestF := TFile.Create(DestFile, fdCreateAlways, faWrite, fsNone);
   try
     try
       FileExtractor.SeekTo(CurFileLocation^, nil);
@@ -3517,10 +3517,10 @@ begin
       DestF.Free;
     end;
   except
-    DeleteFileRedir(DisableFsRedir, DestFile);
+    DeleteFile(DestFile);
     raise;
   end;
-  AddAttributesToFile(DisableFsRedir, DestFile, CurFile^.Attribs);
+  AddAttributesToFile(False, DestFile, CurFile^.Attribs);
 end;
 
 procedure ExtractTemporaryFile(const BaseName: String);
@@ -3695,7 +3695,7 @@ function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String
   const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DestFile, TempFile: String;
-  TempF: TFileRedir;
+  TempF: TFile;
   HandleStream: THandleStream;
   TempFileLeftOver: Boolean;
   HTTPDataReceiver: THTTPDataReceiver;
@@ -3717,7 +3717,7 @@ begin
 
   LogFmt('Downloading temporary file from %s: %s', [MaskPasswordInURL(Url), DestFile]);
 
-  const DisableFsRedir = False; { Like everything else working on the temp dir }
+  { Does not disable FS redirection, like everything else working on the temp dir }
 
   { Prepare directory }
   if NewFileExists(DestFile) then begin
@@ -3726,7 +3726,7 @@ begin
       var ExistingFileHash: TSHA256Digest;
       if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
            ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
-        const DestF = TFileRedir.Create(DisableFsRedir, DestFile, fdOpenExisting, faRead, fsReadWrite);
+        const DestF = TFile.Create(DestFile, fdOpenExisting, faRead, fsReadWrite);
         try
           if (Int64(DestF.Size) = ExistingFileSize) and
              (SHA256DigestsEqual(GetSHA256OfFile(DestF), ExistingFileHash)) then begin
@@ -3739,15 +3739,16 @@ begin
         end;
       end;
     end else if (RequiredSHA256OfFile <> '') and
-                SameText(RequiredSHA256OfFile, SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, DestFile))) then begin
+                SameText(RequiredSHA256OfFile, SHA256DigestToString(GetSHA256OfFile(False, DestFile))) then begin
       Log('  File already downloaded.');
       Result := 0;
       Exit;
     end;
-    SetFileAttributesRedir(DisableFsRedir, DestFile, GetFileAttributesRedir(DisableFsRedir, DestFile) and not FILE_ATTRIBUTE_READONLY);
-    DelayDeleteFile(DisableFsRedir, DestFile, 13, 50, 250);
+
+    SetFileAttributes(PChar(DestFile), GetFileAttributes(PChar(DestFile)) and not FILE_ATTRIBUTE_READONLY);
+    DelayDeleteFile(False, DestFile, 13, 50, 250);
   end else
-    ForceDirectories(DisableFsRedir, PathExtractPath(DestFile));
+    ForceDirectories(False, PathExtractPath(DestFile));
 
   HTTPDataReceiver := nil;
   HTTPClient := nil;
@@ -3770,8 +3771,8 @@ begin
     HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
 
     { Create temporary file }
-    TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
-    TempF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faWrite, fsNone);
+    TempFile := GenerateUniqueName(False, PathExtractPath(DestFile), '.tmp');
+    TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
     TempFileLeftOver := True;
 
     { To test redirects: https://jrsoftware.org/download.php/is.exe
@@ -3803,7 +3804,7 @@ begin
         var ExpectedFileHash: TSHA256Digest;
         DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
-        const FileHash = GetSHA256OfFile(DisableFsRedir, TempFile);
+        const FileHash = GetSHA256OfFile(False, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
           ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
         Log(ISSigVerificationSuccessfulLogMessage);
@@ -3811,7 +3812,7 @@ begin
         FreeAndNil(TempF);
         if RequiredSHA256OfFile <> '' then begin
           try
-            SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(DisableFsRedir, TempFile));
+            SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(False, TempFile));
           except on E: Exception do
             raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
           end;
@@ -3827,7 +3828,7 @@ begin
 
       { Rename the temporary file to the new name now, with retries if needed }
       RetriesLeft := 4;
-      while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
+      while not MoveFile(PChar(TempFile), PChar(DestFile)) do begin
         { Couldn't rename the temporary file... }
         LastError := GetLastError;
         { Does the error code indicate that it is possibly in use? }
@@ -3852,7 +3853,7 @@ begin
     HTTPClient.Free;
     HTTPDataReceiver.Free;
     if TempFileLeftOver then
-      DeleteFileRedir(DisableFsRedir, TempFile);
+      DeleteFile(TempFile);
   end;
 end;
 
