@@ -37,7 +37,7 @@ Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 ; These files will be downloaded using [Files] only
 Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
-  ExternalSize: 7000000; Flags: external download ignoreversion issigverify
+  ExternalSize: 7_000_000; Flags: external download ignoreversion issigverify
 ; These files will be downloaded by [Code]. If you include flag issigverify here the file will be verified
 ; a second time while copying. Verification while copying is efficient, except for archives.
 Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion
