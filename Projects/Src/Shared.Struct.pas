@@ -227,14 +227,14 @@ type
     PublicX, PublicY, RuntimeID: String;
   end;
 const
-  SetupFileEntryStrings = 14;
+  SetupFileEntryStrings = 15;
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
     Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
-    DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
+    DownloadISSigSource, DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
     ISSigAllowedKeys: AnsiString;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;

@@ -1668,6 +1668,12 @@ ExternalSize: 1048576; Flags: external
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
 </param>
 
+<param name="DownloadISSigSource">
+<p>Specifies the URL of the .issig signature file which should be downloaded. This file is used to verify the file downloaded from the URL specified by the <tt>Source</tt> parameter.</p>
+<p>This parameter is ignored if the <tt>download</tt> and <tt>issigverify</tt> flags aren't both also specified.</p>
+<p>If this parameter is not set but both these flags are used, Setup will instead append ".issig" (without quotes) to the path portion of the URL specified by the <tt>Source</tt> parameter. It will then use the result as the URL to download the .issig signature file from.</p>
+</param>
+
 <param name="DownloadUserName">
 <p>Specifies the basic authentication username to use for the file download.</p>
 <p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>

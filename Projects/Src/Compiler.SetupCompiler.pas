@@ -4670,7 +4670,7 @@ type
     paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
     paStrongAssemblyName, paISSigAllowedKeys, paComponents, paTasks, paLanguages,
     paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion,
-    paDownloadUserName, paDownloadPassword);
+    paDownloadISSigSource, paDownloadUserName, paDownloadPassword);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -4684,6 +4684,7 @@ const
   ParamFilesExtractArchivePassword = 'ExtractArchivePassword';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
   ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
+  ParamFilesDownloadISSigSource = 'DownloadISSigSource';
   ParamFilesDownloadUserName = 'DownloadUserName';
   ParamFilesDownloadPassword = 'DownloadPassword';
   ParamInfo: array[TParam] of TParamInfo = (
@@ -4700,6 +4701,7 @@ const
     (Name: ParamFilesExtractArchivePassword; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
     (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
+    (Name: ParamFilesDownloadISSigSource; Flags: []),
     (Name: ParamFilesDownloadUserName; Flags: [piNoEmpty]),
     (Name: ParamFilesDownloadPassword; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
@@ -5349,6 +5351,9 @@ begin
                    AbortCompileParamError(SCompilerParamInvalid2, ParamFilesExternalSize);
                  Include(Options, foExternalSizePreset);
                end;
+
+               { DownloadISSigSource }
+               DownloadISSigSource := Values[paDownloadISSigSource].Data;
 
                { DownloadUserName }
                DownloadUserName := Values[paDownloadUserName].Data;

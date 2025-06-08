@@ -70,6 +70,7 @@ function ISSigCalcStreamHash(const AStream: TStream): TSHA256Digest;
 
 var
   ISSigExt: String = '.issig';
+  ISSigEstimatedSize: Integer = 330;
 
 implementation
 

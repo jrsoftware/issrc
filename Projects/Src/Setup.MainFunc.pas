@@ -3550,6 +3550,8 @@ begin
                 (ESevenZipError). Also see EnumFiles. }
             end;
           end;
+          if (foDownload in Options) and (foISSigVerify in Options) then
+            Inc6464(ExternalSize, Integer64(UInt64(ISSigEstimatedSize)));
           if Components = '' then { no types or a file that doesn't belong to any component }
             if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
               Inc6464(MinimumSpace, ExternalSize);

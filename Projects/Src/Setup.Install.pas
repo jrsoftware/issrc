@@ -32,6 +32,7 @@ procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
@@ -1561,16 +1562,35 @@ var
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
             else if foExtractArchive in CurFile^.Options then begin
-              { Extract a file from archive. Note: foISSigVerify for archive has
+              { Extract a file from archive. Note: ISSigVerify for archive has
                 already been handled by RecurseExternalArchiveCopyFiles. }
               LastOperation := SetupMessages[msgErrorExtracting];
               ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
             end
             else if foDownload in CurFile^.Options then begin
-              { Download a file }
+              { Download a file with or without ISSigVerify. Note: estimate of
+                extra .issig size has already been added to CurFile's ExternalSize. }
               LastOperation := SetupMessages[msgErrorDownloading];
-              DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
-                DestF, foISSigVerify in CurFile^.Options, CurFile^.ISSigAllowedKeys, ExtractorProgressProc);
+              if foISSigVerify in CurFile^.Options then begin
+                const ISSigTempFile = TempFile + ISSigExt;
+                const ISSigDestF = TFileRedir.Create(DisableFsRedir, ISSigTempFile, fdCreateAlways, faReadWrite, fsNone);
+                try
+                  { Download the .issig file }
+                  const ISSigUrl = GetISSigUrl(SourceFile, CurFile^.DownloadISSigSource);
+                  DownloadFile(ISSigUrl, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                    ISSigDestF, False, '', '', ExtractorProgressProc);
+                  FreeAndNil(ISSigDestF);
+                  { Download and verify the actual file }
+                  DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                    DestF, True, CurFile^.ISSigAllowedKeys, TempFile, ExtractorProgressProc);
+                finally
+                  ISSigDestF.Free;
+                  { Delete the .issig file }
+                  DeleteFileRedir(DisableFsRedir, ISSigTempFile);
+                end;
+              end else
+                DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                  DestF, False, '', '', ExtractorProgressProc);
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -3768,9 +3788,9 @@ end;
 
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
+  const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
 var
-  DestFile: String;
   HandleStream: THandleStream;
   HTTPDataReceiver: THTTPDataReceiver;
   HTTPClient: THTTPClient;
@@ -3824,7 +3844,7 @@ begin
       { Check .issig if specified, otherwise check everything else we can check }
       if ISSigVerify then begin
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(DestF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        DoISSigVerify(DestF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
         const FileHash = GetSHA256OfFile(DestF);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
           ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
