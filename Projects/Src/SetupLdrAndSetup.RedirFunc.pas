@@ -16,9 +16,7 @@ unit SetupLdrAndSetup.RedirFunc;
 interface
 
 uses
-  Windows, SysUtils,
-  {$IFDEF SETUPPROJ} SHA256, ECDSA, ISSigFunc, {$ENDIF}
-  Shared.FileClass, Shared.VerInfoFunc;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
 type
   TPreviousFsRedirectionState = record
@@ -65,14 +63,6 @@ function RemoveDirectoryRedir(const DisableFsRedir: Boolean; const Filename: Str
 function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
   const Attrib: DWORD): BOOL;
 function SetNTFSCompressionRedir(const DisableFsRedir: Boolean; const FileOrDir: String; Compress: Boolean): Boolean;
-{$IFDEF SETUPPROJ}
-function ISSigVerifySignatureRedir(const DisableFsRedir: Boolean;
-  const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
-  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
-  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
-  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
-{$ENDIF}
 
 type
   TFileRedir = class(TFile)
@@ -510,30 +500,6 @@ begin
   end;
   SetLastError(ErrorCode);
 end;
-
-{$IFDEF SETUPPROJ}
-function ISSigVerifySignatureRedir(const DisableFsRedir: Boolean;
-  const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
-  const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
-  const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
-  const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := ISSigVerifySignature(AFilename, AAllowedKeys, AExpectedFileSize,
-      AExpectedFileHash, AFileMissingErrorProc, ASigFileMissingErrorProc,
-      AVerificationFailedErrorProc);
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-end;
-{$ENDIF}
 
 { TFileRedir }
 
