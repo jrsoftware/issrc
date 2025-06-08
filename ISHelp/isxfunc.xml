@@ -1886,8 +1886,10 @@ end;</pre></example>
       <function>
         <name>SetDownloadCredentials</name>
         <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
-        <description><p>Sets username and password for all following downloads. Set an empty string to delete the previous setting.</p></description>
+        <description><p>Sets the basic authentication username and password for all following downloads done by <tt>DownloadTemporaryFile</tt>, <tt>DownloadTemporaryFileWithISSigVerify</tt>, <tt>DownloadTemporaryFileSize</tt>, and <tt>DownloadTemporaryFileDate</tt>.</p>
+<p>Specify an empty username or password to unset the username or password.</p></description>
         <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
+<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br/>
 <link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/>
 <link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso>
       </function>

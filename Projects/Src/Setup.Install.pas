@@ -288,7 +288,8 @@ end;
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
   const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
-{ Either SourceF or SourceFS must be set. Does not disable FS redirection. }
+{ Does not disable FS redirection. Either SourceF or SourceFS must be set, which
+  may be opened for writing instead of reading.  }
 begin
   if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
     InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
@@ -3844,7 +3845,6 @@ var
   LastError: DWORD;
   User, Pass, CleanUrl: String;
   HasCredentials : Boolean;
-  Base64: TBase64Encoding;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3893,7 +3893,6 @@ begin
   TempF := nil;
   TempFileLeftOver := False;
   HandleStream := nil;
-  Base64 := nil;
 
   try
     HasCredentials := GetCredentialsAndCleanUrl(URL, User, Pass, CleanUrl);
@@ -3924,8 +3923,12 @@ begin
     { Download to temporary file}
     HandleStream := THandleStream.Create(TempF.Handle);
     if HasCredentials then begin
-      Base64 := TBase64Encoding.Create(0);
-      HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+      const Base64 = TBase64Encoding.Create(0);
+      try
+        HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
+      finally
+        Base64.Free;
+      end;
     end;
     HTTPResponse := HTTPClient.Get(CleanUrl, HandleStream);
     if HTTPDataReceiver.Aborted then
@@ -3933,7 +3936,7 @@ begin
     else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
       raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
     else begin
-      { Download completed, get temporary file size and close it }
+      { Download completed, get size and close it }
       Result := HandleStream.Size;
       FreeAndNil(HandleStream);
 
@@ -3985,7 +3988,6 @@ begin
       TempFileLeftOver := False;
     end;
   finally
-    Base64.Free;
     HandleStream.Free;
     TempF.Free;
     HTTPClient.Free;
