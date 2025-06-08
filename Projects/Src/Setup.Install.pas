@@ -2020,6 +2020,8 @@ var
           finally
             ArchiveFindClose(H);
           end;
+
+          Log('Successfully extracted the archive.');
         end;
       finally
         ISSigVerifySourceF.Free;

@@ -1071,7 +1071,7 @@ begin
 
         { Log start of extraction }
         if ExtractIntent then begin
-          LogFmt('Extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
+          LogFmt('Start extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
             RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
           var Solid: Boolean;
           if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
