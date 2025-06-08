@@ -1596,6 +1596,8 @@ Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
 
 <param name="ExternalSize">
 <p>This parameter must be combined with the <tt>external</tt> flag and specifies the size of the external file in bytes. If this parameter is not specified, Setup retrieves the file size at startup. Primarily useful for files that aren't available at startup, for example files located on a second disk when <link topic="setup_diskspanning">disk spanning</link> is being used.</p>
+<p>If the specified size does not match the actual size, Setup's progress bar will automatically adjust by skipping ahead or pausing as needed during installation.</p>
+<p>If the <tt>extractarchive</tt> flag is also used, the total uncompressed size of all extracted files must be specified.</p>
 <example>
 <pre>
 ExternalSize: 1048576; Flags: external
