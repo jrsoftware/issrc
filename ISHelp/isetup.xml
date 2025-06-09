@@ -219,7 +219,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 AppName=My Program
 
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
+Source: "MyProg.exe"; DestDir: "{app}"
 </precode>
 
 <p>Note that it is legal to specify multiple sections of the same name.</p>
@@ -288,9 +288,9 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <precode>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
-Source: "MYPROG.CHM"; DestDir: "{app}"
-Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 </precode>
 
 <p>Each parameter consists of a name, followed by a colon, and then a value. Unless otherwise noted, parameters are optional in that they assume a default value if they are not specified. Multiple parameters on a line are separated by semicolons, and can be listed in any order.</p>
@@ -424,7 +424,7 @@ This " contains " embedded " quotes
 <dt><b><a name="app">{app}</a></b></dt>
 <dd>
 <p>The application directory, which the user selects on the <i>Select Destination Location</i> page of the wizard.<br/>
-For example: If you used <tt>{app}\MYPROG.EXE</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MYPROG.EXE".</p>
+For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="win">{win}</a></b></dt>
@@ -454,7 +454,7 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 <dt><b><a name="src">{src}</a></b></dt>
 <dd>
 <p>The directory in which the Setup files are located.<br/>
-For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is installing from "S:\", Setup will translate it to "S:\MYPROG.EXE".</p>
+For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is installing from "S:\", Setup will translate it to "S:\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="sd">{sd}</a></b></dt>
@@ -916,9 +916,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <example>
 <pre>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; Components: main
-Source: "MYPROG.CHM"; DestDir: "{app}"; Components: help
-Source: "README.TXT"; DestDir: "{app}"
+Source: "MyProg.exe"; DestDir: "{app}"; Components: main
+Source: "MyProg.chm"; DestDir: "{app}"; Components: help
+Source: "Readme.txt"; DestDir: "{app}"
 </pre>
 </example>
 </param>
@@ -1541,9 +1541,9 @@ Name: "{app}\bin"
 
 <precode>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
-Source: "MYPROG.CHM"; DestDir: "{app}"
-Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
@@ -1559,7 +1559,7 @@ Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
 <p>Constants may only be used when the <tt>external</tt> flag is specified, because the compiler does not do any constant translating itself.</p>
 <examples>
 <pre>
-Source: "MYPROG.EXE"
+Source: "MyProg.exe"
 Source: "Files\*"
 </pre>
 </examples>
@@ -1895,7 +1895,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <precode>
 [Icons]
-Name: "{group}\My Program"; Filename: "{app}\MYPROG.EXE"; WorkingDir: "{app}"
+Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall My Program"; Filename: "{uninstallexe}"
 </precode>
 
@@ -1923,7 +1923,7 @@ Name: "{commonstartup}\My Program"
 <p>On 64-bit Windows, note that the <tt>{sys}</tt> constant will map to the native 64-bit System directory when the shortcut is launched by a 64-bit process, such as Windows Explorer. This is true regardless of whether the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To create a shortcut that always points to the 32-bit System directory, use <tt>{syswow64}</tt> instead. (The same applies to the <tt>WorkingDir</tt> and <tt>IconFilename</tt> parameters.)</p>
 <examples>
 <pre>
-Filename: "{app}\MYPROG.EXE"
+Filename: "{app}\MyProg.exe"
 Filename: "{uninstallexe}"
 Filename: "{app}\FolderName"
 Filename: "http://www.example.com/"
@@ -2596,9 +2596,9 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <precode>
 [Run]
-Filename: "{app}\INIT.EXE"; Parameters: "/x"
-Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
-Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinstall nowait skipifsilent unchecked
+Filename: "{app}\Init.exe"; Parameters: "/x"
+Filename: "{app}\Readme.txt"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
+Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinstall nowait skipifsilent unchecked
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
