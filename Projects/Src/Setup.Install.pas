@@ -2146,6 +2146,8 @@ var
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
               if foDownload in CurFile^.Options then begin
+                if foSkipIfSourceDoesntExist in CurFile^.Options then
+                  InternalError('Unexpected SkipIfSourceDoesntExist flag');
                 if not(foCustomDestName in CurFile^.Options) then
                   InternalError('Expected CustomDestName flag');
                 { CurFile^.DestName now includes a a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }

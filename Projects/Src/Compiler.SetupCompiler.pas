@@ -5457,6 +5457,8 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'extractarchive'])
           else if foCompareTimeStamp in Options then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'comparetimestamp'])
+          else if foSkipIfSourceDoesntExist in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'skipifsourcedoesntexist'])
           else if RecurseSubdirs then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download'])
           else if ADestName = '' then
