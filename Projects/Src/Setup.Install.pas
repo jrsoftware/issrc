@@ -78,7 +78,7 @@ begin
     WizardForm.FilenameLabel.Update;
 end;
 
-procedure SetStatusLabelText(const S: String; const CallUpdate: Boolean = True;
+procedure SetStatusLabelText(const S: String;
   const ClearFilenameLabelText: Boolean = True);
 begin
   if WizardForm.StatusLabel.Caption <> S then begin
@@ -1254,7 +1254,7 @@ var
           raise;
         end;
 
-        { Update the filename label }
+        { Update the status and filename labels }
         if foDownload in CurFile^.Options then
           SetStatusLabelText(SetupMessages[msgStatusDownloadFiles], False)
         else
