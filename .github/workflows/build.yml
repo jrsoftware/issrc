@@ -66,20 +66,20 @@ jobs:
           copy license.txt Output
           copy license.txt ISHelp/Staging
       - name: upload Files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Files
-          path: Files
+          path: Files/
       - name: upload installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Output
-          path: Output
+          path: Output/
       - name: upload ISHelp
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ISHelp
-          path: ISHelp/Staging
+          path: ISHelp/Staging/
       - name: find mt.exe
         shell: bash
         run: |
@@ -115,10 +115,10 @@ jobs:
           ./Procmon.exe -Terminate -Quiet &&
           powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
       - name: upload trace
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trace
-          path: trace
+          path: trace/
       - name: check trace
         shell: bash
         run: |
