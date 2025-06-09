@@ -2,6 +2,7 @@ name: build
 
 on:
   push:
+  workflow_dispatch:
 
 env:
   HOME: "${{github.workspace}}\\home"
