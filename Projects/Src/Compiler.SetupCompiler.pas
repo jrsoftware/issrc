@@ -5467,10 +5467,10 @@ begin
 
         if foExtractArchive in Options then begin
           if not ExternalFile then
-            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive'])
-          else if not(foIgnoreVersion in Options) then
-            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'extractarchive'])
-          else if SetupHeader.SevenZipLibraryName = '' then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive']);
+          if not(foIgnoreVersion in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'extractarchive']);
+          if SetupHeader.SevenZipLibraryName = '' then
             AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
         end;
 
@@ -5485,8 +5485,8 @@ begin
         if Sign in [fsYes, fsOnce] then begin
           if foISSigVerify in Options then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
-              [ParamCommonFlags, SignFlags[Sign], 'issigverify'])
-          else if SignTools.Count = 0 then
+              [ParamCommonFlags, SignFlags[Sign], 'issigverify']);
+          if SignTools.Count = 0 then
             Sign := fsNoSetting
         end;
 
