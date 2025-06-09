@@ -3782,7 +3782,7 @@ begin
     Result := ISSigUrl
   else begin
     const Uri = TUri.Create(Url); { This is a record so no need to free }
-    Uri.Path := TNetEncoding.URL.Decode(Uri.Path) + ISSigExt;
+    Uri.Path := Uri.Path + ISSigExt;
     Result := Uri.ToString;
   end;
 end;
