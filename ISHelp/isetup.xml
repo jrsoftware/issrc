@@ -1818,6 +1818,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
+<p>When combined with the <tt>extractarchive</tt> flag, this flag instructs Setup to skip if the extraction fails for any reason.</p>
 </flag>
 <flag name="solidbreak">
 <p>When <link topic="setup_solidcompression">solid compression</link> is enabled, this flag instructs the compiler to finalize the current compression stream and begin a new one before compressing the file(s) matched by <tt>Source</tt>. This allows Setup to seek to the file instantly without having to decompress any preceding files first. May be useful in a large, multi-component installation if you find too much time is being spent decompressing files belonging to components that weren't selected.</p>

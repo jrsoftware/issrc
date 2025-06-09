@@ -1947,7 +1947,7 @@ var
     begin
       { See above }
 
-      Result := NewFileExistsRedir(DisableFsRedir, ArchiveFilename);
+      Result := True; { We handle errors ourselves }
 
       if foCustomDestName in CurFile^.Options then
         InternalError('Unexpected custom DestName');
@@ -1983,6 +1983,7 @@ var
             Failed := GetExceptMessage;
           end;
         until (Failed = '') or
+              (foSkipIfSourceDoesntExist in CurFile^.Options) or
               AbortRetryIgnoreTaskDialogMsgBox(
                 ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
                 [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
