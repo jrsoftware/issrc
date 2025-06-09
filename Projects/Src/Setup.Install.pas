@@ -1565,7 +1565,8 @@ var
             raise;
           end;
           { Set time/date stamp }
-          SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
+          if CurFileDateValid then
+            SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
           { If it's the uninstall program, bind the messages }
           if CurFile^.FileType = ftUninstExe then begin
             AllowFileToBeDuplicated := False;
