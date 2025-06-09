@@ -226,6 +226,11 @@ begin
   ProcessEvents;
 end;
 
+procedure JustProcessEventsProc(Bytes: Cardinal);
+begin
+  ProcessEvents;
+end;
+
 function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
   const RetryIgnoreAbortButtonLabels: array of String): Boolean;
 { Returns True if Ignore was selected, False if Retry was selected, or
@@ -1578,7 +1583,7 @@ var
                   { Download the .issig file }
                   const ISSigUrl = GetISSigUrl(SourceFile, CurFile^.DownloadISSigSource);
                   DownloadFile(ISSigUrl, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
-                    ISSigDestF, False, '', '', ExtractorProgressProc);
+                    ISSigDestF, False, '', '', JustProcessEventsProc);
                   FreeAndNil(ISSigDestF);
                   { Download and verify the actual file }
                   DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
