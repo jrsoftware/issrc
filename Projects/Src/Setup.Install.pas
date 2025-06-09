@@ -1948,7 +1948,13 @@ var
     begin
       { See above }
 
-      Result := True; { We handle errors ourselves }
+      { If the archive doesn't exist then the caller should handle this with
+        a msgSourceDoesntExist message. All other errors we handle ourselves
+        with a msgErrorExtracting message, without informing the caller, unless
+        you count EAbort. }
+      Result := NewFileExistsRedir(DisableFsRedir, ArchiveFilename);
+      if not Result then
+        Exit;
 
       if foCustomDestName in CurFile^.Options then
         InternalError('Unexpected custom DestName');
@@ -1984,7 +1990,6 @@ var
             Failed := GetExceptMessage;
           end;
         until (Failed = '') or
-              (foSkipIfSourceDoesntExist in CurFile^.Options) or
               AbortRetryIgnoreTaskDialogMsgBox(
                 ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
                 [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
