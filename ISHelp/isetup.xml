@@ -1665,7 +1665,7 @@ ExternalSize: 1_048_576; Flags: external
 </param>
 
 <param name="ExtractArchivePassword">
-<p>Specifies the password of the archive. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
 </param>
 
