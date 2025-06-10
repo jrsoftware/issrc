@@ -5521,7 +5521,8 @@ begin
         CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
         CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
         CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
-      end;
+        CheckConst(ExtractArchivePassword, MinVersion, []);
+     end;
 
       FileList := TList.Create();
       DirList := TList.Create();

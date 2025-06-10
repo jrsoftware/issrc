@@ -1804,7 +1804,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   end;
 
   function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
-    const ArchiveFilename, Password: String; const Excludes: TStrings;
+    const ArchiveFilename: String; const Excludes: TStrings;
     const CurFile: PSetupFileEntry): Boolean;
   begin
     { See above }
@@ -1816,7 +1816,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
-      Password, foRecurseSubDirsExternal in CurFile^.Options, False, FindData);
+      ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
+      False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1871,20 +1872,20 @@ begin
             if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
               Exit(False);
           end else begin
-            SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-            Excludes.DelimitedText := CurFile^.Excludes;
-            if foExtractArchive in CurFile^.Options then begin
-              try
-                if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
-                   CurFile^.ExtractArchivePassword, Excludes, CurFile) then
-                  Exit(False);
-              except on E: ESevenZipError do
-                { Ignore archive errors for now, will show up with proper UI during
-                  installation }
-              end;
-            end else begin
-              if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+	          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+	          Excludes.DelimitedText := CurFile^.Excludes;
+	          if foExtractArchive in CurFile^.Options then begin
+	            try
+	              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+	                 Excludes, CurFile) then
+	                Exit(False);
+	            except on E: ESevenZipError do
+	              { Ignore archive errors for now, will show up with proper UI during
+	                installation }
+	            end;
+	          end else begin
+	            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
                 Exit(False);
             end;
           end;
@@ -3531,7 +3532,7 @@ begin
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
                   ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-                  ExpandConst(SourceFilename), ExtractArchivePassword, LExcludes,
+                  ExpandConst(SourceFilename), ExpandConst(ExtractArchivePassword), LExcludes,
                   foRecurseSubDirsExternal in Options);
               end else begin
                 if FileType <> ftUserFile then

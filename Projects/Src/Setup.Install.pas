@@ -1995,7 +1995,7 @@ var
     end;
 
     function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
-      const ArchiveFilename, Password: String; const Excludes: TStrings;
+      const ArchiveFilename: String; const Excludes: TStrings;
       const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
       var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
       var WarnedPerUserFonts: Boolean): Boolean;
@@ -2036,7 +2036,8 @@ var
             end;
 
             H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
-              Password, foRecurseSubDirsExternal in CurFile^.Options, True, FindData);
+              ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
+              True, FindData);
             Failed := '';
           except
             if ExceptObject is EAbort then
@@ -2162,7 +2163,7 @@ var
                 FoundFiles := True;
               end else if foExtractArchive in CurFile^.Options then
                 FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
-                  SourceWildcard, CurFile^.ExtractArchivePassword, Excludes, CurFile,
+                  SourceWildcard, Excludes, CurFile,
                   ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts)
               else

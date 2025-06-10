@@ -1,5 +1,5 @@
 ; bovirus@gmail.com
-; *** Inno Setup version 6.4.0+ Italian messages ***
+; *** Inno Setup version 6.5.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;    https://jrsoftware.org/files/istrans/
@@ -20,6 +20,8 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Italiano
 LanguageID=$0410
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+; For English it's set to zero anyway because English only uses ASCII characters
 LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -91,7 +93,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 25.11.2024)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 10.06.2025)
 
 ; *** Buttons
 ButtonBack=< &Indietro
@@ -236,6 +238,11 @@ StopExtraction=Sei sicuro di voler interrompere l'estrazione?
 ErrorExtractionAborted=Estrazione interrotta
 ErrorExtractionFailed=Estrazione fallita: %1
 
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=La password non è corretta
+ArchiveIsCorrupted=L'archivio non è integro
+ArchiveUnsupportedFormat=Questo formato archivio non è supportato
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] nel computer.
@@ -314,6 +321,12 @@ FileAbortRetryIgnoreSkipNotRecommended=&Salta questo file (non suggerito)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignora questo errore e continua (non suggerito)
 SourceIsCorrupted=Il file sorgente è danneggiato
 SourceDoesntExist=Il file sorgente "%1" non esiste
+SourceVerificationFailed=Verifica del file sorgente non riuscita: %1
+VerificationSignatureDoesntExist=File firma "%1" non disponibile
+VerificationSignatureInvalid=Il file firma "%1" non è valido
+VerificationKeyNotFound=Il file firma "%1" usa una chiave sconosciuta
+VerificationFileSizeIncorrect=La dimensione del file non è corretta
+VerificationFileHashIncorrect=L'hash del file non è corretto
 ExistingFileReadOnly2=Il file esistente non può essere sostituito in quanto segnato come in sola lettura.
 ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
@@ -332,6 +345,7 @@ ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica de
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:
 ErrorCopying=Si è verificato un errore durante la copia di un file:
+ErrorExtracting=Si è verificato un errore durante l'estrazione di un archivio:
 ErrorReplacingExistingFile=Si è verificato un errore durante la sovrascrittura del file esistente:
 ErrorRestartReplace=Errore durante riavvio o sostituzione:
 ErrorRenamingTemp=Si è verificato un errore durante il tentativo di rinominare un file nella cartella di installazione:
