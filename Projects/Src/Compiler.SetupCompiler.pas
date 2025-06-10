@@ -4668,9 +4668,9 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
     paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
-    paStrongAssemblyName, paISSigAllowedKeys, paComponents, paTasks, paLanguages,
-    paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion,
-    paDownloadISSigSource, paDownloadUserName, paDownloadPassword);
+    paStrongAssemblyName, paISSigAllowedKeys, paDownloadISSigSource, paDownloadUserName,
+    paDownloadPassword, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
+    paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -5521,8 +5521,11 @@ begin
         CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
         CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
         CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+        CheckConst(DownloadISSigSource, MinVersion, []);
+        CheckConst(DownloadUserName, MinVersion, []);
+        CheckConst(DownloadPassword, MinVersion, []);
         CheckConst(ExtractArchivePassword, MinVersion, []);
-     end;
+      end;
 
       FileList := TList.Create();
       DirList := TList.Create();

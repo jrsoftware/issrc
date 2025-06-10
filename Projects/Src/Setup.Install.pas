@@ -1576,17 +1576,19 @@ var
               { Download a file with or without ISSigVerify. Note: estimate of
                 extra .issig size has already been added to CurFile's ExternalSize. }
               LastOperation := SetupMessages[msgErrorDownloading];
+              const DownloadUserName = ExpandConst(CurFile^.DownloadUserName);
+              const DownloadPassword = ExpandConst(CurFile^.DownloadPassword);
               if foISSigVerify in CurFile^.Options then begin
                 const ISSigTempFile = TempFile + ISSigExt;
                 const ISSigDestF = TFileRedir.Create(DisableFsRedir, ISSigTempFile, fdCreateAlways, faReadWrite, fsNone);
                 try
                   { Download the .issig file }
-                  const ISSigUrl = GetISSigUrl(SourceFile, CurFile^.DownloadISSigSource);
-                  DownloadFile(ISSigUrl, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                  const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
+                  DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
                     ISSigDestF, False, '', '', JustProcessEventsProc);
                   FreeAndNil(ISSigDestF);
                   { Download and verify the actual file }
-                  DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                  DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
                     DestF, True, CurFile^.ISSigAllowedKeys, TempFile, ExtractorProgressProc);
                 finally
                   ISSigDestF.Free;
@@ -1594,7 +1596,7 @@ var
                   DeleteFileRedir(DisableFsRedir, ISSigTempFile);
                 end;
               end else
-                DownloadFile(SourceFile, CurFile^.DownloadUserName, CurFile^.DownloadPassword,
+                DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
                   DestF, False, '', '', ExtractorProgressProc);
             end
             else begin
