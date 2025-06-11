@@ -2039,7 +2039,7 @@ var
               { Can't get the SHA-256 while extracting so need to get and check it now }
               const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
               if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
-                ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+                ISSigVerifyError(vseFileHashIncorrect);
               Log(ISSigVerificationSuccessfulLogMessage);
               { Keeping ISSigVerifySourceF open until extraction has completed }
             end;
@@ -3861,7 +3861,7 @@ begin
         DoISSigVerify(DestF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
         const FileHash = GetSHA256OfFile(DestF);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+          ISSigVerifyError(vseFileHashIncorrect);
         Log(ISSigVerificationSuccessfulLogMessage);
       end else begin
         if HTTPDataReceiver.ProgressMax > 0 then begin
@@ -3998,7 +3998,7 @@ begin
         FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(False, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+          ISSigVerifyError(vseFileHashIncorrect);
         Log(ISSigVerificationSuccessfulLogMessage);
       end else begin
         FreeAndNil(TempF);
