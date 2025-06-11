@@ -33,10 +33,14 @@ jobs:
       - name: build issrc
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
-          "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\home\bin\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
+          "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
           .\build.bat
+      - name: Clean up temporary files
+        if: always()
+        shell: bash
+        run: rm -rf mykey.isprivatekey
       - name: copy license.txt into all artifacts
         run: |
           copy license.txt Files
@@ -56,7 +60,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ISHelp
-          path: ISHelp/Staging/
+          path: |
+            ISHelp/Staging/
+            ISHelp/Staging-dark/
       - name: find mt.exe
         shell: bash
         run: |

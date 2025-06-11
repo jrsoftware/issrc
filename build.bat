@@ -105,7 +105,7 @@ echo Creating Inno Setup installer done
 call .\issig.bat sign output\innosetup-%VER%.exe
 if errorlevel 1 goto failed
 powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
-if errorlevel 1 goto failed
+rem ignoring error here
 
 echo All done!
 pause
