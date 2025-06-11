@@ -1555,7 +1555,8 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 <param name="Source" required="yes">
 <p>The name of the <i>source file</i>. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
 <p>This can be a wildcard to specify a group of files in a single entry. When a wildcard is used, all files matching it use the same options.</p>
-<p>When the flag <tt>external</tt> is specified, <tt>Source</tt> must be the full pathname of an existing file (or wildcard) on the distribution media or the user's system (e.g. "{src}\license.ini").</p>
+<p>When the flag <tt>external</tt> is specified but the flag <tt>download</tt> is not, <tt>Source</tt> must be the full pathname of an existing file (or wildcard) on the distribution media or the user's system (e.g. "{src}\license.ini").</p>
+<p>When the flag <tt>external</tt> is specified and the flag <tt>download</tt> is also, <tt>Source</tt> must be the URL of the file to download.</p>
 <p>Constants may only be used when the <tt>external</tt> flag is specified, because the compiler does not do any constant translating itself.</p>
 <examples>
 <pre>
@@ -1669,6 +1670,22 @@ ExternalSize: 1_048_576; Flags: external
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
 </param>
 
+<param name="DownloadISSigSource">
+<p>Specifies the URL of the .issig signature file which should be downloaded, which can include constants. This file is used to verify the file downloaded from the URL specified by the <tt>Source</tt> parameter.</p>
+<p>This parameter is ignored if the <tt>download</tt> and <tt>issigverify</tt> flags aren't both also specified.</p>
+<p>If this parameter is not set but both these flags are used, Setup will instead append ".issig" (without quotes) to the path portion of the URL specified by the <tt>Source</tt> parameter. It will then use the result as the URL to download the .issig signature file from.</p>
+</param>
+
+<param name="DownloadUserName">
+<p>Specifies the basic authentication username to use for the file download, which can include constants.</p>
+<p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
+</param>
+
+<param name="DownloadPassword">
+<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -1712,14 +1729,23 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Prevents Setup from verifying the file checksum after extraction. Use this flag on files you wish to modify while already compiled into Setup.</p>
 <p>Must be combined with <tt>nocompression</tt>.</p>
 </flag>
+<flag name="download">
+<p>This flag instructs Setup not to copy an existing file, but instead to download it. Optionally use the <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt> parameters to specify a basic authentication username and password.</p>
+<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters.</p>
+<p>This flag also must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag cannot be combined with the <tt>comparetimestamp</tt>, <tt>extractarchive</tt>, <tt>recursesubdirs</tt>, and <tt>skipifsourcedoesntexist</tt> flags.</p>
+<p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
+</flag>
 <flag name="external">
 <p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead to copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
+<p>When combined with the <tt>download</tt> or <tt>extractarchive</tt> flags, Setup does not copy the file, but instead downloads or extracts it.</p>
 </flag>
 <flag name="extractarchive">
-<p>This flag instructs Inno Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
+<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
+<p>This flag cannot be combined with <tt>download</tt>.</p>
 <p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 </flag>
 <flag name="fontisnttruetype">
@@ -1737,7 +1763,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="issigverify">
 <p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
-<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information..</p>
 <p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
 <ul>
 <p>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</p>

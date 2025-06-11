@@ -223,6 +223,7 @@ const
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
   SCompilerParamFlagMissing3 = 'Flag "%s" must be used if flags "%s" and "%s" are both used';
+  SCompilerParamFlagMissingParam = 'Parameter "%s" must be specified if flag "%s" is used';
 
   { Types, components, tasks, check, beforeinstall, afterinstall }
   SCompilerParamUnknownType = 'Parameter "%s" includes an unknown type';
@@ -290,8 +291,6 @@ const
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
     'the "Source" parameter contains wildcards or flag "extractarchive" is used';
-  SCompilerFilesStrongAssemblyNameMustBeSpecified = 'Parameter "StrongAssemblyName" must be specified if ' +
-    'the flag "gacinstall" is used';
   SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
     'the "external" flag is used';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';

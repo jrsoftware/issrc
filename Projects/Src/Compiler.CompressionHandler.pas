@@ -215,10 +215,8 @@ begin
   FChunkStartOffset := FDestFile.Position.Lo - FSliceBaseOffset;
   FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
   Dec(FSliceBytesLeft, SizeOf(ZLIBID));
-  FChunkBytesRead.Hi := 0;
-  FChunkBytesRead.Lo := 0;
-  FChunkBytesWritten.Hi := 0;
-  FChunkBytesWritten.Lo := 0;
+  FChunkBytesRead := To64(0);
+  FChunkBytesWritten := To64(0);
   FInitialBytesCompressedSoFar := FCompiler.GetBytesCompressedSoFar;
 
   SelectCompressor;

@@ -4668,8 +4668,9 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
     paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
-    paStrongAssemblyName, paISSigAllowedKeys, paComponents, paTasks, paLanguages,
-    paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
+    paStrongAssemblyName, paISSigAllowedKeys, paDownloadISSigSource, paDownloadUserName,
+    paDownloadPassword, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
+    paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamFilesSource = 'Source';
   ParamFilesDestDir = 'DestDir';
@@ -4683,6 +4684,9 @@ const
   ParamFilesExtractArchivePassword = 'ExtractArchivePassword';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
   ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
+  ParamFilesDownloadISSigSource = 'DownloadISSigSource';
+  ParamFilesDownloadUserName = 'DownloadUserName';
+  ParamFilesDownloadPassword = 'DownloadPassword';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamFilesSource; Flags: [piRequired, piNoEmpty, piNoQuotes]),
@@ -4697,6 +4701,9 @@ const
     (Name: ParamFilesExtractArchivePassword; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
     (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
+    (Name: ParamFilesDownloadISSigSource; Flags: []),
+    (Name: ParamFilesDownloadUserName; Flags: [piNoEmpty]),
+    (Name: ParamFilesDownloadPassword; Flags: [piNoEmpty]),
     (Name: ParamCommonComponents; Flags: []),
     (Name: ParamCommonTasks; Flags: []),
     (Name: ParamCommonLanguages; Flags: []),
@@ -4705,7 +4712,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..42] of PChar = (
+  Flags: array[0..43] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4717,7 +4724,7 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
-    'issigverify', 'extractarchive');
+    'issigverify', 'download', 'extractarchive');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -5204,8 +5211,7 @@ begin
         NoCompression := False;
         NoEncryption := False;
         SolidBreak := False;
-        ExternalSize.Hi := 0;
-        ExternalSize.Lo := 0;
+        ExternalSize := To64(0);
         SortFilesByName := False;
         Sign := fsNoSetting;
 
@@ -5258,7 +5264,8 @@ begin
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
                    41: Include(Options, foISSigVerify);
-                   42: Include(Options, foExtractArchive);
+                   42: Include(Options, foDownload);
+                   43: Include(Options, foExtractArchive);
                  end;
 
                { Source }
@@ -5344,6 +5351,15 @@ begin
                  Include(Options, foExternalSizePreset);
                end;
 
+               { DownloadISSigSource }
+               DownloadISSigSource := Values[paDownloadISSigSource].Data;
+
+               { DownloadUserName }
+               DownloadUserName := Values[paDownloadUserName].Data;
+
+               { DownloadPassword }
+               DownloadPassword := Values[paDownloadPassword].Data;
+
                { ExtractArchivePassword }
                ExtractArchivePassword := Values[paExtractArchivePassword].Data;
 
@@ -5417,7 +5433,7 @@ begin
         end;
 
         if (foGacInstall in Options) and (AStrongAssemblyName = '') then
-          AbortCompile(SCompilerFilesStrongAssemblyNameMustBeSpecified);
+          AbortCompileFmt(SCompilerParamFlagMissingParam, ['StrongAssemblyName', 'gacinstall']);
         if AStrongAssemblyName <> '' then
           StrongAssemblyName := AStrongAssemblyName;
 
@@ -5429,6 +5445,25 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
           Excludes := AExcludes.DelimitedText;
+        end;
+
+        if foDownload in Options then begin
+          if not ExternalFile then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'download'])
+          else if not(foIgnoreVersion in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'download'])
+          else if foExtractArchive in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'extractarchive'])
+          else if foCompareTimeStamp in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'comparetimestamp'])
+          else if foSkipIfSourceDoesntExist in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'skipifsourcedoesntexist'])
+          else if RecurseSubdirs then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download'])
+          else if ADestName = '' then
+            AbortCompileFmt(SCompilerParamFlagMissingParam, ['DestName', 'download'])
+          else if not(foExternalSizePreset in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissingParam, ['ExternalSize', 'download']);
         end;
 
         if foExtractArchive in Options then begin
@@ -5468,7 +5503,7 @@ begin
            (Copy(ADestDir, 1, Length('{syswow64}')) = '{syswow64}') then
           WarningsList.Add(SCompilerFilesWarningSharedFileSysWow64);
 
-        SourceIsWildcard := IsWildcard(SourceWildcard);
+        SourceIsWildcard := not(foDownload in Options) and IsWildcard(SourceWildcard);
         if ExternalFile then begin
           if RecurseSubdirs then
             Include(Options, foRecurseSubDirsExternal);
@@ -5485,8 +5520,11 @@ begin
         CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
         CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
         CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+        CheckConst(DownloadISSigSource, MinVersion, []);
+        CheckConst(DownloadUserName, MinVersion, []);
+        CheckConst(DownloadPassword, MinVersion, []);
         CheckConst(ExtractArchivePassword, MinVersion, []);
-     end;
+      end;
 
       FileList := TList.Create();
       DirList := TList.Create();

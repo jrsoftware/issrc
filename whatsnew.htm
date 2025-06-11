@@ -82,6 +82,26 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
     </ul>
   </li>
 </ul>
+<span class="head2">Improved file downloads</span>
+<p>Support for downloading files has been improved: the <tt>[Files]</tt> section now supports file downloads. Writing Pascal Script to download a file is no longer necessary and is in fact less efficient since it requires an intermediate temporary file which this new download support doesn't.</p>
+<ul>
+  <li>Updated <tt>[Files]</tt> section:
+  <ul>
+    <li>Added new <tt>[Files]</tt> section flag <tt>download</tt> and parameters <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt>, intended to enable the seamless integration of downloaded files.</li>
+    <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</li>
+    <li>Flag <tt>download</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. Additionally, the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters must be set.<br/>
+        It can also be combined with the new <tt>issigverify</tt> flag (see below) for efficient and highly secure verification of the download file.<br/>
+        It cannot be combined with the <tt>comparetimestampalso</tt>, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
+    <li>File download otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of downloaded files and can be combined with same other flags and parameters.</li>
+    <li>Example script:
+      <pre>[Files]
+Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
+  ExternalSize: 7_000_000; Flags: external download ignoreversion</pre>
+    </li>
+    <li>Updated example script <i>CodeDownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file.</li>
+  </ul>
+  </li>
+</ul>
 <span class="head2">New signature-verification capability</span>
 <p>Inno Setup now includes an integrated signature-verification capability that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
 <p>Any type of file may be signed and verified, and creation of signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
@@ -184,13 +204,14 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
   <li>Minor tweaks.</li>
 </ul>
 
-<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/0445cba192ed530ff5a701f35492ba1ecdabdeb8">View differences in Default.isl</a>.)</p>
+<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/f832ee26">View differences in Default.isl</a>.)</p>
 <ul>
   <li><b>New messages:</b>
   <ul>
     <li>ArchiveIncorrectPassword, ArchiveIsCorrupted, ArchiveUnsupportedFormat.</li>
+    <li>StatusDownloadFiles.</li>
     <li>SourceVerificationFailed, VerificationSignatureDoesntExist, VerificationSignatureInvalid, VerificationKeyNotFound, VerificationFileSizeIncorrect, VerificationFileHashIncorrect.</li>
-    <li>ErrorExtracting.</li>
+    <li>ErrorDownloading, ErrorExtracting.</li>
   </ul>
   </li>
 </ul>

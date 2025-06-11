@@ -243,14 +243,15 @@ const
 
   FilesSectionParameters: array of TScintRawString = [
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
-    'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
+    'DestDir', 'DestName', 'DownloadISSigSource', 'DownloadPassword',
+    'DownloadUserName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
     'Flags', 'FontInstall', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
     'OnlyBelowVersion', 'Permissions', 'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
-    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
+    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
     'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
     'isreadme', 'issigverify', 'nocompression', 'noencryption', 'noregerror',
     'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',

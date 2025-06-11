@@ -2,7 +2,7 @@ unit Shared.FileClass;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -197,12 +197,8 @@ begin
 end;
 
 procedure TCustomFile.Seek(Offset: Cardinal);
-var
-  I: Integer64;
 begin
-  I.Hi := 0;
-  I.Lo := Offset;
-  Seek64(I);
+  Seek64(To64(Offset));
 end;
 
 procedure TCustomFile.WriteAnsiString(const S: AnsiString);
