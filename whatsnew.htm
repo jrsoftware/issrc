@@ -54,7 +54,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       </ul>
       New documentation topic <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a> has a table summarizing the differences between these methods.
     </li>
-    <li>Added new <tt>[Files]</tt> section flag <tt>extractarchive</tt> and parameter <tt>ExtractArchivePassword</tt>, intended to enable the seamless integration and extraction of downloaded archives.
+    <li>Added new <tt>[Files]</tt> section flag <tt>extractarchive</tt> and parameter <tt>ExtractArchivePassword</tt>, intended to enable the seamless integration and extraction of archives.
       <ul>
         <li>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the aforementioned <tt>ArchiveExtraction</tt> directive, that must not be set to <tt>basic</tt>.</li>
         <li>Flag <tt>extractarchive</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. It is usually also combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</li>
@@ -167,7 +167,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     </ul>
   </li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
-  <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.<br/>The same applies to <tt>[Registry]</tt> parameter <tt>ValueData</tt> if <tt>ValueType</tt> is set to <tt>qword</tt>.</li>
+  <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.<br/>
+      The same applies to <tt>[Registry]</tt> parameter <tt>ValueData</tt> if <tt>ValueType</tt> is set to <tt>qword</tt>.</li>
   <li>ISPP changes:
     <ul>
       <li>Added predefined variable <tt>__DIR__</tt>. Returns the directory of the current include file.</li>
