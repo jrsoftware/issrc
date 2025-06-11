@@ -64,6 +64,7 @@ jobs:
             ISHelp/Staging/
             ISHelp/Staging-dark/
       - name: Find mt.exe
+        if: contains(github.event.repository.topics, 'issrc-build-verify')
         shell: bash
         run: |
           set -x &&
@@ -71,6 +72,7 @@ jobs:
           test -n "$mt" &&
           echo "${mt%%/mt.exe*}" >>$GITHUB_PATH
       - name: Verify installer
+        if: contains(github.event.repository.topics, 'issrc-build-verify')
         shell: bash
         run: |
           set -x &&
@@ -98,11 +100,13 @@ jobs:
           ./Procmon.exe -Terminate -Quiet &&
           powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
       - name: Upload trace
+        if: contains(github.event.repository.topics, 'issrc-build-verify')
         uses: actions/upload-artifact@v4
         with:
           name: trace
           path: trace/
       - name: Check trace
+        if: contains(github.event.repository.topics, 'issrc-build-verify')
         shell: bash
         run: |
           set -x &&
