@@ -38,7 +38,8 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 12.1 Athens with Patch 1 installed.
+   We compile all of Inno Setup's projects under Delphi 12.3 Athens with the
+   May Patch installed.
 
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
@@ -248,7 +249,7 @@ First, generate an encrypted `.zip` file containing the files needed to build
 Inno Setup using [7-Zip]:
 
 ```
-cd C:\Program Files (x86)\Embarcadero\Studio\20.0
+cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 "C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
 	%USERPROFILE%\issrc-build-env.zip ^
 	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
