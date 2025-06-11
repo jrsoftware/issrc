@@ -2,7 +2,7 @@ unit Setup.FileExtractor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,7 +16,7 @@ uses
   Shared.Struct, ChaCha20;
 
 type
-  TExtractorProgressProc = procedure(Bytes: Cardinal);
+  TExtractorProgressProc = procedure(const Bytes: Cardinal);
 
   TFileExtractor = class
   private

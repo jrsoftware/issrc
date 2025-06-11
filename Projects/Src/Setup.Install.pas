@@ -12,7 +12,7 @@ unit Setup.Install;
 interface
 
 uses
-  Classes, SHA256, Shared.FileClass, Shared.SetupTypes;
+  Classes, SHA256, Shared.FileClass, Shared.SetupTypes, Shared.Int64Em;
 
 procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
   const ASigFilename: String = '');
@@ -26,14 +26,15 @@ procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
-  TOnSimpleDownloadProgress = procedure(Bytes: Cardinal);
+  TOnSimpleDownloadProgress = procedure(const Bytes, Param: Integer64);
 
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const ISSigSourceFilename: String;
-  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
+  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
+  const OnSimpleDownloadProgressParam: Integer64): Int64;
 function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const OnDownloadProgress: TOnDownloadProgress): Int64;
@@ -49,7 +50,7 @@ uses
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor,
   Compression.Base, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
-  Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.Int64Em, Shared.SetupMessageIDs,
+  Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.SetupMessageIDs,
   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
@@ -220,13 +221,26 @@ begin
   if NeedToAbortInstall then Abort;
 end;
 
-procedure ExtractorProgressProc(Bytes: Cardinal);
+procedure InternalProgressProc(const Bytes: Cardinal);
 begin
   IncProgress(Bytes);
   ProcessEvents;
 end;
 
-procedure JustProcessEventsProc(Bytes: Cardinal);
+procedure ExternalProgressProc64(const Bytes, MaxProgress: Integer64);
+begin
+  var NewProgress := CurProgress;
+  Inc6464(NewProgress, Bytes);
+  { In case the source file was larger than we thought it was, stop the
+    progress bar at the maximum amount. Also see CopySourceFileToDestFile. }
+  if Compare64(NewProgress, MaxProgress) > 0 then
+    NewProgress := MaxProgress;
+  SetProgress(NewProgress);
+  
+  ProcessEvents;
+end;
+
+procedure JustProcessEventsProc64(const Bytes, Param: Integer64);
 begin
   ProcessEvents;
 end;
@@ -341,7 +355,6 @@ procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   goes. Assumes file pointers of both are 0. }
 var
   BytesLeft: Integer64;
-  NewProgress: Integer64;
   BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
   Context: TSHA256Context;
@@ -377,15 +390,7 @@ begin
     if ISSigVerify then
       SHA256Update(Context, Buf, BufSize);
 
-    NewProgress := CurProgress;
-    Inc64(NewProgress, BufSize);
-    { In case the source file was larger than we thought it was, stop the
-      progress bar at the maximum amount }
-    if Compare64(NewProgress, MaxProgress) > 0 then
-      NewProgress := MaxProgress;
-    SetProgress(NewProgress);
-
-    ProcessEvents;
+    ExternalProgressProc64(To64(BufSize), MaxProgress);
   end;
 
   if ISSigVerify then begin
@@ -1561,16 +1566,18 @@ var
             LastOperation := SetupMessages[msgErrorReadingSource];
             if SourceFile = '' then begin
               { Decompress a file }
-              FileExtractor.SeekTo(CurFileLocation^, ExtractorProgressProc);
+              FileExtractor.SeekTo(CurFileLocation^, InternalProgressProc);
               LastOperation := SetupMessages[msgErrorCopying];
-              FileExtractor.DecompressFile(CurFileLocation^, DestF, ExtractorProgressProc,
+              FileExtractor.DecompressFile(CurFileLocation^, DestF, InternalProgressProc,
                 not (foDontVerifyChecksum in CurFile^.Options));
             end
             else if foExtractArchive in CurFile^.Options then begin
               { Extract a file from archive. Note: ISSigVerify for archive has
                 already been handled by RecurseExternalArchiveCopyFiles. }
               LastOperation := SetupMessages[msgErrorExtracting];
-              ArchiveFindExtract(StrToInt(SourceFile), DestF, ExtractorProgressProc);
+              var MaxProgress := CurProgress;
+              Inc6464(MaxProgress, AExternalSize);
+              ArchiveFindExtract(StrToInt(SourceFile), DestF, ExternalProgressProc64, MaxProgress);
             end
             else if foDownload in CurFile^.Options then begin
               { Download a file with or without ISSigVerify. Note: estimate of
@@ -1578,6 +1585,8 @@ var
               LastOperation := SetupMessages[msgErrorDownloading];
               const DownloadUserName = ExpandConst(CurFile^.DownloadUserName);
               const DownloadPassword = ExpandConst(CurFile^.DownloadPassword);
+              var MaxProgress := CurProgress;
+              Inc6464(MaxProgress, AExternalSize);
               if foISSigVerify in CurFile^.Options then begin
                 const ISSigTempFile = TempFile + ISSigExt;
                 const ISSigDestF = TFileRedir.Create(DisableFsRedir, ISSigTempFile, fdCreateAlways, faReadWrite, fsNone);
@@ -1585,11 +1594,11 @@ var
                   { Download the .issig file }
                   const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
                   DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
-                    ISSigDestF, False, '', '', JustProcessEventsProc);
+                    ISSigDestF, False, '', '', JustProcessEventsProc64, To64(0));
                   FreeAndNil(ISSigDestF);
                   { Download and verify the actual file }
                   DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                    DestF, True, CurFile^.ISSigAllowedKeys, TempFile, ExtractorProgressProc);
+                    DestF, True, CurFile^.ISSigAllowedKeys, TempFile, ExternalProgressProc64, MaxProgress);
                 finally
                   ISSigDestF.Free;
                   { Delete the .issig file }
@@ -1597,7 +1606,7 @@ var
                 end;
               end else
                 DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                  DestF, False, '', '', ExtractorProgressProc);
+                  DestF, False, '', '', ExternalProgressProc64, MaxProgress);
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -3676,6 +3685,7 @@ type
     FBaseName, FUrl: String;
     FOnDownloadProgress: TOnDownloadProgress;
     FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
+    FOnSimpleDownloadProgressParam: Integer64;
     FAborted: Boolean;
     FProgress, FProgressMax: Int64;
     FLastReportedProgress, FLastReportedProgressMax: Int64;
@@ -3684,6 +3694,7 @@ type
     property Url: String write FUrl;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
     property OnSimpleDownloadProgress: TOnSimpleDownloadProgress write FOnSimpleDownloadProgress;
+    property OnSimpleDownloadProgressParam: Integer64 write FOnSimpleDownloadProgressParam;
     property Aborted: Boolean read FAborted;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
@@ -3719,25 +3730,14 @@ begin
     if Abort then
       FAborted := True
   end else if Assigned(FOnSimpleDownloadProgress) then begin
-    { Also see Compression.SevenZipDLLDecoder TArchiveExtractToHandleCallback.HandleProgress }
-    var Bytes := Progress - FLastReportedProgress;
-    while Bytes > 0 do begin
-      var BytesToReport: Cardinal;
-      if Bytes > High(BytesToReport) then
-        BytesToReport := High(BytesToReport)
-      else
-        BytesToReport := Bytes;
-      try
-        FOnSimpleDownloadProgress(BytesToReport);
-      except
-        if ExceptObject is EAbort then begin
-          Abort := True;
-          FAborted := True;
-          Break;
-        end else
-          raise;
-      end;
-      Dec(Bytes, BytesToReport);
+    try
+      FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+    except
+      if ExceptObject is EAbort then begin
+        Abort := True;
+        FAborted := True;
+      end else
+        raise;
     end;
     FLastReportedProgress := Progress;
   end;
@@ -3806,7 +3806,8 @@ end;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
   const ISSigSourceFilename: String;
-  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress): Int64;
+  const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
+  const OnSimpleDownloadProgressParam: Integer64): Int64;
 var
   HandleStream: THandleStream;
   HTTPDataReceiver: THTTPDataReceiver;
@@ -3832,6 +3833,7 @@ begin
     HTTPDataReceiver := THTTPDataReceiver.Create;
     HTTPDataReceiver.Url := CleanUrl;
     HTTPDataReceiver.OnSimpleDownloadProgress := OnSimpleDownloadProgress;
+    HTTPDataReceiver.OnSimpleDownloadProgressParam := OnSimpleDownloadProgressParam;
 
     HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
     SetUserAgentAndSecureProtocols(HTTPClient);

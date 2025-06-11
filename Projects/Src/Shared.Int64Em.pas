@@ -2,7 +2,7 @@ unit Shared.Int64Em;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,6 +31,7 @@ function Mul64(var X: Integer64; N: LongWord): Boolean;
 procedure Multiply32x32to64(N1, N2: LongWord; var X: Integer64);
 procedure Shr64(var X: Integer64; Count: LongWord);
 function StrToInteger64(const S: String; var X: Integer64): Boolean;
+function To64(const Lo: Longword): Integer64;
 
 implementation
 
@@ -285,6 +286,12 @@ begin
     Buf[I] := Chr(Ord('0') + Div64(X, 10));
   until (X.Lo = 0) and (X.Hi = 0);
   SetString(Result, PChar(@Buf[I]), (High(Buf) + 1) - I);
+end;
+
+function To64(const Lo: Longword): Integer64;
+begin
+  Result.Lo  := Lo;
+  Result.Hi := 0;
 end;
 
 end.
