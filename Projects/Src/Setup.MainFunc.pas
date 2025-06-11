@@ -1696,8 +1696,7 @@ var
   ComponentTypes: TStringList;
   I: Integer;
 begin
-  Result.Hi := 0;
-  Result.Lo := 0;
+  Result := To64(0);
   ComponentTypes := TStringList.Create();
 
   for I := 0 to Entries[seComponent].Count-1 do begin
@@ -2780,8 +2779,7 @@ var
   begin
     { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
       Also see RecurseExternalArchiveGetSizeOfFiles directly below }
-    Result.Hi := 0;
-    Result.Lo := 0;
+    Result := To64(0);
 
     var FindData: TWin32FindData;
     var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
@@ -2829,8 +2827,7 @@ var
     const RecurseSubDirs: Boolean): Integer64;
   begin
     { See above }
-    Result.Hi := 0;
-    Result.Lo := 0;
+    Result := To64(0);
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,

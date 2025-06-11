@@ -2,7 +2,7 @@ unit Setup.UninstallLog;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1292,8 +1292,7 @@ var
     EndOffset, Ofs: Integer64;
     CrcHeader: TUninstallCrcHeader;
   begin
-    EndOffset.Lo := Header.EndOffset;
-    EndOffset.Hi := 0;
+    EndOffset := To64(Header.EndOffset);
     while BufLeft = 0 do begin
       Ofs := F.Position;
       Inc64(Ofs, SizeOf(CrcHeader));

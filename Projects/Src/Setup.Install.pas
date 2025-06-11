@@ -118,8 +118,7 @@ var
   CurFile: PSetupFileEntry;
   FileSize: Integer64;
 begin
-  InstallFilesSize.Hi := 0;
-  InstallFilesSize.Lo := 0;
+  InstallFilesSize := To64(0);
   AfterInstallFilesSize := InstallFilesSize;
   for N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
@@ -143,8 +142,7 @@ var
   NewMaxValue: Integer64;
 begin
   { Calculate the MaxValue for the progress meter }
-  NewMaxValue.Hi := 0;
-  NewMaxValue.Lo := 1000 * Entries[seIcon].Count;
+  NewMaxValue := To64(1000 * Entries[seIcon].Count);
   if Entries[seIni].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
   if Entries[seRegistry].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
   Inc6464(NewMaxValue, InstallFilesSize);
@@ -2104,7 +2102,6 @@ var
     I: Integer;
     CurFileNumber: Integer;
     CurFile: PSetupFileEntry;
-    ExternalSize: Integer64;
     SourceWildcard: String;
     ProgressBefore, ExpectedBytesLeft: Integer64;
     DisableFsRedir, FoundFiles: Boolean;
@@ -2143,9 +2140,7 @@ var
           end;
 
           if CurFile^.LocationEntry <> -1 then begin
-            ExternalSize.Hi := 0;  { not used... }
-            ExternalSize.Lo := 0;
-            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, ExternalSize,
+            ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, To64(0),
               ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
           end
           else begin

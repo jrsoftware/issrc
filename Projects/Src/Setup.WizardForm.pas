@@ -614,8 +614,7 @@ var
 begin
   ComponentEntry := PSetupComponentEntry(ComponentsList.ItemObject[Index]);
 
-  ChildrenSize.Hi := 0;
-  ChildrenSize.Lo := 0;
+  ChildrenSize := To64(0);
   if HasChildren then
     ComponentsList.EnumChildrenOf(Index, UpdateComponentSizesEnum, LongInt(@ChildrenSize));
   ComponentSize := ComponentEntry.Size;
@@ -637,8 +636,7 @@ var
   Size: Integer64;
 begin
   if shShowComponentSizes in SetupHeader.Options then begin
-    Size.Hi := 0;
-    Size.Lo := 0;
+    Size := To64(0);
     ComponentsList.EnumChildrenOf(-1, UpdateComponentSizesEnum, LongInt(@Size));
   end;
 end;

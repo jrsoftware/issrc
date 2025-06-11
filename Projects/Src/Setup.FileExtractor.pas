@@ -256,8 +256,7 @@ begin
       FChunkLastSlice := FL.LastSlice;
       FChunkStartOffset := FL.StartOffset;
       FChunkBytesLeft := FL.ChunkCompressedSize;
-      FChunkDecompressedBytesRead.Hi := 0;
-      FChunkDecompressedBytesRead.Lo := 0;
+      FChunkDecompressedBytesRead := To64(0);
       FChunkCompressed := floChunkCompressed in FL.Flags;
       FChunkEncrypted := floChunkEncrypted in FL.Flags;
 

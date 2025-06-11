@@ -244,8 +244,7 @@ begin
 
   if (StartIndex > Len) or (S[StartIndex] = '_') then
     Exit;
-  V.Lo := 0;
-  V.Hi := 0;
+  V := To64(0);
   for I := StartIndex to Len do begin
     C := UpCase(S[I]);
     case C of

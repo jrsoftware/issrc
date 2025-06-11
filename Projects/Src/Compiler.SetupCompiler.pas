@@ -5211,8 +5211,7 @@ begin
         NoCompression := False;
         NoEncryption := False;
         SolidBreak := False;
-        ExternalSize.Hi := 0;
-        ExternalSize.Lo := 0;
+        ExternalSize := To64(0);
         SortFilesByName := False;
         Sign := fsNoSetting;
 

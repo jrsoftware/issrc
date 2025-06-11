@@ -921,7 +921,7 @@ var
           Div64(FreeBytes, 1024*1024);
           Div64(TotalBytes, 1024*1024);
         end;
-        { Cap at 2 GB, as [Code] doesn't support 64-bit integers }
+        { Cap at 2 GB, as GetSpaceOnDisk doesn't use 64-bit integers }
         if (FreeBytes.Hi <> 0) or (FreeBytes.Lo and $80000000 <> 0) then
           FreeBytes.Lo := $7FFFFFFF;
         if (TotalBytes.Hi <> 0) or (TotalBytes.Lo and $80000000 <> 0) then
