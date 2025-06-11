@@ -1763,7 +1763,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="issigverify">
 <p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
-<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information..</p>
 <p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
 <ul>
 <li>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</li>
