@@ -1870,7 +1870,7 @@ begin
           if foDownload in CurFile^.Options then begin
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
-            { CurFile^.DestName now includes a a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+            { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
             if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
               Exit(False);
           end else begin
