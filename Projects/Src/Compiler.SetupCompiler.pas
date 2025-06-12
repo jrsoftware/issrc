@@ -5479,20 +5479,20 @@ begin
 
         if foDownload in Options then begin
           if not ExternalFile then
-            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'download'])
-          else if not(foIgnoreVersion in Options) then
-            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'download'])
-          else if foExtractArchive in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'extractarchive'])
-          else if foCompareTimeStamp in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'comparetimestamp'])
-          else if foSkipIfSourceDoesntExist in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'skipifsourcedoesntexist'])
-          else if RecurseSubdirs then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download'])
-          else if ADestName = '' then
-            AbortCompileFmt(SCompilerParamFlagMissingParam, ['DestName', 'download'])
-          else if not(foExternalSizePreset in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'download']);
+          if not(foIgnoreVersion in Options) then
+            AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'download']);
+          if foExtractArchive in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'extractarchive']);
+          if foCompareTimeStamp in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'comparetimestamp']);
+          if foSkipIfSourceDoesntExist in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'skipifsourcedoesntexist']);
+          if RecurseSubdirs then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download']);
+          if ADestName = '' then
+            AbortCompileFmt(SCompilerParamFlagMissingParam, ['DestName', 'download']);
+          if not(foExternalSizePreset in Options) then
             AbortCompileFmt(SCompilerParamFlagMissingParam, ['ExternalSize', 'download']);
         end;
 
