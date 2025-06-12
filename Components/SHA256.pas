@@ -15,7 +15,6 @@ type
   TSHA256Context = record
     hash: THashSHA2;
   end;
-  PSHA256Digest = ^TSHA256Digest;
   TSHA256Digest = array[0..31] of Byte;
 
 procedure SHA256Init(var ctx: TSHA256Context);

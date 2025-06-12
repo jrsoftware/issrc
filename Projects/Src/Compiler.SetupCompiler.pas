@@ -324,10 +324,9 @@ type
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
-      floSolidBreak, floHashVerify, floISSigVerify);
+      floSolidBreak);
     Sign: TFileLocationSign;
-    Hash: TSHA256Digest;
-    ISSigAllowedKeys: AnsiString;
+    Verification: TSetupFileVerification;
     ISSigKeyUsedID: String;
   end;
 
@@ -4911,6 +4910,15 @@ type
       Sign := NewSign;
   end;
 
+  procedure ApplyNewVerificationType(var VerificationType: TSetupFileVerificationType;
+    const NewVerificationType: TSetupFileVerificationType; const ErrorMessage: String);
+  begin
+    if not (VerificationType in [fvNone, NewVerificationType]) then
+       AbortCompileFmt(ErrorMessage, ['Hash', 'issigverify'])
+    else
+      VerificationType := NewVerificationType;
+  end;
+
   procedure ProcessFileList(const FileListBaseDir: String; FileList: TList);
   var
     FileListRec: PFileListRec;
@@ -4985,20 +4993,17 @@ type
               to compressing the first one }
             SolidBreak := False;
           end;
-          NewFileLocationEntryExtraInfo^.Hash := NewFileEntry^.Hash;
-          NewFileLocationEntryExtraInfo^.ISSigAllowedKeys := NewFileEntry^.ISSigAllowedKeys;
+          NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
+          NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
         end else begin
-          if not CompareMem(@NewFileLocationEntryExtraInfo^.Hash[0], @NewFileEntry^.Hash[0], SizeOf(TSHA256Digest)) then
+          if not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
+             @NewFileEntry^.Verification.Hash[0], SizeOf(TSHA256Digest)) then
             AbortCompileFmt(SCompilerFilesValueConflict, ['Hash']);
-          if NewFileLocationEntryExtraInfo^.ISSigAllowedKeys <> NewFileEntry^.ISSigAllowedKeys then
+          if NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys then
             AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
         end;
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
-        if foHashVerify in NewFileEntry^.Options then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floHashVerify);
-        if foISSigVerify in NewFileEntry^.Options then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floISSigVerify);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -5006,7 +5011,10 @@ type
         if NoEncryption then
           Exclude(NewFileLocationEntry^.Flags, floChunkEncrypted);
         if Sign <> fsNoSetting then
-          ApplyNewSign(NewFileLocationEntryExtraInfo.Sign, Sign, SCompilerParamErrorBadCombo3);
+          ApplyNewSign(NewFileLocationEntryExtraInfo.Sign, Sign, SCompilerParamErrorBadCombo2SameSource);
+        if NewFileEntry^.Verification.Typ <> fvNone  then
+          ApplyNewVerificationType(NewFileLocationEntryExtraInfo.Verification.Typ, NewFileEntry^.Verification.Typ,
+            SCompilerFilesParamFlagConflictSameSource);
       end
       else begin
         NewFileEntry^.SourceFilename := SourceFile;
@@ -5273,7 +5281,7 @@ begin
                    38: ApplyNewSign(Sign, fsYes, SCompilerParamErrorBadCombo2);
                    39: ApplyNewSign(Sign, fsOnce, SCompilerParamErrorBadCombo2);
                    40: ApplyNewSign(Sign, fsCheck, SCompilerParamErrorBadCombo2);
-                   41: Include(Options, foISSigVerify);
+                   41: ApplyNewVerificationType(Verification.Typ, fvISSig, SCompilerFilesParamFlagConflict);
                    42: Include(Options, foDownload);
                    43: Include(Options, foExtractArchive);
                  end;
@@ -5375,8 +5383,8 @@ begin
 
                { Hash }
                if Values[paHash].Found then begin
-                 Hash := SHA256DigestFromString(Values[paHash].Data);
-                 Include(Options, foHashVerify);
+                 ApplyNewVerificationType(Verification.Typ, fvHash, SCompilerFilesParamFlagConflict);
+                 Verification.Hash := SHA256DigestFromString(Values[paHash].Data);
                end;
 
                { ISSigAllowedKeys }
@@ -5390,7 +5398,7 @@ begin
                    var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[KeyIndex]);
                    if SameText(ISSigKeyEntryExtraInfo.Name, KeyNameOrGroupName) or
                       ISSigKeyEntryExtraInfo.HasGroupName(KeyNameOrGroupName) then begin
-                     SetISSigAllowedKey(ISSigAllowedKeys, KeyIndex);
+                     SetISSigAllowedKey(Verification.ISSigAllowedKeys, KeyIndex);
                      FoundKey := True;
                    end;
                  end;
@@ -5494,19 +5502,16 @@ begin
         if (foIgnoreVersion in Options) and (foReplaceSameVersionIfContentsDiffer in Options) then
           AbortCompileFmt(SCompilerParamErrorBadCombo2, ['Flags', 'ignoreversion', 'replacesameversion']);
 
-        if (ISSigKeyEntries.Count = 0) and (foISSigVerify in Options) then
+        if (ISSigKeyEntries.Count = 0) and (Verification.Typ = fvISSig) then
           AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
-        if (ISSigAllowedKeys <> '') and not (foISSigVerify in Options) then
+        if (Verification.ISSigAllowedKeys <> '') and (Verification.Typ <> fvISSig) then
           AbortCompile(SCompilerFilesISSigAllowedKeysMissingISSigVerify);
 
-        if (foHashVerify in Options) and (foISSigVerify in Options) then
-          AbortCompileFmt(SCompilerFilesParamRequiresFlag, ['Hash', 'issigverify']);
-
         if Sign in [fsYes, fsOnce] then begin
-          if foHashVerify in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2,
-              [ParamCommonFlags, SignFlags[Sign], 'hashverify']);
-          if foISSigVerify in Options then
+          if Verification.Typ = fvHash then
+            AbortCompileFmt(SCompilerFilesParamFlagConflict,
+              [ParamCommonFlags, 'Hash', SignFlags[Sign]]);
+          if Verification.Typ = fvISSig then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, SignFlags[Sign], 'issigverify']);
           if SignTools.Count = 0 then
@@ -7171,15 +7176,15 @@ var
           fdOpenExisting, faRead, fsRead);
         try
           var ExpectedFileHash: TSHA256Digest;
-          if floHashVerify in FLExtraInfo.Flags then
-            ExpectedFileHash := FLExtraInfo.Hash
-          else if floISSigVerify in FLExtraInfo.Flags then begin
+          if FLExtraInfo.Verification.Typ = fvHash then
+            ExpectedFileHash := FLExtraInfo.Verification.Hash
+          else if FLExtraInfo.Verification.Typ = fvISSig then begin
             { See Setup.Install's CopySourceFileToDestFile for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
             var ExpectedFileSize: Int64;
             if not ISSigVerifySignature(FileLocationEntryFilenames[I],
-              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.ISSigAllowedKeys),
+              GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.Verification.ISSigAllowedKeys),
               ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
               nil,
               procedure(const Filename, SigFilename: String)
@@ -7250,7 +7255,7 @@ var
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
 
-          if (floHashVerify in FLExtraInfo.Flags) or (floISSigVerify in FLExtraInfo.Flags) then begin
+          if FLExtraInfo.Verification.Typ <> fvNone then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
               VerificationError(veFileHashIncorrect, FileLocationEntryFilenames[I]);
             AddStatus(SCompilerStatusFilesVerified);
