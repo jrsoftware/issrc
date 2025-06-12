@@ -4993,6 +4993,7 @@ type
               to compressing the first one }
             SolidBreak := False;
           end;
+          NewFileLocationEntryExtraInfo^.Verification.Typ := fvNone; { Correct value set below }
           NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
           NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
         end else begin
