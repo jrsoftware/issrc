@@ -14,7 +14,7 @@ interface
 uses
   Classes, SHA256, Shared.FileClass, Shared.SetupTypes, Shared.Int64Em;
 
-procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+procedure VerificationError(const AError: TVerificationError;
   const ASigFilename: String = '');
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
@@ -31,13 +31,13 @@ type
 procedure ExtractTemporaryFile(const BaseName: String);
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
-  const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
-  const ISSigSourceFilename: String;
+  const DestF: TFile; const HashVerify, ISSigVerify: Boolean; const ExpectedHash: PSHA256Digest;
+  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
   const OnSimpleDownloadProgressParam: Integer64): Int64;
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
-  const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName: String;
+  const HashVerify, ISSigVerify: Boolean; const ExpectedHash: PSHA256Digest;
+  const ISSigAllowedKeys: AnsiString; const OnDownloadProgress: TOnDownloadProgress): Int64;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
@@ -287,18 +287,18 @@ begin
   end;
 end;
 
-procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+procedure VerificationError(const AError: TVerificationError;
   const ASigFilename: String);
 const
-  LogMessages: array[TISSigVerifySignatureError] of String =
+  LogMessages: array[TVerificationError] of String =
     ('Signature file does not exist', 'Signature is malformed', 'No matching key found',
      'Signature is bad', 'File size is incorrect', 'File hash is incorrect');
-  SetupMessageIDs: array[TISSigVerifySignatureError] of TSetupMessageID =
+  SetupMessageIDs: array[TVerificationError] of TSetupMessageID =
     (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid, msgVerificationKeyNotFound,
      msgVerificationSignatureInvalid, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
 begin
   { Also see Compiler.SetupCompiler for a similar function }
-  Log('ISSig verification error: ' + AddPeriod(LogMessages[AError]));
+  Log('Verification error: ' + AddPeriod(LogMessages[AError]));
   raise Exception.Create(FmtSetupMessage1(msgSourceVerificationFailed,
     FmtSetupMessage1(SetupMessageIDs[AError], PathExtractName(ASigFilename)))); { Not all messages actually have a %1 parameter but that's OK }
 end;
@@ -319,14 +319,14 @@ begin
     nil,
     procedure(const Filename, SigFilename: String)
     begin
-      ISSigVerifyError(vseSignatureMissing, SigFilename);
+      VerificationError(veSignatureMissing, SigFilename);
     end,
     procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
     begin
       case VerifyResult of
-        vsrMalformed:  ISSigVerifyError(vseSignatureMalformed, SigFilename);
-        vsrBad: ISSigVerifyError(vseSignatureBad, SigFilename);
-        vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, SigFilename);
+        vsrMalformed:  VerificationError(veSignatureMalformed, SigFilename);
+        vsrBad: VerificationError(veSignatureBad, SigFilename);
+        vsrKeyNotFound: VerificationError(veKeyNotFound, SigFilename);
       else
         InternalError('Unknown ISSigVerifySignature result');
       end;
@@ -339,15 +339,16 @@ begin
   else
     FileSize := SourceFS.Size;
   if FileSize <> ExpectedFileSize then
-    ISSigVerifyError(vseFileSizeIncorrect);
+    VerificationError(veFileSizeIncorrect);
   { Caller must check ExpectedFileHash }
 end;
 
 const
-  ISSigVerificationSuccessfulLogMessage = 'ISSig verification successful.';
+  VerificationSuccessfulLogMessage = 'Verification successful.';
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
+  const HashVerify, ISSigVerify: Boolean; const HashExpectedHash: PSHA256Digest;
+  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
   const AExpectedSize: Integer64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
@@ -358,8 +359,11 @@ var
   Context: TSHA256Context;
 begin
   var ExpectedFileHash: TSHA256Digest;
-  if ISSigVerify then begin
-    DoISSigVerify(SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
+  if HashVerify or ISSigVerify then begin
+    if HashVerify then
+      ExpectedFileHash := HashExpectedHash^
+    else
+      DoISSigVerify(SourceF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
     { ExpectedFileHash checked below after copy }
     SHA256Init(Context);
   end;
@@ -391,10 +395,10 @@ begin
     ExternalProgressProc64(To64(BufSize), MaxProgress);
   end;
 
-  if ISSigVerify then begin
+  if HashVerify or ISSigVerify then begin
     if not SHA256DigestsEqual(SHA256Final(Context), ExpectedFileHash) then
-      ISSigVerifyError(vseFileHashIncorrect);
-    Log(ISSigVerificationSuccessfulLogMessage);
+      VerificationError(veFileHashIncorrect);
+    Log(VerificationSuccessfulLogMessage);
   end;
 
   { In case the source file was shorter than we thought it was, bump the
@@ -1196,7 +1200,6 @@ var
     CurFileVersionInfoValid: Boolean;
     CurFileVersionInfo, ExistingVersionInfo: TFileVersionNumbers;
     CurFileDateValid, ExistingFileDateValid: Boolean;
-    CurFileHash, ExistingFileHash: TSHA256Digest;
     IsProtectedFile, AllowTimeStampComparison: Boolean;
     DeleteFlags: Longint;
     CurFileDate, ExistingFileDate: TFileTime;
@@ -1386,7 +1389,9 @@ var
                    not(foOverwriteSameVersion in CurFile^.Options) then begin
                   if foReplaceSameVersionIfContentsDiffer in CurFile^.Options then begin
                     { Get the two files' SHA-256 hashes and compare them }
+                    var ExistingFileHash: TSHA256Digest;
                     if TryToGetSHA256OfFile(DisableFsRedir, DestFile, ExistingFileHash) then begin
+                      var CurFileHash: TSHA256Digest;
                       if Assigned(CurFileLocation) then
                         CurFileHash := CurFileLocation^.SHA256Sum
                       else begin
@@ -1592,11 +1597,11 @@ var
                   { Download the .issig file }
                   const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
                   DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
-                    ISSigDestF, False, '', '', JustProcessEventsProc64, To64(0));
+                    ISSigDestF, False, False, nil, '', '', JustProcessEventsProc64, To64(0));
                   FreeAndNil(ISSigDestF);
                   { Download and verify the actual file }
                   DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                    DestF, True, CurFile^.ISSigAllowedKeys, TempFile, ExternalProgressProc64, MaxProgress);
+                    DestF, False, True, nil, CurFile^.ISSigAllowedKeys, TempFile, ExternalProgressProc64, MaxProgress);
                 finally
                   ISSigDestF.Free;
                   { Delete the .issig file }
@@ -1604,7 +1609,8 @@ var
                 end;
               end else
                 DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                  DestF, False, '', '', ExternalProgressProc64, MaxProgress);
+                  DestF, foHashVerify in CurFile^.Options, False, @CurFile^.Hash[0],
+                    '', '', ExternalProgressProc64, MaxProgress);
             end
             else begin
               { Copy a duplicated non-external file, or an external file }
@@ -1612,11 +1618,12 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, False,
+                  CopySourceFileToDestFile(SourceF, DestF, False, False, nil,
                     '', '', CurFileLocation^.OriginalSize)
                 else
-                  CopySourceFileToDestFile(SourceF, DestF, foISSigVerify in CurFile^.Options,
-                    CurFile^.ISSigAllowedKeys, SourceFile, AExternalSize);
+                  CopySourceFileToDestFile(SourceF, DestF, foHashVerify in CurFile^.Options,
+                    foISSigVerify in CurFile^.Options, @CurFile^.Hash[0], CurFile^.ISSigAllowedKeys,
+                    SourceFile, AExternalSize);
               finally
                 SourceF.Free;
               end;
@@ -2030,17 +2037,21 @@ var
         var Failed: String;
         repeat
           try
-            if foISSigVerify in CurFile^.Options then begin
-              if ISSigVerifySourceF = nil then
-                ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+            if  (foHashVerify in CurFile^.Options) or (foISSigVerify in CurFile^.Options) then begin
               var ExpectedFileHash: TSHA256Digest;
-              DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
+              if foHashVerify in CurFile^.Options then
+                ExpectedFileHash := CurFile^.Hash
+              else begin
+                if ISSigVerifySourceF = nil then
+                  ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+                DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.ISSigAllowedKeys,
                 ExpectedFileHash);
+              end;
               { Can't get the SHA-256 while extracting so need to get and check it now }
               const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
               if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
-                ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
-              Log(ISSigVerificationSuccessfulLogMessage);
+                VerificationError(veFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+              Log(VerificationSuccessfulLogMessage);
               { Keeping ISSigVerifySourceF open until extraction has completed }
             end;
 
@@ -3799,8 +3810,8 @@ begin
 end;
 
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
-  const DestF: TFile; const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
-  const ISSigSourceFilename: String;
+  const DestF: TFile; const HashVerify, ISSigVerify: Boolean; const ExpectedHash: PSHA256Digest;
+  const ISSigAllowedKeys: AnsiString; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
   const OnSimpleDownloadProgressParam: Integer64): Int64;
 var
@@ -3856,13 +3867,16 @@ begin
       FreeAndNil(HandleStream);
 
       { Check .issig if specified, otherwise check everything else we can check }
-      if ISSigVerify then begin
+      if HashVerify or ISSigVerify then begin
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(DestF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
+        if HashVerify then
+          ExpectedFileHash := ExpectedHash^
+        else
+          DoISSigVerify(DestF, nil, ISSigSourceFilename, ISSigAllowedKeys, ExpectedFileHash);
         const FileHash = GetSHA256OfFile(DestF);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
-        Log(ISSigVerificationSuccessfulLogMessage);
+          VerificationError(veFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+        Log(VerificationSuccessfulLogMessage);
       end else begin
         if HTTPDataReceiver.ProgressMax > 0 then begin
           if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
@@ -3879,9 +3893,9 @@ begin
   end;
 end;
 
-function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString;
-  const OnDownloadProgress: TOnDownloadProgress): Int64;
+function DownloadTemporaryFile(const Url, BaseName: String;
+  const HashVerify, ISSigVerify: Boolean; const ExpectedHash: PSHA256Digest;
+  const ISSigAllowedKeys: AnsiString; const OnDownloadProgress: TOnDownloadProgress): Int64;
 var
   DestFile, TempFile: String;
   TempF: TFile;
@@ -3890,7 +3904,6 @@ var
   HTTPDataReceiver: THTTPDataReceiver;
   HTTPClient: THTTPClient;
   HTTPResponse: IHTTPResponse;
-  SHA256OfFile: String;
   RetriesLeft: Integer;
   LastError: DWORD;
   User, Pass, CleanUrl: String;
@@ -3909,7 +3922,13 @@ begin
 
   { Prepare directory }
   if NewFileExists(DestFile) then begin
-    if ISSigVerify then begin
+    if HashVerify then begin
+      if SHA256DigestsEqual(GetSHA256OfFile(False, DestFile), ExpectedHash^) then begin
+        Log('  File already downloaded.');
+        Result := 0;
+        Exit;
+      end;
+    end else if ISSigVerify then begin
       var ExistingFileSize: Int64;
       var ExistingFileHash: TSHA256Digest;
       if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
@@ -3926,11 +3945,6 @@ begin
           DestF.Free;
         end;
       end;
-    end else if (RequiredSHA256OfFile <> '') and
-                SameText(RequiredSHA256OfFile, SHA256DigestToString(GetSHA256OfFile(False, DestFile))) then begin
-      Log('  File already downloaded.');
-      Result := 0;
-      Exit;
     end;
 
     SetFileAttributes(PChar(DestFile), GetFileAttributes(PChar(DestFile)) and not FILE_ATTRIBUTE_READONLY);
@@ -3991,26 +4005,21 @@ begin
       Result := HandleStream.Size;
       FreeAndNil(HandleStream);
 
-      { Check .issig or hash if specified, otherwise check everything else we can check }
-      if ISSigVerify then begin
+      { Check hash or .issig if specified, otherwise check everything else we can check }
+      if HashVerify or ISSigVerify then begin
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
+        if HashVerify then
+          ExpectedFileHash := ExpectedHash^
+        else
+          DoISSigVerify(TempF, nil, DestFile, ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(False, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          ISSigVerifyError(vseFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
-        Log(ISSigVerificationSuccessfulLogMessage);
+          VerificationError(veFileHashIncorrect, SetupMessages[msgSourceIsCorrupted]);
+        Log(VerificationSuccessfulLogMessage);
       end else begin
         FreeAndNil(TempF);
-        if RequiredSHA256OfFile <> '' then begin
-          try
-            SHA256OfFile := SHA256DigestToString(GetSHA256OfFile(False, TempFile));
-          except on E: Exception do
-            raise Exception.Create(FmtSetupMessage(msgErrorFileHash1, [E.Message]));
-          end;
-          if not SameText(RequiredSHA256OfFile, SHA256OfFile) then
-            raise Exception.Create(FmtSetupMessage(msgErrorFileHash2, [RequiredSHA256OfFile, SHA256OfFile]));
-        end else if HTTPDataReceiver.ProgressMax > 0 then begin
+        if HTTPDataReceiver.ProgressMax > 0 then begin
           if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
             raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
           else if HTTPDataReceiver.ProgressMax <> Result then

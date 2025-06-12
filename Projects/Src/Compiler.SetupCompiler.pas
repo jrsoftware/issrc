@@ -256,7 +256,7 @@ type
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
     function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
-    procedure ISSigVerifyError(const AError: TISSigVerifySignatureError;
+    procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
   public
     AppData: Longint;
@@ -324,8 +324,9 @@ type
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
     Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
-      floSolidBreak, floISSigVerify);
+      floSolidBreak, floHashVerify, floISSigVerify);
     Sign: TFileLocationSign;
+    Hash: TSHA256Digest;
     ISSigAllowedKeys: AnsiString;
     ISSigKeyUsedID: String;
   end;
@@ -4668,7 +4669,7 @@ procedure TSetupCompiler.EnumFilesProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paSource, paDestDir, paDestName, paCopyMode, paAttribs,
     paPermissions, paFontInstall, paExcludes, paExternalSize, paExtractArchivePassword,
-    paStrongAssemblyName, paISSigAllowedKeys, paDownloadISSigSource, paDownloadUserName,
+    paStrongAssemblyName, paHash, paISSigAllowedKeys, paDownloadISSigSource, paDownloadUserName,
     paDownloadPassword, paComponents, paTasks, paLanguages, paCheck, paBeforeInstall,
     paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
@@ -4683,6 +4684,7 @@ const
   ParamFilesExternalSize = 'ExternalSize';
   ParamFilesExtractArchivePassword = 'ExtractArchivePassword';
   ParamFilesStrongAssemblyName = 'StrongAssemblyName';
+  ParamFilesHash = 'Hash';
   ParamFilesISSigAllowedKeys = 'ISSigAllowedKeys';
   ParamFilesDownloadISSigSource = 'DownloadISSigSource';
   ParamFilesDownloadUserName = 'DownloadUserName';
@@ -4700,6 +4702,7 @@ const
     (Name: ParamFilesExternalSize; Flags: []),
     (Name: ParamFilesExtractArchivePassword; Flags: []),
     (Name: ParamFilesStrongAssemblyName; Flags: [piNoEmpty]),
+    (Name: ParamFilesHash; Flags: [piNoEmpty]),
     (Name: ParamFilesISSigAllowedKeys; Flags: [piNoEmpty]),
     (Name: ParamFilesDownloadISSigSource; Flags: []),
     (Name: ParamFilesDownloadUserName; Flags: [piNoEmpty]),
@@ -4982,11 +4985,18 @@ type
               to compressing the first one }
             SolidBreak := False;
           end;
+          NewFileLocationEntryExtraInfo^.Hash := NewFileEntry^.Hash;
           NewFileLocationEntryExtraInfo^.ISSigAllowedKeys := NewFileEntry^.ISSigAllowedKeys;
-        end else if NewFileLocationEntryExtraInfo^.ISSigAllowedKeys <> NewFileEntry^.ISSigAllowedKeys then
-          AbortCompile(SCompilerFilesISSigAllowedKeysConflict);
+        end else begin
+          if not CompareMem(@NewFileLocationEntryExtraInfo^.Hash[0], @NewFileEntry^.Hash[0], SizeOf(TSHA256Digest)) then
+            AbortCompileFmt(SCompilerFilesValueConflict, ['Hash']);
+          if NewFileLocationEntryExtraInfo^.ISSigAllowedKeys <> NewFileEntry^.ISSigAllowedKeys then
+            AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
+        end;
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
+        if foHashVerify in NewFileEntry^.Options then
+          Include(NewFileLocationEntryExtraInfo^.Flags, floHashVerify);
         if foISSigVerify in NewFileEntry^.Options then
           Include(NewFileLocationEntryExtraInfo^.Flags, floISSigVerify);
         { Note: "nocompression"/"noencryption" on one file makes all merged
@@ -5345,7 +5355,7 @@ begin
                { ExternalSize }
                if Values[paExternalSize].Found then begin
                  if not ExternalFile then
-                   AbortCompile(SCompilerFilesCantHaveNonExternalExternalSize);
+                   AbortCompileFmt(SCompilerFilesParamRequiresFlag, ['ExternalSize', 'external']);
                  if not StrToInteger64(Values[paExternalSize].Data, ExternalSize) then
                    AbortCompileParamError(SCompilerParamInvalid2, ParamFilesExternalSize);
                  Include(Options, foExternalSizePreset);
@@ -5362,6 +5372,12 @@ begin
 
                { ExtractArchivePassword }
                ExtractArchivePassword := Values[paExtractArchivePassword].Data;
+
+               { Hash }
+               if Values[paHash].Found then begin
+                 Hash := SHA256DigestFromString(Values[paHash].Data);
+                 Include(Options, foHashVerify);
+               end;
 
                { ISSigAllowedKeys }
                var S := Values[paISSigAllowedKeys].Data;
@@ -5483,7 +5499,13 @@ begin
         if (ISSigAllowedKeys <> '') and not (foISSigVerify in Options) then
           AbortCompile(SCompilerFilesISSigAllowedKeysMissingISSigVerify);
 
+        if (foHashVerify in Options) and (foISSigVerify in Options) then
+          AbortCompileFmt(SCompilerFilesParamRequiresFlag, ['Hash', 'issigverify']);
+
         if Sign in [fsYes, fsOnce] then begin
+          if foHashVerify in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2,
+              [ParamCommonFlags, SignFlags[Sign], 'hashverify']);
           if foISSigVerify in Options then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, SignFlags[Sign], 'issigverify']);
@@ -6643,10 +6665,10 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.ISSigVerifyError(const AError: TISSigVerifySignatureError;
+procedure TSetupCompiler.VerificationError(const AError: TVerificationError;
   const AFilename, ASigFilename: String);
 const
-  Messages: array[TISSigVerifySignatureError] of String =
+  Messages: array[TVerificationError] of String =
     (SCompilerVerificationSignatureDoesntExist, SCompilerVerificationSignatureMalformed,
      SCompilerVerificationKeyNotFound, SCompilerVerificationSignatureBad,
      SCompilerVerificationFileSizeIncorrect, SCompilerVerificationFileHashIncorrect);
@@ -7149,7 +7171,9 @@ var
           fdOpenExisting, faRead, fsRead);
         try
           var ExpectedFileHash: TSHA256Digest;
-          if floISSigVerify in FLExtraInfo.Flags then begin
+          if floHashVerify in FLExtraInfo.Flags then
+            ExpectedFileHash := FLExtraInfo.Hash
+          else if floISSigVerify in FLExtraInfo.Flags then begin
             { See Setup.Install's CopySourceFileToDestFile for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
@@ -7160,15 +7184,15 @@ var
               nil,
               procedure(const Filename, SigFilename: String)
               begin
-                ISSigVerifyError(vseSignatureMissing, Filename, SigFilename);
+                VerificationError(veSignatureMissing, Filename, SigFilename);
               end,
               procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
               begin
                 var VerifyResultAsString: String;
                 case VerifyResult of
-                  vsrMalformed: ISSigVerifyError(vseSignatureMalformed, Filename, SigFilename);
-                  vsrBad: ISSigVerifyError(vseSignatureBad, Filename, SigFilename);
-                  vsrKeyNotFound: ISSigVerifyError(vseKeyNotFound, Filename, SigFilename);
+                  vsrMalformed: VerificationError(veSignatureMalformed, Filename, SigFilename);
+                  vsrBad: VerificationError(veSignatureBad, Filename, SigFilename);
+                  vsrKeyNotFound: VerificationError(veKeyNotFound, Filename, SigFilename);
                 else
                   AbortCompileFmt(SCompilerCompressInternalError, ['Unknown ISSigVerifySignature result'])
                 end;
@@ -7176,7 +7200,7 @@ var
             ) then
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if Int64(SourceFile.Size) <> ExpectedFileSize then
-              ISSigVerifyError(vseFileSizeIncorrect, FileLocationEntryFilenames[I]);
+              VerificationError(veFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }
           end;
 
@@ -7226,10 +7250,10 @@ var
           CH.CompressFile(SourceFile, FL.OriginalSize,
             floCallInstructionOptimized in FL.Flags, FL.SHA256Sum);
 
-          if floISSigVerify in FLExtraInfo.Flags then begin
+          if (floHashVerify in FLExtraInfo.Flags) or (floISSigVerify in FLExtraInfo.Flags) then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
-              ISSigVerifyError(vseFileHashIncorrect, FileLocationEntryFilenames[I]);
-            AddStatus(SCompilerStatusFilesISSigVerified);
+              VerificationError(veFileHashIncorrect, FileLocationEntryFilenames[I]);
+            AddStatus(SCompilerStatusFilesVerified);
           end;
         finally
           SourceFile.Free;

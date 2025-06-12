@@ -93,8 +93,6 @@ type
     msgErrorExtracting,
     msgErrorExtractionAborted,
     msgErrorExtractionFailed,
-    msgErrorFileHash1,
-    msgErrorFileHash2,
     msgErrorFileSize,
     msgErrorFunctionFailed,
     msgErrorFunctionFailedNoCode,

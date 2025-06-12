@@ -236,6 +236,7 @@ type
     Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
     DownloadISSigSource, DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
     ISSigAllowedKeys: AnsiString;
+    Hash: TSHA256Digest;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
     Attribs: Integer;
@@ -251,7 +252,7 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall, foISSigVerify, foDownload,
+      foUnsetNTFSCompression, foGacInstall, foHashVerify, foISSigVerify, foDownload,
       foExtractArchive);
     FileType: (ftUserFile, ftUninstExe);
   end;

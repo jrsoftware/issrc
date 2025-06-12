@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
+  SHA256, Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -173,8 +173,9 @@ type
   end;
 
   TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-    ISSigVerify: Boolean;
+    Url, BaseName, UserName, Password: String;
+    HashVerify, ISSigVerify: Boolean;
+    Hash: TSHA256Digest;
     ISSigAllowedKeys: AnsiString;
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
@@ -1063,9 +1064,13 @@ begin
   var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
-  F.RequiredSHA256OfFile := RequiredSHA256OfFile;
   F.UserName := UserName;
   F.Password := Password;
+  F.HashVerify := RequiredSHA256OfFile <> '';
+  if F.HashVerify then
+    F.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+  else
+    ZeroMemory(@F.Hash[0], SizeOf(F.Hash)); { not really necessary }
   F.ISSigVerify := ISSigVerify;
   F.ISSigAllowedKeys := ISSigAllowedKeys;
   Result := FFiles.Add(F);
@@ -1132,8 +1137,8 @@ begin
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
-    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,
-      F.ISSigVerify, F.ISSigAllowedKeys, InternalOnDownloadProgress);
+    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.HashVerify, F.ISSigVerify,
+      @F.Hash[0], F.ISSigAllowedKeys, InternalOnDownloadProgress);
   end;
   SetDownloadTemporaryFileCredentials('', '');
 end;
