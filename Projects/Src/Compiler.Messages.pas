@@ -218,7 +218,7 @@ const
   { Flags }
   SCompilerParamUnknownFlag2 = 'Parameter "%s" includes an unknown flag';
   SCompilerParamErrorBadCombo2 = 'Parameter "%s" cannot have both the "%s" and "%s" flags';
-  SCompilerParamErrorBadCombo2SameSource = 'Parameter "%s" cannot have both the "%s" and "%s" flags on the same source file';
+  SCompilerParamErrorBadCombo2SameSource = 'Parameter "%s" cannot have both the "%s" and "%s" flags on a single source file';
   SCompilerParamUnsupportedFlag = 'Parameter "%s" includes a flag that is not supported in this section';
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
@@ -291,12 +291,9 @@ const
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
     'the "Source" parameter contains wildcards or flag "extractarchive" is used';
-  SCompilerFilesParamRequiresFlag = 'Parameter "%s" may only be used when ' +
-    'the "%s" flag is used';
-  SCompilerFilesParamFlagConflict = 'Parameter "%s" may not be used when ' +
-    'the "%s" flag is used';
-  SCompilerFilesParamFlagConflictSameSource = 'Parameter "%s" may not be used when ' +
-    'the "%s" flag is used on the same source file';
+  SCompilerFilesParamRequiresFlag = 'Parameter "%s" may only be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflict = 'Parameter "%s" may not be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflictSameSource = 'Parameter "%s" and the "%s" flag cannot both be used on a single source file';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
   SCompilerFilesUnsafeFile = 'Unsafe file detected: %s.' + SNewLine2 +
     'See the "Unsafe Files" topic in the help file for more information';

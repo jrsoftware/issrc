@@ -2033,7 +2033,7 @@ var
         InternalError('Unexpected custom DestName');
       const DestDir = ExpandConst(CurFile^.DestName);
 
-      var ISSigVerifySourceF: TFile := nil;
+      var VerifySourceF: TFile := nil;
       try
         var FindData: TWin32FindData;
         var H: TArchiveFindHandle := INVALID_HANDLE_VALUE;
@@ -2041,21 +2041,21 @@ var
         repeat
           try
             if CurFile^.Verification.Typ <> fvNone then begin
+              if VerifySourceF = nil then
+                VerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
               var ExpectedFileHash: TSHA256Digest;
               if CurFile^.Verification.Typ = fvHash then
                 ExpectedFileHash := CurFile^.Verification.Hash
               else begin
-                if ISSigVerifySourceF = nil then
-                  ISSigVerifySourceF := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
-                DoISSigVerify(ISSigVerifySourceF, nil, ArchiveFilename, CurFile^.Verification.ISSigAllowedKeys,
+                DoISSigVerify(VerifySourceF, nil, ArchiveFilename, CurFile^.Verification.ISSigAllowedKeys,
                 ExpectedFileHash);
               end;
               { Can't get the SHA-256 while extracting so need to get and check it now }
-              const ActualFileHash = GetSHA256OfFile(ISSigVerifySourceF);
+              const ActualFileHash = GetSHA256OfFile(VerifySourceF);
               if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
                 VerificationError(veFileHashIncorrect);
               Log(VerificationSuccessfulLogMessage);
-              { Keeping ISSigVerifySourceF open until extraction has completed }
+              { Keep VerifySourceF open until extraction has completed to prevent TOCTOU problem }
             end;
 
             H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
@@ -2108,7 +2108,7 @@ var
           Log('Successfully extracted the archive.');
         end;
       finally
-        ISSigVerifySourceF.Free;
+        VerifySourceF.Free;
       end;
     end;
 

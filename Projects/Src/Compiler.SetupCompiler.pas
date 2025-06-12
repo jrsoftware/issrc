@@ -4997,10 +4997,15 @@ type
           NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
           NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
         end else begin
-          if not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
-             @NewFileEntry^.Verification.Hash[0], SizeOf(TSHA256Digest)) then
+          { Verification.Typ changes checked below }
+          if (NewFileLocationEntryExtraInfo^.Verification.Typ = fvHash) and
+             (NewFileEntry^.Verification.Typ = fvHash) and
+             not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
+               @NewFileEntry^.Verification.Hash[0], SizeOf(TSHA256Digest)) then
             AbortCompileFmt(SCompilerFilesValueConflict, ['Hash']);
-          if NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys then
+          if (NewFileLocationEntryExtraInfo^.Verification.Typ = fvISSig) and
+             (NewFileEntry^.Verification.Typ = fvISSig) and
+             (NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys) then
             AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
         end;
         if Touch then
