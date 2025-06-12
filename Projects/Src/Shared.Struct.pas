@@ -231,7 +231,7 @@ const
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
-  TSetupFileVerificationType = (fvNone, fvHash, fvISSig); { fvNone must be first }
+  TSetupFileVerificationType = (fvNone, fvHash, fvISSig);
   TSetupFileVerification = packed record
     ISSigAllowedKeys: AnsiString; { Must be first }
     Hash: TSHA256Digest;

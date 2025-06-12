@@ -14,6 +14,8 @@ interface
 uses
   Classes, SHA256, Shared.FileClass, Shared.SetupTypes, Shared.Int64Em, Shared.Struct;
 
+function NoVerification: TSetupFileVerification;
+
 procedure VerificationError(const AError: TVerificationError;
   const ASigFilename: String = '');
 
@@ -283,6 +285,12 @@ begin
   except
     Result := False;
   end;
+end;
+
+function NoVerification: TSetupFileVerification;
+begin
+  Result := Default(TSetupFileVerification);
+  Result.Typ := fvNone;
 end;
 
 procedure VerificationError(const AError: TVerificationError;
@@ -1594,7 +1602,7 @@ var
                   { Download the .issig file }
                   const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
                   DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
-                    ISSigDestF, Default(TSetupFileVerification), '', JustProcessEventsProc64, To64(0));
+                    ISSigDestF, NoVerification, '', JustProcessEventsProc64, To64(0));
                   FreeAndNil(ISSigDestF);
                   { Download and verify the actual file }
                   DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
@@ -1614,7 +1622,7 @@ var
               try
                 LastOperation := SetupMessages[msgErrorCopying];
                 if Assigned(CurFileLocation) then
-                  CopySourceFileToDestFile(SourceF, DestF, Default(TSetupFileVerification),
+                  CopySourceFileToDestFile(SourceF, DestF, NoVerification,
                     '', CurFileLocation^.OriginalSize)
                 else
                   CopySourceFileToDestFile(SourceF, DestF, CurFile^.Verification,

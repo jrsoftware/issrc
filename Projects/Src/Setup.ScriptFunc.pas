@@ -822,7 +822,7 @@ var
         OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-4, Caller));
       end;
 
-      var Verification := Default(TSetupFileVerification);
+      var Verification := NoVerification;
       if RequiredSHA256OfFile <> '' then begin
         Verification.Typ := fvHash;
         Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
@@ -833,7 +833,7 @@ var
 
       { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
       if ISSigVerify then
-        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, Default(TSetupFileVerification), OnDownloadProgress);
+        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, OnDownloadProgress);
       Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress));
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)

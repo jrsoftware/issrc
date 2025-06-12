@@ -1064,7 +1064,7 @@ begin
   F.BaseName := BaseName;
   F.UserName := UserName;
   F.Password := Password;
-  F.Verification := Default(TSetupFileVerification);
+  F.Verification := NoVerification;
   if RequiredSHA256OfFile <> '' then begin
     F.Verification.Typ := fvHash;
     F.Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
