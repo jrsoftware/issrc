@@ -1844,6 +1844,16 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
   end;
 
+  function AskRetryDownloadArchivesToExtract(const Failed: String): Integer;
+  begin
+    {!!!} //make this a proper message - also see RenameUninstallExe which has a retrycancel msgbox as well
+    Result := LoggedMsgBox(Failed + SNewLine2 + 'Retry?', '', mbConfirmation, MB_RETRYCANCEL, True, IDCANCEL);
+    if (Result <> IDRETRY) and (Result <> IDCANCEL) then begin
+      Log('LoggedMsgBox returned an unexpected value. Assuming Cancel.');
+      Result := IDCANCEL;
+    end;
+  end;
+
   procedure DownloadArchivesToExtract;
   begin
     var DownloadPage: TDownloadWizardPage := nil;
@@ -1886,9 +1896,21 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
       if DownloadPage <> nil then begin
         DownloadPage.Show;
         try
-          DownloadPage.Download;
+          var Failed: String;
+          repeat
+            Failed := '';
+            try
+              DownloadPage.Download;  { Does not throw EAbort }
+            except
+              Failed := GetExceptMessage;
+            end;
+          until (Failed = '') or (AskRetryDownloadArchivesToExtract(Failed) = IDCANCEL);
+          if Failed <> '' then
+            raise Exception.Create(Failed);
+
           for var A in ArchivesToDownload do begin
             with PSetupFileEntry(Entries[seFile][A.Key])^ do begin
+              {!!!} //make it do this per file immediately after file's download success - so that on retries it skips files which succeeded
               SourceFilename := A.Value;
               { Remove Download flag since download has been done, and remove CustomDestName flag
                 since ExtractArchive flag doesn't like that }
