@@ -4007,7 +4007,7 @@ begin
       FreeAndNil(HandleStream);
 
       { Check verification if specified, otherwise check everything else we can check }
-      if Verification.Typ = fvNone then begin
+      if Verification.Typ <> fvNone then begin
         var ExpectedFileHash: TSHA256Digest;
         if Verification.Typ = fvHash then
           ExpectedFileHash := Verification.Hash
