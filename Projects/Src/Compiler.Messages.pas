@@ -53,7 +53,7 @@ const
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
-  SCompilerStatusFilesISSigVerified = '      ISSig verification successful.';
+  SCompilerStatusFilesVerified = '      Verification successful.';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
@@ -218,7 +218,7 @@ const
   { Flags }
   SCompilerParamUnknownFlag2 = 'Parameter "%s" includes an unknown flag';
   SCompilerParamErrorBadCombo2 = 'Parameter "%s" cannot have both the "%s" and "%s" flags';
-  SCompilerParamErrorBadCombo3 = 'Parameter "%s" cannot have both the "%s" and "%s" flags on the same source file';
+  SCompilerParamErrorBadCombo2SameSource = 'Parameter "%s" cannot have both the "%s" and "%s" flags on a single source file';
   SCompilerParamUnsupportedFlag = 'Parameter "%s" includes a flag that is not supported in this section';
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
@@ -291,8 +291,9 @@ const
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
     'the "Source" parameter contains wildcards or flag "extractarchive" is used';
-  SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
-    'the "external" flag is used';
+  SCompilerFilesParamRequiresFlag = 'Parameter "%s" may only be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflict = 'Parameter "%s" may not be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflictSameSource = 'Parameter "%s" and the "%s" flag cannot both be used on a single source file';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
   SCompilerFilesUnsafeFile = 'Unsafe file detected: %s.' + SNewLine2 +
     'See the "Unsafe Files" topic in the help file for more information';
@@ -312,7 +313,7 @@ const
     'documentation in the help file for details.';
   SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
   SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
-  SCompilerFilesISSigAllowedKeysConflict = 'Parameter "ISSigAllowedKeys" cannot allow different keys on the same source file';
+  SCompilerFilesValueConflict = 'Parameter "%s" cannot allow different values on the same source file';
   SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }

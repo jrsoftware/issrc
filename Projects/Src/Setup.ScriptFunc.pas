@@ -822,10 +822,19 @@ var
         OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-4, Caller));
       end;
 
+      var Verification := NoVerification;
+      if RequiredSHA256OfFile <> '' then begin
+        Verification.Typ := fvHash;
+        Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+      end else if ISSigVerify then begin
+        Verification.Typ := fvISSig;
+        Verification.ISSigAllowedKeys := ISSigAllowedKeys
+      end;
+
       { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
       if ISSigVerify then
-        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', False, '', OnDownloadProgress);
-      Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, RequiredSHA256OfFile, ISSigVerify, ISSigAllowedKeys, OnDownloadProgress));
+        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, OnDownloadProgress);
+      Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress));
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1864,7 +1873,7 @@ var
          { Couldn't get the SHA-256 while downloading so need to get and check it now }
         const ActualFileHash = ISSigCalcStreamHash(F);
         if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
-          ISSigVerifyError(vseFileHashIncorrect);
+          VerificationError(veFileHashIncorrect);
       except
         FreeAndNil(F);
         raise;

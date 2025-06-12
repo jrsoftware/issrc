@@ -231,11 +231,17 @@ const
   SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
+  TSetupFileVerificationType = (fvNone, fvHash, fvISSig);
+  TSetupFileVerification = packed record
+    ISSigAllowedKeys: AnsiString; { Must be first }
+    Hash: TSHA256Digest;
+    Typ: TSetupFileVerificationType;
+  end;
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
     Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
     DownloadISSigSource, DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
-    ISSigAllowedKeys: AnsiString;
+    Verification: TSetupFileVerification; { Must be first after strings }
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
     Attribs: Integer;
@@ -251,7 +257,7 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall, foISSigVerify, foDownload,
+      foUnsetNTFSCompression, foGacInstall, foDownload,
       foExtractArchive);
     FileType: (ftUserFile, ftUninstExe);
   end;

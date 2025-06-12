@@ -1665,6 +1665,13 @@ ExternalSize: 1_048_576; Flags: external
 </example>
 </param>
 
+<param name="Hash">
+<p>Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag. The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag. See the <tt>issigverify</tt> flag description for more information.</p>
+<example>
+<pre>Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"</pre>
+</example>
+</param>
+
 <param name="ExtractArchivePassword">
 <p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
@@ -3709,7 +3716,7 @@ Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
 <p>Compile the script. In the compiler output, you should see a line indicating the file was successfully verified:</p>
 <precode>
    Compressing: MyFile.txt
-      ISSig verification successful.
+      Verification successful.
 </precode>
 </li>
 

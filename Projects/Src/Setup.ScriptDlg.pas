@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
+  Shared.Struct, Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -173,9 +173,8 @@ type
   end;
 
   TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-    ISSigVerify: Boolean;
-    ISSigAllowedKeys: AnsiString;
+    Url, BaseName, UserName, Password: String;
+    Verification: TSetupFileVerification;
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
 
@@ -249,8 +248,8 @@ function ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(const AllowedKeysRuntime
 implementation
 
 uses
-  StrUtils, ISSigFunc,
-  Shared.Struct, Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
+  StrUtils, ISSigFunc, SHA256,
+  Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc,
   Compression.SevenZipDLLDecoder;
@@ -1063,11 +1062,16 @@ begin
   var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
-  F.RequiredSHA256OfFile := RequiredSHA256OfFile;
   F.UserName := UserName;
   F.Password := Password;
-  F.ISSigVerify := ISSigVerify;
-  F.ISSigAllowedKeys := ISSigAllowedKeys;
+  F.Verification := NoVerification;
+  if RequiredSHA256OfFile <> '' then begin
+    F.Verification.Typ := fvHash;
+    F.Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+  end else if ISSigVerify then begin
+    F.Verification.Typ := fvISSig;
+    F.Verification.ISSigAllowedKeys := ISSigAllowedKeys
+  end;
   Result := FFiles.Add(F);
 end;
 
@@ -1132,8 +1136,7 @@ begin
   for var F in FFiles do begin
     { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
     SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
-    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile,
-      F.ISSigVerify, F.ISSigAllowedKeys, InternalOnDownloadProgress);
+    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress);
   end;
   SetDownloadTemporaryFileCredentials('', '');
 end;
