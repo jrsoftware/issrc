@@ -1809,6 +1809,9 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     { See above }
     Result := True;
 
+    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+      Exit;
+
     if foCustomDestName in CurFile^.Options then
       InternalError('Unexpected CustomDestName flag');
     const DestDir = ExpandConst(CurFile^.DestName);
@@ -2828,6 +2831,9 @@ var
   begin
     { See above }
     Result := To64(0);
+
+    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+      Exit;
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,

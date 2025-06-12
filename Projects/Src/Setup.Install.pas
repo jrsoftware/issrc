@@ -2033,6 +2033,8 @@ var
         InternalError('Unexpected custom DestName');
       const DestDir = ExpandConst(CurFile^.DestName);
 
+      Log('-- Archive entry --');
+
       var VerifySourceF: TFile := nil;
       try
         var FindData: TWin32FindData;
