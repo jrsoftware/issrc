@@ -3716,7 +3716,7 @@ Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
 <p>Compile the script. In the compiler output, you should see a line indicating the file was successfully verified:</p>
 <precode>
    Compressing: MyFile.txt
-      ISSig verification successful.
+      Verification successful.
 </precode>
 </li>
 
