@@ -245,7 +245,7 @@ const
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
     'DestDir', 'DestName', 'DownloadISSigSource', 'DownloadPassword',
     'DownloadUserName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
-    'Flags', 'FontInstall', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
+    'Flags', 'FontInstall', 'Hash', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
     'OnlyBelowVersion', 'Permissions', 'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
