@@ -226,8 +226,6 @@ StopDownload=Sei sicuro di voler interrompere il download?
 ErrorDownloadAborted=Download annullato
 ErrorDownloadFailed=Download fallito: %1 %2
 ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %1 %2
-ErrorFileHash1=Errore hash file: %1
-ErrorFileHash2=Hash file non valido: atteso %1, trovato %2
 ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
 

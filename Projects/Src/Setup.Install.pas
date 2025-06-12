@@ -1558,7 +1558,7 @@ var
           AllowFileToBeDuplicated := False;
         end;
 
-        { Extract or copy the file to a temporary file. Create the destination
+        { Download or extract or copy the file to a temporary file. Create the destination
           file's directory if it didn't already exist. }
         LastOperation := SetupMessages[msgErrorCreatingTemp];
         TempFile := GenerateUniqueName(DisableFsRedir, PathExtractPath(DestFile), '.tmp');
@@ -2181,7 +2181,7 @@ var
                   InternalError('Unexpected SkipIfSourceDoesntExist flag');
                 if not(foCustomDestName in CurFile^.Options) then
                   InternalError('Expected CustomDestName flag');
-                { CurFile^.DestName now includes a a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+                { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
                 ProcessFileEntry(CurFile, DisableFsRedir, SourceWildcard, ExpandConst(CurFile^.DestName),
                   nil, ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                   WarnedPerUserFonts, nil);
