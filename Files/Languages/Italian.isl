@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 25.11.2024  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 12.06.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -93,7 +93,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 10.06.2025)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 12.06.2025)
 
 ; *** Buttons
 ButtonBack=< &Indietro
@@ -292,6 +292,7 @@ AbortRetryIgnoreCancel=Annulla installazione
 StatusClosingApplications=Chiusura applicazioni...
 StatusCreateDirs=Creazione cartelle...
 StatusExtractFiles=Estrazione file...
+StatusDownloadFiles=Download file...
 StatusCreateIcons=Creazione icone...
 StatusCreateIniEntries=Creazione voci nei file INI...
 StatusCreateRegistryEntries=Creazione voci di registro...
@@ -345,6 +346,7 @@ ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica de
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:
 ErrorCopying=Si è verificato un errore durante la copia di un file:
+ErrorDownloading=Si è verificato un errore durante il download di un file:
 ErrorExtracting=Si è verificato un errore durante l'estrazione di un archivio:
 ErrorReplacingExistingFile=Si è verificato un errore durante la sovrascrittura del file esistente:
 ErrorRestartReplace=Errore durante riavvio o sostituzione:
