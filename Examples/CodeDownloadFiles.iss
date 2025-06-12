@@ -7,14 +7,14 @@
 ; To Install step. Other files will be downloaded directly to their destination
 ; during the actual installation. 
 ;
-; To verify the downloaded files, this script shows two methods:
+; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
 ;  Signature Tool, the [ISSigKeys] section, and the AddWithISSigVerify support
 ;  function
 ; -For iscrypt.dll: using a simple SHA-256 hash check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
-; need to be changed when the downloaded file changes, so any installers built
-; will also keep working (they are "evergreen")
+; need to be changed when the downloaded file or archive changes, so any
+; installers built will also keep working (they are "evergreen")
 
 [Setup]
 AppName=My Program
