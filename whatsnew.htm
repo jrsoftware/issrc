@@ -137,12 +137,16 @@ Name: bosskey; KeyFile: "boss.ispublickey"</pre>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
       <pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; Flags: issigverify; \
-  ISSigAllowedKeys: exesigner bosskey
-Source: "MyProg.chm"; DestDir: "{app}"; Flags: issigverify; \
-  ISSigAllowedKeys: docsigner bosskey
-Source: "{src}\Extra\*.chm"; DestDir: "{app}"; Flags: issigverify external; \
-  ISSigAllowedKeys: docsigner bosskey; Excludes: "*.issig"</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; \
+  ISSigAllowedKeys: "exesigner bosskey"; Flags: issigverify 
+Source: "MyProg.chm"; DestDir: "{app}"; \
+  ISSigAllowedKeys: "docsigner bosskey"; Flags: issigverify
+Source: "{src}\Extra\*.chm"; DestDir: "{app}"; \
+  ISSigAllowedKeys: "docsigner bosskey"; Flags: issigverify external; \
+  Excludes: "*.issig"
+Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestDir: "{app}"; \
+  ISSigAllowedKeys: "exesigner bosskey"; Flags: issigverify external download ignoreversion; \
+  DestName: "innosetup-latest.exe"; ExternalSize: 7_000_000</pre>
     </li>
   </ul>
   </li>
@@ -169,7 +173,13 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
   <li>Other related changes:
   <ul>
     <li>The compiler now verifies that precompiled files like <i>SetupLdr.e32</i> and <i>Setup.e32</i> remain unchanged before using them. Can be disabled using new [Setup] section directive <tt>VerifyPrecompiledFiles</tt>. Doing so is <i>not</i> recommended.</li>
-    <li>Added new [Files] section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.</li>
+    <li>Added new [Files] section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
+        Example script:
+      <pre>[Files]
+Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
+  Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
+  ExternalSize: 2560; Flags: external download ignoreversion</pre>
+    </li>
     <li>Pascal Scripting:
       <ul>
         <li>Added new <tt>ISSigVerify</tt> and <tt>DownloadTemporaryFileWithISSigVerify</tt> support functions.</li>
