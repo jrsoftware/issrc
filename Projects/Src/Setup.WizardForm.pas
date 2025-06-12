@@ -188,6 +188,7 @@ type
     PrepareToInstallNeedsRestart: Boolean;
     EnableAnchorOuterPagesOnResize: Boolean;
     EnableAdjustReadyLabelHeightOnResize: Boolean;
+    FDownloadArchivesPage: TWizardPage; { TWizardPage to avoid circular reference. Is always a TDownloadWizardPage. }
     procedure AdjustFocus;
     procedure AnchorOuterPages;
     procedure CalcCurrentComponentsSpace;
@@ -342,11 +343,12 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types,
-  PathFunc, RestartManager,
+  ShellApi, ShlObj, Types, Generics.Collections,
+  PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
-  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.SetupSteps;
+  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.SetupSteps,
+  Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.Install;
 
 {$R *.DFM}
 
@@ -1325,6 +1327,7 @@ begin
   FreeAndNil(PrevSelectedComponents);
   FreeAndNil(InitialSelectedComponents);
   FreeAndNil(FPageList);
+  FreeAndNil(FDownloadArchivesPage);
   inherited;
 end;
 
@@ -1819,6 +1822,91 @@ begin
 end;
 
 function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
+
+  function GetClearedDownloadArchivesPage: TDownloadWizardPage;
+  begin
+    if FDownloadArchivesPage = nil then begin
+      Result := TDownloadWizardPage.Create(Self);
+      try
+        Result.Caption := SetupMessages[msgWizardPreparing];
+        Result.Description := SetupMessages[msgPreparingDesc];
+        Result.ShowBaseNameInsteadOfUrl := True;
+        AddPage(Result, -1);
+        Result.Initialize;
+        FDownloadArchivesPage := Result;
+      except
+        FreeAndNil(Result);
+        raise;
+      end;
+    end else begin
+      Result := FDownloadArchivesPage as TDownloadWizardPage;
+      Result.Clear;
+    end;
+  end;
+
+  procedure DownloadArchivesToExtract;
+  begin
+    var DownloadPage: TDownloadWizardPage := nil;
+
+    const ArchivesToDownload = TDictionary<Integer, String>.Create;
+    try
+      for var I := 0 to Entries[seFile].Count-1 do begin
+        with PSetupFileEntry(Entries[seFile][I])^ do begin
+          if (foDownload in Options) and (foExtractArchive in Options) then begin
+            if DownloadPage = nil then
+              DownloadPage := GetClearedDownloadArchivesPage;
+            if not(foCustomDestName in Options) then
+              InternalError('Expected CustomDestName flag');
+            { Prepare }
+            const TempDir = AddBackslash(TempInstallDir);
+            const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
+            const DestFile = AddBackslash(DestDir) + PathExtractName(DestName);
+            const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
+             { Add to ArchivesToDownload }
+            ArchivesToDownload.Add(I, DestFile);
+            { Add to DownloadPage }
+            const SourceFile = ExpandConst(SourceFilename);
+            const UserName = ExpandConst(DownloadUserName);
+            const Password = ExpandConst(DownloadPassword);
+            if Verification.Typ = fvISSig then begin
+              const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(DownloadISSigSource));
+              DownloadPage.AddExWithISSigVerify(SourceFile, ISSigUrl, BaseName, UserName, Password, Verification.ISSigAllowedKeys)
+            end else begin
+              var RequiredSHA256OfFile: String;
+              if Verification.Typ = fvHash then
+                RequiredSHA256OfFile := SHA256DigestToString(Verification.Hash)
+              else
+                RequiredSHA256OfFile := '';
+              DownloadPage.AddEx(SourceFile, BaseName, RequiredSHA256OfFile, UserName, Password);
+            end;
+          end;
+        end;
+      end;
+
+      if DownloadPage <> nil then begin
+        DownloadPage.Show;
+        try
+          DownloadPage.Download;
+          for var A in ArchivesToDownload do begin
+            with PSetupFileEntry(Entries[seFile][A.Key])^ do begin
+              SourceFilename := A.Value;
+              { Remove Download flag since download has been done, and remove CustomDestName flag
+                since ExtractArchive flag doesn't like that }
+              Options := Options - [foDownload, foCustomDestName];
+              { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+              DestName := PathExtractPath(DestName);
+              Verification.Typ := fvNone;
+            end;
+          end;
+        finally
+          DownloadPage.Hide;
+        end;
+      end;
+    finally
+      ArchivesToDownload.Free;
+    end;
+  end;
+
 var
   CodeNeedsRestart: Boolean;
   Y: Integer;
@@ -1830,29 +1918,39 @@ begin
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
   PreparingMemo.Visible := False;
-  if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
-    Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
-    PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
-    SetCurPage(wpPreparing);
-    BackButton.Visible := False;
-    NextButton.Visible := False;
-    CancelButton.Enabled := False;
-    if InstallMode = imSilent then
-      WizardForm.Visible := True;
-    WizardForm.Update;
-    try
-      DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
-      CodeNeedsRestart := False;
-      Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
-      PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
-    finally
-      DownloadTemporaryFileOrExtractArchiveProcessMessages := False;
-      UpdateCurPageButtonState;
-    end;
-    if WindowState <> wsMinimized then  { VCL bug workaround }
-      Application.BringToFront;
+
+  try
+    DownloadArchivesToExtract;
+  except
+    Result := GetExceptMessage;
   end;
+
+  if Result = '' then begin
+    if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
+      Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
+      PrepareToInstallNeedsRestart := True;
+    end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
+      SetCurPage(wpPreparing);
+      BackButton.Visible := False;
+      NextButton.Visible := False;
+      CancelButton.Enabled := False;
+      if InstallMode = imSilent then
+        WizardForm.Visible := True;
+      WizardForm.Update;
+      try
+        DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
+        CodeNeedsRestart := False;
+        Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
+        PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
+      finally
+        DownloadTemporaryFileOrExtractArchiveProcessMessages := False;
+        UpdateCurPageButtonState;
+      end;
+      if WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
+    end;
+  end;
+
   if Result <> '' then begin
     if PrepareToInstallNeedsRestart then
       PreparingLabel.Caption := Result +

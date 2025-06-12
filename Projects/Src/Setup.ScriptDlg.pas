@@ -200,7 +200,9 @@ type
         const AllowedKeysRuntimeIDs: TStringList): Integer;
       function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
       function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
-        const AllowedKeysRuntimeIDs: TStringList): Integer;
+        const AllowedKeysRuntimeIDs: TStringList): Integer; overload;
+      function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
+        const ISSigAllowedKeys: AnsiString): Integer; overload;
       procedure Clear;
       function Download: Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
@@ -986,7 +988,7 @@ begin
     else
       Log(Format('  %d bytes done.', [Progress]));
 
-    FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, BaseName, Url);
+    FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(BaseName), Url);
     if ProgressMax > MaxLongInt then begin
       Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
       ProgressMax32 := MaxLongInt;
@@ -1117,8 +1119,14 @@ end;
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
   Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
 begin
-  { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
+  AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys);
+end;
+
+function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
+  Password: String; const ISSigAllowedKeys: AnsiString): Integer;
+begin
+  { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '');
   Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys);
 end;
