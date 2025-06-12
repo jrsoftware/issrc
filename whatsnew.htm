@@ -115,13 +115,13 @@ Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "inn
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
       <pre>[ISSigKeys]
-Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
-Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
-Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
+Name: "anna": KeyFile: "anna.ispublickey"; Group: "exesigner"
+Name: "vryan"; KeyFile: "ryan.ispublickey"; Group: "exesigner"
+Name: "ivan"; KeyFile: "ivan.ispublickey"; Group: "docsigner"
 ; max is trusted for both exe and doc signing
-Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
+Name: "max"; KeyFile: "max.ispublickey"; Group: "exesigner docsigner"
 ; the boss also has a key
-Name: bosskey; KeyFile: "boss.ispublickey"</pre>
+Name: "bosskey"; KeyFile: "boss.ispublickey"</pre>
     </li>
   </ul>
   </li>
