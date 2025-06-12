@@ -2851,13 +2851,13 @@ Name: "MyKey2; \
 
 <precode>
 [ISSigKeys]
-Name: "anna": KeyFile: "anna.ispublickey"; Group: "exesigner"
-Name: "vryan"; KeyFile: "ryan.ispublickey"; Group: "exesigner"
-Name: "ivan"; KeyFile: "ivan.ispublickey"; Group: "docsigner"
+Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
 ; max is trusted for both exe and doc signing
-Name: "max"; KeyFile: "max.ispublickey"; Group: "exesigner docsigner"
+Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
 ; the boss also has a key
-Name: "bosskey"; KeyFile: "boss.ispublickey"
+Name: bosskey; KeyFile: "boss.ispublickey"
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
@@ -2869,13 +2869,13 @@ Name: "bosskey"; KeyFile: "boss.ispublickey"
 <param name="Name" required="yes">
 <p>The internal name of the key.</p>
 <p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developers.</p>
-<example><pre>Name: "MyKey"</pre></example>
+<example><pre>Name: MyKey</pre></example>
 </param>
 
 <param name="Group">
 <p>A space separated list of internal group names, specifying how to group the key.</p>
 <p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developer groups.</p>
-<example><pre>Group: "exesigner docsigner"</pre></example>
+<example><pre>Group: exesigner docsigner</pre></example>
 </param>
 
 <param name="KeyID">
@@ -2905,7 +2905,7 @@ Name: "bosskey"; KeyFile: "boss.ispublickey"
 <param name="RuntimeID">
 <p>Specifies the runtime ID of the key, used by <link topic="isxfunc_ISSigVerify">ISSigVerify</link>.</p>
 <p>Runtime ID's are stored in the resulting Setup file(s), so you should <i>not</i> use personal or non-public information in them.</p>
-<example><pre>RuntimeID: "def01"</pre></example>
+<example><pre>RuntimeID: def01</pre></example>
 </param>
 
 </paramlist>
