@@ -115,13 +115,13 @@ Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "inn
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
       <pre>[ISSigKeys]
-Name: "anna": KeyFile: "anna.ispublickey"; Group: "exesigner"
-Name: "vryan"; KeyFile: "ryan.ispublickey"; Group: "exesigner"
-Name: "ivan"; KeyFile: "ivan.ispublickey"; Group: "docsigner"
+Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
 ; max is trusted for both exe and doc signing
-Name: "max"; KeyFile: "max.ispublickey"; Group: "exesigner docsigner"
+Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
 ; the boss also has a key
-Name: "bosskey"; KeyFile: "boss.ispublickey"</pre>
+Name: bosskey; KeyFile: "boss.ispublickey"</pre>
     </li>
   </ul>
   </li>
@@ -211,6 +211,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
   <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
   <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
   <li>All translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
+  <li>Inno Setup is now built using Delphi 12.3 Athens instead of Delphi 12.1 Athens. Thanks to Ian Barker from Embarcadero for providing us with a license!</li>
   <li>Documentation improvements.</li>
   <li>Minor tweaks.</li>
 </ul>
