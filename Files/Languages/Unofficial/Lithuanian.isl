@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Lithuanian messages ***
+; *** Inno Setup version 6.5.0+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -9,13 +9,15 @@
 ; two periods being displayed).
 ; Translated by Robertas Rimas (Loptar AT takas DOT lt)
 ; Corrected and updated by Rolandas Rudomanskis (rolandasr AT gmail DOT com)
-; Corrected and updated to version 6.0.3+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
+; Corrected and updated to version 6.5.0+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Lietuvi<0173>
 LanguageID=$0427
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+; For English it's set to zero anyway because English only uses ASCII characters
 LanguageCodePage=1257
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -220,17 +222,20 @@ StopDownload=Ar tikrai norite sustabdyti parsisiuntimà?
 ErrorDownloadAborted=Parsisiuntimas nutrauktas
 ErrorDownloadFailed=Parsisiøsti nepavyko: %1 %2
 ErrorDownloadSizeFailed=Nepavyko gauti dydþio: %1 %2
-ErrorFileHash1=Failo patikrinimas nepavyko: %1
-ErrorFileHash2=Neteisinga failo „hash“ reikðmë: numatyta %1, rasta %2
 ErrorProgress=Netinkama eiga: %1 ið %2
 ErrorFileSize=Neteisingas failo dydis: numatytas %1, rastas %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Papildomø failø iðtraukimas...
-ButtonStopExtraction=&Stabdyti iðtraukimà
-StopExtraction=Ar tikrai norite sustabdyti iðtraukimà?
-ErrorExtractionAborted=Iðtraukimas nutrauktas
-ErrorExtractionFailed=Nepavyko iðtraukti: %1
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractionLabel=Papildomø failø iðpakavimas...
+ButtonStopExtraction=&Stabdyti iðpakavimà
+StopExtraction=Ar tikrai norite sustabdyti iðpakavimà?
+ErrorExtractionAborted=Iðpakavimas nutrauktas
+ErrorExtractionFailed=Nepavyko iðpakuoti: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Slaptaþodis neteisingas
+ArchiveIsCorrupted=Archyvas sugadintas
+ArchiveUnsupportedFormat=Nepalaikomas archyvo formatas
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pasirengimas diegimui
@@ -281,6 +286,7 @@ AbortRetryIgnoreCancel=Nutraukti diegimà
 StatusClosingApplications=Uþdaromos programos...
 StatusCreateDirs=Kuriami katalogai...
 StatusExtractFiles=Iðpakuojami failai...
+StatusDownloadFiles=Parsisiunèiami failai...
 StatusCreateIcons=Kuriamos nuorodos...
 StatusCreateIniEntries=Kuriami INI áraðai...
 StatusCreateRegistryEntries=Kuriami registro áraðai...
@@ -310,6 +316,12 @@ FileAbortRetryIgnoreSkipNotRecommended=Pralei&sti ðá failà (nerekomenduojama)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignoruoti klaidà ir tæsti (nerekomenduojama)
 SourceIsCorrupted=Pradinis failas sugadintas
 SourceDoesntExist=Pradinio failo „%1“ nëra
+SourceVerificationFailed=Nepavyko patikrinti pradinio failo: %1
+VerificationSignatureDoesntExist=Paraðo failo „%1“ nëra
+VerificationSignatureInvalid=Paraðo failas „%1“ sugadintas
+VerificationKeyNotFound=Paraðo failas „%1“ naudoja neþinomà raktà
+VerificationFileSizeIncorrect=Neteisingas failo dydis
+VerificationFileHashIncorrect=Neteisinga failo „hash“ reikðmë
 ExistingFileReadOnly2=Esamas failas yra paþymëtas „Tik skaitymui“ todël negali bûti pakeistas.
 ExistingFileReadOnlyRetry=Paðalinkite at&ributà „Tik skaitymui“ ir bandykite vël
 ExistingFileReadOnlyKeepExisting=Pali&kti esamà failà
@@ -329,6 +341,8 @@ ErrorChangingAttr=Keièiant failo atributus ávyko klaida:
 ErrorCreatingTemp=Kuriant failà pasirinktame kataloge ávyko klaida:
 ErrorReadingSource=Skaitant diegiamàjá failà ávyko klaida:
 ErrorCopying=Kopijuojant failà ávyko klaida:
+ErrorDownloading=Parsisiunèiant failà ávyko klaida:
+ErrorExtracting=Iðpakuojant archyvà ávyko klaida:
 ErrorReplacingExistingFile=Perraðant esamà failà ávyko klaida:
 ErrorRestartReplace=Perkrovimas/Perraðymas nepavyko:
 ErrorRenamingTemp=Pervadinant failà pasirinktame kataloge ávyko klaida:
