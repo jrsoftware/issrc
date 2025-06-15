@@ -83,6 +83,7 @@ const
 
   { From PropID.h}
   kpidPath = 3;
+  kpidName = 4;
   kpidIsDir = 6;
   kpidSize = 7;
   kpidAttrib = 9;
@@ -128,7 +129,13 @@ type
     function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
   end;
 
-  IArchiveExtractCallback = interface(IProgress)
+  IArchiveOpenVolumeCallback = interface
+  ['{23170F69-40C1-278A-0000-000600300000}']
+    function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
+    function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
+  end;
+
+    IArchiveExtractCallback = interface(IProgress)
   ['{23170F69-40C1-278A-0000-000600200000}']
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; stdcall;

@@ -93,11 +93,19 @@ type
     constructor Create(const Password: String);
   end;
 
-  TArchiveOpenCallback = class(TArchiveCallback, IArchiveOpenCallback)
+  TArchiveOpenCallback = class(TArchiveCallback, IArchiveOpenCallback, IArchiveOpenVolumeCallback)
+  private
+    FDisableFsRedir: Boolean;
+    FArchiveFilename: String;
   protected
     { IArchiveOpenCallback }
     function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
     function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
+    { IArchiveOpenVolumeCallback - queried for by 7-Zip on IArchiveOpenCallback }
+    function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
+    function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
+  public
+    constructor Create(const DisableFsRedir: Boolean; const ArchiveFilename, Password: String);
   end;
 
   TArchiveExtractBaseCallback = class(TArchiveCallback, IArchiveExtractCallback)
@@ -382,6 +390,13 @@ end;
 
 { TArchiveOpenCallback }
 
+constructor TArchiveOpenCallback.Create(const DisableFsRedir: Boolean; const ArchiveFilename, Password: String);
+begin
+  inherited Create(Password);
+  FDisableFsRedir := DisableFsRedir;
+  FArchiveFilename := ArchiveFilename;
+end;
+
 function TArchiveOpenCallback.SetCompleted(files,
   bytes: PUInt64): HRESULT;
 begin
@@ -392,6 +407,37 @@ function TArchiveOpenCallback.SetTotal(files,
   bytes: PUInt64): HRESULT;
 begin
   Result := S_OK;
+end;
+
+function TArchiveOpenCallback.GetProperty(propID: PROPID; var value: OleVariant): HRESULT;
+begin
+  { This is for multi-volume archives: when the archive is opened 7-Zip only receives a stream. It
+    will then use this callback to find the name of the archive (like archive.7z.001) to figure out
+    the name of other volumes (like archive.7z.002) }
+  if propID = kpidName then
+    value := FArchiveFilename;
+  Result := S_OK;
+end;
+
+function TArchiveOpenCallback.GetStream(const name: PChar; var inStream: IInStream): HRESULT;
+begin
+  { This is for multi-volume archives: after 7-Zip figures out the name of other volumes (like
+    archive.7z.002) it will then use this callback to open it. The callback must either return
+    S_FALSE or set instream to nil when it tries to open a volume which doesn't exists (like
+    archive.7z.003 when there's two volumes only). }
+  try
+    if NewFileExistsRedir(FDisableFsRedir, name) then begin
+      const F = TFileRedir.Create(FDisableFsRedir, name, fdOpenExisting, faRead, fsRead);
+      instream := TInStream.Create(F);
+    end else
+      instream := nil;
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 { TArchiveExtractBaseCallback }
@@ -899,6 +945,8 @@ begin
     Result := CLSID_HandlerWim
   else if SameText(Ext, '.dmg') then
     Result := CLSID_HandlerDmg
+  else if SameText(Ext, '.001') then
+    Result := CLSID_HandlerSplit
   else
     InternalError(NotFoundErrorMsg);
 end;
@@ -930,7 +978,7 @@ begin
   end;
   const InStream: IInStream = TInStream.Create(F);
   var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(Password);
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(DisableFsRedir, ArchiveFileName, Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
     SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   if Result.GetNumberOfItems(numItems) <> S_OK then

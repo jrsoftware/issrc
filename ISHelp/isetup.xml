@@ -4802,6 +4802,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 </indent>
 <p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
 <p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
+<p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, or a split multi-volume archive, such as <i>archive.7z.001</i>, the output will be the archive file itself (e.g., <i>archive.tar</i> or <i>archive.7z</i>) rather than the individual files contained within it.</p>
 <p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
 <li>It does not support PPMd and BZip2 methods.</li>
