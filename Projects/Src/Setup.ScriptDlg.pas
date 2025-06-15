@@ -1120,7 +1120,7 @@ function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName,
   Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
 begin
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
-  AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys);
+  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
