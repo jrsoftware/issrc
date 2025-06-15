@@ -1854,41 +1854,42 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
   end;
 
-  procedure DownloadArchivesToExtract;
+  procedure DownloadArchivesToExtract(const SelectedComponents, SelectedTasks: TStringList);
   begin
     var DownloadPage: TDownloadWizardPage := nil;
 
     const ArchivesToDownload = TDictionary<Integer, String>.Create;
     try
       for var I := 0 to Entries[seFile].Count-1 do begin
-        with PSetupFileEntry(Entries[seFile][I])^ do begin
-          if (foDownload in Options) and (foExtractArchive in Options) then begin
-            if DownloadPage = nil then
-              DownloadPage := GetClearedDownloadArchivesPage;
-            if not(foCustomDestName in Options) then
-              InternalError('Expected CustomDestName flag');
-            { Prepare }
-            const TempDir = AddBackslash(TempInstallDir);
-            const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
-            const DestFile = AddBackslash(DestDir) + PathExtractName(DestName);
-            const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
-             { Add to ArchivesToDownload }
-            ArchivesToDownload.Add(I, DestFile);
-            { Add to DownloadPage }
-            const SourceFile = ExpandConst(SourceFilename);
-            const UserName = ExpandConst(DownloadUserName);
-            const Password = ExpandConst(DownloadPassword);
-            if Verification.Typ = fvISSig then begin
-              const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(DownloadISSigSource));
-              DownloadPage.AddExWithISSigVerify(SourceFile, ISSigUrl, BaseName, UserName, Password, Verification.ISSigAllowedKeys)
-            end else begin
-              var RequiredSHA256OfFile: String;
-              if Verification.Typ = fvHash then
-                RequiredSHA256OfFile := SHA256DigestToString(Verification.Hash)
-              else
-                RequiredSHA256OfFile := '';
-              DownloadPage.AddEx(SourceFile, BaseName, RequiredSHA256OfFile, UserName, Password);
-            end;
+        const FileEntry: PSetupFileEntry = Entries[seFile][I];
+        if (foDownload in FileEntry.Options) and (foExtractArchive in FileEntry.Options) and
+           ShouldProcessFileEntry(SelectedComponents, SelectedComponents, FileEntry, False) then begin
+          if DownloadPage = nil then
+            DownloadPage := GetClearedDownloadArchivesPage;
+          if not(foCustomDestName in FileEntry.Options) then
+            InternalError('Expected CustomDestName flag');
+          { Prepare }
+          const TempDir = AddBackslash(TempInstallDir);
+          const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
+          const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
+          const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
+           { Add to ArchivesToDownload }
+          ArchivesToDownload.Add(I, DestFile);
+          { Add to DownloadPage }
+          const Url = ExpandConst(FileEntry.SourceFilename);
+          const UserName = ExpandConst(FileEntry.DownloadUserName);
+          const Password = ExpandConst(FileEntry.DownloadPassword);
+          if FileEntry.Verification.Typ = fvISSig then begin
+            const ISSigUrl = GetISSigUrl(Url, ExpandConst(FileEntry.DownloadISSigSource));
+            DownloadPage.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password,
+              FileEntry.Verification.ISSigAllowedKeys)
+          end else begin
+            var RequiredSHA256OfFile: String;
+            if FileEntry.Verification.Typ = fvHash then
+              RequiredSHA256OfFile := SHA256DigestToString(FileEntry.Verification.Hash)
+            else
+              RequiredSHA256OfFile := '';
+            DownloadPage.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password);
           end;
         end;
       end;
@@ -1942,7 +1943,7 @@ begin
   PreparingMemo.Visible := False;
 
   try
-    DownloadArchivesToExtract;
+    DownloadArchivesToExtract(WizardComponents, WizardTasks);
   except
     Result := GetExceptMessage;
   end;
