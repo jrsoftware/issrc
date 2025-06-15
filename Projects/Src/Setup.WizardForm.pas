@@ -1858,75 +1858,68 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
   begin
     var DownloadPage: TDownloadWizardPage := nil;
 
-    const ArchivesToDownload = TDictionary<Integer, String>.Create;
-    try
-      for var I := 0 to Entries[seFile].Count-1 do begin
-        const FileEntry: PSetupFileEntry = Entries[seFile][I];
-        if (foDownload in FileEntry.Options) and (foExtractArchive in FileEntry.Options) and
-           ShouldProcessFileEntry(SelectedComponents, SelectedComponents, FileEntry, False) then begin
-          if DownloadPage = nil then
-            DownloadPage := GetClearedDownloadArchivesPage;
-          if not(foCustomDestName in FileEntry.Options) then
-            InternalError('Expected CustomDestName flag');
-          { Prepare }
-          const TempDir = AddBackslash(TempInstallDir);
-          const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
-          const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
-          const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
-           { Add to ArchivesToDownload }
-          ArchivesToDownload.Add(I, DestFile);
-          { Add to DownloadPage }
-          const Url = ExpandConst(FileEntry.SourceFilename);
-          const UserName = ExpandConst(FileEntry.DownloadUserName);
-          const Password = ExpandConst(FileEntry.DownloadPassword);
-          if FileEntry.Verification.Typ = fvISSig then begin
-            const ISSigUrl = GetISSigUrl(Url, ExpandConst(FileEntry.DownloadISSigSource));
-            DownloadPage.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password,
-              FileEntry.Verification.ISSigAllowedKeys)
-          end else begin
-            var RequiredSHA256OfFile: String;
-            if FileEntry.Verification.Typ = fvHash then
-              RequiredSHA256OfFile := SHA256DigestToString(FileEntry.Verification.Hash)
-            else
-              RequiredSHA256OfFile := '';
-            DownloadPage.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password);
-          end;
+    for var I := 0 to Entries[seFile].Count-1 do begin
+      const FileEntry: PSetupFileEntry = Entries[seFile][I];
+      if (foDownload in FileEntry.Options) and (foExtractArchive in FileEntry.Options) and
+         ShouldProcessFileEntry(SelectedComponents, SelectedComponents, FileEntry, False) then begin
+        if DownloadPage = nil then
+          DownloadPage := GetClearedDownloadArchivesPage;
+        if not(foCustomDestName in FileEntry.Options) then
+          InternalError('Expected CustomDestName flag');
+        { Prepare }
+        const TempDir = AddBackslash(TempInstallDir);
+        const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
+        const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
+        const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
+        { Add to DownloadPage }
+        const Url = ExpandConst(FileEntry.SourceFilename);
+        const UserName = ExpandConst(FileEntry.DownloadUserName);
+        const Password = ExpandConst(FileEntry.DownloadPassword);
+        if FileEntry.Verification.Typ = fvISSig then begin
+          const ISSigUrl = GetISSigUrl(Url, ExpandConst(FileEntry.DownloadISSigSource));
+          DownloadPage.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password,
+            FileEntry.Verification.ISSigAllowedKeys, I)
+        end else begin
+          var RequiredSHA256OfFile: String;
+          if FileEntry.Verification.Typ = fvHash then
+            RequiredSHA256OfFile := SHA256DigestToString(FileEntry.Verification.Hash)
+          else
+            RequiredSHA256OfFile := '';
+          DownloadPage.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password, I);
         end;
       end;
+    end;
 
-      if DownloadPage <> nil then begin
-        DownloadPage.Show;
-        try
-          var Failed: String;
-          repeat
-            Failed := '';
-            try
-              DownloadPage.Download;  { Does not throw EAbort }
-            except
-              Failed := GetExceptMessage;
-            end;
-          until (Failed = '') or (AskRetryDownloadArchivesToExtract(Failed) = IDCANCEL);
-          if Failed <> '' then
-            raise Exception.Create(Failed);
-
-          for var A in ArchivesToDownload do begin
-            with PSetupFileEntry(Entries[seFile][A.Key])^ do begin
-              {!!!} //make it do this per file immediately after file's download success - so that on retries it skips files which succeeded
-              SourceFilename := A.Value;
-              { Remove Download flag since download has been done, and remove CustomDestName flag
-                since ExtractArchive flag doesn't like that }
-              Options := Options - [foDownload, foCustomDestName];
-              { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-              DestName := PathExtractPath(DestName);
-              Verification.Typ := fvNone;
-            end;
+    if DownloadPage <> nil then begin
+      DownloadPage.Show;
+      try
+        var Failed: String;
+        repeat
+          Failed := '';
+          try
+            DownloadPage.Download(procedure(const DownloadedFile: TDownloadFile; const DestFile: String; var Remove: Boolean)
+              begin
+                const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
+                FileEntry.SourceFilename := DestFile;
+                { Remove Download flag since download has been done, and remove CustomDestName flag
+                  since ExtractArchive flag doesn't like that }
+                FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];
+                { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+                FileEntry.DestName := PathExtractPath(FileEntry.DestName);
+                FileEntry.Verification.Typ := fvNone;
+                { Tell DownloadPage to not download this file again on retry. Without this it would
+                  redownload files that don't use verification. }
+                Remove := True;
+              end);
+          except
+            Failed := GetExceptMessage;
           end;
-        finally
-          DownloadPage.Hide;
-        end;
+        until (Failed = '') or (AskRetryDownloadArchivesToExtract(Failed) = IDCANCEL);
+        if Failed <> '' then
+          raise Exception.Create(Failed);
+      finally
+        DownloadPage.Hide;
       end;
-    finally
-      ArchivesToDownload.Free;
     end;
   end;
 

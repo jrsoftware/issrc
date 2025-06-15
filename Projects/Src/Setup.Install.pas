@@ -37,7 +37,10 @@ function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
   const OnSimpleDownloadProgressParam: Integer64): Int64;
 function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64; overload;
+function DownloadTemporaryFile(const Url, BaseName: String;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  out DestFile: String): Int64; overload;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
@@ -3901,9 +3904,10 @@ begin
 end;
 
 function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  out DestFile: String): Int64;
 var
-  DestFile, TempFile: String;
+  TempFile: String;
   TempF: TFile;
   HandleStream: THandleStream;
   TempFileLeftOver: Boolean;
@@ -4061,6 +4065,13 @@ begin
     if TempFileLeftOver then
       DeleteFile(TempFile);
   end;
+end;
+
+function DownloadTemporaryFile(const Url, BaseName: String;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+begin
+  var DestFile: String;
+  Result := DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress, DestFile);
 end;
 
 procedure DownloadTemporaryFileSizeAndDate(const Url: String; var FileSize: Int64; var FileDate: String);
