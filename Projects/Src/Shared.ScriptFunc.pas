@@ -542,6 +542,7 @@ initialization
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
     'procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
+    'procedure MapArchiveExtensions(const DestExt, SourceExt: String);',
     'function Debugging: Boolean;',
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',

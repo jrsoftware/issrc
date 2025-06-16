@@ -78,6 +78,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
     <ul>
       <li>New support function <tt>ExtractArchive</tt> replaces the deprecated <tt>Extract7ZipArchive</tt>. <tt>ExtractArchive</tt> includes an additional parameter to optionally specify a password.</li>
       <li><tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt> now overwrite read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
+      <li>Added new <tt>MapArchiveExtensions</tt> support function to allow the extraction of archives with custom extensions, such as self-extracting archives.</li>
       <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
     </ul>
   </li>

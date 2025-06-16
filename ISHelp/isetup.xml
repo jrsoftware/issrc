@@ -1750,6 +1750,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 <p>This flag cannot be combined with <tt>download</tt>.</p>
@@ -4812,6 +4813,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 </ul>
 <p><b>See also:</b><br/>
 <link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>
 </p>
 </body>

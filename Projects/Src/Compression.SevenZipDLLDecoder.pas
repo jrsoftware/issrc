@@ -21,6 +21,8 @@ function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
 procedure SevenZipDLLDeInit;
 
+procedure MapArchiveExtensions(const DestExt, SourceExt: String);
+
 procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
@@ -52,7 +54,7 @@ type
 implementation
 
 uses
-  Classes, SysUtils, Forms, Variants, ActiveX, ComObj, Generics.Collections,
+  Classes, SysUtils, Forms, Variants, ActiveX, ComObj, Generics.Collections, Generics.Defaults,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -222,48 +224,7 @@ begin
   SevenZipError(ExceptMessage, LogMessage);
 end;
 
-function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID;
-begin
-  const Ext = PathExtractExt(Filename);
-  if SameText(Ext, '.7z') then
-    Result := CLSID_Handler7z
-  else if SameText(Ext, '.zip') then
-    Result := CLSID_HandlerZip
-  else if SameText(Ext, '.gz') then
-    Result := CLSID_HandlerGzip
-  else if SameText(Ext, '.bz2') then
-    Result := CLSID_HandlerBZip2
-  else if SameText(Ext, '.xz') then
-    Result := CLSID_HandlerXz
-  else if SameText(Ext, '.tar') then
-    Result := CLSID_HandlerTar
-  else if SameText(Ext, '.rar') then
-    Result := CLSID_HandlerRar
-  else if SameText(Ext, '.iso') then
-    Result := CLSID_HandlerIso
-  else if SameText(Ext, '.msi') then
-    Result := CLSID_HandlerCompound
-  else if SameText(Ext, '.cab') then
-    Result := CLSID_HandlerCab
-  else if SameText(Ext, '.rpm') then
-    Result := CLSID_HandlerRpm
-  else if SameText(Ext, '.vhd') then
-    Result := CLSID_HandlerVhd
-  else if SameText(Ext, '.vhdx') then
-    Result := CLSID_HandlerVhdx
-  else if SameText(Ext, '.vdi') then
-    Result := CLSID_HandlerVDI
-  else if SameText(Ext, '.vmdk') then
-    Result := CLSID_HandlerVMDK
-  else if SameText(Ext, '.wim') then
-    Result := CLSID_HandlerWim
-  else if SameText(Ext, '.dmg') then
-    Result := CLSID_HandlerDmg
-  else if SameText(Ext, '.001') then
-    Result := CLSID_HandlerSplit
-  else
-    InternalError(NotFoundErrorMsg);
-end;
+function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
 
 const
   varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
@@ -962,9 +923,13 @@ end;
 
 { Additional helper functions }
 
+type
+  TSevenZipHandlers = TDictionary<String, TGUID>;
+
 var
   CreateSevenZipObject: function(const clsid, iid: TGUID; var outObject): HRESULT; stdcall;
   VersionBanner: String;
+  Handlers: TSevenZipHandlers;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
@@ -975,6 +940,45 @@ begin
     VersionBanner := Format(' %u.%.2u', [(VersionNumbers.MS shr 16) and $FFFF, VersionNumbers.MS and $FFFF])
   else
     VersionBanner := '';
+
+  Handlers := TSevenZipHandlers.Create(TIStringComparer.Ordinal);
+  Handlers.Add('.7z', CLSID_Handler7z);
+  Handlers.Add('.zip', CLSID_HandlerZip);
+  Handlers.Add('.gz', CLSID_HandlerGzip);
+  Handlers.Add('.bz2', CLSID_HandlerBZip2);
+  Handlers.Add('.xz', CLSID_HandlerXz);
+  Handlers.Add('.tar', CLSID_HandlerTar);
+  Handlers.Add('.rar', CLSID_HandlerRar);
+  Handlers.Add('.iso', CLSID_HandlerIso);
+  Handlers.Add('.msi', CLSID_HandlerCompound);
+  Handlers.Add('.cab', CLSID_HandlerCab);
+  Handlers.Add('.rpm', CLSID_HandlerRpm);
+  Handlers.Add('.vhd', CLSID_HandlerVhd);
+  Handlers.Add('.vhdx', CLSID_HandlerVhdx);
+  Handlers.Add('.vdi', CLSID_HandlerVDI);
+  Handlers.Add('.vmdk', CLSID_HandlerVMDK);
+  Handlers.Add('.wim', CLSID_HandlerWim);
+  Handlers.Add('.dmg', CLSID_HandlerDmg);
+  Handlers.Add('.001', CLSID_HandlerSplit);
+end;
+
+function GetHandlerForExt(const Ext, NotFoundErrorMsg: String): TGUID;
+begin
+  if not Handlers.TryGetValue(Ext, Result) then
+    InternalError(NotFoundErrorMsg);
+end;
+
+function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID;
+begin;
+  Result := GetHandlerForExt(PathExtractExt(Filename), NotFoundErrorMsg);
+end;
+
+procedure MapArchiveExtensions(const DestExt, SourceExt: String);
+begin
+  if (Length(DestExt) < 2) or (DestExt[1] <> '.') then
+    InternalError('MapArchiveExtensions: Invalid DestExt');
+  const clsid = GetHandlerForExt(SourceExt, 'MapArchiveExtensions: Invalid SourceExt');
+  Handlers.AddOrSetValue(DestExt, clsid);
 end;
 
 var
@@ -1274,8 +1278,9 @@ end;
 
 procedure SevenZipDLLDeInit;
 begin
+  FreeAndNil(Handlers);
   { ArchiveFindStates has references to 7-Zip so must be cleared before the DLL is unloaded }
-  ArchiveFindStates.Free;
+  FreeAndNil(ArchiveFindStates);
 end;
 
 end.
