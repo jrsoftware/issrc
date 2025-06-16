@@ -4,10 +4,6 @@
 ; downloaded archives, and verify the integrity of downloaded files and
 ; archives, all without using [Code].
 ;
-; Archives will be downloaded to temporary copy at the start of the Preparing
-; To Install step. Other files will be downloaded directly to their destination
-; during the actual installation. 
-;
 ; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
 ;  Signature Tool and the [ISSigKeys] section
@@ -39,13 +35,14 @@ Name: mykey; RuntimeID: def02; \
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; These files will be downloaded and verified
+; These files will be downloaded and verified during the actual installation
 Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
   ExternalSize: 7_000_000; Flags: external download ignoreversion issigverify
 Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
   Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
   ExternalSize: 2560; Flags: external download ignoreversion
-; This archive will be downloaded, verified and extracted
+; This archive will be downloaded and verified at the start of the Preparing to Install Step
+; It will be extracted during the actual installation
 Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg.ExtraReadmes.7z"; DestDir: "{app}"; \
   ExternalSize: 269; Flags: external download extractarchive recursesubdirs ignoreversion issigverify
 ; This archive will be downloaded and extracted without verificaton
