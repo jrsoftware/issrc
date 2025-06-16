@@ -1040,11 +1040,13 @@ begin
     var SubScanSize := DefaultScanSize;
     const SubOpenCallback: IArchiveOpenCallback =
       TArchiveOpenCallbackWithStreamBackup.Create(Password, InStream); { In tests the backup of InStream wasn't needed but better safe than sorry }
+    var SubNumItems: UInt32;
     if (SubResult.Open(SubStream, @SubScanSize, SubOpenCallback) <> S_OK) or
-       (SubResult.GetNumberOfItems(numItems) <> S_OK) then
+       (SubResult.GetNumberOfItems(SubNumItems) <> S_OK) then
       Exit;
 
     Result := SubResult;
+    numItems := SubNumItems;
   end;
 end;
 
