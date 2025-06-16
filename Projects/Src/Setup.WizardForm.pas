@@ -1844,12 +1844,14 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
   end;
 
-  function AskRetryDownloadArchivesToExtract(const Failed: String): Integer;
+  function AskRetryDownloadArchivesToExtract(const LastBaseNameOrUrl, Failed: String): Integer;
   begin
-    {!!!} //make this a proper message - also see RenameUninstallExe which has a retrycancel msgbox as well
-    Result := LoggedMsgBox(Failed + SNewLine2 + 'Retry?', '', mbConfirmation, MB_RETRYCANCEL, True, IDCANCEL);
+    const LastOperation = SetupMessages[msgErrorDownloading];
+    const Text = LastBaseNameOrUrl + SNewLine2 + LastOperation + SNewLine + Failed;
+    Result := LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
+      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL);
     if (Result <> IDRETRY) and (Result <> IDCANCEL) then begin
-      Log('LoggedMsgBox returned an unexpected value. Assuming Cancel.');
+      Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
       Result := IDCANCEL;
     end;
   end;
@@ -1893,9 +1895,10 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     if DownloadPage <> nil then begin
       DownloadPage.Show;
       try
-        var Failed: String;
+        var Failed, LastBaseNameOrUrl: String;
         repeat
           Failed := '';
+          LastBaseNameOrUrl := '';
           try
             DownloadPage.Download(procedure(const DownloadedFile: TDownloadFile; const DestFile: String; var Remove: Boolean)
               begin
@@ -1917,8 +1920,9 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
             if DownloadPage.AbortedByUser then
               raise;  { This is a regular exception and not EAbort (which is what we want) }
             Failed := GetExceptMessage;
+            LastBaseNameOrUrl := DownloadPage.LastBaseNameOrUrl;
           end;
-        until (Failed = '') or (AskRetryDownloadArchivesToExtract(Failed) = IDCANCEL);
+        until (Failed = '') or (AskRetryDownloadArchivesToExtract(LastBaseNameOrUrl, Failed) = IDCANCEL);
         if Failed <> '' then
           raise Exception.Create(Failed);
       finally

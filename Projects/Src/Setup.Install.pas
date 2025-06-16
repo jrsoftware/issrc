@@ -3243,15 +3243,17 @@ var
           Continue;
         end;
       end;
-      case LoggedMsgBox(UninstallExeFilename + SNewLine2 +
-         SetupMessages[msgErrorReplacingExistingFile] + SNewLine2 +
-         AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-           ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)])),
-         '', mbError, MB_RETRYCANCEL, True, IDCANCEL) of
+
+      const LastOperation = SetupMessages[msgErrorReplacingExistingFile];
+      const Failed = AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+        ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)]));
+      const Text = UninstallExeFilename + SNewLine2 + LastOperation + SNewLine + Failed;
+      case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
+         mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL) of
         IDRETRY: ;
         IDCANCEL: Abort;
       else
-        Log('LoggedMsgBox returned an unexpected value. Assuming Cancel.');
+        Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
         Abort;
       end;
     end;

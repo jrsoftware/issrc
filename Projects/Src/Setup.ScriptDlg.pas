@@ -190,6 +190,7 @@ type
       FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      FLastBaseNameOrUrl: String;
       function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
         const UserName, Password: String; const ISSigVerify: Boolean;
         const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
@@ -216,6 +217,7 @@ type
     published
       property AbortButton: TNewButton read FAbortButton;
       property AbortedByUser: Boolean read FAbortedByUser;
+      property LastBaseNameOrUrl: String read FLastBaseNameOrUrl;
       property ShowBaseNameInsteadOfUrl: Boolean read FShowBaseNameInsteadOfUrl write FShowBaseNameInsteadOfUrl;
   end;
   
@@ -1158,6 +1160,7 @@ begin
     for var I := 0 to FFiles.Count-1 do begin
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
       const F = FFiles[I];
+      FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
       SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
       var DestFile: String;
       Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, DestFile);

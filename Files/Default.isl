@@ -278,6 +278,8 @@ AbortRetryIgnoreSelectAction=Select action
 AbortRetryIgnoreRetry=&Try again
 AbortRetryIgnoreIgnore=&Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation
+RetryCancelSelectAction=Select action
+RetryCancelRetry=&Try again
 
 ; *** Installation status messages
 StatusClosingApplications=Closing applications...
