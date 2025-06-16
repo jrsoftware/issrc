@@ -3,17 +3,7 @@
 ; SEE DOWNLOADFILES.ISS FIRST!
 ;
 ; This script shows how the CreateDownloadPage support function can be used to
-; download files and archives while showing the download and extraction
-; progress to the user.
-;
-; To verify the downloaded files and archives, this script shows two methods:
-; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool, the [ISSigKeys] section, and the AddWithISSigVerify support
-;  function
-; -For iscrypt.dll: using a simple SHA-256 hash check
-; Using the Inno Setup Signature Tool has the benefit that the script does not
-; need to be changed when the downloaded file or archive changes, so any
-; installers built will also keep working (they are "evergreen")
+; download and verify files while showing the download progress to the user.
 
 [Setup]
 AppName=My Program

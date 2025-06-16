@@ -1,7 +1,8 @@
 ; -- DownloadFiles.iss --
 ;
-; This script shows how the [Files] section can be used to download files and
-; archives while showing the download and extraction progress to the user.
+; This script demonstrates how to download files and archives, extract
+; downloaded archives, and verify the integrity of downloaded files and
+; archives, all without using [Code].
 ;
 ; Archives will be downloaded to temporary copy at the start of the Preparing
 ; To Install step. Other files will be downloaded directly to their destination
