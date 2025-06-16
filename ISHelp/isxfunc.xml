@@ -1915,7 +1915,6 @@ end;</pre></example>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
-<p>When extracting without preserving path names (i.e. FullPaths is set to False), ensure that the archive does not contain multiple files with the same name. Doing so will help avoid file-in-use errors.</p>
 <p>See <i>CodeDownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>

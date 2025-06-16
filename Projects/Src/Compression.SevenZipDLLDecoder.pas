@@ -145,7 +145,7 @@ type
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; virtual; stdcall; abstract;
     function PrepareOperation(askExtractMode: Int32): HRESULT; stdcall;
-    function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
+    function SetOperationResult(opRes: TNOperationResult): HRESULT; virtual; stdcall;
     { Other }
     function GetIndices: TArrayOfUInt32; virtual; abstract;
     procedure Extract;
@@ -180,7 +180,7 @@ type
     { IArchiveExtractCallback }
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; override; stdcall;
-    function SetOperationResult(opRes: TNOperationResult): HRESULT; stdcall;
+    function SetOperationResult(opRes: TNOperationResult): HRESULT; override; stdcall;
     { Other }
     function GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32; override;
     procedure HandleProgress; override;
