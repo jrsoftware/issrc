@@ -1750,6 +1750,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 <p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
@@ -4788,7 +4789,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
-<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size. It supports multi-volume archives.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size. Additionally, it supports multi-volume archives.</p>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
@@ -4811,6 +4812,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 </ul>
 <p><b>See also:</b><br/>
 <link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>
 </p>
 </body>

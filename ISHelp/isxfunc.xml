@@ -1913,16 +1913,35 @@ end;</pre></example>
         <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
-<p>When extracting without preservering path names (i.e. FullPaths is set to False), ensure that the archive does not contain multiple files with the same name. Doing so will help avoid file-in-use errors.</p>
+<p>When extracting without preserving path names (i.e. FullPaths is set to False), ensure that the archive does not contain multiple files with the same name. Doing so will help avoid file-in-use errors.</p>
 <p>See <i>CodeDownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
         <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+      </function>
+      <function>
+        <name>MapArchiveExtensions</name>
+        <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
+        <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
+<p>An exception will be raised if there was an error.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
+        <example><pre>
+[Files]
+Source: "{src}\My7ZipSFX.exe; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion
+
+[Code]
+function InitializeSetup: Boolean;
+begin
+  MapArchiveExtensions('.exe', '.7z');
+end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2726,6 +2745,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
         <description><p>Creates a wizard page to extract archives and show progress.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
@@ -2737,6 +2757,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>, and an example of archive extraction using just a [Files] entry instead.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <link topic="isxfunc_ExtractArchive">ExtractArchive</link><br />
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>

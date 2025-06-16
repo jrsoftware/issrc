@@ -1838,6 +1838,10 @@ var
           raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
       end;
     end);
+    RegisterScriptFunc('MapArchiveExtensions', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      MapArchiveExtensions(Stack.GetString(PStart), Stack.GetString(PStart-1));
+    end);
     RegisterScriptFunc('DEBUGGING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetBool(PStart, Debugging);
