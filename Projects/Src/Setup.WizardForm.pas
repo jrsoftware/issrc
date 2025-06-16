@@ -1899,19 +1899,23 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
           try
             DownloadPage.Download(procedure(const DownloadedFile: TDownloadFile; const DestFile: String; var Remove: Boolean)
               begin
-                const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
-                FileEntry.SourceFilename := DestFile;
-                { Remove Download flag since download has been done, and remove CustomDestName flag
-                  since ExtractArchive flag doesn't like that }
-                FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];
-                { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-                FileEntry.DestName := PathExtractPath(FileEntry.DestName);
-                FileEntry.Verification.Typ := fvNone;
+                if not DownloadedFile.DotISSigEntry then begin { Check for the extra entries which download .issig }
+                  const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
+                  FileEntry.SourceFilename := DestFile;
+                  { Remove Download flag since download has been done, and remove CustomDestName flag
+                    since ExtractArchive flag doesn't like that }
+                  FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];
+                  { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+                  FileEntry.DestName := PathExtractPath(FileEntry.DestName);
+                  FileEntry.Verification.Typ := fvNone;
+                end;
                 { Tell DownloadPage to not download this file again on retry. Without this it would
                   redownload files that don't use verification. }
                 Remove := True;
               end);
           except
+            if DownloadPage.AbortedByUser then
+              raise;  { This is a regular exception and not EAbort (which is what we want) }
             Failed := GetExceptMessage;
           end;
         until (Failed = '') or (AskRetryDownloadArchivesToExtract(Failed) = IDCANCEL);

@@ -175,7 +175,8 @@ type
   TDownloadFile = class
     Url, BaseName, UserName, Password: String;
     Verification: TSetupFileVerification;
-    Data: NativeUInt;
+    DotISSigEntry: Boolean;
+    Data: NativeUInt; { Only valid if DotISSigEntry is False }
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
 
@@ -191,7 +192,7 @@ type
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
       function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
         const UserName, Password: String; const ISSigVerify: Boolean;
-        const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer;
+        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
@@ -1064,8 +1065,11 @@ begin
 end;
 
 function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean;
+  const Data: NativeUInt): Integer;
 begin
+  if ISSigVerify and DotISSigEntry then
+    InternalError('ISSigVerify and DotISSigEntry');
   var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
@@ -1079,6 +1083,7 @@ begin
     F.Verification.Typ := fvISSig;
     F.Verification.ISSigAllowedKeys := ISSigAllowedKeys
   end;
+  F.DotISSigEntry := DotISSigEntry;
   F.Data := Data;
   Result := FFiles.Add(F);
 end;
@@ -1108,7 +1113,7 @@ end;
 
 function TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
 begin
-  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, '', '', False, '', 0);
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, '', '', False, '', False, 0);
 end;
 
 function TDownloadWizardPage.AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
@@ -1120,22 +1125,22 @@ end;
 function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
   const Data: NativeUInt): Integer;
 begin
-  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password, False, '', Data);
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password, False, '', False, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
   Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeUInt): Integer;
 begin
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
-  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys, 0);
+  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
   Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer;
 begin
   { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
-  DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '', 0);
-  Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys, Data);
+  DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '', True, 0);
+  Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys, False, Data);
 end;
 
 procedure TDownloadWizardPage.Clear;
