@@ -1013,7 +1013,8 @@ begin
     SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot get number of items');
 
   if numItems = 1 then begin
-    { Get inner archive stream if it exists - See OpenArchive.cpp CArchiveLink::Open }
+    { Get inner archive stream if it exists - See OpenArchive.cpp CArchiveLink::Open
+      Give up trying to get or open it on any error }
     var MainSubFile: Cardinal;
     var SubSeqStream: ISequentialInStream;
     if not GetProperty(Result, $FFFF, kpidMainSubfile, MainSubFile) or
@@ -1032,7 +1033,12 @@ begin
     if MainSubFilePath = '' then
       MainSubFilePath := PathChangeExt(ArchiveFilename, '');
 
-    const SubClsid = GetHandler(MainSubFilePath, '');
+    var SubClsid: TGUID;
+    try
+      SubClsid := GetHandler(MainSubFilePath, '');
+    except
+      Exit;
+    end;
     var SubResult: IInArchive;
     if CreateSevenZipObject(SubClsid, IInArchive, SubResult) <> S_OK then
       Exit;
