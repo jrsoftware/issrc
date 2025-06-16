@@ -2111,7 +2111,8 @@ var
           end;
 
           Log('Successfully extracted the archive.');
-        end;
+        end else
+          Log('Found no files to extract.');
       finally
         VerifySourceF.Free;
       end;

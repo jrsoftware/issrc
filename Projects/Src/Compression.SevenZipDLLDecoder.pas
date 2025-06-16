@@ -1175,6 +1175,15 @@ begin
   State.Password := Password;
   State.RecurseSubDirs := RecurseSubDirs;
 
+  { Log start of extraction }
+  if ExtractIntent then begin
+    LogFmt('Start extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
+      RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
+    var Solid: Boolean;
+    if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+      Log('Archive is solid; extraction performance may degrade');
+  end;
+
   if State.numItems > 0 then begin
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
       if State.GetInitialCurrentFindData(FindFileData) then begin
@@ -1185,15 +1194,6 @@ begin
         if ArchiveFindStates = nil then
           ArchiveFindStates := TArchiveFindStates.Create;
         ArchiveFindStates.Add(State);
-
-        { Log start of extraction }
-        if ExtractIntent then begin
-          LogFmt('Start extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
-            RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
-          var Solid: Boolean;
-          if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
-            Log('Archive is solid; extraction performance may degrade');
-        end;
 
         { Finish find data & exit }
         State.FinishCurrentFindData(FindFileData);
