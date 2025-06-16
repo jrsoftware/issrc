@@ -70,7 +70,6 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
         </li>
       </ul>
     </li>
-    <li>Updated example script <i>CodeDownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to extract a downloaded archive.</li>
     <li>Archive extraction now honors the file system redirection state set by 64-bit install mode, entry flags, and support function <tt>EnableFsRedirection</tt>.</li>
   </ul>
   </li>
@@ -99,7 +98,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
 Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
   ExternalSize: 7_000_000; Flags: external download ignoreversion</pre>
     </li>
-    <li>Updated example script <i>CodeDownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file.</li>
+    <li>Added example script <i>DownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive using a single entry.</li>
   </ul>
   </li>
 </ul>
@@ -133,7 +132,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"</pre>
     <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
     <li>Has little performance impact since verification occurs while source files are being compressed/copied and each file's contents are only read once; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read a second time.</li>
     <li>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
-    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the updated <i>CodeDownloadFiles.iss</i> example script for an example.</li>
+    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <i>DownloadFiles.iss</i> example script for an example.</li>
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
