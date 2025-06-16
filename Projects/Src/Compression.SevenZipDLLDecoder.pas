@@ -1272,6 +1272,4 @@ begin
   ArchiveFindStates.Free;
 end;
 
-{ TArchiveOpenCallbackWithStreamBackup }
-
 end.
