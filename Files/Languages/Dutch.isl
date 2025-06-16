@@ -193,7 +193,7 @@ ReadyMemoGroup=Menu Start map:
 ReadyMemoTasks=Extra taken:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Bezig met het downloaden van extra bestanden...
+DownloadingLabel2=Bezig met het downloaden van bestanden...
 ButtonStopDownload=&Stop downloaden
 StopDownload=Weet u zeker dat u het downloaden wilt stoppen?
 ErrorDownloadAborted=Downloaden gestopt
@@ -203,7 +203,7 @@ ErrorProgress=Ongeldige voortgang: %1 van %2
 ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Bezig met het uitpakken van extra bestanden...
+ExtractingLabel=Bezig met het uitpakken van bestanden...
 ButtonStopExtraction=&Stop uitpakken
 StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
 ErrorExtractionAborted=Uitpakken gestopt
@@ -256,6 +256,8 @@ AbortRetryIgnoreSelectAction=Selecteer actie
 AbortRetryIgnoreRetry=&Probeer opnieuw
 AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
+RetryCancelSelectAction=Selecteer actie
+RetryCancelRetry=&Probeer opnieuw
 
 ; *** Installation status messages
 StatusClosingApplications=Programma's afsluiten...
