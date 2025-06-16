@@ -213,7 +213,7 @@ ReadyMemoGroup=Start Menu folder:
 ReadyMemoTasks=Additional tasks:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Downloading additional files...
+DownloadingLabel2=Downloading files...
 ButtonStopDownload=&Stop download
 StopDownload=Are you sure you want to stop the download?
 ErrorDownloadAborted=Download aborted
@@ -223,7 +223,7 @@ ErrorProgress=Invalid progress: %1 of %2
 ErrorFileSize=Invalid file size: expected %1, found %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Extracting additional files...
+ExtractingLabel=Extracting files...
 ButtonStopExtraction=&Stop extraction
 StopExtraction=Are you sure you want to stop the extraction?
 ErrorExtractionAborted=Extraction aborted

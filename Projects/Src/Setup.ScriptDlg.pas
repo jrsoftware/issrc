@@ -1036,7 +1036,7 @@ procedure TDownloadWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel];
+  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel2];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
@@ -1234,7 +1234,7 @@ procedure TExtractionWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := SetupMessages[msgExtractionLabel];
+  FMsg1Label.Caption := SetupMessages[msgExtractingLabel];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
