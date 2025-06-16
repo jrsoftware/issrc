@@ -783,6 +783,7 @@ TDownloadWizardPage = class(TOutputProgressWizardPage)
   function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList: Integer;
   procedure Clear;
   function Download: Int64;
+  property LastBaseNameOrUrl: String; read;
   property ShowBaseNameInsteadOfUrl: Boolean; read write;
 end;
 

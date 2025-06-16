@@ -59,6 +59,8 @@ begin
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Error: String;
 begin
   if CurPageID = wpReady then begin
     DownloadPage.Clear;
@@ -80,8 +82,10 @@ begin
       except
         if DownloadPage.AbortedByUser then
           Log('Aborted by user.')
-        else
-          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+        else begin
+          Error := Format('%s: %s', [DownloadPage.LastBaseNameOrUrl, GetExceptionMessage]);
+          SuppressibleMsgBox(AddPeriod(Error), mbCriticalError, MB_OK, IDOK);
+        end;
         Result := False;
       end;
     finally
