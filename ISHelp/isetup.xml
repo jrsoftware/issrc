@@ -1749,7 +1749,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 <p>This flag cannot be combined with <tt>download</tt>.</p>
@@ -4789,7 +4789,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
-<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size. It supports multi-volume archives.</p>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
@@ -4797,13 +4797,13 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <tr><td><tt>basic</tt> (default)</td><td>High for large files*</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
-<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>458 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg</td></tr>
+<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>458 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg, .001</td></tr>
 </table>
 <p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for .7z archives that contain large files: their memory requirements depend on the dictionary size only.</p>
 </indent>
 <p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
 <p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
-<p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, or a split multi-volume archive, such as <i>archive.7z.001</i>, the output will be the archive file itself (e.g., <i>archive.tar</i> or <i>archive.7z</i>) rather than the individual files contained within it.</p>
+<p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, the output will be the archive file itself (e.g., <i>archive.tar</i>) rather than the individual files contained within it.</p>
 <p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
 <li>It does not support PPMd and BZip2 methods.</li>

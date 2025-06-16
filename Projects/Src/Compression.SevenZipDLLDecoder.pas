@@ -93,14 +93,25 @@ type
     constructor Create(const Password: String);
   end;
 
-  TArchiveOpenCallback = class(TArchiveCallback, IArchiveOpenCallback, IArchiveOpenVolumeCallback)
-  private
-    FDisableFsRedir: Boolean;
-    FArchiveFilename: String;
+  TArchiveOpenCallback = class(TArchiveCallback, IArchiveOpenCallback)
   protected
     { IArchiveOpenCallback }
     function SetTotal(files, bytes: PUInt64): HRESULT; stdcall;
     function SetCompleted(files, bytes: PUInt64): HRESULT; stdcall;
+  end;
+
+  TArchiveOpenCallbackWithStreamBackup = class(TArchiveOpenCallback)
+  private
+    FStreamBackup: IInStream;
+  public
+    constructor Create(const Password: String; const StreamToBackup: IInStream);
+  end;
+
+  TArchiveOpenFileCallback = class(TArchiveOpenCallback, IArchiveOpenVolumeCallback)
+  private
+    FDisableFsRedir: Boolean;
+    FArchiveFilename: String;
+  protected
     { IArchiveOpenVolumeCallback - queried for by 7-Zip on IArchiveOpenCallback }
     function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
     function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
@@ -209,6 +220,49 @@ begin
     [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
   const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
   SevenZipError(ExceptMessage, LogMessage);
+end;
+
+function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID;
+begin
+  const Ext = PathExtractExt(Filename);
+  if SameText(Ext, '.7z') then
+    Result := CLSID_Handler7z
+  else if SameText(Ext, '.zip') then
+    Result := CLSID_HandlerZip
+  else if SameText(Ext, '.gz') then
+    Result := CLSID_HandlerGzip
+  else if SameText(Ext, '.bz2') then
+    Result := CLSID_HandlerBZip2
+  else if SameText(Ext, '.xz') then
+    Result := CLSID_HandlerXz
+  else if SameText(Ext, '.tar') then
+    Result := CLSID_HandlerTar
+  else if SameText(Ext, '.rar') then
+    Result := CLSID_HandlerRar
+  else if SameText(Ext, '.iso') then
+    Result := CLSID_HandlerIso
+  else if SameText(Ext, '.msi') then
+    Result := CLSID_HandlerCompound
+  else if SameText(Ext, '.cab') then
+    Result := CLSID_HandlerCab
+  else if SameText(Ext, '.rpm') then
+    Result := CLSID_HandlerRpm
+  else if SameText(Ext, '.vhd') then
+    Result := CLSID_HandlerVhd
+  else if SameText(Ext, '.vhdx') then
+    Result := CLSID_HandlerVhdx
+  else if SameText(Ext, '.vdi') then
+    Result := CLSID_HandlerVDI
+  else if SameText(Ext, '.vmdk') then
+    Result := CLSID_HandlerVMDK
+  else if SameText(Ext, '.wim') then
+    Result := CLSID_HandlerWim
+  else if SameText(Ext, '.dmg') then
+    Result := CLSID_HandlerDmg
+  else if SameText(Ext, '.001') then
+    Result := CLSID_HandlerSplit
+  else
+    InternalError(NotFoundErrorMsg);
 end;
 
 const
@@ -390,13 +444,6 @@ end;
 
 { TArchiveOpenCallback }
 
-constructor TArchiveOpenCallback.Create(const DisableFsRedir: Boolean; const ArchiveFilename, Password: String);
-begin
-  inherited Create(Password);
-  FDisableFsRedir := DisableFsRedir;
-  FArchiveFilename := ArchiveFilename;
-end;
-
 function TArchiveOpenCallback.SetCompleted(files,
   bytes: PUInt64): HRESULT;
 begin
@@ -409,17 +456,38 @@ begin
   Result := S_OK;
 end;
 
-function TArchiveOpenCallback.GetProperty(propID: PROPID; var value: OleVariant): HRESULT;
+{ TArchiveOpenCallbackWithStreamBackup }
+
+constructor TArchiveOpenCallbackWithStreamBackup.Create(const Password: String;
+  const StreamToBackup: IInStream);
+begin
+  inherited Create(Password);
+  FStreamBackup := StreamToBackup;
+end;
+
+{ TArchiveOpenFileCallback }
+
+constructor TArchiveOpenFileCallback.Create(const DisableFsRedir: Boolean; const ArchiveFilename,
+  Password: String);
+begin
+  inherited Create(Password);
+  FDisableFsRedir := DisableFsRedir;
+  FArchiveFilename := ArchiveFilename;
+end;
+
+function TArchiveOpenFileCallback.GetProperty(propID: PROPID; var value: OleVariant): HRESULT;
 begin
   { This is for multi-volume archives: when the archive is opened 7-Zip only receives a stream. It
     will then use this callback to find the name of the archive (like archive.7z.001) to figure out
     the name of other volumes (like archive.7z.002) }
   if propID = kpidName then
-    value := FArchiveFilename;
+    value := FArchiveFilename
+  else
+    value := Unassigned; { Note sure if this is really needed }
   Result := S_OK;
 end;
 
-function TArchiveOpenCallback.GetStream(const name: PChar; var inStream: IInStream): HRESULT;
+function TArchiveOpenFileCallback.GetStream(const name: PChar; var inStream: IInStream): HRESULT;
 begin
   { This is for multi-volume archives: after 7-Zip figures out the name of other volumes (like
     archive.7z.002) it will then use this callback to open it. The callback must either return
@@ -909,48 +977,6 @@ begin
     VersionBanner := '';
 end;
 
-function GetHandler(const Ext, NotFoundErrorMsg: String): TGUID;
-begin
-  if SameText(Ext, '.7z') then
-    Result := CLSID_Handler7z
-  else if SameText(Ext, '.zip') then
-    Result := CLSID_HandlerZip
-  else if SameText(Ext, '.gz') then
-    Result := CLSID_HandlerGzip
-  else if SameText(Ext, '.bz2') then
-    Result := CLSID_HandlerBZip2
-  else if SameText(Ext, '.xz') then
-    Result := CLSID_HandlerXz
-  else if SameText(Ext, '.tar') then
-    Result := CLSID_HandlerTar
-  else if SameText(Ext, '.rar') then
-    Result := CLSID_HandlerRar
-  else if SameText(Ext, '.iso') then
-    Result := CLSID_HandlerIso
-  else if SameText(Ext, '.msi') then
-    Result := CLSID_HandlerCompound
-  else if SameText(Ext, '.cab') then
-    Result := CLSID_HandlerCab
-  else if SameText(Ext, '.rpm') then
-    Result := CLSID_HandlerRpm
-  else if SameText(Ext, '.vhd') then
-    Result := CLSID_HandlerVhd
-  else if SameText(Ext, '.vhdx') then
-    Result := CLSID_HandlerVhdx
-  else if SameText(Ext, '.vdi') then
-    Result := CLSID_HandlerVDI
-  else if SameText(Ext, '.vmdk') then
-    Result := CLSID_HandlerVMDK
-  else if SameText(Ext, '.wim') then
-    Result := CLSID_HandlerWim
-  else if SameText(Ext, '.dmg') then
-    Result := CLSID_HandlerDmg
-  else if SameText(Ext, '.001') then
-    Result := CLSID_HandlerSplit
-  else
-    InternalError(NotFoundErrorMsg);
-end;
-
 var
   LoggedBanner: Boolean;
 
@@ -964,6 +990,8 @@ end;
 
 function OpenArchiveRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, Password: String; const clsid: TGUID; out numItems: UInt32): IInArchive;
+const
+  DefaultScanSize: Int64 = 1 shl 23; { From Client7z.cpp }
 begin
   { CreateObject }
   if CreateSevenZipObject(clsid, IInArchive, Result) <> S_OK then
@@ -977,12 +1005,47 @@ begin
     SevenZipWin32Error('CreateFile');
   end;
   const InStream: IInStream = TInStream.Create(F);
-  var ScanSize: Int64 := 1 shl 23; { From Client7z.cpp }
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenCallback.Create(DisableFsRedir, ArchiveFileName, Password);
+  var ScanSize := DefaultScanSize;
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(DisableFsRedir, ArchiveFileName, Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
     SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   if Result.GetNumberOfItems(numItems) <> S_OK then
     SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot get number of items');
+
+  if numItems = 1 then begin
+    { Get inner archive stream if it exists - See OpenArchive.cpp CArchiveLink::Open }
+    var MainSubFile: Cardinal;
+    var SubSeqStream: ISequentialInStream;
+    if not GetProperty(Result, $FFFF, kpidMainSubfile, MainSubFile) or
+       (MainSubFile <> 0) or
+       not Supports(Result, IInArchiveGetStream) or
+       ((Result as IInArchiveGetStream).GetStream(MainSubFile, SubSeqStream) <> S_OK) or
+       (SubSeqStream = nil) or
+       not Supports(SubSeqStream, IInStream) then
+      Exit;
+    const SubStream = SubSeqStream as IInStream;
+
+    { Open inner archive }
+    var MainSubFilePath: String;
+    if not GetProperty(Result, MainSubFile, kpidPath, MainSubFilePath) then
+      Exit;
+    if MainSubFilePath = '' then
+      MainSubFilePath := PathChangeExt(ArchiveFilename, '');
+
+    const SubClsid = GetHandler(MainSubFilePath, '');
+    var SubResult: IInArchive;
+    if CreateSevenZipObject(SubClsid, IInArchive, SubResult) <> S_OK then
+      Exit;
+
+    var SubScanSize := DefaultScanSize;
+    const SubOpenCallback: IArchiveOpenCallback =
+      TArchiveOpenCallbackWithStreamBackup.Create(Password, InStream); { In tests the backup of InStream wasn't needed but better safe than sorry }
+    if (SubResult.Open(SubStream, @SubScanSize, SubOpenCallback) <> S_OK) or
+       (SubResult.GetNumberOfItems(numItems) <> S_OK) then
+      Exit;
+
+    Result := SubResult;
+  end;
 end;
 
 { ExtractArchiveRedir }
@@ -995,7 +1058,7 @@ begin
 
   if ArchiveFileName = '' then
     InternalError('ExtractArchive: Invalid ArchiveFileName value');
-  const clsid = GetHandler(PathExtractExt(ArchiveFilename),
+  const clsid = GetHandler(ArchiveFilename,
     'ExtractArchive: Unknown ArchiveFileName extension');
   if DestDir = '' then
     InternalError('ExtractArchive: Invalid DestDir value');
@@ -1086,7 +1149,7 @@ begin
 
   if ArchiveFileName = '' then
     InternalError('ArchiveFindFirstFile: Invalid ArchiveFileName value');
-  const clsid = GetHandler(PathExtractExt(ArchiveFilename),
+  const clsid = GetHandler(ArchiveFilename,
     'ArchiveFindFirstFile: Unknown ArchiveFileName extension');
 
   LogBannerOnce;
@@ -1206,5 +1269,7 @@ begin
   { ArchiveFindStates has references to 7-Zip so must be cleared before the DLL is unloaded }
   ArchiveFindStates.Free;
 end;
+
+{ TArchiveOpenCallbackWithStreamBackup }
 
 end.

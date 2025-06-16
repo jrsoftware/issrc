@@ -82,6 +82,7 @@ const
   CLSID_HandlerGZip: TGUID = '{23170F69-40C1-278A-1000-000110EF0000}';
 
   { From PropID.h}
+  kpidMainSubfile = 1;
   kpidPath = 3;
   kpidName = 4;
   kpidIsDir = 6;
@@ -135,7 +136,12 @@ type
     function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
   end;
 
-    IArchiveExtractCallback = interface(IProgress)
+  IInArchiveGetStream = interface
+  ['{23170F69-40C1-278A-0000-000600400000}']
+    function GetStream(index: UInt32; var stream: ISequentialInStream ): HRESULT; stdcall;
+  end;
+
+  IArchiveExtractCallback = interface(IProgress)
   ['{23170F69-40C1-278A-0000-000600200000}']
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
       askExtractMode: Int32): HRESULT; stdcall;
