@@ -831,10 +831,16 @@ var
         Verification.ISSigAllowedKeys := ISSigAllowedKeys
       end;
 
-      { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
-      if ISSigVerify then
-        DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, OnDownloadProgress);
-      Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress));
+      const Throttler = TProgressThrottler.Create(OnDownloadProgress);
+      try
+        { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
+        if ISSigVerify then
+          DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, Throttler.OnDownloadProgress);
+        Throttler.Reset;
+        Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, Throttler.OnDownloadProgress));
+      finally
+        Throttler.Free;
+      end;
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1826,16 +1832,23 @@ var
         FullDirsItemNo := PStart-3;
       end;
 
+      const Throttler = TProgressThrottler.Create(TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
       try
-        if SetupHeader.SevenZipLibraryName <> '' then
-          ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)))
-        else
-          Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1), Password, Stack.GetBool(FullDirsItemNo), TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
-      except
-        on E: EAbort do
-          raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
-        else
-          raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
+        try
+          if SetupHeader.SevenZipLibraryName <> '' then
+            ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+              Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress)
+          else
+            Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+              Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress);
+        except
+          on E: EAbort do
+            raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+          else
+            raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
+        end;
+      finally
+        Throttler.Free;
       end;
     end);
     RegisterScriptFunc('MapArchiveExtensions', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
