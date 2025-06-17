@@ -92,7 +92,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
     <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</li>
     <li>Flag <tt>download</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. Additionally, the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters must be set.<br/>
         It can also be combined with the new <tt>issigverify</tt> flag (see below) for efficient and highly secure verification of the download file.<br/>
-        It cannot be combined with the <tt>comparetimestampalso</tt>, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
+        It cannot be combined with the <tt>comparetimestamp</tt> also, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
     <li>File download otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of downloaded files and can be combined with same other flags and parameters.</li>
     <li>Example script:
       <pre>[Files]
