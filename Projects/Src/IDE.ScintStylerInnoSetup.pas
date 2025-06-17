@@ -387,8 +387,7 @@ const
   ];
 
   Constants: array of AnsiString = [
-    { #emit and #file handled separately by BuildConstantsWordList.
-      Also doesnt include constants with non words chars. }
+    { Doesnt include constants with non words chars }
     '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
     'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
     'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
@@ -400,6 +399,12 @@ const
     'computername', 'groupname', 'hwnd', 'wizardhwnd', 'language', 'srcexe',
     'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
     'userinfoorg', 'userinfoserial', 'username', 'log'
+  ];
+
+  ISPPPredefinedVariables: array of AnsiString = [
+    { #emit and #file handled separately by BuildConstantsWordList.
+      Only includes predefined variables that are useful on their own. }
+    'CompilerPath', 'SourcePath'
   ];
 
   PascalConstants: array of AnsiString = [
@@ -876,6 +881,8 @@ begin
     if ISPPInstalled then begin
       AddWordToList(SL, '{#', awtConstant);
       AddWordToList(SL, '{#file ', awtConstant);
+      for var ISPPPredefinedVariable in ISPPPredefinedVariables do
+        AddWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
     end;
     for var ConstantWithParam in ConstantsWithParam do
       AddWordToList(SL, '{' + ConstantWithParam, awtConstant);
