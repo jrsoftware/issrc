@@ -46,11 +46,10 @@ type
     SuiteMask: Word;
   end;
 
-  { Make sure script isn't called crazy often because that would slow the download significantly.
+  { Makes sure script isn't called crazy often because that would slow the download significantly.
     Only reports:
       -At start or finish
-      -If at least 50 ms passed since last report
-  }
+      -If at least 50 ms passed since last report }
   TProgressThrottler = class
   private
     FOnDownloadProgress: TOnDownloadProgress;
@@ -734,7 +733,6 @@ end;
 procedure TProgressThrottler.Reset;
 begin
   FStopWatch.Stop;
-  FLastOkProgress := -1;
 end;
 
 function TProgressThrottler.ThrottleOk(const Progress, ProgressMax: Int64): Boolean;

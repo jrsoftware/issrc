@@ -1848,6 +1848,7 @@ var
             raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
         end;
       finally
+        Throttler.Free;
       end;
     end);
     RegisterScriptFunc('MapArchiveExtensions', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
