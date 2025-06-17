@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Shared.Struct, Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
+  Shared.Struct, Setup.WizardForm, Setup.Install, Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -185,11 +185,13 @@ type
       FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      FThrottler: TProgressThrottler;
       function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
         const UserName: String = ''; const Password: String = '';
         const ISSigVerify: Boolean = False; const ISSigAllowedKeys: AnsiString = ''): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
@@ -224,8 +226,10 @@ type
       FShowArchiveInsteadOfFile: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      FThrottler: TProgressThrottler;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalThrottledOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
@@ -981,11 +985,6 @@ begin
     Log('Need to abort download.');
     Result := False;
   end else begin
-    if ProgressMax > 0 then
-      Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
-    else
-      Log(Format('  %d bytes done.', [Progress]));
-
     FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, BaseName, Url);
     if ProgressMax > MaxLongInt then begin
       Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
@@ -1002,11 +1001,26 @@ begin
       ProcessMsgs;
     end;
 
-    if Assigned(FOnDownloadProgress) then
-      Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
-    else
-      Result := True;
+    { This will call InternalThrottledOnDownloadProgress, which will log progress and call the script's FOnDownloadProgress, but throttled }
+    if FThrottler = nil then begin
+      const OnDownloadProgress: TOnDownloadProgress = InternalThrottledOnDownloadProgress;
+      FThrottler := TProgressThrottler.Create(OnDownloadProgress);
+    end;
+    Result := FThrottler.OnDownloadProgress(Url, BaseName, Progress, ProgressMax);
   end;
+end;
+
+function TDownloadWizardPage.InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if ProgressMax > 0 then
+    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+  else
+    Log(Format('  %d bytes done.', [Progress]));
+
+  if Assigned(FOnDownloadProgress) then
+    Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
+  else
+    Result := True;
 end;
 
 constructor TDownloadWizardPage.Create(AOwner: TComponent);
@@ -1018,6 +1032,7 @@ end;
 
 destructor TDownloadWizardPage.Destroy;
 begin
+  FThrottler.Free;
   FFiles.Free;
   inherited;
 end;
@@ -1174,11 +1189,25 @@ begin
       ProcessMsgs;
     end;
 
-    if Assigned(FOnExtractionProgress) then
-      Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
-    else
+    { This will call InternalThrottledOnExtractionProgress, which will call the script's FOnExtractionProgress, but throttled
+      Because it does nothing else we first check if FOnExtractionProgress is actually assigned }
+    if Assigned(FOnExtractionProgress) then begin
+      if FThrottler = nil then begin
+        const OnExtractionProgress: TOnExtractionProgress = InternalThrottledOnExtractionProgress;
+        FThrottler := TProgressThrottler.Create(OnExtractionProgress);
+      end;
+      Result := FThrottler.OnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax);
+    end else
       Result := True;
   end;
+end;
+
+function TExtractionWizardPage.InternalThrottledOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if Assigned(FOnExtractionProgress) then { Always True, see above }
+    Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
+  else
+    Result := True;
 end;
 
 constructor TExtractionWizardPage.Create(AOwner: TComponent);
@@ -1190,6 +1219,7 @@ end;
 
 destructor TExtractionWizardPage.Destroy;
 begin
+  FThrottler.Free;
   FArchives.Free;
   inherited;
 end;

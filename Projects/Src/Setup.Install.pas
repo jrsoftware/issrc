@@ -3700,7 +3700,7 @@ type
     FOnSimpleDownloadProgressParam: Integer64;
     FAborted: Boolean;
     FProgress, FProgressMax: Int64;
-    FLastReportedProgress, FLastReportedProgressMax: Int64;
+    FLastReportedProgress: Int64;
   public
     property BaseName: String write FBaseName;
     property Url: String write FUrl;
@@ -3718,41 +3718,29 @@ begin
   FProgress := AReadCount;
   FProgressMax := AContentLength;
 
-  if Assigned(FOnDownloadProgress) then begin
-    { Make sure script isn't called crazy often because that would slow the download significantly. Only report:
-      -At start or finish
-      -Or if somehow Progress decreased or Max changed
-      -Or if at least 512 KB progress was made since last report
-    }
-    if (FProgress = 0) or (FProgress = FProgressMax) or
-       (FProgress < FLastReportedProgress) or (FProgressMax <> FLastReportedProgressMax) or
-       ((FProgress - FLastReportedProgress) > 524288) then begin
+  try
+    if Assigned(FOnDownloadProgress) then begin
+      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
+        Abort := True;
+    end else if Assigned(FOnSimpleDownloadProgress) then begin
       try
-        if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
-          Abort := True;
+        FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
       finally
-        FLastReportedProgress := FProgress;
-        FLastReportedProgressMax := FProgressMax;
+        FLastReportedProgress := Progress;
       end;
     end;
-
-    if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-      Application.ProcessMessages;
-
-    if Abort then
-      FAborted := True
-  end else if Assigned(FOnSimpleDownloadProgress) then begin
-    try
-      FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
-    except
-      if ExceptObject is EAbort then begin
-        Abort := True;
-        FAborted := True;
-      end else
-        raise;
-    end;
-    FLastReportedProgress := Progress;
+  except
+    if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
+      Abort := True
+    else
+      raise;
   end;
+
+  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+    Application.ProcessMessages;
+
+  if Abort then
+    FAborted := True
 end;
 
 procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
