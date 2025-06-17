@@ -13,9 +13,11 @@
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
-UseSetupLdr=0
-OutputDir=.
 AppVersion=1.2.3
+; The following four lines make the output debuggable from the Setup project
+; If you put them in any example script you can debug that example as well
+UseSetupLdr=0
+OutputDir={#CompilerPath}
 OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
