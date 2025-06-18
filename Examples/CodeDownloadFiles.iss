@@ -1,16 +1,9 @@
 ; -- CodeDownloadFiles.iss --
 ;
-; This script shows how the [Files] section can be used to download files and
-; archives while showing the download and extraction progress to the user.
+; SEE DOWNLOADFILES.ISS FIRST!
 ;
-; To verify the downloaded files, this script shows two methods:
-; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool, the [ISSigKeys] section, and the AddWithISSigVerify support
-;  function
-; -For iscrypt.dll: using a simple SHA-256 hash check
-; Using the Inno Setup Signature Tool has the benefit that the script does not
-; need to be changed when the downloaded file changes, so any installers built
-; will also keep working (they are "evergreen")
+; This script shows how the CreateDownloadPage support function can be used to
+; download and verify files while showing the download progress to the user.
 
 [Setup]
 AppName=My Program
@@ -35,15 +28,11 @@ Name: mykey; RuntimeID: def02; \
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; These files will be downloaded using [Files] only
-Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
-  ExternalSize: 7_000_000; Flags: external download ignoreversion issigverify
-Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
-  Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
-  ExternalSize: 2560; Flags: external download ignoreversion
-; These files will be downloaded by [Code]. If you include flag issigverify here the file will be verified
+; These files will be downloaded. If you include flag issigverify here the file will be verified
 ; a second time while copying. Verification while copying is efficient, except for archives.
+Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
 Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion
+Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
 
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
@@ -70,24 +59,33 @@ begin
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Error: String;
 begin
   if CurPageID = wpReady then begin
     DownloadPage.Clear;
     // Use AddEx or AddExWithISSigVerify to specify a username and password
     DownloadPage.AddWithISSigVerify(
+      'https://jrsoftware.org/download.php/is.exe?dontcount=1', '',
+      'innosetup-latest.exe', AllowedKeysRuntimeIDs);
+    DownloadPage.AddWithISSigVerify(
       'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
       'MyProg-ExtraReadmes.7z', AllowedKeysRuntimeIDs);
+    DownloadPage.Add(
+      'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1',
+      'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
     DownloadPage.Show;
     try
       try
-        // Downloads the files to {tmp}
-        DownloadPage.Download;
+        DownloadPage.Download; // This downloads the files to {tmp}
         Result := True;
       except
         if DownloadPage.AbortedByUser then
           Log('Aborted by user.')
-        else
-          SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbCriticalError, MB_OK, IDOK);
+        else begin
+          Error := Format('%s: %s', [DownloadPage.LastBaseNameOrUrl, GetExceptionMessage]);
+          SuppressibleMsgBox(AddPeriod(Error), mbCriticalError, MB_OK, IDOK);
+        end;
         Result := False;
       end;
     finally

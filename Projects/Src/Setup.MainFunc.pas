@@ -1868,6 +1868,9 @@ begin
         else begin
           { External file }
           if foDownload in CurFile^.Options then begin
+           { Archive download should have been done already by Setup.WizardForm's DownloadArchivesToExtract }
+            if foExtractArchive in CurFile^.Options then
+              InternalError('Unexpected Download flag');
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
             { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }

@@ -290,7 +290,7 @@ const
     '"dontcopy" flag is used';
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
-    'the "Source" parameter contains wildcards or flag "extractarchive" is used';
+    'the "Source" parameter contains wildcards or flag "extractarchive" is used but "download" is not';
   SCompilerFilesParamRequiresFlag = 'Parameter "%s" may only be used when the "%s" flag is used';
   SCompilerFilesParamFlagConflict = 'Parameter "%s" may not be used when the "%s" flag is used';
   SCompilerFilesParamFlagConflictSameSource = 'Parameter "%s" and the "%s" flag cannot both be used on a single source file';

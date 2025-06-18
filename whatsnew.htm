@@ -70,7 +70,6 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
         </li>
       </ul>
     </li>
-    <li>Updated example script <i>CodeDownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to extract a downloaded archive.</li>
     <li>Archive extraction now honors the file system redirection state set by 64-bit install mode, entry flags, and support function <tt>EnableFsRedirection</tt>.</li>
   </ul>
   </li>
@@ -99,7 +98,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
 Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
   ExternalSize: 7_000_000; Flags: external download ignoreversion</pre>
     </li>
-    <li>Updated example script <i>CodeDownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file.</li>
+    <li>Added example script <i>DownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive using a single entry.</li>
   </ul>
   </li>
 </ul>
@@ -133,7 +132,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"</pre>
     <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
     <li>Has little performance impact since verification occurs while source files are being compressed/copied and each file's contents are only read once; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read a second time.</li>
     <li>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
-    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the updated <i>CodeDownloadFiles.iss</i> example script for an example.</li>
+    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <i>DownloadFiles.iss</i> example script for an example.</li>
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
@@ -209,7 +208,12 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
       <li><i>Fix:</i> The return value of support function <tt>ExtractFilePath</tt> did not always include a trailing backslash as intended.</li>
     </ul>
   </li>
-  <li>Pascal Scripting change: Added new <tt>GetSHA256OfStream</tt> support function.</li>
+  <li>Pascal Scripting changes:
+    <ul>
+      <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
+      <li>Added new <tt>GetSHA256OfStream</tt> support function.</li>
+    </ul>
+  </li>
   <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
   <li>All translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
   <li>Inno Setup is now built using Delphi 12.3 Athens instead of Delphi 12.1 Athens. Thanks to Ian Barker from Embarcadero for providing us with a license!</li>
@@ -217,19 +221,22 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
   <li>Minor tweaks.</li>
 </ul>
 
-<p>Some messages have been removed and added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/9224d13e">View differences in Default.isl</a>.)</p>
+<p>Some messages have been removed and added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/4193f69b">View differences in Default.isl</a>.)</p>
 <ul>
-  <li><b>Removed messages:</b>
-  <ul>
-    <li>ErrorFileHash1, ErrorFileHash2.</li>
-  </ul>
-  </li>
   <li><b>New messages:</b>
   <ul>
+    <li>DownloadingLabel2, ExtractingLabel.</li>
     <li>ArchiveIncorrectPassword, ArchiveIsCorrupted, ArchiveUnsupportedFormat.</li>
+    <li>RetryCancelSelectAction, RetryCancelRetry.</li>
     <li>StatusDownloadFiles.</li>
     <li>SourceVerificationFailed, VerificationSignatureDoesntExist, VerificationSignatureInvalid, VerificationKeyNotFound, VerificationFileNameIncorrect, VerificationFileTagIncorrect, VerificationFileSizeIncorrect, VerificationFileHashIncorrect.</li>
     <li>ErrorDownloading, ErrorExtracting.</li>
+  </ul>
+  </li>
+  <li><b>Removed messages:</b>
+  <ul>
+    <li>ErrorFileHash1, ErrorFileHash2.</li>
+    <li>DownloadingLabel, ExtractionLabel.</li>
   </ul>
   </li>
 </ul>

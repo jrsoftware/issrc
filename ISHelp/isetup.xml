@@ -1666,7 +1666,7 @@ ExternalSize: 1_048_576; Flags: external
 </param>
 
 <param name="Hash">
-<p>Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag. The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag. See the <tt>issigverify</tt> flag description for more information.</p>
+<p>Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag. The precise effect of this parameter depends on whether it is combined with the <tt>external</tt> flag. See the <tt>issigverify</tt> flag description for more information.</p>
 <example>
 <pre>Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"</pre>
 </example>
@@ -1738,9 +1738,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="download">
 <p>This flag instructs Setup not to copy an existing file, but instead to download it. Optionally use the <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt> parameters to specify a basic authentication username and password.</p>
-<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters.</p>
+<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
 <p>This flag also must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
-<p>This flag cannot be combined with the <tt>comparetimestamp</tt>, <tt>extractarchive</tt>, <tt>recursesubdirs</tt>, and <tt>skipifsourcedoesntexist</tt> flags.</p>
+<p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>skipifsourcedoesntexist</tt> flags.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
 </flag>
 <flag name="external">
@@ -1753,7 +1753,6 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
-<p>This flag cannot be combined with <tt>download</tt>.</p>
 <p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 </flag>
 <flag name="fontisnttruetype">

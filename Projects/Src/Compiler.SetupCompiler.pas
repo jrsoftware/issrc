@@ -5482,13 +5482,11 @@ begin
             AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'download']);
           if not(foIgnoreVersion in Options) then
             AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'download']);
-          if foExtractArchive in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'extractarchive']);
           if foCompareTimeStamp in Options then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'comparetimestamp']);
           if foSkipIfSourceDoesntExist in Options then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'download', 'skipifsourcedoesntexist']);
-          if RecurseSubdirs then
+          if not(foExtractArchive in Options) and RecurseSubdirs then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download']);
           if ADestName = '' then
             AbortCompileFmt(SCompilerParamFlagMissingParam, ['DestName', 'download']);
@@ -5542,7 +5540,7 @@ begin
             Include(Options, foRecurseSubDirsExternal);
           CheckConst(SourceWildcard, MinVersion, []);
         end;
-        if (ADestName <> '') and (SourceIsWildcard or (foExtractArchive in Options)) then
+        if (ADestName <> '') and (SourceIsWildcard or (not (foDownload in Options) and (foExtractArchive in Options))) then
           AbortCompile(SCompilerFilesDestNameCantBeSpecified);
         CheckConst(ADestDir, MinVersion, []);
         ADestDir := AddBackslash(ADestDir);

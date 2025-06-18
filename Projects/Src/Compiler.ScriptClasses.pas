@@ -550,6 +550,7 @@ begin
   begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
+    RegisterProperty('LastBaseNameOrUrl', 'String', iptr);
     RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
     RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer');
     RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');

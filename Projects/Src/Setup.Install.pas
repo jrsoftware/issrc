@@ -37,7 +37,10 @@ function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
   const OnSimpleDownloadProgressParam: Integer64): Int64;
 function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64; overload;
+function DownloadTemporaryFile(const Url, BaseName: String;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  out DestFile: String): Int64; overload;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
@@ -2175,6 +2178,9 @@ var
               SetProgress(ProgressBefore);
               ExpectedBytesLeft := CurFile^.ExternalSize;
               if foDownload in CurFile^.Options then begin
+                { Archive download should have been done already by Setup.WizardForm's DownloadArchivesToExtract }
+                if foExtractArchive in CurFile^.Options then
+                  InternalError('Unexpected Download flag');
                 if foSkipIfSourceDoesntExist in CurFile^.Options then
                   InternalError('Unexpected SkipIfSourceDoesntExist flag');
                 if not(foCustomDestName in CurFile^.Options) then
@@ -3238,15 +3244,17 @@ var
           Continue;
         end;
       end;
-      case LoggedMsgBox(UninstallExeFilename + SNewLine2 +
-         SetupMessages[msgErrorReplacingExistingFile] + SNewLine2 +
-         AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-           ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)])),
-         '', mbError, MB_RETRYCANCEL, True, IDCANCEL) of
+
+      const LastOperation = SetupMessages[msgErrorReplacingExistingFile];
+      const Failed = AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+        ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)]));
+      const Text = UninstallExeFilename + SNewLine2 + LastOperation + SNewLine + Failed;
+      case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
+         mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL) of
         IDRETRY: ;
         IDCANCEL: Abort;
       else
-        Log('LoggedMsgBox returned an unexpected value. Assuming Cancel.');
+        Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
         Abort;
       end;
     end;
@@ -3887,9 +3895,10 @@ begin
 end;
 
 function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  out DestFile: String): Int64;
 var
-  DestFile, TempFile: String;
+  TempFile: String;
   TempF: TFile;
   HandleStream: THandleStream;
   TempFileLeftOver: Boolean;
@@ -4047,6 +4056,13 @@ begin
     if TempFileLeftOver then
       DeleteFile(TempFile);
   end;
+end;
+
+function DownloadTemporaryFile(const Url, BaseName: String;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+begin
+  var DestFile: String;
+  Result := DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress, DestFile);
 end;
 
 procedure DownloadTemporaryFileSizeAndDate(const Url: String; var FileSize: Int64; var FileDate: String);

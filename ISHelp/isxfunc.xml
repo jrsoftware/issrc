@@ -1827,13 +1827,6 @@ end;</pre></example>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
-        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
-<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br />
-<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
-<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
-<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
-<link topic="isxfunc_ExtractArchive">ExtractArchive</link></p></seealso>
         <example><pre>
 [Code]
 function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
@@ -1856,7 +1849,15 @@ begin
     Result := False;
   end;
 end;</pre>
-<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
+<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry.</p></example>
+        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
+<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br />
+<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
+<link topic="isxfunc_ExtractArchive">ExtractArchive</link></p></seealso>
       </function>
       <function>
         <name>DownloadTemporaryFileWithISSigVerify</name>
@@ -1914,11 +1915,11 @@ end;</pre></example>
 <p>An exception will be raised if there was an error.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
-<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
-<p>See <i>CodeDownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p></description>
+<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
+        <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry.</p></example>
         <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
 <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
@@ -2734,7 +2735,8 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry instead.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
@@ -2753,7 +2755,9 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
 <p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>, and an example of archive extraction using just a [Files] entry instead.</p></example>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p>
+</example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <link topic="isxfunc_ExtractArchive">ExtractArchive</link><br />
 <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
