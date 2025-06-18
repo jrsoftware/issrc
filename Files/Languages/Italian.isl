@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 12.06.2025  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 18.06.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -324,6 +324,8 @@ SourceVerificationFailed=Verifica del file sorgente non riuscita: %1
 VerificationSignatureDoesntExist=File firma "%1" non disponibile
 VerificationSignatureInvalid=Il file firma "%1" non è valido
 VerificationKeyNotFound=Il file firma "%1" usa una chiave sconosciuta
+VerificationFileNameIncorrect=Il nome del file non è corretto
+VerificationFileTagIncorrect=L'etichetta del file non è corretta
 VerificationFileSizeIncorrect=La dimensione del file non è corretta
 VerificationFileHashIncorrect=L'hash del file non è corretto
 ExistingFileReadOnly2=Il file esistente non può essere sostituito in quanto segnato come in sola lettura.
