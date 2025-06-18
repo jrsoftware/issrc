@@ -28,21 +28,22 @@ function ISSigLoadTextFromFile(const AFilename: String): String;
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
 
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
-  const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
+  const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
-  const AText: String; out AFileSize: Int64;
+  const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest): TISSigVerifySignatureResult; overload;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
-  const AText: String; out AFileSize: Int64;
+  const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult; overload;
 
 function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest; out AKeyUsedID: String;
+  out AExpectedFileName: String; out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  out AKeyUsedID: String;
   const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
   const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
   const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean; overload;
 function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  out AExpectedFileName: String; out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
   const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
   const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
   const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean; overload;
@@ -93,11 +94,13 @@ begin
   TSHA256Digest(Result) := SHA256DigestFromString(S);
 end;
 
-function CalcHashToSign(const AFileSize: Int64;
+function CalcHashToSign(const AFileName: String; const AFileSize: Int64;
   const AFileHash: TSHA256Digest): TSHA256Digest;
 begin
   var Context: TSHA256Context;
   SHA256Init(Context);
+  if AFileName <> '' then
+    SHA256Update(Context, Pointer(AFileName)^, Length(AFileName)*SizeOf(AFileName[1]));
   SHA256Update(Context, AFileSize, SizeOf(AFileSize));
   SHA256Update(Context, AFileHash, SizeOf(AFileHash));
   Result := SHA256Final(Context);
@@ -165,7 +168,7 @@ begin
 end;
 
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
-  const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
+  const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 begin
   { File size is limited to 16 digits (enough for >9 EB) }
   if (AFileSize < 0) or (AFileSize > {$IF CompilerVersion >= 36.0} 9_999_999_999_999_999 {$ELSE} 9999999999999999 {$ENDIF} ) then
@@ -174,18 +177,20 @@ begin
   var PublicKey: TECDSAPublicKey;
   AKey.ExportPublicKey(PublicKey);
 
-  const HashToSign = CalcHashToSign(AFileSize, AFileHash);
+  const HashToSign = CalcHashToSign(AFileName, AFileSize, AFileHash);
   var Sig: TECDSASignature;
   AKey.SignHash(HashToSign, Sig);
 
   Result := Format(
-    'format issig-v1'#13#10 +
+    'format issig-v2'#13#10 +
+    'file-name %s'#13#10 +
     'file-size %d'#13#10 +
     'file-hash %s'#13#10 +
     'key-id %s'#13#10 +
     'sig-r %s'#13#10 +
     'sig-s %s'#13#10,
-    [AFileSize,
+    [AFileName,
+     AFileSize,
      SHA256DigestToString(AFileHash),
      SHA256DigestToString(CalcKeyID(PublicKey)),
      ECDSAInt256ToString(Sig.Sig_r),
@@ -193,15 +198,16 @@ begin
 end;
 
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
-  const AText: String; out AFileSize: Int64;
+  const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult;
 var
   TextValues: record
-    Format, FileSize, FileHash, KeyID, Sig_r, Sig_s: String;
+    Format, FileName, FileSize, FileHash, KeyID, Sig_r, Sig_s: String;
   end;
 begin
   { To be extra safe, clear the "out" parameters just in case the caller isn't
     properly checking the function result }
+  AFileName := '';
   AFileSize := -1;
   FillChar(AFileHash, SizeOf(AFileHash), 0);
   AKeyUsedID := '';
@@ -213,7 +219,8 @@ begin
 
   var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
-     (TextValues.Format <> 'issig-v1') or
+     ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
+     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt, NonControlASCIICharsSet)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'key-id', TextValues.KeyID, 64, 64, HexDigitsSet) or
@@ -242,13 +249,15 @@ begin
     Exit(vsrKeyNotFound);
   AKeyUsedID := TextValues.KeyID;
 
+  const UnverifiedFileName = TextValues.FileName;
   const UnverifiedFileSize = StrToInt64(TextValues.FileSize);
   const UnverifiedFileHash = SHA256DigestFromString(TextValues.FileHash);
-  const HashToSign = CalcHashToSign(UnverifiedFileSize, UnverifiedFileHash);
+  const HashToSign = CalcHashToSign(UnverifiedFileName, UnverifiedFileSize, UnverifiedFileHash);
   var Sig: TECDSASignature;
   Sig.Sig_r := ECDSAInt256FromString(TextValues.Sig_r);
   Sig.Sig_s := ECDSAInt256FromString(TextValues.Sig_s);
   if KeyUsed.VerifySignature(HashToSign, Sig) then begin
+    AFileName := UnverifiedFileName;
     AFileSize := UnverifiedFileSize;
     AFileHash := UnverifiedFileHash;
     Result := vsrSuccess;
@@ -257,15 +266,16 @@ begin
 end;
 
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
-  const AText: String; out AFileSize: Int64;
+  const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest): TISSigVerifySignatureResult;
 begin
   var KeyUsedID: String;
-  Result := ISSigVerifySignatureText(AAllowedKeys, AText, AFileSize, AFileHash, KeyUsedID);
+  Result := ISSigVerifySignatureText(AAllowedKeys, AText, AFileName, AFileSize, AFileHash, KeyUsedID);
 end;
 
 function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest; out AKeyUsedID: String;
+  out AExpectedFileName: String; out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  out AKeyUsedID: String;
   const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
   const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
   const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
@@ -294,20 +304,20 @@ begin
   end;
   const SigText = ISSigLoadTextFromFile(SigFilename);
   const VerifyResult = ISSigVerifySignatureText(AAllowedKeys, SigText,
-    AExpectedFileSize, AExpectedFileHash, AKeyUsedID);
+    AExpectedFileName, AExpectedFileSize, AExpectedFileHash, AKeyUsedID);
   Result := VerifyResult = vsrSuccess;
   if not Result and Assigned(AVerificationFailedErrorProc) then
     AVerificationFailedErrorProc(AFilename, SigFilename, VerifyResult);
 end;
 
 function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array of TECDSAKey;
-  out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
+  out AExpectedFileName: String; out AExpectedFileSize: Int64; out AExpectedFileHash: TSHA256Digest;
   const AFileMissingErrorProc: TISSigVerifySignatureFileMissingErrorProc;
   const ASigFileMissingErrorProc: TISSigVerifySignatureSigFileMissingErrorProc;
   const AVerificationFailedErrorProc: TISSigVerifySignatureVerificationFailedErrorProc): Boolean;
 begin
   var KeyUsedID: String;
-  Result := ISSigVerifySignature(AFilename, AAllowedKeys, AExpectedFileSize,
+  Result := ISSigVerifySignature(AFilename, AAllowedKeys, AExpectedFileName, AExpectedFileSize,
     AExpectedFileHash, KeyUsedID, AFileMissingErrorProc, ASigFileMissingErrorProc,
     AVerificationFailedErrorProc);
 end;

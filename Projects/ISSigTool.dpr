@@ -159,6 +159,7 @@ procedure SignSingleFile(const AKey: TECDSAKey; const AFilename: String);
 begin
   PrintFmtUnlessQuiet('%s: ', [AFilename], False);
 
+  const FileName = PathExtractName(AFilename);
   var FileSize: Int64;
   var FileHash: TSHA256Digest;
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
@@ -175,18 +176,19 @@ begin
     being re-signed but its contents haven't changed, we attempt to load and
     verify the existing .issig file. If the key, file size, and file hash are
     all up to date, then we skip creation of a new .issig file. }
+  var ExistingFileName: String;
   var ExistingFileSize: Int64;
   var ExistingFileHash: TSHA256Digest;
   const Verified = ISSigVerifySignature(AFilename, [AKey],
-    ExistingFileSize, ExistingFileHash, nil, nil, nil);
+    ExistingFileName, ExistingFileSize, ExistingFileHash, nil, nil, nil);
 
-  if Verified and (FileSize = ExistingFileSize) and
+  if Verified and SameText(FileName, ExistingFileName) and (FileSize = ExistingFileSize) and
      SHA256DigestsEqual(FileHash, ExistingFileHash) then begin
     PrintUnlessQuiet('signature unchanged');
     Exit;
   end;
 
-  const SigText = ISSigCreateSignatureText(AKey, FileSize, FileHash);
+  const SigText = ISSigCreateSignatureText(AKey, FileName, FileSize, FileHash);
   ISSigSaveTextToFile(AFilename + ISSigExt, SigText);
   PrintUnlessQuiet('signature written');
 end;
@@ -209,9 +211,10 @@ begin
   Result := False;
   PrintFmtUnlessQuiet('%s: ', [AFilename], False);
 
+  var ExpectedFileName: String;
   var ExpectedFileSize: Int64;
   var ExpectedFileHash: TSHA256Digest;
-  if not ISSigVerifySignature(AFilename, [AKey], ExpectedFileSize, ExpectedFileHash,
+  if not ISSigVerifySignature(AFilename, [AKey], ExpectedFileName, ExpectedFileSize, ExpectedFileHash,
     procedure(const Filename: String)
     begin
       PrintUnlessQuiet('MISSINGFILE (File does not exist)');
@@ -233,6 +236,11 @@ begin
     end
   ) then
     Exit;
+
+  if (ExpectedFileName <> '') and not SameText(PathExtractName(AFilename), ExpectedFileName) then begin
+    PrintUnlessQuiet('WRONGNAME (File name is incorrect)');
+    Exit;
+  end;
 
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try
