@@ -146,7 +146,7 @@ begin
     as any non-ASCII characters (to avoid any possible issues with converting
     invalid multibyte characters) }
   for var C in U do
-    if not CharInSet(C, [#10, #13, #32..#126]) then
+    if not (CharInSet(C, [#10, #13]) or CharInSet(C, NonControlASCIICharsSet)) then
       Exit('');
 
   Result := String(U);
