@@ -445,6 +445,8 @@ const
   SCI_AUTOCGETMAXHEIGHT = 2211;
   SCI_AUTOCSETSTYLE = 2109;
   SCI_AUTOCGETSTYLE = 2120;
+  SCI_AUTOCSETIMAGESCALE = 2815;
+  SCI_AUTOCGETIMAGESCALE = 2816;
   SCI_SETINDENT = 2122;
   SCI_GETINDENT = 2123;
   SCI_SETUSETABS = 2124;
@@ -505,6 +507,7 @@ const
   SCI_GETCHANGEHISTORY = 2781;
   SC_UNDO_SELECTION_HISTORY_DISABLED = 0;
   SC_UNDO_SELECTION_HISTORY_ENABLED = 1;
+  SC_UNDO_SELECTION_HISTORY_SCROLL = 2;
   SCI_SETUNDOSELECTIONHISTORY = 2782;
   SCI_GETUNDOSELECTIONHISTORY = 2783;
   SCI_SETSELECTIONSERIALIZED = 2784;
@@ -529,6 +532,7 @@ const
   SCI_LINEFROMPOSITION = 2166;
   SCI_POSITIONFROMLINE = 2167;
   SCI_LINESCROLL = 2168;
+  SCI_SCROLLVERTICAL = 2817;
   SCI_SCROLLCARET = 2169;
   SCI_SCROLLRANGE = 2569;
   SCI_REPLACESEL = 2170;
@@ -1321,16 +1325,20 @@ type
   TSCNotification = record
     nmhdr: TNMHdr;
     position: TSci_Position;    { SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
-                                  SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK,
+                                  SCN_MARGINRIGHTCLICK, SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND,
+                                  SCN_CALLTIPCLICK,
                                   SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK,
                                   SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
-                                  SCN_USERLISTSELECTION, SCN_AUTOCSELECTION }
+                                  SCN_USERLISTSELECTION, SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION,
+                                  SCN_AUTOCSELECTIONCHANGE }
     ch: Integer;                { SCN_CHARADDED, SCN_KEY, SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION,
                                   SCN_USERLISTSELECTION }
     modifiers: Integer;         { SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
-                                  SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE,}
+                                  SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
+                                  SCN_MARGINCLICK, SCN_MARGINRIGHTCLICK }
     modificationType: Integer;  { SCN_MODIFIED }
-    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED }
+    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_URIDROPPED,
+                                  SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION, SCN_AUTOCSELECTIONCHANGE }
     length: TSci_Position;      { SCN_MODIFIED }
     linesAdded: TSci_Position;  { SCN_MODIFIED }
     message: Integer;           { SCN_MACRORECORD }
@@ -1339,8 +1347,8 @@ type
     line: TSci_Position;        { SCN_MODIFIED }
     foldLevelNow: Integer;      { SCN_MODIFIED }
     foldLevelPrev: Integer;     { SCN_MODIFIED }
-    margin: Integer;            { SCN_MARGINCLICK }
-    listType: Integer;          { SCN_USERLISTSELECTION }
+    margin: Integer;            { SCN_MARGINCLICK, SCN_MARGINRIGHTCLICK }
+    listType: Integer;          { SCN_USERLISTSELECTION, SCN_AUTOCSELECTIONCHANGE }
     x: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     y: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     token: Integer;             { SCN_MODIFIED with SC_MOD_CONTAINER }
@@ -1369,7 +1377,7 @@ uses
 procedure InitIsscintLibrary;
 begin
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), []);
+  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), [ltloTrustAllOnDebug]);
 end;
 
 end.
