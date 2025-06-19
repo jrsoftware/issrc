@@ -195,19 +195,19 @@ Precompiled executables and libraries
 The source code contains several precompiled and code-signed executables and libraries:
 
 **Files\is7z.dll**, **Files\is7zxa.dll**, **Files\is7zxr.dll** - Compiled by
-Visual Studio 2022 from 7-Zip source code in the is7z repository.
+Visual Studio 2022 from 7-Zip source code in the [is7z] repository.
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
-from the bzlib directory in the iscompress repository.
+from the bzlib directory in the [iscompress] repository.
 
 **Files\isunzlib.dll**, **Files\iszlib.dll** - Compiled by Visual Studio 2005
-from the zlib-dll directory in the iscompress repository.
+from the zlib-dll directory in the [iscompress] repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
-code in the isscint repository.
+code in the [isscint] repository.
 
 **Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
@@ -299,3 +299,6 @@ and will automatically run the aforementioned build workflow on changes, if it's
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
 [this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey.txt
+[is7z]: https://github.com/jrsoftware/is7z
+[iscompress]: https://github.com/jrsoftware/iscompress
+[isscint]: https://github.com/jrsoftware/isscint
