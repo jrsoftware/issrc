@@ -93,7 +93,7 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
         It can also be combined with the new <tt>issigverify</tt> flag (see below) for efficient and highly secure verification of the download file.<br/>
         It cannot be combined with the <tt>comparetimestamp</tt>, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
     <li>File download otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of downloaded files and can be combined with same other flags and parameters.</li>
-    <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> Step. The archive is then extracted normally during the actual installation process.<br/>
+    <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> step. The archive is then extracted normally during the actual installation process.<br/>
         In this case, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</li>
     <li>Example script:
       <pre>[Files]
