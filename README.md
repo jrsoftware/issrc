@@ -192,7 +192,7 @@ Source code tips
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled and signed executables and libraries:
+The source code contains several precompiled and code-signed executables and libraries:
 
 **Files\is7z.dll**, **Files\is7zxa.dll**, **Files\is7zxr.dll** - Compiled by
 Visual Studio 2022 from 7-Zip source code in the is7z repository.
@@ -224,6 +224,9 @@ Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecode
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
+
+Each precompiled file is accompanied by an .issig signature file, and can be
+verified using Inno Setup Signature Tool and [this public key file].
 
 Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
@@ -295,3 +298,4 @@ and will automatically run the aforementioned build workflow on changes, if it's
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+[this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey.txt
