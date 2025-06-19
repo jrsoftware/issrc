@@ -1931,6 +1931,17 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
   end;
 
+  procedure ShowPreparing;
+  begin
+    SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
+    CancelButton.Enabled := False;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
+    WizardForm.Update;
+  end;
+
 var
   CodeNeedsRestart: Boolean;
   Y: Integer;
@@ -1944,7 +1955,12 @@ begin
   PreparingMemo.Visible := False;
 
   try
-    DownloadArchivesToExtract(WizardComponents, WizardTasks);
+    ShowPreparing;
+    try
+      DownloadArchivesToExtract(WizardComponents, WizardTasks);
+    finally
+      UpdateCurPageButtonState;
+    end;
   except
     Result := GetExceptMessage;
   end;
@@ -1954,13 +1970,7 @@ begin
       Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
       PrepareToInstallNeedsRestart := True;
     end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
-      SetCurPage(wpPreparing);
-      BackButton.Visible := False;
-      NextButton.Visible := False;
-      CancelButton.Enabled := False;
-      if InstallMode = imSilent then
-        WizardForm.Visible := True;
-      WizardForm.Update;
+      ShowPreparing;
       try
         DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
         CodeNeedsRestart := False;
