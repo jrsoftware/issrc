@@ -15,7 +15,7 @@
 ;	https://github.com/jrsoftware/issrc/blob/main/Files/Languages/Corsican.isl
 ;
 ; History of Corsican translation for InnoSetup:
-;	- Updated in 2025 by Patriccollu di Santa Maria è Sichè: June 6th (6.4.4), June 8th (6.5.0)
+;	- Updated in 2025 by Patriccollu di Santa Maria è Sichè: June 6th (6.4.4), June 8th (6.5.0), June 19th (6.5.0)
 ;	- Updated in 2024 by Patriccollu di Santa Maria è Sichè: February 11th (6.3.0), November 18th (6.4.0)
 ;	- Updated in 2020 by Patriccollu di Santa Maria è Sichè: July 1st (6.0.5+), July 25th (6.1.0), November 14th (6.1.2)
 ;	- Updated in 2019 by Patriccollu di Santa Maria è Sichè: January 20th (6.0.0), October 6th (6.0.3)
@@ -229,19 +229,17 @@ ReadyMemoGroup=Cartulare di u listinu « Démarrer » :
 ReadyMemoTasks=Trattamenti addizziunali :
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Scaricamentu di i schedarii addiziunali…
+DownloadingLabel2=Scaricamentu di i schedarii…
 ButtonStopDownload=&Piantà u scaricamentu
 StopDownload=Da veru, vulete piantà u scaricamentu ?
 ErrorDownloadAborted=Scaricamentu interrottu
 ErrorDownloadFailed=Scaricamentu fiascu : %1 %2
 ErrorDownloadSizeFailed=Fiascu per ottene a dimensione : %1 %2
-ErrorFileHash1=Fiascu di u tazzeghju di u schedariu : %1
-ErrorFileHash2=Tazzeghju di u schedariu inaccettevule : aspettatu %1, trovu %2
 ErrorProgress=Prugressione inaccettevule : %1 di %2
 ErrorFileSize=Dimensione di u schedariu inaccettevule : aspettatu %1, trovu %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Estrazzione di i schedarii addiziunali…
+ExtractingLabel=Estrazzione di i schedariii…
 ButtonStopExtraction=&Piantà l’estrazzione
 StopExtraction=Da veru, vulete piantà l’estrazzione ?
 ErrorExtractionAborted=Estrazzione interrotta
@@ -296,11 +294,14 @@ AbortRetryIgnoreSelectAction=Selezziunate un’azzione
 AbortRetryIgnoreRetry=&Pruvà torna
 AbortRetryIgnoreIgnore=&Ignurà u sbagliu è cuntinuà
 AbortRetryIgnoreCancel=Abbandunà l’installazione
+RetryCancelSelectAction=Selezziunà un’azzione
+RetryCancelRetry=&Pruvà torna
 
 ; *** Installation status messages
 StatusClosingApplications=Chjusura di l’appiecazioni…
 StatusCreateDirs=Creazione di i cartulari…
 StatusExtractFiles=Estrazzione di i schedarii…
+StatusDownloadFiles=Scaricamentu di i schedarii…
 StatusCreateIcons=Creazione di l’accurtatoghji…
 StatusCreateIniEntries=Creazione di l’elementi INI…
 StatusCreateRegistryEntries=Creazione di l’elementi di u registru…
@@ -334,6 +335,8 @@ SourceVerificationFailed=Fiascu di a verificazione di u schedariu d’origine :
 VerificationSignatureDoesntExist=U schedariu di segnatura « %1 » ùn esiste micca
 VerificationSignatureInvalid=U schedariu di segnatura « %1 » hè inaccettevule
 VerificationKeyNotFound=U schedariu di segnatura « %1 » impiegheghja una chjave scunnisciuta
+VerificationFileNameIncorrect=U nome di u schedariu hè incurrettu
+VerificationFileTagIncorrect=L’etichetta di u schedariu hè incurretta
 VerificationFileSizeIncorrect=A dimensione di u schedariu hè incurretta
 VerificationFileHashIncorrect=U tazzeghju di u schedariu hè incurrettu
 ExistingFileReadOnly2=U schedariu esistente hà un attributu di lettura-sola è ùn pò micca esse rimpiazzatu.
@@ -354,6 +357,7 @@ ErrorChangingAttr=Un sbagliu hè accadutu pruvendu di cambià l’attributi di u
 ErrorCreatingTemp=Un sbagliu hè accadutu pruvendu di creà un schedariu in u cartulare di destinazione :
 ErrorReadingSource=Un sbagliu hè accadutu pruvendu di leghje u schedariu d’origine :
 ErrorCopying=Un sbagliu hè accadutu pruvendu di cupià un schedariu :
+ErrorDownloading=Un sbagliu hè accadutu pruvendu di scaricà un schedariu :
 ErrorExtracting=Un sbagliu hè accadutu pruvendu d’estrae un archiviu :
 ErrorReplacingExistingFile=Un sbagliu hè accadutu pruvendu di rimpiazzà u schedariu esistente :
 ErrorRestartReplace=Fiascu di Rimpiazzamentu di schedariu à u rilanciu di l’urdinatore :
