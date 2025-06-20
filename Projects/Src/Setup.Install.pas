@@ -3250,7 +3250,8 @@ var
         ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)]));
       const Text = UninstallExeFilename + SNewLine2 + LastOperation + SNewLine + Failed;
       case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
-         mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL) of
+         mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
+         0, True, IDCANCEL) of
         IDRETRY: ;
         IDCANCEL: Abort;
       else

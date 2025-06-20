@@ -196,6 +196,7 @@ type
     msgReadyMemoTasks,
     msgReadyMemoType,
     msgReadyMemoUserInfo,
+    msgRetryCancelCancel,
     msgRetryCancelRetry,
     msgRetryCancelSelectAction,
     msgRunEntryExec,
