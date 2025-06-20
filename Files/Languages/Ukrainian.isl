@@ -3,14 +3,14 @@
 ; E-Mail: mrlols3@gmail.com
 ; Please report all spelling/grammar errors, and observations.
 ; Version 2020.08.04
-; Updated and Reviewed on 13.06.2025 by Sergii Leonov (5IM0f0R@ukr.net)
+; Updated and Reviewed on 20.06.2025 by Sergii Leonov (5IM0f0R@ukr.net)
 
 ; *** Український переклад Inno Setup для версії 6.5.0 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mrlols3@gmail.com
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
 ; Версія перекладу 2020.08.04
-; Оновлено та переглянуто 13.06.2025, Сергій Леонов (5IM0f0R@ukr.net)
+; Оновлено та переглянуто 20.06.2025, Сергій Леонов (5IM0f0R@ukr.net)
 
 [LangOptions]
 LanguageName=<0423><043A><0440><0430><0457><043D><0441><044C><043A><0430>
@@ -203,7 +203,7 @@ ReadyMemoGroup=Тека в меню «Пуск»:
 ReadyMemoTasks=Додаткові завдання:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Завантаження додаткових файлів...
+DownloadingLabel2=Завантаження файлів...
 ButtonStopDownload=&Перервати завантаження
 StopDownload=Ви дійсно бажаєте перервати завантаження?
 ErrorDownloadAborted=Завантаження перервано
@@ -213,7 +213,7 @@ ErrorProgress=Помилка виконання: %1 з %2
 ErrorFileSize=Невірний розмір файлу: очікувався %1, отриманий %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Розпакування додаткових файлів...
+ExtractingLabel=Розпакування файлів...
 ButtonStopExtraction=&Перервати розпакування
 StopExtraction=Ви дійсно бажаєте перервати розпакування?
 ErrorExtractionAborted=Розпакування перервано
@@ -268,6 +268,8 @@ AbortRetryIgnoreSelectAction=Виберіть дію
 AbortRetryIgnoreRetry=&Спробувати знову
 AbortRetryIgnoreIgnore=&Ігнорувати помилку та продовжити
 AbortRetryIgnoreCancel=Відмінити встановлення
+RetryCancelSelectAction=Виберіть дію
+RetryCancelRetry=&Спробувати знову
 
 ; *** Installation status messages
 StatusClosingApplications=Закриття програм...
@@ -307,6 +309,8 @@ SourceVerificationFailed=Перевірка вихідного файлу не �
 VerificationSignatureDoesntExist=Файл підпису "%1" не існує
 VerificationSignatureInvalid=Файл підпису "%1" є недійсним
 VerificationKeyNotFound=Файл підпису "%1" "%1" використовує невідомий ключ
+VerificationFileNameIncorrect=Ім'я файлу невірне
+VerificationFileTagIncorrect=Тег файлу невірний
 VerificationFileSizeIncorrect=Розмір файлу невірний
 VerificationFileHashIncorrect=Хеш файлу невірний
 ExistingFileReadOnly2=Неможливо замінити існуючий файл, оскільки він позначений лише для читання.
