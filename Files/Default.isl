@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ English messages ***
+; *** Inno Setup version 6.4.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -213,26 +213,23 @@ ReadyMemoGroup=Start Menu folder:
 ReadyMemoTasks=Additional tasks:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel2=Downloading files...
+DownloadingLabel=Downloading additional files...
 ButtonStopDownload=&Stop download
 StopDownload=Are you sure you want to stop the download?
 ErrorDownloadAborted=Download aborted
 ErrorDownloadFailed=Download failed: %1 %2
 ErrorDownloadSizeFailed=Getting size failed: %1 %2
+ErrorFileHash1=File hash failed: %1
+ErrorFileHash2=Invalid file hash: expected %1, found %2
 ErrorProgress=Invalid progress: %1 of %2
 ErrorFileSize=Invalid file size: expected %1, found %2
 
-; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractingLabel=Extracting files...
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Extracting additional files...
 ButtonStopExtraction=&Stop extraction
 StopExtraction=Are you sure you want to stop the extraction?
 ErrorExtractionAborted=Extraction aborted
 ErrorExtractionFailed=Extraction failed: %1
-
-; *** Archive extraction failure details
-ArchiveIncorrectPassword=The password is incorrect
-ArchiveIsCorrupted=The archive is corrupted
-ArchiveUnsupportedFormat=The archive format is unsupported
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparing to Install
@@ -278,15 +275,11 @@ AbortRetryIgnoreSelectAction=Select action
 AbortRetryIgnoreRetry=&Try again
 AbortRetryIgnoreIgnore=&Ignore the error and continue
 AbortRetryIgnoreCancel=Cancel installation
-RetryCancelSelectAction=Select action
-RetryCancelRetry=&Try again
-RetryCancelCancel=Cancel
 
 ; *** Installation status messages
 StatusClosingApplications=Closing applications...
 StatusCreateDirs=Creating directories...
 StatusExtractFiles=Extracting files...
-StatusDownloadFiles=Downloading files...
 StatusCreateIcons=Creating shortcuts...
 StatusCreateIniEntries=Creating INI entries...
 StatusCreateRegistryEntries=Creating registry entries...
@@ -316,14 +309,6 @@ FileAbortRetryIgnoreSkipNotRecommended=&Skip this file (not recommended)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignore the error and continue (not recommended)
 SourceIsCorrupted=The source file is corrupted
 SourceDoesntExist=The source file "%1" does not exist
-SourceVerificationFailed=Verification of the source file failed: %1
-VerificationSignatureDoesntExist=The signature file "%1" does not exist
-VerificationSignatureInvalid=The signature file "%1" is invalid
-VerificationKeyNotFound=The signature file "%1" uses an unknown key
-VerificationFileNameIncorrect=The name of the file is incorrect
-VerificationFileTagIncorrect=The tag of the file is incorrect
-VerificationFileSizeIncorrect=The size of the file is incorrect
-VerificationFileHashIncorrect=The hash of the file is incorrect
 ExistingFileReadOnly2=The existing file could not be replaced because it is marked read-only.
 ExistingFileReadOnlyRetry=&Remove the read-only attribute and try again
 ExistingFileReadOnlyKeepExisting=&Keep the existing file
@@ -342,8 +327,6 @@ ErrorChangingAttr=An error occurred while trying to change the attributes of the
 ErrorCreatingTemp=An error occurred while trying to create a file in the destination directory:
 ErrorReadingSource=An error occurred while trying to read the source file:
 ErrorCopying=An error occurred while trying to copy a file:
-ErrorDownloading=An error occurred while trying to download a file:
-ErrorExtracting=An error occurred while trying to extract an archive:
 ErrorReplacingExistingFile=An error occurred while trying to replace the existing file:
 ErrorRestartReplace=RestartReplace failed:
 ErrorRenamingTemp=An error occurred while trying to rename a file in the destination directory:
