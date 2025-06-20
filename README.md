@@ -298,7 +298,7 @@ and will automatically run the aforementioned build workflow on changes, if it's
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
-[this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey.txt
+[this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey
 [is7z]: https://github.com/jrsoftware/is7z
 [iscompress]: https://github.com/jrsoftware/iscompress
 [isscint]: https://github.com/jrsoftware/isscint

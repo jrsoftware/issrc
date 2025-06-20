@@ -48,7 +48,7 @@ if "%1"=="verify" goto signorverify
 if not "%1"=="" goto failed
 
 :embed
-set publickeyfile=def02.ispublickey.txt
+set publickeyfile=def02.ispublickey
 Files\ISSigTool.exe export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
