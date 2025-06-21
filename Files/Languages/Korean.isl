@@ -180,8 +180,8 @@ DirDoesntExist=폴더 %n%n%1%n%n이(가) 존재하지 않습니다, 폴더를 �
 WizardSelectComponents=구성 요소 선택
 SelectComponentsDesc=어떤 구성 요소를 설치하시겠습니까?
 SelectComponentsLabel2=설치하려는 구성 요소를 선택합니다; 설치하지 않으려는 구성 요소의 선택을 취소합니다. 계속할 준비가 되면 다음을 클릭합니다.
-FullInstallation=모두 설치
-; 가능하면 'Compact'를 'Minimal'로 번역하지 마세요 (귀하의 언어로 '최소'를 의미합니다).
+FullInstallation=전체 설치
+; 가능하면 'Compact'를 '작은'으로 번역하지 마세요 (귀하의 언어로 '최소'를 의미합니다).
 CompactInstallation=최소 설치
 CustomInstallation=사용자 지정 설치
 NoUninstallWarningTitle=구성 요소가 존재합니다
@@ -285,6 +285,9 @@ AbortRetryIgnoreSelectAction=작업 선택
 AbortRetryIgnoreRetry=재시도(&T)
 AbortRetryIgnoreIgnore=오류를 무시하고 진행(&I)
 AbortRetryIgnoreCancel=설치 취소
+RetryCancelSelectAction=작업 선택
+RetryCancelRetry=재시도(&T)
+RetryCancelCancel=취소
 
 ; *** Installation status messages
 StatusClosingApplications=응용 프로그램을 닫는 중...
@@ -324,6 +327,8 @@ SourceVerificationFailed=소스 파일 검증 실패: %1
 VerificationSignatureDoesntExist=서명 파일 "%1"이 존재하지 않습니다
 VerificationSignatureInvalid=서명 파일 "%1"이 잘못되었습니다
 VerificationKeyNotFound=서명 파일 "%1"이 알 수 없는 키를 사용합니다
+VerificationFileNameIncorrect=파일 이름이 잘못되었습니다
+VerificationFileTagIncorrect=파일의 태그가 잘못되었습니다
 VerificationFileSizeIncorrect=파일 크기가 잘못되었습니다
 VerificationFileHashIncorrect=파일의 해시가 잘못되었습니다
 ExistingFileReadOnly2=읽기 전용으로 표시되어 있으므로 기존 파일을 교체할 수 없습니다.
