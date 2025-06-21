@@ -80,7 +80,6 @@ uses
 const
   ISSigTextFileLengthLimit = 500;
 
-  NonControlASCIICharsSet = [#32..#126];
   DigitsSet = ['0'..'9'];
   HexDigitsSet = DigitsSet + ['a'..'f'];
 
@@ -113,7 +112,7 @@ end;
 
 function ConsumeLineValue(var SS: TStringScanner; const AIdent: String;
   var AValue: String; const AMinValueLength, AMaxValueLength: Integer;
-  const AAllowedChars: TSysCharSet): Boolean;
+  const AAllowedChars: TSysCharSet = []): Boolean;
 begin
   Result := False;
   if SS.Consume(AIdent) and SS.Consume(' ') then
@@ -146,13 +145,20 @@ begin
   end;
 
   { Defense-in-depth: Reject any non-CRLF control characters up front, as well
-    as any non-ASCII characters (to avoid any possible issues with converting
-    invalid multibyte characters) }
+    as any non-ASCII and non-UTF8-high characters (to avoid any possible issues with
+    converting invalid multibyte characters) }
+  const NonControlASCIICharsSet = [#32..#126];
+  const UTF8HighCharsSet = [#128..#244];
   for var C in U do
-    if not (CharInSet(C, [#10, #13]) or CharInSet(C, NonControlASCIICharsSet)) then
+    if not (CharInSet(C, [#10, #13]) or CharInSet(C, NonControlASCIICharsSet) or
+            CharInSet(C, UTF8HighCharsSet)) then
       Exit('');
+  { Do round-trip check to catch invalid sequences }
+  const UTF16Text = String(U);
+  if UTF8String(UTF16Text) <> U then
+    Exit('');
 
-  Result := String(U);
+  Result := UTF16Text;
 end;
 
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
@@ -218,9 +224,9 @@ begin
     Exit(vsrKeyNotFound);
 
   var SS := TStringScanner.Create(AText);
-  if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
+  if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8) or
      ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
-     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt, NonControlASCIICharsSet)) or
+     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'key-id', TextValues.KeyID, 64, 64, HexDigitsSet) or
@@ -384,7 +390,7 @@ begin
     Exit;
 
   var SS := TStringScanner.Create(AText);
-  if not ConsumeLineValue(SS, 'format', TextValues.Format, 16, 17, NonControlASCIICharsSet) then
+  if not ConsumeLineValue(SS, 'format', TextValues.Format, 16, 17) then
     Exit;
   var HasPrivateKey := False;
   if TextValues.Format = 'issig-private-key' then

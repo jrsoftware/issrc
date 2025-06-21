@@ -26,16 +26,19 @@ type
     function Consume(const C: Char): Boolean; overload;
     function Consume(const S: String): Boolean; overload;
     function ConsumeMulti(const C: TSysCharSet; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = Maxint): Integer;
+      const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
     function ConsumeMultiToString(const C: TSysCharSet;
       var ACapturedString: String; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = Maxint): Integer;
+      const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
     property ReachedEnd: Boolean read GetReachedEnd;
     property RemainingCount: Integer read GetRemainingCount;
     property Str: String read FStr;
   end;
 
 implementation
+
+uses
+  Character;
 
 {$ZEROBASEDSTRINGS OFF}
 
@@ -69,7 +72,7 @@ begin
 end;
 
 function TStringScanner.ConsumeMulti(const C: TSysCharSet;
-  const AMinChars: Integer = 1; const AMaxChars: Integer = Maxint): Integer;
+  const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
 begin
   if (AMinChars <= 0) or (AMinChars > AMaxChars) then
     raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
@@ -80,7 +83,8 @@ begin
 
   Result := 0;
   while (Result < AMaxChars) and (Result < Remain) and
-     CharInSet(FStr[FPosition + Result], C) do
+     ((C = []) or CharInSet(FStr[FPosition + Result], C)) and
+     (AAllowControl or not FStr[FPosition + Result].IsControl) do
     Inc(Result);
 
   if Result < AMinChars then
@@ -90,11 +94,10 @@ begin
 end;
 
 function TStringScanner.ConsumeMultiToString(const C: TSysCharSet;
-  var ACapturedString: String; const AMinChars: Integer = 1;
-  const AMaxChars: Integer = Maxint): Integer;
+  var ACapturedString: String; const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
 begin
   const StartPos = FPosition;
-  Result := ConsumeMulti(C, AMinChars, AMaxChars);
+  Result := ConsumeMulti(C, AMinChars, AMaxChars, AAllowControl);
   if Result > 0 then
     ACapturedString := Copy(FStr, StartPos, Result)
   else
