@@ -25,9 +25,9 @@ type
     class function Create(const AString: String): TStringScanner; static;
     function Consume(const C: Char): Boolean; overload;
     function Consume(const S: String): Boolean; overload;
-    function ConsumeMulti(const C: TSysCharSet; const AMinChars: Integer = 1;
+    function ConsumeMulti(const AAllowedChars, ADisallowedChars: TSysCharSet; const AMinChars: Integer = 1;
       const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
-    function ConsumeMultiToString(const C: TSysCharSet;
+    function ConsumeMultiToString(const AAllowedChars, ADisallowedChars: TSysCharSet;
       var ACapturedString: String; const AMinChars: Integer = 1;
       const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
     property ReachedEnd: Boolean read GetReachedEnd;
@@ -71,8 +71,10 @@ begin
   Result := True;
 end;
 
-function TStringScanner.ConsumeMulti(const C: TSysCharSet;
+function TStringScanner.ConsumeMulti(const AAllowedChars, ADisallowedChars: TSysCharSet;
   const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
+{ AAllowedChars may be empty to allow all chars and ADisallowedChars may be empty to
+  disallow none }
 begin
   if (AMinChars <= 0) or (AMinChars > AMaxChars) then
     raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
@@ -83,7 +85,8 @@ begin
 
   Result := 0;
   while (Result < AMaxChars) and (Result < Remain) and
-     ((C = []) or CharInSet(FStr[FPosition + Result], C)) and
+     ((AAllowedChars = []) or CharInSet(FStr[FPosition + Result], AAllowedChars)) and
+     ((ADisallowedChars = []) or not CharInSet(FStr[FPosition + Result], ADisallowedChars)) and
      (AAllowControl or not FStr[FPosition + Result].IsControl) do
     Inc(Result);
 
@@ -93,11 +96,11 @@ begin
     Inc(FPosition, Result);
 end;
 
-function TStringScanner.ConsumeMultiToString(const C: TSysCharSet;
+function TStringScanner.ConsumeMultiToString(const AAllowedChars, ADisallowedChars: TSysCharSet;
   var ACapturedString: String; const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
 begin
   const StartPos = FPosition;
-  Result := ConsumeMulti(C, AMinChars, AMaxChars, AAllowControl);
+  Result := ConsumeMulti(AAllowedChars, ADisallowedChars, AMinChars, AMaxChars, AAllowControl);
   if Result > 0 then
     ACapturedString := Copy(FStr, StartPos, Result)
   else

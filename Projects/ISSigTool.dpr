@@ -193,7 +193,7 @@ begin
   const Verified = ISSigVerifySignature(AFilename, [AKey],
     ExistingFileName, ExistingFileSize, ExistingFileHash, nil, nil, nil);
 
-  if Verified and SameText(FileName, ExistingFileName) and (FileSize = ExistingFileSize) and
+  if Verified and PathSame(FileName, ExistingFileName) and (FileSize = ExistingFileSize) and
      SHA256DigestsEqual(FileHash, ExistingFileHash) then begin
     PrintUnlessQuiet('signature unchanged');
     Exit;
@@ -248,7 +248,7 @@ begin
   ) then
     Exit;
 
-  if (ExpectedFileName <> '') and not SameText(PathExtractName(AFilename), ExpectedFileName) then begin
+  if (ExpectedFileName <> '') and not PathSame(PathExtractName(AFilename), ExpectedFileName) then begin
     PrintUnlessQuiet('WRONGNAME (File name is incorrect)');
     Exit;
   end;

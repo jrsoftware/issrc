@@ -78,8 +78,10 @@ uses
   StringScanner;
 
 const
-  ISSigTextFileLengthLimit = 500;
+  ISSigTextFileLengthLimit = 1500;
 
+  NonControlASCIICharsSet = [#32..#126];
+  UTF8HighCharsSet = [#128..#244];
   DigitsSet = ['0'..'9'];
   HexDigitsSet = DigitsSet + ['a'..'f'];
 
@@ -98,8 +100,11 @@ function CalcHashToSign(const AFileName: String; const AFileSize: Int64;
 begin
   var Context: TSHA256Context;
   SHA256Init(Context);
-  if AFileName <> '' then
-    SHA256Update(Context, Pointer(AFileName)^, Length(AFileName)*SizeOf(AFileName[1]));
+  const UTF8FileName = UTF8String(AFileName);
+  const UTF8FileNameLength: Cardinal = Length(UTF8FileName);
+  SHA256Update(Context, UTF8FileNameLength, SizeOf(UTF8FileNameLength));
+  if UTF8FileNameLength > 0 then
+    SHA256Update(Context, Pointer(UTF8FileName)^, UTF8FileNameLength*SizeOf(UTF8FileName[1]));
   SHA256Update(Context, AFileSize, SizeOf(AFileSize));
   SHA256Update(Context, AFileHash, SizeOf(AFileHash));
   Result := SHA256Final(Context);
@@ -112,15 +117,23 @@ end;
 
 function ConsumeLineValue(var SS: TStringScanner; const AIdent: String;
   var AValue: String; const AMinValueLength, AMaxValueLength: Integer;
-  const AAllowedChars: TSysCharSet = []): Boolean;
+  const AAllowedChars: TSysCharSet = []; const ARequireQuotes: Boolean = False): Boolean;
+var
+  DisallowedChars: TSysCharSet;
 begin
   Result := False;
-  if SS.Consume(AIdent) and SS.Consume(' ') then
-    if SS.ConsumeMultiToString(AAllowedChars, AValue, AMinValueLength,
+  if SS.Consume(AIdent) and SS.Consume(' ') and (not ARequireQuotes or SS.Consume('"')) then
+    if ARequireQuotes then
+      DisallowedChars := ['"']
+    else
+      DisallowedChars := [];
+    if SS.ConsumeMultiToString(AAllowedChars, DisallowedChars, AValue, AMinValueLength,
        AMaxValueLength) > 0 then begin
-      { CRLF and LF line breaks are allowed (but not CR) }
-      SS.Consume(#13);
-      Result := SS.Consume(#10);
+      if not ARequireQuotes or SS.Consume('"') then begin
+        { CRLF and LF line breaks are allowed (but not CR) }
+        SS.Consume(#13);
+        Result := SS.Consume(#10);
+      end;
     end;
 end;
 
@@ -147,8 +160,6 @@ begin
   { Defense-in-depth: Reject any non-CRLF control characters up front, as well
     as any non-ASCII and non-UTF8-high characters (to avoid any possible issues with
     converting invalid multibyte characters) }
-  const NonControlASCIICharsSet = [#32..#126];
-  const UTF8HighCharsSet = [#128..#244];
   for var C in U do
     if not (CharInSet(C, [#10, #13]) or CharInSet(C, NonControlASCIICharsSet) or
             CharInSet(C, UTF8HighCharsSet)) then
@@ -176,6 +187,16 @@ end;
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 begin
+  { Ensure unverifiable signature files can't be created accidentally }
+  const UTF8FileName = UTF8String(AFileName);
+  if Length(UTF8FileName) > 1000 then
+    raise Exception.Create('File name is too long');
+  if String(UTF8FileName) <> AFileName then
+    raise Exception.Create('File name contains invalid surrogate pairs');
+  for var C in UTF8FileName do
+    if not (C in ((NonControlASCIICharsSet - ['"']) + UTF8HighCharsSet)) then { Note this rejects quotes }
+      raise Exception.Create('File name contains invalid characters');
+
   { File size is limited to 16 digits (enough for >9 EB) }
   if (AFileSize < 0) or (AFileSize > {$IF CompilerVersion >= 36.0} 9_999_999_999_999_999 {$ELSE} 9999999999999999 {$ENDIF} ) then
     raise Exception.Create('File size out of range');
@@ -189,7 +210,7 @@ begin
 
   Result := Format(
     'format issig-v2'#13#10 +
-    'file-name %s'#13#10 +
+    'file-name "%s"'#13#10 +
     'file-size %d'#13#10 +
     'file-hash %s'#13#10 +
     'key-id %s'#13#10 +
@@ -226,7 +247,7 @@ begin
   var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8) or
      ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
-     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt)) or
+     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt, [], True)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'key-id', TextValues.KeyID, 64, 64, HexDigitsSet) or
