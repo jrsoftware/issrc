@@ -3,14 +3,14 @@
 ; E-Mail: mrlols3@gmail.com
 ; Please report all spelling/grammar errors, and observations.
 ; Version 2020.08.04
-; Updated and Reviewed on 20.06.2025 by Sergii Leonov (5IM0f0R@ukr.net)
+; Updated and Reviewed on 21.06.2025 by Sergii Leonov (5IM0f0R@ukr.net)
 
 ; *** Український переклад Inno Setup для версії 6.5.0 та вище***
 ; Автор перекладу: Дмитро Онищук
 ; E-Mail: mrlols3@gmail.com
 ; Будь ласка, повідомляйте про всі знайдені помилки та зауваження.
 ; Версія перекладу 2020.08.04
-; Оновлено та переглянуто 20.06.2025, Сергій Леонов (5IM0f0R@ukr.net)
+; Оновлено та переглянуто 21.06.2025, Сергій Леонов (5IM0f0R@ukr.net)
 
 [LangOptions]
 LanguageName=<0423><043A><0440><0430><0457><043D><0441><044C><043A><0430>
@@ -267,9 +267,10 @@ SetupAborted=Встановлення не завершено.%n%nБудь ла�
 AbortRetryIgnoreSelectAction=Виберіть дію
 AbortRetryIgnoreRetry=&Спробувати знову
 AbortRetryIgnoreIgnore=&Ігнорувати помилку та продовжити
-AbortRetryIgnoreCancel=Відмінити встановлення
+AbortRetryIgnoreCancel=Скасувати встановлення
 RetryCancelSelectAction=Виберіть дію
 RetryCancelRetry=&Спробувати знову
+RetryCancelCancel=Скасувати
 
 ; *** Installation status messages
 StatusClosingApplications=Закриття програм...
