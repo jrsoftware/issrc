@@ -93,14 +93,14 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
         It can also be combined with the new <tt>issigverify</tt> flag (see below) for efficient and highly secure verification of the download file.<br/>
         It cannot be combined with the <tt>comparetimestamp</tt>, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
     <li>File download otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of downloaded files and can be combined with same other flags and parameters.</li>
-    <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> Step. The archive is then extracted normally during the actual installation process.<br/>
+    <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> step. The archive is then extracted normally during the actual installation process.<br/>
         In this case, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</li>
     <li>Example script:
       <pre>[Files]
 Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
   ExternalSize: 7_000_000; Flags: external download ignoreversion
 Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg.ExtraReadmes.7z"; DestDir: "{app}"; \
-  ExternalSize: 269; Flags: external download extractarchive ignoreversion</pre>
+  ExternalSize: 275; Flags: external download extractarchive ignoreversion</pre>
     </li>
     <li>Added example script <i>DownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
   </ul>
@@ -225,13 +225,13 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
   <li>Minor tweaks.</li>
 </ul>
 
-<p>Some messages have been removed and added in this version: (<a href="https://github.com/jrsoftware/issrc/commit/4193f69b">View differences in Default.isl</a>.)</p>
+<p>Some messages have been added and removed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/a1d6aecc">View differences in Default.isl</a>.)</p>
 <ul>
   <li><b>New messages:</b>
   <ul>
     <li>DownloadingLabel2, ExtractingLabel.</li>
     <li>ArchiveIncorrectPassword, ArchiveIsCorrupted, ArchiveUnsupportedFormat.</li>
-    <li>RetryCancelSelectAction, RetryCancelRetry.</li>
+    <li>RetryCancelSelectAction, RetryCancelRetry, RetryCancelCancel.</li>
     <li>StatusDownloadFiles.</li>
     <li>SourceVerificationFailed, VerificationSignatureDoesntExist, VerificationSignatureInvalid, VerificationKeyNotFound, VerificationFileNameIncorrect, VerificationFileTagIncorrect, VerificationFileSizeIncorrect, VerificationFileHashIncorrect.</li>
     <li>ErrorDownloading, ErrorExtracting.</li>

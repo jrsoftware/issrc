@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 18.06.2025  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 19.06.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -220,7 +220,7 @@ ReadyMemoGroup=Cartella del menu Avvio/Start:
 ReadyMemoTasks=Processi aggiuntivi:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Download file aggiuntivi...
+DownloadingLabel2=Download file...
 ButtonStopDownload=&Stop download
 StopDownload=Sei sicuro di voler interrompere il download?
 ErrorDownloadAborted=Download annullato
@@ -230,7 +230,7 @@ ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Estrazione file aggiuntivi...
+ExtractingLabel=Estrazione file...
 ButtonStopExtraction=Interrompi e&strazione
 StopExtraction=Sei sicuro di voler interrompere l'estrazione?
 ErrorExtractionAborted=Estrazione interrotta
@@ -285,6 +285,8 @@ AbortRetryIgnoreSelectAction=Seleziona azione
 AbortRetryIgnoreRetry=&Riprova
 AbortRetryIgnoreIgnore=&Ignora questo errore e continua
 AbortRetryIgnoreCancel=Annulla installazione
+RetryCancelSelectAction=Seleziona azione
+RetryCancelRetry=&Riprova
 
 ; *** Installation status messages
 StatusClosingApplications=Chiusura applicazioni...

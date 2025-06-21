@@ -192,22 +192,22 @@ Source code tips
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled and signed executables and libraries:
+The source code contains several precompiled and code-signed executables and libraries:
 
 **Files\is7z.dll**, **Files\is7zxa.dll**, **Files\is7zxr.dll** - Compiled by
-Visual Studio 2022 from 7-Zip source code in the is7z repository.
+Visual Studio 2022 from 7-Zip source code in the [is7z] repository.
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
-from the bzlib directory in the iscompress repository.
+from the bzlib directory in the [iscompress] repository.
 
 **Files\isunzlib.dll**, **Files\iszlib.dll** - Compiled by Visual Studio 2005
-from the zlib-dll directory in the iscompress repository.
+from the zlib-dll directory in the [iscompress] repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
-code in the isscint repository.
+code in the [isscint] repository.
 
 **Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
@@ -225,6 +225,9 @@ Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecode
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
 
+Each precompiled file is accompanied by an .issig signature file, and can be
+verified using Inno Setup Signature Tool and [this public key file].
+
 Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
 
@@ -239,7 +242,7 @@ Inno Setup's source code includes a GitHub workflow that performs unattended bui
 upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`. This may
+of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\23.0`. This may
 not be a Community Edition because it does not support command line compilation.
 Also ensure your current Delphi license still allows you to copy a subset of the
 Delphi files to another machine for the specific purpose of supporting unattended
@@ -295,3 +298,7 @@ and will automatically run the aforementioned build workflow on changes, if it's
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+[this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey
+[is7z]: https://github.com/jrsoftware/is7z
+[iscompress]: https://github.com/jrsoftware/iscompress
+[isscint]: https://github.com/jrsoftware/isscint

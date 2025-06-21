@@ -1849,7 +1849,8 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     const LastOperation = SetupMessages[msgErrorDownloading];
     const Text = LastBaseNameOrUrl + SNewLine2 + LastOperation + SNewLine + Failed;
     Result := LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
-      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL);
+      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
+      0, True, IDCANCEL);
     if (Result <> IDRETRY) and (Result <> IDCANCEL) then begin
       Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
       Result := IDCANCEL;
@@ -1931,6 +1932,17 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
   end;
 
+  procedure ShowPreparing;
+  begin
+    SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
+    CancelButton.Enabled := False;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
+    WizardForm.Update;
+  end;
+
 var
   CodeNeedsRestart: Boolean;
   Y: Integer;
@@ -1944,7 +1956,12 @@ begin
   PreparingMemo.Visible := False;
 
   try
-    DownloadArchivesToExtract(WizardComponents, WizardTasks);
+    ShowPreparing;
+    try
+      DownloadArchivesToExtract(WizardComponents, WizardTasks);
+    finally
+      UpdateCurPageButtonState;
+    end;
   except
     Result := GetExceptMessage;
   end;
@@ -1954,13 +1971,7 @@ begin
       Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
       PrepareToInstallNeedsRestart := True;
     end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
-      SetCurPage(wpPreparing);
-      BackButton.Visible := False;
-      NextButton.Visible := False;
-      CancelButton.Enabled := False;
-      if InstallMode = imSilent then
-        WizardForm.Visible := True;
-      WizardForm.Update;
+      ShowPreparing;
       try
         DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
         CodeNeedsRestart := False;
