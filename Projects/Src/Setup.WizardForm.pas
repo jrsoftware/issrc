@@ -1849,7 +1849,8 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     const LastOperation = SetupMessages[msgErrorDownloading];
     const Text = LastBaseNameOrUrl + SNewLine2 + LastOperation + SNewLine + Failed;
     Result := LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
-      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry]], 0, True, IDCANCEL);
+      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
+      0, True, IDCANCEL);
     if (Result <> IDRETRY) and (Result <> IDCANCEL) then begin
       Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
       Result := IDCANCEL;

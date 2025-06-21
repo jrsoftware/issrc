@@ -258,6 +258,7 @@ AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
 RetryCancelSelectAction=Selecteer actie
 RetryCancelRetry=&Probeer opnieuw
+RetryCancelCancel=Annuleren
 
 ; *** Installation status messages
 StatusClosingApplications=Programma's afsluiten...
