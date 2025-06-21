@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.0.0+ Basque (Euskara) messages ***
+; *** Inno Setup version 6.4.0+ Basque (Euskara) messages ***
 ;
 ; Maintained by Iker Ocio Zuazo (iker@ikerocio.com)
 ; Basque.isl version 1.0 (20250621)
-; Default.isl version 6.0.0
+; Default.isl version 6.4.0
 ;
 ; Based on Spanish.isl. Thanks to Jorge Andres Brugger and the original contributors.
 
