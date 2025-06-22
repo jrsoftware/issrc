@@ -20,7 +20,7 @@ procedure VerificationError(const AError: TVerificationError;
   const ASigFilename: String = '');
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
-  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  const SourceFilename: String; const VerifySourceFilename: Boolean; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
@@ -301,10 +301,11 @@ procedure VerificationError(const AError: TVerificationError;
 const
   LogMessages: array[TVerificationError] of String =
     ('Signature file does not exist', 'Signature is malformed', 'No matching key found',
-     'Signature is bad', 'File size is incorrect', 'File hash is incorrect');
+     'Signature is bad', 'File name is incorrect', 'File size is incorrect', 'File hash is incorrect');
   SetupMessageIDs: array[TVerificationError] of TSetupMessageID =
     (msgVerificationSignatureDoesntExist, msgVerificationSignatureInvalid, msgVerificationKeyNotFound,
-     msgVerificationSignatureInvalid, msgVerificationFileSizeIncorrect, msgVerificationFileHashIncorrect);
+     msgVerificationSignatureInvalid, msgVerificationFileNameIncorrect, msgVerificationFileSizeIncorrect,
+     msgVerificationFileHashIncorrect);
 begin
   { Also see Compiler.SetupCompiler for a similar function }
   Log('Verification error: ' + AddPeriod(LogMessages[AError]));
@@ -313,7 +314,7 @@ begin
 end;
 
 procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
-  const SourceFilename: String; const ISSigAllowedKeys: AnsiString;
+  const SourceFilename: String; const VerifySourceFilename: Boolean; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
 { Does not disable FS redirection. Either SourceF or SourceFS must be set, which
   may be opened for writing instead of reading.  }
@@ -321,10 +322,11 @@ begin
   if ((SourceF = nil) and (SourceFS = nil)) or ((SourceF <> nil) and (SourceFS <> nil)) then
     InternalError('DoISSigVerify: Invalid SourceF / SourceFS combination');
 
+  var ExpectedFileName: String;
   var ExpectedFileSize: Int64;
   if not ISSigVerifySignature(SourceFilename,
     GetISSigAllowedKeys(ISSigAvailableKeys, ISSigAllowedKeys),
-    ExpectedFileSize, ExpectedFileHash,
+    ExpectedFileName, ExpectedFileSize, ExpectedFileHash,
     nil,
     procedure(const Filename, SigFilename: String)
     begin
@@ -342,6 +344,8 @@ begin
     end
   ) then
     InternalError('Unexpected ISSigVerifySignature result');
+  if VerifySourceFilename and (ExpectedFileName <> '') and not PathSame(PathExtractName(SourceFilename), ExpectedFileName) then
+    VerificationError(veFileNameIncorrect);
   var FileSize: Int64;
   if SourceF <> nil then
     FileSize := Int64(SourceF.Size)
@@ -371,7 +375,7 @@ begin
     if Verification.Typ = fvHash then
       ExpectedFileHash := Verification.Hash
     else
-      DoISSigVerify(SourceF, nil, ISSigSourceFilename, Verification.ISSigAllowedKeys, ExpectedFileHash);
+      DoISSigVerify(SourceF, nil, ISSigSourceFilename, True, Verification.ISSigAllowedKeys, ExpectedFileHash);
     { ExpectedFileHash checked below after copy }
     SHA256Init(Context);
   end;
@@ -2052,8 +2056,8 @@ var
               if CurFile^.Verification.Typ = fvHash then
                 ExpectedFileHash := CurFile^.Verification.Hash
               else begin
-                DoISSigVerify(VerifySourceF, nil, ArchiveFilename, CurFile^.Verification.ISSigAllowedKeys,
-                ExpectedFileHash);
+                DoISSigVerify(VerifySourceF, nil, ArchiveFilename, True, CurFile^.Verification.ISSigAllowedKeys,
+                  ExpectedFileHash);
               end;
               { Can't get the SHA-256 while extracting so need to get and check it now }
               const ActualFileHash = GetSHA256OfFile(VerifySourceF);
@@ -3874,7 +3878,7 @@ begin
         if Verification.Typ = fvHash then
           ExpectedFileHash := Verification.Hash
         else
-          DoISSigVerify(DestF, nil, ISSigSourceFilename, Verification.ISSigAllowedKeys, ExpectedFileHash);
+          DoISSigVerify(DestF, nil, ISSigSourceFilename, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
         const FileHash = GetSHA256OfFile(DestF);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
           VerificationError(veFileHashIncorrect);
@@ -3931,12 +3935,14 @@ begin
         Exit;
       end;
     end else if Verification.Typ = fvISSig then begin
+      var ExistingFileName: String;
       var ExistingFileSize: Int64;
       var ExistingFileHash: TSHA256Digest;
       if ISSigVerifySignature(DestFile, GetISSigAllowedKeys(ISSigAvailableKeys, Verification.ISSigAllowedKeys),
-           ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
+           ExistingFileName, ExistingFileSize, ExistingFileHash, nil, nil, nil) then begin
         const DestF = TFile.Create(DestFile, fdOpenExisting, faRead, fsReadWrite);
         try
+          { Not checking ExistingFileName because we can't be sure what the original filename was }
           if (Int64(DestF.Size) = ExistingFileSize) and
              (SHA256DigestsEqual(GetSHA256OfFile(DestF), ExistingFileHash)) then begin
             Log('  File already downloaded.');
@@ -4013,7 +4019,7 @@ begin
         if Verification.Typ = fvHash then
           ExpectedFileHash := Verification.Hash
         else
-          DoISSigVerify(TempF, nil, DestFile, Verification.ISSigAllowedKeys, ExpectedFileHash);
+          DoISSigVerify(TempF, nil, DestFile, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(False, TempFile);
         if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then

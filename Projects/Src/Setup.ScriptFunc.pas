@@ -1879,14 +1879,15 @@ var
     begin
       const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(TStringList(Stack.GetClass(PStart-1)));
       const Filename = Stack.GetString(PStart-2);
-      const KeepOpen = Stack.GetBool(PStart-3);
+      const VerifyFilename = Stack.GetBool(PStart-3);
+      const KeepOpen = Stack.GetBool(PStart-4);
 
       { Verify signature & file, keeping open afterwards if requested
-        Also see TrustFunc's CheckFileTrust }
+        Also see TrustFunc's CheckFileTrust which can also keep open afterwards }
       var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
       try
         var ExpectedFileHash: TSHA256Digest;
-        DoISSigVerify(nil, F, Filename, ISSigAllowedKeys, ExpectedFileHash);
+        DoISSigVerify(nil, F, Filename, VerifyFilename, ISSigAllowedKeys, ExpectedFileHash);
          { Couldn't get the SHA-256 while downloading so need to get and check it now }
         const ActualFileHash = ISSigCalcStreamHash(F);
         if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then

@@ -25,11 +25,12 @@ type
     class function Create(const AString: String): TStringScanner; static;
     function Consume(const C: Char): Boolean; overload;
     function Consume(const S: String): Boolean; overload;
-    function ConsumeMulti(const C: TSysCharSet; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = Maxint): Integer;
-    function ConsumeMultiToString(const C: TSysCharSet;
-      var ACapturedString: String; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = Maxint): Integer;
+    function ConsumeMulti(const AAllowedChars: TSysCharSet;
+      const AAllowAllCharsAboveFF: Boolean = False; const AMinChars: Integer = 1;
+      const AMaxChars: Integer = MaxInt): Integer;
+    function ConsumeMultiToString(const AAllowedChars: TSysCharSet;
+      var ACapturedString: String; const AAllowAllCharsAboveFF: Boolean = False;
+      const AMinChars: Integer = 1; const AMaxChars: Integer = MaxInt): Integer;
     property ReachedEnd: Boolean read GetReachedEnd;
     property RemainingCount: Integer read GetRemainingCount;
     property Str: String read FStr;
@@ -68,10 +69,12 @@ begin
   Result := True;
 end;
 
-function TStringScanner.ConsumeMulti(const C: TSysCharSet;
-  const AMinChars: Integer = 1; const AMaxChars: Integer = Maxint): Integer;
+function TStringScanner.ConsumeMulti(const AAllowedChars: TSysCharSet;
+  const AAllowAllCharsAboveFF: Boolean = False; const AMinChars: Integer = 1;
+  const AMaxChars: Integer = MaxInt): Integer;
 begin
-  if (AMinChars <= 0) or (AMinChars > AMaxChars) then
+  { AMinChars may be 0; it functions the same as 1 }
+  if (AMinChars < 0) or (AMinChars > AMaxChars) then
     raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
 
   const Remain = GetRemainingCount;
@@ -80,7 +83,8 @@ begin
 
   Result := 0;
   while (Result < AMaxChars) and (Result < Remain) and
-     CharInSet(FStr[FPosition + Result], C) do
+     (CharInSet(FStr[FPosition + Result], AAllowedChars) or
+      (AAllowAllCharsAboveFF and (Ord(FStr[FPosition + Result]) > $FF))) do
     Inc(Result);
 
   if Result < AMinChars then
@@ -89,12 +93,12 @@ begin
     Inc(FPosition, Result);
 end;
 
-function TStringScanner.ConsumeMultiToString(const C: TSysCharSet;
-  var ACapturedString: String; const AMinChars: Integer = 1;
-  const AMaxChars: Integer = Maxint): Integer;
+function TStringScanner.ConsumeMultiToString(const AAllowedChars: TSysCharSet;
+  var ACapturedString: String; const AAllowAllCharsAboveFF: Boolean = False;
+  const AMinChars: Integer = 1; const AMaxChars: Integer = MaxInt): Integer;
 begin
   const StartPos = FPosition;
-  Result := ConsumeMulti(C, AMinChars, AMaxChars);
+  Result := ConsumeMulti(AAllowedChars, AAllowAllCharsAboveFF, AMinChars, AMaxChars);
   if Result > 0 then
     ACapturedString := Copy(FStr, StartPos, Result)
   else
