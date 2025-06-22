@@ -96,16 +96,18 @@ begin
   TSHA256Digest(Result) := SHA256DigestFromString(S);
 end;
 
-function CalcHashToSign(const AFileName: String; const AFileSize: Int64;
+function CalcHashToSign(const AIncludeFileName: Boolean; const AFileName: String; const AFileSize: Int64;
   const AFileHash: TSHA256Digest): TSHA256Digest;
 begin
   var Context: TSHA256Context;
   SHA256Init(Context);
-  const UTF8FileName = UTF8String(AFileName);
-  const UTF8FileNameLength: Cardinal = Length(UTF8FileName);
-  SHA256Update(Context, UTF8FileNameLength, SizeOf(UTF8FileNameLength));
-  if UTF8FileNameLength > 0 then
-    SHA256Update(Context, Pointer(UTF8FileName)^, UTF8FileNameLength*SizeOf(UTF8FileName[1]));
+  if AIncludeFileName then begin
+    const UTF8FileName = UTF8String(AFileName);
+    const UTF8FileNameLength: Cardinal = Length(UTF8FileName);
+    SHA256Update(Context, UTF8FileNameLength, SizeOf(UTF8FileNameLength));
+    if UTF8FileNameLength > 0 then
+      SHA256Update(Context, Pointer(UTF8FileName)^, UTF8FileNameLength*SizeOf(UTF8FileName[1]));
+  end;
   SHA256Update(Context, AFileSize, SizeOf(AFileSize));
   SHA256Update(Context, AFileHash, SizeOf(AFileHash));
   Result := SHA256Final(Context);
@@ -200,7 +202,7 @@ begin
   var PublicKey: TECDSAPublicKey;
   AKey.ExportPublicKey(PublicKey);
 
-  const HashToSign = CalcHashToSign(AFileName, AFileSize, AFileHash);
+  const HashToSign = CalcHashToSign(True, AFileName, AFileSize, AFileHash);
   var Sig: TECDSASignature;
   AKey.SignHash(HashToSign, Sig);
 
@@ -276,7 +278,8 @@ begin
   const UnverifiedFileName = TextValues.FileName;
   const UnverifiedFileSize = StrToInt64(TextValues.FileSize);
   const UnverifiedFileHash = SHA256DigestFromString(TextValues.FileHash);
-  const HashToSign = CalcHashToSign(UnverifiedFileName, UnverifiedFileSize, UnverifiedFileHash);
+  const HashToSign = CalcHashToSign(TextValues.Format <> 'issig-v1', UnverifiedFileName,
+    UnverifiedFileSize, UnverifiedFileHash);
   var Sig: TECDSASignature;
   Sig.Sig_r := ECDSAInt256FromString(TextValues.Sig_r);
   Sig.Sig_s := ECDSAInt256FromString(TextValues.Sig_s);
