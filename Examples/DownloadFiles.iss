@@ -43,7 +43,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
   ExternalSize: 2560; Flags: external download ignoreversion
 ; This archive will be downloaded and verified at the start of the Preparing to Install Step
 ; It is then extracted normally during the actual installation process
-Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg.ExtraReadmes.7z"; DestDir: "{app}"; \
+Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
   ExternalSize: 275; Flags: external download extractarchive recursesubdirs ignoreversion issigverify
 ; This archive will be downloaded and extracted without verificaton
 Source: "https://github.com/jrsoftware/issrc/archive/refs/heads/main.zip"; DestName: "issrc-main.zip"; DestDir: "{app}"; \
