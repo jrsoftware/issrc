@@ -34,10 +34,11 @@ rem  if multiple projects are specified on the command line.
 
 set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
 
-set STANDARDFLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
-set STANDARDFLAGSCONSOLE=%STANDARDFLAGS% -CC
-set STANDARDFLAGSE32=%STANDARDFLAGS% -TX.e32
-set STANDARDNAMESPACES=System;System.Win;Winapi
+set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
+set FLAGSCONSOLE=%FLAGS% -CC
+set FLAGSE32=%FLAGS% -TX.e32
+set NAMESPACES=System;System.Win;Winapi
+set DCUDIR=Dcu\Release
 
 set ROPSSRC=..\Components\UniPS\Source
 set ROPSDEF=PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS
@@ -49,39 +50,39 @@ if "%1"=="issigtool" goto issigtool
 if not "%1"=="" goto failed
 
 echo - ISPP.dpr
-mkdir Dcu\ISPP.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGSCONSOLE% -NS%STANDARDNAMESPACES%  -U"%DELPHIXELIB%"  -NUDcu\ISPP.dpr ISPP.dpr
+mkdir %DCUDIR%\ISPP.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES%  -U"%DELPHIXELIB%"  -NU%DCUDIR%\ISPP.dpr ISPP.dpr
 if errorlevel 1 goto failed
 
 echo - Compil32.dpr
-mkdir Dcu\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGS% -NS%STANDARDNAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NUDcu\Compil32.dpr -DCOMPIL32PROJ;%ROPSDEF% Compil32.dpr
+mkdir %DCUDIR%\Compil32.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Compil32.dpr -DCOMPIL32PROJ;%ROPSDEF% Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
-mkdir Dcu\ISCC.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGS% -NS%STANDARDNAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NUDcu\ISCC.dpr -D%ROPSDEF% ISCC.dpr
+mkdir %DCUDIR%\ISCC.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCC.dpr -D%ROPSDEF% ISCC.dpr
 if errorlevel 1 goto failed
 
 echo - ISCmplr.dpr
-mkdir Dcu\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGS% -NS%STANDARDNAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NUDcu\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
+mkdir %DCUDIR%\ISCmplr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
 if errorlevel 1 goto failed
 
 echo - SetupLdr.dpr
-mkdir Dcu\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGSE32% -NS%STANDARDNAMESPACES% -U"%DELPHIXELIB%" -NUDcu\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
+mkdir %DCUDIR%\SetupLdr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
 if errorlevel 1 goto failed
 
 echo - Setup.dpr
-mkdir Dcu\Setup.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGSE32% -NS%STANDARDNAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NUDcu\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
+mkdir %DCUDIR%\Setup.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
 if errorlevel 1 goto failed
 
 :issigtool
 echo - ISSigTool.dpr
-mkdir Dcu\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %STANDARDFLAGSCONSOLE% -NS%STANDARDNAMESPACES% -U"%DELPHIXELIB%" -NUDcu\ISSigTool.dpr ISSigTool.dpr
+mkdir %DCUDIR%\ISSigTool.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\ISSigTool.dpr ISSigTool.dpr
 if errorlevel 1 goto failed
 
 cd ..
