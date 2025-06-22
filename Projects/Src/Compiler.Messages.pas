@@ -90,6 +90,7 @@ const
   SCompilerVerificationSignatureMalformed = 'The signature file "%s" is malformed';
   SCompilerVerificationSignatureBad = 'The signature file "%s" is bad';
   SCompilerVerificationKeyNotFound = 'The signature file "%s" uses an unknown key';
+  SCompilerVerificationFileNameIncorrect = 'The name of the file is incorrect';
   SCompilerVerificationFileSizeIncorrect = 'The size of the file is incorrect';
   SCompilerVerificationFileHashIncorrect = 'The hash of the file is incorrect';
   SCompilerCopyError3a = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %s';

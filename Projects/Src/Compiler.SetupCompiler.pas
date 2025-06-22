@@ -6680,7 +6680,8 @@ const
   Messages: array[TVerificationError] of String =
     (SCompilerVerificationSignatureDoesntExist, SCompilerVerificationSignatureMalformed,
      SCompilerVerificationKeyNotFound, SCompilerVerificationSignatureBad,
-     SCompilerVerificationFileSizeIncorrect, SCompilerVerificationFileHashIncorrect);
+     SCompilerVerificationFileNameIncorrect, SCompilerVerificationFileSizeIncorrect,
+     SCompilerVerificationFileHashIncorrect);
 begin
   { Also see Setup.Install for a similar function }
   AbortCompileFmt(SCompilerSourceFileVerificationFailed,
@@ -7186,10 +7187,11 @@ var
             { See Setup.Install's CopySourceFileToDestFile for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
+            var ExpectedFileName: String;
             var ExpectedFileSize: Int64;
             if not ISSigVerifySignature(FileLocationEntryFilenames[I],
               GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.Verification.ISSigAllowedKeys),
-              ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
+              ExpectedFileName, ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
               nil,
               procedure(const Filename, SigFilename: String)
               begin
@@ -7208,6 +7210,8 @@ var
               end
             ) then
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
+            if (ExpectedFileName <> '') and not PathSame(PathExtractName(FileLocationEntryFilenames[I]), ExpectedFileName) then
+              VerificationError(veFileNameIncorrect, FileLocationEntryFilenames[I]);
             if Int64(SourceFile.Size) <> ExpectedFileSize then
               VerificationError(veFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }

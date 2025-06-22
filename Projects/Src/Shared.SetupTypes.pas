@@ -40,7 +40,7 @@ type
   TArrayOfECDSAKey = array of TECDSAKey;
 
   TVerificationError = (veSignatureMissing, veSignatureMalformed, veKeyNotFound,
-    veSignatureBad, veFileSizeIncorrect, veFileHashIncorrect);
+    veSignatureBad, veFileNameIncorrect, veFileSizeIncorrect, veFileHashIncorrect);
 
 const
   crHand = 1;
