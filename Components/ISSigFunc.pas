@@ -82,6 +82,7 @@ const
 
   NonControlASCIICharsSet = [#32..#126];
   UTF8HighCharsSet = [#128..#244];
+  AllHighCharsSet = [#128..#255];
   DigitsSet = ['0'..'9'];
   HexDigitsSet = DigitsSet + ['a'..'f'];
 
@@ -117,18 +118,13 @@ end;
 
 function ConsumeLineValue(var SS: TStringScanner; const AIdent: String;
   var AValue: String; const AMinValueLength, AMaxValueLength: Integer;
-  const AAllowedChars: TSysCharSet = []; const ARequireQuotes: Boolean = False): Boolean;
-var
-  DisallowedChars: TSysCharSet;
+  const AAllowedChars: TSysCharSet; const AAllowAllCharsAboveFF: Boolean = False;
+  const ARequireQuotes: Boolean = False): Boolean;
 begin
   Result := False;
   if SS.Consume(AIdent) and SS.Consume(' ') and (not ARequireQuotes or SS.Consume('"')) then
-    if ARequireQuotes then
-      DisallowedChars := ['"']
-    else
-      DisallowedChars := [];
-    if SS.ConsumeMultiToString(AAllowedChars, DisallowedChars, AValue, AMinValueLength,
-       AMaxValueLength) > 0 then begin
+    if SS.ConsumeMultiToString(AAllowedChars, AValue, AAllowAllCharsAboveFF,
+       AMinValueLength, AMaxValueLength) > 0 then begin
       if not ARequireQuotes or SS.Consume('"') then begin
         { CRLF and LF line breaks are allowed (but not CR) }
         SS.Consume(#13);
@@ -245,9 +241,10 @@ begin
     Exit(vsrKeyNotFound);
 
   var SS := TStringScanner.Create(AText);
-  if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8) or
+  if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
      ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
-     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt, [], True)) or
+     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt,
+       (NonControlASCIICharsSet - ['"']) + AllHighCharsSet, True, True)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'key-id', TextValues.KeyID, 64, 64, HexDigitsSet) or
@@ -411,7 +408,7 @@ begin
     Exit;
 
   var SS := TStringScanner.Create(AText);
-  if not ConsumeLineValue(SS, 'format', TextValues.Format, 16, 17) then
+  if not ConsumeLineValue(SS, 'format', TextValues.Format, 16, 17, NonControlASCIICharsSet) then
     Exit;
   var HasPrivateKey := False;
   if TextValues.Format = 'issig-private-key' then

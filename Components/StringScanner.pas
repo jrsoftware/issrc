@@ -25,20 +25,18 @@ type
     class function Create(const AString: String): TStringScanner; static;
     function Consume(const C: Char): Boolean; overload;
     function Consume(const S: String): Boolean; overload;
-    function ConsumeMulti(const AAllowedChars, ADisallowedChars: TSysCharSet; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
-    function ConsumeMultiToString(const AAllowedChars, ADisallowedChars: TSysCharSet;
-      var ACapturedString: String; const AMinChars: Integer = 1;
-      const AMaxChars: Integer = MaxInt; const AAllowControl: Boolean = False): Integer;
+    function ConsumeMulti(const AAllowedChars: TSysCharSet;
+      const AAllowAllCharsAboveFF: Boolean = False; const AMinChars: Integer = 1;
+      const AMaxChars: Integer = MaxInt): Integer;
+    function ConsumeMultiToString(const AAllowedChars: TSysCharSet;
+      var ACapturedString: String; const AAllowAllCharsAboveFF: Boolean = False;
+      const AMinChars: Integer = 1; const AMaxChars: Integer = MaxInt): Integer;
     property ReachedEnd: Boolean read GetReachedEnd;
     property RemainingCount: Integer read GetRemainingCount;
     property Str: String read FStr;
   end;
 
 implementation
-
-uses
-  Character;
 
 {$ZEROBASEDSTRINGS OFF}
 
@@ -71,10 +69,9 @@ begin
   Result := True;
 end;
 
-function TStringScanner.ConsumeMulti(const AAllowedChars, ADisallowedChars: TSysCharSet;
-  const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
-{ AAllowedChars may be empty to allow all chars and ADisallowedChars may be empty to
-  disallow none }
+function TStringScanner.ConsumeMulti(const AAllowedChars: TSysCharSet;
+  const AAllowAllCharsAboveFF: Boolean = False; const AMinChars: Integer = 1;
+  const AMaxChars: Integer = MaxInt): Integer;
 begin
   if (AMinChars <= 0) or (AMinChars > AMaxChars) then
     raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
@@ -85,9 +82,8 @@ begin
 
   Result := 0;
   while (Result < AMaxChars) and (Result < Remain) and
-     ((AAllowedChars = []) or CharInSet(FStr[FPosition + Result], AAllowedChars)) and
-     ((ADisallowedChars = []) or not CharInSet(FStr[FPosition + Result], ADisallowedChars)) and
-     (AAllowControl or not FStr[FPosition + Result].IsControl) do
+     (CharInSet(FStr[FPosition + Result], AAllowedChars) or
+      (AAllowAllCharsAboveFF and (Ord(FStr[FPosition + Result]) > $FF))) do
     Inc(Result);
 
   if Result < AMinChars then
@@ -96,11 +92,12 @@ begin
     Inc(FPosition, Result);
 end;
 
-function TStringScanner.ConsumeMultiToString(const AAllowedChars, ADisallowedChars: TSysCharSet;
-  var ACapturedString: String; const AMinChars, AMaxChars: Integer; const AAllowControl: Boolean): Integer;
+function TStringScanner.ConsumeMultiToString(const AAllowedChars: TSysCharSet;
+  var ACapturedString: String; const AAllowAllCharsAboveFF: Boolean = False;
+  const AMinChars: Integer = 1; const AMaxChars: Integer = MaxInt): Integer;
 begin
   const StartPos = FPosition;
-  Result := ConsumeMulti(AAllowedChars, ADisallowedChars, AMinChars, AMaxChars, AAllowControl);
+  Result := ConsumeMulti(AAllowedChars, AAllowAllCharsAboveFF, AMinChars, AMaxChars);
   if Result > 0 then
     ACapturedString := Copy(FStr, StartPos, Result)
   else
