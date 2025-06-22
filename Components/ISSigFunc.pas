@@ -124,7 +124,7 @@ begin
   Result := False;
   if SS.Consume(AIdent) and SS.Consume(' ') and (not ARequireQuotes or SS.Consume('"')) then
     if SS.ConsumeMultiToString(AAllowedChars, AValue, AAllowAllCharsAboveFF,
-       AMinValueLength, AMaxValueLength) > 0 then begin
+       AMinValueLength, AMaxValueLength) >= AMinValueLength then begin
       if not ARequireQuotes or SS.Consume('"') then begin
         { CRLF and LF line breaks are allowed (but not CR) }
         SS.Consume(#13);
@@ -243,7 +243,7 @@ begin
   var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
      ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
-     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 1, MaxInt,
+     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 0, MaxInt,
        (NonControlASCIICharsSet - ['"']) + AllHighCharsSet, True, True)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or

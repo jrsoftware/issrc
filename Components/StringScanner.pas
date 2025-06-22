@@ -73,7 +73,8 @@ function TStringScanner.ConsumeMulti(const AAllowedChars: TSysCharSet;
   const AAllowAllCharsAboveFF: Boolean = False; const AMinChars: Integer = 1;
   const AMaxChars: Integer = MaxInt): Integer;
 begin
-  if (AMinChars <= 0) or (AMinChars > AMaxChars) then
+  { AMinChars may be 0; it functions the same as 1 }
+  if (AMinChars < 0) or (AMinChars > AMaxChars) then
     raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
 
   const Remain = GetRemainingCount;
