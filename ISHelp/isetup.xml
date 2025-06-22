@@ -39,6 +39,7 @@
     <contentstopic title="[Run] section" topic="runsection" />
     <contentstopic title="[UninstallDelete] section" topic="uninstalldeletesection" />
     <contentstopic title="[UninstallRun] section" topic="runsection" />
+    <contentstopic title="[ISSigKeys] section" topic="issigkeyssection" />
   </contentsheading>
   <contentsheading title="Pascal Scripting">
     <contentstopic title="Introduction" topic="scriptintro" />
@@ -86,6 +87,8 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
+    <contentstopic title=".issig Signatures: Introduction" topic="issig" />
+    <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
     <contentstopic title="Example Scripts" topic="examples" />
     <contentstopic title="Frequently Asked Questions" topic="faq" />
@@ -102,7 +105,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.4.1-dev</b><br/>
+<b>Inno Setup version 6.5.0-dev</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -131,7 +134,7 @@ Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and
 <li>Complete <link topic="setup_uninstallable">uninstall</link> capabilities.</li>
 
 <li>Installation of <link topic="filessection">files</link>:<br/>
-Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, and install fonts.</li>
+Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download files, and extract archives.</li>
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start Menu and on the desktop.</li>
 
@@ -155,7 +158,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Full source code is available from <extlink href="https://github.com/jrsoftware/issrc">GitHub</extlink>.</li>
 
-<li>Tiny footprint: only 1.75 mB overhead with all features included.</li>
+<li>Tiny footprint: only 1.78 mB overhead with all features included.</li>
 
 <li>All features are fully documented.</li>
 
@@ -216,7 +219,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 AppName=My Program
 
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
+Source: "MyProg.exe"; DestDir: "{app}"
 </precode>
 
 <p>Note that it is legal to specify multiple sections of the same name.</p>
@@ -267,6 +270,7 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 <link topic="runsection">[Run] section</link><br/>
 <link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
 <link topic="runsection">[UninstallRun] section</link><br/>
+<link topic="issigkeyssection">[ISSigKeys] section</link><br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
 <link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
@@ -284,9 +288,9 @@ Source: "MYPROG.EXE"; DestDir: "{app}"
 
 <precode>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
-Source: "MYPROG.CHM"; DestDir: "{app}"
-Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 </precode>
 
 <p>Each parameter consists of a name, followed by a colon, and then a value. Unless otherwise noted, parameters are optional in that they assume a default value if they are not specified. Multiple parameters on a line are separated by semicolons, and can be listed in any order.</p>
@@ -420,7 +424,7 @@ This " contains " embedded " quotes
 <dt><b><a name="app">{app}</a></b></dt>
 <dd>
 <p>The application directory, which the user selects on the <i>Select Destination Location</i> page of the wizard.<br/>
-For example: If you used <tt>{app}\MYPROG.EXE</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MYPROG.EXE".</p>
+For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="win">{win}</a></b></dt>
@@ -450,7 +454,7 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 <dt><b><a name="src">{src}</a></b></dt>
 <dd>
 <p>The directory in which the Setup files are located.<br/>
-For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is installing from "S:\", Setup will translate it to "S:\MYPROG.EXE".</p>
+For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is installing from "S:\", Setup will translate it to "S:\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="sd">{sd}</a></b></dt>
@@ -792,9 +796,10 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <li>HK<i>xx</i> specifies the root key; see the <link topic="registrysection">[Registry]</link> section documentation for a list of possible root keys.</li>
 <li><i>SubkeyName</i> specifies the name of the subkey to read from.</li>
 <li><i>ValueName</i> specifies the name of the value to read; leave <i>ValueName</i> blank if you wish to read the "default" value of a key.</li>
-<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ).</li>
+<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ) and also not a REG_DWORD-type.</li>
 <li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
+<li>If the value is not a string type (REG_SZ or REG_EXPAND_SZ) but a REG_DWORD-type then its value as a decimal string is embedded.</li>
 </ul>
 <example>
 <pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
@@ -911,9 +916,9 @@ For example: If you used <tt>{src}\MYPROG.EXE</tt> on an entry and the user is i
 <example>
 <pre>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; Components: main
-Source: "MYPROG.CHM"; DestDir: "{app}"; Components: help
-Source: "README.TXT"; DestDir: "{app}"
+Source: "MyProg.exe"; DestDir: "{app}"; Components: main
+Source: "MyProg.chm"; DestDir: "{app}"; Components: help
+Source: "Readme.txt"; DestDir: "{app}"
 </pre>
 </example>
 </param>
@@ -983,6 +988,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_compression">Compression</link></li>
 <li><link topic="setup_compressionthreads">CompressionThreads</link></li>
 <li><link topic="setup_depcompatible">DEPCompatible</link></li>
+<li><link topic="setup_disableprecompiledfileverifications">DisablePrecompiledFileVerifications</link></li>
 <li><link topic="setup_diskclustersize">DiskClusterSize</link></li>
 <li><link topic="setup_diskslicesize">DiskSliceSize</link></li>
 <li><link topic="setup_diskspanning">DiskSpanning</link></li>
@@ -1061,10 +1067,12 @@ DefaultGroupName=My Program
 <li><link topic="setup_appversion"><b>AppVersion</b></link></li>
 <li><link topic="setup_architecturesallowed">ArchitecturesAllowed</link></li>
 <li><link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></li>
+<li><link topic="setup_archiveextraction">ArchiveExtraction</link></li>
 <li><link topic="setup_changesassociations">ChangesAssociations</link></li>
 <li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
 <li><link topic="setup_closeapplications">CloseApplications</link></li>
 <li><link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></li>
+<li><link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link></li>
 <li><link topic="setup_createappdir">CreateAppDir</link></li>
 <li><link topic="setup_createuninstallregkey">CreateUninstallRegKey</link></li>
 <li><link topic="setup_defaultdialogfontname">DefaultDialogFontName</link></li>
@@ -1277,8 +1285,9 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 
 <param name="ExtraDiskSpaceRequired">
 <p>The extra disk space required by this component, similar to the <link topic="setup_extradiskspacerequired">ExtraDiskSpaceRequired</link> directive for the [Setup] section.</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
-<pre>ExtraDiskSpaceRequired: 0</pre>
+<pre>ExtraDiskSpaceRequired: 1_048_576</pre>
 </example>
 </param>
 
@@ -1532,9 +1541,9 @@ Name: "{app}\bin"
 
 <precode>
 [Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"
-Source: "MYPROG.CHM"; DestDir: "{app}"
-Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
+Source: "MyProg.exe"; DestDir: "{app}"
+Source: "MyProg.chm"; DestDir: "{app}"
+Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
@@ -1546,11 +1555,12 @@ Source: "README.TXT"; DestDir: "{app}"; Flags: isreadme
 <param name="Source" required="yes">
 <p>The name of the <i>source file</i>. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
 <p>This can be a wildcard to specify a group of files in a single entry. When a wildcard is used, all files matching it use the same options.</p>
-<p>When the flag <tt>external</tt> is specified, <tt>Source</tt> must be the full pathname of an existing file (or wildcard) on the distribution media or the user's system (e.g. "{src}\license.ini").</p>
+<p>When the flag <tt>external</tt> is specified but the flag <tt>download</tt> is not, <tt>Source</tt> must be the full pathname of an existing file (or wildcard) on the distribution media or the user's system (e.g. "{src}\license.ini").</p>
+<p>When the flag <tt>external</tt> is specified and the flag <tt>download</tt> is also, <tt>Source</tt> must be the URL of the file to download.</p>
 <p>Constants may only be used when the <tt>external</tt> flag is specified, because the compiler does not do any constant translating itself.</p>
 <examples>
 <pre>
-Source: "MYPROG.EXE"
+Source: "MyProg.exe"
 Source: "Files\*"
 </pre>
 </examples>
@@ -1574,7 +1584,7 @@ DestDir: "{app}\subdir"
 </param>
 
 <param name="Excludes">
-<p>Specifies a list of patterns to exclude, separated by commas. This parameter cannot be combined with the <tt>external</tt> flag.</p>
+<p>Specifies a list of patterns to exclude, separated by commas.</p>
 <p>Patterns may include wildcard characters ("*" and "?"). Note that unlike the <tt>Source</tt> parameter, a simple Unix-style pattern matching routine is used for <tt>Excludes</tt>. Dots in the pattern are always significant, thus "*.*" will not exclude a file with no extension (instead, use just "*"). Also, question marks always match exactly one character, thus "?????" will not exclude files with names less than five characters long.</p>
 <p>If a pattern starts with a backslash ("\") it is matched against the start of a path name, otherwise it is matched against the end of a path name. Thus "\foo" will only exclude a file named "foo" at the base of the tree. On the other hand, "foo" will exclude any file named "foo" anywhere in the tree.</p>
 <p>The patterns may include backslashes. "foo\bar" will exclude both "foo\bar" and "subdir\foo\bar". "\foo\bar" will only exclude "foo\bar".</p>
@@ -1588,9 +1598,12 @@ Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
 
 <param name="ExternalSize">
 <p>This parameter must be combined with the <tt>external</tt> flag and specifies the size of the external file in bytes. If this parameter is not specified, Setup retrieves the file size at startup. Primarily useful for files that aren't available at startup, for example files located on a second disk when <link topic="setup_diskspanning">disk spanning</link> is being used.</p>
+<p>If the specified size does not match the actual size, Setup's progress bar will automatically adjust by skipping ahead or pausing as needed during installation.</p>
+<p>If the <tt>extractarchive</tt> flag is also used, the total uncompressed size of all extracted files must be specified.</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
 <pre>
-ExternalSize: 1048576; Flags: external
+ExternalSize: 1_048_576; Flags: external
 </pre>
 </example>
 </param>
@@ -1645,6 +1658,41 @@ ExternalSize: 1048576; Flags: external
 </example>
 </param>
 
+<param name="ISSigAllowedKeys">
+<p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
+<example>
+<pre>ISSigAllowedKeys: "exesigner bosskey"</pre>
+</example>
+</param>
+
+<param name="Hash">
+<p>Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag. The precise effect of this parameter depends on whether it is combined with the <tt>external</tt> flag. See the <tt>issigverify</tt> flag description for more information.</p>
+<example>
+<pre>Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"</pre>
+</example>
+</param>
+
+<param name="ExtractArchivePassword">
+<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
+</param>
+
+<param name="DownloadISSigSource">
+<p>Specifies the URL of the .issig signature file which should be downloaded, which can include constants. This file is used to verify the file downloaded from the URL specified by the <tt>Source</tt> parameter.</p>
+<p>This parameter is ignored if the <tt>download</tt> and <tt>issigverify</tt> flags aren't both also specified.</p>
+<p>If this parameter is not set but both these flags are used, Setup will instead append ".issig" (without quotes) to the path portion of the URL specified by the <tt>Source</tt> parameter. It will then use the result as the URL to download the .issig signature file from.</p>
+</param>
+
+<param name="DownloadUserName">
+<p>Specifies the basic authentication username to use for the file download, which can include constants.</p>
+<p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
+</param>
+
+<param name="DownloadPassword">
+<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -1674,7 +1722,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="createallsubdirs">
 <p>By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. This flag causes these directories to be created at install time (just like if you created [Dirs] entries for them).</p>
-<p>Must be combined with <tt>recursesubdirs</tt>.</p>
+<p>This flag must be combined with <tt>recursesubdirs</tt>.</p>
 </flag>
 <flag name="deleteafterinstall">
 <p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's [Run] section.</p>
@@ -1688,8 +1736,24 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Prevents Setup from verifying the file checksum after extraction. Use this flag on files you wish to modify while already compiled into Setup.</p>
 <p>Must be combined with <tt>nocompression</tt>.</p>
 </flag>
+<flag name="download">
+<p>This flag instructs Setup not to copy an existing file, but instead to download it. Optionally use the <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt> parameters to specify a basic authentication username and password.</p>
+<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
+<p>This flag also must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>skipifsourcedoesntexist</tt> flags.</p>
+<p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
+</flag>
 <flag name="external">
-<p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
+<p>This flag instructs Inno Setup not to statically compile the file specified by the <tt>Source</tt> parameter into the installation files, but instead to copy from an existing file on the distribution media or the user's system. See the <tt>Source</tt> parameter description for more information.</p>
+<p>When combined with the <tt>download</tt> or <tt>extractarchive</tt> flags, Setup does not copy the file, but instead downloads or extracts it.</p>
+</flag>
+<flag name="extractarchive">
+<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
+<p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
+<p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
 </flag>
 <flag name="fontisnttruetype">
 <p>Specify this flag if the entry is installing a <i>non-TrueType</i> font with the <tt>FontInstall</tt> parameter.</p>
@@ -1702,6 +1766,20 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="ignoreversion">
 <p>Don't compare version info at all; replace existing files regardless of their version number.</p>
 <p>This flag should only be used on files private to your application, <i>never</i> on shared system files.</p>
+<p>This flag cannot be combined with <tt>replacesameversion</tt>.</p>
+</flag>
+<flag name="issigverify">
+<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information..</p>
+<p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
+<ul>
+<li>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</li>
+<li>When used with the <tt>external</tt> flag, Setup will verify the source file during the installation process while it is being copied to the destination directory. Files are always created with temporary names (<tt>*.tmp</tt>) initially. If the verification fails, the temporary file will be deleted and a &quot;Verification of the source file failed&quot; error message will be displayed to the user (with Skip, Try Again, and Cancel options) and a more detailed error is logged. If the verification succeeds, the temporary file will be renamed to the correct destination name.</li>
+<li>When a file entry with the <tt>external</tt> flag is skipped (i.e., not installed - for example because the <tt>ignoreversion</tt> flag wasn't used), the source file isn't copied anywhere, so no verification takes place.</li>
+</ul>
+<p>Since verification occurs while source files are being compressed/copied, and not in a separate pass, each file's contents are only read once. Thus, enabling verification has little performance impact; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read twice.</p>
+<p>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p>
+<p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
@@ -1744,6 +1822,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="replacesameversion">
 <p>When this flag is used and the file already exists on the user's system and it has the same version number as the file being installed, Setup will compare the files and replace the existing file if their contents differ.</p>
 <p>The default behavior (i.e. when this flag isn't used) is to not replace an existing file with the same version number.</p>
+<p>This flag has no effect if combined with the <tt>extractarchive</tt> flag, or if used for a file that lacks a version number.</p>
+<p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
@@ -1760,12 +1840,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="sign">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="signcheck">
 <p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
 <p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
 <p>This flag instructs the compiler -- or Setup, if the <tt>external</tt> flag is also used -- to silently skip over the entry if the source file does not exist, instead of displaying an error message.</p>
@@ -1846,7 +1928,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <precode>
 [Icons]
-Name: "{group}\My Program"; Filename: "{app}\MYPROG.EXE"; WorkingDir: "{app}"
+Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall My Program"; Filename: "{uninstallexe}"
 </precode>
 
@@ -1874,7 +1956,7 @@ Name: "{commonstartup}\My Program"
 <p>On 64-bit Windows, note that the <tt>{sys}</tt> constant will map to the native 64-bit System directory when the shortcut is launched by a 64-bit process, such as Windows Explorer. This is true regardless of whether the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To create a shortcut that always points to the 32-bit System directory, use <tt>{syswow64}</tt> instead. (The same applies to the <tt>WorkingDir</tt> and <tt>IconFilename</tt> parameters.)</p>
 <examples>
 <pre>
-Filename: "{app}\MYPROG.EXE"
+Filename: "{app}\MyProg.exe"
 Filename: "{uninstallexe}"
 Filename: "{app}\FolderName"
 Filename: "http://www.example.com/"
@@ -2125,7 +2207,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
-<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
+<p>The file is recommended to be UTF-8 encoded, without a BOM.</p>
 <examples>
 <pre>
 MessagesFile: "compiler:Dutch.isl"
@@ -2315,9 +2397,10 @@ RightToLeft=no
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
-<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any ASCII text in the language's files to Unicode text. Note that any text in the .iss file such as a [CustomMessages] entry for the language is never converted and should be in Unicode already.<br/>
+<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the .iss file such as a [CustomMessages] entry for the language is never converted and should be in Unicode already.<br/>
 If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to zero and only use Unicode text (UTF-8) in the languages's files.<br/>
-If <tt>LanguageCodePage</tt> is set to zero but ASCII text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
+If the language only uses ASCII characters (like English), set <tt>LanguageCodePage</tt> to zero as well.<br/>
+If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
 
 <p><b><a name="DialogFontName">DialogFontName</a></b> and <b><a name="DialogFontSize">DialogFontSize</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
@@ -2439,7 +2522,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </param>
 
 <param name="ValueData">
-<p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
+<p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. Supports digit separators if the data type is <tt>qword</tt>. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
 <p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's REG_SZ or REG_EXPAND_SZ), and vice versa.</p>
 <p>On a <tt>multisz</tt> type value, you may use a special constant called <tt>{break}</tt> in this parameter to embed line breaks (nulls).</p>
 <example>
@@ -2546,9 +2629,9 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <precode>
 [Run]
-Filename: "{app}\INIT.EXE"; Parameters: "/x"
-Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
-Filename: "{app}\MYPROG.EXE"; Description: "Launch application"; Flags: postinstall nowait skipifsilent unchecked
+Filename: "{app}\Init.exe"; Parameters: "/x"
+Filename: "{app}\Readme.txt"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
+Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinstall nowait skipifsilent unchecked
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2747,6 +2830,98 @@ Type: files; Name: "{win}\MYPROG.INI"
 <p><b><link topic="componentstasksparams">Components and Tasks Parameters</link></b></p>
 
 <p><b><link topic="commonparams">Common Parameters</link></b></p>
+
+</body>
+</topic>
+
+
+
+<topic name="issigkeyssection" title="[ISSigKeys] section">
+<keyword value="[ISSigKeys] section" />
+<keyword value="ISSigKeys" />
+<body>
+
+<p>This optional section defines any keys the compiler and Setup can use to verify files using <link topic="filessection">[Files]</link> section's <tt>issigverify</tt> flag.</p>
+
+<p>Here are two examples of an <tt>[ISSigKeys]</tt> section:</p>
+
+<precode>
+[ISSigKeys]
+Name: "MyKey1; \
+  KeyID:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
+  KeyFile: "MyKey1.ispublickey"
+Name: "MyKey2; \
+  KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
+  PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
+  PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+</precode>
+
+<precode>
+[ISSigKeys]
+Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
+Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
+Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
+; max is trusted for both exe and doc signing
+Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
+; the boss also has a key
+Name: bosskey; KeyFile: "boss.ispublickey"
+</precode>
+
+<p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
+
+<p>The following is a list of the supported <link topic="params">parameters</link>:</p>
+
+<paramlist>
+
+<param name="Name" required="yes">
+<p>The internal name of the key.</p>
+<p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developers.</p>
+<example><pre>Name: MyKey</pre></example>
+</param>
+
+<param name="Group">
+<p>A space separated list of internal group names, specifying how to group the key.</p>
+<p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developer groups.</p>
+<example><pre>Group: exesigner docsigner</pre></example>
+</param>
+
+<param name="KeyID">
+<p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>. Is not used for anything else.</p>
+<example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
+</param>
+
+<param name="KeyFile">
+<p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
+<p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
+<p>If a private key file is specified, only its public information is stored in the resulting Setup file(s).</p>
+<example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
+</param>
+
+<param name="PublicX">
+<p>Specifies the "public-x" value of the key.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
+</param>
+
+<param name="PublicY">
+<p>Specifies the "public-y" value of the key.</p>
+<p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
+<example><pre>PublicY: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+</param>
+
+<param name="RuntimeID">
+<p>Specifies the runtime ID of the key, used by <link topic="isxfunc_ISSigVerify">ISSigVerify</link>.</p>
+<p>Runtime ID's are stored in the resulting Setup file(s), so you should <i>not</i> use personal or non-public information in them.</p>
+<example><pre>RuntimeID: def01</pre></example>
+</param>
+
+</paramlist>
+
+<heading>Remarks</heading>
+
+<p>Keys and key files should be created using <link topic="issigtool">Inno Setup Signature Tool</link>.</p>
+
+<p>Created key files are human readable and can be opened with any text editor to get a key's <tt>KeyID</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> values. Note that none of these values are required if you set the <tt>KeyFile</tt> parameter instead.</p>
 
 </body>
 </topic>
@@ -2953,7 +3128,7 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <p>All entries are processed by the installer in the order they appear in a section.</p>
 
-<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F7 (Step Into) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p> 
+<p>You can see the order yourself by loading a script into the Compiler IDE and pressing F7 (Step Into) repeatedly: each time Setup or Uninstall is about to process an entry the IDE will pause Setup or Uninstall and show you the entry.</p>
 
 <p>Changes are undone by the uninstaller in the <i>opposite</i> order in which the installer made them. This is because the uninstall log is parsed from end to beginning.</p>
 
@@ -3134,7 +3309,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p> 
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
@@ -3483,6 +3658,229 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
+</ul>
+
+</body>
+</topic>
+
+
+
+<topic name="issig" title=".issig Signatures: Introduction">
+<body>
+
+<p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
+
+<p>Signatures are created using the included <link topic="issigtool">Inno Setup Signature Tool</link> utility (<tt>ISSigTool.exe</tt>) and are stored in separate files with an <tt>.issig</tt> extension. Because the signatures are stored in separate files — the original files are not touched — any type of file may be signed and verified.</p>
+
+<p>Creation of <tt>.issig</tt> signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
+
+<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority. You can however use both <tt>signtool.exe</tt> and <tt>ISSigTool.exe</tt> on a single file, in that order. If you are looking for more information about <tt>signtool.exe</tt> see <link topic="setup_signtool">SignTool</link> instead.</p>
+
+<heading>Quick start: Verifying files at compile time</heading>
+
+<p>On the <tt>issigtool</tt> commands below, prepend the path of your Inno Setup installation, and include quotes. For example: <tt>"%ProgramFiles(x86)%\Inno Setup 6\issigtool"</tt></p>
+
+<ol>
+
+<li>
+<p>At the command line, generate a new private key file that will be used for signing:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" generate-private-key
+</precode>
+<p>A file named <tt>MyKey.isprivatekey</tt> will be created in the current directory. You may include a pathname if you wish.</p>
+<p>The file should not be shared with others, and should never be committed into a public repository. To reduce the risk of accidental disclosure, it is best to keep the file outside of your source tree.</p>
+</li>
+
+<li>
+<p>Create the file we want to sign, then create the signature:</p>
+<precode>
+echo Hello &gt; MyFile.txt
+issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
+</precode>
+<p>A signature file named <tt>MyFile.txt.issig</tt> is created.</p>
+</li>
+
+<li>
+<p>Inside your Inno Setup script, add an <link topic="issigkeyssection">[ISSigKeys] section</link> entry linking to your key file, and a <link topic="filessection">[Files] section</link> entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
+<precode>
+[ISSigKeys]
+Name: MyKey; KeyFile: "MyKey.isprivatekey"
+
+[Files]
+Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
+</precode>
+<p>Note: Specifying a <i>public</i> key file instead is preferred; see the <link topic="issig" anchor="tips">Tips &amp; Recommendations</link> section below.</p>
+</li>
+
+<li>
+<p>Compile the script. In the compiler output, you should see a line indicating the file was successfully verified:</p>
+<precode>
+   Compressing: MyFile.txt
+      Verification successful.
+</precode>
+</li>
+
+<li>
+<p>Now let's confirm that the compiler actually does catch corruption or tampering within the file.</p>
+<p>Make a modification to <tt>MyFile.txt</tt> — for example, add or change a character.</p>
+</li>
+
+<li>
+<p>Compile the script again. This time, you should get an error like the following:</p>
+<precode>
+Signature is not valid for source file "MyFile.txt": file hash incorrect.
+</precode>
+</li>
+
+</ol>
+
+<heading>Verifying external files during installation</heading>
+
+<p>The procedure for setting up verification of <tt>external</tt> files is essentially the same as the procedure shown above for compile-time verification, except:</p>
+
+<ul>
+
+<li>
+<p>The <tt>[Files]</tt> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
+<precode>
+[Files]
+Source: "{src}\MyFile.txt"; DestDir: "{app}"; Flags: external issigverify
+</precode>
+</li>
+
+<li>
+<p>The signature file — <tt>MyFile.txt.issig</tt> in this example — must exist in the same directory as the <tt>Source</tt> file during the installation process. (No compile-time verification occurs on <tt>external</tt> files.)</p>
+</li>
+
+</ul>
+
+<heading><a name="tips">Tips &amp; Recommendations</a></heading>
+
+<ul>
+
+<li>
+<p>Although an <link topic="issigkeyssection">[ISSigKeys] section</link> entry's <tt>KeyFile</tt> parameter can point to a private key file as demonstrated above, it is recommended that a <i>public</i> key file be specified instead whenever possible. Unlike a private key file, a public key file does not have to be kept secret, and <i>can</i> be safely committed into a version control repository.</p>
+<p>To create a public key file (<tt>MyKey.ispublickey</tt>) from an existing private key file (<tt>MyKey.isprivatekey</tt>), run this command:</p>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
+</precode>
+<p>Alternatively, the public key values may be specified directly inside your script by using the <tt>PublicX</tt> and <tt>PublicY</tt> parameters instead of <tt>KeyFile</tt>.</p>
+</li>
+
+<li>
+<p>To avoid having to repeat the same <tt>--key-file=</tt> parameter on every <tt>issigtool</tt> command invocation, you may instead set the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable to the path of your key file.</p>
+<p>In <tt>cmd.exe</tt> or a batch file:</p>
+<precode>
+set ISSIGTOOL_KEY_FILE=MyKey.isprivatekey
+</precode>
+<p>In PowerShell:</p>
+<precode>
+$env:ISSIGTOOL_KEY_FILE = "MyKey.isprivatekey"
+</precode>
+<p>The above variable assignments are non-persistent; they only affect the current <tt>cmd.exe</tt> or PowerShell session.</p>
+<p>Afterward, you may simply run:</p>
+<precode>
+issigtool sign "MyFile.txt"
+issigtool verify "MyFile.txt"
+</precode>
+</li>
+
+</ul>
+
+</body>
+</topic>
+
+
+
+<topic name="issigtool" title="Inno Setup Signature Tool">
+<keyword value="ISSigTool" />
+<body>
+
+<p>Inno Setup includes a command-line utility, <tt>ISSigTool.exe</tt>. This utility is designed to sign files using ECDSA P-256 cryptographic <link topic="issig">signatures</link>.</p>
+
+<p>Command line usage is as follows:</p>
+
+<indent>
+<p>issigtool <i>[options]</i> <i>&lt;command&gt;</i> <i>&lt;arguments&gt;</i></p>
+</indent>
+
+<p>Available commands:</p>
+
+<indent>
+<table>
+<tr>
+<td>sign <i>&lt;file names&gt;</i></td>
+<td>Signs each specified file. Requires a private key.</td>
+</tr>
+<tr>
+<td>verify <i>&lt;file names&gt;</i></td>
+<td>Verifies the signature of each specified file against the key.</td>
+</tr>
+<tr>
+<td>export-public-key <i>&lt;file name&gt;</i></td>
+<td>Exports the public key used in the signing process to the specified file.</td>
+</tr>
+<tr>
+<td>generate-private-key</td>
+<td>Generates a new private key for signing operations.</td>
+</tr>
+</table>
+</indent>
+
+<p>Valid options are:</p>
+
+<indent>
+<table>
+<tr>
+<td>--key-file=&lt;filename&gt;</td>
+<td>Specifies the private key filename required for signing. This option overrides the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
+</tr>
+<tr>
+<td>--quiet, -q</td>
+<td>Suppresses status messages that are normally printed to standard output.</td>
+</tr>
+<tr>
+<td>--help, -?</td>
+<td>Prints usage information.</td>
+</tr>
+</table>
+</indent>
+
+<p>Examples:</p>
+
+<indent>
+<examples noheader="1">
+issigtool --key-file="MyKey.isprivatekey" generate-private-key<br/>
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"<br/>
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"<br/>
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
+</examples>
+</indent>
+
+<p>Exit codes:</p>
+
+<indent>
+<table>
+<tr>
+<td>0</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>1</td>
+<td>A signature verification failed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Command line parameters were invalid or a fatal error occurred</td>
+</tr>
+</table>
+</indent>
+
+<p>Notes:</p>
+
+<ul>
+<li>Filenames that include spaces must be enclosed in quotes.</li>
+<li>Ensure the private key file is secure, as its compromise can affect the validity of your signatures.</li>
 </ul>
 
 </body>
@@ -3960,7 +4358,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Julian Seward: Creator of the <extlink href="http://www.bzip.org/">bzlib</extlink> compression library that Inno Setup uses.</li>
 
-<li>Igor Pavlov: Creator of the <extlink href="http://www.7-zip.org/sdk.html">LZMA</extlink> compression library that Inno Setup uses.</li>
+<li>Igor Pavlov: Creator of the <extlink href="https://7-zip.org/">7-Zip</extlink> and <extlink href="http://www.7-zip.org/sdk.html">LZMA SDK</extlink> libraries that Inno Setup uses.</li>
 
 <li>Vince Valenti: Most of the code for the "Window" <tt>[Setup]</tt> section directives (1.12.4).</li>
 
@@ -4346,6 +4744,15 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </body>
 </setuptopic>
 
+<setuptopic directive="DisablePrecompiledFileVerifications">
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>setupe32</tt> <br/><tt>setupldre32</tt> <br/><tt>is7zdll</tt> <br/><tt>isbunzipdll</tt> <br/><tt>isunzlibdll</tt> <br/><tt>islzmaexe</tt></setupvalid>
+<setupdefault><i>(blank)</i></setupdefault>
+<body>
+<p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
+<p><tt>islzmaexe</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>. Similarly, <tt>is7z.dll</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="DisableAppendDir">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
@@ -4372,6 +4779,51 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
 <p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the [Files] section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
+<example><pre>[Setup]
+ExtraDiskSpaceRequired=1_048_576</pre></example>
+</body>
+</setuptopic>
+
+<setuptopic directive="ArchiveExtraction">
+<keyword value=".7z" />
+<keyword value=".zip" />
+<setupvalid><tt>basic</tt><br/>
+<tt>enhanced/nopassword</tt><br/>
+<tt>enhanced</tt><br/>
+<tt>full</tt></setupvalid>
+<setupdefault><tt>basic</tt></setupdefault>
+<body>
+<p>This specifies the method of archive extraction used by [Files] section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <link topic="isxfunc_ExtractArchive">ExtractArchive</link> and <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>.</p>
+<p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
+<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size. Additionally, it supports multi-volume archives.</p>
+<p>The following table summarizes the differences between these methods.</p>
+<indent>
+<table>
+<tr><td></td><td><u>Memory Requirements</u></td><td><u>Password-protected Archives</u></td><td><u>Setup Size Increase</u></td><td><u>Archive Formats</u></td></tr>
+<tr><td><tt>basic</tt> (default)</td><td>High for large files*</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
+<tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
+<tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
+<tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>458 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg, .001</td></tr>
+</table>
+<p>* = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for .7z archives that contain large files: their memory requirements depend on the dictionary size only.</p>
+</indent>
+<p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
+<p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
+<p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, the output will be the archive file itself (e.g., <i>archive.tar</i>) rather than the individual files contained within it.</p>
+<p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
+<ul>
+<li>It does not support PPMd and BZip2 methods.</li>
+<li>It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.</li>
+<li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
+</ul>
+<p><b>See also:</b><br/>
+<link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br/>
+<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>
+</p>
 </body>
 </setuptopic>
 
@@ -4659,8 +5111,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallDisplaySize">
 <body>
 <p>On Windows 7 and later, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
-<p>Set in bytes. (1048576 bytes = 1 megabyte)</p>
-<example><pre>UninstallDisplaySize=1073741824</pre></example>
+<p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
+<example><pre>UninstallDisplaySize=1_073_741_824</pre></example>
 </body>
 </setuptopic>
 
@@ -5108,7 +5560,7 @@ DiskSliceSize=1457664
 <setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
 <setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
 <body>
-<p>Lets you increase the default size of all Setup and Uninstall wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
+<p>Lets you increase the default size of all Setup wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
 <example><pre>WizardSizePercent=120</pre></example>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
@@ -5136,7 +5588,7 @@ DiskSliceSize=1457664
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
@@ -5145,7 +5597,7 @@ DiskSliceSize=1457664
 <setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look and also the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> change to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
+<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 </body>
 </setuptopic>
@@ -5393,10 +5845,10 @@ DiskSliceSize=1457664
 <keyword value="pbkdf2" />
 <setupvalid><tt>pbkdf2</tt><br/>
 <tt>pbkdf2/1</tt> through <tt>pbkdf2/2147483647</tt></setupvalid>
-<setupdefault><tt>pbkdf2/200000</tt></setupdefault>
+<setupdefault><tt>pbkdf2/220000</tt></setupdefault>
 <body>
 <p>This specifies the key derivation function to use to derive the encryption key from the value of <link topic="setup_password">Password</link>, and optionally its parameters.</p>
-<p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 200000.</p>
+<p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 220000.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_encryption">Encryption</link>
 </p>
@@ -5597,11 +6049,16 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
-<p>The first time you compile a script with this directive set to <tt>yes</tt>, a uniquely-named copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>). Depending on the <link topic="setup_signtool">SignTool</link> setting, you will either then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's signtool.exe) or the file will be automatically signed on the fly. On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers.</p>
-<p>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</p>
-<p>If a file generated by this directive is deleted, it will be recreated automatically if necessary on the next compile.</p>
-<p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too.</p>
+<p>If the <link topic="setup_signtool">SignTool</link> directive is set, the file will be signed automatically on the fly. Otherwise:</p>
+<ul>
+  <li>The first time you compile a script with <tt>SignedUninstaller</tt> set to <tt>yes</tt>, a uniquely-named non-temporary copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>).</li>
+  <li>You will then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>).</li>
+  <li>On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers, without prompting you.</li>
+  <li>If you delete the file, you will be prompted again if necessary on the next compile.</li>
+  <li>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</li>
+</ul>
+<p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 </body>
 </setuptopic>
@@ -5663,7 +6120,7 @@ SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr ht
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
 [Setup]
-SignTool=byparam format c: 
+SignTool=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
@@ -5826,6 +6283,22 @@ SignTool=byparam format c:
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link><br/>
+<link topic="setup_restartapplications">RestartApplications</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="CloseApplicationsFilterExcludes">
+<setupvalid>A list of file name wildcards, separated by commas</setupvalid>
+<body>
+<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>.</p>
+<p>For example, to check all files except MyProg.exe:</p>
+<example><pre>[Setup]
+CloseApplicationsFilter=*.*
+CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_closeapplications">CloseApplications</link><br/>
+<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
 <link topic="setup_restartapplications">RestartApplications</link></p>
 </body>
 </setuptopic>

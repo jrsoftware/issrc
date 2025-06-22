@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
-  Shared.DebugStruct, Shared.CompilerInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
+  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
   VirtualImageList, BaseImageCollection;
 
 const
@@ -607,7 +607,9 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateFindRegExPanel;
+    procedure UpdateFindRegExUI;
+    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+      const NewLine, NewLineStartPos: Integer);
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -675,13 +677,14 @@ implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
-  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
+  Shared.CompilerInt;
 
 {$R *.DFM}
 
@@ -887,14 +890,16 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
-      if FOptions.ShowCaretPosition then
-        StatusBar.Panels[spCaretPos].Width := StatusBar.Panels[spCaretPos].Width * 2;
+      if FOptions.ShowCaretPosition then begin
+        StatusBar.Panels[spCaretPos].Width := MulDiv(StatusBar.Panels[spCaretPos].Width, 7, 2);
+        StatusBar.Panels[spCaretPos].Alignment := taLeftJustify;
+      end;
 
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateTheme;
-      UpdateFindRegExPanel;
+      UpdateFindRegExUI;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -3501,7 +3506,7 @@ end;
 
 procedure TMainForm.HWhatsNewClick(Sender: TObject);
 begin
-  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm');
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + {$IFDEF DEBUG} '..\..\' + {$ENDIF} 'whatsnew.htm');
 end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
@@ -3802,13 +3807,14 @@ end;
 
 function TMainForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  if Sender is TFindDialog then begin
-    with Sender as TFindDialog do begin
+  { TReplaceDialog is a subclass of TFindDialog must check for TReplaceDialog first }
+  if Sender is TReplaceDialog then begin
+    with Sender as TReplaceDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end else begin
-    with Sender as TReplaceDialog do begin
+    with Sender as TFindDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
@@ -3865,6 +3871,7 @@ begin
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+        { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
         var Prefix := Format('  Line %d: ', [Line+1]);
         var FindResult := TFindResult.Create;
@@ -3995,7 +4002,7 @@ begin
     SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
   else begin
     FOptions.FindRegEx := not FOptions.FindRegEx;
-    UpdateFindRegExPanel;
+    UpdateFindRegExUI;
     var Ini := TConfigIniFile.Create;
     try
       Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
@@ -4058,6 +4065,12 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     end;
   end;
 
+  function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
+  begin
+    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
+    Result := FMemosStyler.HighlightAtCursorAllowed(Section, FActiveMemo.ConvertRawStringToString(Word));
+  end;
+
 begin
   { Add occurrence indicators for the word at cursor if there's any and the
     main selection is within this word. On top of those add occurrence indicators
@@ -4079,8 +4092,10 @@ begin
       var Word := AMemo.WordAtCaretRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        AMemo.GetSelections(Selections); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        if HighlightAtCursorAllowed(TextToIndicate) then begin
+          AMemo.GetSelections(Selections); { Gets any additional selections as well }
+          FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        end;
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
@@ -4827,8 +4842,10 @@ begin
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
-    var CaretPos := FActiveMemo.CaretPosition;
-    Text := Format('%d@%d+%d:%s', [FActiveMemo.GetStyleAtPosition(CaretPos), CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+    const CaretPos = FActiveMemo.CaretPosition;
+    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
+    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
+      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;
   StatusBar.Panels[spCaretPos].Text := Text;
 
@@ -4849,11 +4866,18 @@ begin
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
 
-procedure TMainForm.UpdateFindRegExPanel;
+procedure TMainForm.UpdateFindRegExUI;
 const
   FindRegExText: array[Boolean] of String = ('', '.*');
 begin
   StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
+  if FOptions.FindRegEx then begin
+    FindDialog.Options := FindDialog.Options + [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options + [frHideWholeWord];
+  end else begin
+    FindDialog.Options := FindDialog.Options - [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options - [frHideWholeWord];
+  end;
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
@@ -4877,7 +4901,7 @@ procedure TMainForm.UpdatePreprocMemos;
     const NewCloseButtons: TBoolList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
+       (FMainMemo.Lines.Text.TrimRight <> FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       NewCloseButtons.Add(False);
@@ -5976,12 +6000,12 @@ begin
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
     if LineNumber >= 0 then begin
-      S := Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]);
+      S := Format('Line %d:' + SNewLine + '%s', [LineNumber + 1, AddPeriod(FDebuggerException)]);
       if (Memo <> nil) and (Memo.Filename <> '') then
         S := Memo.Filename + SNewLine2 + S;
       MsgBox(S, 'Runtime Error', mbCriticalError, mb_Ok)
     end else
-      MsgBox(FDebuggerException + '.', 'Runtime Error', mbCriticalError, mb_Ok);
+      MsgBox(AddPeriod(FDebuggerException), 'Runtime Error', mbCriticalError, mb_Ok);
   end;
 end;
 
@@ -7668,28 +7692,52 @@ begin
   end;
 end;
 
-procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
-var
-  I, Line: Integer;
+procedure TMainForm.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+  const NewLine, NewLineStartPos: Integer);
 begin
-  for I := 0 to FDebugEntriesCount-1 do
+  { Also see FindInFilesDialogFind }
+  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResult.Line := NewLine;
+  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
+  FindResult.PrefixStringLength := Length(NewPrefix);
+  const PosChange = NewLineStartPos - FindResult.LineStartPos;
+  FindResult.LineStartPos := NewLineStartPos;
+  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
+  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
+end;
+
+procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
+begin
+  for var I := 0 to FDebugEntriesCount-1 do
     if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
        (FDebugEntries[I].LineNumber >= FirstLine) then
       Inc(FDebugEntries[I].LineNumber, Count);
 
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        const NewLine = FindResult.Line + Count;
+        UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+      end;
+    end;
+  end;
+
   if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
     { Grow FStateLine if necessary }
-    I := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
-    if I > 0 then begin
-      if I < LineStateGrowAmount then
-        I := LineStateGrowAmount;
-      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + I));
-      Inc(Memo.LineStateCapacity, I);
+    var GrowAmount := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
+    if GrowAmount > 0 then begin
+      if GrowAmount < LineStateGrowAmount then
+        GrowAmount := LineStateGrowAmount;
+      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + GrowAmount));
+      Inc(Memo.LineStateCapacity, GrowAmount);
     end;
     { Shift existing line states and clear the new ones }
-    for I := Memo.LineStateCount-1 downto FirstLine do
+    for var I := Memo.LineStateCount-1 downto FirstLine do
       Memo.LineState[I + Count] := Memo.LineState[I];
-    for I := FirstLine to FirstLine + Count - 1 do
+    for var I := FirstLine to FirstLine + Count - 1 do
       Memo.LineState[I] := lnUnknown;
     Inc(Memo.LineStateCount, Count);
   end;
@@ -7700,8 +7748,8 @@ begin
     Inc(Memo.ErrorLine, Count);
 
   var BreakPointsChanged := False;
-  for I := 0 to Memo.BreakPoints.Count-1 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := 0 to Memo.BreakPoints.Count-1 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       Memo.BreakPoints[I] := Line + Count;
       BreakPointsChanged := True;
@@ -7715,12 +7763,9 @@ end;
 
 procedure TMainForm.MemoLinesDeleted(Memo: TIDEScintFileEdit; FirstLine, Count,
   FirstAffectedLine: Integer);
-var
-  I, Line: Integer;
-  DebugEntry: PDebugEntry;
 begin
-  for I := 0 to FDebugEntriesCount-1 do begin
-    DebugEntry := @FDebugEntries[I];
+  for var I := 0 to FDebugEntriesCount-1 do begin
+    const DebugEntry: PDebugEntry = @FDebugEntries[I];
     if (DebugEntry.FileIndex = Memo.CompilerFileIndex) and
        (DebugEntry.LineNumber >= FirstLine) then begin
       if DebugEntry.LineNumber < FirstLine + Count then
@@ -7730,10 +7775,25 @@ begin
     end;
   end;
 
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        if FindResult.Line < FirstLine + Count then
+          FindResultsList.Items.Delete(I)
+        else begin
+          const NewLine = FindResult.Line - Count;
+          UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+        end;
+      end;
+    end;
+  end;
+
   if Assigned(Memo.LineState) then begin
     { Shift existing line states }
     if FirstLine < Memo.LineStateCount - Count then begin
-      for I := FirstLine to Memo.LineStateCount - Count - 1 do
+      for var I := FirstLine to Memo.LineStateCount - Count - 1 do
         Memo.LineState[I] := Memo.LineState[I + Count];
       Dec(Memo.LineStateCount, Count);
     end
@@ -7759,8 +7819,8 @@ begin
   end;
 
   var BreakPointsChanged := False;
-  for I := Memo.BreakPoints.Count-1 downto 0 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := Memo.BreakPoints.Count-1 downto 0 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       if Line < FirstLine + Count then begin
         Memo.BreakPoints.Delete(I);

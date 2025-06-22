@@ -9,7 +9,7 @@ unit SHA256;
 interface
 
 uses
-  System.Hash;
+  SysUtils, System.Hash;
 
 type
   TSHA256Context = record
@@ -24,6 +24,7 @@ function SHA256Final(var ctx: TSHA256Context): TSHA256Digest;
 function SHA256Buf(const Buffer; Len: Cardinal): TSHA256Digest;
 function SHA256DigestsEqual(const A, B: TSHA256Digest): Boolean;
 function SHA256DigestToString(const D: TSHA256Digest): String;
+function SHA256DigestFromString(const S: String): TSHA256Digest;
 
 implementation
 
@@ -80,6 +81,28 @@ begin
     Inc(P);
   end;
   SetString(Result, Buf, 64);
+end;
+
+function SHA256DigestFromString(const S: String): TSHA256Digest;
+begin
+  if Length(S) <> 64 then
+    raise EConvertError.Create('Invalid string length');
+
+  for var I := 0 to 63 do begin
+    var B: Byte;
+    const C = UpCase(S.Chars[I]);
+    case C of
+      '0'..'9': B := Byte(Ord(C) - Ord('0'));
+      'A'..'F': B := Byte(Ord(C) - (Ord('A') - 10));
+    else
+      raise EConvertError.Create('Invalid digit character');
+    end;
+    const ResultIndex = I shr 1;
+    if not Odd(I) then
+      Result[ResultIndex] := Byte(B shl 4)
+    else
+      Result[ResultIndex] := Result[ResultIndex] or B;
+  end;
 end;
 
 end.

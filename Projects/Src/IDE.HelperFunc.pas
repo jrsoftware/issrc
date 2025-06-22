@@ -1,8 +1,8 @@
-unit IDE.HelperFunc;
+﻿unit IDE.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -733,7 +733,7 @@ end;
 
 function GetHelpFile: String;
 begin
-  Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)), IfThen(HelpFileDark, '-dark', '')]);
+  Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)) {$IFDEF DEBUG} + '..\..\Files\' {$ENDIF}, IfThen(HelpFileDark, '-dark', '')]);
 end;
 
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;

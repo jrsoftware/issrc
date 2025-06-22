@@ -2,7 +2,7 @@ unit Setup.FileExtractor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,7 +16,7 @@ uses
   Shared.Struct, ChaCha20;
 
 type
-  TExtractorProgressProc = procedure(Bytes: Cardinal);
+  TExtractorProgressProc = procedure(const Bytes: Cardinal);
 
   TFileExtractor = class
   private
@@ -230,7 +230,7 @@ begin
     InternalError('Cannot call file extractor recursively');
   Inc(FEntered);
   try
-    if (foChunkEncrypted in FL.Flags) and not FCryptKeySet then
+    if (floChunkEncrypted in FL.Flags) and not FCryptKeySet then
       InternalError('Cannot read an encrypted file before the key has been set');
 
     { Is the file in a different chunk than the current one?
@@ -241,7 +241,7 @@ begin
        (Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) < 0) or
        FNeedReset then begin
       FChunkFirstSlice := -1;
-      FDecompressor[foChunkCompressed in FL.Flags].Reset;
+      FDecompressor[floChunkCompressed in FL.Flags].Reset;
       FNeedReset := False;
 
       OpenSlice(FL.FirstSlice);
@@ -256,12 +256,11 @@ begin
       FChunkLastSlice := FL.LastSlice;
       FChunkStartOffset := FL.StartOffset;
       FChunkBytesLeft := FL.ChunkCompressedSize;
-      FChunkDecompressedBytesRead.Hi := 0;
-      FChunkDecompressedBytesRead.Lo := 0;
-      FChunkCompressed := foChunkCompressed in FL.Flags;
-      FChunkEncrypted := foChunkEncrypted in FL.Flags;
+      FChunkDecompressedBytesRead := To64(0);
+      FChunkCompressed := floChunkCompressed in FL.Flags;
+      FChunkEncrypted := floChunkEncrypted in FL.Flags;
 
-      if foChunkEncrypted in FL.Flags then
+      if floChunkEncrypted in FL.Flags then
         InitDecryption;
     end;
 
@@ -344,7 +343,7 @@ begin
           Break;
 
         DecompressBytes(Buf, BufSize);
-        if foCallInstructionOptimized in FL.Flags then begin
+        if floCallInstructionOptimized in FL.Flags then begin
           TransformCallInstructions(Buf, BufSize, False, AddrOffset);
           Inc(AddrOffset, BufSize);  { may wrap, but OK }
         end;

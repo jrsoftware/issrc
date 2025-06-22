@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Indonesian messages ***
+; *** Inno Setup version 6.4.0+ Indonesian messages ***
 ;
 ; Untuk mengunduh terjemahan kontribusi-pengguna dari berkas ini, buka:
 ;   http://www.jrsoftware.org/files/istrans/

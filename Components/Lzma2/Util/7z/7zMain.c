@@ -3,11 +3,13 @@
 
 /* Changes by Martijn Laan for Inno Setup:
    -Use CP_UTF8 in PrintString
+   -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules 
    -Change main to mainW to support Unicode archive names
-   -Add specific error text for SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
+   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
+   -Add support for overwriting read-only files
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -194,8 +196,11 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
       {
         const char defaultChar = '_';
         BOOL defUsed;
+        const BOOL codePageIsUtf7Or8 = codePage == CP_UTF7 || codePage == CP_UTF8;
+        const char *pDefaultChar = codePageIsUtf7Or8 ? NULL : &defaultChar;
+        BOOL *pDefUsed = codePageIsUtf7Or8 ? NULL : &defUsed;
         const unsigned numChars = (unsigned)WideCharToMultiByte(
-            codePage, 0, (LPCWSTR)s, (int)len, (char *)buf->data, (int)size, &defaultChar, &defUsed);
+            codePage, 0, (LPCWSTR)s, (int)len, (char *)buf->data, (int)size, pDefaultChar, pDefUsed);
         if (numChars == 0 || numChars >= size)
           return SZ_ERROR_FAIL;
         buf->data[numChars] = 0;
@@ -836,6 +841,14 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           }
           else
           {
+            #ifdef USE_WINDOWS_FILE
+            {
+              const UInt32 existingattrib = GetFileAttributesW((LPCWSTR)destPath);
+              if (existingattrib != INVALID_FILE_ATTRIBUTES && (existingattrib & FILE_ATTRIBUTE_READONLY))
+                SetFileAttributesW((LPCWSTR)destPath, existingattrib & ~FILE_ATTRIBUTE_READONLY);
+            }
+            #endif
+
             const WRes wres = OutFile_OpenUtf16(&outFile, destPath);
             if (wres != 0)
             {
@@ -846,7 +859,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           }
 
           processedSize = outSizeProcessed;
-          
+
           {
             const WRes wres = File_Write(&outFile, outBuffer + offset, &processedSize);
             if (wres != 0 || processedSize != outSizeProcessed)
@@ -954,6 +967,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("decoder doesn't support this archive");
   else if (res == SZ_ERROR_MEM)
     PrintError("cannot allocate memory");
+  else if (res == SZ_ERROR_DATA)
+    PrintError("Data error");
   else if (res == SZ_ERROR_CRC)
     PrintError("CRC error");
   else if (res == SZ_ERROR_ARCHIVE)

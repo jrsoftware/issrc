@@ -88,7 +88,7 @@ AboutSetupMenuItem=&Ezartzaileari buruz...
 AboutSetupTitle=Ezartzaileari buruz
 AboutSetupMessage=%1 bertsioa %2%n%3%n%n%1 webgunea:%n%4
 AboutSetupNote=
-TranslatorNote=TranslatorNote=Basque translation maintained by Marimar
+TranslatorNote=Basque translation maintained by Marimar
 
 ; *** Buttons
 ButtonBack=< &Atzera
@@ -155,7 +155,7 @@ WizardSelectDir=Hautatu Helmuga Kokalekua
 SelectDirDesc=Non ezarri behar da [name]?
 SelectDirLabel3=Ezartzaileak [name] hurrengo agiritegian ezarriko du.
 SelectDirBrowseLabel=Jarraitzeko, klikatu Hurrengoa. Beste agiritegi bat hautatzea nahi baduzu, klikatu Bilatu.
-DiskSpaceGBLabel=Gutxienez [gb ] GB-eko toki askea behar da diska gogorrean.
+DiskSpaceGBLabel=Gutxienez [gb] GB-eko toki askea behar da diska gogorrean.
 DiskSpaceMBLabel=Gutxienez [mb] MB-eko toki askea behar da diska gogorrean.
 CannotInstallToNetworkDrive=Ezarpena ezin da sare gidagailu batean egin.
 CannotInstallToUNCPath=Ezarpena ezin da UNC helburu batean egin.
@@ -183,13 +183,13 @@ NoUninstallWarningTitle=Osagaiak Badaude
 NoUninstallWarning=Ezartzaileak atzeman du hurrengo osagaiak jadanik zure ordenagailuan ezarrita daudela:%n%n%1%n%nOsagai hauek deshautatuz gero ez dira ezarriko.%n%nHorrela ere jarraitzea nahi duzu?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Oraingo hautapenak gutxienez [gb ] GB-eko tokia behar du diskan.
+ComponentsDiskSpaceGBLabel=Oraingo hautapenak gutxienez [gb] GB-eko tokia behar du diskan.
 ComponentsDiskSpaceMBLabel=Oraingo hautapenak gutxienez [mb] MB-eko tokia behar du diskan.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Hautatu Eginkizun Gehigarriak
 SelectTasksDesc=Zer eginkizun gehigarri burutu behar dira?
-SelectTasksLabel2=Hautatu Ezartzaileak  [name]-ren ezarpenean zehar burutzea nahi dituzun eginkizun gehigarriak, orduan klikatu Hurrengoa
+SelectTasksLabel2=Hautatu Ezartzaileak [name]-ren ezarpenean zehar burutzea nahi dituzun eginkizun gehigarriak, orduan klikatu Hurrengoa
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Hautatu Hasiera Menuko Agiritegia

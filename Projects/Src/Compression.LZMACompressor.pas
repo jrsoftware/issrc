@@ -2,7 +2,7 @@ unit Compression.LZMACompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -40,6 +40,8 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    WorkerProcessCheckTrust: Boolean;
+    WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
     constructor Create;
   end;
@@ -144,6 +146,9 @@ type
 
 implementation
 
+uses
+  Classes, TrustFunc, Shared.CommonFunc, Compiler.Messages;
+
 const
   ISLZMA_EXE_VERSION = 102;
 
@@ -155,6 +160,7 @@ type
     FThread: THandle;
     FLZMAHandle: TLZMACompressorHandle;
     FReadLock, FWriteLock, FProgressLock: Integer;
+    FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
       Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
@@ -176,6 +182,8 @@ type
   private
     FProcess: THandle;
     FSharedMapping: THandle;
+    FCheckTrust: Boolean;
+    FOnCheckedTrust: TProc<Boolean>;
     FExeFilename: String;
   public
     constructor Create(const AEvents: PLZMACompressorSharedEvents); override;
@@ -184,6 +192,8 @@ type
     procedure SetProps(const LZMA2: Boolean; const EncProps: TLZMAEncoderProps);
       override;
     procedure UnexpectedTerminationError; override;
+    property CheckTrust: Boolean read FCheckTrust write FCheckTrust;
+    property OnCheckedTrust: TProc<Boolean> read FOnCheckedTrust write FOnCheckedTrust;
     property ExeFilename: String read FExeFilename write FExeFilename;
   end;
 
@@ -433,10 +443,17 @@ end;
 
 function WorkerThreadFunc(Parameter: Pointer): Integer;
 begin
+  const T = TLZMAWorkerThread(Parameter);
   try
-    TLZMAWorkerThread(Parameter).WorkerThreadProc;
+    T.WorkerThreadProc;
   except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    T.FSavedFatalException := Ex;
   end;
+  { Be extra sure FSavedFatalException (and everything else) is made visible
+    prior to thread termination. (Likely redundant, but you never know...) }
+  MemoryBarrier;
   Result := 0;
 end;
 
@@ -460,6 +477,7 @@ begin
     LZMA_End(FLZMAHandle);
   if Assigned(FShared) then
     VirtualFree(FShared, 0, MEM_RELEASE);
+  FreeAndNil(FSavedFatalException);
   inherited;
 end;
 
@@ -472,7 +490,7 @@ procedure TLZMAWorkerThread.SetProps(const LZMA2: Boolean;
   const EncProps: TLZMAEncoderProps);
 var
   Res: TLZMASRes;
-  ThreadID: DWORD;
+  ThreadID: TThreadID;
 begin
   Res := LZMA_Init(LZMA2, FLZMAHandle);
   if Res = SZ_ERROR_MEM then
@@ -490,7 +508,16 @@ end;
 
 procedure TLZMAWorkerThread.UnexpectedTerminationError;
 begin
-  LZMAInternalError('Worker thread terminated unexpectedly');
+  if Assigned(FSavedFatalException) then begin
+    var Msg: String;
+    if FSavedFatalException is Exception then
+      Msg := (FSavedFatalException as Exception).Message
+    else
+      Msg := FSavedFatalException.ClassName;
+    LZMAInternalErrorFmt('Worker thread terminated unexpectedly with exception: %s',
+      [Msg]);
+  end else
+    LZMAInternalError('Worker thread terminated unexpectedly; no exception');
 end;
 
 procedure TLZMAWorkerThread.WorkerThreadProc;
@@ -749,12 +776,26 @@ begin
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_FORCEOFFFEEDBACK;
-    if not CreateProcess(PChar(FExeFilename),
-       PChar(Format('islzma_exe %d 0x%x', [ISLZMA_EXE_VERSION, ProcessDataMapping])),
-       nil, nil, True, CREATE_DEFAULT_ERROR_MODE or CREATE_SUSPENDED, nil,
-       PChar(GetSystemDir), StartupInfo, ProcessInfo) then
-      LZMAWin32Error('CreateProcess');
 
+    var F: TFileStream := nil;
+    if FCheckTrust then begin
+      try
+        F := CheckFileTrust(FExeFilename, [cftoKeepOpen]);
+      except
+        LZMAInternalError(Format(SCompilerCheckPrecompiledFileTrustError, [GetExceptMessage]));
+      end;
+    end;
+    if Assigned(FOnCheckedTrust) then
+      FOnCheckedTrust(FCheckTrust);
+    try
+      if not CreateProcess(PChar(FExeFilename),
+         PChar(Format('islzma_exe %d 0x%x', [ISLZMA_EXE_VERSION, ProcessDataMapping])),
+         nil, nil, True, CREATE_DEFAULT_ERROR_MODE or CREATE_SUSPENDED, nil,
+         PChar(GetSystemDir), StartupInfo, ProcessInfo) then
+        LZMAWin32Error('CreateProcess');
+    finally
+      F.Free;
+    end;
     try
       { We duplicate the handles instead of using inheritable handles so that
         if something outside this unit calls CreateProcess() while compression
@@ -847,7 +888,6 @@ const
 var
   EncProps: TLZMAEncoderProps;
   Props: TLZMACompressorProps;
-  WorkerProcessFilename: String;
 begin
   if (CompressionLevel < Low(algorithm)) or (CompressionLevel > High(algorithm)) then
     LZMAInternalError('TLZMACompressor.Create got invalid CompressionLevel ' + IntToStr(CompressionLevel));
@@ -859,6 +899,10 @@ begin
   EncProps.NumBlockThreads := -1;
   EncProps.NumFastBytes := numFastBytes[CompressionLevel];
   EncProps.NumThreads := -1;
+
+  var WorkerProcessCheckTrust := False;
+  var WorkerProcessOnCheckedTrust: TProc<Boolean> := nil;
+  var WorkerProcessFilename := '';
 
   if ACompressorProps is TLZMACompressorProps then begin
     Props := (ACompressorProps as TLZMACompressorProps);
@@ -875,14 +919,19 @@ begin
       EncProps.NumFastBytes := Props.NumFastBytes;
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
+    WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
+    WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
   end;
 
   EncProps.NumHashBytes := numHashBytes[EncProps.BTMode = 1];
 
   if WorkerProcessFilename <> '' then begin
-    FWorker := TLZMAWorkerProcess.Create(@FEvents);
-    (FWorker as TLZMAWorkerProcess).ExeFilename := WorkerProcessFilename;
+    const LZMAWorker = TLZMAWorkerProcess.Create(@FEvents);
+    FWorker := LZMAWorker;
+    LZMAWorker.CheckTrust := WorkerProcessCheckTrust;
+    LZMAWorker.OnCheckedTrust := WorkerProcessOnCheckedTrust;
+    LZMAWorker.ExeFilename := WorkerProcessFilename;
   end
   else begin
     if not LZMADLLInitialized then

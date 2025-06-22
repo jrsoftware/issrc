@@ -65,7 +65,9 @@
 <!ELEMENT pre %Inline;>
 <!ELEMENT precode %Inline;>
 <!ELEMENT example %InlineOrBlock;>
+<!ATTLIST example noheader CDATA #IMPLIED>
 <!ELEMENT examples %InlineOrBlock;>
+<!ATTLIST examples noheader CDATA #IMPLIED>
 <!ELEMENT indent %Block;>
 
 <!-- Fancier block elements -->

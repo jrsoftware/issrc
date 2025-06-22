@@ -188,7 +188,7 @@ begin
     'GetFinalPathNameByHandleW');
   if Assigned(GetFinalPathNameByHandleFunc) then begin
     Attr := GetFileAttributes(PChar(Filename));
-    if Attr <> $FFFFFFFF then begin
+    if Attr <> INVALID_FILE_ATTRIBUTES then begin
       { Backup semantics must be requested in order to open a directory }
       if Attr and FILE_ATTRIBUTE_DIRECTORY <> 0 then
         FlagsAndAttributes := FILE_FLAG_BACKUP_SEMANTICS

@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Armenian messages ***
+; *** Inno Setup version 6.4.0+ Armenian messages ***
 ;
 ; Armenian translation by Hrant Ohanyan
 ; E-mail: h.ohanyan@haysoft.org

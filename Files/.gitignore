@@ -3,3 +3,5 @@
 *.e32
 *.dll
 *.exe
+/ISCmplr.dll.issig
+/ISPP.dll.issig

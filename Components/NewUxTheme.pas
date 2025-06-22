@@ -1103,7 +1103,7 @@ const
   themelib = 'uxtheme.dll';
 
 var
-  ThemeLibrary: THandle;
+  ThemeLibrary: HMODULE;
   ReferenceCount: Integer;  // We have to keep track of several load/unload calls.
 
 procedure FreeThemeLibrary;

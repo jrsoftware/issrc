@@ -1,12 +1,12 @@
-﻿; *** Inno Setup version 6.4.0+ Dutch messages ***
+; *** Inno Setup version 6.5.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
 ; Maintained by Martijn Laan (mlaan@innosetup.nl)
-                                     
-[LangOptions]                
-LanguageName=Nederlands      
-LanguageID=$0413 
+
+[LangOptions]
+LanguageName=Nederlands
+LanguageID=$0413
 LanguageCodePage=1252
 
 [Messages]
@@ -30,8 +30,8 @@ LdrCannotExecTemp=Kan een bestand in de tijdelijke map niet uitvoeren. Setup wor
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nFout %2: %3
 SetupFileMissing=Het bestand %1 ontbreekt in de installatiemap. Corrigeer dit probleem of gebruik een andere kopie van het programma.
-SetupFileCorrupt=De installatiebestanden zijn beschadigd. Gebruik een andere kopie van het programma.
-SetupFileCorruptOrWrongVer=De installatiebestanden zijn beschadigd, of zijn niet compatibel met deze versie van Setup. Corrigeer dit probleem of gebruik een andere kopie van het programma.
+SetupFileCorrupt=De installatiebestanden zijn corrupt. Gebruik een andere kopie van het programma.
+SetupFileCorruptOrWrongVer=De installatiebestanden zijn corrupt, of zijn niet compatibel met deze versie van Setup. Corrigeer dit probleem of gebruik een andere kopie van het programma.
 InvalidParameter=Er werd een ongeldige schakeloptie opgegeven op de opdrachtregel:%n%n%1
 SetupAlreadyRunning=Setup is al gestart.
 WindowsVersionNotSupported=Dit programma ondersteunt de versie van Windows die u gebruikt niet.
@@ -67,7 +67,7 @@ AboutSetupMenuItem=&Over Setup...
 AboutSetupTitle=Over Setup
 AboutSetupMessage=%1 versie %2%n%3%n%n%1-homepage:%n%4
 AboutSetupNote=
-TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@jrsoftware.org)
+TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@innosetup.nl)
 
 ; *** Buttons
 ButtonBack=< Vo&rige
@@ -175,7 +175,7 @@ SelectStartMenuFolderDesc=Waar moeten de snelkoppelingen van het programma gepla
 SelectStartMenuFolderLabel3=Setup plaatst de snelkoppelingen van het programma in de volgende menu Start map.
 SelectStartMenuFolderBrowseLabel=Klik op Volgende om door te gaan. Klik op Bladeren om een andere map te kiezen.
 MustEnterGroupName=U moet een mapnaam invoeren.
-GroupNameTooLong=De mapnaam of het pad is te lang. 
+GroupNameTooLong=De mapnaam of het pad is te lang.
 InvalidGroupName=De mapnaam is ongeldig.
 BadGroupName=De mapnaam mag geen van de volgende tekens bevatten:%n%n%1
 NoProgramGroupCheck2=&Geen menu Start map maken
@@ -193,29 +193,32 @@ ReadyMemoGroup=Menu Start map:
 ReadyMemoTasks=Extra taken:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Bezig met het downloaden van extra bestanden...
+DownloadingLabel2=Bezig met het downloaden van bestanden...
 ButtonStopDownload=&Stop downloaden
 StopDownload=Weet u zeker dat u het downloaden wilt stoppen?
 ErrorDownloadAborted=Downloaden gestopt
 ErrorDownloadFailed=Downloaden mislukt: %1 %2
 ErrorDownloadSizeFailed=Ophalen grootte mislukt: %1 %2
-ErrorFileHash1=Bestand hashing mislukt: %1
-ErrorFileHash2=Ongeldige bestandshash: %1 verwacht, %2 gevonden
 ErrorProgress=Ongeldige voortgang: %1 van %2
 ErrorFileSize=Ongeldige bestandsgrootte: %1 verwacht, %2 gevonden
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Bezig met het uitpakken van extra bestanden...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Bezig met het uitpakken van bestanden...
 ButtonStopExtraction=&Stop uitpakken
 StopExtraction=Weet u zeker dat u het uitpakken wilt stoppen?
 ErrorExtractionAborted=Uitpakken gestopt
 ErrorExtractionFailed=Uitpakken mislukt: %1
 
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Het wachtwoord is niet correct
+ArchiveIsCorrupted=Het archief is corrupt
+ArchiveUnsupportedFormat=Het archief formaat wordt niet ondersteund
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Bezig met het voorbereiden van de installatie
 PreparingDesc=Setup is bezig met het voorbereiden van de installatie van [name].
 PreviousInstallNotCompleted=De installatie/verwijdering van een vorig programma is niet voltooid. U moet uw computer opnieuw opstarten om die installatie te voltooien.%n%nStart Setup nogmaals nadat uw computer opnieuw is opgestart om de installatie van [name] te voltooien.
-CannotContinue=Setup kan niet doorgaan. Klik op annuleren om af te sluiten.
+CannotContinue=Setup kan niet doorgaan. Klik op Annuleren om af te sluiten.
 ApplicationsFound=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten.
 ApplicationsFound2=De volgende programma's gebruiken bestanden die moeten worden bijgewerkt door Setup. U wordt aanbevolen Setup toe te staan om automatisch deze programma's af te sluiten. Nadat de installatie is voltooid zal Setup proberen de applicaties opnieuw op te starten.
 CloseApplications=&Programma's automatisch afsluiten
@@ -253,11 +256,15 @@ AbortRetryIgnoreSelectAction=Selecteer actie
 AbortRetryIgnoreRetry=&Probeer opnieuw
 AbortRetryIgnoreIgnore=&Negeer de fout en ga door
 AbortRetryIgnoreCancel=Breek installatie af
+RetryCancelSelectAction=Selecteer actie
+RetryCancelRetry=&Probeer opnieuw
+RetryCancelCancel=Annuleren
 
 ; *** Installation status messages
 StatusClosingApplications=Programma's afsluiten...
 StatusCreateDirs=Mappen maken...
 StatusExtractFiles=Bestanden uitpakken...
+StatusDownloadFiles=Bestanden downloaden...
 StatusCreateIcons=Snelkoppelingen maken...
 StatusCreateIniEntries=INI-gegevens instellen...
 StatusCreateRegistryEntries=Registergegevens instellen...
@@ -285,8 +292,16 @@ ErrorIniEntry=Fout bij het maken van een INI-instelling in bestand "%1".
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Sla dit bestand over (niet aanbevolen)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Negeer de fout en ga door (niet aanbevolen)
-SourceIsCorrupted=Het bronbestand is beschadigd
+SourceIsCorrupted=Het bronbestand is corrupt
 SourceDoesntExist=Het bronbestand "%1" bestaat niet
+SourceVerificationFailed=Verificatie van het bronbestand is mislukt: %1
+VerificationSignatureDoesntExist=Het handtekeningbestand "%1" bestaat niet
+VerificationSignatureInvalid=Het handtekeningbestand "%1" is ongeldig
+VerificationKeyNotFound=Het handtekeningbestand "%1" gebruikt een onbekende sleutel
+VerificationFileNameIncorrect=De naam van het bestand is niet correct
+VerificationFileTagIncorrect=De tag van het bestand is niet correct
+VerificationFileSizeIncorrect=De grootte van het bestand is niet correct
+VerificationFileHashIncorrect=De hash van het bestand is niet correct
 ExistingFileReadOnly2=Het bestaande bestand kon niet vervangen worden omdat het een alleen-lezen markering heeft.
 ExistingFileReadOnlyRetry=&Verwijder de alleen-lezen markering en probeer het opnieuw
 ExistingFileReadOnlyKeepExisting=&Behoud het bestaande bestand
@@ -305,6 +320,8 @@ ErrorChangingAttr=Er is een fout opgetreden bij het wijzigen van de kenmerken va
 ErrorCreatingTemp=Er is een fout opgetreden bij het maken van een bestand in de doelmap:
 ErrorReadingSource=Er is een fout opgetreden bij het lezen van het bronbestand:
 ErrorCopying=Er is een fout opgetreden bij het kopiëren van een bestand:
+ErrorDownloading=Er is een fout opgetreden bij het downloaden van een bestand:
+ErrorExtracting=Er is een fout opgetreden bij het uitpakken van een archief:
 ErrorReplacingExistingFile=Er is een fout opgetreden bij het vervangen van het bestaande bestand:
 ErrorRestartReplace=Vervangen na opnieuw starten is mislukt:
 ErrorRenamingTemp=Er is een fout opgetreden bij het hernoemen van een bestand in de doelmap:
@@ -326,7 +343,7 @@ ErrorRestartingComputer=Setup kan de computer niet opnieuw opstarten. Doe dit ha
 
 ; *** Uninstaller messages
 UninstallNotFound=Bestand "%1" bestaat niet. Kan het programma niet verwijderen.
-UninstallUnsupportedVer=Het installatie-logbestand "%1" heeft een formaat dat niet herkend wordt door deze versie van het verwijderprogramma. Kan het programma niet verwijderen
+UninstallUnsupportedVer=Het installatie-logbestand "%1" heeft een formaat dat niet ondersteund wordt door deze versie van het verwijderprogramma. Kan het programma niet verwijderen
 UninstallUnknownEntry=Er is een onbekend gegeven (%1) aangetroffen in het installatie-logbestand
 ConfirmUninstall=Weet u zeker dat u %1 en alle bijbehorende componenten wilt verwijderen?
 UninstallOnlyOnWin64=Deze installatie kan alleen worden verwijderd onder 64-bit Windows.
@@ -336,7 +353,7 @@ UninstallOpenError=Bestand "%1" kon niet worden geopend. Kan het verwijderen nie
 UninstalledAll=%1 is met succes van deze computer verwijderd.
 UninstalledMost=Het verwijderen van %1 is voltooid.%n%nEnkele elementen konden niet verwijderd worden. Deze kunnen handmatig verwijderd worden.
 UninstalledAndNeedsRestart=Om het verwijderen van %1 te voltooien, moet uw computer opnieuw worden opgestart.%n%nWilt u nu opnieuw opstarten?
-UninstallDataCorrupted="%1" bestand is beschadigd. Kan verwijderen niet voltooien
+UninstallDataCorrupted="%1" bestand is corrupt. Kan verwijderen niet voltooien
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Gedeeld bestand verwijderen?

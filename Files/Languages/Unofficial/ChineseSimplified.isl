@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Chinese Simplified messages ***
+; *** Inno Setup version 6.4.0+ Chinese Simplified messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/

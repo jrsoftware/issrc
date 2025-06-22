@@ -2,7 +2,7 @@ unit Compiler.CompressionHandler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,13 +12,14 @@ unit Compiler.CompressionHandler;
 interface
 
 uses
+  Classes,
   SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
-  Compiler.StringLists, Compiler.SetupCompiler;
+  Compiler.SetupCompiler;
 
 type
   TCompressionHandler = class
   private
-    FCachedCompressors: TLowFragList;
+    FCachedCompressors: TList;
     FCompiler: TSetupCompiler;
     FCompressor: TCustomCompressor;
     FChunkBytesRead: Integer64;
@@ -40,7 +41,7 @@ type
     constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
     destructor Destroy; override;
     procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
-      const CallOptimize: Boolean; var SHA256Sum: TSHA256Digest);
+      const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
     procedure EndChunk;
     procedure Finish;
     procedure NewChunk(const ACompressorClass: TCustomCompressorClass;
@@ -69,7 +70,7 @@ begin
   inherited Create;
   FCompiler := ACompiler;
   FCurSlice := -1;
-  FCachedCompressors := TLowFragList.Create;
+  FCachedCompressors := TList.Create;
   NewSlice(InitialSliceFilename);
 end;
 
@@ -214,10 +215,8 @@ begin
   FChunkStartOffset := FDestFile.Position.Lo - FSliceBaseOffset;
   FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
   Dec(FSliceBytesLeft, SizeOf(ZLIBID));
-  FChunkBytesRead.Hi := 0;
-  FChunkBytesRead.Lo := 0;
-  FChunkBytesWritten.Hi := 0;
-  FChunkBytesWritten.Lo := 0;
+  FChunkBytesRead := To64(0);
+  FChunkBytesWritten := To64(0);
   FInitialBytesCompressedSoFar := FCompiler.GetBytesCompressedSoFar;
 
   SelectCompressor;
@@ -243,7 +242,7 @@ begin
 end;
 
 procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
-  Bytes: Integer64; const CallOptimize: Boolean; var SHA256Sum: TSHA256Digest);
+  Bytes: Integer64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
 var
   Context: TSHA256Context;
   AddrOffset: LongWord;

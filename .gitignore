@@ -1,5 +1,6 @@
 /c.bat
 /compilesettings.bat
+/setup-presign.bat
 /setup-sign.bat
 /Output
 

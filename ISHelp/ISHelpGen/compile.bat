@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2022 Jordan Russell
+rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -22,12 +22,20 @@ set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
+set DELPHIXELIB=%DELPHIXEROOT%\lib\win32\release
+
 rem -------------------------------------------------------------------------
 
 set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
 
+set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1
+set FLAGSCONSOLE=%FLAGS% -CC
+set NAMESPACES=System;System.Win;Winapi
+set DCUDIR=Dcu\Release
+
 echo Compiling ISHelpGen.dpr:
-"%DELPHIXEROOT%\bin\dcc32.exe" --no-config -NSsystem;system.win;winapi -Q -B -H -W %DELPHIXEDISABLEDWARNINGS% %1 -U"%DELPHIXEROOT%\lib\win32\release" ISHelpGen.dpr
+mkdir %DCUDIR%\ISHelpGen.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\ISHelpGen.dpr ISHelpGen.dpr
 if errorlevel 1 goto failed
 
 echo Success!

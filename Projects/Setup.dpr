@@ -95,7 +95,12 @@ uses
   PBKDF2 in '..\Components\PBKDF2.pas',
   Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas',
   PSStackHelper in '..\Components\PSStackHelper.pas',
-  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas';
+  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas',
+  Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
+  Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -300,7 +305,7 @@ begin
     Application.MainFormOnTaskBar := True;
     InitializeSetup;
     MainForm := TMainForm.Create(Application);
-    MainForm.InitializeWizard;
+    InitializeWizard;
   except
     { Halt on any exception }
     ShowExceptionMsg;
