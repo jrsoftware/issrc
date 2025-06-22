@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 19.06.2025  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 22.06.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -287,6 +287,7 @@ AbortRetryIgnoreIgnore=&Ignora questo errore e continua
 AbortRetryIgnoreCancel=Annulla installazione
 RetryCancelSelectAction=Seleziona azione
 RetryCancelRetry=&Riprova
+RetryCancelCancel=Annulla
 
 ; *** Installation status messages
 StatusClosingApplications=Chiusura applicazioni...
