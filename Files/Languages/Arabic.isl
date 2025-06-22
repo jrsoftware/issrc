@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ arabic messages ***
+; *** Inno Setup version 6.5.0+ arabic messages ***
 ; Arabic translation  Translated by nacer baaziz (nacerstile@gmail.com)
 ;
 ; To download user-contributed translations of this file, go to:
@@ -219,10 +219,8 @@ StopDownload=هل أنت متأكد من أنك ترغب في إيقاف الت�
 ErrorDownloadAborted=تم إلغاء التحميل
 ErrorDownloadFailed=فشل تحميل: %1 %2
 ErrorDownloadSizeFailed=خطأ في قراءة الحجم: %1 %2
-ErrorFileHash1=خطأ في قراءة الهاش الخاص بالملف: %1
-ErrorFileHash2=خطأ في هاش الملف: كان من المتوقع أن يكن : %1, بينما تم إيجاد : %2
-ErrorProgress=خطأ في الحصول على نسبة التقدم: %1 من %2
-ErrorFileSize=خطأ في حجم الملف: المتوقع هو : %1, الحجم الذي وجدناه هو : %2
+ErrorProgress=تقدم غير صالح: %1 من %2
+ErrorFileSize=حجم الملف غير صالح: المتوقع %1، الموجود %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
 ExtractionLabel=جاري فك ضغط الملفات الإضافية...
@@ -230,6 +228,11 @@ ButtonStopExtraction=إي&قاف فك الضغط
 StopExtraction=هل حقا ترغب في إيقاف فك الضغط?
 ErrorExtractionAborted=تم إيقاف عملية فك الضغط
 ErrorExtractionFailed=فشل فك الضغط : %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=كلمة المرور خاطئة
+ArchiveIsCorrupted=الأرشيف تالف
+ArchiveUnsupportedFormat=صيغة الأرشيف غير مدعومة
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=التحضير للتثبيت
@@ -275,11 +278,15 @@ AbortRetryIgnoreSelectAction=حدد إجراء
 AbortRetryIgnoreRetry=&حاول مجددا
 AbortRetryIgnoreIgnore=&تجاهل الخطأ والمتابعة
 AbortRetryIgnoreCancel=إلغاء التثبيت
+RetryCancelSelectAction=قم بتحديد إجراء
+RetryCancelRetry=&حاول مجددا
+RetryCancelCancel=إلغاء
 
 ; *** Installation status messages
 StatusClosingApplications=جاري إغلاق التطبيقات...
 StatusCreateDirs=جاري إنشاء المجلدات...
 StatusExtractFiles=يتم استخراج الملفات...
+StatusDownloadFiles=جاري تحميل الملفات...
 StatusCreateIcons=يجري إنشاء الإختصارات...
 StatusCreateIniEntries=يتم إنشاء مدخلات INI...
 StatusCreateRegistryEntries=يجري الآن إنشاء مفاتيح السجل...
@@ -308,6 +315,14 @@ ErrorIniEntry=حدث خطأ في إنشاء إدخال INI في الملف "%1".
 FileAbortRetryIgnoreSkipNotRecommended=&تخطي هذا الملف (غير مستحسن)
 FileAbortRetryIgnoreIgnoreNotRecommended=&تجاهل الخطأ والمتابعة (غير مستحسن)
 SourceIsCorrupted=الملف المصدر تالف
+SourceVerificationFailed=فشل التحقق من الملف المصدر: %1
+VerificationSignatureDoesntExist=ملف التوقيع "%1" غير موجود
+VerificationSignatureInvalid=ملف التوقيع "%1" غير صالح
+VerificationKeyNotFound=ملف التوقيع "%1" يستخدم مفتاحًا غير معروف
+VerificationFileNameIncorrect=اسم الملف غير صحيح
+VerificationFileTagIncorrect=علامة الملف غير صحيحة
+VerificationFileSizeIncorrect=حجم الملف غير صحيح
+VerificationFileHashIncorrect=تجزئة الملف (hash) غير صحيحة
 SourceDoesntExist=الملف "%1"غير موجود
 ExistingFileReadOnly2=تعذر استبدال الملف الموجود لأنه تم تحديده للقراءة فقط.
 ExistingFileReadOnlyRetry=&أزل وضع القراءة فقط عن الملفات ثم حاول مرة أخرى
@@ -327,6 +342,8 @@ ErrorChangingAttr=حدث خطأ أثناء محاولة تغيير سمات ال
 ErrorCreatingTemp=حدث خطأ أثناء محاولة إنشاء ملف في الدليل الوجهة:
 ErrorReadingSource=حدث خطأ أثناء محاولة قراءة ملف مصدر:
 ErrorCopying=حدث خطأ أثناء محاولة نسخ ملف:
+ErrorDownloading=حدث خطأ عند محاولة تحميل الملف :
+ErrorExtracting=حدث خطأ عند محاولة استخراج ملفات الأرشيف :
 ErrorReplacingExistingFile=حدث خطأ أثناء محاولة استبدال الملف الموجود:
 ErrorRestartReplace=فشل إعادة تشغيل "استبدال":
 ErrorRenamingTemp=حدث خطأ أثناء محاولة إعادة تسمية ملف في الدليل الوجهة:
