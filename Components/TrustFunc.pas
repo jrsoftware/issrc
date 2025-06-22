@@ -26,13 +26,13 @@ type
   TLoadTrustedLibraryOption = (ltloTrustAllOnDebug);
   TLoadTrustedLibraryOptions = set of TLoadTrustedLibraryOption;
 
-function CheckFileTrust(const FileName: String; const Options: TCheckFileTrustOptions): TFileStream;
-function LoadTrustedLibrary(const FileName: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
+function CheckFileTrust(const Filename: String; const Options: TCheckFileTrustOptions): TFileStream;
+function LoadTrustedLibrary(const Filename: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
 
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc {$ENDIF};
+  Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc, PathFunc {$ENDIF};
 
 function Win32ErrorString(ErrorCode: Integer): String;
 { Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
@@ -49,13 +49,13 @@ begin
   SetString(Result, Buffer, Len);
 end;
 
-function CheckFileTrust(const FileName: String; const Options: TCheckFileTrustOptions): TFileStream;
+function CheckFileTrust(const Filename: String; const Options: TCheckFileTrustOptions): TFileStream;
 {$IFNDEF TRUSTALL}
 var
   AllowedKeys: array of TECDSAKey;
 {$ENDIF}
 begin
-  var Attr := GetFileAttributes(PChar(FileName));
+  var Attr := GetFileAttributes(PChar(Filename));
   if (Attr = INVALID_FILE_ATTRIBUTES) or (Attr and faDirectory <> 0) then
     raise Exception.Create(Win32ErrorString(ERROR_FILE_NOT_FOUND));
 {$IFNDEF TRUSTALL}
@@ -63,6 +63,7 @@ begin
   if cftoTrustAllOnDebug in Options then
     Exit(nil);
 {$ENDIF}
+  var ExpectedFileName: String;
   var ExpectedFileSize: Int64;
   var ExpectedFileHash: TSHA256Digest;
 
@@ -87,15 +88,15 @@ begin
       AllowedKeys := [Key1];
 
     { Verify signature }
-    if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileSize, ExpectedFileHash,
+    if not ISSigVerifySignature(Filename, AllowedKeys, ExpectedFileName, ExpectedFileSize, ExpectedFileHash,
       nil,
       procedure(const Filename, SigFilename: String)
       begin
-        raise Exception.CreateFmt('Signature file "%s" does not exist', [SigFileName]);
+        raise Exception.CreateFmt('Signature file "%s" does not exist', [SigFilename]);
       end,
       procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
       begin
-        raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFileName]);
+        raise Exception.CreateFmt('Signature file "%s" is not valid', [SigFilename]);
       end
     ) then
       raise Exception.Create('Unexpected ISSigVerifySignature result');
@@ -105,15 +106,15 @@ begin
   end;
   
   { Verify file, keeping open afterwards if requested
-    Also see Setup.ScriptFunc's ISSigVerify }
-  var F := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+    Also see Setup.ScriptFunc's ISSigVerify which can also keep open afterwards }
+  if (ExpectedFileName <> '') and not PathSame(PathExtractName(Filename), ExpectedFileName) then
+    raise Exception.CreateFmt('File "%s" is not trusted (incorrect name).', [Filename]);
+  var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
   try
     if F.Size <> ExpectedFileSize then
-      raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).',
-        [FileName]);
+      raise Exception.CreateFmt('File "%s" is not trusted (incorrect size).', [Filename]);
     if not SHA256DigestsEqual(ISSigCalcStreamHash(F), ExpectedFileHash) then
-      raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).',
-        [FileName]);
+      raise Exception.CreateFmt('File "%s" is not trusted (incorrect hash).', [Filename]);
   except
     FreeAndNil(F);
     raise;
@@ -127,21 +128,21 @@ begin
 {$ENDIF}
 end;
 
-function DoLoadLibrary(const FileName: String): HMODULE;
+function DoLoadLibrary(const Filename: String): HMODULE;
 begin
-  Result := SafeLoadLibrary(PChar(FileName), SEM_NOOPENFILEERRORBOX);
+  Result := SafeLoadLibrary(PChar(Filename), SEM_NOOPENFILEERRORBOX);
   if Result = 0 then
     raise Exception.Create(Win32ErrorString(GetLastError));
 end;
 
-function LoadTrustedLibrary(const FileName: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
+function LoadTrustedLibrary(const Filename: String; const Options: TLoadTrustedLibraryOptions): HMODULE;
 begin
   var CheckFileTrustOptions: TCheckFileTrustOptions := [cftoKeepOpen];
   if ltloTrustAllOnDebug in Options then
     Include(CheckFileTrustOptions, cftoTrustAllOnDebug);
-  const F = CheckFileTrust(FileName, CheckFileTrustOptions);
+  const F = CheckFileTrust(Filename, CheckFileTrustOptions);
   try
-    Result := DoLoadLibrary(FileName);
+    Result := DoLoadLibrary(Filename);
   finally
     F.Free;
   end;

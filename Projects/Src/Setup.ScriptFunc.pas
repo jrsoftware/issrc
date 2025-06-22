@@ -1882,7 +1882,7 @@ var
       const KeepOpen = Stack.GetBool(PStart-3);
 
       { Verify signature & file, keeping open afterwards if requested
-        Also see TrustFunc's CheckFileTrust }
+        Also see TrustFunc's CheckFileTrust which can also keep open afterwards }
       var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
       try
         var ExpectedFileHash: TSHA256Digest;
