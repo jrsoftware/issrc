@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Hebrew messages (s_h(at)enativ.com) ***
+; *** Inno Setup version 6.5.0+ Hebrew messages (s_h(at)enativ.com) ***
 ;
 ;   https://jrsoftware.org/files/istrans/
 ;	Translated by s_h (s_h@enativ.com) (c) 2020
@@ -206,7 +206,7 @@ ReadyMemoGroup=תיקיה בתפריט 'התחל':
 ReadyMemoTasks=משימות נוספות לביצוע:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=מוריד קבצים נדרשים...
+DownloadingLabel2=מוריד קבצים...
 ButtonStopDownload=&עצור הורדה
 StopDownload=אתה בטוח שאתה מעוניין לעצור את ההורדה?
 ErrorDownloadAborted=הורדה בוטלה
@@ -217,12 +217,17 @@ ErrorFileHash2=מזהה קובץ לא חוקי: מצופה %2, נמצא %2
 ErrorProgress=תהליך לא חוקי: %1 מתוך %1
 ErrorFileSize=גודל קובץ לא חוקי: מצופה %1, נמצא %1
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=מחלץ קבצים נוספים...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=מחלץ קבצים...
 ButtonStopExtraction=&עצור חילוץ
 StopExtraction=אתה בטוח שאתה מעוניין לעצור את חילוץ הקבצים?
 ErrorExtractionAborted=חילוץ בוטל
 ErrorExtractionFailed=החילוץ נכשל: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=הסיסמה שגויה
+ArchiveIsCorrupted=הארכיון פגום
+ArchiveUnsupportedFormat=הארכיון הינו בפורמט שאינו נתמך
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=מתכונן להתקנה
@@ -268,11 +273,15 @@ AbortRetryIgnoreSelectAction=בחר פעולה
 AbortRetryIgnoreRetry=&נסה שוב
 AbortRetryIgnoreIgnore=&התעלם מהשגיאה והמשך בהתקנה
 AbortRetryIgnoreCancel=בטל התקנה
+RetryCancelSelectAction=בחר פעולה
+RetryCancelRetry=&נסה שוב
+RetryCancelCancel=ביטול
 
 ; *** Installation status messages
 StatusClosingApplications=סוגר יישומים...
 StatusCreateDirs=יוצר תיקיות...
 StatusExtractFiles=מעתיק קבצים...
+StatusDownloadFiles=מוריד קבצים...
 StatusCreateIcons=יוצר קיצורי דרך...
 StatusCreateIniEntries=יוצר רשומות INI...
 StatusCreateRegistryEntries=יוצר רשומות בקובץ הרישום...
@@ -302,6 +311,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&דלג על קובץ זה (לא מומלץ)
 FileAbortRetryIgnoreIgnoreNotRecommended=&התעלם מהשגיאה והמשך (לא מומלץ)
 SourceIsCorrupted=קובץ המקור קטוע
 SourceDoesntExist=קובץ המקור "%1" אינו קיים
+SourceVerificationFailed=אימות קובץ המקור נכשל: %1
+VerificationSignatureDoesntExist=קובץ החותמת "%1" אינו קיים
+VerificationSignatureInvalid=קובץ החותמת "%1" אינו חוקי
+VerificationKeyNotFound=קובץ החותמת "%1" משצמש במפתח שאינו מוכר
+VerificationFileNameIncorrect=שם הקובץ אינו חוקי
+VerificationFileTagIncorrect=התגית של הקובץ אינה חוקית
+VerificationFileSizeIncorrect=גודל הקובץ אינו חוקי
+VerificationFileHashIncorrect=ההאש של הקובץ אינו חוקי
 ExistingFileReadOnly2=לא ניתן לשכתב את הקובץ הקיים כיון שהוא מוגדר לקריאה בלבד.
 ExistingFileReadOnlyRetry=&הסר את תוכנת קריאה בלבד ונסה שוב
 ExistingFileReadOnlyKeepExisting=&השאר את הקובץ הקיים
@@ -320,6 +337,8 @@ ErrorChangingAttr=שגיאה בעת נסיון לשנות מאפיינים של הקובץ הקיים:
 ErrorCreatingTemp=שגיאה בעת נסיון ליצור קובץ בתיקיית היעד:
 ErrorReadingSource=שגיאה בעת קריאת קובץ המקור:
 ErrorCopying=שגיאה בעת העתקת קובץ:
+ErrorDownloading=שגיאה התרחשה בעת הנסיון להוריד את הקובץ:
+ErrorExtracting=שגיאה התרחשה בעת נסיון לחלץ את הארכיון:
 ErrorReplacingExistingFile=שגיאה בעת נסיון להחליף את הקובץ הקיים:
 ErrorRestartReplace=כשל ב-RestartReplace:
 ErrorRenamingTemp=שגיאה בעת נסיון לשנות שם קובץ בתיקיית היעד:
