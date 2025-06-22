@@ -1,13 +1,13 @@
 ; *** Inno Setup version 6.5.0+ Korean messages ***
 
+; ▒ Contributors:
 ; ▒ 6.3.0 ~ 6.5.0 Translator: VenusGirl (venusgirl@outlook.com)
 ; ▒ 6.2.0 Translator: Logan.Hwang (logan.hwang@blueant.kr)
 ; ▒ 6.0.3 Translator: SungDong Kim (acroedit@gmail.com)
 ; ▒ 5.5.3 Translator: Domddol (domddol@gmail.com)
-; ▒ Contributors: Hansoo KIM (iryna7@gmail.com), Woong-Jae An (a183393@hanmail.net)
 ; ▒ 이 번역은 한국어 맞춤법을 준수합니다.
 ;
-; 이 파일의 사용자 제공 번역을 다운로드하려면 다음으로 이동하세요:
+; 이 파일의 사용자 기여 번역을 다운로드하려면 다음으로 이동하세요:
 ;   https://jrsoftware.org/files/istrans/
 
 ; 참고: 이 텍스트를 번역할 때는 InnoSetup 메시지에
@@ -38,7 +38,7 @@ LanguageCodePage=949
 
 ; *** Application titles
 SetupAppTitle=설치
-SetupWindowTitle=%1 설치
+SetupWindowTitle=설치 - %1
 UninstallAppTitle=제거
 UninstallAppFullTitle=%1 제거
 
@@ -73,14 +73,14 @@ SetupAppRunningError=설치에서 %1이(가) 현재 실행 중임을 감지했�
 UninstallAppRunningError=제거에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=설치 모드 선택
+PrivilegesRequiredOverrideTitle=설치 모드 설정 선택
 PrivilegesRequiredOverrideInstruction=설치 모드를 선택해 주세요
 PrivilegesRequiredOverrideText1=%1은 모든 사용자 (관리자 권한 필요) 또는 사용자용으로 설치합니다.
 PrivilegesRequiredOverrideText2=%1은 현재 사용자 또는 모든 사용자 (관리자 권한 필요)용으로 설치합니다.
 PrivilegesRequiredOverrideAllUsers=모든 사용자용으로 설치(&A)
-PrivilegesRequiredOverrideAllUsersRecommended=모든 사용자용으로 설치 (추천)(&A)
+PrivilegesRequiredOverrideAllUsersRecommended=모든 사용자용으로 설치 (권장)(&A)
 PrivilegesRequiredOverrideCurrentUser=현재 사용자용으로 설치(&M)
-PrivilegesRequiredOverrideCurrentUserRecommended=현재 사용자용으로 설치 (추천)(&M)
+PrivilegesRequiredOverrideCurrentUserRecommended=현재 사용자용으로 설치 (권장)(&M)
 
 ; *** Misc. errors
 ErrorCreatingDir=설치 프로그램에서 "%1" 디렉터리를 만들지 못했습니다.
@@ -220,20 +220,20 @@ ReadyMemoGroup=시작 메뉴 폴더:
 ReadyMemoTasks=추가 작업:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=추가 파일 다운로드 중...
+DownloadingLabel2=파일 다운로드 중...
 ButtonStopDownload=다운로드 중지(&S)
 StopDownload=다운로드를 중지하시겠습니까?
-ErrorDownloadAborted=다운로드가 중지되었습니다
+ErrorDownloadAborted=다운로드가 중단되었습니다
 ErrorDownloadFailed=다운로드에 실패했습니다: %1 %2
 ErrorDownloadSizeFailed=크기를 가져오지 못했습니다: %1 %2
 ErrorProgress=잘못된 진행 상황: %1 / %2
 ErrorFileSize=잘못된 파일 크기: %1 예상, %2 찾음
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=추가 파일을 추출하는 중...
+ExtractingLabel=파일을 추출하는 중...
 ButtonStopExtraction=추출 중지(&S)
 StopExtraction=추출을 중지하시겠습니까?
-ErrorExtractionAborted=추출 중단됨
+ErrorExtractionAborted=추출이 중단되었습니다
 ErrorExtractionFailed=추출 실패: %1
 
 ; *** Archive extraction failure details
@@ -307,7 +307,7 @@ StatusRollback=변경 내용을 롤백하는 중...
 ErrorInternal2=내부 오류: %1
 ErrorFunctionFailedNoCode=%1 실패
 ErrorFunctionFailed=%1 실패; 코드 %2
-ErrorFunctionFailedWithMessage=%1 실패, 코드: %2.%n%3
+ErrorFunctionFailedWithMessage=%1 실패; 코드 %2.%n%3
 ErrorExecutingProgram=파일 실행 오류:%n%1
 
 ; *** Registry errors
@@ -319,8 +319,8 @@ ErrorRegWriteKey=레지스트리 키 쓰기 오류:%n%1\%2
 ErrorIniEntry="%1" 파일에 INI 항목 만들기 오류입니다.
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=이 파일 건너뛰기 (추천하지 않음)(&S)
-FileAbortRetryIgnoreIgnoreNotRecommended=오류를 무시하고 계속 (추천하지 않음)(&I)
+FileAbortRetryIgnoreSkipNotRecommended=이 파일 건너뛰기 (권장하지 않음)(&S)
+FileAbortRetryIgnoreIgnoreNotRecommended=오류를 무시하고 계속 (권장하지 않음)(&I)
 SourceIsCorrupted=원본 파일이 손상되었습니다
 SourceDoesntExist=원본 파일 "%1"이(가) 없습니다
 SourceVerificationFailed=소스 파일 검증 실패: %1
@@ -343,7 +343,7 @@ FileExistsOverwriteOrKeepAll=다음 충돌에 대해 이 작업 수행(&D)
 ExistingFileNewerSelectAction=작업 선택
 ExistingFileNewer2=설치 프로그램에서 설치하려는 파일보다 기존 파일이 더 최신입니다.
 ExistingFileNewerOverwriteExisting=기존 파일 덮어쓰기(&O)
-ExistingFileNewerKeepExisting=기존 파일 유지 (추천)(&K)
+ExistingFileNewerKeepExisting=기존 파일 유지 (권장)(&K)
 ExistingFileNewerOverwriteOrKeepAll=다음 충돌에 대해 이 작업 수행(&D)
 ErrorChangingAttr=기존 파일의 속성을 변경하는 동안 오류 발생:
 ErrorCreatingTemp=대상 디렉터리에 파일을 만드는 동안 오류 발생:
@@ -359,9 +359,9 @@ ErrorRegSvr32Failed=종료 코드 %1로 인해 RegSvr32가 실패했습니다
 ErrorRegisterTypeLib=유형 라이브러리를 등록할 수 없습니다: %1
 
 ; *** Uninstall display name markings
-; 예를 들어 '내 프로그램'으로 사용됩니다 (32비트)'
+; 예를 들어 '프로그램  (32비트)'으로 사용됩니다'
 UninstallDisplayNameMark=%1 (%2)
-; 예를 들어 '내 프로그램'으로 사용됩니다 (32비트, 모든 사용자)'
+; 예를 들어 '프로그램 (32비트, 모든 사용자)'으로 사용됩니다
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32비트
 UninstallDisplayNameMark64Bit=64비트
