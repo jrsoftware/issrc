@@ -823,7 +823,7 @@ begin
     WM_ERASEBKGND:
       begin
         const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark and (MainForm.FStatusBarThemeData <> 0) then begin
+        if MainForm.FTheme.Dark then begin
           { See StatusBarStyleHook.WMEraseBkgnd }
           Exit(1);
         end;
@@ -831,7 +831,7 @@ begin
     WM_PAINT, WM_PRINTCLIENT:
       begin
         const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark and (MainForm.FStatusBarThemeData <> 0) then begin
+        if MainForm.FTheme.Dark then begin
           var PaintStruct: TPaintStruct;
           const Canvas = TCanvas.Create;
           try
@@ -878,7 +878,7 @@ begin
               end;
             end;
 
-            if not IsZoomed(MainForm.Handle) then begin
+            if not IsZoomed(MainForm.Handle) and (MainForm.FStatusBarThemeData <> 0) then begin
               var R1 := Control.ClientRect;
               R1.Left := R1.Right - MainForm.ToCurrentPPI(cGripSize);
               R1.Top := R1.Bottom - MainForm.ToCurrentPPI(cGripSize);
