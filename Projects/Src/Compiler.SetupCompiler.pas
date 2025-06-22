@@ -62,6 +62,9 @@ type
 
   TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
 
+  TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
+  TPrecompiledFiles = set of TPrecompiledFile;
+
   TSetupCompiler = class
   private
     ScriptFiles: TStringList;
@@ -113,7 +116,8 @@ type
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
-    DontMergeDuplicateFiles, DontVerifyPrecompiledFiles: Boolean;
+    DontMergeDuplicateFiles: Boolean;
+    DisablePrecompiledFileVerifications: TPrecompiledFiles;
     Password: String;
     CryptKey: TSetupEncryptionKey;
     TimeStampsInUTC: Boolean;
@@ -163,6 +167,7 @@ type
     procedure AddStatus(const S: String; const Warning: Boolean = False);
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
       const Warning: Boolean);
+    procedure OnCheckedTrust(CheckedTrust: Boolean);
     class procedure AbortCompile(const Msg: String);
     class procedure AbortCompileParamError(const Msg, ParamName: String);
     function PrependDirName(const Filename, Dir: String): String;
@@ -1352,6 +1357,14 @@ begin
   AddStatus(Format(Msg, Args), Warning);
 end;
 
+procedure TSetupCompiler.OnCheckedTrust(CheckedTrust: Boolean);
+begin
+  if CheckedTrust then
+    AddStatus(SCompilerStatusVerified)
+  else
+    AddStatus(SCompilerStatusVerificationDisabled);
+end;
+
 class procedure TSetupCompiler.AbortCompile(const Msg: String);
 begin
   raise EISCompileError.Create(Msg);
@@ -2449,7 +2462,7 @@ var
 
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
   const
-    Overrides: array[0..1] of PChar = ('commandline', 'dialog');
+    Overrides: array of PChar = ['commandline', 'dialog'];
   begin
     Result := [];
     while True do
@@ -2458,6 +2471,24 @@ var
         -1: Invalid;
         0: Include(Result, proCommandLine);
         1: Result := Result + [proCommandLine, proDialog];
+      end;
+  end;
+
+  function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
+  const
+    PrecompiledFiles: array of PChar = ['setupe32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
+  begin
+    Result := [];
+    while True do
+      case ExtractFlag(S, PrecompiledFiles) of
+        -2: Break;
+        -1: Invalid;
+        0: Include(Result, pfSetupE32);
+        1: Include(Result, pfSetupLdrE32);
+        2: Include(Result, pfIs7zDll);
+        3: Include(Result, pfIsbunzipDll);
+        4: Include(Result, pfIsunzlibDll);
+        5: Include(Result, pfIslzmaExe);
       end;
   end;
 
@@ -2749,6 +2780,10 @@ begin
     ssDisableFinishedPage: begin
         SetSetupHeaderOption(shDisableFinishedPage);
       end;
+    ssDisablePrecompiledFileVerifications: begin
+      DisablePrecompiledFileVerifications := StrToPrecompiledFiles(Value);
+      CompressProps.WorkerProcessCheckTrust := not (pfIslzmaExe in DisablePrecompiledFileVerifications);
+    end;
     ssDisableProgramGroupPage: begin
         if CompareText(Value, 'auto') = 0 then
           SetupHeader.DisableProgramGroupPage := dpAuto
@@ -3131,10 +3166,6 @@ begin
     ssUserInfoPage: begin
         SetSetupHeaderOption(shUserInfoPage);
       end;
-    ssVerifyPrecompiledFiles: begin
-      DontVerifyPrecompiledFiles := not StrToBool(Value);
-      CompressProps.WorkerProcessCheckTrust := not DontVerifyPrecompiledFiles;
-    end;
     ssVersionInfoCompany: begin
         VersionInfoCompany := Value;
       end;
@@ -7266,7 +7297,7 @@ var
           if FLExtraInfo.Verification.Typ <> fvNone then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
               VerificationError(veFileHashIncorrect, FileLocationEntryFilenames[I]);
-            AddStatus(SCompilerStatusFilesVerified);
+            AddStatus(SCompilerStatusVerified);
           end;
         finally
           SourceFile.Free;
@@ -7289,7 +7320,8 @@ var
   end;
 
   procedure CopyFileOrAbort(const SourceFile, DestFile: String;
-    const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions);
+    const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions;
+    const OnCheckedTrust: TProc<Boolean>);
   var
     ErrorCode: DWORD;
   begin
@@ -7302,6 +7334,8 @@ var
         AbortCompileFmt(SCompilerCheckPrecompiledFileTrustError, [Msg]);
       end;
     end;
+    if Assigned(OnCheckedTrust) then
+      OnCheckedTrust(CheckTrust);
 
     if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
       ErrorCode := GetLastError;
@@ -7445,7 +7479,8 @@ var
       E32Filename := CompilerDir + 'Setup.e32';
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, not DontVerifyPrecompiledFiles, [cftoTrustAllOnDebug]);
+      CopyFileOrAbort(E32Filename, ConvertFilename, not(pfSetupE32 in DisablePrecompiledFileVerifications),
+        [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
       if SetupIconFilename <> '' then begin
@@ -7678,6 +7713,7 @@ begin
     CompressLevel := clLZMAMax;
     CompressProps := TLZMACompressorProps.Create;
     CompressProps.WorkerProcessCheckTrust := True;
+    CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
     UseSetupLdr := True;
     TerminalServicesAware := True;
     DEPCompatible := True;
@@ -8170,18 +8206,21 @@ begin
     case SetupHeader.CompressMethod of
       cmZip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll', not DontVerifyPrecompiledFiles);
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll',
+            not(pfIsunzlibDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
       cmBzip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll', not DontVerifyPrecompiledFiles);
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll',
+            not(pfIsbunzipDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
     end;
 
     { Read 7-Zip DLL }
     if SetupHeader.SevenZipLibraryName <> '' then begin
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
-      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName, not DontVerifyPrecompiledFiles);
+      SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName,
+        not(pfIs7zDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
     end;
 
     { Add default types if necessary }
@@ -8239,7 +8278,8 @@ begin
           end;
         end
         else begin
-          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not DontVerifyPrecompiledFiles, [cftoTrustAllOnDebug]);
+          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
+            [cftoTrustAllOnDebug], OnCheckedTrust);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if SetupIconFilename <> '' then begin

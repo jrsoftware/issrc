@@ -12,7 +12,7 @@ unit Compiler.HelperFunc;
 interface
 
 uses
-  Windows, Classes, Shared.FileClass;
+  Windows, Classes, SysUtils, Shared.FileClass;
 
 type
   TColor = $7FFFFFFF-1..$7FFFFFFF;
@@ -68,7 +68,8 @@ const
 function IdentToColor(const Ident: string; var Color: Longint): Boolean;
 function StringToColor(const S: string): TColor;
 function IsRelativePath(const Filename: String): Boolean;
-function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False): TMemoryStream;
+function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False;
+  const OnCheckedTrust: TProc<Boolean> = nil): TMemoryStream;
 function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
   const CRC: Longint): Boolean;
 function IsX86OrX64Executable(const F: TFile): Boolean;
@@ -82,7 +83,7 @@ procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
 implementation
 
 uses
-  SysUtils, TrustFunc, Shared.CommonFunc, Shared.Int64Em,
+  TrustFunc, Shared.CommonFunc, Shared.Int64Em,
   Compression.Base, Compiler.Messages;
 
 type
@@ -167,7 +168,8 @@ begin
     Result := False;
 end;
 
-function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean): TMemoryStream;
+function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean;
+  const OnCheckedTrust: TProc<Boolean>): TMemoryStream;
 { Creates a TMemoryStream and loads the contents of the specified file into it }
 var
   F: TFile;
@@ -178,12 +180,14 @@ begin
     var FS: TFileStream;
     if CheckTrust then begin
       try
-        FS := CheckFileTrust(Filename, [cftoKeepOpen])
+        FS := CheckFileTrust(Filename, [cftoKeepOpen]);
       except
         raise Exception.CreateFmt(SCompilerCheckPrecompiledFileTrustError, [GetExceptMessage]);
       end;
     end else
       FS := nil;
+    if Assigned(OnCheckedTrust) then
+      OnCheckedTrust(CheckTrust);
     try
       { Why not use TMemoryStream.LoadFromFile here?
         1. On Delphi 2 it opens files for exclusive access (not good).

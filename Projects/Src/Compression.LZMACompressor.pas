@@ -41,6 +41,7 @@ type
     NumFastBytes: Integer;
     NumThreads: Integer;
     WorkerProcessCheckTrust: Boolean;
+    WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
     constructor Create;
   end;
@@ -182,6 +183,7 @@ type
     FProcess: THandle;
     FSharedMapping: THandle;
     FCheckTrust: Boolean;
+    FOnCheckedTrust: TProc<Boolean>;
     FExeFilename: String;
   public
     constructor Create(const AEvents: PLZMACompressorSharedEvents); override;
@@ -191,6 +193,7 @@ type
       override;
     procedure UnexpectedTerminationError; override;
     property CheckTrust: Boolean read FCheckTrust write FCheckTrust;
+    property OnCheckedTrust: TProc<Boolean> read FOnCheckedTrust write FOnCheckedTrust;
     property ExeFilename: String read FExeFilename write FExeFilename;
   end;
 
@@ -782,6 +785,8 @@ begin
         LZMAInternalError(Format(SCompilerCheckPrecompiledFileTrustError, [GetExceptMessage]));
       end;
     end;
+    if Assigned(FOnCheckedTrust) then
+      FOnCheckedTrust(FCheckTrust);
     try
       if not CreateProcess(PChar(FExeFilename),
          PChar(Format('islzma_exe %d 0x%x', [ISLZMA_EXE_VERSION, ProcessDataMapping])),
@@ -896,6 +901,7 @@ begin
   EncProps.NumThreads := -1;
 
   var WorkerProcessCheckTrust := False;
+  var WorkerProcessOnCheckedTrust: TProc<Boolean> := nil;
   var WorkerProcessFilename := '';
 
   if ACompressorProps is TLZMACompressorProps then begin
@@ -914,15 +920,18 @@ begin
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
     WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
+    WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
   end;
 
   EncProps.NumHashBytes := numHashBytes[EncProps.BTMode = 1];
 
   if WorkerProcessFilename <> '' then begin
-    FWorker := TLZMAWorkerProcess.Create(@FEvents);
-    (FWorker as TLZMAWorkerProcess).CheckTrust := WorkerProcessCheckTrust;
-    (FWorker as TLZMAWorkerProcess).ExeFilename := WorkerProcessFilename;
+    const LZMAWorker = TLZMAWorkerProcess.Create(@FEvents);
+    FWorker := LZMAWorker;
+    LZMAWorker.CheckTrust := WorkerProcessCheckTrust;
+    LZMAWorker.OnCheckedTrust := WorkerProcessOnCheckedTrust;
+    LZMAWorker.ExeFilename := WorkerProcessFilename;
   end
   else begin
     if not LZMADLLInitialized then
