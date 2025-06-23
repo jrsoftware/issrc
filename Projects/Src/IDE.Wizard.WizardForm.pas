@@ -946,12 +946,15 @@ begin
     { AppFiles }
     if not NotCreateAppDirCheck.Checked and not NoAppExeCheck.Checked then begin
       Files := Files + 'Source: "' + PathExtractPath(AppExeEdit.Text) + AppExeName + '"; DestDir: "{app}"; Flags: ignoreversion' + SNewLine;
+      var AppExeIsReallyExe := SameText(PathExtractExt(AppExeEdit.Text), '.exe');
       if AppExeRunCheck.Checked then begin
-        if SameText(PathExtractExt(AppExeEdit.Text), '.exe') then
+        if AppExeIsReallyExe then
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: nowait postinstall skipifsilent' + SNewLine
         else
           Run := Run + 'Filename: "{app}\' + AppExeName + '"; Description: "{cm:LaunchProgram,' + AppAmpEscapedName + '}"; Flags: shellexec postinstall skipifsilent' + SNewLine;
       end;
+      if AppExeIsReallyExe then
+        Setup := Setup + 'UninstallDisplayIcon={app}\' + AppExeName + SNewLine;
       if Is64BitPEImage(AppExeEdit.Text) then begin
         Setup := Setup + '; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run' + SNewLine;
         Setup := Setup + '; on anything but x64 and Windows 11 on Arm.' + SNewLine;
@@ -971,7 +974,6 @@ begin
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '"; ValueType: string; ValueName: ""; ValueData: "' + AppAssocNameEdit.Text + '"; Flags: uninsdeletekey' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\' + AppExeName + '"" ""%1"""' + SNewLine;
-      Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\Applications\' + AppExeName + '\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""' + SNewLine;
     end;
 
     FFilesHelper.AddScript(Files);

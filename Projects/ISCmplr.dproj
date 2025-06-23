@@ -7,8 +7,9 @@
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Library</AppType>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>19.5</ProjectVersion>
+        <ProjectVersion>20.3</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">ISCmplr</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -50,7 +51,6 @@
         <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
         <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
         <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
-        <DCC_DcuOutput>Dcu\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -63,12 +63,14 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DcuOutput>Dcu\Release\$(MainSource)</DCC_DcuOutput>
         <DCC_ExeOutput>..\Files</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+        <DCC_DcuOutput>Dcu\Debug\$(MainSource)</DCC_DcuOutput>
         <DCC_ExeOutput>Bin</DCC_ExeOutput>
         <Debugger_HostApplication>Bin\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
@@ -78,7 +80,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\Shared.CompilerInt.pas"/>
+        <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\Shared.PreprocInt.pas"/>
         <DCCReference Include="Src\Compiler.Compile.pas"/>
         <DCCReference Include="Src\Compiler.SetupCompiler.pas"/>
@@ -102,6 +104,7 @@
         <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\TrustFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
@@ -115,6 +118,9 @@
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

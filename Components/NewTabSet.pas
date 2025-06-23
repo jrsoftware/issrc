@@ -51,15 +51,17 @@ type
     procedure SetHints(const Value: TStrings);
     function ToCurrentPPI(const XY: Integer): Integer;
     procedure UpdateThemeData(const Open: Boolean);
-  protected
+    procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
+  protected
+    function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure UpdateHotIndex(NewHotIndex: Integer);
-    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure Paint; override;
     procedure Resize; override;
   public
@@ -69,6 +71,7 @@ type
     property Theme: TTheme read FTheme write SetTheme;
   published
     property Align;
+    property AutoSize default True;
     property Font;
     property Hints: TStrings read FHints write SetHints;
     property ParentFont;
@@ -178,17 +181,18 @@ begin
   FTabPosition := tpBottom;
   FHints := TStringList.Create;
   TStringList(FHints).OnChange := HintsListChanged;
+  FHotIndex := -1;
   ControlStyle := ControlStyle + [csOpaque];
   Width := 129;
   Height := 21;
-  FHotIndex := -1;
+  AutoSize := True;
 end;
 
 procedure TNewTabSet.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   with Params.WindowClass do
-    style := style and not (CS_HREDRAW or CS_VREDRAW);
+    style := style and not CS_HREDRAW;
 end;
 
 procedure TNewTabSet.CreateWnd;
@@ -204,6 +208,13 @@ begin
   FTabs.Free;
   FCloseButtons.Free;
   inherited;
+end;
+
+procedure TNewTabSet.CMFontChanged(var Message: TMessage);
+begin
+  inherited;
+  if AutoSize then
+    AdjustSize;
 end;
 
 procedure TNewTabSet.CMHintShow(var Message: TCMHintShow);
@@ -277,6 +288,15 @@ begin
     FTabsOffset := Offset;
     Invalidate;
   end;
+end;
+
+function TNewTabSet.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
+begin
+  { We need to manage our own height for correct results with non-default PPI }
+  Canvas.Font.Assign(Font);
+  NewHeight := Canvas.TextHeight('0') + (ToCurrentPPI(TabPaddingY) * 2) +
+    ToCurrentPPI(2);
+  Result := True;
 end;
 
 function TNewTabSet.GetTabRect(const Index: Integer;
@@ -479,16 +499,16 @@ begin
 
   { Top or bottom line }
   if FTheme <> nil then
-    Canvas.Pen.Color := FTheme.Colors[tcBack]
+    Canvas.Brush.Color := FTheme.Colors[tcBack]
   else
-    Canvas.Pen.Color := clBtnFace;
-  if FTabPosition = tpBottom then begin
-    Canvas.MoveTo(0, 0);
-    Canvas.LineTo(CR.Right, 0);
-  end else begin
-    Canvas.MoveTo(0, CR.Bottom-1);
-    Canvas.LineTo(CR.Right, CR.Bottom-1);
-  end;
+    Canvas.Brush.Color := clBtnFace;
+  const LineRectHeight = ToCurrentPPI(1);
+  var LineRect := CR;
+  if FTabPosition = tpBottom then
+    LineRect.Bottom := LineRect.Top + LineRectHeight
+  else
+    LineRect.Top := LineRect.Bottom - LineRectHeight;
+  Canvas.FillRect(LineRect);
 
   { Background fill }
   if FTheme <> nil then
@@ -498,9 +518,9 @@ begin
   else
     Canvas.Brush.Color := clBtnShadow;
   if FTabPosition = tpBottom then
-    Inc(CR.Top)
+    Inc(CR.Top, LineRectHeight)
   else
-    Dec(CR.Bottom);
+    Dec(CR.Bottom, LineRectHeight);
   Canvas.FillRect(CR);
 
   { Non-selected tabs }

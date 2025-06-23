@@ -1494,13 +1494,17 @@ function TPreprocessor.LookupPredefined(Name: string;
 begin
   Result := True;
   Name := UpperCase(Name);
-  if Name = '__FILE__' then
+  if (Name = '__FILENAME__') or (Name = '__FILE__') then
   begin
     if Value <> nil then MakeStr(Value^, ExtractFileName(FIncludes[FCurrentFile]))
   end
   else if Name = '__PATHFILENAME__' then
   begin
     if Value <> nil then MakeStr(Value^, FIncludes[FCurrentFile])
+  end
+  else if Name = '__DIR__' then
+  begin
+    if Value <> nil then MakeStr(Value^, ExtractFileDir(FIncludes[FCurrentFile]))
   end
   else if Name = '__LINE__' then
   begin

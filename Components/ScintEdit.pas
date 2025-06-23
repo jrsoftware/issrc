@@ -858,8 +858,8 @@ end;
 
 procedure TScintEdit.CreateWnd;
 begin
-  if IsscintLibary = 0 then
-    Error('CreateWnd: IsscintLibary is 0');
+  if IsscintLibrary = 0 then
+    Error('CreateWnd: IsscintLibrary is 0');
   inherited;
   FDirectPtr := Pointer(SendMessage(Handle, SCI_GETDIRECTPOINTER, 0, 0));
   if FDirectPtr = nil then
@@ -1287,6 +1287,7 @@ end;
 
 class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
 begin
+  { Note: Scintilla ignores SCFIND_WHOLEWORD when SCFIND_REGEXP is set }
   Result := 0;
   if sfoMatchCase in Options then
     Result := Result or SCFIND_MATCHCASE;

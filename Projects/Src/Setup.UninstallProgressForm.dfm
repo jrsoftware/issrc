@@ -12,12 +12,11 @@ object UninstallProgressForm: TUninstallProgressForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  Position = poDesigned
   Scaled = False
   DesignSize = (
     497
     360)
-  PixelsPerInch = 96
   TextHeight = 13
   object FBevel: TBevel
     Left = 0

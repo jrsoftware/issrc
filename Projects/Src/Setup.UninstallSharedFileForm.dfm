@@ -12,12 +12,11 @@ object UninstSharedFileForm: TUninstSharedFileForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PopupMode = pmAuto
   Scaled = False
   DesignSize = (
     397
     225)
-  PixelsPerInch = 96
   TextHeight = 13
   object NoToAllButton: TNewButton
     Left = 283
@@ -26,7 +25,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Height = 23
     Anchors = [akBottom]
     Caption = '*'
-    ModalResult = 9
+    ModalResult = 13
     TabOrder = 3
   end
   object NoButton: TNewButton
@@ -46,7 +45,7 @@ object UninstSharedFileForm: TUninstSharedFileForm
     Height = 23
     Anchors = [akBottom]
     Caption = '*'
-    ModalResult = 10
+    ModalResult = 14
     TabOrder = 1
   end
   object YesButton: TNewButton

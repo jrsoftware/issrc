@@ -2,7 +2,7 @@ unit Setup.MainFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,7 +18,7 @@ uses
 
 type
   TEntryType = (seLanguage, seCustomMessage, sePermission, seType, seComponent,
-    seTask, seDir, seFile, seFileLocation, seIcon, seIni, seRegistry,
+    seTask, seDir, seISSigKey, seFile, seFileLocation, seIcon, seIni, seRegistry,
     seInstallDelete, seUninstallDelete, seRun, seUninstallRun);
 
   TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
@@ -29,18 +29,18 @@ const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
     SetupCustomMessageEntryStrings, SetupPermissionEntryStrings,
     SetupTypeEntryStrings, SetupComponentEntryStrings, SetupTaskEntryStrings,
-    SetupDirEntryStrings, SetupFileEntryStrings, SetupFileLocationEntryStrings,
-    SetupIconEntryStrings, SetupIniEntryStrings, SetupRegistryEntryStrings,
-    SetupDeleteEntryStrings, SetupDeleteEntryStrings, SetupRunEntryStrings,
-    SetupRunEntryStrings);
+    SetupDirEntryStrings, SetupISSigKeyEntryStrings, SetupFileEntryStrings,
+    SetupFileLocationEntryStrings, SetupIconEntryStrings, SetupIniEntryStrings,
+    SetupRegistryEntryStrings, SetupDeleteEntryStrings, SetupDeleteEntryStrings,
+    SetupRunEntryStrings, SetupRunEntryStrings);
 
   EntryAnsiStrings: array[TEntryType] of Integer = (SetupLanguageEntryAnsiStrings,
     SetupCustomMessageEntryAnsiStrings, SetupPermissionEntryAnsiStrings,
     SetupTypeEntryAnsiStrings, SetupComponentEntryAnsiStrings, SetupTaskEntryAnsiStrings,
-    SetupDirEntryAnsiStrings, SetupFileEntryAnsiStrings, SetupFileLocationEntryAnsiStrings,
-    SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings, SetupRegistryEntryAnsiStrings,
-    SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupRunEntryAnsiStrings,
-    SetupRunEntryAnsiStrings);
+    SetupDirEntryAnsiStrings, SetupISSigKeyEntryAnsiStrings, SetupFileEntryAnsiStrings,
+    SetupFileLocationEntryAnsiStrings, SetupIconEntryAnsiStrings, SetupIniEntryAnsiStrings,
+    SetupRegistryEntryAnsiStrings, SetupDeleteEntryAnsiStrings, SetupDeleteEntryAnsiStrings,
+    SetupRunEntryAnsiStrings, SetupRunEntryAnsiStrings);
 
   { Exit codes that are assigned to the SetupExitCode variable.
     Note: SetupLdr also returns exit codes with the same numbers. }
@@ -110,7 +110,8 @@ var
   Entries: array[TEntryType] of TList;
   WizardImages: TList;
   WizardSmallImages: TList;
-  CloseApplicationsFilterList: TStringList;
+  CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
+  ISSigAvailableKeys: TArrayOfECDSAKey;
 
   { User options }
   ActiveLanguage: Integer = -1;
@@ -152,8 +153,7 @@ var
   DisableCodeConsts: Integer;
   SetupExitCode: Integer;
   CreatedIcon: Boolean;
-  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages: Boolean;
-  TaskbarButtonHidden: Boolean;
+  RestartInitiatedByThisProcess, DownloadTemporaryFileOrExtractArchiveProcessMessages: Boolean;
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
@@ -185,8 +185,10 @@ function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
 procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 procedure Log64BitInstallMode;
+procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
+procedure InitializeWizard;
 procedure InitMainNonSHFolderConsts;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
@@ -212,7 +214,6 @@ procedure RemoveTempInstallDir;
 procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
-procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
 function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
@@ -237,7 +238,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -245,7 +246,8 @@ uses
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
-  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm;
+  Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
+  Compression.SevenZipDLLDecoder;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -256,7 +258,7 @@ var
   SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
     var ppszPath: PWideChar): HRESULT; stdcall;
 
-  DecompressorDLLHandle: HMODULE;
+  DecompressorDLLHandle, SevenZipDLLHandle: HMODULE;
 
 type
   TDummyClass = class
@@ -865,7 +867,7 @@ function ExpandIndividualConst(Cnst: String;
                  PChar(ExpandConstEx(Subkey, CustomConsts)),
                  0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
                 RegQueryStringValue(K, PChar(ExpandConstEx(Value, CustomConsts)),
-                  Result);
+                  Result, True); { also allows REG_DWORD }
                 RegCloseKey(K);
               end;
               Exit;
@@ -1178,12 +1180,6 @@ begin
       Result := UninstallExpandedLanguage
     else
       Result := PSetupLanguageEntry(Entries[seLanguage][ActiveLanguage]).Name
-  end
-  else if Cnst = 'hwnd' then begin
-    if Assigned(MainForm) then
-      Result := IntToStr(MainForm.Handle)
-    else
-      Result := '0';
   end
   else if Cnst = 'wizardhwnd' then begin
     if Assigned(WizardForm) then
@@ -1700,8 +1696,7 @@ var
   ComponentTypes: TStringList;
   I: Integer;
 begin
-  Result.Hi := 0;
-  Result.Lo := 0;
+  Result := To64(0);
   ComponentTypes := TStringList.Create();
 
   for I := 0 to Entries[seComponent].Count-1 do begin
@@ -1751,16 +1746,14 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
   function RecurseExternalFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const CurFile: PSetupFileEntry): Boolean;
-  var
-    SearchFullPath, DestName: String;
-    H: THandle;
-    FindData: TWin32FindData;
+    const SourceIsWildcard: Boolean; const Excludes: TStrings; const CurFile: PSetupFileEntry): Boolean;
   begin
-    SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
+    { Also see RecurseExternalGetSizeOfFiles below and RecurseExternalCopyFiles in Setup.Install
+      Also see RecurseExternalArchiveFiles directly below }
     Result := True;
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
+    var FindData: TWin32FindData;
+    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1770,12 +1763,17 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
                 Continue;
 
-            DestName := ExpandConst(CurFile^.DestName);
+            if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
+              Continue;
+
+            { Note: CurFile^.DestName only includes a a filename if foCustomDestName is set,
+              see TSetupCompiler.EnumFilesProc.ProcessFileList }
+            var DestFile := ExpandConst(CurFile^.DestName);
             if not(foCustomDestName in CurFile^.Options) then
-              DestName := DestName + SearchSubDir + FindData.cFileName
+              DestFile := DestFile + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
-              DestName := PathExtractPath(DestName) + SearchSubDir + PathExtractName(DestName);
-            if not EnumFilesProc(DisableFsRedir, DestName, Param) then begin
+              DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
+            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then begin
               Result := False;
               Exit;
             end;
@@ -1794,14 +1792,49 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             if IsRecurseableDirectory(FindData) then
               if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                 SourceIsWildcard, CurFile) then begin
-                Result := False;
-                Exit;
-              end;
+                 SourceIsWildcard, Excludes, CurFile) then
+                Exit(False);
           until not FindNextFile(H, FindData);
         finally
           Windows.FindClose(H);
         end;
+      end;
+    end;
+  end;
+
+  function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
+    const ArchiveFilename: String; const Excludes: TStrings;
+    const CurFile: PSetupFileEntry): Boolean;
+  begin
+    { See above }
+    Result := True;
+
+    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+      Exit;
+
+    if foCustomDestName in CurFile^.Options then
+      InternalError('Unexpected CustomDestName flag');
+    const DestDir = ExpandConst(CurFile^.DestName);
+
+    var FindData: TWin32FindData;
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+      ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
+      False, FindData);
+    if H <> INVALID_HANDLE_VALUE then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+            if IsExcluded(FindData.cFileName, Excludes) then
+              Continue;
+
+            const DestFile = DestDir + FindData.cFileName;
+            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then
+              Exit(False);
+          end;
+        until not ArchiveFindNextFile(H, FindData);
+      finally
+        ArchiveFindClose(H);
       end;
     end;
   end;
@@ -1815,28 +1848,57 @@ begin
   Result := True;
 
   { [Files] }
-  for I := 0 to Entries[seFile].Count-1 do begin
-    CurFile := PSetupFileEntry(Entries[seFile][I]);
-    if (CurFile^.FileType = ftUserFile) and
-       ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-      DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
-      if CurFile^.LocationEntry <> -1 then begin
-        { Non-external file }
-        if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
-          Result := False;
-          Exit;
-        end;
-      end
-      else begin
-        { External file }
-        SourceWildcard := ExpandConst(CurFile^.SourceFilename);
-        if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
-           PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), CurFile) then begin
-          Result := False;
-          Exit;
+  const Excludes = TStringList.Create;
+  try
+    Excludes.StrictDelimiter := True;
+    Excludes.Delimiter := ',';
+
+    for I := 0 to Entries[seFile].Count-1 do begin
+      CurFile := PSetupFileEntry(Entries[seFile][I]);
+      if (CurFile^.FileType = ftUserFile) and
+         ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
+        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+        if CurFile^.LocationEntry <> -1 then begin
+          { Non-external file }
+          if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+            Result := False;
+            Exit;
+          end;
+        end
+        else begin
+          { External file }
+          if foDownload in CurFile^.Options then begin
+           { Archive download should have been done already by Setup.WizardForm's DownloadArchivesToExtract }
+            if foExtractArchive in CurFile^.Options then
+              InternalError('Unexpected Download flag');
+            if not(foCustomDestName in CurFile^.Options) then
+              InternalError('Expected CustomDestName flag');
+            { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+            if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
+              Exit(False);
+          end else begin
+	          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+	          Excludes.DelimitedText := CurFile^.Excludes;
+	          if foExtractArchive in CurFile^.Options then begin
+	            try
+	              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+	                 Excludes, CurFile) then
+	                Exit(False);
+	            except on E: ESevenZipError do
+	              { Ignore archive errors for now, will show up with proper UI during
+	                installation }
+	            end;
+	          end else begin
+	            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+                Exit(False);
+            end;
+          end;
         end;
       end;
     end;
+  finally
+    Excludes.Free;
   end;
 
   { [InstallDelete] }
@@ -1922,7 +1984,7 @@ var
 begin
   Filename := AFilename;
 
-  { First: check filter and self. }
+  { First: check filters and self. }
   if Filename <> '' then begin
     CheckFilter := Boolean(Param);
     if CheckFilter then begin
@@ -1934,6 +1996,15 @@ begin
           Break;
         end;
       end;
+      if Match then begin
+        for I := 0 to CloseApplicationsFilterExcludesList.Count-1 do begin
+          if WildcardMatch(PChar(Text), PChar(CloseApplicationsFilterExcludesList[I])) then begin
+            Match := False;
+            Break;
+          end;
+        end;
+      end;
+
       if not Match then begin
         { No match with filter so exit but don't return an error. }
         Result := True;
@@ -2010,7 +2081,12 @@ begin
   try
     { Register our files. }
     RmRegisteredFilesCount := 0;
-    EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    try
+      EnumFiles(RegisterFile, WizardComponents, WizardTasks, Pointer(True));
+    except
+      Log('EnumFiles(RegisterFile) raised an exception.');
+      Application.HandleException(nil);
+    end;
     { Ask [Code] for more files. }
     if CodeRunner <> nil then begin
       AllowCodeRegisterExtraCloseApplicationsResource := True;
@@ -2235,33 +2311,6 @@ begin
   SetActiveLanguage(I);
 end;
 
-procedure SetTaskbarButtonVisibility(const AVisible: Boolean);
-var
-  ExStyle: Longint;
-begin
-  { The taskbar button is hidden by setting the WS_EX_TOOLWINDOW style on the
-    application window. We can't simply hide the window because on D3+ the VCL
-    would just show it again in TApplication.UpdateVisible when the first form
-    is shown. }
-  TaskbarButtonHidden := not AVisible;  { see WM_STYLECHANGING hook in Setup.dpr }
-  if (GetWindowLong(Application.Handle, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0) <> AVisible then begin
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-    ExStyle := GetWindowLong(Application.Handle, GWL_EXSTYLE);
-    if AVisible then
-      ExStyle := ExStyle and not WS_EX_TOOLWINDOW
-    else
-      ExStyle := ExStyle or WS_EX_TOOLWINDOW;
-    SetWindowLong(Application.Handle, GWL_EXSTYLE, ExStyle);
-    if AVisible then
-      { Show and activate when becoming visible }
-      ShowWindow(Application.Handle, SW_SHOW)
-    else
-      SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-        SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_SHOWWINDOW);
-  end;
-end;
-
 procedure LogCompatibilityMode;
 var
   S: String;
@@ -2424,14 +2473,6 @@ begin
   RestartInitiatedByThisProcess := True;
   { Note: Depending on the OS, RestartComputer may not return if successful }
   if not RestartComputer then begin
-    { Hack for when called from RespawnSetupElevated: re-show the
-      application's taskbar button } 
-    ShowWindow(Application.Handle, SW_SHOW);
-    { If another app denied the shutdown, we probably lost the foreground;
-      try to take it back. (Note: Application.BringToFront can't be used
-      because we have no visible forms, and MB_SETFOREGROUND doesn't make
-      the app's taskbar button blink.) }
-    SetForegroundWindow(Application.Handle);
     LoggedMsgBox(SetupMessages[msgErrorRestartingComputer], '', mbError,
       MB_OK, True, IDOK);
   end;
@@ -2450,9 +2491,6 @@ var
     NotifyNewLanguage: Integer;
   end;
 begin
-  { Hide the taskbar button }
-  SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-    SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
   Cancelled := False;
   try
     Server := TSpawnServer.Create;
@@ -2473,11 +2511,8 @@ begin
     { If the user clicked Cancel on the dialog, halt with special exit code }
     if ExceptObject is EAbort then
       Cancelled := True
-    else begin
-      { Otherwise, re-show the taskbar button and re-raise }
-      ShowWindow(Application.Handle, SW_SHOW);
+    else
       raise;
-    end;
   end;
   if Cancelled then
     Halt(ecCancelledBeforeInstall);
@@ -2496,7 +2531,6 @@ begin
     except
       { In the unlikely event that something above raises an exception, handle
         it here so the right exit code will still be returned below }
-      ShowWindow(Application.Handle, SW_SHOW);
       Application.HandleException(nil);
     end;
   end;
@@ -2540,11 +2574,23 @@ begin
   LogFmt('64-bit install mode: %s', [SYesNo[Is64BitInstallMode]]);
 end;
 
+var
+  LoggedArchiveExtractionMode: Boolean;
+
+procedure LogArchiveExtractionModeOnce;
+begin
+  if not LoggedArchiveExtractionMode then begin
+    LogFmt('Archive extraction mode: %s',
+      [IfThen(SetupHeader.SevenZipLibraryName <> '', Format('Using %s', [SetupHeader.SevenZipLibraryName]), 'Basic')]);
+    LoggedArchiveExtractionMode := True;
+  end;
+end;
+
 procedure InitializeSetup;
 { Initializes various vars used by the setup. This is called in the project
   source. }
 var
-  DecompressorDLL: TMemoryStream;
+  DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   function ExtractLongWord(var S: String): LongWord;
   var
@@ -2636,6 +2682,25 @@ var
     end;
   end;
 
+  procedure LoadSevenZipDLL;
+  var
+    Filename: String;
+  begin
+    Filename := AddBackslash(TempInstallDir) + '_isetup\_is7z.dll';
+    SaveStreamToTempFile(SevenZipDLL, Filename);
+    FreeAndNil(SevenZipDLL);
+    SevenZipDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
+    if SevenZipDLLHandle = 0 then
+      InternalError(Format('Failed to load DLL "%s"', [Filename]))
+    else begin
+      var VersionNumbers: TFileVersionNumbers;
+      if not GetVersionNumbers(Filename, VersionNumbers) then
+        FillChar(VersionNumbers, SizeOf(VersionNumbers), 0);
+      if not SevenZipDLLInit(SevenZipDLLHandle, VersionNumbers) then
+        InternalError('SevenZipDLLInit failed');
+    end;
+  end;
+
 var
   Reader: TCompressedBlockReader;
 
@@ -2711,30 +2776,19 @@ var
       InstallMode := imVerySilent
     else if InitSilent then
       InstallMode := imSilent;
-
-    if InstallMode <> imNormal then begin
-      if InstallMode = imVerySilent then begin
-        Application.ShowMainForm := False;
-        SetTaskbarButtonVisibility(False);
-      end;
-      SetupHeader.Options := SetupHeader.Options - [shWindowVisible];
-    end;
   end;
 
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
-    const SourceIsWildcard: Boolean; const RecurseSubDirs: Boolean): Integer64;
-  var
-    SearchFullPath: String;
-    H: THandle;
-    FindData: TWin32FindData;
-    I: Integer64;
+    const SourceIsWildcard: Boolean; const Excludes: TStrings;
+    const RecurseSubDirs: Boolean): Integer64;
   begin
-    SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
-    Result.Hi := 0;
-    Result.Lo := 0;
+    { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
+      Also see RecurseExternalArchiveGetSizeOfFiles directly below }
+    Result := To64(0);
 
-    H := FindFirstFileRedir(DisableFsRedir, SearchFullPath, FindData);
+    var FindData: TWin32FindData;
+    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       repeat
         if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
@@ -2743,6 +2797,10 @@ var
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
               Continue;
 
+          if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
+            Continue;
+
+          var I: Integer64;
           I.Hi := FindData.nFileSizeHigh;
           I.Lo := FindData.nFileSizeLow;
           Inc6464(Result, I);
@@ -2757,15 +2815,49 @@ var
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
+              var I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
-                SourceIsWildcard, RecurseSubDirs);
+                SourceIsWildcard, Excludes, RecurseSubDirs);
               Inc6464(Result, I);
             end;
           until not FindNextFile(H, FindData);
         finally
           Windows.FindClose(H);
         end;
+      end;
+    end;
+  end;
+
+  function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
+    const ArchiveFilename, Password: String; const Excludes: TStrings;
+    const RecurseSubDirs: Boolean): Integer64;
+  begin
+    { See above }
+    Result := To64(0);
+
+    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+      Exit;
+
+    var FindData: TWin32FindData;
+    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,
+      AddBackslash(TempInstallDir), { DestDir isn't known yet, pass a placeholder }
+      Password, RecurseSubDirs, False, FindData);
+    if H <> INVALID_HANDLE_VALUE then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+
+            if IsExcluded(FindData.cFileName, Excludes) then
+              Continue;
+
+            var I: Integer64;
+            I.Hi := FindData.nFileSizeHigh;
+            I.Lo := FindData.nFileSizeLow;
+            Inc6464(Result, I);
+          end;
+        until not ArchiveFindNextFile(H, FindData);
+      finally
+        ArchiveFindClose(H);
       end;
     end;
   end;
@@ -3115,6 +3207,8 @@ begin
         ReadEntries(seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
           Integer(@PSetupDirEntry(nil).MinVersion),
           Integer(@PSetupDirEntry(nil).OnlyBelowVersion));
+        { ISSigKey entries }
+        ReadEntriesWithoutVersion(seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
         { File entries }
         ReadEntries(seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
           Integer(@PSetupFileEntry(nil).MinVersion),
@@ -3159,6 +3253,12 @@ begin
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(DecompressorDLL, Reader);
+        end;
+        { SevenZip DLL }
+        SevenZipDLL := nil;
+        if SetupHeader.SevenZipLibraryName <> '' then begin
+          SevenZipDLL := TMemoryStream.Create;
+          ReadFileIntoStream(SevenZipDLL, Reader);
         end;
       finally
         Reader.Free;
@@ -3236,12 +3336,16 @@ begin
   { Create temporary directory and extract 64-bit helper EXE if necessary }
   CreateTempInstallDirAndExtract64BitHelper;
 
-  { Load system's "shfolder.dll" or extract "_shfoldr.dll" to TempInstallDir, and load it }
+  { Load system's "shfolder.dll", and load it }
   LoadSHFolderDLL;
 
   { Extract "_isdecmp.dll" to TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
+
+  { Extract "_is7z.dll" to TempInstallDir, and load it }
+  if SetupHeader.SevenZipLibraryName <> '' then
+    LoadSevenZipDLL;
 
   { Start RestartManager session }
   if InitCloseApplications or
@@ -3254,11 +3358,21 @@ begin
     if UseRestartManager and (RmStartSession(@RmSessionHandle, 0, RmSessionKey) = ERROR_SUCCESS) then begin
       RmSessionStarted := True;
       SetStringsFromCommaString(CloseApplicationsFilterList, SetupHeader.CloseApplicationsFilter);
+      SetStringsFromCommaString(CloseApplicationsFilterExcludesList, SetupHeader.CloseApplicationsFilterExcludes);
     end;
   end;
 
   { Set install mode }
   SetupInstallMode;
+
+  { Init ISSigAvailableKeys }
+  SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
+  for I := 0 to Entries[seISSigKey].Count-1 do begin
+    var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][I]);
+    ISSigAvailableKeys[I] := TECDSAKey.Create;
+    if ISSigImportPublicKey(ISSigAvailableKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
+      InternalError('ISSigImportPublicKey failed')
+  end;
 
   { Load and initialize code }
   if SetupHeader.CompiledCodeText <> '' then begin
@@ -3331,7 +3445,7 @@ begin
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
   for I := 0 to Entries[seType].Count-1 do begin
-    if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).Check) then begin
+    if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).CheckOnce) then begin
       SEFreeRec(Entries[seType][I], EntryStrings[seType], EntryAnsiStrings[seType]);
       { Don't delete it yet so that the entries can be processed sequentially }
       Entries[seType][I] := nil;
@@ -3347,7 +3461,7 @@ begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if (ComponentEntry.Level <= NextAllowedLevel) and
        (InstallOnThisVersion(ComponentEntry.MinVersion, ComponentEntry.OnlyBelowVersion) = irInstall) and
-       ShouldProcessEntry(nil, nil, '', '', ComponentEntry.Languages, ComponentEntry.Check) then begin
+       ShouldProcessEntry(nil, nil, '', '', ComponentEntry.Languages, ComponentEntry.CheckOnce) then begin
       NextAllowedLevel := ComponentEntry.Level + 1;
       LastShownComponentEntry := ComponentEntry;
     end
@@ -3404,34 +3518,53 @@ begin
 
   MinimumSpace := SetupHeader.ExtraDiskSpaceRequired;
 
-  for I := 0 to Entries[seFile].Count-1 do begin
-    with PSetupFileEntry(Entries[seFile][I])^ do begin
-      if LocationEntry <> -1 then begin { not an "external" file }
-        if Components = '' then { no types or a file that doesn't belong to any component }
-          if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
-            Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
-      end else begin
-        if not(foExternalSizePreset in Options) then begin
-          try
-            if FileType <> ftUserFile then
-              SourceWildcard := NewParamStr(0)
-            else
-              SourceWildcard := ExpandConst(SourceFilename);
-            ExternalSize := RecurseExternalGetSizeOfFiles(
-              ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-              PathExtractPath(SourceWildcard),
-              '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
-              foRecurseSubDirsExternal in Options);
-          except
-            { Ignore exceptions. One notable exception we want to ignore is
-              the one about "app" not being initialized. }
+  const LExcludes = TStringList.Create;
+  try
+    LExcludes.StrictDelimiter := True;
+    LExcludes.Delimiter := ',';
+
+    for I := 0 to Entries[seFile].Count-1 do begin
+      with PSetupFileEntry(Entries[seFile][I])^ do begin
+        if LocationEntry <> -1 then begin { not an "external" file }
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
+              Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+        end else begin
+          if not(foExternalSizePreset in Options) then begin
+            if foDownload in Options then
+              InternalError('Unexpected download flag');
+            try
+              LExcludes.DelimitedText := Excludes;
+              if foExtractArchive in Options then begin
+                ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
+                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                  ExpandConst(SourceFilename), ExpandConst(ExtractArchivePassword), LExcludes,
+                  foRecurseSubDirsExternal in Options);
+              end else begin
+                if FileType <> ftUserFile then
+                  SourceWildcard := NewParamStr(0)
+                else
+                  SourceWildcard := ExpandConst(SourceFilename);
+                ExternalSize := RecurseExternalGetSizeOfFiles(
+                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
+                  PathExtractPath(SourceWildcard),
+                  '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
+                  LExcludes, foRecurseSubDirsExternal in Options);
+              end;
+            except
+              { Ignore exceptions. Two notable exceptions we want to ignore are
+                the one about "app" not being initialized and also archive errors
+                (ESevenZipError). Also see EnumFiles. }
+            end;
           end;
+          if Components = '' then { no types or a file that doesn't belong to any component }
+            if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
+              Inc6464(MinimumSpace, ExternalSize);
         end;
-        if Components = '' then { no types or a file that doesn't belong to any component }
-          if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
-            Inc6464(MinimumSpace, ExternalSize);
       end;
     end;
+  finally
+    LExcludes.Free;
   end;
 
   for I := 0 to Entries[seComponent].Count-1 do
@@ -3448,6 +3581,27 @@ begin
     end;
     Inc6464(MinimumSpace, MinimumTypeSpace);
   end;
+end;
+
+procedure InitializeWizard;
+begin
+  WizardForm := AppCreateForm(TWizardForm) as TWizardForm;
+  if CodeRunner <> nil then begin
+    try
+      CodeRunner.RunProcedures('InitializeWizard', [''], False);
+    except
+      Log('InitializeWizard raised an exception (fatal).');
+      raise;
+    end;
+  end;
+  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
+  WizardForm.SetCurPage(wpWelcome);
+  if InstallMode = imNormal then begin
+    WizardForm.ClickToStartPage; { this won't go past wpReady  }
+    WizardForm.Visible := True;
+  end
+  else
+    WizardForm.ClickThroughPages;
 end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
@@ -3484,17 +3638,24 @@ begin
       DeleteDirsAfterInstallList[I]);
   DeleteDirsAfterInstallList.Clear;
 
+  for I := 0 to Length(ISSigAvailableKeys)-1 do
+    ISSigAvailableKeys[I].Free;
+
   FreeFileExtractor;
 
   { End RestartManager session }
   if RmSessionStarted then
     RmEndSession(RmSessionHandle);
 
-  { Free the _isdecmp.dll handle }
+  { Free the _isdecmp.dll and _is7z.dll handles }
   if DecompressorDLLHandle <> 0 then
     FreeLibrary(DecompressorDLLHandle);
+  if SevenZipDLLHandle <> 0 then begin
+    SevenZipDLLDeInit;
+    FreeLibrary(SevenZipDLLHandle);
+  end;
 
-  { Free the shfolder.dll handles }
+  { Free the shfolder.dll handle }
   UnloadSHFolderDLL;
 
   { Remove TempInstallDir, stopping the 64-bit helper first if necessary }
@@ -3823,6 +3984,7 @@ initialization
   DeleteFilesAfterInstallList := TStringList.Create;
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
+  CloseApplicationsFilterExcludesList := TStringList.Create;
   WizardImages := TList.Create;
   WizardSmallImages := TList.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
@@ -3830,6 +3992,7 @@ initialization
 
 finalization
   FreeWizardImages;
+  FreeAndNil(CloseApplicationsFilterExcludesList);
   FreeAndNil(CloseApplicationsFilterList);
   FreeAndNil(DeleteDirsAfterInstallList);
   FreeAndNil(DeleteFilesAfterInstallList);

@@ -268,12 +268,6 @@ end;</pre></example>
         <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
         <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
       </function>
-      <function>
-        <name>GetMainForm</name>
-        <prototype>function GetMainForm: TMainForm;</prototype>
-        <description><p>Returns the <tt>MainForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
-        <seealso><p><link topic="scriptclasses" anchor="MainForm">MainForm</link></p></seealso>
-      </function>
     </subcategory>
   </category>
   <category>
@@ -346,7 +340,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>System</p></description>
+    <description>System</description>
     <subcategory>
       <function>
         <name>IsAdmin</name>
@@ -569,10 +563,10 @@ end;</pre></example>
         <prototype>function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;</prototype>
         <description><p>Returns True if the .NET Framework with the specified MinVersion and MinServicePack parameters is installed.</p>
 <p>TDotNetVersion is defined as:</p>
-<p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48);</tt></p></description>
+<p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);</tt></p></description>
         <example><pre>function InitializeSetup: Boolean;
 begin
-  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8
+  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
   if not Result then
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
 end;</pre></example>
@@ -771,7 +765,7 @@ begin
     </subcategory>
   </category>
   <category>
-    <description><p>String</p></description>
+    <description>String</description>
     <subcategory>
       <function>
         <name>Chr</name>
@@ -1088,12 +1082,14 @@ end;</pre></example>
       <function>
         <name>ExtractFileDir</name>
         <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractFilePath">ExtractFilePath</link></p></seealso>
       </function>
       <function>
         <name>ExtractFilePath</name>
         <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractFileDir">ExtractFileDir</link></p></seealso>
       </function>
       <function>
         <name>ExtractFileName</name>
@@ -1296,7 +1292,7 @@ end;
     </subcategory>
   </category>
   <category>
-    <description><p>Array</p></description>
+    <description>Array</description>
     <subcategory>
       <function>
         <name>GetArrayLength</name>
@@ -1311,7 +1307,18 @@ end;
     </subcategory>
   </category>
   <category>
-    <description><p>Variant</p></description>
+    <description>Stream</description>
+    <subcategory>
+      <function>
+        <name>GetSHA256OfStream</name>
+        <prototype>function GetSHA256OfStream(const Stream: TStream): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified stream, as a string. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_GetSHA256OfFile">GetSHA256OfFile</link></p></seealso>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description>Variant</description>
     <subcategory>
       <function>
         <name>Null</name>
@@ -1391,7 +1398,7 @@ const
     </subcategory>
   </category>
   <category>
-    <description><p>File System</p></description>
+    <description>File System</description>
     <subcategory>
       <function>
         <name>DirExists</name>
@@ -1639,23 +1646,6 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
-        <name>GetMD5OfFile</name>
-        <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
-      </function>
-      <function>
-        <name>GetSHA1OfFile</name>
-        <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
-      </function>
-      <function>
-        <name>GetSHA256OfFile</name>
-        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
-      </function>
-    </subcategory>
-    <subcategory>
-      <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>
@@ -1690,7 +1680,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>File</p></description>
+    <description>File</description>
     <subcategory>
       <function>
         <name>Exec</name>
@@ -1827,7 +1817,7 @@ end;</pre></example>
       </function>
       <function>
         <name>DownloadTemporaryFile</name>
-        <prototype>function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <prototype>function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
@@ -1837,12 +1827,6 @@ end;</pre></example>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
-        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
-<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
-<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
-<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
-<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link></p></seealso>
         <example><pre>
 [Code]
 function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
@@ -1865,13 +1849,50 @@ begin
     Result := False;
   end;
 end;</pre>
-<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p></example>
+<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry.</p></example>
+        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
+<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br />
+<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
+<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
+<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
+<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
+<link topic="isxfunc_ExtractArchive">ExtractArchive</link></p></seealso>
+      </function>
+      <function>
+        <name>DownloadTemporaryFileWithISSigVerify</name>
+        <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
+        <description><p>Like <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
+<p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>        
+<p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>.</p>
+<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
+        <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
+<link topic="issig">.issig Signatures: Introduction</link><br/>
+<link topic="isxfunc_ISSigVerify">ISSigVerify</link></p></seealso>
+        <example><pre>
+[Code]
+function InitializeSetup: Boolean;
+begin
+  try
+    DownloadTemporaryFileWithISSigVerify(
+      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
+      'myprog-extrareadmes.7z', nil, nil);
+    Result := True;
+  except
+    Log(GetExceptionMessage);
+    Result := False;
+  end;
+end;</pre></example>
       </function>
       <function>
         <name>SetDownloadCredentials</name>
         <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
-        <description><p>Sets username and password for all following downloads. Set an empty string to delete the previous setting.</p>
-<seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/><link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/><link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso></description>
+        <description><p>Sets the basic authentication username and password for all following downloads done by <tt>DownloadTemporaryFile</tt>, <tt>DownloadTemporaryFileWithISSigVerify</tt>, <tt>DownloadTemporaryFileSize</tt>, and <tt>DownloadTemporaryFileDate</tt>.</p>
+<p>Specify an empty username or password to unset the username or password.</p></description>
+        <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
+<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br/>
+<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/>
+<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso>
       </function>
       <function>
         <name>DownloadTemporaryFileSize</name>
@@ -1888,32 +1909,78 @@ end;</pre>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
       <function>
-        <name>Extract7ZipArchive</name>
-        <prototype>procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
-        <description><p>Extracts the specified 7-Zip archive to the specified directory, with or without using path names.</p>
+        <name>ExtractArchive</name>
+        <prototype>procedure ExtractArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
+        <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>The archive must not be encrypted.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
-<p>Return True to allow the extraction to continue, False otherwise.</p>
-<p><tt>Extract7ZipArchive</tt> uses an embedded version of the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements.</p>
-<p>All output of the decoder is logged if logging is enabled, including error messages but excluding empty lines.</p>
-<p>The decoder has the following limitations, as written by Igor Pavlov in the LZMA SDK:<br /><br />
--It reads only &quot;FileName&quot;, &quot;Size&quot;, &quot;LastWriteTime&quot; and &quot;CRC&quot; information for each file in archive.<br />
--It does not support PPMd and BZip2 methods.<br />
--It converts original UTF-16 Unicode file names to UTF-8 Unicode file names.<br />
--It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</p>
-<p>Additionally he wrote:<br /><br />
-You can create .7z archive with 7z.exe, 7za.exe or 7zr.exe:<br /><br />
-7z.exe a archive.7z *.htm -r -mx -m0fb=255<br /><br />
-If you have big number of files in archive, and you need fast extracting, you can use partly-solid archives:<br /><br />
-7za.exe a archive.7z *.htm -ms=512K -r -mx -m0fb=255 -m0d=512K<br /><br />
-In that example 7-Zip will use 512KB solid blocks. So it needs to decompress only 512KB for extracting one file from such archive.</p></remarks>
+<p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
+        <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry.</p></example>
         <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
 <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+      </function>
+      <function>
+        <name>MapArchiveExtensions</name>
+        <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
+        <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
+<p>An exception will be raised if there was an error.</p></description>
+        <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
+<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
+        <example><pre>
+[Files]
+Source: "{src}\My7ZipSFX.exe; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion
+
+[Code]
+function InitializeSetup: Boolean;
+begin
+  MapArchiveExtensions('.exe', '.7z');
+end;</pre></example>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>GetMD5OfFile</name>
+        <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA1OfFile</name>
+        <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+      </function>
+      <function>
+        <name>GetSHA256OfFile</name>
+        <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
+        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ISSigVerify</name>
+        <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;</prototype>
+        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>. An exception will be raised upon failure.</p>
+<p>If VerifyFilename is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>        
+<p>Returns a handle to the still open file if KeepOpen is set to True, <tt>nil</tt> otherwise. It is recommended that you always set it to True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
+        <example><pre>var
+  F: TFileStream;
+begin
+  F := ISSigVerify([], Filename, True);
+  try
+    // Use file
+  finally
+    F.Free;
+  end;
+end;</pre></example>
+        <seealso><p><link topic="issig">.issig Signatures: Introduction</link><br/>
+<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1926,7 +1993,8 @@ In that example 7-Zip will use 512KB solid blocks. So it needs to decompress onl
       <function>
         <name>CopyFile</name>
         <prototype>function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
-        <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p></description>
+        <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p>
+<p>Files copied using <tt>CopyFile</tt> are not automatically uninstalled. Consider using a [Files] entry with the <tt>external</tt> flag set instead.</p></description>
         <remarks><p>Can't be used to copy Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
@@ -2136,7 +2204,7 @@ end;</pre>
     </subcategory>
   </category>
   <category>
-    <description><p>File Version</p></description>
+    <description>File Version</description>
     <subcategory>
       <function>
         <name>GetVersionNumbers</name>
@@ -2231,7 +2299,7 @@ end;</pre>
     </subcategory>
   </category>
   <category>
-    <description><p>Registry</p></description>
+    <description>Registry</description>
     <subcategory>
       <function>
         <name>RegKeyExists</name>
@@ -2406,7 +2474,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>INI File</p></description>
+    <description>INI File</description>
     <subcategory>
       <function>
         <name>IniKeyExists</name>
@@ -2467,7 +2535,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Custom Setup Wizard Page</p></description>
+    <description>Custom Setup Wizard Page</description>
     <subcategory>
       <function>
         <name>CreateInputQueryPage</name>
@@ -2668,26 +2736,32 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p></example>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry instead.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>
         <name>CreateExtractionPage</name>
-        <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): ExtractionWizardPage;</prototype>
-        <description><p>Creates a wizard page to extract 7-Zip archives and show progress.</p>
+        <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
+        <description><p>Creates a wizard page to extract archives and show progress.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
-<p>To add a new archive to extract, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
+<p>To add a new archive to extract, call the <tt>Add</tt> method or the <tt>AddEx</tt> method if the archive is password-protected. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
 <p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
-<p>See <link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link> for other considerations and the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p></example>
+<p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p>
+</example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
-<link topic="isxfunc_Extract7ZipArchive">Extract7ZipArchive</link><br />
+<link topic="isxfunc_ExtractArchive">ExtractArchive</link><br />
+<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
 <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
       </function>
       <function>
@@ -2736,12 +2810,12 @@ end;</pre></example>
       <function>
         <name>ScaleX</name>
         <prototype>function ScaleX(X: Integer): Integer;</prototype>
-        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then X is returned unchanged.</p></description>
+        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then X is returned unchanged.</p></description>
       </function>
       <function>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
-        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in Small Fonts (96 dpi), then Y is returned unchanged.</p></description>
+        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then Y is returned unchanged.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromIcon</name>
@@ -2771,7 +2845,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Dialog</p></description>
+    <description>Dialog</description>
     <subcategory>
       <function>
         <name>MsgBox</name>
@@ -2815,12 +2889,12 @@ end;</pre></example>
 <tt>Text</tt> specifies the message to display.<br />
 <tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
-<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note.<br />
+<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
 <p>Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p>TMsgBoxType is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
-<p>Supported flags for <tt>Buttons</tt> are:</p>
+<p>Supported values for <tt>Buttons</tt> are:</p>
 <p><tt>MB_OK, MB_OKCANCEL, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_ABORTRETRYIGNORE</tt></p>
 <p>If <tt>MB_ABORTRETRYIGNORE</tt> is used, <tt>ButtonLabels</tt> may not be an empty array and the button labels must be specified in the following special order: Retry, Ignore, Abort.</p>
 <p>Supported values for <tt>ShieldButton</tt> and possible return values are:</p>
@@ -2919,7 +2993,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>COM Automation objects support</p></description>
+    <description>COM Automation objects support</description>
     <subcategory>
       <function>
         <name>CreateOleObject</name>
@@ -2973,7 +3047,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Setup Logging</p></description>
+    <description>Setup Logging</description>
     <subcategory>
       <function>
         <name>Log</name>
@@ -3060,7 +3134,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Other</p></description>
+    <description>Other</description>
     <subcategory>
       <function>
         <name>Sleep</name>
@@ -3099,7 +3173,7 @@ end;</pre></example>
     </subcategory>
   </category>
   <category>
-    <description><p>Deprecated</p></description>
+    <description>Deprecated</description>
     <subcategory>
       <function>
         <name>LoadDLL</name>

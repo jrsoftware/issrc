@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.1.0+ Icelandic messages ***
+; *** Inno Setup version 6.1.0+ Icelandic messages ***
 ;
 ; Translator: Stefán Örvar Sigmundsson, eMedia Intellect
 ; Contact: emi@emi.is

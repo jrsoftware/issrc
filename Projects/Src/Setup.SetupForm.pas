@@ -2,7 +2,7 @@ unit Setup.SetupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, Shared.SetupMessageIDs;
+  UIStateForm;
 
 type
   TSetupForm = class(TUIStateForm)
@@ -47,6 +47,7 @@ type
     function ScalePixelsY(const N: Integer): Integer;
     function ShouldSizeX: Boolean;
     function ShouldSizeY: Boolean;
+    function ShowModal: Integer; override;
     procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
@@ -74,7 +75,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages, BidiUtils;
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc, BidiUtils;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -247,7 +248,6 @@ begin
 end;
 
 type
-  TControlAnchorsListItem = TPair<TControl, TAnchors>;
   TControlAnchorsList = TDictionary<TControl, TAnchors>;
   TControlAccess = class(TControl);
 
@@ -270,13 +270,11 @@ begin
 end;
 
 procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-var
-  I: TControlAnchorsListItem;
 begin
   { The order in which we restore the anchors shouldn't matter, so just
     enumerate the list. }
-  for I in AnchorsList do
-    I.Key.Anchors := I.Value;
+  for var Item in AnchorsList do
+    Item.Key.Anchors := Item.Value;
 end;
 
 { TSetupForm }
@@ -331,6 +329,13 @@ procedure TSetupForm.CenterInsideControl(const Ctl: TWinControl;
 var
   R: TRect;
 begin
+  const CtlForm = GetParentForm(Ctl);
+  if (CtlForm = nil) or not IsWindowVisible(CtlForm.Handle) or
+     IsIconic(CtlForm.Handle) then begin
+    Center;
+    Exit;
+  end;
+
   if not InsideClientArea then begin
     if GetWindowRect(Ctl.Handle, R) then
       CenterInsideRect(R);
@@ -372,6 +377,21 @@ end;
 procedure TSetupForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
+  { With Application.MainFormOnTaskBar=True, by default, a form won't get a
+    taskbar button if the main form hasn't been created yet (due to the owner
+    being an invisible Application.Handle), or if the main form exists but
+    isn't visible (e.g., because it's a silent install). Force it to have a
+    taskbar button in those cases by specifying no owner for the window.
+    (Another method is to set WS_EX_APPWINDOW and leave WndParent set to
+    Application.Handle, but it doesn't quite work correctly: if the form
+    displays a message box, and you activate another app's window, clicking on
+    the form's taskbar button activates the message box again, but the taskbar
+    button doesn't change to a "selected" state.) }
+  if (Params.WndParent <> 0) and
+     (Application.MainFormOnTaskBar or (Params.WndParent <> Application.Handle)) and
+     not IsWindowOnTaskbar(Params.WndParent) then
+    Params.WndParent := 0;
+
   if FRightToLeft then
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
@@ -465,6 +485,18 @@ end;
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
   Result := MulDiv(N, BaseUnitY, OrigBaseUnitY);
+end;
+
+function TSetupForm.ShowModal: Integer;
+begin
+  { Work around VCL issue (Delphi 11.3): ShowModal calls DisableTaskWindows
+    without ensuring the form's handle has been created first. If the handle
+    is created after DisableTaskWindows, PopupMode=pmAuto breaks;
+    TCustomForm.CreateParams finds that the active window is disabled, and
+    doesn't use it as the owner. It then falls back to pmNone behavior, which
+    is to use the main form or application window as the owner. }
+  HandleNeeded;
+  Result := inherited;
 end;
 
 procedure TSetupForm.VisibleChanging;

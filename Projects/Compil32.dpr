@@ -15,12 +15,14 @@ uses
   SysUtils,
   Forms,
   PathFunc in '..\Components\PathFunc.pas',
+  TrustFunc in '..\Components\TrustFunc.pas',
   IDE.MainForm in 'Src\IDE.MainForm.pas' {MainForm},
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
+  Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
   IDE.StartupForm in 'Src\IDE.StartupForm.pas' {StartupForm},
   IDE.Wizard.WizardForm in 'Src\IDE.Wizard.WizardForm.pas' {WizardForm},
@@ -67,7 +69,10 @@ uses
   SHA256 in '..\Components\SHA256.pas',
   Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas',
-  IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule};
+  IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule},
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  StringScanner in '..\Components\StringScanner.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -182,7 +187,7 @@ begin
     end
     else if CompareText(S, '/UNASSOC') = 0 then begin
       try
-        UnregisterISSFileAssociation;
+        UnregisterISSFileAssociation(True);
       except
         MessageBox(0, PChar(GetExceptMessage), nil, MB_OK or MB_ICONSTOP);
         Halt(2);
@@ -200,6 +205,28 @@ begin
 end;
 
 begin
+  {$IFNDEF STATICCOMPILER}
+  try
+    InitISCmplrLibrary;
+  except
+    begin
+      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF},
+        [ISCmplrDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      Halt(3);
+    end;
+  end;
+  {$ENDIF}
+
+  try
+    InitIsscintLibrary;
+  except
+    begin
+      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
+        [IsscintDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      Halt(4);
+    end;
+  end;
+
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;
   {$ENDIF}
@@ -213,6 +240,9 @@ begin
   Application.Initialize;
   CheckParams;
   RegisterApplicationRestart;
+
+  if not CommandLineWizard then
+    Application.MainFormOnTaskBar := True;
 
   { The 'with' is so that the Delphi IDE doesn't mess with these }
   with Application do begin

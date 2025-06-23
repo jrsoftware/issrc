@@ -150,6 +150,8 @@ begin
   { Bring us back to the foreground, unless we've been detached }
   if Debugging then begin
     TopWindow := GetThreadTopWindow;
+    if TopWindow = 0 then
+      TopWindow := Application.Handle;
     if TopWindow <> 0 then begin
       { First ask the debugger to call SetForegroundWindow() on our window. If
         we don't do this then Windows (98/2000+) will prevent our window from

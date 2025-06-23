@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.1.0+ Japanese messages ***
+; *** Inno Setup version 6.4.0+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -206,6 +206,13 @@ ErrorFileHash1=ファイルのハッシュに失敗しました: %1
 ErrorFileHash2=無効なファイルハッシュ: 予期された値 %1, 実際の値 %2
 ErrorProgress=無効な進行状況: %1 / %2
 ErrorFileSize=無効なファイルサイズ: 予期された値 %1, 実際の値 %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=追加のファイルを展開しています...
+ButtonStopExtraction=展開を中止(&S)
+StopExtraction=展開を中止してもよろしいですか？
+ErrorExtractionAborted=展開を中止しました
+ErrorExtractionFailed=展開に失敗しました: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=インストール準備中

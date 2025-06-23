@@ -2,7 +2,7 @@ unit Shared.Int64Em;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,6 +31,7 @@ function Mul64(var X: Integer64; N: LongWord): Boolean;
 procedure Multiply32x32to64(N1, N2: LongWord; var X: Integer64);
 procedure Shr64(var X: Integer64; Count: LongWord);
 function StrToInteger64(const S: String; var X: Integer64): Boolean;
+function To64(const Lo: Longword): Integer64;
 
 implementation
 
@@ -221,25 +222,29 @@ end;
 function StrToInteger64(const S: String; var X: Integer64): Boolean;
 { Converts a string containing an unsigned decimal number, or hexadecimal
   number prefixed with '$', into an Integer64. Returns True if successful,
-  or False if invalid characters were encountered or an overflow occurred. }
+  or False if invalid characters were encountered or an overflow occurred.
+  Supports digits separators. }
 var
   Len, Base, StartIndex, I: Integer;
   V: Integer64;
   C: Char;
 begin
+  Result := False;
+
   Len := Length(S);
   Base := 10;
   StartIndex := 1;
-  if (Len > 0) and (S[1] = '$') then begin
-    Base := 16;
-    Inc(StartIndex);
+  if Len > 0 then begin
+    if S[1] = '$' then begin
+      Base := 16;
+      Inc(StartIndex);
+    end else if S[1] = '_' then
+      Exit;
   end;
 
-  Result := False;
-  if StartIndex > Len then
+  if (StartIndex > Len) or (S[StartIndex] = '_') then
     Exit;
-  V.Lo := 0;
-  V.Hi := 0;
+  V := To64(0);
   for I := StartIndex to Len do begin
     C := UpCase(S[I]);
     case C of
@@ -259,6 +264,8 @@ begin
           if not Inc64(V, Ord(C) - (Ord('A') - 10)) then
             Exit;
         end;
+      '_':
+        { Ignore }
     else
       Exit;
     end;
@@ -278,6 +285,12 @@ begin
     Buf[I] := Chr(Ord('0') + Div64(X, 10));
   until (X.Lo = 0) and (X.Hi = 0);
   SetString(Result, PChar(@Buf[I]), (High(Buf) + 1) - I);
+end;
+
+function To64(const Lo: Longword): Integer64;
+begin
+  Result.Lo  := Lo;
+  Result.Hi := 0;
 end;
 
 end.

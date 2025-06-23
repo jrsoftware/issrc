@@ -1,7 +1,7 @@
 // Inno Setup Preprocessor
 //
-// Inno Setup (C) 1997-2024 Jordan Russell. All Rights Reserved.
-// Portions Copyright (C) 2000-2024 Martijn Laan. All Rights Reserved.
+// Inno Setup (C) 1997-2025 Jordan Russell. All Rights Reserved.
+// Portions Copyright (C) 2000-2025 Martijn Laan. All Rights Reserved.
 // Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 //
 // See the ISPP help file for more documentation of the functions defined by this file
@@ -229,14 +229,10 @@
     (Local[0] < 0 ? Local[1] : Local[0] + 1)
 
 #define ExtractFilePath(str PathName) \
-  (Local[0] = \
+  Local[0] = \
     !(Local[1] = RPos("\", PathName)) ? \
       "" : \
-      Copy(PathName, 1, Local[1] - 1)), \
-  Local[0] + \
-    ((Local[2] = Len(Local[0])) == 2 && Copy(Local[0], Local[2]) == ":" ? \
-      "\" : \
-      "")
+      Copy(PathName, 1, Local[1])
 
 #define ExtractFileDir(str PathName) \
   RemoveBackslash(ExtractFilePath(PathName))
@@ -263,7 +259,7 @@
 #define AddBackslash(str S) \
   Copy(S, Len(S)) == "\" ? S : S + "\"
 
-#define RemoveBackslash(str S) \
+#define RemoveBackslashUnlessRoot(str S) \
   Local[0] = Len(S), \
   Local[0] > 0 ? \
     Copy(S, Local[0]) == "\" ? \
@@ -272,6 +268,9 @@
         Copy(S, 1, Local[0] - 1)) : \
       S : \
     ""
+#define RemoveBackslash(str S) \
+  WarnRenamedVersion("RemoveBackslash", "RemoveBackslashUnlessRoot"), \
+  RemoveBackslashUnlessRoot(S)
 
 #define Delete(str *S, int Index, int Count = MaxInt) \
   S = Copy(S, 1, Index - 1) + Copy(S, Index + Count)

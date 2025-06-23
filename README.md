@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2024 Jordan Russell. All rights reserved.
-Portions Copyright (C) 2000-2024 Martijn Laan. All rights reserved.
+Copyright (C) 1997-2025 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.
 For conditions of distribution and use, see LICENSE.TXT.
 
 Source code README
@@ -38,7 +38,8 @@ Getting Started
 
 2. **Install Embarcadero Delphi**
 
-   We compile all of Inno Setup's projects under Delphi 11.3 Alexandria.
+   We compile all of Inno Setup's projects under Delphi 12.3 Athens with the
+   May Patch installed.
 
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
@@ -59,14 +60,15 @@ Getting Started
    from the Community Edition, which means there's two different build
    scripts.
 
-   Community Edition: To build all files run **build-ce.bat** and follow the
-   instructions.
+   Community Edition: To build all files in Release mode run **build-ce.bat**
+   and follow the instructions.
 
-   Otherwise: To build all files run **build.bat** and follow the instructions.
+   Otherwise: To build all files in Release mode run **build.bat** and follow
+   the instructions.
 
-   To just compile Inno Setup run **compile.bat** and follow the instructions.
-   This batch file cannot be used with the Community Edition, open
-   Projects\Projects.groupproj instead.
+   To just compile Inno Setup in Release mode run **compile.bat** and follow
+   the instructions. This batch file cannot be used with the Community Edition,
+   open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
    **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
@@ -111,7 +113,7 @@ because they can function independently from Inno Setup.
 Overview
 --------
 
-Inno Setup consists of six projects:
+Inno Setup consists of seven projects:
 
 **Compil32** - This is the GUI front-end for the compiler, also known as
 the Compiler IDE. Compil32 does not do the actual compilation itself; it
@@ -136,6 +138,12 @@ performs all (un)installation-related tasks.
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
+**ISSigTool** - This is a command-line utility which can be used to sign and verify
+any of your files. Compil32, ISCC, and ISCmplr use these signatures to verify the
+authenticity of a number of DLL, E32 and EXE files before loading them. Note: this
+utility does not replace Microsoft's signtool.exe in any way and is in fact not
+related to Authenticode Code Signing at all.
+
 How do the projects link together?
 
 - Compil32, ISCmplr, ISPP, Setup, and SetupLdr share the unit Shared.Struct.pas.
@@ -152,7 +160,8 @@ Source code tips
 
 - When building the projects in Debug mode it outputs to [Projects\Bin] and when
   debugging it will run from within this directory. To prepare this directory
-  with some extra files you must run **Projects\Bin\synch-isfiles.bat**.
+  with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
+  the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
 - When debugging the Setup project you should first build all projects in Debug
   mode, then run the Compil32 project and compile the Debug.iss script which
@@ -162,14 +171,14 @@ Source code tips
   
 - When building the projects in Release mode it outputs to [Files].
   
-- All of the forms in the Setup project, with the exception of Setup.MainForm.dfm, have
-  Scaled set to False. This is because they dynamically scale themselves at
-  run-time by calling a function named InitializeFont.
+- All of the forms in the Setup project have Scaled set to False. This is
+  because they dynamically scale themselves at run-time by calling a function
+  named InitializeFont.
 
-- A note for those curious: The Setup Compiler creates single EXE Setups by
-  first creating the SETUP.EXE as usual, then concatenating the SETUP.0 and
-  SETUP-1.BIN to the end of the SETUP.EXE, and finally modifying an internal
-  data block in SETUP.EXE so it knows it's in "single EXE" form.
+- A note for those curious: The Setup Compiler creates single exe Setups by
+  first creating the Setup.exe as usual, then concatenating the Setup.0 and
+  Setup-1.bin to the end of the Setup.exe, and finally modifying an internal
+  data block in Setup.exe so it knows it's in "single exe" form.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
@@ -183,19 +192,22 @@ Source code tips
 Precompiled executables and libraries
 -------------------------------------
 
-The source code contains several precompiled and signed executables and libraries:
+The source code contains several precompiled and code-signed executables and libraries:
+
+**Files\is7z.dll**, **Files\is7zxa.dll**, **Files\is7zxr.dll** - Compiled by
+Visual Studio 2022 from 7-Zip source code in the [is7z] repository.
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
-from the bzlib directory in the iscompress repository.
+from the bzlib directory in the [iscompress] repository.
 
 **Files\isunzlib.dll**, **Files\iszlib.dll** - Compiled by Visual Studio 2005
-from the zlib-dll directory in the iscompress repository.
+from the zlib-dll directory in the [iscompress] repository.
 
 **Files\islzma.dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 
 **Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
-code in the isscint repository.
+code in the [isscint] repository.
 
 **Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -
 Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
@@ -213,6 +225,9 @@ Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecode
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
 Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
 
+Each precompiled file is accompanied by an .issig signature file, and can be
+verified using Inno Setup Signature Tool and [this public key file].
+
 Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
 
@@ -227,7 +242,7 @@ Inno Setup's source code includes a GitHub workflow that performs unattended bui
 upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\20.0`. This may
+of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\23.0`. This may
 not be a Community Edition because it does not support command line compilation.
 Also ensure your current Delphi license still allows you to copy a subset of the
 Delphi files to another machine for the specific purpose of supporting unattended
@@ -237,7 +252,7 @@ First, generate an encrypted `.zip` file containing the files needed to build
 Inno Setup using [7-Zip]:
 
 ```
-cd C:\Program Files (x86)\Embarcadero\Studio\20.0
+cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 "C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
 	%USERPROFILE%\issrc-build-env.zip ^
 	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
@@ -261,6 +276,13 @@ https://github.com/YOUR-USER-NAME/issrc to add the topic).
 Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
 
+To set up automatic synchronization for your fork, first create a Fine-Grained Personal
+Access Token with access to your fork or all repositories you own, ensuring it has Read and
+Write permissions for Contents. After that, add this token as a new repository secret, under
+the name `ISSRC_BUILD_ENV_ZIP_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
+by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
+and will automatically run the aforementioned build workflow on changes, if it's configured.
+
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
 [Projects\Bin]: <Projects/Bin>
@@ -276,3 +298,7 @@ workflow will be triggered automatically.
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>
 [7-Zip]: https://www.7-zip.org/
 [secret]: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+[this public key file]: https://files.jrsoftware.org/is/misc/def01.ispublickey
+[is7z]: https://github.com/jrsoftware/is7z
+[iscompress]: https://github.com/jrsoftware/iscompress
+[isscint]: https://github.com/jrsoftware/isscint

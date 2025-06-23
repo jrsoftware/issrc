@@ -2,7 +2,7 @@ unit Shared.CommonFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -112,7 +112,7 @@ function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
 function ConstPos(const Ch: Char; const S: String): Integer;
 function SkipPastConst(const S: String; const Start: Integer): Integer;
-function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String; AllowDWord: Boolean = False): Boolean;
 function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
 function RegValueExists(H: HKEY; Name: PChar): Boolean;
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
@@ -194,7 +194,7 @@ function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
   external shell32 name 'SHGetPathFromIDListW';
 
 
-function InternalGetFileAttr(const Name: String): Integer;
+function InternalGetFileAttr(const Name: String): DWORD;
 begin
   Result := GetFileAttributes(PChar(RemoveBackslashUnlessRoot(Name)));
 end;
@@ -205,11 +205,9 @@ function NewFileExists(const Name: String): Boolean;
   on files in directories that don't have "list" permission. There is, however,
   one other difference: FileExists allows wildcards, but this function does
   not. }
-var
-  Attr: Integer;
 begin
-  Attr := GetFileAttributes(PChar(Name));
-  Result := (Attr <> -1) and (Attr and faDirectory = 0);
+  var Attr := GetFileAttributes(PChar(Name));
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory = 0);
 end;
 
 function DirExists(const Name: String): Boolean;
@@ -218,18 +216,16 @@ function DirExists(const Name: String): Boolean;
   NOTE: Delphi's FileCtrl unit has a similar function called DirectoryExists.
   However, the implementation is different between Delphi 1 and 2. (Delphi 1
   does not count hidden or system directories as existing.) }
-var
-  Attr: Integer;
 begin
-  Attr := InternalGetFileAttr(Name);
-  Result := (Attr <> -1) and (Attr and faDirectory <> 0);
+  var Attr := InternalGetFileAttr(Name);
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and faDirectory <> 0);
 end;
 
 function FileOrDirExists(const Name: String): Boolean;
 { Returns True if the specified directory or file name exists. The specified
   name may include a trailing backslash. }
 begin
-  Result := InternalGetFileAttr(Name) <> -1;
+  Result := InternalGetFileAttr(Name) <> INVALID_FILE_ATTRIBUTES;
 end;
 
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
@@ -240,7 +236,7 @@ var
   Attr: DWORD;
 begin
   Attr := GetFileAttributes(PChar(Name));
-  Result := (Attr <> $FFFFFFFF) and
+  Result := (Attr <> INVALID_FILE_ATTRIBUTES) and
     (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) and
     (Attr and FILE_ATTRIBUTE_REPARSE_POINT = 0);
 end;
@@ -824,7 +820,7 @@ begin
 end;
 
 function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String;
-  Type1, Type2: DWORD): Boolean;
+  Type1, Type2, Type3: DWORD): Boolean;
 var
   Typ, Size: DWORD;
   Len: Integer;
@@ -835,8 +831,16 @@ begin
   Result := False;
 1:Size := 0;
   if (RegQueryValueEx(H, Name, nil, @Typ, nil, @Size) = ERROR_SUCCESS) and
-     ((Typ = Type1) or (Typ = Type2)) then begin
-    if Size = 0 then begin
+     ((Typ = Type1) or (Typ = Type2) or ((Type3 <> REG_NONE) and (Typ = Type3))) then begin
+    if Typ = REG_DWORD then begin
+      var Data: DWORD;
+      Size := SizeOf(Data);
+      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and
+         (Typ = REG_DWORD) and (Size = Sizeof(Data)) then begin
+        ResultStr := Data.ToString;
+        Result := True;
+      end;
+    end else if Size = 0 then begin
       { It's an empty string with no null terminator.
         (Must handle those here since we can't pass a nil lpData pointer on
         the second RegQueryValueEx call.) }
@@ -859,7 +863,7 @@ begin
         goto 1;
       end;
       if (ErrorCode = ERROR_SUCCESS) and
-         ((Typ = Type1) or (Typ = Type2)) then begin
+         ((Typ = Type1) or (Typ = Type2) or (Typ = Type3)) then begin
         { If Size isn't a multiple of SizeOf(S[1]), we disregard the partial
           character, like RegGetValue }
         Len := Size div SizeOf(S[1]);
@@ -883,13 +887,18 @@ begin
   end;
 end;
 
-function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
+function RegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String; AllowDWord: Boolean): Boolean;
 { Queries the specified REG_SZ or REG_EXPAND_SZ registry key/value, and returns
   the value in ResultStr. Returns True if successful. When False is returned,
-  ResultStr is unmodified. }
+  ResultStr is unmodified. Optionally supports REG_DWORD. }
 begin
+  var Type3: DWORD;
+  if AllowDWord then
+    Type3 := REG_DWORD
+  else
+    Type3 := REG_NONE;
   Result := InternalRegQueryStringValue(H, Name, ResultStr, REG_SZ,
-    REG_EXPAND_SZ);
+    REG_EXPAND_SZ, Type3);
 end;
 
 function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): Boolean;
@@ -898,7 +907,7 @@ function RegQueryMultiStringValue(H: HKEY; Name: PChar; var ResultStr: String): 
   is unmodified. }
 begin
   Result := InternalRegQueryStringValue(H, Name, ResultStr, REG_MULTI_SZ,
-    REG_MULTI_SZ);
+    REG_MULTI_SZ, REG_NONE);
 end;
 
 function RegValueExists(H: HKEY; Name: PChar): Boolean;

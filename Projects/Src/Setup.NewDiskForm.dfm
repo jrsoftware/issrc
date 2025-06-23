@@ -12,13 +12,12 @@ object NewDiskForm: TNewDiskForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PopupMode = pmAuto
   Scaled = False
   OnCloseQuery = FormCloseQuery
   DesignSize = (
     377
     169)
-  PixelsPerInch = 96
   TextHeight = 13
   object DiskBitmapImage: TBitmapImage
     Left = 8

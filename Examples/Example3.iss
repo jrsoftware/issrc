@@ -43,7 +43,6 @@ Root: HKA; Subkey: "Software\Classes\.myp\OpenWithProgids"; ValueType: string; V
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp"; ValueType: string; ValueName: ""; ValueData: "My Program File"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\MyProg.exe,0"
 Root: HKA; Subkey: "Software\Classes\MyProgramFile.myp\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\MyProg.exe"" ""%1"""
-Root: HKA; Subkey: "Software\Classes\Applications\MyProg.exe\SupportedTypes"; ValueType: string; ValueName: ".myp"; ValueData: ""
 ; HKA (and HKCU) should only be used for settings which are compatible with
 ; roaming profiles so settings like paths should be written to HKLM, which
 ; is only possible in administrative install mode.

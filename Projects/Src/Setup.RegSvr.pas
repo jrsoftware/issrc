@@ -66,7 +66,7 @@ begin
   for I := 0 to 999 do begin
     NewFilename := Path + Format('isRS-%.3u.tmp', [I]);
     Attribs := GetFileAttributes(PChar(NewFilename));
-    if Attribs <> $FFFFFFFF then begin
+    if Attribs <> INVALID_FILE_ATTRIBUTES then begin
       { Skip any directories that happen to named NewFilename }
       if Attribs and FILE_ATTRIBUTE_DIRECTORY <> 0 then
         Continue;
@@ -119,9 +119,7 @@ begin
 
   { Set default title; it's set again below after the messages are read }
   Application.Title := 'Setup';
-  { This is needed for D3+: Must force the application window visible since
-    we aren't displaying any forms }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.MainFormOnTaskBar := True;
 
   InitializeCommonVars;
 
@@ -133,7 +131,6 @@ begin
     registry entries be in an incomplete/inconsistent state? I'm not sure, so
     a mutex is used here to ensure registrations are serialized. }
   Mutex := Windows.CreateMutex(nil, False, 'Inno-Setup-RegSvr-Mutex');
-  ShowWindow(Application.Handle, SW_HIDE);  { hide taskbar button while waiting }
   if Mutex <> 0 then begin
     { Even though we have no visible windows, process messages while waiting
       so Windows doesn't think we're hung }
@@ -142,7 +139,6 @@ begin
     until MsgWaitForMultipleObjects(1, Mutex, False, INFINITE,
       QS_ALLINPUT) <> WAIT_OBJECT_0+1;
   end;
-  ShowWindow(Application.Handle, SW_SHOW);
   try
     MsgFilename := PathChangeExt(NewParamStr(0), '.msg');
     ListFilename := PathChangeExt(NewParamStr(0), '.lst');

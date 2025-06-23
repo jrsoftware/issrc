@@ -1,11 +1,11 @@
-; *** Inno Setup version 6.1.0+ Basque messages ***
+; *** Inno Setup version 6.4.0+ Basque messages ***
 ;
 ; Basque Translation: (EUS_Xabier Aramendi) (azpidatziak@gmail.com)
-; Default.isl 6.1.0 translation: Marimar (bmarimar2@gmail.com) 
+; Default.isl 6.4.0 translation: Marimar (bmarimar2@gmail.com) 
 ; Based in translation 5.5.3+ by Xabier Aramendi
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -46,7 +46,7 @@ ErrorTitle=Akatsa
 SetupLdrStartupMessage=Honek %1 ezarriko du. Jarraitzea nahi duzu?
 LdrCannotCreateTemp=Ezinezkoa aldibaterako agiri bat sortzea. Ezarpena utzita
 LdrCannotExecTemp=Ezinezkoa agiria exekutatzea aldibaterako zuzenbidean. Ezarpena utzita
-
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nAkatsa %2: %3
@@ -88,7 +88,7 @@ AboutSetupMenuItem=&Ezartzaileari buruz...
 AboutSetupTitle=Ezartzaileari buruz
 AboutSetupMessage=%1 bertsioa %2%n%3%n%n%1 webgunea:%n%4
 AboutSetupNote=
-TranslatorNote=
+TranslatorNote=Basque translation maintained by Marimar
 
 ; *** Buttons
 ButtonBack=< &Atzera
@@ -189,7 +189,7 @@ ComponentsDiskSpaceMBLabel=Oraingo hautapenak gutxienez [mb] MB-eko tokia behar 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Hautatu Eginkizun Gehigarriak
 SelectTasksDesc=Zer eginkizun gehigarri burutu behar dira?
-SelectTasksLabel2=Hautatu Ezartzaileak  [name]-ren ezarpenean zehar burutzea nahi dituzun eginkizun gehigarriak, orduan klikatu Hurrengoa
+SelectTasksLabel2=Hautatu Ezartzaileak [name]-ren ezarpenean zehar burutzea nahi dituzun eginkizun gehigarriak, orduan klikatu Hurrengoa
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Hautatu Hasiera Menuko Agiritegia
@@ -225,6 +225,13 @@ ErrorFileHash1=Fitxategiaren hash huts egin zuen: %1
 ErrorFileHash2=Fitxategiaren hash ez da baliozkoa: espero %1, aurkitu %2
 ErrorProgress=Aurrerapena ez da baliozkoa: %1 (e) tik %2 (e) ra
 ErrorFileSize=Fitxategiaren tamaina ez da baliozkoa: espero %1, aurkitu %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Fitxategi gehigarriak ateratzen...
+ButtonStopExtraction=&Erauzketa gelditu
+StopExtraction=Ziur zaude erauzketa gelditu nahi duzula?
+ErrorExtractionAborted=Erauzketa ezeztatua
+ErrorExtractionFailed=Erauzketak huts egin zuen: %1
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Ezartzeko Gertatzen

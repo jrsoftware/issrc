@@ -71,8 +71,10 @@ type
     TaskMessageText: TEdit;
     Button1Text: TEdit;
     Button2Text: TEdit;
+    Button3Text: TEdit;
     Button1Label: TNewStaticText;
     Button2Label: TNewStaticText;
+    Button3Label: TNewStaticText;
     cb_Suppressible: TCheckBox;
     cb_DefIDOK: TRadioButton;
     cb_DefIDCANCEL: TRadioButton;
@@ -135,8 +137,10 @@ begin
   TaskMessageText.Visible := False;
   Button1Text.Visible := False;
   Button2Text.Visible := False;
+  Button3Text.Visible := False;
   Button1Label.Visible := False;
   Button2Label.Visible := False;
+  Button3Label.Visible := False;
 end;
 
 procedure TMsgBoxDesignerForm.rbMB_OKClick(Sender: TObject);
@@ -174,12 +178,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
+     Button3Text.Enabled := False;
+     Button3Label.Enabled := False;
      Button2Text.Enabled := False;
      Button2Label.Enabled := False;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
      Button1Text.Text := 'OK';
      Button2Text.Text := '';
+     Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := True;
@@ -237,12 +244,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
+     Button3Text.Enabled := False;
+     Button3Label.Enabled := False;
      Button2Text.Enabled := True;
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
      Button1Text.Text := 'Yes';
      Button2Text.Text := 'No';
+     Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -300,12 +310,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
-     Button2Text.Enabled := False;
-     Button2Label.Enabled := False;
+     Button3Text.Enabled := False;
+     Button3Label.Enabled := False;
+     Button2Text.Enabled := True;
+     Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
      Button1Text.Text := 'OK';
-     Button2Text.Text := '';
+     Button2Text.Text := 'Cancel';
+     Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := True;
@@ -363,12 +376,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
-     Button2Text.Enabled := False;
-     Button2Label.Enabled := False;
+     Button3Text.Enabled := False;
+     Button3Label.Enabled := False;
+     Button2Text.Enabled := True;
+     Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
      Button1Text.Text := 'Retry';
-     Button2Text.Text := '';
+     Button2Text.Text := 'Cancel';
+     Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -426,12 +442,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
+     Button3Text.Enabled := True;
+     Button3Label.Enabled := True;
      Button2Text.Enabled := True;
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
      Button1Text.Text := 'Yes';
      Button2Text.Text := 'No';
+     Button3Text.Text := 'Cancel';
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -489,12 +508,15 @@ begin
      rb_IDIGNORE.Checked := False;
      rb_IDYES.Checked := False;
      rb_IDNO.Checked := False;
-     Button2Text.Enabled := False;
-     Button2Label.Enabled := False;
-     Button1Text.Enabled := False;
-     Button1Label.Enabled := False;
-     Button1Text.Text := '';
-     Button2Text.Text := '';
+     Button3Text.Enabled := True;
+     Button3Label.Enabled := True;
+     Button2Text.Enabled := True;
+     Button2Label.Enabled := True;
+     Button1Text.Enabled := True;
+     Button1Label.Enabled := True;
+     Button1Text.Text := 'Retry';  //this order is not a mistake
+     Button2Text.Text := 'Ignore'; //
+     Button3Text.Text := 'Abort';  //
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -564,10 +586,12 @@ begin
    TaskMessageLabel.Visible := False;
    TaskInstructionText.Visible := False;
    TaskMessageText.Visible := False;
-   Button1Text.Visible := False;
-   Button2Text.Visible := False;
-   Button1Label.Visible := False;
-   Button2Label.Visible := False;
+    Button1Text.Visible := False;
+    Button2Text.Visible := False;
+    Button3Text.Visible := False;
+    Button1Label.Visible := False;
+    Button2Label.Visible := False;
+    Button3Label.Visible := False;
    rbMB_OK.Checked := True;
    rbMB_OKClick(Self);
 end;
@@ -667,10 +691,12 @@ begin
    TaskMessageLabel.Visible := True;
    TaskInstructionText.Visible := True;
    TaskMessageText.Visible := True;
-   Button1Text.Visible := True;
-   Button2Text.Visible := True;
-   Button1Label.Visible := True;
-   Button2Label.Visible := True;
+    Button1Text.Visible := True;
+    Button2Text.Visible := True;
+    Button3Text.Visible := True;
+    Button1Label.Visible := True;
+    Button2Label.Visible := True;
+    Button3Label.Visible := True;
    TaskInstructionText.Text := 'Instruction Text';
    TaskMessageText.Text := 'Message Text';
    rbMB_OK.Checked := True;
@@ -785,14 +811,21 @@ begin
     if (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
        MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
   end else if cb_TaskDialogMsgBox.Checked then begin
-     { create ButtonLabels array }
+     { create ButtonLabels array - also see GetText}
      var ButtonLabels: TArray<string>;
-     if rbMB_YESNO.Checked or rbMB_YESNOCANCEL.Checked then
+     if Button3Text.Enabled then
+        ButtonLabels := TArray<string>.Create(Button1Text.Text, Button2Text.Text, Button3Text.Text)
+     else if Button2Text.Enabled then
         ButtonLabels := TArray<string>.Create(Button1Text.Text, Button2Text.Text)
-     else if rbMB_ABORTRETRYIGNORE.Checked then
-        ButtonLabels := TArray<string>.Create('Retry', 'Ignore', 'Abort')
      else
         ButtonLabels := TArray<string>.Create(Button1Text.Text);
+     if rbMB_OKCANCEL.Checked or rbMB_YESNOCANCEL.Checked or rbMB_RETRYCANCEL.Checked then begin
+      { Specifying a cancel label is optional: if it's missing TaskDialogMsgBox will use a button
+        at the bottom instead }
+      const NLabels = Length(ButtonLabels);
+      if ButtonLabels[NLabels-1] = '' then
+        SetLength(ButtonLabels, NLabels-1);
+     end;
 
      { get Shield Flag value }
      var ShieldButton := 0;
@@ -1004,13 +1037,29 @@ begin
      { TaskDialogMsgBox(TaskInstructionText.Text, TaskMessageText.Text, Typ, Buttons, ButtonLabels, ShieldButton) }
      ModeMsg := 1;
 
-     { create ButtonLabels array }
-     if rbMB_YESNO.Checked or rbMB_YESNOCANCEL.Checked then
-        ButtonLabels :=  Button1Text.Text + ''', ''' + Button2Text.Text
-     else if rbMB_ABORTRETRYIGNORE.Checked then
-        ButtonLabels := 'Retry'', ''Ignore'', ''Abort'
+     { create ButtonLabels array - also see MBDButtonPreviewClick }
+     var ButtonLabelsArray: TArray<string>;
+     if Button3Text.Enabled then
+        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text, Button2Text.Text, Button3Text.Text)
+     else if Button2Text.Enabled then
+        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text, Button2Text.Text)
      else
-        ButtonLabels := Button1Text.Text;
+        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text);
+     var NLabels := Length(ButtonLabelsArray);
+     if rbMB_OKCANCEL.Checked or rbMB_YESNOCANCEL.Checked or rbMB_RETRYCANCEL.Checked then begin
+      { Specifying a cancel label is optional: if it's missing TaskDialogMsgBox will use a button
+        at the bottom instead }
+      if ButtonLabelsArray[NLabels-1] = '' then begin
+        Dec(NLabels);
+        SetLength(ButtonLabelsArray, NLabels);
+      end;
+     end;
+     for var I := 0 to NLabels-1 do begin { NLabels is always > 0 }
+      if I = 0 then
+        ButtonLabels := ButtonLabelsArray[I]
+      else
+        ButtonLabels := ButtonLabels + ''', ''' + ButtonLabelsArray[I];
+     end;
 
      { get Shield Flag value }
      if rbMB_OK.Checked and rb_IDOK.Checked then ShieldButton := 'IDOK';

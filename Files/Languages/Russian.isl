@@ -1,6 +1,6 @@
-; *** Inno Setup version 6.1.0+ Russian messages ***
+; *** Inno Setup version 6.4.0+ Russian messages ***
 ;
-; Translated from English by Dmitry Kann, yktooo at gmail.com
+; Translated from English by Dmitry Kann, https://yktoo.com
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -8,9 +8,21 @@
 ; two periods being displayed).
 
 [LangOptions]
+; The following three entries are very important. Be sure to read and
+; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<0420><0443><0441><0441><043A><0438><0439>
 LanguageID=$0419
 LanguageCodePage=1251
+; If the language you are translating to requires special font faces or
+; sizes, uncomment any of the following entries and change them accordingly.
+;DialogFontName=
+;DialogFontSize=8
+;WelcomeFontName=Verdana
+;WelcomeFontSize=12
+;TitleFontName=Arial
+;TitleFontSize=29
+;CopyrightFontName=Arial
+;CopyrightFontSize=8
 
 [Messages]
 
@@ -209,6 +221,13 @@ ErrorFileHash2=Неверный хэш файла: ожидался %1, получен %2
 ErrorProgress=Ошибка выполнения: %1 из %2
 ErrorFileSize=Неверный размер файла: ожидался %1, получен %2
 
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractionLabel=Распаковка дополнительных файлов...
+ButtonStopExtraction=О&становить распаковку
+StopExtraction=Вы уверены, что хотите остановить распаковку?
+ErrorExtractionAborted=Распаковка прервана
+ErrorExtractionFailed=Ошибка распаковки: %1
+
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке
 PreparingDesc=Программа установки подготавливается к установке [name] на ваш компьютер.
@@ -313,7 +332,9 @@ ErrorRegSvr32Failed=Ошибка при выполнении RegSvr32, код возврата %1
 ErrorRegisterTypeLib=Невозможно зарегистрировать библиотеку типов (Type Library): %1
 
 ; *** Uninstall display name markings
+; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
+; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32 бита
 UninstallDisplayNameMark64Bit=64 бита
@@ -345,7 +366,6 @@ SharedFileNameLabel=Имя файла:
 SharedFileLocationLabel=Расположение:
 WizardUninstalling=Состояние деинсталляции
 StatusUninstalling=Деинсталляция %1...
-
 
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Установка %1.

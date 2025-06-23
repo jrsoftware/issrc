@@ -2,7 +2,7 @@ unit Setup.WizardForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -188,6 +188,7 @@ type
     PrepareToInstallNeedsRestart: Boolean;
     EnableAnchorOuterPagesOnResize: Boolean;
     EnableAdjustReadyLabelHeightOnResize: Boolean;
+    FDownloadArchivesPage: TWizardPage; { TWizardPage to avoid circular reference. Is always a TDownloadWizardPage. }
     procedure AdjustFocus;
     procedure AnchorOuterPages;
     procedure CalcCurrentComponentsSpace;
@@ -211,8 +212,7 @@ type
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
+    procedure WMWindowPosChanging(var Message: TWMWindowPosChanging); message WM_WINDOWPOSCHANGING;
   public
     { Public declarations }
     PrepareToInstallFailureMessage: String;
@@ -343,11 +343,12 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types,
-  PathFunc, RestartManager,
+  ShellApi, ShlObj, Types, Generics.Collections,
+  PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
-  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.SetupSteps;
+  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.SetupSteps,
+  Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.Install;
 
 {$R *.DFM}
 
@@ -615,8 +616,7 @@ var
 begin
   ComponentEntry := PSetupComponentEntry(ComponentsList.ItemObject[Index]);
 
-  ChildrenSize.Hi := 0;
-  ChildrenSize.Lo := 0;
+  ChildrenSize := To64(0);
   if HasChildren then
     ComponentsList.EnumChildrenOf(Index, UpdateComponentSizesEnum, LongInt(@ChildrenSize));
   ComponentSize := ComponentEntry.Size;
@@ -638,8 +638,7 @@ var
   Size: Integer64;
 begin
   if shShowComponentSizes in SetupHeader.Options then begin
-    Size.Hi := 0;
-    Size.Lo := 0;
+    Size := To64(0);
     ComponentsList.EnumChildrenOf(-1, UpdateComponentSizesEnum, LongInt(@Size));
   end;
 end;
@@ -743,17 +742,20 @@ constructor TWizardForm.Create(AOwner: TComponent);
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
   begin
-    { Find the image with the smallest area difference compared to the target area. }
-    TargetArea := TargetWidth*TargetHeight;
-    SmallestDifference := -1;
-    Result := nil;
-    for I := 0 to WizardImages.Count-1 do begin
-      Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
-      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-        Result := WizardImages[I];
-        SmallestDifference := Difference;
+    if WizardImages.Count <> 1 then begin
+      { Find the image with the smallest area difference compared to the target area. }
+      TargetArea := TargetWidth*TargetHeight;
+      SmallestDifference := -1;
+      Result := nil;
+      for I := 0 to WizardImages.Count-1 do begin
+        Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+        if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+          Result := WizardImages[I];
+          SmallestDifference := Difference;
+        end;
       end;
-    end;
+    end else
+      Result := WizardImages[0];
   end;
 
 var
@@ -761,10 +763,9 @@ var
   SystemMenu: HMENU;
   P: String;
   I, DefaultSetupTypeIndex: Integer;
-  DfmDefault, IgnoreInitComponents: Boolean;
+  IgnoreInitComponents: Boolean;
   TypeEntry: PSetupTypeEntry;
   ComponentEntry: PSetupComponentEntry;
-  SaveClientWidth, SaveClientHeight: Integer;
 begin
   inherited;
 
@@ -793,34 +794,17 @@ begin
   WelcomeLabel1.Font.Style := [fsBold];
   PageNameLabel.Font.Style := [fsBold];
 
-  if shWindowVisible in SetupHeader.Options then
-    Caption := SetupMessages[msgSetupAppTitle]
-  else if shDisableWelcomePage in SetupHeader.Options then
+  if shDisableWelcomePage in SetupHeader.Options then
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
 
-  { Set BorderStyle and BorderIcons:
-    -WindowVisible + WizardResizable = sizeable
-    -not WindowVisible + WizardResizable = sizeable + minimize
-    -WindowVisible + not WizardResizable = dialog = .dfm default = do nothing
-    -not WindowVisible + not WizardResizable = single + minimize }
-  DfmDefault := (shWindowVisible in SetupHeader.Options) and not (shWizardResizable in SetupHeader.Options);
-  if not DfmDefault then begin
-    { Save ClientWidth/ClientHeight and restore them after changing BorderStyle. }
-    SaveClientWidth := ClientWidth;
-    SaveClientHeight := ClientHeight;
-    if not(shWindowVisible in SetupHeader.Options) then
-      BorderIcons := BorderIcons + [biMinimize];
-    if not(shWizardResizable in SetupHeader.Options) then
-      BorderStyle := bsSingle
-    else
-      BorderStyle := bsSizeable;
+  if shWizardResizable in SetupHeader.Options then begin
+    const SaveClientWidth = ClientWidth;
+    const SaveClientHeight = ClientHeight;
+    BorderStyle := bsSizeable;
     ClientWidth := SaveClientWidth;
     ClientHeight := SaveClientHeight;
-  end;
-
-  if shWizardResizable in SetupHeader.Options then begin
     EnableAnchorOuterPagesOnResize := True;
     { Do not allow user to resize it smaller than 100% nor larger than 150%. }
     Constraints.MinHeight := Height;
@@ -874,15 +858,14 @@ begin
         58x58 when the user is purposely using a smaller-than-default image
         (such as 55x55 or 32x32) and WizardImageStretch=yes.
       - Otherwise, it's unclear what size/shape the user prefers for the
-        control. Set the control size to 55x55, because that has historically
-        been the size of the (smallest) default images. }
+        control. Keep the default control size. }
     var NewWidth := TBitmap(WizardSmallImages[0]).Width;
     var NewHeight := TBitmap(WizardSmallImages[0]).Height;
     if (WizardSmallImages.Count > 1) or
        (NewWidth > 58) or
        (NewHeight > 58) then begin
-      NewWidth := 55;
-      NewHeight := 55;
+      NewWidth := 58;
+      NewHeight := 58;
     end;
 
     { Scale the new width and height }
@@ -1344,15 +1327,8 @@ begin
   FreeAndNil(PrevSelectedComponents);
   FreeAndNil(InitialSelectedComponents);
   FreeAndNil(FPageList);
+  FreeAndNil(FDownloadArchivesPage);
   inherited;
-end;
-
-procedure TWizardForm.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  { Ensure the form is *always* on top of MainForm by making MainForm
-    the "parent" of the form. }
-  Params.WndParent := MainForm.Handle;
 end;
 
 function TWizardForm.PageIndexFromID(const ID: Integer): Integer;
@@ -1846,6 +1822,127 @@ begin
 end;
 
 function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
+
+  function GetClearedDownloadArchivesPage: TDownloadWizardPage;
+  begin
+    if FDownloadArchivesPage = nil then begin
+      Result := TDownloadWizardPage.Create(Self);
+      try
+        Result.Caption := SetupMessages[msgWizardPreparing];
+        Result.Description := SetupMessages[msgPreparingDesc];
+        Result.ShowBaseNameInsteadOfUrl := True;
+        AddPage(Result, -1);
+        Result.Initialize;
+        FDownloadArchivesPage := Result;
+      except
+        FreeAndNil(Result);
+        raise;
+      end;
+    end else begin
+      Result := FDownloadArchivesPage as TDownloadWizardPage;
+      Result.Clear;
+    end;
+  end;
+
+  function AskRetryDownloadArchivesToExtract(const LastBaseNameOrUrl, Failed: String): Integer;
+  begin
+    const LastOperation = SetupMessages[msgErrorDownloading];
+    const Text = LastBaseNameOrUrl + SNewLine2 + LastOperation + SNewLine + Failed;
+    Result := LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
+      mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
+      0, True, IDCANCEL);
+    if (Result <> IDRETRY) and (Result <> IDCANCEL) then begin
+      Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
+      Result := IDCANCEL;
+    end;
+  end;
+
+  procedure DownloadArchivesToExtract(const SelectedComponents, SelectedTasks: TStringList);
+  begin
+    var DownloadPage: TDownloadWizardPage := nil;
+
+    for var I := 0 to Entries[seFile].Count-1 do begin
+      const FileEntry: PSetupFileEntry = Entries[seFile][I];
+      if (foDownload in FileEntry.Options) and (foExtractArchive in FileEntry.Options) and
+         ShouldProcessFileEntry(SelectedComponents, SelectedComponents, FileEntry, False) then begin
+        if DownloadPage = nil then
+          DownloadPage := GetClearedDownloadArchivesPage;
+        if not(foCustomDestName in FileEntry.Options) then
+          InternalError('Expected CustomDestName flag');
+        { Prepare }
+        const TempDir = AddBackslash(TempInstallDir);
+        const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
+        const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
+        const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
+        { Add to DownloadPage }
+        const Url = ExpandConst(FileEntry.SourceFilename);
+        const UserName = ExpandConst(FileEntry.DownloadUserName);
+        const Password = ExpandConst(FileEntry.DownloadPassword);
+        if FileEntry.Verification.Typ = fvISSig then begin
+          const ISSigUrl = GetISSigUrl(Url, ExpandConst(FileEntry.DownloadISSigSource));
+          DownloadPage.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password,
+            FileEntry.Verification.ISSigAllowedKeys, I)
+        end else begin
+          var RequiredSHA256OfFile: String;
+          if FileEntry.Verification.Typ = fvHash then
+            RequiredSHA256OfFile := SHA256DigestToString(FileEntry.Verification.Hash)
+          else
+            RequiredSHA256OfFile := '';
+          DownloadPage.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password, I);
+        end;
+      end;
+    end;
+
+    if DownloadPage <> nil then begin
+      DownloadPage.Show;
+      try
+        var Failed, LastBaseNameOrUrl: String;
+        repeat
+          Failed := '';
+          LastBaseNameOrUrl := '';
+          try
+            DownloadPage.Download(procedure(const DownloadedFile: TDownloadFile; const DestFile: String; var Remove: Boolean)
+              begin
+                if not DownloadedFile.DotISSigEntry then begin { Check for the extra entries which download .issig }
+                  const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
+                  FileEntry.SourceFilename := DestFile;
+                  { Remove Download flag since download has been done, and remove CustomDestName flag
+                    since ExtractArchive flag doesn't like that }
+                  FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];
+                  { DestName should now not include a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
+                  FileEntry.DestName := PathExtractPath(FileEntry.DestName);
+                  FileEntry.Verification.Typ := fvNone;
+                end;
+                { Tell DownloadPage to not download this file again on retry. Without this it would
+                  redownload files that don't use verification. }
+                Remove := True;
+              end);
+          except
+            if DownloadPage.AbortedByUser then
+              raise;  { This is a regular exception and not EAbort (which is what we want) }
+            Failed := GetExceptMessage;
+            LastBaseNameOrUrl := DownloadPage.LastBaseNameOrUrl;
+          end;
+        until (Failed = '') or (AskRetryDownloadArchivesToExtract(LastBaseNameOrUrl, Failed) = IDCANCEL);
+        if Failed <> '' then
+          raise Exception.Create(Failed);
+      finally
+        DownloadPage.Hide;
+      end;
+    end;
+  end;
+
+  procedure ShowPreparing;
+  begin
+    SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
+    CancelButton.Enabled := False;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
+    WizardForm.Update;
+  end;
+
 var
   CodeNeedsRestart: Boolean;
   Y: Integer;
@@ -1857,30 +1954,38 @@ begin
   PreparingYesRadio.Visible := False;
   PreparingNoRadio.Visible := False;
   PreparingMemo.Visible := False;
-  if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
-    Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
-    PrepareToInstallNeedsRestart := True;
-  end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
-    SetCurPage(wpPreparing);
-    BackButton.Visible := False;
-    NextButton.Visible := False;
-    CancelButton.Enabled := False;
-    if InstallMode = imSilent then begin
-      SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-      WizardForm.Show;
-    end;
-    WizardForm.Update;
+
+  try
+    ShowPreparing;
     try
-      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := True;
-      CodeNeedsRestart := False;
-      Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
-      PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
+      DownloadArchivesToExtract(WizardComponents, WizardTasks);
     finally
-      DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages := False;
       UpdateCurPageButtonState;
     end;
-    Application.BringToFront;
+  except
+    Result := GetExceptMessage;
   end;
+
+  if Result = '' then begin
+    if not PreviousInstallCompleted(WizardComponents, WizardTasks) then begin
+      Result := ExpandSetupMessage(msgPreviousInstallNotCompleted);
+      PrepareToInstallNeedsRestart := True;
+    end else if (CodeRunner <> nil) and CodeRunner.FunctionExists('PrepareToInstall', True) then begin
+      ShowPreparing;
+      try
+        DownloadTemporaryFileOrExtractArchiveProcessMessages := True;
+        CodeNeedsRestart := False;
+        Result := CodeRunner.RunStringFunctions('PrepareToInstall', [@CodeNeedsRestart], bcNonEmpty, True, '');
+        PrepareToInstallNeedsRestart := (Result <> '') and CodeNeedsRestart;
+      finally
+        DownloadTemporaryFileOrExtractArchiveProcessMessages := False;
+        UpdateCurPageButtonState;
+      end;
+      if WindowState <> wsMinimized then  { VCL bug workaround }
+        Application.BringToFront;
+    end;
+  end;
+
   if Result <> '' then begin
     if PrepareToInstallNeedsRestart then
       PreparingLabel.Caption := Result +
@@ -2559,10 +2664,8 @@ begin
               SetCurPage(wpPreparing); { controls are already hidden by PrepareToInstall }
               BackButton.Visible := False;
               NextButton.Visible := False;
-              if InstallMode = imSilent then begin
-                SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-                WizardForm.Show;
-              end;
+              if InstallMode = imSilent then
+                WizardForm.Visible := True;
               try
                 WizardForm.Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
@@ -2709,16 +2812,45 @@ end;
 
 procedure TWizardForm.WMSysCommand(var Message: TWMSysCommand);
 begin
-  if Message.CmdType and $FFF0 = SC_MINIMIZE then
-    { A minimize button is shown on the wizard form when (shWindowVisible in
-      SetupHeader.Options). When it is clicked we want to minimize the whole
-      application. }
-    Application.Minimize
-  else
-  if Message.CmdType = 9999 then
-    MainForm.ShowAboutBox
-  else
+  if Message.CmdType = 9999 then begin
+    { Removing the About box or modifying any existing text inside it is a
+      violation of the Inno Setup license agreement; see LICENSE.TXT.
+      However, adding additional lines to the end of the About box is
+      permitted. }
+    var S := SetupTitle + ' version ' + SetupVersion + SNewLine;
+    if SetupTitle <> 'Inno Setup' then
+      S := S + (SNewLine + 'Based on Inno Setup' + SNewLine);
+    S := S + ('Copyright (C) 1997-2025 Jordan Russell' + SNewLine +
+      'Portions Copyright (C) 2000-2025 Martijn Laan' + SNewLine +
+      'All rights reserved.' + SNewLine2 +
+      'Inno Setup home page:' + SNewLine +
+      'https://www.innosetup.com/');
+    S := S + SNewLine2 + 'RemObjects Pascal Script home page:' + SNewLine +
+      'https://www.remobjects.com/ps';
+    if SetupMessages[msgAboutSetupNote] <> '' then
+      S := S + SNewLine2 + SetupMessages[msgAboutSetupNote];
+    if SetupMessages[msgTranslatorNote] <> '' then
+      S := S + SNewLine2 + SetupMessages[msgTranslatorNote];
+    StringChangeEx(S, '(C)', #$00A9, True);
+    LoggedMsgBox(S, SetupMessages[msgAboutSetupTitle], mbInformation, MB_OK, False, 0)
+  end else
     inherited;
+end;
+
+procedure TWizardForm.WMWindowPosChanging(var Message: TWMWindowPosChanging);
+begin
+  { Work around a VCL issue (Delphi 11.3) when MainFormOnTaskBar=True:
+    If Application.Restore is called while the main form is hidden
+    (Visible=False), the window can become visible because of the SW_RESTORE
+    command it uses, which both unminimizes and shows a window. Reproducer:
+      Application.Minimize;
+      Hide;
+      Application.Restore;
+    This blocks any attempt to show the window while Visible=False.
+    (SW_RESTORE will still unminimize the window; it just cannot show it.) }
+  inherited;
+  if not Visible then
+    Message.WindowPos.flags := Message.WindowPos.flags and not SWP_SHOWWINDOW;
 end;
 
 procedure TWizardForm.LicenseAcceptedRadioClick(Sender: TObject);
@@ -3040,14 +3172,10 @@ begin
         { After installation, we can't abort since e.g. a restart might be
           needed. Instead, to avoid getting stuck in a loop, show the wizard
           (even though this is a silent install) and let the user deal with the
-          problem on their own.
-          The taskbar button will be hidden at this point on very silent
-          installs (see SetupInstallMode); re-show it. }
+          problem on their own. }
         Log('Failed to proceed to next wizard page; showing wizard.');
-        SetTaskbarButtonVisibility(True);
+        WizardForm.Visible := True;
         Application.Restore;
-        SetActiveWindow(Application.Handle);  { ensure taskbar button is selected }
-        WizardForm.Show;
         Break;
       end;
     end;

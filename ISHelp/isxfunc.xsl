@@ -139,6 +139,12 @@
 <xsl:template match="tt">
 <tt><xsl:apply-templates/></tt></xsl:template>
 
+<xsl:template match="ul">
+<ul><xsl:apply-templates/></ul></xsl:template>
+
+<xsl:template match="li">
+<li><xsl:apply-templates/></li></xsl:template>
+
 <xsl:template match="br">
 <br />
 </xsl:template>

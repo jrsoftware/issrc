@@ -2,7 +2,7 @@ unit Setup.Uninstall;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -91,7 +91,7 @@ end;
 
 procedure InitializeUninstallProgressForm;
 begin
-  UninstallProgressForm := TUninstallProgressForm.Create(nil);
+  UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
   UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags);
   if CodeRunner <> nil then begin
     try
@@ -349,19 +349,9 @@ begin
   RequireAdmin := (ufAdminInstalled in Flags) or (ufPowerUserInstalled in Flags);
 
   if NeedToRespawnSelfElevated(RequireAdmin, False) then begin
-    { Hide the taskbar button }
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-    try
-      RespawnSelfElevated(UninstExeFilename,
-        Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
-        UninstallExitCode);
-    except
-      { Re-show the taskbar button and re-raise }
-      if not(ExceptObject is EAbort) then
-        ShowWindow(Application.Handle, SW_SHOW);
-      raise;
-    end;
+    RespawnSelfElevated(UninstExeFilename,
+      Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
+      UninstallExitCode);
     Result := True;
   end;
 end;
@@ -402,11 +392,6 @@ begin
   Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
     Longint(@FirstPhaseWindowProc));
   try
-    { Hide the application window so that we don't end up with two taskbar
-      buttons once the second phase starts }
-    SetWindowPos(Application.Handle, 0, 0, 0, 0, 0, SWP_NOSIZE or
-      SWP_NOMOVE or SWP_NOZORDER or SWP_NOACTIVATE or SWP_HIDEWINDOW);
-
     { Execute the copy of itself ("second phase") }
     ProcessHandle := Exec(TempFile, Format('/SECONDPHASE="%s" /FIRSTPHASEWND=$%x ',
       [NewParamStr(0), Wnd]) + GetCmdTail);
@@ -485,9 +470,6 @@ var
   Res, RemovedAll, UninstallNeedsRestart: Boolean;
   StartTime: DWORD;
 begin
-  if VerySilent then
-    SetTaskbarButtonVisibility(False);
-
   RestartSystem := False;
   AllowUninstallerShutdown := True;
 
@@ -736,11 +718,6 @@ begin
       Log('Restarting Windows.');
       RestartInitiatedByThisProcess := True;
       if not RestartComputer then begin
-        { If another app denied the shutdown, we probably lost the foreground;
-          try to take it back. (Note: Application.BringToFront can't be used
-          because we have no visible forms, and MB_SETFOREGROUND doesn't make
-          the app's taskbar button blink.) }
-        SetForegroundWindow(Application.Handle);
         LoggedAppMessageBox(PChar(SetupMessages[msgErrorRestartingComputer]),
           PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION,
           True, IDOK);
@@ -758,9 +735,7 @@ var
 begin
   { Set default title; it's set again below after the messages are read }
   Application.Title := 'Uninstall';
-  { This is needed for D3+: Must force the application window visible since
-    we aren't displaying any forms }
-  ShowWindow(Application.Handle, SW_SHOW);
+  Application.MainFormOnTaskBar := True;
 
   try
     InitializeCommonVars;

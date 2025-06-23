@@ -248,7 +248,6 @@ begin
         end;
       end;
     end;
-    WriteLn(F, '<keyword value="MainForm" />');
     WriteLn(F, '<keyword value="WizardForm" />');
     WriteLn(F, '<keyword value="UninstallProgressForm" />');
   finally

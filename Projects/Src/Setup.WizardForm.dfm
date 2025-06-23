@@ -1,8 +1,8 @@
 object WizardForm: TWizardForm
   Left = 191
   Top = 139
-  BorderIcons = [biSystemMenu]
-  BorderStyle = bsDialog
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'WizardForm'
   ClientHeight = 360
   ClientWidth = 497
@@ -12,14 +12,12 @@ object WizardForm: TWizardForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Scaled = False
   OnClose = FormClose
   OnResize = FormResize
   DesignSize = (
     497
     360)
-  PixelsPerInch = 96
   TextHeight = 13
   object FBevel: TBevel
     Left = 0

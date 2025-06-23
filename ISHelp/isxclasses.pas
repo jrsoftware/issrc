@@ -245,6 +245,8 @@ end;
 
 TFormStyle = (fsNormal, fsMDIChild, fsMDIForm, fsStayOnTop);
 
+TPopupMode = (pmNone, pmAuto, pmExplicit);
+
 TPosition = (poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter);
 
 TCloseAction = (caNone, caHide, caFree, caMinimize);
@@ -280,6 +282,8 @@ TForm = class(TScrollingWinControl)
   property Font: TFont; read write;
   property FormStyle: TFormStyle; read write;
   property KeyPreview: Boolean; read write;
+  property PopupMode: TPopupMode; read write;
+  property PopupParent: TForm; read write;
   property Position: TPosition; read write;
   property OnActivate: TNotifyEvent; read write;
   property OnClick: TNotifyEvent; read write;
@@ -773,17 +777,21 @@ end;
 TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
-  procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
-  procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
+  function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+  function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
+  function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
+  function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList: Integer;
   procedure Clear;
   function Download: Int64;
+  property LastBaseNameOrUrl: String; read;
   property ShowBaseNameInsteadOfUrl: Boolean; read write;
 end;
 
 TExtractionWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
-  procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+  function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
+  function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
   procedure Clear;
   procedure Extract;
   property ShowArchiveInsteadOfFile: Boolean; read write;
@@ -802,10 +810,6 @@ TSetupForm = class(TUIStateForm)
   property KeepSizeY: Boolean; read; write;
   property RightToLeft: Boolean; read;
   property SizeAndCenterOnShow: Boolean; read write;
-end;
-
-TMainForm = class(TSetupForm)
-  procedure ShowAboutBox;
 end;
 
 TWizardForm = class(TSetupForm)

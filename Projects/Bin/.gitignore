@@ -1,10 +1,6 @@
 *.dll
 *.exe
 *.e32
+*.issig
 Setup-*.bin
 Setup.log
-Default.isl
-ISPPBuiltins.iss
-whatsnew.htm
-*.chm
-*.chw

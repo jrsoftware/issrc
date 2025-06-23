@@ -2,7 +2,7 @@ unit Setup.FileExtractor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,7 +16,7 @@ uses
   Shared.Struct, ChaCha20;
 
 type
-  TExtractorProgressProc = procedure(Bytes: Cardinal);
+  TExtractorProgressProc = procedure(const Bytes: Cardinal);
 
   TFileExtractor = class
   private
@@ -114,7 +114,7 @@ var
 class function TFileExtractor.FindSliceFilename(const ASlice: Integer): String;
 var
   Major, Minor: Integer;
-  Prefix, F1, F2, Path: String;
+  Prefix, F1, Path: String;
 begin
   Prefix := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '');
   Major := ASlice div SetupHeader.SlicesPerDisk + 1;
@@ -123,21 +123,14 @@ begin
     F1 := Format('%s-%d.bin', [Prefix, Major])
   else
     F1 := Format('%s-%d%s.bin', [Prefix, Major, Chr(Ord('a') + Minor)]);
-  F2 := Format('..\DISK%d\', [Major]) + F1;
   if LastSourceDir <> '' then begin
     Result := AddBackslash(LastSourceDir) + F1;
     if NewFileExists(Result) then Exit;
   end;
   Result := AddBackslash(SourceDir) + F1;
   if NewFileExists(Result) then Exit;
-  if LastSourceDir <> '' then begin
-    Result := PathExpand(AddBackslash(LastSourceDir) + F2);
-    if NewFileExists(Result) then Exit;
-  end;
-  Result := PathExpand(AddBackslash(SourceDir) + F2);
-  if NewFileExists(Result) then Exit;
   Path := SourceDir;
-  LogFmt('Asking user for new disk containing "%s".', [F1]);  
+  LogFmt('Asking user for new disk containing "%s".', [F1]);
   if SelectDisk(Major, F1, Path) then begin
     LastSourceDir := Path;
     Result := AddBackslash(Path) + F1;
@@ -237,7 +230,7 @@ begin
     InternalError('Cannot call file extractor recursively');
   Inc(FEntered);
   try
-    if (foChunkEncrypted in FL.Flags) and not FCryptKeySet then
+    if (floChunkEncrypted in FL.Flags) and not FCryptKeySet then
       InternalError('Cannot read an encrypted file before the key has been set');
 
     { Is the file in a different chunk than the current one?
@@ -248,7 +241,7 @@ begin
        (Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) < 0) or
        FNeedReset then begin
       FChunkFirstSlice := -1;
-      FDecompressor[foChunkCompressed in FL.Flags].Reset;
+      FDecompressor[floChunkCompressed in FL.Flags].Reset;
       FNeedReset := False;
 
       OpenSlice(FL.FirstSlice);
@@ -263,12 +256,11 @@ begin
       FChunkLastSlice := FL.LastSlice;
       FChunkStartOffset := FL.StartOffset;
       FChunkBytesLeft := FL.ChunkCompressedSize;
-      FChunkDecompressedBytesRead.Hi := 0;
-      FChunkDecompressedBytesRead.Lo := 0;
-      FChunkCompressed := foChunkCompressed in FL.Flags;
-      FChunkEncrypted := foChunkEncrypted in FL.Flags;
+      FChunkDecompressedBytesRead := To64(0);
+      FChunkCompressed := floChunkCompressed in FL.Flags;
+      FChunkEncrypted := floChunkEncrypted in FL.Flags;
 
-      if foChunkEncrypted in FL.Flags then
+      if floChunkEncrypted in FL.Flags then
         InitDecryption;
     end;
 
@@ -299,7 +291,7 @@ begin
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
-      ChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
+      XChaCha20Crypt(FCryptContext, Buffer^, Buffer^, Res);
 
     if Left = Res then
       Break
@@ -351,7 +343,7 @@ begin
           Break;
 
         DecompressBytes(Buf, BufSize);
-        if foCallInstructionOptimized in FL.Flags then begin
+        if floCallInstructionOptimized in FL.Flags then begin
           TransformCallInstructions(Buf, BufSize, False, AddrOffset);
           Inc(AddrOffset, BufSize);  { may wrap, but OK }
         end;

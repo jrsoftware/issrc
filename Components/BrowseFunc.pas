@@ -86,16 +86,13 @@ begin
       Pointer(lParam) := PChar(InitialDir);
   end;
   ActiveWindow := GetActiveWindow;
-  WindowList := DisableTaskWindows(0);
+  WindowList := DisableTaskWindows(ParentWnd);
   CoInitialize(nil);
   try
     IDList := SHBrowseForFolder(BrowseInfo);
   finally
     CoUninitialize();
     EnableTaskWindows(WindowList);
-    { SetActiveWindow(Application.Handle) is needed or else the focus doesn't
-      properly return to ActiveWindow }
-    SetActiveWindow(Application.Handle);
     SetActiveWindow(ActiveWindow);
   end;
   try
@@ -169,7 +166,7 @@ begin
   ofn.lpstrDefExt := Pointer(DefaultExtension);
 
   ActiveWindow := GetActiveWindow;
-  WindowList := DisableTaskWindows(0);
+  WindowList := DisableTaskWindows(ParentWnd);
   try
     asm
       // Avoid FPU control word change in NETRAP.dll, NETAPI32.dll, etc
@@ -198,9 +195,6 @@ begin
     end;
   finally
     EnableTaskWindows(WindowList);
-    { SetActiveWindow(Application.Handle) is needed or else the focus doesn't
-      properly return to ActiveWindow }
-    SetActiveWindow(Application.Handle);
     SetActiveWindow(ActiveWindow);
   end;
 end;
