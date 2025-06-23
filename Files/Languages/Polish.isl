@@ -203,7 +203,7 @@ ReadyMemoGroup=Folder w Menu Start:
 ReadyMemoTasks=Dodatkowe zadania:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel2=Pobieranie dodatkowych plików...
+DownloadingLabel2=Pobieranie plików...
 ButtonStopDownload=&Zatrzymaj pobieranie
 StopDownload=Czy na pewno chcesz zatrzymać pobieranie?
 ErrorDownloadAborted=Pobieranie przerwane
@@ -213,7 +213,7 @@ ErrorProgress=Nieprawidłowy postęp: %1 z %2
 ErrorFileSize=Nieprawidłowy rozmiar pliku: oczekiwano %1, otrzymano %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractingLabel=Wypakowywanie dodatkowych plików...
+ExtractingLabel=Wypakowywanie plików...
 ButtonStopExtraction=&Zatrzymaj wypakowywanie
 StopExtraction=Azy na pewno chcesz zatrzymać wypakowywanie?
 ErrorExtractionAborted=Wypakowywanie przerwane
