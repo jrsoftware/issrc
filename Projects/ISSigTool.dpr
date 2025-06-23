@@ -122,8 +122,6 @@ end;
 
 procedure CommandExportPublicKey(const AFilename: String);
 begin
-  PrintFmtUnlessQuiet('%s: ', [AFilename], False);
-
   const Key = TECDSAKey.Create;
   try
     ImportKey(Key, False);
@@ -132,14 +130,17 @@ begin
     ISSigExportPublicKeyText(Key, PublicKeyText);
 
     if NewFileExists(AFilename) then begin
-      const ExistingPublicKeyText = ISSigLoadTextFromFile(AFilename);
-      if ExistingPublicKeyText = PublicKeyText then begin
+      const ExistingText = ISSigLoadTextFromFile(AFilename);
+      if ExistingText = PublicKeyText then begin
+        PrintFmtUnlessQuiet('%s: ', [AFilename], False);
         PrintUnlessQuiet('public key unchanged');
         Exit;
-      end;
+      end else
+        RaiseFatalError('File already exists');
     end;
 
     ISSigSaveTextToFile(AFilename, PublicKeyText);
+    PrintFmtUnlessQuiet('%s: ', [AFilename], False);
     PrintUnlessQuiet('public key written');
   finally
     Key.Free;
@@ -149,7 +150,7 @@ end;
 procedure CommandGeneratePrivateKey;
 begin
   if NewFileExists(Options.KeyFile) then
-    RaiseFatalError('Key file already exists');
+    RaiseFatalError('File already exists');
 
   PrintFmtUnlessQuiet('%s: ', [Options.KeyFile], False);
 
