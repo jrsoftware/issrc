@@ -338,7 +338,7 @@ ExistingFileNewerKeepExisting=&Mantenha o arquivo existente (recomendado)
 ExistingFileNewerOverwriteOrKeepAll=&Faça isso para os próximos conflitos
 ErrorChangingAttr=Ocorreu um erro ao tentar mudar os atributos do arquivo existente:
 ErrorCreatingTemp=Ocorreu um erro ao tentar criar um arquivo no diretório destino:
-ErrorReadingSourceOcorreu um erro ao tentar ler o arquivo de origem:
+ErrorReadingSource=Ocorreu um erro ao tentar ler o arquivo de origem:
 ErrorCopying=Ocorreu um erro ao tentar copiar um arquivo:
 ErrorDownloading=Ocorreu um erro ao tentar baixar um arquivo:
 ErrorExtracting=Ocorreu um erro ao tentar extrair o arquivo compactado:
