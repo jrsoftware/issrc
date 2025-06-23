@@ -96,17 +96,24 @@ begin
   TSHA256Digest(Result) := SHA256DigestFromString(S);
 end;
 
-function CalcHashToSign(const AIncludeFileName: Boolean; const AFileName: String; const AFileSize: Int64;
-  const AFileHash: TSHA256Digest): TSHA256Digest;
+function CalcHashToSign(const AIncludeFileNameAndTag: Boolean; const AFileName: String; const AFileSize: Int64;
+  const AFileHash: TSHA256Digest; const AFileTag: String): TSHA256Digest;
+
+  procedure SHA256UpdateWithString(var Context: TSHA256Context; const S: String);
+  begin
+    const U = UTF8String(S);
+    const N: Cardinal = Length(U);
+    SHA256Update(Context, N, SizeOf(N));
+    if N > 0 then
+      SHA256Update(Context, Pointer(U)^, N*SizeOf(U[1]));
+  end;
+
 begin
   var Context: TSHA256Context;
   SHA256Init(Context);
-  if AIncludeFileName then begin
-    const UTF8FileName = UTF8String(AFileName);
-    const UTF8FileNameLength: Cardinal = Length(UTF8FileName);
-    SHA256Update(Context, UTF8FileNameLength, SizeOf(UTF8FileNameLength));
-    if UTF8FileNameLength > 0 then
-      SHA256Update(Context, Pointer(UTF8FileName)^, UTF8FileNameLength*SizeOf(UTF8FileName[1]));
+  if AIncludeFileNameAndTag then begin
+    SHA256UpdateWithString(Context, AFileName);
+    SHA256UpdateWithString(Context, AFileTag);
   end;
   SHA256Update(Context, AFileSize, SizeOf(AFileSize));
   SHA256Update(Context, AFileHash, SizeOf(AFileHash));
@@ -185,6 +192,8 @@ end;
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 begin
+  const AFileTag = ''; { Should be a parameter in the future }
+
   { Ensure unverifiable signature files can't be created accidentally }
   const UTF8FileName = UTF8String(AFileName);
   if Length(UTF8FileName) > 1000 then
@@ -202,7 +211,7 @@ begin
   var PublicKey: TECDSAPublicKey;
   AKey.ExportPublicKey(PublicKey);
 
-  const HashToSign = CalcHashToSign(True, AFileName, AFileSize, AFileHash);
+  const HashToSign = CalcHashToSign(True, AFileName, AFileSize, AFileHash, AFileTag);
   var Sig: TECDSASignature;
   AKey.SignHash(HashToSign, Sig);
 
@@ -211,12 +220,14 @@ begin
     'file-name "%s"'#13#10 +
     'file-size %d'#13#10 +
     'file-hash %s'#13#10 +
+    'file-tag "%s"'#13#10 +
     'key-id %s'#13#10 +
     'sig-r %s'#13#10 +
     'sig-s %s'#13#10,
     [AFileName,
      AFileSize,
      SHA256DigestToString(AFileHash),
+     AFileTag,
      SHA256DigestToString(CalcKeyID(PublicKey)),
      ECDSAInt256ToString(Sig.Sig_r),
      ECDSAInt256ToString(Sig.Sig_s)]);
@@ -225,9 +236,23 @@ end;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
   const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult;
+
+  function FormatToVersion(const Format: String; out Version: Integer): Boolean;
+  begin
+    if Format = 'issig-v1' then begin
+      Version := 1;
+      Exit(True);
+    end else if Format = 'issig-v2' then begin
+      Version := 2;
+      Exit(True);
+    end else
+      Exit(False);
+  end;
+
 var
   TextValues: record
-    Format, FileName, FileSize, FileHash, KeyID, Sig_r, Sig_s: String;
+    Format, FileName, FileSize, FileHash, FileTag, KeyID, Sig_r, Sig_s: String;
+    Version: Integer;
   end;
 begin
   { To be extra safe, clear the "out" parameters just in case the caller isn't
@@ -235,6 +260,7 @@ begin
   AFileName := '';
   AFileSize := -1;
   FillChar(AFileHash, SizeOf(AFileHash), 0);
+  var AFileTag := ''; { Should be a parameter in the future }
   AKeyUsedID := '';
 
   if Length(AText) > ISSigTextFileLengthLimit then
@@ -244,11 +270,13 @@ begin
 
   var SS := TStringScanner.Create(AText);
   if not ConsumeLineValue(SS, 'format', TextValues.Format, 8, 8, NonControlASCIICharsSet) or
-     ((TextValues.Format <> 'issig-v1') and ((TextValues.Format <> 'issig-v2'))) or
-     ((TextValues.Format = 'issig-v2') and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 0, MaxInt,
+     not FormatToVersion(TextValues.Format, TextValues.Version) or
+     ((TextValues.Version >= 2) and not ConsumeLineValue(SS, 'file-name', TextValues.FileName, 0, MaxInt,
        (NonControlASCIICharsSet - ['"']) + AllHighCharsSet, True, True)) or
      not ConsumeLineValue(SS, 'file-size', TextValues.FileSize, 1, 16, DigitsSet) or
      not ConsumeLineValue(SS, 'file-hash', TextValues.FileHash, 64, 64, HexDigitsSet) or
+     ((TextValues.Version >= 2) and not ConsumeLineValue(SS, 'file-tag', TextValues.FileTag, 0, MaxInt,
+       (NonControlASCIICharsSet - ['"']) + AllHighCharsSet, True, True)) or
      not ConsumeLineValue(SS, 'key-id', TextValues.KeyID, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'sig-r', TextValues.Sig_r, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'sig-s', TextValues.Sig_s, 64, 64, HexDigitsSet) or
@@ -278,8 +306,9 @@ begin
   const UnverifiedFileName = TextValues.FileName;
   const UnverifiedFileSize = StrToInt64(TextValues.FileSize);
   const UnverifiedFileHash = SHA256DigestFromString(TextValues.FileHash);
-  const HashToSign = CalcHashToSign(TextValues.Format <> 'issig-v1', UnverifiedFileName,
-    UnverifiedFileSize, UnverifiedFileHash);
+  const UnverifiedFileTag = TextValues.FileTag;
+  const HashToSign = CalcHashToSign(TextValues.Version >= 2, UnverifiedFileName,
+    UnverifiedFileSize, UnverifiedFileHash, UnverifiedFileTag);
   var Sig: TECDSASignature;
   Sig.Sig_r := ECDSAInt256FromString(TextValues.Sig_r);
   Sig.Sig_s := ECDSAInt256FromString(TextValues.Sig_s);
@@ -287,6 +316,7 @@ begin
     AFileName := UnverifiedFileName;
     AFileSize := UnverifiedFileSize;
     AFileHash := UnverifiedFileHash;
+    AFileTag := UnverifiedFileTag;
     Result := vsrSuccess;
   end else
     Result := vsrBad;
