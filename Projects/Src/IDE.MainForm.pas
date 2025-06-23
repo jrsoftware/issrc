@@ -858,13 +858,13 @@ begin
               var R1 := R;
               if I = Count - 1 then
                 R1.Right := Control.ClientWidth + 10;
-              { Here TStatusBarStyleHook.Paint fills R1 but it's always filled already (both in its code and in ours), so skipping }
+              Canvas.FillRect(R1);
               InflateRect(R1, -1, -1);
               var Flags := Control.DrawTextBiDiModeFlags(AlignStyles[Control.Panels[I].Alignment]);
               Flags := Flags + DT_VCENTER;
               var LText: String;
               SetLength(LText, Word(SendMessage(hWnd, SB_GETTEXTLENGTH, I, 0)));
-              if Length(LText) > 0 then begin { Always False for MainForm.StatusBar at the moment }
+              if Length(LText) > 0 then begin { Always False at the moment }
                 var Res := SendMessage(hWnd, SB_GETTEXT, I, IntPtr(@LText[1]));
                 if (Res and SBT_OWNERDRAW = 0) then
                   DrawText(Canvas.Handle, LText, Length(LText), R, Flags)
