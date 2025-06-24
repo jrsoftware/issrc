@@ -108,8 +108,11 @@ begin
 end;
 
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
+{ Can be used for buttons to give them the native dark look and for memos and listboxes to give
+  them a native dark scrollbar }
 begin
   if UseThemes then begin
+    WinControl.StyleName := 'Windows';
     if Dark then
       SetWindowTheme(WinControl.Handle, 'DarkMode_Explorer', nil)
     else
@@ -127,29 +130,12 @@ end;
 
 procedure InitFormTheme(Form: TForm);
 
-  procedure InitListBoxDarkTheme(const ListBox: TListBox);
-  begin
-    ListBox.Font.Color := FormTheme.Colors[tcFore];
-    ListBox.Color := FormTheme.Colors[tcBack];
-    ListBox.Invalidate;
-    SetControlWindowTheme(ListBox, FormTheme.Dark);
-  end;
-
   procedure InitWinControlTheme(const ParentControl: TWinControl);
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
-      var Control := ParentControl.Controls[I];
-      if Control is TPanel then
-        (Control as TPanel).Color := FormTheme.Colors[tcBack]
-      else if Control is TListBox then
-        InitListBoxDarkTheme(Control as TListBox)
-      else if (Control is TButton) or (Control is TRadioButton) or (Control is TCheckBox) then begin
-        { Not actually used at the moment since only TMainForm calls InitFormTheme and it doesn't
-          have any of these controls. If it would be used: it works fully for buttons but for
-          radiobuttons and checkboxes it only updates the glyph and not the text color. }
+      const Control = ParentControl.Controls[I];
+      if Control is TButton then
         SetControlWindowTheme(Control as TWinControl, FormTheme.Dark);
-      end;
-
       if Control is TWinControl then
         InitWinControlTheme(Control as TWinControl);
     end;
@@ -158,16 +144,17 @@ procedure InitFormTheme(Form: TForm);
 begin
   if (Form = MainForm) or FormTheme.Dark then begin
     Form.Color := FormTheme.Colors[tcBack];
-  
+
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
       Unlike this article we check for Windows 10 Version 2004 because that's the first version
       that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
     if WindowsVersionAtLeast(10, 0, 19041) then begin
+      Form.StyleElements := Form.StyleElements - [seBorder];
       const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
       var value: BOOL := FormTheme.Dark;
       DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
     end;
-  
+
     InitWinControlTheme(Form);
   end;
 end;

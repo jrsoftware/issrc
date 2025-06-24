@@ -95,6 +95,7 @@ begin
   FResult := srNone;
 
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
 
