@@ -841,7 +841,7 @@ begin
               Canvas.Handle := wParam;
 
             const Control = MainForm.StatusBar;
-            Canvas.Font.Handle := Control.Font.Handle;
+            Canvas.Font := Control.Font;
             Canvas.Font.Color := MainForm.FTheme.Colors[tcFore];
 
             { See TStatusBarStyleHook.Paint }
@@ -1318,6 +1318,7 @@ begin
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
+  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
