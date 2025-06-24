@@ -83,7 +83,7 @@ function DoubleAmp(const S: String): String;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
   Messages, DwmApi, Consts,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
@@ -139,9 +139,11 @@ procedure InitFormTheme(Form: TForm);
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
       var Control := ParentControl.Controls[I];
-      if Control is TListBox then
-        InitListBoxDarkTheme(Control as TListBox)
-      else if Control is TWinControl then
+      if Control is TPanel then
+        (Control as TPanel).Color := FormTheme.Colors[tcBack]
+      else if Control is TListBox then
+        InitListBoxDarkTheme(Control as TListBox);
+      if Control is TWinControl then
         InitWinControlTheme(Control as TWinControl);
     end;
   end;
