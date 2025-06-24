@@ -1153,7 +1153,7 @@ begin
   ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
-
+  
   SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 
   FMenuBitmaps := TMenuBitmaps.Create;
@@ -6573,6 +6573,7 @@ begin
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
   end;
 
+  UpdateThemeData(True);
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
 
@@ -6626,7 +6627,10 @@ begin
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
     FMenuThemeData := OpenThemeData(Handle, 'Menu');
-    FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
+    if FTheme.Dark then
+      FToolbarThemeData := OpenThemeData(Handle, 'DarkMode::Toolbar');
+    if FToolbarThemeData = 0 then
+      FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
     FStatusBarThemeData := OpenThemeData(Handle, 'Status');
   end;
 end;
