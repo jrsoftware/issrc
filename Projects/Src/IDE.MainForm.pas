@@ -479,6 +479,7 @@ type
     FProgressThemeData: HTHEME;
     FMenuThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
+    FStatusBarThemeData: HTHEME;
     FMenuDarkBackgroundBrush: TBrush;
     FMenuDarkHotOrSelectedBrush: TBrush;
     FDebugLogListTimestampsWidth: Integer;
@@ -501,6 +502,7 @@ type
     FCompileShortCut2: TShortCut;
     FCallTipState: TCallTipState;
     FUpdatePanelMessages: TUpdatePanelMessages;
+    FBuildImageList: TImageList;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -592,6 +594,8 @@ type
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
+    procedure StatusBarCanvasDrawPanel(Canvas: TCanvas;
+      Panel: TStatusPanel; const Rect: TRect);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
     function TestLastFindOptions: Boolean;
@@ -808,6 +812,92 @@ begin
   InitializeMemoBase(Memo, PopupMenu);
   Memo.ReadOnly := True;
   Result := Memo;
+end;
+
+function DarkStatusBarSubclassProc(hWnd: HWND; uMsg: UINT; wParam: WPARAM; lParam: LPARAM; uIdSubclass: UINT_PTR; dwRefData: DWORD_PTR): LRESULT; stdcall;
+const
+  { See TStatusBarStyleHook.Paint }
+  AlignStyles: array [TAlignment] of Integer = (DT_LEFT, DT_RIGHT, DT_CENTER);
+  cGripSize = 17;
+begin
+  case uMsg of
+    WM_ERASEBKGND:
+      begin
+        const MainForm = TMainForm(dwRefData);
+        if MainForm.FTheme.Dark then begin
+          { See StatusBarStyleHook.WMEraseBkgnd }
+          Exit(1);
+        end;
+      end;
+    WM_PAINT, WM_PRINTCLIENT:
+      begin
+        const MainForm = TMainForm(dwRefData);
+        if MainForm.FTheme.Dark then begin
+          var PaintStruct: TPaintStruct;
+          const Canvas = TCanvas.Create;
+          try
+            if uMsg = WM_PAINT then
+              Canvas.Handle := BeginPaint(hWnd, PaintStruct)
+            else
+              Canvas.Handle := wParam;
+
+            const Control = MainForm.StatusBar;
+            Canvas.Font := Control.Font;
+            Canvas.Font.Color := MainForm.FTheme.Colors[tcFore];
+
+            { See TStatusBarStyleHook.Paint }
+
+            Canvas.Brush.Color := $171717; { Same as themed scrollbar drawn by Windows 11 }
+            Canvas.FillRect(Rect(0, 0, Control.Width, Control.Height));
+
+            const Count = Control.Panels.Count;
+            for var I := 0 to Count-1 do begin
+              var R := Default(TRect);
+              SendMessage(hWnd, SB_GETRECT, I, IntPtr(@R));
+              if IsRectEmpty(R) then
+                Continue;
+              var R1 := R;
+              if I = Count - 1 then
+                R1.Right := Control.ClientWidth + 10;
+              Canvas.FillRect(R1);
+              InflateRect(R, -1, -1);
+              var Flags := Control.DrawTextBiDiModeFlags(AlignStyles[Control.Panels[I].Alignment]);
+              Flags := Flags + DT_VCENTER;
+              var LText: String;
+              SetLength(LText, Word(SendMessage(hWnd, SB_GETTEXTLENGTH, I, 0)));
+              if Length(LText) > 0 then begin { Always False at the moment }
+                var Res := SendMessage(hWnd, SB_GETTEXT, I, IntPtr(@LText[1]));
+                if (Res and SBT_OWNERDRAW = 0) then
+                  DrawText(Canvas.Handle, LText, Length(LText), R, Flags)
+                else
+                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
+              end else begin
+                if Control.Panels[I].Style <> psOwnerDraw then
+                  DrawText(Canvas.handle, Control.Panels[I].Text, Length(Control.Panels[I].Text), R, Flags)
+                else
+                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
+              end;
+            end;
+
+            if not IsZoomed(MainForm.Handle) and (MainForm.FStatusBarThemeData <> 0) then begin
+              var R1 := Control.ClientRect;
+              R1.Left := R1.Right - MainForm.ToCurrentPPI(cGripSize);
+              R1.Top := R1.Bottom - MainForm.ToCurrentPPI(cGripSize);
+              DrawThemeBackground(MainForm.FStatusBarThemeData, Canvas.Handle, SP_GRIPPER, 0, R1, nil);
+            end;
+          finally
+            Canvas.Free;
+          end;
+          if uMsg = WM_PAINT then
+            EndPaint(hWnd, PaintStruct);
+          Exit(0);
+        end;
+      end;
+    WM_NCDESTROY:
+      RemoveWindowSubclass(hWnd, @DarkStatusBarSubclassProc, 0);
+  end;
+
+  Result := DefSubclassProc(hWnd, uMsg, wParam, lParam);
 end;
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -1064,6 +1154,8 @@ begin
   ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
+  
+  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
@@ -1227,6 +1319,7 @@ begin
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
+  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
@@ -6476,11 +6569,14 @@ begin
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.DarkBuildImageList;
   end else begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.LightBuildImageList;
   end;
 
+  UpdateThemeData(True);
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
 
@@ -6529,11 +6625,16 @@ begin
   CloseThemeDataIfNeeded(FProgressThemeData);
   CloseThemeDataIfNeeded(FMenuThemeData);
   CloseThemeDataIfNeeded(FToolbarThemeData);
+  CloseThemeDataIfNeeded(FStatusBarThemeData);
 
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
     FMenuThemeData := OpenThemeData(Handle, 'Menu');
-    FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
+    if FTheme.Dark then
+      FToolbarThemeData := OpenThemeData(Handle, 'DarkMode::Toolbar');
+    if FToolbarThemeData = 0 then
+      FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
+    FStatusBarThemeData := OpenThemeData(Handle, 'Status');
   end;
 end;
 
@@ -7157,7 +7258,7 @@ begin
   end;
 end;
 
-procedure TMainForm.StatusBarDrawPanel(StatusBar: TStatusBar;
+procedure TMainForm.StatusBarCanvasDrawPanel(Canvas: TCanvas;
   Panel: TStatusPanel; const Rect: TRect);
 const
   TP_DROPDOWNBUTTONGLYPH = 7;
@@ -7171,15 +7272,15 @@ begin
           Dec(RText.Right, RText.Bottom - RText.Top);
           var RGlyph := Rect;
           RGlyph.Left := RText.Right; { RGlyph is now a square }
-          DrawThemeBackground(FToolbarThemeData, StatusBar.Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
+          DrawThemeBackground(FToolbarThemeData, Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
         end;
         var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
-        StatusBar.Canvas.TextRect(RText, S, [tfCenter]);
+        Canvas.TextRect(RText, S, [tfCenter]);
       end;
     spCompileIcon:
       if FCompiling then begin
-        var BuildImageList := ImagesModule.BuildImageList;
-        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+        var BuildImageList := FBuildImageList;
+        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
       end;
@@ -7189,23 +7290,23 @@ begin
         InflateRect(R, -2, -2);
         if FProgressThemeData = 0 then begin
           { Border }
-          StatusBar.Canvas.Pen.Color := clBtnShadow;
-          StatusBar.Canvas.Brush.Style := bsClear;
-          StatusBar.Canvas.Rectangle(R);
+          Canvas.Pen.Color := clBtnShadow;
+          Canvas.Brush.Style := bsClear;
+          Canvas.Rectangle(R);
           InflateRect(R, -1, -1);
           { Filled part }
           var SaveRight := R.Right;
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
             FProgressMax);
-          StatusBar.Canvas.Brush.Color := clHighlight;
-          StatusBar.Canvas.FillRect(R);
+          Canvas.Brush.Color := clHighlight;
+          Canvas.FillRect(R);
           { Unfilled part }
           R.Left := R.Right;
           R.Right := SaveRight;
-          StatusBar.Canvas.Brush.Color := clBtnFace;
-          StatusBar.Canvas.FillRect(R);
+          Canvas.Brush.Color := clBtnFace;
+          Canvas.FillRect(R);
         end else begin
-          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+          DrawThemeBackground(FProgressThemeData, Canvas.Handle,
             PP_BAR, 0, R, nil);
           { PP_FILL drawing on Windows 11 (and probably 10) is bugged: when
             the width of the green bar is less than ~25 pixels, the bar is
@@ -7219,11 +7320,17 @@ begin
             Inc(CR.Left);  { does this need to be DPI-scaled? }
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
             FProgressMax);
-          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+          DrawThemeBackground(FProgressThemeData, Canvas.Handle,
             PP_FILL, PBFS_NORMAL, R, @CR);
         end;
       end;
   end;
+end;
+
+procedure TMainForm.StatusBarDrawPanel(StatusBar: TStatusBar;
+  Panel: TStatusPanel; const Rect: TRect);
+begin
+  StatusBarCanvasDrawPanel(StatusBar.Canvas, Panel, Rect);
 end;
 
 procedure TMainForm.InvalidateStatusPanel(const Index: Integer);
