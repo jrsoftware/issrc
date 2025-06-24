@@ -859,7 +859,7 @@ begin
               if I = Count - 1 then
                 R1.Right := Control.ClientWidth + 10;
               Canvas.FillRect(R1);
-              InflateRect(R1, -1, -1);
+              InflateRect(R, -1, -1);
               var Flags := Control.DrawTextBiDiModeFlags(AlignStyles[Control.Panels[I].Alignment]);
               Flags := Flags + DT_VCENTER;
               var LText: String;
