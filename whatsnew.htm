@@ -216,6 +216,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
     <ul>
       <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
       <li>Added new <tt>GetSHA256OfStream</tt> support function.</li>
+      <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
     </ul>
   </li>
   <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
