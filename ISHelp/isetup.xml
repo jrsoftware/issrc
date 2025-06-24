@@ -3836,6 +3836,10 @@ issigtool verify "MyFile.txt"
 <td>Specifies the private key filename required for signing. This option overrides the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
 </tr>
 <tr>
+<td>--allow-overwrite, -o</td>
+<td>Allow to overwrite existing files.</td>
+</tr>
+<tr>
 <td>--quiet, -q</td>
 <td>Suppresses status messages that are normally printed to standard output.</td>
 </tr>

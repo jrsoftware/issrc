@@ -49,7 +49,7 @@ if not "%1"=="" goto failed
 
 :embed
 set publickeyfile=def02.ispublickey
-Files\ISSigTool.exe export-public-key "%publickeyfile%"
+Files\ISSigTool.exe --allow-overwrite export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
 set targetfile=Components\TrustFunc.AllowedPublicKeys.inc
