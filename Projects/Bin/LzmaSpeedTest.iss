@@ -5,7 +5,7 @@ AppName=My Program
 AppVerName=My Program version 1.5
 #define DefaultDirName "{autopf}\My Program"
 DefaultDirName={#DefaultDirName}
-UseSetupLdr=0
+UseSetupLdr=no
 OutputDir=.
 AppVersion=1.2.3
 OutputBaseFilename=Setup
