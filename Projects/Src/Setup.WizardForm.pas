@@ -1823,6 +1823,17 @@ end;
 
 function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStringList): String;
 
+  procedure ShowPreparing;
+  begin
+    SetCurPage(wpPreparing);
+    BackButton.Visible := False;
+    NextButton.Visible := False;
+    CancelButton.Enabled := False;
+    if InstallMode = imSilent then
+      WizardForm.Visible := True;
+    WizardForm.Update;
+  end;
+
   function GetClearedDownloadArchivesPage: TDownloadWizardPage;
   begin
     if FDownloadArchivesPage = nil then begin
@@ -1894,6 +1905,7 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     end;
 
     if DownloadPage <> nil then begin
+      ShowPreparing;
       DownloadPage.Show;
       try
         var Failed, LastBaseNameOrUrl: String;
@@ -1928,19 +1940,9 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
           raise Exception.Create(Failed);
       finally
         DownloadPage.Hide;
+        UpdateCurPageButtonState;
       end;
     end;
-  end;
-
-  procedure ShowPreparing;
-  begin
-    SetCurPage(wpPreparing);
-    BackButton.Visible := False;
-    NextButton.Visible := False;
-    CancelButton.Enabled := False;
-    if InstallMode = imSilent then
-      WizardForm.Visible := True;
-    WizardForm.Update;
   end;
 
 var
@@ -1956,12 +1958,7 @@ begin
   PreparingMemo.Visible := False;
 
   try
-    ShowPreparing;
-    try
-      DownloadArchivesToExtract(WizardComponents, WizardTasks);
-    finally
-      UpdateCurPageButtonState;
-    end;
+    DownloadArchivesToExtract(WizardComponents, WizardTasks);
   except
     Result := GetExceptMessage;
   end;
@@ -2319,10 +2316,9 @@ end;
 
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);
 { Changes which page is currently visible }
-var
-  Page: TWizardPage;
 begin
-  Page := PageFromID(NewPageID);
+  const OldCurPageID = CurPageID;
+  const Page = PageFromID(NewPageID);
   FCurPageID := NewPageID;
 
   { Select the page in the notebooks }
@@ -2373,7 +2369,7 @@ begin
   end;
 
   try
-    if CodeRunner <> nil then
+    if (CodeRunner <> nil) and (CurPageID <> OldCurPageID) then
       CodeRunner.RunProcedures('CurPageChanged', [CurPageID], False);
   except
     Application.HandleException(Self);

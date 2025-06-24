@@ -217,10 +217,11 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
     <ul>
       <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
       <li>Added new <tt>GetSHA256OfStream</tt> support function.</li>
+      <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
     </ul>
   </li>
   <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
-  <li>All translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
+  <li>All official translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
   <li>Inno Setup is now built using Delphi 12.3 Athens instead of Delphi 12.1 Athens. Thanks to Ian Barker from Embarcadero for providing us with a license!</li>
   <li>Documentation improvements.</li>
   <li>Minor tweaks.</li>

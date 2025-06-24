@@ -6,12 +6,12 @@ rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to embed the user's public key from compilesettings.bat in
-rem  TrustFunc.AllowedPublicKeys.inc and setup.allowedpublickeys.iss (before
-rem  compilation) or to sign files using it (after compilation)
-rem
-rem  If the key is missing it will be generated
+rem  TrustFunc.AllowedPublicKeys.inc and to export it as def02.ispublickey
+rem  (before compilation) or to sign files using it (after compilation)
 rem
 rem  Also used by build(-ce).bat to verify some precompiled files
+rem
+rem  If the user's private key is missing it will be generated
 
 setlocal
 
@@ -49,7 +49,7 @@ if not "%1"=="" goto failed
 
 :embed
 set publickeyfile=def02.ispublickey
-Files\ISSigTool.exe export-public-key "%publickeyfile%"
+Files\ISSigTool.exe --allow-overwrite export-public-key "%publickeyfile%"
 if errorlevel 1 goto failed
 if not exist "%publickeyfile%" goto failed
 set targetfile=Components\TrustFunc.AllowedPublicKeys.inc

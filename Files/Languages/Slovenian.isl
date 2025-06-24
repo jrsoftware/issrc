@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Slovenian messages ***
+; *** Inno Setup version 6.5.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php

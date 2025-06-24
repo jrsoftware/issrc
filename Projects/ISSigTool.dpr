@@ -34,7 +34,7 @@ uses
 var
   Options: record
     KeyFile: String;
-    Quiet: Boolean;
+    AllowOverwrite, Quiet: Boolean;
   end;
 
   StdOutHandle, StdErrHandle: THandle;
@@ -122,8 +122,6 @@ end;
 
 procedure CommandExportPublicKey(const AFilename: String);
 begin
-  PrintFmtUnlessQuiet('%s: ', [AFilename], False);
-
   const Key = TECDSAKey.Create;
   try
     ImportKey(Key, False);
@@ -132,14 +130,17 @@ begin
     ISSigExportPublicKeyText(Key, PublicKeyText);
 
     if NewFileExists(AFilename) then begin
-      const ExistingPublicKeyText = ISSigLoadTextFromFile(AFilename);
-      if ExistingPublicKeyText = PublicKeyText then begin
+      const ExistingText = ISSigLoadTextFromFile(AFilename);
+      if ExistingText = PublicKeyText then begin
+        PrintFmtUnlessQuiet('%s: ', [AFilename], False);
         PrintUnlessQuiet('public key unchanged');
         Exit;
-      end;
+      end else if not Options.AllowOverwrite then
+        RaiseFatalError('File already exists');
     end;
 
     ISSigSaveTextToFile(AFilename, PublicKeyText);
+    PrintFmtUnlessQuiet('%s: ', [AFilename], False);
     PrintUnlessQuiet('public key written');
   finally
     Key.Free;
@@ -148,8 +149,8 @@ end;
 
 procedure CommandGeneratePrivateKey;
 begin
-  if NewFileExists(Options.KeyFile) then
-    RaiseFatalError('Key file already exists');
+  if not Options.AllowOverwrite and NewFileExists(Options.KeyFile) then
+    RaiseFatalError('File already exists');
 
   PrintFmtUnlessQuiet('%s: ', [Options.KeyFile], False);
 
@@ -302,6 +303,7 @@ begin
   PrintErrOutput('or to generate a new private key:  issigtool [options] generate-private-key');
   PrintErrOutput('Options:');
   PrintErrOutput('  --key-file=<filename> Specifies the private key filename (overrides ISSIGTOOL_KEY_FILE environment variable)');
+  PrintErrOutput('  --allow-overwrite, -o Allow to overwrite existing files');
   PrintErrOutput('  --quiet, -q           Suppresses status messages that are normally printed to standard output');
   PrintErrOutput('  --help, -?            Prints this information');
   PrintErrOutput('');
@@ -324,6 +326,8 @@ begin
           if InitialArgListCount <> 1 then
             RaiseFatalErrorFmt('"%s" option cannot be combined with other arguments', [S]);
           Exit;
+        end else if (S = '--allow-overwrite') or (S = '-o') then begin
+          Options.AllowOverwrite := True;
         end else if (S = '--quiet') or (S = '-q') then begin
           Options.Quiet := True;
         end else if S.StartsWith('--key-file=') then begin

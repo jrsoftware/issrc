@@ -213,7 +213,7 @@ ReadyMemoGroup=مجلد قائمة ابدأ:
 ReadyMemoTasks=مهام إضافية:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=تحميل الملفات الإضافية...
+DownloadingLabel2=تحميل الملفات الإضافية...
 ButtonStopDownload=إي&قاف التحميل
 StopDownload=هل أنت متأكد من أنك ترغب في إيقاف التحميل؟
 ErrorDownloadAborted=تم إلغاء التحميل
@@ -223,7 +223,7 @@ ErrorProgress=تقدم غير صالح: %1 من %2
 ErrorFileSize=حجم الملف غير صالح: المتوقع %1، الموجود %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=جاري فك ضغط الملفات الإضافية...
+ExtractingLabel=جاري فك ضغط الملفات الإضافية...
 ButtonStopExtraction=إي&قاف فك الضغط
 StopExtraction=هل حقا ترغب في إيقاف فك الضغط?
 ErrorExtractionAborted=تم إيقاف عملية فك الضغط
