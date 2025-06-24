@@ -502,6 +502,7 @@ type
     FCompileShortCut2: TShortCut;
     FCallTipState: TCallTipState;
     FUpdatePanelMessages: TUpdatePanelMessages;
+    FBuildImageList: TImageList;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -6568,9 +6569,11 @@ begin
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.DarkBuildImageList;
   end else begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.LightBuildImageList;
   end;
 
   UpdateThemeData(True);
@@ -7276,7 +7279,7 @@ begin
       end;
     spCompileIcon:
       if FCompiling then begin
-        var BuildImageList := ImagesModule.BuildImageList;
+        var BuildImageList := FBuildImageList;
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
