@@ -142,7 +142,14 @@ procedure InitFormTheme(Form: TForm);
       if Control is TPanel then
         (Control as TPanel).Color := FormTheme.Colors[tcBack]
       else if Control is TListBox then
-        InitListBoxDarkTheme(Control as TListBox);
+        InitListBoxDarkTheme(Control as TListBox)
+      else if (Control is TButton) or (Control is TRadioButton) or (Control is TCheckBox) then begin
+        { Not actually used at the moment since only TMainForm calls InitFormTheme and it doesn't
+          have any of these controls. If it would be used: it works fully for buttons but for
+          radiobuttons and checkboxes it only updates the glyph and not the text color. }
+        SetControlWindowTheme(Control as TWinControl, FormTheme.Dark);
+      end;
+
       if Control is TWinControl then
         InitWinControlTheme(Control as TWinControl);
     end;
