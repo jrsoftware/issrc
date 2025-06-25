@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 6.5.0+ Portuguese (Portugal) messages ***
 ;
 ; Maintained by Nuno Silva (nars AT gmx.net)
 
@@ -193,23 +193,26 @@ ReadyMemoGroup=Pasta do Menu Iniciar:
 ReadyMemoTasks=Tarefas adicionais:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=A transferir ficheiros adicionais...
+DownloadingLabel2=A transferir ficheiros...
 ButtonStopDownload=&Parar transferência
 StopDownload=Tem a certeza que deseja parar a transferência?
 ErrorDownloadAborted=Transferência cancelada
 ErrorDownloadFailed=Falha na transferência: %1 %2
 ErrorDownloadSizeFailed=Falha ao obter tamanho: %1 %2
-ErrorFileHash1=Falha de verificação do ficheiro: %1
-ErrorFileHash2=Hash do ficheiro inválida: experado %1, encontrado %2
 ErrorProgress=Progresso inválido: %1 de %2
 ErrorFileSize=Tamanho de ficheiro inválido: experado %1, encontrado %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=A extrair ficheiros adicionais...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=A extrair ficheiros...
 ButtonStopExtraction=&Parar extracção
 StopExtraction=Tem a certeza que deseja parar a extracção?
 ErrorExtractionAborted=Extracção cancelada
 ErrorExtractionFailed=Falha na extracção: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=A palavra-passe está incorrecta
+ArchiveIsCorrupted=O ficheiro está corrompido
+ArchiveUnsupportedFormat=O formato do ficheiro não é suportado
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparando-se para instalar
@@ -255,11 +258,15 @@ AbortRetryIgnoreSelectAction=Seleccione uma acção
 AbortRetryIgnoreRetry=&Tentar novamente
 AbortRetryIgnoreIgnore=&Ignorar o erro e continuar
 AbortRetryIgnoreCancel=Cancelar a instalação
+RetryCancelSelectAction=Seleccione uma acção
+RetryCancelRetry=&Tentar novamente
+RetryCancelCancel=Cancelar
 
 ; *** Installation status messages
 StatusClosingApplications=A fechar aplicações...
 StatusCreateDirs=A criar directorias...
 StatusExtractFiles=A extrair ficheiros...
+StatusDownloadFiles=A transferir ficheiros...
 StatusCreateIcons=A criar atalhos...
 StatusCreateIniEntries=A criar entradas em INI...
 StatusCreateRegistryEntries=A criar entradas no registo...
@@ -289,6 +296,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Ignorar este ficheiro (não recomendado)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar este erro e continuar (não recomendado)
 SourceIsCorrupted=O ficheiro de origem está corrompido
 SourceDoesntExist=O ficheiro de origem "%1" não existe
+SourceVerificationFailed=Verificação do ficheiro de origem falhou: %1
+VerificationSignatureDoesntExist=O ficheiro de assinatura "%1" não existe
+VerificationSignatureInvalid=O ficheiro de assinatura "%1" é inválido
+VerificationKeyNotFound=O ficheiro de assinatura "%1" usa uma chave desconhecida
+VerificationFileNameIncorrect=O nome do ficheiro é incorrecto
+VerificationFileTagIncorrect=A tag do ficheiro é incorrecta
+VerificationFileSizeIncorrect=O tamanho do ficheiro é incorrecto
+VerificationFileHashIncorrect=A hash do ficheiro é incorrecta
 ExistingFileReadOnly2=O ficheiro existente não pode ser substituído porque tem o atributo "só de leitura".
 ExistingFileReadOnlyRetry=&Remover o atributo "só de leitura" e tentar novamente
 ExistingFileReadOnlyKeepExisting=&Manter o ficheiro existente
@@ -307,6 +322,8 @@ ErrorChangingAttr=Ocorreu um erro ao tentar alterar os atributos do ficheiro exi
 ErrorCreatingTemp=Ocorreu um erro ao tentar criar um ficheiro na directoria de destino:
 ErrorReadingSource=Ocorreu um erro ao tentar ler o ficheiro de origem:
 ErrorCopying=Ocorreu um erro ao tentar copiar um ficheiro:
+ErrorDownloading=Ocorreu um erro ao tentar transferir um ficheiro:
+ErrorExtracting=Ocorreu um erro ao tentar extrair um ficheiro:
 ErrorReplacingExistingFile=Ocorreu um erro ao tentar substituir o ficheiro existente:
 ErrorRestartReplace=RestartReplace falhou:
 ErrorRenamingTemp=Ocorreu um erro ao tentar mudar o nome de um ficheiro na directoria de destino:
