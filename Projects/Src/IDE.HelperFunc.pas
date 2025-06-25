@@ -139,9 +139,7 @@ procedure InitFormTheme(Form: TForm);
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
       var Control := ParentControl.Controls[I];
-      if Control is TPanel then
-        (Control as TPanel).Color := FormTheme.Colors[tcBack]
-      else if Control is TListBox then
+      if Control is TListBox then
         InitListBoxDarkTheme(Control as TListBox)
       else if (Control is TButton) or (Control is TRadioButton) or (Control is TCheckBox) then begin
         { Not actually used at the moment since only TMainForm calls InitFormTheme and it doesn't
