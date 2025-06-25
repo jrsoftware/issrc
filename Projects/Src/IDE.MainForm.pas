@@ -6581,6 +6581,7 @@ begin
   InitFormTheme(Self);
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+  BodyPanel.Color := FTheme.Colors[tcBack];
 
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
