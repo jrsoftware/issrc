@@ -674,9 +674,7 @@ begin
     else
       Msg := FResult.SavedFatalException.ClassName;
     InternalErrorFmt('Worker thread terminated unexpectedly with exception: %s', [Msg]);
-  end else if FResult.Res = E_ABORT then
-    Abort
-  else begin
+  end else begin
     var OpRes := FResult.OpRes;
     if OpRes <> kOK then
       BadOperationResultError(OpRes)
@@ -834,22 +832,15 @@ begin
     System.TMonitor.Exit(FLock);
   end;
 
-  var Abort := FAbort;
-  if Abort then
-    Exit;
-
   if (CurrentPath <> '') and Assigned(FOnExtractionProgress) then begin
     { Calls to HandleProgress are already throttled so here we don't have to worry
       about calling the script to often }
     if not FOnExtractionProgress(FExtractedArchiveName, CurrentPath, Progress, ProgressMax) then
-      Abort := True;
+      Abort;
   end;
 
-  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
+  if DownloadTemporaryFileOrExtractArchiveProcessMessages then
     Application.ProcessMessages;
-
-  if Abort then
-    FAbort := Abort; { Atomic so no lock }
 end;
 
 { TArchiveExtractToHandleCallback }
