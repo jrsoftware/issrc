@@ -185,7 +185,6 @@ object MainForm: TMainForm
         Bevel = pbNone
         Width = 50
       end>
-    StyleName = 'Windows'
     OnClick = StatusBarClick
     OnDrawPanel = StatusBarDrawPanel
     OnResize = StatusBarResize

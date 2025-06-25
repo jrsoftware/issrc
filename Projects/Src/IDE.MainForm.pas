@@ -814,92 +814,6 @@ begin
   Result := Memo;
 end;
 
-function DarkStatusBarSubclassProc(hWnd: HWND; uMsg: UINT; wParam: WPARAM; lParam: LPARAM; uIdSubclass: UINT_PTR; dwRefData: DWORD_PTR): LRESULT; stdcall;
-const
-  { See TStatusBarStyleHook.Paint }
-  AlignStyles: array [TAlignment] of Integer = (DT_LEFT, DT_RIGHT, DT_CENTER);
-  cGripSize = 17;
-begin
-  case uMsg of
-    WM_ERASEBKGND:
-      begin
-        const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark then begin
-          { See StatusBarStyleHook.WMEraseBkgnd }
-          Exit(1);
-        end;
-      end;
-    WM_PAINT, WM_PRINTCLIENT:
-      begin
-        const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark then begin
-          var PaintStruct: TPaintStruct;
-          const Canvas = TCanvas.Create;
-          try
-            if uMsg = WM_PAINT then
-              Canvas.Handle := BeginPaint(hWnd, PaintStruct)
-            else
-              Canvas.Handle := wParam;
-
-            const Control = MainForm.StatusBar;
-            Canvas.Font := Control.Font;
-            Canvas.Font.Color := MainForm.FTheme.Colors[tcFore];
-
-            { See TStatusBarStyleHook.Paint }
-
-            Canvas.Brush.Color := $171717; { Same as themed scrollbar drawn by Windows 11 }
-            Canvas.FillRect(Rect(0, 0, Control.Width, Control.Height));
-
-            const Count = Control.Panels.Count;
-            for var I := 0 to Count-1 do begin
-              var R := Default(TRect);
-              SendMessage(hWnd, SB_GETRECT, I, IntPtr(@R));
-              if IsRectEmpty(R) then
-                Continue;
-              var R1 := R;
-              if I = Count - 1 then
-                R1.Right := Control.ClientWidth + 10;
-              Canvas.FillRect(R1);
-              InflateRect(R, -1, -1);
-              var Flags := Control.DrawTextBiDiModeFlags(AlignStyles[Control.Panels[I].Alignment]);
-              Flags := Flags + DT_VCENTER;
-              var LText: String;
-              SetLength(LText, Word(SendMessage(hWnd, SB_GETTEXTLENGTH, I, 0)));
-              if Length(LText) > 0 then begin { Always False at the moment }
-                var Res := SendMessage(hWnd, SB_GETTEXT, I, IntPtr(@LText[1]));
-                if (Res and SBT_OWNERDRAW = 0) then
-                  DrawText(Canvas.Handle, LText, Length(LText), R, Flags)
-                else
-                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
-              end else begin
-                if Control.Panels[I].Style <> psOwnerDraw then
-                  DrawText(Canvas.handle, Control.Panels[I].Text, Length(Control.Panels[I].Text), R, Flags)
-                else
-                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
-              end;
-            end;
-
-            if not IsZoomed(MainForm.Handle) and (MainForm.FStatusBarThemeData <> 0) then begin
-              var R1 := Control.ClientRect;
-              R1.Left := R1.Right - MainForm.ToCurrentPPI(cGripSize);
-              R1.Top := R1.Bottom - MainForm.ToCurrentPPI(cGripSize);
-              DrawThemeBackground(MainForm.FStatusBarThemeData, Canvas.Handle, SP_GRIPPER, 0, R1, nil);
-            end;
-          finally
-            Canvas.Free;
-          end;
-          if uMsg = WM_PAINT then
-            EndPaint(hWnd, PaintStruct);
-          Exit(0);
-        end;
-      end;
-    WM_NCDESTROY:
-      RemoveWindowSubclass(hWnd, @DarkStatusBarSubclassProc, 0);
-  end;
-
-  Result := DefSubclassProc(hWnd, uMsg, wParam, lParam);
-end;
-
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
@@ -1155,8 +1069,6 @@ begin
 
   UpdateThemeData(True);
   
-  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
-
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -1319,7 +1231,6 @@ begin
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
@@ -7300,6 +7211,13 @@ begin
           RGlyph.Left := RText.Right; { RGlyph is now a square }
           DrawThemeBackground(FToolbarThemeData, Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
         end;
+        var Color: TColor := FTheme.Colors[tcFore];
+        const LStyle = TStyleManager.ActiveStyle;
+        if LStyle <> nil then begin
+          const Details = LStyle.GetElementDetails(tsPane);
+          LStyle.GetElementColor(Details, ecTextColor, Color);
+        end;
+        Canvas.Font.Color := Color;
         var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
         Canvas.TextRect(RText, S, [tfCenter]);
       end;

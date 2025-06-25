@@ -43,7 +43,7 @@ const
 
   DFore = $D6D6D6;           { VSCode Modern Dark, 2 tints lightened using color-hex.com }
   DBack = $1F1F1F;           { VSCode Modern Dark }
-  DToolBack = $413E40;       { Monokai Pro }
+  DToolBack = $2B2B2B;       { VCL Style 'Windows11 Dark 1.0' }
   DSelBack = $764F1D;        { VSCode Modern Dark }
   //DSelInactiveBack = $51504F;{ VSCode Modern Dark }
   DIntelliBack = $202020;    { VSCode Modern Dark }
