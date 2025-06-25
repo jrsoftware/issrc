@@ -372,6 +372,7 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     TabOrder = 1
     Visible = False
+    StyleName = 'Windows'
     object UpdatePanelClosePaintBox: TPaintBox
       AlignWithMargins = True
       Left = 330
