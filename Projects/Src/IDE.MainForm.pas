@@ -783,6 +783,7 @@ begin
   Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
+  Memo.StyleName := 'Windows';
   Memo.Visible := False;
   Result := Memo;
 end;
