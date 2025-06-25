@@ -66,8 +66,12 @@ uses
 
 procedure TStartupForm.SetMRUFilesList(const MRUFilesList: TStringList);
 begin
-  OpenListBox.Items.AddStrings(MRUFilesList);
-  UpdateHorizontalExtent(OpenListBox);
+  if MRUFilesList.Count > 0 then begin
+    const NDefault = OpenListBox.Items.Count;
+    OpenListBox.Items.AddStrings(MRUFilesList);
+    UpdateHorizontalExtent(OpenListBox);
+    OpenListBox.ItemIndex := NDefault;
+  end;
 end;
 
 procedure TStartupForm.UpdateImages;
@@ -104,6 +108,8 @@ begin
   OpenListBox.Items.Add(SCompilerMoreFiles);
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
+
+  OpenRadioButton.Checked := True;
   ActiveControl := OpenRadioButton;
 end;
 
