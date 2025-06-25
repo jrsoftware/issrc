@@ -6567,21 +6567,21 @@ begin
 
   SetHelpFileDark(FTheme.Dark);
 
-  { For MainForm the active style only impacts message boxes and tooltips: FMemos, Toolbar, SplitPanel, StatusBar
-    and the 4 ListBoxes ignore it because their StyleName property is set to 'Windows' always. Additionally,
-    for scrollbars and StatusBar, MainForm's StyleElements is empty. Menus ignore it because shMenus is removed
-    from TStyleManager.SystemHooks at startup. }
+  { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
+    SplitPanel, StatusBar and the 4 ListBoxes all ignore it because their StyleName property is set
+    to 'Windows' always. Additionally, for scrollbars and StatusBar, MainForm's StyleElements is
+    empty. Menus ignore it because shMenus is removed from TStyleManager.SystemHooks at startup. }
   if FTheme.Dark then
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
   else
     TStyleManager.TrySetStyle('Windows');
-  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes look bad }
+  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+    it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
 
   InitFormTheme(Self);
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
-  BodyPanel.Color := FTheme.Colors[tcBack];
 
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
