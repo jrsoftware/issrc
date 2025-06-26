@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Japanese messages ***
+; *** Inno Setup version 6.5.0+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -196,23 +196,26 @@ ReadyMemoGroup=ƒXƒ^[ƒgƒƒjƒ…[ƒtƒHƒ‹ƒ_[:
 ReadyMemoTasks=’Ç‰Áƒ^ƒXƒNˆê——:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=’Ç‰Á‚Ìƒtƒ@ƒCƒ‹‚ğƒ_ƒEƒ“ƒ[ƒh‚µ‚Ä‚¢‚Ü‚·...
+DownloadingLabel2=ƒtƒ@ƒCƒ‹‚ğƒ_ƒEƒ“ƒ[ƒh‚µ‚Ä‚¢‚Ü‚·...
 ButtonStopDownload=ƒ_ƒEƒ“ƒ[ƒh‚ğ’†~(&S)
 StopDownload=ƒ_ƒEƒ“ƒ[ƒh‚ğ’†~‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©H
 ErrorDownloadAborted=ƒ_ƒEƒ“ƒ[ƒh‚ğ’†~‚µ‚Ü‚µ‚½
 ErrorDownloadFailed=ƒ_ƒEƒ“ƒ[ƒh‚É¸”s‚µ‚Ü‚µ‚½: %1 %2
 ErrorDownloadSizeFailed=ƒTƒCƒY‚Ìæ“¾‚É¸”s‚µ‚Ü‚µ‚½: %1 %2
-ErrorFileHash1=ƒtƒ@ƒCƒ‹‚ÌƒnƒbƒVƒ…‚É¸”s‚µ‚Ü‚µ‚½: %1
-ErrorFileHash2=–³Œø‚Èƒtƒ@ƒCƒ‹ƒnƒbƒVƒ…: —\Šú‚³‚ê‚½’l %1, ÀÛ‚Ì’l %2
 ErrorProgress=–³Œø‚Èisó‹µ: %1 / %2
 ErrorFileSize=–³Œø‚Èƒtƒ@ƒCƒ‹ƒTƒCƒY: —\Šú‚³‚ê‚½’l %1, ÀÛ‚Ì’l %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=’Ç‰Á‚Ìƒtƒ@ƒCƒ‹‚ğ“WŠJ‚µ‚Ä‚¢‚Ü‚·...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=ƒtƒ@ƒCƒ‹‚ğ“WŠJ‚µ‚Ä‚¢‚Ü‚·...
 ButtonStopExtraction=“WŠJ‚ğ’†~(&S)
 StopExtraction=“WŠJ‚ğ’†~‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©H
 ErrorExtractionAborted=“WŠJ‚ğ’†~‚µ‚Ü‚µ‚½
 ErrorExtractionFailed=“WŠJ‚É¸”s‚µ‚Ü‚µ‚½: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=ƒpƒXƒ[ƒh‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·
+ArchiveIsCorrupted=ƒA[ƒJƒCƒu‚ª”j‘¹‚µ‚Ä‚¢‚Ü‚·
+ArchiveUnsupportedFormat=ƒA[ƒJƒCƒuƒtƒH[ƒ}ƒbƒg‚ªƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=ƒCƒ“ƒXƒg[ƒ‹€”õ’†
@@ -258,11 +261,15 @@ AbortRetryIgnoreSelectAction=ƒAƒNƒVƒ‡ƒ“‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢
 AbortRetryIgnoreRetry=Äs(&T)
 AbortRetryIgnoreIgnore=ƒGƒ‰[‚ğ–³‹‚µ‚Ä‘±s(&I)
 AbortRetryIgnoreCancel=ƒCƒ“ƒXƒg[ƒ‹‚ğƒLƒƒƒ“ƒZƒ‹
+RetryCancelSelectAction=ƒAƒNƒVƒ‡ƒ“‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢
+RetryCancelRetry=Äs(&T)
+RetryCancelCancel=ƒLƒƒƒ“ƒZƒ‹
 
 ; *** Installation status messages
 StatusClosingApplications=ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ğI—¹‚µ‚Ä‚¢‚Ü‚·...
 StatusCreateDirs=ƒtƒHƒ‹ƒ_[‚ğì¬‚µ‚Ä‚¢‚Ü‚·...
 StatusExtractFiles=ƒtƒ@ƒCƒ‹‚ğ“WŠJ‚µ‚Ä‚¢‚Ü‚·...
+StatusDownloadFiles=ƒtƒ@ƒCƒ‹‚ğƒ_ƒEƒ“ƒ[ƒh‚µ‚Ä‚¢‚Ü‚·...
 StatusCreateIcons=ƒVƒ‡|ƒgƒJƒbƒg‚ğì¬‚µ‚Ä‚¢‚Ü‚·...
 StatusCreateIniEntries=INIƒtƒ@ƒCƒ‹‚ğİ’è‚µ‚Ä‚¢‚Ü‚·...
 StatusCreateRegistryEntries=ƒŒƒWƒXƒgƒŠ‚ğİ’è‚µ‚Ä‚¢‚Ü‚·...
@@ -292,6 +299,14 @@ FileAbortRetryIgnoreSkipNotRecommended=‚±‚Ìƒtƒ@ƒCƒ‹‚ğƒXƒLƒbƒv(&S) („§‚³‚ê‚Ü‚¹‚
 FileAbortRetryIgnoreIgnoreNotRecommended=ƒGƒ‰[‚ğ–³‹‚µ‚Ä‘±s(&I) („§‚³‚ê‚Ü‚¹‚ñ)
 SourceIsCorrupted=ƒRƒs[Œ³‚Ìƒtƒ@ƒCƒ‹‚ª‰ó‚ê‚Ä‚¢‚Ü‚·B
 SourceDoesntExist=ƒRƒs[Œ³‚Ìƒtƒ@ƒCƒ‹ %1 ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB
+SourceVerificationFailed=ƒRƒs[Œ³‚Ìƒtƒ@ƒCƒ‹‚ÌŒŸØ‚É¸”s‚µ‚Ü‚µ‚½: %1
+VerificationSignatureDoesntExist=–¼ƒtƒ@ƒCƒ‹ "%1" ‚ª‘¶İ‚µ‚Ü‚¹‚ñ
+VerificationSignatureInvalid=–¼ƒtƒ@ƒCƒ‹ "%1" ‚ª–³Œø‚Å‚·
+VerificationKeyNotFound=–¼ƒtƒ@ƒCƒ‹ "%1" ‚Å–¢’m‚ÌƒL[‚ªg—p‚³‚ê‚Ä‚¢‚Ü‚·
+VerificationFileNameIncorrect=ƒtƒ@ƒCƒ‹–¼‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ
+VerificationFileTagIncorrect=ƒtƒ@ƒCƒ‹‚Ìƒ^ƒO‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ
+VerificationFileSizeIncorrect=ƒtƒ@ƒCƒ‹‚ÌƒTƒCƒY‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ
+VerificationFileHashIncorrect=ƒtƒ@ƒCƒ‹‚ÌƒnƒbƒVƒ…‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ
 ExistingFileReadOnly2=Šù‘¶‚Ìƒtƒ@ƒCƒ‹‚Í“Ç‚İæ‚èê—p‚Ì‚½‚ß’u‚«Š·‚¦‚Å‚«‚Ü‚¹‚ñB
 ExistingFileReadOnlyRetry=“Ç‚İæ‚èê—p‘®«‚ğ‰ğœ‚µ‚Ä‚à‚¤ˆê“x‚â‚è‚È‚¨‚·(&R)
 ExistingFileReadOnlyKeepExisting=Šù‘¶‚Ìƒtƒ@ƒCƒ‹‚ğc‚·(&K)
@@ -310,6 +325,8 @@ ErrorChangingAttr=Šù‘¶ƒtƒ@ƒCƒ‹‚Ì‘®«‚ğ•ÏX’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
 ErrorCreatingTemp=ƒRƒs[æ‚ÌƒtƒHƒ‹ƒ_[‚Éƒtƒ@ƒCƒ‹‚ğì¬’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
 ErrorReadingSource=ƒRƒs[Œ³‚Ìƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚İ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
 ErrorCopying=ƒtƒ@ƒCƒ‹‚ğƒRƒs[’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
+ErrorDownloading=ƒtƒ@ƒCƒ‹‚ğƒ_ƒEƒ“ƒ[ƒh’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
+ErrorExtracting=ƒA[ƒJƒCƒu‚ğ“WŠJ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
 ErrorReplacingExistingFile=Šù‘¶‚Ìƒtƒ@ƒCƒ‹‚ğ’u‚«Š·‚¦’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
 ErrorRestartReplace=Ä‹N“®‚É‚æ‚é’u‚«Š·‚¦‚ÌÀs‚É¸”s‚µ‚Ü‚µ‚½:
 ErrorRenamingTemp=ƒRƒs[æƒtƒHƒ‹ƒ_[‚Ìƒtƒ@ƒCƒ‹–¼‚ğ•ÏX’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½:
