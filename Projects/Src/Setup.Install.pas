@@ -2749,7 +2749,7 @@ var
                           if not StrToInteger64(ExpandConst(ValueData), QV) then
                             InternalError('Failed to parse "qword" value');
                           ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_QWORD,
-                            @TLargeInteger(QV), SizeOf(TLargeInteger(QV)));
+                            @QV, SizeOf(QV));
                           if (ErrorCode <> ERROR_SUCCESS) and
                              not(roNoError in Options) then
                             RegError(reRegSetValueEx, RK, S, ErrorCode);

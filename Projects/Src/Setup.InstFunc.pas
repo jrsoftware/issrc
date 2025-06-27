@@ -982,7 +982,7 @@ begin
   try
     if Assigned(@GetDiskFreeSpaceExFunc) then begin
       Result := GetDiskFreeSpaceExFunc(PChar(AddBackslash(PathExpand(DriveRoot))),
-        @TLargeInteger(FreeBytes), @TLargeInteger(TotalBytes), nil);
+        @TLargeInteger(Int64Rec(FreeBytes)), @TLargeInteger(Int64Rec(TotalBytes)), nil);
     end
     else begin
       Result := GetDiskFreeSpace(PChar(AddBackslash(PathExtractDrive(PathExpand(DriveRoot)))),
