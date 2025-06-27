@@ -750,7 +750,7 @@ begin
     { Initialize messages }
     F := TFile.Create(UninstExeFilename, fdOpenExisting, faRead, fsRead);
     try
-      F.Seek(F.Size.Lo - SizeOf(UninstallerMsgTail));
+      F.Seek(F.Size - SizeOf(UninstallerMsgTail));
       F.ReadBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
       if UninstallerMsgTail.ID <> UninstallerMsgTailID then begin
         { No valid UninstallerMsgTail record found at the end of the EXE;

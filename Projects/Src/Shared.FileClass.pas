@@ -29,7 +29,7 @@ type
     function GetCappedSize: Cardinal;
   protected
     function GetPosition: Integer64; virtual; abstract;
-    function GetSize: Integer64; virtual; abstract;
+    function GetSize: Int64; virtual; abstract;
   public
     class procedure RaiseError(ErrorCode: DWORD);
     class procedure RaiseLastError;
@@ -41,7 +41,7 @@ type
     procedure WriteBuffer(const Buffer; Count: Cardinal); virtual; abstract;
     property CappedSize: Cardinal read GetCappedSize;
     property Position: Integer64 read GetPosition;
-    property Size: Integer64 read GetSize;
+    property Size: Int64 read GetSize;
   end;
 
   TFile = class(TCustomFile)
@@ -53,7 +53,7 @@ type
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; virtual;
     function GetPosition: Integer64; override;
-    function GetSize: Integer64; override;
+    function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
@@ -77,7 +77,7 @@ type
   protected
     procedure AllocMemory(const ASize: Cardinal);
     function GetPosition: Integer64; override;
-    function GetSize: Integer64; override;
+    function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String);
     constructor CreateFromMemory(const ASource; const ASize: Cardinal);
@@ -258,10 +258,9 @@ begin
   Result := LPosition;
 end;
 
-function TFile.GetSize: Integer64;
+function TFile.GetSize: Int64;
 begin
-  Result.Lo := GetFileSize(FHandle, @Result.Hi);
-  if (Result.Lo = INVALID_FILE_SIZE) and (GetLastError <> 0) then
+  if not GetFileSizeEx(FHandle, Result) then
     RaiseLastError;
 end;
 
@@ -373,7 +372,7 @@ begin
   Result := FPosition;
 end;
 
-function TMemoryFile.GetSize: Integer64;
+function TMemoryFile.GetSize: Int64;
 begin
   Result := FSize;
 end;

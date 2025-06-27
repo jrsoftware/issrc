@@ -1274,8 +1274,7 @@ var
       try
         var F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
         try
-          var TmpFileSize := F.Size; { Make sure we access F.Size only once }
-          Stack.SetInt64(PStart-2, Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo);
+          Stack.SetInt64(PStart-2, F.Size);
           Stack.SetBool(PStart, True);
         finally
           F.Free;

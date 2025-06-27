@@ -163,7 +163,7 @@ begin
       SourceIsCorrupted('Invalid slice header (2)');
     if FSourceF.Read(DiskSliceHeader, SizeOf(DiskSliceHeader)) <> SizeOf(DiskSliceHeader) then
       SourceIsCorrupted('Invalid slice header (3)');
-    if FSourceF.Size.Lo <> DiskSliceHeader.TotalSize then
+    if FSourceF.Size <> DiskSliceHeader.TotalSize then
       SourceIsCorrupted('Invalid slice header (4)');
   end;
   FOpenedSlice := ASlice;

@@ -829,7 +829,7 @@ begin
   F := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
   try
     { Is it a valid .pif file? }
-    if F.Size.Lo >= $171 then begin
+    if F.Size >= $171 then begin
       F.Seek($63);
       F.ReadBuffer(B, SizeOf(B));
       { Toggle the "Close on exit" bit }
