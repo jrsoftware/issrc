@@ -2,7 +2,7 @@ unit Shared.TaskDialogFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,7 @@ function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const 
 implementation
 
 uses
-  Classes, StrUtils, Math, Forms, Dialogs, SysUtils,
+  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Themes,
   Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF} PathFunc;
 
 var
@@ -81,9 +81,14 @@ begin
       TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
       ActiveWindow := GetActiveWindow;
       WindowList := DisableTaskWindows(Config.hwndParent);
+      { Temporarily clear SystemHooks to stop it from breaking the title bar. Does not make it dark.
+        Also see BrowseFunc's NewGetOpenOrSaveFileName. }
+      const SaveHooks = TStyleManager.SystemHooks;
+      TStyleManager.SystemHooks := [];
       try
         Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, pfVerificationFlagChecked) = S_OK;
       finally
+        TStyleManager.SystemHooks := SaveHooks;
         EnableTaskWindows(WindowList);
         SetActiveWindow(ActiveWindow);
         TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
