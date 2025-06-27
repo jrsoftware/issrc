@@ -77,6 +77,7 @@ end;
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
   UpdateImages;
 end;
 

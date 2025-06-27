@@ -50,6 +50,7 @@ uses
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,

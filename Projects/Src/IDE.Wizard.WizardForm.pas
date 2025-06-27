@@ -298,6 +298,8 @@ begin
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
+  InitFormTheme(Self);
+
   if Font.Name = 'Segoe UI' then begin
     { See Setup.WizardForm.pas }
     for I := 0 to OuterNotebook.PageCount-1 do

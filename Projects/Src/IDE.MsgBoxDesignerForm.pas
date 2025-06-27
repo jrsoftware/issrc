@@ -117,6 +117,7 @@ uses
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   cb_Suppressible.Checked := True;
   MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';

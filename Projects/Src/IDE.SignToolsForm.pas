@@ -80,6 +80,7 @@ procedure TSignToolsForm.FormCreate(Sender: TObject);
 begin
   FSignTools := TStringList.Create();
   InitFormFont(Self);
+  InitFormTheme(Self);
 end;
 
 { This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:
