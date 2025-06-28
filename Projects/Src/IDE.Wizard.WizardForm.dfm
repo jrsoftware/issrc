@@ -12,7 +12,6 @@ object WizardForm: TWizardForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
@@ -21,7 +20,6 @@ object WizardForm: TWizardForm
   DesignSize = (
     495
     358)
-  PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TBevel
     Left = 0
@@ -915,7 +913,6 @@ object WizardForm: TWizardForm
             Caption = '&Windows registry file (.reg) to import:'
             FocusControl = AppRegistryFileEdit
             TabOrder = 0
-            WordWrap = True
           end
           object AppRegistryFileEdit: TEdit
             Left = 36
@@ -937,8 +934,8 @@ object WizardForm: TWizardForm
           object AppRegistrySettingsLabel: TNewStaticText
             Left = 36
             Top = 60
-            Width = 392
-            Height = 230
+            Width = 156
+            Height = 14
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Settings (for all keys and values):'
             TabOrder = 3
@@ -970,7 +967,6 @@ object WizardForm: TWizardForm
             Checked = True
             State = cbChecked
             TabOrder = 6
-            WordWrap = True
           end
           object AppRegistryMinVerCheck: TCheckBox
             Left = 36
@@ -985,7 +981,7 @@ object WizardForm: TWizardForm
             Top = 159
             Width = 59
             Height = 21
-            Anchors = [akTop, akLeft, akRight]
+            Anchors = [akLeft, akTop, akRight]
             TabOrder = 8
           end
         end

@@ -6882,11 +6882,10 @@ var
     end;
 
   var
-    Pos: Cardinal;
     J: Integer;
     W: TCompressedBlockWriter;
   begin
-    Pos := F.Position.Lo;
+    const StartPosition = F.Position;
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
 
@@ -6998,7 +6997,7 @@ var
       W.Free;
     end;
 
-    Result := F.Position.Lo - Pos;
+    Result := F.Position - StartPosition;
   end;
 
   function CreateSetup0File: Longint;
@@ -8312,9 +8311,9 @@ begin
             FillChar(SetupLdrOffsetTable, SizeOf(SetupLdrOffsetTable), 0);
             SetupLdrOffsetTable.ID := SetupLdrOffsetTableID;
             SetupLdrOffsetTable.Version := SetupLdrOffsetTableVersion;
-            SetupLdrOffsetTable.Offset0 := ExeFile.Position.Lo;
+            SetupLdrOffsetTable.Offset0 := ExeFile.Position;
             SizeOfHeaders := WriteSetup0(ExeFile);
-            SetupLdrOffsetTable.OffsetEXE := ExeFile.Position.Lo;
+            SetupLdrOffsetTable.OffsetEXE := ExeFile.Position;
             CompressSetupE32(SetupE32, ExeFile, SetupLdrOffsetTable.UncompressedSizeEXE,
               SetupLdrOffsetTable.CRCEXE);
             SetupLdrOffsetTable.TotalSize := ExeFile.Size;

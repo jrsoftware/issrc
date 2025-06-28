@@ -28,7 +28,7 @@ type
   private
     function GetCappedSize: Cardinal;
   protected
-    function GetPosition: Integer64; virtual; abstract;
+    function GetPosition: Int64; virtual; abstract;
     function GetSize: Int64; virtual; abstract;
   public
     class procedure RaiseError(ErrorCode: DWORD);
@@ -40,7 +40,7 @@ type
     procedure WriteAnsiString(const S: AnsiString);
     procedure WriteBuffer(const Buffer; Count: Cardinal); virtual; abstract;
     property CappedSize: Cardinal read GetCappedSize;
-    property Position: Integer64 read GetPosition;
+    property Position: Int64 read GetPosition;
     property Size: Int64 read GetSize;
   end;
 
@@ -52,7 +52,7 @@ type
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; virtual;
-    function GetPosition: Integer64; override;
+    function GetPosition: Int64; override;
     function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String;
@@ -76,7 +76,7 @@ type
     function ClipCount(DesiredCount: Cardinal): Cardinal;
   protected
     procedure AllocMemory(const ASize: Cardinal);
-    function GetPosition: Integer64; override;
+    function GetPosition: Int64; override;
     function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String);
@@ -248,14 +248,10 @@ begin
     FILE_ATTRIBUTE_NORMAL, 0);
 end;
 
-function TFile.GetPosition: Integer64;
+function TFile.GetPosition: Int64;
 begin
-  { Store into an Int64 as it has 8-byte alignment, just in case the function
-    wants that (but it probably doesn't care) }
-  var LPosition: Int64;
-  if not SetFilePointerEx(FHandle, 0, @LPosition, FILE_CURRENT) then
+  if not SetFilePointerEx(FHandle, 0, @Result, FILE_CURRENT) then
     RaiseLastError;
-  Result := LPosition;
 end;
 
 function TFile.GetSize: Int64;
@@ -367,7 +363,7 @@ begin
     Result := DesiredCount;
 end;
 
-function TMemoryFile.GetPosition: Integer64;
+function TMemoryFile.GetPosition: Int64;
 begin
   Result := FPosition;
 end;

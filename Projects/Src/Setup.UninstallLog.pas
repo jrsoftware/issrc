@@ -1246,9 +1246,10 @@ begin
     end;
     Flush;
 
-    if F.Position.Hi <> 0 then
+    const NewEndOffset = F.Position;
+    if NewEndOffset > High(UInt32) then
       InternalError('EndOffset range exceeded');
-    Header.EndOffset := F.Position.Lo;
+    Header.EndOffset := UInt32(NewEndOffset);
     F.Seek(0);
     Header.ID := UninstallLogID[InstallMode64Bit];
     WriteSafeHeaderString(Header.AppId, AppId, SizeOf(Header.AppId));

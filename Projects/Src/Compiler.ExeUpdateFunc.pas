@@ -64,13 +64,12 @@ const
   OffsetOfDllCharacteristics = $46;
 var
   Header: TImageFileHeader;
-  Ofs: Cardinal;
   OptMagic, DllChars, OrigDllChars: Word;
 begin
   if SeekToPEHeader(F) then begin
     if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
        (Header.SizeOfOptionalHeader = 224) then begin
-      Ofs := F.Position.Lo;
+      const Ofs = F.Position;
       if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
          (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
         { Update DllCharacteristics }
@@ -236,12 +235,12 @@ procedure UpdateVersionInfo(const F: TCustomFile;
   end;
 
 var
-  ResOffset, ResSize: Cardinal;
+  ResSize: Cardinal;
   VersRes: Pointer;
 begin
   { Locate the resource }
   ResSize := SeekToResourceData(F, Cardinal(RT_VERSION), 1);
-  ResOffset := F.Position.Lo;
+  const ResOffset = F.Position;
 
   GetMem(VersRes, ResSize);
   try
