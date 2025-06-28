@@ -43,6 +43,9 @@ const
 
   DFore = $D6D6D6;           { VSCode Modern Dark, 2 tints lightened using color-hex.com }
   DBack = $1F1F1F;           { VSCode Modern Dark }
+  { If you combine this unit with a dark VCL Style then the following color should match the style's
+    window background color. Value can be found using BitmapStyleDesigner.exe from BDS\Bin. Open the
+    style .vsf file, go to the Colors section and then to the Window color. }
   DToolBack = $2B2B2B;       { VCL Style 'Windows11 Dark 1.0' }
   DSelBack = $764F1D;        { VSCode Modern Dark }
   //DSelInactiveBack = $51504F;{ VSCode Modern Dark }

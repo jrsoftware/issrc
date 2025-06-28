@@ -28,7 +28,7 @@ procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
 procedure InitFormThemeInit(const Theme: TTheme);
 function InitFormTheme(const Form: TForm): Boolean;
-function InitFormThemeGetBkColor: TColor;
+function InitFormThemeGetBkColor(const Form: TForm): TColor;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -149,7 +149,7 @@ function InitFormTheme(const Form: TForm): Boolean;
 begin
   Result := (Form = MainForm) or FormTheme.Dark;
   if Result then begin
-    Form.Color := InitFormThemeGetBkColor;
+    Form.Color := InitFormThemeGetBkColor(Form);
 
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
       Unlike this article we check for Windows 10 Version 2004 because that's the first version
@@ -165,9 +165,12 @@ begin
   end;
 end;
 
-function InitFormThemeGetBkColor: TColor;
+function InitFormThemeGetBkColor(const Form: TForm): TColor;
 begin
-  Result := FormTheme.Colors[tcBack];
+  if Form = MainForm then
+    Result := FormTheme.Colors[tcBack]
+  else
+    Result := FormTheme.Colors[tcToolBack];
 end;
 
 function GetDisplayFilename(const Filename: String): String;
