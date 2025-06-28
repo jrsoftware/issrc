@@ -109,8 +109,7 @@ begin
 end;
 
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
-{ Can be used for buttons to give them the native dark look and for memos and listboxes to give
-  them a native dark scrollbar }
+{ Can be used for memos and listboxes to switch them to (or from) a native dark scrollbar }
 begin
   if UseThemes then begin
     WinControl.StyleName := 'Windows';
@@ -133,19 +132,6 @@ function InitFormTheme(const Form: TForm): Boolean;
 { Assumes forms other then MainForm call this function only once during creation, and assumes they
   don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
   style, False otherwise. }
-
-  procedure InitWinControlTheme(const ParentControl: TWinControl);
-  begin
-    for var I := 0 to ParentControl.ControlCount-1 do begin
-      const Control = ParentControl.Controls[I];
-      if Control is TButton then
-        SetControlWindowTheme(Control as TButton, FormTheme.Dark);
-
-      if Control is TWinControl then
-        InitWinControlTheme(Control as TWinControl);
-    end;
-  end;
-
 begin
   Result := (Form = MainForm) or FormTheme.Dark;
   if Result then begin
@@ -160,8 +146,6 @@ begin
       var value: BOOL := FormTheme.Dark;
       DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
     end;
-
-    InitWinControlTheme(Form);
   end;
 end;
 
