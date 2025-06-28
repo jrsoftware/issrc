@@ -13,7 +13,7 @@ interface
 
 uses
   Windows,
-  Classes, Forms, Dialogs, Menus, Controls, StdCtrls,
+  Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
   ScintEdit, IDE.IDEScintEdit, ModernColors;
 
 const
@@ -26,8 +26,9 @@ type
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
-procedure InitFormThemeInit(const ATheme: TTheme);
-procedure InitFormTheme(Form: TForm);
+procedure InitFormThemeInit(const Theme: TTheme);
+function InitFormTheme(const Form: TForm): Boolean;
+function InitFormThemeGetBkColor: TColor;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -85,7 +86,7 @@ implementation
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
   Messages, DwmApi, Consts,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
@@ -123,27 +124,32 @@ end;
 var
   FormTheme: TTheme;
 
-procedure InitFormThemeInit(const ATheme: TTheme);
+procedure InitFormThemeInit(const Theme: TTheme);
 begin
-  FormTheme := ATheme;
+  FormTheme := Theme;
 end;
 
-procedure InitFormTheme(Form: TForm);
+function InitFormTheme(const Form: TForm): Boolean;
+{ Assumes forms other then MainForm call this function only once during creation, and assumes they
+  don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
+  style, False otherwise. }
 
   procedure InitWinControlTheme(const ParentControl: TWinControl);
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
       const Control = ParentControl.Controls[I];
       if Control is TButton then
-        SetControlWindowTheme(Control as TWinControl, FormTheme.Dark);
+        SetControlWindowTheme(Control as TButton, FormTheme.Dark);
+
       if Control is TWinControl then
         InitWinControlTheme(Control as TWinControl);
     end;
   end;
 
 begin
-  if (Form = MainForm) or FormTheme.Dark then begin
-    Form.Color := FormTheme.Colors[tcBack];
+  Result := (Form = MainForm) or FormTheme.Dark;
+  if Result then begin
+    Form.Color := InitFormThemeGetBkColor;
 
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
       Unlike this article we check for Windows 10 Version 2004 because that's the first version
@@ -157,6 +163,11 @@ begin
 
     InitWinControlTheme(Form);
   end;
+end;
+
+function InitFormThemeGetBkColor: TColor;
+begin
+  Result := FormTheme.Colors[tcBack];
 end;
 
 function GetDisplayFilename(const Filename: String): String;

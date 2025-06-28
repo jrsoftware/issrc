@@ -298,7 +298,8 @@ begin
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
-  InitFormTheme(Self);
+  if not InitFormTheme(Self) then
+    OuterNotebook.Color := InitFormThemeGetBkColor;
 
   if Font.Name = 'Segoe UI' then begin
     { See Setup.WizardForm.pas }
@@ -310,8 +311,6 @@ begin
   end;
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
-
-  OuterNotebook.Color := clWindow;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);

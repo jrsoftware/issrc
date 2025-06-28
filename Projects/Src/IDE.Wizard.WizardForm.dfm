@@ -58,12 +58,8 @@ object WizardForm: TWizardForm
     Height = 314
     ActivePage = MainPage
     Anchors = [akLeft, akTop, akRight, akBottom]
-    Color = clBtnFace
-    ParentColor = False
     TabOrder = 3
     object WelcomePage: TNewNotebookPage
-      Color = clWindow
-      ParentColor = False
       DesignSize = (
         496
         314)
@@ -1188,7 +1184,7 @@ object WizardForm: TWizardForm
         Height = 58
         Anchors = [akLeft, akTop, akRight]
         BevelOuter = bvNone
-        Color = clWindow
+        ParentColor = True
         TabOrder = 1
         DesignSize = (
           497
@@ -1264,8 +1260,6 @@ object WizardForm: TWizardForm
       end
     end
     object FinishedPage: TNewNotebookPage
-      Color = clWindow
-      ParentColor = False
       DesignSize = (
         496
         314)
