@@ -1016,7 +1016,7 @@ var
     F.WriteBuffer(UniqueValue, SizeOf(UniqueValue));
 
     UninstallerMsgTail.ID := UninstallerMsgTailID;
-    UninstallerMsgTail.Offset := F.Position.Lo;
+    UninstallerMsgTail.Offset := F.Position;
     WriteMsgData(F);
     F.WriteBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
   end;

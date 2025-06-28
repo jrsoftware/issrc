@@ -145,7 +145,7 @@ begin
     FDestFileIsDiskSlice := False;
     FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
     FDestFile.SeekToEnd;
-    FSliceBaseOffset := FDestFile.Position.Lo;
+    FSliceBaseOffset := FDestFile.Position;
     FSliceBytesLeft := Cardinal(DiskSliceSize) - FSliceBaseOffset;
   end;
 end;
@@ -212,7 +212,7 @@ begin
     NewSlice('');
 
   FChunkFirstSlice := FCurSlice;
-  FChunkStartOffset := FDestFile.Position.Lo - FSliceBaseOffset;
+  FChunkStartOffset := FDestFile.Position - FSliceBaseOffset;
   FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
   Dec(FSliceBytesLeft, SizeOf(ZLIBID));
   FChunkBytesRead := To64(0);
