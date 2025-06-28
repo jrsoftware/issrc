@@ -255,8 +255,10 @@ begin
       Title := SCompilerFormCaption;
   end;
 
-  { We don't need VCL Styles for dark menus. This keeps shDialogs and shTooltips. }
-  TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus];
+  if Assigned(FlushMenuThemes) then begin
+    { We don't need VCL Styles for dark menus. This keeps shDialogs and shTooltips. }
+    TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus];
+  end;
 
   Application.CreateForm(TImagesModule, ImagesModule);
   Application.CreateForm(TMainForm, MainForm);
