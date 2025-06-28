@@ -35,8 +35,8 @@ type
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetAutoSize(Value: Boolean); override;
-    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
     procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;
