@@ -348,7 +348,7 @@ begin
     VerificationError(veFileNameIncorrect);
   var FileSize: Int64;
   if SourceF <> nil then
-    FileSize := Int64(SourceF.Size)
+    FileSize := SourceF.Size
   else
     FileSize := SourceFS.Size;
   if FileSize <> ExpectedFileSize then
@@ -3943,7 +3943,7 @@ begin
         const DestF = TFile.Create(DestFile, fdOpenExisting, faRead, fsReadWrite);
         try
           { Not checking ExistingFileName because we can't be sure what the original filename was }
-          if (Int64(DestF.Size) = ExistingFileSize) and
+          if (DestF.Size = ExistingFileSize) and
              (SHA256DigestsEqual(GetSHA256OfFile(DestF), ExistingFileHash)) then begin
             Log('  File already downloaded.');
             Result := 0;

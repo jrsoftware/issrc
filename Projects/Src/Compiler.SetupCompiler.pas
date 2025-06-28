@@ -7243,7 +7243,7 @@ var
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if (ExpectedFileName <> '') and not PathSame(PathExtractName(FileLocationEntryFilenames[I]), ExpectedFileName) then
               VerificationError(veFileNameIncorrect, FileLocationEntryFilenames[I]);
-            if Int64(SourceFile.Size) <> ExpectedFileSize then
+            if SourceFile.Size <> ExpectedFileSize then
               VerificationError(veFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }
           end;
