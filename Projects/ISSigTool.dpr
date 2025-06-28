@@ -176,7 +176,7 @@ begin
   var FileHash: TSHA256Digest;
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try
-    FileSize := Int64(F.Size);
+    FileSize := F.Size;
     FileHash := CalcFileHash(F);
   finally
     F.Free;
@@ -258,7 +258,7 @@ begin
 
   const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try
-    if Int64(F.Size) <> ExpectedFileSize then begin
+    if F.Size <> ExpectedFileSize then begin
       PrintUnlessQuiet('WRONGSIZE (File size is incorrect)');
       Exit;
     end;

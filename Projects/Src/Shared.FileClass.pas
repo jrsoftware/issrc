@@ -29,19 +29,19 @@ type
     function GetCappedSize: Cardinal;
   protected
     function GetPosition: Integer64; virtual; abstract;
-    function GetSize: Integer64; virtual; abstract;
+    function GetSize: Int64; virtual; abstract;
   public
     class procedure RaiseError(ErrorCode: DWORD);
     class procedure RaiseLastError;
     function Read(var Buffer; Count: Cardinal): Cardinal; virtual; abstract;
     procedure ReadBuffer(var Buffer; Count: Cardinal);
-    procedure Seek(Offset: Cardinal);
-    procedure Seek64(Offset: Integer64); virtual; abstract;
+    procedure Seek(Offset: Int64); virtual; abstract;
+    procedure Seek64(Offset: Int64);
     procedure WriteAnsiString(const S: AnsiString);
     procedure WriteBuffer(const Buffer; Count: Cardinal); virtual; abstract;
     property CappedSize: Cardinal read GetCappedSize;
     property Position: Integer64 read GetPosition;
-    property Size: Integer64 read GetSize;
+    property Size: Int64 read GetSize;
   end;
 
   TFile = class(TCustomFile)
@@ -53,7 +53,7 @@ type
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; virtual;
     function GetPosition: Integer64; override;
-    function GetSize: Integer64; override;
+    function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
@@ -61,7 +61,7 @@ type
     constructor CreateWithExistingHandle(const AHandle: THandle);
     destructor Destroy; override;
     function Read(var Buffer; Count: Cardinal): Cardinal; override;
-    procedure Seek64(Offset: Integer64); override;
+    procedure Seek(Offset: Int64); override;
     procedure SeekToEnd;
     procedure Truncate;
     procedure WriteBuffer(const Buffer; Count: Cardinal); override;
@@ -77,14 +77,14 @@ type
   protected
     procedure AllocMemory(const ASize: Cardinal);
     function GetPosition: Integer64; override;
-    function GetSize: Integer64; override;
+    function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String);
     constructor CreateFromMemory(const ASource; const ASize: Cardinal);
     constructor CreateFromZero(const ASize: Cardinal);
     destructor Destroy; override;
     function Read(var Buffer; Count: Cardinal): Cardinal; override;
-    procedure Seek64(Offset: Integer64); override;
+    procedure Seek(Offset: Int64); override;
     procedure WriteBuffer(const Buffer; Count: Cardinal); override;
     property Memory: Pointer read FMemory;
   end;
@@ -196,9 +196,9 @@ begin
   end;
 end;
 
-procedure TCustomFile.Seek(Offset: Cardinal);
+procedure TCustomFile.Seek64(Offset: Int64);
 begin
-  Seek64(To64(Offset));
+  Seek(Offset);
 end;
 
 procedure TCustomFile.WriteAnsiString(const S: AnsiString);
@@ -248,21 +248,19 @@ begin
     FILE_ATTRIBUTE_NORMAL, 0);
 end;
 
-const
-  INVALID_SET_FILE_POINTER = DWORD($FFFFFFFF);
-
 function TFile.GetPosition: Integer64;
 begin
-  Result.Hi := 0;
-  Result.Lo := SetFilePointer(FHandle, 0, @Result.Hi, FILE_CURRENT);
-  if (Result.Lo = INVALID_SET_FILE_POINTER) and (GetLastError <> 0) then
+  { Store into an Int64 as it has 8-byte alignment, just in case the function
+    wants that (but it probably doesn't care) }
+  var LPosition: Int64;
+  if not SetFilePointerEx(FHandle, 0, @LPosition, FILE_CURRENT) then
     RaiseLastError;
+  Result := LPosition;
 end;
 
-function TFile.GetSize: Integer64;
+function TFile.GetSize: Int64;
 begin
-  Result.Lo := GetFileSize(FHandle, @Result.Hi);
-  if (Result.Lo = INVALID_FILE_SIZE) and (GetLastError <> 0) then
+  if not GetFileSizeEx(FHandle, Result) then
     RaiseLastError;
 end;
 
@@ -273,20 +271,15 @@ begin
       RaiseLastError;
 end;
 
-procedure TFile.Seek64(Offset: Integer64);
+procedure TFile.Seek(Offset: Int64);
 begin
-  if (SetFilePointer(FHandle, Integer(Offset.Lo), @Offset.Hi,
-      FILE_BEGIN) = INVALID_SET_FILE_POINTER) and (GetLastError <> 0) then
+  if not SetFilePointerEx(FHandle, Offset, nil, FILE_BEGIN) then
     RaiseLastError;
 end;
 
 procedure TFile.SeekToEnd;
-var
-  DistanceHigh: Integer;
 begin
-  DistanceHigh := 0;
-  if (SetFilePointer(FHandle, 0, @DistanceHigh, FILE_END) = INVALID_SET_FILE_POINTER) and
-     (GetLastError <> 0) then
+  if not SetFilePointerEx(FHandle, 0, nil, FILE_END) then
     RaiseLastError;
 end;
 
@@ -379,7 +372,7 @@ begin
   Result := FPosition;
 end;
 
-function TMemoryFile.GetSize: Integer64;
+function TMemoryFile.GetSize: Int64;
 begin
   Result := FSize;
 end;
@@ -393,9 +386,9 @@ begin
   end;
 end;
 
-procedure TMemoryFile.Seek64(Offset: Integer64);
+procedure TMemoryFile.Seek(Offset: Int64);
 begin
-  if Offset.Hi and $80000000 <> 0 then
+  if Offset < 0 then
     RaiseError(ERROR_NEGATIVE_SEEK);
   FPosition := Offset;
 end;

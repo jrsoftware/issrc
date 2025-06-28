@@ -2,7 +2,7 @@ unit Setup.Helper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,7 +31,7 @@ implementation
 {x$DEFINE HELPERDEBUG}
 
 uses
-  Forms, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainFunc, Setup.InstFunc,
+  Forms, Shared.CommonFunc.Vcl, Shared.CommonFunc, PathFunc, Setup.MainFunc, Setup.InstFunc,
   Setup.LoggingFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs;
 
 const
@@ -166,7 +166,7 @@ const
     nLength: SizeOf(InheritableSecurity); lpSecurityDescriptor: nil;
     bInheritHandle: True);
 var
-  PerformanceCount: Integer64;
+  PerformanceCount: Int64;
   PipeName: String;
   Pipe, RemotePipe: THandle;
   Mode: DWORD;
@@ -189,11 +189,11 @@ begin
     { Generate a very unique pipe name }
     Inc(HelperPipeNameSequence);
     FCommandSequenceNumber := GetTickCount;
-    if not QueryPerformanceCounter(TLargeInteger(PerformanceCount)) then
+    if not QueryPerformanceCounter(PerformanceCount) then
       GetSystemTimeAsFileTime(TFileTime(PerformanceCount));
-    PipeName := Format('\\.\pipe\InnoSetup64BitHelper-%.8x-%.8x-%.8x-%.8x%.8x',
+    PipeName := Format('\\.\pipe\InnoSetup64BitHelper-%.8x-%.8x-%.8x-%.16x',
       [GetCurrentProcessId, HelperPipeNameSequence, FCommandSequenceNumber,
-       PerformanceCount.Hi, PerformanceCount.Lo]);
+       PerformanceCount]);
 
     { Create the pipe }
     Pipe := CreateNamedPipe(PChar(PipeName),

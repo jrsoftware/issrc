@@ -78,7 +78,7 @@ uses
   StringScanner;
 
 const
-  ISSigTextFileLengthLimit = 1500;
+  ISSigTextFileLengthLimit = 2500;
 
   NonControlASCIICharsSet = [#32..#126];
   UTF8HighCharsSet = [#128..#244];

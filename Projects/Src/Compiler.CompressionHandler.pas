@@ -99,7 +99,7 @@ var
 begin
   if Assigned(FDestFile) then begin
     if FDestFileIsDiskSlice then begin
-      DiskSliceHeader.TotalSize := FDestFile.Size.Lo;
+      DiskSliceHeader.TotalSize := FDestFile.Size;
       FDestFile.Seek(SizeOf(DiskSliceID));
       FDestFile.WriteBuffer(DiskSliceHeader, SizeOf(DiskSliceHeader));
     end;

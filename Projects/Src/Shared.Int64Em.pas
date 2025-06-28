@@ -17,6 +17,8 @@ interface
 type
   Integer64 = record
     Lo, Hi: LongWord;
+    class operator Implicit(const A: Integer64): Int64;
+    class operator Implicit(const A: Int64): Integer64;
   end;
 
 function Compare64(const N1, N2: Integer64): Integer;
@@ -289,8 +291,19 @@ end;
 
 function To64(const Lo: Longword): Integer64;
 begin
-  Result.Lo  := Lo;
-  Result.Hi := 0;
+  Result := Lo;
+end;
+
+{ Integer64 }
+
+class operator Integer64.Implicit(const A: Int64): Integer64;
+begin
+  Int64Rec(Result) := Int64Rec(A);
+end;
+
+class operator Integer64.Implicit(const A: Integer64): Int64;
+begin
+  Int64Rec(Result) := Int64Rec(A);
 end;
 
 end.

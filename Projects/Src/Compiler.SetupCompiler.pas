@@ -2238,7 +2238,7 @@ begin
   try
     F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
-      Size := F.Size.Lo;
+      Size := F.CappedSize;
       SetLength(S, Size);
       F.ReadBuffer(S[1], Size);
 
@@ -7243,7 +7243,7 @@ var
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
             if (ExpectedFileName <> '') and not PathSame(PathExtractName(FileLocationEntryFilenames[I]), ExpectedFileName) then
               VerificationError(veFileNameIncorrect, FileLocationEntryFilenames[I]);
-            if Int64(SourceFile.Size) <> ExpectedFileSize then
+            if SourceFile.Size <> ExpectedFileSize then
               VerificationError(veFileSizeIncorrect, FileLocationEntryFilenames[I]);
             { ExpectedFileHash checked below after compression }
           end;
@@ -8251,8 +8251,8 @@ begin
         if not UseSetupLdr then begin
           SetupFile := TFile.Create(ExeFilename, fdCreateAlways, faWrite, fsNone);
           try
-            SetupFile.WriteBuffer(SetupE32.Memory^, SetupE32.Size.Lo);
-            SizeOfExe := SetupFile.Size.Lo;
+            SetupFile.WriteBuffer(SetupE32.Memory^, SetupE32.CappedSize);
+            SizeOfExe := SetupFile.Size;
           finally
             SetupFile.Free;
           end;
@@ -8292,7 +8292,7 @@ begin
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
             UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
-            SizeOfExe := SetupFile.Size.Lo;
+            SizeOfExe := SetupFile.Size;
           finally
             SetupFile.Free;
           end;
@@ -8317,7 +8317,7 @@ begin
             SetupLdrOffsetTable.OffsetEXE := ExeFile.Position.Lo;
             CompressSetupE32(SetupE32, ExeFile, SetupLdrOffsetTable.UncompressedSizeEXE,
               SetupLdrOffsetTable.CRCEXE);
-            SetupLdrOffsetTable.TotalSize := ExeFile.Size.Lo;
+            SetupLdrOffsetTable.TotalSize := ExeFile.Size;
             if DiskSpanning then begin
               SetupLdrOffsetTable.Offset1 := 0;
               { Compress the files in Setup-*.bin after we know the size of

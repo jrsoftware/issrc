@@ -396,7 +396,7 @@ begin
         programs that search for the offset table by ID. } 
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
          (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
-         ((SourceF.Size.Hi = 0) and (SourceF.Size.Lo < OffsetTable.TotalSize)) then
+         (SourceF.Size < OffsetTable.TotalSize) then
         SetupCorruptError;
 
       SourceF.Seek(OffsetTable.Offset0);
