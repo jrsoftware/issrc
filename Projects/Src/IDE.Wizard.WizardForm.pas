@@ -299,7 +299,7 @@ begin
 
   InitFormFont(Self);
   if not InitFormTheme(Self) then
-    OuterNotebook.Color := InitFormThemeGetBkColor(Self);
+    OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
   if Font.Name = 'Segoe UI' then begin
     { See Setup.WizardForm.pas }
