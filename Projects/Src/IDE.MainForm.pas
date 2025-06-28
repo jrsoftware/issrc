@@ -7234,7 +7234,25 @@ begin
       if FCompiling and (FProgressMax > 0) then begin
         var R := Rect;
         InflateRect(R, -2, -2);
-        if FProgressThemeData = 0 then begin
+        var LStyle := StyleServices(Self);
+        if not LStyle.Enabled or LStyle.IsSystemStyle then
+          LStyle := nil;
+        if LStyle <> nil then begin
+          { See Vcl.ComCtrl's TProgressBarStyleHook.Paint, .PaintFrame, and .PaintBar }
+          var Details: TThemedElementDetails;
+          Details.Element := teProgress;
+          if LStyle.HasTransparentParts(Details) then
+            LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False, @R);
+          Details := LStyle.GetElementDetails(tpBar);
+          LStyle.DrawElement(Canvas.Handle, Details, R);
+          InflateRect(R, -1, -1);
+          const W = R.Width;
+          const Pos = Round(W * (FProgress / FProgressMax));
+          var FillR := R;
+          FillR.Right := FillR.Left + Pos;
+          Details := LStyle.GetElementDetails(tpChunk);
+          LStyle.DrawElement(Canvas.Handle, Details, FillR);
+        end else if FProgressThemeData = 0 then begin
           { Border }
           Canvas.Pen.Color := clBtnShadow;
           Canvas.Brush.Style := bsClear;
