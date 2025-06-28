@@ -149,7 +149,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Checked = True
     State = cbChecked
     TabOrder = 6
-    WordWrap = True
   end
   object AppRegistryMinVerCheck: TCheckBox
     Left = 8
