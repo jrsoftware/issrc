@@ -93,9 +93,8 @@ end;
 { TNewStaticText }
 
 procedure TNewStaticText.WMEraseBkgnd(var Message: TWMEraseBkgnd);
-begin
-  const LStyle = StyleServices(Self);
-  if LStyle.Enabled and not LStyle.IsSystemStyle then
+begin;
+  if IsCustomStyleActive and (seClient in StyleElements) then
     Message.Result := 1
   else
     inherited;
@@ -107,8 +106,8 @@ const
 begin
   { Based on Vcl.StdCtrl's TCustomLabel.DoDrawThemeTextEx and its callers. Only the
     DrawParentBackground call is new compared to it.  }
-  const LStyle = StyleServices(Self);
-  if LStyle.Enabled and not LStyle.IsSystemStyle then begin
+  if IsCustomStyleActive and (seClient in StyleElements) then begin
+    const LStyle = StyleServices(Self);
     var DC := Message.DC;
     var PS: TPaintStruct;
     if DC = 0 then
@@ -121,11 +120,9 @@ begin
       if (Text = '') or (FShowAccelChar and (Text[1] = '&') and (Length(Text) = 1)) then
         Text := Text + ' ';
       const TextFlags = GetDrawTextFlags;
-      var TextColor: TColor;
-      LStyle.GetElementColor(Details, ecTextColor, TextColor);
       const OldFont = SelectObject(DC, Font.Handle);
       try
-        LStyle.DrawText(DC, Details, Text, R, TTextFormat(TextFlags), TextColor);
+        LStyle.DrawText(DC, Details, Text, R, TTextFormat(TextFlags), Font.Color);
       finally
         SelectObject(DC, OldFont);
       end;
