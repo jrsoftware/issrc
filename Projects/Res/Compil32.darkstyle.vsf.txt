@@ -1,0 +1,3 @@
+Compil32.darkstyle.vsf should any VCL Style File with its name changed to Dark using Bitmap Style Designer (BDS\Bin\BitmapStyleDesigner.exe)
+
+Currently equals VCL Style 'Windows11 Dark 1.0' by Embarcadero from GetIt

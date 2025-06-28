@@ -6485,7 +6485,7 @@ begin
     MainForm's StyleElements is empty. Menus ignore it because shMenus is removed from
     TStyleManager.SystemHooks at startup. }
   if FTheme.Dark then
-    TStyleManager.TrySetStyle('Windows11 Modern Dark')
+    TStyleManager.TrySetStyle('Dark')
   else
     TStyleManager.TrySetStyle('Windows');
   { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
