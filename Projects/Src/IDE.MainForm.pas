@@ -1704,6 +1704,9 @@ begin
     to the form's height decreasing }
   if StatusPanel.Visible then
     UpdateStatusPanelHeight(StatusPanel.Height);
+  { Violently resizing the form leaves UpdatePanelDonateImage and UpdatePanelPaintBox artifacts
+    under and over UpdateLinkLabel. Invalidating it prevents this. }
+  UpdateLinkLabel.Invalidate;
 end;
 
 procedure TMainForm.WndProc(var Message: TMessage);
