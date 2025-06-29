@@ -96,7 +96,7 @@ ButtonBack=< &Atgal
 ButtonNext=&Pirmyn >
 ButtonInstall=Á&diegti
 ButtonOK=Gerai
-ButtonCancel=Atðaukti
+ButtonCancel=Nutraukti
 ButtonYes=&Taip
 ButtonYesToAll=Taip &viskà
 ButtonNo=&Ne
@@ -216,7 +216,7 @@ ReadyMemoGroup=„Start Menu“ katalogas:
 ReadyMemoTasks=Papildomi veiksmai:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Parsisiunèiami papildomi failai...
+DownloadingLabel2=Parsisiunèiami failai...
 ButtonStopDownload=&Stabdyti parsisiuntimà
 StopDownload=Ar tikrai norite sustabdyti parsisiuntimà?
 ErrorDownloadAborted=Parsisiuntimas nutrauktas
@@ -226,7 +226,7 @@ ErrorProgress=Netinkama eiga: %1 ið %2
 ErrorFileSize=Neteisingas failo dydis: numatytas %1, rastas %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Papildomø failø iðpakavimas...
+ExtractingLabel=Failø iðpakavimas...
 ButtonStopExtraction=&Stabdyti iðpakavimà
 StopExtraction=Ar tikrai norite sustabdyti iðpakavimà?
 ErrorExtractionAborted=Iðpakavimas nutrauktas
@@ -278,9 +278,12 @@ SelectDirectoryLabel=Nurodykite kito diskelio vietà.
 ; *** Installation phase messages
 SetupAborted=Diegimas nebuvo baigtas.%n%nPaðalinkite prieþàstá ir pakartokite diegimà vël.
 AbortRetryIgnoreSelectAction=Pasirinkite veiksmà
-AbortRetryIgnoreRetry=Pabandyti dar kar&tà
+AbortRetryIgnoreRetry=Bandy&ti vël
 AbortRetryIgnoreIgnore=&Ignoruoti klaidà ir tæsti
 AbortRetryIgnoreCancel=Nutraukti diegimà
+RetryCancelSelectAction=Pasirinkite veiksmà
+RetryCancelRetry=Bandy&ti vël
+RetryCancelCancel=Nutraukti
 
 ; *** Installation status messages
 StatusClosingApplications=Uþdaromos programos...
@@ -320,6 +323,8 @@ SourceVerificationFailed=Nepavyko patikrinti pradinio failo: %1
 VerificationSignatureDoesntExist=Paraðo failo „%1“ nëra
 VerificationSignatureInvalid=Paraðo failas „%1“ sugadintas
 VerificationKeyNotFound=Paraðo failas „%1“ naudoja neþinomà raktà
+VerificationFileNameIncorrect=Neteisingas failo vardas
+VerificationFileTagIncorrect=Neteisinga failo þymë
 VerificationFileSizeIncorrect=Neteisingas failo dydis
 VerificationFileHashIncorrect=Neteisinga failo „hash“ reikðmë
 ExistingFileReadOnly2=Esamas failas yra paþymëtas „Tik skaitymui“ todël negali bûti pakeistas.
@@ -381,7 +386,7 @@ UninstallDataCorrupted=„%1“ failas yra sugadintas. Programos paðalinti neámanoma
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Iðtrinti bendruosius failus?
 ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrøjø failø. Norite iðtrinti bendruosius failus? %n%nJeigu kurios nors programos naudoja ðiuos failus, ir jie bus iðtrinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Failo palikimas Jûsø kompiuteryje nesukels jokiø problemø.
-SharedFileNameLabel=Failo pavadinimas:
+SharedFileNameLabel=Failo vardas:
 SharedFileLocationLabel=Vieta:
 WizardUninstalling=Paðalinimo eiga
 StatusUninstalling=Ðalinama „%1“...
