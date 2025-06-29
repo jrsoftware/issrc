@@ -119,6 +119,7 @@ var
   I: Integer;
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   MakeBold(SourceLabel);
   MakeBold(DestRootDirLabel);

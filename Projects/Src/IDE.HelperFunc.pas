@@ -13,7 +13,7 @@ interface
 
 uses
   Windows,
-  Classes, Forms, Dialogs, Menus, Controls, StdCtrls,
+  Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
   ScintEdit, IDE.IDEScintEdit, ModernColors;
 
 const
@@ -26,8 +26,10 @@ type
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
-procedure InitFormThemeInit(const ATheme: TTheme);
-procedure InitFormTheme(Form: TForm);
+procedure InitFormThemeInit(const Theme: TTheme);
+function InitFormTheme(const Form: TForm): Boolean;
+function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
+function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -85,7 +87,7 @@ implementation
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
   Messages, DwmApi, Consts,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
@@ -108,8 +110,10 @@ begin
 end;
 
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
+{ Can be used for memos and listboxes to switch them to (or from) a native dark scrollbar }
 begin
   if UseThemes then begin
+    WinControl.StyleName := 'Windows';
     if Dark then
       SetWindowTheme(WinControl.Handle, 'DarkMode_Explorer', nil)
     else
@@ -120,54 +124,43 @@ end;
 var
   FormTheme: TTheme;
 
-procedure InitFormThemeInit(const ATheme: TTheme);
+procedure InitFormThemeInit(const Theme: TTheme);
 begin
-  FormTheme := ATheme;
+  FormTheme := Theme;
 end;
 
-procedure InitFormTheme(Form: TForm);
-
-  procedure InitListBoxDarkTheme(const ListBox: TListBox);
-  begin
-    ListBox.Font.Color := FormTheme.Colors[tcFore];
-    ListBox.Color := FormTheme.Colors[tcBack];
-    ListBox.Invalidate;
-    SetControlWindowTheme(ListBox, FormTheme.Dark);
-  end;
-
-  procedure InitWinControlTheme(const ParentControl: TWinControl);
-  begin
-    for var I := 0 to ParentControl.ControlCount-1 do begin
-      var Control := ParentControl.Controls[I];
-      if Control is TListBox then
-        InitListBoxDarkTheme(Control as TListBox)
-      else if (Control is TButton) or (Control is TRadioButton) or (Control is TCheckBox) then begin
-        { Not actually used at the moment since only TMainForm calls InitFormTheme and it doesn't
-          have any of these controls. If it would be used: it works fully for buttons but for
-          radiobuttons and checkboxes it only updates the glyph and not the text color. }
-        SetControlWindowTheme(Control as TWinControl, FormTheme.Dark);
-      end;
-
-      if Control is TWinControl then
-        InitWinControlTheme(Control as TWinControl);
-    end;
-  end;
-
+function InitFormTheme(const Form: TForm): Boolean;
+{ Assumes forms other then MainForm call this function only once during creation, and assumes they
+  don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
+  style, False otherwise. }
 begin
-  if (Form = MainForm) or FormTheme.Dark then begin
-    Form.Color := FormTheme.Colors[tcBack];
-  
+  Result := (Form = MainForm) or FormTheme.Dark;
+  if Result then begin
+    Form.Color := InitFormThemeGetBkColor(Form = MainForm);
+
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
       Unlike this article we check for Windows 10 Version 2004 because that's the first version
       that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
     if WindowsVersionAtLeast(10, 0, 19041) then begin
+      Form.StyleElements := Form.StyleElements - [seBorder];
       const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
       var value: BOOL := FormTheme.Dark;
       DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
     end;
-  
-    InitWinControlTheme(Form);
   end;
+end;
+
+function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
+begin
+  if WindowColor then
+    Result := FormTheme.Colors[tcBack] { This is white/window if not dark mode }
+  else
+    Result := FormTheme.Colors[tcToolBack]; { This is gray/btnface if not dark mode }
+end;
+
+function InitFormThemeIsDark: Boolean;
+begin
+  Result := FormTheme.Dark;
 end;
 
 function GetDisplayFilename(const Filename: String): String;

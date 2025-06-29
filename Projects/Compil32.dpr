@@ -72,7 +72,9 @@ uses
   IDE.ImagesModule in 'Src\IDE.ImagesModule.pas' {ImagesModule: TDataModule},
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
-  StringScanner in '..\Components\StringScanner.pas';
+  StringScanner in '..\Components\StringScanner.pas',
+  VCL.Styles,
+  VCL.Themes;
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -81,6 +83,7 @@ uses
 {$R Res\Compil32.docicon.res}
 {$R Res\Compil32.manifest.res}
 {$R Res\Compil32.versionandicon.res}
+{$R Res\Compil32.darkstyle.res}
 
 procedure SetAppUserModelID;
 var
@@ -250,6 +253,11 @@ begin
       Title := CommandLineWizardName
     else
       Title := SCompilerFormCaption;
+  end;
+
+  if Assigned(FlushMenuThemes) then begin
+    { We don't need VCL Styles for dark menus. This keeps shDialogs and shTooltips. }
+    TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus];
   end;
 
   Application.CreateForm(TImagesModule, ImagesModule);

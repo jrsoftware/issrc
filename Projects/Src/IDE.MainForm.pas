@@ -680,7 +680,7 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes,
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
@@ -783,6 +783,7 @@ begin
   Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
+  Memo.StyleName := 'Windows';
   Memo.Visible := False;
   Result := Memo;
 end;
@@ -812,92 +813,6 @@ begin
   InitializeMemoBase(Memo, PopupMenu);
   Memo.ReadOnly := True;
   Result := Memo;
-end;
-
-function DarkStatusBarSubclassProc(hWnd: HWND; uMsg: UINT; wParam: WPARAM; lParam: LPARAM; uIdSubclass: UINT_PTR; dwRefData: DWORD_PTR): LRESULT; stdcall;
-const
-  { See TStatusBarStyleHook.Paint }
-  AlignStyles: array [TAlignment] of Integer = (DT_LEFT, DT_RIGHT, DT_CENTER);
-  cGripSize = 17;
-begin
-  case uMsg of
-    WM_ERASEBKGND:
-      begin
-        const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark then begin
-          { See StatusBarStyleHook.WMEraseBkgnd }
-          Exit(1);
-        end;
-      end;
-    WM_PAINT, WM_PRINTCLIENT:
-      begin
-        const MainForm = TMainForm(dwRefData);
-        if MainForm.FTheme.Dark then begin
-          var PaintStruct: TPaintStruct;
-          const Canvas = TCanvas.Create;
-          try
-            if uMsg = WM_PAINT then
-              Canvas.Handle := BeginPaint(hWnd, PaintStruct)
-            else
-              Canvas.Handle := wParam;
-
-            const Control = MainForm.StatusBar;
-            Canvas.Font := Control.Font;
-            Canvas.Font.Color := MainForm.FTheme.Colors[tcFore];
-
-            { See TStatusBarStyleHook.Paint }
-
-            Canvas.Brush.Color := $171717; { Same as themed scrollbar drawn by Windows 11 }
-            Canvas.FillRect(Rect(0, 0, Control.Width, Control.Height));
-
-            const Count = Control.Panels.Count;
-            for var I := 0 to Count-1 do begin
-              var R := Default(TRect);
-              SendMessage(hWnd, SB_GETRECT, I, IntPtr(@R));
-              if IsRectEmpty(R) then
-                Continue;
-              var R1 := R;
-              if I = Count - 1 then
-                R1.Right := Control.ClientWidth + 10;
-              Canvas.FillRect(R1);
-              InflateRect(R, -1, -1);
-              var Flags := Control.DrawTextBiDiModeFlags(AlignStyles[Control.Panels[I].Alignment]);
-              Flags := Flags + DT_VCENTER;
-              var LText: String;
-              SetLength(LText, Word(SendMessage(hWnd, SB_GETTEXTLENGTH, I, 0)));
-              if Length(LText) > 0 then begin { Always False at the moment }
-                var Res := SendMessage(hWnd, SB_GETTEXT, I, IntPtr(@LText[1]));
-                if (Res and SBT_OWNERDRAW = 0) then
-                  DrawText(Canvas.Handle, LText, Length(LText), R, Flags)
-                else
-                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
-              end else begin
-                if Control.Panels[I].Style <> psOwnerDraw then
-                  DrawText(Canvas.handle, Control.Panels[I].Text, Length(Control.Panels[I].Text), R, Flags)
-                else
-                  MainForm.StatusBarCanvasDrawPanel(Canvas, Control.Panels[I], R);
-              end;
-            end;
-
-            if not IsZoomed(MainForm.Handle) and (MainForm.FStatusBarThemeData <> 0) then begin
-              var R1 := Control.ClientRect;
-              R1.Left := R1.Right - MainForm.ToCurrentPPI(cGripSize);
-              R1.Top := R1.Bottom - MainForm.ToCurrentPPI(cGripSize);
-              DrawThemeBackground(MainForm.FStatusBarThemeData, Canvas.Handle, SP_GRIPPER, 0, R1, nil);
-            end;
-          finally
-            Canvas.Free;
-          end;
-          if uMsg = WM_PAINT then
-            EndPaint(hWnd, PaintStruct);
-          Exit(0);
-        end;
-      end;
-    WM_NCDESTROY:
-      RemoveWindowSubclass(hWnd, @DarkStatusBarSubclassProc, 0);
-  end;
-
-  Result := DefSubclassProc(hWnd, uMsg, wParam, lParam);
 end;
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -1155,8 +1070,6 @@ begin
 
   UpdateThemeData(True);
   
-  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
-
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -1319,7 +1232,6 @@ begin
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
-  SetWindowSubclass(StatusBar.Handle, @DarkStatusBarSubclassProc, 0, DWORD_PTR(Self));
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
@@ -6556,19 +6468,45 @@ begin
 end;
 
 procedure TMainForm.UpdateTheme;
+
+  procedure SetListBoxWindowTheme(const ListBox: TListBox);
+  begin
+    ListBox.Font.Color := FTheme.Colors[tcFore];
+    ListBox.Color := FTheme.Colors[tcBack];
+    ListBox.Invalidate;
+    SetControlWindowTheme(ListBox, FTheme.Dark);
+  end;
+
 begin
   FTheme.Typ := FOptions.ThemeType;
 
   SetHelpFileDark(FTheme.Dark);
 
+  { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
+    UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
+    to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
+    MainForm's StyleElements is empty. Menus ignore it because shMenus is removed from
+    TStyleManager.SystemHooks at startup. }
+  if FTheme.Dark then
+    TStyleManager.TrySetStyle('Dark')
+  else
+    TStyleManager.TrySetStyle('Windows');
+  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+    it opens, such as MsgBox, look broken }
+  StyleName := TStyleManager.ActiveStyle.Name;
+
+  InitFormTheme(Self);
+
+  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
-
-  InitFormTheme(Self);
-  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
-  BodyPanel.Color := FTheme.Colors[tcBack];
+  SetListBoxWindowTheme(CompilerOutputList);
+  SetListBoxWindowTheme(DebugOutputList);
+  SetListBoxWindowTheme(DebugCallStackList);
+  SetListBoxWindowTheme(FindResultsList);
 
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
@@ -7278,6 +7216,13 @@ begin
           RGlyph.Left := RText.Right; { RGlyph is now a square }
           DrawThemeBackground(FToolbarThemeData, Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
         end;
+        var Color: TColor := FTheme.Colors[tcFore];
+        const LStyle = TStyleManager.ActiveStyle;
+        if LStyle <> nil then begin
+          const Details = LStyle.GetElementDetails(tsPane);
+          LStyle.GetElementColor(Details, ecTextColor, Color);
+        end;
+        Canvas.Font.Color := Color;
         var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
         Canvas.TextRect(RText, S, [tfCenter]);
       end;
@@ -7292,7 +7237,25 @@ begin
       if FCompiling and (FProgressMax > 0) then begin
         var R := Rect;
         InflateRect(R, -2, -2);
-        if FProgressThemeData = 0 then begin
+        var LStyle := StyleServices(Self);
+        if not LStyle.Enabled or LStyle.IsSystemStyle then
+          LStyle := nil;
+        if LStyle <> nil then begin
+          { See Vcl.ComCtrl's TProgressBarStyleHook.Paint, .PaintFrame, and .PaintBar }
+          var Details: TThemedElementDetails;
+          Details.Element := teProgress;
+          if LStyle.HasTransparentParts(Details) then
+            LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False, @R);
+          Details := LStyle.GetElementDetails(tpBar);
+          LStyle.DrawElement(Canvas.Handle, Details, R);
+          InflateRect(R, -1, -1);
+          const W = R.Width;
+          const Pos = Round(W * (FProgress / FProgressMax));
+          var FillR := R;
+          FillR.Right := FillR.Left + Pos;
+          Details := LStyle.GetElementDetails(tpChunk);
+          LStyle.DrawElement(Canvas.Handle, Details, FillR);
+        end else if FProgressThemeData = 0 then begin
           { Border }
           Canvas.Pen.Color := clBtnShadow;
           Canvas.Brush.Style := bsClear;
@@ -7488,7 +7451,7 @@ end;
 { Should be removed if the main menu ever gets removed }
 procedure TMainForm.UAHDrawMenuBottomLine;
 begin
-  if FTheme.Dark then begin
+  if not (csDestroying in ComponentState) and (FTheme <> nil) and FTheme.Dark then begin
     var ClientRect: TRect;
     Windows.GetClientRect(Handle, ClientRect);
 		MapWindowPoints(Handle, 0, ClientRect, 2);

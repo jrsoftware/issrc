@@ -2,7 +2,7 @@ unit BrowseFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -29,7 +29,7 @@ function NewGetSaveFileName(const Prompt: String; var FileName: String;
 implementation
 
 uses
-  CommDlg, ShlObj, ActiveX,
+  CommDlg, ShlObj, ActiveX, Themes,
   PathFunc;
 
 function BrowseCallback(Wnd: HWND; uMsg: UINT; lParam, lpData: LPARAM): Integer; stdcall;
@@ -167,6 +167,10 @@ begin
 
   ActiveWindow := GetActiveWindow;
   WindowList := DisableTaskWindows(ParentWnd);
+  { Temporarily clear SystemHooks to make it support dark mode if Windows is in dark mode.
+    Taken from Vcl.Dialogs' TCustomFileDialog.Execute. }
+  const SaveHooks = TStyleManager.SystemHooks;
+  TStyleManager.SystemHooks := [];
   try
     asm
       // Avoid FPU control word change in NETRAP.dll, NETAPI32.dll, etc
@@ -194,6 +198,7 @@ begin
       end;
     end;
   finally
+    TStyleManager.SystemHooks := SaveHooks;
     EnableTaskWindows(WindowList);
     SetActiveWindow(ActiveWindow);
   end;

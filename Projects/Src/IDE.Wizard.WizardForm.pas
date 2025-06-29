@@ -140,6 +140,8 @@ type
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
     AppRegistryMinVerDocImage: TImage;
+    WelcomeImageDark: TImage;
+    InnerImageDark: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -298,6 +300,9 @@ begin
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
   InitFormFont(Self);
+  if not InitFormTheme(Self) then
+    OuterNotebook.Color := InitFormThemeGetBkColor(True);
+
   if Font.Name = 'Segoe UI' then begin
     { See Setup.WizardForm.pas }
     for I := 0 to OuterNotebook.PageCount-1 do
@@ -308,8 +313,6 @@ begin
   end;
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
-
-  OuterNotebook.Color := clWindow;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);
@@ -324,6 +327,10 @@ begin
   MakeBold(PrivilegesRequiredLabel);
   MakeBold(LanguagesLabel);
 
+  if InitFormThemeIsDark then begin
+    WelcomeImage.Picture := WelcomeImageDark.Picture;
+    InnerImage.Picture := InnerImageDark.Picture;
+  end;
   FinishedImage.Picture := WelcomeImage.Picture;
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;

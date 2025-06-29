@@ -14,6 +14,7 @@ object MainForm: TMainForm
   KeyPreview = True
   Menu = MainMenu1
   Position = poDefault
+  StyleElements = []
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
@@ -47,6 +48,7 @@ object MainForm: TMainForm
       FullRepaint = False
       TabOrder = 1
       Visible = False
+      StyleName = 'Windows'
       OnMouseMove = SplitPanelMouseMove
     end
     object StatusPanel: TPanel
@@ -195,6 +197,7 @@ object MainForm: TMainForm
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
+    StyleName = 'Windows'
     object ToolBar: TToolBar
       AlignWithMargins = True
       Left = 7
@@ -369,6 +372,7 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     TabOrder = 1
     Visible = False
+    StyleName = 'Windows'
     object UpdatePanelClosePaintBox: TPaintBox
       AlignWithMargins = True
       Left = 330

@@ -35,6 +35,8 @@ type
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetAutoSize(Value: Boolean); override;
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;
@@ -58,6 +60,8 @@ type
     property ShowAccelChar: Boolean read FShowAccelChar write SetShowAccelChar
       default True;
     property ShowHint;
+    property StyleElements;
+    property StyleName;
     property TabOrder;
     property TabStop;
     property Visible;
@@ -78,6 +82,7 @@ procedure Register;
 implementation
 
 uses
+  Graphics, Themes, Types,
   BidiUtils;
 
 procedure Register;
@@ -87,11 +92,55 @@ end;
 
 { TNewStaticText }
 
+procedure TNewStaticText.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin;
+  if IsCustomStyleActive and (seClient in StyleElements) then
+    Message.Result := 1
+  else
+    inherited;
+end;
+
+procedure TNewStaticText.WMPaint(var Message: TWMPaint);
+const
+  CStates: array[Boolean] of TThemedTextLabel = (ttlTextLabelDisabled, ttlTextLabelNormal);
+begin
+  { Based on Vcl.StdCtrl's TCustomLabel.DoDrawThemeTextEx and its callers. Only the
+    DrawParentBackground call is new compared to it.  }
+  if IsCustomStyleActive and (seClient in StyleElements) then begin
+    const LStyle = StyleServices(Self);
+    var DC := Message.DC;
+    var PS: TPaintStruct;
+    if DC = 0 then
+      DC := BeginPaint(Handle, PS);
+    try
+      var R := ClientRect;
+      const Details = LStyle.GetElementDetails(CStates[Enabled]);
+      LStyle.DrawParentBackground(Handle, DC, Details, False, @R);
+      var Text: String := Caption;
+      if (Text = '') or (FShowAccelChar and (Text[1] = '&') and (Length(Text) = 1)) then
+        Text := Text + ' ';
+      const TextFlags = GetDrawTextFlags;
+      const OldFont = SelectObject(DC, Font.Handle);
+      try
+        LStyle.DrawText(DC, Details, Text, R, TTextFormat(TextFlags), Font.Color);
+      finally
+        SelectObject(DC, OldFont);
+      end;
+    finally
+      if Message.DC = 0 then
+        EndPaint(Handle, PS);
+    end;
+  end else
+    inherited;
+end;
+
 constructor TNewStaticText.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := [csCaptureMouse, csClickEvents, csSetCaption,
-    csOpaque, csReplicatable, csDoubleClicks];
+    csReplicatable, csDoubleClicks];
+  if not (StyleServices.Enabled and not StyleServices.IsSystemStyle) then
+    ControlStyle := ControlStyle + [csOpaque];
   Width := 65;
   Height := 17;
   FAutoSize := True;
@@ -132,12 +181,14 @@ end;
 procedure TNewStaticText.CMFontChanged(var Message: TMessage);
 begin
   inherited;
+  Invalidate;
   AdjustBounds;
 end;
 
 procedure TNewStaticText.CMParentFontChanged(var Message: TMessage);
 begin
   inherited;
+  Invalidate;
   { What we're really trapping here is changes to Parent. Recalculate size
     if the new Parent's RTL setting is different. }
   if IsParentRightToLeft(Self) <> FLastAdjustBoundsRTL then
@@ -186,7 +237,7 @@ begin
   if R.Right > 0 then Dec(R.Right);
 
   S := Caption;
-  if (S = '') or (FShowAccelChar and (S[1] = '&') and (S[2] = #0)) then
+  if (S = '') or (FShowAccelChar and (S[1] = '&') and (Length(S) = 1)) then
     S := S + ' ';
 
   DC := GetDC(0);
