@@ -29,6 +29,7 @@ procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boole
 procedure InitFormThemeInit(const Theme: TTheme);
 function InitFormTheme(const Form: TForm): Boolean;
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
+function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -155,6 +156,11 @@ begin
     Result := FormTheme.Colors[tcBack] { This is white/window if not dark mode }
   else
     Result := FormTheme.Colors[tcToolBack]; { This is gray/btnface if not dark mode }
+end;
+
+function InitFormThemeIsDark: Boolean;
+begin
+  Result := FormTheme.Dark;
 end;
 
 function GetDisplayFilename(const Filename: String): String;

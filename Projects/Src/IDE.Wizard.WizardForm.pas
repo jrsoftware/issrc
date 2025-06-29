@@ -140,6 +140,8 @@ type
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
     AppRegistryMinVerDocImage: TImage;
+    WelcomeImageDark: TImage;
+    InnerImageDark: TImage;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -325,6 +327,10 @@ begin
   MakeBold(PrivilegesRequiredLabel);
   MakeBold(LanguagesLabel);
 
+  if InitFormThemeIsDark then begin
+    WelcomeImage.Picture := WelcomeImageDark.Picture;
+    InnerImage.Picture := InnerImageDark.Picture;
+  end;
   FinishedImage.Picture := WelcomeImage.Picture;
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
