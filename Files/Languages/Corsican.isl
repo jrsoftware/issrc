@@ -296,6 +296,7 @@ AbortRetryIgnoreIgnore=&Ignurà u sbagliu è cuntinuà
 AbortRetryIgnoreCancel=Abbandunà l’installazione
 RetryCancelSelectAction=Selezziunà un’azzione
 RetryCancelRetry=&Pruvà torna
+RetryCancelCancel=Abbandunà
 
 ; *** Installation status messages
 StatusClosingApplications=Chjusura di l’appiecazioni…
