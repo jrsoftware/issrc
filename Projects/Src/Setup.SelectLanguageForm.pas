@@ -24,10 +24,7 @@ type
     IconBitmapImage: TBitmapImage;
     MainPanel: TPanel;
     Bevel: TBevel;
-  private
-    { Private declarations }
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
   end;
 

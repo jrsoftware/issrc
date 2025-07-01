@@ -2,7 +2,7 @@ unit Setup.UninstallSharedFileForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -26,12 +26,9 @@ type
     YesToAllButton: TNewButton;
     NoButton: TNewButton;
     NoToAllButton: TNewButton;
-  private
-    { Private declarations }
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
   end;
 

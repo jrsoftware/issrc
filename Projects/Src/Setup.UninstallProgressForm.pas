@@ -2,7 +2,7 @@ unit Setup.UninstallProgressForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -32,12 +32,9 @@ type
     FBeveledLabel: TNewStaticText;
     FBevel: TBevel;
     FCancelButton: TNewButton;
-  private
-    { Private declarations }
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);

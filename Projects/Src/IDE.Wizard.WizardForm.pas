@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -162,7 +162,7 @@ type
     procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
     procedure CreateAssocCheckClick(Sender: TObject);
   private
-    CurPage: TWizardPage;
+    FCurPage: TWizardPage;
     FWizardName: String;
     FFilesHelper: TWizardFormFilesHelper;
     FRegistryHelper: TWizardFormRegistryHelper;
@@ -384,7 +384,7 @@ begin
   ISPPCheck.Caption := SWizardISPPCheck;
   ISPPCheck.Checked := ISPPInstalled;
 
-  CurPage := Low(TWizardPage);
+  FCurPage := Low(TWizardPage);
   CurPageChanged;
 end;
 
@@ -414,26 +414,26 @@ end;
 procedure TWizardForm.CurPageChanged;
 { Call this whenever the current page is changed }
 begin
-  OuterNotebook.ActivePage := OuterNotebook.Pages[NotebookPages[CurPage, 0]];
-  if NotebookPages[CurPage, 1] <> -1 then
-    InnerNotebook.ActivePage := InnerNotebook.Pages[NotebookPages[CurPage, 1]];
+  OuterNotebook.ActivePage := OuterNotebook.Pages[NotebookPages[FCurPage, 0]];
+  if NotebookPages[FCurPage, 1] <> -1 then
+    InnerNotebook.ActivePage := InnerNotebook.Pages[NotebookPages[FCurPage, 1]];
 
   { Set button visibility and captions }
-  BackButton.Visible := not (CurPage = wpWelcome);
-  if CurPage = wpFinished then
+  BackButton.Visible := not (FCurPage = wpWelcome);
+  if FCurPage = wpFinished then
     NextButton.Caption := SWizardFinishButton
   else
     NextButton.Caption := SWizardNextButton;
 
-  RequiredLabel1.Visible := RequiredLabelVisibles[CurPage];
+  RequiredLabel1.Visible := RequiredLabelVisibles[FCurPage];
   RequiredLabel2.Visible := RequiredLabel1.Visible;
 
   { Set the Caption to match the current page's title }
-  PageNameLabel.Caption := PageCaptions[CurPage];
-  PageDescriptionLabel.Caption := PageDescriptions[CurPage];
+  PageNameLabel.Caption := PageCaptions[FCurPage];
+  PageDescriptionLabel.Caption := PageDescriptions[FCurPage];
 
   { Adjust focus }
-  case CurPage of
+  case FCurPage of
     wpAppInfo: ActiveControl := AppNameEdit;
     wpAppDir:
       begin
@@ -474,11 +474,11 @@ end;
 
 function TWizardForm.SkipCurPage: Boolean;
 begin
-  if ((CurPage = wpAppAssoc) and not CreateAssocCheck.Enabled) or
-     ((CurPage = wpAppIcons) and NotCreateAppDirCheck.Checked) or
-     ((CurPage = wpLanguages) and not (FLanguages.Count > 1)) or
-     ((CurPage = wpISPP) and not ISPPInstalled) or
-     (not (CurPage in [wpWelcome, wpFinished]) and EmptyCheck.Checked) then
+  if ((FCurPage = wpAppAssoc) and not CreateAssocCheck.Enabled) or
+     ((FCurPage = wpAppIcons) and NotCreateAppDirCheck.Checked) or
+     ((FCurPage = wpLanguages) and not (FLanguages.Count > 1)) or
+     ((FCurPage = wpISPP) and not ISPPInstalled) or
+     (not (FCurPage in [wpWelcome, wpFinished]) and EmptyCheck.Checked) then
     Result := True
   else
     Result := False;
@@ -556,7 +556,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   end;
 
 begin
-  case CurPage of
+  case FCurPage of
     wpAppInfo: if not CheckAppInfoPage then Exit;
     wpAppDir: if not CheckAppDirPage then Exit;
     wpAppFiles: if not CheckAppFilesPage then Exit;
@@ -565,10 +565,10 @@ begin
   end;
 
   repeat
-    if CurPage = wpAppAssoc then begin
+    if FCurPage = wpAppAssoc then begin
       if (AppAssocExtEdit.Text <> '') and (AppAssocExtEdit.Text[1] <> '.') then
         AppAssocExtEdit.Text := '.' + AppAssocExtEdit.Text;
-    end else if CurPage = wpPrivilegesRequired then begin
+    end else if FCurPage = wpPrivilegesRequired then begin
       if not PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked then begin
         if PrivilegesRequiredAdminRadioButton.Checked then
           FRegistryHelper.PrivilegesRequired := prAdmin
@@ -576,15 +576,15 @@ begin
           FRegistryHelper.PrivilegesRequired := prLowest
       end else
         FRegistryHelper.PrivilegesRequired := prDynamic;
-    end else if CurPage = wpFinished then begin
+    end else if FCurPage = wpFinished then begin
       GenerateScript;
       ModalResult := mrOk;
       Exit;
     end;
-    Inc(CurPage);
+    Inc(FCurPage);
 
     { Even if we're skipping a page, we should still update it }
-    case CurPage of
+    case FCurPage of
       wpAppDir: if AppDirNameEdit.Text = '' then AppDirNameEdit.Text := AppNameEdit.Text;
       wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := AppNameEdit.Text + ' File';
       wpAppIcons: if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
@@ -596,12 +596,12 @@ end;
 
 procedure TWizardForm.BackButtonClick(Sender: TObject);
 begin
-  if CurPage = Low(TWizardPage) then Exit;
+  if FCurPage = Low(TWizardPage) then Exit;
 
   { Go to the previous page }
-  Dec(CurPage);
+  Dec(FCurPage);
   while SkipCurPage do
-    Dec(CurPage);
+    Dec(FCurPage);
   CurPageChanged;
 end;
 
