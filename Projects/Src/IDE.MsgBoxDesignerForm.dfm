@@ -11,13 +11,11 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
     548
     380)
-  PixelsPerInch = 96
   TextHeight = 13
   object TaskInstructionLabel: TNewStaticText
     Left = 18
@@ -38,7 +36,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object TaskMessageLabel: TNewStaticText
     Left = 18
     Top = 40
-    Width = 49
+    Width = 44
     Height = 14
     Caption = 'Message'
     TabOrder = 13
@@ -105,6 +103,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 81
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Message '
+    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       532
@@ -126,6 +125,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Width = 240
     Height = 60
     Caption = ' Type'
+    ShowFrame = False
     TabOrder = 6
     object cb_Suppressible: TCheckBox
       Left = 14
@@ -165,6 +165,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 60
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Flags '
+    ShowFrame = False
     TabOrder = 7
     object NewStaticText1: TNewStaticText
       Left = 14
@@ -213,6 +214,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Icon '
+    ShowFrame = False
     TabOrder = 8
     DesignSize = (
       160
@@ -420,6 +422,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Buttons '
+    ShowFrame = False
     TabOrder = 9
     DesignSize = (
       169
@@ -499,6 +502,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Return values '
+    ShowFrame = False
     TabOrder = 10
     object cb_IDOK: TCheckBox
       Left = 16
@@ -698,9 +702,9 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Left = 0
       Top = 0
       Width = 548
-      Height = 3
+      Height = 1
       Align = alTop
-      Shape = bsBottomLine
+      Shape = bsTopLine
       ExplicitLeft = 168
       ExplicitWidth = 50
     end

@@ -6,6 +6,7 @@ object WizardFileForm: TWizardFileForm
   Caption = 'Script Wizard File'
   ClientHeight = 297
   ClientWidth = 350
+  Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -13,7 +14,6 @@ object WizardFileForm: TWizardFileForm
   Font.Style = []
   Position = poScreenCenter
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object RequiredLabel1: TNewStaticText
     Left = 8
@@ -60,6 +60,7 @@ object WizardFileForm: TWizardFileForm
     Width = 333
     Height = 149
     Caption = ' Destination '
+    ShowFrame = False
     TabOrder = 0
     object DestRootDirLabel: TNewStaticText
       Left = 12
@@ -111,6 +112,7 @@ object WizardFileForm: TWizardFileForm
     Width = 333
     Height = 93
     Caption = ' Source '
+    ShowFrame = False
     TabOrder = 3
     object SourceLabel: TNewStaticText
       Left = 12

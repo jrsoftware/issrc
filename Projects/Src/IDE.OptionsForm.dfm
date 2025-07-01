@@ -12,14 +12,12 @@ object OptionsForm: TOptionsForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
     589
     424)
-  PixelsPerInch = 96
   TextHeight = 13
   object GroupBox1: TGroupBox
     Left = 8
@@ -28,6 +26,7 @@ object OptionsForm: TOptionsForm
     Height = 314
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
+    ShowFrame = False
     TabOrder = 0
     object StartupCheck: TCheckBox
       Left = 8
@@ -142,6 +141,7 @@ object OptionsForm: TOptionsForm
     Height = 57
     Anchors = [akLeft, akBottom]
     Caption = ' File Associations '
+    ShowFrame = False
     TabOrder = 1
     DesignSize = (
       281
@@ -164,6 +164,7 @@ object OptionsForm: TOptionsForm
     Height = 372
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
+    ShowFrame = False
     TabOrder = 2
     object AutoAutoCompleteCheck: TCheckBox
       Left = 8
