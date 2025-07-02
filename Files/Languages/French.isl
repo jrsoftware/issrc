@@ -237,7 +237,7 @@ ButtonStopDownload=&Arrêter le téléchargement
 StopDownload=Êtes-vous sûr de vouloir arrêter le téléchargement ?
 ErrorDownloadAborted=Téléchargement annulé
 ErrorDownloadFailed=Le téléchargement a échoué : %1 %2
-ErrorDownloadSizeFailed=La récupération de la taille du fichier a échouée : %1 %2
+ErrorDownloadSizeFailed=La récupération de la taille du fichier a échoué : %1 %2
 ErrorProgress=Progression invalide : %1 sur %2
 ErrorFileSize=Taille du fichier invalide : attendue %1, trouvée %2
 
@@ -335,7 +335,7 @@ FileAbortRetryIgnoreSkipNotRecommended=&Ignorer ce fichier (non recommandé)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer l'erreur et continuer (non recommandé)
 SourceIsCorrupted=Le fichier source est altéré
 SourceDoesntExist=Le fichier source "%1" n'existe pas
-SourceVerificationFailed=La vérification du fichier source a échouée : %1
+SourceVerificationFailed=La vérification du fichier source a échoué : %1
 VerificationSignatureDoesntExist=Le fichier de signature "%1" n'existe pas
 VerificationSignatureInvalid=Le fichier de signature "%1" est invalide
 VerificationKeyNotFound=Le fichier de signature "%1" utilise une clé inconnue
