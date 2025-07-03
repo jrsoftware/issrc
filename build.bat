@@ -48,12 +48,9 @@ if errorlevel 1 goto failed
 echo Compiling ISetup*.chm done
 pause
 
-if not exist files\issigtool.exe (
-  echo Missing ISSigTool
-  call .\compile.bat issigtool
-  if errorlevel 1 goto failed
-  echo Compiling ISSigTool done
-)
+call .\compile.bat issigtool
+if errorlevel 1 goto failed
+echo Compiling ISSigTool done
 
 rem  Verify precompiled binaries which are used during compilation
 rem  Note: Other precompiled binaries are verified by Setup.iss
