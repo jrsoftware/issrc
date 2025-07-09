@@ -213,7 +213,7 @@ ReadyMemoGroup=Başlat menüsü klasörü:
 ReadyMemoTasks=Ek işlemler:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Ek dosyalar indiriliyor...
+DownloadingLabel2=Ek dosyalar indiriliyor...
 ButtonStopDownload=İndirmeyi &durdur
 StopDownload=İndirmeyi durdurmak istediğinize emin misiniz?
 ErrorDownloadAborted=İndirme durduruldu
@@ -223,7 +223,7 @@ ErrorProgress=Adım geçersiz: %1 / %2
 ErrorFileSize=Dosya boyutu geçersiz: %1 olması gerekirken %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Ek dosyalar ayıklanıyor...
+ExtractingLabel=Ek dosyalar ayıklanıyor...
 ButtonStopExtraction=Ayıklamayı &durdur
 StopExtraction=Ayıklamayı durdurmak istediğinize emin misiniz?
 ErrorExtractionAborted=Ayıklama durduruldu
