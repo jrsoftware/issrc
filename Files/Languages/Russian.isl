@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Russian messages ***
+; *** Inno Setup version 6.5.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, https://yktoo.com
 ;
@@ -210,23 +210,26 @@ ReadyMemoGroup=Папка в меню «Пуск»:
 ReadyMemoTasks=Дополнительные задачи:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Загрузка дополнительных файлов...
+DownloadingLabel2=Загрузка файлов...
 ButtonStopDownload=&Прервать загрузку
 StopDownload=Вы действительно хотите прекратить загрузку?
 ErrorDownloadAborted=Загрузка прервана
 ErrorDownloadFailed=Ошибка загрузки: %1 %2
 ErrorDownloadSizeFailed=Ошибка получения размера: %1 %2
-ErrorFileHash1=Ошибка хэша файла: %1
-ErrorFileHash2=Неверный хэш файла: ожидался %1, получен %2
 ErrorProgress=Ошибка выполнения: %1 из %2
 ErrorFileSize=Неверный размер файла: ожидался %1, получен %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Распаковка дополнительных файлов...
+ExtractingLabel=Распаковка файлов...
 ButtonStopExtraction=О&становить распаковку
 StopExtraction=Вы уверены, что хотите остановить распаковку?
 ErrorExtractionAborted=Распаковка прервана
 ErrorExtractionFailed=Ошибка распаковки: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Пароль неверен
+ArchiveIsCorrupted=Архив повреждён
+ArchiveUnsupportedFormat=Неподдерживаемый формат архива
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Подготовка к установке
@@ -241,7 +244,7 @@ ErrorCloseApplications=Программе установки не удалось автоматически закрыть все 
 PrepareToInstallNeedsRestart=Программе установки требуется перезагрузить ваш компьютер. Когда перезагрузка завершится, пожалуйста, запустите программу установки вновь, чтобы завершить процесс установки [name].%n%nПроизвести перезагрузку сейчас?
 
 ; *** "Installing" wizard page
-WizardInstalling=Установка...
+WizardInstalling=Установка
 InstallingLabel=Пожалуйста, подождите, пока [name] установится на ваш компьютер.
 
 ; *** "Setup Completed" wizard page
@@ -272,11 +275,15 @@ AbortRetryIgnoreSelectAction=Выберите действие
 AbortRetryIgnoreRetry=Попробовать &снова
 AbortRetryIgnoreIgnore=&Игнорировать ошибку и продолжить
 AbortRetryIgnoreCancel=Отменить установку
+RetryCancelSelectAction=Выберите действие
+RetryCancelRetry=Попробовать &снова
+RetryCancelCancel=Отмена
 
 ; *** Installation status messages
 StatusClosingApplications=Закрытие приложений...
 StatusCreateDirs=Создание папок...
 StatusExtractFiles=Распаковка файлов...
+StatusDownloadFiles=Загрузка файлов...
 StatusCreateIcons=Создание ярлыков программы...
 StatusCreateIniEntries=Создание INI-файлов...
 StatusCreateRegistryEntries=Создание записей реестра...
@@ -306,6 +313,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Пропустить этот файл (не рекомендуется)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Игнорировать ошибку и продолжить (не рекомендуется)
 SourceIsCorrupted=Исходный файл поврежден
 SourceDoesntExist=Исходный файл "%1" не существует
+SourceVerificationFailed=Исходный файл не прошёл проверку: %1
+VerificationSignatureDoesntExist=Файл подписи "%1" does не существует
+VerificationSignatureInvalid=Файл подписи "%1" неверен
+VerificationKeyNotFound=Файл подписи "%1" использует неизвестный ключ
+VerificationFileNameIncorrect=Неверное имя файла
+VerificationFileTagIncorrect=Неверный тег файла
+VerificationFileSizeIncorrect=Неверный размер файла
+VerificationFileHashIncorrect=Неверный хэш файла
 ExistingFileReadOnly2=Невозможно заменить существующий файл, так как он помечен как «файл только для чтения».
 ExistingFileReadOnlyRetry=&Удалить атрибут «только для чтения» и повторить попытку
 ExistingFileReadOnlyKeepExisting=&Оставить файл на месте
@@ -324,6 +339,8 @@ ErrorChangingAttr=Произошла ошибка при попытке изменения атрибутов существующего
 ErrorCreatingTemp=Произошла ошибка при попытке создания файла в папке назначения:
 ErrorReadingSource=Произошла ошибка при попытке чтения исходного файла:
 ErrorCopying=Произошла ошибка при попытке копирования файла:
+ErrorDownloading=Произошла ошибка при попытке загрузки файла:
+ErrorExtracting=Произошла ошибка при попытке извлечения из архива:
 ErrorReplacingExistingFile=Произошла ошибка при попытке замены существующего файла:
 ErrorRestartReplace=Ошибка RestartReplace:
 ErrorRenamingTemp=Произошла ошибка при попытке переименования файла в папке назначения:
