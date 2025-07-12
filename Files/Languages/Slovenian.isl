@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Slovenian messages ***
+; *** Inno Setup version 6.5.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   http://www.jrsoftware.org/is3rdparty.php
@@ -201,23 +201,26 @@ ReadyMemoGroup=Mapa v meniju »Zaèetek«:
 ReadyMemoTasks=Dodatna opravila:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Prenašam dodatne datoteke...
+DownloadingLabel2=Prenašam datoteke...
 ButtonStopDownload=Prekini preno&s
 StopDownload=Ali res želite prekiniti prenos?
 ErrorDownloadAborted=Prenos prekinjen
 ErrorDownloadFailed=Prenos ni uspel: %1 %2
 ErrorDownloadSizeFailed=Pridobivanje velikosti ni uspelo: %1 %2
-ErrorFileHash1=Pridobivanje zgošèene vrednosti ni uspelo: %1
-ErrorFileHash2=Neveljavna zgošèena vrednost: prièakovana %1, dobljena %2
 ErrorProgress=Neveljaven potek: %1 od %2
 ErrorFileSize=Neveljavna velikost datoteke: prièakovana %1, dobljena %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Razširjanje dodatnih datotek...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Razširjanje datotek...
 ButtonStopExtraction=U&stavi razširjanje
 StopExtraction=Ste preprièani, da želite ustaviti razširjanje datotek?
 ErrorExtractionAborted=Razširjanje datotek prekinjeno
 ErrorExtractionFailed=Napaka pri razširjanju: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Napaèno geslo
+ArchiveIsCorrupted=Arhivska datoteka je pokvarjena
+ArchiveUnsupportedFormat=Oblika arhiva ni podprta
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Pripravljam za namestitev
@@ -265,11 +268,15 @@ AbortRetryIgnoreSelectAction=Izberite dejanje
 AbortRetryIgnoreRetry=Poizkusi &znova
 AbortRetryIgnoreIgnore=&Prezri napako in nadaljuj
 AbortRetryIgnoreCancel=Preklièi namestitev
+RetryCancelSelectAction=Izberite dejanje
+RetryCancelRetry=Poizkusi &znova
+RetryCancelCancel=Preklièi
 
 ; *** Installation status messages
 StatusClosingApplications=Zapiranje programov...
 StatusCreateDirs=Ustvarjanje map...
 StatusExtractFiles=Razširjanje datotek...
+StatusDownloadFiles=Prenašanje datotek...
 StatusCreateIcons=Ustvarjanje bližnjic...
 StatusCreateIniEntries=Vpisovanje v INI datoteke...
 StatusCreateRegistryEntries=Ustvarjanje vnosov v register...
@@ -299,6 +306,14 @@ FileAbortRetryIgnoreSkipNotRecommended=Pre&skoèi to datoteko (ni priporoèeno)
 FileAbortRetryIgnoreIgnoreNotRecommended=Prezr&i napako in nadaljuj (ni priporoèeno)
 SourceIsCorrupted=Izvorna datoteka je okvarjena
 SourceDoesntExist=Izvorna datoteka »%1« ne obstaja
+SourceVerificationFailed=Preverjanje izvorne datoteke ni uspelo: %1
+VerificationSignatureDoesntExist=Podpisna datoteka »%1« ne obstaja
+VerificationSignatureInvalid=Podpisna datoteka »%1« ni veljavna
+VerificationKeyNotFound=Podpisna datoteka »%1« uporablja neznan kljuè
+VerificationFileNameIncorrect=Ime datoteke ni pravilno
+VerificationFileTagIncorrect=Oznaka datoteke ni pravilna
+VerificationFileSizeIncorrect=Velikost datoteke ni pravilna
+VerificationFileHashIncorrect=Zgošèena vrednost datoteke ni pravilna
 ExistingFileReadOnly2=Obstojeèe datoteke ni mogoèe nadomestiti, ker ima oznako samo za branje.
 ExistingFileReadOnlyRetry=Odst&rani oznako samo za branje in poizkusi ponovno
 ExistingFileReadOnlyKeepExisting=&Ohrani obstojeèo datoteko
@@ -317,6 +332,8 @@ ErrorChangingAttr=Pri poskusu spremembe lastnosti datoteke je prišlo do napake:
 ErrorCreatingTemp=Pri ustvarjanju datoteke v ciljni mapi je prišlo do napake:
 ErrorReadingSource=Pri branju izvorne datoteke je prišlo do napake:
 ErrorCopying=Pri kopiranju datoteke je prišlo do napake:
+ErrorDownloading=Prišlo je do napake pri prenosu datoteke:
+ErrorExtracting=Prišlo je do napake pri razširjanju datoteke:
 ErrorReplacingExistingFile=Pri poskusu zamenjave obstojeèe datoteke je prišlo do napake:
 ErrorRestartReplace=Napaka RestartReplace:
 ErrorRenamingTemp=Pri poskusu preimenovanja datoteke v ciljni mapi je prišlo do napake:

@@ -270,6 +270,7 @@ object StartupForm: TStartupForm
     Height = 61
     Anchors = [akLeft, akTop, akRight]
     Caption = ' New file '
+    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       563
@@ -312,6 +313,7 @@ object StartupForm: TStartupForm
     Height = 303
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Open file '
+    ShowFrame = False
     TabOrder = 1
     DesignSize = (
       563

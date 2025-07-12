@@ -248,7 +248,6 @@ begin
 end;
 
 type
-  TControlAnchorsListItem = TPair<TControl, TAnchors>;
   TControlAnchorsList = TDictionary<TControl, TAnchors>;
   TControlAccess = class(TControl);
 
@@ -271,13 +270,11 @@ begin
 end;
 
 procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-var
-  I: TControlAnchorsListItem;
 begin
   { The order in which we restore the anchors shouldn't matter, so just
     enumerate the list. }
-  for I in AnchorsList do
-    I.Key.Anchors := I.Value;
+  for var Item in AnchorsList do
+    Item.Key.Anchors := Item.Value;
 end;
 
 { TSetupForm }

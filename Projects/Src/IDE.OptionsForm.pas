@@ -82,6 +82,7 @@ uses
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   { Order must match CompFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add('Classic');

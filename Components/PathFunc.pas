@@ -2,7 +2,7 @@ unit PathFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,6 +19,7 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String): Integer;
+function PathSame(const S1, S2: String): Boolean;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
@@ -30,6 +31,8 @@ function PathExtractDrive(const Filename: String): String;
 function PathExtractExt(const Filename: String): String;
 function PathExtractName(const Filename: String): String;
 function PathExtractPath(const Filename: String): String;
+function PathHasInvalidCharacters(const S: String;
+  const AllowDriveLetterColon: Boolean): Boolean;
 function PathIsRooted(const Filename: String): Boolean;
 function PathLastChar(const S: String): PChar;
 function PathLastDelimiter(const Delimiters, S: string): Integer;
@@ -44,8 +47,13 @@ function PathStrPrevChar(const Start, Current: PChar): PChar;
 function PathStrScan(const S: PChar; const C: Char): PChar;
 function RemoveBackslash(const S: String): String;
 function RemoveBackslashUnlessRoot(const S: String): String;
+function ValidateAndCombinePath(const ADestDir, AFilename: String;
+  out AResultingPath: String): Boolean; overload;
+function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean; overload;
 
 implementation
+
+{$ZEROBASEDSTRINGS OFF}
 
 uses
   Windows, SysUtils;
@@ -148,6 +156,11 @@ function PathCompare(const S1, S2: String): Integer;
 { Compares two filenames, and returns 0 if they are equal. }
 begin
   Result := CompareStr(PathLowercase(S1), PathLowercase(S2));
+end;
+
+function PathSame(const S1, S2: String): Boolean;
+begin
+  Result := PathCompare(S1, S2) = 0;
 end;
 
 function PathDrivePartLength(const Filename: String): Integer;
@@ -358,8 +371,8 @@ end;
 
 function PathExtractName(const Filename: String): String;
 { Returns the filename portion of Filename (e.g. 'filename.txt'). If Filename
-  ends in a slash or consists only of a drive part, the result will be an empty
-  string.
+  ends in a slash or consists only of a drive part or is empty, the result will
+  be an empty string.
   This function is essentially the opposite of PathExtractPath. }
 var
   I: Integer;
@@ -379,6 +392,69 @@ begin
   Result := Copy(Filename, 1, I);
 end;
 
+function PathHasInvalidCharacters(const S: String;
+  const AllowDriveLetterColon: Boolean): Boolean;
+{ Checks the specified path for characters that are never allowed in paths,
+  or characters and path components that are accepted by the system but might
+  present a security problem (such as '..' and sometimes ':').
+  Specifically, True is returned if S includes any of the following:
+  - Control characters (0-31)
+  - One of these characters: /*?"<>|
+    (This means forward slashes and the prefixes '\\?\' and '\??\' are never
+    allowed.)
+  - Colons (':'), except when AllowDriveLetterColon=True and the string's
+    first character is a letter and the second character is the only colon.
+    (This blocks NTFS alternate data stream names.)
+  - A component with a trailing dot or space
+
+  Due to the last rule above, '.' and '..' components are never allowed, nor
+  are components like these:
+    'file '
+    'file.'
+    'file. . .'
+    'file . . '
+  When expanding paths (with no '\\?\' prefix used), Windows 11 23H2 silently
+  removes all trailing dots and spaces from the end of the string. Therefore,
+  if used at the end of a path, all of the above cases yield just 'file'.
+  On preceding components of the path, nothing is done with spaces; if there
+  is exactly one dot at the end, it is removed (e.g., 'dir.\file' becomes
+  'dir\file'), while multiple dots are left untouched ('dir..\file' doesn't
+  change).
+  By rejecting trailing dots and spaces up front, we avoid all that weirdness
+  and the problems that could arise from it.
+
+  Since ':' is considered invalid (except in the one case noted above), it's
+  not possible to sneak in disallowed dots/spaces by including an NTFS
+  alternate data stream name. The function will return True in these cases:
+    '..:streamname'
+    'file :streamname'
+}
+begin
+  Result := True;
+  for var I := Low(S) to High(S) do begin
+    var C := S[I];
+    if Ord(C) < 32 then
+      Exit;
+    case C of
+      #32, '.':
+        begin
+          if (I = High(S)) or PathCharIsSlash(S[I+1]) then
+            Exit;
+        end;
+      ':':
+        begin
+          { The A-Z check ensures that '.:streamname', ' :streamname', and
+            '\:streamname' are disallowed. }
+          if not AllowDriveLetterColon or (I <> Low(S)+1) or
+             not CharInSet(S[Low(S)], ['A'..'Z', 'a'..'z']) then
+            Exit;
+        end;
+      '/', '*', '?', '"', '<', '>', '|': Exit;
+    end;
+  end;
+  Result := False;
+end;
+
 function PathLastChar(const S: String): PChar;
 { Returns pointer to last character in the string. Returns nil if the string is
   empty. }
@@ -386,7 +462,7 @@ begin
   if S = '' then
     Result := nil
   else
-    Result := PathStrPrevChar(Pointer(S), @S[Length(S)+1]);
+    Result := @S[High(S)];
 end;
 
 function PathLastDelimiter(const Delimiters, S: string): Integer;
@@ -533,6 +609,49 @@ begin
     Result := S
   else
     Result := Copy(S, 1, I);
+end;
+
+function ValidateAndCombinePath(const ADestDir, AFilename: String;
+  out AResultingPath: String): Boolean;
+{ Combines ADestDir and AFilename without allowing a result outside of
+  ADestDir and without allowing other security problems.
+  Returns True if all security checks pass, with the combination of ADestDir
+  and AFilename in AResultingPath.
+  ADestDir is assumed to be normalized already and have a trailing backslash.
+  AFilename may be a file or directory name. }
+begin
+  { - Don't allow empty names
+    - Don't allow forward slashes or repeated slashes
+    - Don't allow rooted (non-relative to current directory) names
+    - Don't allow trailing slash
+    - Don't allow invalid characters/dots/spaces (this catches '..') }
+  Result := False;
+  if (AFilename <> '') and
+     (AFilename = PathNormalizeSlashes(AFilename)) and
+     not PathIsRooted(AFilename) and
+     not PathCharIsSlash(AFilename[High(AFilename)]) and
+     not PathHasInvalidCharacters(AFilename, False) then begin
+    { Our validity checks passed. Now pass the combined path to PathExpand
+      (GetFullPathName) to see if it thinks the path needs normalization.
+      If the returned path isn't exactly what was passed in, then consider
+      the name invalid.
+      One way that can happen is if the path ends in an MS-DOS device name:
+      PathExpand('c:\path\NUL') returns '\\.\NUL'. Obviously we don't want
+      devices being opened, so that must be rejected. }
+    var CombinedPath := ADestDir + AFilename;
+    var TestExpandedPath: String;
+    if PathExpand(CombinedPath, TestExpandedPath) and
+       (CombinedPath = TestExpandedPath) then begin
+      AResultingPath := CombinedPath;
+      Result := True;
+    end;
+  end;
+end;
+
+function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean;
+begin
+  var ResultingPath: String;
+  Result := ValidateAndCombinePath(ADestDir, AFilename, ResultingPath);
 end;
 
 end.

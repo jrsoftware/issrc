@@ -2,7 +2,7 @@ unit Setup.UninstallLog;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -272,7 +272,7 @@ var
 begin
   Attribs := GetFileAttributesRedir(DisableFsRedir, DirName);
   { Does the directory exist? }
-  if (Attribs <> $FFFFFFFF) and
+  if (Attribs <> INVALID_FILE_ATTRIBUTES) and
      (Attribs and FILE_ATTRIBUTE_DIRECTORY <> 0) then begin
     LogFmt('Deleting directory: %s', [DirName]);
     { If the directory has the read-only attribute, strip it first }
@@ -592,7 +592,7 @@ var
       LogFmt('Deleting file: %s', [FileName]);
       if RemoveReadOnly then begin
         ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
-        if (ExistingAttr <> $FFFFFFFF) and
+        if (ExistingAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingAttr and FILE_ATTRIBUTE_READONLY <> 0) then
           if SetFileAttributesRedir(DisableFsRedir, Filename,
              ExistingAttr and not FILE_ATTRIBUTE_READONLY) then
@@ -1246,9 +1246,10 @@ begin
     end;
     Flush;
 
-    if F.Position.Hi <> 0 then
+    const NewEndOffset = F.Position;
+    if NewEndOffset > High(UInt32) then
       InternalError('EndOffset range exceeded');
-    Header.EndOffset := F.Position.Lo;
+    Header.EndOffset := UInt32(NewEndOffset);
     F.Seek(0);
     Header.ID := UninstallLogID[InstallMode64Bit];
     WriteSafeHeaderString(Header.AppId, AppId, SizeOf(Header.AppId));
@@ -1292,8 +1293,7 @@ var
     EndOffset, Ofs: Integer64;
     CrcHeader: TUninstallCrcHeader;
   begin
-    EndOffset.Lo := Header.EndOffset;
-    EndOffset.Hi := 0;
+    EndOffset := To64(Header.EndOffset);
     while BufLeft = 0 do begin
       Ofs := F.Position;
       Inc64(Ofs, SizeOf(CrcHeader));

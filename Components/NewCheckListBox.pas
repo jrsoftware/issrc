@@ -205,7 +205,7 @@ procedure Register;
 implementation
 
 uses
-  NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, Types;
+  Themes, NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, UITypes, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -720,6 +720,13 @@ const
     (CBS_CHECKEDNORMAL, CBS_CHECKEDHOT, CBS_CHECKEDPRESSED, CBS_CHECKEDDISABLED),
     (CBS_MIXEDNORMAL, CBS_MIXEDHOT, CBS_MIXEDPRESSED, CBS_MIXEDDISABLED)
   );
+  FontColorStates: array[Boolean] of TStyleFont = (sfListItemTextDisabled, sfListItemTextNormal);
+  CheckListItemStates: array[Boolean] of TThemedCheckListBox = (tclListItemDisabled, tclListItemNormal);
+  CheckBoxCheckedStates: array[Boolean] of TThemedButton = (tbCheckBoxCheckedDisabled, tbCheckBoxCheckedNormal);
+  CheckBoxUncheckedStates: array[Boolean] of TThemedButton = (tbCheckBoxUncheckedDisabled, tbCheckBoxUncheckedNormal);
+  CheckBoxMixedStates: array[Boolean] of TThemedButton = (tbCheckBoxMixedDisabled, tbCheckBoxMixedNormal);
+  RadioButtonCheckedStates: array[Boolean] of TThemedButton = (tbRadioButtonCheckedDisabled, tbRadioButtonCheckedNormal);
+  RadioButtonUncheckedStates: array[Boolean] of TThemedButton = (tbRadioButtonUncheckedDisabled, tbRadioButtonUncheckedNormal);
 var
   SavedClientRect: TRect;
 
@@ -773,17 +780,39 @@ begin
   ItemState := ItemStates[Index];
   UIState := SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
   Disabled := not Enabled or not ItemState.Enabled;
+
+  { Style code below is based on Vcl.StdCtrls' TCustomListBox.CNDrawItem and Vcl.CheckLst's
+    TCustomCheckListBox.DrawItem and .DrawCheck }
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
   with Canvas do begin
+    { Initialize colors }
     if not FWantTabs and (odSelected in State) and Focused then begin
-      Brush.Color := clHighlight;
       NewTextColor := clHighlightText;
-    end
-    else begin
-      Brush.Color := Self.Color;
+      if (LStyle <> nil) and (seClient in StyleElements) then begin
+        Brush.Color := LStyle.GetSystemColor(clHighlight);
+        if seFont in StyleElements then
+          NewTextColor := LStyle.GetStyleFontColor(sfListItemTextSelected);
+      end else
+        Brush.Color := clHighlight;
+    end else begin
       if Disabled then
         NewTextColor := clGrayText
       else
         NewTextColor := Self.Font.Color;
+      if (LStyle <> nil) and (seClient in StyleElements) then begin
+        Brush.Color := LStyle.GetStyleColor(scListBox);
+        if seFont in StyleElements then begin
+          NewTextColor := LStyle.GetStyleFontColor(FontColorStates[not Disabled]);
+          const Details = LStyle.GetElementDetails(CheckListItemStates[Enabled]);
+          var LColor: TColor;
+          if LStyle.GetElementColor(Details, ecTextColor, LColor) and (LColor <> clNone) then
+            NewTextColor := LColor;
+        end;
+      end else
+        Brush.Color := Self.Color;
     end;
     { Draw threads }
     if FShowLines then begin
@@ -810,7 +839,32 @@ begin
         Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
         FCheckWidth, FCheckHeight);
       FlipRect(CheckRect, SavedClientRect, FUseRightToLeft);
-      if FThemeData = 0 then begin
+      if LStyle <> nil then begin
+        var Detail: TThemedButton;
+        if ItemState.State <> cbGrayed then begin
+          if ItemState.ItemType = itCheck then begin
+            if ItemState.State = cbChecked then
+              Detail := CheckBoxCheckedStates[not Disabled]
+            else
+              Detail := CheckBoxUncheckedStates[not Disabled];
+          end else begin
+            if ItemState.State = cbChecked then
+              Detail := RadioButtonCheckedStates[not Disabled]
+            else
+              Detail := RadioButtonUncheckedStates[not Disabled];
+          end;
+        end else
+          Detail := CheckBoxMixedStates[not Disabled];
+        const ElementDetails = LStyle.GetElementDetails(Detail);
+        const SaveColor = Brush.Color;
+        const SaveIndex = SaveDC(Handle);
+        try
+          LStyle.DrawElement(Handle, ElementDetails, CheckRect, nil, CurrentPPI);
+        finally
+          RestoreDC(Handle, SaveIndex);
+        end;
+        Brush.Color := SaveColor;
+      end else if FThemeData = 0 then begin
         case ItemState.State of
           cbChecked: uState := ButtonStates[ItemState.ItemType] or DFCS_CHECKED;
           cbUnchecked: uState := ButtonStates[ItemState.ItemType];
@@ -897,7 +951,7 @@ begin
       lines are drawn -- and we mustn't draw too many. }
     InternalDrawText(Items[Index], Rect, DrawTextFormat or DT_CALCRECT, False);
     FlipRect(Rect, SavedClientRect, FUseRightToLeft);
-    InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and Disabled);
+    InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and Disabled and (LStyle = nil));
     { Draw focus rectangle }
     if FWantTabs and not Disabled and (odSelected in State) and Focused and
       (UIState and UISF_HIDEFOCUS = 0) then

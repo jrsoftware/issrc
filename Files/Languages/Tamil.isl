@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ English messages ***
+; *** Inno Setup version 6.4.0+ English messages ***
 ; தமிழ்நேரம் (https://TamilNeram.github.io)
 ;anishprabu.t@gmail.com
 ; To download user-contributed translations of this file, go to:

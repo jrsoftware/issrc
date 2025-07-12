@@ -1,0 +1,8 @@
+format issig-v2
+file-name "MyProg.exe"
+file-size 78984
+file-hash be272491050410c39db97101f05e80ed5d30a10caca6bc9f02228aa9499e19c9
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 8484d44b5904d6b4d01c76ccd9ef0367a7cdd1667ba09e3bfb04af5743de3ca4
+sig-s ed6bd58c7e3a126ddf78f5f9b5745ac7e9f29030350e452c9611837c4bf79c82

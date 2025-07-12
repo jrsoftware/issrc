@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Turkish messages ***
+; *** Inno Setup version 6.5.0+ Turkish messages ***
 ; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren translator@zeron.net
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -13,6 +13,8 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=T<00FC>rk<00E7>e
 LanguageID=$041f
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+; For English it's set to zero anyway because English only uses ASCII characters
 LanguageCodePage=1254
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -211,23 +213,26 @@ ReadyMemoGroup=Başlat menüsü klasörü:
 ReadyMemoTasks=Ek işlemler:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Ek dosyalar indiriliyor...
+DownloadingLabel2=Ek dosyalar indiriliyor...
 ButtonStopDownload=İndirmeyi &durdur
 StopDownload=İndirmeyi durdurmak istediğinize emin misiniz?
 ErrorDownloadAborted=İndirme durduruldu
 ErrorDownloadFailed=İndirilemedi: %1 %2
 ErrorDownloadSizeFailed=Boyut alınamadı: %1 %2
-ErrorFileHash1=Dosya karması doğrulanamadı: %1
-ErrorFileHash2=Dosya karması geçersiz: %1 olması gerekirken %2
 ErrorProgress=Adım geçersiz: %1 / %2
 ErrorFileSize=Dosya boyutu geçersiz: %1 olması gerekirken %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Ek dosyalar ayıklanıyor...
+ExtractingLabel=Ek dosyalar ayıklanıyor...
 ButtonStopExtraction=Ayıklamayı &durdur
 StopExtraction=Ayıklamayı durdurmak istediğinize emin misiniz?
 ErrorExtractionAborted=Ayıklama durduruldu
 ErrorExtractionFailed=Ayıklanamadı: %1
+
+; *** Arşiv ayıklanamadı sorunu ayrıntıları
+ArchiveIncorrectPassword=Parola yanlış
+ArchiveIsCorrupted=Arşiv dosyası bozuk
+ArchiveUnsupportedFormat=Arşiv biçimi desteklenmiyor
 
 ; *** "Kuruluma hazırlanılıyor" sayfası
 WizardPreparing=Kuruluma hazırlanılıyor
@@ -273,11 +278,15 @@ AbortRetryIgnoreSelectAction=Yapılacak işlemi seçin
 AbortRetryIgnoreRetry=&Yeniden denensin
 AbortRetryIgnoreIgnore=&Sorun yok sayılıp ilerlensin
 AbortRetryIgnoreCancel=Kurulum iptal edilsin
+RetryCancelSelectAction=İşlem seçin
+RetryCancelRetry=&Yeniden dene
+RetryCancelCancel=İptal
 
 ; *** Kurulum durumu iletileri
 StatusClosingApplications=Uygulamalar kapatılıyor...
 StatusCreateDirs=Klasörler oluşturuluyor...
 StatusExtractFiles=Dosyalar ayıklanıyor...
+StatusDownloadFiles=Dosyalar indiriliyor...
 StatusCreateIcons=Kısayollar oluşturuluyor...
 StatusCreateIniEntries=INI kayıtları oluşturuluyor...
 StatusCreateRegistryEntries=Kayıt Defteri kayıtları oluşturuluyor...
@@ -307,6 +316,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Bu dosya atlansın (önerilmez)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Sorun yok sayılıp ilerlensin (önerilmez)
 SourceIsCorrupted=Kaynak dosya bozulmuş
 SourceDoesntExist="%1" kaynak dosyası bulunamadı
+SourceVerificationFailed=Kaynak dosya doğrulanamadı: %1
+VerificationSignatureDoesntExist="%1" imza dosyası bulunamadı
+VerificationSignatureInvalid="%1" imza dosyası geçersiz
+VerificationKeyNotFound="%1" imza dosyası bilinmeyen bir anahtar kullanıyor
+VerificationFileNameIncorrect=Dosyanın adı yanlış
+VerificationFileTagIncorrect=Dosyanın etiketi yanlış
+VerificationFileSizeIncorrect=Dosyanın boyutu yanlış
+VerificationFileHashIncorrect=Dosyanın karma değeri yanlış
 ExistingFileReadOnly2=Var olan dosya salt okunabilir olarak işaretlenmiş olduğundan üzerine yazılamadı.
 ExistingFileReadOnlyRetry=&Salt okunur işareti kaldırılıp yeniden denensin
 ExistingFileReadOnlyKeepExisting=&Var olan dosya korunsun
@@ -324,7 +341,9 @@ ExistingFileNewerOverwriteOrKeepAll=&Sonraki çakışmalarda bu işlem yapılsı
 ErrorChangingAttr=Var olan dosyanın öznitelikleri değiştirilirken bir sorun çıktı:
 ErrorCreatingTemp=Kurulum klasöründe bir dosya oluşturulurken sorun çıktı:
 ErrorReadingSource=Kaynak dosya okunurken sorun çıktı:
-ErrorCopying=Dosya kopyalanırken sorun çıktı:
+ErrorCopying=Bir dosya kopyalanırken sorun çıktı:
+ErrorDownloading=Bir dosya indirilirken sorun çıktı:
+ErrorExtracting=Bir arşiv ayıklanırken sorun çıktı:
 ErrorReplacingExistingFile=Var olan dosya değiştirilirken sorun çıktı:
 ErrorRestartReplace=Yeniden başlatmada üzerine yazılamadı:
 ErrorRenamingTemp=Kurulum klasöründeki bir dosyanın adı değiştirilirken sorun çıktı:

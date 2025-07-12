@@ -2,7 +2,7 @@ unit Setup.ScriptDlg;
 
 {
   Inno Setup
-  Copyright (C) 1997-2012 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Setup.WizardForm, Setup.Install, Compression.SevenZipDecoder,
+  Shared.Struct, Setup.WizardForm, Setup.Install, Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 
@@ -173,9 +173,15 @@ type
   end;
 
   TDownloadFile = class
-    Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+    Url, BaseName, UserName, Password: String;
+    Verification: TSetupFileVerification;
+    DotISSigEntry: Boolean;
+    Data: NativeUInt; { Only valid if DotISSigEntry is False }
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
+
+  TDownloadFileCompleted = reference to procedure(const DownloadedFile: TDownloadFile;
+    const DestFile: String; var Remove: Boolean);
 
   TDownloadWizardPage = class(TOutputProgressWizardPage)
     private
@@ -184,27 +190,41 @@ type
       FShowBaseNameInsteadOfUrl: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      FThrottler: TProgressThrottler;
+      FLastBaseNameOrUrl: String;
+      function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
+        const UserName, Password: String; const ISSigVerify: Boolean;
+        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      procedure Add(const Url, BaseName, RequiredSHA256OfFile: String);
-      procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
+      function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+      function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
+        const AllowedKeysRuntimeIDs: TStringList): Integer;
+      function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+        const Data: NativeUInt): Integer;
+      function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
+        const AllowedKeysRuntimeIDs: TStringList; const Data: NativeUInt): Integer; overload;
+      function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
+        const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer; overload;
       procedure Clear;
-      function Download: Int64;
+      function Download(const OnDownloadFileCompleted: TDownloadFileCompleted): Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
       procedure Show; override;
     published
       property AbortButton: TNewButton read FAbortButton;
       property AbortedByUser: Boolean read FAbortedByUser;
+      property LastBaseNameOrUrl: String read FLastBaseNameOrUrl;
       property ShowBaseNameInsteadOfUrl: Boolean read FShowBaseNameInsteadOfUrl write FShowBaseNameInsteadOfUrl;
   end;
   
   TArchive = class
-    FileName, DestDir: String;
+    FileName, DestDir, Password: String;
     FullPaths: Boolean;
   end;
   TArchives = TObjectList<TArchive>;
@@ -216,14 +236,17 @@ type
       FShowArchiveInsteadOfFile: Boolean;
       FAbortButton: TNewButton;
       FShowProgressControlsOnNextProgress, FAbortedByUser: Boolean;
+      FThrottler: TProgressThrottler;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalThrottledOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+      function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
+      function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
       procedure Clear;
       procedure Extract;
       property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
@@ -234,13 +257,16 @@ type
       property ShowArchiveInsteadOfFile: Boolean read FShowArchiveInsteadOfFile write FShowArchiveInsteadOfFile;
   end;
 
+function ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(const AllowedKeysRuntimeIDs: TStringList): AnsiString;
+
 implementation
 
 uses
-  StrUtils,
-  Shared.Struct, Setup.MainFunc, Setup.SelectFolderForm, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  BrowseFunc, Setup.LoggingFunc, Setup.InstFunc;
+  StrUtils, ISSigFunc, SHA256,
+  Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc,
+  Compression.SevenZipDLLDecoder;
 
 const
   DefaultLabelHeight = 14;
@@ -251,7 +277,7 @@ const
 
 procedure SetCtlParent(const AControl, AParent: TWinControl);
 { Like assigning to AControl.Parent, but puts the control at the *bottom* of
-  the z-order instead of the top, for MSAA compatibility. }
+  the z-order instead of the top, for MSAA compatibility }
 var
   OldVisible: Boolean;
 begin
@@ -969,12 +995,7 @@ begin
     Log('Need to abort download.');
     Result := False;
   end else begin
-    if ProgressMax > 0 then
-      Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
-    else
-      Log(Format('  %d bytes done.', [Progress]));
-
-    FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, BaseName, Url);
+    FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(BaseName), Url);
     if ProgressMax > MaxLongInt then begin
       Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
       ProgressMax32 := MaxLongInt;
@@ -990,11 +1011,26 @@ begin
       ProcessMsgs;
     end;
 
-    if Assigned(FOnDownloadProgress) then
-      Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
-    else
-      Result := True;
+    { This will call InternalThrottledOnDownloadProgress, which will log progress and call the script's FOnDownloadProgress, but throttled }
+    if FThrottler = nil then begin
+      const OnDownloadProgress: TOnDownloadProgress = InternalThrottledOnDownloadProgress;
+      FThrottler := TProgressThrottler.Create(OnDownloadProgress);
+    end;
+    Result := FThrottler.OnDownloadProgress(Url, BaseName, Progress, ProgressMax);
   end;
+end;
+
+function TDownloadWizardPage.InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if ProgressMax > 0 then
+    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
+  else
+    Log(Format('  %d bytes done.', [Progress]));
+
+  if Assigned(FOnDownloadProgress) then
+    Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
+  else
+    Result := True;
 end;
 
 constructor TDownloadWizardPage.Create(AOwner: TComponent);
@@ -1006,6 +1042,7 @@ end;
 
 destructor TDownloadWizardPage.Destroy;
 begin
+  FThrottler.Free;
   FFiles.Free;
   inherited;
 end;
@@ -1014,7 +1051,7 @@ procedure TDownloadWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel];
+  FMsg1Label.Caption := SetupMessages[msgDownloadingLabel2];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
@@ -1044,20 +1081,83 @@ begin
   FAbortButton.Visible := AVisible;
 end;
 
-procedure TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String);
+function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+  const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean;
+  const Data: NativeUInt): Integer;
 begin
-  AddEx(Url, BaseName, RequiredSHA256OfFile, '', '');
-end;
-
-procedure TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String);
-begin
+  if ISSigVerify and DotISSigEntry then
+    InternalError('ISSigVerify and DotISSigEntry');
   var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
-  F.RequiredSHA256OfFile := RequiredSHA256OfFile;
   F.UserName := UserName;
   F.Password := Password;
-  FFiles.Add(F);
+  F.Verification := NoVerification;
+  if RequiredSHA256OfFile <> '' then begin
+    F.Verification.Typ := fvHash;
+    F.Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+  end else if ISSigVerify then begin
+    F.Verification.Typ := fvISSig;
+    F.Verification.ISSigAllowedKeys := ISSigAllowedKeys
+  end;
+  F.DotISSigEntry := DotISSigEntry;
+  F.Data := Data;
+  Result := FFiles.Add(F);
+end;
+
+function ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(const AllowedKeysRuntimeIDs: TStringList): AnsiString;
+begin
+  Result := '';
+  if AllowedKeysRuntimeIDs <> nil then begin
+    for var I := 0 to AllowedKeysRuntimeIDs.Count-1 do begin
+      const RuntimeID = AllowedKeysRuntimeIDs[I];
+      if RuntimeID = '' then
+        InternalError('RuntimeID cannot be empty');
+      var Found := False;
+      for var KeyIndex := 0 to Entries[seISSigKey].Count-1 do begin
+        var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][KeyIndex]);
+        if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then begin
+          SetISSigAllowedKey(Result, KeyIndex);
+          Found := True;
+          Break;
+        end;
+      end;
+      if not Found then
+        InternalError(Format('Unknown RuntimeID ''%s''', [RuntimeID]));
+    end;
+  end;
+end;
+
+function TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+begin
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, '', '', False, '', False, 0);
+end;
+
+function TDownloadWizardPage.AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
+  const AllowedKeysRuntimeIDs: TStringList): Integer;
+begin
+  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, '', '', AllowedKeysRuntimeIDs, 0);
+end;
+
+function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
+  const Data: NativeUInt): Integer;
+begin
+  Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password, False, '', False, Data);
+end;
+
+function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
+  Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeUInt): Integer;
+begin
+  const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
+  Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys, Data);
+end;
+
+function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
+  Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer;
+begin
+  { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
+  DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '', True, 0);
+  Result := DoAdd(Url, BaseName, '', UserName, Password, True, ISSigAllowedKeys, False, Data);
 end;
 
 procedure TDownloadWizardPage.Clear;
@@ -1065,17 +1165,31 @@ begin
   FFiles.Clear;
 end;
 
-function TDownloadWizardPage.Download: Int64;
+function TDownloadWizardPage.Download(const OnDownloadFileCompleted: TDownloadFileCompleted): Int64;
 begin
   FAbortedByUser := False;
 
   Result := 0;
-  for var F in FFiles do begin
-    { Don't need to set DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages before downloading since we already process messages ourselves. }
-    SetDownloadCredentials(F.UserName, F.Password);
-    Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.RequiredSHA256OfFile, InternalOnDownloadProgress);
+
+  try
+    for var I := 0 to FFiles.Count-1 do begin
+      { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
+      const F = FFiles[I];
+      FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
+      SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
+      var DestFile: String;
+      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, DestFile);
+      if Assigned(OnDownloadFileCompleted) then begin
+        var Remove := False;
+        OnDownloadFileCompleted(F, DestFile, Remove);
+        if Remove then
+          FFiles[I] := nil;
+      end;
+    end;
+  finally
+    SetDownloadTemporaryFileCredentials('', '');
+    FFiles.Pack;
   end;
-  SetDownloadCredentials('', '');
 end;
 
 {--- Extraction ---}
@@ -1111,11 +1225,25 @@ begin
       ProcessMsgs;
     end;
 
-    if Assigned(FOnExtractionProgress) then
-      Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
-    else
+    { This will call InternalThrottledOnExtractionProgress, which will call the script's FOnExtractionProgress, but throttled
+      Because it does nothing else we first check if FOnExtractionProgress is actually assigned }
+    if Assigned(FOnExtractionProgress) then begin
+      if FThrottler = nil then begin
+        const OnExtractionProgress: TOnExtractionProgress = InternalThrottledOnExtractionProgress;
+        FThrottler := TProgressThrottler.Create(OnExtractionProgress);
+      end;
+      Result := FThrottler.OnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax);
+    end else
       Result := True;
   end;
+end;
+
+function TExtractionWizardPage.InternalThrottledOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if Assigned(FOnExtractionProgress) then { Always True, see above }
+    Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
+  else
+    Result := True;
 end;
 
 constructor TExtractionWizardPage.Create(AOwner: TComponent);
@@ -1127,6 +1255,7 @@ end;
 
 destructor TExtractionWizardPage.Destroy;
 begin
+  FThrottler.Free;
   FArchives.Free;
   inherited;
 end;
@@ -1135,7 +1264,7 @@ procedure TExtractionWizardPage.Initialize;
 begin
   inherited;
 
-  FMsg1Label.Caption := SetupMessages[msgExtractionLabel];
+  FMsg1Label.Caption := SetupMessages[msgExtractingLabel];
 
   FAbortButton := TNewButton.Create(Self);
   with FAbortButton do begin
@@ -1165,13 +1294,19 @@ begin
   FAbortButton.Visible := AVisible;
 end;
 
-procedure TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean);
+function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
 begin
-  var A := TArchive.Create;
+  Result := AddEx(ArchiveFileName, DestDir, '', FullPaths);
+end;
+
+function TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
+begin
+  const A = TArchive.Create;
   A.FileName := ArchiveFileName;
   A.DestDir := DestDir;
+  A.Password := Password;
   A.FullPaths := FullPaths;
-  FArchives.Add(A);
+  Result := FArchives.Add(A);
 end;
 
 procedure TExtractionWizardPage.Clear;
@@ -1183,9 +1318,19 @@ procedure TExtractionWizardPage.Extract;
 begin
   FAbortedByUser := False;
 
-  for var A in FArchives do begin
-    { Don't need to set DownloadTemporaryFileOrExtract7ZipArchiveProcessMessages before extraction since we already process messages ourselves. }
-    Extract7ZipArchive(A.FileName, A.DestDir, A.FullPaths, InternalOnExtractionProgress);
+  try
+    for var A in FArchives do begin
+      { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
+      if SetupHeader.SevenZipLibraryName <> '' then
+        ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+      else
+        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+    end;
+  except
+    on E: EAbort do
+      raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+    else
+      raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
   end;
 end;
 

@@ -8,7 +8,8 @@ uses
 
 type
   TImagesModule = class(TDataModule)
-    BuildImageList: TImageList;
+    LightBuildImageList: TImageList;
+    DarkBuildImageList: TImageList;
     LightToolBarImageCollection: TImageCollection;
     DarkToolBarImageCollection: TImageCollection;
     LightMarkersAndACImageCollection: TImageCollection;

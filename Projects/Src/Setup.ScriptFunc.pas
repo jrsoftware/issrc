@@ -21,15 +21,15 @@ implementation
 uses
   Windows,
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections,
-  uPSUtils, PathFunc, BrowseFunc, MD5, SHA1, SHA256, BitmapImage, PSStackHelper,
+  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapImage, PSStackHelper,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
   Shared.Int64Em, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
-  Setup.SpawnClient, Setup.DotNetFunc,
-  Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder,
+  Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
+  Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc;
 
 type
@@ -802,13 +802,45 @@ var
     begin
       Stack.SetInt(PStart, ExtractTemporaryFiles(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('DownloadTemporaryFile', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['DownloadTemporaryFile', 'DownloadTemporaryFileWithISSigVerify'], sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt64(PStart, DownloadTemporaryFile(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3), TOnDownloadProgress(Stack.GetProc(PStart-4, Caller))));
-    end);
-    RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
-    begin
-      SetDownloadCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
+      const ISSigVerify = OrgName = 'DownloadTemporaryFileWithISSigVerify';
+      var Url, ISSigUrl, BaseName, RequiredSHA256OfFile: String;
+      var ISSigAllowedKeys: AnsiString;
+      var OnDownloadProgress: TOnDownloadProgress;
+
+      if ISSigVerify then begin
+        Url := Stack.GetString(PStart-1);
+        ISSigUrl := Stack.GetString(PStart-2);
+        BaseName := Stack.GetString(PStart-3);
+        ISSigAllowedKeys := ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(TStringList(Stack.GetClass(PStart-4)));
+        OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-5, Caller));
+      end else begin
+        Url := Stack.GetString(PStart-1);
+        BaseName := Stack.GetString(PStart-2);
+        RequiredSHA256OfFile := Stack.GetString(PStart-3);
+        OnDownloadProgress := TOnDownloadProgress(Stack.GetProc(PStart-4, Caller));
+      end;
+
+      var Verification := NoVerification;
+      if RequiredSHA256OfFile <> '' then begin
+        Verification.Typ := fvHash;
+        Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+      end else if ISSigVerify then begin
+        Verification.Typ := fvISSig;
+        Verification.ISSigAllowedKeys := ISSigAllowedKeys
+      end;
+
+      const Throttler = TProgressThrottler.Create(OnDownloadProgress);
+      try
+        { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
+        if ISSigVerify then
+          DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, Throttler.OnDownloadProgress);
+        Throttler.Reset;
+        Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, Throttler.OnDownloadProgress));
+      finally
+        Throttler.Free;
+      end;
     end);
     RegisterScriptFunc('DownloadTemporaryFileSize', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -817,6 +849,10 @@ var
     RegisterScriptFunc('DownloadTemporaryFileDate', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, DownloadTemporaryFileDate(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('SetDownloadCredentials', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      SetDownloadTemporaryFileCredentials(Stack.GetString(PStart),Stack.GetString(PStart-1));
     end);
   end;
 
@@ -880,6 +916,10 @@ var
     begin
       Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
     end);
+    RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetString(PStart, SHA256DigestToString(ISSigCalcStreamHash(TStream(Stack.GetClass(PStart-1)))));
+    end);
     RegisterScriptFunc('GETSHA256OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfAnsiString(Stack.GetAnsiString(PStart-1))));
@@ -896,7 +936,7 @@ var
           Div64(FreeBytes, 1024*1024);
           Div64(TotalBytes, 1024*1024);
         end;
-        { Cap at 2 GB, as [Code] doesn't support 64-bit integers }
+        { Cap at 2 GB, as GetSpaceOnDisk doesn't use 64-bit integers }
         if (FreeBytes.Hi <> 0) or (FreeBytes.Lo and $80000000 <> 0) then
           FreeBytes.Lo := $7FFFFFFF;
         if (TotalBytes.Hi <> 0) or (TotalBytes.Lo and $80000000 <> 0) then
@@ -1234,8 +1274,7 @@ var
       try
         var F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
         try
-          var TmpFileSize := F.Size; { Make sure we access F.Size only once }
-          Stack.SetInt64(PStart-2, Int64(TmpFileSize.Hi) shl 32 + TmpFileSize.Lo);
+          Stack.SetInt64(PStart-2, F.Size);
           Stack.SetBool(PStart, True);
         finally
           F.Free;
@@ -1692,7 +1731,7 @@ var
     end);
     RegisterScriptFunc('SHOWEXCEPTIONMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      GetMainForm.ShowExceptionMsg(AddPeriod(GetExceptionMessage(Caller)));
+      TMainForm.ShowExceptionMsg(AddPeriod(GetExceptionMessage(Caller)));
     end);
     RegisterScriptFunc('TERMINATED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1780,9 +1819,40 @@ var
       var AscendingTrySizes := Stack.GetIntArray(PStart-4);
       Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
     end);
-    RegisterScriptFunc('EXTRACT7ZIPARCHIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    RegisterScriptFunc(['Extract7ZipArchive', 'ExtractArchive'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2), TOnExtractionProgress(Stack.GetProc(PStart-3, Caller)));
+      var Password: String;
+      var FullDirsItemNo: Longint;
+      if OrgName = 'Extract7ZipArchive' then begin
+        Password := '';
+        FullDirsItemNo := PStart-2;
+      end else begin
+        Password := Stack.GetString(PStart-2);
+        FullDirsItemNo := PStart-3;
+      end;
+
+      const Throttler = TProgressThrottler.Create(TOnExtractionProgress(Stack.GetProc(FullDirsItemNo-1, Caller)));
+      try
+        try
+          if SetupHeader.SevenZipLibraryName <> '' then
+            ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+              Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress)
+          else
+            Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+              Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress);
+        except
+          on E: EAbort do
+            raise Exception.Create(SetupMessages[msgErrorExtractionAborted])
+          else
+            raise Exception.Create(FmtSetupMessage1(msgErrorExtractionFailed, GetExceptMessage));
+        end;
+      finally
+        Throttler.Free;
+      end;
+    end);
+    RegisterScriptFunc('MapArchiveExtensions', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      MapArchiveExtensions(Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('DEBUGGING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1803,6 +1873,32 @@ var
       end else
         Parts := Stack.GetString(PStart-1).Split(Separators, TStringSplitOptions(Stack.GetInt(PStart-3)));
       Stack.SetArray(PStart, Parts);
+    end);
+    RegisterScriptFunc('ISSigVerify', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(TStringList(Stack.GetClass(PStart-1)));
+      const Filename = Stack.GetString(PStart-2);
+      const VerifyFilename = Stack.GetBool(PStart-3);
+      const KeepOpen = Stack.GetBool(PStart-4);
+
+      { Verify signature & file, keeping open afterwards if requested
+        Also see TrustFunc's CheckFileTrust which can also keep open afterwards }
+      var F := TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
+      try
+        var ExpectedFileHash: TSHA256Digest;
+        DoISSigVerify(nil, F, Filename, VerifyFilename, ISSigAllowedKeys, ExpectedFileHash);
+         { Couldn't get the SHA-256 while downloading so need to get and check it now }
+        const ActualFileHash = ISSigCalcStreamHash(F);
+        if not SHA256DigestsEqual(ActualFileHash, ExpectedFileHash) then
+          VerificationError(veFileHashIncorrect);
+      except
+        FreeAndNil(F);
+        raise;
+      end;
+      if not KeepOpen then
+        FreeAndNil(F);
+
+      Stack.SetClass(PStart, F);
     end);
   end;
 

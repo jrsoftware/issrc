@@ -66,7 +66,7 @@ begin
   for I := 0 to 999 do begin
     NewFilename := Path + Format('isRS-%.3u.tmp', [I]);
     Attribs := GetFileAttributes(PChar(NewFilename));
-    if Attribs <> $FFFFFFFF then begin
+    if Attribs <> INVALID_FILE_ATTRIBUTES then begin
       { Skip any directories that happen to named NewFilename }
       if Attribs and FILE_ATTRIBUTE_DIRECTORY <> 0 then
         Continue;

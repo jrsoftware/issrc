@@ -1,25 +1,26 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2024 Jordan Russell
+rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
 rem  Batch file to prepare a release
 rem
-rem  Calls setup-sign.bat if it exists, else creates setup.exe without signing
+rem  Calls setup-sign.bat if it exists to create a signed build, otherwise creates setup.exe without signing
+rem  Signed build also require a setup-presign.bat to exist which should sign all files passed to it
 rem
 rem  This batch files does the following things:
 rem  -Compile ISHelpGen
 rem  -Compile ISetup*.chm
-rem  -Compile Inno Setup
+rem  -Compile Inno Setup including ISSigTool
 rem  -Create Inno Setup installer
 rem
 rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.4.1-dev
+set VER=6.5.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -47,9 +48,40 @@ if errorlevel 1 goto failed
 echo Compiling ISetup*.chm done
 pause
 
+call .\compile.bat issigtool
+if errorlevel 1 goto failed
+echo Compiling ISSigTool done
+
+rem  Verify precompiled binaries which are used during compilation
+rem  Note: Other precompiled binaries are verified by Setup.iss
+call .\issig.bat verify --key-file=def01.ispublickey ^
+  Projects\Src\Setup.HelperEXEs.res ^
+  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
+  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj ^
+  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj
+if errorlevel 1 goto failed
+echo ISSigTool verify done
+
+rem  Embed user's public key into sources
+call .\issig.bat embed
+if errorlevel 1 goto failed
+echo ISSigTool embed done
+
 call .\compile.bat
 if errorlevel 1 goto failed
 echo Compiling Inno Setup done
+
+if exist .\setup-presign.bat (
+  echo - Presigning
+  call .\setup-presign.bat Files\ISCC.exe Files\ISCmplr.dll Files\ISPP.dll
+  if errorlevel 1 goto failed
+  echo Presign done
+) 
+
+rem  Sign using user's private key
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32
+if errorlevel 1 goto failed
+echo ISSigTool sign done
 pause
 
 :setup
@@ -68,7 +100,10 @@ if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
 echo Creating Inno Setup installer done
-powershell.exe -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+call .\issig.bat sign output\innosetup-%VER%.exe
+if errorlevel 1 goto failed
+powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+rem ignoring error here
 
 echo All done!
 pause

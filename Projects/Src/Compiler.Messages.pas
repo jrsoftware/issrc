@@ -2,7 +2,7 @@ unit Compiler.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -53,6 +53,8 @@ const
   SCompilerStatusFilesCompressingVersion = '   Compressing: %s   (%u.%u.%u.%u)';
   SCompilerStatusFilesStoring = '   Storing: %s';
   SCompilerStatusFilesStoringVersion = '   Storing: %s   (%u.%u.%u.%u)';
+  SCompilerStatusVerified = '   Verification successful';
+  SCompilerStatusVerificationDisabled = '   Verification disabled!';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
@@ -84,14 +86,24 @@ const
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
-  SCompilerCopyError3 = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
+  SCompilerSourceFileVerificationFailed = 'Verification of source file "%s" failed: %s';
+  SCompilerVerificationSignatureDoesntExist = 'The signature file "%s" does not exist';
+  SCompilerVerificationSignatureMalformed = 'The signature file "%s" is malformed';
+  SCompilerVerificationSignatureBad = 'The signature file "%s" is bad';
+  SCompilerVerificationKeyNotFound = 'The signature file "%s" uses an unknown key';
+  SCompilerVerificationFileNameIncorrect = 'The name of the file is incorrect';
+  SCompilerVerificationFileSizeIncorrect = 'The size of the file is incorrect';
+  SCompilerVerificationFileHashIncorrect = 'The hash of the file is incorrect';
+  SCompilerCopyError3a = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %s';
+  SCompilerCopyError3b = 'Could not copy "%s" to "%s".' + SNewLine2 + 'Error %d: %s';
   SCompilerReadError = 'Could not read "%s".' + SNewLine2 + 'Error: %s';
-  SCompilerCompressError2 = 'An internal error occurred while trying to compress "%s"';
+  SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
+  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceding, ensure that the file is neither corrupted nor has been tampered with.';
 
   { [Setup] }
   SCompilerUnknownDirective = 'Unrecognized [%s] section directive "%s"';
@@ -99,6 +111,7 @@ const
   SCompilerEntrySuperseded2 = 'The [%s] section directive "%s" has been superseded by "%s" in this version of Inno Setup.';
   SCompilerEntryMissing2 = 'Required [%s] section directive "%s" not specified';
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
+  SCompilerEntryValueUnsupported = 'Value of [%s] section directive "%s" must not be "%s" if flag "%s" is used.';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
@@ -195,21 +208,24 @@ const
   SCompilerParamDataTooLong = 'Data on parameter "%s" is too long';
   SCompilerParamUnknownParam = 'Unrecognized parameter name "%s"';
   SCompilerParamDuplicated = 'Cannot have multiple "%s" parameters';
+  SCompilerParamConflict = 'Cannot have both the "%s" and "%s" parameters';
   SCompilerParamEmpty2 = 'Parameter "%s" is empty';
   SCompilerParamNotSpecified = 'Required parameter "%s" not specified';
   SCompilerParamNoQuotes2 = 'Parameter "%s" cannot include quotes (")';
   SCompilerParamNoBackslash = 'Parameter "%s" cannot include backslashes (\)';
   SCompilerParamNoPrecedingBackslash = 'Parameter "%s" cannot begin with a backslash (\)';
   SCompilerParamInvalid2 = 'Parameter "%s" is not a valid value';
+  SCompilerParamInvalidWithError = 'Parameter "%s" is not a valid value: %s';
 
   { Flags }
   SCompilerParamUnknownFlag2 = 'Parameter "%s" includes an unknown flag';
   SCompilerParamErrorBadCombo2 = 'Parameter "%s" cannot have both the "%s" and "%s" flags';
-  SCompilerParamErrorBadCombo3 = 'Parameter "%s" cannot have both the "%s" and "%s" flags on the same source file';
+  SCompilerParamErrorBadCombo2SameSource = 'Parameter "%s" cannot have both the "%s" and "%s" flags on a single source file';
   SCompilerParamUnsupportedFlag = 'Parameter "%s" includes a flag that is not supported in this section';
   SCompilerParamFlagMissing = 'Flag "%s" must be used if flag "%s" is used';
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
   SCompilerParamFlagMissing3 = 'Flag "%s" must be used if flags "%s" and "%s" are both used';
+  SCompilerParamFlagMissingParam = 'Parameter "%s" must be specified if flag "%s" is used';
 
   { Types, components, tasks, check, beforeinstall, afterinstall }
   SCompilerParamUnknownType = 'Parameter "%s" includes an unknown type';
@@ -229,17 +245,25 @@ const
   SCompilerCodeUnsupportedEventFunction = 'Event function named "%s" is no longer supported. Create a "%s" function instead';
   SCompilerCodeFunctionRenamed = 'Support function "%s" has been renamed. Use "%s" instead.';
   SCompilerCodeFunctionRenamedWithAlternative = 'Support function "%s" has been renamed. Use "%s" instead or consider using "%s".';
+  SCompilerCodeFunctionDeprecatedWithHint = 'Support function "%s" is deprecated. Use "%s" instead. %s';
+  SCompilerCodeFunctionExtractArchiveHint = 'It includes an additional parameter to optionally specify a password.';
   SCompilerCodeFunctionDeprecatedWithAlternativeAndDocs = 'Support function "%s" is deprecated. Use "%s" instead, but note that "%s" is preferred in most cases. See the "%s" topic in help file for more information.';
 
   { [Types] }
   SCompilerTypesCustomTypeAlreadyDefined = 'A custom type has already been defined';
 
-  { [Components], [Tasks], [Languages] }
+  { [Components], [Tasks], [Languages], [ISSigKeys] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task'; 
-  SCompilerLanguagesBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
+  SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
+  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use"';
+  SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
+  SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
+  SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
+  SCompilerISSigKeysUnknownKeyImportResult = 'Unknown import key result';
 
   { [Languages] }
   SCompilerParamUnknownLanguage = 'Parameter "%s" includes an unknown language';
@@ -268,13 +292,10 @@ const
     '"dontcopy" flag is used';
   SCompilerFilesWildcardNotMatched = 'No files found matching "%s"';
   SCompilerFilesDestNameCantBeSpecified = 'Parameter "DestName" cannot be specified if ' +
-    'the "Source" parameter contains wildcards';
-  SCompilerFilesStrongAssemblyNameMustBeSpecified = 'Parameter "StrongAssemblyName" must be specified if ' +
-    'the flag "gacinstall" is used';
-  SCompilerFilesCantHaveExternalExclude = 'Parameter "Excludes" may not be used when ' +
-    'the "external" flag is used';
-  SCompilerFilesCantHaveNonExternalExternalSize = 'Parameter "ExternalSize" may only be used when ' +
-    'the "external" flag is used';
+    'the "Source" parameter contains wildcards or flag "extractarchive" is used but "download" is not';
+  SCompilerFilesParamRequiresFlag = 'Parameter "%s" may only be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflict = 'Parameter "%s" may not be used when the "%s" flag is used';
+  SCompilerFilesParamFlagConflictSameSource = 'Parameter "%s" and the "%s" flag cannot both be used on a single source file';
   SCompilerFilesExcludeTooLong = 'Parameter "Excludes" contains a pattern that is too long';
   SCompilerFilesUnsafeFile = 'Unsafe file detected: %s.' + SNewLine2 +
     'See the "Unsafe Files" topic in the help file for more information';
@@ -292,6 +313,10 @@ const
   SCompilerFilesWarningSharedFileSysWow64 = 'DestDir should not be set to ' +
     '"{syswow64}" when the "sharedfile" flag is used. See the "sharedfile" ' +
     'documentation in the help file for details.';
+  SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
+  SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
+  SCompilerFilesValueConflict = 'Parameter "%s" cannot allow different values on the same source file';
+  SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

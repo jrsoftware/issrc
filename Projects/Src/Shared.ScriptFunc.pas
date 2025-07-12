@@ -2,7 +2,7 @@ unit Shared.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -316,7 +316,8 @@ initialization
   [
     'procedure ExtractTemporaryFile(const FileName: String);',
     'function ExtractTemporaryFiles(const Pattern: String): Integer;',
-    'function DownloadTemporaryFile(const Url, FileName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
+    'function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;',
+    'function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;',
     'function DownloadTemporaryFileSize(const Url: String): Int64;',
     'function DownloadTemporaryFileDate(const Url: String): String;',
     'procedure SetDownloadCredentials(const User, Pass: String);'
@@ -338,6 +339,7 @@ initialization
     'function GetSHA1OfString(const S: AnsiString): String;',
     'function GetSHA1OfUnicodeString(const S: String): String;',
     'function GetSHA256OfFile(const Filename: String): String;',
+    'function GetSHA256OfStream(const Stream: TStream): String;',
     'function GetSHA256OfString(const S: AnsiString): String;',
     'function GetSHA256OfUnicodeString(const S: String): String;',
     'function GetSpaceOnDisk(const DriveRoot: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
@@ -539,10 +541,13 @@ initialization
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
+    'procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
+    'procedure MapArchiveExtensions(const DestExt, SourceExt: String);',
     'function Debugging: Boolean;',
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',
-    'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;'
+    'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;',
+    'function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;'
   ];
 
   {$IFDEF COMPIL32PROJ}

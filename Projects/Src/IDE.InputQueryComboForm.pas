@@ -63,6 +63,7 @@ end;
 procedure TInputQueryComboForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 end;
 
 function TInputQueryComboForm.GetValue: String;

@@ -1,6 +1,6 @@
-﻿; ******************************************************
+; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.4.0+ Slovak messages      ***
+; *** Inno Setup version 6.5.0+ Slovak messages      ***
 ; ***                                                ***
 ; *** Original Author:                               ***
 ; ***                                                ***
@@ -14,7 +14,7 @@
 ; ***   Slappy (slappy AT pobox.sk)                  ***
 ; ***   Comments: (mitems58 AT gmail.com)            ***
 ; ***                                                ***
-; *** Update: 12.12.2024                             ***
+; *** Update: 29.06.2025                             ***
 ; ***                                                ***
 ; ******************************************************
 ;
@@ -211,23 +211,26 @@ ReadyMemoGroup=Skupina v ponuke Štart:
 ReadyMemoTasks=Ďalšie úlohy:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Sťahovanie dodatočných súborov...
+DownloadingLabel2=Sťahovanie súborov...
 ButtonStopDownload=&Zastaviť sťahovanie
 StopDownload=Naozaj chcete zastaviť sťahovanie?
 ErrorDownloadAborted=Sťahovanie prerušené
 ErrorDownloadFailed=Sťahovanie zlyhalo: %1 %2
 ErrorDownloadSizeFailed=Zlyhalo získanie veľkosti: %1 %2
-ErrorFileHash1=Kontrola hodnoty súboru zlyhala: %1
-ErrorFileHash2=Nesprávna kontrolná hodnota: očakávala sa %1, zistená %2
 ErrorProgress=Nesprávny priebeh: %1 z %2
 ErrorFileSize=Nesprávna veľkosť súboru: očakávala sa %1, zistená %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Rozbaľovanie dodatočných súborov...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Rozbaľovanie súborov...
 ButtonStopExtraction=&Zastaviť rozbaľovanie
 StopExtraction=Naozaj chcete zastaviť rozbaľovanie?
 ErrorExtractionAborted=Rozbaľovanie prerušené
 ErrorExtractionFailed=Rozbaľovanie zlyhalo: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Nesprávne heslo
+ArchiveIsCorrupted=Archív je poškodený
+ArchiveUnsupportedFormat=Formát archívu nie je podporovaný
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Príprava inštalácie
@@ -274,11 +277,15 @@ AbortRetryIgnoreSelectAction=Vyberte akciu
 AbortRetryIgnoreRetry=&Skúsiť znovu
 AbortRetryIgnoreIgnore=&Ignorovať chybu a pokračovať
 AbortRetryIgnoreCancel=Zrušiť inštaláciu
+RetryCancelSelectAction=Vyberte akciu
+RetryCancelRetry=&Skúsiť znovu
+RetryCancelCancel=Zrušiť
 
 ; *** Installation status messages
 StatusClosingApplications=Ukončovanie aplikácií...
 StatusCreateDirs=Vytvárajú sa adresáre...
 StatusExtractFiles=Rozbaľujú sa súbory...
+StatusDownloadFiles=Sťahujú sa súbory...
 StatusCreateIcons=Vytvárajú sa ikony a zástupcovia...
 StatusCreateIniEntries=Vytvárajú sa záznamy v konfiguračných súboroch...
 StatusCreateRegistryEntries=Vytvárajú sa záznamy v systémovom registri...
@@ -308,6 +315,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Preskočiť tento súbor (neodporúčan�
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorovať chybu a pokračovať (neodporúčané)
 SourceIsCorrupted=Zdrojový súbor je poškodený
 SourceDoesntExist=Zdrojový súbor "%1" neexistuje
+SourceVerificationFailed=Overenie zdrojového súbora zlyhalo: %1
+VerificationSignatureDoesntExist=Podpis pre súbor "%1" neexistuje
+VerificationSignatureInvalid=Podpis pre súbor "%1" je nesprávny
+VerificationKeyNotFound=Súbor s podpisom "%1" používa neznámy kľúč
+VerificationFileNameIncorrect=Názov súbora je nesprávny
+VerificationFileTagIncorrect=Tag súbora je nesprávny
+VerificationFileSizeIncorrect=Veľkosť súbora je nesprávna
+VerificationFileHashIncorrect=Hash súbora je nesprávny
 ExistingFileReadOnly2=Existujúci súbor nie je možné prepísať, pretože je označený atribútom Iba na čítanie.
 ExistingFileReadOnlyRetry=&Odstrániť atribút Iba na čítanie a skúsiť znovu
 ExistingFileReadOnlyKeepExisting=&Ponechať existujúci súbor
@@ -326,6 +341,8 @@ ErrorChangingAttr=Došlo k chybe pri pokuse o modifikáciu atribútov existujúc
 ErrorCreatingTemp=Došlo k chybe pri pokuse o vytvorenie súboru v cieľovom adresári:
 ErrorReadingSource=Došlo k chybe pri pokuse o čítanie zdrojového súboru:
 ErrorCopying=Došlo k chybe pri pokuse o skopírovanie súboru:
+ErrorDownloading=Došlo k chybe pri pokuse o stiahnutie súbora:
+ErrorExtracting=Došlo k chybe pri pokuse o rozbalenie archívu:
 ErrorReplacingExistingFile=Došlo k chybe pri pokuse o nahradenie existujúceho súboru:
 ErrorRestartReplace=Zlyhala funkcia "RestartReplace" Sprievodcu inštaláciou:
 ErrorRenamingTemp=Došlo k chybe pri pokuse o premenovanie súboru v cieľovom adresári:

@@ -2,8 +2,11 @@
 ; Opened when you run the Compil32 project in Debug mode from the Delphi IDE
 ; Same for ISCmplr, ISCC, and ISPP and for any of the islzma projects
 ; Use it to test the compiler or Setup or the uninstaller
+; The Setup project enables logging to Setup.log when you run it
 
 #pragma message "ɯɐɹƃoɹd ʎɯ"
+
+#include "..\..\setup.allowedpublickeys.iss"
 
 #include "Debug2.iss"
 
@@ -11,14 +14,14 @@
 AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
-UseSetupLdr=0
-OutputDir=.
 AppVersion=1.2.3
+UseSetupLdr=no
+OutputDir={#CompilerPath}
 OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
 [Languages]
-Name: en; MessagesFile: "compiler:Default.isl"
+Name: en; MessagesFile: "..\..\Files\Default.isl"
 Name: nl; MessagesFile: "..\..\Files\Languages\Dutch.isl"
 
 [Files]

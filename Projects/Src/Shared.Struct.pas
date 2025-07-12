@@ -2,7 +2,7 @@ unit Shared.Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.4.1-dev';
-  SetupBinVersion = (6 shl 24) + (4 shl 16) + (1 shl 8) + 0;
+  SetupVersion = '6.5.0-dev';
+  SetupBinVersion = (6 shl 24) + (4 shl 16) + (3 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,10 +33,10 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.4.0.1)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.5.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.4.0) (u)';
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idska32'#26;
@@ -86,7 +86,7 @@ const
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
 
 const
-  SetupHeaderStrings = 32;
+  SetupHeaderStrings = 34;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -97,11 +97,12 @@ type
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
       SetupMutex, ChangesEnvironment, ChangesAssociations,
-      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode: String;
+      ArchitecturesAllowed, ArchitecturesInstallIn64BitMode, CloseApplicationsFilterExcludes,
+      SevenZipLibraryName: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
-      NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
+      NumISSigKeyEntries, NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
@@ -167,7 +168,7 @@ type
   TSetupTypeType = (ttUser, ttDefaultFull, ttDefaultCompact, ttDefaultCustom);
   PSetupTypeEntry = ^TSetupTypeEntry;
   TSetupTypeEntry = packed record
-    Name, Description, Languages, Check: String;
+    Name, Description, Languages, CheckOnce: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: TSetupTypeOptions;
     Typ: TSetupTypeType;
@@ -180,7 +181,7 @@ const
 type
   PSetupComponentEntry = ^TSetupComponentEntry;
   TSetupComponentEntry = packed record
-    Name, Description, Types, Languages, Check: String;
+    Name, Description, Types, Languages, CheckOnce: String;
     ExtraDiskSpaceRequired: Integer64;
     Level: Integer;
     Used: Boolean;
@@ -218,13 +219,29 @@ type
       doUninsAlwaysUninstall, doSetNTFSCompression, doUnsetNTFSCompression);
   end;
 const
-  SetupFileEntryStrings = 10;
-  SetupFileEntryAnsiStrings = 0;
+  SetupISSigKeyEntryStrings = 3;
+  SetupISSigKeyEntryAnsiStrings = 0;
+type
+  PSetupISSigKeyEntry = ^TSetupISSigKeyEntry;
+  TSetupISSigKeyEntry = packed record
+    PublicX, PublicY, RuntimeID: String;
+  end;
+const
+  SetupFileEntryStrings = 15;
+  SetupFileEntryAnsiStrings = 1;
 type
   PSetupFileEntry = ^TSetupFileEntry;
+  TSetupFileVerificationType = (fvNone, fvHash, fvISSig);
+  TSetupFileVerification = packed record
+    ISSigAllowedKeys: AnsiString; { Must be first }
+    Hash: TSHA256Digest;
+    Typ: TSetupFileVerificationType;
+  end;
   TSetupFileEntry = packed record
-    SourceFilename, DestName, InstallFontName, StrongAssemblyName: String;
-    Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
+    SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
+    Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
+    DownloadISSigSource, DownloadUserName, DownloadPassword, ExtractArchivePassword: String;
+    Verification: TSetupFileVerification; { Must be first after strings }
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
     Attribs: Integer;
@@ -240,14 +257,14 @@ type
       foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
       foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
       fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall);
+      foUnsetNTFSCompression, foGacInstall, foDownload,
+      foExtractArchive);
     FileType: (ftUserFile, ftUninstExe);
   end;
 const
   SetupFileLocationEntryStrings = 0;
   SetupFileLocationEntryAnsiStrings = 0;
 type
-  TSetupFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PSetupFileLocationEntry = ^TSetupFileLocationEntry;
   TSetupFileLocationEntry = packed record
     FirstSlice, LastSlice: Integer;
@@ -258,10 +275,8 @@ type
     SHA256Sum: TSHA256Digest;
     SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
-    Flags: set of (foVersionInfoValid, foVersionInfoNotValid, foTimeStampInUTC,
-      foIsUninstExe, foCallInstructionOptimized, foApplyTouchDateTime,
-      foChunkEncrypted, foChunkCompressed, foSolidBreak);
-    Sign: TSetupFileLocationSign;
+    Flags: set of (floVersionInfoValid, floTimeStampInUTC, floCallInstructionOptimized,
+      floChunkEncrypted, floChunkCompressed);
   end;
 const
   SetupIconEntryStrings = 13;

@@ -9,7 +9,7 @@
 
   <xsl:comment>
     Inno Setup Preprocessor Reference
-    Copyright (C) 1997-2024 Jordan Russell
+    Copyright (C) 1997-2025 Jordan Russell
     Portions Copyright (C) 2000-2024 Martijn Laan
     For conditions of distribution and use, see LICENSE.TXT.
     Portions Copyright (C) 2001-2004 Alex Yackimoff
@@ -52,7 +52,7 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:for-each select="topic">
-              <xsl:if test="title">
+              <xsl:if test="title and not(@unlisted='yes')">
                 <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
               </xsl:if>
             </xsl:for-each>

@@ -27,12 +27,10 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure BrowseButtonClick(Sender: TObject);
   private
-    { Private declarations }
-    Filename: string;
+    FFilename: string;
     function GetSanitizedPath: String;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
   end;
 
@@ -53,7 +51,7 @@ begin
 
   with TNewDiskForm.Create(Application) do
     try
-      Filename := AFilename;
+      FFilename := AFilename;
       SelectDiskLabel.Caption := FmtSetupMessage(msgSelectDiskLabel2, [IntToStr(DiskNumber)]);
       PathEdit.Text := Path;
       ActiveControl := OKButton;
@@ -109,9 +107,9 @@ begin
   case ModalResult of
     mrOK: begin
         Path := GetSanitizedPath;
-        if (Path = '') or not NewFileExists(AddBackslash(Path) + Filename) then begin
+        if (Path = '') or not NewFileExists(AddBackslash(Path) + FFilename) then begin
           CanClose := False;
-          LoggedMsgBox(FmtSetupMessage(msgFileNotInDir2, [Filename, Path]),
+          LoggedMsgBox(FmtSetupMessage(msgFileNotInDir2, [FFilename, Path]),
             '', mbError, MB_OK, False, 0);
         end;
       end;

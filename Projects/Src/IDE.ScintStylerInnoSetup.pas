@@ -2,7 +2,7 @@ unit IDE.ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -46,6 +46,7 @@ type
     scComponents,
     scCustomMessages,
     scDirs,
+    scISSigKeys,
     scFiles,
     scIcons,
     scINI,
@@ -66,21 +67,28 @@ type
 
   { Starts at 1 instead of 0 to make sure ApplyStyle doesn't overwrite already applied stDefault
     styles which is needed for PreStyleInlineISPPDirectives to work properly when the inline
-    directive is inside a comment or string }
-  TInnoSetupStylerStyle = (stDefault = 1, stCompilerDirective,
+    directive is inside a comment or string. This is done by added a dummy 'st0' style. If done by
+    using 'stDefault = 1' then this enum looses its TypeInfo. }
+  TInnoSetupStylerStyle = (st0, stDefault, stCompilerDirective,
     stComment, stSection, stSymbol, stKeyword, stParameterValue,
     stEventFunction, stConstant, stMessageArg,
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
   TWordsBySection = TObjectDictionary<TInnoSetupStylerSection, TStringList>;
-  TFunctionDefinitions = array of AnsiString;
+  TFunctionDefinition = record
+    ScriptFuncWithoutHeader: AnsiString;
+    WasFunction, HasParams: Boolean;
+    constructor Create(const ScriptFunc: AnsiString);
+  end;
+  TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
+    FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FSectionsWordList: AnsiString;
@@ -141,8 +149,11 @@ type
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
-      const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+      const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
+    function GetScriptFunctionDefinition(const ClassMember: Boolean;
+      const Name: String; const Index: Integer): TFunctionDefinition; overload;
     function SectionHasFlag(const Section: TInnoSetupStylerSection; const Flag: String): Boolean;
+    function HighlightAtCursorAllowed(const Section: TInnoSetupStylerSection; const Word: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
     property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
@@ -176,11 +187,12 @@ type
   end;
 
 const
-  SectionMap: array[0..17] of TSectionMapItem = (
+  SectionMap: array[0..18] of TSectionMapItem = (
     (Name: 'Code'; Section: scCode),
     (Name: 'Components'; Section: scComponents),
     (Name: 'CustomMessages'; Section: scCustomMessages),
     (Name: 'Dirs'; Section: scDirs),
+    (Name: 'ISSigKeys'; Section: scISSigKeys),
     (Name: 'Files'; Section: scFiles),
     (Name: 'Icons'; Section: scIcons),
     (Name: 'INI'; Section: scINI),
@@ -225,20 +237,25 @@ const
     'uninsneveruninstall', 'unsetntfscompression'
   ];
 
+  ISSigKeysSectionParameters: array of TScintRawString = [
+    'Name', 'Group', 'KeyFile', 'KeyID', 'PublicX', 'PublicY', 'RuntimeID'
+  ];
+
   FilesSectionParameters: array of TScintRawString = [
     'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
-    'DestDir', 'DestName', 'Excludes', 'ExternalSize', 'Flags', 'FontInstall',
-    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Source',
-    'StrongAssemblyName', 'Tasks'
+    'DestDir', 'DestName', 'DownloadISSigSource', 'DownloadPassword',
+    'DownloadUserName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
+    'Flags', 'FontInstall', 'Hash', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
+    'OnlyBelowVersion', 'Permissions', 'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
-    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum',
-    'external', 'fontisnttruetype', 'gacinstall', 'ignoreversion', 'isreadme',
-    'nocompression', 'noencryption', 'noregerror', 'onlyifdestfileexists',
-    'onlyifdoesntexist', 'overwritereadonly', 'promptifolder', 'recursesubdirs',
-    'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
+    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
+    'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
+    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'noregerror',
+    'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
+    'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
     'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
     'skipifsourcedoesntexist', 'solidbreak', 'sortfilesbyextension',
     'sortfilesbyname', 'touch', 'uninsnosharedfileprompt', 'uninsremovereadonly',
@@ -370,8 +387,7 @@ const
   ];
 
   Constants: array of AnsiString = [
-    { #emit and #file handled separately by BuildConstantsWordList.
-      Also doesnt include constants with non words chars. }
+    { Doesnt include constants with non words chars }
     '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
     'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
     'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
@@ -383,6 +399,12 @@ const
     'computername', 'groupname', 'hwnd', 'wizardhwnd', 'language', 'srcexe',
     'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
     'userinfoorg', 'userinfoserial', 'username', 'log'
+  ];
+
+  ISPPPredefinedVariables: array of AnsiString = [
+    { #emit and #file handled separately by BuildConstantsWordList.
+      Only includes predefined variables that are useful on their own. }
+    'CompilerPath', 'SourcePath'
   ];
 
   PascalConstants: array of AnsiString = [
@@ -565,12 +587,21 @@ begin
   Result := True;
 end;
 
+{ TFunctionDefinition }
+
+constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
+begin
+  ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, WasFunction);
+  HasParams := ScriptFuncHasParameters(ScriptFunc);
+end;
+
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildFlagsWordLists;
   begin
+    { Builds FFlagsWordList (for autocomplete) and FFlagsWords }
     BuildFlagsWordList(scFiles, FilesSectionFlags);
     BuildFlagsWordList(scComponents, ComponentsSectionFlags);
     BuildFlagsWordList(scDirs, DirsSectionFlags);
@@ -588,7 +619,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildKeywordsWordLists;
   begin
+    { Builds FKeywordsWordList (for autocomplete) and FNoHighlightAtCursorWords }
+    BuildKeywordsWordList(scISSigKeys, ISSigKeysSectionParameters);
     BuildKeywordsWordList(scFiles, FilesSectionParameters);
+    BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
+    BuildKeywordsWordList(scDirs, DirsSectionParameters);
     BuildKeywordsWordList(scIcons, IconsSectionParameters);
     BuildKeywordsWordList(scINI, INISectionParameters);
     BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
@@ -606,58 +641,74 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildScriptLists;
   begin
-    { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete) }
-    var SL := TStringList.Create;
+    { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete)
+       and FNoHighlightAtCursorWords }
+    const SL1 = FNoHighlightAtCursorWords[scCode];
+    const SL2 = TStringList.Create;
     try
       { Add stuff from ScriptFunc }
       var ClassMembers := False;
       for var ScriptFuncTable in ScriptFuncTables do
-        BuildScriptFunctionsLists(ScriptFuncTable, ClassMembers, SL);
-      BuildScriptFunctionsLists(DelphiScriptFuncTable, ClassMembers, SL);
-      BuildScriptFunctionsLists(ROPSScriptFuncTable, ClassMembers, SL);
+        BuildScriptFunctionsLists(ScriptFuncTable, ClassMembers, SL2);
+      BuildScriptFunctionsLists(DelphiScriptFuncTable, ClassMembers, SL2);
+      BuildScriptFunctionsLists(ROPSScriptFuncTable, ClassMembers, SL2);
       { Add stuff from this unit }
       for var S in PascalConstants do
-        AddWordToList(SL, S, awtScriptConstant);
+        AddWordToList(SL2, S, awtScriptConstant);
       for var S in PascalConstants_Isxclasses do
-        AddWordToList(SL, S, awtScriptConstant);
+        AddWordToList(SL2, S, awtScriptConstant);
       for var S in PascalInterfaces do
-        AddWordToList(SL, S, awtScriptInterface);
-      for var S in PascalReservedWords do
-        AddWordToList(SL, S, awtScriptKeyword);
+        AddWordToList(SL2, S, awtScriptInterface);
+      for var S in PascalReservedWords do begin
+        SL1.Add(String(S));
+        AddWordToList(SL2, S, awtScriptKeyword);
+      end;
       for var S in PascalTypes do
-        AddWordToList(SL, S, awtScriptType);
+        AddWordToList(SL2, S, awtScriptType);
       for var S in PascalTypes_Isxclasses do
-        AddWordToList(SL, S, awtScriptType);
+        AddWordToList(SL2, S, awtScriptType);
       for var S in PascalEnumValues do
-        AddWordToList(SL, S, awtScriptEnumValue);
+        AddWordToList(SL2, S, awtScriptEnumValue);
       for var S in PascalEnumValues_Isxclasses do
-        AddWordToList(SL, S, awtScriptEnumValue);
+        AddWordToList(SL2, S, awtScriptEnumValue);
       for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
-          AddWordToList(SL, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
+          AddWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
       end;
       for var S in PascalVariables do
-        AddWordToList(SL, S, awtScriptVariable);
+        AddWordToList(SL2, S, awtScriptVariable);
       for var S in EventFunctionsParameters  do
-        AddWordToList(SL, S, awtScriptVariable);
-      FScriptWordList[False] := BuildWordList(SL);
+        AddWordToList(SL2, S, awtScriptVariable);
+      FScriptWordList[False] := BuildWordList(SL2);
 
       { Add stuff from Isxclasses }
-      SL.Clear;
+      SL2.Clear;
       ClassMembers := True;
-      BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL);
+      BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL2);
       for var S in PascalProperties_Isxclasses do
-        AddWordToList(SL, S, awtScriptProperty);
-      FScriptWordList[True] := BuildWordList(SL);
+        AddWordToList(SL2, S, awtScriptProperty);
+      FScriptWordList[True] := BuildWordList(SL2);
     finally
-      SL.Free;
+      SL2.Free;
     end;
+  end;
+
+  function CreateWordsBySectionList: TStringList;
+  begin
+    Result := TStringList.Create;
+    Result.CaseSensitive := False;
+    Result.Sorted := True;
   end;
 
 begin
   inherited;
+  FNoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
   FFlagsWords := TWordsBySection.Create([doOwnsValues]);
+  for var Section := Low(TInnoSetupStylerSection) to High(TInnoSetupStylerSection) do begin
+    FNoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
+    FFlagsWords.Add(Section, CreateWordsBySectionList);
+  end;
   BuildConstantsWordList;
   BuildEventFunctionsWordList;
   BuildFlagsWordLists;
@@ -674,6 +725,7 @@ begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
   FFlagsWords.Free;
+  FNoHighlightAtCursorWords.Free;
   inherited;
 end;
 
@@ -738,13 +790,16 @@ procedure TInnoSetupStyler.BuildKeywordsWordList(
   const Section: TInnoSetupStylerSection;
   const Parameters: array of TScintRawString);
 begin
-  var SL := TStringList.Create;
+  const SL1 = FNoHighlightAtCursorWords[Section];
+  const SL2 = TStringList.Create;
   try
-    for var Parameter in Parameters do
-      AddWordToList(SL, Parameter, awtParameter);
-    FKeywordsWordList[Section] := BuildWordList(SL);
+    for var Parameter in Parameters do begin
+      SL1.Add(String(Parameter));
+      AddWordToList(SL2, Parameter, awtParameter);
+    end;
+    FKeywordsWordList[Section] := BuildWordList(SL2);
   finally
-    SL.Free;
+    SL2.Free;
   end;
 end;
 
@@ -752,37 +807,30 @@ procedure TInnoSetupStyler.BuildKeywordsWordListFromTypeInfo(
   const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer;
   const PrefixLength: Integer);
 begin
-  var SL := TStringList.Create;
+  const SL1 = FNoHighlightAtCursorWords[Section];
+  const SL2 = TStringList.Create;
   try
-    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do
-      AddWordToList(SL, AnsiString(Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, Maxint)), awtDirective);
-    FKeywordsWordList[Section] := BuildWordList(SL);
+    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
+      const Parameter = Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, MaxInt);
+      SL1.Add(Parameter);
+      AddWordToList(SL2, AnsiString(Parameter), awtDirective);
+    end;
+    FKeywordsWordList[Section] := BuildWordList(SL2);
   finally
-    SL.Free;
+    SL2.Free;
   end;
 end;
 
 procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
   const Flags: array of TScintRawString);
 begin
-  { Build FFlagsWords }
-  var SL1 := TStringList.Create;
+  const SL1 = FFlagsWords[Section];
+  const SL2 = TStringList.Create;
   try
-    SL1.CaseSensitive := False;
-    for var Flag in Flags do
+    for var Flag in Flags do begin
       SL1.Add(String(Flag));
-    FFlagsWords.Add(Section, SL1);
-    SL1 := nil; //SL1 is now owned by FFlagsWords
-  except
-    SL1.Free;
-    raise;
-  end;
-
-  { Build FFlagsWordList }
-  var SL2 := TStringList.Create;
-  try
-    for var Flag in Flags do
       AddWordToList(SL2, Flag, awtFlag);
+    end;
     FFlagsWordList[Section] := BuildWordList(SL2);
   finally
     SL2.Free;
@@ -794,20 +842,18 @@ procedure TInnoSetupStyler.BuildScriptFunctionsLists(
   const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
-    var ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc);
-    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(ScriptFuncWithoutHeader);
+    var FunctionDefinition := TFunctionDefinition.Create(ScriptFunc);
+    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
     var DoAddWordToList := True;
-    if ScriptFuncHasParameters(ScriptFunc) then begin
-      var Key := String(ScriptFuncName);
-      if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [ScriptFuncWithoutHeader]) then begin
-        { Function has multiple prototypes }
-        var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
-        var N := Length(ScriptFunctions);
-        SetLength(ScriptFunctions, N+1);
-        ScriptFunctions[N] := ScriptFuncWithoutHeader;
-        FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
-        DoAddWordToList := False; { Already added it when the first prototype was found }
-      end;
+    var Key := String(ScriptFuncName);
+    if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [FunctionDefinition]) then begin
+      { Function has multiple prototypes }
+      var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
+      var N := Length(ScriptFunctions);
+      SetLength(ScriptFunctions, N+1);
+      ScriptFunctions[N] := FunctionDefinition;
+      FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
+      DoAddWordToList := False; { Already added it when the first prototype was found }
     end;
     if DoAddWordToList then
       AddWordToList(SL, ScriptFuncName, awtScriptFunction);
@@ -835,6 +881,8 @@ begin
     if ISPPInstalled then begin
       AddWordToList(SL, '{#', awtConstant);
       AddWordToList(SL, '{#file ', awtConstant);
+      for var ISPPPredefinedVariable in ISPPPredefinedVariables do
+        AddWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
     end;
     for var ConstantWithParam in ConstantsWithParam do
       AddWordToList(SL, '{' + ConstantWithParam, awtConstant);
@@ -923,7 +971,7 @@ begin
 end;
 
 function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer; out Count: Integer): AnsiString;
+  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
 begin
   var ScriptFunctions: TFunctionDefinitions;
   if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then begin
@@ -932,10 +980,16 @@ begin
     if ResultIndex >= Count then
       ResultIndex := Count-1;
     Result := ScriptFunctions[ResultIndex]
-  end else begin
+  end else
     Count := 0;
-    Result := '';
-  end;
+end;
+
+function TInnoSetupStyler.GetScriptFunctionDefinition(
+  const ClassMember: Boolean; const Name: String;
+  const Index: Integer): TFunctionDefinition;
+begin
+  var Count: Integer;
+  Result := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
 end;
 
 function TInnoSetupStyler.GetScriptWordList(
@@ -1576,8 +1630,13 @@ end;
 function TInnoSetupStyler.SectionHasFlag(const Section: TInnoSetupStylerSection;
   const Flag: String): Boolean;
 begin
-  var SL := FFlagsWords[Section];
-  Result := (SL <> nil) and not SL.CaseSensitive and (SL.IndexOf(Flag) <> -1);
+  Result := FFlagsWords[Section].IndexOf(Flag) <> -1;
+end;
+
+function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupStylerSection;
+  const Word: string): Boolean;
+begin
+  Result := FNoHighlightAtCursorWords[Section].IndexOf(Word) = -1;
 end;
 
 procedure TInnoSetupStyler.SetISPPInstalled(const Value: Boolean);
@@ -1698,6 +1757,7 @@ begin
       scComponents: HandleParameterSection(ComponentsSectionParameters);
       scCustomMessages: HandleKeyValueSection(Section);
       scDirs: HandleParameterSection(DirsSectionParameters);
+      scISSigKeys: HandleParameterSection(ISSigKeysSectionParameters);
       scFiles: HandleParameterSection(FilesSectionParameters);
       scIcons: HandleParameterSection(IconsSectionParameters);
       scINI: HandleParameterSection(INISectionParameters);

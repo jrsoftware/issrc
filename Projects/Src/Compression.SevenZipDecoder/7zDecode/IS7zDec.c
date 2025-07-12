@@ -7,7 +7,7 @@
 
 #include "../../../../Components/Lzma2/Util/7z/Precomp.h" /* Says it must be included first */
 
-/* Stop 7-Zip from directly creating files and directories. This will enable us to perform
+/* Stop 7-Zip from directly opening files and directories. This will enable us to perform
    extra checks from a cdecl implementation in Delphi. */
 
 #include "../../../../Components/Lzma2/7zWindows.h"
@@ -20,6 +20,12 @@ HANDLE _CreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
 
 HANDLE _CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 #define CreateFileW _CreateFileW
+
+DWORD _GetFileAttributesW(LPCWSTR lpFileName);
+#define GetFileAttributesW _GetFileAttributesW
+
+BOOL _SetFileAttributesW(LPCWSTR lpFileName, DWORD dwFileAttributes);
+#define SetFileAttributesW _SetFileAttributesW
 
 #ifdef _MSC_VER
 
@@ -38,9 +44,6 @@ DWORD _GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
 
 BOOL _ReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED lpOverlapped);
 #define ReadFile _ReadFile
-
-BOOL _SetFileAttributesW(LPCWSTR lpFileName, DWORD dwFileAttributes);
-#define SetFileAttributesW _SetFileAttributesW
 
 DWORD _SetFilePointer(HANDLE hFile, LONG lDistanceToMove, PLONG lpDistanceToMoveHigh, DWORD dwMoveMethod);
 #define SetFilePointer _SetFilePointer

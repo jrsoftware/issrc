@@ -11,13 +11,11 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
     548
     380)
-  PixelsPerInch = 96
   TextHeight = 13
   object TaskInstructionLabel: TNewStaticText
     Left = 18
@@ -25,7 +23,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Width = 50
     Height = 14
     Caption = 'Instruction'
-    TabOrder = 11
+    TabOrder = 12
   end
   object TaskInstructionText: TEdit
     Left = 89
@@ -38,10 +36,10 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object TaskMessageLabel: TNewStaticText
     Left = 18
     Top = 40
-    Width = 49
+    Width = 44
     Height = 14
     Caption = 'Message'
-    TabOrder = 12
+    TabOrder = 13
   end
   object TaskMessageText: TEdit
     Left = 89
@@ -57,30 +55,46 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Width = 62
     Height = 14
     Caption = 'Text Button1'
-    TabOrder = 13
+    TabOrder = 14
   end
   object Button1Text: TEdit
     Left = 89
     Top = 62
-    Width = 159
+    Width = 112
     Height = 21
     TabOrder = 3
   end
   object Button2Label: TNewStaticText
-    Left = 258
-    Top = 67
-    Width = 62
+    Left = 212
+    Top = 66
+    Width = 38
     Height = 14
-    Caption = 'Text Button2'
-    TabOrder = 14
+    Caption = 'Button2'
+    TabOrder = 15
   end
   object Button2Text: TEdit
-    Left = 334
-    Top = 62
-    Width = 204
+    Left = 259
+    Top = 63
+    Width = 112
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
+  end
+  object Button3Label: TNewStaticText
+    Left = 379
+    Top = 66
+    Width = 38
+    Height = 14
+    Caption = 'Button3'
+    TabOrder = 16
+  end
+  object Button3Text: TEdit
+    Left = 426
+    Top = 63
+    Width = 112
+    Height = 21
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 5
   end
   object GroupBox1: TGroupBox
     Left = 8
@@ -89,6 +103,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 81
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Message '
+    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       532
@@ -110,7 +125,8 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Width = 240
     Height = 60
     Caption = ' Type'
-    TabOrder = 5
+    ShowFrame = False
+    TabOrder = 6
     object cb_Suppressible: TCheckBox
       Left = 14
       Top = 24
@@ -149,7 +165,8 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 60
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Flags '
-    TabOrder = 6
+    ShowFrame = False
+    TabOrder = 7
     object NewStaticText1: TNewStaticText
       Left = 14
       Top = 26
@@ -197,7 +214,8 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Icon '
-    TabOrder = 7
+    ShowFrame = False
+    TabOrder = 8
     DesignSize = (
       160
       174)
@@ -404,7 +422,8 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Buttons '
-    TabOrder = 8
+    ShowFrame = False
+    TabOrder = 9
     DesignSize = (
       169
       174)
@@ -483,7 +502,8 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Return values '
-    TabOrder = 9
+    ShowFrame = False
+    TabOrder = 10
     object cb_IDOK: TCheckBox
       Left = 16
       Top = 23
@@ -674,7 +694,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 10
+    TabOrder = 11
     DesignSize = (
       548
       42)
@@ -682,9 +702,9 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Left = 0
       Top = 0
       Width = 548
-      Height = 3
+      Height = 1
       Align = alTop
-      Shape = bsBottomLine
+      Shape = bsTopLine
       ExplicitLeft = 168
       ExplicitWidth = 50
     end

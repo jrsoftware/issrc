@@ -1,0 +1,8 @@
+format issig-v2
+file-name "isbunzip.dll"
+file-size 35616
+file-hash 31d04c1e4bfdfa34704c142fa98f80c0a3076e4b312d6ada57c4be9d9c7dcf26
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r c8484eb8243dbe175bbdc8cdc24b4db1fc57d5a773447d615b715860825fd07a
+sig-s 22fb16e9f29f6060ddfe0c6356dbc0656b78c81d7f92eac943a50a09262d95aa

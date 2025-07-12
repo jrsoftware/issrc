@@ -1,9 +1,9 @@
-﻿; *** Inno Setup version 6.4.0+ Armenian messages ***
+; *** Inno Setup version 6.5.0+ Armenian messages ***
 ;
 ; Armenian translation by Hrant Ohanyan
 ; E-mail: h.ohanyan@haysoft.org
 ; Translation home page: http://www.haysoft.org
-; Last modification date: 2024-11-26
+; Last modification date: 2025-06-24
 ;
 [LangOptions]
 LanguageName=Հայերեն
@@ -204,22 +204,24 @@ ReadyMemoComponents=Ընտրված բաղադրիչներ.
 ReadyMemoGroup=Թղթապանակ «Մեկնարկ» ցանկում.
 ReadyMemoTasks=Լրացուցիչ առաջադրանքներ.
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Լրացուցիչ ֆայլերի ներբեռնում...
+DownloadingLabel2=Ֆայլերի ներբեռնում...
 ButtonStopDownload=&Կանգնեցնել ներբեռնումը
 StopDownload=Համոզվա՞ծ եք, որ պետք է կանգնեցնել ներբեռնումը:
 ErrorDownloadAborted=Ներբեռնումը կասեցված է
 ErrorDownloadFailed=Ներբեռնումը ձախողվեց. %1 %2
 ErrorDownloadSizeFailed=Չափի ստացումը ձախողվեց. %1 %2
-ErrorFileHash1=Ֆահլի հաշվեգումարը ձախողվեց. %1
-ErrorFileHash2=Ֆայլի անվավեր հաշվեգումար. ակընկալվում էր %1, գտնվել է %2
 ErrorProgress=Անվավեր ընթացք. %1-ը %2-ից
 ErrorFileSize=Ֆայլի անվավեր աչփ. ակընկալվում էր %1, գտնվել է %2
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Դուրս է բերում լրացուցիչ ֆայլերը...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Ֆայլերը դուրս են բերվում...
 ButtonStopExtraction=&Կանգնեցնել դուրս բերումը
 StopExtraction=Համոզվա՞ծ եք, որ ցանկանում եք կանգնեցնել դուրս բերումը:
 ErrorExtractionAborted=Դուրս բերումը կասեցված է
 ErrorExtractionFailed=Դուրս բերումը ձապխողվեց. %1
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Գաղտնաբառը սխալ է
+ArchiveIsCorrupted=Արխիվը վնասված է
+ArchiveUnsupportedFormat=Արխիվի ձևաչափը չի աջակցվում
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Տեղադրման նախապատրաստում
 PreparingDesc=Տեղակայիչը պատրաստվում է տեղադրել [name]-ը ձեր համակարգչում։
@@ -264,11 +266,14 @@ AbortRetryIgnoreSelectAction=Ընտրեք գործողություն
 AbortRetryIgnoreRetry=&Կրկին փորձել
 AbortRetryIgnoreIgnore=&Անտեսել սխալը և շարունակել
 AbortRetryIgnoreCancel=Չեղարկել տեղադրումը
-
+RetryCancelSelectAction=Ընտրեք գործողություն
+RetryCancelRetry=&Կրկին փորձել
+RetryCancelCancel=Չեղարկել
 ; *** Installation status messages
 StatusClosingApplications=Փակում է ծրագրերը...
 StatusCreateDirs=Պանակների ստեղծում...
 StatusExtractFiles=Ֆայլերի դուրս բերում...
+StatusDownloadFiles=Ֆայլերի դուրս բերում...
 StatusCreateIcons=Դյուրանցումների ստեղծում...
 StatusCreateIniEntries=INI ֆայլերի ստեղծում...
 StatusCreateRegistryEntries=Գրանցամատյանի գրանցումների ստեղծում...
@@ -298,6 +303,14 @@ FileAbortRetryIgnoreSkipNotRecommended=Բաց թողնել այս ֆայլը (խ
 FileAbortRetryIgnoreIgnoreNotRecommended=Անտեսել սխալը և շարունակել (խորհուրդ չի տրվում)
 SourceIsCorrupted=Սկզբնական ֆայլը վնասված է։
 SourceDoesntExist=Սկզբնական "%1" ֆայլը գոյություն չունի
+SourceVerificationFailed=Սկզբնական ֆայլի ստուգումը ձախողվեց. %1
+VerificationSignatureDoesntExist="%1" ստորագրության ֆայլը գոյության չունի
+VerificationSignatureInvalid=Ստորագրության "%1" ֆայլն անվավեր է
+VerificationKeyNotFound=Ստորագրության "%1" ֆայլն օգտագործում է անհայտ բանալի
+VerificationFileNameIncorrect=Ֆայլի անունը սխալ է
+VerificationFileTagIncorrect=Ֆայլի պիտակը սխալ է
+VerificationFileSizeIncorrect=Ֆայլի չափը սախլ է
+VerificationFileHashIncorrect=Ֆայլի hash-ը սխալ է
 ExistingFileReadOnly2=Առկա ֆայլը չի կարող փոխարինվել, քանի որ այն նշված է որպես միայն կարդալու:
 ExistingFileReadOnlyRetry=&Հեռացրեք միայն կարդալ հատկանիշը և կրկին փորձեք
 ExistingFileReadOnlyKeepExisting=&Պահել առկա ֆայլը
@@ -316,6 +329,8 @@ ErrorChangingAttr=Սխալ՝ ընթացիկ ֆայլի հատկանիշները 
 ErrorCreatingTemp=Սխալ՝ նշված պանակում ֆայլ ստեղծելիս.
 ErrorReadingSource=Սխալ՝ ֆայլը կարդալիս.
 ErrorCopying=Սխալ՝ ֆայլը պատճենելիս.
+ErrorDownloading=Սխալ՝ ֆայլը ներբեռնելու փորձի ժամանակ.
+ErrorExtracting=Սխալ՝ արխիվը դուրս բերելու փորձի ժամանակ.
 ErrorReplacingExistingFile=Սխալ՝ գոյություն ունեցող ֆայլը փոխարինելիս.
 ErrorRestartReplace=RestartReplace ձախողում.
 ErrorRenamingTemp=Սխալ՝ նպատակակետ պանակում՝ ֆայլը վերանվանելիս.

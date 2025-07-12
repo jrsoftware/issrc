@@ -2,7 +2,7 @@ unit Compiler.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -550,9 +550,12 @@ begin
   begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
+    RegisterProperty('LastBaseNameOrUrl', 'String', iptr);
     RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
-    RegisterMethod('procedure Add(const Url, BaseName, RequiredSHA256OfFile: String)');
-    RegisterMethod('procedure AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String)');
+    RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer');
+    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
+    RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer');
+    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
@@ -566,7 +569,8 @@ begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('ShowArchiveInsteadOfFile', 'Boolean', iptrw);
-    RegisterMethod('procedure Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean)');
+    RegisterMethod('function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer');
+    RegisterMethod('function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer');
     RegisterMethod('procedure Clear');
     RegisterMethod('procedure Extract');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }

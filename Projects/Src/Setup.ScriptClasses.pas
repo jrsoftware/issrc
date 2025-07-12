@@ -2,7 +2,7 @@ unit Setup.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -328,7 +328,9 @@ begin
   with CL.Add(TDownloadWizardPage) do
   begin
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
+    RegisterMethod(@TDownloadWizardPage.AddWithISSigVerify, 'AddWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
+    RegisterMethod(@TDownloadWizardPage.AddExWithISSigVerify, 'AddExWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
     RegisterMethod(@TDownloadWizardPage.Download, 'Download');
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');
@@ -340,6 +342,7 @@ begin
   with CL.Add(TExtractionWizardPage) do
   begin
     RegisterMethod(@TExtractionWizardPage.Add, 'Add');
+    RegisterMethod(@TExtractionWizardPage.AddEx, 'AddEx');
     RegisterMethod(@TExtractionWizardPage.Clear, 'Clear');
     RegisterMethod(@TExtractionWizardPage.Extract, 'Extract');
     RegisterMethod(@TExtractionWizardPage.Show, 'Show');

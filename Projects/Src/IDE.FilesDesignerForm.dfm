@@ -29,9 +29,9 @@ object FilesDesignerForm: TFilesDesignerForm
       Left = 0
       Top = 0
       Width = 575
-      Height = 3
+      Height = 1
       Align = alTop
-      Shape = bsBottomLine
+      Shape = bsTopLine
     end
     object InsertButton: TButton
       Left = 406

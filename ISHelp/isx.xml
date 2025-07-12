@@ -411,13 +411,13 @@ Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}
 
 <p>All check functions must have a Boolean return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
 
-<p>Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
+<p>For all sections except [Types] and [Components], Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
 <p>A check function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
 <p>A check function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
-<p>Here is an example of a <tt>[Code]</tt> section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a [Code] section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
 <precode>
 [Code]

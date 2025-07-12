@@ -45,9 +45,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Left = 0
       Top = 0
       Width = 496
-      Height = 3
+      Height = 1
       Align = alTop
-      Shape = bsBottomLine
+      Shape = bsTopLine
       ExplicitWidth = 500
     end
     object InsertButton: TButton
@@ -149,7 +149,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Checked = True
     State = cbChecked
     TabOrder = 6
-    WordWrap = True
   end
   object AppRegistryMinVerCheck: TCheckBox
     Left = 8

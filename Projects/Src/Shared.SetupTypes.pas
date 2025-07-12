@@ -2,7 +2,7 @@ unit Shared.SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Shared.SetupTypes;
 interface
 
 uses
-  SysUtils, Classes, Shared.Struct;
+  SysUtils, Classes, ECDSA, Shared.Struct;
 
 const
   { Predefined page identifiers }
@@ -37,6 +37,11 @@ type
 
   TRenamedConstantCallBack = procedure(const Cnst, CnstRenamed: String) of object;
 
+  TArrayOfECDSAKey = array of TECDSAKey;
+
+  TVerificationError = (veSignatureMissing, veSignatureMalformed, veKeyNotFound,
+    veSignatureBad, veFileNameIncorrect, veFileSizeIncorrect, veFileHashIncorrect);
+
 const
   crHand = 1;
 
@@ -53,11 +58,15 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
 procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
 procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
   const Iterations: Integer; out Key: TSetupEncryptionKey);
+procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
+function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
+function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
 
 implementation
 
 uses
-  PBKDF2, Shared.CommonFunc;
+  PBKDF2, PathFunc, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -304,6 +313,116 @@ begin
   var KeyLength := SizeOf(Key);
   var KeyBytes := PBKDF2SHA256(Password, SaltBytes, Iterations, KeyLength);
   Move(KeyBytes[0], Key[0], KeyLength);
+end;
+
+procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
+{ ISSigAllowedKeys should start out empty. If you then only use this function
+  to update it, regular string comparison can be used for comparisons. }
+begin
+  const ByteIndex = KeyIndex div 8;
+  while ByteIndex >= Length(ISSigAllowedKeys) do
+    ISSigAllowedKeys := ISSigAllowedKeys + #0;
+  const BitIndex = KeyIndex mod 8;
+  ISSigAllowedKeys[ByteIndex+1] := AnsiChar(Byte(ISSigAllowedKeys[ByteIndex+1]) or (1 shl BitIndex));
+end;
+
+function IsISSigAllowedKey(const ISSigAllowedKeys: AnsiString; const KeyIndex: Integer): Boolean;
+begin
+  const ByteIndex = KeyIndex div 8;
+  if ByteIndex >= Length(ISSigAllowedKeys) then
+    Exit(False);
+  const BitIndex = KeyIndex mod 8;
+  Result := Byte(ISSigAllowedKeys[ByteIndex+1]) and (1 shl BitIndex) <> 0;
+end;
+
+function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
+  const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
+{ Returns all keys if ISSigAllowedKeys is empty! }
+begin
+  if ISSigAllowedKeys <> '' then begin
+    const NAvailable = Length(ISSigAvailableKeys);
+    SetLength(Result, NAvailable);
+    var NAdded := 0;
+    for var KeyIndex := 0 to NAvailable-1 do begin
+      if IsISSigAllowedKey(ISSigAllowedKeys, KeyIndex) then begin
+        Result[NAdded] := ISSigAvailableKeys[KeyIndex];
+        Inc(NAdded);
+      end;
+    end;
+    SetLength(Result, NAdded);
+  end else
+    Result := ISSigAvailableKeys;
+end;
+
+function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
+
+  function CountBackslashes(S: PChar): Integer;
+  begin
+    Result := 0;
+    while True do begin
+      S := PathStrScan(S, '\');
+      if S = nil then
+        Break;
+      Inc(Result);
+      Inc(S);
+    end;
+  end;
+
+begin
+  if AExcludes.Count > 0 then begin
+    Text := PathLowercase(Text);
+    UniqueString(Text);
+    const T = PChar(Text);
+    const TB = CountBackslashes(T);
+
+    for var AExclude in AExcludes do begin
+      var P := PChar(AExclude);
+
+      { Leading backslash in an exclude pattern means 'match at the front
+        instead of the end' }
+      var MatchFront := False;
+      if P^ = '\' then begin
+        MatchFront := True;
+        Inc(P);
+      end;
+
+      const PB = CountBackslashes(P);
+      { The text must contain at least as many backslashes as the pattern
+        for a match to be possible }
+      if TB >= PB then begin
+        var TStart := T;
+        var TEnd: PChar;
+        if not MatchFront then begin
+          { If matching at the end, advance TStart so that TStart and P point
+            to the same number of components }
+          for var I := 1 to TB - PB do
+            TStart := PathStrScan(TStart, '\') + 1;
+          TEnd := nil;
+        end
+        else begin
+          { If matching at the front, clip T to the same number of
+            components as P }
+          TEnd := T;
+          for var J := 1 to PB do
+            TEnd := PathStrScan(TEnd, '\') + 1;
+          TEnd := PathStrScan(TEnd, '\');
+          if Assigned(TEnd) then
+            TEnd^ := #0;
+        end;
+
+        if WildcardMatch(TStart, P) then begin
+          Result := True;
+          Exit;
+        end;
+
+        { Put back any backslash that was temporarily null'ed }
+        if Assigned(TEnd) then
+          TEnd^ := '\';
+      end;
+    end;
+  end;
+
+  Result := False;
 end;
 
 end.

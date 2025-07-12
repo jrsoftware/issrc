@@ -88,6 +88,8 @@ begin
   FWizardFile := WizardFile;
 
   SourceEdit.Text := WizardFile.Source;
+  if NewFileExists(SourceEdit.Text) then
+    RecurseSubDirsCheck.Enabled := False;
   RecurseSubDirsCheck.Checked := WizardFile.RecurseSubDirs;
   CreateAllSubDirsCheck.Checked := WizardFile.CreateAllSubDirs;
   if WizardFile.DestRootDirIsConstant then begin
@@ -119,6 +121,7 @@ var
   I: Integer;
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   MakeBold(SourceLabel);
   MakeBold(DestRootDirLabel);
@@ -135,7 +138,7 @@ end;
 
 procedure TWizardFileForm.UpdateUI;
 begin
-  CreateAllSubDirsCheck.Enabled := RecurseSubDirsCheck.Checked;
+  CreateAllSubDirsCheck.Enabled := RecurseSubDirsCheck.Enabled and RecurseSubDirsCheck.Checked;
 
   if DestRootDirComboBox.ItemIndex = DestRootDirComboBox.Items.Count-1 then begin
     DestRootDirEdit.Enabled := True;

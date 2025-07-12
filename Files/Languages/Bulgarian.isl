@@ -1,4 +1,4 @@
-﻿; *** Inno Setup version 6.4.0+ Bulgarian messages ***
+; *** Inno Setup version 6.5.0+ Bulgarian messages ***
 ; Ventsislav Dimitrov <nightravenanm@protonmail.com>
 ;
 ; За да изтеглите преводи на този файл, предоставени от потребители, посетете:
@@ -211,23 +211,26 @@ ReadyMemoGroup=Папка в менюто "Старт":
 ReadyMemoTasks=Допълнителни задачи:
 
 ; *** Страница "TDownloadWizardPage" на съветника и DownloadTemporaryFile
-DownloadingLabel=Изтегляне на допълнителни файлове...
+DownloadingLabel2=Изтегляне на файлове...
 ButtonStopDownload=&Спри изтеглянето
 StopDownload=Сигурни ли сте, че искате да спрете изтеглянето?
 ErrorDownloadAborted=Изтеглянето беше прекъснато
 ErrorDownloadFailed=Изтеглянето беше неуспешно: %1 %2
 ErrorDownloadSizeFailed=Неуспешно получаване на размер: %1 %2
-ErrorFileHash1=Неуспешна контролна сума на файл: %1
-ErrorFileHash2=Невалидна контролна сума на файл: очаквана %1, открита %2
 ErrorProgress=Невалиден напредък: %1 of %2
 ErrorFileSize=Невалиден размер на файл: очакван %1, открит %2
 
-; *** Страница "TExtractionWizardPage" на съветника и Extract7ZipArchive
-ExtractionLabel=Извличане на допълнителни файлове...
+; *** Страница "TExtractionWizardPage" на съветника и ExtractArchive
+ExtractingLabel=Извличане на файлове...
 ButtonStopExtraction=&Спри извличането
 StopExtraction=Сигурни ли сте, че искате да спрете извличането?
 ErrorExtractionAborted=Прекратено извличане
 ErrorExtractionFailed=Извличането беше неуспешно: %1
+
+; *** Повече информация за неуспешно извличане от архив
+ArchiveIncorrectPassword=Паролата е неправилна
+ArchiveIsCorrupted=Архивът е повреден
+ArchiveUnsupportedFormat=Форматът на архива не се поддържа
 
 ; *** Страница "Подготовка за инсталиране" на съветника
 WizardPreparing=Подготовка за инсталиране
@@ -273,11 +276,15 @@ AbortRetryIgnoreSelectAction=Изберете действие
 AbortRetryIgnoreRetry=Повторен &опит
 AbortRetryIgnoreIgnore=&Пренебрегни грешката и продължи
 AbortRetryIgnoreCancel=Прекрати инсталацията
+RetryCancelSelectAction=Изберете действие
+RetryCancelRetry=&Повторен опит
+RetryCancelCancel=Отказ
 
 ; *** Съобщения за хода на инсталирането
 StatusClosingApplications=Затварят се приложения...
 StatusCreateDirs=Създават се директории...
 StatusExtractFiles=Извличат се файлове...
+StatusDownloadFiles=Изтеглят се файлове...
 StatusCreateIcons=Създават се преки пътища...
 StatusCreateIniEntries=Създават се записи в INI файл...
 StatusCreateRegistryEntries=Създават се записи в регистъра...
@@ -305,8 +312,16 @@ ErrorIniEntry=Грешка при създаване на INI запис във 
 ; *** Грешки при копиране на файлове
 FileAbortRetryIgnoreSkipNotRecommended=Прескочи този &файл (не се препоръчва)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Пренебрегни грешката и продължи (не се препоръчва)
-SourceIsCorrupted=Файлът - източник е повреден
-SourceDoesntExist=Файлът - източник "%1" не съществува
+SourceIsCorrupted=Файлът източник е повреден
+SourceDoesntExist=Файлът източник "%1" не съществува
+SourceVerificationFailed=Проверката на файла източник беше неуспешна: %1
+VerificationSignatureDoesntExist=Файлът с подписи "%1" не съществува
+VerificationSignatureInvalid=Файлът с подписи "%1" е невалиден
+VerificationKeyNotFound=Файлът с подписи "%1" използва неизвестен ключ
+VerificationFileNameIncorrect=Името на файла е неправилно
+VerificationFileTagIncorrect=Етикетът на файла е неправилен
+VerificationFileSizeIncorrect=Размерът на файла е неправилен
+VerificationFileHashIncorrect=Контролната сума на файла е неправилна
 ExistingFileReadOnly2=Съществуващият файл не беше заменен, защото е маркиран само за четене.
 ExistingFileReadOnlyRetry=&Премахни атрибута „само за четене“ и опитай отново
 ExistingFileReadOnlyKeepExisting=&Запази съществуващия файл
@@ -325,6 +340,8 @@ ErrorChangingAttr=Грешка при опит за смяна на атрибу
 ErrorCreatingTemp=Грешка при опит за създаване на файл в целевата директория:
 ErrorReadingSource=Грешка при опит за четене на файл - източник:
 ErrorCopying=Грешка при опит за копиране на файл:
+ErrorDownloading=Грешка при опит за изтегляне на файл:
+ErrorExtracting=Грешка при опит за извличане от архив:
 ErrorReplacingExistingFile=Грешка при опит за заместване на съществуващ файл:
 ErrorRestartReplace=Неуспешно отложено заместване:
 ErrorRenamingTemp=Грешка при опит за преименуване на файл в целевата директория:

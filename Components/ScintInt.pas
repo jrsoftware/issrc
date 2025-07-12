@@ -445,6 +445,8 @@ const
   SCI_AUTOCGETMAXHEIGHT = 2211;
   SCI_AUTOCSETSTYLE = 2109;
   SCI_AUTOCGETSTYLE = 2120;
+  SCI_AUTOCSETIMAGESCALE = 2815;
+  SCI_AUTOCGETIMAGESCALE = 2816;
   SCI_SETINDENT = 2122;
   SCI_GETINDENT = 2123;
   SCI_SETUSETABS = 2124;
@@ -503,6 +505,13 @@ const
   SC_CHANGE_HISTORY_INDICATORS = 4;
   SCI_SETCHANGEHISTORY = 2780;
   SCI_GETCHANGEHISTORY = 2781;
+  SC_UNDO_SELECTION_HISTORY_DISABLED = 0;
+  SC_UNDO_SELECTION_HISTORY_ENABLED = 1;
+  SC_UNDO_SELECTION_HISTORY_SCROLL = 2;
+  SCI_SETUNDOSELECTIONHISTORY = 2782;
+  SCI_GETUNDOSELECTIONHISTORY = 2783;
+  SCI_SETSELECTIONSERIALIZED = 2784;
+  SCI_GETSELECTIONSERIALIZED = 2785;
   SCI_GETFIRSTVISIBLELINE = 2152;
   SCI_GETLINE = 2153;
   SCI_GETLINECOUNT = 2154;
@@ -523,6 +532,7 @@ const
   SCI_LINEFROMPOSITION = 2166;
   SCI_POSITIONFROMLINE = 2167;
   SCI_LINESCROLL = 2168;
+  SCI_SCROLLVERTICAL = 2817;
   SCI_SCROLLCARET = 2169;
   SCI_SCROLLRANGE = 2569;
   SCI_REPLACESEL = 2170;
@@ -1092,6 +1102,7 @@ const
   SC_TECHNOLOGY_DIRECTWRITE = 1;
   SC_TECHNOLOGY_DIRECTWRITERETAIN = 2;
   SC_TECHNOLOGY_DIRECTWRITEDC = 3;
+  SC_TECHNOLOGY_DIRECT_WRITE_1 = 4;
   SCI_SETTECHNOLOGY = 2630;
   SCI_GETTECHNOLOGY = 2631;
   SCI_CREATELOADER = 2632;
@@ -1314,16 +1325,20 @@ type
   TSCNotification = record
     nmhdr: TNMHdr;
     position: TSci_Position;    { SCN_STYLENEEDED, SCN_DOUBLECLICK, SCN_MODIFIED, SCN_MARGINCLICK,
-                                  SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND, SCN_CALLTIPCLICK,
+                                  SCN_MARGINRIGHTCLICK, SCN_NEEDSHOWN, SCN_DWELLSTART, SCN_DWELLEND,
+                                  SCN_CALLTIPCLICK,
                                   SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK, SCN_HOTSPOTRELEASECLICK,
                                   SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
-                                  SCN_USERLISTSELECTION, SCN_AUTOCSELECTION }
+                                  SCN_USERLISTSELECTION, SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION,
+                                  SCN_AUTOCSELECTIONCHANGE }
     ch: Integer;                { SCN_CHARADDED, SCN_KEY, SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION,
                                   SCN_USERLISTSELECTION }
     modifiers: Integer;         { SCN_KEY, SCN_DOUBLECLICK, SCN_HOTSPOTCLICK, SCN_HOTSPOTDOUBLECLICK,
-                                  SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE,}
+                                  SCN_HOTSPOTRELEASECLICK, SCN_INDICATORCLICK, SCN_INDICATORRELEASE,
+                                  SCN_MARGINCLICK, SCN_MARGINRIGHTCLICK }
     modificationType: Integer;  { SCN_MODIFIED }
-    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_AUTOCSELECTION, SCN_URIDROPPED }
+    text: PAnsiChar;            { SCN_MODIFIED, SCN_USERLISTSELECTION, SCN_URIDROPPED,
+                                  SCN_AUTOCCOMPLETED, SCN_AUTOCSELECTION, SCN_AUTOCSELECTIONCHANGE }
     length: TSci_Position;      { SCN_MODIFIED }
     linesAdded: TSci_Position;  { SCN_MODIFIED }
     message: Integer;           { SCN_MACRORECORD }
@@ -1332,8 +1347,8 @@ type
     line: TSci_Position;        { SCN_MODIFIED }
     foldLevelNow: Integer;      { SCN_MODIFIED }
     foldLevelPrev: Integer;     { SCN_MODIFIED }
-    margin: Integer;            { SCN_MARGINCLICK }
-    listType: Integer;          { SCN_USERLISTSELECTION }
+    margin: Integer;            { SCN_MARGINCLICK, SCN_MARGINRIGHTCLICK }
+    listType: Integer;          { SCN_USERLISTSELECTION, SCN_AUTOCSELECTIONCHANGE }
     x: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     y: Integer;                 { SCN_DWELLSTART, SCN_DWELLEND }
     token: Integer;             { SCN_MODIFIED with SC_MOD_CONTAINER }
@@ -1346,15 +1361,23 @@ type
   SciFnDirectStatus = function(ptr: Pointer; iMessage: Cardinal;
     wParam: WPARAM; lParam: LPARAM; var Status: Integer): LRESULT; cdecl;
 
+const
+  IsscintDLL = 'isscint.dll';
+
 var
-  IsscintLibary: HMODULE;
+  IsscintLibrary: HMODULE;
+
+procedure InitIsscintLibrary;
 
 implementation
 
 uses
-  PathFunc;
+  PathFunc, TrustFunc;
 
-initialization
-  IsscintLibary := LoadLibrary(PChar(AddBackslash(PathExtractPath(ParamStr(0))) + 'isscint.dll'));
+procedure InitIsscintLibrary;
+begin
+  var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
+  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), [ltloTrustAllOnDebug]);
+end;
 
 end.

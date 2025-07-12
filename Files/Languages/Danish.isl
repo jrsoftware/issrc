@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Danish messages ***
+; *** Inno Setup version 6.5.0+ Danish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -212,23 +212,26 @@ ReadyMemoGroup=Mappe i menuen Start:
 ReadyMemoTasks=Valgte supplerende opgaver:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Downloader yderligere filer...
+DownloadingLabel2=Downloader filer...
 ButtonStopDownload=&Stop download
 StopDownload=Er du sikker på at du ønsker at afbryde download?
 ErrorDownloadAborted=Download afbrudt
 ErrorDownloadFailed=Fejl under download: %1 %2
 ErrorDownloadSizeFailed=Fejl ved læsning af filstørrelse: %1 %2
-ErrorFileHash1=Fejl i hash: %1
-ErrorFileHash2=Fejl i fil hash værdi: forventet %1, fundet %2
 ErrorProgress=Fejl i trin: %1 af %2
 ErrorFileSize=Fejl i filstørrelse: forventet %1, fundet %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Udpakker øvrige filer...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Udpakker filer...
 ButtonStopExtraction=&Afbryd udpakning
 StopExtraction=Er du sikker på at du ønsker at afbryde udpakningen?
 ErrorExtractionAborted=Udpakning afbrudt
 ErrorExtractionFailed=Fejl under udpakning: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Adgangskoden er forkert
+ArchiveIsCorrupted=Arkivet er ødelagt
+ArchiveUnsupportedFormat=Arkivformatet understøttes ikke
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Klargøring af installationen
@@ -274,11 +277,15 @@ AbortRetryIgnoreSelectAction=Vælg ønsket handling
 AbortRetryIgnoreRetry=&Forsøg igen
 AbortRetryIgnoreIgnore=&Ignorer fejlen og fortsæt
 AbortRetryIgnoreCancel=Afbryd installationen
+RetryCancelSelectAction=Vælg handling
+RetryCancelRetry=&Prøv igen
+RetryCancelCancel=Annuller
 
 ; *** Installation status messages
 StatusClosingApplications=Lukker programmer...
 StatusCreateDirs=Opretter mapper...
 StatusExtractFiles=Udpakker filer...
+StatusDownloadFiles=Downloader filer...
 StatusCreateIcons=Opretter genveje...
 StatusCreateIniEntries=Opretter poster i INI-filer...
 StatusCreateRegistryEntries=Opretter poster i registreringsdatabasen...
@@ -308,6 +315,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Spring over denne fil (anbefales ikke)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer fejlen og fortsæt (anbefales ikke)
 SourceIsCorrupted=Kildefilen er beskadiget
 SourceDoesntExist=Kildefilen "%1" findes ikke
+SourceVerificationFailed=Verifikation af kildefilen fejlede: %1
+VerificationSignatureDoesntExist=Signaturfilen "%1" findes ikke
+VerificationSignatureInvalid=Signaturfilen "%1" er ugyldig
+VerificationKeyNotFound=Signaturfilen "%1" bruger en ukendt nøgle
+VerificationFileNameIncorrect=Filnavnet er forkert
+VerificationFileTagIncorrect=Filen er tagget forkert
+VerificationFileSizeIncorrect=Filen har forkert størrelse
+VerificationFileHashIncorrect=Filen har forkert hash-værdi
 ExistingFileReadOnly2=Den eksisterende fil er skrivebeskyttet og kan derfor ikke overskrives.
 ExistingFileReadOnlyRetry=&Fjern skrivebeskyttelsen og forsøg igen
 ExistingFileReadOnlyKeepExisting=&Behold den eksisterende fil
@@ -326,6 +341,8 @@ ErrorChangingAttr=Der opstod en fejl ved ændring af attributter for den eksister
 ErrorCreatingTemp=Der opstod en fejl ved oprettelse af en fil i mappen:
 ErrorReadingSource=Der opstod en fejl ved læsning af kildefilen:
 ErrorCopying=Der opstod en fejl ved kopiering af en fil:
+ErrorDownloading=Der opstod en fejl ved forsøg på at downlade en fil:
+ErrorExtracting=Der opstod en fejl ved forsøg på at udpakke et arkiv:
 ErrorReplacingExistingFile=Der opstod en fejl ved forsøg på at erstatte den eksisterende fil:
 ErrorRestartReplace=Erstatning af fil ved genstart mislykkedes:
 ErrorRenamingTemp=Der opstod en fejl ved forsøg på at omdøbe en fil i installationsmappen:

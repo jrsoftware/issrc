@@ -25,7 +25,7 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
-  Shared.DebugStruct, Shared.CompilerInt, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
+  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
   VirtualImageList, BaseImageCollection;
 
 const
@@ -479,6 +479,7 @@ type
     FProgressThemeData: HTHEME;
     FMenuThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
+    FStatusBarThemeData: HTHEME;
     FMenuDarkBackgroundBrush: TBrush;
     FMenuDarkHotOrSelectedBrush: TBrush;
     FDebugLogListTimestampsWidth: Integer;
@@ -501,6 +502,7 @@ type
     FCompileShortCut2: TShortCut;
     FCallTipState: TCallTipState;
     FUpdatePanelMessages: TUpdatePanelMessages;
+    FBuildImageList: TImageList;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -592,6 +594,8 @@ type
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
+    procedure StatusBarCanvasDrawPanel(Canvas: TCanvas;
+      Panel: TStatusPanel; const Rect: TRect);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
     function TestLastFindOptions: Boolean;
@@ -607,7 +611,9 @@ type
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
-    procedure UpdateFindRegExPanel;
+    procedure UpdateFindRegExUI;
+    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+      const NewLine, NewLineStartPos: Integer);
     procedure UpdatePreprocMemos;
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -674,14 +680,15 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes,
-  Math, StrUtils, WideStrUtils,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes,
+  Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
-  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
+  Shared.CompilerInt;
 
 {$R *.DFM}
 
@@ -756,8 +763,6 @@ end;
 function TMainForm.InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   Memo.Align := alClient;
-  Memo.AutoCompleteFontName := Font.Name;
-  Memo.AutoCompleteFontSize := Font.Size;
   Memo.Font.Name := GetPreferredMemoFont; { Default font only, see ReadConfig }
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
@@ -778,6 +783,7 @@ begin
   Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
+  Memo.StyleName := 'Windows';
   Memo.Visible := False;
   Result := Memo;
 end;
@@ -871,7 +877,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       if (I >= 0) and (I <= Ord(High(TThemeType))) then
         FOptions.ThemeType := TThemeType(I);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
-      FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
+      FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
       FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0); { MemoZoom will zoom the other memos }
       for Memo in FMemos do
@@ -883,20 +889,22 @@ constructor TMainForm.Create(AOwner: TComponent);
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
         $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'Support for Visual Studio Code-style editor shortcuts has been added! Use the Options dialog and <a id="toptions-vscode">change the Editor Keys option</a>.',
+        'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         $FFD399); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
-      if FOptions.ShowCaretPosition then
-        StatusBar.Panels[spCaretPos].Width := StatusBar.Panels[spCaretPos].Width * 2;
+      if FOptions.ShowCaretPosition then begin
+        StatusBar.Panels[spCaretPos].Width := MulDiv(StatusBar.Panels[spCaretPos].Width, 7, 2);
+        StatusBar.Panels[spCaretPos].Alignment := taLeftJustify;
+      end;
 
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateTheme;
-      UpdateFindRegExPanel;
+      UpdateFindRegExUI;
 
       { Window state }
       WindowPlacement.length := SizeOf(WindowPlacement);
@@ -1061,7 +1069,7 @@ begin
   ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
-
+  
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -1608,6 +1616,9 @@ begin
     to the form's height decreasing }
   if StatusPanel.Visible then
     UpdateStatusPanelHeight(StatusPanel.Height);
+  { Violently resizing the form leaves UpdatePanelDonateImage and UpdatePanelPaintBox artifacts
+    under and over UpdateLinkLabel. Invalidating it prevents this. }
+  UpdateLinkLabel.Invalidate;
 end;
 
 procedure TMainForm.WndProc(var Message: TMessage);
@@ -3503,7 +3514,7 @@ end;
 
 procedure TMainForm.HWhatsNewClick(Sender: TObject);
 begin
-  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + 'whatsnew.htm');
+  LaunchFileOrURL(PathExtractPath(NewParamStr(0)) + {$IFDEF DEBUG} '..\..\' + {$ENDIF} 'whatsnew.htm');
 end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
@@ -3804,13 +3815,14 @@ end;
 
 function TMainForm.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
 begin
-  if Sender is TFindDialog then begin
-    with Sender as TFindDialog do begin
+  { TReplaceDialog is a subclass of TFindDialog must check for TReplaceDialog first }
+  if Sender is TReplaceDialog then begin
+    with Sender as TReplaceDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end else begin
-    with Sender as TReplaceDialog do begin
+    with Sender as TFindDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
@@ -3867,6 +3879,7 @@ begin
       while (StartPos < EndPos) and
             Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+        { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
         var Prefix := Format('  Line %d: ', [Line+1]);
         var FindResult := TFindResult.Create;
@@ -3997,7 +4010,7 @@ begin
     SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
   else begin
     FOptions.FindRegEx := not FOptions.FindRegEx;
-    UpdateFindRegExPanel;
+    UpdateFindRegExUI;
     var Ini := TConfigIniFile.Create;
     try
       Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
@@ -4060,6 +4073,12 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     end;
   end;
 
+  function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
+  begin
+    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
+    Result := FMemosStyler.HighlightAtCursorAllowed(Section, FActiveMemo.ConvertRawStringToString(Word));
+  end;
+
 begin
   { Add occurrence indicators for the word at cursor if there's any and the
     main selection is within this word. On top of those add occurrence indicators
@@ -4081,8 +4100,10 @@ begin
       var Word := AMemo.WordAtCaretRange;
       if (Word.StartPos <> Word.EndPos) and MainSelection.Within(Word) then begin
         var TextToIndicate := AMemo.GetRawTextRange(Word.StartPos, Word.EndPos);
-        AMemo.GetSelections(Selections); { Gets any additional selections as well }
-        FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        if HighlightAtCursorAllowed(TextToIndicate) then begin
+          AMemo.GetSelections(Selections); { Gets any additional selections as well }
+          FindTextAndAddRanges(AMemo, TextToIndicate, [sfoMatchCase, sfoWholeWord], Selections, IndicatorRanges);
+        end;
       end;
     end;
     AMemo.UpdateIndicators(IndicatorRanges, minWordAtCursorOccurrence);
@@ -4829,8 +4850,10 @@ begin
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
-    var CaretPos := FActiveMemo.CaretPosition;
-    Text := Format('%d@%d+%d:%s', [FActiveMemo.GetStyleAtPosition(CaretPos), CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+    const CaretPos = FActiveMemo.CaretPosition;
+    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
+    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
+      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;
   StatusBar.Panels[spCaretPos].Text := Text;
 
@@ -4851,11 +4874,18 @@ begin
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
 
-procedure TMainForm.UpdateFindRegExPanel;
+procedure TMainForm.UpdateFindRegExUI;
 const
   FindRegExText: array[Boolean] of String = ('', '.*');
 begin
   StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
+  if FOptions.FindRegEx then begin
+    FindDialog.Options := FindDialog.Options + [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options + [frHideWholeWord];
+  end else begin
+    FindDialog.Options := FindDialog.Options - [frHideWholeWord];
+    ReplaceDialog.Options := ReplaceDialog.Options - [frHideWholeWord];
+  end;
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
@@ -4879,7 +4909,7 @@ procedure TMainForm.UpdatePreprocMemos;
     const NewCloseButtons: TBoolList);
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
-       not SameStr(TrimRight(FMainMemo.Lines.Text), FPreprocessorOutput) then begin
+       (FMainMemo.Lines.Text.TrimRight <> FPreprocessorOutput) then begin
       NewTabs.Add('Preprocessor Output');
       NewHints.Add('');
       NewCloseButtons.Add(False);
@@ -5394,9 +5424,10 @@ begin
     FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var Word := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
-  if Word <> '' then begin
-    FCallTipState.FunctionDefinition := Word;
+  var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+  if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
+     (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
+    FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
     if FCallTipState.MaxCallTips > 1 then
       FCallTipState.FunctionDefinition := AnsiString(Format(#1'%d of %d'#2'%s', [FCallTipState.CurrentCallTip+1, FCallTipState.MaxCallTips, FCallTipState.FunctionDefinition]));
 
@@ -5605,19 +5636,20 @@ end;
 
 procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
 
-  function GetCodeVariableDebugEntryFromFileLineCol(FileIndex, Line, Col: Integer): PVariableDebugEntry;
+  function GetCodeVariableDebugEntryFromFileLineCol(FileIndex, Line, Col: Integer; out DebugEntry: PVariableDebugEntry): Boolean;
   var
     I: Integer;
   begin
     { FVariableDebugEntries uses 1-based line and column numbers }
     Inc(Line);
     Inc(Col);
-    Result := nil;
+    Result := False;
     for I := 0 to FVariableDebugEntriesCount-1 do begin
       if (FVariableDebugEntries[I].FileIndex = FileIndex) and
          (FVariableDebugEntries[I].LineNumber = Line) and
          (FVariableDebugEntries[I].Col = Col) then begin
-        Result := @FVariableDebugEntries[I];
+        DebugEntry := @FVariableDebugEntries[I];
+        Result := True;
         Break;
       end;
     end;
@@ -5637,6 +5669,15 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     S := FActiveMemo.GetRawTextRange(LinePos, Pos);
     U := FActiveMemo.ConvertRawStringToString(S);
     Result := Length(U);
+  end;
+
+  function FindVarOrFuncRange(const Pos: Integer): TScintRange;
+  begin
+    { Note: The GetPositionAfter is needed so that when the mouse is over a '.'
+      between two words, it won't match the word to the left of the '.' }
+    FActiveMemo.SetDefaultWordChars;
+    Result.StartPos := FActiveMemo.GetWordStartPosition(FActiveMemo.GetPositionAfter(Pos), True);
+    Result.EndPos := FActiveMemo.GetWordEndPosition(Pos, True);
   end;
 
   function FindConstRange(const Pos: Integer): TScintRange;
@@ -5679,60 +5720,82 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
     end;
   end;
 
-var
-  Pos, Line, I, J: Integer;
-  Output: String;
-  DebugEntry: PVariableDebugEntry;
-  ConstRange: TScintRange;
+  procedure UpdateInfo(var Info: TScintHintInfo; const HintStr: String; const Range: TScintRange; const Memo: TIDEScintEdit);
+  begin
+    Info.HintStr := HintStr;
+    Info.CursorRect.TopLeft := Memo.GetPointFromPosition(Range.StartPos);
+    Info.CursorRect.BottomRight := Memo.GetPointFromPosition(Range.EndPos);
+    Info.CursorRect.Bottom := Info.CursorRect.Top + Memo.LineHeight;
+    Info.HideTimeout := High(Integer); { infinite }
+  end;
+
 begin
-  if FDebugClientWnd = 0 then
-    Exit;
-  Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
+  var Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
   if Pos < 0 then
     Exit;
-  Line := FActiveMemo.GetLineFromPosition(Pos);
+  var Line := FActiveMemo.GetLineFromPosition(Pos);
 
-  { Check if cursor is over a [Code] variable }
-  if (FActiveMemo is TIDEScintFileEdit) and
-     (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode) then begin
-    { Note: The '+ 1' is needed so that when the mouse is over a '.'
-      between two words, it won't match the word to the left of the '.' }
-    FActiveMemo.SetDefaultWordChars;
-    I := FActiveMemo.GetWordStartPosition(Pos + 1, True);
-    J := FActiveMemo.GetWordEndPosition(Pos, True);
-    if J > I then begin
-      DebugEntry := GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TIDEScintFileEdit).CompilerFileIndex,
-        Line, GetCodeColumnFromPosition(I));
-      if DebugEntry <> nil then begin
+  { Check if cursor is over a [Code] variable or function }
+  if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
+    var VarOrFuncRange := FindVarOrFuncRange(Pos);
+    if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
+      var HintStr := '';
+      var DebugEntry: PVariableDebugEntry;
+      if (FActiveMemo is TIDEScintFileEdit) and (FDebugClientWnd <> 0) and
+         GetCodeVariableDebugEntryFromFileLineCol((FActiveMemo as TIDEScintFileEdit).CompilerFileIndex,
+           Line, GetCodeColumnFromPosition(VarOrFuncRange.StartPos), DebugEntry) then begin
+        var Output: String;
         case EvaluateVariableEntry(DebugEntry, Output) of
-          1: Info.HintStr := Output;
-          2: Info.HintStr := Output;
+          1: HintStr := Output;
+          2: HintStr := Output;
         else
-          Info.HintStr := 'Unknown error';
+          HintStr := 'Unknown error';
         end;
-        Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(I);
-        Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(J);
-        Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
-        Info.HideTimeout := High(Integer);  { infinite }
+      end else begin
+        var ClassMember := False;
+        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        var Index := 0;
+        var Count: Integer;
+        var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        if Count = 0 then begin
+          ClassMember := not ClassMember;
+          FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        end;
+        while Index < Count do begin
+          if Index <> 0 then
+            FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+          if HintStr <> '' then
+            HintStr := HintStr + #13;
+          if FunctionDefinition.WasFunction then
+            HintStr := HintStr + 'function '
+          else
+            HintStr := HintStr + 'procedure ';
+          HintStr := HintStr + String(FunctionDefinition.ScriptFuncWithoutHeader);
+          Inc(Index);
+        end;
+      end;
+
+      if HintStr <> '' then begin
+        UpdateInfo(Info, HintStr, VarOrFuncRange, FActiveMemo);
         Exit;
       end;
     end;
   end;
 
-  { Check if cursor is over a constant }
-  ConstRange := FindConstRange(Pos);
-  if ConstRange.EndPos > ConstRange.StartPos then begin
-    Info.HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
-    case EvaluateConstant(Info.HintStr, Output) of
-      1: Info.HintStr := Info.HintStr + ' = "' + Output + '"';
-      2: Info.HintStr := Info.HintStr + ' = Exception: ' + Output;
-    else
-      Info.HintStr := Info.HintStr + ' = Unknown error';
+  if FDebugClientWnd <> 0 then begin
+    { Check if cursor is over a constant }
+    var ConstRange := FindConstRange(Pos);
+    if ConstRange.EndPos > ConstRange.StartPos then begin
+      var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
+      var Output: String;
+      case EvaluateConstant(Info.HintStr, Output) of
+        1: HintStr := HintStr + ' = "' + Output + '"';
+        2: HintStr := HintStr + ' = Exception: ' + Output;
+      else
+        HintStr := HintStr + ' = Unknown error';
+      end;
+      UpdateInfo(Info, HintStr, ConstRange, FActiveMemo);
     end;
-    Info.CursorRect.TopLeft := FActiveMemo.GetPointFromPosition(ConstRange.StartPos);
-    Info.CursorRect.BottomRight := FActiveMemo.GetPointFromPosition(ConstRange.EndPos);
-    Info.CursorRect.Bottom := Info.CursorRect.Top + FActiveMemo.LineHeight;
-    Info.HideTimeout := High(Integer);  { infinite }
   end;
 end;
 
@@ -5945,12 +6008,12 @@ begin
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
     if LineNumber >= 0 then begin
-      S := Format('Line %d:' + SNewLine + '%s.', [LineNumber + 1, FDebuggerException]);
+      S := Format('Line %d:' + SNewLine + '%s', [LineNumber + 1, AddPeriod(FDebuggerException)]);
       if (Memo <> nil) and (Memo.Filename <> '') then
         S := Memo.Filename + SNewLine2 + S;
       MsgBox(S, 'Runtime Error', mbCriticalError, mb_Ok)
     end else
-      MsgBox(FDebuggerException + '.', 'Runtime Error', mbCriticalError, mb_Ok);
+      MsgBox(AddPeriod(FDebuggerException), 'Runtime Error', mbCriticalError, mb_Ok);
   end;
 end;
 
@@ -6405,27 +6468,57 @@ begin
 end;
 
 procedure TMainForm.UpdateTheme;
+
+  procedure SetListBoxWindowTheme(const ListBox: TListBox);
+  begin
+    ListBox.Font.Color := FTheme.Colors[tcFore];
+    ListBox.Color := FTheme.Colors[tcBack];
+    ListBox.Invalidate;
+    SetControlWindowTheme(ListBox, FTheme.Dark);
+  end;
+
 begin
   FTheme.Typ := FOptions.ThemeType;
 
   SetHelpFileDark(FTheme.Dark);
 
+  { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
+    UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
+    to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
+    MainForm's StyleElements is empty. Menus ignore it because shMenus is removed from
+    TStyleManager.SystemHooks at startup. }
+  if FTheme.Dark then
+    TStyleManager.TrySetStyle('Dark')
+  else
+    TStyleManager.TrySetStyle('Windows');
+  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+    it opens, such as MsgBox, look broken }
+  StyleName := TStyleManager.ActiveStyle.Name;
+
+  InitFormTheme(Self);
+
+  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
-
-  InitFormTheme(Self);
-  ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+  SetListBoxWindowTheme(CompilerOutputList);
+  SetListBoxWindowTheme(DebugOutputList);
+  SetListBoxWindowTheme(DebugCallStackList);
+  SetListBoxWindowTheme(FindResultsList);
 
   if FTheme.Dark then begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.DarkBuildImageList;
   end else begin
     ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
     ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
+    FBuildImageList := ImagesModule.LightBuildImageList;
   end;
 
+  UpdateThemeData(True);
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
 
@@ -6474,11 +6567,16 @@ begin
   CloseThemeDataIfNeeded(FProgressThemeData);
   CloseThemeDataIfNeeded(FMenuThemeData);
   CloseThemeDataIfNeeded(FToolbarThemeData);
+  CloseThemeDataIfNeeded(FStatusBarThemeData);
 
   if Open and UseThemes then begin
     FProgressThemeData := OpenThemeData(Handle, 'Progress');
     FMenuThemeData := OpenThemeData(Handle, 'Menu');
-    FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
+    if FTheme.Dark then
+      FToolbarThemeData := OpenThemeData(Handle, 'DarkMode::Toolbar');
+    if FToolbarThemeData = 0 then
+      FToolbarThemeData := OpenThemeData(Handle, 'Toolbar');
+    FStatusBarThemeData := OpenThemeData(Handle, 'Status');
   end;
 end;
 
@@ -7102,7 +7200,7 @@ begin
   end;
 end;
 
-procedure TMainForm.StatusBarDrawPanel(StatusBar: TStatusBar;
+procedure TMainForm.StatusBarCanvasDrawPanel(Canvas: TCanvas;
   Panel: TStatusPanel; const Rect: TRect);
 const
   TP_DROPDOWNBUTTONGLYPH = 7;
@@ -7116,15 +7214,22 @@ begin
           Dec(RText.Right, RText.Bottom - RText.Top);
           var RGlyph := Rect;
           RGlyph.Left := RText.Right; { RGlyph is now a square }
-          DrawThemeBackground(FToolbarThemeData, StatusBar.Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
+          DrawThemeBackground(FToolbarThemeData, Canvas.Handle, TP_DROPDOWNBUTTONGLYPH, TS_NORMAL, RGlyph, nil);
         end;
+        var Color: TColor := FTheme.Colors[tcFore];
+        const LStyle = TStyleManager.ActiveStyle;
+        if LStyle <> nil then begin
+          const Details = LStyle.GetElementDetails(tsPane);
+          LStyle.GetElementColor(Details, ecTextColor, Color);
+        end;
+        Canvas.Font.Color := Color;
         var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
-        StatusBar.Canvas.TextRect(RText, S, [tfCenter]);
+        Canvas.TextRect(RText, S, [tfCenter]);
       end;
     spCompileIcon:
       if FCompiling then begin
-        var BuildImageList := ImagesModule.BuildImageList;
-        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, StatusBar.Canvas.Handle,
+        var BuildImageList := FBuildImageList;
+        ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
       end;
@@ -7132,25 +7237,43 @@ begin
       if FCompiling and (FProgressMax > 0) then begin
         var R := Rect;
         InflateRect(R, -2, -2);
-        if FProgressThemeData = 0 then begin
+        var LStyle := StyleServices(Self);
+        if not LStyle.Enabled or LStyle.IsSystemStyle then
+          LStyle := nil;
+        if LStyle <> nil then begin
+          { See Vcl.ComCtrl's TProgressBarStyleHook.Paint, .PaintFrame, and .PaintBar }
+          var Details: TThemedElementDetails;
+          Details.Element := teProgress;
+          if LStyle.HasTransparentParts(Details) then
+            LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False, @R);
+          Details := LStyle.GetElementDetails(tpBar);
+          LStyle.DrawElement(Canvas.Handle, Details, R);
+          InflateRect(R, -1, -1);
+          const W = R.Width;
+          const Pos = Round(W * (FProgress / FProgressMax));
+          var FillR := R;
+          FillR.Right := FillR.Left + Pos;
+          Details := LStyle.GetElementDetails(tpChunk);
+          LStyle.DrawElement(Canvas.Handle, Details, FillR);
+        end else if FProgressThemeData = 0 then begin
           { Border }
-          StatusBar.Canvas.Pen.Color := clBtnShadow;
-          StatusBar.Canvas.Brush.Style := bsClear;
-          StatusBar.Canvas.Rectangle(R);
+          Canvas.Pen.Color := clBtnShadow;
+          Canvas.Brush.Style := bsClear;
+          Canvas.Rectangle(R);
           InflateRect(R, -1, -1);
           { Filled part }
           var SaveRight := R.Right;
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
             FProgressMax);
-          StatusBar.Canvas.Brush.Color := clHighlight;
-          StatusBar.Canvas.FillRect(R);
+          Canvas.Brush.Color := clHighlight;
+          Canvas.FillRect(R);
           { Unfilled part }
           R.Left := R.Right;
           R.Right := SaveRight;
-          StatusBar.Canvas.Brush.Color := clBtnFace;
-          StatusBar.Canvas.FillRect(R);
+          Canvas.Brush.Color := clBtnFace;
+          Canvas.FillRect(R);
         end else begin
-          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+          DrawThemeBackground(FProgressThemeData, Canvas.Handle,
             PP_BAR, 0, R, nil);
           { PP_FILL drawing on Windows 11 (and probably 10) is bugged: when
             the width of the green bar is less than ~25 pixels, the bar is
@@ -7164,11 +7287,17 @@ begin
             Inc(CR.Left);  { does this need to be DPI-scaled? }
           R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
             FProgressMax);
-          DrawThemeBackground(FProgressThemeData, StatusBar.Canvas.Handle,
+          DrawThemeBackground(FProgressThemeData, Canvas.Handle,
             PP_FILL, PBFS_NORMAL, R, @CR);
         end;
       end;
   end;
+end;
+
+procedure TMainForm.StatusBarDrawPanel(StatusBar: TStatusBar;
+  Panel: TStatusPanel; const Rect: TRect);
+begin
+  StatusBarCanvasDrawPanel(StatusBar.Canvas, Panel, Rect);
 end;
 
 procedure TMainForm.InvalidateStatusPanel(const Index: Integer);
@@ -7322,7 +7451,7 @@ end;
 { Should be removed if the main menu ever gets removed }
 procedure TMainForm.UAHDrawMenuBottomLine;
 begin
-  if FTheme.Dark then begin
+  if not (csDestroying in ComponentState) and (FTheme <> nil) and FTheme.Dark then begin
     var ClientRect: TRect;
     Windows.GetClientRect(Handle, ClientRect);
 		MapWindowPoints(Handle, 0, ClientRect, 2);
@@ -7637,28 +7766,52 @@ begin
   end;
 end;
 
-procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
-var
-  I, Line: Integer;
+procedure TMainForm.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+  const NewLine, NewLineStartPos: Integer);
 begin
-  for I := 0 to FDebugEntriesCount-1 do
+  { Also see FindInFilesDialogFind }
+  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResult.Line := NewLine;
+  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
+  FindResult.PrefixStringLength := Length(NewPrefix);
+  const PosChange = NewLineStartPos - FindResult.LineStartPos;
+  FindResult.LineStartPos := NewLineStartPos;
+  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
+  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
+end;
+
+procedure TMainForm.MemoLinesInserted(Memo: TIDEScintFileEdit; FirstLine, Count: integer);
+begin
+  for var I := 0 to FDebugEntriesCount-1 do
     if (FDebugEntries[I].FileIndex = Memo.CompilerFileIndex) and
        (FDebugEntries[I].LineNumber >= FirstLine) then
       Inc(FDebugEntries[I].LineNumber, Count);
 
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        const NewLine = FindResult.Line + Count;
+        UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+      end;
+    end;
+  end;
+
   if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
     { Grow FStateLine if necessary }
-    I := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
-    if I > 0 then begin
-      if I < LineStateGrowAmount then
-        I := LineStateGrowAmount;
-      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + I));
-      Inc(Memo.LineStateCapacity, I);
+    var GrowAmount := (Memo.LineStateCount + Count) - Memo.LineStateCapacity;
+    if GrowAmount > 0 then begin
+      if GrowAmount < LineStateGrowAmount then
+        GrowAmount := LineStateGrowAmount;
+      ReallocMem(Memo.LineState, SizeOf(TLineState) * (Memo.LineStateCapacity + GrowAmount));
+      Inc(Memo.LineStateCapacity, GrowAmount);
     end;
     { Shift existing line states and clear the new ones }
-    for I := Memo.LineStateCount-1 downto FirstLine do
+    for var I := Memo.LineStateCount-1 downto FirstLine do
       Memo.LineState[I + Count] := Memo.LineState[I];
-    for I := FirstLine to FirstLine + Count - 1 do
+    for var I := FirstLine to FirstLine + Count - 1 do
       Memo.LineState[I] := lnUnknown;
     Inc(Memo.LineStateCount, Count);
   end;
@@ -7669,8 +7822,8 @@ begin
     Inc(Memo.ErrorLine, Count);
 
   var BreakPointsChanged := False;
-  for I := 0 to Memo.BreakPoints.Count-1 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := 0 to Memo.BreakPoints.Count-1 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       Memo.BreakPoints[I] := Line + Count;
       BreakPointsChanged := True;
@@ -7684,12 +7837,9 @@ end;
 
 procedure TMainForm.MemoLinesDeleted(Memo: TIDEScintFileEdit; FirstLine, Count,
   FirstAffectedLine: Integer);
-var
-  I, Line: Integer;
-  DebugEntry: PDebugEntry;
 begin
-  for I := 0 to FDebugEntriesCount-1 do begin
-    DebugEntry := @FDebugEntries[I];
+  for var I := 0 to FDebugEntriesCount-1 do begin
+    const DebugEntry: PDebugEntry = @FDebugEntries[I];
     if (DebugEntry.FileIndex = Memo.CompilerFileIndex) and
        (DebugEntry.LineNumber >= FirstLine) then begin
       if DebugEntry.LineNumber < FirstLine + Count then
@@ -7699,10 +7849,25 @@ begin
     end;
   end;
 
+  for var I := FindResultsList.Items.Count-1 downto 0 do begin
+    const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
+    if FindResult <> nil then begin
+      if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+         (FindResult.Line >= FirstLine) then begin
+        if FindResult.Line < FirstLine + Count then
+          FindResultsList.Items.Delete(I)
+        else begin
+          const NewLine = FindResult.Line - Count;
+          UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+        end;
+      end;
+    end;
+  end;
+
   if Assigned(Memo.LineState) then begin
     { Shift existing line states }
     if FirstLine < Memo.LineStateCount - Count then begin
-      for I := FirstLine to Memo.LineStateCount - Count - 1 do
+      for var I := FirstLine to Memo.LineStateCount - Count - 1 do
         Memo.LineState[I] := Memo.LineState[I + Count];
       Dec(Memo.LineStateCount, Count);
     end
@@ -7728,8 +7893,8 @@ begin
   end;
 
   var BreakPointsChanged := False;
-  for I := Memo.BreakPoints.Count-1 downto 0 do begin
-    Line := Memo.BreakPoints[I];
+  for var I := Memo.BreakPoints.Count-1 downto 0 do begin
+    const Line = Memo.BreakPoints[I];
     if Line >= FirstLine then begin
       if Line < FirstLine + Count then begin
         Memo.BreakPoints.Delete(I);

@@ -2,7 +2,7 @@ unit Shared.TaskDialogFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,7 @@ function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const 
 implementation
 
 uses
-  Classes, StrUtils, Math, Forms, Dialogs, SysUtils,
+  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Themes,
   Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF} PathFunc;
 
 var
@@ -47,6 +47,8 @@ begin
   if Assigned(TaskDialogIndirectFunc) then begin
     ZeroMemory(@Config, Sizeof(Config));
     Config.cbSize := SizeOf(Config);
+    if (StrPos(Text, ':\') <> nil) or (StrPos(Text, '\\') <> nil) then
+      Config.dwFlags := Config.dwFlags or TDF_SIZE_TO_CONTENT;
     if RightToLeft then
       Config.dwFlags := Config.dwFlags or TDF_RTL_LAYOUT;
     Config.hInstance := HInstance;
@@ -79,9 +81,14 @@ begin
       TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
       ActiveWindow := GetActiveWindow;
       WindowList := DisableTaskWindows(Config.hwndParent);
+      { Temporarily clear SystemHooks to stop it from breaking the title bar. Does not make it dark.
+        Also see BrowseFunc's NewGetOpenOrSaveFileName. }
+      const SaveHooks = TStyleManager.SystemHooks;
+      TStyleManager.SystemHooks := [];
       try
         Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, pfVerificationFlagChecked) = S_OK;
       finally
+        TStyleManager.SystemHooks := SaveHooks;
         EnableTaskWindows(WindowList);
         SetActiveWindow(ActiveWindow);
         TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
@@ -103,13 +110,11 @@ begin
 end;
 
 function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
-var
-  IconP: PChar;
-  TDCommonButtons: Cardinal;
-  NButtonLabelsAvailable: Integer;
-  ButtonIDs: array of Integer;
 begin
   Application.Restore; { See comments in AppMessageBox }
+
+  { Set icon }
+  var IconP: PChar;
   if Icon <> '' then
     IconP := PChar(Icon)
   else begin
@@ -121,7 +126,11 @@ begin
       IconP := nil; { No other TD_ constant available, MS recommends to use no icon for questions now and the old icon should only be used for help entries }
     end;
   end;
-  NButtonLabelsAvailable := Length(ButtonLabels);
+
+  { Set ButtonIDs and TDCommonButtons }
+  const NButtonLabelsAvailable = Length(ButtonLabels);
+  var ButtonIDs: array of Integer;
+  var TDCommonButtons: Cardinal;
   case Buttons of
     MB_OK, MB_OKCANCEL:
       begin
@@ -169,8 +178,20 @@ begin
         TDCommonButtons := 0; { Silence compiler }
       end;
   end;
+
+  { Allow extra label to replace TDCBF_CANCEL_BUTTON by an IDCANCEL button id }
+  if (TDCommonButtons or TDCBF_CANCEL_BUTTON <> 0) and
+     (NButtonLabelsAvailable-1 = Length(ButtonIDs)) then begin
+    TDCommonButtons := TDCommonButtons and not TDCBF_CANCEL_BUTTON;
+    SetLength(ButtonIDs, NButtonLabelsAvailable);
+    ButtonIDs[NButtonLabelsAvailable-1] := IDCANCEL;
+  end;
+
+  { Check }
   if Length(ButtonIDs) <> NButtonLabelsAvailable then
     DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels');
+
+  { Go }
   if not DoTaskDialog(GetOwnerWndForMessageBox, PChar(Instruction), PChar(Text),
            GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)

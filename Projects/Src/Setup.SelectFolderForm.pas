@@ -2,7 +2,7 @@ unit Setup.SelectFolderForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,13 +25,11 @@ type
     procedure PathEditChange(Sender: TObject);
     procedure NewFolderButtonClick(Sender: TObject);
   private
-    { Private declarations }
     FFolderTreeView: TCustomFolderTreeView;
     FNewFolderName: String;
     FStartMenu, FAppendDir: Boolean;
     procedure FolderTreeViewChange(Sender: TObject);
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     constructor Create2(AOwner: TComponent; AStartMenu: Boolean);
   end;

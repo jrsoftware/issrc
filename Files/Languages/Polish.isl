@@ -1,8 +1,8 @@
-; *** Inno Setup version 6.4.0+ Polish messages ***
+; *** Inno Setup version 6.5.0+ Polish messages ***
+; Proofreading, corrections and 5.5.7-6.5.0+ updates:
+; Łukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; Original translations up to 5.5.7:
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
-; Proofreading, corrections and 5.5.7-6.4.0+ updates:
-; Łukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
@@ -10,11 +10,9 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-; last update: 2020/07/26 
+; last update: 2025/06/23 
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
-; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Polski
 LanguageID=$0415
 LanguageCodePage=1250
@@ -57,7 +55,7 @@ PowerUserPrivilegesRequired=Aby przeprowadzić instalację tej aplikacji, konto 
 SetupAppRunningError=Instalator wykrył, iż aplikacja %1 jest aktualnie uruchomiona.%n%nPrzed wciśnięciem przycisku OK zamknij wszystkie procesy aplikacji. Kliknij przycisk Anuluj, aby przerwać instalację.
 UninstallAppRunningError=Dezinstalator wykrył, iż aplikacja %1 jest aktualnie uruchomiona.%n%nPrzed wciśnięciem przycisku OK zamknij wszystkie procesy aplikacji. Kliknij przycisk Anuluj, aby przerwać dezinstalację.
 
-; *** Startup questions	 ---
+; *** Startup questions
 PrivilegesRequiredOverrideTitle=Wybierz typ instalacji aplikacji
 PrivilegesRequiredOverrideInstruction=Wybierz typ instalacji
 PrivilegesRequiredOverrideText1=Aplikacja %1 może zostać zainstalowana dla wszystkich użytkowników (wymagane są uprawnienia administratora) lub tylko dla bieżącego użytkownika.
@@ -78,7 +76,7 @@ AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n Strona domowa %1:%n%4
 AboutSetupNote=
-TranslatorNote=Wersja polska: Krzysztof Cynarski%n<krzysztof at cynarski.net>%nOd wersji 5.5.7: Łukasz Abramczuk%n<lukasz.abramczuk at gmail.com>
+TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>
 
 ; *** Buttons
 ButtonBack=< &Wstecz
@@ -205,23 +203,26 @@ ReadyMemoGroup=Folder w Menu Start:
 ReadyMemoTasks=Dodatkowe zadania:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Pobieranie dodatkowych plików...
+DownloadingLabel2=Pobieranie plików...
 ButtonStopDownload=&Zatrzymaj pobieranie
 StopDownload=Czy na pewno chcesz zatrzymać pobieranie?
 ErrorDownloadAborted=Pobieranie przerwane
 ErrorDownloadFailed=Błąd pobierania: %1 %2
 ErrorDownloadSizeFailed=Pobieranie informacji o rozmiarze nie powiodło się: %1 %2
-ErrorFileHash1=Błąd sumy kontrolnej pliku: %1
-ErrorFileHash2=Nieprawidłowa suma kontrolna pliku: oczekiwano %1, otrzymano %2
 ErrorProgress=Nieprawidłowy postęp: %1 z %2
 ErrorFileSize=Nieprawidłowy rozmiar pliku: oczekiwano %1, otrzymano %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Wypakowywanie dodatkowych plików...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Wypakowywanie plików...
 ButtonStopExtraction=&Zatrzymaj wypakowywanie
 StopExtraction=Azy na pewno chcesz zatrzymać wypakowywanie?
 ErrorExtractionAborted=Wypakowywanie przerwane
 ErrorExtractionFailed=Błąd wypakowywania: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Nieprawidłowe hasło
+ArchiveIsCorrupted=Archiwum jest uszkodzone
+ArchiveUnsupportedFormat=Format archiwum nie jest wspierany
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Przygotowanie do instalacji
@@ -267,11 +268,15 @@ AbortRetryIgnoreSelectAction=Wybierz operację
 AbortRetryIgnoreRetry=Spróbuj &ponownie
 AbortRetryIgnoreIgnore=Z&ignoruj błąd i kontynuuj
 AbortRetryIgnoreCancel=Przerwij instalację
+RetryCancelSelectAction=Wybierz operację
+RetryCancelRetry=Spróbuj &ponownie
+RetryCancelCancel=Anuluj
 
 ; *** Installation status messages
 StatusClosingApplications=Zamykanie aplikacji...
 StatusCreateDirs=Tworzenie folderów...
 StatusExtractFiles=Dekompresja plików...
+StatusDownloadFiles=Pobieranie plików...
 StatusCreateIcons=Tworzenie skrótów aplikacji...
 StatusCreateIniEntries=Tworzenie zapisów w plikach INI...
 StatusCreateRegistryEntries=Tworzenie zapisów w rejestrze...
@@ -301,6 +306,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Pomiń plik (niezalecane)
 FileAbortRetryIgnoreIgnoreNotRecommended=Z&ignoruj błąd i kontynuuj (niezalecane)
 SourceIsCorrupted=Plik źródłowy jest uszkodzony
 SourceDoesntExist=Plik źródłowy "%1" nie istnieje
+SourceVerificationFailed=Weryfikacja pliku źródłowego nie powiodła się: %1
+VerificationSignatureDoesntExist=Plik podpisu "%1" nie istnieje
+VerificationSignatureInvalid=Plik podpisu "%1" jest nieprawidłowy
+VerificationKeyNotFound=Plik podpisu "%1" wykorzystuje nieznany klucz
+VerificationFileNameIncorrect=Nazwa pliku jest nieprawidłowa
+VerificationFileTagIncorrect=Etykieta pliku jest nieprawidłowa
+VerificationFileSizeIncorrect=Rozmiar pliku jest nieprawidłowy
+VerificationFileHashIncorrect=Suma kontrolna pliku jest nieprawidłowa
 ExistingFileReadOnly2=Istniejący plik nie może zostać zastąpiony, gdyż jest oznaczony jako "Tylko do odczytu".
 ExistingFileReadOnlyRetry=&Usuń atrybut "Tylko do odczytu" i spróbuj ponownie
 ExistingFileReadOnlyKeepExisting=&Zachowaj istniejący plik
@@ -319,6 +332,8 @@ ErrorChangingAttr=Wystąpił błąd podczas próby zmiany atrybutów pliku docel
 ErrorCreatingTemp=Wystąpił błąd podczas próby utworzenia pliku w folderze docelowym:
 ErrorReadingSource=Wystąpił błąd podczas próby odczytu pliku źródłowego:
 ErrorCopying=Wystąpił błąd podczas próby kopiowania pliku:
+ErrorDownloading=Wystąpił błąd podczas próby pobrania pliku:
+ErrorExtracting=Wystąpił błąd podczas próby wypakowywania archiwum:
 ErrorReplacingExistingFile=Wystąpił błąd podczas próby zamiany istniejącego pliku:
 ErrorRestartReplace=Próba zastąpienia plików przy ponownym uruchomieniu komputera nie powiodła się.
 ErrorRenamingTemp=Wystąpił błąd podczas próby zmiany nazwy pliku w folderze docelowym:

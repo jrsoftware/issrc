@@ -69,6 +69,7 @@ end;
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
+  InitFormTheme(Self);
 
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
