@@ -226,7 +226,7 @@ ErrorProgress=தவறான முன்னேற்றம்: %2 இல் %1
 ErrorFileSize=தவறான கோப்பு அளவு: எதிர்பார்க்கப்பட்டது %1, காணப்பட்டது %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=கூடுதல் கோப்புகளை பிரித்தெடுக்கிறது...
+ExtractingLabel=கூடுதல் கோப்புகளை பிரித்தெடுக்கிறது...
 ButtonStopExtraction=பிரித்தெடுப்பதை நிறுத்து (&S)
 StopExtraction=பிரித்தெடுப்பதை நிறுத்த விரும்புகிறீர்களா?
 ErrorExtractionAborted=பிரித்தெடுத்தல் நிறுத்தப்பட்டது
