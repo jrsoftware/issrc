@@ -271,8 +271,8 @@ const
 
   IconsSectionFlags: array of TScintRawString = [
     'closeonexit', 'createonlyiffileexists', 'dontcloseonexit',
-    'excludefromshowinnewinstall', 'foldershortcut', 'preventpinning',
-    'runmaximized', 'runminimized', 'uninsneveruninstall', 'useapppaths'
+    'excludefromshowinnewinstall', 'preventpinning', 'runmaximized',
+    'runminimized', 'uninsneveruninstall', 'useapppaths'
   ];
 
   INISectionParameters: array of TScintRawString = [
