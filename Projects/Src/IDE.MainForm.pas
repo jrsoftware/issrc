@@ -686,7 +686,7 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
   IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
@@ -824,11 +824,18 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor);
+    const ConfigValueDefault, ConfigValueMinimum, ConfigValueNew: Integer; const Msg: String; const Color: TColor); overload;
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color));
+  end;
+
+  procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
+    const ConfigValueDefault, ConfigValueExpected: Integer; const Msg: String; const Color: TColor); overload;
+  begin
+    CheckUpdatePanelMessage(Ini, ConfigIdent, ConfigValueDefault, ConfigValueExpected, ConfigValueExpected,
+      Msg, Color);
   end;
 
   procedure ReadConfig;
@@ -904,7 +911,9 @@ constructor TMainForm.Create(AOwner: TComponent);
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue);
       if not IsLicensed then begin
-        CheckUpdatePanelMessage(Ini, 'Purchase', 0, 1,  { Also see UpdateUpdatePanel }
+        const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
+        const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger;
+        CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel }
           'Using Inno Setup commercialy? Please <a id="hpurchase">purchase a license</a>. Thanks!',
           BannerBlue);
       end;
