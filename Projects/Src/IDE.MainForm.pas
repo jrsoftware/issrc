@@ -156,6 +156,8 @@ type
     RTerminate: TMenuItem;
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
+    HPurchase: TMenuItem;
+    HRegister: TMenuItem;
     HDonate: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
@@ -315,6 +317,8 @@ type
     procedure BLowPriorityClick(Sender: TObject);
     procedure StatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
+    procedure HPurchaseClick(Sender: TObject);
+    procedure HRegisterClick(Sender: TObject);
     procedure HDonateClick(Sender: TObject);
     procedure RTargetClick(Sender: TObject);
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
@@ -391,6 +395,7 @@ type
     procedure UpdatePanelClosePaintBoxPaint(Sender: TObject);
     procedure UpdatePanelClosePaintBoxClick(Sender: TObject);
     procedure UpdatePanelDonateImageClick(Sender: TObject);
+    procedure HMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -503,6 +508,7 @@ type
     FCallTipState: TCallTipState;
     FUpdatePanelMessages: TUpdatePanelMessages;
     FBuildImageList: TImageList;
+    FDonateImageMenuItem: TMenuItem;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -886,14 +892,22 @@ constructor TMainForm.Create(AOwner: TComponent);
 
       { License }
       UpdateLicense(Ini.ReadString('License', 'LicenseKey', ''));
+      UpdatePanelDonateImage.Visible := not IsLicensed;
 
       { UpdatePanel visibility }
+      const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
+      const BannerBlue = $FFD399; { MBlue with HSL lightness changed from 42% to 80% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
+        BannerGreen);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        $FFD399); //MBlue with HSL lightness changed from 42% to 80%
+        BannerBlue);
+      if not IsLicensed then begin
+        CheckUpdatePanelMessage(Ini, 'Purchase', 0, 1,  { Also see UpdateUpdatePanel }
+          'Using Inno Setup commercialy? Please <a id="hpurchase">purchase a license</a>. Thanks!',
+          BannerBlue);
+      end;
       UpdateUpdatePanel;
 
       { Debug options }
@@ -3487,6 +3501,28 @@ begin
     Format('/select,"%s"', [FCompiledExe]));
 end;
 
+procedure TMainForm.HMenuClick(Sender: TObject);
+begin
+  HDonate.Visible := not IsLicensed;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
+end;
+
+procedure TMainForm.HPurchaseClick(Sender: TObject);
+begin
+  LaunchFileOrURL('https://jrsoftware.org/isorder.php');
+end;
+
+procedure TMainForm.HRegisterClick(Sender: TObject);
+begin
+  ;
+end;
+
+procedure TMainForm.HDonateClick(Sender: TObject);
+begin
+  OpenDonateSite;
+end;
+
 procedure TMainForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
@@ -3534,11 +3570,6 @@ procedure TMainForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_isppoverview.htm')));
-end;
-
-procedure TMainForm.HDonateClick(Sender: TObject);
-begin
-  OpenDonateSite;
 end;
 
 procedure TMainForm.HAboutClick(Sender: TObject);
@@ -6591,6 +6622,11 @@ begin
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
     UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
+    if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent = 'Purchase' then
+      FDonateImageMenuItem := HPurchase
+    else
+      FDonateImageMenuItem := HDonate;
+    UpdatePanelDonateImage.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
   end;
   UpdateBevel1Visibility;
 end;
@@ -6724,8 +6760,10 @@ begin
           NM(TFilesDesigner, 'documents-script-filled'),
           NM(TRegistryDesigner, 'control-tree-script-filled'),
           NM(TMsgBoxDesigner, 'comment-text-script-filled'),
-          NM(TSignTools, 'key-filled'),
+          NM(TSignTools, 'padlock-filled'),
           NM(TOptions, 'gear-filled'),
+          NM(HPurchase, 'shopping-cart'),
+          NM(HRegister, 'key-filled'),
           NM(HDonate, 'heart-filled'),
           NM(HMailingList, 'alert-filled'),
           NM(HWhatsNew, 'announcement'),
@@ -7973,7 +8011,9 @@ procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
   const Link: string; LinkType: TSysLinkType);
 begin
   var Handled := True;
-  if (LinkType = sltID) and (Link = 'hwhatsnew') then
+  if (LinkType = sltID) and (Link = 'hpurchase') then
+    HPurchase.Click
+  else if (LinkType = sltID) and (Link = 'hwhatsnew') then
     HWhatsNew.Click
   else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
@@ -7999,7 +8039,7 @@ end;
 
 procedure TMainForm.UpdatePanelDonateImageClick(Sender: TObject);
 begin
-  HDonate.Click;
+  FDonateImageMenuItem.Click;
 end;
 
 procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
