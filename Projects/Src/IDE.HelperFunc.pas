@@ -30,6 +30,8 @@ procedure InitFormThemeInit(const Theme: TTheme);
 function InitFormTheme(const Form: TForm): Boolean;
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
+procedure UpdateLicense(const LicenseKey: String);
+function IsLicensed: Boolean;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -161,6 +163,24 @@ end;
 function InitFormThemeIsDark: Boolean;
 begin
   Result := FormTheme.Dark;
+end;
+
+var
+  License: record
+    Name: String;
+    Typ: (ltNone, ltSingle, ltTeam, ltEnterprise);
+    ExpirationDate: TDateTime;
+  end;
+
+procedure UpdateLicense(const LicenseKey: String);
+begin
+  if LicenseKey <> '' then
+    License.Typ := ltSingle;
+end;
+
+function IsLicensed: Boolean;
+begin
+  Result := License.Typ <> ltNone;
 end;
 
 function GetDisplayFilename(const Filename: String): String;

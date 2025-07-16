@@ -884,6 +884,9 @@ constructor TMainForm.Create(AOwner: TComponent);
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
 
+      { License }
+      UpdateLicense(Ini.ReadString('License', 'LicenseKey', ''));
+
       { UpdatePanel visibility }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',

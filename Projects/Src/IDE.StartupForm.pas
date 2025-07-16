@@ -101,7 +101,11 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
+  if IsLicensed then begin
+    DonateImage.Visible := False;
+    MailingListImage.Left := DonateImage.Left;
+  end else
+    DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
 
   UpdateImages;
 
