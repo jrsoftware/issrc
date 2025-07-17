@@ -3541,6 +3541,10 @@ end;
 
 procedure TMainForm.HPurchaseClick(Sender: TObject);
 begin
+  if IsLicensed then
+    if MsgBox('Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.',
+       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+      ClipBoard.AsText := GetChunkedLicenseKey;
   LaunchFileOrURL('https://jrsoftware.org/isorder.php');
 end;
 

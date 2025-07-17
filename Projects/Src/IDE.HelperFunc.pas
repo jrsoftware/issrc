@@ -33,6 +33,8 @@ function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
 function UpdateLicense(const LicenseKey: String): Boolean;
 function IsLicensed: Boolean;
+function GetLicenseKey: String;
+function GetChunkedLicenseKey: String;
 function GetLicenseState: TLicenseState;
 function GetLicenseeName: String;
 function GetDisplayFilename(const Filename: String): String;
@@ -169,9 +171,9 @@ begin
 end;
 
 type
-  TLicenseType = (ltNone, ltSingle, ltTeam, ltEnterprise);
+  TLicenseType = (ltSingle, ltTeam, ltEnterprise);
   TLicense = record
-    Name: String;
+    Key, Name: String;
     Typ: TLicenseType;
     ExpirationDate: TDateTime;
   end;
@@ -231,9 +233,10 @@ begin
             const LicenseType = LicenseData[2].ToInteger;
             var ExpirationDate: TDate;
             if TryDateFromDBDate(LicenseData[3], ExpirationDate) and (LicenseeName <> '') and
-               (LicenseType >= Ord(Low(TLicenseType))-1) and (LicenseType <= Ord(High(TLicenseType))-1) then begin
+               (LicenseType >= Ord(Low(TLicenseType))) and (LicenseType <= Ord(High(TLicenseType))) then begin
+              License.Key := LicenseKey;
               License.Name := LicenseeName;
-              License.Typ := TLicenseType(LicenseType+1);
+              License.Typ := TLicenseType(LicenseType);
               License.ExpirationDate := ExpirationDate;
               Result := True;
             end;
@@ -249,12 +252,33 @@ end;
 
 function IsLicensed: Boolean;
 begin
-  Result := License.Typ <> ltNone;
+  Result := GetLicenseKey <> '';
+end;
+
+function GetLicenseKey: String;
+begin
+  Result := License.Key;
+end;
+
+function GetChunkedLicenseKey: String;
+begin
+  const Output = TStringList.Create;
+  try
+    var StartIndex := 1;
+    const ChunkSize = 30;
+    while StartIndex <= Length(License.Key) do begin
+      Output.Add(Copy(License.Key, StartIndex, ChunkSize));
+      StartIndex := StartIndex + ChunkSize;
+    end;
+    Result := Output.Text.Trim;
+  finally
+    Output.Free;
+  end;
 end;
 
 function GetLicenseState: TLicenseState;
 begin
-  if License.Typ = ltNone then
+  if not IsLicensed then
     Result := lsNotLicensed
   else begin
     const CurrentDate = Date;
