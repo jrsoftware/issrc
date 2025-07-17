@@ -31,7 +31,7 @@ procedure InitFormThemeInit(const Theme: TTheme);
 function InitFormTheme(const Form: TForm): Boolean;
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
-procedure UpdateLicense(const LicenseKey: String);
+function UpdateLicense(const LicenseKey: String): Boolean;
 function IsLicensed: Boolean;
 function GetLicenseState: TLicenseState;
 function GetLicenseeName: String;
@@ -91,8 +91,8 @@ implementation
 
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
-  Messages, DwmApi, Consts,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
+  Messages, DwmApi, Consts, NetEncoding,
+  ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
@@ -169,23 +169,82 @@ begin
 end;
 
 type
+  TLicenseType = (ltNone, ltSingle, ltTeam, ltEnterprise);
   TLicense = record
     Name: String;
-    Typ: (ltNone, ltSingle, ltTeam, ltEnterprise);
+    Typ: TLicenseType;
     ExpirationDate: TDateTime;
   end;
 
 var
   License: TLicense;
 
-procedure UpdateLicense(const LicenseKey: String);
+function UpdateLicense(const LicenseKey: String): Boolean;
+
+  function ECDSAInt256FromString(const S: String): TECDSAInt256;
+  begin
+    TSHA256Digest(Result) := SHA256DigestFromString(S);
+  end;
+
+  function TryDateFromDBDate(const S: string; out D: TDate): Boolean;
+  begin
+    if S.Length = 8 then begin
+      const Year = Copy(S, 1, 4).ToInteger;
+      const Month = Copy(S, 5, 2).ToInteger;
+      const Day = Copy(S, 7, 2).ToInteger;
+      D := EncodeDate(Year, Month, Day);
+      Result := True;
+    end else
+      Result := False;
+  end;
+
 begin
   if LicenseKey <> '' then begin
-    License.Typ := ltSingle;
-    License.Name := 'John Doe';
-    License.ExpirationDate := Date+999;
-  end else
+    Result := False;
+    const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(LicenseKey);
+    if Length(DecodedKey) > 64 then begin
+      var Signature := Default(TECDSASignature);
+      Move(DecodedKey[0], Signature.Sig_r[0], 32);
+      Move(DecodedKey[32], Signature.Sig_s[0], 32);
+      const LicenseBytes = Copy(DecodedKey, 64, MaxInt);
+      const LicenseHash = SHA256Buf(LicenseBytes[0], Length(LicenseBytes));
+
+      var PublicKey: TECDSAPublickey;
+      PublicKey.Public_x := ECDSAInt256FromString('76873a71a4d5cae3dfdb52f7e434582c25151e56338d6d7fd5423d1216dc3274');
+      PublicKey.Public_y := ECDSAInt256FromString('4459f8d7c0e6c03e34806a4a4b949e0c16387fb8ff2f71d2d62ce6a29c713018');
+
+      const ECDSAKey = TECDSAKey.Create;
+      var Verified: Boolean;
+      try
+        ECDSAKey.ImportPublicKey(PublicKey);
+        Verified := ECDSAKey.VerifySignature(LicenseHash, Signature);
+      finally
+        ECDSAKey.Free;
+      end;
+
+      if Verified then begin
+        const LicenseString = TEncoding.UTF8.GetString(LicenseBytes);
+        if LicenseString.StartsWith('v1'#9) then begin
+          const LicenseData = LicenseString.Split([#9]);
+          if Length(LicenseData) = 4 then begin
+            const LicenseeName = LicenseData[1];
+            const LicenseType = LicenseData[2].ToInteger;
+            var ExpirationDate: TDate;
+            if TryDateFromDBDate(LicenseData[3], ExpirationDate) and (LicenseeName <> '') and
+               (LicenseType >= Ord(Low(TLicenseType))-1) and (LicenseType <= Ord(High(TLicenseType))-1) then begin
+              License.Name := LicenseeName;
+              License.Typ := TLicenseType(LicenseType+1);
+              License.ExpirationDate := ExpirationDate;
+              Result := True;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end else begin
     License := Default(TLicense);
+    Result := True;
+  end;
 end;
 
 function IsLicensed: Boolean;
