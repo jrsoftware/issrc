@@ -158,6 +158,7 @@ type
     BLowPriority: TMenuItem;
     HPurchase: TMenuItem;
     HRegister: TMenuItem;
+    HUnregister: TMenuItem;
     HDonate: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
@@ -319,6 +320,7 @@ type
       Panel: TStatusPanel; const Rect: TRect);
     procedure HPurchaseClick(Sender: TObject);
     procedure HRegisterClick(Sender: TObject);
+    procedure HUnregisterClick(Sender: TObject);
     procedure HDonateClick(Sender: TObject);
     procedure RTargetClick(Sender: TObject);
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
@@ -826,7 +828,7 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
     const ConfigValueDefault, ConfigValueMinimum, ConfigValueNew: Integer; const Msg: String; const Color: TColor); overload;
   begin
-    var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
+    var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault); { Also see HUnregisterClick }
     if ConfigValue < ConfigValueMinimum then
       FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color));
   end;
@@ -904,16 +906,28 @@ constructor TMainForm.Create(AOwner: TComponent);
       { UpdatePanel visibility }
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
       const BannerBlue = $FFD399; { MBlue with HSL lightness changed from 42% to 80% }
+      const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
         BannerGreen);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue);
-      if not IsLicensed then begin
+      const LicenseState = GetLicenseState;
+      if LicenseState in [lsExpiring, lsExpired] then begin
+        { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
-        const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger;
-        CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel }
+        const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
+        const Msg = IfThen(LicenseState = lsExpiring,
+          'Your license will expire soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
+          'Your license has expired. Please <a id="hpurchase">renew your license</a> or <a id="hunregister">remove it</a>. Thanks!');
+        CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
+          Msg, BannerOrange);
+      end else if LicenseState = lsNotLicensed then begin
+        { Ask about current commercial use, once per month }
+        const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
+        const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
+        CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
           'Using Inno Setup commercialy? Please <a id="hpurchase">purchase a license</a>. Thanks!',
           BannerBlue);
       end;
@@ -1687,7 +1701,14 @@ begin
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' - ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version);
+    String(FCompilerVersion.Version) + ' ';
+  const LicenseState = GetLicenseState;
+  if LicenseState <> lsNotLicensed then begin
+    NewCaption := NewCaption + '- ' + GetLicenseeName;
+    if LicenseState = lsExpired then
+      NewCaption := NewCaption + ' (License Expired)';
+  end else
+    NewCaption := NewCaption + 'Non-Commercial';
   if FCompiling then
     NewCaption := NewCaption + '  [Compiling]'
   else if FDebugging then begin
@@ -3512,7 +3533,8 @@ end;
 
 procedure TMainForm.HMenuClick(Sender: TObject);
 begin
-  HDonate.Visible := not IsLicensed;
+  HUnregister.Visible := IsLicensed;
+  HDonate.Visible := not HUnregister.Visible;
 
   ApplyMenuBitmaps(Sender as TMenuItem);
 end;
@@ -3525,6 +3547,27 @@ end;
 procedure TMainForm.HRegisterClick(Sender: TObject);
 begin
   ;
+end;
+
+procedure TMainForm.HUnregisterClick(Sender: TObject);
+begin
+  if MsgBox('Are you sure you want to remove your commercial license key?',
+    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
+    const Ini = TConfigIniFile.Create;
+    try
+      Ini.DeleteKey('License', 'LicenseKey');
+      const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger;
+      Ini.WriteInteger('UpdatePanel', 'Purchase', AskAgainDateAsInt);
+
+      UpdateLicense('');
+      UpdatePanelDonateImage.Visible := True;
+      UpdateCaption;
+
+      MsgBox('Commercial license key has been removed.', SCompilerFormCaption, mbInformation, MB_OK);
+    finally
+      Ini.Free;
+    end;
+  end;
 end;
 
 procedure TMainForm.HDonateClick(Sender: TObject);
@@ -6631,7 +6674,7 @@ begin
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
     UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
-    if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent = 'Purchase' then
+    if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
       FDonateImageMenuItem := HPurchase
     else
       FDonateImageMenuItem := HDonate;
@@ -8022,6 +8065,8 @@ begin
   var Handled := True;
   if (LinkType = sltID) and (Link = 'hpurchase') then
     HPurchase.Click
+  else if (LinkType = sltID) and (Link = 'hunregister') then
+    HUnregister.Click
   else if (LinkType = sltID) and (Link = 'hwhatsnew') then
     HWhatsNew.Click
   else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin

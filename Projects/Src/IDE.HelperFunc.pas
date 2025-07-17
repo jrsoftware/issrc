@@ -23,6 +23,7 @@ type
   TMRUItemCompareProc = function(const S1, S2: String): Integer;
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
+  TLicenseState = (lsNotLicensed, lsLicensed, lsExpiring, lsExpired);
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
@@ -32,6 +33,8 @@ function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
 procedure UpdateLicense(const LicenseKey: String);
 function IsLicensed: Boolean;
+function GetLicenseState: TLicenseState;
+function GetLicenseeName: String;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
@@ -165,22 +168,49 @@ begin
   Result := FormTheme.Dark;
 end;
 
-var
-  License: record
+type
+  TLicense = record
     Name: String;
     Typ: (ltNone, ltSingle, ltTeam, ltEnterprise);
     ExpirationDate: TDateTime;
   end;
 
+var
+  License: TLicense;
+
 procedure UpdateLicense(const LicenseKey: String);
 begin
-  if LicenseKey <> '' then
+  if LicenseKey <> '' then begin
     License.Typ := ltSingle;
+    License.Name := 'John Doe';
+    License.ExpirationDate := Date+999;
+  end else
+    License := Default(TLicense);
 end;
 
 function IsLicensed: Boolean;
 begin
   Result := License.Typ <> ltNone;
+end;
+
+function GetLicenseState: TLicenseState;
+begin
+  if License.Typ = ltNone then
+    Result := lsNotLicensed
+  else begin
+    const CurrentDate = Date;
+    if License.ExpirationDate < CurrentDate then
+      Result := lsExpired
+    else if License.ExpirationDate < IncMonth(CurrentDate, 1) then
+      Result := lsExpiring
+    else
+      Result := lsLicensed;
+  end;
+end;
+
+function GetLicenseeName: String;
+begin
+  Result := License.Name;
 end;
 
 function GetDisplayFilename(const Filename: String): String;

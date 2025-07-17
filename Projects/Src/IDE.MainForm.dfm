@@ -901,6 +901,10 @@ object MainForm: TMainForm
         Caption = 'Enter Commercial License &Key...'
         OnClick = HRegisterClick
       end
+      object HUnregister: TMenuItem
+        Caption = 'Remove Commercial License Key'
+        OnClick = HUnregisterClick
+      end
       object HDonate: TMenuItem
         Caption = '&Donate'
         OnClick = HDonateClick
