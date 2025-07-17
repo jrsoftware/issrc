@@ -112,7 +112,7 @@
 </p>
 
 <p><br/>
-Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and Martijn Laan. First introduced in 1997, Inno Setup today rivals and even surpasses many commercial installers in feature set and stability.</p>
+Inno Setup is an open-source installation builder for Windows applications. Since its introduction in 1997, Inno Setup has been trusted by developers and organizations of all sizes to reliably deploy software to millions of PCs worldwide.</p>
 
 <p><br/>
 <b><i>Key features:</i></b></p>
@@ -165,13 +165,6 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink> and <extlink href="https://www.embarcadero.com/products/delphi">Embarcardero Delphi</extlink>.</li>
 
 </ul>
-
-<p><br/>
-<b><i>Is it really free of charge, even for commercial use?</i></b></p>
-
-<p>Yes, it may be used completely free of charge, even when deploying commercial applications.</p>
-
-<p>(Note: "Completely free of charge" must not be confused with "completely free". Inno Setup is copyrighted software, <i>not</i> public domain software. There are some restrictions on distribution and use; see the LICENSE.TXT file for details.)</p>
 
 </body>
 </topic>
