@@ -928,7 +928,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
-          'Using Inno Setup commercialy? Please <a id="hpurchase">purchase a license</a>. Thanks!',
+          'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
           BannerBlue);
       end;
       UpdateUpdatePanel;
