@@ -696,7 +696,7 @@ uses
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
-  Shared.CompilerInt;
+  Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
 
@@ -899,10 +899,6 @@ constructor TMainForm.Create(AOwner: TComponent);
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
 
-      { License }
-      UpdateLicense(Ini.ReadString('License', 'LicenseKey', ''));
-      UpdatePanelDonateImage.Visible := not IsLicensed;
-
       { UpdatePanel visibility }
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
       const BannerBlue = $FFD399; { MBlue with HSL lightness changed from 42% to 80% }
@@ -1100,6 +1096,7 @@ begin
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
 
+  ReadLicense;
   UpdateCaption;
 
   FMenuDarkBackgroundBrush := TBrush.Create;
@@ -1701,14 +1698,7 @@ begin
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' - ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version) + ' ';
-  const LicenseState = GetLicenseState;
-  if LicenseState <> lsNotLicensed then begin
-    NewCaption := NewCaption + '- ' + GetLicenseeName;
-    if LicenseState = lsExpired then
-      NewCaption := NewCaption + ' (License Expired)';
-  end else
-    NewCaption := NewCaption + 'Non-Commercial';
+    String(FCompilerVersion.Version) + ' - ' + GetLicenseeDescription;
   if FCompiling then
     NewCaption := NewCaption + '  [Compiling]'
   else if FDebugging then begin
@@ -3557,20 +3547,19 @@ procedure TMainForm.HUnregisterClick(Sender: TObject);
 begin
   if MsgBox('Are you sure you want to remove your commercial license key?',
     SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
+
+    RemoveLicense;
+    UpdateCaption;
+
     const Ini = TConfigIniFile.Create;
     try
-      Ini.DeleteKey('License', 'LicenseKey');
       const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger;
       Ini.WriteInteger('UpdatePanel', 'Purchase', AskAgainDateAsInt);
-
-      UpdateLicense('');
-      UpdatePanelDonateImage.Visible := True;
-      UpdateCaption;
-
-      MsgBox('Commercial license key has been removed.', SCompilerFormCaption, mbInformation, MB_OK);
     finally
       Ini.Free;
     end;
+ 
+    MsgBox('Commercial license key has been removed.', SCompilerFormCaption, mbInformation, MB_OK);
   end;
 end;
 

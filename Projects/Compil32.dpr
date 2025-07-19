@@ -57,6 +57,7 @@ uses
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
+  Shared.LicenseFunc in 'Src\Shared.LicenseFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',

@@ -2,7 +2,7 @@ unit IDE.StartupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -59,8 +59,9 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc,
-  IDE.MainForm, IDE.ImagesModule, ComCtrls;
+  ComCtrls,
+  Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  IDE.Messages, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}
 

@@ -85,6 +85,7 @@
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
         <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
+        <DCCReference Include="Src\Shared.LicenseFunc.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="..\Components\ECDSA.pas"/>

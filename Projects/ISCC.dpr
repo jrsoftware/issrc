@@ -30,6 +30,7 @@ uses
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
+  Shared.LicenseFunc in 'Src\Shared.LicenseFunc.pas',
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA256 in '..\Components\SHA256.pas',
   ECDSA in '..\Components\ECDSA.pas',
@@ -598,6 +599,10 @@ begin
 
     if not Quiet then begin
       WriteStdOut('Compiler engine version: ' + String(Ver.Title) + ' ' + String(Ver.Version));
+      if IsLicensed then
+        WriteStdOut('Licensee name: ' + GetLicenseeDescription)
+      else
+        WriteStdOut(GetLicenseeDescription);
       WriteStdOut('');
     end;
 
@@ -672,6 +677,7 @@ begin
     StdErrHandleIsConsole := GetConsoleMode(StdErrHandle, Mode);
     SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
     try
+      ReadLicense;
       IsppMode := ISPPInstalled;
       ProcessCommandLine;
       Go;

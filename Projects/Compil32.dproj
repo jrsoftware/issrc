@@ -137,6 +137,7 @@
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.ConfigIniFile.pas"/>
         <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
+        <DCCReference Include="Src\Shared.LicenseFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
