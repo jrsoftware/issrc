@@ -6240,7 +6240,7 @@ SignTool=byparam format c:
 </setuptopic>
 
 <setuptopic directive="LZMANumBlockThreads">
-<setupvalid><tt>1</tt> through <tt>32</tt></setupvalid>
+<setupvalid><tt>1</tt> through <tt>256</tt></setupvalid>
 <setupdefault><tt>1</tt></setupdefault>
 <body>
 <p>When compressing a large amount of data, the LZMA2 compressor has the ability to divide the data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel.</p>
