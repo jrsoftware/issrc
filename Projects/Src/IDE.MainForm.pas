@@ -3543,9 +3543,14 @@ begin
   const LicenseKeyForm = TLicenseKeyForm.Create(Application);
   try
     if LicenseKeyForm.ShowModal = mrOk then begin
+
       WriteLicense;
       UpdateCaption;
-      MsgBox('Commercial license key has been registered.', SCompilerFormCaption, mbInformation, MB_OK);
+
+      MsgBox('New commercial license key has been registered:' + SNewLine2 +
+        GetLicenseeName + ', ' + GetLicenseTypeDescription + SNewLine2 +
+        'Includes updates until ' + DateToStr(GetLicenseExpirationDate) + ', major and minor.' + SNewLine2 +
+        'Thanks for your support!', SCompilerFormCaption, mbInformation, MB_OK);
     end;
   finally
     LicenseKeyForm.Free;

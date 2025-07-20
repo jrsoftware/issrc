@@ -34,11 +34,13 @@ function GetChunkedLicenseKey: String;
 function GetLicenseState: TLicenseState;
 function GetLicenseeName: String;
 function GetLicenseeDescription: String;
+function GetLicenseTypeDescription: String;
+function GetLicenseExpirationDate: TDate;
 
 implementation
 
 uses
- SysUtils, Classes, DateUtils, NetEncoding,
+ SysUtils, Classes, DateUtils, NetEncoding, RegularExpressions,
  ECDSA, SHA256, Shared.ConfigIniFile;
 
 var
@@ -97,8 +99,11 @@ function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boole
 
 begin
   Result := False;
-  if Length(LicenseKey) > 88 then begin
-    const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(LicenseKey);
+
+  const CleanLicenseKey = TRegEx.Replace(LicenseKey, '\s+', '');
+
+  if Length(CleanLicenseKey) > 88 then begin
+    const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(CleanLicenseKey);
     if Length(DecodedKey) > 64 then begin
       var Signature := Default(TECDSASignature);
       Move(DecodedKey[0], Signature.Sig_r[0], 32);
@@ -212,6 +217,23 @@ begin
       Result := Result + ' (License Expired)';
   end else
     Result := 'Non-Commercial use only';
+end;
+
+function GetLicenseTypeDescription: String;
+begin
+  case License.Typ of
+    ltSingle: Result := 'Single User';
+    ltTeam: Result := 'Team';
+    ltEnterprise: Result := 'Enterprise';
+  else
+    raise Exception.Create('Unknown License.Typ');
+  end;
+  Result := 'Inno Setup ' + Result + ' License';
+end;
+
+function GetLicenseExpirationDate: TDate;
+begin
+  Result := License.ExpirationDate;
 end;
 
 end.
