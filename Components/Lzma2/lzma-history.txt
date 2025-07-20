@@ -1,6 +1,34 @@
 HISTORY of the LZMA SDK
 -----------------------
 
+25.00          2025-07-05
+-------------------------
+- 7-Zip for Windows can now use more than 64 CPU threads for compression
+  to zip/7z/xz archives and for the 7-Zip benchmark.
+  If there are more than one processor group in Windows (on systems with more than
+  64 cpu threads), 7-Zip distributes running CPU threads across different processor groups.
+- fixed some bugs and vulnerabilities.
+
+
+24.09          2024-11-29
+-------------------------
+- The default dictionary size values for LZMA/LZMA2 compression methods were increased:
+         dictionary size   compression level
+  v24.08  v24.09  v24.09   
+          32-bit  64-bit    
+    8 MB   16 MB   16 MB   -mx4
+   16 MB   32 MB   32 MB   -mx5 : Normal
+   32 MB   64 MB   64 MB   -mx6
+   32 MB   64 MB  128 MB   -mx7 : Maximum
+   64 MB   64 MB  256 MB   -mx8
+   64 MB   64 MB  256 MB   -mx9 : Ultra
+  The default dictionary size values for 32-bit versions of LZMA/LZMA2 don't exceed 64 MB.
+- If an archive update operation uses a temporary archive folder and 
+  the archive is moved to the destination folder, 7-Zip shows the progress of moving 
+  the archive file, as this operation can take a long time if the archive is large.
+- Some bugs were fixed.
+
+
 24.07          2024-06-19
 -------------------------
 - Changes in files:
