@@ -1852,7 +1852,8 @@ var
     end);
     RegisterScriptFunc('MapArchiveExtensions', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      MapArchiveExtensions(Stack.GetString(PStart), Stack.GetString(PStart-1));
+      if SetupHeader.SevenZipLibraryName <> '' then
+        MapArchiveExtensions(Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('DEBUGGING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
