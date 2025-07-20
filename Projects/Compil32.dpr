@@ -2,7 +2,7 @@ program Compil32;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -33,6 +33,7 @@ uses
   Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
   BrowseFunc in '..\Components\BrowseFunc.pas',
   IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
+  IDE.LicenseKeyForm in 'Src\IDE.LicenseKeyForm.pas' {LicenseKeyForm},
   IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas',
   IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas',
   ScintInt in '..\Components\ScintInt.pas',

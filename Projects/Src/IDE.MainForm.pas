@@ -696,7 +696,7 @@ uses
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
-  Shared.CompilerInt, Shared.LicenseFunc;
+  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm;
 
 {$R *.DFM}
 
@@ -3540,7 +3540,16 @@ end;
 
 procedure TMainForm.HRegisterClick(Sender: TObject);
 begin
-  ;
+  const LicenseKeyForm = TLicenseKeyForm.Create(Application);
+  try
+    if LicenseKeyForm.ShowModal = mrOk then begin
+      WriteLicense;
+      UpdateCaption;
+      MsgBox('Commercial license key has been registered.', SCompilerFormCaption, mbInformation, MB_OK);
+    end;
+  finally
+    LicenseKeyForm.Free;
+  end;
 end;
 
 procedure TMainForm.HUnregisterClick(Sender: TObject);

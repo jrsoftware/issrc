@@ -21,9 +21,12 @@ type
   TLicenseState = (lsNotLicensed, lsLicensed, lsExpiring, lsExpired);
 
 procedure ReadLicense;
+procedure WriteLicense;
 procedure RemoveLicense;
 
-function UpdateLicense(const LicenseKey: String): Boolean;
+function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boolean;
+function UpdateLicense(const LicenseKey: String): Boolean; overload;
+procedure UpdateLicense(const ALicense: TLicense); overload;
 
 function IsLicensed: Boolean;
 function GetLicenseKey: String;
@@ -51,6 +54,16 @@ begin
   end;
 end;
 
+procedure WriteLicense;
+begin
+  const Ini = TConfigIniFile.Create;
+  try
+    Ini.WriteString('License', 'LicenseKey', License.Key);
+  finally
+    Ini.Free;
+  end;
+end;
+
 procedure RemoveLicense;
 begin
   const Ini = TConfigIniFile.Create;
@@ -63,7 +76,7 @@ begin
   UpdateLicense('');
 end;
 
-function UpdateLicense(const LicenseKey: String): Boolean;
+function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boolean;
 
   function ECDSAInt256FromString(const S: String): TECDSAInt256;
   begin
@@ -83,8 +96,8 @@ function UpdateLicense(const LicenseKey: String): Boolean;
   end;
 
 begin
-  if LicenseKey <> '' then begin
-    Result := False;
+  Result := False;
+  if Length(LicenseKey) > 88 then begin
     const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(LicenseKey);
     if Length(DecodedKey) > 64 then begin
       var Signature := Default(TECDSASignature);
@@ -126,10 +139,22 @@ begin
         end;
       end;
     end;
-  end else begin
+  end;
+end;
+
+function UpdateLicense(const LicenseKey: String): Boolean;
+begin
+  if LicenseKey <> '' then
+    Result := ParseLicenseKey(LicenseKey, License)
+  else begin
     License := Default(TLicense);
     Result := True;
   end;
+end;
+
+procedure UpdateLicense(const ALicense: TLicense);
+begin
+  License := ALicense;
 end;
 
 function IsLicensed: Boolean;
@@ -147,7 +172,7 @@ begin
   const Output = TStringList.Create;
   try
     var StartIndex := 1;
-    const ChunkSize = 30;
+    const ChunkSize = 28;
     while StartIndex <= Length(License.Key) do begin
       Output.Add(Copy(License.Key, StartIndex, ChunkSize));
       StartIndex := StartIndex + ChunkSize;

@@ -109,6 +109,9 @@
         <DCCReference Include="Src\IDE.SignToolsForm.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
+        <DCCReference Include="Src\IDE.LicenseKeyForm.pas">
+            <Form>LicenseKeyForm</Form>
+        </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryComboForm.pas"/>
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas"/>
         <DCCReference Include="..\Components\ScintInt.pas"/>
