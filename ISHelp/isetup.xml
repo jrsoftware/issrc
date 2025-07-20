@@ -998,6 +998,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_lzmablocksize">LZMABlockSize</link></li>
 <li><link topic="setup_lzmadictionarysize">LZMADictionarySize</link></li>
 <li><link topic="setup_lzmamatchfinder">LZMAMatchFinder</link></li>
+<li><link topic="setup_lzmanumblockthreadgroups">LZMANumBlockThreadGroups</link></li>
 <li><link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></li>
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
@@ -6250,7 +6251,19 @@ SignTool=byparam format c:
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
 <p>If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmablocksize">LZMABlockSize</link></p>
+<link topic="setup_lzmablocksize">LZMABlockSize</link><br/>
+<link topic="setup_lzmanumblockthreadgroups">LZMANumBlockThreadGroups</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="LZMANumBlockThreadGroups">
+<setupvalid><tt>1</tt> through <tt>4</tt></setupvalid>
+<setupdefault><tt>1</tt></setupdefault>
+<body>
+<p>Controls the ability of the LZMA2 compressor to distribute its threads across multiple processor groups:</p>
+<p>On Windows systems with more than 64 logical CPU cores, the operating system divides the CPUs into processor groups, each containing up to 64 logical processors. By default, all threads are assigned to a single group, which means that even if you create more than 64 threads, only 64 can run in parallel on separate cores. To actually utilize additional cores beyond the first 64, one must explicitly distribute threads across multiple processor groups.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></p>
 </body>
 </setuptopic>
 
