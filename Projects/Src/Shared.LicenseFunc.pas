@@ -214,7 +214,7 @@ begin
   if LicenseState <> lsNotLicensed then begin
     Result := GetLicenseeName;
     if LicenseState = lsExpired then
-      Result := Result + ' (License Expired)';
+      Result := Result + ' (Update entitlement ended)';
   end else
     Result := 'Non-Commercial use only';
 end;

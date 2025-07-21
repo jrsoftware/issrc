@@ -915,8 +915,8 @@ constructor TMainForm.Create(AOwner: TComponent);
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
         const Msg = IfThen(LicenseState = lsExpiring,
-          'Your license will expire soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
-          'Your license has expired. Please <a id="hpurchase">renew your license</a> or <a id="hunregister">remove it</a>. Thanks!');
+          'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
+          'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!');
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
           Msg, BannerOrange);
       end else if LicenseState = lsNotLicensed then begin
