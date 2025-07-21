@@ -134,7 +134,7 @@ begin
             var ExpirationDate: TDate;
             if TryDateFromDBDate(LicenseData[3], ExpirationDate) and (LicenseeName <> '') and
                (LicenseType >= Ord(Low(TLicenseType))) and (LicenseType <= Ord(High(TLicenseType))) then begin
-              License.Key := LicenseKey;
+              License.Key := CleanLicenseKey;
               License.Name := LicenseeName;
               License.Typ := TLicenseType(LicenseType);
               License.ExpirationDate := ExpirationDate;
