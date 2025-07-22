@@ -103,9 +103,11 @@ begin
 
   const CleanLicenseKey = TRegEx.Replace(LicenseKey, '\s+', '');
   const N = Length(CleanLicenseKey);
-  if N > 92 then begin{ { 92 = (64/3*4 rounded to a multiple of 4) + 4 }
+  if N > 92 then begin { 92 = (64/3*4 rounded to a multiple of 4) + 4 }
     if (Copy(CleanLicenseKey, 1, 2) = 'in') and (Copy(CleanLicenseKey, N-1, 2) = 'no') then begin
-      const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(Copy(CleanLicenseKey, 3, N-4));
+      var EncodedKey := Copy(CleanLicenseKey, 3, N-4); { Strip 'in' and 'no' }
+      EncodedKey := EncodedKey + StringOfChar('=', (4 - Length(EncodedKey) mod 4) mod 4); { Restore base64 padding }
+      const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(EncodedKey);
       if Length(DecodedKey) > 64 then begin
         var Signature := Default(TECDSASignature);
         Move(DecodedKey[0], Signature.Sig_r[0], 32);
