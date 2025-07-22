@@ -16,7 +16,7 @@ unit Shared.FileClass;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em;
+  Windows, SysUtils;
 
 type
   TFileCreateDisposition = (fdCreateAlways, fdCreateNew, fdOpenExisting,
@@ -71,8 +71,8 @@ type
   TMemoryFile = class(TCustomFile)
   private
     FMemory: Pointer;
-    FSize: Integer64;
-    FPosition: Integer64;
+    FSize: Cardinal;
+    FPosition: Int64;
     function ClipCount(DesiredCount: Cardinal): Cardinal;
   protected
     procedure AllocMemory(const ASize: Cardinal);
@@ -157,14 +157,12 @@ const
 
 function TCustomFile.GetCappedSize: Cardinal;
 { Like GetSize, but capped at $7FFFFFFF }
-var
-  S: Integer64;
 begin
-  S := GetSize;
-  if (S.Hi = 0) and (S.Lo and $80000000 = 0) then
-    Result := S.Lo
+  const LSize = GetSize;
+  if LSize > High(Int32) then
+    Result := High(Int32)
   else
-    Result := $7FFFFFFF;
+    Result := Cardinal(LSize);
 end;
 
 class procedure TCustomFile.RaiseError(ErrorCode: DWORD);
@@ -310,7 +308,7 @@ begin
   F := TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
   try
     AllocMemory(F.CappedSize);
-    F.ReadBuffer(FMemory^, FSize.Lo);
+    F.ReadBuffer(FMemory^, FSize);
   finally
     F.Free;
   end;
@@ -320,14 +318,14 @@ constructor TMemoryFile.CreateFromMemory(const ASource; const ASize: Cardinal);
 begin
   inherited Create;
   AllocMemory(ASize);
-  Move(ASource, FMemory^, FSize.Lo);
+  Move(ASource, FMemory^, NativeInt(FSize));
 end;
 
 constructor TMemoryFile.CreateFromZero(const ASize: Cardinal);
 begin
   inherited Create;
   AllocMemory(ASize);
-  FillChar(FMemory^, FSize.Lo, 0);
+  FillChar(FMemory^, NativeInt(FSize), 0);
 end;
 
 destructor TMemoryFile.Destroy;
@@ -339,26 +337,32 @@ end;
 
 procedure TMemoryFile.AllocMemory(const ASize: Cardinal);
 begin
+  { Limit size to the range of an Integer because the Move and FillChar
+    functions take 32-bit signed integers in 32-bit builds }
+  if ASize > Cardinal(High(Integer)) then
+    raise Exception.Create('TMemoryFile: Size limit exceeded');
+
   FMemory := Pointer(LocalAlloc(LMEM_FIXED, ASize));
   if FMemory = nil then
     OutOfMemoryError;
-  FSize.Lo := ASize;
+  FSize := ASize;
 end;
 
 function TMemoryFile.ClipCount(DesiredCount: Cardinal): Cardinal;
-var
-  BytesLeft: Integer64;
 begin
-  { First check if FPosition is already past FSize, so the Dec6464 call below
-    won't underflow }
-  if Compare64(FPosition, FSize) >= 0 then begin
+  { First check if FPosition is already past FSize, so the subtraction below
+    won't underflow. And to be extra safe, make sure FPosition isn't negative
+    (even though Seek already checks for that). }
+  if FPosition >= FSize then begin
     Result := 0;
     Exit;
   end;
-  BytesLeft := FSize;
-  Dec6464(BytesLeft, FPosition);
-  if (BytesLeft.Hi = 0) and (BytesLeft.Lo < DesiredCount) then
-    Result := BytesLeft.Lo
+  if FPosition < 0 then
+    RaiseError(ERROR_NEGATIVE_SEEK);
+
+  const BytesLeft: Cardinal = FSize - Cardinal(FPosition);
+  if DesiredCount > BytesLeft then
+    Result := BytesLeft
   else
     Result := DesiredCount;
 end;
@@ -377,8 +381,8 @@ function TMemoryFile.Read(var Buffer; Count: Cardinal): Cardinal;
 begin
   Result := ClipCount(Count);
   if Result <> 0 then begin
-    Move(Pointer(Cardinal(FMemory) + FPosition.Lo)^, Buffer, Result);
-    Inc64(FPosition, Result);
+    Move((PByte(FMemory) + Cardinal(FPosition))^, Buffer, NativeInt(Result));
+    Inc(FPosition, Result);
   end;
 end;
 
@@ -394,8 +398,8 @@ begin
   if ClipCount(Count) <> Count then
     RaiseError(ERROR_HANDLE_EOF);
   if Count <> 0 then begin
-    Move(Buffer, Pointer(Cardinal(FMemory) + FPosition.Lo)^, Count);
-    Inc64(FPosition, Count);
+    Move(Buffer, (PByte(FMemory) + Cardinal(FPosition))^, NativeInt(Count));
+    Inc(FPosition, Count);
   end;
 end;
 
@@ -523,15 +527,13 @@ const
   CRLF: array[0..1] of AnsiChar = (#13, #10);
   UTF8BOM: array[0..2] of AnsiChar = (#$EF, #$BB, #$BF);
 var
-  I: Integer64;
   C: AnsiChar;
 begin
   if not FSeekedToEnd then begin
-    I := GetSize;
-    if (I.Lo <> 0) or (I.Hi <> 0) then begin
+    const LSize = GetSize;
+    if LSize <> 0 then begin
       { File is not empty. Figure out if we have to append a line break. }
-      Dec64(I, SizeOf(C));
-      Seek64(I);
+      Seek(LSize - SizeOf(C));
       ReadBuffer(C, SizeOf(C));
       case C of
         #10: ;  { do nothing - file ends in LF or CRLF }
