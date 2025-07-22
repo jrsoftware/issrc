@@ -36,6 +36,7 @@ function GetLicenseeName: String;
 function GetLicenseeDescription: String;
 function GetLicenseTypeDescription: String;
 function GetLicenseExpirationDate: TDate;
+function GetLicenseDescription(const Prefix, Separator: String): String;
 
 implementation
 
@@ -216,7 +217,7 @@ begin
     if LicenseState = lsExpired then
       Result := Result + ' (Update entitlement ended)';
   end else
-    Result := 'Non-Commercial use only';
+    Result := 'Non-commercial use only';
 end;
 
 function GetLicenseTypeDescription: String;
@@ -234,6 +235,15 @@ end;
 function GetLicenseExpirationDate: TDate;
 begin
   Result := License.ExpirationDate;
+end;
+
+function GetLicenseDescription(const Prefix, Separator: String): String;
+begin
+  if IsLicensed then begin
+    Result := Prefix + GetLicenseeName + ', ' + GetLicenseTypeDescription + '.' + Separator;
+    Result := Result + 'Includes updates until ' + DateToStr(GetLicenseExpirationDate) + ', major and minor.';
+  end else
+    Result := GetLicenseeDescription + '.';
 end;
 
 end.

@@ -3548,8 +3548,7 @@ begin
       UpdateCaption;
 
       MsgBox('New commercial license key has been registered:' + SNewLine2 +
-        GetLicenseeName + ', ' + GetLicenseTypeDescription + SNewLine2 +
-        'Includes updates until ' + DateToStr(GetLicenseExpirationDate) + ', major and minor.' + SNewLine2 +
+        GetLicenseDescription('', SNewLine2) + SNewLine2 +
         'Thanks for your support!', SCompilerFormCaption, mbInformation, MB_OK);
     end;
   finally
@@ -3651,6 +3650,7 @@ begin
     'RemObjects Pascal Script home page:' + SNewLine +
     'https://www.remobjects.com/ps' + SNewLine2 +
     'Refer to LICENSE.TXT for conditions of distribution and use.');
+  S := S + SNewLine2 + GetLicenseDescription('Registered commercial license:' + SNewLine, SNewLine);
   MsgBox(S, 'About ' + FCompilerVersion.Title, mbInformation, MB_OK);
 end;
 
@@ -8069,20 +8069,14 @@ end;
 procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
   const Link: string; LinkType: TSysLinkType);
 begin
-  var Handled := True;
   if (LinkType = sltID) and (Link = 'hpurchase') then
     HPurchase.Click
-  else if (LinkType = sltID) and (Link = 'hunregister') then
-    HUnregister.Click
   else if (LinkType = sltID) and (Link = 'hwhatsnew') then
     HWhatsNew.Click
   else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  end else
-    Handled := False;
-  if Handled then
-    UpdatePanelClosePaintBoxClick(Sender);
+  end;
 end;
 
 procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
