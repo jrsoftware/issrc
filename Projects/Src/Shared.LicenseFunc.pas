@@ -102,44 +102,46 @@ begin
   Result := False;
 
   const CleanLicenseKey = TRegEx.Replace(LicenseKey, '\s+', '');
+  const N = Length(CleanLicenseKey);
+  if N > 92 then begin{ { 92 = (64/3*4 rounded to a multiple of 4) + 4 }
+    if (Copy(CleanLicenseKey, 1, 2) = 'in') and (Copy(CleanLicenseKey, N-1, 2) = 'no') then begin
+      const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(Copy(CleanLicenseKey, 3, N-4));
+      if Length(DecodedKey) > 64 then begin
+        var Signature := Default(TECDSASignature);
+        Move(DecodedKey[0], Signature.Sig_r[0], 32);
+        Move(DecodedKey[32], Signature.Sig_s[0], 32);
+        const LicenseBytes = Copy(DecodedKey, 64, MaxInt);
+        const LicenseHash = SHA256Buf(LicenseBytes[0], Length(LicenseBytes));
 
-  if Length(CleanLicenseKey) > 88 then begin
-    const DecodedKey = TNetEncoding.Base64.DecodeStringToBytes(CleanLicenseKey);
-    if Length(DecodedKey) > 64 then begin
-      var Signature := Default(TECDSASignature);
-      Move(DecodedKey[0], Signature.Sig_r[0], 32);
-      Move(DecodedKey[32], Signature.Sig_s[0], 32);
-      const LicenseBytes = Copy(DecodedKey, 64, MaxInt);
-      const LicenseHash = SHA256Buf(LicenseBytes[0], Length(LicenseBytes));
+        var PublicKey: TECDSAPublickey;
+        PublicKey.Public_x := ECDSAInt256FromString('76873a71a4d5cae3dfdb52f7e434582c25151e56338d6d7fd5423d1216dc3274');
+        PublicKey.Public_y := ECDSAInt256FromString('4459f8d7c0e6c03e34806a4a4b949e0c16387fb8ff2f71d2d62ce6a29c713018');
 
-      var PublicKey: TECDSAPublickey;
-      PublicKey.Public_x := ECDSAInt256FromString('76873a71a4d5cae3dfdb52f7e434582c25151e56338d6d7fd5423d1216dc3274');
-      PublicKey.Public_y := ECDSAInt256FromString('4459f8d7c0e6c03e34806a4a4b949e0c16387fb8ff2f71d2d62ce6a29c713018');
+        const ECDSAKey = TECDSAKey.Create;
+        var Verified: Boolean;
+        try
+          ECDSAKey.ImportPublicKey(PublicKey);
+          Verified := ECDSAKey.VerifySignature(LicenseHash, Signature);
+        finally
+          ECDSAKey.Free;
+        end;
 
-      const ECDSAKey = TECDSAKey.Create;
-      var Verified: Boolean;
-      try
-        ECDSAKey.ImportPublicKey(PublicKey);
-        Verified := ECDSAKey.VerifySignature(LicenseHash, Signature);
-      finally
-        ECDSAKey.Free;
-      end;
-
-      if Verified then begin
-        const LicenseString = TEncoding.UTF8.GetString(LicenseBytes);
-        if LicenseString.StartsWith('v1'#9) then begin
-          const LicenseData = LicenseString.Split([#9]);
-          if Length(LicenseData) = 4 then begin
-            const LicenseeName = LicenseData[1];
-            const LicenseType = LicenseData[2].ToInteger;
-            var ExpirationDate: TDate;
-            if TryDateFromDBDate(LicenseData[3], ExpirationDate) and (LicenseeName <> '') and
-               (LicenseType >= Ord(Low(TLicenseType))) and (LicenseType <= Ord(High(TLicenseType))) then begin
-              License.Key := CleanLicenseKey;
-              License.Name := LicenseeName;
-              License.Typ := TLicenseType(LicenseType);
-              License.ExpirationDate := ExpirationDate;
-              Result := True;
+        if Verified then begin
+          const LicenseString = TEncoding.UTF8.GetString(LicenseBytes);
+          if LicenseString.StartsWith('1'#9) then begin
+            const LicenseData = LicenseString.Split([#9]);
+            if Length(LicenseData) = 4 then begin
+              const LicenseeName = LicenseData[1];
+              const LicenseType = LicenseData[2].ToInteger;
+              var ExpirationDate: TDate;
+              if TryDateFromDBDate(LicenseData[3], ExpirationDate) and (LicenseeName <> '') and
+                 (LicenseType >= Ord(Low(TLicenseType))) and (LicenseType <= Ord(High(TLicenseType))) then begin
+                License.Key := CleanLicenseKey;
+                License.Name := LicenseeName;
+                License.Typ := TLicenseType(LicenseType);
+                License.ExpirationDate := ExpirationDate;
+                Result := True;
+              end;
             end;
           end;
         end;
