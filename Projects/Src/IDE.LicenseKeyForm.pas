@@ -21,6 +21,7 @@ type
     LicenseKeyMemo: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure LicenseKeyMemoChange(Sender: TObject);
+    procedure LicenseKeyMemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   end;
 
 implementation
@@ -28,7 +29,7 @@ implementation
 {$R *.DFM}
 
 uses
-  Shared.LicenseFunc, IDE.HelperFunc;
+  Windows, Shared.LicenseFunc, IDE.HelperFunc;
 
 procedure TLicenseKeyForm.FormCreate(Sender: TObject);
 begin
@@ -46,6 +47,12 @@ begin
     UpdateLicense(License);
     ModalResult := mrOk;
   end;
+end;
+
+procedure TLicenseKeyForm.LicenseKeyMemoKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 end.

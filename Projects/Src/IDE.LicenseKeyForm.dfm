@@ -38,6 +38,7 @@ object LicenseKeyForm: TLicenseKeyForm
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
       OnChange = LicenseKeyMemoChange
+      OnKeyDown = LicenseKeyMemoKeyDown
     end
   end
   object CancelButton: TButton
