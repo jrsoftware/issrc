@@ -35,7 +35,6 @@ function GetLicenseState: TLicenseState;
 function GetLicenseeName: String;
 function GetLicenseeDescription: String;
 function GetLicenseTypeDescription: String;
-function GetLicenseExpirationDate: TDate;
 function GetLicenseDescription(const Prefix, Separator: String): String;
 
 implementation
@@ -88,11 +87,15 @@ function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boole
 
   function TryDateFromDBDate(const S: string; out D: TDate): Boolean;
   begin
-    if S.Length = 8 then begin
+    const N = S.Length;
+    if N = 8 then begin
       const Year = Copy(S, 1, 4).ToInteger;
       const Month = Copy(S, 5, 2).ToInteger;
       const Day = Copy(S, 7, 2).ToInteger;
       D := EncodeDate(Year, Month, Day);
+      Result := True;
+    end else if N = 0 then begin
+      D := 0;
       Result := True;
     end else
       Result := False;
@@ -197,7 +200,7 @@ function GetLicenseState: TLicenseState;
 begin
   if not IsLicensed then
     Result := lsNotLicensed
-  else begin
+  else if License.ExpirationDate <> 0 then begin
     const CurrentDate = Date;
     if License.ExpirationDate < CurrentDate then
       Result := lsExpired
@@ -205,7 +208,8 @@ begin
       Result := lsExpiring
     else
       Result := lsLicensed;
-  end;
+  end else
+    Result := lsLicensed;
 end;
 
 function GetLicenseeName: String;
@@ -236,16 +240,14 @@ begin
   Result := 'Inno Setup ' + Result + ' License';
 end;
 
-function GetLicenseExpirationDate: TDate;
-begin
-  Result := License.ExpirationDate;
-end;
-
 function GetLicenseDescription(const Prefix, Separator: String): String;
 begin
   if IsLicensed then begin
     Result := Prefix + GetLicenseeName + ', ' + GetLicenseTypeDescription + '.' + Separator;
-    Result := Result + 'Includes updates until ' + DateToStr(GetLicenseExpirationDate) + ', major and minor.';
+    if License.ExpirationDate <> 0 then
+      Result := Result + 'Includes updates until ' + DateToStr(License.ExpirationDate) + ', major and minor.'
+    else
+      Result := Result + 'Includes all future updates, major and minor.';
   end else
     Result := GetLicenseeDescription + '.';
 end;
