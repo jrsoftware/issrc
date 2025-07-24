@@ -259,12 +259,11 @@ type
     function CanUndo: Boolean;
     procedure ChooseCaretX;
     procedure ClearAll;
-    procedure ClearChangeHistory;
     procedure ClearCmdKey(const Key: AnsiChar; const Shift: TShiftState); overload;
     procedure ClearCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState); overload;
     procedure ClearIndicators(const IndicatorNumber: TScintIndicatorNumber);
     procedure ClearSelection;
-    procedure ClearUndo(const AlsoClearChangeHistory: Boolean = True);
+    procedure ClearUndo(const ClearChangeHistory: Boolean = True);
     function ConvertRawStringToString(const S: TScintRawString): String;
     function ConvertPCharToRawString(const Text: PChar;
       const TextLen: Integer): TScintRawString;
@@ -634,6 +633,10 @@ begin
   Call(SCI_SETVIRTUALSPACEOPTIONS, Flags, 0);
   Call(SCI_SETWRAPMODE, Ord(FWordWrap), 0);
   Call(SCI_SETINDENTATIONGUIDES, IndentationGuides[FIndentationGuides], 0);
+  { If FChangeHistory is not schDisabled then next call to ClearUndo will enable
+    change history and else we should disable it now }
+  if FChangeHistory = schDisabled then
+    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
 end;
 
 procedure TScintEdit.AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
@@ -757,15 +760,6 @@ begin
   ChooseCaretX;
 end;
 
-procedure TScintEdit.ClearChangeHistory;
-begin
-  if FChangeHistory <> schDisabled then begin
-    const SaveChangeHistory = FChangeHistory;
-    SetChangeHistory(schDisabled);
-    SetChangeHistory(SaveChangeHistory);
-  end;
-end;
-
 procedure TScintEdit.ClearCmdKey(const Key: AnsiChar; const Shift: TShiftState);
 begin
   ClearCmdKey(KeyToKeyCode(Key), Shift);
@@ -788,7 +782,7 @@ begin
   Call(SCI_CLEAR, 0, 0);
 end;
 
-procedure TScintEdit.ClearUndo(const AlsoClearChangeHistory: Boolean);
+procedure TScintEdit.ClearUndo(const ClearChangeHistory: Boolean);
 begin
   { SCI_EMPTYUNDOBUFFER resets the save point but doesn't send a
     SCN_SAVEPOINTREACHED notification. Call SetSavePoint manually to get
@@ -796,8 +790,15 @@ begin
   SetSavePoint;
   Call(SCI_EMPTYUNDOBUFFER, 0, 0);
 
-  if AlsoClearChangeHistory then
-    ClearChangeHistory;
+  if ClearChangeHistory and (FChangeHistory <> schDisabled) then begin
+    Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
+    var Flags := SC_CHANGE_HISTORY_ENABLED;
+    if FChangeHistory = schMarkers then
+      Flags := Flags or SC_CHANGE_HISTORY_MARKERS
+    else
+      Flags := Flags or SC_CHANGE_HISTORY_INDICATORS;
+    Call(SCI_SETCHANGEHISTORY, Flags, 0);
+  end;
 end;
 
 function TScintEdit.ConvertRawStringToString(const S: TScintRawString): String;
@@ -1795,16 +1796,7 @@ procedure TScintEdit.SetChangeHistory(const Value: TScintChangeHistory);
 begin
   if FChangeHistory <> Value then begin
     FChangeHistory := Value;
-    if FChangeHistory = schDisabled then
-      Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0)
-    else begin
-      var Flags := SC_CHANGE_HISTORY_ENABLED;
-      if FChangeHistory = schMarkers then
-        Flags := Flags or SC_CHANGE_HISTORY_MARKERS
-      else
-        Flags := Flags or SC_CHANGE_HISTORY_INDICATORS;
-      Call(SCI_SETCHANGEHISTORY, Flags, 0);
-    end;
+    ApplyOptions;
   end;
 end;
 
