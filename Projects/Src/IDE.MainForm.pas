@@ -409,9 +409,11 @@ type
       ShowStartupForm: Boolean;
       UseWizard: Boolean;
       Autosave: Boolean;
+      Autoreload: Boolean;
       MakeBackups: Boolean;
       FullPathInTitleBar: Boolean;
       UndoAfterSave: Boolean;
+      UndoAfterReload: Boolean;
       PauseOnDebuggerExceptions: Boolean;
       RunAsDifferentUser: Boolean;
       AutoAutoComplete: Boolean;
@@ -576,9 +578,10 @@ type
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure NavItemClick(Sender: TObject);
-    procedure NewMainFile;
+    procedure NewMainFile(const IsReload: Boolean = False);
     procedure NewMainFileUsingWizard;
-    procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean);
+    procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean;
+      const IsReload: Boolean = False);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReadMRUMainFilesList;
@@ -615,7 +618,7 @@ type
     procedure UpdateFindRegExUI;
     procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
       const NewLine, NewLineStartPos: Integer);
-    procedure UpdatePreprocMemos;
+    procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
     procedure UpdateMarginsAndAutoCompleteIcons;
@@ -844,9 +847,11 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.ShowStartupForm := Ini.ReadBool('Options', 'ShowStartupForm', True);
       FOptions.UseWizard := Ini.ReadBool('Options', 'UseWizard', True);
       FOptions.Autosave := Ini.ReadBool('Options', 'Autosave', False);
+      FOptions.Autoreload := Ini.ReadBool('Options', 'Autoreload', True);
       FOptions.MakeBackups := Ini.ReadBool('Options', 'MakeBackups', False);
       FOptions.FullPathInTitleBar := Ini.ReadBool('Options', 'FullPathInTitleBar', False);
       FOptions.UndoAfterSave := Ini.ReadBool('Options', 'UndoAfterSave', True);
+      FOptions.UndoAfterReload := Ini.ReadBool('Options', 'UndoAfterReload', True);
       FOptions.PauseOnDebuggerExceptions := Ini.ReadBool('Options', 'PauseOnDebuggerExceptions', True);
       FOptions.RunAsDifferentUser := Ini.ReadBool('Options', 'RunAsDifferentUser', False);
       FOptions.AutoAutoComplete := Ini.ReadBool('Options', 'AutoComplete', True);
@@ -1701,7 +1706,7 @@ begin
   end;
 end;
 
-procedure TMainForm.NewMainFile;
+procedure TMainForm.NewMainFile(const IsReload: Boolean);
 var
   Memo: TIDEScintFileEdit;
 begin
@@ -1725,8 +1730,9 @@ begin
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
-  UpdatePreprocMemos;
-  FMainMemo.ClearUndo;
+  UpdatePreprocMemos(IsReload);
+  if IsReload then
+    FMainMemo.ClearUndo;
 
   FNavStacks.Clear;
   UpdateNavButtons;
@@ -1880,7 +1886,7 @@ begin
 end;
 
 procedure TMainForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
-  const MainMemoAddToRecentDocs: Boolean);
+  const MainMemoAddToRecentDocs, IsReload: Boolean);
 
   function GetStreamSaveEncoding(const Stream: TStream): TSaveEncoding;
   var
@@ -1914,18 +1920,45 @@ procedure TMainForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
       Result := nil;
   end;
 
+  type
+    TFilePosition = record
+      Selection: TScintCaretAndAnchor;
+      ScrollPosition: Integer;
+    end;
+
+  { See SciTEBase::CheckReload }
+  function GetFilePosition(const AMemo: TScintEdit): TFilePosition;
+  begin
+    Result.Selection.CaretPos := AMemo.CaretPosition;
+    Result.Selection.AnchorPos := AMemo.AnchorPosition;
+    Result.ScrollPosition := AMemo.GetDocLineFromVisibleLine(AMemo.TopLine);
+  end;
+
+  { See SciTEBase::CheckReload }
+  procedure DisplayAround(const AMemo: TScintEdit; const FilePosition: TFilePosition);
+  begin
+    AMemo.Call(SCI_SETSEL, FilePosition.Selection.AnchorPos, FilePosition.Selection.CaretPos);
+    const CurTop = AMemo.TopLine;
+    const LineTop = AMemo.GetVisibleLineFromDocLine(FilePosition.ScrollPosition);
+    AMemo.Call(SCI_LINESCROLL, 0, LineTop - CurTop);
+    AMemo.ChooseCaretX;
+  end;
+
 var
   Stream: TFileStream;
 begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
-    var NameChange := PathCompare(AMemo.Filename, AFilename) <> 0;
+    const NameChange = PathCompare(AMemo.Filename, AFilename) <> 0;
+    const FilePosition = GetFilePosition(AMemo);
 
+    if IsReload then
+      AMemo.BeginUndoAction;
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
     try
       if AMemo = FMainMemo then
-        NewMainFile
+        NewMainFile(IsReload)
       else begin
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
@@ -1941,8 +1974,14 @@ begin
         RemoveMemoBadLinesFromNav(AMemo);
     finally
       Stream.Free;
+      if IsReload then
+        AMemo.EndUndoAction;
     end;
-    AMemo.ClearUndo;
+    if IsReload then begin
+      DisplayAround(AMemo, FilePosition);
+      AMemo.SetSavePoint;
+    end else
+      AMemo.ClearUndo;
     if AMemo = FMainMemo then begin
       AMemo.Filename := AFilename;
       UpdateCaption;
@@ -4544,9 +4583,11 @@ begin
       Ini.WriteBool('Options', 'ShowStartupForm', FOptions.ShowStartupForm);
       Ini.WriteBool('Options', 'UseWizard', FOptions.UseWizard);
       Ini.WriteBool('Options', 'Autosave', FOptions.Autosave);
+      Ini.WriteBool('Options', 'Autoreload', FOptions.Autoreload);
       Ini.WriteBool('Options', 'MakeBackups', FOptions.MakeBackups);
       Ini.WriteBool('Options', 'FullPathInTitleBar', FOptions.FullPathInTitleBar);
       Ini.WriteBool('Options', 'UndoAfterSave', FOptions.UndoAfterSave);
+      Ini.WriteBool('Options', 'UndoAfterReload', FOptions.UndoAfterReload);
       Ini.WriteBool('Options', 'PauseOnDebuggerExceptions', FOptions.PauseOnDebuggerExceptions);
       Ini.WriteBool('Options', 'RunAsDifferentUser', FOptions.RunAsDifferentUser);
       Ini.WriteBool('Options', 'AutoComplete', FOptions.AutoAutoComplete);
@@ -4916,7 +4957,8 @@ begin
     StatusBar.Panels[spModified].Text := '';
 end;
 
-procedure TMainForm.UpdatePreprocMemos;
+{ Set DontUpdateRelatedVisibilty if you're going to call this function again, avoids flicker }
+procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean);
 
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList;
     const NewCloseButtons: TBoolList);
@@ -5050,8 +5092,10 @@ begin
     NewTabs.Free;
   end;
 
-  UpdateMemosTabSetVisibility;
-  UpdateBevel1Visibility;
+  if not DontUpdateRelatedVisibilty then begin
+    UpdateMemosTabSetVisibility;
+    UpdateBevel1Visibility;
+  end;
 end;
 
 procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
@@ -7533,10 +7577,11 @@ begin
     { If it has been, offer to reload it }
     if Changed then begin
       if IsWindowEnabled(Handle) then begin
-        if MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
-           SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+        if (not Memo.Modified and FOptions.Autoreload) or
+           (MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
+              SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
           if ConfirmCloseFile(False) then begin
-            OpenFile(Memo, Memo.Filename, False);
+            OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
             if Memo = FMainMemo then
               Break; { Reloading the main script will also reload all include files }
           end;
