@@ -790,6 +790,10 @@ begin
   SetSavePoint;
   Call(SCI_EMPTYUNDOBUFFER, 0, 0);
 
+  { Clearing change history requires one to disable and re-enable it. But
+    also, from Scintilla docs: "Change history depends on the undo history
+    and can only be enabled when undo history is enabled and empty." This
+    is why the following code is here. }
   if ClearChangeHistory and (FChangeHistory <> schDisabled) then begin
     Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
     var Flags := SC_CHANGE_HISTORY_ENABLED;
