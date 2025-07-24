@@ -6240,10 +6240,10 @@ SignTool=byparam format c:
 </setuptopic>
 
 <setuptopic directive="LZMANumBlockThreads">
-<setupvalid><tt>1</tt> through <tt>64</tt></setupvalid>
+<setupvalid><tt>1</tt> through <tt>256</tt></setupvalid>
 <setupdefault><tt>1</tt></setupdefault>
 <body>
-<p>When compressing a large amount of data, the LZMA2 compressor has the ability to divide the data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel.</p>
+<p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully utilized.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
 <indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<link topic="setup_lzmablocksize">LZMABlockSize</link> * 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <link topic="setup_compressionthreads">CompressionThreads</link>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>

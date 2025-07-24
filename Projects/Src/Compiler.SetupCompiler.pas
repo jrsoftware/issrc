@@ -2902,7 +2902,7 @@ begin
         CompressProps.BTMode := I;
       end;
     ssLZMANumBlockThreads: begin
-        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 64);
+        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 256);
       end;
     ssLZMANumFastBytes: begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
@@ -7673,6 +7673,7 @@ var
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
   PrivilegesRequiredValue: String;
+  GetActiveProcessorGroupCountFunc: function: WORD; stdcall;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
     multiple compiles. A separate instance must be used for each compile,
@@ -7711,6 +7712,13 @@ begin
     CompressMethod := cmLZMA2;
     CompressLevel := clLZMAMax;
     CompressProps := TLZMACompressorProps.Create;
+    GetActiveProcessorGroupCountFunc := GetProcAddress(GetModuleHandle(kernel32),
+      'GetActiveProcessorGroupCount');
+    if Assigned(GetActiveProcessorGroupCountFunc) then begin
+      const ActiveProcessorGroupCount = GetActiveProcessorGroupCountFunc;
+      if ActiveProcessorGroupCount > 1 then
+        CompressProps.NumThreadGroups := ActiveProcessorGroupCount;
+    end;
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
     UseSetupLdr := True;

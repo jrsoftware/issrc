@@ -40,6 +40,7 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    NumThreadGroups: Integer;
     WorkerProcessCheckTrust: Boolean;
     WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
@@ -56,6 +57,7 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    NumThreadGroups: Integer;
   end;
   TLZMACompressorRingBuffer = record
     Count: Longint;         { updated by reader and writer using InterlockedExchangeAdd only }
@@ -919,6 +921,7 @@ begin
       EncProps.NumFastBytes := Props.NumFastBytes;
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
+    EncProps.NumThreadGroups := Props.NumThreadGroups;
     WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
     WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
