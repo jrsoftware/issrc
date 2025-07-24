@@ -603,7 +603,7 @@ begin
   if LZMAInitialized then
     Exit;
   var Filename := CompilerDir + 'islzma.dll';
-  var M := LoadCompilerDLL(Filename, []);
+  var M := LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in islzma.dll');
   LZMAInitialized := True;
