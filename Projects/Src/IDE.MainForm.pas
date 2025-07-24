@@ -503,6 +503,7 @@ type
     FCallTipState: TCallTipState;
     FUpdatePanelMessages: TUpdatePanelMessages;
     FBuildImageList: TImageList;
+    FHighContrastActive: Boolean;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -953,6 +954,16 @@ begin
 
   InitFormFont(Self);
 
+  FHighContrastActive := HighContrastActive; { Just checking once at startup }
+  if FHighContrastActive then begin
+    { If UseVisualStyle is False (LWS_USEVISUALSTYLE is off) the regular text of the label does not
+      follow any high contrast theme but stays black instead, which is likely to be invisible.
+      Setting it to True makes all text (regular and link) to get the COLOR_HOTLIGHT color. }
+    UpdateLinkLabel.UseVisualStyle := True;
+    { COLOR_WINDOW is documented as the associated background color of COLOR_HOTLIGHT }
+    UpdatePanel.Color := GetSysColor(COLOR_WINDOW);
+  end;
+
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
     'poDefault' Position setting }
   AutoScroll := False;
@@ -990,6 +1001,8 @@ begin
 
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
+  MemosTabSet.Theme := FTheme;
+  OutputTabSet.Theme := FTheme;
 
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
@@ -6525,14 +6538,6 @@ begin
   SplitPanel.ParentBackground := False;
   SplitPanel.Color := FTheme.Colors[tcSplitterBack];
 
-  if FTheme.Dark then begin
-    MemosTabSet.Theme := FTheme;
-    OutputTabSet.Theme := FTheme;
-  end else begin
-    MemosTabSet.Theme := nil;
-    OutputTabSet.Theme := nil;
-  end;
-
   FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
   FMenuDarkHotOrSelectedBrush.Color := $2C2C2C; { Same as themed menu drawn by Windows 11, which is close to Colors[tcBack] }
 
@@ -6587,7 +6592,8 @@ begin
     var MessageToShowIndex := FUpdatePanelMessages.Count-1;
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
-    UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
+    if not FHighContrastActive then
+      UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
   end;
   UpdateBevel1Visibility;
 end;

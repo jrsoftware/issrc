@@ -81,6 +81,7 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
+function HighContrastActive: Boolean;
 
 implementation
 
@@ -136,7 +137,7 @@ function InitFormTheme(const Form: TForm): Boolean;
 begin
   Result := (Form = MainForm) or FormTheme.Dark;
   if Result then begin
-    Form.Color := InitFormThemeGetBkColor(Form = MainForm);
+    Form.Color := InitFormThemeGetBkColor(Form = MainForm); { Prevents some flicker, but not all }
 
     { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
       Unlike this article we check for Windows 10 Version 2004 because that's the first version
@@ -152,9 +153,11 @@ end;
 
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 begin
-  if WindowColor then
-    Result := FormTheme.Colors[tcBack] { This is white/window if not dark mode }
-  else
+  if WindowColor then begin
+    Result := FormTheme.Colors[tcBack]; { This is white if not dark mode }
+    if Result = clWhite then
+      Result := GetSysColor(COLOR_WINDOW); { For high contrast themes }
+	end else
     Result := FormTheme.Colors[tcToolBack]; { This is gray/btnface if not dark mode }
 end;
 
@@ -891,6 +894,15 @@ begin
     else
       Inc(I, PathCharLength(S, I));
   end;
+end;
+
+function HighContrastActive: Boolean;
+begin
+  var HighContrast: THighContrast;
+  HighContrast.cbSize := SizeOf(HighContrast);
+  Result := False;
+  if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
+    Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
 end;
 
 initialization

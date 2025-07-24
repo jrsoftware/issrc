@@ -2902,7 +2902,7 @@ begin
         CompressProps.BTMode := I;
       end;
     ssLZMANumBlockThreads: begin
-        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 32);
+        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 64);
       end;
     ssLZMANumFastBytes: begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);

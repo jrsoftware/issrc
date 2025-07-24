@@ -67,8 +67,8 @@ const
   LIntelliBack = $F8F8F8;    { VSCode Modern Light }
   LWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
   LSTOBACK = $FEEAD3;        { VSCode Modern Light }
-  LMarginFore = $716F71;     { Monokai Pro }
-  LMarginBack = $F9FBFB;     { Monokai Pro }
+  LMarginFore = $868686;     { VSCode Modern Light, tabset }
+  LMarginBack = $F8F8F8;     { VSCode Modern Light, tabset }
   LSplitterBack = LToolBack;
   LBraceBack = LWACOBack;
   LIndentGuideFore = clSilver;
