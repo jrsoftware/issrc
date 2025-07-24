@@ -47,14 +47,9 @@ function ensure_elements_visible(elementTop, elementBottom)
 
 	const scrollerElement = document.getElementById("tabbody-contents");
 
-	let yTop = get_absolute_top(elementTop);
-	let yBottom = get_absolute_top(elementBottom) + elementBottom.offsetHeight;
-
-	// Subtract 1 from yTop so that if elementTop contains a link with text that starts at
-	// exactly yTop, the link's focus rectangle won't get chopped off on Firefox (3.x),
-	// where focus rectangles are inflated by 1px (unlike IE).
-	// (Adding 1 to yBottom isn't necessary since our TDs have 1px of bottom padding.)
-	if (yTop > 0) yTop--;
+	// Inflate by 2 pixels to ensure that focus rectangles are fully visible
+	let yTop = get_absolute_top(elementTop) - 2;
+	let yBottom = get_absolute_top(elementBottom) + elementBottom.offsetHeight + 2;
 
 	// Make yTop and yBottom relative to the top of the visible client area
 	const scrollerTop = get_absolute_top(scrollerElement) + scrollerElement.scrollTop;
@@ -75,19 +70,24 @@ function ensure_elements_visible(elementTop, elementBottom)
 
 function toggle_node(id)
 {
-	var objContent = document.getElementById("nodecontent_" + id);
-	var expanding = (objContent.style.display == "none");
-	objContent.style.display = expanding ? "" : "none";
+	const contentElement = document.getElementById("nodecontent_" + id);
+	const itemElement = contentElement.parentElement;
+	const linkElement = itemElement.querySelector(":scope > a");
+	const imageElement = linkElement.querySelector(":scope > img");
 
-	document.getElementById("nodeimg_" + id).src =
-		expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
+	const expanding = (contentElement.style.display === "none");
+	contentElement.style.display = expanding ? "" : "none";
+
+	linkElement.setAttribute("aria-expanded", expanding);
+
+	imageElement.src = expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
+	imageElement.alt = expanding ? "\u25BC " : "\u25B6 ";
 
 	if (expanding) {
 		// Scroll expanded items into view. This is similar to calling scrollIntoView() but
 		// doesn't do any scrolling if the items are already fully visible.
 
-		var objCaption = document.getElementById("nodecaption_" + id);
-		ensure_elements_visible(objCaption, objContent);
+		ensure_elements_visible(itemElement, itemElement);
 	}
 }
 
@@ -141,9 +141,8 @@ function set_selected_node(newSel)
 			}
 		}
 
-		// Then scroll the node's parent TR into view
-		p = curSelectedNode.parentNode.parentNode;
-		ensure_elements_visible(p, p);
+		// Then scroll the node's A element into view
+		ensure_elements_visible(curSelectedNode, curSelectedNode);
 	}
 }
 

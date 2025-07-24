@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -64,45 +64,56 @@ INPUT {
 
 #tabbody-contents {
 	overflow: auto;
-	padding: 4px;
-}
-#tabbody-contents A {
-	/* Using inline-block because otherwise, second line of wrapped text
-	   doesn't line up with first, and on IE6, the focus rect doesn't extend
-	   all the way to the edges of Highlight area */
-	display: inline-block;
-	padding: 1px 2px;
-}
-#tabbody-contents A:link,
-#tabbody-contents A:visited {
-	color: inherit;
-	background-color: transparent;
-	text-decoration: none;
-}
-#tabbody-contents A:hover {
-	color: var(--link-hover-fg-color);
-	text-decoration: underline;
-}
-#tabbody-contents A.selectedlink:link,
-#tabbody-contents A.selectedlink:visited,
-#tabbody-contents A.focusedlink:link,
-#tabbody-contents A.focusedlink:visited {
-	color: inherit;
-	background-color: var(--selected-bg-color);
-	text-decoration: none;
-	border-radius: 4px;
-}
-#tabbody-contents TABLE {
-	border-collapse: collapse;
-}
-#tabbody-contents TD {
-	padding: 0 0 1px 0;
-}
-#tabbody-contents IMG {
-	width: 16px;
-	height: 16px;
-	border-style: none;
-	padding-right: 2px;
+
+	& > ul {
+		/* A's margin-block-end collapses with this margin */
+		margin: 4px;
+		padding: 0;
+
+		& ul {
+			margin: 0;
+			padding: 0;
+			padding-inline-start: 20px;
+		}
+	}
+	& li {
+		display: block;
+	}
+	& a:any-link {
+		display: flex;
+		inline-size: fit-content;
+		align-items: center;
+		gap: 2px;
+		margin-block-end: calc(2rem/16);
+		color: inherit;
+		background-color: transparent;
+		text-decoration: none;
+
+		&:hover {
+			color: var(--link-hover-fg-color);
+			text-decoration: underline;
+		}
+		&.selectedlink, &.focusedlink {
+			color: inherit;
+			text-decoration: none;
+
+			& > span {
+				background-color: var(--selected-bg-color);
+				border-radius: 4px;
+			}
+		}
+		& > img {
+			/* The images are 16x16, but using "min-" in case the alt text is shown and it's larger */
+			min-width: 16px;
+			min-height: 16px;
+			/* If the alt text is wider than 16px, don't allow the element to be shrunk down to min-width */
+			flex-shrink: 0;
+		}
+		& > span {
+			padding-inline: 2px;
+			padding-block: 1px;
+		}
+	}
 }
 
 
