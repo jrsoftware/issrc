@@ -1983,7 +1983,7 @@ begin
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
-      if IsReload then begin
+      if IsReload and (AMemo.ChangeHistory <> schDisabled) then begin
         { Workaround to minimize change history on reload }
         AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
         const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
