@@ -1726,12 +1726,13 @@ begin
   FMainMemo.Filename := '';
   UpdateCaption;
   FMainMemo.SaveEncoding := seUTF8WithoutBOM;
-  FMainMemo.Lines.Clear;
+  if not IsReload then
+    FMainMemo.Lines.Clear;
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
   UpdatePreprocMemos(IsReload);
-  if IsReload then
+  if not IsReload then
     FMainMemo.ClearUndo;
 
   FNavStacks.Clear;
@@ -1920,6 +1921,18 @@ procedure TMainForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
       Result := nil;
   end;
 
+  { Same as TStrings.LoadFromStream, except that it returns the loaded string }
+  function LoadFromStream(const Stream: TStream; const Encoding: TEncoding): String;
+  begin
+    const Size = Stream.Size - Stream.Position;
+    var Buffer: TBytes;
+    SetLength(Buffer, Size);
+    Stream.Read(Buffer, 0, Size);
+    var BufferEncoding := Encoding;
+    const PreambleSize = TEncoding.GetBufferEncoding(Buffer, BufferEncoding, TEncoding.Default);
+    Result := BufferEncoding.GetString(Buffer, PreambleSize, Length(Buffer) - PreambleSize);
+  end;
+
   type
     TFilePosition = record
       Selection: TScintCaretAndAnchor;
@@ -1969,7 +1982,14 @@ begin
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
-      AMemo.Lines.LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
+      const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
+      if IsReload then begin
+        { Workaround to minimize change history on reload }
+        AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+        const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
+        AMemo.Call(SCI_REPLACETARGETMINIMAL, Length(RawTextStr), RawTextStr);
+      end else
+        AMemo.Lines.Text := TextStr;
       if (AMemo <> FMainMemo) and not NameChange then
         RemoveMemoBadLinesFromNav(AMemo);
     finally
