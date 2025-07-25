@@ -138,6 +138,7 @@ type
     FWordWrap: Boolean;
     procedure ApplyOptions;
     procedure ForwardMessage(const Message: TMessage);
+    function GetAnchorPosition: Integer;
     function GetAutoCompleteActive: Boolean;
     function GetCallTipActive: Boolean;
     function GetCaretColumn: Integer;
@@ -373,6 +374,7 @@ type
     function WordAtCaretRange: TScintRange;
     procedure ZoomIn;
     procedure ZoomOut;
+    property AnchorPosition: Integer read GetAnchorPosition;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
     property CallTipActive: Boolean read GetCallTipActive;
     property CaretColumn: Integer read GetCaretColumn write SetCaretColumn;
@@ -790,6 +792,10 @@ begin
   SetSavePoint;
   Call(SCI_EMPTYUNDOBUFFER, 0, 0);
 
+  { Clearing change history requires one to disable and re-enable it. But
+    also, from Scintilla docs: "Change history depends on the undo history
+    and can only be enabled when undo history is enabled and empty." This
+    is why the following code is here. }
   if ClearChangeHistory and (FChangeHistory <> schDisabled) then begin
     Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_DISABLED, 0);
     var Flags := SC_CHANGE_HISTORY_ENABLED;
@@ -976,6 +982,11 @@ procedure TScintEdit.ForwardMessage(const Message: TMessage);
 begin
   if HandleAllocated then
     CallWindowProc(DefWndProc, Handle, Message.Msg, Message.WParam, Message.LParam);
+end;
+
+function TScintEdit.GetAnchorPosition: Integer;
+begin
+  Result := Call(SCI_GETANCHOR, 0, 0);
 end;
 
 function TScintEdit.GetAutoCompleteActive: Boolean;

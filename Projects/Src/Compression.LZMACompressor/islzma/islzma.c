@@ -73,6 +73,7 @@ SRes __stdcall LZMA_SetProps(struct LZMAHandle *handle,
 	if (handle->LZMA2) {
 		props2.numBlockThreads_Max = encProps->NumBlockThreads;
 		props2.blockSize = encProps->BlockSize;
+		props2.numThreadGroups = encProps->NumThreadGroups;
 		return Lzma2Enc_SetProps(handle->encoder2, &props2);
 	} else {
 		props1.writeEndMark = 1;

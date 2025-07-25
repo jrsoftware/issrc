@@ -14,7 +14,7 @@
 	--link-fg-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
 	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
 	--header-bg-color: light-dark(#e0e0e0, #403e41);
-	--code-bg-color: light-dark(#f0f0f0, #403e41);
+	--code-bg-color: light-dark(#f0f0f0, #353135);
 }
 HTML {
 	/* Ensure that anchor targets don't get hidden underneath the sticky header.

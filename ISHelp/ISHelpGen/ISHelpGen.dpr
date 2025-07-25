@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.17';
+  Version = '1.19';
 
   XMLFileVersion = '1';
 
@@ -398,7 +398,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.svg" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -689,8 +689,8 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
-      '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
+    SL.Add(Format('<li><a href="%s" target="bodyframe">' +
+      '<img src="images/contentstopic.svg" alt="" /><span>%s</span></a></li>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
 
@@ -698,17 +698,14 @@ var
   var
     I: Integer;
   begin
-    SL.Add('<table>');
     for I := 0 to SetupDirectives.Count-1 do
       AddLeaf(SetupDirectives[I], GenerateSetupDirectiveTopicName(SetupDirectives[I]));
-    SL.Add('</table>');
   end;
 
   procedure HandleNode(const ParentNode: IXMLNode);
   var
     Node: IXMLNode;
   begin
-    SL.Add('<table>');
     Node := ParentNode.FirstChild;
     while Assigned(Node) do begin
       if not IsWhitespace(Node) then begin
@@ -716,15 +713,17 @@ var
           elContentsHeading:
             begin
               Inc(CurHeadingID);
-              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.svg" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
-                '<td><a href="javascript:toggle_node(%d);">%s</a></td></tr>',
-                [CurHeadingID, CurHeadingID, CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
-              SL.Add(Format('<tr id="nodecontent_%d"><td></td><td>', [CurHeadingID]));
+              SL.Add(Format('<li>' +
+                '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="true">' +
+                '<img src="images/contentsheadopen.svg" alt="'#$25BC' " />' +
+                '<span>%s</span></a>',
+                [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
+              SL.Add(Format('<ul id="nodecontent_%d">', [CurHeadingID]));
               if Node.Attributes['title'] = '[Setup] section directives' then
                 HandleSetupDirectivesNode
               else
                 HandleNode(Node);
-              SL.Add('</td></tr>');
+              SL.Add('</ul></li>');
             end;
           elContentsTopic:
             AddLeaf(Node.Attributes['title'], Node.Attributes['topic']);
@@ -734,7 +733,6 @@ var
       end;
       Node := Node.NextSibling;
     end;
-    SL.Add('</table>');
   end;
 
 var
@@ -744,7 +742,9 @@ begin
   SL := TStringList.Create;
   try
     CurHeadingID := 0;
+    SL.Add('<ul>');
     HandleNode(ContentsNode);
+    SL.Add('</ul>');
 
     TemplateSL := TStringList.Create;
     try
