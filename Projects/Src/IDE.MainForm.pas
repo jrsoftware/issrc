@@ -4522,9 +4522,11 @@ begin
     OptionsForm.StartupCheck.Checked := FOptions.ShowStartupForm;
     OptionsForm.WizardCheck.Checked := FOptions.UseWizard;
     OptionsForm.AutosaveCheck.Checked := FOptions.Autosave;
+    OptionsForm.AutoreloadCheck.Checked := FOptions.Autoreload;
     OptionsForm.BackupCheck.Checked := FOptions.MakeBackups;
     OptionsForm.FullPathCheck.Checked := FOptions.FullPathInTitleBar;
     OptionsForm.UndoAfterSaveCheck.Checked := FOptions.UndoAfterSave;
+    OptionsForm.UndoAfterReloadCheck.Checked := FOptions.UndoAfterReload;
     OptionsForm.PauseOnDebuggerExceptionsCheck.Checked := FOptions.PauseOnDebuggerExceptions;
     OptionsForm.RunAsDifferentUserCheck.Checked := FOptions.RunAsDifferentUser;
     OptionsForm.AutoAutoCompleteCheck.Checked := FOptions.AutoAutoComplete;
@@ -4556,9 +4558,11 @@ begin
     FOptions.ShowStartupForm := OptionsForm.StartupCheck.Checked;
     FOptions.UseWizard := OptionsForm.WizardCheck.Checked;
     FOptions.Autosave := OptionsForm.AutosaveCheck.Checked;
+    FOptions.Autoreload := OptionsForm.AutoreloadCheck.Checked;
     FOptions.MakeBackups := OptionsForm.BackupCheck.Checked;
     FOptions.FullPathInTitleBar := OptionsForm.FullPathCheck.Checked;
     FOptions.UndoAfterSave := OptionsForm.UndoAfterSaveCheck.Checked;
+    FOptions.UndoAfterReload := OptionsForm.UndoAfterReloadCheck.Checked;
     FOptions.PauseOnDebuggerExceptions := OptionsForm.PauseOnDebuggerExceptionsCheck.Checked;
     FOptions.RunAsDifferentUser := OptionsForm.RunAsDifferentUserCheck.Checked;
     FOptions.AutoAutoComplete := OptionsForm.AutoAutoCompleteCheck.Checked;
