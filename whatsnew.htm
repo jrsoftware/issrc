@@ -11,7 +11,7 @@
       --main-bg-color: light-dark(white, #1f1f1f);
       --link-fg-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
       --link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
-      --code-bg-color: light-dark(#f0f0f0, #403e41);
+      --code-bg-color: light-dark(#f0f0f0, #353135);
     }
     body         { font: calc(14rem/16)/1.5 "Segoe UI", sans-serif; color: var(--main-fg-color); background-color: var(--main-bg-color) }
     a:link, a:visited { color: var(--link-fg-color); background-color: transparent; text-decoration: none }
@@ -25,6 +25,10 @@
     .head1       { font-size: calc(32rem/16) }
     .head2       { font-size: calc(20rem/16) }
     .ver         { font-size: calc(20rem/16); font-weight: bold }
+    code.innosetup .sec { font-weight: bold }
+    code.innosetup .key { color: #0078d4 }
+    code.innosetup .com { color: #339933 }
+    code.innosetup .con { color: #9262a8 }
 </style>
 </head>
 <body>
@@ -46,7 +50,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>For these reasons we are introducing commerical licenses. If you or your organization benefit from using Inno Setup in a commercial context, we kindly ask that you purchase a license. Thank you for helping ensure the continued development of this software.</p>
 <p>Licenses can be purchased from our <a href="https://jrsoftware.org/isorder.php">new order page</a>, which includes more questions and answers.</p>
 <span class="head2">Improved archive extraction</span>
-<p>Support for extraction of downloaded archives has been improved. It's now possible to enable support for password-protected archives,  multi-volume archives, and multiple archive formats other than .7z such as .zip. This can also be used to lower the memory requirements for extraction of .7z archives that contain large files. Additionally the <tt>[Files]</tt> section now supports archive extraction.</p>
+<p>Support for extracting archives has been improved. It's now possible to extract password-protected archives, multi-volume archives, and multiple extra archive formats such as .zip.</p>
+<p>Additionally the <tt>[Files]</tt> section now supports archive extraction. Writing Pascal Script to extract an archive is no longer necessary.</p>
 <p>All of this is optional and does <i>not</i> increase the size of Setup if not used.</p>
 <ul>
   <li>Updated <tt>[Setup]</tt> and <tt>[Files]</tt> section:
@@ -67,12 +72,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         <li>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</li>
         <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with same other flags and parameters.</li>
         <li>Example script:
-          <pre>[Setup]
-ArchiveExtraction=enhanced/nopassword
+          <pre><code class="innosetup"><span class="sec">[Setup]</span>
+<span class="key">ArchiveExtraction</span>=enhanced/nopassword
 
-[Files]
-Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
-  Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion</pre>
+<span class="sec">[Files]</span>
+<span class="key">Source</span>: "<span class="con">{tmp}</span>\MyProg-ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"</span>; \
+  <span class="key">Flags</span>: external extractarchive recursesubdirs createallsubdirs ignoreversion</code></pre>
         </li>
       </ul>
     </li>
@@ -102,11 +107,13 @@ Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
     <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> step. The archive is then extracted normally during the actual installation process.<br/>
         In this case, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</li>
     <li>Example script:
-      <pre>[Files]
-Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestName: "innosetup-latest.exe"; DestDir: "{app}"; \
-  ExternalSize: 7_000_000; Flags: external download ignoreversion
-Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg.ExtraReadmes.7z"; DestDir: "{app}"; \
-  ExternalSize: 275; Flags: external download extractarchive ignoreversion</pre>
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
+  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ExternalSize</span>: 7_000_000; <span class="key">Flags</span>: external download ignoreversion
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; \
+  <span class="key">DestName</span>: "MyProg.ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ExternalSize</span>: 275; <span class="key">Flags</span>: external download extractarchive ignoreversion</code></pre>
     </li>
     <li>Added example script <i>DownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
   </ul>
@@ -124,14 +131,14 @@ Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: 
     <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, parameter <tt>KeyID</tt> to double-check the key values, and parameter <tt>RuntimeID</tt> for runtime identification of the key.</li>
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
-      <pre>[ISSigKeys]
-Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
-Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
-Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
-; max is trusted for both exe and doc signing
-Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
-; the boss also has a key
-Name: bosskey; KeyFile: "boss.ispublickey"</pre>
+      <pre><code class="innosetup"><span class="sec">[ISSigKeys]</span>
+<span class="key">Name</span>: anna; <span class="key">KeyFile</span>: "anna.ispublickey"; <span class="key">Group</span>: exesigner
+<span class="key">Name</span>: ryan; <span class="key">KeyFile</span>: "ryan.ispublickey"; <span class="key">Group</span>: exesigner
+<span class="key">Name</span>: ivan; <span class="key">KeyFile</span>: "ivan.ispublickey"; <span class="key">Group</span>: docsigner
+<span class="com">; max is trusted for both exe and doc signing</span>
+<span class="key">Name</span>: max; <span class="key">KeyFile</span>: "max.ispublickey"; <span class="key">Group</span>: exesigner docsigner
+<span class="com">; the boss also has a key</span>
+<span class="key">Name</span>: bosskey; <span class="key">KeyFile</span>: "boss.ispublickey"</code></pre>
     </li>
   </ul>
   </li>
@@ -146,17 +153,19 @@ Name: bosskey; KeyFile: "boss.ispublickey"</pre>
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
-      <pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; \
-  ISSigAllowedKeys: "exesigner bosskey"; Flags: issigverify 
-Source: "MyProg.chm"; DestDir: "{app}"; \
-  ISSigAllowedKeys: "docsigner bosskey"; Flags: issigverify
-Source: "{src}\Extra\*.chm"; DestDir: "{app}"; \
-  ISSigAllowedKeys: "docsigner bosskey"; Flags: issigverify external; \
-  Excludes: "*.issig"
-Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestDir: "{app}"; \
-  ISSigAllowedKeys: "exesigner bosskey"; Flags: issigverify external download ignoreversion; \
-  DestName: "innosetup-latest.exe"; ExternalSize: 7_000_000</pre>
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "MyProg.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; <span class="key">Flags</span>: issigverify 
+<span class="key">Source</span>: "MyProg.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify
+<span class="key">Source</span>: "<span class="con">{src}</span>\Extra\*.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify external; \
+  <span class="key">Excludes</span>: "*.issig"
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
+  <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; \
+  <span class="key">Flags</span>: issigverify external download ignoreversion; \
+  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">ExternalSize</span>: 7_000_000</code></pre>
     </li>
   </ul>
   </li>
@@ -165,10 +174,10 @@ Source: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; DestDir: "{app
     <li>Added <tt>ISSigTool.exe</tt>, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
     <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
     <li>Example commands:
-      <pre>issigtool --key-file="MyKey.isprivatekey" generate-private-key
+      <pre><code>issigtool --key-file="MyKey.isprivatekey" generate-private-key
 issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"
 issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
-issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     </li>
   </ul>
   </li>
@@ -185,10 +194,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</pre>
     <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new [Setup] section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
     <li>Added new <tt>[Files]</tt> section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
         Example script:
-      <pre>[Files]
-Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
-  Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
-  ExternalSize: 2560; Flags: external download ignoreversion</pre>
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; \
+  <span class="key">DestName</span>: "ISCrypt.dll"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">Hash</span>: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
+  <span class="key">ExternalSize</span>: 2560; <span class="key">Flags</span>: external download ignoreversion</code></pre>
     </li>
     <li>Pascal Scripting:
       <ul>
@@ -210,7 +220,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
     </ul>
   </li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
-  <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 64.</li>
+  <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 256.</li>
   <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.<br/>
       The same applies to <tt>[Registry]</tt> parameter <tt>ValueData</tt> if <tt>ValueType</tt> is set to <tt>qword</tt>.</li>
   <li>ISPP changes:

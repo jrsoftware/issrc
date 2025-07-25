@@ -12,6 +12,7 @@ struct LZMAEncoderProps {
 	int NumBlockThreads;
 	int NumFastBytes;
 	int NumThreads;
+	int NumThreadGroups;
 };
 
 SRes __stdcall LZMA_Init(BOOL LZMA2, struct LZMAHandle **handle);
