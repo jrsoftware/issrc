@@ -691,8 +691,9 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
-  IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass,
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
