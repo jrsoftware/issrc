@@ -18,7 +18,7 @@
     a[href]:hover { color: var(--link-hover-fg-color); text-decoration: underline }
     tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: var(--code-bg-color) }
     tt           { padding: 2px 4px; border-radius: 4px }
-    pre          { line-height: normal; padding: 10px; border-radius: 6px }
+    pre          { line-height: normal; padding: 10px; border-radius: 6px; overflow-x: auto }
     li, div.limargins { margin-block: calc(5rem/16) }
     div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
     .date        { font-size: calc(11rem/16); font-weight: bold }
@@ -155,8 +155,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="key">Source</span>: "<span class="con">{src}</span>\Extra\*.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
   <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify external; \
   <span class="key">Excludes</span>: "*.issig"
-<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
-  <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
   <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; \
   <span class="key">Flags</span>: issigverify external download ignoreversion; \
   <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">ExternalSize</span>: 7_000_000</code></pre>
