@@ -18,7 +18,8 @@ type
     Typ: TLicenseType;
     ExpirationDate: TDateTime;
   end;
-  TLicenseState = (lsNotLicensed, lsLicensed, lsExpiring, lsExpired);
+  { "Expired" means update entitlement ended }
+  TLicenseState = (lsNotLicensed, lsLicensed, lsExpiring, lsExpired, lsExpiredButUpdated);
 
 procedure ReadLicense;
 procedure WriteLicense;
@@ -40,6 +41,7 @@ function GetLicenseDescription(const Prefix, Separator: String): String;
 implementation
 
 uses
+ Windows,
  SysUtils, Classes, DateUtils, NetEncoding, RegularExpressions,
  ECDSA, SHA256, Shared.ConfigIniFile;
 
@@ -196,18 +198,33 @@ begin
   end;
 end;
 
+var
+  LinkerTimeStamp: TDateTime;
+  ReadLinkerTimeStamp: Boolean;
+
 function GetLicenseState: TLicenseState;
 begin
   if not IsLicensed then
     Result := lsNotLicensed
   else if License.ExpirationDate <> 0 then begin
-    const CurrentDate = Date;
-    if License.ExpirationDate < CurrentDate then
-      Result := lsExpired
-    else if License.ExpirationDate < IncMonth(CurrentDate, 1) then
-      Result := lsExpiring
-    else
-      Result := lsLicensed;
+    if not ReadLinkerTimeStamp then begin
+      try
+        LinkerTimeStamp := PImageNtHeaders(HInstance + Cardinal(PImageDosHeader(HInstance)._lfanew)).FileHeader.TimeDateStamp / SecsPerDay + UnixDateDelta;
+      except
+      end;
+      ReadLinkerTimeStamp := True;
+    end;
+    if (LinkerTimeStamp <> 0) and (LinkerTimeStamp > License.ExpirationDate) then
+      Result := lsExpiredButUpdated
+    else begin
+      const CurrentDate = Date;
+      if License.ExpirationDate < CurrentDate then
+        Result := lsExpired
+      else if License.ExpirationDate < IncMonth(CurrentDate, 1) then
+        Result := lsExpiring
+      else
+        Result := lsLicensed;
+     end;
   end else
     Result := lsLicensed;
 end;
@@ -223,7 +240,9 @@ begin
   if LicenseState <> lsNotLicensed then begin
     Result := GetLicenseeName;
     if LicenseState = lsExpired then
-      Result := Result + ' (Update entitlement ended)';
+      Result := Result + ' (Update entitlement ended)'
+    else if LicenseState = lsExpiredButUpdated then
+      Result := Result + ' (Update entitlement ended but updated anyway)';
   end else
     Result := 'Non-commercial use only';
 end;
