@@ -84,7 +84,8 @@ type
     Msg, ConfigIdent: String;
     ConfigValue: Integer;
     Color: TColor;
-    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor);
+    HasLink: Boolean;
+    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor; const AHasLink: Boolean);
   end;
 
   TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
@@ -728,12 +729,13 @@ const
 { TUpdatePanelMessage }
 
 constructor TUpdatePanelMessage.Create(const AMsg, AConfigIdent: String;
-  const AConfigValue: Integer; const AColor: TColor);
+  const AConfigValue: Integer; const AColor: TColor; const AHasLink: Boolean);
 begin
   Msg := AMsg;
   ConfigIdent := AConfigIdent;
   ConfigValue := AConfigValue;
   Color := AColor;
+  HasLink := AHasLink;
 end;
 
 { TMainFormPopupMenu }
@@ -828,18 +830,21 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum, ConfigValueNew: Integer; const Msg: String; const Color: TColor); overload;
+    const ConfigValueDefault, ConfigValueMinimum, ConfigValueNew: Integer; const Msg: String; const Color: TColor;
+    const HasLink: Boolean); overload;
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault); { Also see HUnregisterClick }
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color,
+      	HasLink));
   end;
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueExpected: Integer; const Msg: String; const Color: TColor); overload;
+    const ConfigValueDefault, ConfigValueExpected: Integer; const Msg: String; const Color: TColor;
+    const HasLink: Boolean); overload;
   begin
     CheckUpdatePanelMessage(Ini, ConfigIdent, ConfigValueDefault, ConfigValueExpected, ConfigValueExpected,
-      Msg, Color);
+      Msg, Color, HasLink);
   end;
 
   procedure ReadConfig;
@@ -908,10 +913,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        BannerGreen);
+        BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        BannerBlue);
+        BannerBlue, True);
       const LicenseState = GetLicenseState;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
@@ -919,7 +924,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
         const Msg = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
         CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
-          Msg, BannerRed);
+          Msg, BannerRed, True);
       end else if LicenseState in [lsExpiring, lsExpired] then begin
         { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
@@ -928,14 +933,14 @@ constructor TMainForm.Create(AOwner: TComponent);
           'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
           'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!');
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
-          Msg, BannerOrange);
+          Msg, BannerOrange, True);
       end else if LicenseState = lsNotLicensed then begin
         { Ask about current commercial use, once per month }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
           'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
-          BannerBlue);
+          BannerBlue, True);
       end;
       UpdateUpdatePanel;
 
@@ -1307,6 +1312,15 @@ end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+
+  procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
+    var NControls: Integer);
+  begin
+    Inc(NControls);
+    SetLength(Controls, NControls);
+    Controls[NControls-1] := ControlToAdd;
+  end;
+
 begin
   var AShortCut := ShortCut(Key, Shift);
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
@@ -1337,18 +1351,42 @@ begin
     if BCompile.Enabled then
       BCompileClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Toggle focus between the active memo and the active bottom pane }
+    { Move focus between the active memo, the active bottom pane, and the active banner }
     Key := 0;
-    if ActiveControl <> FActiveMemo then
-      ActiveControl := FActiveMemo
-    else if StatusPanel.Visible then begin
+
+    { First get the list of controls to toggle between }
+    var Controls: TArray<TWinControl> := [FActiveMemo];
+    var NControls := Length(Controls);
+    if StatusPanel.Visible then begin
+      var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
-        tiCompilerOutput: ActiveControl := CompilerOutputList;
-        tiDebugOutput: ActiveControl := DebugOutputList;
-        tiDebugCallStack: ActiveControl := DebugCallStackList;
-        tiFindResults: ActiveControl := FindResultsList;
+        tiCompilerOutput: ControlToAdd := CompilerOutputList;
+        tiDebugOutput: ControlToAdd := DebugOutputList;
+        tiDebugCallStack: ControlToAdd := DebugCallStackList;
+        tiFindResults: ControlToAdd := FindResultsList;
+      end;
+      if ControlToAdd <> nil then
+        AddControlToArray(ControlToAdd, Controls, NControls);
+    end;
+    if UpdatePanel.Visible and FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
+      AddControlToArray(UpdateLinkLabel, Controls, NControls);
+
+    { Now move focus to next }
+    if NControls > 1 then begin
+      for var I := 0 to NControls-1 do begin
+        if ActiveControl = Controls[I] then begin
+          if I = NControls-1 then
+            ActiveControl := Controls[0]
+          else
+            ActiveControl := Controls[I+1];
+          Exit;
+        end;
       end;
     end;
+
+    { Didn't move }
+    if ActiveControl <> FActiveMemo then
+      ActiveControl := FActiveMemo;
   end;
 end;
 

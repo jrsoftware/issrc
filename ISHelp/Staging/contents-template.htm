@@ -8,16 +8,18 @@
 </head>
 <body onload="init_contents(0);">
 
-<div id="tabbar">
-<a id="tab-contents" class="selectedtab" href="javascript:select_tab('contents');">Contents</a>
-<a id="tab-index" class="unselectedtab" href="javascript:select_tab('index');">Index</a>
+<div role="tablist" id="tabbar">
+<a role="tab" id="tab-contents" aria-selected="true" aria-controls="tabbody-contents"
+   href="javascript:select_tab('contents');">Contents</a>
+<a role="tab" id="tab-index" aria-selected="false" aria-controls="tabbody-index"
+   href="javascript:select_tab('index');">Index</a>
 </div>
 
-<div id="tabbody-contents">
+<div role="tabpanel" id="tabbody-contents" tabindex="0" aria-labelledby="tab-contents">
 %CONTENTSTABLES%
 </div>
 
-<div id="tabbody-index" style="display: none">
+<div role="tabpanel" id="tabbody-index" tabindex="0" aria-labelledby="tab-index" hidden="hidden">
 <div style="margin-top: 1em; text-align: center; color: GrayText">Loading...</div>
 </div>
 

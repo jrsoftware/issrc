@@ -3531,7 +3531,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
 </tr>
 <tr>
-  <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
+  <td>Switch between the active memo, the active bottom pane, and the active banner</td><td>F6</td>
 </tr>
 </table>
 
