@@ -905,6 +905,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
       const BannerBlue = $FFD399; { MBlue with HSL lightness changed from 42% to 80% }
       const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
+      const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
         BannerGreen);
@@ -912,7 +913,14 @@ constructor TMainForm.Create(AOwner: TComponent);
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue);
       const LicenseState = GetLicenseState;
-      if LicenseState in [lsExpiring, lsExpired] then begin
+      if LicenseState = lsExpiredButUpdated then begin
+        { Complain twice per day }
+        const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
+        const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
+        const Msg = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
+        CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
+          Msg, BannerRed);
+      end else if LicenseState in [lsExpiring, lsExpired] then begin
         { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
@@ -3572,7 +3580,7 @@ end;
 
 procedure TMainForm.HUnregisterClick(Sender: TObject);
 begin
-  if MsgBox('Are you sure you want to remove your commercial license key?',
+  if MsgBox('Are you sure you want to remove your commercial license key and revert to non-commercial use only?',
     SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
 
     RemoveLicense;
@@ -8076,11 +8084,18 @@ end;
 procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
   const Link: string; LinkType: TSysLinkType);
 begin
-  if (LinkType = sltID) and (Link = 'hpurchase') then
+  if LinkType <> sltID then
+    Exit;
+
+  if Link = 'fexit' then
+    FExit.Click
+  else if Link = 'hpurchase' then
     HPurchase.Click
-  else if (LinkType = sltID) and (Link = 'hwhatsnew') then
+  else if Link = 'hunregister' then
+    HUnregister.Click
+  else if Link = 'hwhatsnew' then
     HWhatsNew.Click
-  else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
+  else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
   end;
