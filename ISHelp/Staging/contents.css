@@ -48,12 +48,12 @@ INPUT {
 		padding-inline: calc(10rem/16);
 		user-select: none;
 
-		&.selectedtab {
+		&[aria-selected="true"] {
 			font-weight: 600;  /* semibold */
 			border-block-end: 2px solid var(--link-fg-color);
 			cursor: default;
 		}
-		&.unselectedtab:hover {
+		&:not([aria-selected="true"]):hover {
 			color: var(--link-fg-color);
 		}
 	}

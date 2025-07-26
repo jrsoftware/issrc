@@ -206,18 +206,17 @@ function sync_contents()
 
 function select_tab(newTab)
 {
-	var tabs = ["contents", "index"];
+	const tabs = ["contents", "index"];
 
-	var i;
-	for (i = 0; i < tabs.length; i++) {
+	for (let i = 0; i < tabs.length; i++) {
 		if (tabs[i] != newTab) {
-			document.getElementById("tab-" + tabs[i]).className = "unselectedtab";
-			document.getElementById("tabbody-" + tabs[i]).style.display = "none";
+			document.getElementById("tab-" + tabs[i]).setAttribute("aria-selected", false);
+			document.getElementById("tabbody-" + tabs[i]).hidden = true;
 		}
 	}
 
-	document.getElementById("tab-" + newTab).className = "selectedtab";
-	document.getElementById("tabbody-" + newTab).style.display = "";
+	document.getElementById("tab-" + newTab).setAttribute("aria-selected", true);
+	document.getElementById("tabbody-" + newTab).hidden = false;
 
 	if (newTab == "index") init_index_tab();
 }
