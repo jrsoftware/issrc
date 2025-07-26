@@ -822,12 +822,12 @@ constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
     const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor;
-    const AHasLink: Boolean);
+    const HasLink: Boolean);
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
       FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color,
-        AHasLink));
+        HasLink));
   end;
 
   procedure ReadConfig;
