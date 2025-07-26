@@ -84,7 +84,8 @@ type
     Msg, ConfigIdent: String;
     ConfigValue: Integer;
     Color: TColor;
-    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor);
+    HasLink: Boolean;
+    constructor Create(const AMsg, AConfigIdent: String; const AConfigValue: Integer; const AColor: TColor; const AHasLink: Boolean);
   end;
 
   TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
@@ -719,12 +720,13 @@ const
 { TUpdatePanelMessage }
 
 constructor TUpdatePanelMessage.Create(const AMsg, AConfigIdent: String;
-  const AConfigValue: Integer; const AColor: TColor);
+  const AConfigValue: Integer; const AColor: TColor; const AHasLink: Boolean);
 begin
   Msg := AMsg;
   ConfigIdent := AConfigIdent;
   ConfigValue := AConfigValue;
   Color := AColor;
+  HasLink := AHasLink;
 end;
 
 { TMainFormPopupMenu }
@@ -819,11 +821,13 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor);
+    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor;
+    const AHasLink: Boolean);
   begin
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color,
+        AHasLink));
   end;
 
   procedure ReadConfig;
@@ -888,10 +892,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       { UpdatePanel visibility }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        $ABE3AB); //MGreen with HSL lightness changed from 40% to 78%
+        $ABE3AB, True); //MGreen with HSL lightness changed from 40% to 78%
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        $FFD399); //MBlue with HSL lightness changed from 42% to 80%
+        $FFD399, True); //MBlue with HSL lightness changed from 42% to 80%
       UpdateUpdatePanel;
 
       { Debug options }
@@ -1261,6 +1265,15 @@ end;
 
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
+
+  procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
+    var NControls: Integer);
+  begin
+    Inc(NControls);
+    SetLength(Controls, NControls);
+    Controls[NControls-1] := ControlToAdd;
+  end;
+
 begin
   var AShortCut := ShortCut(Key, Shift);
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
@@ -1291,18 +1304,42 @@ begin
     if BCompile.Enabled then
       BCompileClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Toggle focus between the active memo and the active bottom pane }
+    { Move focus between the active memo, the active bottom pane, and the active banner }
     Key := 0;
-    if ActiveControl <> FActiveMemo then
-      ActiveControl := FActiveMemo
-    else if StatusPanel.Visible then begin
+
+    { First get the list of controls to toggle between }
+    var Controls: TArray<TWinControl> := [FActiveMemo];
+    var NControls := Length(Controls);
+    if StatusPanel.Visible then begin
+      var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
-        tiCompilerOutput: ActiveControl := CompilerOutputList;
-        tiDebugOutput: ActiveControl := DebugOutputList;
-        tiDebugCallStack: ActiveControl := DebugCallStackList;
-        tiFindResults: ActiveControl := FindResultsList;
+        tiCompilerOutput: ControlToAdd := CompilerOutputList;
+        tiDebugOutput: ControlToAdd := DebugOutputList;
+        tiDebugCallStack: ControlToAdd := DebugCallStackList;
+        tiFindResults: ControlToAdd := FindResultsList;
+      end;
+      if ControlToAdd <> nil then
+        AddControlToArray(ControlToAdd, Controls, NControls);
+    end;
+    if UpdatePanel.Visible and FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
+      AddControlToArray(UpdateLinkLabel, Controls, NControls);
+
+    { Now move focus to next }
+    if NControls > 1 then begin
+      for var I := 0 to NControls-1 do begin
+        if ActiveControl = Controls[I] then begin
+          if I = NControls-1 then
+            ActiveControl := Controls[0]
+          else
+            ActiveControl := Controls[I+1];
+          Exit;
+        end;
       end;
     end;
+
+    { Didn't move }
+    if ActiveControl <> FActiveMemo then
+      ActiveControl := FActiveMemo;
   end;
 end;
 
