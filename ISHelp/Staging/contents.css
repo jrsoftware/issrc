@@ -36,14 +36,12 @@ INPUT {
 	padding-block-start: 8px;
 	padding-inline-start: 8px;
 	display: flex;
-	align-items: end;
 	overflow-x: hidden;
 
 	& > A {
 		/* Height of tabs should match topic heading */
 		line-height: calc((20rem/16) * 1.5 - 2px);
 		font-size: calc(14rem/16);
-		font-weight: bold;
 		color: inherit;
 		background-color: transparent;
 		text-decoration: none;
@@ -51,8 +49,8 @@ INPUT {
 		user-select: none;
 
 		&.selectedtab {
-			background-color: var(--main-bg-color);
-			border-block-start: 2px solid var(--link-fg-color);
+			font-weight: 600;  /* semibold */
+			border-block-end: 2px solid var(--link-fg-color);
 			cursor: default;
 		}
 		&.unselectedtab:hover {
