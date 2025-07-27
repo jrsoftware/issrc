@@ -75,9 +75,6 @@ procedure Register;
 
 implementation
 
-uses
-  Math, Resample;
-
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapButton]);
