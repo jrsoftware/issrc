@@ -68,7 +68,7 @@ var
   { Variables for command line parameters }
   SetupLdrMode: Boolean;
   SetupLdrOriginalFilename: String;
-  SetupLdrOffset0, SetupLdrOffset1: Longint;
+  SetupLdrOffset0, SetupLdrOffset1: Int64;
   SetupNotifyWndPresent: Boolean;
   SetupNotifyWnd: HWND;
   InitLang: String;
@@ -2592,14 +2592,14 @@ procedure InitializeSetup;
 var
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
-  function ExtractLongWord(var S: String): LongWord;
-  var
-    P: Integer;
+  function ExtractInt64(var S: String): Int64;
   begin
-    P := PathPos(',', S);
+    const P = Pos(',', S);
     if P = 0 then
-      raise Exception.Create('ExtractLongWord: Missing comma');
-    Result := LongWord(StrToInt(Copy(S, 1, P-1)));
+      raise Exception.Create('Error parsing command line: Missing comma');
+    Result := StrToInt64Def(Copy(S, 1, P-1), -1);
+    if Result < 0 then
+      raise Exception.Create('Error parsing command line: Invalid value');
     Delete(S, 1, P);
   end;
 
@@ -2981,10 +2981,10 @@ begin
   if CompareText(ParamName, '/SL5=') = 0 then begin
     StartParam := 2;
     SetupLdrMode := True;
-    SetupNotifyWnd := ExtractLongWord(ParamValue);
+    SetupNotifyWnd := UInt32(ExtractInt64(ParamValue));
     SetupNotifyWndPresent := True;
-    SetupLdrOffset0 := ExtractLongWord(ParamValue);
-    SetupLdrOffset1 := ExtractLongWord(ParamValue);
+    SetupLdrOffset0 := ExtractInt64(ParamValue);
+    SetupLdrOffset1 := ExtractInt64(ParamValue);
     SetupLdrOriginalFilename := ParamValue;
   end
   else begin
