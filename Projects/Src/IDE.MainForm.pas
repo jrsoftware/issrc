@@ -8053,7 +8053,7 @@ const
 begin
   var R := ARect;
   if FMenuThemeData <> 0 then begin
-    var Offset := MulDiv(1, CurrentPPI, 96);
+    var Offset := MulDiv(2, CurrentPPI, 96);
     Inc(R.Left, Offset);
     DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
   end else begin

@@ -40,7 +40,7 @@ type
     property PopupMenu;
     property ShowHint;
     property TabOrder;
-    property TabStop;
+    property TabStop default True;
     property Visible;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnPaint: TPaintEvent read FOnPaint write FOnPaint;
