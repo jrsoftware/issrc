@@ -6867,10 +6867,9 @@ var
   WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
-  SetupLdrOffsetTable: TSetupLdrOffsetTable;
-  SizeOfExe, SizeOfHeaders: Longint;
+  SizeOfExe, SizeOfHeaders: Int64;
 
-  function WriteSetup0(const F: TFile): Longint;
+  function WriteSetup0(const F: TFile): Int64;
 
     procedure WriteStream(Stream: TCustomMemoryStream; W: TCompressedBlockWriter);
     var
@@ -7000,7 +6999,7 @@ var
     Result := F.Position - StartPosition;
   end;
 
-  function CreateSetup0File: Longint;
+  function CreateSetup0File: Int64;
   var
     F: TFile;
   begin
@@ -7013,7 +7012,7 @@ var
     end;
   end;
 
-  function RoundToNearestClusterSize(const L: Longint): Longint;
+  function RoundToNearestClusterSize(const L: Int64): Int64;
   begin
     Result := (L div DiskClusterSize) * DiskClusterSize;
     if L mod DiskClusterSize <> 0 then
@@ -7021,7 +7020,7 @@ var
   end;
 
   procedure CompressFiles(const FirstDestFile: String;
-    const BytesToReserveOnFirstDisk: Longint);
+    const BytesToReserveOnFirstDisk: Int64);
   var
     CurrentTime: TSystemTime;
 
@@ -8316,7 +8315,7 @@ begin
 
             { Move the data from Setup.e?? into the Setup.exe, and write
               header data }
-            FillChar(SetupLdrOffsetTable, SizeOf(SetupLdrOffsetTable), 0);
+            var SetupLdrOffsetTable := Default(TSetupLdrOffsetTable);
             SetupLdrOffsetTable.ID := SetupLdrOffsetTableID;
             SetupLdrOffsetTable.Version := SetupLdrOffsetTableVersion;
             SetupLdrOffsetTable.Offset0 := ExeFile.Position;

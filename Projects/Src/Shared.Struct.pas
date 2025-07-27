@@ -387,17 +387,18 @@ type
   { TSetupLdrOffsetTable is stored inside SetupLdr's SetupLdrOffsetTableResID
     RCDATA resource }
   PSetupLdrOffsetTable = ^TSetupLdrOffsetTable;
-  TSetupLdrOffsetTable = packed record
+  TSetupLdrOffsetTable = record
     ID: array[1..12] of AnsiChar;   { = SetupLdrOffsetTableID }
-    Version: LongWord;              { = SetupLdrOffsetTableVersion }
-    TotalSize: LongWord;            { Minimum expected size of setup.exe }
-    OffsetEXE: LongWord;            { Offset of compressed setup.e32 }
-    UncompressedSizeEXE: LongWord;  { Size of setup.e32 before compression }
-    CRCEXE: Longint;                { CRC of setup.e32 before compression }
-    Offset0: LongWord;              { Offset of embedded setup-0.bin data }
-    Offset1: LongWord;              { Offset of embedded setup-1.bin data,
+    Version: UInt32;                { = SetupLdrOffsetTableVersion }
+    TotalSize: Int64;               { Minimum expected size of setup.exe }
+    OffsetEXE: Int64;               { Offset of compressed setup.e32 }
+    UncompressedSizeEXE: UInt32;    { Size of setup.e32 before compression }
+    CRCEXE: Int32;                  { CRC of setup.e32 before compression }
+    Offset0: Int64;                 { Offset of embedded setup-0.bin data }
+    Offset1: Int64;                 { Offset of embedded setup-1.bin data,
                                       or 0 when DiskSpanning=yes }
-    TableCRC: Longint;              { CRC of all prior fields in this record }
+    ReservedPadding: UInt32;        { Not set (just provides padding) }
+    TableCRC: Int32;                { CRC of all prior fields in this record }
   end;
 
   { TMessagesLangOptions is a simplified version of TSetupLanguageEntry that
@@ -416,7 +417,7 @@ type
 const
   SetupLdrOffsetTableResID = 11111;
   SetupLdrOffsetTableID = 'rDlPtS'#$CD#$E6#$D7#$7B#$0B#$2A;
-  SetupLdrOffsetTableVersion = 1;
+  SetupLdrOffsetTableVersion = 2;
   SetupExeModeOffset = $30;
   SetupExeModeUninstaller = $6E556E49;
   SetupExeModeRegSvr = $53526E49;
