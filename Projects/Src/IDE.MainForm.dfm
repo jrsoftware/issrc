@@ -373,7 +373,7 @@ object MainForm: TMainForm
     TabOrder = 1
     Visible = False
     StyleName = 'Windows'
-    object UpdatePanelCloseBitBtn: TNewBitBtn
+    object UpdatePanelCloseBitBtn: TBitmapButton
       AlignWithMargins = True
       Left = 328
       Top = 8
@@ -388,20 +388,22 @@ object MainForm: TMainForm
       OnClick = UpdatePanelCloseBitBtnClick
       OnPaint = UpdatePanelCloseBitBtnPaint
     end
-    object UpdatePanelDonateImage: TImage
+    object UpdatePanelDonateBitBtn: TBitmapButton
       AlignWithMargins = True
-      Left = 301
-      Top = 10
-      Width = 21
-      Height = 21
+      Left = 300
+      Top = 8
+      Width = 25
+      Height = 25
       Cursor = crHandPoint
-      Margins.Top = 10
-      Margins.Bottom = 10
+      Margins.Top = 8
+      Margins.Right = 0
+      Margins.Bottom = 8
       Align = alRight
       Center = True
       ParentShowHint = False
       ShowHint = True
-      OnClick = UpdatePanelDonateImageClick
+      TabOrder = 2
+      OnClick = UpdatePanelDonateBitBtnClick
     end
     object UpdateLinkLabel: TLinkLabel
       Left = 13

@@ -101,7 +101,7 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
+  DonateImage.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
 
   UpdateImages;
 

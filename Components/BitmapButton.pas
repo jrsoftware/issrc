@@ -1,4 +1,4 @@
-unit BitmapImage;
+unit BitmapButton;
 
 {
   Inno Setup
@@ -6,23 +6,32 @@ unit BitmapImage;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  A TImage-like component for bitmaps without the TPicture bloat
+  A TImage-like component for bitmaps without the TPicture bloat and
+  which is actually a button with a focus rectangle when focused - in
+  other words: an accessible TImage
+  
+  Make sure you set the Caption property even if it isn't visible
 
-  Also see TBitmapButton which is the TWinControl version
+  Also see TBitmapImage which is the TGraphicControl version
 }
 
 interface
 
 uses
-  Windows, Controls, Graphics, Classes;
+  Windows, Messages, Controls, Graphics, Classes;
 
 type
-  TBitmapImage = class(TGraphicControl)
+  TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
+
+  TBitmapButton = class(TCustomControl)
   private
     FAutoSize: Boolean;
     FBackColor: TColor;
     FBitmap: TBitmap;
     FCenter: Boolean;
+    FOnClick: TNotifyEvent;
+    FOnDblClick: TNotifyEvent;
+    FOnPaint: TPaintEvent;
     FReplaceColor: TColor;
     FReplaceWithColor: TColor;
     FStretch: Boolean;
@@ -36,7 +45,11 @@ type
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
     function GetBitmap: TBitmap;
+    procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
+    procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
+    procedure CNCommand(var Message: TWMCommand); message CN_COMMAND;
   protected
+    procedure CreateParams(var Params: TCreateParams); override;
     function GetPalette: HPALETTE; override;
     procedure Paint; override;
     procedure SetAutoSize(Value: Boolean); override;
@@ -48,10 +61,9 @@ type
     property Align;
     property Anchors;
     property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
-    property BackColor: TColor read FBackColor write SetBackColor default clBtnFace;
+    property BackColor: TColor read FBackColor write SetBackColor default clNone;
+    property Caption;
     property Center: Boolean read FCenter write SetCenter default False;
-    property DragCursor;
-    property DragMode;
     property Enabled;
     property ParentShowHint;
     property Bitmap: TBitmap read GetBitmap write SetBitmap;
@@ -60,16 +72,12 @@ type
     property Stretch: Boolean read FStretch write SetStretch default False;
     property ReplaceColor: TColor read FReplaceColor write SetReplaceColor default clNone;
     property ReplaceWithColor: TColor read FReplaceWithColor write SetReplaceWithColor default clNone;
+    property TabOrder;
+    property TabStop default True;
     property Visible;
-    property OnClick;
-    property OnDblClick;
-    property OnDragDrop;
-    property OnDragOver;
-    property OnEndDrag;
-    property OnMouseDown;
-    property OnMouseMove;
-    property OnMouseUp;
-    property OnStartDrag;
+    property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    property OnDblClick: TNotifyEvent read FOnDblClick write FOnDblClick;
+    property OnPaint: TPaintEvent read FOnPaint write FOnPaint;
   end;
 
 procedure Register;
@@ -81,10 +89,10 @@ uses
 
 procedure Register;
 begin
-  RegisterComponents('JR', [TBitmapImage]);
+  RegisterComponents('JR', [TBitmapButton]);
 end;
 
-function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+function TBitmapButton.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
   { Find the largest regular icon size smaller than the scaled image }
   var Size := 0;
@@ -127,28 +135,35 @@ begin
     Result := False;
 end;
 
-constructor TBitmapImage.Create(AOwner: TComponent);
+constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FBackColor := clBtnFace;
+  FBackColor := clNone;
   FBitmap := TBitmap.Create;
   FBitmap.OnChange := BitmapChanged;
   FReplaceColor := clNone;
   FReplaceWithColor := clNone;
   FStretchedBitmap := TBitmap.Create;
+  TabStop := True;
   Height := 105;
   Width := 105;
 end;
 
-destructor TBitmapImage.Destroy;
+procedure TBitmapButton.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  CreateSubClass(Params, 'BUTTON');
+end;
+
+destructor TBitmapButton.Destroy;
 begin
   FStretchedBitmap.Free;
   FBitmap.Free;
   inherited Destroy;
 end;
 
-procedure TBitmapImage.BitmapChanged(Sender: TObject);
+procedure TBitmapButton.BitmapChanged(Sender: TObject);
 begin
   FStretchedBitmapValid := False;
   if FAutoSize and (FBitmap.Width > 0) and (FBitmap.Height > 0) then
@@ -160,13 +175,13 @@ begin
   Invalidate;
 end;
 
-procedure TBitmapImage.SetAutoSize(Value: Boolean);
+procedure TBitmapButton.SetAutoSize(Value: Boolean);
 begin
   FAutoSize := Value;
   BitmapChanged(Self);
 end;
 
-procedure TBitmapImage.SetBackColor(Value: TColor);
+procedure TBitmapButton.SetBackColor(Value: TColor);
 begin
   if FBackColor <> Value then begin
     FBackColor := Value;
@@ -174,12 +189,12 @@ begin
   end;
 end;
 
-procedure TBitmapImage.SetBitmap(Value: TBitmap);
+procedure TBitmapButton.SetBitmap(Value: TBitmap);
 begin
   FBitmap.Assign(Value);
 end;
 
-procedure TBitmapImage.SetCenter(Value: Boolean);
+procedure TBitmapButton.SetCenter(Value: Boolean);
 begin
   if FCenter <> Value then begin
     FCenter := Value;
@@ -187,7 +202,7 @@ begin
   end;
 end;
 
-procedure TBitmapImage.SetReplaceColor(Value: TColor);
+procedure TBitmapButton.SetReplaceColor(Value: TColor);
 begin
   if FReplaceColor <> Value then begin
     FReplaceColor := Value;
@@ -195,7 +210,7 @@ begin
   end;
 end;
 
-procedure TBitmapImage.SetReplaceWithColor(Value: TColor);
+procedure TBitmapButton.SetReplaceWithColor(Value: TColor);
 begin
   if FReplaceWithColor <> Value then begin
     FReplaceWithColor := Value;
@@ -203,7 +218,7 @@ begin
   end;
 end;
 
-procedure TBitmapImage.SetStretch(Value: Boolean);
+procedure TBitmapButton.SetStretch(Value: Boolean);
 begin
   if FStretch <> Value then begin
     FStretch := Value;
@@ -212,19 +227,39 @@ begin
   end;
 end;
 
-function TBitmapImage.GetBitmap: TBitmap;
+function TBitmapButton.GetBitmap: TBitmap;
 begin
   Result := FBitmap;
 end;
 
-function TBitmapImage.GetPalette: HPALETTE;
+function TBitmapButton.GetPalette: HPALETTE;
 begin
   Result := FBitmap.Palette;
 end;
 
-procedure TBitmapImage.Paint;
+procedure TBitmapButton.Paint;
 begin
+  Canvas.Font := Font;
+  Canvas.Brush.Color := Color;
+  
   var R := ClientRect;
+
+  if Focused then begin
+    { See TBitBtn.DrawItem in Vcl.Buttons.pas }
+    Canvas.Pen.Color := clWindowFrame;
+    Canvas.Brush.Style := bsSolid;
+    Canvas.Brush.Color := clBtnFace;
+    Canvas.DrawFocusRect(R);
+  end;
+
+  { Note: On Windows 11 the focus rectangle border is always 2 pixels wide / high, even at 200% DPI }
+  var FocusBorderWidth: UINT := 2;
+  var FocusBorderHeight: UINT := 2;
+  SystemParametersInfo(SPI_GETFOCUSBORDERWIDTH, 0, @FocusBorderWidth, 0);
+  SystemParametersInfo(SPI_GETFOCUSBORDERHEIGHT, 0, @FocusBorderHeight, 0);
+
+  InflateRect(R, -FocusBorderWidth, -FocusBorderHeight);
+
   const Is32bit = (FBitmap.PixelFormat = pf32bit) and
     (FBitmap.AlphaFormat in [afDefined, afPremultiplied]);
 
@@ -235,7 +270,7 @@ begin
     H := R.Height;
     Bmp := FStretchedBitmap;
     if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
-        (FStretchedBitmap.Height <> H) then begin
+       (FStretchedBitmap.Height <> H) then begin
       FStretchedBitmapValid := True;
       if (FBitmap.Width = W) and (FBitmap.Height = H) then
         FStretchedBitmap.Assign(FBitmap)
@@ -288,6 +323,29 @@ begin
     Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
   end else
     Canvas.Draw(X, Y, Bmp);
+
+  if Assigned(FOnPaint) then
+    FOnPaint(Self, Canvas, R);
+end;
+
+procedure TBitmapButton.WMSetFocus(var Message: TWMSetFocus);
+begin
+  inherited;
+  Invalidate;
+end;
+
+procedure TBitmapButton.WMKillFocus(var Message: TWMKillFocus);
+begin
+  inherited;
+  Invalidate;
+end;
+
+procedure TBitmapButton.CNCommand(var Message: TWMCommand);
+begin
+  if (Message.NotifyCode = BN_CLICKED) and Assigned(FOnClick) then
+    FOnClick(Self)
+  else if (Message.NotifyCode = BN_DBLCLK) and Assigned(FOnDblClick) then
+    FOnDblClick(Self);
 end;
 
 end.
