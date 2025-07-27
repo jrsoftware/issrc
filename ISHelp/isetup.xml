@@ -111,11 +111,9 @@
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
-<p><br/>
-Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and Martijn Laan. First introduced in 1997, Inno Setup today rivals and even surpasses many commercial installers in feature set and stability.</p>
+<p>Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and Martijn Laan. First introduced in 1997, Inno Setup today rivals and even surpasses many commercial installers in feature set and stability.</p>
 
-<p><br/>
-<b><i>Key features:</i></b></p>
+<p><b><i>Key features:</i></b></p>
 
 <ul>
 
@@ -166,8 +164,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 </ul>
 
-<p><br/>
-<b><i>Is it really free of charge, even for commercial use?</i></b></p>
+<p><b><i>Is it really free of charge, even for commercial use?</i></b></p>
 
 <p>Yes, it may be used completely free of charge, even when deploying commercial applications.</p>
 
@@ -190,7 +187,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>To give you an idea of how this all works, start the Compiler IDE, click <i>File | Open</i>, and select one of the script files in the Examples subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
 
-<p><br/><b>See also:</b><br/>
+<p><b>See also:</b><br/>
 <link topic="scriptformatoverview">Script Format Overview</link>
 </p>
 
@@ -248,7 +245,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 
 <p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
-<p><br/><b>See also:</b><br/>
+<p><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
 <link topic="consts">Constants</link><br/>
 <link topic="commonparams">Common Parameters</link><br/>
@@ -977,7 +974,7 @@ DefaultGroupName=My Program
 
 <p>By default, any leading or trailing whitespace in a directive's value will be stripped. It is possible to avoid this by surrounding the directive's value in double quotes (<tt>"</tt>).</p>
 
-<p><br/>The following directives can be placed in the <tt>[Setup]</tt> section:</p>
+<p>The following directives can be placed in the <tt>[Setup]</tt> section:</p>
 
 <p>(<b>bold</b> = required)</p>
 
@@ -3539,7 +3536,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
 </tr>
 <tr>
-  <td>Switch between the active memo and the active bottom pane</td><td>F6</td>
+  <td>Switch between the active memo, the active bottom pane, and the active banner</td><td>F6</td>
 </tr>
 </table>
 

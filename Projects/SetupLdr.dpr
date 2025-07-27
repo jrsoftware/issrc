@@ -495,7 +495,7 @@ begin
 
         { Now execute Setup. Use the exit code it returns as our exit code. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
-          [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
+          [UInt32(SetupLdrWnd), OffsetTable.Offset0, OffsetTable.Offset1]) +
           SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
 
         { Synchronize our active language with Setup's, in case we need to
