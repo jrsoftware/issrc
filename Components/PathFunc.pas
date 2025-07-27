@@ -19,7 +19,6 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String): Integer;
-function PathSame(const S1, S2: String): Boolean;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
@@ -41,6 +40,7 @@ function PathNormalizeSlashes(const S: String): String;
 function PathPathPartLength(const Filename: String;
   const IncludeSlashesAfterPath: Boolean): Integer;
 function PathPos(Ch: Char; const S: String): Integer;
+function PathSame(const S1, S2: String): Boolean;
 function PathStartsWith(const S, AStartsWith: String): Boolean;
 function PathStrNextChar(const S: PChar): PChar;
 function PathStrPrevChar(const Start, Current: PChar): PChar;
@@ -156,11 +156,6 @@ function PathCompare(const S1, S2: String): Integer;
 { Compares two filenames, and returns 0 if they are equal. }
 begin
   Result := CompareStr(PathLowercase(S1), PathLowercase(S2));
-end;
-
-function PathSame(const S1, S2: String): Boolean;
-begin
-  Result := PathCompare(S1, S2) = 0;
 end;
 
 function PathDrivePartLength(const Filename: String): Integer;
@@ -533,6 +528,15 @@ begin
     else
       Inc(I, PathCharLength(Result, I));
   end;
+end;
+
+function PathSame(const S1, S2: String): Boolean;
+{ Returns True if the specified strings (typically filenames) are equal, using
+  a case-insensitive ordinal comparison.
+  Like PathCompare, but faster for checking equality as it returns False
+  immediately if the strings are different lengths. }
+begin
+  Result := (Length(S1) = Length(S2)) and (PathCompare(S1, S2) = 0);
 end;
 
 function PathStartsWith(const S, AStartsWith: String): Boolean;
