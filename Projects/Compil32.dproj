@@ -127,6 +127,7 @@
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
         <DCCReference Include="..\Components\DropListBox.pas"/>
+        <DCCReference Include="..\Components\NewBitBtn.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>

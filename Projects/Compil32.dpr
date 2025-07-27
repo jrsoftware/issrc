@@ -47,6 +47,7 @@ uses
   NewStaticText in '..\Components\NewStaticText.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
+  NewBitBtn in '..\Components\NewBitBtn.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
