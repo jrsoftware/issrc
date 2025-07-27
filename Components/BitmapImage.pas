@@ -35,7 +35,6 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
-    function GetBitmap: TBitmap;
   protected
     function GetPalette: HPALETTE; override;
     procedure Paint; override;
@@ -54,7 +53,7 @@ type
     property DragMode;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read GetBitmap write SetBitmap;
+    property Bitmap: TBitmap read FBitmap write SetBitmap;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FStretch write SetStretch default False;
@@ -210,11 +209,6 @@ begin
     FStretchedBitmap.Assign(nil);
     BitmapChanged(Self);
   end;
-end;
-
-function TBitmapImage.GetBitmap: TBitmap;
-begin
-  Result := FBitmap;
 end;
 
 function TBitmapImage.GetPalette: HPALETTE;

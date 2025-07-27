@@ -44,7 +44,6 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
-    function GetBitmap: TBitmap;
     procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
     procedure CNCommand(var Message: TWMCommand); message CN_COMMAND;
@@ -66,7 +65,7 @@ type
     property Center: Boolean read FCenter write SetCenter default False;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read GetBitmap write SetBitmap;
+    property Bitmap: TBitmap read FBitmap write SetBitmap;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FStretch write SetStretch default False;
@@ -225,11 +224,6 @@ begin
     FStretchedBitmap.Assign(nil);
     BitmapChanged(Self);
   end;
-end;
-
-function TBitmapButton.GetBitmap: TBitmap;
-begin
-  Result := FBitmap;
 end;
 
 function TBitmapButton.GetPalette: HPALETTE;
