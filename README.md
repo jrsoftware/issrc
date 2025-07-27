@@ -86,6 +86,7 @@ directory.
 - BidiCtrls
 - BitmapImage
 - FolderTreeView
+- NewBitBtn
 - NewCheckListBox
 - NewNotebookReg
 - NewProgressBar
