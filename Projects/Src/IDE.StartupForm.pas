@@ -104,7 +104,9 @@ begin
 
   if IsLicensed then begin
     DonateImage.Visible := False;
-    MailingListImage.Left := DonateImage.Left;
+    const DiffX = MailingListImage.Left - DonateImage.Left;
+    MailingListImage.Left := MailingListImage.Left - DiffX;
+    StartupCheck.Left := StartupCheck.Left - DiffX;
   end else
     DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
 
