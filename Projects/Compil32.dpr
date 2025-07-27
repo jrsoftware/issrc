@@ -48,6 +48,7 @@ uses
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
   BitmapButton in '..\Components\BitmapButton.pas',
+  BitmapImage in '..\Components\BitmapImage.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',

@@ -302,11 +302,6 @@ end;
 
 { TBitmapImage }
 
-function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
-begin
-  Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
-end;
-
 constructor TBitmapImage.Create(AOwner: TComponent);
 begin
   inherited;
@@ -321,6 +316,11 @@ destructor TBitmapImage.Destroy;
 begin
   FImpl.DeInit;
   inherited;
+end;
+
+function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
 end;
 
 procedure TBitmapImage.SetAutoSize(Value: Boolean);
