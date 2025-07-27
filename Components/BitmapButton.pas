@@ -30,7 +30,6 @@ type
     FOnClick: TNotifyEvent;
     FOnDblClick: TNotifyEvent;
     FOnPaint: TPaintEvent;
-    procedure BitmapChanged(Sender: TObject);
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
@@ -89,17 +88,11 @@ begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
 end;
 
-procedure TBitmapButton.BitmapChanged(Sender: TObject);
-begin
-  FImpl.BitmapChanged(Sender)
-end;
-
 constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FImpl := Default(TBitmapImageImplementation);
-  FImpl.Init(Self, BitmapChanged);
+  FImpl.Init(Self);
   TabStop := True;
   Height := 105;
   Width := 105;

@@ -30,7 +30,7 @@ type
     Stretch: Boolean;
     StretchedBitmap: TBitmap;
     StretchedBitmapValid: Boolean;
-    procedure Init(const AControl: TControl; const AOnBitmapChanged: TNotifyEvent);
+    procedure Init(const AControl: TControl);
     procedure DeInit;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     procedure BitmapChanged(Sender: TObject);
@@ -48,7 +48,6 @@ type
   TBitmapImage = class(TGraphicControl)
   private
     FImpl: TBitmapImageImplementation;
-    procedure BitmapChanged(Sender: TObject);
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
@@ -105,11 +104,11 @@ end;
 
 { TBitmapImageImplementation }
 
-procedure TBitmapImageImplementation.Init(const AControl: TControl; const AOnBitmapChanged: TNotifyEvent);
+procedure TBitmapImageImplementation.Init(const AControl: TControl);
 begin
   FControl := AControl;
   Bitmap := TBitmap.Create;
-  Bitmap.OnChange := AOnBitmapChanged;
+  Bitmap.OnChange := BitmapChanged;
   BackColor := clNone;
   ReplaceColor := clNone;
   ReplaceWithColor := clNone;
@@ -308,17 +307,11 @@ begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
 end;
 
-procedure TBitmapImage.BitmapChanged(Sender: TObject);
-begin
-  FImpl.BitmapChanged(Sender);
-end;
-
 constructor TBitmapImage.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FImpl := Default(TBitmapImageImplementation);
-  FImpl.Init(Self, BitmapChanged);
+  FImpl.Init(Self);
   FImpl.BackColor := clBtnFace;
   Height := 105;
   Width := 105;
