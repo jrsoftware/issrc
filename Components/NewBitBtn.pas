@@ -6,7 +6,7 @@ unit NewBitBtn;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TNewBitBtn - a simple TBitBtn-like compontent which its a true
+  TNewBitBtn - a simple TBitBtn-like compontent which is a true
   button but only paints a bitmap and nothing else, except a focus
   rectangle when focused - in other words: an accessible TImage
 }
@@ -14,12 +14,15 @@ unit NewBitBtn;
 interface
 
 uses
-  System.Classes, Winapi.Messages, Vcl.Controls;
+  System.Classes, System.SysUtils, System.Types, Winapi.Messages, Vcl.Controls, Vcl.Graphics;
 
 type
+  TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
+
   TNewBitBtn = class(TCustomControl)
   private
     FOnClick: TNotifyEvent;
+    FOnPaint: TPaintEvent;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
@@ -40,6 +43,7 @@ type
     property TabStop;
     property Visible;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
+    property OnPaint: TPaintEvent read FOnPaint write FOnPaint;
   end;
 
 procedure Register;
@@ -47,7 +51,7 @@ procedure Register;
 implementation
 
 uses
-  Vcl.Graphics;
+  Winapi.Windows;
 
 constructor TNewBitBtn.Create(AOwner: TComponent);
 begin
@@ -66,6 +70,8 @@ end;
 
 procedure TNewBitBtn.Paint;
 begin
+  Canvas.Font := Font;
+  Canvas.Brush.Color := Color;
   if csDesigning in ComponentState then begin
     Canvas.Pen.Style := psDash;
     Canvas.Brush.Style := bsClear;
@@ -81,6 +87,17 @@ begin
     Canvas.Brush.Color := clBtnFace;
     Canvas.DrawFocusRect(R);
   end;
+
+  { Note: On Windows 11 the focus rectangle border is always 2 pixels wide / high, even at 200% DPI }
+  var FocusBorderWidth: UINT := 2;
+  var FocusBorderHeight: UINT := 2;
+  SystemParametersInfo(SPI_GETFOCUSBORDERWIDTH, 0, @FocusBorderWidth, 0);
+  SystemParametersInfo(SPI_GETFOCUSBORDERHEIGHT, 0, @FocusBorderHeight, 0);
+
+  InflateRect(R, -FocusBorderWidth, -FocusBorderHeight);
+
+  if Assigned(FOnPaint) then
+    FOnPaint(Self, Canvas, R);
 
   {!!!}
 end;
