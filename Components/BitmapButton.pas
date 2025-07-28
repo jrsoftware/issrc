@@ -26,6 +26,7 @@ type
 
   TBitmapButton = class(TCustomControl)
   private
+    FFocusBorderWidth, FFocusBorderHeight: Integer;
     FImpl: TBitmapImageImplementation;
     FOnClick: TNotifyEvent;
     FOnDblClick: TNotifyEvent;
@@ -46,6 +47,7 @@ type
     procedure SetAutoSize(Value: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CreateHandle; override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
@@ -84,7 +86,9 @@ constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FImpl.Init(Self);
+  FFocusBorderWidth := 2;
+  FFocusBorderHeight := 2;
+  FImpl.Init(Self, 2*FFocusBorderWidth, 2*FFocusBorderHeight);
   TabStop := True;
   Height := 105;
   Width := 105;
@@ -94,6 +98,26 @@ procedure TBitmapButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   CreateSubClass(Params, 'BUTTON');
+end;
+
+procedure TBitmapButton.CreateHandle;
+begin
+  inherited;
+  { Note: On Windows 11 the focus border is always 2 pixels wide / high, even at 200% DPI and even
+    when calling GetSystemMetricsForDpi, so on Windows 11 this code does nothing }
+
+  var W := GetSystemMetrics(SM_CXFOCUSBORDER); { This calls GetSystemMetricsForDpi }
+  if W = 0 then
+    W := 2;
+  var H := GetSystemMetrics(SM_CYFOCUSBORDER);
+  if H = 0 then
+    H := 2;
+
+  if (W <> FFocusBorderWidth) or (H <> FFocusBorderHeight) then begin
+    FFocusBorderWidth := W;
+    FFocusBorderHeight := H;
+    FImpl.SetAutoSizeExtraWidthHeight(Self, 2*FFocusBorderWidth, 2*FFocusBorderHeight);
+  end;
 end;
 
 destructor TBitmapButton.Destroy;
@@ -162,13 +186,7 @@ begin
     Canvas.DrawFocusRect(R);
   end;
 
-  { Note: On Windows 11 the focus rectangle border is always 2 pixels wide / high, even at 200% DPI }
-  var FocusBorderWidth: UINT := 2;
-  var FocusBorderHeight: UINT := 2;
-  SystemParametersInfo(SPI_GETFOCUSBORDERWIDTH, 0, @FocusBorderWidth, 0);
-  SystemParametersInfo(SPI_GETFOCUSBORDERHEIGHT, 0, @FocusBorderHeight, 0);
-
-  InflateRect(R, -FocusBorderWidth, -FocusBorderHeight);
+  InflateRect(R, -FFocusBorderWidth, -FFocusBorderHeight);
 
   FImpl.Paint(Canvas, R);
 

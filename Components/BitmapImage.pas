@@ -22,6 +22,7 @@ type
     FControl: TControl;
   public
     AutoSize: Boolean;
+    AutoSizeExtraWidth, AutoSizeExtraHeight: Integer;
     BackColor: TColor;
     Bitmap: TBitmap;
     Center: Boolean;
@@ -30,11 +31,13 @@ type
     Stretch: Boolean;
     StretchedBitmap: TBitmap;
     StretchedBitmapValid: Boolean;
-    procedure Init(const AControl: TControl);
+    procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
+      const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     procedure BitmapChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
+    procedure SetAutoSizeExtraWidthHeight(Sender: TObject; Width, Height: Integer);
     procedure SetBackColor(Sender: TObject; Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Sender: TObject; Value: Boolean);
@@ -104,9 +107,12 @@ end;
 
 { TBitmapImageImplementation }
 
-procedure TBitmapImageImplementation.Init(const AControl: TControl);
+procedure TBitmapImageImplementation.Init(const AControl: TControl;
+  const AAutoSizeExtraWidth, AAutoSizeExtraHeight: Integer);
 begin
   FControl := AControl;
+  AutoSizeExtraWidth := AAutoSizeExtraWidth;
+  AutoSizeExtraHeight := AAutoSizeExtraHeight;
   Bitmap := TBitmap.Create;
   Bitmap.OnChange := BitmapChanged;
   BackColor := clNone;
@@ -168,7 +174,8 @@ procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
 begin
   StretchedBitmapValid := False;
   if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
-    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width, Bitmap.Height);
+    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
+      Bitmap.Height + AutoSizeExtraHeight);
   if (Bitmap.Width >= FControl.Width) and (Bitmap.Height >= FControl.Height) then
     FControl.ControlStyle := FControl.ControlStyle + [csOpaque] - [csParentBackground]
   else
@@ -180,6 +187,16 @@ procedure TBitmapImageImplementation.SetAutoSize(Sender: TObject; Value: Boolean
 begin
   AutoSize := Value;
   BitmapChanged(Sender);
+end;
+
+procedure TBitmapImageImplementation.SetAutoSizeExtraWidthHeight(Sender: TObject; Width, Height: Integer);
+begin
+  if (Width <> AutoSizeExtraWidth) or (Height <> AutoSizeExtraHeight) then begin
+    AutoSizeExtraWidth := Width;
+    AutoSizeExtraHeight := Height;
+    if AutoSize then
+      BitmapChanged(Sender);
+  end;
 end;
 
 procedure TBitmapImageImplementation.SetBackColor(Sender: TObject; Value: TColor);
