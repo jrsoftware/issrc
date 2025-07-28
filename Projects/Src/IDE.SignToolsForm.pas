@@ -32,7 +32,7 @@ type
     procedure SignToolsListBoxDblClick(Sender: TObject);
   private
     FSignTools: TStringList;
-    procedure CommandDocImageClick(Sender: TObject);
+    procedure CommandDocBitBtnClick(Sender: TObject);
     procedure UpdateSignTools;
     procedure UpdateSignToolsButtons;
     procedure SetSignTools(SignTools: TStringList);
@@ -91,7 +91,7 @@ begin
   SendMessage(Handle, WM_SETICON, ICON_BIG, 0);
 end;
 
-procedure TSignToolsForm.CommandDocImageClick(Sender: TObject);
+procedure TSignToolsForm.CommandDocBitBtnClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_setup_signtool.htm')));
@@ -128,7 +128,7 @@ begin
       end;
     end;
 
-    if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True, CommandDocImageClick) then begin
+    if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
         AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
         Exit;
