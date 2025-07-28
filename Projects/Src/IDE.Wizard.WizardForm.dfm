@@ -1057,10 +1057,11 @@ object WizardForm: TWizardForm
           object AppRegistryMinVerDocBitBtn: TBitmapButton
             Left = 358
             Top = 159
-            Width = 22
-            Height = 22
+            Width = 20
+            Height = 20
             Anchors = [akTop, akRight]
             AutoSize = True
+            Caption = 'Help'
             TabOrder = 9
           end
           object AppRegistryFileLabel: TNewStaticText

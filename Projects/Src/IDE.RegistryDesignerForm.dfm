@@ -21,10 +21,11 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryMinVerDocBitBtn: TBitmapButton
     Left = 404
     Top = 168
-    Width = 22
-    Height = 22
+    Width = 20
+    Height = 20
     Anchors = [akTop, akRight]
     AutoSize = True
+    Caption = 'Help'
     TabOrder = 9
   end
   object Panel1: TPanel
