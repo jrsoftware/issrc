@@ -7,7 +7,9 @@ Source: "ismail.bmp"; Flags: dontcopy noencryption
 
 [CustomMessages]
 ; No need to localize: The IS website is in English only
+IsDonateAndMailDonateCaption=Donate
 IsDonateAndMailDonateHint=Support Inno Setup - Thank you!
+IsDonateAndMailMailCaption=Subscribe
 IsDonateAndMailMailHint=Be notified by e-mail of new Inno Setup releases
 
 [Code]
@@ -41,7 +43,7 @@ begin
   DonateBitmapButton := TBitmapButton.Create(WizardForm);
   DonateBitmapButton.AutoSize := True;
   DonateBitmapButton.Bitmap.LoadFromFile(ImageFileName);
-  DonateBitmapButton.Caption := 'Donate';
+  DonateBitmapButton.Caption := CustomMessage('IsDonateAndMailDonateCaption');
   DonateBitmapButton.Hint := CustomMessage('IsDonateAndMailDonateHint');
   DonateBitmapButton.ShowHint := True;
   DonateBitmapButton.Anchors := [akLeft, akBottom];
@@ -58,7 +60,7 @@ begin
   MailBitmapButton := TBitmapButton.Create(WizardForm);
   MailBitmapButton.AutoSize := True;
   MailBitmapButton.Bitmap.LoadFromFile(ImageFileName);
-  MailBitmapButton.Caption := 'Subscribe';
+  MailBitmapButton.Caption := CustomMessage('IsDonateAndMailMailCaption');
   MailBitmapButton.Hint := CustomMessage('IsDonateAndMailMailHint');
   MailBitmapButton.ShowHint := True;
   MailBitmapButton.Anchors := [akLeft, akBottom];
