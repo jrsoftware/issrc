@@ -176,7 +176,7 @@ begin
 
   var R := ClientRect;
 
-  if Focused then begin
+  if Focused and (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
     { See TBitBtn.DrawItem in Vcl.Buttons.pas }
     Canvas.Pen.Color := clWindowFrame;
     Canvas.Brush.Style := bsSolid;
