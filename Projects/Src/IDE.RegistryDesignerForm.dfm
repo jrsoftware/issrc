@@ -18,15 +18,14 @@ object RegistryDesignerForm: TRegistryDesignerForm
     496
     347)
   TextHeight = 13
-  object AppRegistryMinVerDocImage: TImage
-    Left = 406
-    Top = 170
-    Width = 16
-    Height = 16
+  object AppRegistryMinVerDocBitBtn: TBitmapButton
+    Left = 404
+    Top = 168
+    Width = 22
+    Height = 22
     Anchors = [akTop, akRight]
     AutoSize = True
-    Transparent = True
-    ExplicitLeft = 414
+    TabOrder = 9
   end
   object Panel1: TPanel
     Left = 0
@@ -35,9 +34,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 9
-    ExplicitTop = 320
-    ExplicitWidth = 500
+    TabOrder = 10
     DesignSize = (
       496
       42)
@@ -61,7 +58,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       ModalResult = 1
       TabOrder = 0
       OnClick = InsertButtonClick
-      ExplicitLeft = 330
     end
     object CancelButton: TButton
       Left = 406
@@ -73,7 +69,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      ExplicitLeft = 410
     end
     object PrivilegesRequiredLabel: TNewStaticText
       Left = 8
@@ -101,7 +96,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
-    ExplicitWidth = 392
   end
   object AppRegistryFileButton: TButton
     Left = 406
@@ -111,7 +105,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Anchors = [akTop, akRight]
     Caption = '&Browse...'
     TabOrder = 2
-    ExplicitLeft = 414
   end
   object AppRegistrySettingsLabel: TNewStaticText
     Left = 8
@@ -165,6 +158,5 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
-    ExplicitWidth = 140
   end
 end

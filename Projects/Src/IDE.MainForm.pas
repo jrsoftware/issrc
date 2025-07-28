@@ -1011,7 +1011,6 @@ begin
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
   UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
-  UpdatePanelDonateBitBtn.Caption := UpdatePanelDonateBitBtn.Hint; { For accessibility }
 
   UpdateImages;
 

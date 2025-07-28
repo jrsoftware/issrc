@@ -14,7 +14,7 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -139,7 +139,7 @@ type
     AppRegistryUninsDeleteValueCheck: TCheckBox;
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
-    AppRegistryMinVerDocImage: TImage;
+    AppRegistryMinVerDocBitBtn: TBitmapButton;
     WelcomeImageDark: TImage;
     InnerImageDark: TImage;
     procedure FormCreate(Sender: TObject);
@@ -289,7 +289,7 @@ begin
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
-    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocImage);
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocBitBtn);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;

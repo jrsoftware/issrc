@@ -16,7 +16,7 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  IDE.Wizard.WizardFormRegistryHelper, NewStaticText;
+  IDE.Wizard.WizardFormRegistryHelper, NewStaticText, BitmapButton;
 
 type
   TRegistryDesignerForm = class(TForm)
@@ -34,7 +34,7 @@ type
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
     PrivilegesRequiredLabel: TNewStaticText;
-    AppRegistryMinVerDocImage: TImage;
+    AppRegistryMinVerDocBitBtn: TBitmapButton;
     procedure InsertButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -74,7 +74,7 @@ begin
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
-    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocImage);
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocBitBtn);
 end;
 
 procedure TRegistryDesignerForm.FormDestroy(Sender: TObject);

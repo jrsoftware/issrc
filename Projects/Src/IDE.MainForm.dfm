@@ -399,6 +399,7 @@ object MainForm: TMainForm
       Margins.Right = 0
       Margins.Bottom = 8
       Align = alRight
+      Caption = 'Donate'
       Center = True
       ParentShowHint = False
       ShowHint = True
