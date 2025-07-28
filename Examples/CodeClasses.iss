@@ -27,11 +27,6 @@ begin
   MsgBox('You clicked the button!', mbInformation, mb_Ok);
 end;
 
-procedure BitmapImageOnClick(Sender: TObject);
-begin
-  MsgBox('You clicked the image!', mbInformation, mb_Ok);
-end;
-
 procedure FormButtonOnClick(Sender: TObject);
 var
   Form: TSetupForm;
@@ -132,6 +127,7 @@ var
   CheckListBox, CheckListBox2: TNewCheckListBox;
   FolderTreeView: TFolderTreeView;
   BitmapImage, BitmapImage2, BitmapImage3: TBitmapImage;
+  BitmapButton: TBitmapButton;
   BitmapFileName: String;
   RichEditViewer: TRichEditViewer;
 begin
@@ -353,8 +349,6 @@ begin
   BitmapImage := TBitmapImage.Create(Page);
   BitmapImage.AutoSize := True;
   BitmapImage.Bitmap.LoadFromFile(BitmapFileName);
-  BitmapImage.Cursor := crHand;
-  BitmapImage.OnClick := @BitmapImageOnClick;
   BitmapImage.Parent := Page.Surface;
 
   BitmapImage2 := TBitmapImage.Create(Page);
@@ -364,8 +358,6 @@ begin
   BitmapImage2.Left := BitmapImage.Width + 10;
   BitmapImage2.Height := 2*BitmapImage.Height;
   BitmapImage2.Width := 2*BitmapImage.Width;
-  BitmapImage2.Cursor := crHand;
-  BitmapImage2.OnClick := @BitmapImageOnClick;
   BitmapImage2.Parent := Page.Surface;
 
   BitmapImage3 := TBitmapImage.Create(Page);
@@ -375,9 +367,23 @@ begin
   BitmapImage3.Height := 4*BitmapImage.Height;
   BitmapImage3.Width := 4*BitmapImage.Width;
   BitmapImage3.Anchors := [akLeft, akTop, akRight, akBottom];
-  BitmapImage3.Cursor := crHand;
-  BitmapImage3.OnClick := @BitmapImageOnClick;
   BitmapImage3.Parent := Page.Surface;
+
+  { TBitmapButton }
+
+  Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapButton (Press Alt to see focus rectangle)');
+
+  BitmapButton := TBitmapButton.Create(Page);
+  BitmapButton.AutoSize := True;
+  BitmapButton.Bitmap := BitmapImage.Bitmap;
+  BitmapButton.Center := True;
+  BitmapButton.Caption := 'Show Message'; { For accesibility }
+  BitmapButton.Hint := 'TBitmapButton is an accessible version of TBitmapImage';
+  BitmapButton.ShowHint := True;
+  BitmapButton.Width := 2*BitmapButton.Width;
+  BitmapButton.Cursor := crHand;
+  BitmapButton.OnClick := @ButtonOnClick;
+  BitmapButton.Parent := Page.Surface;
 
   { TRichViewer }
 

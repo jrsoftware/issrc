@@ -229,13 +229,31 @@ begin
   end;
 end;
 
-procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
+procedure RegisterBitmapButton_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddTypeS('TAlphaFormat', '(afIgnored, afDefined, afPremultiplied)');
   with Cl.FindClass('TBitmap') do
   begin
     RegisterProperty('AlphaFormat', 'TAlphaFormat', iptrw);
   end;
+  with Cl.AddClassN(CL.FindClass('TCustomControl'),'TBitmapButton') do
+  begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    RegisterProperty('AutoSize', 'Boolean', iptrw);
+    RegisterProperty('BackColor', 'TColor', iptrw);
+    RegisterProperty('Caption', 'String', iptrw);
+    RegisterProperty('Center', 'Boolean', iptrw);
+    RegisterProperty('Bitmap', 'TBitmap', iptrw);
+    RegisterProperty('ReplaceColor', 'TColor', iptrw);
+    RegisterProperty('ReplaceWithColor', 'TColor', iptrw);
+    RegisterProperty('Stretch', 'Boolean', iptrw);
+    RegisterProperty('OnClick', 'TNotifyEvent', iptrw);
+    RegisterProperty('OnDblClick', 'TNotifyEvent', iptrw);
+  end;
+end;
+
+procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
+begin
   with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
   begin
     RegisterProperty('Anchors', 'TAnchors', iptrw);
@@ -663,6 +681,7 @@ begin
   RegisterCustomFolderTreeView_C(Cl);
   RegisterFolderTreeView_C(Cl);
   RegisterStartMenuFolderTreeView_C(Cl);
+  RegisterBitmapButton_C(Cl);
   RegisterBitmapImage_C(Cl);
   RegisterBidiCtrls_C(Cl);
 
