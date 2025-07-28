@@ -259,7 +259,7 @@ begin
             StretchedBitmap.Palette := CopyPalette(Bitmap.Palette);
             StretchedBitmap.Width := W;
             StretchedBitmap.Height := H;
-            StretchedBitmap.Canvas.StretchDraw(R, Bitmap);
+            StretchedBitmap.Canvas.StretchDraw(Rect(0, 0, W, H), Bitmap);
           end;
         end;
       end;
