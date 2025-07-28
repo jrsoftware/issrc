@@ -44,7 +44,7 @@ type
     procedure SetAutoSize(Value: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CreateHandle; override;
+    procedure CreateWnd; override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
@@ -97,9 +97,10 @@ begin
   CreateSubClass(Params, 'BUTTON');
 end;
 
-procedure TBitmapButton.CreateHandle;
+procedure TBitmapButton.CreateWnd;
 begin
   inherited;
+
   { Note: On Windows 11 the focus border is always 2 pixels wide / high, even at 200% DPI and even
     when calling GetSystemMetricsForDpi, so on Windows 11 this code does nothing }
 
