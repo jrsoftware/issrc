@@ -22,15 +22,12 @@ uses
   BitmapImage;
 
 type
-  TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
-
   TBitmapButton = class(TCustomControl)
   private
     FFocusBorderWidth, FFocusBorderHeight: Integer;
     FImpl: TBitmapImageImplementation;
     FOnClick: TNotifyEvent;
     FOnDblClick: TNotifyEvent;
-    FOnPaint: TPaintEvent;
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
@@ -70,7 +67,7 @@ type
     property Visible;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnDblClick: TNotifyEvent read FOnDblClick write FOnDblClick;
-    property OnPaint: TPaintEvent read FOnPaint write FOnPaint;
+    property OnPaint: TPaintEvent read FImpl.OnPaint write FImpl.OnPaint;
   end;
 
 procedure Register;
@@ -188,10 +185,7 @@ begin
 
   InflateRect(R, -FFocusBorderWidth, -FFocusBorderHeight);
 
-  FImpl.Paint(Canvas, R);
-
-  if Assigned(FOnPaint) then
-    FOnPaint(Self, Canvas, R);
+  FImpl.Paint(Self, Canvas, R);
 end;
 
 procedure TBitmapButton.WMSetFocus(var Message: TWMSetFocus);

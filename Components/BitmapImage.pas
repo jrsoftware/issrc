@@ -17,6 +17,8 @@ uses
   Windows, Controls, Graphics, Classes;
 
 type
+  TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
+
   TBitmapImageImplementation = record
   private
     FControl: TControl;
@@ -31,6 +33,7 @@ type
     Stretch: Boolean;
     StretchedBitmap: TBitmap;
     StretchedBitmapValid: Boolean;
+    OnPaint: TPaintEvent;
     procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
       const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
@@ -45,7 +48,7 @@ type
     procedure SetReplaceWithColor(Sender: TObject; Value: TColor);
     procedure SetStretch(Sender: TObject; Value: Boolean);
     function GetPalette: HPALETTE;
-    procedure Paint(const Canvas: TCanvas; var R: TRect);
+    procedure Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
   end;
 
   TBitmapImage = class(TGraphicControl)
@@ -90,6 +93,7 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
+    property OnPaint: TPaintEvent read FImpl.OnPaint write FImpl.OnPaint;
     property OnStartDrag;
   end;
 
@@ -250,7 +254,7 @@ begin
   Result := Bitmap.Palette;
 end;
 
-procedure TBitmapImageImplementation.Paint(const Canvas: TCanvas; var R: TRect);
+procedure TBitmapImageImplementation.Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
 begin
   const Is32bit = (Bitmap.PixelFormat = pf32bit) and
     (Bitmap.AlphaFormat in [afDefined, afPremultiplied]);
@@ -315,6 +319,9 @@ begin
     Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), ReplaceColor);
   end else
     Canvas.Draw(X, Y, Bmp);
+
+  if Assigned(OnPaint) then
+    OnPaint(Sender, Canvas, R);
 end;
 
 { TBitmapImage }
@@ -383,7 +390,7 @@ end;
 procedure TBitmapImage.Paint;
 begin
   var R := ClientRect;
-  FImpl.Paint(Canvas, R);
+  FImpl.Paint(Self, Canvas, R);
 end;
 
 end.
