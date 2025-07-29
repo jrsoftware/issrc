@@ -83,8 +83,8 @@ constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FFocusBorderWidth := 2;
-  FFocusBorderHeight := 2;
+  FFocusBorderWidth := 1;
+  FFocusBorderHeight := 1;
   FImpl.Init(Self, 2*FFocusBorderWidth, 2*FFocusBorderHeight);
   TabStop := True;
   Height := 105;
