@@ -102,7 +102,7 @@ function CalcHashToSign(const AIncludeFileNameAndTag: Boolean; const AFileName: 
   procedure SHA256UpdateWithString(var Context: TSHA256Context; const S: String);
   begin
     const U = UTF8String(S);
-    const N: Cardinal = Length(U);
+    const N: Int32 = Length(U);
     SHA256Update(Context, N, SizeOf(N));
     if N > 0 then
       SHA256Update(Context, Pointer(U)^, N*SizeOf(U[1]));
@@ -163,11 +163,9 @@ begin
   end;
 
   { Defense-in-depth: Reject any non-CRLF control characters up front, as well
-    as any non-ASCII and non-UTF8-high characters (to avoid any possible issues with
-    converting invalid multibyte characters) }
+    as any byte values that are never used in UTF-8 encoding }
   for var C in U do
-    if not (CharInSet(C, [#10, #13]) or CharInSet(C, NonControlASCIICharsSet) or
-            CharInSet(C, UTF8HighCharsSet)) then
+    if not CharInSet(C, [#10, #13] + NonControlASCIICharsSet + UTF8HighCharsSet) then
       Exit('');
   { Do round-trip check to catch invalid sequences }
   const UTF16Text = String(U);

@@ -25,7 +25,6 @@ object SignToolsForm: TSignToolsForm
     Height = 201
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Sign Tools '
-    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       561
