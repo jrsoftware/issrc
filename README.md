@@ -279,7 +279,7 @@ workflow will be triggered automatically.
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
 Access Token with access to your fork or all repositories you own, ensuring it has Read and
 Write permissions for Contents. After that, add this token as a new repository secret, under
-the name `ISSRC_BUILD_ENV_ZIP_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
+the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
 by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
 and will automatically run the aforementioned build workflow on changes, if it's configured.
 
