@@ -274,11 +274,11 @@ begin
 end;
 
 function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
-  out value: Integer64): Boolean; overload;
+  out value: UInt64): Boolean; overload;
 begin
   var varValue: OleVariant;
   Result := GetProperty(InArchive, index, propID, [varUInt64], varValue);
-  value := Integer64(UInt64(varValue));
+  value := varValue;
 end;
 
 function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
@@ -334,9 +334,11 @@ function TInStream.Seek(offset: Int64; seekOrigin: UInt32;
 begin
   try
     case seekOrigin of
-      STREAM_SEEK_SET: FFile.Seek64(Integer64(offset));
-      STREAM_SEEK_CUR: FFile.Seek64(Integer64(Int64(FFile.Position) + offset));
-      STREAM_SEEK_END: FFile.Seek64(Integer64(Int64(FFile.Size) + offset));
+      STREAM_SEEK_SET: FFile.Seek(offset);
+      STREAM_SEEK_CUR: FFile.Seek(FFile.Position + offset);
+      STREAM_SEEK_END: FFile.Seek(FFile.Size + offset);
+    else
+      Exit(E_INVALIDARG);
     end;
     if newPosition <> nil then
       newPosition^ := UInt64(FFile.Position);
@@ -756,11 +758,11 @@ begin
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
           SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         const DestF = TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
-        var BytesLeft: Integer64;
+        var BytesLeft: UInt64;
         if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
           { To avoid file system fragmentation, preallocate all of the bytes in the
             destination file }
-          DestF.Seek64(BytesLeft);
+          DestF.Seek(Int64(BytesLeft));
           DestF.Truncate;
           DestF.Seek(0);
         end;
@@ -874,11 +876,11 @@ begin
       GetProperty(FInArchive, index, kpidIsDir, IsDir);
       if IsDir then
         OleError(E_INVALIDARG);
-      var BytesLeft: Integer64;
+      var BytesLeft: UInt64;
       if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
         { To avoid file system fragmentation, preallocate all of the bytes in the
           destination file }
-        FDestF.Seek64(BytesLeft);
+        FDestF.Seek(Int64(BytesLeft));
         FDestF.Truncate;
         FDestF.Seek(0);
       end;
@@ -1137,10 +1139,10 @@ begin
     FindData.dwFileAttributes := FindData.dwFileAttributes or Attrib;
     GetProperty(InArchive, currentIndex, kpidCTime, FindData.ftCreationTime);
     GetProperty(InArchive, currentIndex, kpidMTime, FindData.ftLastWriteTime);
-    var Size: Integer64;
+    var Size: UInt64;
     GetProperty(InArchive, currentIndex, kpidSize, Size);
-    FindData.nFileSizeHigh := Size.Hi;
-    FindData.nFileSizeLow := Size.Lo;
+    FindData.nFileSizeHigh := Int64Rec(Size).Hi;
+    FindData.nFileSizeLow := Int64Rec(Size).Lo;
   end;
 end;
 
