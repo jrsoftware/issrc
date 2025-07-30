@@ -10,7 +10,7 @@ unit BitmapButton;
   which is actually a button with a focus rectangle when focused - in
   other words: an accessible TImage
   
-  Make sure you set the Caption property even if it isn't visible
+  Make sure to set the Caption property even if it isn't visible
 
   Also see TBitmapImage which is the TGraphicControl version
 }

@@ -667,6 +667,20 @@ TStartMenuFolderTreeView = class(TCustomFolderTreeView)
   property OnRename: TFolderRenameEvent; read write;
 end;
 
+TBitmapButton = class(TCustomControl)
+  property Anchors: TAnchors; read write;
+  property AutoSize: Boolean; read write;
+  property BackColor: TColor; read write;
+  property Caption: Boolean; read write;
+  property Center: Boolean; read write;
+  property Bitmap: TBitmap; read write;
+  property ReplaceColor: TColor; read write;
+  property ReplaceWithColor: TColor; read write;
+  property Stretch: Boolean; read write;
+  property OnClick: TNotifyEvent; read write;
+  property OnDblClick: TNotifyEvent; read write;
+end;
+
 TBitmapImage = class(TGraphicControl)
   property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
