@@ -103,7 +103,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 81
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Message '
-    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       532
@@ -125,7 +124,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Width = 240
     Height = 60
     Caption = ' Type'
-    ShowFrame = False
     TabOrder = 6
     object cb_Suppressible: TCheckBox
       Left = 14
@@ -165,7 +163,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 60
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Flags '
-    ShowFrame = False
     TabOrder = 7
     object NewStaticText1: TNewStaticText
       Left = 14
@@ -214,7 +211,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Icon '
-    ShowFrame = False
     TabOrder = 8
     DesignSize = (
       160
@@ -422,7 +418,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Buttons '
-    ShowFrame = False
     TabOrder = 9
     DesignSize = (
       169
@@ -502,7 +497,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Return values '
-    ShowFrame = False
     TabOrder = 10
     object cb_IDOK: TCheckBox
       Left = 16

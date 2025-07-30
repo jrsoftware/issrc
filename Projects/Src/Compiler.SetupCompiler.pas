@@ -4287,16 +4287,15 @@ const
   end;
 
   function ConvertQWordString(const S: String): String;
-  var
-    QW: Integer64;
   begin
     Result := Trim(S);
     { Only check if it doesn't start with a constant }
     if (Result = '') or (Result[1] <> '{') then begin
-      if not StrToInteger64(Result, QW) then
+      var QW: UInt64;
+      if not TryStrToUInt64(Result, QW) then
         AbortCompileParamError(SCompilerParamInvalid2, ParamRegistryValueData);
       { Not really necessary, but sanitize the value }
-      Result := Integer64ToStr(QW);
+      Result := Format('$%x', [QW]);
     end;
   end;
 
