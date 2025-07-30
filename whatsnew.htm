@@ -214,14 +214,13 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <ul>
       <li>The <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
       <li>The <i>Highlight occurrences of current word</i> option (which is disabled by default) no longer highlights a section's directive names, parameter names, or Pascal keywords. The <i>Highlight occurrences of current selection</i> option (which is enabled by default) still does.</li>
-      <li>Improved dark mode support.</li>
+      <li>Dark mode is now supported throughout.</li>
       <li>Improved support for high-contrast themes.</li>
     </ul>
   </li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 256.</li>
-  <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.<br/>
-      The same applies to <tt>[Registry]</tt> parameter <tt>ValueData</tt> if <tt>ValueType</tt> is set to <tt>qword</tt>.</li>
+  <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.</li>
   <li>ISPP changes:
     <ul>
       <li>Added predefined variable <tt>__DIR__</tt>. Returns the directory of the current include file.</li>

@@ -129,7 +129,7 @@ begin
 
   { Set ButtonIDs and TDCommonButtons }
   const NButtonLabelsAvailable = Length(ButtonLabels);
-  var ButtonIDs: array of Integer;
+  var ButtonIDs: TArray<Integer>;
   var TDCommonButtons: Cardinal;
   case Buttons of
     MB_OK, MB_OKCANCEL:

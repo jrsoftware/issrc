@@ -158,18 +158,19 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- When building the projects in Debug mode it outputs to [Projects\Bin] and when
-  debugging it will run from within this directory. To prepare this directory
+- When building the projects in Debug mode, it outputs to [Projects\Bin] and when
+  debugging, it will run from within this directory. To prepare this directory
   with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
   the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
-- When debugging the Setup project you should first build all projects in Debug
+- When debugging the Setup project, you should first build all projects in Debug
   mode, then run the Compil32 project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
   Delphi debugger.
   
-- When building the projects in Release mode it outputs to [Files].
+- When building the projects in Release mode, it outputs to [Files]. Before
+  running Compil32, ensure that all .issig files are up to date.
   
 - All of the forms in the Setup project have Scaled set to False. This is
   because they dynamically scale themselves at run-time by calling a function
@@ -279,7 +280,7 @@ workflow will be triggered automatically.
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
 Access Token with access to your fork or all repositories you own, ensuring it has Read and
 Write permissions for Contents. After that, add this token as a new repository secret, under
-the name `ISSRC_BUILD_ENV_ZIP_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
+the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
 by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
 and will automatically run the aforementioned build workflow on changes, if it's configured.
 

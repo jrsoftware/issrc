@@ -131,6 +131,21 @@ begin
 end;
 
 function InitFormTheme(const Form: TForm): Boolean;
+
+{$IF CompilerVersion >= 36.0}
+  procedure HideGroupBoxFrames(const ParentControl: TWinControl);
+  begin
+    for var I := 0 to ParentControl.ControlCount-1 do begin
+      const Control = ParentControl.Controls[I];
+      if Control is TGroupBox then
+        (Control as TGroupBox).ShowFrame := False;
+
+      if Control is TWinControl then
+        HideGroupBoxFrames(Control as TWinControl);
+    end;
+  end;
+{$ENDIF}
+
 { Assumes forms other then MainForm call this function only once during creation, and assumes they
   don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
   style, False otherwise. }
@@ -149,6 +164,10 @@ begin
       DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
     end;
   end;
+
+{$IF CompilerVersion >= 36.0}
+  HideGroupBoxFrames(Form);
+{$ENDIF}
 end;
 
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
