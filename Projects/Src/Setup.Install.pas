@@ -2581,7 +2581,6 @@ var
     CurRegNumber: Integer;
     NeedToRetry, DidDeleteKey: Boolean;
     ErrorCode: Longint;
-    QV: Integer64;
     I: Integer;
     AnsiS: AnsiString;
   begin
@@ -2746,8 +2745,7 @@ var
                             RegError(reRegSetValueEx, RK, S, ErrorCode);
                         end;
                       rtQWord: begin
-                          if not StrToInteger64(ExpandConst(ValueData), QV) then
-                            InternalError('Failed to parse "qword" value');
+                          const QV: UInt64 = StrToUInt64(ExpandConst(ValueData));
                           ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_QWORD,
                             @QV, SizeOf(QV));
                           if (ErrorCode <> ERROR_SUCCESS) and
