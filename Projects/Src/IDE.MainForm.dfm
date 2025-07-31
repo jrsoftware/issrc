@@ -384,6 +384,7 @@ object MainForm: TMainForm
       Margins.Bottom = 8
       Align = alRight
       Caption = 'Close Banner'
+      Center = True
       TabOrder = 1
       OnClick = UpdatePanelCloseBitBtnClick
       OnPaint = UpdatePanelCloseBitBtnPaint

@@ -1060,8 +1060,8 @@ object WizardForm: TWizardForm
             Width = 20
             Height = 20
             Anchors = [akTop, akRight]
-            AutoSize = True
             Caption = 'Help'
+            Center = True
             TabOrder = 9
           end
           object AppRegistryFileLabel: TNewStaticText
