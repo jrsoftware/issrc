@@ -25,7 +25,7 @@ uses
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   ExtCtrls, UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Shared.SetupTypes, PasswordEdit,
-  FolderTreeView, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
+  FolderTreeView, BitmapButton, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
   Setup.UninstallProgressForm;
 
 type
@@ -138,12 +138,17 @@ end;
 procedure TBitmapAlphaFormat_W(Self: TBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
 procedure TBitmapAlphaFormat_R(Self: TBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
 
-procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
+procedure RegisterBitmapButton_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.FindClass('TBitmap') do
   begin
     RegisterPropertyHelper(@TBitmapAlphaFormat_R, @TBitmapAlphaFormat_W, 'AlphaFormat');
   end;
+  Cl.Add(TBitmapButton);
+end;
+
+procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
+begin
   Cl.Add(TBitmapImage);
 end;
 
@@ -431,6 +436,7 @@ begin
     RegisterCustomFolderTreeView_R(Cl);
     RegisterFolderTreeView_R(Cl);
     RegisterStartMenuFolderTreeView_R(Cl);
+    RegisterBitmapButton_R(Cl);
     RegisterBitmapImage_R(Cl);
     RegisterBidiCtrls_R(Cl);
 

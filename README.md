@@ -84,6 +84,7 @@ the following component units, which can be found in the [Components]
 directory.
 
 - BidiCtrls
+- BitmapButton
 - BitmapImage
 - FolderTreeView
 - NewCheckListBox
