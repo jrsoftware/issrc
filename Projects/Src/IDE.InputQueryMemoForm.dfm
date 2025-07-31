@@ -35,7 +35,6 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Cursor = crHandPoint
     Anchors = [akLeft, akBottom]
     Caption = 'Help'
-    Center = True
     TabOrder = 1
   end
   object OKButton: TButton

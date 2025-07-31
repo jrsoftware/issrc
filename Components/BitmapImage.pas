@@ -40,7 +40,6 @@ type
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     procedure BitmapChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
-    procedure SetAutoSizeExtraWidthHeight(Sender: TObject; Width, Height: Integer);
     procedure SetBackColor(Sender: TObject; Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Sender: TObject; Value: Boolean);
@@ -193,16 +192,6 @@ begin
   BitmapChanged(Sender);
 end;
 
-procedure TBitmapImageImplementation.SetAutoSizeExtraWidthHeight(Sender: TObject; Width, Height: Integer);
-begin
-  if (Width <> AutoSizeExtraWidth) or (Height <> AutoSizeExtraHeight) then begin
-    AutoSizeExtraWidth := Width;
-    AutoSizeExtraHeight := Height;
-    if AutoSize then
-      BitmapChanged(Sender);
-  end;
-end;
-
 procedure TBitmapImageImplementation.SetBackColor(Sender: TObject; Value: TColor);
 begin
   if BackColor <> Value then begin
@@ -332,8 +321,8 @@ begin
   ControlStyle := ControlStyle + [csReplicatable];
   FImpl.Init(Self);
   FImpl.BackColor := clBtnFace;
-  Height := 105;
   Width := 105;
+  Height := 105;
 end;
 
 destructor TBitmapImage.Destroy;

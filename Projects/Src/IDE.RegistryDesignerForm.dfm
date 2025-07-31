@@ -25,7 +25,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 20
     Anchors = [akTop, akRight]
     Caption = 'Help'
-    Center = True
     TabOrder = 9
   end
   object Panel1: TPanel

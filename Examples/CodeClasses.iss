@@ -127,7 +127,7 @@ var
   CheckListBox, CheckListBox2: TNewCheckListBox;
   FolderTreeView: TFolderTreeView;
   BitmapImage, BitmapImage2, BitmapImage3: TBitmapImage;
-  BitmapButton: TBitmapButton;
+  BitmapButton, BitmapButton2: TBitmapButton;
   BitmapFileName: String;
   RichEditViewer: TRichEditViewer;
 begin
@@ -352,38 +352,54 @@ begin
   BitmapImage.Parent := Page.Surface;
 
   BitmapImage2 := TBitmapImage.Create(Page);
-  BitmapImage2.BackColor := $400000;
+  BitmapImage2.BackColor := clNone;
   BitmapImage2.Bitmap := BitmapImage.Bitmap;
   BitmapImage2.Center := True;
   BitmapImage2.Left := BitmapImage.Width + 10;
-  BitmapImage2.Height := 2*BitmapImage.Height;
   BitmapImage2.Width := 2*BitmapImage.Width;
+  BitmapImage2.Height := 2*BitmapImage.Height;
   BitmapImage2.Parent := Page.Surface;
 
   BitmapImage3 := TBitmapImage.Create(Page);
   BitmapImage3.Bitmap := BitmapImage.Bitmap;
   BitmapImage3.Stretch := True;
   BitmapImage3.Left := 3*BitmapImage.Width + 20;
-  BitmapImage3.Height := 4*BitmapImage.Height;
   BitmapImage3.Width := 4*BitmapImage.Width;
+  BitmapImage3.Height := 4*BitmapImage.Height;
   BitmapImage3.Anchors := [akLeft, akTop, akRight, akBottom];
   BitmapImage3.Parent := Page.Surface;
 
-  { TBitmapButton }
+  { TBitmapButton - Always has a 2 pixel margin around the image, used to
+    display a focus rectangle. Other changes compared to TBitmapImage are:
+    • Has a Caption property which should always be set
+    • Center defaults to True
+    • BackColor defaults to clNone }
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapButton (Press Alt to see focus rectangle)');
-
+  
   BitmapButton := TBitmapButton.Create(Page);
   BitmapButton.AutoSize := True;
   BitmapButton.Bitmap := BitmapImage.Bitmap;
-  BitmapButton.Center := True;
-  BitmapButton.Caption := 'Show Message'; { For accesibility }
+  BitmapButton.Caption := 'Show Message'; { For accessibility }
   BitmapButton.Hint := 'TBitmapButton is an accessible version of TBitmapImage';
   BitmapButton.ShowHint := True;
   BitmapButton.Width := 2*BitmapButton.Width;
   BitmapButton.Cursor := crHand;
   BitmapButton.OnClick := @ButtonOnClick;
   BitmapButton.Parent := Page.Surface;
+
+  BitmapButton2 := TBitmapButton.Create(Page);
+  BitmapButton2.BackColor := $400000;
+  BitmapButton2.Bitmap := BitmapImage.Bitmap;
+  BitmapButton2.Caption := BitmapButton.Caption;
+  BitmapButton2.Hint := BitmapButton.Hint;
+  BitmapButton2.ShowHint := True;
+  BitmapButton2.Left := BitmapButton.Width + 10;
+  BitmapButton2.Width := 2*BitmapButton.Width;
+  BitmapButton2.Height := 2*BitmapButton.Height;
+  BitmapButton2.Cursor := crHand;
+  BitmapButton2.OnClick := @ButtonOnClick;
+  BitmapButton2.Parent := Page.Surface;
 
   { TRichViewer }
 

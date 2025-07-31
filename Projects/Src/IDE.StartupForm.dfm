@@ -26,7 +26,6 @@ object StartupForm: TStartupForm
     Cursor = crHandPoint
     Anchors = [akLeft, akBottom]
     Caption = 'Donate'
-    Center = True
     ParentShowHint = False
     Bitmap.Data = {
       F60B0000424DF60B00000000000036040000280000003E0000001F0000000100
@@ -138,7 +137,6 @@ object StartupForm: TStartupForm
     Hint = 'Be notified by e-mail of new Inno Setup releases'
     Anchors = [akLeft, akBottom]
     Caption = 'Subscribe'
-    Center = True
     ParentShowHint = False
     Bitmap.Data = {
       F60B0000424DF60B00000000000036040000280000003E0000001F0000000100

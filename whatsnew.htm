@@ -226,7 +226,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Pascal Scripting changes:
     <ul>
-      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property even if it isn't visible. See updated example script <i>CodeClasses.iss</i> for an example.</li>
+      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <i>CodeClasses.iss</i> for an example.</li>
       <li>Added new <tt>InitializeBitmapButtonFromIcon</tt> and <tt>GetSHA256OfStream</tt> support functions.</li>
       <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
       <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>

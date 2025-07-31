@@ -10,7 +10,7 @@ unit BitmapButton;
   which is actually a button with a focus rectangle when focused - in
   other words: an accessible TImage
   
-  Make sure to set the Caption property even if it isn't visible
+  Make sure to set the Caption property, even if it isn't visible
 
   Also see TBitmapImage which is the TGraphicControl version
 }
@@ -24,7 +24,7 @@ uses
 type
   TBitmapButton = class(TCustomControl)
   private
-    FFocusBorderWidth, FFocusBorderHeight: Integer;
+    FFocusBorderWidthHeight: Integer;
     FImpl: TBitmapImageImplementation;
     FOnClick: TNotifyEvent;
     FOnDblClick: TNotifyEvent;
@@ -44,7 +44,6 @@ type
     procedure SetAutoSize(Value: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure CreateWnd; override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
   published
@@ -53,7 +52,7 @@ type
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clNone;
     property Caption;
-    property Center: Boolean read FImpl.Center write SetCenter default False;
+    property Center: Boolean read FImpl.Center write SetCenter default True;
     property Enabled;
     property ParentShowHint;
     property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
@@ -83,39 +82,20 @@ constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csReplicatable];
-  FFocusBorderWidth := 1;
-  FFocusBorderHeight := 1;
-  FImpl.Init(Self, 2*FFocusBorderWidth, 2*FFocusBorderHeight);
+  { Using a fixed focus border width/height to avoid design problems between systems }
+  FFocusBorderWidthHeight := 2;
+  const DoubleFBWH = 2*FFocusBorderWidthHeight;
+  FImpl.Init(Self, DoubleFBWH, DoubleFBWH);
+  Center := True;
   TabStop := True;
-  Height := 105;
-  Width := 105;
+  Width := 75+DoubleFBWH;
+  Height := 25+DoubleFBWH;
 end;
 
 procedure TBitmapButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   CreateSubClass(Params, 'BUTTON');
-end;
-
-procedure TBitmapButton.CreateWnd;
-begin
-  inherited;
-
-  { Note: On Windows 11 the focus border is always 2 pixels wide / high, even at 200% DPI and even
-    when calling GetSystemMetricsForDpi, so on Windows 11 this code does nothing }
-
-  var W := GetSystemMetrics(SM_CXFOCUSBORDER); { This calls GetSystemMetricsForDpi }
-  if W = 0 then
-    W := 2;
-  var H := GetSystemMetrics(SM_CYFOCUSBORDER);
-  if H = 0 then
-    H := 2;
-
-  if (W <> FFocusBorderWidth) or (H <> FFocusBorderHeight) then begin
-    FFocusBorderWidth := W;
-    FFocusBorderHeight := H;
-    FImpl.SetAutoSizeExtraWidthHeight(Self, 2*FFocusBorderWidth, 2*FFocusBorderHeight);
-  end;
 end;
 
 destructor TBitmapButton.Destroy;
@@ -181,10 +161,11 @@ begin
     Canvas.Pen.Color := clWindowFrame;
     Canvas.Brush.Style := bsSolid;
     Canvas.Brush.Color := clBtnFace;
+    { This might draw a focus border thinner or thicker than our FFocusBorderWidthHeight but that's okay }
     Canvas.DrawFocusRect(R);
   end;
 
-  InflateRect(R, -FFocusBorderWidth, -FFocusBorderHeight);
+  InflateRect(R, -FFocusBorderWidthHeight, -FFocusBorderWidthHeight);
 
   FImpl.Paint(Self, Canvas, R);
 end;
