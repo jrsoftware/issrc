@@ -266,8 +266,7 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 	lib/win32/release/Winapi.*.dcu
 ```
 
-Then, upload this encrypted file somewhere public, e.g. by attaching it to a comment
-in a GitHub issue. After that, add this URL as a new repository
+Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
 [secret] (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
 
