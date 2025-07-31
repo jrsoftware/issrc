@@ -75,11 +75,10 @@ type
   TSequentialOutStream = class(TInterfacedObject, ISequentialOutStream)
   private
     FFile: TFile;
-    FOwnsFile: Boolean;
   protected
     function Write(data: Pointer; size: UInt32; processedSize: PUInt32): HRESULT; stdcall;
   public
-    constructor Create(const AFile: TFile; const AOwnsFile: Boolean = True);
+    constructor Create(const AFileToBeDuplicated: TFile);
     destructor Destroy; override;
   end;
 
@@ -210,6 +209,7 @@ type
       const Password: String; const Index: UInt32; const DestF: TFile;
       const OnExtractToHandleProgress: TOnExtractToHandleProgress;
       const OnExtractToHandleProgressParam: Integer64);
+    destructor Destroy; override;
   end;
 
 { Helper functions }
@@ -353,17 +353,15 @@ end;
 
 { TSequentialOutStream }
 
-constructor TSequentialOutStream.Create(const AFile: TFile; const AOwnsFile: Boolean);
+constructor TSequentialOutStream.Create(const AFileToBeDuplicated: TFile);
 begin
   inherited Create;
-  FFile := AFile;
-  FOwnsFile := AOwnsFile;
+  FFile := TFile.CreateDuplicate(AFileToBeDuplicated);
 end;
 
 destructor TSequentialOutStream.Destroy;
 begin
-  if FOwnsFile then
-    FFile.Free;
+  FFile.Free;
   inherited;
 end;
 
@@ -758,16 +756,21 @@ begin
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
           SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
         const DestF = TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
-        var BytesLeft: UInt64;
-        if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
-          { To avoid file system fragmentation, preallocate all of the bytes in the
-            destination file }
-          DestF.Seek(Int64(BytesLeft));
-          DestF.Truncate;
-          DestF.Seek(0);
+        try
+          var BytesLeft: UInt64;
+          if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
+            { To avoid file system fragmentation, preallocate all of the bytes in the
+              destination file }
+            DestF.Seek(Int64(BytesLeft));
+            DestF.Truncate;
+            DestF.Seek(0);
+          end;
+          { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
+          outstream := TSequentialOutStream.Create(DestF);
+        finally
+          { TSequentialOutStream duplicates the TFile, so DestF is no longer needed }
+          DestF.Free;
         end;
-        { From IArchive.h: can also set outstream to nil to tell 7zip to skip the file }
-        outstream := TSequentialOutStream.Create(DestF);
         NewCurrent.outStream := outStream;
       end;
     end;
@@ -854,9 +857,15 @@ constructor TArchiveExtractToHandleCallback.Create(const InArchive: IInArchive;
 begin
   inherited Create(InArchive, numItems, Password);
   FIndex := Index;
-  FDestF := DestF;
+  FDestF := TFile.CreateDuplicate(DestF);
   FOnExtractToHandleProgress := OnExtractToHandleProgress;
   FOnExtractToHandleProgressParam := OnExtractToHandleProgressParam;
+end;
+
+destructor TArchiveExtractToHandleCallback.Destroy;
+begin
+  FDestF.Free;
+  inherited;
 end;
 
 function TArchiveExtractToHandleCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32;
@@ -884,7 +893,7 @@ begin
         FDestF.Truncate;
         FDestF.Seek(0);
       end;
-      outstream := TSequentialOutStream.Create(FDestF, False);
+      outstream := TSequentialOutStream.Create(FDestF);
     end;
     Result := S_OK;
   except
