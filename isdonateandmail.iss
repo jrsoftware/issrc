@@ -7,18 +7,20 @@ Source: "ismail.bmp"; Flags: dontcopy noencryption
 
 [CustomMessages]
 ; No need to localize: The IS website is in English only
+IsDonateAndMailDonateCaption=Donate
 IsDonateAndMailDonateHint=Support Inno Setup - Thank you!
+IsDonateAndMailMailCaption=Subscribe
 IsDonateAndMailMailHint=Be notified by e-mail of new Inno Setup releases
 
 [Code]
-procedure DonateImageOnClick(Sender: TObject);
+procedure DonateBitmapButtonOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
   ShellExecAsOriginalUser('open', 'https://jrsoftware.org/isdonate.php', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
-procedure MailImageOnClick(Sender: TObject);
+procedure MailBitmapButtonOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
@@ -29,7 +31,7 @@ end;
 procedure IsDonateAndMailInitializeWizard;
 var
   ImageFileName: String;
-  DonateImage, MailImage: TBitmapImage;
+  DonateBitmapButton, MailBitmapButton: TBitmapButton;
   BevelTop: Integer;
 begin
   if WizardSilent then
@@ -38,31 +40,33 @@ begin
   ImageFileName := ExpandConstant('{tmp}\isdonate.bmp');
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
-  DonateImage := TBitmapImage.Create(WizardForm);
-  DonateImage.AutoSize := True;
-  DonateImage.Bitmap.LoadFromFile(ImageFileName);
-  DonateImage.Hint := CustomMessage('IsDonateAndMailDonateHint');
-  DonateImage.ShowHint := True;
-  DonateImage.Anchors := [akLeft, akBottom];
+  DonateBitmapButton := TBitmapButton.Create(WizardForm);
+  DonateBitmapButton.AutoSize := True;
+  DonateBitmapButton.Bitmap.LoadFromFile(ImageFileName);
+  DonateBitmapButton.Caption := CustomMessage('IsDonateAndMailDonateCaption');
+  DonateBitmapButton.Hint := CustomMessage('IsDonateAndMailDonateHint');
+  DonateBitmapButton.ShowHint := True;
+  DonateBitmapButton.Anchors := [akLeft, akBottom];
   BevelTop := WizardForm.Bevel.Top;
-  DonateImage.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateImage.Bitmap.Height) div 2;
-  DonateImage.Left := DonateImage.Top - BevelTop;
-  DonateImage.Cursor := crHand;
-  DonateImage.OnClick := @DonateImageOnClick;
-  DonateImage.Parent := WizardForm;
+  DonateBitmapButton.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateBitmapButton.Bitmap.Height) div 2;
+  DonateBitmapButton.Left := DonateBitmapButton.Top - BevelTop;
+  DonateBitmapButton.Cursor := crHand;
+  DonateBitmapButton.OnClick := @DonateBitmapButtonOnClick;
+  DonateBitmapButton.Parent := WizardForm;
 
   ImageFileName := ExpandConstant('{tmp}\ismail.bmp');
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
-  MailImage := TBitmapImage.Create(WizardForm);
-  MailImage.AutoSize := True;
-  MailImage.Bitmap.LoadFromFile(ImageFileName);
-  MailImage.Hint := CustomMessage('IsDonateAndMailMailHint');
-  MailImage.ShowHint := True;
-  MailImage.Anchors := [akLeft, akBottom];
-  MailImage.Top := DonateImage.Top
-  MailImage.Left := DonateImage.Left + DonateImage.Width + ScaleX(8);
-  MailImage.Cursor := crHand;
-  MailImage.OnClick := @MailImageOnClick;
-  MailImage.Parent := WizardForm;
+  MailBitmapButton := TBitmapButton.Create(WizardForm);
+  MailBitmapButton.AutoSize := True;
+  MailBitmapButton.Bitmap.LoadFromFile(ImageFileName);
+  MailBitmapButton.Caption := CustomMessage('IsDonateAndMailMailCaption');
+  MailBitmapButton.Hint := CustomMessage('IsDonateAndMailMailHint');
+  MailBitmapButton.ShowHint := True;
+  MailBitmapButton.Anchors := [akLeft, akBottom];
+  MailBitmapButton.Top := DonateBitmapButton.Top
+  MailBitmapButton.Left := DonateBitmapButton.Left + DonateBitmapButton.Width + ScaleX(4);
+  MailBitmapButton.Cursor := crHand;
+  MailBitmapButton.OnClick := @MailBitmapButtonOnClick;
+  MailBitmapButton.Parent := WizardForm;
 end;

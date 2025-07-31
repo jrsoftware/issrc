@@ -58,6 +58,7 @@ type
     constructor Create(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing);
+    constructor CreateDuplicate(const ASourceFile: TFile);
     constructor CreateWithExistingHandle(const AHandle: THandle);
     destructor Destroy; override;
     function Read(var Buffer; Count: Cardinal): Cardinal; override;
@@ -214,6 +215,17 @@ begin
   FHandle := CreateHandle(AFilename, ACreateDisposition, AAccess, ASharing);
   if (FHandle = 0) or (FHandle = INVALID_HANDLE_VALUE) then
     RaiseLastError;
+  FHandleCreated := True;
+end;
+
+constructor TFile.CreateDuplicate(const ASourceFile: TFile);
+begin
+  inherited Create;
+  var LHandle: THandle;
+  if not DuplicateHandle(GetCurrentProcess, ASourceFile.Handle,
+     GetCurrentProcess, @LHandle, 0, False, DUPLICATE_SAME_ACCESS) then
+    RaiseLastError;
+  FHandle := LHandle;  { assign only on success }
   FHandleCreated := True;
 end;
 

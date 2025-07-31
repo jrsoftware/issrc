@@ -2,7 +2,7 @@ unit IDE.InputQueryMemoForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,7 +14,7 @@ unit IDE.InputQueryMemoForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, Vcl.ExtCtrls;
+  Classes, Controls, StdCtrls, UIStateForm, ExtCtrls, BitmapButton;
 
 type
   TInputQueryMemoForm = class(TUIStateForm)
@@ -22,7 +22,7 @@ type
     CancelButton: TButton;
     PromptLabel: TLabel;
     ValueControl: TMemo;
-    DocImage: TImage;
+    DocBitBtn: TBitmapButton;
     procedure FormCreate(Sender: TObject);
     procedure ValueControlKeyPress(Sender: TObject; var Key: Char);
     procedure ValueControlChange(Sender: TObject);
@@ -36,16 +36,16 @@ type
     procedure SetPrompt(const APrompt: String);
     procedure SetValue(const AValue: String);
     procedure UpdateImages;
-    procedure SetDocImageClick(const Value: TNotifyEvent);
+    procedure SetDocBitBtnClick(const Value: TNotifyEvent);
   public
-    property DocImageClick: TNotifyEvent write SetDocImageClick;
+    property DocBitBtnClick: TNotifyEvent write SetDocBitBtnClick;
     property Prompt: String write SetPrompt;
     property SingleLine: Boolean write FSingleLine;
     property Value: String read GetValue write SetValue;
   end;
 
 function InputQueryMemo(const ACaption, APrompt: String; var AValue: String;
-  const ASingleLine: Boolean = False; const ADocImageClick: TNotifyEvent = nil): Boolean;
+  const ASingleLine: Boolean = False; const ADocBitBtnClick: TNotifyEvent = nil): Boolean;
 
 implementation
 
@@ -56,14 +56,14 @@ uses
 {$R *.DFM}
 
 function InputQueryMemo(const ACaption, APrompt: String; var AValue: String;
-  const ASingleLine: Boolean; const ADocImageClick: TNotifyEvent): Boolean;
+  const ASingleLine: Boolean; const ADocBitBtnClick: TNotifyEvent): Boolean;
 begin
   with TInputQueryMemoForm.Create(Application) do try
     Caption := ACaption;
     Prompt := APrompt;
     Value := AValue;
     SingleLine := ASingleLine;
-    DocImageClick := ADocImageClick;
+    DocBitBtnClick := ADocBitBtnClick;
     if ShowModal = mrOk then begin
       AValue := Value;
       Result := True;
@@ -92,10 +92,10 @@ begin
   Result := ValueControl.Text;
 end;
 
-procedure TInputQueryMemoForm.SetDocImageClick(const Value: TNotifyEvent);
+procedure TInputQueryMemoForm.SetDocBitBtnClick(const Value: TNotifyEvent);
 begin
-  DocImage.OnClick := Value;
-  DocImage.Visible := Assigned(DocImage.OnClick);
+  DocBitBtn.OnClick := Value;
+  DocBitBtn.Visible := Assigned(DocBitBtn.OnClick);
 end;
 
 procedure TInputQueryMemoForm.SetPrompt(const APrompt: String);
@@ -149,7 +149,7 @@ procedure TInputQueryMemoForm.UpdateImages;
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, CurrentPPI, 96);
-  DocImage.Picture.Graphic:= GetImage(MainForm.HelpButton, WH);
+  DocBitBtn.Bitmap.Assign(GetImage(MainForm.HelpButton, WH));
 end;
 
 end.

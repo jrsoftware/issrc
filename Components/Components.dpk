@@ -38,6 +38,7 @@ requires
 
 contains
   BidiCtrls in 'BidiCtrls.pas',
+  BitmapButton in 'BitmapButton.pas',
   BitmapImage in 'BitmapImage.pas',
   DropListBox in 'DropListBox.pas',
   FolderTreeView in 'FolderTreeView.pas',

@@ -1931,7 +1931,7 @@ end;</pre></example>
         <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
         <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
-        <remarks><p>Calls to this function are ignored if the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive is set to <tt>basic</tt>.</p></remarks>
+        <remarks><p>Calls to this function are ignored if the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive is set to <tt>basic</tt>. In this case files as always extracted as .7z, regardless of the extension.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
         <example><pre>
@@ -2817,6 +2817,12 @@ end;</pre></example>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
         <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then Y is returned unchanged.</p></description>
+      </function>
+      <function>
+        <name>InitializeBitmapButtonFromIcon</name>
+        <prototype>function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
+        <description><p>Initializes the given bitmap button with an icon from the given icon file using the given background color for transparent parts.</p>
+<p>See <link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link> for more information.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromIcon</name>

@@ -75,6 +75,7 @@ uses
   BidiUtils in '..\Components\BidiUtils.pas',
   PathFunc in '..\Components\PathFunc.pas',
   BidiCtrls in '..\Components\BidiCtrls.pas',
+  BitmapButton in '..\Components\BitmapButton.pas',
   BitmapImage in '..\Components\BitmapImage.pas',
   FolderTreeView in '..\Components\FolderTreeView.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',

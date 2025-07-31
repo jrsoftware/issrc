@@ -2,13 +2,13 @@ unit NewProgressBar;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   TNewProgressBar component - a smooth 32 bit TProgressBar
 
-  Note: themed animated progress bars and don't immediately show changes.
+  Note: themed animated progress bars don't immediately show changes.
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.

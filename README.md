@@ -84,6 +84,7 @@ the following component units, which can be found in the [Components]
 directory.
 
 - BidiCtrls
+- BitmapButton
 - BitmapImage
 - FolderTreeView
 - NewCheckListBox
@@ -158,18 +159,19 @@ How do the projects link together?
 Source code tips
 ----------------
 
-- When building the projects in Debug mode it outputs to [Projects\Bin] and when
-  debugging it will run from within this directory. To prepare this directory
+- When building the projects in Debug mode, it outputs to [Projects\Bin] and when
+  debugging, it will run from within this directory. To prepare this directory
   with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
   the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
-- When debugging the Setup project you should first build all projects in Debug
+- When debugging the Setup project, you should first build all projects in Debug
   mode, then run the Compil32 project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
   Delphi debugger.
   
-- When building the projects in Release mode it outputs to [Files].
+- When building the projects in Release mode, it outputs to [Files]. Before
+  running Compil32, ensure that all .issig files are up to date.
   
 - All of the forms in the Setup project have Scaled set to False. This is
   because they dynamically scale themselves at run-time by calling a function
