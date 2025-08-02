@@ -347,7 +347,7 @@ uses
   PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
-  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.SetupSteps,
+  Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
   Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.Install;
 
 {$R *.DFM}
@@ -2438,13 +2438,13 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     end;
 
     if shPassword in SetupHeader.Options then
-      Result := TestPassword(CryptKey);
+      Result := TestPassword(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
     if not Result and (CodeRunner <> nil) then
       Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
-      if shEncryptionUsed in SetupHeader.Options then
+      if SetupHeader.EncryptionUse <> euNone then
         FileExtractor.CryptKey := CryptKey;
       PasswordEdit.Text := '';
     end else begin

@@ -60,7 +60,7 @@ type
     shAllowUNCPath, shUserInfoPage, shUsePreviousUserInfo,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-    shAppendDefaultGroupName, shEncryptionUsed, shSetupLogging,
+    shAppendDefaultGroupName, shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
@@ -68,6 +68,7 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;
+  TSetupEncryptionUse = (euNone, euFiles, euFull);
   TSetupEncryptionKey = array[0..31] of Byte;
   TSetupEncryptionNonce = record
     RandomXorStartOffset: Int64;
@@ -110,6 +111,7 @@ type
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     PasswordTest: Integer;
+    EncryptionUse: TSetupEncryptionUse;
     EncryptionKDFSalt: TSetupKDFSalt;
     EncryptionKDFIterations: Integer;
     EncryptionBaseNonce: TSetupEncryptionNonce;

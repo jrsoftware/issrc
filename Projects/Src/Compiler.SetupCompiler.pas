@@ -300,7 +300,7 @@ implementation
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
+  Shared.FileClass, Shared.EncryptionFunc, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
@@ -2836,7 +2836,12 @@ begin
         SetSetupHeaderOption(shEnableDirDoesntExistWarning);
       end;
     ssEncryption: begin
-        SetSetupHeaderOption(shEncryptionUsed);
+        if CompareText(Value, 'full') = 0 then
+          SetupHeader.EncryptionUse := euFull
+        else if StrToBool(Value) then
+          SetupHeader.EncryptionUse := euFiles
+        else
+          SetupHeader.EncryptionUse := euNone;
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
@@ -5015,7 +5020,7 @@ type
           Inc6464(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
-          if shEncryptionUsed in SetupHeader.Options then
+          if SetupHeader.EncryptionUse <> euNone then
             Include(NewFileLocationEntry^.Flags, floChunkEncrypted);
           if SolidBreak and UseSolidCompression then begin
             Include(NewFileLocationEntryExtraInfo^.Flags, floSolidBreak);
@@ -6886,7 +6891,14 @@ var
     const StartPosition = F.Position;
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
-
+    F.WriteBuffer(SetupHeader.EncryptionUse, SizeOf(SetupHeader.EncryptionUse));
+    if SetupHeader.EncryptionUse = euFull then begin
+      F.WriteBuffer(SetupHeader.EncryptionKDFSalt, SizeOf(SetupHeader.EncryptionKDFSalt));
+      F.WriteBuffer(SetupHeader.EncryptionKDFIterations, SizeOf(SetupHeader.EncryptionKDFIterations));
+      F.WriteBuffer(SetupHeader.EncryptionBaseNonce, SizeOf(SetupHeader.EncryptionBaseNonce));
+      F.WriteBuffer(SetupHeader.PasswordTest, SizeOf(SetupHeader.PasswordTest));
+      F.WriteBuffer(SetupHeader.CompressMethod, SizeOf(SetupHeader.CompressMethod));
+    end;
     SetupHeader.NumLanguageEntries := LanguageEntries.Count;
     SetupHeader.NumCustomMessageEntries := CustomMessageEntries.Count;
     SetupHeader.NumPermissionEntries := PermissionEntries.Count;
@@ -6912,6 +6924,9 @@ var
     W := TCompressedBlockWriter.Create(F, TLZMACompressor, InternalCompressLevel,
       InternalCompressProps);
     try
+      if SetupHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupHeader.EncryptionBaseNonce, -2);
+
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
 
@@ -6988,6 +7003,8 @@ var
       { ^ When disk spanning is enabled, the Setup Compiler requires that
         FileLocationEntries be a fixed size, so don't compress them }
     try
+      if SetupHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupHeader.EncryptionBaseNonce, -3);
       for J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
@@ -7907,7 +7924,7 @@ begin
       else
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
-    if (shEncryptionUsed in SetupHeader.Options) and (Password = '') then begin
+    if (SetupHeader.EncryptionUse <> euNone) and (Password = '') then begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
