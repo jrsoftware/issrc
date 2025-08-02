@@ -2622,8 +2622,7 @@ var
     Abort;
   end;
 
-  procedure ReadFileIntoStream(const Stream: TStream;
-    const R: TCompressedBlockReader);
+  procedure ReadFileIntoStream(const Reader: TCompressedBlockReader; const Stream: TStream);
   type
     PBuffer = ^TBuffer;
     TBuffer = array[0..8191] of Byte;
@@ -2633,11 +2632,11 @@ var
   begin
     New(Buf);
     try
-      R.Read(BytesLeft, SizeOf(BytesLeft));
+      Reader.Read(BytesLeft, SizeOf(BytesLeft));
       while BytesLeft > 0 do begin
         Bytes := BytesLeft;
         if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
-        R.Read(Buf^, Bytes);
+        Reader.Read(Buf^, Bytes);
         Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);
       end;
@@ -2646,13 +2645,11 @@ var
     end;
   end;
 
-  function ReadWizardImage(const R: TCompressedBlockReader): TBitmap;
-  var
-    MemStream: TMemoryStream;
+  function ReadWizardImage(const Reader: TCompressedBlockReader): TBitmap;
   begin
-    MemStream := TMemoryStream.Create;
+    const MemStream = TMemoryStream.Create;
     try
-      ReadFileIntoStream(MemStream, R);
+      ReadFileIntoStream(Reader, MemStream);
       MemStream.Seek(0, soFromBeginning);
       Result := TBitmap.Create;
       Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
@@ -2701,11 +2698,8 @@ var
     end;
   end;
 
-var
-  Reader: TCompressedBlockReader;
-
-  procedure ReadEntriesWithoutVersion(const EntryType: TEntryType;
-    const Count: Integer; const Size: Integer);
+  procedure ReadEntriesWithoutVersion(const Reader: TCompressedBlockReader;
+    const EntryType: TEntryType; const Count: Integer; const Size: Integer);
   var
     I: Integer;
     P: Pointer;
@@ -2719,8 +2713,8 @@ var
     end;
   end;
 
-  procedure ReadEntries(const EntryType: TEntryType; const Count: Integer;
-    const Size: Integer; const MinVersionOfs, OnlyBelowVersionOfs: Integer);
+  procedure ReadEntries(Reader: TCompressedBlockReader; const EntryType: TEntryType;
+    const Count: Integer; const Size: Integer; const MinVersionOfs, OnlyBelowVersionOfs: Integer);
   var
     I: Integer;
     P: Pointer;
@@ -3111,22 +3105,22 @@ begin
     if TestID <> SetupID then
       AbortInit(msgSetupFileCorruptOrWrongVer);
     try
-      Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
+      var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
         { Language entries }
-        ReadEntriesWithoutVersion(seLanguage, SetupHeader.NumLanguageEntries,
+        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
           SizeOf(TSetupLanguageEntry));
         { CustomMessage entries }
-        ReadEntriesWithoutVersion(seCustomMessage, SetupHeader.NumCustomMessageEntries,
+        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
           SizeOf(TSetupCustomMessageEntry));
         { Permission entries }
-        ReadEntriesWithoutVersion(sePermission, SetupHeader.NumPermissionEntries,
+        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
           SizeOf(TSetupPermissionEntry));
         { Type entries }
-        ReadEntries(seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
+        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
           Integer(@PSetupTypeEntry(nil).MinVersion),
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
@@ -3198,47 +3192,47 @@ begin
         NeedsRestart := shAlwaysRestart in SetupHeader.Options;
 
         { Component entries }
-        ReadEntries(seComponent, SetupHeader.NumComponentEntries, SizeOf(TSetupComponentEntry),
+        ReadEntries(Reader, seComponent, SetupHeader.NumComponentEntries, SizeOf(TSetupComponentEntry),
           -1, -1);
         { Task entries }
-        ReadEntries(seTask, SetupHeader.NumTaskEntries, SizeOf(TSetupTaskEntry),
+        ReadEntries(Reader, seTask, SetupHeader.NumTaskEntries, SizeOf(TSetupTaskEntry),
           -1, -1);
         { Dir entries }
-        ReadEntries(seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
+        ReadEntries(Reader, seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
           Integer(@PSetupDirEntry(nil).MinVersion),
           Integer(@PSetupDirEntry(nil).OnlyBelowVersion));
         { ISSigKey entries }
-        ReadEntriesWithoutVersion(seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
+        ReadEntriesWithoutVersion(Reader, seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
         { File entries }
-        ReadEntries(seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
+        ReadEntries(Reader, seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
           Integer(@PSetupFileEntry(nil).MinVersion),
           Integer(@PSetupFileEntry(nil).OnlyBelowVersion));
         { Icon entries }
-        ReadEntries(seIcon, SetupHeader.NumIconEntries, SizeOf(TSetupIconEntry),
+        ReadEntries(Reader, seIcon, SetupHeader.NumIconEntries, SizeOf(TSetupIconEntry),
           Integer(@PSetupIconEntry(nil).MinVersion),
           Integer(@PSetupIconEntry(nil).OnlyBelowVersion));
         { INI entries }
-        ReadEntries(seIni, SetupHeader.NumIniEntries, SizeOf(TSetupIniEntry),
+        ReadEntries(Reader, seIni, SetupHeader.NumIniEntries, SizeOf(TSetupIniEntry),
           Integer(@PSetupIniEntry(nil).MinVersion),
           Integer(@PSetupIniEntry(nil).OnlyBelowVersion));
         { Registry entries }
-        ReadEntries(seRegistry, SetupHeader.NumRegistryEntries, SizeOf(TSetupRegistryEntry),
+        ReadEntries(Reader, seRegistry, SetupHeader.NumRegistryEntries, SizeOf(TSetupRegistryEntry),
           Integer(@PSetupRegistryEntry(nil).MinVersion),
           Integer(@PSetupRegistryEntry(nil).OnlyBelowVersion));
         { InstallDelete entries }
-        ReadEntries(seInstallDelete, SetupHeader.NumInstallDeleteEntries, SizeOf(TSetupDeleteEntry),
+        ReadEntries(Reader, seInstallDelete, SetupHeader.NumInstallDeleteEntries, SizeOf(TSetupDeleteEntry),
           Integer(@PSetupDeleteEntry(nil).MinVersion),
           Integer(@PSetupDeleteEntry(nil).OnlyBelowVersion));
         { UninstallDelete entries }
-        ReadEntries(seUninstallDelete, SetupHeader.NumUninstallDeleteEntries, SizeOf(TSetupDeleteEntry),
+        ReadEntries(Reader, seUninstallDelete, SetupHeader.NumUninstallDeleteEntries, SizeOf(TSetupDeleteEntry),
           Integer(@PSetupDeleteEntry(nil).MinVersion),
           Integer(@PSetupDeleteEntry(nil).OnlyBelowVersion));
         { Run entries }
-        ReadEntries(seRun, SetupHeader.NumRunEntries, SizeOf(TSetupRunEntry),
+        ReadEntries(Reader, seRun, SetupHeader.NumRunEntries, SizeOf(TSetupRunEntry),
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { UninstallRun entries }
-        ReadEntries(seUninstallRun, SetupHeader.NumUninstallRunEntries, SizeOf(TSetupRunEntry),
+        ReadEntries(Reader, seUninstallRun, SetupHeader.NumUninstallRunEntries, SizeOf(TSetupRunEntry),
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
@@ -3252,13 +3246,13 @@ begin
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
           DecompressorDLL := TMemoryStream.Create;
-          ReadFileIntoStream(DecompressorDLL, Reader);
+          ReadFileIntoStream(Reader, DecompressorDLL);
         end;
         { SevenZip DLL }
         SevenZipDLL := nil;
         if SetupHeader.SevenZipLibraryName <> '' then begin
           SevenZipDLL := TMemoryStream.Create;
-          ReadFileIntoStream(SevenZipDLL, Reader);
+          ReadFileIntoStream(Reader, SevenZipDLL);
         end;
       finally
         Reader.Free;
@@ -3266,7 +3260,7 @@ begin
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         { File location entries }
-        ReadEntriesWithoutVersion(seFileLocation, SetupHeader.NumFileLocationEntries,
+        ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
           SizeOf(TSetupFileLocationEntry));
       finally
         Reader.Free;
