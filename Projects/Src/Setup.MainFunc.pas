@@ -3344,11 +3344,11 @@ begin
   { Load system's "shfolder.dll", and load it }
   LoadSHFolderDLL;
 
-  { Extract "_isdecmp.dll" to TempInstallDir, and load it }
+  { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
 
-  { Extract "_is7z.dll" to TempInstallDir, and load it }
+  { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }
   if SetupHeader.SevenZipLibraryName <> '' then
     LoadSevenZipDLL;
 
