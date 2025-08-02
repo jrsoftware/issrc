@@ -340,6 +340,13 @@ begin
   inherited;
 end;
 
+procedure TCompressedBlockWriter.InitEncryption(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
+begin
+  InitCryptContext(CryptKey, EncryptionBaseNonce, UniqueIndex, FCryptContext);
+  FEncrypt := True;
+end;
+
 procedure TCompressedBlockWriter.FlushOutputBuffer;
 { Flushes contents of FOutBuffer into the file, with a preceding CRC }
 var
@@ -354,13 +361,6 @@ begin
   FFile.WriteBuffer(FOutBuffer, FOutBufferCount);
   Inc(FTotalBytesStored, FOutBufferCount);
   FOutBufferCount := 0;
-end;
-
-procedure TCompressedBlockWriter.InitEncryption(const CryptKey: TSetupEncryptionKey;
-  const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
-begin
-  InitCryptContext(CryptKey, EncryptionBaseNonce, UniqueIndex, FCryptContext);
-  FEncrypt := True;
 end;
 
 procedure TCompressedBlockWriter.CompressorWriteProc(const Buffer; Count: Longint);

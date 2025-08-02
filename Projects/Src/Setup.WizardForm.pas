@@ -2432,19 +2432,19 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     var SaveCursor := GetCursor;
     SetCursor(LoadCursor(0, IDC_WAIT));
     try
-      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupMainHeader.EncryptionKDFSalt, SetupMainHeader.EncryptionKDFIterations, CryptKey);
     finally
       SetCursor(SaveCursor);
     end;
 
     if shPassword in SetupHeader.Options then
-      Result := TestPassword(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
+      Result := TestPassword(CryptKey, SetupMainHeader.EncryptionBaseNonce, SetupMainHeader.PasswordTest);
     if not Result and (CodeRunner <> nil) then
       Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 
     if Result then begin
       NeedPassword := False;
-      if SetupHeader.EncryptionUse <> euNone then
+      if SetupMainHeader.EncryptionUse <> euNone then
         FileExtractor.CryptKey := CryptKey;
       PasswordEdit.Text := '';
     end else begin

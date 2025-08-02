@@ -86,6 +86,18 @@ const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
 
+type
+  { Should not contain strings }
+  TSetupMainHeader = packed record
+    PasswordTest: Integer;
+    EncryptionUse: TSetupEncryptionUse;
+    EncryptionKDFSalt: TSetupKDFSalt;
+    EncryptionKDFIterations: Integer;
+    EncryptionBaseNonce: TSetupEncryptionNonce;
+    { FileExtractor (a function called early to initialize its CryptKey) requires CompressMethod to be set }
+    CompressMethod: TSetupCompressMethod;
+  end;
+
 const
   SetupHeaderStrings = 34;
   SetupHeaderAnsiStrings = 4;
@@ -110,11 +122,6 @@ type
     WizardStyle: TSetupWizardStyle;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    PasswordTest: Integer;
-    EncryptionUse: TSetupEncryptionUse;
-    EncryptionKDFSalt: TSetupKDFSalt;
-    EncryptionKDFIterations: Integer;
-    EncryptionBaseNonce: TSetupEncryptionNonce;
     ExtraDiskSpaceRequired: Integer64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
@@ -123,7 +130,6 @@ type
     PrivilegesRequiredOverridesAllowed: TSetupPrivilegesRequiredOverrides;
     ShowLanguageDialog: (slYes, slNo, slAuto);
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
-    CompressMethod: TSetupCompressMethod;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Integer64;
     Options: set of TSetupHeaderOption;

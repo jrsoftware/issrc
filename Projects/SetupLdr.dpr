@@ -79,6 +79,7 @@ var
   InitLang, InitPassword: String;
   ActiveLanguage: Integer = -1;
   PendingNewLanguage: Integer = -1;
+  SetupMainHeader: TSetupMainHeader;
   SetupHeader: TSetupHeader;
   LanguageEntries: PLanguageEntryArray;
   LanguageEntryCount: Integer;
@@ -408,29 +409,30 @@ begin
       SourceF.ReadBuffer(TestID, SizeOf(TestID));
       if TestID <> SetupID then
         SetupCorruptError;
-      try
-        var CryptKey: TSetupEncryptionKey;
-        SourceF.Read(SetupHeader.EncryptionUse, SizeOf(SetupHeader.EncryptionUse));
-        if SetupHeader.EncryptionUse = euFull then begin
-          SourceF.Read(SetupHeader.EncryptionKDFSalt, SizeOf(SetupHeader.EncryptionKDFSalt));
-          SourceF.Read(SetupHeader.EncryptionKDFIterations, SizeOf(SetupHeader.EncryptionKDFIterations));
-          SourceF.Read(SetupHeader.EncryptionBaseNonce, SizeOf(SetupHeader.EncryptionBaseNonce));
-          SourceF.Read(SetupHeader.PasswordTest, SizeOf(SetupHeader.PasswordTest));
-          SourceF.Read(SetupHeader.CompressMethod, SizeOf(SetupHeader.CompressMethod));
-          var PasswordOk: Boolean;
-          if InitPassword <> '' then begin
-            GenerateEncryptionKey(InitPassword, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
-            PasswordOk := TestPassword(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
-          end else
-            PasswordOk := False;
-          if not PasswordOk then
-            raise Exception.Create(SIncorrectPassword);
-        end;
 
+      var SetupMainHeaderCRC: Longint;
+      SourceF.Read(SetupMainHeaderCRC, SizeOf(SetupMainHeaderCRC));
+      SourceF.Read(SetupMainHeader, SizeOf(SetupMainHeader));
+      if SetupMainHeaderCRC <> GetCRC32(SetupMainHeader, SizeOf(SetupMainHeader)) then
+         SetupCorruptError;
+
+      var CryptKey: TSetupEncryptionKey;
+      if SetupMainHeader.EncryptionUse = euFull then begin
+        var PasswordOk: Boolean;
+        if InitPassword <> '' then begin
+          GenerateEncryptionKey(InitPassword, SetupMainHeader.EncryptionKDFSalt, SetupMainHeader.EncryptionKDFIterations, CryptKey);
+          PasswordOk := TestPassword(CryptKey, SetupMainHeader.EncryptionBaseNonce, SetupMainHeader.PasswordTest);
+        end else
+          PasswordOk := False;
+        if not PasswordOk then
+          raise Exception.Create(SIncorrectPassword);
+      end;
+
+      try
         Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
         try
-          if SetupHeader.EncryptionUse = euFull then
-            Reader.InitDecryption(CryptKey, SetupHeader.EncryptionBaseNonce, -2);
+          if SetupMainHeader.EncryptionUse = euFull then
+            Reader.InitDecryption(CryptKey, SetupMainHeader.EncryptionBaseNonce, -2);
 
           SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
             SetupHeaderStrings, SetupHeaderAnsiStrings);
