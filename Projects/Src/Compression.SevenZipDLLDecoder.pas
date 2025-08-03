@@ -214,14 +214,17 @@ type
 
 { Helper functions }
 
-procedure SevenZipWin32Error(const FunctionName: String; ErrorCode: DWORD = 0); overload;
+procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
 begin
-  if ErrorCode = 0 then
-    ErrorCode := GetLastError;
   const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
     [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
   const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
   SevenZipError(ExceptMessage, LogMessage);
+end;
+
+procedure SevenZipWin32Error(const FunctionName: String); overload;
+begin
+  SevenZipWin32Error(FunctionName, GetLastError);
 end;
 
 function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
@@ -600,8 +603,9 @@ begin
         case WaitForSingleObject(ThreadHandle, 50) of
           WAIT_OBJECT_0: Break;
           WAIT_TIMEOUT: HandleProgress; { This calls the user's OnExtractionProgress handler! }
+          WAIT_FAILED: SevenZipWin32Error('WaitForSingleObject');
         else
-          SevenZipWin32Error('WaitForSingleObject');
+          SevenZipError('WaitForSingleObject returned unknown value');
         end;
       end;
     except
@@ -1008,7 +1012,8 @@ begin
   try
     F := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
   except
-    SevenZipWin32Error('CreateFile');
+    on E: EFileError do
+      SevenZipWin32Error('CreateFile', E.ErrorCode);
   end;
   const InStream: IInStream = TInStream.Create(F);
   var ScanSize := DefaultScanSize;

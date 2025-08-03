@@ -746,23 +746,31 @@ end;
 
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
-  backslash. This does not use the Win32 function GetTempPath, due to platform
-  differences. }
-label 1;
+  backslash. }
+var
+  GetTempPathFunc: function(nBufferLength: DWORD; lpBuffer: LPWSTR): DWORD; stdcall;
+  Buf: array[0..MAX_PATH] of Char;
 begin
-  Result := GetEnv('TMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetEnv('TEMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
-    are not set }
-  Result := GetEnv('USERPROFILE');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetWinDir;
-1:Result := AddBackslash(PathExpand(Result));
+  { When available, GetTempPath2 is preferred as it returns a private
+    directory (typically C:\Windows\SystemTemp) when running as SYSTEM }
+  GetTempPathFunc := GetProcAddress(GetModuleHandle(kernel32),
+    PAnsiChar('GetTempPath2W'));
+  if not Assigned(GetTempPathFunc) then
+    GetTempPathFunc := GetTempPathW;
+
+  const Res = GetTempPathFunc(SizeOf(Buf) div SizeOf(Buf[0]), Buf);
+  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then begin
+    { The docs say the returned path is fully qualified and ends with a
+      backslash, but let's be really sure! }
+    Result := AddBackslash(PathExpand(Buf));
+    Exit;
+  end;
+
+  { We don't expect GetTempPath to ever fail or claim a larger buffer is
+    needed (docs say maximum possible return value is MAX_PATH+1), but if it
+    does, raise an exception as this function has no return value for failure }
+  raise Exception.CreateFmt('GetTempDir: GetTempPath failed (%u, %u)',
+    [Res, GetLastError]);
 end;
 
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
