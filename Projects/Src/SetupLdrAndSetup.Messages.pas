@@ -47,7 +47,8 @@ const
     'obtain a new copy of the program.';
   SMsgsFileMissing = 'Messages file "%s" is missing. Please correct ' +
     'the problem or obtain a new copy of the program.';
-  SIncorrectPassword = 'The password you entered is not correct. Please try again.';
+  SMissingPassword = 'Please specify the password using the /PASSWORD= command line parameter.';
+  SIncorrectPassword = 'The password you specified is not correct. Please try again.';
 
 implementation
 

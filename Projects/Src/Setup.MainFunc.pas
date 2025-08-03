@@ -3105,6 +3105,8 @@ begin
 
     var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
+      if InitPassword = '' then
+        raise Exception.Create(SMissingPassword);
       { HandleInitPassword requires this }
       SetupHeader.Options := SetupHeader.Options + [shPassword];
       { Specifying False for AllowSetFileExtractorCryptKey because FileExtractor (a function!)

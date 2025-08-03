@@ -419,12 +419,10 @@ begin
       var CryptKey: TSetupEncryptionKey;
       if SetupEncryptionHeader.EncryptionUse = euFull then begin
         var PasswordOk: Boolean;
-        if InitPassword <> '' then begin
-          GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
-          PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
-        end else
-          PasswordOk := False;
-        if not PasswordOk then
+        if InitPassword = '' then
+          raise Exception.Create(SMissingPassword);
+        GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
+        if not TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest) then
           raise Exception.Create(SIncorrectPassword);
       end;
 
