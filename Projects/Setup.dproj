@@ -148,6 +148,7 @@
         <DCCReference Include="..\Components\BidiUtils.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="..\Components\BidiCtrls.pas"/>
+        <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
         <DCCReference Include="..\Components\FolderTreeView.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>

@@ -47,6 +47,8 @@ uses
   NewStaticText in '..\Components\NewStaticText.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
   DropListBox in '..\Components\DropListBox.pas',
+  BitmapButton in '..\Components\BitmapButton.pas',
+  BitmapImage in '..\Components\BitmapImage.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
@@ -73,6 +75,7 @@ uses
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
   StringScanner in '..\Components\StringScanner.pas',
+  Resample in '..\Components\Resample.pas',
   VCL.Styles,
   VCL.Themes;
 

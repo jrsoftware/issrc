@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
-  VirtualImageList, BaseImageCollection;
+  VirtualImageList, BaseImageCollection, BitmapButton;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -263,8 +263,8 @@ type
     EFindRegEx: TMenuItem;
     UpdatePanel: TPanel;
     UpdateLinkLabel: TLinkLabel;
-    UpdatePanelClosePaintBox: TPaintBox;
-    UpdatePanelDonateImage: TImage;
+    UpdatePanelCloseBitBtn: TBitmapButton;
+    UpdatePanelDonateBitBtn: TBitmapButton;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -389,9 +389,9 @@ type
     procedure EFindRegExClick(Sender: TObject);
     procedure UpdateLinkLabelLinkClick(Sender: TObject; const Link: string;
       LinkType: TSysLinkType);
-    procedure UpdatePanelClosePaintBoxPaint(Sender: TObject);
-    procedure UpdatePanelClosePaintBoxClick(Sender: TObject);
-    procedure UpdatePanelDonateImageClick(Sender: TObject);
+    procedure UpdatePanelCloseBitBtnPaint(Sender: TObject; Canvas: TCanvas; var ARect: TRect);
+    procedure UpdatePanelCloseBitBtnClick(Sender: TObject);
+    procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -1010,7 +1010,7 @@ begin
 
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
-  UpdatePanelDonateImage.Hint := RemoveAccelChar(HDonate.Caption);
+  UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
 
   UpdateImages;
 
@@ -1028,6 +1028,7 @@ begin
   FHiddenFiles := TStringList.Create(dupError, True, True);
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
+  ActiveControl := FActiveMemo;
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
   UpdateMarginsAndSquigglyAndCaretWidths;
@@ -1321,8 +1322,12 @@ begin
       if ControlToAdd <> nil then
         AddControlToArray(ControlToAdd, Controls, NControls);
     end;
-    if UpdatePanel.Visible and FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
-      AddControlToArray(UpdateLinkLabel, Controls, NControls);
+    if UpdatePanel.Visible then begin
+      if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
+        AddControlToArray(UpdateLinkLabel, Controls, NControls);
+      AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
+      AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
+    end;
 
     { Now move focus to next }
     if NControls > 1 then begin
@@ -1666,9 +1671,6 @@ begin
     to the form's height decreasing }
   if StatusPanel.Visible then
     UpdateStatusPanelHeight(StatusPanel.Height);
-  { Violently resizing the form leaves UpdatePanelDonateImage and UpdatePanelPaintBox artifacts
-    under and over UpdateLinkLabel. Invalidating it prevents this. }
-  UpdateLinkLabel.Invalidate;
 end;
 
 procedure TMainForm.WndProc(var Message: TMessage);
@@ -4179,7 +4181,7 @@ begin
   var Images := ImagesModule.LightToolBarImageCollection;
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
-  UpdatePanelDonateImage.Picture.Graphic:= Image;
+  UpdatePanelDonateBitBtn.Bitmap.Assign(Image);
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -8021,10 +8023,10 @@ begin
   end else
     Handled := False;
   if Handled then
-    UpdatePanelClosePaintBoxClick(Sender);
+    UpdatePanelCloseBitBtnClick(Sender);
 end;
 
-procedure TMainForm.UpdatePanelClosePaintBoxClick(Sender: TObject);
+procedure TMainForm.UpdatePanelCloseBitBtnClick(Sender: TObject);
 begin
   var MessageToHideIndex := UpdateLinkLabel.Tag;
   var Ini := TConfigIniFile.Create;
@@ -8037,20 +8039,19 @@ begin
   UpdateUpdatePanel;
 end;
 
-procedure TMainForm.UpdatePanelDonateImageClick(Sender: TObject);
+procedure TMainForm.UpdatePanelDonateBitBtnClick(Sender: TObject);
 begin
   HDonate.Click;
 end;
 
-procedure TMainForm.UpdatePanelClosePaintBoxPaint(Sender: TObject);
+procedure TMainForm.UpdatePanelCloseBitBtnPaint(Sender: TObject; Canvas: TCanvas; var ARect: TRect);
 const
   MENU_SYSTEMCLOSE = 17;
   MSYSC_NORMAL = 1;
 begin
-  var Canvas := UpdatePanelClosePaintBox.Canvas;
-  var R := TRect.Create(0, 0, UpdatePanelClosePaintBox.Width, UpdatePanelClosePaintBox.Height);
+  var R := ARect;
   if FMenuThemeData <> 0 then begin
-    var Offset := MulDiv(1, CurrentPPI, 96);
+    var Offset := MulDiv(2, CurrentPPI, 96);
     Inc(R.Left, Offset);
     DrawThemeBackground(FMenuThemeData, Canvas.Handle, MENU_SYSTEMCLOSE, MSYSC_NORMAL, R, nil);
   end else begin

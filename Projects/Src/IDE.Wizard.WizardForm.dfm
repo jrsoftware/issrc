@@ -1054,14 +1054,14 @@ object WizardForm: TWizardForm
           DesignSize = (
             485
             245)
-          object AppRegistryMinVerDocImage: TImage
-            Left = 360
-            Top = 161
-            Width = 16
-            Height = 16
+          object AppRegistryMinVerDocBitBtn: TBitmapButton
+            Left = 358
+            Top = 159
+            Width = 20
+            Height = 20
             Anchors = [akTop, akRight]
-            AutoSize = True
-            Transparent = True
+            Caption = 'Help'
+            TabOrder = 9
           end
           object AppRegistryFileLabel: TNewStaticText
             Left = 36

@@ -2819,6 +2819,12 @@ end;</pre></example>
         <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then Y is returned unchanged.</p></description>
       </function>
       <function>
+        <name>InitializeBitmapButtonFromIcon</name>
+        <prototype>function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
+        <description><p>Initializes the given bitmap button with an icon from the given icon file using the given background color for transparent parts.</p>
+<p>See <link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link> for more information.</p></description>
+      </function>
+      <function>
         <name>InitializeBitmapImageFromIcon</name>
         <prototype>function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
         <description><p>Initializes the given bitmap image with an icon from the given icon file using the given background color for transparent parts.</p>

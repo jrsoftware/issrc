@@ -27,15 +27,15 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Caption = '...'
     FocusControl = ValueControl
   end
-  object DocImage: TImage
-    Left = 8
-    Top = 115
-    Width = 16
-    Height = 16
+  object DocBitBtn: TBitmapButton
+    Left = 6
+    Top = 113
+    Width = 20
+    Height = 20
     Cursor = crHandPoint
     Anchors = [akLeft, akBottom]
-    AutoSize = True
-    Transparent = True
+    Caption = 'Help'
+    TabOrder = 1
   end
   object OKButton: TButton
     Left = 421
@@ -46,7 +46,7 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 1
+    TabOrder = 2
   end
   object CancelButton: TButton
     Left = 501
@@ -57,7 +57,7 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 3
   end
   object ValueControl: TMemo
     Left = 279
