@@ -21,7 +21,7 @@ implementation
 uses
   Windows,
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections,
-  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapImage, PSStackHelper,
+  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage, PSStackHelper,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc,
   Setup.Install, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole,
@@ -1813,6 +1813,11 @@ var
       Stack.SetBool(PStart, IsMsiProductInstalled(Stack.GetString(PStart-1), Stack.GetInt64(PStart-2), ErrorCode));
       if ErrorCode <> 0 then
         raise Exception.Create(Win32ErrorString(ErrorCode));
+    end);
+    RegisterScriptFunc('INITIALIZEBITMAPBUTTONFROMICON', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      var AscendingTrySizes := Stack.GetIntArray(PStart-4);
+      Stack.SetBool(PStart, TBitmapButton(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
     end);
     RegisterScriptFunc('INITIALIZEBITMAPIMAGEFROMICON', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

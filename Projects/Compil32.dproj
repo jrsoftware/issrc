@@ -130,6 +130,8 @@
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
         <DCCReference Include="..\Components\DropListBox.pas"/>
+        <DCCReference Include="..\Components\BitmapButton.pas"/>
+        <DCCReference Include="..\Components\BitmapImage.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
@@ -163,6 +165,7 @@
         <DCCReference Include="..\Components\ECDSA.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
         <DCCReference Include="..\Components\StringScanner.pas"/>
+        <DCCReference Include="..\Components\Resample.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

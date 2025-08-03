@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls;
+  UIStateForm, StdCtrls, ExtCtrls, BitmapButton;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
@@ -31,8 +31,8 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
-    DonateImage: TImage;
-    MailingListImage: TImage;
+    DonateBitBtn: TBitmapButton;
+    MailingListBitBtn: TBitmapButton;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -40,8 +40,8 @@ type
     procedure OKButtonClick(Sender: TObject);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
-    procedure DonateImageClick(Sender: TObject);
-    procedure MailingListImageClick(Sender: TObject);
+    procedure DonateBitBtnClick(Sender: TObject);
+    procedure MailingListBitBtnClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
     FResultMainFileName: TFileName;
@@ -103,12 +103,12 @@ begin
   InitFormTheme(Self);
 
   if IsLicensed then begin
-    DonateImage.Visible := False;
-    const DiffX = MailingListImage.Left - DonateImage.Left;
-    MailingListImage.Left := MailingListImage.Left - DiffX;
+    DonateBitBtn.Visible := False;
+    const DiffX = MailingListBitBtn.Left - DonateBitBtn.Left;
+    MailingListBitBtn.Left := MailingListBitBtn.Left - DiffX;
     StartupCheck.Left := StartupCheck.Left - DiffX;
   end else
-    DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
+	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
 
   UpdateImages;
 
@@ -159,12 +159,12 @@ begin
   OpenRadioButton.Checked := True;
 end;
 
-procedure TStartupForm.DonateImageClick(Sender: TObject);
+procedure TStartupForm.DonateBitBtnClick(Sender: TObject);
 begin
   OpenDonateSite;
 end;
 
-procedure TStartupForm.MailingListImageClick(Sender: TObject);
+procedure TStartupForm.MailingListBitBtnClick(Sender: TObject);
 begin
   OpenMailingListSite;
 end;
