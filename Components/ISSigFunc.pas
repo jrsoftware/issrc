@@ -102,7 +102,7 @@ function CalcHashToSign(const AIncludeFileNameAndTag: Boolean; const AFileName: 
   procedure SHA256UpdateWithString(var Context: TSHA256Context; const S: String);
   begin
     const U = UTF8String(S);
-    const N: Int32 = Length(U);
+    const N: UInt32 = UInt32(Length(U));
     SHA256Update(Context, N, SizeOf(N));
     if N > 0 then
       SHA256Update(Context, Pointer(U)^, N*SizeOf(U[1]));
