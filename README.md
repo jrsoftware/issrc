@@ -266,8 +266,7 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 	lib/win32/release/Winapi.*.dcu
 ```
 
-Then, upload this encrypted file somewhere public, e.g. by attaching it to a comment
-in a GitHub issue. After that, add this URL as a new repository
+Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
 [secret] (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.
 
@@ -284,6 +283,11 @@ Write permissions for Contents. After that, add this token as a new repository s
 the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
 by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
 and will automatically run the aforementioned build workflow on changes, if it's configured.
+
+To perform a second unattended build using a different Delphi version, add topic
+`has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
+`ISSRC_BUILD2_ENV_ZIP_PASSWORD`. Unlike the main build, the second build does not produce
+any artifacts.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>

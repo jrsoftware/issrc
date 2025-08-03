@@ -26,8 +26,6 @@ type
   private
     FFocusBorderWidthHeight: Integer;
     FImpl: TBitmapImageImplementation;
-    FOnClick: TNotifyEvent;
-    FOnDblClick: TNotifyEvent;
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
@@ -64,8 +62,8 @@ type
     property TabOrder;
     property TabStop default True;
     property Visible;
-    property OnClick: TNotifyEvent read FOnClick write FOnClick;
-    property OnDblClick: TNotifyEvent read FOnDblClick write FOnDblClick;
+    property OnClick;
+    property OnDblClick;
     property OnPaint: TPaintEvent read FImpl.OnPaint write FImpl.OnPaint;
   end;
 
@@ -81,7 +79,7 @@ end;
 constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
-  ControlStyle := ControlStyle + [csReplicatable];
+  ControlStyle := ControlStyle + [csReplicatable] - [csClickEvents];
   { Using a fixed focus border width/height to avoid design problems between systems }
   FFocusBorderWidthHeight := 2;
   const DoubleFBWH = 2*FFocusBorderWidthHeight;
@@ -96,6 +94,7 @@ procedure TBitmapButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   CreateSubClass(Params, 'BUTTON');
+  Params.Style := Params.Style or BS_NOTIFY; { For BN_DBLCLK }
 end;
 
 destructor TBitmapButton.Destroy;
@@ -184,10 +183,10 @@ end;
 
 procedure TBitmapButton.CNCommand(var Message: TWMCommand);
 begin
-  if (Message.NotifyCode = BN_CLICKED) and Assigned(FOnClick) then
-    FOnClick(Self)
-  else if (Message.NotifyCode = BN_DBLCLK) and Assigned(FOnDblClick) then
-    FOnDblClick(Self);
+  if (Message.NotifyCode = BN_CLICKED) then
+    Click
+  else if (Message.NotifyCode = BN_DBLCLK) then
+    DblClick;
 end;
 
 end.
