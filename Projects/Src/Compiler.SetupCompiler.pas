@@ -6922,7 +6922,7 @@ var
       InternalCompressProps);
     try
       if SetupEncryptionHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -2);
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
 
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
@@ -7001,7 +7001,7 @@ var
         FileLocationEntries be a fixed size, so don't compress them }
     try
       if SetupEncryptionHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -3);
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks2);
       for J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
@@ -7659,21 +7659,6 @@ var
   procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
   begin
     GenerateRandomBytes(Nonce, SizeOf(Nonce));
-  end;
-
-  { This function assumes EncryptionKey is based on the password }
-  procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
-    const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
-  begin
-    { Create a special nonce that cannot collide with encrypted-file nonces }
-    var Nonce := EncryptionBaseNonce;
-    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
-
-    { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
-    var Context: TChaCha20Context;
-    XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-    PasswordTest := 0;
-    XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
   end;
 
 const

@@ -6,23 +6,34 @@ unit Shared.EncryptionFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Encryption function used by ISCmplr, Setup, and SetupLdr
+  Encryption functions used by ISCmplr, Setup, and SetupLdr
 }
 
 interface
 
 uses
-  Shared.Struct;
+  ChaCha20, Shared.Struct;
+
+type
+  TSpecialCryptContextType = (sccPasswordTest, sccCompressedBlocks1, sccCompressedBlocks2);
 
 procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
   const Iterations: Integer; out Key: TSetupEncryptionKey);
-function TestPassword(const EncryptionKey: TSetupEncryptionKey;
+procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const StartOffset: Int64; const FirstSlice: Int32;
+  out CryptContext: TChaCha20Context); overload;
+procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const Typ: TSpecialCryptContextType;
+  out CryptContext: TChaCha20Context); overload;
+procedure GeneratePasswordTest(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
+function TestPassword(const CryptKey: TSetupEncryptionKey;
   const EncryptionBaseNonce: TSetupEncryptionNonce; const ExpectedPasswordTest: Integer): Boolean;
 
 implementation
 
 uses
-  SysUtils, ChaCha20, PBKDF2;
+  SysUtils, PBKDF2;
 
 procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
   const Iterations: Integer; out Key: TSetupEncryptionKey);
@@ -36,21 +47,44 @@ begin
   Move(KeyBytes[0], Key[0], KeyLength);
 end;
 
-{ This function assumes EncryptionKey is based on the password }
-function TestPassword(const EncryptionKey: TSetupEncryptionKey;
-  const EncryptionBaseNonce: TSetupEncryptionNonce; const ExpectedPasswordTest: Integer): Boolean;
+procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const StartOffset: Int64; const FirstSlice: Int32;
+  out CryptContext: TChaCha20Context);
 begin
-  { Do same as compiler did in GeneratePasswordTest and compare results }
+  { Create the unique nonce from the base nonce }
   var Nonce := EncryptionBaseNonce;
-  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
+  Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor StartOffset;
+  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FirstSlice;
 
-  var Context: TChaCha20Context;
-  XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-  var ActualPasswordTest := 0;
-  XChaCha20Crypt(Context, ActualPasswordTest, ActualPasswordTest, SizeOf(ActualPasswordTest));
-
-  Result := ActualPasswordTest = ExpectedPasswordTest;
+  XChaCha20Init(CryptContext, CryptKey[0], Length(CryptKey), Nonce, SizeOf(Nonce), 0);
 end;
 
+procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const Typ: TSpecialCryptContextType;
+  out CryptContext: TChaCha20Context); overload;
+begin
+  const SpecialFirstSlice = -1-(Ord(Typ)-Ord(Low(Typ)));
+  InitCryptContext(CryptKey, EncryptionBaseNonce, 0, SpecialFirstSlice, CryptContext);
+end;
+
+{ This function assumes CryptKey is based on the password }
+procedure GeneratePasswordTest(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
+begin
+  var Context: TChaCha20Context;
+  InitCryptContext(CryptKey, EncryptionBaseNonce, sccPasswordTest, Context);
+
+  { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
+  PasswordTest := 0;
+  XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
+end;
+
+function TestPassword(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const ExpectedPasswordTest: Integer): Boolean;
+begin
+  var ActualPasswordTest: Integer;
+  GeneratePasswordTest(CryptKey, EncryptionBaseNonce, ActualPasswordTest);
+  Result := ActualPasswordTest = ExpectedPasswordTest;
+end;
 
 end.

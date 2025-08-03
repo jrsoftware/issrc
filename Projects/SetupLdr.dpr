@@ -432,7 +432,7 @@ begin
         Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
         try
           if SetupEncryptionHeader.EncryptionUse = euFull then
-            Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -2);
+            Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
 
           SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
             SetupHeaderStrings, SetupHeaderAnsiStrings);

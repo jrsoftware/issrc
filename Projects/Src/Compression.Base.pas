@@ -12,7 +12,7 @@ unit Compression.Base;
 interface
 
 uses
-  Windows, SysUtils, ChaCha20, Shared.Int64Em, Shared.FileClass, Shared.Struct;
+  Windows, SysUtils, ChaCha20, Shared.Int64Em, Shared.FileClass, Shared.Struct, Shared.EncryptionFunc;
 
 type
   ECompressError = class(Exception);
@@ -87,7 +87,7 @@ type
       CompressionLevel: Integer; ACompressorProps: TCompressorProps);
     destructor Destroy; override;
     procedure InitEncryption(const CryptKey: TSetupEncryptionKey;
-      const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Finish;
     procedure Write(const Buffer; Count: Cardinal);
   end;
@@ -109,7 +109,7 @@ type
     constructor Create(AFile: TFile; ADecompressorClass: TCustomDecompressorClass);
     destructor Destroy; override;
     procedure InitDecryption(const CryptKey: TSetupEncryptionKey;
-      const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
@@ -290,19 +290,6 @@ procedure TStoredDecompressor.Reset;
 begin
 end;
 
-{ TCompressedBlockWriter & Reader }
-
-procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;
-  const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer;
-  var CryptContext: TChaCha20Context);
-begin
-  { Recreate the unique nonce from the base nonce }
-  var Nonce := EncryptionBaseNonce;
-  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor UniqueIndex;
-
-  XChaCha20Init(CryptContext, CryptKey[0], Length(CryptKey), Nonce, SizeOf(Nonce), 0);
-end;
-
 { TCompressedBlockWriter }
 
 type
@@ -341,9 +328,9 @@ begin
 end;
 
 procedure TCompressedBlockWriter.InitEncryption(const CryptKey: TSetupEncryptionKey;
-  const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
 begin
-  InitCryptContext(CryptKey, EncryptionBaseNonce, UniqueIndex, FCryptContext);
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
   FEncrypt := True;
 end;
 
@@ -482,9 +469,9 @@ begin
 end;
 
 procedure TCompressedBlockReader.InitDecryption(const CryptKey: TSetupEncryptionKey;
-  const EncryptionBaseNonce: TSetupEncryptionNonce; const UniqueIndex: Integer);
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
 begin
-  InitCryptContext(CryptKey, EncryptionBaseNonce, UniqueIndex, FCryptContext);
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
   FDecrypt := True;
 end;
 

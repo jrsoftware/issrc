@@ -3117,7 +3117,7 @@ begin
       var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         if SetupEncryptionHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -2);
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
 
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
@@ -3276,7 +3276,7 @@ begin
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         if SetupEncryptionHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -3);
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks2);
 
         { File location entries }
         ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
