@@ -88,14 +88,12 @@ const
 
 type
   { Should not contain strings }
-  TSetupMainHeader = packed record
-    PasswordTest: Integer;
+  TSetupEncryptionHeader = packed record
     EncryptionUse: TSetupEncryptionUse;
     EncryptionKDFSalt: TSetupKDFSalt;
     EncryptionKDFIterations: Integer;
     EncryptionBaseNonce: TSetupEncryptionNonce;
-    { FileExtractor (a function called early to initialize its CryptKey) requires CompressMethod to be set }
-    CompressMethod: TSetupCompressMethod;
+    PasswordTest: Integer;
   end;
 
 const
@@ -130,6 +128,7 @@ type
     PrivilegesRequiredOverridesAllowed: TSetupPrivilegesRequiredOverrides;
     ShowLanguageDialog: (slYes, slNo, slAuto);
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
+    CompressMethod: TSetupCompressMethod;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Integer64;
     Options: set of TSetupHeaderOption;

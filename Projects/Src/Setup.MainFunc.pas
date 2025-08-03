@@ -105,7 +105,7 @@ var
   UninstallSilent: Boolean;
 
   { Variables read in from the SETUP.0 file }
-  SetupMainHeader: TSetupMainHeader;
+  SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
@@ -2654,7 +2654,7 @@ var
     DecompressorDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
     if DecompressorDLLHandle = 0 then
       InternalError(Format('Failed to load DLL "%s"', [Filename]));
-    case SetupMainHeader.CompressMethod of
+    case SetupHeader.CompressMethod of
       cmZip:
         if not ZlibInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('ZlibInitDecompressFunctions failed');
@@ -2725,7 +2725,8 @@ var
     end;
   end;
 
-  function HandleInitPassword(const NeedPassword: Boolean; out CryptKey: TSetupEncryptionKey): Boolean; overload;
+  function HandleInitPassword(const NeedPassword, AllowSetFileExtractorCryptKey: Boolean;
+    out CryptKey: TSetupEncryptionKey): Boolean; overload;
   { Handles InitPassword and returns the updated value of NeedPassword }
   { Also see WizardForm.CheckPassword }
   begin
@@ -2734,15 +2735,15 @@ var
     if NeedPassword and (InitPassword <> '') then begin
       var PasswordOk := False;
       var S := InitPassword;
-      GenerateEncryptionKey(S, SetupMainHeader.EncryptionKDFSalt, SetupMainHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
-        PasswordOk := TestPassword(CryptKey, SetupMainHeader.EncryptionBaseNonce, SetupMainHeader.PasswordTest);
+        PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
       if not PasswordOk and (CodeRunner <> nil) then
         PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
-        if SetupMainHeader.EncryptionUse <> euNone then
+        if AllowSetFileExtractorCryptKey and (SetupEncryptionHeader.EncryptionUse <> euNone) then
           FileExtractor.CryptKey := CryptKey;
       end;
     end;
@@ -2751,7 +2752,7 @@ var
   function HandleInitPassword(const NeedPassword: Boolean): Boolean; overload;
   begin
     var CryptKey: TSetupEncryptionKey;
-    Result := HandleInitPassword(NeedPassword, CryptKey);
+    Result := HandleInitPassword(NeedPassword, True, CryptKey);
   end;
 
   procedure SetupInstallMode;
@@ -3096,30 +3097,36 @@ begin
     if TestID <> SetupID then
       AbortInit(msgSetupFileCorruptOrWrongVer);
 
-    var SetupMainHeaderCRC: Longint;
-    SetupFile.Read(SetupMainHeaderCRC, SizeOf(SetupMainHeaderCRC));
-    SetupFile.Read(SetupMainHeader, SizeOf(SetupMainHeader));
-    if SetupMainHeaderCRC <> GetCRC32(SetupMainHeader, SizeOf(SetupMainHeader)) then
+    var SetupEncryptionHeaderCRC: Longint;
+    SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+    SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
       AbortInit(msgSetupFileCorruptOrWrongVer);
 
     var CryptKey: TSetupEncryptionKey;
-    if SetupMainHeader.EncryptionUse = euFull then begin
+    if SetupEncryptionHeader.EncryptionUse = euFull then begin
       { HandleInitPassword requires this }
       SetupHeader.Options := SetupHeader.Options + [shPassword];
-      if HandleInitPassword(True, CryptKey) then { HandleInitPassword returns True on failure }
+      { Specifying False for AllowSetFileExtractorCryptKey because FileExtractor (a function!)
+        requires SetupHeader.CompressMethod to be set, so delaying until SetupHeader is read below }
+      if HandleInitPassword(True, False, CryptKey) then { HandleInitPassword returns True on failure }
         AbortInit(msgIncorrectPassword)
     end;
 
     try
       var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
-        if SetupMainHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupMainHeader.EncryptionBaseNonce, -2);
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -2);
 
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
-      { Language entries }
+
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          FileExtractor.CryptKey := CryptKey; { See above }
+
+        { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
           SizeOf(TSetupLanguageEntry));
         { CustomMessage entries }
@@ -3196,7 +3203,7 @@ begin
         LogCompatibilityMode;
         LogWindowsVersion;
 
-        NeedPassword := (SetupMainHeader.EncryptionUse <> euFull) and (shPassword in SetupHeader.Options);
+        NeedPassword := (SetupEncryptionHeader.EncryptionUse <> euFull) and (shPassword in SetupHeader.Options);
         NeedSerial := False;
         NeedsRestart := shAlwaysRestart in SetupHeader.Options;
 
@@ -3253,7 +3260,7 @@ begin
           WizardSmallImages.Add(ReadWizardImage(Reader));
         { Decompressor DLL }
         DecompressorDLL := nil;
-        if SetupMainHeader.CompressMethod in [cmZip, cmBzip] then begin
+        if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(Reader, DecompressorDLL);
         end;
@@ -3268,8 +3275,8 @@ begin
       end;
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
-        if SetupMainHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupMainHeader.EncryptionBaseNonce, -3);
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -3);
 
         { File location entries }
         ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
@@ -3346,7 +3353,7 @@ begin
   LoadSHFolderDLL;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
-  if SetupMainHeader.CompressMethod in [cmZip, cmBzip] then
+  if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
 
   { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }

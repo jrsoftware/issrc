@@ -127,7 +127,7 @@ type
     TouchTimeOption: (ttCurrent, ttNone, ttExplicit);
     TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Integer;
 
-    SetupMainHeader: TSetupMainHeader;
+    SetupEncryptionHeader: TSetupEncryptionHeader;
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
@@ -632,7 +632,7 @@ end;
 
 function TSetupCompiler.GetEncryptionBaseNonce: TSetupEncryptionNonce;
 begin
-  Result := SetupMainHeader.EncryptionBaseNonce;
+  Result := SetupEncryptionHeader.EncryptionBaseNonce;
 end;
 
 function TSetupCompiler.GetExeFilename: String;
@@ -2838,20 +2838,20 @@ begin
       end;
     ssEncryption: begin
         if CompareText(Value, 'full') = 0 then
-          SetupMainHeader.EncryptionUse := euFull
+          SetupEncryptionHeader.EncryptionUse := euFull
         else if StrToBool(Value) then
-          SetupMainHeader.EncryptionUse := euFiles
+          SetupEncryptionHeader.EncryptionUse := euFiles
         else
-          SetupMainHeader.EncryptionUse := euNone;
+          SetupEncryptionHeader.EncryptionUse := euNone;
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
-          SetupMainHeader.EncryptionKDFIterations := 200000
+          SetupEncryptionHeader.EncryptionKDFIterations := 200000
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
           I := StrToIntDef(Copy(Value, 8, Maxint), -1);
           if I < 1 then
             Invalid;
-          SetupMainHeader.EncryptionKDFIterations := I;
+          SetupEncryptionHeader.EncryptionKDFIterations := I;
         end else
           Invalid;
       end;
@@ -5011,7 +5011,7 @@ type
         if NewFileLocationEntry = nil then begin
           NewFileLocationEntry := AllocMem(SizeOf(TSetupFileLocationEntry));
           NewFileLocationEntryExtraInfo := AllocMem(SizeOf(TFileLocationEntryExtraInfo));
-          SetupMainHeader.CompressMethod := CompressMethod;
+          SetupHeader.CompressMethod := CompressMethod;
           FileLocationEntries.Add(NewFileLocationEntry);
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
           FileLocationEntryFilenames.Add(SourceFile);
@@ -5019,9 +5019,9 @@ type
           if NewFileEntry^.FileType = ftUninstExe then
             Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
           Inc6464(TotalBytesToCompress, FileListRec.Size);
-          if SetupMainHeader.CompressMethod <> cmStored then
+          if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
-          if SetupMainHeader.EncryptionUse <> euNone then
+          if SetupEncryptionHeader.EncryptionUse <> euNone then
             Include(NewFileLocationEntry^.Flags, floChunkEncrypted);
           if SolidBreak and UseSolidCompression then begin
             Include(NewFileLocationEntryExtraInfo^.Flags, floSolidBreak);
@@ -6892,9 +6892,9 @@ var
     const StartPosition = F.Position;
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
-    const SetupMainHeaderCRC = GetCRC32(SetupMainHeader, SizeOf(SetupMainHeader));
-    F.WriteBuffer(SetupMainHeaderCRC, SizeOf(SetupMainHeaderCRC));
-    F.WriteBuffer(SetupMainHeader, SizeOf(SetupMainHeader));
+    const SetupEncryptionHeaderCRC = GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    F.WriteBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+    F.WriteBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
 
     SetupHeader.NumLanguageEntries := LanguageEntries.Count;
     SetupHeader.NumCustomMessageEntries := CustomMessageEntries.Count;
@@ -6921,8 +6921,8 @@ var
     W := TCompressedBlockWriter.Create(F, TLZMACompressor, InternalCompressLevel,
       InternalCompressProps);
     try
-      if SetupMainHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupMainHeader.EncryptionBaseNonce, -2);
+      if SetupEncryptionHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -2);
 
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
@@ -6982,7 +6982,7 @@ var
       W.Write(WizardSmallImages.Count, SizeOf(Integer));
       for J := 0 to WizardSmallImages.Count-1 do
         WriteStream(WizardSmallImages[J], W);
-      if SetupMainHeader.CompressMethod in [cmZip, cmBzip] then
+      if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if SetupHeader.SevenZipLibraryName <> '' then
         WriteStream(SevenZipDLL, W);
@@ -7000,8 +7000,8 @@ var
       { ^ When disk spanning is enabled, the Setup Compiler requires that
         FileLocationEntries be a fixed size, so don't compress them }
     try
-      if SetupMainHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupMainHeader.EncryptionBaseNonce, -3);
+      if SetupEncryptionHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, -3);
       for J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
@@ -7080,7 +7080,7 @@ var
       if not UseCompression then
         Result := TStoredCompressor
       else begin
-        case SetupMainHeader.CompressMethod of
+        case SetupHeader.CompressMethod of
           cmStored: begin
               Result := TStoredCompressor;
             end;
@@ -7144,7 +7144,7 @@ var
     HdrChecksum, ErrorCode: DWORD;
     ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
-    if (SetupMainHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
+    if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
       AddStatus(Format('   Using separate process for LZMA compression (%s)',
         [PathExtractName(CompressProps.WorkerProcessFilename)]));
@@ -7706,7 +7706,7 @@ begin
   SevenZipDLL := nil;
 
   try
-    FillChar(SetupMainHeader, SizeOf(SetupMainHeader), 0);
+    FillChar(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader), 0);
     Finalize(SetupHeader);
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
@@ -7775,7 +7775,7 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
-    SetupMainHeader.EncryptionKDFIterations := 220000;
+    SetupEncryptionHeader.EncryptionKDFIterations := 220000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -7922,7 +7922,7 @@ begin
       else
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
-    if (SetupMainHeader.EncryptionUse <> euNone) and (Password = '') then begin
+    if (SetupEncryptionHeader.EncryptionUse <> euNone) and (Password = '') then begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
@@ -7993,10 +7993,10 @@ begin
     end;
 
     if Password <> '' then begin
-      GenerateEncryptionKDFSalt(SetupMainHeader.EncryptionKDFSalt);
-      GenerateEncryptionKey(Password,  SetupMainHeader.EncryptionKDFSalt, SetupMainHeader.EncryptionKDFIterations, CryptKey);
-      GenerateEncryptionBaseNonce(SetupMainHeader.EncryptionBaseNonce);
-      GeneratePasswordTest(CryptKey, SetupMainHeader.EncryptionBaseNonce, SetupMainHeader.PasswordTest);
+      GenerateEncryptionKDFSalt(SetupEncryptionHeader.EncryptionKDFSalt);
+      GenerateEncryptionKey(Password,  SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionBaseNonce(SetupEncryptionHeader.EncryptionBaseNonce);
+      GeneratePasswordTest(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
       Include(SetupHeader.Options, shPassword);
     end;
 
@@ -8223,7 +8223,7 @@ begin
 
     { Read decompressor DLL. Must be done after [Files] is parsed, since
       SetupHeader.CompressMethod isn't set until then }
-    case SetupMainHeader.CompressMethod of
+    case SetupHeader.CompressMethod of
       cmZip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll',

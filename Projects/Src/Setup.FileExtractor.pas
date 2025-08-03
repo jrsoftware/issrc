@@ -66,7 +66,7 @@ const
      TLZMA2Decompressor);
 begin
   if FFileExtractor = nil then
-    FFileExtractor := TFileExtractor.Create(DecompClasses[SetupMainHeader.CompressMethod]);
+    FFileExtractor := TFileExtractor.Create(DecompClasses[SetupHeader.CompressMethod]);
   Result := FFileExtractor;
 end;
 
@@ -192,7 +192,7 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   procedure InitDecryption;
   begin
     { Recreate the unique nonce from the base nonce }
-    var Nonce := SetupMainHeader.EncryptionBaseNonce;
+    var Nonce := SetupEncryptionHeader.EncryptionBaseNonce;
     Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
     Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
