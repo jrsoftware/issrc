@@ -418,7 +418,6 @@ begin
 
       var CryptKey: TSetupEncryptionKey;
       if SetupEncryptionHeader.EncryptionUse = euFull then begin
-        var PasswordOk: Boolean;
         if InitPassword = '' then
           raise Exception.Create(SMissingPassword);
         GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
