@@ -6892,6 +6892,7 @@ var
     const StartPosition = F.Position;
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
+
     const SetupEncryptionHeaderCRC = GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
     F.WriteBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
     F.WriteBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
@@ -7728,6 +7729,8 @@ begin
     SlicesPerDisk := 1;
     ReserveBytes := 0;
     TimeStampRounding := 2;
+    SetupEncryptionHeader.EncryptionUse := euNone;
+    SetupEncryptionHeader.KDFIterations := 220000;
     SetupHeader.MinVersion.WinVersion := 0;
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
@@ -7760,7 +7763,6 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
-    SetupEncryptionHeader.KDFIterations := 220000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
