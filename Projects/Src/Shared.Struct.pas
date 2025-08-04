@@ -68,7 +68,6 @@ type
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;
-  TSetupEncryptionUse = (euNone, euFiles, euFull);
   TSetupEncryptionKey = array[0..31] of Byte;
   TSetupEncryptionNonce = record
     RandomXorStartOffset: Int64;
@@ -89,7 +88,7 @@ const
 type
   { Should not contain strings }
   TSetupEncryptionHeader = packed record
-    EncryptionUse: TSetupEncryptionUse;
+    EncryptionUse: (euNone, euFiles, euFull);
     KDFSalt: TSetupKDFSalt;
     KDFIterations: Integer;
     BaseNonce: TSetupEncryptionNonce;
