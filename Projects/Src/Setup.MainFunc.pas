@@ -2725,8 +2725,7 @@ var
     end;
   end;
 
-  function HandleInitPassword(const NeedPassword, AllowSetFileExtractorCryptKey: Boolean;
-    out CryptKey: TSetupEncryptionKey): Boolean; overload;
+  function HandleInitPassword(const NeedPassword: Boolean): Boolean;
   { Handles InitPassword and returns the updated value of NeedPassword }
   { Also see WizardForm.CheckPassword }
   begin
@@ -2735,6 +2734,7 @@ var
     if NeedPassword and (InitPassword <> '') then begin
       var PasswordOk := False;
       var S := InitPassword;
+      var CryptKey: TSetupEncryptionKey;
       GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
@@ -2743,16 +2743,10 @@ var
 
       if PasswordOk then begin
         Result := False;
-        if AllowSetFileExtractorCryptKey and (SetupEncryptionHeader.EncryptionUse <> euNone) then
+        if SetupEncryptionHeader.EncryptionUse = euFiles then
           FileExtractor.CryptKey := CryptKey;
       end;
     end;
-  end;
-
-  function HandleInitPassword(const NeedPassword: Boolean): Boolean; overload;
-  begin
-    var CryptKey: TSetupEncryptionKey;
-    Result := HandleInitPassword(NeedPassword, True, CryptKey);
   end;
 
   procedure SetupInstallMode;
@@ -3107,12 +3101,9 @@ begin
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
       if InitPassword = '' then
         raise Exception.Create(SMissingPassword);
-      { HandleInitPassword requires this }
-      SetupHeader.Options := SetupHeader.Options + [shPassword];
-      { Specifying False for AllowSetFileExtractorCryptKey because FileExtractor (a function!)
-        requires SetupHeader.CompressMethod to be set, so delaying until SetupHeader is read below }
-      if HandleInitPassword(True, False, CryptKey) then { HandleInitPassword returns True on failure }
-        AbortInit(msgIncorrectPassword)
+      GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
+        AbortInit(msgIncorrectPassword);
     end;
 
     try
