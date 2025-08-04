@@ -213,8 +213,9 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
       <li>Improved support for screen readers.</li>
     </ul>
   </li>
-  <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
+  <li><tt>[Setup]</tt> section directive <tt>Encryption</tt> can now be set to <tt>full</tt>, which will encrypt the entire installation and requires the password to be specified using the /PASSWORD= command line parameter.</li>
   <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 256.</li>
+  <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.</li>
   <li>ISPP changes:
     <ul>
