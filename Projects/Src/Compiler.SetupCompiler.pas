@@ -355,6 +355,7 @@ const
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
   MaxDiskSliceSize = 2100000000;
+  DefaultKDFIterations = 220000;
 
 function ExtractStr(var S: String; const Separator: Char): String;
 var
@@ -2846,7 +2847,7 @@ begin
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
-          SetupEncryptionHeader.KDFIterations := 200000
+          SetupEncryptionHeader.KDFIterations := DefaultKDFIterations
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
           I := StrToIntDef(Copy(Value, 8, Maxint), -1);
           if I < 1 then
@@ -7730,7 +7731,7 @@ begin
     ReserveBytes := 0;
     TimeStampRounding := 2;
     SetupEncryptionHeader.EncryptionUse := euNone;
-    SetupEncryptionHeader.KDFIterations := 220000;
+    SetupEncryptionHeader.KDFIterations := DefaultKDFIterations;
     SetupHeader.MinVersion.WinVersion := 0;
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
