@@ -88,6 +88,9 @@
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.RedirFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

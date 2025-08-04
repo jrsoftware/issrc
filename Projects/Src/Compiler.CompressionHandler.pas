@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  SysUtils, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Shared.EncryptionFunc, Compiler.Messages, Compiler.HelperFunc;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);
@@ -189,16 +189,6 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
     end;
   end;
 
-  procedure InitEncryption;
-  begin
-    { Create a unique nonce from the base nonce }
-    var Nonce := FCompiler.GetEncryptionBaseNonce;
-    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
-    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
-
-    XChaCha20Init(FCryptContext, ACryptKey[0], Length(ACryptKey), Nonce, SizeOf(Nonce), 0);
-  end;
-
 var
   MinBytesLeft: Cardinal;
 begin
@@ -223,7 +213,7 @@ begin
 
   FChunkEncrypted := AUseEncryption;
   if AUseEncryption then
-    InitEncryption;
+    InitCryptContext(ACryptKey, FCompiler.GetEncryptionBaseNonce, FChunkStartOffset, FChunkFirstSlice, FCryptContext);
 
   FChunkStarted := True;
 end;

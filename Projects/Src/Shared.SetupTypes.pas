@@ -56,8 +56,6 @@ function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
 procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
-procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
-  const Iterations: Integer; out Key: TSetupEncryptionKey);
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
@@ -66,7 +64,7 @@ function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
 implementation
 
 uses
-  PBKDF2, PathFunc, Shared.CommonFunc;
+  PathFunc, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -301,18 +299,6 @@ begin
       RenamedConstantCallback(Cnst, CnstRenamed);
     Cnst := CnstRenamed;
   end;
-end;
-
-procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
-  const Iterations: Integer; out Key: TSetupEncryptionKey);
-begin
-  var SaltBytes: TBytes;
-  var SaltSize := SizeOf(Salt);
-  SetLength(SaltBytes, SaltSize);
-  Move(Salt[0], SaltBytes[0], SaltSize);
-  var KeyLength := SizeOf(Key);
-  var KeyBytes := PBKDF2SHA256(Password, SaltBytes, Iterations, KeyLength);
-  Move(KeyBytes[0], Key[0], KeyLength);
 end;
 
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
