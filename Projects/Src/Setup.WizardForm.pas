@@ -2444,7 +2444,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
 
     if Result then begin
       NeedPassword := False;
-      if SetupEncryptionHeader.EncryptionUse <> euNone then
+      if SetupEncryptionHeader.EncryptionUse = euFiles then
         FileExtractor.CryptKey := CryptKey;
       PasswordEdit.Text := '';
     end else begin
