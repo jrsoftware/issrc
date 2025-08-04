@@ -60,7 +60,7 @@ type
     shAllowUNCPath, shUserInfoPage, shUsePreviousUserInfo,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
-    shAppendDefaultGroupName, shEncryptionUsed, shSetupLogging,
+    shAppendDefaultGroupName, shSetupLogging,
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
@@ -84,6 +84,16 @@ type
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
+
+type
+  { Should not contain strings }
+  TSetupEncryptionHeader = packed record
+    EncryptionUse: (euNone, euFiles, euFull);
+    KDFSalt: TSetupKDFSalt;
+    KDFIterations: Integer;
+    BaseNonce: TSetupEncryptionNonce;
+    PasswordTest: Integer;
+  end;
 
 const
   SetupHeaderStrings = 34;
@@ -109,10 +119,6 @@ type
     WizardStyle: TSetupWizardStyle;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    PasswordTest: Integer;
-    EncryptionKDFSalt: TSetupKDFSalt;
-    EncryptionKDFIterations: Integer;
-    EncryptionBaseNonce: TSetupEncryptionNonce;
     ExtraDiskSpaceRequired: Integer64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);

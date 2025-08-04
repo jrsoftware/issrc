@@ -175,6 +175,7 @@
         <DCCReference Include="..\Components\StringScanner.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.Interfaces.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

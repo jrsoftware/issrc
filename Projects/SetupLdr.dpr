@@ -2,7 +2,7 @@ program SetupLdr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -28,7 +28,10 @@ uses
   Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   SHA256 in '..\Components\SHA256.pas',
   SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
-  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas';
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -73,9 +76,10 @@ type
 var
   InitShowHelp: Boolean = False;
   InitDisableStartupPrompt: Boolean = False;
-  InitLang: String;
+  InitLang, InitPassword: String;
   ActiveLanguage: Integer = -1;
   PendingNewLanguage: Integer = -1;
+  SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   LanguageEntries: PLanguageEntryArray;
   LanguageEntryCount: Integer;
@@ -96,6 +100,8 @@ begin
       InitDisableStartupPrompt := True
     else if CompareText(Copy(Name, 1, 6), '/Lang=') = 0 then
       InitLang := Copy(Name, 7, Maxint)
+    else if CompareText(Copy(Name, 1, 10), '/Password=') = 0 then
+      InitPassword := Copy(Name, 11, Maxint)
     else if (CompareText(Name, '/HELP') = 0) or
             (CompareText(Name, '/?') = 0) then
       InitShowHelp := True;
@@ -403,9 +409,28 @@ begin
       SourceF.ReadBuffer(TestID, SizeOf(TestID));
       if TestID <> SetupID then
         SetupCorruptError;
+
+      var SetupEncryptionHeaderCRC: Longint;
+      SourceF.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+      SourceF.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+      if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
+         SetupCorruptError;
+
+      var CryptKey: TSetupEncryptionKey;
+      if SetupEncryptionHeader.EncryptionUse = euFull then begin
+        if InitPassword = '' then
+          raise Exception.Create(SMissingPassword);
+        GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+        if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
+          raise Exception.Create(SIncorrectPassword);
+      end;
+
       try
         Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
         try
+          if SetupEncryptionHeader.EncryptionUse = euFull then
+            Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
+
           SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
             SetupHeaderStrings, SetupHeaderAnsiStrings);
 
