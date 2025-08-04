@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.19';
+  Version = '1.20';
 
   XMLFileVersion = '1';
 
@@ -690,7 +690,8 @@ var
   procedure AddLeaf(const Title, TopicName: String);
   begin
     SL.Add(Format('<li><a href="%s" target="bodyframe">' +
-      '<img src="images/contentstopic.svg" alt="" /><span>%s</span></a></li>',
+      '<img src="images/contentstopic.svg" alt="" aria-hidden="true" />' +
+      '<span>%s</span></a></li>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
 
@@ -715,7 +716,7 @@ var
               Inc(CurHeadingID);
               SL.Add(Format('<li>' +
                 '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="true">' +
-                '<img src="images/contentsheadopen.svg" alt="'#$25BC' " />' +
+                '<img src="images/contentsheadopen.svg" alt="'#$25BC' " aria-hidden="true" />' +
                 '<span>%s</span></a>',
                 [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
               SL.Add(Format('<ul id="nodecontent_%d">', [CurHeadingID]));
