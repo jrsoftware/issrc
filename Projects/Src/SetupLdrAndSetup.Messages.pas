@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -47,6 +47,8 @@ const
     'obtain a new copy of the program.';
   SMsgsFileMissing = 'Messages file "%s" is missing. Please correct ' +
     'the problem or obtain a new copy of the program.';
+  SMissingPassword = 'Please specify the password using the /PASSWORD= command line parameter.';
+  SIncorrectPassword = 'The password you specified is not correct. Please try again.';
 
 implementation
 

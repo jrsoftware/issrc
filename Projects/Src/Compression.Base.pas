@@ -2,7 +2,7 @@ unit Compression.Base;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Compression.Base;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass;
+  Windows, SysUtils, ChaCha20, Shared.Int64Em, Shared.FileClass, Shared.Struct, Shared.EncryptionFunc;
 
 type
   ECompressError = class(Exception);
@@ -77,6 +77,8 @@ type
     FTotalBytesStored: Cardinal;
     FInBufferCount, FOutBufferCount: Cardinal;
     FInBuffer, FOutBuffer: array[0..4095] of Byte;
+    FEncrypt: Boolean;
+    FCryptContext: TChaCha20Context;
     procedure CompressorWriteProc(const Buffer; Count: Longint);
     procedure DoCompress(const Buf; var Count: Cardinal);
     procedure FlushOutputBuffer;
@@ -84,6 +86,8 @@ type
     constructor Create(AFile: TFile; ACompressorClass: TCustomCompressorClass;
       CompressionLevel: Integer; ACompressorProps: TCompressorProps);
     destructor Destroy; override;
+    procedure InitEncryption(const CryptKey: TSetupEncryptionKey;
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Finish;
     procedure Write(const Buffer; Count: Cardinal);
   end;
@@ -97,11 +101,15 @@ type
     FInBufferNext: Cardinal;
     FInBufferAvail: Cardinal;
     FInBuffer: array[0..4095] of Byte;
+    FDecrypt: Boolean;
+    FCryptContext: TChaCha20Context;
     function DecompressorReadProc(var Buffer; Count: Longint): Longint;
     procedure ReadChunk;
   public
     constructor Create(AFile: TFile; ADecompressorClass: TCustomDecompressorClass);
     destructor Destroy; override;
+    procedure InitDecryption(const CryptKey: TSetupEncryptionKey;
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
@@ -319,11 +327,21 @@ begin
   inherited;
 end;
 
+procedure TCompressedBlockWriter.InitEncryption(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
+begin
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
+  FEncrypt := True;
+end;
+
 procedure TCompressedBlockWriter.FlushOutputBuffer;
 { Flushes contents of FOutBuffer into the file, with a preceding CRC }
 var
   CRC: Longint;
 begin
+  if FEncrypt then
+    XChaCha20Crypt(FCryptContext, FOutBuffer, FOutBuffer, FOutBufferCount);
+
   CRC := GetCRC32(FOutBuffer, FOutBufferCount);
   FFile.WriteBuffer(CRC, SizeOf(CRC));
   Inc(FTotalBytesStored, SizeOf(CRC));
@@ -450,6 +468,13 @@ begin
   inherited;
 end;
 
+procedure TCompressedBlockReader.InitDecryption(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
+begin
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
+  FDecrypt := True;
+end;
+
 procedure TCompressedBlockReader.ReadChunk;
 var
   CRC: Longint;
@@ -471,6 +496,9 @@ begin
   FInBufferAvail := Len;
   if CRC <> GetCRC32(FInBuffer, Len) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
+
+  if FDecrypt then
+    XChaCha20Crypt(FCryptContext, FInBuffer, FInBuffer, Len);
 end;
 
 function TCompressedBlockReader.DecompressorReadProc(var Buffer;
