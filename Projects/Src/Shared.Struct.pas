@@ -90,9 +90,9 @@ type
   { Should not contain strings }
   TSetupEncryptionHeader = packed record
     EncryptionUse: TSetupEncryptionUse;
-    EncryptionKDFSalt: TSetupKDFSalt;
-    EncryptionKDFIterations: Integer;
-    EncryptionBaseNonce: TSetupEncryptionNonce;
+    KDFSalt: TSetupKDFSalt;
+    KDFIterations: Integer;
+    BaseNonce: TSetupEncryptionNonce;
     PasswordTest: Integer;
   end;
 

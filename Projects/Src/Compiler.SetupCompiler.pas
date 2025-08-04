@@ -632,7 +632,7 @@ end;
 
 function TSetupCompiler.GetEncryptionBaseNonce: TSetupEncryptionNonce;
 begin
-  Result := SetupEncryptionHeader.EncryptionBaseNonce;
+  Result := SetupEncryptionHeader.BaseNonce;
 end;
 
 function TSetupCompiler.GetExeFilename: String;
@@ -2846,12 +2846,12 @@ begin
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
-          SetupEncryptionHeader.EncryptionKDFIterations := 200000
+          SetupEncryptionHeader.KDFIterations := 200000
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
           I := StrToIntDef(Copy(Value, 8, Maxint), -1);
           if I < 1 then
             Invalid;
-          SetupEncryptionHeader.EncryptionKDFIterations := I;
+          SetupEncryptionHeader.KDFIterations := I;
         end else
           Invalid;
       end;
@@ -6922,7 +6922,7 @@ var
       InternalCompressProps);
     try
       if SetupEncryptionHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
 
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
@@ -7001,7 +7001,7 @@ var
         FileLocationEntries be a fixed size, so don't compress them }
     try
       if SetupEncryptionHeader.EncryptionUse = euFull then
-        W.InitEncryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks2);
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
       for J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
@@ -7760,7 +7760,7 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
-    SetupEncryptionHeader.EncryptionKDFIterations := 220000;
+    SetupEncryptionHeader.KDFIterations := 220000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -7978,10 +7978,10 @@ begin
     end;
 
     if Password <> '' then begin
-      GenerateEncryptionKDFSalt(SetupEncryptionHeader.EncryptionKDFSalt);
-      GenerateEncryptionKey(Password,  SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
-      GenerateEncryptionBaseNonce(SetupEncryptionHeader.EncryptionBaseNonce);
-      GeneratePasswordTest(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
+      GenerateEncryptionKDFSalt(SetupEncryptionHeader.KDFSalt);
+      GenerateEncryptionKey(Password,  SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      GenerateEncryptionBaseNonce(SetupEncryptionHeader.BaseNonce);
+      GeneratePasswordTest(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       Include(SetupHeader.Options, shPassword);
     end;
 

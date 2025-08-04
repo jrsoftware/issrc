@@ -192,7 +192,7 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   procedure InitDecryption;
   begin
     { Recreate the unique nonce from the base nonce }
-    var Nonce := SetupEncryptionHeader.EncryptionBaseNonce;
+    var Nonce := SetupEncryptionHeader.BaseNonce;
     Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
     Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 

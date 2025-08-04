@@ -420,8 +420,8 @@ begin
       if SetupEncryptionHeader.EncryptionUse = euFull then begin
         if InitPassword = '' then
           raise Exception.Create(SMissingPassword);
-        GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
-        if not TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest) then
+        GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+        if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
           raise Exception.Create(SIncorrectPassword);
       end;
 
@@ -429,7 +429,7 @@ begin
         Reader := TCompressedBlockReader.Create(SourceF, TLZMA1SmallDecompressor);
         try
           if SetupEncryptionHeader.EncryptionUse = euFull then
-            Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
+            Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
 
           SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
             SetupHeaderStrings, SetupHeaderAnsiStrings);

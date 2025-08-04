@@ -2432,13 +2432,13 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     var SaveCursor := GetCursor;
     SetCursor(LoadCursor(0, IDC_WAIT));
     try
-      GenerateEncryptionKey(S, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
     finally
       SetCursor(SaveCursor);
     end;
 
     if shPassword in SetupHeader.Options then
-      Result := TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
+      Result := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
     if not Result and (CodeRunner <> nil) then
       Result := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, Result);
 

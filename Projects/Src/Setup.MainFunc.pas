@@ -2735,9 +2735,9 @@ var
     if NeedPassword and (InitPassword <> '') then begin
       var PasswordOk := False;
       var S := InitPassword;
-      GenerateEncryptionKey(S, SetupEncryptionHeader.EncryptionKDFSalt, SetupEncryptionHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
-        PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, SetupEncryptionHeader.PasswordTest);
+        PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       if not PasswordOk and (CodeRunner <> nil) then
         PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
@@ -3119,7 +3119,7 @@ begin
       var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         if SetupEncryptionHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks1);
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
 
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
@@ -3278,7 +3278,7 @@ begin
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
         if SetupEncryptionHeader.EncryptionUse = euFull then
-          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.EncryptionBaseNonce, sccCompressedBlocks2);
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
 
         { File location entries }
         ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
