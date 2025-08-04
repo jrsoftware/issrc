@@ -2588,9 +2588,15 @@ var
     Delete(S, 1, P);
   end;
 
-  procedure AbortInit(const Msg: TSetupMessageID);
+  procedure AbortInit(const Msg: TSetupMessageID); overload;
   begin
     LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+  procedure AbortInit(const Msg: String); overload;
+  begin
+    LoggedMsgBox(Msg, '', mbCriticalError, MB_OK, True, IDOK);
     Abort;
   end;
 
@@ -3073,7 +3079,6 @@ begin
   SetupMessages[msgSetupFileMissing] := SSetupFileMissing;
   SetupMessages[msgSetupFileCorrupt] := SSetupFileCorrupt;
   SetupMessages[msgSetupFileCorruptOrWrongVer] := SSetupFileCorruptOrWrongVer;
-  SetupMessages[msgIncorrectPassword] := SIncorrectPassword;
 
   { Read setup-0.bin, or from EXE }
   if not SetupLdrMode then begin
@@ -3100,10 +3105,12 @@ begin
     var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
       if InitPassword = '' then
-        raise Exception.Create(SMissingPassword);
+        AbortInit(SMissingPassword);
       GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
-        AbortInit(msgIncorrectPassword);
+        AbortInit(SIncorrectPassword);
+      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
+        FileExtractor.CryptKey until SetupHeader is read below }
     end;
 
     try
