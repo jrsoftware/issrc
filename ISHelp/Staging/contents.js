@@ -170,12 +170,8 @@ function topic_name_from_path(path)
 	return matches ? matches[1] : "";
 }
 
-function sync_contents()
+function sync_contents(bodyTopic)
 {
-	var bodyFrame = window.parent.frames["bodyframe"];
-	if (!bodyFrame) return;
-
-	var bodyTopic = topic_name_from_path(bodyFrame.window.location.pathname);
 	if (bodyTopic == "") return;
 
 	// If the currently selected node already points to bodyTopic, just return.
@@ -282,3 +278,11 @@ function index_tab_element_clicked(evt)
 		}
 	}
 }
+
+window.addEventListener("message", (event) => {
+	//console.log("contents.js message received:", event.data);
+
+	if (typeof event.data === "string" && event.data.startsWith("ishelp_sync_contents:")) {
+		sync_contents(event.data.substring(21));
+	}
+});

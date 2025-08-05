@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -87,6 +87,13 @@ function topic_loaded()
 
 		create_redirect_box();
 		window.setTimeout(topic_redirect, 1500);
+	}
+
+	// Inform parent frame (index.htm) that the topic changed
+	if (window.parent) {
+		if ((matches = window.location.pathname.match(/\/topic_([a-z0-9_\-]+)\.htm$/))) {
+			window.parent.postMessage("ishelp_topic_loaded:" + matches[1], "*");
+		}
 	}
 
 	// HTML Help: If an Index entry is clicked and only the hash changes,
