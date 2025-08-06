@@ -33,8 +33,8 @@ function get_viewport_element()
 function is_element_displayed(element)
 {
 	do {
-		if (element.style.display == "none") return false;
-	} while (element != document.body && (element = element.parentNode));
+		if (element.hidden) return false;
+	} while ((element = element.parentElement));
 
 	return true;
 }
@@ -75,8 +75,8 @@ function toggle_node(id)
 	const linkElement = itemElement.querySelector(":scope > a");
 	const imageElement = linkElement.querySelector(":scope > img");
 
-	const expanding = (contentElement.style.display === "none");
-	contentElement.style.display = expanding ? "" : "none";
+	const expanding = !!contentElement.hidden;
+	contentElement.hidden = !expanding;
 
 	linkElement.setAttribute("aria-expanded", expanding);
 
@@ -134,9 +134,9 @@ function set_selected_node(newSel)
 		update_selected_node_class();
 
 		// Expand parent nodes (may scroll)
-		var p = curSelectedNode;
-		while ((p = p.parentNode) && p.id != "tabbody-contents") {
-			if (p.id && p.id.indexOf("nodecontent_") == 0 && p.style.display == "none") {
+		let p = curSelectedNode;
+		while ((p = p.parentElement) && p.id !== "tabbody-contents") {
+			if (p.id && p.id.startsWith("nodecontent_") && p.hidden) {
 				toggle_node(p.id.substring(12));
 			}
 		}
