@@ -5837,9 +5837,10 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
-<p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>The 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link>, and the 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>
+<p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_password">Password</link><br/>
 <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>
