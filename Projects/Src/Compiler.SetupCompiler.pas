@@ -127,6 +127,7 @@ type
     TouchTimeOption: (ttCurrent, ttNone, ttExplicit);
     TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Integer;
 
+    SetupEncryptionHeader: TSetupEncryptionHeader;
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
@@ -300,7 +301,7 @@ implementation
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
-  Shared.FileClass, Compression.Base, Compression.Zlib, Compression.bzlib,
+  Shared.FileClass, Shared.EncryptionFunc, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives, Shared.ResUpdateFunc, Compiler.ExeUpdateFunc,
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
@@ -354,6 +355,7 @@ const
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
   MaxDiskSliceSize = 2100000000;
+  DefaultKDFIterations = 220000;
 
 function ExtractStr(var S: String; const Separator: Char): String;
 var
@@ -631,7 +633,7 @@ end;
 
 function TSetupCompiler.GetEncryptionBaseNonce: TSetupEncryptionNonce;
 begin
-  Result := SetupHeader.EncryptionBaseNonce;
+  Result := SetupEncryptionHeader.BaseNonce;
 end;
 
 function TSetupCompiler.GetExeFilename: String;
@@ -2836,16 +2838,21 @@ begin
         SetSetupHeaderOption(shEnableDirDoesntExistWarning);
       end;
     ssEncryption: begin
-        SetSetupHeaderOption(shEncryptionUsed);
+        if CompareText(Value, 'full') = 0 then
+          SetupEncryptionHeader.EncryptionUse := euFull
+        else if StrToBool(Value) then
+          SetupEncryptionHeader.EncryptionUse := euFiles
+        else
+          SetupEncryptionHeader.EncryptionUse := euNone;
       end;
     ssEncryptionKeyDerivation: begin
         if Value = 'pbkdf2' then
-          SetupHeader.EncryptionKDFIterations := 200000
+          SetupEncryptionHeader.KDFIterations := DefaultKDFIterations
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
           I := StrToIntDef(Copy(Value, 8, Maxint), -1);
           if I < 1 then
             Invalid;
-          SetupHeader.EncryptionKDFIterations := I;
+          SetupEncryptionHeader.KDFIterations := I;
         end else
           Invalid;
       end;
@@ -5015,7 +5022,7 @@ type
           Inc6464(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
-          if shEncryptionUsed in SetupHeader.Options then
+          if SetupEncryptionHeader.EncryptionUse <> euNone then
             Include(NewFileLocationEntry^.Flags, floChunkEncrypted);
           if SolidBreak and UseSolidCompression then begin
             Include(NewFileLocationEntryExtraInfo^.Flags, floSolidBreak);
@@ -6887,6 +6894,10 @@ var
 
     F.WriteBuffer(SetupID, SizeOf(SetupID));
 
+    const SetupEncryptionHeaderCRC = GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    F.WriteBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+    F.WriteBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+
     SetupHeader.NumLanguageEntries := LanguageEntries.Count;
     SetupHeader.NumCustomMessageEntries := CustomMessageEntries.Count;
     SetupHeader.NumPermissionEntries := PermissionEntries.Count;
@@ -6912,6 +6923,9 @@ var
     W := TCompressedBlockWriter.Create(F, TLZMACompressor, InternalCompressLevel,
       InternalCompressProps);
     try
+      if SetupEncryptionHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
+
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
 
@@ -6988,6 +7002,8 @@ var
       { ^ When disk spanning is enabled, the Setup Compiler requires that
         FileLocationEntries be a fixed size, so don't compress them }
     try
+      if SetupEncryptionHeader.EncryptionUse = euFull then
+        W.InitEncryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
       for J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
@@ -7637,31 +7653,6 @@ var
     SetFileTime(H, nil, nil, @FT);
   end;
 
-  procedure GenerateEncryptionKDFSalt(out Salt: TSetupKDFSalt);
-  begin
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-  end;
-
-  procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
-  begin
-    GenerateRandomBytes(Nonce, SizeOf(Nonce));
-  end;
-
-  { This function assumes EncryptionKey is based on the password }
-  procedure GeneratePasswordTest(const EncryptionKey: TSetupEncryptionKey;
-    const EncryptionBaseNonce: TSetupEncryptionNonce; out PasswordTest: Integer);
-  begin
-    { Create a special nonce that cannot collide with encrypted-file nonces }
-    var Nonce := EncryptionBaseNonce;
-    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
-
-    { Encrypt a value of 0 so Setup can do same and compare the results to test the password }
-    var Context: TChaCha20Context;
-    XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-    PasswordTest := 0;
-    XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
-  end;
-
 const
   BadFilePathChars = '/*?"<>|';
   BadFileNameChars = BadFilePathChars + ':';
@@ -7692,6 +7683,7 @@ begin
   SevenZipDLL := nil;
 
   try
+    FillChar(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader), 0);
     Finalize(SetupHeader);
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
@@ -7728,6 +7720,8 @@ begin
     SlicesPerDisk := 1;
     ReserveBytes := 0;
     TimeStampRounding := 2;
+    SetupEncryptionHeader.EncryptionUse := euNone;
+    SetupEncryptionHeader.KDFIterations := DefaultKDFIterations;
     SetupHeader.MinVersion.WinVersion := 0;
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
@@ -7760,7 +7754,6 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardStyle := wsClassic;
-    SetupHeader.EncryptionKDFIterations := 220000;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -7907,7 +7900,7 @@ begin
       else
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
-    if (shEncryptionUsed in SetupHeader.Options) and (Password = '') then begin
+    if (SetupEncryptionHeader.EncryptionUse <> euNone) and (Password = '') then begin
       LineNumber := SetupDirectiveLines[ssEncryption];
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
@@ -7978,10 +7971,10 @@ begin
     end;
 
     if Password <> '' then begin
-      GenerateEncryptionKDFSalt(SetupHeader.EncryptionKDFSalt);
-      GenerateEncryptionKey(Password,  SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
-      GenerateEncryptionBaseNonce(SetupHeader.EncryptionBaseNonce);
-      GeneratePasswordTest(CryptKey, SetupHeader.EncryptionBaseNonce, SetupHeader.PasswordTest);
+      GenerateRandomBytes(SetupEncryptionHeader.KDFSalt, SizeOf(SetupEncryptionHeader.KDFSalt));
+      GenerateRandomBytes(SetupEncryptionHeader.BaseNonce, SizeOf(SetupEncryptionHeader.BaseNonce));
+      GenerateEncryptionKey(Password,  SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      GeneratePasswordTest(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       Include(SetupHeader.Options, shPassword);
     end;
 

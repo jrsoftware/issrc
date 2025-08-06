@@ -105,6 +105,7 @@ var
   UninstallSilent: Boolean;
 
   { Variables read in from the SETUP.0 file }
+  SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
@@ -228,7 +229,6 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
@@ -242,7 +242,7 @@ uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
   Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
-  Shared.SetupEntFunc, Setup.SelectLanguageForm,
+  Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
@@ -371,21 +371,6 @@ begin
   end;
   
   Result := -1;
-end;
-
-{ This function assumes EncryptionKey is based on the password }
-function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
-begin
-  { Do same as compiler did in GeneratePasswordTest and compare results }
-  var Nonce := SetupHeader.EncryptionBaseNonce;
-  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
-
-  var Context: TChaCha20Context;
-  XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-  var PasswordTest := 0;
-  XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
-
-  Result := PasswordTest = SetupHeader.PasswordTest;
 end;
 
 class function TDummyClass.ExpandCheckOrInstallConstant(Sender: TSimpleExpression;
@@ -2603,9 +2588,15 @@ var
     Delete(S, 1, P);
   end;
 
-  procedure AbortInit(const Msg: TSetupMessageID);
+  procedure AbortInit(const Msg: TSetupMessageID); overload;
   begin
     LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+  procedure AbortInit(const Msg: String); overload;
+  begin
+    LoggedMsgBox(Msg, '', mbCriticalError, MB_OK, True, IDOK);
     Abort;
   end;
 
@@ -2750,15 +2741,15 @@ var
       var PasswordOk := False;
       var S := InitPassword;
       var CryptKey: TSetupEncryptionKey;
-      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
-        PasswordOk := TestPassword(CryptKey);
+        PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       if not PasswordOk and (CodeRunner <> nil) then
         PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
-        if shEncryptionUsed in SetupHeader.Options then
+        if SetupEncryptionHeader.EncryptionUse = euFiles then
           FileExtractor.CryptKey := CryptKey;
       end;
     end;
@@ -3104,12 +3095,37 @@ begin
       AbortInit(msgSetupFileCorruptOrWrongVer);
     if TestID <> SetupID then
       AbortInit(msgSetupFileCorruptOrWrongVer);
+
+    var SetupEncryptionHeaderCRC: Longint;
+    SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+    SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
+      AbortInit(msgSetupFileCorruptOrWrongVer);
+
+    var CryptKey: TSetupEncryptionKey;
+    if SetupEncryptionHeader.EncryptionUse = euFull then begin
+      if InitPassword = '' then
+        AbortInit(SMissingPassword);
+      GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
+        AbortInit(SIncorrectPassword);
+      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
+        FileExtractor.CryptKey until SetupHeader is read below }
+    end;
+
     try
       var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
+
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
+
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          FileExtractor.CryptKey := CryptKey; { See above }
+
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
           SizeOf(TSetupLanguageEntry));
@@ -3187,7 +3203,7 @@ begin
         LogCompatibilityMode;
         LogWindowsVersion;
 
-        NeedPassword := shPassword in SetupHeader.Options;
+        NeedPassword := (SetupEncryptionHeader.EncryptionUse <> euFull) and (shPassword in SetupHeader.Options);
         NeedSerial := False;
         NeedsRestart := shAlwaysRestart in SetupHeader.Options;
 
@@ -3259,6 +3275,9 @@ begin
       end;
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
+
         { File location entries }
         ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
           SizeOf(TSetupFileLocationEntry));

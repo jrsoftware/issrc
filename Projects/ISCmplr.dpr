@@ -52,7 +52,8 @@ uses
   PBKDF2 in '..\Components\PBKDF2.pas',
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
-  StringScanner in '..\Components\StringScanner.pas';
+  StringScanner in '..\Components\StringScanner.pas',
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}
