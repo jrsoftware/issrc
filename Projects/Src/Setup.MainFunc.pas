@@ -2588,9 +2588,15 @@ var
     Delete(S, 1, P);
   end;
 
-  procedure AbortInit(const Msg: TSetupMessageID);
+  procedure AbortInit(const Msg: TSetupMessageID); overload;
   begin
     LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+  procedure AbortInit(const Msg: String); overload;
+  begin
+    LoggedMsgBox(Msg, '', mbCriticalError, MB_OK, True, IDOK);
     Abort;
   end;
 
@@ -2725,8 +2731,7 @@ var
     end;
   end;
 
-  function HandleInitPassword(const NeedPassword, AllowSetFileExtractorCryptKey: Boolean;
-    out CryptKey: TSetupEncryptionKey): Boolean; overload;
+  function HandleInitPassword(const NeedPassword: Boolean): Boolean;
   { Handles InitPassword and returns the updated value of NeedPassword }
   { Also see WizardForm.CheckPassword }
   begin
@@ -2735,6 +2740,7 @@ var
     if NeedPassword and (InitPassword <> '') then begin
       var PasswordOk := False;
       var S := InitPassword;
+      var CryptKey: TSetupEncryptionKey;
       GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
         PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
@@ -2743,16 +2749,10 @@ var
 
       if PasswordOk then begin
         Result := False;
-        if AllowSetFileExtractorCryptKey and (SetupEncryptionHeader.EncryptionUse <> euNone) then
+        if SetupEncryptionHeader.EncryptionUse = euFiles then
           FileExtractor.CryptKey := CryptKey;
       end;
     end;
-  end;
-
-  function HandleInitPassword(const NeedPassword: Boolean): Boolean; overload;
-  begin
-    var CryptKey: TSetupEncryptionKey;
-    Result := HandleInitPassword(NeedPassword, True, CryptKey);
   end;
 
   procedure SetupInstallMode;
@@ -3079,7 +3079,6 @@ begin
   SetupMessages[msgSetupFileMissing] := SSetupFileMissing;
   SetupMessages[msgSetupFileCorrupt] := SSetupFileCorrupt;
   SetupMessages[msgSetupFileCorruptOrWrongVer] := SSetupFileCorruptOrWrongVer;
-  SetupMessages[msgIncorrectPassword] := SIncorrectPassword;
 
   { Read setup-0.bin, or from EXE }
   if not SetupLdrMode then begin
@@ -3106,13 +3105,12 @@ begin
     var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
       if InitPassword = '' then
-        raise Exception.Create(SMissingPassword);
-      { HandleInitPassword requires this }
-      SetupHeader.Options := SetupHeader.Options + [shPassword];
-      { Specifying False for AllowSetFileExtractorCryptKey because FileExtractor (a function!)
-        requires SetupHeader.CompressMethod to be set, so delaying until SetupHeader is read below }
-      if HandleInitPassword(True, False, CryptKey) then { HandleInitPassword returns True on failure }
-        AbortInit(msgIncorrectPassword)
+        AbortInit(SMissingPassword);
+      GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
+        AbortInit(SIncorrectPassword);
+      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
+        FileExtractor.CryptKey until SetupHeader is read below }
     end;
 
     try
