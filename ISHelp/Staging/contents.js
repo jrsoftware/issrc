@@ -101,37 +101,20 @@ function init_contents(toggleNode)
 	} else {
 		toggle_node(toggleNode);
 	}
-
-	var elements = document.getElementById("tabbody-contents").getElementsByTagName("a");
-	for (i = 0; i < elements.length; i++) {
-		elements[i].onfocus = node_focused;
-		elements[i].onblur = node_blurred;
-	}
 }
 
 var curSelectedNode = null;
-var curFocusedNode = null;
-
-function update_selected_node_class()
-{
-	if (curSelectedNode) {
-		var newClass = (curFocusedNode == curSelectedNode) ? "focusedlink" : "selectedlink";
-		if (curSelectedNode.className != newClass) {
-			curSelectedNode.className = newClass;
-		}
-	}
-}
 
 function set_selected_node(newSel)
 {
 	if (curSelectedNode == newSel) return;
 
 	if (curSelectedNode) {
-		curSelectedNode.className = "";
+		curSelectedNode.removeAttribute("aria-selected");
 	}
 	curSelectedNode = newSel;
 	if (curSelectedNode) {
-		update_selected_node_class();
+		curSelectedNode.setAttribute("aria-selected", true);
 
 		// Expand parent nodes (may scroll)
 		let p = curSelectedNode;
@@ -143,23 +126,15 @@ function set_selected_node(newSel)
 
 		// Then scroll the node's A element into view
 		ensure_elements_visible(curSelectedNode, curSelectedNode);
-	}
-}
 
-function node_focused(evt)
-{
-	curFocusedNode = evt ? evt.target : event.srcElement;
-	if (curFocusedNode == curSelectedNode) {
-		update_selected_node_class();
-	} else {
-		set_selected_node(curFocusedNode);
+		// If the focus is currently inside the Contents tab panel (and not inside the
+		// topic body frame), then ensure the new selected node is focused. This matters
+		// when Back is clicked in the browser; we want the selection and the focus
+		// rectangle to both move back to the previous node.
+		if (document.getElementById("tabbody-contents").contains(document.activeElement)) {
+			curSelectedNode.focus();
+		}
 	}
-}
-
-function node_blurred(evt)
-{
-	curFocusedNode = null;
-	update_selected_node_class();
 }
 
 var topic_name_regexp = /(?:^|[/\\])topic_([a-z0-9_\-]+)\.htm$/;
@@ -172,29 +147,12 @@ function topic_name_from_path(path)
 
 function sync_contents(bodyTopic)
 {
-	if (bodyTopic == "") return;
+	if (!bodyTopic) return;
 
-	// If the currently selected node already points to bodyTopic, just return.
-	// This check is needed to keep the selection from jumping to "[Run] section"
-	// when "[UninstallRun] section" is clicked (both have the same target topic).
-	if (curSelectedNode && topic_name_from_path(curSelectedNode.getAttribute("href")) == bodyTopic) {
-		return;
-	}
-
-	var elements = document.getElementById("tabbody-contents").getElementsByTagName("a");
-	var i;
-	for (i = 0; i < elements.length; i++) {
-		if (topic_name_from_path(elements[i].getAttribute("href")) == bodyTopic) {
-			if (curSelectedNode != elements[i]) {
-				// If we're changing the selection while a node is currently
-				// focused -- which can happen if Back is pressed after
-				// clicking/selecting a node -- we need to move the focus.
-				// Otherwise, the focus rectangle would stay where it is,
-				// while the highlight moved to a different node.
-
-				if (curFocusedNode) elements[i].focus();
-				set_selected_node(elements[i]);
-			}
+	const elements = document.getElementById("tabbody-contents").getElementsByTagName("a");
+	for (let i = 0; i < elements.length; i++) {
+		if (topic_name_from_path(elements[i].getAttribute("href")) === bodyTopic) {
+			set_selected_node(elements[i]);
 			break;
 		}
 	}

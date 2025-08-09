@@ -91,7 +91,7 @@ INPUT {
 			color: var(--link-hover-fg-color);
 			text-decoration: underline;
 		}
-		&.selectedlink, &.focusedlink {
+		&[aria-selected="true"] {
 			color: inherit;
 			text-decoration: none;
 
