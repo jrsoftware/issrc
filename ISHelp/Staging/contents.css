@@ -87,18 +87,13 @@ INPUT {
 		background-color: transparent;
 		text-decoration: none;
 
-		&:hover {
+		&:hover:not([aria-expanded]):not([aria-selected="true"]) {
 			color: var(--link-hover-fg-color);
 			text-decoration: underline;
 		}
-		&[aria-selected="true"] {
-			color: inherit;
-			text-decoration: none;
-
-			& > span {
-				background-color: var(--selected-bg-color);
-				border-radius: 4px;
-			}
+		&[aria-selected="true"] > span {
+			background-color: var(--selected-bg-color);
+			border-radius: 4px;
 		}
 		& > img {
 			/* The images are 16x16, but using "min-" in case the alt text is shown and it's larger */
