@@ -897,9 +897,21 @@ object MainForm: TMainForm
     end
     object HMenu: TMenuItem
       Caption = '&Help'
-      OnClick = SimpleMenuClick
+      OnClick = HMenuClick
+      object HPurchase: TMenuItem
+        Caption = 'Purchase or Renew Commercial &License'
+        OnClick = HPurchaseClick
+      end
+      object HRegister: TMenuItem
+        Caption = 'Enter Commercial License &Key...'
+        OnClick = HRegisterClick
+      end
+      object HUnregister: TMenuItem
+        Caption = 'Remove Commercial License Key'
+        OnClick = HUnregisterClick
+      end
       object HDonate: TMenuItem
-        Caption = '&Support Inno Setup - Thank you!'
+        Caption = '&Donate'
         OnClick = HDonateClick
       end
       object N21: TMenuItem
@@ -917,7 +929,7 @@ object MainForm: TMainForm
         Caption = '-'
       end
       object HDoc: TMenuItem
-        Caption = 'Inno Setup &Documentation'
+        Caption = 'Inno &Setup Documentation'
         OnClick = HDocClick
       end
       object HExamples: TMenuItem
@@ -1276,6 +1288,16 @@ object MainForm: TMainForm
         CollectionIndex = 59
         CollectionName = 'symbol-remove'
         Name = 'symbol-remove'
+      end
+      item
+        CollectionIndex = 60
+        CollectionName = 'padlock-filled'
+        Name = 'padlock-filled'
+      end
+      item
+        CollectionIndex = 61
+        CollectionName = 'shopping-cart'
+        Name = 'shopping-cart'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

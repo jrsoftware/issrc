@@ -157,6 +157,9 @@ type
     RTerminate: TMenuItem;
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
+    HPurchase: TMenuItem;
+    HRegister: TMenuItem;
+    HUnregister: TMenuItem;
     HDonate: TMenuItem;
     N14: TMenuItem;
     N15: TMenuItem;
@@ -316,6 +319,9 @@ type
     procedure BLowPriorityClick(Sender: TObject);
     procedure StatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
+    procedure HPurchaseClick(Sender: TObject);
+    procedure HRegisterClick(Sender: TObject);
+    procedure HUnregisterClick(Sender: TObject);
     procedure HDonateClick(Sender: TObject);
     procedure RTargetClick(Sender: TObject);
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
@@ -392,6 +398,7 @@ type
     procedure UpdatePanelCloseBitBtnPaint(Sender: TObject; Canvas: TCanvas; var ARect: TRect);
     procedure UpdatePanelCloseBitBtnClick(Sender: TObject);
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
+    procedure HMenuClick(Sender: TObject);
   private
     { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
@@ -505,6 +512,7 @@ type
     FUpdatePanelMessages: TUpdatePanelMessages;
     FBuildImageList: TImageList;
     FHighContrastActive: Boolean;
+    FDonateImageMenuItem: TMenuItem;
     function AnyMemoHasBreakPoint: Boolean;
     class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
@@ -682,15 +690,16 @@ var
 implementation
 
 uses
-  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes,
+  ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, IDE.Messages, NewUxTheme.TmSchema, BrowseFunc,
-  IDE.HtmlHelpFunc, TaskbarProgressFunc, IDE.ImagesModule,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass,
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
-  Shared.CompilerInt;
+  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm;
 
 {$R *.DFM}
 
@@ -821,13 +830,21 @@ end;
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
-    const ConfigValueDefault, ConfigValueMinimum: Integer; const Msg: String; const Color: TColor;
-    const HasLink: Boolean);
+    const ConfigValueDefault, ConfigValueMinimum, ConfigValueNew: Integer; const Msg: String; const Color: TColor;
+    const HasLink: Boolean); overload;
   begin
-    var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault);
+    var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault); { Also see HUnregisterClick }
     if ConfigValue < ConfigValueMinimum then
-      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueMinimum, Color,
-        HasLink));
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color,
+      	HasLink));
+  end;
+
+  procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
+    const ConfigValueDefault, ConfigValueExpected: Integer; const Msg: String; const Color: TColor;
+    const HasLink: Boolean); overload;
+  begin
+    CheckUpdatePanelMessage(Ini, ConfigIdent, ConfigValueDefault, ConfigValueExpected, ConfigValueExpected,
+      Msg, Color, HasLink);
   end;
 
   procedure ReadConfig;
@@ -890,12 +907,41 @@ constructor TMainForm.Create(AOwner: TComponent);
           Memo.Font := FMainMemo.Font;
 
       { UpdatePanel visibility }
+      const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
+      const BannerBlue = $FFD399; { MBlue with HSL lightness changed from 42% to 80% }
+      const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
+      const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
         'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        $ABE3AB, True); //MGreen with HSL lightness changed from 40% to 78%
+        BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        $FFD399, True); //MBlue with HSL lightness changed from 42% to 80%
+        BannerBlue, True);
+      const LicenseState = GetLicenseState;
+      if LicenseState = lsExpiredButUpdated then begin
+        { Complain twice per day }
+        const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
+        const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
+        const Msg = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
+        CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
+          Msg, BannerRed, True);
+      end else if LicenseState in [lsExpiring, lsExpired] then begin
+        { Warn about expiry, once per week }
+        const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
+        const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
+        const Msg = IfThen(LicenseState = lsExpiring,
+          'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
+          'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!');
+        CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
+          Msg, BannerOrange, True);
+      end else if LicenseState = lsNotLicensed then begin
+        { Ask about current commercial use, once per month }
+        const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
+        const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
+        CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
+          'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
+          BannerBlue, True);
+      end;
       UpdateUpdatePanel;
 
       { Debug options }
@@ -1078,6 +1124,7 @@ begin
   FDebugTarget := dtSetup;
   UpdateTargetMenu;
 
+  ReadLicense;
   UpdateCaption;
 
   FMenuDarkBackgroundBrush := TBrush.Create;
@@ -1713,7 +1760,7 @@ begin
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' - ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version);
+    String(FCompilerVersion.Version) + ' - ' + GetLicenseeDescription;
   if FCompiling then
     NewCaption := NewCaption + '  [Compiling]'
   else if FDebugging then begin
@@ -3536,6 +3583,66 @@ begin
     Format('/select,"%s"', [FCompiledExe]));
 end;
 
+procedure TMainForm.HMenuClick(Sender: TObject);
+begin
+  HUnregister.Visible := IsLicensed;
+  HDonate.Visible := not HUnregister.Visible;
+
+  ApplyMenuBitmaps(Sender as TMenuItem);
+end;
+
+procedure TMainForm.HPurchaseClick(Sender: TObject);
+begin
+  if IsLicensed then
+    if MsgBox('Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.',
+       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+      ClipBoard.AsText := GetChunkedLicenseKey;
+  LaunchFileOrURL('https://jrsoftware.org/isorder.php');
+end;
+
+procedure TMainForm.HRegisterClick(Sender: TObject);
+begin
+  const LicenseKeyForm = TLicenseKeyForm.Create(Application);
+  try
+    if LicenseKeyForm.ShowModal = mrOk then begin
+
+      WriteLicense;
+      UpdateCaption;
+
+      MsgBox('New commercial license key has been registered:' + SNewLine2 +
+        GetLicenseDescription('', SNewLine2) + SNewLine2 +
+        'Thanks for your support!', SCompilerFormCaption, mbInformation, MB_OK);
+    end;
+  finally
+    LicenseKeyForm.Free;
+  end;
+end;
+
+procedure TMainForm.HUnregisterClick(Sender: TObject);
+begin
+  if MsgBox('Are you sure you want to remove your commercial license key and revert to non-commercial use only?',
+    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
+
+    RemoveLicense;
+    UpdateCaption;
+
+    const Ini = TConfigIniFile.Create;
+    try
+      const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger;
+      Ini.WriteInteger('UpdatePanel', 'Purchase', AskAgainDateAsInt);
+    finally
+      Ini.Free;
+    end;
+ 
+    MsgBox('Commercial license key has been removed.', SCompilerFormCaption, mbInformation, MB_OK);
+  end;
+end;
+
+procedure TMainForm.HDonateClick(Sender: TObject);
+begin
+  OpenDonateSite;
+end;
+
 procedure TMainForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
@@ -3585,11 +3692,6 @@ begin
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_isppoverview.htm')));
 end;
 
-procedure TMainForm.HDonateClick(Sender: TObject);
-begin
-  OpenDonateSite;
-end;
-
 procedure TMainForm.HAboutClick(Sender: TObject);
 var
   S: String;
@@ -3610,6 +3712,7 @@ begin
     'RemObjects Pascal Script home page:' + SNewLine +
     'https://www.remobjects.com/ps' + SNewLine2 +
     'Refer to LICENSE.TXT for conditions of distribution and use.');
+  S := S + SNewLine2 + GetLicenseDescription('Registered commercial license:' + SNewLine, SNewLine);
   MsgBox(S, 'About ' + FCompilerVersion.Title, mbInformation, MB_OK);
 end;
 
@@ -6633,6 +6736,11 @@ begin
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
     if not FHighContrastActive then
       UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
+	  if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
+	    FDonateImageMenuItem := HPurchase
+	  else
+	    FDonateImageMenuItem := HDonate;
+	  UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
   end;
   UpdateBevel1Visibility;
 end;
@@ -6766,8 +6874,10 @@ begin
           NM(TFilesDesigner, 'documents-script-filled'),
           NM(TRegistryDesigner, 'control-tree-script-filled'),
           NM(TMsgBoxDesigner, 'comment-text-script-filled'),
-          NM(TSignTools, 'key-filled'),
+          NM(TSignTools, 'padlock-filled'),
           NM(TOptions, 'gear-filled'),
+          NM(HPurchase, 'shopping-cart'),
+          NM(HRegister, 'key-filled'),
           NM(HDonate, 'heart-filled'),
           NM(HMailingList, 'alert-filled'),
           NM(HWhatsNew, 'announcement'),
@@ -8014,16 +8124,21 @@ end;
 procedure TMainForm.UpdateLinkLabelLinkClick(Sender: TObject;
   const Link: string; LinkType: TSysLinkType);
 begin
-  var Handled := True;
-  if (LinkType = sltID) and (Link = 'hwhatsnew') then
+  if LinkType <> sltID then
+    Exit;
+
+  if Link = 'fexit' then
+    FExit.Click
+  else if Link = 'hpurchase' then
+    HPurchase.Click
+  else if Link = 'hunregister' then
+    HUnregister.Click
+  else if Link = 'hwhatsnew' then
     HWhatsNew.Click
-  else if (LinkType = sltID) and (Link = 'toptions-vscode') then begin
+  else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  end else
-    Handled := False;
-  if Handled then
-    UpdatePanelCloseBitBtnClick(Sender);
+  end;
 end;
 
 procedure TMainForm.UpdatePanelCloseBitBtnClick(Sender: TObject);
@@ -8041,7 +8156,7 @@ end;
 
 procedure TMainForm.UpdatePanelDonateBitBtnClick(Sender: TObject);
 begin
-  HDonate.Click;
+  FDonateImageMenuItem.Click;
 end;
 
 procedure TMainForm.UpdatePanelCloseBitBtnPaint(Sender: TObject; Canvas: TCanvas; var ARect: TRect);
