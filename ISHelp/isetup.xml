@@ -36,9 +36,8 @@
     <contentstopic title="[CustomMessages] section" topic="custommessagessection" />
     <contentstopic title="[LangOptions] section" topic="langoptionssection" />
     <contentstopic title="[Registry] section" topic="registrysection" />
-    <contentstopic title="[Run] section" topic="runsection" />
+    <contentstopic title="[Run] &amp; [UninstallRun] sections" topic="runsection" />
     <contentstopic title="[UninstallDelete] section" topic="uninstalldeletesection" />
-    <contentstopic title="[UninstallRun] section" topic="runsection" />
     <contentstopic title="[ISSigKeys] section" topic="issigkeyssection" />
   </contentsheading>
   <contentsheading title="Pascal Scripting">

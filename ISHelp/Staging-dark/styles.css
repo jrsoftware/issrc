@@ -4,7 +4,7 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-	Style sheet used by topic_*.htm
+  Style sheet used by topic_*.htm
 */
 
 HTML {
@@ -59,7 +59,7 @@ A[href]:hover {
 	color: hsl(206, 100%, 43%);
 	text-decoration: underline;
 }
-A.highlighted {
+span:target {
 	background-color: #ffff00;
 	color: black;
 }

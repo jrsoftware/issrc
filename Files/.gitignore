@@ -5,3 +5,5 @@
 *.exe
 /ISCmplr.dll.issig
 /ISPP.dll.issig
+/SetupLdr.e32.issig
+/Setup.e32.issig
