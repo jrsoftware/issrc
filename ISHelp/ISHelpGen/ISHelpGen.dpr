@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.20';
+  Version = '1.21';
 
   XMLFileVersion = '1';
 
@@ -283,7 +283,7 @@ begin
       [AnchorName, CurrentTopicName]);
   DefinedTopics.Add(S);
 
-  Result := Format('<a name="%s">%s</a>', [EscapeHTML(AnchorName), InnerContents]);
+  Result := Format('<span id="%s">%s</span>', [EscapeHTML(AnchorName), InnerContents]);
 end;
 
 function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;

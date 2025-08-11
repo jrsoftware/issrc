@@ -72,7 +72,7 @@ A[href]:hover {
 	color: var(--link-hover-fg-color);
 	text-decoration: underline;
 }
-A.highlighted {
+span:target {
 	background-color: #ffff00;
 	color: black;
 }

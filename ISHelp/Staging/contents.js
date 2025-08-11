@@ -214,27 +214,7 @@ function init_index_tab_elements()
 		}
 	}
 
-	var indexBody = document.getElementById("tabbody-index");
-	indexBody.onclick = index_tab_element_clicked;
-	indexBody.innerHTML = html;
-}
-
-function index_tab_element_clicked(evt)
-{
-	// If an index link is clicked and only the hash changes on bodyframe
-	// (i.e. still same page), bodyframe doesn't receive any notification.
-	// So we must manually tell it to update the highlight.
-
-	var element = evt ? evt.target : event.srcElement;
-	if (element.tagName.toLowerCase() == "a") {
-		var href = element.getAttribute("href");
-		if (href != null && href != "" && element.getAttribute("target") == "bodyframe") {
-			var bodyFrame = window.parent.frames["bodyframe"];
-			if (bodyFrame) {
-				bodyFrame.set_href_and_highlight_anchor(href);
-			}
-		}
-	}
+	document.getElementById("tabbody-index").innerHTML = html;
 }
 
 window.addEventListener("message", (event) => {
