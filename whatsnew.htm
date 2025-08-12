@@ -42,7 +42,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.5.0"></a><span class="ver">6.5.0-dev </span><span class="date">(?)</span></p>
+<p><a name="6.5.0"></a><span class="ver">6.5.0 </span><span class="date">(2025-08-12)</span></p>
+<span class="head2">Introducing commercial licenses</span>
+<p>Over the years, a number of users have expressed to us a desire to see their organizations support the ongoing development of Inno Setup, but have found that organization policies often make it difficult or impossible to approve a donation. By introducing a commercial license option, we aim to provide a straightforward and familiar way for organizations to contribute to the project's sustainability.</p>
+<p>Additionally, many organizations prefer having official licenses on record for all software they use, as it helps with audits and internal compliance checks.</p>
+<p>Finally, your support through license purchases directly enables us to improve and maintain Inno Setup.</p>
+<p>For these reasons we are introducing commerical licenses. If you or your organization benefit from using Inno Setup in a commercial context, we kindly ask that you purchase a license. Thank you for helping ensure the continued development of this software.</p>
+<p>Licenses can be purchased from our <a href="https://jrsoftware.org/isorder.php">new order page</a>, which includes more questions and answers. All commercial licenses are perpetual and require a single payment. They include two years of updates, major and minor. After this period, your current version will remain licensed and functional as-is.</p>
 <span class="head2">Improved archive extraction</span>
 <p>It's now possible to extract password-protected archives, multi-volume archives, and multiple extra archive formats such as .zip.</p>
 <p>Additionally the <tt>[Files]</tt> section now supports archive extraction. Writing Pascal Script to extract an archive is no longer necessary.</p>
@@ -109,7 +115,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <span class="key">DestName</span>: "MyProg.ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
   <span class="key">ExternalSize</span>: 275; <span class="key">Flags</span>: external download extractarchive ignoreversion</code></pre>
     </li>
-    <li>Added example script <i>DownloadFiles.iss</i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
+    <li>Added example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
   </ul>
   </li>
 </ul>
@@ -143,7 +149,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
     <li>Has little performance impact since verification occurs while source files are being compressed/copied and each file's contents are only read once; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read a second time.</li>
     <li>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
-    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <i>DownloadFiles.iss</i> example script for an example.</li>
+    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a> example script for an example.</li>
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
@@ -196,7 +202,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <li>Pascal Scripting:
       <ul>
         <li>Added new <tt>ISSigVerify</tt> and <tt>DownloadTemporaryFileWithISSigVerify</tt> support functions.</li>
-        <li>Added new <tt>AddWithISSigVerify</tt> and <tt>AddExWithISSigVerify</tt> functions to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
+        <li>Added new <tt>AddWithISSigVerify</tt> and <tt>AddExWithISSigVerify</tt> functions to support class <tt>TDownloadWizardPage</tt>. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a> for an example.</li>
       </ul>
     </li>
   </ul>
@@ -229,7 +235,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Pascal Scripting changes:
     <ul>
-      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <i>CodeClasses.iss</i> for an example.</li>
+      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> for an example.</li>
       <li>Added new <tt>InitializeBitmapButtonFromIcon</tt> and <tt>GetSHA256OfStream</tt> support functions.</li>
       <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
       <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>

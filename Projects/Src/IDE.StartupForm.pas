@@ -59,8 +59,9 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc,
-  IDE.MainForm, IDE.ImagesModule, ComCtrls;
+  ComCtrls,
+  Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  IDE.Messages, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}
 
@@ -101,7 +102,13 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+  if IsLicensed then begin
+    DonateBitBtn.Visible := False;
+    const DiffX = MailingListBitBtn.Left - DonateBitBtn.Left;
+    MailingListBitBtn.Left := MailingListBitBtn.Left - DiffX;
+    StartupCheck.Left := StartupCheck.Left - DiffX;
+  end else
+	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
 
   UpdateImages;
 

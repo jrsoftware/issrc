@@ -7653,16 +7653,6 @@ var
     SetFileTime(H, nil, nil, @FT);
   end;
 
-  procedure GenerateEncryptionKDFSalt(out Salt: TSetupKDFSalt);
-  begin
-    GenerateRandomBytes(Salt, SizeOf(Salt));
-  end;
-
-  procedure GenerateEncryptionBaseNonce(out Nonce: TSetupEncryptionNonce);
-  begin
-    GenerateRandomBytes(Nonce, SizeOf(Nonce));
-  end;
-
 const
   BadFilePathChars = '/*?"<>|';
   BadFileNameChars = BadFilePathChars + ':';
@@ -7981,9 +7971,9 @@ begin
     end;
 
     if Password <> '' then begin
-      GenerateEncryptionKDFSalt(SetupEncryptionHeader.KDFSalt);
+      GenerateRandomBytes(SetupEncryptionHeader.KDFSalt, SizeOf(SetupEncryptionHeader.KDFSalt));
+      GenerateRandomBytes(SetupEncryptionHeader.BaseNonce, SizeOf(SetupEncryptionHeader.BaseNonce));
       GenerateEncryptionKey(Password,  SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
-      GenerateEncryptionBaseNonce(SetupEncryptionHeader.BaseNonce);
       GeneratePasswordTest(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       Include(SetupHeader.Options, shPassword);
     end;

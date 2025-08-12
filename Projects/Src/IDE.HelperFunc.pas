@@ -87,8 +87,8 @@ implementation
 
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
-  Messages, DwmApi, Consts,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
+  Messages, DwmApi, Consts, NetEncoding,
+  ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);

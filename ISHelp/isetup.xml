@@ -36,9 +36,8 @@
     <contentstopic title="[CustomMessages] section" topic="custommessagessection" />
     <contentstopic title="[LangOptions] section" topic="langoptionssection" />
     <contentstopic title="[Registry] section" topic="registrysection" />
-    <contentstopic title="[Run] section" topic="runsection" />
+    <contentstopic title="[Run] &amp; [UninstallRun] sections" topic="runsection" />
     <contentstopic title="[UninstallDelete] section" topic="uninstalldeletesection" />
-    <contentstopic title="[UninstallRun] section" topic="runsection" />
     <contentstopic title="[ISSigKeys] section" topic="issigkeyssection" />
   </contentsheading>
   <contentsheading title="Pascal Scripting">
@@ -105,13 +104,14 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.5.0-dev</b><br/>
+<b>Inno Setup version 6.5.0</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
 </p>
 
-<p>Inno Setup is a <i>free</i> installer for Windows programs by Jordan Russell and Martijn Laan. First introduced in 1997, Inno Setup today rivals and even surpasses many commercial installers in feature set and stability.</p>
+<p>Inno Setup is an open-source installation builder for Windows applications. Since its introduction in 1997, Inno Setup has been trusted by developers and organizations of all sizes to reliably deploy software to millions of PCs worldwide.</p>
+
 
 <p><b><i>Key features:</i></b></p>
 
@@ -163,12 +163,6 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink> and <extlink href="https://www.embarcadero.com/products/delphi">Embarcardero Delphi</extlink>.</li>
 
 </ul>
-
-<p><b><i>Is it really free of charge, even for commercial use?</i></b></p>
-
-<p>Yes, it may be used completely free of charge, even when deploying commercial applications.</p>
-
-<p>(Note: "Completely free of charge" must not be confused with "completely free". Inno Setup is copyrighted software, <i>not</i> public domain software. There are some restrictions on distribution and use; see the LICENSE.TXT file for details.)</p>
 
 </body>
 </topic>
@@ -5837,9 +5831,10 @@ DiskSliceSize=1457664
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
-<p>If encryption is enabled and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>The 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link>, and the 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>
+<p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_password">Password</link><br/>
 <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>

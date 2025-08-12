@@ -1,3 +1,4 @@
+compilesettings.bat
 *.res
 *.dproj.local
 *.identcache
