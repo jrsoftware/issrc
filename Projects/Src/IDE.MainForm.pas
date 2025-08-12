@@ -6637,6 +6637,7 @@ begin
 
   SetHelpFileDark(FTheme.Dark);
 
+  {$IF CompilerVersion >= 36.0 }
   { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
     UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
     to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
@@ -6649,6 +6650,7 @@ begin
   { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
     it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
+  {$ENDIF}
 
   InitFormTheme(Self);
 
