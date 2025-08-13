@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Farsi messages ***
+; *** Inno Setup version 6.5.0+ Farsi messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -215,23 +215,26 @@ ReadyMemoGroup=پوشه منوی استارت:
 ReadyMemoTasks=وظایف اضافی:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=درحال دانلود فایل های اضافی...
+DownloadingLabel2=در حال دانلود فایل ها...
 ButtonStopDownload=&توقف دانلود
 StopDownload=آیا مطمئن هستید که می‌خواهید دانلود را متوقف کنید؟
 ErrorDownloadAborted=دانلود متوقف شد
 ErrorDownloadFailed=دانلود ناموفق بود: %1 %2
 ErrorDownloadSizeFailed=دریافت حجم ناموفق بود: %1 %2
-ErrorFileHash1=هش فایل ناموفق بود: %1
-ErrorFileHash2=هش نامعتبر فایل: مورد انتظار %، پیدا شده %2
 ErrorProgress=پیشرفت نامعتبر: %1 از %2
 ErrorFileSize=اندازه فایل نامعتبر: مورد انتظار %، پیدا شده %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=در حال استخراج فایل های اضافی...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=در حال استخراج فایل ها...
 ButtonStopExtraction=&توقف استخراج
 StopExtraction=آیا مطمئن هستید که می‌خواهید استخراج را متوقف کنید؟
 ErrorExtractionAborted=استخراج متوقف شد
 ErrorExtractionFailed=استخراج ناموفق: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=گذرواژه اشتباه است
+ArchiveIsCorrupted=فایل فشرده آسیب دیده است
+ArchiveUnsupportedFormat=فرمت فایل فشرده پشتیبانی نمی‌شود
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=در حال آماده سازی برای نصب
@@ -277,14 +280,18 @@ AbortRetryIgnoreSelectAction=انتخاب عمل
 AbortRetryIgnoreRetry=&تلاش مجدد
 AbortRetryIgnoreIgnore=&صرف نظر از خطا و ادامه
 AbortRetryIgnoreCancel=انصراف از عملیات نصب
+RetryCancelSelectAction=انتخاب عملیات
+RetryCancelRetry=&تلاش مجدد
+RetryCancelCancel=انصراف
 
 ; *** Installation status messages
 StatusClosingApplications=درحال بستن اپلیکیشن ها...
-StatusCreateDirs=ایجاد پوشه ها...
-StatusExtractFiles=استخراج فایل ها...
-StatusCreateIcons=ایجاد میانبر ها...
-StatusCreateIniEntries=ایجاد ورودی های INI...
-StatusCreateRegistryEntries=ایجاد ورودی های ریجستری...
+StatusCreateDirs=در حال ایجاد پوشه ها...
+StatusExtractFiles=در حال استخراج فایل ها...
+StatusDownloadFiles=در حال دانلود فایل ها...
+StatusCreateIcons=در حال ایجاد میانبر ها...
+StatusCreateIniEntries=در حال ایجاد ورودی های INI...
+StatusCreateRegistryEntries=در حال ایجاد ورودی های ریجستری...
 StatusRegisterFiles=در حال ریجستر فایل ها...
 StatusSavingUninstall=در حال ذخیره اطلاعات حذف کننده...
 StatusRunProgram=در حال پایان نصب...
@@ -311,6 +318,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&پرش از این فایل (پیشنه�
 FileAbortRetryIgnoreIgnoreNotRecommended=&نادیده گرفتن خطا و ادامه (پیشنهاد نمی‌شود)
 SourceIsCorrupted=فایل منبع آسیب دیده است
 SourceDoesntExist=فایل منبع "%1" وجود ندارد
+SourceVerificationFailed=اعتبار سنجی فایل منبع ناموفق بود: %1
+VerificationSignatureDoesntExist=فایل امضاء "%1" وجود ندارد
+VerificationSignatureInvalid=فایل امضاء "%1" نامعتبر است
+VerificationKeyNotFound=فایل امضاء "%1" از کلیدی ناشناخته استفاده می‌کند
+VerificationFileNameIncorrect=نام فایل اشتباه است
+VerificationFileTagIncorrect=تگ فایل اشتباه است
+VerificationFileSizeIncorrect=اندازه فایل اشتباه است
+VerificationFileHashIncorrect=هش فایل اشتباه است
 ExistingFileReadOnly2=فایل موجود بدلیل فقط-خواندنی بودن قابل جایگزینی نیست.
 ExistingFileReadOnlyRetry=&حذف خصوصیت فقط-خواندنی و تلاش مجدد
 ExistingFileReadOnlyKeepExisting=&نگه داشتن فایل موجود
@@ -329,6 +344,8 @@ ErrorChangingAttr=در هنگام تلاش برای تغییر خصوصیت فا
 ErrorCreatingTemp=در هنگام تلاش برای ایجاد یک فایل در پوشه مقصد خطایی رخ داده است:
 ErrorReadingSource=در هنگام تلاش برای خواندن فایل مبداء خطایی رخ داده است:
 ErrorCopying=در هنگام تلاش برای کپی فایل خطایی رخ داده است:
+ErrorDownloading=در هنگام تلاش برای دانلود فایل خطایی رخ داده است:
+ErrorExtracting=در هنگام تلاش برای استخراج فایل فشرده خطایی رخ داده است:
 ErrorReplacingExistingFile=در هنگام تلاش برای جایگزینی فایل موجود خطایی رخ داده است:
 ErrorRestartReplace=RestartReplace ناموفق بود:
 ErrorRenamingTemp=در هنگام تلاش برای تغییر نام یک فایل در پوشه مقصد خطایی رخ داده است:
