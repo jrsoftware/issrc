@@ -102,7 +102,9 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
   Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
-  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas';
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
@@ -110,6 +112,7 @@ uses
 
 {$R Res\Setup.icon.res}
 {$R Res\Setup.images.res}
+{$R Res\Setup.style.res}
 {$R Res\Setup.version.res}
 
 procedure ShowExceptionMsg;
@@ -295,6 +298,8 @@ begin
     ShowExceptionMsg;
     Halt(ecInitializationError);
   end;
+
+  TStyleManager.TrySetStyle('Setup');
 
   { Initialize.
     Note: There's no need to localize the following line since it's changed in

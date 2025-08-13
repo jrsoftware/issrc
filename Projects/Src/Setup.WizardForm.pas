@@ -343,7 +343,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, Generics.Collections,
+  ShellApi, ShlObj, Types, Generics.Collections, Themes,
   PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
@@ -831,6 +831,10 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style }
+  OuterNotebook.ParentColor := True;
+  FinishedPage.ParentColor := True;
+  Color := StyleServices(Self).GetSystemColor(clBtnFace);
+
   if SetupHeader.WizardStyle = wsModern then begin
     OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;

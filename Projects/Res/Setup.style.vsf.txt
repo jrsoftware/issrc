@@ -1,0 +1,4 @@
+Setup.style.vsf should any VCL Style File with its name changed to Setup using
+Bitmap Style Designer (BDS\Bin\BitmapStyleDesigner.exe)
+
+Also see Compil32.darkstyle.vsf.txt
