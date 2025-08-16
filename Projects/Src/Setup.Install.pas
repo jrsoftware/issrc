@@ -3705,53 +3705,63 @@ end;
 type
   THTTPDataReceiver = class
   private
-    FBaseName, FUrl: String;
-    FOnDownloadProgress: TOnDownloadProgress;
-    FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-    FOnSimpleDownloadProgressParam: Integer64;
-    FAborted: Boolean;
-    FProgress, FProgressMax: Int64;
-    FLastReportedProgress: Int64;
+    type
+      TResult = record
+        SavedFatalException: TObject;
+        HTTPStatusCode: Integer;
+        HTTPStatusText: String;
+        FileSize: Int64;
+      end;
+    var
+      FBaseName, FCleanUrl: String;
+      FHasCredentials: Boolean;
+      FUser, FPass: String;
+      FDestFile: TFile;
+      FOnDownloadProgress: TOnDownloadProgress;
+      FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
+      FOnSimpleDownloadProgressParam: Integer64;
+      FLock: TObject;
+      FProgress, FProgressMax: Int64;
+      FLastReportedProgress: Int64;
+      FAbort: Boolean;
+      FResult: TResult;
+  protected
+    procedure DoDownload;
+    procedure HandleProgress;
+    procedure HandleResult(const UseSetupMessagesForErrors: Boolean);
   public
+    constructor Create(const Url, CustomUser, CustomPass: String; const DestFile: TFile);
+    destructor Destroy; override;
     property BaseName: String write FBaseName;
-    property Url: String write FUrl;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
     property OnSimpleDownloadProgress: TOnSimpleDownloadProgress write FOnSimpleDownloadProgress;
     property OnSimpleDownloadProgressParam: Integer64 write FOnSimpleDownloadProgressParam;
-    property Aborted: Boolean read FAborted;
+    property Aborted: Boolean read FAbort;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
     procedure OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+    function Download(const UseSetupMessagesForErrors: Boolean): Int64;
   end;
 
-procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+function GetCredentialsAndCleanUrl(const Url, CustomUser, CustomPass: String; var User, Pass, CleanUrl: String) : Boolean;
 begin
-  FProgress := AReadCount;
-  FProgressMax := AContentLength;
-
-  try
-    if Assigned(FOnDownloadProgress) then begin
-      if not FOnDownloadProgress(FUrl, FBaseName, FProgress, FProgressMax) then
-        Abort := True;
-    end else if Assigned(FOnSimpleDownloadProgress) then begin
-      try
-        FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
-      finally
-        FLastReportedProgress := Progress;
-      end;
-    end;
-  except
-    if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
-      Abort := True
-    else
-      raise;
-  end;
-
-  if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
-    Application.ProcessMessages;
-
-  if Abort then
-    FAborted := True
+  const Uri = TUri.Create(Url); { This is a record so no need to free }
+  if CustomUser = '' then
+    User := TNetEncoding.URL.Decode(Uri.Username)
+  else
+    User := CustomUser;
+  if CustomPass = '' then
+    Pass := TNetEncoding.URL.Decode(Uri.Password, [TURLEncoding.TDecodeOption.PlusAsSpaces])
+  else
+    Pass := CustomPass;
+  Uri.Username := '';
+  Uri.Password := '';
+  CleanUrl := Uri.ToString;
+  Result := (User <> '') or (Pass <> '');
+  if Result then
+    LogFmt('Download is using basic authentication: %s, ***', [User])
+  else
+    Log('Download is not using basic authentication');
 end;
 
 procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
@@ -3759,6 +3769,178 @@ begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
   { TLS 1.2 isn't enabled by default on older versions of Windows }
   AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+end;
+
+{ THTTPDataReceiver }
+
+constructor THTTPDataReceiver.Create(const Url, CustomUser, CustomPass: String; const DestFile: TFile);
+begin
+  inherited Create;
+  FDestFile := DestFile;
+  FHasCredentials := GetCredentialsAndCleanUrl(Url, CustomUser, CustomPass, FUser, FPass, FCleanUrl);
+  FLock := TObject.Create;
+end;
+
+destructor THTTPDataReceiver.Destroy;
+begin
+  FResult.SavedFatalException.Free;
+  FLock.Free;
+  inherited;
+end;
+
+procedure THTTPDataReceiver.OnReceiveData(const Sender: TObject; AContentLength: Int64; AReadCount: Int64; var Abort: Boolean);
+begin
+  if FAbort then
+    Abort := True;
+
+  System.TMonitor.Enter(FLock);
+  try
+    FProgress := AReadCount;
+    FProgressMax := AContentLength;
+  finally
+    System.TMonitor.Exit(FLock);
+  end;
+end;
+
+procedure THTTPDataReceiver.DoDownload;
+begin
+  const HTTPClient = THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
+  try
+    SetUserAgentAndSecureProtocols(HTTPClient);
+    HTTPClient.OnReceiveData := OnReceiveData;
+
+    const HandleStream = THandleStream.Create(FDestFile.Handle);
+    try
+      if FHasCredentials then begin
+        const Base64 = TBase64Encoding.Create(0);
+        try
+          HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(FUser + ':' + FPass);
+        finally
+          Base64.Free;
+        end;
+      end;
+      
+      const HTTPResponse = HTTPClient.Get(FCleanUrl, HandleStream);
+      
+      FResult.HTTPStatusCode := HTTPResponse.StatusCode;
+      FResult.HTTPStatusText := HTTPResponse.StatusText;
+      FResult.FileSize := HandleStream.Size;
+    finally
+      HandleStream.Free;
+    end;
+  finally
+    HTTPClient.Free;
+  end;
+end;
+
+procedure THTTPDataReceiver.HandleProgress;
+begin
+  var Progress, ProgressMax: Int64;
+
+  System.TMonitor.Enter(FLock);
+  try
+    Progress := FProgress;
+    ProgressMax := FProgressMax;
+  finally
+    System.TMonitor.Exit(FLock);
+  end;
+
+  if ProgressMax <> 0 then begin
+    try
+      if Assigned(FOnDownloadProgress) then begin
+        if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
+          FAbort := True; { Atomic so no lock }
+      end else if Assigned(FOnSimpleDownloadProgress) then begin
+        try
+          FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+        finally
+          FLastReportedProgress := Progress;
+        end;
+      end;
+    except
+      if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
+        FAbort := True { Atomic so no lock }
+      else
+        raise;
+    end;
+  end;
+
+  if DownloadTemporaryFileOrExtractArchiveProcessMessages then
+    Application.ProcessMessages;
+end;
+
+procedure THTTPDataReceiver.HandleResult(const UseSetupMessagesForErrors: Boolean);
+begin
+  if Assigned(FResult.SavedFatalException) then begin
+    var Msg: String;
+    if FResult.SavedFatalException is Exception then
+      Msg := (FResult.SavedFatalException as Exception).Message
+    else
+      Msg := FResult.SavedFatalException.ClassName;
+    InternalErrorFmt('Worker thread terminated unexpectedly with exception: %s', [Msg]);
+  end else begin
+    if Aborted then begin
+      if UseSetupMessagesForErrors then
+        raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
+      else
+        Abort;
+    end else if (FResult.HTTPStatusCode < 200) or (FResult.HTTPStatusCode > 299) then begin
+      if UseSetupMessagesForErrors then
+        raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [IntToStr(FResult.HTTPStatusCode), FResult.HTTPStatusText]))
+      else
+        raise Exception.Create(Format('%d %s', [FResult.HTTPStatusCode, FResult.HTTPStatusText]));
+    end;
+  end;
+end;
+
+function DownloadThreadFunc(Parameter: Pointer): Integer;
+begin
+  const D = THTTPDataReceiver(Parameter);
+  try
+    D.DoDownload;
+  except
+    const Ex = AcquireExceptionObject;
+    MemoryBarrier;
+    D.FResult.SavedFatalException := Ex;
+  end;
+  MemoryBarrier;
+  Result := 0;
+end;
+
+function THTTPDataReceiver.Download(const UseSetupMessagesForErrors: Boolean): Int64;
+begin
+  var ThreadID: TThreadID;
+  const ThreadHandle = BeginThread(nil, 0, DownloadThreadFunc, Self, 0, ThreadID);
+  if ThreadHandle = 0 then
+    raise Exception.Create('Failed to create download thread: ' + SysErrorMessage(GetLastError));
+
+  try
+    try
+      while True do begin
+        case WaitForSingleObject(ThreadHandle, 50) of
+          WAIT_OBJECT_0: Break;
+          WAIT_TIMEOUT: HandleProgress;
+          WAIT_FAILED: raise Exception.Create('WaitForSingleObject failed: ' + SysErrorMessage(GetLastError));
+        else
+          raise Exception.Create('WaitForSingleObject returned unknown value');
+        end;
+      end;
+    except
+    	{ If an exception was raised during the loop (most likely it would
+        be from the user's OnDownloadProgress handler), request abort
+        and make one more attempt to wait on the thread. }
+      FAbort := True; { Atomic so no lock }
+      WaitForSingleObject(ThreadHandle, INFINITE);
+      raise;
+    end;
+  finally
+    CloseHandle(ThreadHandle);
+  end;
+
+  HandleProgress;
+  HandleResult(UseSetupMessagesForErrors);
+
+  Result := FResult.FileSize;
 end;
 
 function MaskPasswordInUrl(const Url: String): String;
@@ -3782,27 +3964,6 @@ begin
   DownloadTemporaryFilePass := Pass;
 end;
 
-function GetCredentialsAndCleanUrl(const Url, CustomUser, CustomPass: String; var User, Pass, CleanUrl: String) : Boolean;
-begin
-  const Uri = TUri.Create(Url); { This is a record so no need to free }
-  if CustomUser = '' then
-    User := TNetEncoding.URL.Decode(Uri.Username)
-  else
-    User := CustomUser;
-  if CustomPass = '' then
-    Pass := TNetEncoding.URL.Decode(Uri.Password, [TURLEncoding.TDecodeOption.PlusAsSpaces])
-  else
-    Pass := CustomPass;
-  Uri.Username := '';
-  Uri.Password := '';
-  CleanUrl := Uri.ToString;
-  Result := (User <> '') or (Pass <> '');
-  if Result then
-    LogFmt('Download is using basic authentication: %s, ***', [User])
-  else
-    Log('Download is not using basic authentication');
-end;
-
 function GetISSigUrl(const Url, ISSigUrl: String): String;
 begin
   if ISSigUrl <> '' then
@@ -3819,80 +3980,41 @@ function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
   const OnSimpleDownloadProgressParam: Integer64): Int64;
 var
-  HandleStream: THandleStream;
   HTTPDataReceiver: THTTPDataReceiver;
-  HTTPClient: THTTPClient;
-  HTTPResponse: IHTTPResponse;
-  User, Pass, CleanUrl: String;
-  HasCredentials : Boolean;
 begin
   if Url = '' then
     InternalError('DownloadFile: Invalid Url value');
 
   LogFmt('Downloading file from %s', [MaskPasswordInURL(Url)]);
 
-  HTTPDataReceiver := nil;
-  HTTPClient := nil;
-  HandleStream := nil;
-
+  HTTPDataReceiver := THTTPDataReceiver.Create(Url, CustomUserName, CustomPassword, DestF);
   try
-    HasCredentials := GetCredentialsAndCleanUrl(URL,
-      CustomUserName, CustomPassword, User, Pass, CleanUrl);
-
-    { Setup downloader }
-    HTTPDataReceiver := THTTPDataReceiver.Create;
-    HTTPDataReceiver.Url := CleanUrl;
     HTTPDataReceiver.OnSimpleDownloadProgress := OnSimpleDownloadProgress;
     HTTPDataReceiver.OnSimpleDownloadProgressParam := OnSimpleDownloadProgressParam;
 
-    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
-    SetUserAgentAndSecureProtocols(HTTPClient);
-    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
-
     { Download to specified handle }
-    HandleStream := THandleStream.Create(DestF.Handle);
-    if HasCredentials then begin
-      const Base64 = TBase64Encoding.Create(0);
-      try
-        HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
-      finally
-        Base64.Free;
-      end;
-    end;
-    HTTPResponse := HTTPClient.Get(CleanUrl, HandleStream);
-    Result := 0; { silence compiler }
-    if HTTPDataReceiver.Aborted then
-      Abort
-    else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.Create(Format('%d %s', [HTTPResponse.StatusCode, HTTPResponse.StatusText]))
-    else begin
-      { Download completed, get size and close it }
-      Result := HandleStream.Size;
-      FreeAndNil(HandleStream);
-
-      { Check verification if specified, otherwise check everything else we can check }
-      if Verification.Typ <> fvNone then begin
-        var ExpectedFileHash: TSHA256Digest;
-        if Verification.Typ = fvHash then
-          ExpectedFileHash := Verification.Hash
-        else
-          DoISSigVerify(DestF, nil, ISSigSourceFilename, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
-        const FileHash = GetSHA256OfFile(DestF);
-        if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          VerificationError(veFileHashIncorrect);
-        Log(VerificationSuccessfulLogMessage);
-      end else begin
-        if HTTPDataReceiver.ProgressMax > 0 then begin
-          if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-            raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
-          else if HTTPDataReceiver.ProgressMax <> Result then
-            raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
-        end;
+    Result := HTTPDataReceiver.Download(False);
+    
+    { Check verification if specified, otherwise check everything else we can check }
+    if Verification.Typ <> fvNone then begin
+      var ExpectedFileHash: TSHA256Digest;
+      if Verification.Typ = fvHash then
+        ExpectedFileHash := Verification.Hash
+      else
+        DoISSigVerify(DestF, nil, ISSigSourceFilename, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
+      const FileHash = GetSHA256OfFile(DestF);
+      if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+        VerificationError(veFileHashIncorrect);
+      Log(VerificationSuccessfulLogMessage);
+    end else begin
+      if HTTPDataReceiver.ProgressMax > 0 then begin
+        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+          raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
+        else if HTTPDataReceiver.ProgressMax <> Result then
+          raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
       end;
     end;
   finally
-    HandleStream.Free;
-    HTTPClient.Free;
     HTTPDataReceiver.Free;
   end;
 end;
@@ -3903,15 +4025,10 @@ function DownloadTemporaryFile(const Url, BaseName: String;
 var
   TempFile: String;
   TempF: TFile;
-  HandleStream: THandleStream;
   TempFileLeftOver: Boolean;
   HTTPDataReceiver: THTTPDataReceiver;
-  HTTPClient: THTTPClient;
-  HTTPResponse: IHTTPResponse;
   RetriesLeft: Integer;
   LastError: DWORD;
-  User, Pass, CleanUrl: String;
-  HasCredentials : Boolean;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -3958,30 +4075,16 @@ begin
   end else
     ForceDirectories(False, PathExtractPath(DestFile));
 
-  HTTPDataReceiver := nil;
-  HTTPClient := nil;
-  TempF := nil;
-  TempFileLeftOver := False;
-  HandleStream := nil;
+  { Create temporary file }
+  TempFile := GenerateUniqueName(False, PathExtractPath(DestFile), '.tmp');
+  TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
+  TempFileLeftOver := True;
 
+  HTTPDataReceiver := THTTPDataReceiver.Create(Url,
+      DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
   try
-    HasCredentials := GetCredentialsAndCleanUrl(URL,
-      DownloadTemporaryFileUser, DownloadTemporaryFilePass, User, Pass, CleanUrl);
-
-    { Setup downloader }
-    HTTPDataReceiver := THTTPDataReceiver.Create;
     HTTPDataReceiver.BaseName := BaseName;
-    HTTPDataReceiver.Url := CleanUrl;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
-
-    HTTPClient := THTTPClient.Create; { http://docwiki.embarcadero.com/RADStudio/Rio/en/Using_an_HTTP_Client }
-    SetUserAgentAndSecureProtocols(HTTPClient);
-    HTTPClient.OnReceiveData := HTTPDataReceiver.OnReceiveData;
-
-    { Create temporary file }
-    TempFile := GenerateUniqueName(False, PathExtractPath(DestFile), '.tmp');
-    TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
-    TempFileLeftOver := True;
 
     { To test redirects: https://jrsoftware.org/download.php/is.exe
       To test expired certificates: https://expired.badssl.com/
@@ -3992,71 +4095,51 @@ begin
       To test file without a content length: https://github.com/jrsoftware/issrc/archive/main.zip }
 
     { Download to temporary file}
-    HandleStream := THandleStream.Create(TempF.Handle);
-    if HasCredentials then begin
-      const Base64 = TBase64Encoding.Create(0);
-      try
-        HTTPClient.CustomHeaders['Authorization'] := 'Basic ' + Base64.Encode(User + ':' + Pass);
-      finally
-        Base64.Free;
-      end;
-    end;
-    HTTPResponse := HTTPClient.Get(CleanUrl, HandleStream);
-    if HTTPDataReceiver.Aborted then
-      raise Exception.Create(SetupMessages[msgErrorDownloadAborted])
-    else if (HTTPResponse.StatusCode < 200) or (HTTPResponse.StatusCode > 299) then
-      raise Exception.Create(FmtSetupMessage(msgErrorDownloadFailed, [IntToStr(HTTPResponse.StatusCode), HTTPResponse.StatusText]))
-    else begin
-      { Download completed, get size and close it }
-      Result := HandleStream.Size;
-      FreeAndNil(HandleStream);
+    Result := HTTPDataReceiver.Download(True);
 
-      { Check verification if specified, otherwise check everything else we can check }
-      if Verification.Typ <> fvNone then begin
-        var ExpectedFileHash: TSHA256Digest;
-        if Verification.Typ = fvHash then
-          ExpectedFileHash := Verification.Hash
-        else
-          DoISSigVerify(TempF, nil, DestFile, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
+    { Check verification if specified, otherwise check everything else we can check }
+    if Verification.Typ <> fvNone then begin
+      var ExpectedFileHash: TSHA256Digest;
+      if Verification.Typ = fvHash then
+        ExpectedFileHash := Verification.Hash
+      else
+        DoISSigVerify(TempF, nil, DestFile, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
         const FileHash = GetSHA256OfFile(False, TempFile);
-        if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
-          VerificationError(veFileHashIncorrect);
-        Log(VerificationSuccessfulLogMessage);
-      end else begin
+      if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
+        VerificationError(veFileHashIncorrect);
+      Log(VerificationSuccessfulLogMessage);
+    end else begin
         FreeAndNil(TempF);
-        if HTTPDataReceiver.ProgressMax > 0 then begin
-          if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
-            raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
-          else if HTTPDataReceiver.ProgressMax <> Result then
-            raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
-        end;
+      if HTTPDataReceiver.ProgressMax > 0 then begin
+        if HTTPDataReceiver.Progress <> HTTPDataReceiver.ProgressMax then
+          raise Exception.Create(FmtSetupMessage(msgErrorProgress, [IntToStr(HTTPDataReceiver.Progress), IntToStr(HTTPDataReceiver.ProgressMax)]))
+        else if HTTPDataReceiver.ProgressMax <> Result then
+          raise Exception.Create(FmtSetupMessage(msgErrorFileSize, [IntToStr(HTTPDataReceiver.ProgressMax), IntToStr(Result)]));
       end;
-
-      { Rename the temporary file to the new name now, with retries if needed }
-      RetriesLeft := 4;
-      while not MoveFile(PChar(TempFile), PChar(DestFile)) do begin
-        { Couldn't rename the temporary file... }
-        LastError := GetLastError;
-        { Does the error code indicate that it is possibly in use? }
-        if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
-          LogFmt('  The existing file appears to be in use (%d). ' +
-            'Retrying.', [LastError]);
-          Dec(RetriesLeft);
-          Sleep(1000);
-          if RetriesLeft > 0 then
-            Continue;
-        end;
-        { Some other error occurred, or we ran out of tries }
-        SetLastError(LastError);
-        Win32ErrorMsg('MoveFile'); { Throws an exception }
-      end;
-      TempFileLeftOver := False;
     end;
+
+    { Rename the temporary file to the new name now, with retries if needed }
+    RetriesLeft := 4;
+    while not MoveFile(PChar(TempFile), PChar(DestFile)) do begin
+      { Couldn't rename the temporary file... }
+      LastError := GetLastError;
+      { Does the error code indicate that it is possibly in use? }
+      if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
+        LogFmt('  The existing file appears to be in use (%d). ' +
+          'Retrying.', [LastError]);
+        Dec(RetriesLeft);
+        Sleep(1000);
+        if RetriesLeft > 0 then
+          Continue;
+      end;
+      { Some other error occurred, or we ran out of tries }
+      SetLastError(LastError);
+      Win32ErrorMsg('MoveFile'); { Throws an exception }
+    end;
+    TempFileLeftOver := False;
   finally
-    HandleStream.Free;
     TempF.Free;
-    HTTPClient.Free;
     HTTPDataReceiver.Free;
     if TempFileLeftOver then
       DeleteFile(TempFile);
