@@ -95,6 +95,8 @@ procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
 function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
+procedure AddAttributesToFile(const DisableFsRedir: Boolean; const Filename: String; Attribs: Integer);
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
 
 implementation
 
@@ -1070,6 +1072,26 @@ begin
   else
     Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
       CreateDirectoryRedir(DisableFsRedir, Dir);
+end;
+
+procedure AddAttributesToFile(const DisableFsRedir: Boolean;
+  const Filename: String; Attribs: Integer);
+var
+  ExistingAttr: DWORD;
+begin
+  if Attribs <> 0 then begin
+    ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
+    if ExistingAttr <> INVALID_FILE_ATTRIBUTES then
+      SetFileAttributesRedir(DisableFsRedir, Filename,
+        (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
+  end;
+end;
+
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
 end;
 
 { TSimpleStringList }

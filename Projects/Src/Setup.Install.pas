@@ -26,10 +26,6 @@ procedure DoISSigVerify(const SourceF: TFile; const SourceFS: TFileStream;
   const SourceFilename: String; const VerifySourceFilename: Boolean; const ISSigAllowedKeys: AnsiString;
   out ExpectedFileHash: TSHA256Digest);
 
-procedure AddAttributesToFile(const DisableFsRedir: Boolean; const Filename: String; Attribs: Integer);
-
-function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
-
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
 
@@ -402,19 +398,6 @@ begin
   SetProgress(MaxProgress);
 end;
 
-procedure AddAttributesToFile(const DisableFsRedir: Boolean;
-  const Filename: String; Attribs: Integer);
-var
-  ExistingAttr: DWORD;
-begin
-  if Attribs <> 0 then begin
-    ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
-    if ExistingAttr <> INVALID_FILE_ATTRIBUTES then
-      SetFileAttributesRedir(DisableFsRedir, Filename,
-        (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
-  end;
-end;
-
 function ShortenOrExpandFontFilename(const Filename: String): String;
 { Expands Filename, except if it's in the Fonts directory, in which case it
   removes the path }
@@ -426,13 +409,6 @@ begin
   if FontDir <> '' then
     if PathCompare(PathExtractDir(Result), FontDir) = 0 then
       Result := PathExtractName(Result);
-end;
-
-function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
-begin
-  Result := (LastError = ERROR_ACCESS_DENIED) or
-            (LastError = ERROR_SHARING_VIOLATION) or
-            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
 end;
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,

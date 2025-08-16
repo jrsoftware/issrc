@@ -21,7 +21,7 @@ uses
   PathFunc,
   Shared.CommonFunc, Shared.FileClass, Shared.Struct,
   SetupLdrAndSetup.RedirFunc,
-  Setup.Install, Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
+  Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalExtractTemporaryFile(const DestName: String;
   const CurFile: PSetupFileEntry; const CurFileLocation: PSetupFileLocationEntry;
