@@ -43,16 +43,6 @@ uses
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
   Setup.Install, Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc;
 
-// uses
-//   Windows, SysUtils, Messages, Forms, ShlObj, Setup.UninstallLog,
-//   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.InstFunc.Ole, Setup.SecurityFunc, SetupLdrAndSetup.Messages,
-//   Setup.MainFunc, Setup.LoggingFunc, Setup.FileExtractor,
-//   Compression.Base, PathFunc, ISSigFunc, Shared.CommonFunc.Vcl, Compression.SevenZipDLLDecoder,
-//   Shared.CommonFunc, SetupLdrAndSetup.RedirFunc, Shared.SetupMessageIDs,
-//   Setup.WizardForm, Shared.DebugStruct, Setup.DebugClient, Shared.VerInfoFunc, Setup.ScriptRunner, Setup.RegDLL, Setup.Helper,
-//   Shared.ResUpdateFunc, Setup.DotNetFunc, TaskbarProgressFunc, NewProgressBar, RestartManager,
-//   Net.HTTPClient, Net.URLClient, NetEncoding, RegStr;
-
 type
   THTTPDataReceiver = class
   private
