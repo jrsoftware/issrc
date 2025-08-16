@@ -841,12 +841,9 @@ begin
     System.TMonitor.Exit(FLock);
   end;
 
-  if (CurrentPath <> '') and Assigned(FOnExtractionProgress) then begin
-    { Calls to HandleProgress are already throttled so here we don't have to worry
-      about calling the script to often }
+  if (CurrentPath <> '') and Assigned(FOnExtractionProgress) then
     if not FOnExtractionProgress(FExtractedArchiveName, CurrentPath, Progress, ProgressMax) then
       Abort;
-  end;
 
   if DownloadTemporaryFileOrExtractArchiveProcessMessages then
     Application.ProcessMessages;

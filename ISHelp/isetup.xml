@@ -164,6 +164,10 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 </ul>
 
+<p>Inno Setup is copyrighted software. There are some restrictions on distribution and use; see the <extlink href="https://jrsoftware.org/files/is/license.txt">LICENSE.TXT</extlink> file for details.</p>
+
+<p>All commercial users of Inno Setup are requested to <extlink href="https://jrsoftware.org/isorder.php">purchase a commercial license</extlink>.</p>
+
 </body>
 </topic>
 
