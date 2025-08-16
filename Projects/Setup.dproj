@@ -85,6 +85,7 @@
         <DCCReference Include="Src\Setup.Install.pas"/>
         <DCCReference Include="Src\Setup.DownloadFileFunc.pas"/>
         <DCCReference Include="Src\Setup.ExtractFileFunc.pas"/>
+        <DCCReference Include="Src\Setup.ISSigVerifyFunc.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.Messages.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Setup.UninstallLog.pas"/>

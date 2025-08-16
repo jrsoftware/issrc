@@ -41,7 +41,7 @@ uses
   ISSigFunc, PathFunc, SHA256,
   Shared.CommonFunc, Shared.SetupMessageIDs, Shared.SetupTypes,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
-  Setup.Install, Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc;
+  Setup.InstFunc, Setup.ISSigVerifyFunc, Setup.LoggingFunc, Setup.MainFunc;
 
 type
   THTTPDataReceiver = class

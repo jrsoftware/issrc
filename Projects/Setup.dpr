@@ -24,6 +24,7 @@ uses
   Setup.Install in 'Src\Setup.Install.pas',
   Setup.DownloadFileFunc in 'Src\Setup.DownloadFileFunc.pas',
   Setup.ExtractFileFunc in 'Src\Setup.ExtractFileFunc.pas',
+  Setup.ISSigVerifyFunc in 'Src\Setup.ISSigVerifyFunc.pas',
   SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Setup.UninstallLog in 'Src\Setup.UninstallLog.pas',
