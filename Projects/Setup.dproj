@@ -83,6 +83,7 @@
         <DCCReference Include="Src\Setup.MainForm.pas"/>
         <DCCReference Include="Src\Setup.MainFunc.pas"/>
         <DCCReference Include="Src\Setup.Install.pas"/>
+        <DCCReference Include="Src\Setup.Install.HelperFunc.pas"/>
         <DCCReference Include="Src\Setup.DownloadFileFunc.pas"/>
         <DCCReference Include="Src\Setup.ExtractFileFunc.pas"/>
         <DCCReference Include="Src\Setup.ISSigVerifyFunc.pas"/>

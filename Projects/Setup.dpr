@@ -22,6 +22,7 @@ uses
   Setup.MainForm in 'Src\Setup.MainForm.pas',
   Setup.MainFunc in 'Src\Setup.MainFunc.pas',
   Setup.Install in 'Src\Setup.Install.pas',
+  Setup.Install.HelperFunc in 'Src\Setup.Install.HelperFunc.pas',
   Setup.DownloadFileFunc in 'Src\Setup.DownloadFileFunc.pas',
   Setup.ExtractFileFunc in 'Src\Setup.ExtractFileFunc.pas',
   Setup.ISSigVerifyFunc in 'Src\Setup.ISSigVerifyFunc.pas',
