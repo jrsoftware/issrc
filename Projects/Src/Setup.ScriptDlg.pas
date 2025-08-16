@@ -13,7 +13,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Shared.Struct, Setup.WizardForm, Setup.Install, Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
+  Shared.Struct, Setup.WizardForm, Setup.Install, Setup.DownloadFileFunc,
+  Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   BidiCtrls, TaskbarProgressFunc;
 

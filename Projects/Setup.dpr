@@ -22,6 +22,8 @@ uses
   Setup.MainForm in 'Src\Setup.MainForm.pas',
   Setup.MainFunc in 'Src\Setup.MainFunc.pas',
   Setup.Install in 'Src\Setup.Install.pas',
+  Setup.DownloadFileFunc in 'Src\Setup.DownloadFileFunc.pas',
+  Setup.ExtractFileFunc in 'Src\Setup.ExtractFileFunc.pas',
   SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Setup.UninstallLog in 'Src\Setup.UninstallLog.pas',
