@@ -1152,6 +1152,7 @@ begin
 
   if CommandLineCompile then begin
     ReadSignTools(FSignTools);
+    FBuildImageList := ImagesModule.LightBuildImageList;
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
   end else if CommandLineWizard then begin
     { Stop Delphi from showing the compiler form }

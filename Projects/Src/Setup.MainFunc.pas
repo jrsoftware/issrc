@@ -239,8 +239,8 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
-  Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,

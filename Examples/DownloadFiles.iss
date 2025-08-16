@@ -21,8 +21,8 @@ DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 ArchiveExtraction=full
-;Use "ArchiveExtraction=enhanced" if all your archives are .7z files
-;Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected
+; Use "ArchiveExtraction=enhanced" if all your archives are .7z files
+; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected
 
 [ISSigKeys]
 Name: mykey; RuntimeID: def02; \
@@ -45,7 +45,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
 ; It is then extracted normally during the actual installation process
 Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
   ExternalSize: 275; Flags: external download extractarchive recursesubdirs ignoreversion issigverify
-; This archive will be downloaded and extracted without verificaton
+; This archive will be downloaded and extracted without verification
 Source: "https://github.com/jrsoftware/issrc/archive/refs/heads/main.zip"; DestName: "issrc-main.zip"; DestDir: "{app}"; \
   ExternalSize: 15_000_000; Flags: external download extractarchive recursesubdirs ignoreversion
 

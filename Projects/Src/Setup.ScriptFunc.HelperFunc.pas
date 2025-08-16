@@ -15,7 +15,7 @@ uses
   Windows, Diagnostics,
   uPSRuntime, MD5, SHA1,
   Shared.CommonFunc, Shared.FileClass, Setup.MainForm, Setup.WizardForm,
-  Setup.UninstallProgressForm, Setup.Install, Compression.SevenZipDecoder;
+  Setup.UninstallProgressForm, Setup.DownloadFileFunc, Compression.SevenZipDecoder;
 
 type
   { Must keep this in synch with Compiler.ScriptFunc.pas }

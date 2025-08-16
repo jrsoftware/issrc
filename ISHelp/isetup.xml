@@ -104,7 +104,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.5.0</b><br/>
+<b>Inno Setup version 6.5.1-dev</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -163,6 +163,10 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink> and <extlink href="https://www.embarcadero.com/products/delphi">Embarcardero Delphi</extlink>.</li>
 
 </ul>
+
+<p>Inno Setup is copyrighted software. There are some restrictions on distribution and use; see the <extlink href="https://jrsoftware.org/files/is/license.txt">LICENSE.TXT</extlink> file for details.</p>
+
+<p>All commercial users of Inno Setup are requested to <extlink href="https://jrsoftware.org/isorder.php">purchase a commercial license</extlink>.</p>
 
 </body>
 </topic>
