@@ -1,4 +1,4 @@
-unit Setup.Install.ExtractTemporaryFile;
+unit Setup.ExtractFileFunc;
 
 {
   Inno Setup
