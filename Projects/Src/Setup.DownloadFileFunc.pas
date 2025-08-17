@@ -186,24 +186,22 @@ begin
     System.TMonitor.Exit(FLock);
   end;
 
-  if ProgressMax <> 0 then begin
-    try
-      if Assigned(FOnDownloadProgress) then begin
-        if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
-          FAbort := True; { Atomic so no lock }
-      end else if Assigned(FOnSimpleDownloadProgress) then begin
-        try
-          FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
-        finally
-          FLastReportedProgress := Progress;
-        end;
+  try
+    if Assigned(FOnDownloadProgress) then begin
+      if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
+        FAbort := True; { Atomic so no lock }
+    end else if Assigned(FOnSimpleDownloadProgress) then begin
+      try
+        FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+      finally
+        FLastReportedProgress := Progress;
       end;
-    except
-      if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
-        FAbort := True { Atomic so no lock }
-      else
-        raise;
     end;
+  except
+    if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
+      FAbort := True { Atomic so no lock }
+    else
+      raise;
   end;
 
   if DownloadTemporaryFileOrExtractArchiveProcessMessages then
