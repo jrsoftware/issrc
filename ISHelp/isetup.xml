@@ -5183,13 +5183,13 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <body>
 <p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside SETUP.EXE, the compiler will split it into multiple SETUP-*.BIN files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, SETUP-2.BIN should be placed on disk 2.) The generated SETUP.EXE always goes on disk 1 along with the SETUP-1*.BIN file.</p>
 <p>The size of each slice and the number of slices to create for each disk are determined by the values of the <link topic="setup_diskslicesize">DiskSliceSize</link> and <link topic="setup_slicesperdisk">SlicesPerDisk</link> <tt>[Setup]</tt> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <link topic="setup_diskclustersize">DiskClusterSize</link> and <link topic="setup_reservebytes">ReserveBytes</link>.</p>
-<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 2,100,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the SETUP-*.BIN files are placed on the same disk.)</p>
+<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the SETUP-*.BIN files are placed on the same disk.)</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="DiskSliceSize">
-<setupvalid><tt>262144</tt> through <tt>2100000000</tt>, or <tt>max</tt></setupvalid>
-<setupdefault><tt>max</tt> (2100000000)</setupdefault>
+<setupvalid><tt>262144</tt> through <tt>9223372036800000000</tt>, or <tt>max</tt></setupvalid>
+<setupdefault><tt>2100000000</tt></setupdefault>
 <body>
 <p>This specifies the maximum number of bytes per disk slice (SETUP-*.BIN file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <tt>SlicesPerDisk</tt> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
 <p>This directive is ignored if disk spanning is not enabled using the <tt>DiskSpanning</tt> <tt>[Setup]</tt> section directive.</p>

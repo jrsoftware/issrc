@@ -132,7 +132,8 @@ type
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
     UseSetupLdr, DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
-    DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
+    DiskSliceSize: Int64;
+    DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
     DefaultDialogFontName: String;
@@ -271,15 +272,14 @@ type
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
     class procedure AbortCompileFmt(const Msg: String; const Args: array of const);
-    procedure AddBytesCompressedSoFar(const Value: Cardinal); overload;
-    procedure AddBytesCompressedSoFar(const Value: Integer64); overload;
+    procedure AddBytesCompressedSoFar(const Value: Integer64);
     procedure AddPreprocOption(const Value: String);
     procedure AddSignTool(const Name, Command: String);
     procedure CallIdleProc(const IgnoreCallbackResult: Boolean = False);
     procedure Compile;
     function GetBytesCompressedSoFar: Integer64;
     function GetDebugInfo: TMemoryStream;
-    function GetDiskSliceSize:Longint;
+    function GetDiskSliceSize: Int64;
     function GetDiskSpanning: Boolean;
     function GetEncryptionBaseNonce: TSetupEncryptionNonce;
     function GetExeFilename: String;
@@ -354,7 +354,6 @@ const
 
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
-  MaxDiskSliceSize = 2100000000;
   DefaultKDFIterations = 220000;
 
 function ExtractStr(var S: String; const Separator: Char): String;
@@ -621,7 +620,7 @@ begin
   Result := DebugInfo;
 end;
 
-function TSetupCompiler.GetDiskSliceSize: Longint;
+function TSetupCompiler.GetDiskSliceSize: Int64;
 begin
   Result := DiskSliceSize;
 end;
@@ -2815,6 +2814,7 @@ begin
           AbortCompile(SCompilerDiskClusterSizeInvalid);
       end;
     ssDiskSliceSize: begin
+        const MaxDiskSliceSize = 9223372036800000000;
         if CompareText(Value, 'max') = 0 then
           DiskSliceSize := MaxDiskSliceSize
         else begin
@@ -6525,11 +6525,6 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Cardinal);
-begin
-  Inc64(BytesCompressedSoFar, Value);
-end;
-
 procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Integer64);
 begin
   Inc6464(BytesCompressedSoFar, Value);
@@ -7712,7 +7707,7 @@ begin
     TerminalServicesAware := True;
     DEPCompatible := True;
     ASLRCompatible := True;
-    DiskSliceSize := MaxDiskSliceSize;
+    DiskSliceSize := 2100000000;
     DiskClusterSize := 512;
     SlicesPerDisk := 1;
     ReserveBytes := 0;
@@ -7839,7 +7834,7 @@ begin
     LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
     if not DiskSpanning then begin
-      DiskSliceSize := MaxDiskSliceSize;
+      DiskSliceSize := 4200000000; { Windows cannot run .exe's of 4 GB or more }
       DiskClusterSize := 1;
       SlicesPerDisk := 1;
       ReserveBytes := 0;

@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.5.0)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.5.2)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
@@ -274,10 +274,10 @@ type
   PSetupFileLocationEntry = ^TSetupFileLocationEntry;
   TSetupFileLocationEntry = packed record
     FirstSlice, LastSlice: Integer;
-    StartOffset: Longint;
-    ChunkSuboffset: Integer64;
-    OriginalSize: Integer64;
-    ChunkCompressedSize: Integer64;
+    StartOffset: Int64;
+    ChunkSuboffset: Int64;
+    OriginalSize: Int64;
+    ChunkCompressedSize: Int64;
     SHA256Sum: TSHA256Digest;
     SourceTimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
@@ -379,7 +379,7 @@ type
 
   { A TDiskSliceHeader record follows DiskSliceID in a SETUP-*.BIN file }
   TDiskSliceHeader = packed record
-    TotalSize: Cardinal;
+    TotalSize: Int64;
   end;
 
   { A TMessageHeader record follows MessagesHdrID in a SETUP.MSG file }
