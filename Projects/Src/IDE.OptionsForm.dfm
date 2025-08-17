@@ -69,35 +69,35 @@ object OptionsForm: TOptionsForm
     end
     object FullPathCheck: TCheckBox
       Left = 8
-      Top = 156
+      Top = 194
       Width = 265
       Height = 17
       Caption = 'Display &full path in title bar'
-      TabOrder = 7
+      TabOrder = 9
     end
     object PauseOnDebuggerExceptionsCheck: TCheckBox
       Left = 8
-      Top = 176
+      Top = 214
       Width = 265
       Height = 17
       Caption = '&Pause on exceptions'
-      TabOrder = 8
+      TabOrder = 10
     end
     object RunAsDifferentUserCheck: TCheckBox
       Left = 8
-      Top = 196
+      Top = 234
       Width = 265
       Height = 17
       Caption = 'Always &launch Setup/Uninstall as administrator'
-      TabOrder = 9
+      TabOrder = 11
     end
     object ColorizeCompilerOutputCheck: TCheckBox
       Left = 8
-      Top = 216
+      Top = 254
       Width = 265
       Height = 17
       Caption = 'Colori&ze "Compiler Output" view'
-      TabOrder = 10
+      TabOrder = 12
     end
     object OpenIncludedFilesCheck: TCheckBox
       Left = 8
@@ -117,20 +117,36 @@ object OptionsForm: TOptionsForm
     end
     object Label3: TNewStaticText
       Left = 8
-      Top = 243
+      Top = 281
       Width = 56
       Height = 14
       Caption = 'Menu &keys:'
       FocusControl = KeyMappingComboBox
-      TabOrder = 11
+      TabOrder = 13
     end
     object KeyMappingComboBox: TComboBox
       Left = 72
-      Top = 239
+      Top = 277
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 12
+      TabOrder = 14
+    end
+    object AutoreloadCheck: TCheckBox
+      Left = 8
+      Top = 156
+      Width = 265
+      Height = 17
+      Caption = 'Automatically reload files'
+      TabOrder = 7
+    end
+    object UndoAfterReloadCheck: TCheckBox
+      Left = 8
+      Top = 176
+      Width = 265
+      Height = 17
+      Caption = 'Allow Undo after reload'
+      TabOrder = 8
     end
   end
   object GroupBox2: TGroupBox
