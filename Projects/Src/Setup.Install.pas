@@ -79,7 +79,7 @@ begin
 end;
 
 procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;
-  const AfterInstallFilesSize: Integer64);
+  const AfterInstallFilesSize: Int64);
 { Stores uninstall information in the Registry so that the program can be
   uninstalled through the Control Panel Add/Remove Programs applet. }
 const
@@ -340,7 +340,7 @@ begin
       SetDWordValue(H2, 'VersionMinor', MinorVersion);
     end;
     { Note: Windows 7 (and later?) doesn't automatically calculate sizes so set EstimatedSize ourselves. }
-    if (SetupHeader.UninstallDisplaySize.Hi = 0) and (SetupHeader.UninstallDisplaySize.Lo = 0) then begin
+    if SetupHeader.UninstallDisplaySize = 0 then begin
       { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
       EstimatedSize := AfterInstallFilesSize;
       Inc6464(EstimatedSize, SetupHeader.ExtraDiskSpaceRequired);
@@ -513,7 +513,7 @@ type
 procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: String;
   const RegisterFilesList: TList; const CurFile: PSetupFileEntry;
   const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
-  const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
+  const FileLocationFilenames: TStringList; const AExternalSize: Int64;
   var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
   var WarnedPerUserFonts: Boolean; const AExternalFileDate: PFileTime);
 { Not external: AExternalSourceFile and ADestFile should be empty strings,
@@ -688,7 +688,6 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
 
 var
   ProgressUpdated: Boolean;
-  PreviousProgress: Integer64;
   LastOperation: String;
   CurFileLocation: PSetupFileLocationEntry;
   SourceFile, DestFile, TempFile, FontFilename: String;
@@ -725,7 +724,7 @@ Retry:
   TempFile := '';
   TempFileLeftOver := False;
   ProgressUpdated := False;
-  PreviousProgress := CurProgress;
+  var PreviousProgress := CurProgress;
   LastOperation := '';
   Failed := '';
   try
@@ -1078,7 +1077,7 @@ Retry:
               already been handled by RecurseExternalArchiveCopyFiles. }
             LastOperation := SetupMessages[msgErrorExtracting];
             var MaxProgress := CurProgress;
-            Inc6464(MaxProgress, AExternalSize);
+            Inc(MaxProgress, AExternalSize);
             ArchiveFindExtract(StrToInt(SourceFile), DestF, ExternalProgressProc64, MaxProgress);
           end
           else if foDownload in CurFile^.Options then begin
@@ -1088,7 +1087,7 @@ Retry:
             const DownloadUserName = ExpandConst(CurFile^.DownloadUserName);
             const DownloadPassword = ExpandConst(CurFile^.DownloadPassword);
             var MaxProgress := CurProgress;
-            Inc6464(MaxProgress, AExternalSize);
+            Inc(MaxProgress, AExternalSize);
             if CurFile^.Verification.Typ = fvISSig then begin
               const ISSigTempFile = TempFile + ISSigExt;
               const ISSigDestF = TFileRedir.Create(DisableFsRedir, ISSigTempFile, fdCreateAlways, faReadWrite, fsNone);
@@ -1096,7 +1095,7 @@ Retry:
                 { Download the .issig file }
                 const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
                 DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
-                  ISSigDestF, NoVerification, '', JustProcessEventsProc64, To64(0));
+                  ISSigDestF, NoVerification, '', JustProcessEventsProc64, 0);
                 FreeAndNil(ISSigDestF);
                 { Download and verify the actual file }
                 DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
@@ -1393,9 +1392,9 @@ Retry:
   { Increment progress meter, if not already done so }
   if not ProgressUpdated then begin
     if Assigned(CurFileLocation) then  { not an "external" file }
-      IncProgress64(CurFileLocation^.OriginalSize)
+      IncProgress(CurFileLocation^.OriginalSize)
     else
-      IncProgress64(AExternalSize);
+      IncProgress(AExternalSize);
   end;
 
   { Process any events between copying files }
@@ -1411,7 +1410,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
   function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String; const SourceIsWildcard: Boolean;
-    const Excludes: TStrings; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+    const Excludes: TStrings; const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Int64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
     var WarnedPerUserFonts: Boolean): Boolean;
   begin
@@ -1460,7 +1459,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               CurFile, DisableFsRedir, SourceFile, DestFile, nil,
               Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
               WarnedPerUserFonts, nil);
-            Dec6464(ExpectedBytesLeft, Size);
+            Dec(ExpectedBytesLeft, Size);
           end;
         until not FindNextFile(H, FindData);
       finally
@@ -1511,7 +1510,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
   function RecurseExternalArchiveCopyFiles(const DisableFsRedir: Boolean;
     const ArchiveFilename: String; const Excludes: TStrings;
-    const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Integer64;
+    const CurFile: PSetupFileEntry; var ExpectedBytesLeft: Int64;
     var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
     var WarnedPerUserFonts: Boolean): Boolean;
   begin
@@ -1591,7 +1590,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
                 CurFile, DisableFsRedir, SourceFile, DestFile,
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, @FindData.ftLastWriteTime);
-              Dec6464(ExpectedBytesLeft, Size);
+              Dec(ExpectedBytesLeft, Size);
             end else if foCreateAllSubDirs in CurFile.Options then begin
               var Flags: TMakeDirFlags := [];
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
@@ -1617,7 +1616,6 @@ var
   CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
   SourceWildcard: String;
-  ProgressBefore, ExpectedBytesLeft: Integer64;
   DisableFsRedir, FoundFiles: Boolean;
   ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
   WarnedPerUserFonts: Boolean;
@@ -1655,7 +1653,7 @@ begin
 
         if CurFile^.LocationEntry <> -1 then begin
           ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
-            CurFile, DisableFsRedir, '', '', FileLocationFilenames, To64(0),
+            CurFile, DisableFsRedir, '', '', FileLocationFilenames, 0,
             ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
         end
         else begin
@@ -1668,10 +1666,10 @@ begin
           else
             SourceWildcard := ExpandConst(CurFile^.SourceFilename);
           Excludes.DelimitedText := CurFile^.Excludes;
-          ProgressBefore := CurProgress;
+          var ProgressBefore := CurProgress;
           repeat
             SetProgress(ProgressBefore);
-            ExpectedBytesLeft := CurFile^.ExternalSize;
+            var ExpectedBytesLeft := CurFile^.ExternalSize;
             if foDownload in CurFile^.Options then begin
               { Archive download should have been done already by Setup.WizardForm's DownloadArchivesToExtract }
               if foExtractArchive in CurFile^.Options then
@@ -1704,7 +1702,7 @@ begin
                   [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
           { In case we didn't end up copying all the expected bytes, bump
             the progress bar up to the expected amount }
-          Inc6464(ProgressBefore, CurFile^.ExternalSize);
+          Inc(ProgressBefore, CurFile^.ExternalSize);
           SetProgress(ProgressBefore);
         end;
 
@@ -2765,11 +2763,11 @@ var
   Uninstallable, UninstLogCleared: Boolean;
   I: Integer;
   UninstallRegKeyBaseName: String;
-  InstallFilesSize, AfterInstallFilesSize: Integer64;
 begin
   Succeeded := False;
   Log('Starting the installation process.');
   SetCurrentDir(WinSystemDir);
+  var InstallFilesSize, AfterInstallFilesSize: Int64;
   CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
   InitProgressGauge(InstallFilesSize);
   UninstallExeCreated := ueNone;

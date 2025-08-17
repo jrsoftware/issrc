@@ -32,7 +32,8 @@ function Mod64(const X: Integer64; const Divisor: LongWord): LongWord;
 function Mul64(var X: Integer64; N: LongWord): Boolean;
 procedure Multiply32x32to64(N1, N2: LongWord; var X: Integer64);
 procedure Shr64(var X: Integer64; Count: LongWord);
-function StrToInteger64(const S: String; var X: Integer64): Boolean;
+function StrToInteger64(const S: String; var X: Integer64): Boolean; overload;
+function StrToInteger64(const S: String; var X: Int64): Boolean; overload;
 function To64(const Lo: Longword): Integer64;
 
 implementation
@@ -274,6 +275,13 @@ begin
   end;
   X := V;
   Result := True;
+end;
+
+function StrToInteger64(const S: String; var X: Int64): Boolean;
+begin
+  var X2: Integer64 := X;
+  Result := StrToInteger64(S, X2);
+  X := X2;
 end;
 
 function Integer64ToStr(X: Integer64): String;

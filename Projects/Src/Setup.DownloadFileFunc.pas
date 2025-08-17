@@ -12,16 +12,16 @@ unit Setup.DownloadFileFunc;
 interface
 
 uses
-  Shared.Int64Em, Shared.FileClass, Shared.Struct;
+  Shared.FileClass, Shared.Struct;
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
-  TOnSimpleDownloadProgress = procedure(const Bytes, Param: Integer64);
+  TOnSimpleDownloadProgress = procedure(const Bytes, Param: Int64);
 
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-  const OnSimpleDownloadProgressParam: Integer64): Int64;
+  const OnSimpleDownloadProgressParam: Int64): Int64;
 
   function DownloadTemporaryFile(const Url, BaseName: String;
   [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64; overload;
@@ -60,7 +60,7 @@ type
       FDestFile: TFile;
       FOnDownloadProgress: TOnDownloadProgress;
       FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-      FOnSimpleDownloadProgressParam: Integer64;
+      FOnSimpleDownloadProgressParam: Int64;
       FLock: TObject;
       FProgress, FProgressMax: Int64;
       FProgressSet: Boolean;
@@ -77,7 +77,7 @@ type
     property BaseName: String write FBaseName;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
     property OnSimpleDownloadProgress: TOnSimpleDownloadProgress write FOnSimpleDownloadProgress;
-    property OnSimpleDownloadProgressParam: Integer64 write FOnSimpleDownloadProgressParam;
+    property OnSimpleDownloadProgressParam: Int64 write FOnSimpleDownloadProgressParam;
     property Aborted: Boolean read FAbort;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
@@ -197,7 +197,7 @@ begin
           FAbort := True; { Atomic so no lock }
       end else if Assigned(FOnSimpleDownloadProgress) then begin
         try
-          FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+          FOnSimpleDownloadProgress(Progress-FLastReportedProgress, FOnSimpleDownloadProgressParam);
         finally
           FLastReportedProgress := Progress;
         end;
@@ -323,7 +323,7 @@ end;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-  const OnSimpleDownloadProgressParam: Integer64): Int64;
+  const OnSimpleDownloadProgressParam: Int64): Int64;
 var
   HTTPDataReceiver: THTTPDataReceiver;
 begin

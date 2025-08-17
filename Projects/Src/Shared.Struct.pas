@@ -13,7 +13,7 @@ unit Shared.Struct;
 interface
 
 uses
-  Windows, Shared.Int64Em, SHA256;
+  Windows, SHA256;
 
 const
   SetupTitle = 'Inno Setup';
@@ -119,7 +119,7 @@ type
     WizardStyle: TSetupWizardStyle;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    ExtraDiskSpaceRequired: Integer64;
+    ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
     DirExistsWarning: (ddAuto, ddNo, ddYes);
@@ -129,7 +129,7 @@ type
     LanguageDetectionMethod: TSetupLanguageDetectionMethod;
     CompressMethod: TSetupCompressMethod;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
-    UninstallDisplaySize: Integer64;
+    UninstallDisplaySize: Int64;
     Options: set of TSetupHeaderOption;
   end;
 const
@@ -179,7 +179,7 @@ type
     Options: TSetupTypeOptions;
     Typ: TSetupTypeType;
     { internally used: }
-    Size: Integer64;
+    Size: Int64;
   end;
 const
   SetupComponentEntryStrings = 5;
@@ -188,14 +188,14 @@ type
   PSetupComponentEntry = ^TSetupComponentEntry;
   TSetupComponentEntry = packed record
     Name, Description, Types, Languages, CheckOnce: String;
-    ExtraDiskSpaceRequired: Integer64;
+    ExtraDiskSpaceRequired: Int64;
     Level: Integer;
     Used: Boolean;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: set of (coFixed, coRestart, coDisableNoUninstallWarning,
       coExclusive, coDontInheritCheck);
     { internally used: }
-    Size: Integer64;
+    Size: Int64;
   end;
 const
   SetupTaskEntryStrings = 6;
@@ -251,7 +251,7 @@ type
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     LocationEntry: Integer;
     Attribs: Integer;
-    ExternalSize: Integer64;
+    ExternalSize: Int64;
     PermissionsEntry: Smallint;
     Options: set of (foConfirmOverwrite, foUninsNeverUninstall, foRestartReplace,
       foDeleteAfterInstall, foRegisterServer, foRegisterTypeLib, foSharedFile,

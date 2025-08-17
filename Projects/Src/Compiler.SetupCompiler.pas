@@ -3108,7 +3108,7 @@ begin
       end;
     ssUninstallDisplaySize: begin
         if not StrToInteger64(Value, SetupHeader.UninstallDisplaySize) or
-           ((SetupHeader.UninstallDisplaySize.Lo = 0) and (SetupHeader.UninstallDisplaySize.Hi = 0)) then
+           (SetupHeader.UninstallDisplaySize = 0) then
           Invalid;
       end;
     ssUninstallFilesDir: begin
@@ -5270,7 +5270,7 @@ begin
         NoCompression := False;
         NoEncryption := False;
         SolidBreak := False;
-        ExternalSize := To64(0);
+        ExternalSize := 0;
         SortFilesByName := False;
         Sign := fsNoSetting;
 
@@ -7608,12 +7608,12 @@ var
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
             FL.FileVersionLS and $FFFF]);
         S := S + #9 + SHA256DigestToString(FL.SHA256Sum) + #9 +
-          Integer64ToStr(FL.OriginalSize) + #9 +
+          IntToStr(FL.OriginalSize) + #9 +
           SliceToString(FL.FirstSlice) + #9 +
           SliceToString(FL.LastSlice) + #9 +
           IntToStr(FL.StartOffset) + #9 +
-          Integer64ToStr(FL.ChunkSuboffset) + #9 +
-          Integer64ToStr(FL.ChunkCompressedSize) + #9 +
+          IntToStr(FL.ChunkSuboffset) + #9 +
+          IntToStr(FL.ChunkCompressedSize) + #9 +
           EncryptedStrings[floChunkEncrypted in FL.Flags] + #9 +
           FLExtraInfo.ISSigKeyUsedID;
         F.WriteLine(S);

@@ -15,7 +15,7 @@ unit Compression.SevenZipDLLDecoder;
 interface
 
 uses
-  Windows, Shared.FileClass, Shared.VerInfoFunc, Shared.Int64Em, Compression.SevenZipDecoder;
+  Windows, Shared.FileClass, Shared.VerInfoFunc, Compression.SevenZipDecoder;
 
 function SevenZipDLLInit(const SevenZipLibrary: HMODULE;
   [ref] const VersionNumbers: TFileVersionNumbers): Boolean;
@@ -35,7 +35,7 @@ procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
   was found. }
 type
   TArchiveFindHandle = type NativeUInt;
-  TOnExtractToHandleProgress = procedure(const Bytes, Param: Integer64);
+  TOnExtractToHandleProgress = procedure(const Bytes, Param: Int64);
 function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
   const ArchiveFilename, DestDir, Password: String;
   const RecurseSubDirs, ExtractIntent: Boolean;
@@ -43,7 +43,7 @@ function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
-  const OnExtractToHandleProgress: TOnExtractToHandleProgress; const OnExtractToHandleProgressParam: Integer64);
+  const OnExtractToHandleProgress: TOnExtractToHandleProgress; const OnExtractToHandleProgressParam: Int64);
 
 type
   TFileTimeHelper = record helper for TFileTime
@@ -195,7 +195,7 @@ type
     FIndex: UInt32;
     FDestF: TFile;
     FOnExtractToHandleProgress: TOnExtractToHandleProgress;
-    FOnExtractToHandleProgressParam: Integer64;
+    FOnExtractToHandleProgressParam: Int64;
     FPreviousProgress: UInt64;
   protected
     { IArchiveExtractCallback }
@@ -208,7 +208,7 @@ type
     constructor Create(const InArchive: IInArchive; const numItems: UInt32;
       const Password: String; const Index: UInt32; const DestF: TFile;
       const OnExtractToHandleProgress: TOnExtractToHandleProgress;
-      const OnExtractToHandleProgressParam: Integer64);
+      const OnExtractToHandleProgressParam: Int64);
     destructor Destroy; override;
   end;
 
@@ -854,7 +854,7 @@ end;
 constructor TArchiveExtractToHandleCallback.Create(const InArchive: IInArchive;
   const numItems: UInt32; const Password: String; const Index: UInt32;
   const DestF: TFile; const OnExtractToHandleProgress: TOnExtractToHandleProgress;
-  const OnExtractToHandleProgressParam: Integer64);
+  const OnExtractToHandleProgressParam: Int64);
 begin
   inherited Create(InArchive, numItems, Password);
   FIndex := Index;
@@ -919,7 +919,7 @@ begin
       System.TMonitor.Exit(FLock);
     end;
 
-    FOnExtractToHandleProgress(Integer64(Progress-FPreviousProgress), FOnExtractToHandleProgressParam);
+    FOnExtractToHandleProgress(Progress-FPreviousProgress, FOnExtractToHandleProgressParam);
     FPreviousProgress := Progress;
   end;
 end;
@@ -1246,7 +1246,7 @@ end;
 
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
   const OnExtractToHandleProgress: TOnExtractToHandleProgress;
-  const OnExtractToHandleProgressParam: Integer64);
+  const OnExtractToHandleProgressParam: Int64);
 begin
   const State = ArchiveFindStates[CheckFindFileHandle(FindFile)];
 
