@@ -37,7 +37,7 @@ type
 var
   UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String;
   UninstallExeCreated: (ueNone, ueNew, ueReplaced);
-  UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
+  UninstallDataCreated, AppendUninstallData: Boolean;
   
 procedure RecordStartInstall(const UninstLog: TUninstallLog);
 var
@@ -2736,7 +2736,7 @@ begin
   UninstallTempExeFilename := '';
 end;
 
-procedure CreateUninstallMsgFile;
+function CreateUninstallMsgFile: Boolean;
 { If the uninstaller EXE has a digital signature, or if Setup was started
   with /DETACHEDMSG, create the unins???.msg file }
 var
@@ -2744,13 +2744,14 @@ var
 begin
   { If this installation didn't create or replace an unins???.exe file,
     do nothing }
+  Result := False;
   if (UninstallExeCreated <> ueNone) and
      ((shSignedUninstaller in SetupHeader.Options) or DetachedUninstMsgFile) then begin
     LogFmt('Writing uninstaller messages: %s', [UninstallMsgFilename]);
     F := TFile.Create(UninstallMsgFilename, fdCreateAlways, faWrite, fsNone);
     try
       if UninstallExeCreated = ueNew then
-        UninstallMsgCreated := True;
+        Result := True;
       WriteMsgData(F);
     finally
       F.Free;
@@ -2773,7 +2774,7 @@ begin
   InitProgressGauge(InstallFilesSize);
   UninstallExeCreated := ueNone;
   UninstallDataCreated := False;
-  UninstallMsgCreated := False;
+  var UninstallMsgCreated := False;
   AppendUninstallData := False;
   UninstLogCleared := False;
   var RegisterFilesList: TList := nil;
@@ -2904,7 +2905,7 @@ begin
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         Log('Saving uninstall information.');
         RenameUninstallExe;
-        CreateUninstallMsgFile;
+        UninstallMsgCreated := CreateUninstallMsgFile;
         { Register uninstall information so the program can be uninstalled
           through the Add/Remove Programs Control Panel applet. This is done
           on NT 3.51 too, so that the uninstall entry for the app will appear
