@@ -63,6 +63,7 @@ type
       FOnSimpleDownloadProgressParam: Integer64;
       FLock: TObject;
       FProgress, FProgressMax: Int64;
+      FProgressSet: Boolean;
       FLastReportedProgress: Int64;
       FAbort: Boolean;
       FResult: TResult;
@@ -138,6 +139,7 @@ begin
   try
     FProgress := AReadCount;
     FProgressMax := AContentLength;
+    FProgressSet := True;
   finally
     System.TMonitor.Exit(FLock);
   end;
@@ -177,31 +179,35 @@ end;
 procedure THTTPDataReceiver.HandleProgress;
 begin
   var Progress, ProgressMax: Int64;
+  var ProgressSet: Boolean;
 
   System.TMonitor.Enter(FLock);
   try
     Progress := FProgress;
     ProgressMax := FProgressMax;
+    ProgressSet := FProgressSet;
   finally
     System.TMonitor.Exit(FLock);
   end;
 
-  try
-    if Assigned(FOnDownloadProgress) then begin
-      if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
-        FAbort := True; { Atomic so no lock }
-    end else if Assigned(FOnSimpleDownloadProgress) then begin
-      try
-        FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
-      finally
-        FLastReportedProgress := Progress;
+  if ProgressSet then begin
+    try
+      if Assigned(FOnDownloadProgress) then begin
+        if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
+          FAbort := True; { Atomic so no lock }
+      end else if Assigned(FOnSimpleDownloadProgress) then begin
+        try
+          FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+        finally
+          FLastReportedProgress := Progress;
+        end;
       end;
+    except
+      if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
+        FAbort := True { Atomic so no lock }
+      else
+        raise;
     end;
-  except
-    if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
-      FAbort := True { Atomic so no lock }
-    else
-      raise;
   end;
 
   if DownloadTemporaryFileOrExtractArchiveProcessMessages then
