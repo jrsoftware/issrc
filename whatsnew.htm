@@ -46,7 +46,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
 <li>The maximum size for a single Setup.exe without disk spanning has increased from almost 2 GB to nearly 4 GB, which is near the maximum Windows supports.<br/>
     However, disk spanning is still recommended for large executables due to slow startup times imposed by Windows, especially when the executables are digitally signed.</li>
-<li>With disk spanning enabled, the maximum disk slice size has been increased from almost 2 GB to effectively unlimited (9223 PB). By default, it still is <tt>2100000000</tt>, which is almost 2 GB. To update, you can simply set <tt>[Setup]</tt> section directive <tt>DiskSliceSize</tt> to <tt>max</tt>.</li>
+<li>With disk spanning enabled, the maximum disk slice size has been increased from almost 2 GB to effectively unlimited (9223 PB).<br/>
+    The default disk slice size is still <tt>2100000000</tt>, which is almost 2 GB. To update, you can simply set <tt>[Setup]</tt> section directive <tt>DiskSliceSize</tt> to <tt>max</tt>.</li>
 <li>Compiler IDE: Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
 <li>Pascal Scripting: Added new <tt>LogFmt</tt> support function.</li>
 </ul>
