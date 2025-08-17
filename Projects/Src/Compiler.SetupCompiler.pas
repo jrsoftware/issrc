@@ -6863,9 +6863,6 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-type
-  PCopyBuffer = ^TCopyBuffer;
-  TCopyBuffer = array[0..32767] of Char;
 var
   SetupFile: TFile;
   ExeFile: TFile;
