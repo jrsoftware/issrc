@@ -42,6 +42,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
+<p><a name="6.5.2"></a><span class="ver">6.5.2-dev </span><span class="date">(?)</span></p>
+<ul>
+<li>Compiler IDE: Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
+</ul>
+
 <p><a name="6.5.1"></a><span class="ver">6.5.1 </span><span class="date">(2025-08-18)</span></p>
 <ul>
 <li>Downloads are now performed from a secondary thread, just as was first introduced for archive extraction in the previous version. This ensures Setup stays responsive, even if the system fails to report progress.</li>
@@ -223,10 +228,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 <ul>
   <li>Compiler IDE:
     <ul>
-      <li>Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both enabled by default.</li>
       <li>The <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
-      <li>The <i>Highlight occurrences of current word</i> option (which is disabled by default) no longer highlights a section's directive names, parameter names, or Pascal keywords.<br/>
-          The <i>Highlight occurrences of current selection</i> option (which is enabled by default) still does.</li>
+      <li>The <i>Highlight occurrences of current word</i> option (which is disabled by default) no longer highlights a section's directive names, parameter names, or Pascal keywords. The <i>Highlight occurrences of current selection</i> option (which is enabled by default) still does.</li>
       <li>Dark mode is now supported throughout.</li>
       <li>Improved support for high-contrast themes.</li>
       <li>Improved support for screen readers.</li>
