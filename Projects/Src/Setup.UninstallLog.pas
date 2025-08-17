@@ -12,7 +12,7 @@ unit Setup.UninstallLog;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Shared.CommonFunc;
+  Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
   HighestSupportedVersion = 1048;
@@ -1290,22 +1290,21 @@ var
 
   procedure FillBuffer;
   var
-    EndOffset, Ofs: Integer64;
     CrcHeader: TUninstallCrcHeader;
   begin
-    EndOffset := To64(Header.EndOffset);
+    var EndOffset: Int64 := Header.EndOffset;
     while BufLeft = 0 do begin
-      Ofs := F.Position;
-      Inc64(Ofs, SizeOf(CrcHeader));
-      if Compare64(Ofs, EndOffset) > 0 then
+      var Ofs := F.Position;
+      Inc(Ofs, SizeOf(CrcHeader));
+      if Ofs > EndOffset then
         Corrupt;
       if F.Read(CrcHeader, SizeOf(CrcHeader)) <> SizeOf(CrcHeader) then
         Corrupt;
       Ofs := F.Position;
-      Inc64(Ofs, CrcHeader.Size);
+      Inc(Ofs, CrcHeader.Size);
       if (CrcHeader.Size <> not CrcHeader.NotSize) or
          (Cardinal(CrcHeader.Size) > Cardinal(SizeOf(Buffer))) or
-         (Compare64(Ofs, EndOffset) > 0) then
+         (Ofs > EndOffset) then
         Corrupt;
       if F.Read(Buffer, CrcHeader.Size) <> CrcHeader.Size then
         Corrupt;

@@ -2,7 +2,7 @@ unit Compiler.ExeUpdateFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,7 +27,7 @@ procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 implementation
 
 uses
-  Shared.ResUpdateFunc, Math, Shared.Int64Em;
+  Shared.ResUpdateFunc, Math;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
@@ -465,12 +465,11 @@ const
   COMCTL32Entry: AnsiString = '<file name="comctl32.dll" loadFrom="%SystemRoot%\system32\" />'#13#10;
 var
   S: AnsiString;
-  Offset: Integer64;
   P,Q,R: Integer;
 begin
   { Read the manifest resource into a string }
   SetString(S, nil, SeekToResourceData(F, 24, 1));
-  Offset := F.Position;
+  var Offset := F.Position;
   F.ReadBuffer(S[1], Length(S));
 
   { Locate and update the <dependency> tag }
@@ -487,8 +486,8 @@ begin
   if R <= Q then
     ResUpdateError('<dependency> end tag after <file>?');
 
-  Inc64(Offset, P-1);
-  F.Seek64(Offset);
+  Inc(Offset, P-1);
+  F.Seek(Offset);
   F.WriteAnsiString(AnsiString(Format('%*s', [Q-P-Length(COMCTL32Entry), ' '])));
   F.WriteAnsiString(AnsiString(Copy(S, Q, R-Q)));
   F.WriteAnsiString(COMCTL32Entry);

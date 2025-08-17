@@ -2,7 +2,7 @@ unit Shared.ResUpdateFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2016 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,9 +25,6 @@ procedure UpdateManifestRequestedExecutionLevel(const F: TCustomFile;
   const RequireAdministrator: Boolean);
 
 implementation
-
-uses
-  Shared.Int64Em;
 
 const
   IMAGE_NT_SIGNATURE = $00004550;
@@ -102,7 +99,7 @@ type
     AddressOfEntryPoint: DWORD;
     BaseOfCode: DWORD;
     { NT additional fields. }
-    ImageBase: Integer64;
+    ImageBase: Int64;
     SectionAlignment: DWORD;
     FileAlignment: DWORD;
     MajorOperatingSystemVersion: Word;
@@ -117,10 +114,10 @@ type
     CheckSum: DWORD;
     Subsystem: Word;
     DllCharacteristics: Word;
-    SizeOfStackReserve: Integer64;
-    SizeOfStackCommit: Integer64;
-    SizeOfHeapReserve: Integer64;
-    SizeOfHeapCommit: Integer64;
+    SizeOfStackReserve: Int64;
+    SizeOfStackCommit: Int64;
+    SizeOfHeapReserve: Int64;
+    SizeOfHeapCommit: Int64;
     LoaderFlags: DWORD;
     NumberOfRvaAndSizes: DWORD;
     DataDirectory: packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
@@ -190,7 +187,7 @@ begin
 end;
 
 function SeekToAndReadPEOptionalHeader(const F: TCustomFile;
-  var OptHeader: TImageOptionalHeader; var OptHeaderOffset: Integer64): Boolean;
+  var OptHeader: TImageOptionalHeader; var OptHeaderOffset: Int64): Boolean;
 var
   Header: TImageFileHeader;
 begin
@@ -207,7 +204,7 @@ begin
 end;
 
 function SeekToAndReadPEOptionalHeader64(const F: TCustomFile;
-  var OptHeader: TImageOptionalHeader64; var OptHeaderOffset: Integer64): Boolean;
+  var OptHeader: TImageOptionalHeader64; var OptHeaderOffset: Int64): Boolean;
 var
   Header: TImageFileHeader;
 begin
@@ -341,12 +338,11 @@ const
     'requireAdministrator"');
 var
   S: AnsiString;
-  Offset: Integer64;
   P: Integer;
 begin
   { Read the manifest resource into a string }
   SetString(S, nil, SeekToResourceData(F, 24, 1));
-  Offset := F.Position;
+  var Offset := F.Position;
   F.ReadBuffer(S[1], Length(S));
 
   { Locate and update the requestedExecutionLevel element }
@@ -356,8 +352,8 @@ begin
   Inc(P, Length(ElementText));
   if Copy(S, P+21, 10) <> ' uiAccess=' then
     Error('Level too short');
-  Inc64(Offset, P-1);
-  F.Seek64(Offset);
+  Inc(Offset, P-1);
+  F.Seek(Offset);
   F.WriteAnsiString(Levels[RequireAdministrator]);
 end;
 
@@ -367,7 +363,7 @@ function ReadSignatureAndChecksumFields(const F: TCustomFile;
   If the file is not a valid PE32 executable, False is returned. }
 var
   OptHeader: TImageOptionalHeader;
-  OptHeaderOffset: Integer64;
+  OptHeaderOffset: Int64;
 begin
   Result := SeekToAndReadPEOptionalHeader(F, OptHeader, OptHeaderOffset);
   if Result then begin
@@ -383,7 +379,7 @@ function ReadSignatureAndChecksumFields64(const F: TCustomFile;
   If the file is not a valid PE32+ executable, False is returned. }
 var
   OptHeader: TImageOptionalHeader64;
-  OptHeaderOffset: Integer64;
+  OptHeaderOffset: Int64;
 begin
   Result := SeekToAndReadPEOptionalHeader64(F, OptHeader, OptHeaderOffset);
   if Result then begin
@@ -399,14 +395,14 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   If the file is not a valid PE32 executable, False is returned. }
 var
   OptHeader: TImageOptionalHeader;
-  OptHeaderOffset: Integer64;
+  OptHeaderOffset: Int64;
 begin
   Result := SeekToAndReadPEOptionalHeader(F, OptHeader, OptHeaderOffset);
   if Result then begin
     OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress := ASignatureAddress;
     OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size := ASignatureSize;
     OptHeader.CheckSum := AChecksum;
-    F.Seek64(OptHeaderOffset);
+    F.Seek(OptHeaderOffset);
     F.WriteBuffer(OptHeader, SizeOf(OptHeader));
   end;
 end;

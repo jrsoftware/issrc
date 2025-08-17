@@ -13,7 +13,7 @@ interface
 
 uses
   Classes,
-  SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  SHA256, ChaCha20, Shared.Struct, Shared.FileClass, Compression.Base,
   Compiler.SetupCompiler;
 
 type

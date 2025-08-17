@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   Shared.SetupTypes, Setup.ScriptRunner, RestartManager;
 
 type
@@ -2785,10 +2785,7 @@ var
           if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
             Continue;
 
-          var I: Integer64;
-          I.Hi := FindData.nFileSizeHigh;
-          I.Lo := FindData.nFileSizeLow;
-          Inc(Result, I);
+          Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
         end;
       until not FindNextFile(H, FindData);
       Windows.FindClose(H);
@@ -2835,10 +2832,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            var I: Integer64;
-            I.Hi := FindData.nFileSizeHigh;
-            I.Lo := FindData.nFileSizeLow;
-            Inc(Result, I);
+            Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally

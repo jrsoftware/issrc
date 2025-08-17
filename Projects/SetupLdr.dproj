@@ -84,7 +84,6 @@
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.InstFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.RedirFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>

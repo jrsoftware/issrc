@@ -2,7 +2,7 @@ unit Compression.LZMADecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ unit Compression.LZMADecompressor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Compression.Base;
+  Windows, SysUtils, Compression.Base;
 
 type
   TLZMACustomDecompressor = class(TCustomDecompressor)

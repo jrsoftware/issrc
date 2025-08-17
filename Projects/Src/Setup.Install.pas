@@ -2313,7 +2313,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
       try
         DestF := TFile.Create(ExeFilename, fdCreateAlways, faWrite, fsNone);
         try
-          DestF.Seek64(SourceF.Size);
+          DestF.Seek(SourceF.Size);
           DestF.Truncate;
           DestF.Seek(0);
           while True do begin

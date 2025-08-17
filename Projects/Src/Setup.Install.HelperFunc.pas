@@ -318,7 +318,7 @@ begin
 
   { To avoid file system fragmentation, preallocate all of the bytes in the
     destination file }
-  DestF.Seek64(BytesLeft);
+  DestF.Seek(BytesLeft);
   DestF.Truncate;
   DestF.Seek(0);
 

@@ -12,7 +12,7 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  Windows, SysUtils, Shared.FileClass, Compression.Base,
   Shared.Struct, ChaCha20;
 
 type
@@ -199,7 +199,7 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     XChaCha20Init(FCryptContext, FCryptKey[0], Length(FCryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
-  procedure Discard(Count: Integer64);
+  procedure Discard(Count: Int64);
   var
     Buf: array[0..65535] of Byte;
     BufSize: Cardinal;
@@ -207,12 +207,12 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     try
       while True do begin
         BufSize := SizeOf(Buf);
-        if (Count.Hi = 0) and (Count.Lo < BufSize) then
-          BufSize := Count.Lo;
+        if Count < BufSize then
+          BufSize := Count;
         if BufSize = 0 then
           Break;
         DecompressBytes(Buf, BufSize);
-        Dec64(Count, BufSize);
+        Dec(Count, BufSize);
         if Assigned(ProgressProc) then
           ProgressProc(0);
       end;
