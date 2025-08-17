@@ -23,11 +23,12 @@ var
 
   DelphiScriptFuncTable: TScriptTable =
   [
+    'function Format(const Format: String; const Args: array of const): String;',
+    'function LogFmt(const S: String; const Args: array of const): String;',
     'function FmtMessage(const S: String; const Args: array of String): String;',
     'function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;',
     'function FindNext(var FindRec: TFindRec): Boolean;',
     'procedure FindClose(var FindRec: TFindRec);',
-    'function Format(const Format: String; const Args: array of const): String;',
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
 

@@ -1954,11 +1954,12 @@ begin
   {$IFDEF DEBUG}
   Count := 0;
   {$ENDIF}
+  RegisterDelphiFunction(@Format, 'Format');
+  RegisterDelphiFunction(@LogFmtHelper, 'LogFmt');
+  RegisterDelphiFunction(@FmtMessageHelper, 'FmtMessage');
   RegisterDelphiFunction(@FindFirstHelper, 'FindFirst');
   RegisterDelphiFunction(@FindNextHelper, 'FindNext');
   RegisterDelphiFunction(@FindCloseHelper, 'FindClose');
-  RegisterDelphiFunction(@FmtMessageHelper, 'FmtMessage');
-  RegisterDelphiFunction(@Format, 'Format');
   RegisterDelphiFunction(@GetWindowsVersionExHelper, 'GetWindowsVersionEx');
   {$IFDEF DEBUG}
   if Count <> Length(DelphiScriptFuncTable) then

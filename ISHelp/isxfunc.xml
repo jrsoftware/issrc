@@ -899,7 +899,7 @@ end;</pre></example>
       <function>
         <name>Format</name>
         <prototype>function Format(const Format: String; const Args: array of const): String;</prototype>
-        <description><p>Formats the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
+        <description><p>Formats the string Format using the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
 <p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
         <example><pre>var
   S: String;
@@ -3061,8 +3061,21 @@ end;</pre></example>
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
         <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
+        <seealso><p><link topic="isxfunc_LogFmt">LogFmt</link></p></seealso>
       </function>
-<function>
+      <function>
+        <name>LogFmt</name>
+        <prototype>procedure LogFmt(const S: String; const Args: array of const);</prototype>
+        <description><p>Formats the string S using the series of arguments in the open array Args, and then logs it.</p></description>
+        <example><pre>function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
+begin
+  LogFmt('%s->%s: %d/%d', [Url, FileName, Progress, ProgressMax]);
+  Result := True;
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_Log">Log</link><br/>
+<link topic="isxfunc_Format">Format</link></p></seealso>
+      </function>
+      <function>
         <name>ExecAndCaptureOutput</name>
         <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
         <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
