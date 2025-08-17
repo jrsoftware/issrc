@@ -35,14 +35,11 @@ type
     Is64Bit, TypeLib, NoErrorMessages: Boolean;
   end;
 var
-  UninstLog: TSetupUninstallLog;
   UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String;
   UninstallExeCreated: (ueNone, ueNew, ueReplaced);
   UninstallDataCreated, UninstallMsgCreated, AppendUninstallData: Boolean;
-  RegisterFilesList: TList;
-  ExpandedAppId: String;
   
-procedure RecordStartInstall;
+procedure RecordStartInstall(const UninstLog: TUninstallLog);
 var
   AppDir: String;
 begin
@@ -55,7 +52,7 @@ begin
     AppDir, GetLocalTimeAsStr], 0);
 end;
 
-procedure RecordCompiledCode;
+procedure RecordCompiledCode(const UninstLog: TUninstallLog);
 var
   LeadBytesStr, ExpandedApp, ExpandedGroup, CustomMessagesStr: String;
 begin
@@ -81,7 +78,8 @@ begin
     ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Longint($80000000));
 end;
 
-procedure RegisterUninstallInfo(const UninstallRegKeyBaseName: String; const AfterInstallFilesSize: Integer64);
+procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;
+  const AfterInstallFilesSize: Integer64);
 { Stores uninstall information in the Registry so that the program can be
   uninstalled through the Control Panel Add/Remove Programs applet. }
 const
@@ -382,7 +380,8 @@ end;
 type
   TMakeDirFlags = set of (mdNoUninstall, mdAlwaysUninstall, mdDeleteAfterInstall,
     mdNotifyChange);
-function MakeDir(const DisableFsRedir: Boolean; Dir: String;
+
+function MakeDir(const UninstLog: TUninstallLog; const DisableFsRedir: Boolean; Dir: String;
   const Flags: TMakeDirFlags): Boolean;
 { Returns True if a new directory was created.
   Note: If DisableFsRedir is True, the mdNotifyChange flag should not be
@@ -400,7 +399,7 @@ begin
       Exit;
   end
   else begin
-    MakeDir(DisableFsRedir, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
+    MakeDir(UninstLog, DisableFsRedir, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
     LogFmt('Creating directory: %s', [Dir]);
     if not CreateDirectoryRedir(DisableFsRedir, Dir) then begin
       ErrorCode := GetLastError;
@@ -429,7 +428,7 @@ begin
   end;
 end;
 
-procedure CreateDirs;
+procedure CreateDirs(const UninstLog: TUninstallLog);
 { Creates the application's directories }
 
   procedure ApplyPermissions(const DisableFsRedir: Boolean;
@@ -464,7 +463,7 @@ var
   N: String;
 begin
   { Create main application directory }
-  MakeDir(InstallDefaultDisableFsRedir, WizardDirValue, []);
+  MakeDir(UninstLog, InstallDefaultDisableFsRedir, WizardDirValue, []);
 
   { Create the rest of the directories, if any }
   for CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -477,7 +476,7 @@ begin
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
         if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
         N := RemoveBackslashUnlessRoot(PathExpand(ExpandConst(DirName)));
-        MakeDir(InstallDefaultDisableFsRedir, N, Flags);
+        MakeDir(UninstLog, InstallDefaultDisableFsRedir, N, Flags);
         AddAttributesToFile(InstallDefaultDisableFsRedir, N, Attribs);
         ApplyPermissions(InstallDefaultDisableFsRedir, N, PermissionsEntry);
         if (doSetNTFSCompression in Options) or (doUnsetNTFSCompression in Options) then
@@ -487,7 +486,7 @@ begin
     end;
 end;
 
-procedure BindUninstallMsgDataToExe(const F: TFile);
+procedure BindUninstallMsgDataToExe(const ExpandedAppId: String; const F: TFile);
 var
   UniqueValue: TSHA256Digest;
   UninstallerMsgTail: TUninstallerMsgTail;
@@ -511,7 +510,8 @@ end;
 type
   TOverwriteAll = (oaUnknown, oaOverwrite, oaKeep);
 
-procedure ProcessFileEntry(const CurFile: PSetupFileEntry;
+procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: String;
+  const RegisterFilesList: TList; const CurFile: PSetupFileEntry;
   const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
   const FileLocationFilenames: TStringList; const AExternalSize: Integer64;
   var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
@@ -1059,7 +1059,7 @@ Retry:
       Flags := [];
       if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
       if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-      MakeDir(DisableFsRedir, PathExtractDir(TempFile), Flags);
+      MakeDir(UninstLog, DisableFsRedir, PathExtractDir(TempFile), Flags);
       DestF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faReadWrite, fsNone);
       try
         TempFileLeftOver := True;
@@ -1140,7 +1140,7 @@ Retry:
           MarkExeHeader(DestF, SetupExeModeUninstaller);
           if not(shSignedUninstaller in SetupHeader.Options) and
              not DetachedUninstMsgFile then
-            BindUninstallMsgDataToExe(DestF);
+            BindUninstallMsgDataToExe(ExpandedAppId, DestF);
         end;
       finally
         DestF.Free;
@@ -1405,7 +1405,8 @@ Retry:
   SetFilenameLabelText('', False);
 end;
 
-procedure CopyFiles(const Uninstallable: Boolean);
+procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
+  const RegisterFilesList: TList; Uninstallable: Boolean);
 { Copies all the application's files }
 
   function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
@@ -1455,7 +1456,8 @@ procedure CopyFiles(const Uninstallable: Boolean);
                 files is greater than when we last checked }
               Size := ExpectedBytesLeft;
             end;
-            ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile, nil,
+            ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
+              CurFile, DisableFsRedir, SourceFile, DestFile, nil,
               Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
               WarnedPerUserFonts, nil);
             Dec6464(ExpectedBytesLeft, Size);
@@ -1496,7 +1498,7 @@ procedure CopyFiles(const Uninstallable: Boolean);
         var Flags: TMakeDirFlags := [];
         if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
         if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-        MakeDir(DisableFsRedir, DestName, Flags);
+        MakeDir(UninstLog, DisableFsRedir, DestName, Flags);
         Result := True;
       end;
     end;
@@ -1585,7 +1587,8 @@ procedure CopyFiles(const Uninstallable: Boolean);
                   files is greater than when we last checked }
                 Size := ExpectedBytesLeft;
               end;
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceFile, DestFile,
+              ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
+                CurFile, DisableFsRedir, SourceFile, DestFile,
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, @FindData.ftLastWriteTime);
               Dec6464(ExpectedBytesLeft, Size);
@@ -1593,7 +1596,7 @@ procedure CopyFiles(const Uninstallable: Boolean);
               var Flags: TMakeDirFlags := [];
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
               if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-              MakeDir(DisableFsRedir, DestDir + FindData.cFileName, Flags);
+              MakeDir(UninstLog, DisableFsRedir, DestDir + FindData.cFileName, Flags);
               Result := True;
             end;
           until not ArchiveFindNextFile(H, FindData);
@@ -1651,7 +1654,8 @@ begin
         end;
 
         if CurFile^.LocationEntry <> -1 then begin
-          ProcessFileEntry(CurFile, DisableFsRedir, '', '', FileLocationFilenames, To64(0),
+          ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
+            CurFile, DisableFsRedir, '', '', FileLocationFilenames, To64(0),
             ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
         end
         else begin
@@ -1677,7 +1681,8 @@ begin
               if not(foCustomDestName in CurFile^.Options) then
                 InternalError('Expected CustomDestName flag');
               { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-              ProcessFileEntry(CurFile, DisableFsRedir, SourceWildcard, ExpandConst(CurFile^.DestName),
+              ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
+                CurFile, DisableFsRedir, SourceWildcard, ExpandConst(CurFile^.DestName),
                 nil, ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, nil);
               FoundFiles := True;
@@ -1712,7 +1717,7 @@ begin
   end;
 end;
 
-procedure CreateIcons;
+procedure CreateIcons(const UninstLog: TUninstallLog);
 
   function IsPathURL(const S: String): Boolean;
   { Returns True if S begins with a scheme name and colon. Should be
@@ -1809,7 +1814,7 @@ procedure CreateIcons;
       ProbableFilename := LinkFilename;
     LogFmt('Dest filename: %s', [ProbableFilename]);
     SetFilenameLabelText(ProbableFilename, True);
-    MakeDir(False, PathExtractDir(ProbableFilename), Flags);
+    MakeDir(UninstLog, False, PathExtractDir(ProbableFilename), Flags);
 
     { Delete any old files first }
     DeleteFile(LinkFilename);
@@ -1938,7 +1943,7 @@ begin
   end;
 end;
 
-procedure CreateIniEntries;
+procedure CreateIniEntries(const UninstLog: TUninstallLog);
 var
   CurIniNumber: Integer;
   CurIni: PSetupIniEntry;
@@ -1971,7 +1976,7 @@ begin
           if IniDir <> '' then begin
             while True do begin
               try
-                MakeDir(False, IniDir, []);
+                MakeDir(UninstLog, False, IniDir, []);
                 Break;
               except
                 if AbortRetryIgnoreTaskDialogMsgBox(
@@ -2016,7 +2021,7 @@ begin
   IncProgress(1000);
 end;
 
-procedure CreateRegistryEntries;
+procedure CreateRegistryEntries(const UninstLog: TUninstallLog);
   
   function IsDeletableSubkey(const S: String): Boolean;
   { A sanity check to prevent people from shooting themselves in the foot by
@@ -2293,7 +2298,7 @@ begin
   IncProgress(1000);
 end;
 
-procedure RegisterFiles;
+procedure RegisterFiles(const RegisterFilesList: TList);
 
   procedure RegisterServersOnRestart;
 
@@ -2518,7 +2523,7 @@ begin
   end;
 end;
 
-procedure RecordUninstallDeleteEntries;
+procedure RecordUninstallDeleteEntries(const UninstLog: TUninstallLog);
 const
   DefFlags: array[TSetupDeleteType] of Longint = (
     utDeleteDirOrFiles_Extra or utDeleteDirOrFiles_DeleteFiles,
@@ -2544,7 +2549,7 @@ begin
       end;
 end;
 
-procedure RecordUninstallRunEntries;
+procedure RecordUninstallRunEntries(const UninstLog: TUninstallLog);
 var
   I: Integer;
   RunEntry: PSetupRunEntry;
@@ -2589,7 +2594,7 @@ begin
   end;
 end;
 
-procedure GenerateUninstallInfoFilename;
+procedure GenerateUninstallInfoFilename(const UninstLog: TUninstallLog);
 var
   ExistingFiles: array[0..999] of Boolean;
   BaseDir: String;
@@ -2655,7 +2660,7 @@ begin
     when using a 64-bit Uninstall key) }
   BaseDir := ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
-  MakeDir(False, BaseDir, []);
+  MakeDir(UninstLog, False, BaseDir, []);
 
   FillChar(ExistingFiles, SizeOf(ExistingFiles), 0);  { set all to False }
   FindFiles;
@@ -2771,13 +2776,13 @@ begin
   UninstallMsgCreated := False;
   AppendUninstallData := False;
   UninstLogCleared := False;
-  RegisterFilesList := nil;
-  UninstLog := TSetupUninstallLog.Create;
+  var RegisterFilesList: TList := nil;
+  const UninstLog = TSetupUninstallLog.Create;
   try
     try
       { Get AppId, UninstallRegKeyBaseName, and Uninstallable now so the user
         can't change them while we're installing }
-      ExpandedAppId := ExpandConst(SetupHeader.AppId);
+      const ExpandedAppId = ExpandConst(SetupHeader.AppId);
       if ExpandedAppId = '' then
         InternalError('Failed to get a non empty installation "AppId"');
       if TUninstallLog.WriteSafeHeaderString(nil, ExpandedAppId, 0) > 128 then
@@ -2804,8 +2809,8 @@ begin
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
-      RecordStartInstall;
-      RecordCompiledCode;
+      RecordStartInstall(UninstLog);
+      RecordCompiledCode(UninstLog);
 
       RegisterFilesList := TList.Create;
 
@@ -2837,44 +2842,44 @@ begin
         UninstLog.Add(utRefreshFileAssoc, [''], 0);
 
       { Record UninstallDelete entries, if any }
-      RecordUninstallDeleteEntries;
+      RecordUninstallDeleteEntries(UninstLog);
       ProcessEvents;
 
       { Create the application directory and extra dirs }
       SetStatusLabelText(SetupMessages[msgStatusCreateDirs]);
-      CreateDirs;
+      CreateDirs(UninstLog);
       ProcessEvents;
 
       if Uninstallable then begin
-        { Generate the filenames for the uninstall info in the application
+        { Generate the filenam(UninstLog)es for the uninstall info in the application
           directory }
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
-        GenerateUninstallInfoFilename;
+        GenerateUninstallInfoFilename(UninstLog);
       end;
 
       { Copy the files }
       SetStatusLabelText(SetupMessages[msgStatusExtractFiles]);
-      CopyFiles(Uninstallable);
+      CopyFiles(UninstLog, ExpandedAppId, RegisterFilesList, Uninstallable);
       ProcessEvents;
 
       { Create program icons, if any }
       if HasIcons then begin
         SetStatusLabelText(SetupMessages[msgStatusCreateIcons]);
-        CreateIcons;
+        CreateIcons(UninstLog);
         ProcessEvents;
       end;
 
       { Create INI entries, if any }
       if Entries[seIni].Count <> 0 then begin
         SetStatusLabelText(SetupMessages[msgStatusCreateIniEntries]);
-        CreateIniEntries;
+        CreateIniEntries(UninstLog);
         ProcessEvents;
       end;
 
       { Create registry entries, if any }
       if Entries[seRegistry].Count <> 0 then begin
         SetStatusLabelText(SetupMessages[msgStatusCreateRegistryEntries]);
-        CreateRegistryEntries;
+        CreateRegistryEntries(UninstLog);
         ProcessEvents;
       end;
 
@@ -2888,7 +2893,7 @@ begin
       { Register files, if any }
       if RegisterFilesList.Count <> 0 then begin
         SetStatusLabelText(SetupMessages[msgStatusRegisterFiles]);
-        RegisterFiles;
+        RegisterFiles(RegisterFilesList);
         ProcessEvents;
       end;
 
@@ -2905,8 +2910,8 @@ begin
           on NT 3.51 too, so that the uninstall entry for the app will appear
           if the user later upgrades to NT 4.0+. }
         if EvalDirectiveCheck(SetupHeader.CreateUninstallRegKey) then
-          RegisterUninstallInfo(UninstallRegKeyBaseName, AfterInstallFilesSize);
-        RecordUninstallRunEntries;
+          RegisterUninstallInfo(UninstLog, UninstallRegKeyBaseName, AfterInstallFilesSize);
+        RecordUninstallRunEntries(UninstLog);
         UninstLog.Add(utEndInstall, [GetLocalTimeAsStr], 0);
         UninstLog.Save(UninstallDataFilename, AppendUninstallData,
           shUpdateUninstallLogAppName in SetupHeader.Options);
