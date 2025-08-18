@@ -295,6 +295,7 @@
 				<description>
 					<p>Replaces the directive with the value of &expr;.</p>
 					<p>When used <link href="directives">inline</link>, the name of this directive can be omitted unless &expr; begins with the name of another directive.</p>
+					<p>This means you can, for example, use <tt>{#MyDestDir}</tt> instead of <tt>{#emit MyDestDir}</tt> or <tt>{#=MyDestDir}</tt></p>
 				</description>
 				<section title="Examples">
 					<pre>
