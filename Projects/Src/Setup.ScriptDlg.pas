@@ -1024,7 +1024,7 @@ end;
 
 function TDownloadWizardPage.InternalOnDownloadNoProgress: Boolean;
 begin
-  if FAbortedByUser then begin { Currently always False because the Abort button isn't visible yet }
+  if FAbortedByUser then begin
     Log('Need to abort download.');
     Result := False;
   end else begin
@@ -1091,7 +1091,6 @@ procedure TDownloadWizardPage.ShowProgressControls(const AVisible: Boolean);
 begin
   FMsg2Label.Visible := AVisible;
   FProgressBar.Visible := AVisible;
-  FAbortButton.Visible := AVisible;
 end;
 
 function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
@@ -1305,7 +1304,6 @@ procedure TExtractionWizardPage.ShowProgressControls(const AVisible: Boolean);
 begin
   FMsg2Label.Visible := AVisible;
   FProgressBar.Visible := AVisible;
-  FAbortButton.Visible := AVisible;
 end;
 
 function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
