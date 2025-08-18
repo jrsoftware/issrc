@@ -198,6 +198,7 @@ type
         const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalOnDownloadNoProgress: Boolean;
       function InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
@@ -1021,6 +1022,17 @@ begin
   end;
 end;
 
+function TDownloadWizardPage.InternalOnDownloadNoProgress: Boolean;
+begin
+  if FAbortedByUser then begin { Currently always False because the Abort button isn't visible yet }
+    Log('Need to abort download.');
+    Result := False;
+  end else begin
+    ProcessMsgs;
+    Result := True;
+  end;
+end;
+
 function TDownloadWizardPage.InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
 begin
   if ProgressMax > 0 then
@@ -1179,7 +1191,8 @@ begin
       FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
       SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
       var DestFile: String;
-      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, ProcessMsgs, DestFile);
+      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification,
+        InternalOnDownloadProgress, InternalOnDownloadNoProgress, DestFile);
       if Assigned(OnDownloadFileCompleted) then begin
         var Remove := False;
         OnDownloadFileCompleted(F, DestFile, Remove);
