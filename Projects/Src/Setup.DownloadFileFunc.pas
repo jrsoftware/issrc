@@ -17,7 +17,7 @@ uses
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
   TOnSimpleDownloadProgress = procedure(const Bytes, Param: Integer64);
-  TOnDownloadNoProgress = procedure of object;
+  TOnDownloadNoProgress = function: Boolean of object;
   TOnSimpleDownloadNoProgress = procedure;
 
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
@@ -198,8 +198,8 @@ begin
     System.TMonitor.Exit(FLock);
   end;
 
-  if ProgressSet then begin
-    try
+  try
+    if ProgressSet then begin
       if Assigned(FOnDownloadProgress) then begin
         if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
           FAbort := True; { Atomic so no lock }
@@ -210,17 +210,18 @@ begin
           FLastReportedProgress := Progress;
         end;
       end;
-    except
-      if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
-        FAbort := True { Atomic so no lock }
-      else
-        raise;
+    end else begin
+      if Assigned(FOnDownloadNoProgress) then begin
+        if not FOnDownloadNoProgress then
+          FAbort := True; { Atomic so no lock }
+      end else if Assigned(FOnSimpleDownloadNoProgress) then
+        FOnSimpleDownloadNoProgress;
     end;
-  end else begin
-    if Assigned(FOnDownloadNoProgress) then
-      FOnDownloadNoProgress
-    else if Assigned(FOnSimpleDownloadNoProgress) then
-      FOnSimpleDownloadNoProgress;
+  except
+    if ExceptObject is EAbort then { FOnSimpleDownload(No)Progress always uses Abort to abort }
+      FAbort := True { Atomic so no lock }
+    else
+      raise;
   end;
 
   if DownloadTemporaryFileOrExtractArchiveProcessMessages then
