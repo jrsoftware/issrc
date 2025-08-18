@@ -835,9 +835,9 @@ var
       try
         { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
         if ISSigVerify then
-          DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, Throttler.OnDownloadProgress);
+          DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, Throttler.OnDownloadProgress, nil);
         Throttler.Reset;
-        Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, Throttler.OnDownloadProgress));
+        Stack.SetInt64(PStart, DownloadTemporaryFile(Url, BaseName, Verification, Throttler.OnDownloadProgress, nil));
       finally
         Throttler.Free;
       end;

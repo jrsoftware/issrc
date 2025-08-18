@@ -1179,7 +1179,7 @@ begin
       FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
       SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
       var DestFile: String;
-      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, DestFile);
+      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, ProcessMsgs, DestFile);
       if Assigned(OnDownloadFileCompleted) then begin
         var Remove := False;
         OnDownloadFileCompleted(F, DestFile, Remove);

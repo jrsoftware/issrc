@@ -1095,11 +1095,11 @@ Retry:
                 { Download the .issig file }
                 const ISSigUrl = GetISSigUrl(SourceFile, ExpandConst(CurFile^.DownloadISSigSource));
                 DownloadFile(ISSigUrl, DownloadUserName, DownloadPassword,
-                  ISSigDestF, NoVerification, '', JustProcessEventsProc64, 0);
+                  ISSigDestF, NoVerification, '', JustProcessEventsProc64, 0, ProcessEvents);
                 FreeAndNil(ISSigDestF);
                 { Download and verify the actual file }
                 DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                  DestF, CurFile^.Verification, TempFile, ExternalProgressProc64, MaxProgress);
+                  DestF, CurFile^.Verification, TempFile, ExternalProgressProc64, MaxProgress, ProcessEvents);
               finally
                 ISSigDestF.Free;
                 { Delete the .issig file }
@@ -1107,7 +1107,7 @@ Retry:
               end;
             end else
               DownloadFile(SourceFile, DownloadUserName, DownloadPassword,
-                DestF, CurFile^.Verification, '', ExternalProgressProc64, MaxProgress);
+                DestF, CurFile^.Verification, '', ExternalProgressProc64, MaxProgress, ProcessEvents);
           end
           else begin
             { Copy a duplicated non-external file, or an external file }
