@@ -6,7 +6,8 @@
 ;
 ; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool and the [ISSigKeys] section
+;  Signature Tool, the [ISSigKeys] section, and .issig sginature files which
+;  are automatically downloaded before the main file is downloaded
 ; -For iscrypt.dll: using a simple SHA-256 hash check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
 ; need to be changed when the downloaded file or archive changes, so any
@@ -25,6 +26,8 @@ ArchiveExtraction=full
 ; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected
 
 [ISSigKeys]
+; Use Inno Setup Signature Tool (ISSigTool.exe) to create your own keys and
+; .issig signature files
 Name: mykey; RuntimeID: def02; \
   KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \

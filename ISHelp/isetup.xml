@@ -3661,6 +3661,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 <topic name="issig" title=".issig Signatures: Introduction">
+<keyword value="issig" />
+<keyword value=".issig" />
 <body>
 
 <p>Inno Setup includes an integrated signature-verification capability that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
@@ -3788,6 +3790,7 @@ issigtool verify "MyFile.txt"
 
 
 <topic name="issigtool" title="Inno Setup Signature Tool">
+<keyword value="Inno Setup Signature Tool" />
 <keyword value="ISSigTool" />
 <body>
 
