@@ -179,10 +179,6 @@ begin
   if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
     FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
       Bitmap.Height + AutoSizeExtraHeight);
-  if (Bitmap.Width >= FControl.Width) and (Bitmap.Height >= FControl.Height) then
-    FControl.ControlStyle := FControl.ControlStyle + [csOpaque] - [csParentBackground]
-  else
-    FControl.ControlStyle := FControl.ControlStyle - [csOpaque] + [csParentBackground];
   FControl.Invalidate;
 end;
 
@@ -318,7 +314,7 @@ end;
 constructor TBitmapImage.Create(AOwner: TComponent);
 begin
   inherited;
-  ControlStyle := ControlStyle + [csReplicatable];
+  ControlStyle := ControlStyle + [csParentBackground, csReplicatable];
   FImpl.Init(Self);
   FImpl.BackColor := clBtnFace;
   Width := 105;

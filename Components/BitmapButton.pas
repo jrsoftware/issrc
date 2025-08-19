@@ -79,7 +79,7 @@ end;
 constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
-  ControlStyle := ControlStyle + [csReplicatable] - [csClickEvents];
+  ControlStyle := ControlStyle + [csParentBackground, csReplicatable] - [csClickEvents];
   { Using a fixed focus border width/height to avoid design problems between systems }
   FFocusBorderWidthHeight := 2;
   const DoubleFBWH = 2*FFocusBorderWidthHeight;
