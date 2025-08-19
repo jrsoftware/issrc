@@ -117,8 +117,8 @@ end;
 procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
-  { TLS 1.2 isn't enabled by default on older versions of Windows }
-  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11,
+    THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
 end;
 
 { THTTPDataReceiver }
