@@ -4408,11 +4408,17 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <topic name="donate" title="Support Inno Setup">
 <keyword value="Support Inno Setup" />
+<keyword value="Commercial use" />
+<keyword value="Order license" />
+<keyword value="Purchase license" />
+<keyword value="Donate" />
 <body>
 
-<p>To support Inno Setup, go to this page:<br/>
-<extlink href="https://jrsoftware.org/isdonate.php">https://jrsoftware.org/isdonate.php</extlink></p>
-<p>Thank you in advance for your support!</p>
+<p>If you or your organization benefit from using Inno Setup in a commercial context, we kindly ask that you <extlink href="https://jrsoftware.org/isorder.php">purchase a license</extlink>.</p>
+
+<p>We're not requesting that non-commercial users purchase licenses - but <extlink href="https://jrsoftware.org/isdonate.php">donations</extlink> of any amount, from both non-commercial and commercial users, are accepted and appreciated.</p>
+
+<p>Thank you for helping ensure the continued development of this software!</p>
 
 </body>
 </topic>
