@@ -104,7 +104,7 @@ var
   UninstallExpandedGroupName, UninstallExpandedLanguage: String;
   UninstallSilent: Boolean;
 
-  { Variables read in from the SETUP.0 file }
+  { Variables read in from the Setup.0 file }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;

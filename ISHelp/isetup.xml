@@ -818,7 +818,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="srcexe">{srcexe}</a></b></dt>
 <dd>
-<p>The full pathname of the Setup program file, e.g. "C:\SETUP.EXE".</p>
+<p>The full pathname of the Setup program file, e.g. "C:\Setup.exe".</p>
 </dd>
 
 <dt><b><a name="uninstallexe">{uninstallexe}</a></b></dt>
@@ -5187,9 +5187,9 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside SETUP.EXE, the compiler will split it into multiple SETUP-*.BIN files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, SETUP-2.BIN should be placed on disk 2.) The generated SETUP.EXE always goes on disk 1 along with the SETUP-1*.BIN file.</p>
+<p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside Setup.exe, the compiler will split it into multiple Setup-*.bin files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, Setup-2.bin should be placed on disk 2.) The generated Setup.exe always goes on disk 1 along with the Setup-1*.bin file.</p>
 <p>The size of each slice and the number of slices to create for each disk are determined by the values of the <link topic="setup_diskslicesize">DiskSliceSize</link> and <link topic="setup_slicesperdisk">SlicesPerDisk</link> <tt>[Setup]</tt> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <link topic="setup_diskclustersize">DiskClusterSize</link> and <link topic="setup_reservebytes">ReserveBytes</link>.</p>
-<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the SETUP-*.BIN files are placed on the same disk.)</p>
+<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the Setup-*.bin files are placed on the same disk.)</p>
 </body>
 </setuptopic>
 
@@ -5197,7 +5197,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupvalid><tt>262144</tt> through <tt>9223372036800000000</tt>, or <tt>max</tt></setupvalid>
 <setupdefault><tt>2100000000</tt></setupdefault>
 <body>
-<p>This specifies the maximum number of bytes per disk slice (SETUP-*.BIN file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <tt>SlicesPerDisk</tt> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
+<p>This specifies the maximum number of bytes per disk slice (Setup-*.bin file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <tt>SlicesPerDisk</tt> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
 <p>This directive is ignored if disk spanning is not enabled using the <tt>DiskSpanning</tt> <tt>[Setup]</tt> section directive.</p>
 <p>To optimally fill 4.7 GB recordable DVDs, use:</p>
 <precode>
@@ -5229,7 +5229,7 @@ DiskSliceSize=736000000
 <setupvalid><tt>1</tt> through <tt>26</tt></setupvalid>
 <setupdefault><tt>1</tt></setupdefault>
 <body>
-<p>The number of SETUP-*.BIN files to create for each disk. If this is 1 (the default setting), the files will be named SETUP-<i>x</i>.BIN, where <i>x</i> is the disk number. If this is greater than 1, the files will be named SETUP-<i>xy</i>.BIN, where <i>x</i> is the disk number and <i>y</i> is a unique letter.</p>
+<p>The number of Setup-*.bin files to create for each disk. If this is 1 (the default setting), the files will be named Setup-<i>x</i>.bin, where <i>x</i> is the disk number. If this is greater than 1, the files will be named Setup-<i>xy</i>.bin, where <i>x</i> is the disk number and <i>y</i> is a unique letter.</p>
 <p>One reason why you may need to increase this from the default value of 1 is if the size of your disk media exceeds 2,100,000,000 bytes -- the upper limit of the <tt>DiskSliceSize</tt> <tt>[Setup]</tt> section directive. If, for example, your disk media has a capacity of 3,000,000,000 bytes, you can avoid the 2,100,000,000-byte disk slice size limit by setting <tt>SlicesPerDisk</tt> to <tt>2</tt> and <tt>DiskSliceSize</tt> to <tt>1500000000</tt> (or perhaps slightly less, due to file system overhead).</p>
 </body>
 </setuptopic>
@@ -5587,7 +5587,7 @@ DiskSliceSize=736000000
 <setuptopic directive="OutputDir">
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
-<p>Specifies the "output" directory for the script, which is where the compiler will place the resulting SETUP.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
+<p>Specifies the "output" directory for the script, which is where the compiler will place the resulting Setup.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
 <p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>

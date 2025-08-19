@@ -28,7 +28,7 @@ type
   TCompID = array[1..4] of AnsiChar;
   TDiskSliceID = array[1..8] of AnsiChar;
 const
-  { SetupID is used by the Setup program to check if the SETUP.0 file is
+  { SetupID is used by the Setup program to check if the Setup.0 file is
     compatible with it. If you make any modifications to the records in
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
@@ -377,12 +377,12 @@ type
     AccessMask: DWORD;
   end;
 
-  { A TDiskSliceHeader record follows DiskSliceID in a SETUP-*.BIN file }
+  { A TDiskSliceHeader record follows DiskSliceID in a Setup-*.bin file }
   TDiskSliceHeader = packed record
     TotalSize: Int64;
   end;
 
-  { A TMessageHeader record follows MessagesHdrID in a SETUP.MSG file }
+  { A TMessageHeader record follows MessagesHdrID in a Setup.msg file }
   TMessagesHeader = packed record
     NumMessages: Cardinal;
     TotalSize: Cardinal;
