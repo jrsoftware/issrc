@@ -279,6 +279,8 @@ var
   Buffer: Pointer;
   Left, Res: Cardinal;
 begin
+  if (Count < 0) or (FChunkBytesLeft < 0) then  { sanity checks }
+    InternalError('TFileExtractor.ReadProc: Negative count');
   Buffer := @Buf;
   Left := Count;
   if FChunkBytesLeft < Left then
@@ -322,6 +324,8 @@ begin
   Inc(FEntered);
   try
     var BytesLeft := FL.OriginalSize;
+    if BytesLeft < 0 then  { sanity check }
+      InternalError('TFileExtractor.DecompressFile: Negative size');
 
     { To avoid file system fragmentation, preallocate all of the bytes in the
       destination file }
