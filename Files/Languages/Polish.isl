@@ -339,7 +339,7 @@ ErrorRestartReplace=Próba zastąpienia plików przy ponownym uruchomieniu kompu
 ErrorRenamingTemp=Wystąpił błąd podczas próby zmiany nazwy pliku w folderze docelowym:
 ErrorRegisterServer=Nie można zarejestrować DLL/OCX: %1
 ErrorRegSvr32Failed=Funkcja RegSvr32 zakończyła się z kodem błędu %1
-ErrorRegisterTypeLib=Nie mogę zarejestrować biblioteki typów: %1
+ErrorRegisterTypeLib=Nie można zarejestrować biblioteki typów: %1
 
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
