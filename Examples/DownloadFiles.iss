@@ -6,7 +6,7 @@
 ;
 ; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool, the [ISSigKeys] section, and .issig sginature files which
+;  Signature Tool, the [ISSigKeys] section, and .issig signature files which
 ;  are automatically downloaded before the main file is downloaded
 ; -For iscrypt.dll: using a simple SHA-256 hash check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
@@ -53,4 +53,5 @@ Source: "https://github.com/jrsoftware/issrc/archive/refs/heads/main.zip"; DestN
   ExternalSize: 15_000_000; Flags: external download extractarchive recursesubdirs ignoreversion
 
 [Icons]
+
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
