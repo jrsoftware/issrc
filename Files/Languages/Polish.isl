@@ -66,8 +66,8 @@ PrivilegesRequiredOverrideCurrentUser=Zainstaluj dla &bieżącego użytkownika
 PrivilegesRequiredOverrideCurrentUserRecommended=Zainstaluj dla &bieżącego użytkownika (zalecane)
 
 ; *** Misc. errors
-ErrorCreatingDir=Instalator nie mógł utworzyć katalogu "%1"
-ErrorTooManyFilesInDir=Nie można utworzyć pliku w katalogu "%1", ponieważ zawiera on zbyt wiele plików
+ErrorCreatingDir=Instalator nie mógł utworzyć folderu "%1"
+ErrorTooManyFilesInDir=Nie można utworzyć pliku w folderu "%1", ponieważ zawiera on zbyt wiele plików
 
 ; *** Setup common messages
 ExitSetupTitle=Zakończ instalację
