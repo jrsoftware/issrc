@@ -6,7 +6,7 @@
 ;
 ; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool, the [ISSigKeys] section, and .issig sginature files which
+;  Signature Tool, the [ISSigKeys] section, and .issig signature files which
 ;  are automatically downloaded before the main file is downloaded
 ; -For iscrypt.dll: using a simple SHA-256 hash check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
