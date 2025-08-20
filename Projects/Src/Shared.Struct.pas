@@ -39,7 +39,7 @@ const
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
   ZLIBID: TCompID = 'zlb'#26;
-  DiskSliceID: TDiskSliceID = 'idska32'#26;
+  DiskSliceID: TDiskSliceID = 'idskb32'#26;
 type
   TSetupVersionDataVersion = packed record
     Build: Word;
