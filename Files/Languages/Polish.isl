@@ -76,7 +76,7 @@ AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n%1 strona domowa:%n%4
 AboutSetupNote=
-TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>
+TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>%nSefinek <contact@sefinek.net>
 
 ; *** Buttons
 ButtonBack=< &Wstecz
