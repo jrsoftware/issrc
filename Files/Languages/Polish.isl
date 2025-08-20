@@ -215,7 +215,7 @@ ErrorFileSize=Nieprawidłowy rozmiar pliku: oczekiwano %1, otrzymano %2
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Wypakowywanie plików...
 ButtonStopExtraction=&Zatrzymaj wypakowywanie
-StopExtraction=Azy na pewno chcesz zatrzymać wypakowywanie?
+StopExtraction=Czy na pewno chcesz zatrzymać wypakowywanie?
 ErrorExtractionAborted=Wypakowywanie przerwane
 ErrorExtractionFailed=Błąd wypakowywania: %1
 
