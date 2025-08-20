@@ -1,6 +1,7 @@
 ; *** Inno Setup version 6.5.0+ Polish messages ***
 ; Proofreading, corrections and 5.5.7-6.5.0+ updates:
 ; Łukasz Abramczuk <lukasz.abramczuk at gmail.com>
+; Sefinek <contact at sefinek.net>
 ; Original translations up to 5.5.7:
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ; To download user-contributed translations of this file, go to:
@@ -10,7 +11,7 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-; last update: 2025/06/23 
+; last update: 2025/08/20
 
 [LangOptions]
 LanguageName=Polski
@@ -76,7 +77,7 @@ AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%n%1 strona domowa:%n%4
 AboutSetupNote=
-TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>%nSefinek <contact@sefinek.net>
+TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>%nSefinek <contact at sefinek.net>
 
 ; *** Buttons
 ButtonBack=< &Wstecz
