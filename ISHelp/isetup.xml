@@ -132,7 +132,7 @@
 <li>Complete <link topic="setup_uninstallable">uninstall</link> capabilities.</li>
 
 <li>Installation of <link topic="filessection">files</link>:<br/>
-Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download files, and extract archives.</li>
+Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download and verify files, and extract archives.</li>
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start Menu and on the desktop.</li>
 
