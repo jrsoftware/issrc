@@ -1777,7 +1777,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
-<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
+<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will be asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
 </flag>
 <flag name="nocompression">
@@ -1867,7 +1867,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>When uninstalling the file, remove any read-only attribute from the file before attempting to delete it.</p>
 </flag>
 <flag name="uninsrestartdelete">
-<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if they wants to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required for this flag to have an effect.</p>
+<p>When this flag is used and the file is in use at uninstall time, the uninstaller will queue the file to be deleted when the system is restarted, and at the end of the uninstallation process ask the user if they want to restart. This flag can be useful when uninstalling things like shell extensions which cannot be programmatically stopped. Note that administrative privileges are required for this flag to have an effect.</p>
 </flag>
 <flag name="uninsneveruninstall">
 <p>Never remove the file. This flag can be useful when installing very common shared files that shouldn't be deleted under any circumstances, such as MFC DLLs.</p>
@@ -2500,7 +2500,7 @@ binary</tt></p></indent>
 <p>If <tt>none</tt> (the default setting) is specified, Setup will create the key but <i>not</i> a value. In this case the <tt>ValueData</tt> parameter is ignored.<br/>
 If <tt>string</tt> is specified, Setup will create a string (REG_SZ) value.<br/>
 If <tt>expandsz</tt> is specified, Setup will create an expand-string (REG_EXPAND_SZ) value.<br/>
-If <tt>multisz</tt> is specified, Setup will create an multi-string (REG_MULTI_SZ) value.<br/>
+If <tt>multisz</tt> is specified, Setup will create a multi-string (REG_MULTI_SZ) value.<br/>
 If <tt>dword</tt> is specified, Setup will create a 32-bit integer (REG_DWORD) value.<br/>
 If <tt>qword</tt> is specified, Setup will create a 64-bit integer (REG_QWORD) value.<br/>
 If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.</p>
@@ -2749,7 +2749,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>Valid only in a [Run] section. Instructs Setup to skip this entry if Setup is running (very) silent.</p>
 </flag>
 <flag name="unchecked">
-<p>Valid only in a [Run] section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wishes to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
+<p>Valid only in a [Run] section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wish to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
 </flag>
 <flag name="waituntilidle">
 <p>If this flag is specified, it will wait until the process is waiting for user input with no input pending, instead of waiting for the process to terminate. (This calls the <i>WaitForInputIdle</i> Win32 function.) Cannot be combined with <tt>nowait</tt> or <tt>waituntilterminated</tt>.</p>
@@ -2945,7 +2945,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
   <ul>
   <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
   <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
-  <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must to be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
+  <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
   <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li>
   <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
   <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
@@ -2962,7 +2962,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
     </ul>
   </li>
   </ul>
-<p>Note: Unicode Inno Setup can only create Unicode installers and like wise the non Unicode version can only create non Unicode installers. If you want to be able to create both Unicode and non Unicode installers on one computer, you have to install both versions of Inno Setup into different folders.</p>
+<p>Note: Unicode Inno Setup can only create Unicode installers and likewise the non Unicode version can only create non Unicode installers. If you want to be able to create both Unicode and non Unicode installers on one computer, you have to install both versions of Inno Setup into different folders.</p>
 
 </body>
 </topic>
@@ -6447,3 +6447,4 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 </topic>
 
 </ishelp>
+
