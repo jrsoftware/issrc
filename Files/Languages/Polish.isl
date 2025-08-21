@@ -75,7 +75,7 @@ ExitSetupTitle=Zakończ instalację
 ExitSetupMessage=Instalacja nie została zakończona. Jeżeli przerwiesz ją teraz, aplikacja nie zostanie zainstalowana. Można ponowić instalację później poprzez uruchamianie instalatora.%n%nCzy chcesz przerwać instalację?
 AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
-AboutSetupMessage=%1 wersja %2%n%3%n%n%1 strona domowa:%n%4
+AboutSetupMessage=%1 wersja %2%n%3%n%nStrona domowa %1:%n%4
 AboutSetupNote=
 TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>%nSefinek <contact at sefinek.net>
 
