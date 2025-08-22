@@ -1,6 +1,7 @@
 ; *** Inno Setup version 6.5.0+ Polish messages ***
 ; Proofreading, corrections and 5.5.7-6.5.0+ updates:
 ; Łukasz Abramczuk <lukasz.abramczuk at gmail.com>
+; Sefinek <contact at sefinek.net>
 ; Original translations up to 5.5.7:
 ; Krzysztof Cynarski <krzysztof at cynarski.net>
 ; To download user-contributed translations of this file, go to:
@@ -10,7 +11,7 @@
 ; messages that didn't have them already, because on those messages Inno
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
-; last update: 2025/06/23 
+; last update: 2025/08/20
 
 [LangOptions]
 LanguageName=Polski
@@ -43,7 +44,7 @@ SetupFileCorrupt=Pliki instalacyjne są uszkodzone. Zaleca się uzyskanie nowej 
 SetupFileCorruptOrWrongVer=Pliki instalacyjne są uszkodzone lub niezgodne z tą wersją instalatora. Proszę rozwiązać problem lub uzyskać nową kopię programu instalacyjnego.
 InvalidParameter=W linii komend przekazano nieprawidłowy parametr:%n%n%1
 SetupAlreadyRunning=Instalator jest już uruchomiony.
-WindowsVersionNotSupported=Ta aplikacja nie wspiera aktualnie uruchomionej wersji Windows.
+WindowsVersionNotSupported=Ten program nie jest zgodny z aktualnie zainstalowaną wersją systemu Windows.
 WindowsServicePackRequired=Ta aplikacja wymaga systemu %1 z dodatkiem Service Pack %2 lub nowszym.
 NotOnThisPlatform=Tej aplikacji nie można uruchomić w systemie %1.
 OnlyOnThisPlatform=Ta aplikacja wymaga systemu %1.
@@ -66,17 +67,17 @@ PrivilegesRequiredOverrideCurrentUser=Zainstaluj dla &bieżącego użytkownika
 PrivilegesRequiredOverrideCurrentUserRecommended=Zainstaluj dla &bieżącego użytkownika (zalecane)
 
 ; *** Misc. errors
-ErrorCreatingDir=Instalator nie mógł utworzyć katalogu "%1"
-ErrorTooManyFilesInDir=Nie można utworzyć pliku w katalogu "%1", ponieważ zawiera on zbyt wiele plików
+ErrorCreatingDir=Instalator nie mógł utworzyć folderu "%1"
+ErrorTooManyFilesInDir=Nie można utworzyć pliku w folderze "%1", ponieważ zawiera on zbyt wiele plików
 
 ; *** Setup common messages
 ExitSetupTitle=Zakończ instalację
 ExitSetupMessage=Instalacja nie została zakończona. Jeżeli przerwiesz ją teraz, aplikacja nie zostanie zainstalowana. Można ponowić instalację później poprzez uruchamianie instalatora.%n%nCzy chcesz przerwać instalację?
 AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
-AboutSetupMessage=%1 wersja %2%n%3%n%n Strona domowa %1:%n%4
+AboutSetupMessage=%1 wersja %2%n%3%n%nStrona domowa %1:%n%4
 AboutSetupNote=
-TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>
+TranslatorNote=Wersja polska: %nŁukasz Abramczuk <lukasz.abramczuk at gmail.com>%nKrzysztof Cynarski <krzysztof at cynarski.net>%nSefinek <contact at sefinek.net>
 
 ; *** Buttons
 ButtonBack=< &Wstecz
@@ -215,7 +216,7 @@ ErrorFileSize=Nieprawidłowy rozmiar pliku: oczekiwano %1, otrzymano %2
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Wypakowywanie plików...
 ButtonStopExtraction=&Zatrzymaj wypakowywanie
-StopExtraction=Azy na pewno chcesz zatrzymać wypakowywanie?
+StopExtraction=Czy na pewno chcesz zatrzymać wypakowywanie?
 ErrorExtractionAborted=Wypakowywanie przerwane
 ErrorExtractionFailed=Błąd wypakowywania: %1
 
@@ -339,7 +340,7 @@ ErrorRestartReplace=Próba zastąpienia plików przy ponownym uruchomieniu kompu
 ErrorRenamingTemp=Wystąpił błąd podczas próby zmiany nazwy pliku w folderze docelowym:
 ErrorRegisterServer=Nie można zarejestrować DLL/OCX: %1
 ErrorRegSvr32Failed=Funkcja RegSvr32 zakończyła się z kodem błędu %1
-ErrorRegisterTypeLib=Nie mogę zarejestrować biblioteki typów: %1
+ErrorRegisterTypeLib=Nie można zarejestrować biblioteki typów: %1
 
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
@@ -359,7 +360,7 @@ ErrorRestartingComputer=Instalator nie mógł ponownie uruchomić tego komputera
 UninstallNotFound=Plik "%1" nie istnieje. Nie można przeprowadzić dezinstalacji.
 UninstallOpenError=Plik "%1" nie mógł zostać otwarty. Nie można przeprowadzić dezinstalacji.
 UninstallUnsupportedVer=Ta wersja programu dezinstalacyjnego nie rozpoznaje formatu logu dezinstalacji w pliku "%1". Nie można przeprowadzić dezinstalacji.
-UninstallUnknownEntry=W logu dezinstalacji wystąpiła nieznana pozycja (%1)
+UninstallUnknownEntry=Napotkano nieznany wpis (%1) w logu dezinstalacji
 ConfirmUninstall=Czy na pewno chcesz usunąć aplikację %1 i wszystkie jej składniki?
 UninstallOnlyOnWin64=Ta aplikacja może być odinstalowana tylko w 64-bitowej wersji systemu Windows.
 OnlyAdminCanUninstall=Ta instalacja może być odinstalowana tylko przez użytkownika z uprawnieniami administratora.
