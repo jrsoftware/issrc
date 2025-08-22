@@ -241,8 +241,7 @@ end;
 
 procedure TBitmapImageImplementation.Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
 begin
-  const Is32bit = (Bitmap.PixelFormat = pf32bit) and
-    (Bitmap.AlphaFormat in [afDefined, afPremultiplied]);
+  const Is32bit = Bitmap.SupportsPartialTransparency;
 
   var W, H: Integer;
   var Bmp: TBitmap;
