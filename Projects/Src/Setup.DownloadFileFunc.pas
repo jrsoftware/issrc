@@ -118,8 +118,6 @@ procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
   AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
-  if not IsWindows8 then
-    AHTTPClient.SecureProtocols := AHTTPClient.SecureProtocols + [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11];
 end;
 
 { THTTPDataReceiver }
