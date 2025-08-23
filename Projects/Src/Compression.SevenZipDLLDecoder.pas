@@ -1012,11 +1012,15 @@ begin
     on E: EFileError do
       SevenZipWin32Error('CreateFile', E.ErrorCode);
   end;
-  const InStream: IInStream = TInStream.Create(F);
+  const InStream: IInStream = TInStream.Create(F); { InStream now owns F }
   var ScanSize := DefaultScanSize;
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(DisableFsRedir, ArchiveFileName, Password);
-  if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then
-    SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
+  if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
+    if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
+      Exit(OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
+    else
+      SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
+  end;
   if Result.GetNumberOfItems(numItems) <> S_OK then
     SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot get number of items');
 
