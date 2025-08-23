@@ -5531,7 +5531,7 @@ DiskSliceSize=736000000
 <p>If set to <tt>premultiplied</tt>, any wizard image which is a 32-bit bitmap file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
 <p>If set to <tt>defined</tt>, any wizard image which is a 32-bit bitmap file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
 <p>This directive has no effect for a wizard image which is not a 32-bit bitmap file.</p>
-<p>To create transparent 32-bit bitmaps compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>.</p>
+<p>To create transparent 32-bit bitmaps compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>. These files may appear large, but Inno Setup compresses them using LZMA, which typically achieves better compression ratios than, for example, PNG compression.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
