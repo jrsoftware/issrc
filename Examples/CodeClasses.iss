@@ -7,9 +7,9 @@ AppName=My Program
 AppVersion=1.5
 WizardStyle=modern
 CreateAppDir=no
+Uninstallable=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
-UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 
@@ -345,12 +345,12 @@ begin
 
   BitmapFileName := ExpandConstant('{tmp}\WizClassicSmallImage.bmp');
   ExtractTemporaryFile(ExtractFileName(BitmapFileName));
-
+  
   BitmapImage := TBitmapImage.Create(Page);
   BitmapImage.AutoSize := True;
   BitmapImage.Bitmap.LoadFromFile(BitmapFileName);
   BitmapImage.Parent := Page.Surface;
-
+  
   BitmapImage2 := TBitmapImage.Create(Page);
   BitmapImage2.BackColor := clNone;
   BitmapImage2.Bitmap := BitmapImage.Bitmap;

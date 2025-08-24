@@ -13,9 +13,9 @@ AppVersion=1.5
 WizardStyle=modern
 DisableWelcomePage=no
 CreateAppDir=no
+Uninstallable=no
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
-UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 
 [Code]
