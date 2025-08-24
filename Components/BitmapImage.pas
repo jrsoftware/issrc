@@ -139,6 +139,7 @@ end;
 procedure TBitmapImageImplementation.DeInit;
 begin
   FreeAndNil(StretchedBitmap);
+  FreeAndNil(PngImage);
   FreeAndNil(Bitmap);
 end;
 
