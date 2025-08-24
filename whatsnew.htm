@@ -53,7 +53,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <li>Added support for .png files to <tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.</li>
 <li>Improved support for stretching 32-bit .bmp files with transparency.</li>
 <li>Compiler IDE: Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
-<li>Pascal Scripting: Added new <tt>LogFmt</tt> support function.</li>
+<li>Pascal Scripting:
+<ul>
+  <li>Added new <tt>LogFmt</tt> support function.</li>
+  <li>Added new <tt>TPngImage</tt> support class.</li>
+  <li>Added new <tt>PngImage</tt> property to support classes <tt>TBitmapButton</tt> and <tt>TBitmapImage</tt>.</li>
+</ul>
+</li>
 </ul>
 
 <p>Using Inno Setup commercially? Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
@@ -110,12 +116,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </ul>
   </li>
   <li>Updated Pascal Scripting:
-    <ul>
-      <li>New support function <tt>ExtractArchive</tt> replaces the deprecated <tt>Extract7ZipArchive</tt>. <tt>ExtractArchive</tt> includes an additional parameter to optionally specify a password.</li>
-      <li><tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt> now overwrite read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
-      <li>Added new <tt>MapArchiveExtensions</tt> support function to allow the extraction of archives with custom extensions, such as self-extracting archives.</li>
-      <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
-    </ul>
+  <ul>
+    <li>New support function <tt>ExtractArchive</tt> replaces the deprecated <tt>Extract7ZipArchive</tt>. <tt>ExtractArchive</tt> includes an additional parameter to optionally specify a password.</li>
+    <li><tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt> now overwrite read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
+    <li>Added new <tt>MapArchiveExtensions</tt> support function to allow the extraction of archives with custom extensions, such as self-extracting archives.</li>
+    <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
+  </ul>
   </li>
 </ul>
 <span class="head2">Improved file downloads</span>
