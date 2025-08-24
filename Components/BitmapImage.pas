@@ -7,6 +7,8 @@ unit BitmapImage;
   For conditions of distribution and use, see LICENSE.TXT.
 
   A TImage-like component for bitmaps without the TPicture bloat
+  
+  Also supports other TGraphic types which can be assigned to a TBitmap, like TPngImage
 
   Also see TBitmapButton which is the TWinControl version
 }
@@ -43,6 +45,7 @@ type
     procedure SetBackColor(Sender: TObject; Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Sender: TObject; Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
     procedure SetReplaceColor(Sender: TObject; Value: TColor);
     procedure SetReplaceWithColor(Sender: TObject; Value: TColor);
     procedure SetStretch(Sender: TObject; Value: Boolean);
@@ -56,6 +59,7 @@ type
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
@@ -67,17 +71,18 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    property Graphic: TGraphic write SetGraphic;
   published
     property Align;
     property Anchors;
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clBtnFace;
+    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Center: Boolean read FImpl.Center write SetCenter default False;
     property DragCursor;
     property DragMode;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FImpl.Stretch write SetStretch default False;
@@ -207,6 +212,11 @@ begin
     Center := Value;
     BitmapChanged(Sender);
   end;
+end;
+
+procedure TBitmapImageImplementation.SetGraphic(Value: TGraphic);
+begin
+  Bitmap.Assign(Value);
 end;
 
 procedure TBitmapImageImplementation.SetReplaceColor(Sender: TObject; Value: TColor);
@@ -349,6 +359,11 @@ end;
 procedure TBitmapImage.SetCenter(Value: Boolean);
 begin
   FImpl.SetCenter(Self, Value);
+end;
+
+procedure TBitmapImage.SetGraphic(Value: TGraphic);
+begin
+  FImpl.SetGraphic(Value);
 end;
 
 procedure TBitmapImage.SetReplaceColor(Value: TColor);

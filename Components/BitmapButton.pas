@@ -9,6 +9,8 @@ unit BitmapButton;
   A TImage-like component for bitmaps without the TPicture bloat and
   which is actually a button with a focus rectangle when focused - in
   other words: an accessible TImage
+
+  Also supports other TGraphic types which can be assigned to a TBitmap, like TPngImage
   
   Make sure to set the Caption property, even if it isn't visible
 
@@ -29,6 +31,7 @@ type
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
@@ -44,6 +47,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    property Graphic: TGraphic write SetGraphic;
   published
     property Align;
     property Anchors;
@@ -126,6 +130,11 @@ end;
 procedure TBitmapButton.SetCenter(Value: Boolean);
 begin
   FImpl.SetCenter(Self, Value);
+end;
+
+procedure TBitmapButton.SetGraphic(Value: TGraphic);
+begin
+  FImpl.SetGraphic(Value);
 end;
 
 procedure TBitmapButton.SetReplaceColor(Value: TColor);

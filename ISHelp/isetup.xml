@@ -5456,10 +5456,10 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports transparent bitmaps, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified bitmap should have the same aspect ratio.</p>
-<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>Supports .bmp and .png images, including those with transparency. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
@@ -5484,10 +5484,10 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardSmallImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the bitmap file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports transparent bitmaps, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified bitmap should be square as well.</p>
-<p>Any size of bitmap may be used; by default, bitmaps that are too small or too large to fit in the image area will be stretched or shrunk. Specifying a bitmap larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
+<p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>Supports .bmp and .png images, including those with transparency. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified image should be square as well.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>58x58</td></tr>
@@ -5499,7 +5499,7 @@ DiskSliceSize=736000000
 <tr><td>250%</td><td>147x147</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>Backward compatibility note: If a single bitmap smaller than 58x58 is specified, the bitmap will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
 <p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
@@ -5527,11 +5527,11 @@ DiskSliceSize=736000000
 <setupvalid><tt>none</tt>, <tt>defined</tt>, <tt>premultiplied</tt></setupvalid>
 <setupdefault><tt>none</tt></setupdefault>
 <body>
-<p>If set to <tt>none</tt>, the default, any wizard image which is a 32-bit bitmap file should not have an alpha channel.</p>
-<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32-bit bitmap file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
-<p>If set to <tt>defined</tt>, any wizard image which is a 32-bit bitmap file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
-<p>This directive has no effect for a wizard image which is not a 32-bit bitmap file.</p>
-<p>To create transparent 32-bit bitmaps compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>. These files may appear large, but Inno Setup compresses them using LZMA, which typically achieves better compression ratios than, for example, PNG compression.</p>
+<p>If set to <tt>none</tt>, the default, any wizard image which is a 32-bit .bmp file should not have an alpha channel.</p>
+<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32-bit .bmp file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>defined</tt>, any wizard image which is a 32-bit .bmp file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>This directive has no effect for a wizard image which is not a 32-bit .bmp file.</p>
+<p>To create transparent .bmp files compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>. These files may appear large, but Inno Setup compresses them using LZMA, which typically achieves better compression ratios than, for example, PNG compression.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
