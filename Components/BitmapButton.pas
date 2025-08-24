@@ -6,11 +6,11 @@ unit BitmapButton;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  A TImage-like component for bitmaps without the TPicture bloat and
+  A TImage-like component for bitmaps and png files without the TPicture bloat and
   which is actually a button with a focus rectangle when focused - in
   other words: an accessible TImage
 
-  Also supports other TGraphic types which can be assigned to a TBitmap, like TPngImage
+  Also supports other TGraphic types which can be assigned to a TBitmap
   
   Make sure to set the Caption property, even if it isn't visible
 
@@ -20,7 +20,7 @@ unit BitmapButton;
 interface
 
 uses
-  Windows, Messages, Controls, Graphics, Classes,
+  Windows, Messages, Controls, Graphics, Classes, Imaging.pngimage,
   BitmapImage;
 
 type
@@ -32,6 +32,7 @@ type
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
     procedure SetGraphic(Value: TGraphic);
+    procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
@@ -53,11 +54,12 @@ type
     property Anchors;
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clNone;
+    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Caption;
     property Center: Boolean read FImpl.Center write SetCenter default True;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
+    property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FImpl.Stretch write SetStretch default False;
@@ -135,6 +137,11 @@ end;
 procedure TBitmapButton.SetGraphic(Value: TGraphic);
 begin
   FImpl.SetGraphic(Value);
+end;
+
+procedure TBitmapButton.SetPngImage(Value: TPngImage);
+begin
+  FImpl.SetPngImage(Value);
 end;
 
 procedure TBitmapButton.SetReplaceColor(Value: TColor);
