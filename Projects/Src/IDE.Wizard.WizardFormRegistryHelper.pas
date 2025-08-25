@@ -67,7 +67,7 @@ procedure TWizardFormRegistryHelper.UpdateImages;
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, FForm.CurrentPPI, 96);
-  FMinVerDocBitBtn.Bitmap.Assign(GetImage(MainForm.HelpButton, WH));
+  FMinVerDocBitBtn.Graphic := GetImage(MainForm.HelpButton, WH);
 end;
 
 constructor TWizardFormRegistryHelper.Create(const Form: TForm;

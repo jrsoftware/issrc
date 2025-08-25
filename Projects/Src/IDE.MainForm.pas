@@ -4355,7 +4355,7 @@ begin
   var Images := ImagesModule.LightToolBarImageCollection;
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
-  UpdatePanelDonateBitBtn.Bitmap.Assign(Image);
+  UpdatePanelDonateBitBtn.Graphic := Image;
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;

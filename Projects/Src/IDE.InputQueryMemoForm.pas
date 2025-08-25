@@ -149,7 +149,7 @@ procedure TInputQueryMemoForm.UpdateImages;
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, CurrentPPI, 96);
-  DocBitBtn.Bitmap.Assign(GetImage(MainForm.HelpButton, WH));
+  DocBitBtn.Graphic := GetImage(MainForm.HelpButton, WH);
 end;
 
 end.
