@@ -850,7 +850,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       Msg, Color, HasLink);
   end;
 
-  procedure ReadConfig;
+  procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
     WindowPlacement: TWindowPlacement;
@@ -864,7 +864,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
-      { Configuration options }
+      { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
       FOptions.ShowStartupForm := Ini.ReadBool('Options', 'ShowStartupForm', True);
       FOptions.UseWizard := Ini.ReadBool('Options', 'UseWizard', True);
       FOptions.Autosave := Ini.ReadBool('Options', 'Autosave', False);
@@ -900,9 +900,6 @@ constructor TMainForm.Create(AOwner: TComponent);
       I := Ini.ReadInteger('Options', 'MemoKeyMappingType', Ord(GetDefaultMemoKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TIDEScintKeyMappingType))) then
         FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(I);
-      I := Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
-      if (I >= 0) and (I <= Ord(High(TThemeType))) then
-        FOptions.ThemeType := TThemeType(I);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
@@ -959,7 +956,6 @@ constructor TMainForm.Create(AOwner: TComponent);
       SyncEditorOptions;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
-      UpdateTheme;
       UpdateFindRegExUI;
 
       { Window state }
@@ -989,6 +985,19 @@ constructor TMainForm.Create(AOwner: TComponent);
       Ini.Free;
     end;
     FOptionsLoaded := True;
+  end;
+
+  procedure ReadAndApplyTheme;
+  begin
+    const Ini = TConfigIniFile.Create;
+    try
+      const I = Ini.ReadInteger('Options', 'ThemeType', Ord(GetDefaultThemeType));
+      if (I >= 0) and (I <= Ord(High(TThemeType))) then
+        FOptions.ThemeType := TThemeType(I);
+    finally
+      Ini.Free
+    end;
+    UpdateTheme;
   end;
 
 var
@@ -1139,7 +1148,7 @@ begin
   ThemedMarkersAndACVirtualImageList.AutoFill := True;
 
   UpdateThemeData(True);
-  
+
   FMenuBitmaps := TMenuBitmaps.Create;
   FMenuBitmapsSize.cx := 0;
   FMenuBitmapsSize.cy := 0;
@@ -1151,16 +1160,18 @@ begin
   FUpdatePanelMessages := TUpdatePanelMessages.Create;
 
   if CommandLineCompile then begin
+    ReadAndApplyTheme;
     ReadSignTools(FSignTools);
-    FBuildImageList := ImagesModule.LightBuildImageList;
     PostMessage(Handle, WM_StartCommandLineCompile, 0, 0)
   end else if CommandLineWizard then begin
     { Stop Delphi from showing the compiler form }
     Application.ShowMainForm := False;
     { Show wizard form later }
+    ReadAndApplyTheme;
     PostMessage(Handle, WM_StartCommandLineWizard, 0, 0);
   end else begin
-    ReadConfig; { Calls UpdateTheme }
+    ReadAndApplyConfig;
+    ReadAndApplyTheme;
     ReadSignTools(FSignTools);
     PostMessage(Handle, WM_StartNormally, 0, 0);
   end;
@@ -6704,8 +6715,6 @@ procedure TMainForm.UpdateTheme;
 begin
   FTheme.Typ := FOptions.ThemeType;
 
-  SetHelpFileDark(FTheme.Dark);
-
   {$IF CompilerVersion >= 36.0 }
   { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
     UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
@@ -6720,6 +6729,11 @@ begin
     it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
+
+  if not Application.ShowMainForm then
+    Exit;
+
+  SetHelpFileDark(FTheme.Dark);
 
   InitFormTheme(Self);
 

@@ -75,7 +75,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 <span class="head2">Other changes</span>
 <ul>
-<li>Compiler IDE: Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
+<li>Compiler IDE:
+<ul>
+  <li>Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
+  <li>Added dark mode support for command line options /cc and /wizard.</li>
+</ul>
+</li>
 <li>Pascal Scripting: Added new <tt>LogFmt</tt> support function.</li>
 </ul>
 
@@ -84,7 +89,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><a name="6.5.1"></a><span class="ver">6.5.1 </span><span class="date">(2025-08-18)</span></p>
 <ul>
 <li>Downloads are now performed from a secondary thread, just as was first introduced for archive extraction in the previous version. This ensures Setup stays responsive, even if the system fails to report progress.</li>
-<li><i>Fix:</i> Using the /CC command line option of the Compiler IDE to compile a script no longer causes an error.</li>
+<li><i>Fix:</i> Using the /cc command line option of the Compiler IDE to compile a script no longer causes an error.</li>
 <li>Minor tweaks.</li>
 </ul>
 
