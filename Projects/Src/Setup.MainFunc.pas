@@ -12,7 +12,7 @@ unit Setup.MainFunc;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, Generics.Collections,
   StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   Shared.SetupTypes, Setup.ScriptRunner, RestartManager;
 
@@ -24,6 +24,8 @@ type
   TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
     sfFonts, sfAppData, sfDocs, sfTemplates,                                  //
     sfFavorites, sfLocalAppData, sfUserProgramFiles, sfUserCommonFiles, sfUserSavedGames); //these only have user versions
+
+  TWizardImages = TObjectList<TGraphic>;
 
 const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
@@ -109,8 +111,8 @@ var
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImages: TList;
-  WizardSmallImages: TList;
+  WizardImages: TWizardImages;
+  WizardSmallImages: TWizardImages;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -238,7 +240,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -2636,14 +2638,18 @@ var
     end;
   end;
 
-  function ReadWizardImage(const Reader: TCompressedBlockReader): TBitmap;
+  function ReadWizardImage(const Reader: TCompressedBlockReader): TGraphic;
   begin
     const MemStream = TMemoryStream.Create;
     try
       ReadFileIntoStream(Reader, MemStream);
       MemStream.Seek(0, soFromBeginning);
-      Result := TBitmap.Create;
-      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      if TPngImage.CanLoadFromStream(MemStream) then
+        Result := TPngImage.Create
+      else begin
+        Result := TBitmap.Create;
+        TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      end;
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
@@ -3966,14 +3972,8 @@ begin
 end;
 
 procedure FreeWizardImages;
-var
-  I: Integer;
 begin
-  for I := WizardImages.Count-1 downto 0 do
-    TBitmap(WizardImages[I]).Free;
   FreeAndNil(WizardImages);
-  for I := WizardSmallImages.Count-1 downto 0 do
-    TBitmap(WizardSmallImages[I]).Free;
   FreeAndNil(WizardSmallImages);
 end;
 
@@ -3992,8 +3992,8 @@ initialization
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
   CloseApplicationsFilterExcludesList := TStringList.Create;
-  WizardImages := TList.Create;
-  WizardSmallImages := TList.Create;
+  WizardImages := TWizardImages.Create;
+  WizardSmallImages := TWizardImages.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 

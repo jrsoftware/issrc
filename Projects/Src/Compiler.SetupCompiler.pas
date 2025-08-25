@@ -65,6 +65,8 @@ type
   TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
   TPrecompiledFiles = set of TPrecompiledFile;
 
+  TWizardImages = TObjectList<TCustomMemoryStream>;
+
   TSetupCompiler = class
   private
     ScriptFiles: TStringList;
@@ -261,8 +263,8 @@ type
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
-    function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
-    function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+    function CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
+    function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
     procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
   public
@@ -475,7 +477,7 @@ begin
   inherited Destroy;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
 
   procedure AddFile(const Filename: String);
   begin
@@ -490,7 +492,7 @@ var
   H: THandle;
   FindData: TWin32FindData;
 begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
+  Result := TWizardImages.Create;
   try
     { In older versions only one file could be listed and comma's could be used so
       before treating AFiles as a list, first check if it's actually a single file
@@ -532,11 +534,11 @@ begin
   end;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
 var
   I, J: Integer;
 begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
+  Result := TWizardImages.Create;
   try
     for I := 0 to Length(AResourceNamesPrefixes)-1 do
       for J := 0 to Length(AResourceNamesPostfixes)-1 do
@@ -6860,7 +6862,7 @@ var
   SetupFile: TFile;
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-  WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
+  WizardImages, WizardSmallImages: TWizardImages;
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   SizeOfExe, SizeOfHeaders: Int64;
@@ -7995,9 +7997,11 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardImageFile, 'compiler:WizClassicImage.bmp']));
         WizardImageFile := 'compiler:WizClassicImage.bmp';
       end;
-      WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
-    end else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['150']);
+      WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile)
+    end else begin
+      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150']);
+      Include(SetupHeader.Options, shUsesBuiltinWizardImages);
+    end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
@@ -8005,9 +8009,11 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
         WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
       end;
-      WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
-    end else
-      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['250']);
+      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile)
+    end else begin
+      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250']);
+      Include(SetupHeader.Options, shUsesBuiltinSmallWizardImages);
+    end;
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }

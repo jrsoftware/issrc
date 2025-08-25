@@ -6,7 +6,9 @@ unit BitmapImage;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  A TImage-like component for bitmaps without the TPicture bloat
+  A TImage-like component for bitmaps and png files without the TPicture bloat
+  
+  Also supports other TGraphic types which can be assigned to a TBitmap
 
   Also see TBitmapButton which is the TWinControl version
 }
@@ -14,7 +16,7 @@ unit BitmapImage;
 interface
 
 uses
-  Windows, Controls, Graphics, Classes;
+  Windows, Controls, Graphics, Classes, Imaging.pngimage;
 
 type
   TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
@@ -28,6 +30,7 @@ type
     BackColor: TColor;
     Bitmap: TBitmap;
     Center: Boolean;
+    PngImage: TPngImage;
     ReplaceColor: TColor;
     ReplaceWithColor: TColor;
     Stretch: Boolean;
@@ -39,10 +42,13 @@ type
     procedure DeInit;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     procedure BitmapChanged(Sender: TObject);
+    procedure PngImageChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
     procedure SetBackColor(Sender: TObject; Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Sender: TObject; Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
+    procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Sender: TObject; Value: TColor);
     procedure SetReplaceWithColor(Sender: TObject; Value: TColor);
     procedure SetStretch(Sender: TObject; Value: Boolean);
@@ -56,6 +62,8 @@ type
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
+    procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
@@ -67,17 +75,19 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    property Graphic: TGraphic write SetGraphic;
   published
     property Align;
     property Anchors;
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clBtnFace;
+    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Center: Boolean read FImpl.Center write SetCenter default False;
     property DragCursor;
     property DragMode;
     property Enabled;
     property ParentShowHint;
-    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
+    property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;
     property ShowHint;
     property Stretch: Boolean read FImpl.Stretch write SetStretch default False;
@@ -116,9 +126,11 @@ begin
   FControl := AControl;
   AutoSizeExtraWidth := AAutoSizeExtraWidth;
   AutoSizeExtraHeight := AAutoSizeExtraHeight;
+  BackColor := clNone;
   Bitmap := TBitmap.Create;
   Bitmap.OnChange := BitmapChanged;
-  BackColor := clNone;
+  PngImage := TPngImage.Create;
+  PngImage.OnChange := PngImageChanged;
   ReplaceColor := clNone;
   ReplaceWithColor := clNone;
   StretchedBitmap := TBitmap.Create;
@@ -127,6 +139,7 @@ end;
 procedure TBitmapImageImplementation.DeInit;
 begin
   FreeAndNil(StretchedBitmap);
+  FreeAndNil(PngImage);
   FreeAndNil(Bitmap);
 end;
 
@@ -182,6 +195,11 @@ begin
   FControl.Invalidate;
 end;
 
+procedure TBitmapImageImplementation.PngImageChanged(Sender: TObject);
+begin
+  Bitmap.Assign(PngImage);
+end;
+
 procedure TBitmapImageImplementation.SetAutoSize(Sender: TObject; Value: Boolean);
 begin
   AutoSize := Value;
@@ -207,6 +225,19 @@ begin
     Center := Value;
     BitmapChanged(Sender);
   end;
+end;
+
+procedure TBitmapImageImplementation.SetGraphic(Value: TGraphic);
+begin
+  if Value is TPngImage then
+    SetPngImage(Value as TPngImage)
+  else
+    Bitmap.Assign(Value);
+end;
+
+procedure TBitmapImageImplementation.SetPngImage(Value: TPngImage);
+begin
+  PngImage.Assign(Value);
 end;
 
 procedure TBitmapImageImplementation.SetReplaceColor(Sender: TObject; Value: TColor);
@@ -349,6 +380,16 @@ end;
 procedure TBitmapImage.SetCenter(Value: Boolean);
 begin
   FImpl.SetCenter(Self, Value);
+end;
+
+procedure TBitmapImage.SetGraphic(Value: TGraphic);
+begin
+  FImpl.SetGraphic(Value);
+end;
+
+procedure TBitmapImage.SetPngImage(Value: TPngImage);
+begin
+  FImpl.SetPngImage(Value);
 end;
 
 procedure TBitmapImage.SetReplaceColor(Value: TColor);

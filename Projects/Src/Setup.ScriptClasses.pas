@@ -20,7 +20,7 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics,
+  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
@@ -41,6 +41,18 @@ begin
   with Cl.FindClass(AnsiString(TWinControl.ClassName)) do
   begin
     RegisterPropertyHelper(@TWinControlParentBackground_R, @TWinControlParentBackground_W, 'ParentBackground');
+  end;
+end;
+
+procedure TPngImageCanvas_R(Self: TPngImage; var T: TCanvas); begin T := Self.Canvas; end;
+
+procedure RegisterPngImage_R(Cl: TPSRuntimeClassImporter);
+begin
+  with Cl.Add(TPngImage) do
+  begin
+    RegisterMethod(@TPngImage.LoadFromStream, 'LoadFromStream');
+    RegisterMethod(@TPngImage.SaveToStream, 'SaveToStream');
+    RegisterPropertyHelper(@TPngImageCanvas_R,nil,'Canvas');
   end;
 end;
 
@@ -427,6 +439,8 @@ begin
 
     { ComObj }
     RIRegister_ComObj(ScriptInterpreter);
+
+    RegisterPngImage_R(Cl);
 
     RegisterNewStaticText_R(Cl);
     RegisterNewCheckListBox_R(Cl);

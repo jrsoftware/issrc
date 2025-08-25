@@ -733,7 +733,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
   using the FormCreate event, because if an exception is raised in FormCreate
   it's not propagated out. }
 
-  function SelectBestImage(WizardImages: TList; TargetWidth, TargetHeight: Integer): TBitmap;
+  function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
   begin
@@ -743,7 +743,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
       SmallestDifference := -1;
       Result := nil;
       for I := 0 to WizardImages.Count-1 do begin
-        Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+        Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
         if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
           Result := WizardImages[I];
           SmallestDifference := Difference;
@@ -854,8 +854,8 @@ begin
         (such as 55x55 or 32x32) and WizardImageStretch=yes.
       - Otherwise, it's unclear what size/shape the user prefers for the
         control. Keep the default control size. }
-    var NewWidth := TBitmap(WizardSmallImages[0]).Width;
-    var NewHeight := TBitmap(WizardSmallImages[0]).Height;
+    var NewWidth := WizardSmallImages[0].Width;
+    var NewHeight := WizardSmallImages[0].Height;
     if (WizardSmallImages.Count > 1) or
        (NewWidth > 58) or
        (NewHeight > 58) then begin
@@ -880,17 +880,24 @@ begin
   end;
 
   { Initialize images }
-  WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
+  WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.Center := True;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
+  WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', SelectDirPage.Color, [32, 48, 64]); {don't localize}
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', SelectProgramGroupPage.Color, [32, 48, 64]); {don't localize}
   PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', PreparingPage.Color, [16, 24, 32]); {don't localize}
+
+  if shUsesBuiltinWizardImages in SetupHeader.Options then begin
+    WizardBitmapImage.BackColor := $F9F3E8; { Bluish Gray }
+    WizardBitmapImage2.BackColor := WizardBitmapImage.BackColor;
+  end;
+  if shUsesBuiltinSmallWizardImages in SetupHeader.Options then
+    WizardSmallBitmapImage.BackColor := clNone;
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');
