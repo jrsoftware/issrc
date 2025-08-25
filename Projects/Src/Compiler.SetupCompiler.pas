@@ -65,14 +65,7 @@ type
   TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
   TPrecompiledFiles = set of TPrecompiledFile;
 
-  TWizardImage = class
-    Stream: TCustomMemoryStream;
-    Format: TWizardImageGraphicFormat;
-    constructor Create(const AStream: TCustomMemoryStream; const AFormat: TWizardImageGraphicFormat);
-    destructor Destroy; override;
-  end;
-
-  TWizardImages = TObjectList<TWizardImage>;
+  TWizardImages = TObjectList<TCustomMemoryStream>;
 
   TSetupCompiler = class
   private
@@ -387,21 +380,6 @@ begin
   Result := False;
 end;
 
-{ TWizardImage }
-
-constructor TWizardImage.Create(const AStream: TCustomMemoryStream; const AFormat: TWizardImageGraphicFormat);
-begin
-  inherited Create;
-  Stream := AStream;
-  Format := AFormat;
-end;
-
-destructor TWizardImage.Destroy;
-begin
-  Stream.Free;
-  inherited;
-end;
-
 { TSetupCompiler }
 
 constructor TSetupCompiler.Create(AOwner: TComponent);
@@ -502,11 +480,9 @@ end;
 function TSetupCompiler.CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
 
   procedure AddFile(const Filename: String);
-  const
-    Formats: array [Boolean] of TWizardImageGraphicFormat = (gfBitmap, gfPng);
   begin
     AddStatus(Format(SCompilerStatusReadingInFile, [FileName]));
-    Result.Add(TWizardImage.Create(CreateMemoryStreamFromFile(FileName),  Formats[SameText(PathExtractExt(Filename), '.png')]));
+    Result.Add(CreateMemoryStreamFromFile(FileName));
   end;
 
 var
@@ -566,7 +542,7 @@ begin
   try
     for I := 0 to Length(AResourceNamesPrefixes)-1 do
       for J := 0 to Length(AResourceNamesPostfixes)-1 do
-        Result.Add(TWizardImage.Create(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA), gfPng));
+        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA));
   except
     Result.Free;
     raise;
@@ -6893,19 +6869,13 @@ var
 
   function WriteSetup0(const F: TFile): Int64;
 
-    procedure WriteStream(const Stream: TCustomMemoryStream; const W: TCompressedBlockWriter);
+    procedure WriteStream(Stream: TCustomMemoryStream; W: TCompressedBlockWriter);
     var
       Size: Longint;
     begin
       Size := Stream.Size;
       W.Write(Size, SizeOf(Size));
       W.Write(Stream.Memory^, Size);
-    end;
-
-    procedure WriteWizardImage(const WizardImage: TWizardImage; const W: TCompressedBlockWriter);
-    begin
-      W.Write(WizardImage.Format, SizeOf(TWizardImageGraphicFormat));
-      WriteStream(WizardImage.Stream, W);
     end;
 
   var
@@ -7002,10 +6972,10 @@ var
 
       W.Write(WizardImages.Count, SizeOf(Integer));
       for J := 0 to WizardImages.Count-1 do
-        WriteWizardImage(WizardImages[J], W);
+        WriteStream(WizardImages[J], W);
       W.Write(WizardSmallImages.Count, SizeOf(Integer));
       for J := 0 to WizardSmallImages.Count-1 do
-        WriteWizardImage(WizardSmallImages[J], W);
+        WriteStream(WizardSmallImages[J], W);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if SetupHeader.SevenZipLibraryName <> '' then

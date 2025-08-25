@@ -2640,18 +2640,16 @@ var
 
   function ReadWizardImage(const Reader: TCompressedBlockReader): TGraphic;
   begin
-    var Format: TWizardImageGraphicFormat;
-    Reader.Read(Format, SizeOf(TWizardImageGraphicFormat));
-
     const MemStream = TMemoryStream.Create;
     try
       ReadFileIntoStream(Reader, MemStream);
       MemStream.Seek(0, soFromBeginning);
-      if Format = gfBitmap then begin
+      if TPngImage.CanLoadFromStream(MemStream) then
+        Result := TPngImage.Create
+      else begin
         Result := TBitmap.Create;
         TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
-      end else
-        Result := TPngImage.Create;
+      end;
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;

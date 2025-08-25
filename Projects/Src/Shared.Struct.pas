@@ -95,7 +95,6 @@ type
     BaseNonce: TSetupEncryptionNonce;
     PasswordTest: Integer;
   end;
-  TWizardImageGraphicFormat = (gfBitmap, gfPng);
 
 const
   SetupHeaderStrings = 34;
