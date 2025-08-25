@@ -172,11 +172,10 @@ begin
       FControl.Width := Icon.Width;
       FControl.Height := Icon.Height;
 
-      { Draw icon into bitmap }
-      Bitmap.Canvas.Brush.Color := BkColor;
-      Bitmap.Width := FControl.Width;
-      Bitmap.Height := FControl.Height;
-      Bitmap.Canvas.Draw(0, 0, Icon);
+      { Set bitmap }
+      AutoSize := False;
+      BackColor := BkColor;
+      Bitmap.Assign(Icon);
 
       Result := True;
     finally

@@ -888,9 +888,9 @@ begin
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', SelectDirPage.Color, [32, 48, 64]); {don't localize}
-  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', SelectProgramGroupPage.Color, [32, 48, 64]); {don't localize}
-  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', PreparingPage.Color, [16, 24, 32]); {don't localize}
+  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', clNone, [32, 48, 64]); {don't localize}
+  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', clNone, [32, 48, 64]); {don't localize}
+  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', clNone, [16, 24, 32]); {don't localize}
 
   if shUsesBuiltinWizardImages in SetupHeader.Options then begin
     WizardBitmapImage.BackColor := $F9F3E8; { Bluish Gray }
