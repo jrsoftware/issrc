@@ -2,7 +2,7 @@ unit Compression.LZMA1SmallDecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ unit Compression.LZMA1SmallDecompressor;
 interface
 
 uses
-  Windows, SysUtils, Compression.Base, Shared.Int64Em;
+  Windows, SysUtils, Compression.Base;
 
 type
   { Internally-used record }

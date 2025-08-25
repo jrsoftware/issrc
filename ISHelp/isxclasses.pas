@@ -170,6 +170,12 @@ TBitmap = class(TGraphic)
   property Handle: HBITMAP; read write;
 end;
 
+TPngImage = class(TGraphic)
+  procedure LoadFromStream(Stream: TStream);
+  procedure SaveToStream(Stream: TStream);
+  property Canvas: TCanvas; read write;
+end;
+
 TAlign = (alNone, alTop, alBottom, alLeft, alRight, alClient);
 
 TAnchorKind = (akLeft, akTop, akRight, akBottom);
@@ -671,9 +677,10 @@ TBitmapButton = class(TCustomControl)
   property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property BackColor: TColor; read write;
+  property Bitmap: TBitmap; read write;
   property Caption: Boolean; read write;
   property Center: Boolean; read write;
-  property Bitmap: TBitmap; read write;
+  property PngImage: TPngImage; read write;
   property ReplaceColor: TColor; read write;
   property ReplaceWithColor: TColor; read write;
   property Stretch: Boolean; read write;
@@ -685,8 +692,9 @@ TBitmapImage = class(TGraphicControl)
   property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property BackColor: TColor; read write;
-  property Center: Boolean; read write;
   property Bitmap: TBitmap; read write;
+  property Center: Boolean; read write;
+  property PngImage: TPngImage; read write;
   property ReplaceColor: TColor; read write;
   property ReplaceWithColor: TColor; read write;
   property Stretch: Boolean; read write;

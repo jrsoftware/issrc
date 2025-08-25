@@ -12,7 +12,7 @@ unit Compression.Base;
 interface
 
 uses
-  Windows, SysUtils, ChaCha20, Shared.Int64Em, Shared.FileClass, Shared.Struct, Shared.EncryptionFunc;
+  Windows, SysUtils, ChaCha20, Shared.FileClass, Shared.Struct, Shared.EncryptionFunc;
 
 type
   ECompressError = class(Exception);
@@ -73,7 +73,7 @@ type
   private
     FCompressor: TCustomCompressor;
     FFile: TFile;
-    FStartPos: Integer64;
+    FStartPos: Int64;
     FTotalBytesStored: Cardinal;
     FInBufferCount, FOutBufferCount: Cardinal;
     FInBuffer, FOutBuffer: array[0..4095] of Byte;
@@ -403,7 +403,6 @@ end;
 
 procedure TCompressedBlockWriter.Finish;
 var
-  Pos: Integer64;
   HdrCRC: Longint;
   Hdr: TCompressedBlockHeader;
 begin
@@ -413,14 +412,14 @@ begin
   if FOutBufferCount > 0 then
     FlushOutputBuffer;
 
-  Pos := FFile.Position;
-  FFile.Seek64(FStartPos);
+  var Pos := FFile.Position;
+  FFile.Seek(FStartPos);
   Hdr.StoredSize := FTotalBytesStored;
   Hdr.Compressed := Assigned(FCompressor);
   HdrCRC := GetCRC32(Hdr, SizeOf(Hdr));
   FFile.WriteBuffer(HdrCRC, SizeOf(HdrCRC));
   FFile.WriteBuffer(Hdr, SizeOf(Hdr));
-  FFile.Seek64(Pos);
+  FFile.Seek(Pos);
 end;
 
 { TCompressedBlockReader }
@@ -430,7 +429,6 @@ constructor TCompressedBlockReader.Create(AFile: TFile;
 var
   HdrCRC: Longint;
   Hdr: TCompressedBlockHeader;
-  P: Integer64;
 begin
   inherited Create;
 
@@ -441,9 +439,9 @@ begin
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if HdrCRC <> GetCRC32(Hdr, SizeOf(Hdr)) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
-  P := AFile.Position;
-  Inc64(P, Hdr.StoredSize);
-  if Compare64(P, AFile.Size) > 0 then
+  var P := AFile.Position;
+  Inc(P, Hdr.StoredSize);
+  if P > AFile.Size then
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if Hdr.Compressed then
     FDecompressor := ADecompressorClass.Create(DecompressorReadProc);
@@ -452,8 +450,6 @@ begin
 end;
 
 destructor TCompressedBlockReader.Destroy;
-var
-  P: Integer64;
 begin
   FDecompressor.Free;
   if FInitialized then begin
@@ -461,9 +457,9 @@ begin
       compressed, or if it did read everything but zlib is in a "CHECK" state
       (i.e. it didn't read and verify the trailing adler32 yet due to lack of
       input bytes). }
-    P := FFile.Position;
-    Inc64(P, FInBytesLeft);
-    FFile.Seek64(P);
+    var P := FFile.Position;
+    Inc(P, FInBytesLeft);
+    FFile.Seek(P);
   end;
   inherited;
 end;

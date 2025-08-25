@@ -75,10 +75,11 @@ function GetUninstallProgressForm: TUninstallProgressForm;
 function GetMsgBoxCaption: String;
 procedure InitializeScaleBaseUnits;
 function IsProtectedSrcExe(const Filename: String): Boolean;
+function LogFmtHelper(const S: String; const Args: array of const): String;
+function FmtMessageHelper(const S: String; const Args: array of String): String;
 function FindFirstHelper(const FileName: String; var FindRec: TFindRec): Boolean;
 function FindNextHelper(var FindRec: TFindRec): Boolean;
 procedure FindCloseHelper(var FindRec: TFindRec);
-function FmtMessageHelper(const S: String; const Args: array of String): String;
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);
 procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
   var RootKey: HKEY);
@@ -182,6 +183,16 @@ begin
     Result := False;
 end;
 
+function LogFmtHelper(const S: String; const Args: array of const): String;
+begin
+  LogFmt(S, Args);
+end;
+
+function FmtMessageHelper(const S: String; const Args: array of String): String;
+begin
+  Result := FmtMessage(PChar(S), Args);
+end;
+
 procedure FindDataToFindRec(const FindData: TWin32FindData;
   var FindRec: TFindRec);
 begin
@@ -227,11 +238,6 @@ begin
     Windows.FindClose(FindRec.FindHandle);
     FindRec.FindHandle := 0;
   end;
-end;
-
-function FmtMessageHelper(const S: String; const Args: array of String): String;
-begin
-  Result := FmtMessage(PChar(S), Args);
 end;
 
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);

@@ -15,7 +15,7 @@ unit Setup.Install.HelperFunc;
 interface
 
 uses
-  Windows, SHA256, Shared.FileClass, Shared.Int64Em, Shared.Struct, Setup.UninstallLog;
+  Windows, SHA256, Shared.FileClass, Shared.Struct, Setup.UninstallLog;
 
 type
   TSetupUninstallLog = class(TUninstallLog)
@@ -30,18 +30,17 @@ procedure SetStatusLabelText(const S: String;
   const ClearFilenameLabelText: Boolean = True);
 procedure InstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
   const Param: LongInt);
-procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Integer64);
-procedure InitProgressGauge(const InstallFilesSize: Integer64);
+procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
+procedure InitProgressGauge(const InstallFilesSize: Int64);
 procedure UpdateProgressGauge;
 procedure FinishProgressGauge(const HideGauge: Boolean);
-procedure SetProgress(const AProgress: Integer64);
-procedure IncProgress(const N: Cardinal);
-procedure IncProgress64(const N: Integer64);
-function CurProgress: Integer64;
+procedure SetProgress(const AProgress: Int64);
+procedure IncProgress(const N: Int64);
+function CurProgress: Int64;
 procedure ProcessEvents;
 procedure InternalProgressProc(const Bytes: Cardinal);
-procedure ExternalProgressProc64(const Bytes, MaxProgress: Integer64);
-procedure JustProcessEventsProc64(const Bytes, Param: Integer64);
+procedure ExternalProgressProc64(const Bytes, MaxProgress: Int64);
+procedure JustProcessEventsProc64(const Bytes, Param: Int64);
 function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
   const RetryIgnoreAbortButtonLabels: array of String): Boolean;
 function FileTimeToStr(const AFileTime: TFileTime): String;
@@ -49,7 +48,7 @@ function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: Str
   var Sum: TSHA256Digest): Boolean;
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
-  const AExpectedSize: Integer64);
+  const AExpectedSize: Int64);
 function ShortenOrExpandFontFilename(const Filename: String): String;
 function GetLocalTimeAsStr: String;
 procedure PackCustomMessagesIntoString(var S: String);
@@ -119,70 +118,66 @@ begin
   SetAppTaskbarProgressState(States[NewState]);
 end;
 
-procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Integer64);
+procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
 var
   N: Integer;
   CurFile: PSetupFileEntry;
-  FileSize: Integer64;
 begin
-  InstallFilesSize := To64(0);
+  InstallFilesSize := 0;
   AfterInstallFilesSize := InstallFilesSize;
   for N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
     if ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
       with CurFile^ do begin
+        var FileSize: Int64;
         if LocationEntry <> -1 then  { not an "external" file }
           FileSize := PSetupFileLocationEntry(Entries[seFileLocation][
            LocationEntry])^.OriginalSize
         else
           FileSize := ExternalSize;
-        Inc6464(InstallFilesSize, FileSize);
+        Inc(InstallFilesSize, FileSize);
         if not (foDeleteAfterInstall in Options) then
-          Inc6464(AfterInstallFilesSize, FileSize);
+          Inc(AfterInstallFilesSize, FileSize);
       end;
     end;
   end;
 end;
 
 var
-  CurProgressValue: Integer64;
+  CurProgressValue: Int64;
   ProgressShiftCount: Cardinal;
 
-procedure InitProgressGauge(const InstallFilesSize: Integer64);
-var
-  NewMaxValue: Integer64;
+procedure InitProgressGauge(const InstallFilesSize: Int64);
 begin
   { Calculate the MaxValue for the progress meter }
-  NewMaxValue := To64(1000 * Entries[seIcon].Count);
-  if Entries[seIni].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
-  if Entries[seRegistry].Count <> 0 then Inc(NewMaxValue.Lo, 1000);
-  Inc6464(NewMaxValue, InstallFilesSize);
+  var NewMaxValue: Int64 := 1000 * Entries[seIcon].Count;
+  if Entries[seIni].Count <> 0 then Inc(NewMaxValue, 1000);
+  if Entries[seRegistry].Count <> 0 then Inc(NewMaxValue, 1000);
+  Inc(NewMaxValue, InstallFilesSize);
   { To avoid progress updates that are too small to result in any visible
     change, divide the Max value by 2 until it's under 1500 }
   ProgressShiftCount := 0;
-  while (NewMaxValue.Hi <> 0) or (NewMaxValue.Lo >= Cardinal(1500)) do begin
-    Shr64(NewMaxValue, 1);
+  while NewMaxValue >= 1500 do begin
+    NewMaxValue := NewMaxValue shr 1;
     Inc(ProgressShiftCount);
   end;
-  WizardForm.ProgressGauge.Max := NewMaxValue.Lo;
+  WizardForm.ProgressGauge.Max := NewMaxValue;
   SetMessageBoxCallbackFunc(InstallMessageBoxCallback, 0);
 end;
 
 procedure UpdateProgressGauge;
-var
-  NewPosition: Integer64;
 begin
-  NewPosition := CurProgressValue;
-  Shr64(NewPosition, ProgressShiftCount);
-  if WizardForm.ProgressGauge.Position <> Longint(NewPosition.Lo) then begin
-    WizardForm.ProgressGauge.Position := NewPosition.Lo;
+  var NewPosition := CurProgressValue;
+  NewPosition := NewPosition shr ProgressShiftCount;
+  if WizardForm.ProgressGauge.Position <> NewPosition then begin
+    WizardForm.ProgressGauge.Position := NewPosition;
     WizardForm.ProgressGauge.Update;
   end;
-  SetAppTaskbarProgressValue(NewPosition.Lo, WizardForm.ProgressGauge.Max);
+  SetAppTaskbarProgressValue(NewPosition, WizardForm.ProgressGauge.Max);
 
   if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try
-      CodeRunner.RunProcedures('CurInstallProgressChanged', [NewPosition.Lo,
+      CodeRunner.RunProcedures('CurInstallProgressChanged', [NewPosition,
         WizardForm.ProgressGauge.Max], False);
     except
       Log('CurInstallProgressChanged raised an exception.');
@@ -201,25 +196,19 @@ begin
   SetAppTaskbarProgressState(tpsNoProgress);
 end;
 
-procedure SetProgress(const AProgress: Integer64);
+procedure SetProgress(const AProgress: Int64);
 begin
   CurProgressValue := AProgress;
   UpdateProgressGauge;
 end;
 
-procedure IncProgress(const N: Cardinal);
+procedure IncProgress(const N: Int64);
 begin
-  Inc64(CurProgressValue, N);
+  Inc(CurProgressValue, N);
   UpdateProgressGauge;
 end;
 
-procedure IncProgress64(const N: Integer64);
-begin
-  Inc6464(CurProgressValue, N);
-  UpdateProgressGauge;
-end;
-
-function CurProgress: Integer64;
+function CurProgress: Int64;
 begin
   Result := CurProgressValue;
 end;
@@ -241,20 +230,20 @@ begin
   ProcessEvents;
 end;
 
-procedure ExternalProgressProc64(const Bytes, MaxProgress: Integer64);
+procedure ExternalProgressProc64(const Bytes, MaxProgress: Int64);
 begin
   var NewProgress := CurProgress;
-  Inc6464(NewProgress, Bytes);
+  Inc(NewProgress, Bytes);
   { In case the source file was larger than we thought it was, stop the
     progress bar at the maximum amount. Also see CopySourceFileToDestFile. }
-  if Compare64(NewProgress, MaxProgress) > 0 then
+  if NewProgress > MaxProgress then
     NewProgress := MaxProgress;
   SetProgress(NewProgress);
   
   ProcessEvents;
 end;
 
-procedure JustProcessEventsProc64(const Bytes, Param: Integer64);
+procedure JustProcessEventsProc64(const Bytes, Param: Int64);
 begin
   ProcessEvents;
 end;
@@ -305,11 +294,10 @@ end;
 
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
-  const AExpectedSize: Integer64);
+  const AExpectedSize: Int64);
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
 var
-  BytesLeft: Integer64;
   BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
   Context: TSHA256Context;
@@ -325,30 +313,30 @@ begin
   end;
 
   var MaxProgress := CurProgress;
-  Inc6464(MaxProgress, AExpectedSize);
-  BytesLeft := SourceF.Size;
+  Inc(MaxProgress, AExpectedSize);
+  var BytesLeft := SourceF.Size;
 
   { To avoid file system fragmentation, preallocate all of the bytes in the
     destination file }
-  DestF.Seek64(BytesLeft);
+  DestF.Seek(BytesLeft);
   DestF.Truncate;
   DestF.Seek(0);
 
   while True do begin
     BufSize := SizeOf(Buf);
-    if (BytesLeft.Hi = 0) and (BytesLeft.Lo < BufSize) then
-      BufSize := BytesLeft.Lo;
+    if BytesLeft < BufSize then
+      BufSize := BytesLeft;
     if BufSize = 0 then
       Break;
 
     SourceF.ReadBuffer(Buf, BufSize);
     DestF.WriteBuffer(Buf, BufSize);
-    Dec64(BytesLeft, BufSize);
+    Dec(BytesLeft, BufSize);
 
     if Verification.Typ <> fvNone then
       SHA256Update(Context, Buf, BufSize);
 
-    ExternalProgressProc64(To64(BufSize), MaxProgress);
+    ExternalProgressProc64(BufSize, MaxProgress);
   end;
 
   if Verification.Typ <> fvNone then begin

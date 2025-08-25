@@ -12,7 +12,7 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  Windows, SysUtils, Shared.FileClass, Compression.Base,
   Shared.Struct, ChaCha20;
 
 type
@@ -23,8 +23,8 @@ type
     FDecompressor: array[Boolean] of TCustomDecompressor;
     FSourceF: TFile;
     FOpenedSlice, FChunkFirstSlice, FChunkLastSlice: Integer;
-    FChunkStartOffset: Longint;
-    FChunkBytesLeft, FChunkDecompressedBytesRead: Integer64;
+    FChunkStartOffset: Int64;
+    FChunkBytesLeft, FChunkDecompressedBytesRead: Int64;
     FNeedReset: Boolean;
     FChunkCompressed, FChunkEncrypted: Boolean;
     FCryptContext: TChaCha20Context;
@@ -183,7 +183,7 @@ begin
     FNeedReset := True;
     raise;
   end;
-  Inc64(FChunkDecompressedBytesRead, Count);
+  Inc(FChunkDecompressedBytesRead, Count);
 end;
 
 procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
@@ -199,7 +199,7 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     XChaCha20Init(FCryptContext, FCryptKey[0], Length(FCryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
-  procedure Discard(Count: Integer64);
+  procedure Discard(Count: Int64);
   var
     Buf: array[0..65535] of Byte;
     BufSize: Cardinal;
@@ -207,12 +207,12 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     try
       while True do begin
         BufSize := SizeOf(Buf);
-        if (Count.Hi = 0) and (Count.Lo < BufSize) then
-          BufSize := Count.Lo;
+        if Count < BufSize then
+          BufSize := Count;
         if BufSize = 0 then
           Break;
         DecompressBytes(Buf, BufSize);
-        Dec64(Count, BufSize);
+        Dec(Count, BufSize);
         if Assigned(ProgressProc) then
           ProgressProc(0);
       end;
@@ -224,7 +224,6 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
 
 var
   TestCompID: TCompID;
-  Diff: Integer64;
 begin
   if FEntered <> 0 then
     InternalError('Cannot call file extractor recursively');
@@ -238,7 +237,7 @@ begin
       Or, did a previous decompression operation fail, necessitating a reset? }
     if (FChunkFirstSlice <> FL.FirstSlice) or
        (FChunkStartOffset <> FL.StartOffset) or
-       (Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) < 0) or
+       (FL.ChunkSuboffset < FChunkDecompressedBytesRead) or
        FNeedReset then begin
       FChunkFirstSlice := -1;
       FDecompressor[floChunkCompressed in FL.Flags].Reset;
@@ -256,7 +255,7 @@ begin
       FChunkLastSlice := FL.LastSlice;
       FChunkStartOffset := FL.StartOffset;
       FChunkBytesLeft := FL.ChunkCompressedSize;
-      FChunkDecompressedBytesRead := To64(0);
+      FChunkDecompressedBytesRead := 0;
       FChunkCompressed := floChunkCompressed in FL.Flags;
       FChunkEncrypted := floChunkEncrypted in FL.Flags;
 
@@ -265,9 +264,9 @@ begin
     end;
 
     { Need to seek forward in the chunk? }
-    if Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) > 0 then begin
-      Diff := FL.ChunkSuboffset;
-      Dec6464(Diff, FChunkDecompressedBytesRead);
+    if FL.ChunkSuboffset > FChunkDecompressedBytesRead then begin
+      var Diff := FL.ChunkSuboffset;
+      Dec(Diff, FChunkDecompressedBytesRead);
       Discard(Diff);
     end;
   finally
@@ -282,12 +281,12 @@ var
 begin
   Buffer := @Buf;
   Left := Count;
-  if (FChunkBytesLeft.Hi = 0) and (FChunkBytesLeft.Lo < Left) then
-    Left := FChunkBytesLeft.Lo;
+  if FChunkBytesLeft < Left then
+    Left := FChunkBytesLeft;
   Result := Left;
   while Left <> 0 do begin
     Res := FSourceF.Read(Buffer^, Left);
-    Dec64(FChunkBytesLeft, Res);
+    Dec(FChunkBytesLeft, Res);
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
@@ -311,7 +310,6 @@ procedure TFileExtractor.DecompressFile(const FL: TSetupFileLocationEntry;
   const DestF: TFile; const ProgressProc: TExtractorProgressProc;
   const VerifyChecksum: Boolean);
 var
-  BytesLeft: Integer64;
   Context: TSHA256Context;
   AddrOffset: LongWord;
   BufSize: Cardinal;
@@ -323,11 +321,11 @@ begin
     InternalError('Cannot call file extractor recursively');
   Inc(FEntered);
   try
-    BytesLeft := FL.OriginalSize;
+    var BytesLeft := FL.OriginalSize;
 
     { To avoid file system fragmentation, preallocate all of the bytes in the
       destination file }
-    DestF.Seek64(BytesLeft);
+    DestF.Seek(BytesLeft);
     DestF.Truncate;
     DestF.Seek(0);
 
@@ -337,8 +335,8 @@ begin
       AddrOffset := 0;
       while True do begin
         BufSize := SizeOf(Buf);
-        if (BytesLeft.Hi = 0) and (BytesLeft.Lo < BufSize) then
-          BufSize := BytesLeft.Lo;
+        if BytesLeft < BufSize then
+          BufSize := BytesLeft;
         if BufSize = 0 then
           Break;
 
@@ -347,7 +345,7 @@ begin
           TransformCallInstructions(Buf, BufSize, False, AddrOffset);
           Inc(AddrOffset, BufSize);  { may wrap, but OK }
         end;
-        Dec64(BytesLeft, BufSize);
+        Dec(BytesLeft, BufSize);
         SHA256Update(Context, Buf, BufSize);
         DestF.WriteBuffer(Buf, BufSize);
 

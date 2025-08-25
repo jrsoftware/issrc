@@ -12,8 +12,8 @@ unit Setup.MainFunc;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, Generics.Collections,
+  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   Shared.SetupTypes, Setup.ScriptRunner, RestartManager;
 
 type
@@ -24,6 +24,8 @@ type
   TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
     sfFonts, sfAppData, sfDocs, sfTemplates,                                  //
     sfFavorites, sfLocalAppData, sfUserProgramFiles, sfUserCommonFiles, sfUserSavedGames); //these only have user versions
+
+  TWizardImages = TObjectList<TGraphic>;
 
 const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
@@ -104,13 +106,13 @@ var
   UninstallExpandedGroupName, UninstallExpandedLanguage: String;
   UninstallSilent: Boolean;
 
-  { Variables read in from the SETUP.0 file }
+  { Variables read in from the Setup.0 file }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImages: TList;
-  WizardSmallImages: TList;
+  WizardImages: TWizardImages;
+  WizardSmallImages: TWizardImages;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -148,7 +150,7 @@ var
   NTServicePackLevel: Word;
   WindowsProductType: Byte;
   WindowsSuiteMask: Word;
-  MinimumSpace: Integer64;
+  MinimumSpace: Int64;
   DeleteFilesAfterInstallList, DeleteDirsAfterInstallList: TStringList;
   ExpandedAppName, ExpandedAppVerName, ExpandedAppCopyright, ExpandedAppMutex: String;
   DisableCodeConsts: Integer;
@@ -238,7 +240,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -1646,7 +1648,7 @@ begin
   end;
 end;
 
-function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Integer64): Integer64;
+function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Int64): Int64;
 var
   ComponentNameAsList: TStringList;
   FileEntry: PSetupFileEntry;
@@ -1664,9 +1666,9 @@ begin
            ((Tasks = '') and (Check = '')) then begin {don't count tasks or scripted entries}
           if ShouldProcessFileEntry(ComponentNameAsList, nil, FileEntry, True) then begin
             if LocationEntry <> -1 then
-              Inc6464(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+              Inc(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
             else
-              Inc6464(Result, ExternalSize);
+              Inc(Result, ExternalSize);
             end;
         end;
       end;
@@ -1676,12 +1678,12 @@ begin
   end;
 end;
 
-function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Integer64;
+function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Int64;
 var
   ComponentTypes: TStringList;
   I: Integer;
 begin
-  Result := To64(0);
+  Result := 0;
   ComponentTypes := TStringList.Create();
 
   for I := 0 to Entries[seComponent].Count-1 do begin
@@ -1690,10 +1692,10 @@ begin
       { For custom types, only count fixed components. Otherwise count all. }
       if IsCustom then begin
         if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
-          Inc6464(Result, Size);
+          Inc(Result, Size);
       end else begin
         if ListContains(ComponentTypes, TypeName) then
-          Inc6464(Result, Size);
+          Inc(Result, Size);
       end;
     end;
   end;
@@ -2636,14 +2638,18 @@ var
     end;
   end;
 
-  function ReadWizardImage(const Reader: TCompressedBlockReader): TBitmap;
+  function ReadWizardImage(const Reader: TCompressedBlockReader): TGraphic;
   begin
     const MemStream = TMemoryStream.Create;
     try
       ReadFileIntoStream(Reader, MemStream);
       MemStream.Seek(0, soFromBeginning);
-      Result := TBitmap.Create;
-      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      if TPngImage.CanLoadFromStream(MemStream) then
+        Result := TPngImage.Create
+      else begin
+        Result := TBitmap.Create;
+        TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      end;
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
@@ -2766,11 +2772,11 @@ var
   function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings;
-    const RecurseSubDirs: Boolean): Integer64;
+    const RecurseSubDirs: Boolean): Int64;
   begin
     { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
       Also see RecurseExternalArchiveGetSizeOfFiles directly below }
-    Result := To64(0);
+    Result := 0;
 
     var FindData: TWin32FindData;
     var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
@@ -2785,10 +2791,7 @@ var
           if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
             Continue;
 
-          var I: Integer64;
-          I.Hi := FindData.nFileSizeHigh;
-          I.Lo := FindData.nFileSizeLow;
-          Inc6464(Result, I);
+          Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
         end;
       until not FindNextFile(H, FindData);
       Windows.FindClose(H);
@@ -2803,7 +2806,7 @@ var
               var I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, Excludes, RecurseSubDirs);
-              Inc6464(Result, I);
+              Inc(Result, I);
             end;
           until not FindNextFile(H, FindData);
         finally
@@ -2815,10 +2818,10 @@ var
 
   function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
     const ArchiveFilename, Password: String; const Excludes: TStrings;
-    const RecurseSubDirs: Boolean): Integer64;
+    const RecurseSubDirs: Boolean): Int64;
   begin
     { See above }
-    Result := To64(0);
+    Result := 0;
 
     if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
       Exit;
@@ -2835,10 +2838,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            var I: Integer64;
-            I.Hi := FindData.nFileSizeHigh;
-            I.Lo := FindData.nFileSizeLow;
-            Inc6464(Result, I);
+            Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally
@@ -2947,7 +2947,6 @@ var
   NameAndVersionMsg: String;
   NextAllowedLevel: Integer;
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
-  MinimumTypeSpace: Integer64;
   SourceWildcard: String;
   ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
@@ -3541,7 +3540,7 @@ begin
         if LocationEntry <> -1 then begin { not an "external" file }
           if Components = '' then { no types or a file that doesn't belong to any component }
             if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
-              Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+              Inc(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
         end else begin
           if not(foExternalSizePreset in Options) then begin
             if foDownload in Options then
@@ -3572,7 +3571,7 @@ begin
           end;
           if Components = '' then { no types or a file that doesn't belong to any component }
             if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
-              Inc6464(MinimumSpace, ExternalSize);
+              Inc(MinimumSpace, ExternalSize);
         end;
       end;
     end;
@@ -3585,14 +3584,15 @@ begin
       Size := GetSizeOfComponent(Name, ExtraDiskSpaceRequired);
 
   if Entries[seType].Count > 0 then begin
+    var MinimumTypeSpace: Int64 := 0;
     for I := 0 to Entries[seType].Count-1 do begin
       with PSetupTypeEntry(Entries[seType][I])^ do begin
         Size := GetSizeOfType(Name, toIsCustom in Options);
-        if (I = 0) or (Compare64(Size, MinimumTypeSpace) < 0) then
+        if (I = 0) or (Size < MinimumTypeSpace) then
           MinimumTypeSpace := Size;
       end;
     end;
-    Inc6464(MinimumSpace, MinimumTypeSpace);
+    Inc(MinimumSpace, MinimumTypeSpace);
   end;
 end;
 
@@ -3972,14 +3972,8 @@ begin
 end;
 
 procedure FreeWizardImages;
-var
-  I: Integer;
 begin
-  for I := WizardImages.Count-1 downto 0 do
-    TBitmap(WizardImages[I]).Free;
   FreeAndNil(WizardImages);
-  for I := WizardSmallImages.Count-1 downto 0 do
-    TBitmap(WizardSmallImages[I]).Free;
   FreeAndNil(WizardSmallImages);
 end;
 
@@ -3998,8 +3992,8 @@ initialization
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
   CloseApplicationsFilterExcludesList := TStringList.Create;
-  WizardImages := TList.Create;
-  WizardSmallImages := TList.Create;
+  WizardImages := TWizardImages.Create;
+  WizardSmallImages := TWizardImages.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 

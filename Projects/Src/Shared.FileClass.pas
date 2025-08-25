@@ -36,7 +36,6 @@ type
     function Read(var Buffer; Count: Cardinal): Cardinal; virtual; abstract;
     procedure ReadBuffer(var Buffer; Count: Cardinal);
     procedure Seek(Offset: Int64); virtual; abstract;
-    procedure Seek64(Offset: Int64);
     procedure WriteAnsiString(const S: AnsiString);
     procedure WriteBuffer(const Buffer; Count: Cardinal); virtual; abstract;
     property CappedSize: Cardinal read GetCappedSize;
@@ -193,11 +192,6 @@ begin
     { Raise localized "Reached end of file" error }
     RaiseError(ERROR_HANDLE_EOF);
   end;
-end;
-
-procedure TCustomFile.Seek64(Offset: Int64);
-begin
-  Seek(Offset);
 end;
 
 procedure TCustomFile.WriteAnsiString(const S: AnsiString);
@@ -508,7 +502,7 @@ begin
           if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
             FCodePage := CP_UTF8;
         finally
-          Seek64(OldPosition);
+          Seek(OldPosition);
         end;
       end;
     end;

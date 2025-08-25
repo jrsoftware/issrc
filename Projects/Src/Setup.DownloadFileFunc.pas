@@ -12,22 +12,26 @@ unit Setup.DownloadFileFunc;
 interface
 
 uses
-  Shared.Int64Em, Shared.FileClass, Shared.Struct;
+  Shared.FileClass, Shared.Struct;
 
 type
   TOnDownloadProgress = function(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean of object;
-  TOnSimpleDownloadProgress = procedure(const Bytes, Param: Integer64);
+  TOnSimpleDownloadProgress = procedure(const Bytes, Param: Int64);
+  TOnDownloadNoProgress = function: Boolean of object;
+  TOnSimpleDownloadNoProgress = procedure;
 
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-  const OnSimpleDownloadProgressParam: Integer64): Int64;
+  const OnSimpleDownloadProgressParam: Int64;
+  const OnSimpleDownloadNoProgress: TOnSimpleDownloadNoProgress): Int64;
 
   function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64; overload;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  const OnDownloadNoProgress: TOnDownloadNoProgress): Int64; overload;
 function DownloadTemporaryFile(const Url, BaseName: String;
   [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
-  out DestFile: String): Int64; overload;
+  const OnDownloadNoProgress: TOnDownloadNoProgress; out DestFile: String): Int64; overload;
 function DownloadTemporaryFileSize(const Url: String): Int64;
 function DownloadTemporaryFileDate(const Url: String): String;
 procedure SetDownloadTemporaryFileCredentials(const User, Pass: String);
@@ -59,10 +63,13 @@ type
       FUser, FPass: String;
       FDestFile: TFile;
       FOnDownloadProgress: TOnDownloadProgress;
+      FOnDownloadNoProgress: TOnDownloadNoProgress;
       FOnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-      FOnSimpleDownloadProgressParam: Integer64;
+      FOnSimpleDownloadProgressParam: Int64;
+      FOnSimpleDownloadNoProgress: TOnSimpleDownloadNoProgress;
       FLock: TObject;
       FProgress, FProgressMax: Int64;
+      FProgressSet: Boolean;
       FLastReportedProgress: Int64;
       FAbort: Boolean;
       FResult: TResult;
@@ -75,8 +82,10 @@ type
     destructor Destroy; override;
     property BaseName: String write FBaseName;
     property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
+    property OnDownloadNoProgress: TOnDownloadNoProgress write FOnDownloadNoProgress;
     property OnSimpleDownloadProgress: TOnSimpleDownloadProgress write FOnSimpleDownloadProgress;
-    property OnSimpleDownloadProgressParam: Integer64 write FOnSimpleDownloadProgressParam;
+    property OnSimpleDownloadProgressParam: Int64 write FOnSimpleDownloadProgressParam;
+    property OnSimpleDownloadNoProgress: TOnSimpleDownloadNoProgress write FOnSimpleDownloadNoProgress;
     property Aborted: Boolean read FAbort;
     property Progress: Int64 read FProgress;
     property ProgressMax: Int64 read FProgressMax;
@@ -108,8 +117,7 @@ end;
 procedure SetUserAgentAndSecureProtocols(const AHTTPClient: THTTPClient);
 begin
   AHTTPClient.UserAgent := SetupTitle + ' ' + SetupVersion;
-  { TLS 1.2 isn't enabled by default on older versions of Windows }
-  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS1, THTTPSecureProtocol.TLS11, THTTPSecureProtocol.TLS12];
+  AHTTPClient.SecureProtocols := [THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
 end;
 
 { THTTPDataReceiver }
@@ -138,6 +146,7 @@ begin
   try
     FProgress := AReadCount;
     FProgressMax := AContentLength;
+    FProgressSet := True;
   finally
     System.TMonitor.Exit(FLock);
   end;
@@ -177,33 +186,41 @@ end;
 procedure THTTPDataReceiver.HandleProgress;
 begin
   var Progress, ProgressMax: Int64;
+  var ProgressSet: Boolean;
 
   System.TMonitor.Enter(FLock);
   try
     Progress := FProgress;
     ProgressMax := FProgressMax;
+    ProgressSet := FProgressSet;
   finally
     System.TMonitor.Exit(FLock);
   end;
 
-  if ProgressMax <> 0 then begin
-    try
+  try
+    if ProgressSet then begin
       if Assigned(FOnDownloadProgress) then begin
         if not FOnDownloadProgress(FCleanUrl, FBaseName, Progress, ProgressMax) then
           FAbort := True; { Atomic so no lock }
       end else if Assigned(FOnSimpleDownloadProgress) then begin
         try
-          FOnSimpleDownloadProgress(Integer64(Progress-FLastReportedProgress), FOnSimpleDownloadProgressParam);
+          FOnSimpleDownloadProgress(Progress-FLastReportedProgress, FOnSimpleDownloadProgressParam);
         finally
           FLastReportedProgress := Progress;
         end;
       end;
-    except
-      if ExceptObject is EAbort then { FOnSimpleDownloadProgress always uses Abort to abort }
-        FAbort := True { Atomic so no lock }
-      else
-        raise;
+    end else begin
+      if Assigned(FOnDownloadNoProgress) then begin
+        if not FOnDownloadNoProgress then
+          FAbort := True; { Atomic so no lock }
+      end else if Assigned(FOnSimpleDownloadNoProgress) then
+        FOnSimpleDownloadNoProgress;
     end;
+  except
+    if ExceptObject is EAbort then { FOnSimpleDownload(No)Progress always uses Abort to abort }
+      FAbort := True { Atomic so no lock }
+    else
+      raise;
   end;
 
   if DownloadTemporaryFileOrExtractArchiveProcessMessages then
@@ -319,7 +336,8 @@ end;
 function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const DestF: TFile; [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const OnSimpleDownloadProgress: TOnSimpleDownloadProgress;
-  const OnSimpleDownloadProgressParam: Integer64): Int64;
+  const OnSimpleDownloadProgressParam: Int64;
+  const OnSimpleDownloadNoProgress: TOnSimpleDownloadNoProgress): Int64;
 var
   HTTPDataReceiver: THTTPDataReceiver;
 begin
@@ -332,6 +350,7 @@ begin
   try
     HTTPDataReceiver.OnSimpleDownloadProgress := OnSimpleDownloadProgress;
     HTTPDataReceiver.OnSimpleDownloadProgressParam := OnSimpleDownloadProgressParam;
+    HTTPDataReceiver.OnSimpleDownloadNoProgress := OnSimpleDownloadNoProgress;
 
     { Download to specified handle }
     Result := HTTPDataReceiver.Download(False);
@@ -362,7 +381,7 @@ end;
 
 function DownloadTemporaryFile(const Url, BaseName: String;
   [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
-  out DestFile: String): Int64;
+  const OnDownloadNoProgress: TOnDownloadNoProgress; out DestFile: String): Int64;
 var
   TempFile: String;
   TempF: TFile;
@@ -426,6 +445,7 @@ begin
   try
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
+    HTTPDataReceiver.OnDownloadNoProgress := OnDownloadNoProgress;
 
     { To test redirects: https://jrsoftware.org/download.php/is.exe
       To test expired certificates: https://expired.badssl.com/
@@ -488,10 +508,11 @@ begin
 end;
 
 function DownloadTemporaryFile(const Url, BaseName: String;
-  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress): Int64;
+  [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
+  const OnDownloadNoProgress: TOnDownloadNoProgress): Int64;
 begin
   var DestFile: String;
-  Result := DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress, DestFile);
+  Result := DownloadTemporaryFile(Url, BaseName, Verification, OnDownloadProgress, OnDownloadNoProgress, DestFile);
 end;
 
 procedure DownloadTemporaryFileSizeAndDate(const Url: String; var FileSize: Int64; var FileDate: String);

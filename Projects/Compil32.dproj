@@ -144,7 +144,6 @@
         <DCCReference Include="Src\Shared.SignToolsFunc.pas"/>
         <DCCReference Include="Src\Shared.LicenseFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
         <DCCReference Include="Src\IDE.RegistryDesignerForm.pas">
             <Form>RegistryDesignerForm</Form>

@@ -356,9 +356,9 @@ const
   BadDirChars = '/:*?"<>|';
 
 var
-  CurrentComponentsSpace: Integer64;
+  CurrentComponentsSpace: Int64;
 
-function IntToKBStr(const I: Integer64): String;
+function IntToKBStr(const I: Int64): String;
 var
   X: Extended;
 begin
@@ -368,7 +368,7 @@ begin
   Result := Format('%.0n', [X]);
 end;
 
-function IntToMBStr(const I: Integer64): String;
+function IntToMBStr(const I: Int64): String;
 var
   X: Extended;
 begin
@@ -379,7 +379,7 @@ begin
   Result := Format('%.1n', [X]);
 end;
 
-function IntToGBStr(const I: Integer64): String;
+function IntToGBStr(const I: Int64): String;
 var
   X: Extended;
 begin
@@ -390,7 +390,7 @@ begin
   Result := Format('%.2n', [X]);
 end;
 
-function ExpandSetupMessageEx(const Msg: String; const Space: Integer64): String; overload;
+function ExpandSetupMessageEx(const Msg: String; const Space: Int64): String; overload;
 begin
   Result := Msg;
   {don't localize these}
@@ -401,15 +401,15 @@ begin
   StringChange(Result, '[gb]', IntToGBStr(Space));
 end;
 
-function ExpandSetupMessageEx(const ID: TSetupMessageID; const Space: Integer64): String; overload;
+function ExpandSetupMessageEx(const ID: TSetupMessageID; const Space: Int64): String; overload;
 begin
   Result := ExpandSetupMessageEx(SetupMessages[ID], Space);
 end;
 
 function ExpandMBOrGBSetupMessage(const MBID, GBID: TSetupMessageID;
-  const Space: Integer64): String;
+  const Space: Int64): String;
 begin
-  if Comp(Space) > 1048471142 then begin
+  if Space > 1048471142 then begin
     { Don't allow it to display 1000.0 MB or more. Takes the 'always round up' into account:
       1048471142 bytes = 999.8999996185303 MB = '999.9 MB',
       1048471143 bytes = 999.9000005722046 MB = '1,000.0 MB'. }
@@ -590,9 +590,9 @@ begin
        ShouldProcessFileEntry(SelectedComponents, nil, CurFile, True) then begin
       with CurFile^ do begin
         if LocationEntry <> -1 then
-          Inc6464(CurrentComponentsSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+          Inc(CurrentComponentsSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
         else
-          Inc6464(CurrentComponentsSpace, ExternalSize)
+          Inc(CurrentComponentsSpace, ExternalSize)
       end;
     end;
   end;
@@ -601,7 +601,7 @@ begin
   for I := 0 to Entries[seComponent].Count-1 do
     with PSetupComponentEntry(Entries[seComponent][I])^ do
       if ListContains(SelectedComponents, Name) then
-        Inc6464(CurrentComponentsSpace, ExtraDiskSpaceRequired);
+        Inc(CurrentComponentsSpace, ExtraDiskSpaceRequired);
 
   SelectedComponents.Free();
 
@@ -610,21 +610,18 @@ begin
 end;
 
 procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
-var
-  ComponentEntry: PSetupComponentEntry;
-  ComponentSize, ChildrenSize: Integer64;
 begin
-  ComponentEntry := PSetupComponentEntry(ComponentsList.ItemObject[Index]);
+  const ComponentEntry = PSetupComponentEntry(ComponentsList.ItemObject[Index]);
 
-  ChildrenSize := To64(0);
+  var ChildrenSize: Int64 := 0;
   if HasChildren then
     ComponentsList.EnumChildrenOf(Index, UpdateComponentSizesEnum, LongInt(@ChildrenSize));
-  ComponentSize := ComponentEntry.Size;
-  Inc6464(ComponentSize, ChildrenSize);
+  var ComponentSize := ComponentEntry.Size;
+  Inc(ComponentSize, ChildrenSize);
   if ComponentsList.Checked[Index] then
-    Inc6464(Integer64(Pointer(Ext)^), ComponentSize);
+    Inc(Int64(Pointer(Ext)^), ComponentSize);
 
-  if (ComponentSize.Lo <> 0) or (ComponentSize.Hi <> 0) then begin
+  if ComponentSize <> 0 then begin
     if not HasLargeComponents then
       ComponentsList.ItemSubItem[Index] := FmtSetupMessage1(msgComponentSize1, IntToKBStr(ComponentSize))
     else
@@ -634,11 +631,9 @@ begin
 end;
 
 procedure TWizardForm.UpdateComponentSizes();
-var
-  Size: Integer64;
 begin
   if shShowComponentSizes in SetupHeader.Options then begin
-    Size := To64(0);
+    var Size: Int64 := 0;
     ComponentsList.EnumChildrenOf(-1, UpdateComponentSizesEnum, LongInt(@Size));
   end;
 end;
@@ -738,7 +733,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
   using the FormCreate event, because if an exception is raised in FormCreate
   it's not propagated out. }
 
-  function SelectBestImage(WizardImages: TList; TargetWidth, TargetHeight: Integer): TBitmap;
+  function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
   var
     TargetArea, Difference, SmallestDifference, I: Integer;
   begin
@@ -748,7 +743,7 @@ constructor TWizardForm.Create(AOwner: TComponent);
       SmallestDifference := -1;
       Result := nil;
       for I := 0 to WizardImages.Count-1 do begin
-        Difference := Abs(TargetArea-TBitmap(WizardImages[I]).Width*TBitmap(WizardImages[I]).Height);
+        Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
         if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
           Result := WizardImages[I];
           SmallestDifference := Difference;
@@ -863,8 +858,8 @@ begin
         (such as 55x55 or 32x32) and WizardImageStretch=yes.
       - Otherwise, it's unclear what size/shape the user prefers for the
         control. Keep the default control size. }
-    var NewWidth := TBitmap(WizardSmallImages[0]).Width;
-    var NewHeight := TBitmap(WizardSmallImages[0]).Height;
+    var NewWidth := WizardSmallImages[0].Width;
+    var NewHeight := WizardSmallImages[0].Height;
     if (WizardSmallImages.Count > 1) or
        (NewWidth > 58) or
        (NewHeight > 58) then begin
@@ -889,17 +884,24 @@ begin
   end;
 
   { Initialize images }
-  WizardBitmapImage.Bitmap := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
+  WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.Center := True;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  WizardSmallBitmapImage.Bitmap := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
+  WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', SelectDirPage.Color, [32, 48, 64]); {don't localize}
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', SelectProgramGroupPage.Color, [32, 48, 64]); {don't localize}
   PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', PreparingPage.Color, [16, 24, 32]); {don't localize}
+
+  if shUsesBuiltinWizardImages in SetupHeader.Options then begin
+    WizardBitmapImage.BackColor := $F9F3E8; { Bluish Gray }
+    WizardBitmapImage2.BackColor := WizardBitmapImage.BackColor;
+  end;
+  if shUsesBuiltinSmallWizardImages in SetupHeader.Options then
+    WizardSmallBitmapImage.BackColor := clNone;
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');
@@ -1185,7 +1187,7 @@ begin
       ComponentsList.AddCheckBox(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
         False, not (coFixed in ComponentEntry.Options), ComponentEntry.Used,
         not (coDontInheritCheck in ComponentEntry.Options), TObject(ComponentEntry));
-    if (ComponentEntry.Size.Hi <> 0) or (ComponentEntry.Size.Lo >= LongWord(1024*1024)) then
+    if ComponentEntry.Size >= 1024*1024 then
       HasLargeComponents := True;
   end;
 

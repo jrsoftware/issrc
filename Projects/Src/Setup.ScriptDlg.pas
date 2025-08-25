@@ -198,6 +198,7 @@ type
         const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
+      function InternalOnDownloadNoProgress: Boolean;
       function InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       procedure ShowProgressControls(const AVisible: Boolean);
     public
@@ -1021,6 +1022,17 @@ begin
   end;
 end;
 
+function TDownloadWizardPage.InternalOnDownloadNoProgress: Boolean;
+begin
+  if FAbortedByUser then begin
+    Log('Need to abort download.');
+    Result := False;
+  end else begin
+    ProcessMsgs;
+    Result := True;
+  end;
+end;
+
 function TDownloadWizardPage.InternalThrottledOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
 begin
   if ProgressMax > 0 then
@@ -1079,7 +1091,6 @@ procedure TDownloadWizardPage.ShowProgressControls(const AVisible: Boolean);
 begin
   FMsg2Label.Visible := AVisible;
   FProgressBar.Visible := AVisible;
-  FAbortButton.Visible := AVisible;
 end;
 
 function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
@@ -1179,7 +1190,8 @@ begin
       FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
       SetDownloadTemporaryFileCredentials(F.UserName, F.Password);
       var DestFile: String;
-      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification, InternalOnDownloadProgress, DestFile);
+      Result := Result + DownloadTemporaryFile(F.Url, F.BaseName, F.Verification,
+        InternalOnDownloadProgress, InternalOnDownloadNoProgress, DestFile);
       if Assigned(OnDownloadFileCompleted) then begin
         var Remove := False;
         OnDownloadFileCompleted(F, DestFile, Remove);
@@ -1292,7 +1304,6 @@ procedure TExtractionWizardPage.ShowProgressControls(const AVisible: Boolean);
 begin
   FMsg2Label.Visible := AVisible;
   FProgressBar.Visible := AVisible;
-  FAbortButton.Visible := AVisible;
 end;
 
 function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;

@@ -2,7 +2,7 @@ unit Setup.LoggingFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,20 +24,20 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.CommonFunc, Shared.FileClass, Setup.DebugClient;
+  Windows, SysUtils, Shared.CommonFunc, Shared.FileClass, Setup.DebugClient;
 
 var
   LogFile: TTextFileWriter;
   LogFileName: String;
-  LocalTimeBias: Integer64;
+  LocalTimeBias: Int64;
 
 procedure InitLocalTimeBias;
 var
-  UTCTime, LocalTime: Integer64;
+  UTCTime, LocalTime: Int64;
 begin
   GetSystemTimeAsFileTime(TFileTime(UTCTime));
   if FileTimeToLocalFileTime(TFileTime(UTCTime), TFileTime(LocalTime)) then begin
-    Dec6464(LocalTime, UTCTime);
+    Dec(LocalTime, UTCTime);
     LocalTimeBias := LocalTime;
   end;
 end;
@@ -46,31 +46,27 @@ procedure GetFixedLocalTime(var ST: TSystemTime);
 { Like GetLocalTime, but uses our LocalTimeBias as the offset, which cannot
   change while the program is running } 
 var
-  FT: Integer64;
+  FT: Int64;
 begin
   GetSystemTimeAsFileTime(TFileTime(FT));
-  Inc6464(FT, LocalTimeBias);
+  Inc(FT, LocalTimeBias);
   FileTimeToSystemTime(TFileTime(FT), ST);
 end;
 
 procedure LogLogOpened;
 var
-  Offset: Integer64;
   PlusOrMinus: Char;
 begin
-  Offset := LocalTimeBias;
-  if Longint(Offset.Hi) >= 0 then
+  var Offset := LocalTimeBias;
+  if Offset >= 0 then
     PlusOrMinus := '+'
   else begin
     PlusOrMinus := '-';
-    { Negate it }
-    Offset.Lo := not Offset.Lo;
-    Offset.Hi := not Offset.Hi;
-    Inc64(Offset, 1);
+    Offset := -Offset;
   end;
-  Div64(Offset, 60 * 10000000);
+  Offset := Offset div (60 * 10000000);
   LogFmt('Log opened. (Time zone: UTC%s%.2u:%.2u)', [PlusOrMinus,
-    Offset.Lo div 60, Offset.Lo mod 60]);
+    Offset div 60, Offset mod 60]);
 end;
 
 procedure StartLogging(const Prefix: String);

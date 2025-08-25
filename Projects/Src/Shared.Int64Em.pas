@@ -8,8 +8,6 @@ unit Shared.Int64Em;
 
   Declaration of the Integer64 type - which represents an *unsigned* 64-bit
   integer value - and functions for manipulating Integer64's.
-  (We can't use the Int64 type since it's only available in Delphi 4 and
-  later.)
 }
 
 interface
@@ -23,17 +21,12 @@ type
 
 function Compare64(const N1, N2: Integer64): Integer;
 procedure Dec64(var X: Integer64; N: LongWord);
-procedure Dec6464(var X: Integer64; const N: Integer64);
 function Div64(var X: Integer64; const Divisor: LongWord): LongWord;
-function Inc64(var X: Integer64; N: LongWord): Boolean;
 function Inc6464(var X: Integer64; const N: Integer64): Boolean;
-function Integer64ToStr(X: Integer64): String;
 function Mod64(const X: Integer64; const Divisor: LongWord): LongWord;
-function Mul64(var X: Integer64; N: LongWord): Boolean;
 procedure Multiply32x32to64(N1, N2: LongWord; var X: Integer64);
-procedure Shr64(var X: Integer64; Count: LongWord);
-function StrToInteger64(const S: String; var X: Integer64): Boolean;
-function To64(const Lo: Longword): Integer64;
+function StrToInteger64(const S: String; var X: Integer64): Boolean; overload;
+function StrToInteger64(const S: String; var X: Int64): Boolean; overload;
 
 implementation
 
@@ -72,14 +65,6 @@ procedure Dec64(var X: Integer64; N: LongWord);
 asm
   sub  [eax], edx
   sbb  dword ptr [eax+4], 0
-end;
-
-procedure Dec6464(var X: Integer64; const N: Integer64);
-asm
-  mov  ecx, [edx]
-  sub  [eax], ecx
-  mov  ecx, [edx+4]
-  sbb  [eax+4], ecx
 end;
 
 function Inc64(var X: Integer64; N: LongWord): Boolean;
@@ -188,39 +173,6 @@ asm
   pop  ebx
 end;
 
-procedure Shr64(var X: Integer64; Count: LongWord);
-{ Unsigned SHR of an Integer64 }
-asm
-  mov  ecx, edx
-  push esi
-  mov  esi, eax
-  mov  eax, [esi]
-  mov  edx, [esi+4]
-
-  cmp  ecx, 32
-  jb   @@below32
-  cmp  ecx, 64
-  jb   @@below64
-  xor  edx, edx
-  xor  eax, eax
-  jmp  @@exit
-
-@@below64:
-  mov  eax, edx
-  xor  edx, edx
-  shr  eax, cl
-  jmp  @@exit
-
-@@below32:
-  shrd eax, edx, cl
-  shr  edx, cl
-
-@@exit:
-  mov  [esi], eax
-  mov  [esi+4], edx
-  pop  esi
-end;
-
 function StrToInteger64(const S: String; var X: Integer64): Boolean;
 { Converts a string containing an unsigned decimal number, or hexadecimal
   number prefixed with '$', into an Integer64. Returns True if successful,
@@ -246,7 +198,7 @@ begin
 
   if (StartIndex > Len) or (S[StartIndex] = '_') then
     Exit;
-  V := To64(0);
+  V := 0;
   for I := StartIndex to Len do begin
     C := UpCase(S[I]);
     case C of
@@ -276,22 +228,11 @@ begin
   Result := True;
 end;
 
-function Integer64ToStr(X: Integer64): String;
-var
-  I: Integer;
-  Buf: array[0..31] of Char;  { need at least 20 characters }
+function StrToInteger64(const S: String; var X: Int64): Boolean;
 begin
-  I := High(Buf) + 1;
-  repeat
-    Dec(I);
-    Buf[I] := Chr(Ord('0') + Div64(X, 10));
-  until (X.Lo = 0) and (X.Hi = 0);
-  SetString(Result, PChar(@Buf[I]), (High(Buf) + 1) - I);
-end;
-
-function To64(const Lo: Longword): Integer64;
-begin
-  Result := Lo;
+  var X2: Integer64 := X;
+  Result := StrToInteger64(S, X2);
+  X := X2;
 end;
 
 { Integer64 }

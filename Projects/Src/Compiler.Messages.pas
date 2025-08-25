@@ -81,7 +81,7 @@ const
   { Fatal errors }
   SCompilerScriptMissing2 = 'Specified script file does not exist';
   SCompilerOutputNotEmpty2 = 'Output directory must be empty prior to ' +
-    'compilation of any non-Setup files. Files named SETUP.* are ' +
+    'compilation of any non-Setup files. Files named Setup.* are ' +
     'automatically deleted at the start of compilation.';
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';

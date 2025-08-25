@@ -326,7 +326,7 @@ begin
 end;
 
 const
-  SSetup = '[SETUP]';
+  SSetup = '[Setup]';
 
 function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
@@ -347,7 +347,7 @@ function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
         begin
           if (Trim(Strings[I])[1] = '[') then
           begin
-            if CompareText(Trim(Strings[I]), SSetup) <> 0 then
+            if not SameText(Trim(Strings[I]), SSetup) then
               InSetupSection := False;
             Continue;
           end;
@@ -360,7 +360,8 @@ function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
           end;
         end
         else
-          if CompareText(Trim(Strings[I]), SSetup) = 0 then InSetupSection := True;
+          if SameText(Trim(Strings[I]), SSetup) then
+            InSetupSection := True;
       end;
   end;
 
@@ -401,7 +402,7 @@ function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
         begin
           if (Trim(Strings[I])[1] = '[') then
           begin
-            if CompareText(Trim(Strings[I]), SSetup) <> 0 then
+            if not SameText(Trim(Strings[I]), SSetup) then
               InSetupSection := False;
             Continue;
           end;
@@ -414,7 +415,7 @@ function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
           end;
         end
         else
-          if CompareText(Trim(Strings[I]), SSetup) = 0 then
+          if SameText(Trim(Strings[I]), SSetup) then
           begin
             InSetupSection := True;
             if FirstSetupSectionLine < 0 then

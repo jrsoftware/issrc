@@ -65,6 +65,8 @@ type
   TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
   TPrecompiledFiles = set of TPrecompiledFile;
 
+  TWizardImages = TObjectList<TCustomMemoryStream>;
+
   TSetupCompiler = class
   private
     ScriptFiles: TStringList;
@@ -132,7 +134,8 @@ type
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
     UseSetupLdr, DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
-    DiskSliceSize, DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
+    DiskSliceSize: Int64;
+    DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
     DefaultDialogFontName: String;
@@ -159,7 +162,7 @@ type
     PrevFilename: String;
     PrevFileIndex: Integer;
 
-    TotalBytesToCompress, BytesCompressedSoFar: Integer64;
+    TotalBytesToCompress, BytesCompressedSoFar: Int64;
     CompressionInProgress: Boolean;
     CompressionStartTick: DWORD;
 
@@ -260,8 +263,8 @@ type
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
-    function CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
-    function CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+    function CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
+    function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
     procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
   public
@@ -271,15 +274,14 @@ type
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
     class procedure AbortCompileFmt(const Msg: String; const Args: array of const);
-    procedure AddBytesCompressedSoFar(const Value: Cardinal); overload;
-    procedure AddBytesCompressedSoFar(const Value: Integer64); overload;
+    procedure AddBytesCompressedSoFar(const Value: Int64);
     procedure AddPreprocOption(const Value: String);
     procedure AddSignTool(const Name, Command: String);
     procedure CallIdleProc(const IgnoreCallbackResult: Boolean = False);
     procedure Compile;
-    function GetBytesCompressedSoFar: Integer64;
+    function GetBytesCompressedSoFar: Int64;
     function GetDebugInfo: TMemoryStream;
-    function GetDiskSliceSize:Longint;
+    function GetDiskSliceSize: Int64;
     function GetDiskSpanning: Boolean;
     function GetEncryptionBaseNonce: TSetupEncryptionNonce;
     function GetExeFilename: String;
@@ -290,7 +292,7 @@ type
     function GetPreprocIncludedFilenames: TStringList;
     function GetPreprocOutput: String;
     function GetSlicesPerDisk: Longint;
-    procedure SetBytesCompressedSoFar(const Value: Integer64);
+    procedure SetBytesCompressedSoFar(const Value: Int64);
     procedure SetOutput(Value: Boolean);
     procedure SetOutputBaseFilename(const Value: String);
     procedure SetOutputDir(const Value: String);
@@ -354,7 +356,6 @@ const
 
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
-  MaxDiskSliceSize = 2100000000;
   DefaultKDFIterations = 220000;
 
 function ExtractStr(var S: String; const Separator: Char): String;
@@ -476,7 +477,7 @@ begin
   inherited Destroy;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromFiles(const ADirectiveName, AFiles: String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
 
   procedure AddFile(const Filename: String);
   begin
@@ -491,7 +492,7 @@ var
   H: THandle;
   FindData: TWin32FindData;
 begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
+  Result := TWizardImages.Create;
   try
     { In older versions only one file could be listed and comma's could be used so
       before treating AFiles as a list, first check if it's actually a single file
@@ -533,11 +534,11 @@ begin
   end;
 end;
 
-function TSetupCompiler.CreateMemoryStreamsFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TObjectList<TCustomMemoryStream>;
+function TSetupCompiler.CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
 var
   I, J: Integer;
 begin
-  Result := TObjectList<TCustomMemoryStream>.Create;
+  Result := TWizardImages.Create;
   try
     for I := 0 to Length(AResourceNamesPrefixes)-1 do
       for J := 0 to Length(AResourceNamesPostfixes)-1 do
@@ -611,7 +612,7 @@ begin
   LZMAInitialized := True;
 end;
 
-function TSetupCompiler.GetBytesCompressedSoFar: Integer64;
+function TSetupCompiler.GetBytesCompressedSoFar: Int64;
 begin
   Result := BytesCompressedSoFar;
 end;
@@ -621,7 +622,7 @@ begin
   Result := DebugInfo;
 end;
 
-function TSetupCompiler.GetDiskSliceSize: Longint;
+function TSetupCompiler.GetDiskSliceSize: Int64;
 begin
   Result := DiskSliceSize;
 end;
@@ -777,12 +778,10 @@ const
 var
   Data: TCompilerCallbackData;
   MillisecondsElapsed: Cardinal;
-  X: Integer64;
 begin
   Data.SecondsRemaining := -1;
   Data.BytesCompressedPerSecond := 0;
-  if ((BytesCompressedSoFar.Lo = 0) and (BytesCompressedSoFar.Hi = 0)) or
-     ((TotalBytesToCompress.Lo = 0) and (TotalBytesToCompress.Hi = 0)) then begin
+  if (BytesCompressedSoFar = 0) or (TotalBytesToCompress = 0) then begin
     { Optimization(?) and avoid division by zero when TotalBytesToCompress=0 }
     Data.CompressProgress := 0;
   end
@@ -796,22 +795,22 @@ begin
     if CompressionInProgress then begin
       MillisecondsElapsed := GetTickCount - CompressionStartTick;
       if MillisecondsElapsed >= Cardinal(1000) then begin
-        X := BytesCompressedSoFar;
-        Mul64(X, 1000);
-        Div64(X, MillisecondsElapsed);
-        if (X.Hi = 0) and (Longint(X.Lo) >= 0) then
-          Data.BytesCompressedPerSecond := X.Lo
+        var X: UInt64 := BytesCompressedSoFar;
+        X := X * 1000;
+        X := X div MillisecondsElapsed;
+        if X <= MaxInt then
+          Data.BytesCompressedPerSecond := X
         else
           Data.BytesCompressedPerSecond := Maxint;
-        if Compare64(BytesCompressedSoFar, TotalBytesToCompress) < 0 then begin
+        if BytesCompressedSoFar < TotalBytesToCompress then begin
           { Protect against division by zero }
           if Data.BytesCompressedPerSecond <> 0 then begin
             X := TotalBytesToCompress;
-            Dec6464(X, BytesCompressedSoFar);
-            Inc64(X, Data.BytesCompressedPerSecond-1);  { round up }
-            Div64(X, Data.BytesCompressedPerSecond);
-            if (X.Hi = 0) and (Longint(X.Lo) >= 0) then
-              Data.SecondsRemaining := X.Lo
+            Dec(X, BytesCompressedSoFar);
+            Inc(X, Data.BytesCompressedPerSecond-1);  { round up }
+            X := X div Data.BytesCompressedPerSecond;
+            if X <= MaxInt then
+              Data.SecondsRemaining := X
             else
               Data.SecondsRemaining := Maxint;
           end;
@@ -2306,7 +2305,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.SetBytesCompressedSoFar(const Value: Integer64);
+procedure TSetupCompiler.SetBytesCompressedSoFar(const Value: Int64);
 begin
   BytesCompressedSoFar := Value;
 end;
@@ -2815,6 +2814,7 @@ begin
           AbortCompile(SCompilerDiskClusterSizeInvalid);
       end;
     ssDiskSliceSize: begin
+        const MaxDiskSliceSize = 9223372036800000000;
         if CompareText(Value, 'max') = 0 then
           DiskSliceSize := MaxDiskSliceSize
         else begin
@@ -3110,7 +3110,7 @@ begin
       end;
     ssUninstallDisplaySize: begin
         if not StrToInteger64(Value, SetupHeader.UninstallDisplaySize) or
-           ((SetupHeader.UninstallDisplaySize.Lo = 0) and (SetupHeader.UninstallDisplaySize.Hi = 0)) then
+           (SetupHeader.UninstallDisplaySize = 0) then
           Invalid;
       end;
     ssUninstallFilesDir: begin
@@ -5019,7 +5019,7 @@ type
           NewFileEntry^.LocationEntry := FileLocationEntries.Count-1;
           if NewFileEntry^.FileType = ftUninstExe then
             Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
-          Inc6464(TotalBytesToCompress, FileListRec.Size);
+          Inc(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
           if SetupEncryptionHeader.EncryptionUse <> euNone then
@@ -5272,7 +5272,7 @@ begin
         NoCompression := False;
         NoEncryption := False;
         SolidBreak := False;
-        ExternalSize := To64(0);
+        ExternalSize := 0;
         SortFilesByName := False;
         Sign := fsNoSetting;
 
@@ -6525,14 +6525,9 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Cardinal);
+procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Int64);
 begin
-  Inc64(BytesCompressedSoFar, Value);
-end;
-
-procedure TSetupCompiler.AddBytesCompressedSoFar(const Value: Integer64);
-begin
-  Inc6464(BytesCompressedSoFar, Value);
+  Inc(BytesCompressedSoFar, Value);
 end;
 
 procedure TSetupCompiler.AddPreprocOption(const Value: String);
@@ -6863,14 +6858,11 @@ procedure TSetupCompiler.Compile;
     end;
   end;
 
-type
-  PCopyBuffer = ^TCopyBuffer;
-  TCopyBuffer = array[0..32767] of Char;
 var
   SetupFile: TFile;
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-  WizardImages, WizardSmallImages: TObjectList<TCustomMemoryStream>;
+  WizardImages, WizardSmallImages: TWizardImages;
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   SizeOfExe, SizeOfHeaders: Int64;
@@ -7618,12 +7610,12 @@ var
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,
             FL.FileVersionLS and $FFFF]);
         S := S + #9 + SHA256DigestToString(FL.SHA256Sum) + #9 +
-          Integer64ToStr(FL.OriginalSize) + #9 +
+          IntToStr(FL.OriginalSize) + #9 +
           SliceToString(FL.FirstSlice) + #9 +
           SliceToString(FL.LastSlice) + #9 +
           IntToStr(FL.StartOffset) + #9 +
-          Integer64ToStr(FL.ChunkSuboffset) + #9 +
-          Integer64ToStr(FL.ChunkCompressedSize) + #9 +
+          IntToStr(FL.ChunkSuboffset) + #9 +
+          IntToStr(FL.ChunkCompressedSize) + #9 +
           EncryptedStrings[floChunkEncrypted in FL.Flags] + #9 +
           FLExtraInfo.ISSigKeyUsedID;
         F.WriteLine(S);
@@ -7715,7 +7707,7 @@ begin
     TerminalServicesAware := True;
     DEPCompatible := True;
     ASLRCompatible := True;
-    DiskSliceSize := MaxDiskSliceSize;
+    DiskSliceSize := 2100000000;
     DiskClusterSize := 512;
     SlicesPerDisk := 1;
     ReserveBytes := 0;
@@ -7842,7 +7834,7 @@ begin
     LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
     if not DiskSpanning then begin
-      DiskSliceSize := MaxDiskSliceSize;
+      DiskSliceSize := 4200000000; { Windows cannot run .exe's of 4 GB or more }
       DiskClusterSize := 1;
       SlicesPerDisk := 1;
       ReserveBytes := 0;
@@ -8005,9 +7997,11 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardImageFile, 'compiler:WizClassicImage.bmp']));
         WizardImageFile := 'compiler:WizClassicImage.bmp';
       end;
-      WizardImages := CreateMemoryStreamsFromFiles('WizardImageFile', WizardImageFile)
-    end else
-      WizardImages := CreateMemoryStreamsFromResources(['WizardImage'], ['150']);
+      WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile)
+    end else begin
+      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150']);
+      Include(SetupHeader.Options, shUsesBuiltinWizardImages);
+    end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
@@ -8015,9 +8009,11 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
         WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
       end;
-      WizardSmallImages := CreateMemoryStreamsFromFiles('WizardSmallImage', WizardSmallImageFile)
-    end else
-      WizardSmallImages := CreateMemoryStreamsFromResources(['WizardSmallImage'], ['250']);
+      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile)
+    end else begin
+      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250']);
+      Include(SetupHeader.Options, shUsesBuiltinSmallWizardImages);
+    end;
     LineNumber := 0;
 
     { Prepare Setup executable & signed uninstaller data }

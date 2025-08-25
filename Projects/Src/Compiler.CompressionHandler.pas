@@ -13,7 +13,7 @@ interface
 
 uses
   Classes,
-  SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  SHA256, ChaCha20, Shared.Struct, Shared.FileClass, Compression.Base,
   Compiler.SetupCompiler;
 
 type
@@ -22,25 +22,25 @@ type
     FCachedCompressors: TList;
     FCompiler: TSetupCompiler;
     FCompressor: TCustomCompressor;
-    FChunkBytesRead: Integer64;
-    FChunkBytesWritten: Integer64;
+    FChunkBytesRead: Int64;
+    FChunkBytesWritten: Int64;
     FChunkEncrypted: Boolean;
     FChunkFirstSlice: Integer;
     FChunkStarted: Boolean;
-    FChunkStartOffset: Longint;
+    FChunkStartOffset: Int64;
     FCryptContext: TChaCha20Context;
     FCurSlice: Integer;
     FDestFile: TFile;
     FDestFileIsDiskSlice: Boolean;
-    FInitialBytesCompressedSoFar: Integer64;
-    FSliceBaseOffset: Cardinal;
-    FSliceBytesLeft: Cardinal;
+    FInitialBytesCompressedSoFar: Int64;
+    FSliceBaseOffset: Int64;
+    FSliceBytesLeft: Int64;
     procedure EndSlice;
     procedure NewSlice(const Filename: String);
   public
     constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
     destructor Destroy; override;
-    procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
+    procedure CompressFile(const SourceFile: TFile; Bytes: Int64;
       const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
     procedure EndChunk;
     procedure Finish;
@@ -50,11 +50,11 @@ type
     procedure ProgressProc(BytesProcessed: Cardinal);
     function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
     procedure WriteProc(const Buf; BufSize: Longint);
-    property ChunkBytesRead: Integer64 read FChunkBytesRead;
-    property ChunkBytesWritten: Integer64 read FChunkBytesWritten;
+    property ChunkBytesRead: Int64 read FChunkBytesRead;
+    property ChunkBytesWritten: Int64 read FChunkBytesWritten;
     property ChunkEncrypted: Boolean read FChunkEncrypted;
     property ChunkFirstSlice: Integer read FChunkFirstSlice;
-    property ChunkStartOffset: Longint read FChunkStartOffset;
+    property ChunkStartOffset: Int64 read FChunkStartOffset;
     property ChunkStarted: Boolean read FChunkStarted;
     property CurSlice: Integer read FCurSlice;
   end;
@@ -146,7 +146,7 @@ begin
     FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
     FDestFile.SeekToEnd;
     FSliceBaseOffset := FDestFile.Position;
-    FSliceBytesLeft := Cardinal(DiskSliceSize) - FSliceBaseOffset;
+    FSliceBytesLeft := DiskSliceSize - FSliceBaseOffset;
   end;
 end;
 
@@ -205,8 +205,8 @@ begin
   FChunkStartOffset := FDestFile.Position - FSliceBaseOffset;
   FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
   Dec(FSliceBytesLeft, SizeOf(ZLIBID));
-  FChunkBytesRead := To64(0);
-  FChunkBytesWritten := To64(0);
+  FChunkBytesRead := 0;
+  FChunkBytesWritten := 0;
   FInitialBytesCompressedSoFar := FCompiler.GetBytesCompressedSoFar;
 
   SelectCompressor;
@@ -232,7 +232,7 @@ begin
 end;
 
 procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
-  Bytes: Integer64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
+  Bytes: Int64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
 var
   Context: TSHA256Context;
   AddrOffset: LongWord;
@@ -245,14 +245,14 @@ begin
   AddrOffset := 0;
   while True do begin
     BufSize := SizeOf(Buf);
-    if (Bytes.Hi = 0) and (Bytes.Lo < BufSize) then
-      BufSize := Bytes.Lo;
+    if Bytes < BufSize then
+      BufSize := Bytes;
     if BufSize = 0 then
       Break;
 
     SourceFile.ReadBuffer(Buf, BufSize);
-    Inc64(FChunkBytesRead, BufSize);
-    Dec64(Bytes, BufSize);
+    Inc(FChunkBytesRead, BufSize);
+    Dec(Bytes, BufSize);
     SHA256Update(Context, Buf, BufSize);
     if CallOptimize then begin
       TransformCallInstructions(Buf, BufSize, True, AddrOffset);
@@ -274,7 +274,7 @@ begin
     S := BufSize;
     if FSliceBytesLeft = 0 then
       NewSlice('');
-    if S > Cardinal(FSliceBytesLeft) then
+    if S > FSliceBytesLeft then
       S := FSliceBytesLeft;
 
     if not FChunkEncrypted then
@@ -291,7 +291,7 @@ begin
       end;
     end;
 
-    Inc64(FChunkBytesWritten, S);
+    Inc(FChunkBytesWritten, S);
     Inc(Cardinal(P), S);
     Dec(BufSize, S);
     Dec(FSliceBytesLeft, S);
