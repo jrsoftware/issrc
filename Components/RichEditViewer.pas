@@ -47,6 +47,8 @@ type
       FUseRichEdit: Boolean;
       FRichEditLoaded: Boolean;
       FCallback: IRichEditOleCallback;
+    class constructor Create;
+    class destructor Destroy;
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
@@ -71,7 +73,7 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, BidiUtils, PathFunc, ComObj;
+  ShellApi, BidiUtils, PathFunc, ComObj, Themes, ComCtrls;
 
 const
   RICHEDIT_CLASSW = 'RichEdit20W';
@@ -228,11 +230,21 @@ end;
 
 { TRichEditViewer }
 
+class constructor TRichEditViewer.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TRichEditViewer, TRichEditStyleHook);
+end;
+
 constructor TRichEditViewer.Create(AOwner: TComponent);
 begin
   inherited;
   FUseRichEdit := True;
   FCallback := TBasicRichEditOleCallback.Create;
+end;
+
+class destructor TRichEditViewer.Destroy;
+begin
+  TCustomStyleEngine.UnregisterStyleHook(TRichEditViewer, TRichEditStyleHook);
 end;
 
 destructor TRichEditViewer.Destroy;
