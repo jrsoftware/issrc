@@ -67,6 +67,8 @@ type
     FDisableItemStateDeletion: Integer;
     FWheelAccum: Integer;
     FUseRightToLeft: Boolean;
+    class constructor Create;
+    class destructor Destroy;
     procedure UpdateThemeData(const Close, Open: Boolean);
     function CanFocusItem(Item: Integer): Boolean;
     function CheckPotentialRadioParents(Index, ALevel: Integer): Boolean;
@@ -392,6 +394,11 @@ end;
 
 { TNewCheckListBox }
 
+class constructor TNewCheckListBox.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TNewCheckListBox, TNewCheckListBoxStyleHook);
+end;
+
 constructor TNewCheckListBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -456,6 +463,11 @@ procedure TNewCheckListBox.CreateWindowHandle(const Params: TCreateParams);
 begin
   inherited CreateWindowHandle(Params);
   UpdateThemeData(True, True);
+end;
+
+class destructor TNewCheckListBox.Destroy;
+begin
+  TCustomStyleEngine.UnRegisterStyleHook(TNewCheckListBox, TNewCheckListBoxStyleHook);
 end;
 
 destructor TNewCheckListBox.Destroy;
@@ -2275,7 +2287,6 @@ initialization
   end;
   InitThemeLibrary;
   NotifyWinEventFunc := GetProcAddress(GetModuleHandle(user32), 'NotifyWinEvent');
-	TCustomStyleEngine.RegisterStyleHook(TNewCheckListBox, TNewCheckListBoxStyleHook);
     
 finalization
   if NeedToUninitialize then
