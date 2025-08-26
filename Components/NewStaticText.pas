@@ -2,13 +2,13 @@ unit NewStaticText;
 
 {
   TNewStaticText - similar to TStaticText but with multi-line AutoSize
-  support and a WordWrap property
+  support and a WordWrap property, and without a Transparent property
 }
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Forms;
+  Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics, Themes;
 
 type
   TNewStaticText = class(TWinControl)
@@ -19,6 +19,8 @@ type
     FLastAdjustBoundsRTL: Boolean;
     FShowAccelChar: Boolean;
     FWordWrap: Boolean;
+    class constructor Create;
+    class destructor Destroy;
     procedure CMDialogChar(var Message: TCMDialogChar); message CM_DIALOGCHAR;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMParentFontChanged(var Message: TMessage); message CM_PARENTFONTCHANGED;
@@ -35,8 +37,6 @@ type
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetAutoSize(Value: Boolean); override;
-    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
-    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;
@@ -74,8 +74,15 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    property OnResize;
     property OnStartDrag;
+  end;
+
+  TNewStaticTextStyleHook = class(TStyleHook)
+  strict protected
+    procedure Paint(Canvas: TCanvas); override;
+    procedure WndProc(var Message: TMessage); override;
+  public
+    constructor Create(AControl: TWinControl); override;
   end;
 
 procedure Register;
@@ -83,8 +90,7 @@ procedure Register;
 implementation
 
 uses
-  Graphics, Themes, Types,
-  BidiUtils;
+  StdCtrls, Types, BidiUtils;
 
 procedure Register;
 begin
@@ -93,60 +99,21 @@ end;
 
 { TNewStaticText }
 
-procedure TNewStaticText.WMEraseBkgnd(var Message: TWMEraseBkgnd);
-begin;
-  if IsCustomStyleActive and (seClient in StyleElements) then
-    Message.Result := 1
-  else
-    inherited;
-end;
-
-procedure TNewStaticText.WMPaint(var Message: TWMPaint);
-const
-  CStates: array[Boolean] of TThemedTextLabel = (ttlTextLabelDisabled, ttlTextLabelNormal);
-begin
-  { Based on Vcl.StdCtrl's TCustomLabel.DoDrawThemeTextEx and its callers. Only the
-    DrawParentBackground call is new compared to it.  }
-  if IsCustomStyleActive and (seClient in StyleElements) then begin
-    const LStyle = StyleServices(Self);
-    var DC := Message.DC;
-    var PS: TPaintStruct;
-    if DC = 0 then
-      DC := BeginPaint(Handle, PS);
-    try
-      var R := ClientRect;
-      const Details = LStyle.GetElementDetails(CStates[Enabled]);
-      LStyle.DrawParentBackground(Handle, DC, Details, False, @R);
-      var Text: String := Caption;
-      if (Text = '') or (FShowAccelChar and (Text[1] = '&') and (Length(Text) = 1)) then
-        Text := Text + ' ';
-      const TextFlags = GetDrawTextFlags;
-      const OldFont = SelectObject(DC, Font.Handle);
-      try
-        LStyle.DrawText(DC, Details, Text, R, TTextFormatFlags(TextFlags), Font.Color);
-      finally
-        SelectObject(DC, OldFont);
-      end;
-    finally
-      if Message.DC = 0 then
-        EndPaint(Handle, PS);
-    end;
-  end else
-    inherited;
-end;
-
 constructor TNewStaticText.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := [csCaptureMouse, csClickEvents, csSetCaption,
-    csReplicatable, csDoubleClicks];
-  if not (StyleServices.Enabled and not StyleServices.IsSystemStyle) then
-    ControlStyle := ControlStyle + [csOpaque];
+    csReplicatable, csDoubleClicks, csGestures, csNeedsDesignDisabledState];
   Width := 65;
   Height := 17;
   FAutoSize := True;
   FShowAccelChar := True;
   AdjustBounds;
+end;
+
+class constructor TNewStaticText.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TNewStaticText, TNewStaticTextStyleHook);
 end;
 
 procedure TNewStaticText.CreateParams(var Params: TCreateParams);
@@ -164,7 +131,13 @@ begin
     end;
     if not FShowAccelChar then Style := Style or SS_NOPREFIX;
     if FForceLTRReading then ExStyle := ExStyle and not WS_EX_RTLREADING;
+    WindowClass.style := WindowClass.style and not CS_VREDRAW;
   end;
+end;
+
+class destructor TNewStaticText.Destroy;
+begin
+  TCustomStyleEngine.UnregisterStyleHook(TNewStaticText, TNewStaticTextStyleHook);
 end;
 
 procedure TNewStaticText.CMDialogChar(var Message: TCMDialogChar);
@@ -182,14 +155,12 @@ end;
 procedure TNewStaticText.CMFontChanged(var Message: TMessage);
 begin
   inherited;
-  Invalidate;
   AdjustBounds;
 end;
 
 procedure TNewStaticText.CMParentFontChanged(var Message: TMessage);
 begin
   inherited;
-  Invalidate;
   { What we're really trapping here is changes to Parent. Recalculate size
     if the new Parent's RTL setting is different. }
   if IsParentRightToLeft(Self) <> FLastAdjustBoundsRTL then
@@ -334,6 +305,59 @@ begin
     RecreateWnd;
     AdjustBounds;
   end;
+end;
+
+{ TNewStaticTextStyleHook - same as Vcl.StdCtrls' TStaticTextStyleHook
+  except that it accesses the Control property as a TNewStaticText instead
+  of a TCustomStaticText or TStaticText, and with code related to the
+  Transparent property removed }
+
+type
+  TControlAccess = class(TControl);
+
+constructor TNewStaticTextStyleHook.Create(AControl: TWinControl);
+begin
+  inherited;
+  OverridePaint := True;
+  OverrideEraseBkgnd := True;
+  PaintOnEraseBkgnd := True;
+  DoubleBuffered := True;
+end;
+
+procedure TNewStaticTextStyleHook.Paint(Canvas: TCanvas);
+const
+  States: array[Boolean] of TThemedTextLabel = (ttlTextLabelDisabled, ttlTextLabelNormal);
+var
+  Details: TThemedElementDetails;
+  R: TRect;
+  S: String;
+  LStyle: TCustomStyleServices;
+begin
+  LStyle := StyleServices;
+
+  if LStyle.Available then
+  begin
+    R := Control.ClientRect;
+    Canvas.Brush.Color := LStyle.GetStyleColor(scWindow);
+    Canvas.FillRect(R);
+    Details := LStyle.GetElementDetails(States[Control.Enabled]);
+    S := TNewStaticText(Control).Caption;
+    if (S = '') or (TNewStaticText(Control).FShowAccelChar and (S[1] = '&') and (S[2] = #0)) then
+      S := S + ' ';
+    if seFont in Control.StyleElements then
+      DrawControlText(Canvas, Details, S, R, TNewStaticText(Control).GetDrawTextFlags)
+    else
+    begin
+      Canvas.Font := TNewStaticText(Control).Font;
+      DrawText(Canvas.Handle, S, Length(S), R, TNewStaticText(Control).GetDrawTextFlags);
+    end;
+  end;
+end;
+
+procedure TNewStaticTextStyleHook.WndProc(var Message: TMessage);
+begin
+  // Reserved for potential updates
+  inherited;
 end;
 
 end.
