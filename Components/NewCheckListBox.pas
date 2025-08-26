@@ -1890,7 +1890,7 @@ begin
     inherited;
 end;
 
-{ TNewCheckListBoxStyleHook - same as Vcl.StdCtrls'TListBoxStyleHook except that it picks the
+{ TNewCheckListBoxStyleHook - same as Vcl.StdCtrls' TListBoxStyleHook except that it picks the
   correct colors when WantTabs is True }
 
 constructor TNewCheckListBoxStyleHook.Create(AControl: TWinControl);

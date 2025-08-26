@@ -1318,7 +1318,7 @@ procedure TWizardForm.FBeveledLabelResize(Sender: TObject);
 begin
   if IsCustomStyleActive and (seClient in BeveledLabel.StyleElements) then begin
     { BeveledLabel is transparent when styling is active so we need to move the bevel to make things
-      look right instead of depening on it being painted over }
+      look right instead of depending on it being painted over }
     const OldLeft = FBevel.Left;
     FBevel.Left := FBeveledLabel.Left + FBeveledLabel.Width;
     FBevel.Width := FBevel.Width - (FBevel.Left - OldLeft);
