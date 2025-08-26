@@ -122,7 +122,7 @@ begin
       const TextFlags = GetDrawTextFlags;
       const OldFont = SelectObject(DC, Font.Handle);
       try
-        LStyle.DrawText(DC, Details, Text, R, TTextFormat(TextFlags), Font.Color);
+        LStyle.DrawText(DC, Details, Text, R, TTextFormatFlags(TextFlags), Font.Color);
       finally
         SelectObject(DC, OldFont);
       end;
