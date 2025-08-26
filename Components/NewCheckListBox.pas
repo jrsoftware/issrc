@@ -821,7 +821,7 @@ begin
         NewTextColor := Self.Font.Color;
       if (LStyle <> nil) and (seClient in StyleElements) then begin
         if FWantTabs then
-          Brush.Color := LStyle.GetSystemColor(clBtnFace)
+          Brush.Color := LStyle.GetStyleColor(scGenericBackground)
         else
           Brush.Color := LStyle.GetStyleColor(ColorStates[Enabled]);
         if seFont in StyleElements then begin
@@ -1946,7 +1946,7 @@ begin
 
 	{ Also see color initialization in TNewCheckListBox.DrawItem }
   if NewCheckListBox.WantTabs then
-    Brush.Color := LStyle.GetSystemColor(clBtnFace)
+    Brush.Color := LStyle.GetStyleColor(scGenericBackground)
   else
     Brush.Color := LStyle.GetStyleColor(ColorStates[Control.Enabled]);
   if seFont in Control.StyleElements then begin
