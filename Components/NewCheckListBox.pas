@@ -1923,8 +1923,7 @@ end;
 procedure TNewCheckListBoxStyleHook.WndProc(var Message: TMessage);
 begin
   if (Message.Msg = WM_ERASEBKGND) and (Control.StyleName <> '') then begin
-  	const NewCheckListBox = Control as TNewCheckListBox;
-  	const WantTabs = NewCheckListBox.WantTabs;
+  	const WantTabs = (Control is TNewCheckListBox) and TNewCheckListBox(Control).WantTabs;
   	if not FStyleColorsChecked or (FStyleColorsCheckedWantTabs <> WantTabs) then begin
     	FStyleColorsChecked := True;
     	FStyleColorsCheckedWantTabs := WantTabs;
@@ -1953,16 +1952,16 @@ end;
 
 procedure TNewCheckListBoxStyleHook.UpdateColors;
 begin
-  const NewCheckListBox = (Control as TNewCheckListBox);
+  const WantTabs = (Control is TNewCheckListBox) and TNewCheckListBox(Control).WantTabs;
   const LStyle = StyleServices;
 
 	{ Also see color initialization in TNewCheckListBox.DrawItem }
-  if NewCheckListBox.WantTabs then
+  if WantTabs then
     Brush.Color := LStyle.GetStyleColor(scGenericBackground)
   else
     Brush.Color := LStyle.GetStyleColor(ColorStates[Control.Enabled]);
   if seFont in Control.StyleElements then begin
-    if NewCheckListBox.WantTabs then
+    if WantTabs then
       FontColor := LStyle.GetStyleFontColor(TextLabelFontColorStates[Control.Enabled])
     else
       FontColor := LStyle.GetStyleFontColor(ListItemFontColorStates[Control.Enabled])
