@@ -80,7 +80,6 @@ type
   TNewStaticTextStyleHook = class(TStyleHook)
   strict protected
     procedure Paint(Canvas: TCanvas); override;
-    procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AControl: TWinControl); override;
   end;
@@ -352,12 +351,6 @@ begin
       DrawText(Canvas.Handle, S, Length(S), R, TNewStaticText(Control).GetDrawTextFlags);
     end;
   end;
-end;
-
-procedure TNewStaticTextStyleHook.WndProc(var Message: TMessage);
-begin
-  // Reserved for potential updates
-  inherited;
 end;
 
 end.

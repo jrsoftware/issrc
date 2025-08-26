@@ -71,7 +71,6 @@ type
     procedure PaintBar(Canvas: TCanvas); virtual;
     procedure PaintFrame(Canvas: TCanvas); virtual;
     procedure Paint(Canvas: TCanvas); override;
-    procedure WndProc(var Message: TMessage); override;
     property BarRect: TRect read GetBarRect;
     property BorderWidth: Integer read GetBorderWidth;
     property Max: Integer read GetMax;
@@ -242,12 +241,6 @@ procedure TNewProgressBarStyleHook.WMNCCalcSize(var Message: TWMNCCalcSize);
 begin
   Message.Result := 0;
   Handled := True;
-end;
-
-procedure TNewProgressBarStyleHook.WndProc(var Message: TMessage);
-begin
-  // Reserved for potential updates
-  inherited;
 end;
 
 procedure TNewProgressBarStyleHook.PaintFrame(Canvas: TCanvas);
