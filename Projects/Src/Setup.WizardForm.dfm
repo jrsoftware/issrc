@@ -817,5 +817,6 @@ object WizardForm: TWizardForm
     Enabled = False
     ShowAccelChar = False
     TabOrder = 1
+    OnResize = FBeveledLabelResize
   end
 end
