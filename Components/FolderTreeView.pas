@@ -134,7 +134,7 @@ implementation
 }
 
 uses
-  PathFunc, ShellApi, NewUxTheme, Types;
+  PathFunc, ShellApi, NewUxTheme, Types, Themes;
 
 const
   SHPPFW_NONE = $00000000;
@@ -388,6 +388,15 @@ begin
       is moved across the items }
     SendMessage(Handle, TVM_SETEXTENDEDSTYLE, TVS_EX_DOUBLEBUFFER,
       TVS_EX_DOUBLEBUFFER);
+  end;
+
+  { Initialize style colors }
+  var LStyle := StyleServices;
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+  if (LStyle <> nil) and (seClient in StyleElements) then begin
+    TreeView_SetBkColor(Handle, ColorToRGB(LStyle.GetStyleColor(scTreeview)));
+    TreeView_SetTextColor(Handle, ColorToRGB(LStyle.GetStyleFontColor(sfTreeItemTextNormal)));
   end;
 
   { Initialize the image list }
