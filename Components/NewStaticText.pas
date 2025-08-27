@@ -102,7 +102,7 @@ constructor TNewStaticText.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := [csCaptureMouse, csClickEvents, csSetCaption,
-    csReplicatable, csDoubleClicks, csGestures, csNeedsDesignDisabledState];
+    csReplicatable, csDoubleClicks, csGestures {$IF CompilerVersion >= 35.0}, csNeedsDesignDisabledState{$ENDIF}];
   Width := 65;
   Height := 17;
   FAutoSize := True;
