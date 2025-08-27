@@ -3126,6 +3126,7 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
+        { Apply style - also see Setup.Uninstall's RunSecondPhase }
         if (SetupHeader.WizardDarkStyle = wdsDark) or ((SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive) then
           WizardIconsPostfix := '_DARK';
 
