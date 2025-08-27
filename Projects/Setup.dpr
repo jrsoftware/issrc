@@ -112,8 +112,10 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
+{ The compiler will delete some of the icons included here }
 {$R Res\Setup.icon.res}
 {$R Res\Setup.images.res}
+{$R Res\Setup.images.dark.res}
 {$R Res\Setup.version.res}
 
 procedure ShowExceptionMsg;
