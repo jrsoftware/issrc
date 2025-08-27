@@ -13,6 +13,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=userdocs:Inno Setup Examples Output
+PrivilegesRequired=lowest
 
 DisableWelcomePage=no
 LicenseFile=license.txt
@@ -20,7 +21,6 @@ LicenseFile=license.txt
 Password={#Password}
 InfoBeforeFile=readme.txt
 UserInfoPage=yes
-PrivilegesRequired=lowest
 DisableDirPage=no
 DisableProgramGroupPage=no
 InfoAfterFile=readme.txt
@@ -99,22 +99,22 @@ var
 begin
   if CurPageID = OutputProgressWizardPagesAfterID then begin
     try
-      Max := 50;
+      Max := 100;
       for I := 0 to Max do begin
         OutputProgressWizardPage.SetProgress(I, Max);
         if I = 0 then
           OutputProgressWizardPage.Show;
-        Sleep(2000 div Max);
+        Sleep(3000 div Max);
       end;
     finally
       OutputProgressWizardPage.Hide;
     end;
     try
-      Max := 50;
+      Max := 100;
       OutputMarqueeProgressWizardPage.Show;
       for I := 0 to Max do begin
         OutputMarqueeProgressWizardPage.Animate;
-        Sleep(2000 div Max);
+        Sleep(3000 div Max);
       end;
     finally
       OutputMarqueeProgressWizardPage.Hide;
