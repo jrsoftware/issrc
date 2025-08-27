@@ -7515,13 +7515,23 @@ var
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
+
+      AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
+      LineNumber := SetupDirectiveLines[ssSetupIconFile];
+      if LineNumber = 0 then
+        LineNumber := SetupDirectiveLines[ssWizardStyle];
+      var DarkIconsUpdate: TDarkIconsUpdate;
+      if WizardStyleDark then
+        DarkIconsUpdate := diuActivate
+      else
+        DarkIconsUpdate := diuRemove;
       if SetupIconFilename <> '' then begin
-        AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
-        LineNumber := SetupDirectiveLines[ssSetupIconFile];
-        { This also deletes the UninstallImage resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-        UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True);
-        LineNumber := 0;
-      end;
+        { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
+        UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True, DarkIconsUpdate);
+      end else
+        UpdateIcons(ConvertFileName, '', False, DarkIconsUpdate);
+      LineNumber := 0;
+
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.e32']));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
       try
@@ -8312,7 +8322,7 @@ begin
             { update icons }
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             LineNumber := SetupDirectiveLines[ssSetupIconFile];
-            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False);
+            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False, diuNone);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

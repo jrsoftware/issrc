@@ -14,6 +14,9 @@ interface
 uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
 
+type
+  TDarkIconsUpdate = (diuNone, diuActivate, diuRemove);
+
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function ReadSignatureAndChecksumFields64(const F: TCustomFile;
@@ -24,7 +27,8 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean;
+  const DarkIconsUpdate: TDarkIconsUpdate);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -641,7 +645,8 @@ begin
   Result := True;
 end;
 
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean;
+  const DarkIconsUpdate: TDarkIconsUpdate);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -737,6 +742,51 @@ type
     Result := GroupIconDir;
   end;
 
+  function DeleteIconIfExists(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
+  begin
+    if FindResource(M, ResourceName, RT_GROUP_ICON) <> 0 then
+      Result := DeleteIcon(H, M, ResourceName)
+    else
+      Result := nil;
+  end;
+
+  function RenameIcon(const H: THandle; const M: HMODULE; const OldResourceName, NewResourceName: PChar): PGroupIconDir;
+  var
+    R: HRSRC;
+    Res: HGLOBAL;
+    GroupIconDir: PGroupIconDir;
+    GroupIconDirSize: DWORD;
+    wLanguage: Word;
+  begin
+    DeleteIconIfExists(H, M, NewResourceName);
+
+    { Load the group icon resource }
+    R := FindResource(M, OldResourceName, RT_GROUP_ICON);
+    if R = 0 then
+      ResUpdateErrorWithLastError('FindResource failed (2)');
+    Res := LoadResource(M, R);
+    if Res = 0 then
+      ResUpdateErrorWithLastError('LoadResource failed (2)');
+    GroupIconDir := LockResource(Res);
+    if GroupIconDir = nil then
+      ResUpdateErrorWithLastError('LockResource failed (2)');
+
+    GroupIconDirSize := Sizeof(Word)*3 + GroupIconDir.ItemCount*Sizeof(TGroupIconDirItem);
+
+    { Create a copy group icon resource with the new name - existing icon resources will belong to
+      it automatically }
+    if not GetResourceLanguage(M, RT_GROUP_ICON, OldResourceName, wLanguage) then
+      ResUpdateError('GetResourceLanguage failed (2)');
+    if not UpdateResource(H, RT_GROUP_ICON, NewResourceName, wLanguage, GroupIconDir, GroupIconDirSize) then
+      ResUpdateErrorWithLastError('UpdateResource failed (3)');
+
+    { Delete the old group icon resource }
+    if not UpdateResource(H, RT_GROUP_ICON, OldResourceName, wLanguage, nil, 0) then
+      ResUpdateErrorWithLastError('UpdateResource failed (4)');
+
+    Result := GroupIconDir;
+  end;
+
 var
   H: THandle;
   M: HMODULE;
@@ -747,24 +797,29 @@ var
   N: Cardinal;
   NewGroupIconDirSize: LongInt;
 begin
+  if (IcoFileName = '') and not DeleteUninstallIcon and (DarkIconsUpdate = diuNone) then
+    Exit;
+
   Ico := nil;
 
   try
-    { Load the icons }
-    F := TFile.Create(IcoFileName, fdOpenExisting, faRead, fsRead);
-    try
-      N := F.CappedSize;
-      if Cardinal(N) > Cardinal($100000) then  { sanity check }
-        ResUpdateError('Icon file is too large');
-      GetMem(Ico, N);
-      F.ReadBuffer(Ico^, N);
-    finally
-      F.Free;
-    end;
+    if IcoFileName <> '' then begin
+      { Load the icons }
+      F := TFile.Create(IcoFileName, fdOpenExisting, faRead, fsRead);
+      try
+        N := F.CappedSize;
+        if Cardinal(N) > Cardinal($100000) then  { sanity check }
+          ResUpdateError('Icon file is too large');
+        GetMem(Ico, N);
+        F.ReadBuffer(Ico^, N);
+      finally
+        F.Free;
+      end;
 
-    { Ensure the icon is valid }
-    if not IsValidIcon(Ico, N) then
-      ResUpdateError('Icon file is invalid');
+      { Ensure the icon is valid }
+      if not IsValidIcon(Ico, N) then
+        ResUpdateError('Icon file is invalid');
+    end;
 
     { Update the resources }
     H := BeginUpdateResource(PChar(FileName), False);
@@ -775,34 +830,59 @@ begin
       if M = 0 then
         ResUpdateErrorWithLastError('LoadLibraryEx failed (1)');
       try
-        { Delete default icons }
-        OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
-        if DeleteUninstallIcon then
-          DeleteIcon(H, M, 'Z_UNINSTALLICON');
+        { All of the following changes must be independent because updates are not immediate. For
+          example, if you call DeleteIcon followed by FindResource then resource will still be found,
+          until you call EndUpdateResource *and* reload the file using LoadLibrary }
 
-        { Build the new group icon resource }
-        NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
-        GetMem(NewGroupIconDir, NewGroupIconDirSize);
-        try
+        if IcoFileName <> '' then begin
+          { Delete default icons }
+          OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
+
           { Build the new group icon resource }
-          NewGroupIconDir.Reserved := OldGroupIconDir.Reserved;
-          NewGroupIconDir.Typ := OldGroupIconDir.Typ;
-          NewGroupIconDir.ItemCount := Ico.ItemCount;
-          for I := 0 to NewGroupIconDir.ItemCount-1 do begin
-            NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
-            NewGroupIconDir.Items[I].Id := I+100; //start at 100 to avoid overwriting other icons that may exist
+          NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
+          GetMem(NewGroupIconDir, NewGroupIconDirSize);
+          try
+            { Build the new group icon resource }
+            NewGroupIconDir.Reserved := OldGroupIconDir.Reserved;
+            NewGroupIconDir.Typ := OldGroupIconDir.Typ;
+            NewGroupIconDir.ItemCount := Ico.ItemCount;
+            for I := 0 to NewGroupIconDir.ItemCount-1 do begin
+              NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
+              NewGroupIconDir.Items[I].Id := I+100; //start at 100 to avoid overwriting other icons that may exist
+            end;
+
+            { Update 'MAINICON' }
+            for I := 0 to NewGroupIconDir.ItemCount-1 do
+              if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
+                ResUpdateErrorWithLastError('UpdateResource failed (5)');
+
+            { Update the icons }
+            if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
+              ResUpdateErrorWithLastError('UpdateResource failed (6)');
+          finally
+            FreeMem(NewGroupIconDir);
           end;
+        end;
 
-          { Update 'MAINICON' }
-          for I := 0 to NewGroupIconDir.ItemCount-1 do
-            if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (3)');
+        if DeleteUninstallIcon then begin
+          DeleteIcon(H, M, 'Z_UNINSTALLICON');
+          DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
+        end;
 
-          { Update the icons }
-          if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-            ResUpdateErrorWithLastError('UpdateResource failed (4)');
-        finally
-          FreeMem(NewGroupIconDir);
+        if DarkIconsUpdate = diuActivate then begin
+          RenameIcon(H, M, 'Z_DIRICON_DARK', 'Z_DIRICON');
+          RenameIcon(H, M, 'Z_DISKICON_DARK', 'Z_DISKICON');
+          RenameIcon(H, M, 'Z_GROUPICON_DARK', 'Z_GROUPICON');
+          RenameIcon(H, M, 'Z_STOPICON_DARK', 'Z_STOPICON');
+          if not DeleteUninstallIcon then
+            RenameIcon(H, M, 'Z_UNINSTALLICON_DARK', 'Z_UNINSTALLICON');
+        end else if DarkIconsUpdate = diuRemove then begin
+          DeleteIcon(H, M, 'Z_DIRICON_DARK');
+          DeleteIcon(H, M, 'Z_DISKICON_DARK');
+          DeleteIcon(H, M, 'Z_GROUPICON_DARK');
+          DeleteIcon(H, M, 'Z_STOPICON_DARK');
+          if not DeleteUninstallIcon then
+            DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
         end;
       finally
         FreeLibrary(M);
@@ -814,7 +894,8 @@ begin
     if not EndUpdateResource(H, False) then
       ResUpdateErrorWithLastError('EndUpdateResource failed');
   finally
-    FreeMem(Ico);
+    if Ico <> nil then
+      FreeMem(Ico);
   end;
 end;
 
