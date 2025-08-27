@@ -265,7 +265,7 @@ type
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
     function CreateWizardImagesFromFiles(const ADirectiveName, AFiles: String): TWizardImages;
-    function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
+    function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String; const ADark: Boolean): TWizardImages;
     procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
   public
@@ -535,15 +535,18 @@ begin
   end;
 end;
 
-function TSetupCompiler.CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String): TWizardImages;
+function TSetupCompiler.CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String; const ADark: Boolean): TWizardImages;
 var
   I, J: Integer;
 begin
+  var ADarkPostfix := '';
+  if ADark then
+   ADarkPostfix := '_Dark';
   Result := TWizardImages.Create;
   try
     for I := 0 to Length(AResourceNamesPrefixes)-1 do
       for J := 0 to Length(AResourceNamesPostfixes)-1 do
-        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J], RT_RCDATA));
+        Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J]+ADarkPostfix, RT_RCDATA));
   except
     Result.Free;
     raise;
@@ -8024,7 +8027,7 @@ begin
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := clWindow;
     end else begin
-      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150']);
+      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], WizardStyleDark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := IfThen(WizardStyleDark, $534831, $f9f3e8); { Bluish (Dark) Gray }
     end;
@@ -8039,7 +8042,7 @@ begin
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
     end else begin
-      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250']);
+      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], WizardStyleDark);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clNone;
     end;
