@@ -202,15 +202,12 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   procedure Discard(Count: Int64);
   var
     Buf: array[0..65535] of Byte;
-    BufSize: Cardinal;
   begin
     try
-      while True do begin
-        BufSize := SizeOf(Buf);
+      while Count > 0 do begin
+        var BufSize: Cardinal := SizeOf(Buf);
         if Count < BufSize then
-          BufSize := Count;
-        if BufSize = 0 then
-          Break;
+          BufSize := Cardinal(Count);
         DecompressBytes(Buf, BufSize);
         Dec(Count, BufSize);
         if Assigned(ProgressProc) then
@@ -314,7 +311,6 @@ procedure TFileExtractor.DecompressFile(const FL: TSetupFileLocationEntry;
 var
   Context: TSHA256Context;
   AddrOffset: LongWord;
-  BufSize: Cardinal;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used by the compiler (TCompressionHandler),
     otherwise the TransformCallInstructions call will break }
@@ -337,12 +333,10 @@ begin
 
     try
       AddrOffset := 0;
-      while True do begin
-        BufSize := SizeOf(Buf);
+      while BytesLeft > 0 do begin
+        var BufSize: Cardinal := SizeOf(Buf);
         if BytesLeft < BufSize then
-          BufSize := BytesLeft;
-        if BufSize = 0 then
-          Break;
+          BufSize := Cardinal(BytesLeft);
 
         DecompressBytes(Buf, BufSize);
         if floCallInstructionOptimized in FL.Flags then begin

@@ -236,19 +236,16 @@ procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
 var
   Context: TSHA256Context;
   AddrOffset: LongWord;
-  BufSize: Cardinal;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used in Setup (TFileExtractor), otherwise
     the TransformCallInstructions call will break }
 begin
   SHA256Init(Context);
   AddrOffset := 0;
-  while True do begin
-    BufSize := SizeOf(Buf);
+  while Bytes > 0 do begin
+    var BufSize: Cardinal := SizeOf(Buf);
     if Bytes < BufSize then
-      BufSize := Bytes;
-    if BufSize = 0 then
-      Break;
+      BufSize := Cardinal(Bytes);
 
     SourceFile.ReadBuffer(Buf, BufSize);
     Inc(FChunkBytesRead, BufSize);
