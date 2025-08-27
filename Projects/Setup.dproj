@@ -144,7 +144,6 @@
         <DCCReference Include="Src\Setup.Helper.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="Src\Setup.RegDLL.pas"/>
-        <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
         <DCCReference Include="Src\Setup.SpawnCommon.pas"/>
         <DCCReference Include="Src\Setup.SpawnServer.pas"/>
         <DCCReference Include="Src\Setup.SpawnClient.pas"/>

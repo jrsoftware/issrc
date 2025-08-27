@@ -26,7 +26,6 @@ uses
   Compiler.ScriptFunc in 'Src\Compiler.ScriptFunc.pas',
   Compiler.ScriptCompiler in 'Src\Compiler.ScriptCompiler.pas',
   Compiler.ScriptClasses in 'Src\Compiler.ScriptClasses.pas',
-  Shared.ResUpdateFunc in 'Src\Shared.ResUpdateFunc.pas',
   Compiler.ExeUpdateFunc in 'Src\Compiler.ExeUpdateFunc.pas',
   Compression.Base in 'Src\Compression.Base.pas',
   Compression.Zlib in 'Src\Compression.Zlib.pas',

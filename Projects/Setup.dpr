@@ -71,7 +71,6 @@ uses
   Setup.Helper in 'Src\Setup.Helper.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Setup.RegDLL in 'Src\Setup.RegDLL.pas',
-  Shared.ResUpdateFunc in 'Src\Shared.ResUpdateFunc.pas',
   Setup.SpawnCommon in 'Src\Setup.SpawnCommon.pas',
   Setup.SpawnServer in 'Src\Setup.SpawnServer.pas',
   Setup.SpawnClient in 'Src\Setup.SpawnClient.pas',

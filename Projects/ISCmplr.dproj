@@ -94,7 +94,6 @@
         <DCCReference Include="Src\Compiler.ScriptFunc.pas"/>
         <DCCReference Include="Src\Compiler.ScriptCompiler.pas"/>
         <DCCReference Include="Src\Compiler.ScriptClasses.pas"/>
-        <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
         <DCCReference Include="Src\Compiler.ExeUpdateFunc.pas"/>
         <DCCReference Include="Src\Compression.Base.pas"/>
         <DCCReference Include="Src\Compression.Zlib.pas"/>
