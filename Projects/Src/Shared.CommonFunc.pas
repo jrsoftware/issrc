@@ -150,6 +150,7 @@ procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
+function HighContrastActive: Boolean;
 
 implementation
 
@@ -1575,6 +1576,15 @@ begin
   SecurityAttr.lpSecurityDescriptor := @SecurityDesc;
   SecurityAttr.bInheritHandle := False;
   Windows.CreateMutex(@SecurityAttr, False, PChar(MutexName));
+end;
+
+function HighContrastActive: Boolean;
+begin
+  var HighContrast: THighContrast;
+  HighContrast.cbSize := SizeOf(HighContrast);
+  Result := False;
+  if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
+    Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
 end;
 
 { TOneShotTimer }

@@ -81,7 +81,6 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
-function HighContrastActive: Boolean;
 
 implementation
 
@@ -913,15 +912,6 @@ begin
     else
       Inc(I, PathCharLength(S, I));
   end;
-end;
-
-function HighContrastActive: Boolean;
-begin
-  var HighContrast: THighContrast;
-  HighContrast.cbSize := SizeOf(HighContrast);
-  Result := False;
-  if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
-    Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
 end;
 
 initialization
