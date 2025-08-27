@@ -113,7 +113,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImages: TWizardImages;
   WizardSmallImages: TWizardImages;
-  WizardIconsPostfix: String;
+  MainIconPostfix, WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -2915,7 +2915,7 @@ var
         else
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
-          case TaskDialogMsgBox('MAINICON' + WizardIconsPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
@@ -2924,7 +2924,7 @@ var
             IDCANCEL: Abort;
             end;
         end else begin
-          case TaskDialogMsgBox('MAINICON' + WizardIconsPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
@@ -3142,14 +3142,16 @@ begin
 
         { Apply style - also see Setup.Uninstall's RunSecondPhase }
         var WantWizardImagesDarkDynamic := False;
-        if (SetupHeader.WizardDarkStyle = wdsDark) or ((SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive) then begin
-          if SetupHeader.WizardDarkStyle = wdsDynamic then begin
-            SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDarkDynamic;
-            SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDarkDynamic;
-            WantWizardImagesDarkDynamic := True; { Handled below }
-          end;
-          WizardIconsPostfix := '_DARK';
+        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive;
+        const IsForcedDark = (SetupHeader.WizardDarkStyle = wdsDark);
+        if IsDynamicDark then begin
+          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDarkDynamic;
+          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDarkDynamic;
+          MainIconPostfix := '_DARK';
+          WantWizardImagesDarkDynamic := True; { Handled below }
         end;
+        if IsDynamicDark or IsForcedDark then
+          WizardIconsPostfix := '_DARK';
 
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,

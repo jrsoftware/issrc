@@ -89,10 +89,11 @@ begin
   end;
 end;
 
-procedure InitializeUninstallProgressForm(const WizardIconsPostfix: String);
+procedure InitializeUninstallProgressForm(const MainIconPostfix, WizardIconsPostfix: String);
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags, WizardIconsPostfix);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags,
+    MainIconPostfix, WizardIconsPostfix);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
@@ -504,8 +505,13 @@ begin
     UninstLog.Load(UninstDataFile, UninstDataFilename);
 
     { Apply style - also see Setup.MainFunc's InitializeSetup }
+    var MainIconPostfix := '';
     var WizardIconsPostfix := '';
-    if (ufWizardDarkStyleDark in UninstLog.Flags) or ((ufWizardDarkStyleDynamic in UninstLog.Flags) and DarkModeActive) then
+    const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and DarkModeActive;
+    const IsForcedDark = (ufWizardDarkStyleDark in UninstLog.Flags);
+    if IsDynamicDark then
+      MainIconPostfix := '_DARK';
+    if IsDynamicDark or IsForcedDark then
       WizardIconsPostfix := '_DARK';
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
@@ -625,7 +631,7 @@ begin
           FmtSetupMessage1(msgShutdownBlockReasonUninstallingApp, UninstLog.AppName));
 
         { Create and show the progress form }
-        InitializeUninstallProgressForm(WizardIconsPostfix);
+        InitializeUninstallProgressForm(MainIconPostfix, WizardIconsPostfix);
 
         CurUninstallStepChanged(usUninstall, False);
 
