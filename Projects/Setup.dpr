@@ -111,8 +111,9 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{ The compiler will delete some of the icons included here }
+{ The compiler may delete some of the icons included here }
 {$R Res\Setup.icon.res}
+{$R Res\Setup.icon.dark.res}
 {$R Res\Setup.images.res}
 {$R Res\Setup.images.dark.res}
 {$R Res\Setup.version.res}

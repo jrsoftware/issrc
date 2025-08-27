@@ -129,7 +129,7 @@ begin
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
 
   if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', clNone, [32, 48, 64]); {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AWizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
 
   if AModernStyle then begin
     OuterNotebook.Color := clWindow;

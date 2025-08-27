@@ -2915,7 +2915,7 @@ var
         else
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + WizardIconsPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
@@ -2924,7 +2924,7 @@ var
             IDCANCEL: Abort;
             end;
         end else begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + WizardIconsPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of

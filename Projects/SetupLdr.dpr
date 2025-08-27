@@ -36,7 +36,9 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
+{ The compiler may delete one of the icons included here }
 {$R Res\Setup.icon.res}
+{$R Res\Setup.icon.dark.res}
 {$R Res\SetupLdr.version.res}
 {$R Res\SetupLdr.offsettable.res}
 

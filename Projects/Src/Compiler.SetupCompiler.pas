@@ -7556,9 +7556,9 @@ var
           LineNumber := SetupDirectiveLines[ssWizardStyle];
         if SetupIconFilename <> '' then begin
           { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-          UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True, True, SetupHeader.WizardDarkStyle);
+          UpdateIcons(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle);
         end else
-          UpdateIcons(ConvertFileName, '', False, True, SetupHeader.WizardDarkStyle);
+          UpdateIcons(ConvertFileName, True, '', SetupHeader.WizardDarkStyle);
         LineNumber := 0;
       end;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.e32']));
@@ -8378,11 +8378,15 @@ begin
             [cftoTrustAllOnDebug], OnCheckedTrust);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
-          if SetupIconFilename <> '' then begin
-            { update icons }
+          if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             LineNumber := SetupDirectiveLines[ssSetupIconFile];
-            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False, False, wdsDynamic { value is ignored });
+            if LineNumber = 0 then
+              LineNumber := SetupDirectiveLines[ssWizardStyle];
+            if SetupIconFilename <> '' then
+              UpdateIcons(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle)
+            else
+              UpdateIcons(ExeFilename, False, '', SetupHeader.WizardDarkStyle);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
