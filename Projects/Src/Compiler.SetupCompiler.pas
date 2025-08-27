@@ -3220,8 +3220,19 @@ begin
         else
           Invalid;
     end;
-    ssWizardImageBackColor, ssWizardSmallImageBackColor: begin
-        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
+    ssWizardImageBackColor: begin
+        try
+          SetupHeader.WizardImageBackColor := StringToColor(Value);
+        except
+          Invalid;
+        end;
+      end;
+    ssWizardSmallImageBackColor: begin
+        try
+          SetupHeader.WizardSmallImageBackColor := StringToColor(Value);
+        except
+          Invalid;
+        end;
       end;
     ssWizardImageStretch: begin
         SetSetupHeaderOption(shWizardImageStretch);
@@ -7997,10 +8008,13 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardImageFile, 'compiler:WizClassicImage.bmp']));
         WizardImageFile := 'compiler:WizClassicImage.bmp';
       end;
-      WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile)
+      WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile);
+      if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
+        SetupHeader.WizardImageBackColor := clWindow;
     end else begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150']);
-      Include(SetupHeader.Options, shUsesBuiltinWizardImages);
+      if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
+        SetupHeader.WizardImageBackColor := $f9f3e8; { Bluish Gray }
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
@@ -8009,10 +8023,13 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
         WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
       end;
-      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile)
+      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile);
+      if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
+        SetupHeader.WizardSmallImageBackColor := clWindow;
     end else begin
       WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250']);
-      Include(SetupHeader.Options, shUsesBuiltinSmallWizardImages);
+      if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
+        SetupHeader.WizardSmallImageBackColor := clNone;
     end;
     LineNumber := 0;
 

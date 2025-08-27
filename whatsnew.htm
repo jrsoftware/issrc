@@ -51,8 +51,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
 <li>Added support for .png files to <tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.</li>
 <li>Improved support for stretching 32-bit .bmp files with transparency.</li>
-<li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized using Pascal scripting and the <tt>BackColor</tt> property.<br/>
-    By default, the background colors match those previously used in the images and icons, so their appearance remains unchanged unless customized.</li>
+<li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized again using Setup section directives <tt>WizardImageBackColor</tt> and <tt>WizardSmallImageBackColor</tt>, which are no longer obsolete.<br/>
+    The default values of these directives match previously used colors, so the appearance of all images and icons remains unchanged by default.</li>
 <li>Pascal Scripting:
 <ul>
   <li>Added new <tt>TPngImage</tt> support class.</li>

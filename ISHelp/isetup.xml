@@ -1132,10 +1132,12 @@ DefaultGroupName=My Program
 <li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
 <li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
+<li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
 <li><link topic="setup_wizardresizable">WizardResizable</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
+<li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
 <li><link topic="setup_wizardstyle">WizardStyle</link></li>
 </ul>
@@ -1160,8 +1162,6 @@ DefaultGroupName=My Program
 <li><link topic="setup_windowvisible">WindowShowCaption</link></li>
 <li><link topic="setup_windowvisible">WindowStartMaximized</link></li>
 <li><link topic="setup_windowvisible">WindowVisible</link></li>
-<li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
-<li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 </ul>
 
 </body>
@@ -5457,7 +5457,7 @@ DiskSliceSize=736000000
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
@@ -5477,6 +5477,7 @@ DiskSliceSize=736000000
 <p><b>See also:</b><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
+<link topic="setup_wizardimagebackcolor">WizardImageBackColor</link><br/>
 <link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
@@ -5485,7 +5486,7 @@ DiskSliceSize=736000000
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified image should be square as well.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
@@ -5506,6 +5507,7 @@ DiskSliceSize=736000000
 <p><b>See also:</b><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
+<link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link><br/>
 <link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
@@ -5539,8 +5541,18 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColor">
+<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupdefault><tt>$f9f3e8</tt> (bluish gray) if the built-in wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
 <body>
-<p><i>Obsolete in 5.5.7.</i> This directive formerly specified the background color used to fill any unused space around the wizard bitmap when <link topic="setup_wizardimagestretch">WizardImageStretch</link> was set to <tt>no</tt>. Now any unused space is filled with the standard window color (usually white). If you wish to create a colored border around the image, do so by modifying the bitmap itself.</p>
+<p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSmallImageBackColor">
+<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupdefault><tt>clNone</tt> if the built-in small wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
+<body>
+<p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</p>
 </body>
 </setuptopic>
 
@@ -5577,12 +5589,6 @@ DiskSliceSize=736000000
 <p><b>See also:</b><br/>
 <link topic="setup_wizardresizable">WizardResizable</link><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
-</body>
-</setuptopic>
-
-<setuptopic directive="WizardSmallImageBackColor">
-<body>
-<p><i>Obsolete in 5.0.4.</i> This directive formerly specified the background color used to fill any unused space around the small wizard bitmap when <link topic="setup_wizardimagestretch">WizardImageStretch</link> was set to <tt>no</tt>. Now any unused space is filled with the standard window color (usually white). If you wish to create a colored border around the image, do so by modifying the bitmap itself.</p>
 </body>
 </setuptopic>
 

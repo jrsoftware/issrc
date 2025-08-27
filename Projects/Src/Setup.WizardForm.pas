@@ -881,23 +881,19 @@ begin
 
   { Initialize images }
   WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
+  WizardBitmapImage.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage.Center := True;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
+  WizardBitmapImage2.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
+  WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', clNone, [32, 48, 64]); {don't localize}
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', clNone, [32, 48, 64]); {don't localize}
   PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', clNone, [16, 24, 32]); {don't localize}
-
-  if shUsesBuiltinWizardImages in SetupHeader.Options then begin
-    WizardBitmapImage.BackColor := $F9F3E8; { Bluish Gray }
-    WizardBitmapImage2.BackColor := WizardBitmapImage.BackColor;
-  end;
-  if shUsesBuiltinSmallWizardImages in SetupHeader.Options then
-    WizardSmallBitmapImage.BackColor := clNone;
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');
