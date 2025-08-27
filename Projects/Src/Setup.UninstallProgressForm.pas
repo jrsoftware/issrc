@@ -37,7 +37,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean; const AWizardIconsPostfix: String);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   published
     property OuterNotebook: TNewNotebook read FOuterNotebook;
@@ -106,8 +106,6 @@ begin
 
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
-  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'Z_UNINSTALLICON', clNone, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', clNone, [32, 48, 64]); {don't localize}
   if SetupMessages[msgBeveledLabel] <> '' then begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
     BeveledLabel.Visible := True;
@@ -123,12 +121,16 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean;
+  const AWizardIconsPostfix: String);
 begin
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
-  
+
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', clNone, [32, 48, 64]); {don't localize}
+
   if AModernStyle then begin
     OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;

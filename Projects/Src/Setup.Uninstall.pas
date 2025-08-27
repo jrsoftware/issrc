@@ -91,8 +91,12 @@ end;
 
 procedure InitializeUninstallProgressForm;
 begin
+  var WizardIconsPostfix := '';
+  if (ufWizardDarkStyleDark in UninstLog.Flags) or ((ufWizardDarkStyleDynamic in UninstLog.Flags) and DarkModeActive) then
+    WizardIconsPostfix := '_DARK';
+
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags, WizardIconsPostfix);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);

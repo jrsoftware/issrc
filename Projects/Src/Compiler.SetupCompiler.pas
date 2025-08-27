@@ -138,7 +138,6 @@ type
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
-    WizardStyleDark: Boolean;
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -3262,13 +3261,13 @@ begin
           Include(SetupHeader.Options, shWizardModern);
           const SubStyle = Copy(Value, 8, Maxint);
           if SubStyle = 'dark' then
-            WizardStyleDark := True
+            SetupHeader.WizardDarkStyle := wdsDark
           else if SubStyle <> 'light' then
             Invalid;
         end else if Copy(Value, 1, 8) = 'classic/' then begin
           const SubStyle = Copy(Value, 9, Maxint);
           if SubStyle = 'dark' then
-            WizardStyleDark := True
+            SetupHeader.WizardDarkStyle := wdsDark
           else if SubStyle <> 'light' then
             Invalid;
         end else if Value <> 'classic' then
@@ -7515,23 +7514,18 @@ var
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
-
-      AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
-      LineNumber := SetupDirectiveLines[ssSetupIconFile];
-      if LineNumber = 0 then
-        LineNumber := SetupDirectiveLines[ssWizardStyle];
-      var DarkIconsUpdate: TDarkIconsUpdate;
-      if WizardStyleDark then
-        DarkIconsUpdate := diuActivate
-      else
-        DarkIconsUpdate := diuRemove;
-      if SetupIconFilename <> '' then begin
-        { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-        UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True, DarkIconsUpdate);
-      end else
-        UpdateIcons(ConvertFileName, '', False, DarkIconsUpdate);
-      LineNumber := 0;
-
+      if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
+        AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
+        LineNumber := SetupDirectiveLines[ssSetupIconFile];
+        if LineNumber = 0 then
+          LineNumber := SetupDirectiveLines[ssWizardStyle];
+        if SetupIconFilename <> '' then begin
+          { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
+          UpdateIcons(ConvertFileName, PrependSourceDirName(SetupIconFilename), True, True, SetupHeader.WizardDarkStyle);
+        end else
+          UpdateIcons(ConvertFileName, '', False, True, SetupHeader.WizardDarkStyle);
+        LineNumber := 0;
+      end;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.e32']));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
       try
@@ -7782,6 +7776,7 @@ begin
     MissingMessagesWarning := True;
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
+    SetupHeader.WizardDarkStyle := wdsLight;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8026,6 +8021,7 @@ begin
     CallIdleProc;
 
     { Read wizard image }
+    const Dark = SetupHeader.WizardDarkStyle = wdsDark;
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
     if WizardImageFile <> '' then begin
@@ -8037,9 +8033,9 @@ begin
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := clWindow;
     end else begin
-      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], WizardStyleDark);
+      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], Dark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
-        SetupHeader.WizardImageBackColor := IfThen(WizardStyleDark, $534831, $f9f3e8); { Bluish (Dark) Gray }
+        SetupHeader.WizardImageBackColor := IfThen(Dark, $534831, $f9f3e8); { Bluish (Dark) Gray }
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
@@ -8052,7 +8048,7 @@ begin
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
     end else begin
-      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], WizardStyleDark);
+      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], Dark);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clNone;
     end;
@@ -8322,7 +8318,7 @@ begin
             { update icons }
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             LineNumber := SetupDirectiveLines[ssSetupIconFile];
-            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False, diuNone);
+            UpdateIcons(ExeFilename, PrependSourceDirName(SetupIconFilename), False, False, wdsDynamic { value is ignored });
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

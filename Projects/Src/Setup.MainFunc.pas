@@ -113,6 +113,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImages: TWizardImages;
   WizardSmallImages: TWizardImages;
+  WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -3124,6 +3125,9 @@ begin
 
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
+
+        if (SetupHeader.WizardDarkStyle = wdsDark) or ((SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive) then
+          WizardIconsPostfix := '_DARK';
 
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,

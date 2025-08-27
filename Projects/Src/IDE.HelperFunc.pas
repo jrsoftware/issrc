@@ -281,17 +281,11 @@ begin
 end;
 
 function GetDefaultThemeType: TThemeType;
-var
-  K: HKEY;
-  Size, AppsUseLightTheme: DWORD;
 begin
-  Result := ttModernLight;
-  if IsWindows10 and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
-    Size := SizeOf(AppsUseLightTheme);
-    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
-      Result := ttModernDark;
-    RegCloseKey(K);
-  end;
+  if DarkModeActive then
+    Result := ttModernDark
+  else
+    Result := ttModernLight;
 end;
 
 function GetDefaultKeyMappingType: TKeyMappingType;

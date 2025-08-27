@@ -12,7 +12,7 @@ unit Compiler.ExeUpdateFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
+  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
 type
   TDarkIconsUpdate = (diuNone, diuActivate, diuRemove);
@@ -27,8 +27,8 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean;
-  const DarkIconsUpdate: TDarkIconsUpdate);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon, HandleWizardDarkStyle: Boolean;
+  const WizardDarkStyle: TSetupWizardDarkStyle);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -645,8 +645,8 @@ begin
   Result := True;
 end;
 
-procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon: Boolean;
-  const DarkIconsUpdate: TDarkIconsUpdate);
+procedure UpdateIcons(const FileName, IcoFileName: String; const DeleteUninstallIcon, HandleWizardDarkStyle: Boolean;
+  const WizardDarkStyle: TSetupWizardDarkStyle);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -742,51 +742,6 @@ type
     Result := GroupIconDir;
   end;
 
-  function DeleteIconIfExists(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
-  begin
-    if FindResource(M, ResourceName, RT_GROUP_ICON) <> 0 then
-      Result := DeleteIcon(H, M, ResourceName)
-    else
-      Result := nil;
-  end;
-
-  function RenameIcon(const H: THandle; const M: HMODULE; const OldResourceName, NewResourceName: PChar): PGroupIconDir;
-  var
-    R: HRSRC;
-    Res: HGLOBAL;
-    GroupIconDir: PGroupIconDir;
-    GroupIconDirSize: DWORD;
-    wLanguage: Word;
-  begin
-    DeleteIconIfExists(H, M, NewResourceName);
-
-    { Load the group icon resource }
-    R := FindResource(M, OldResourceName, RT_GROUP_ICON);
-    if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (2)');
-    Res := LoadResource(M, R);
-    if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (2)');
-    GroupIconDir := LockResource(Res);
-    if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (2)');
-
-    GroupIconDirSize := Sizeof(Word)*3 + GroupIconDir.ItemCount*Sizeof(TGroupIconDirItem);
-
-    { Create a copy group icon resource with the new name - existing icon resources will belong to
-      it automatically }
-    if not GetResourceLanguage(M, RT_GROUP_ICON, OldResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (2)');
-    if not UpdateResource(H, RT_GROUP_ICON, NewResourceName, wLanguage, GroupIconDir, GroupIconDirSize) then
-      ResUpdateErrorWithLastError('UpdateResource failed (3)');
-
-    { Delete the old group icon resource }
-    if not UpdateResource(H, RT_GROUP_ICON, OldResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (4)');
-
-    Result := GroupIconDir;
-  end;
-
 var
   H: THandle;
   M: HMODULE;
@@ -797,7 +752,7 @@ var
   N: Cardinal;
   NewGroupIconDirSize: LongInt;
 begin
-  if (IcoFileName = '') and not DeleteUninstallIcon and (DarkIconsUpdate = diuNone) then
+  if (IcoFileName = '') and not DeleteUninstallIcon and (HandleWizardDarkStyle and (WizardDarkStyle = wdsDynamic)) then
     Exit;
 
   Ico := nil;
@@ -854,11 +809,11 @@ begin
             { Update 'MAINICON' }
             for I := 0 to NewGroupIconDir.ItemCount-1 do
               if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (5)');
+                ResUpdateErrorWithLastError('UpdateResource failed (3)');
 
             { Update the icons }
             if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (6)');
+              ResUpdateErrorWithLastError('UpdateResource failed (4)');
           finally
             FreeMem(NewGroupIconDir);
           end;
@@ -869,20 +824,16 @@ begin
           DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
         end;
 
-        if DarkIconsUpdate = diuActivate then begin
-          RenameIcon(H, M, 'Z_DIRICON_DARK', 'Z_DIRICON');
-          RenameIcon(H, M, 'Z_DISKICON_DARK', 'Z_DISKICON');
-          RenameIcon(H, M, 'Z_GROUPICON_DARK', 'Z_GROUPICON');
-          RenameIcon(H, M, 'Z_STOPICON_DARK', 'Z_STOPICON');
+        if HandleWizardDarkStyle and (WizardDarkStyle <> wdsDynamic) then begin
+          var Postfix := '';
+          if WizardDarkStyle = wdsLight then
+            Postfix := '_DARK';
+          DeleteIcon(H, M, PChar('Z_DIRICON' + Postfix));
+          DeleteIcon(H, M, PChar('Z_DISKICON' + Postfix));
+          DeleteIcon(H, M, PChar('Z_GROUPICON' + Postfix));
+          DeleteIcon(H, M, PChar('Z_STOPICON' + Postfix));
           if not DeleteUninstallIcon then
-            RenameIcon(H, M, 'Z_UNINSTALLICON_DARK', 'Z_UNINSTALLICON');
-        end else if DarkIconsUpdate = diuRemove then begin
-          DeleteIcon(H, M, 'Z_DIRICON_DARK');
-          DeleteIcon(H, M, 'Z_DISKICON_DARK');
-          DeleteIcon(H, M, 'Z_GROUPICON_DARK');
-          DeleteIcon(H, M, 'Z_STOPICON_DARK');
-          if not DeleteUninstallIcon then
-            DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
+            DeleteIcon(H, M, PChar('Z_UNINSTALLICON' + Postfix));
         end;
       finally
         FreeLibrary(M);

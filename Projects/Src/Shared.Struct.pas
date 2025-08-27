@@ -80,6 +80,7 @@ type
   TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
+  TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
@@ -116,6 +117,7 @@ type
       NumRunEntries, NumUninstallRunEntries: Integer;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     WizardSizePercentX, WizardSizePercentY: Integer;
+    WizardDarkStyle: TSetupWizardDarkStyle;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     WizardImageBackColor, WizardSmallImageBackColor: LongInt;
     ExtraDiskSpaceRequired: Int64;
