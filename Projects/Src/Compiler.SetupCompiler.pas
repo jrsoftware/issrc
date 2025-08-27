@@ -138,6 +138,7 @@ type
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
     WizardSmallImageFile: String;
+    WizardStyleDark: Boolean;
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -3251,11 +3252,23 @@ begin
           SetupHeader.WizardSizePercentY, 100, 150)
       end;
     ssWizardStyle: begin
-        if CompareText(Value, 'classic') = 0 then
-          SetupHeader.WizardStyle := wsClassic
-        else if CompareText(Value, 'modern') = 0 then
-          SetupHeader.WizardStyle := wsModern
-        else
+        Value := LowerCase(Trim(Value));
+        if Value = 'modern' then
+          Include(SetupHeader.Options, shWizardModern)
+        else if Copy(Value, 1, 7) = 'modern/' then begin
+          Include(SetupHeader.Options, shWizardModern);
+          const SubStyle = Copy(Value, 8, Maxint);
+          if SubStyle = 'dark' then
+            WizardStyleDark := True
+          else if SubStyle <> 'light' then
+            Invalid;
+        end else if Copy(Value, 1, 8) = 'classic/' then begin
+          const SubStyle = Copy(Value, 9, Maxint);
+          if SubStyle = 'dark' then
+            WizardStyleDark := True
+          else if SubStyle <> 'light' then
+            Invalid;
+        end else if Value <> 'classic' then
           Invalid;
       end;
   end;
@@ -7756,7 +7769,6 @@ begin
     MissingMessagesWarning := True;
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
-    SetupHeader.WizardStyle := wsClassic;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -7937,13 +7949,13 @@ begin
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
     if SetupDirectiveLines[ssWizardSizePercent] = 0 then begin
-      if SetupHeader.WizardStyle = wsModern then
+      if shWizardModern in SetupHeader.Options then
         SetupHeader.WizardSizePercentX := 120
       else
         SetupHeader.WizardSizePercentX := 100;
       SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
     end;
-    if (SetupDirectiveLines[ssWizardResizable] = 0) and (SetupHeader.WizardStyle = wsModern) then
+    if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
       Include(SetupHeader.Options, shWizardResizable);
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
@@ -8014,7 +8026,7 @@ begin
     end else begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150']);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
-        SetupHeader.WizardImageBackColor := $f9f3e8; { Bluish Gray }
+        SetupHeader.WizardImageBackColor := IfThen(WizardStyleDark, $534831, $f9f3e8); { Bluish (Dark) Gray }
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));

@@ -826,7 +826,7 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style }
-  if SetupHeader.WizardStyle = wsModern then begin
+  if shWizardModern in SetupHeader.Options then begin
     OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
