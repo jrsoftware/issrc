@@ -120,6 +120,7 @@ type
     WizardDarkStyle: TSetupWizardDarkStyle;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     WizardImageBackColor, WizardSmallImageBackColor: LongInt;
+    WizardImageBackColorDarkDynamic, WizardSmallImageBackColorDarkDynamic: LongInt;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);

@@ -2631,7 +2631,8 @@ var
         Bytes := BytesLeft;
         if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
         Reader.Read(Buf^, Bytes);
-        Stream.WriteBuffer(Buf^, Bytes);
+        if Stream <> nil then
+          Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);
       end;
     finally
@@ -2654,6 +2655,19 @@ var
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
+    end;
+  end;
+
+  procedure ReadWizardImages(const Reader: TCompressedBlockReader; const WizardImages: TWizardImages;
+    const WantImages: Boolean);
+  begin
+    var N: LongInt;
+    Reader.Read(N, SizeOf(LongInt));
+    for var I := 0 to N-1 do begin
+      if WantImages then
+        WizardImages.Add(ReadWizardImage(Reader))
+      else
+        ReadFileIntoStream(Reader, nil);
     end;
   end;
 
@@ -3127,8 +3141,15 @@ begin
           FileExtractor.CryptKey := CryptKey; { See above }
 
         { Apply style - also see Setup.Uninstall's RunSecondPhase }
-        if (SetupHeader.WizardDarkStyle = wdsDark) or ((SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive) then
+        var WantWizardImagesDarkDynamic := False;
+        if (SetupHeader.WizardDarkStyle = wdsDark) or ((SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive) then begin
+          if SetupHeader.WizardDarkStyle = wdsDynamic then begin
+            SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDarkDynamic;
+            SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDarkDynamic;
+            WantWizardImagesDarkDynamic := True; { Handled below }
+          end;
           WizardIconsPostfix := '_DARK';
+        end;
 
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
@@ -3256,12 +3277,10 @@ begin
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardImages.Add(ReadWizardImage(Reader));
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardSmallImages.Add(ReadWizardImage(Reader));
+        ReadWizardImages(Reader, WizardImages, not WantWizardImagesDarkDynamic);
+        ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDarkDynamic);
+        ReadWizardImages(Reader, WizardImages, WantWizardImagesDarkDynamic);
+        ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDarkDynamic);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
