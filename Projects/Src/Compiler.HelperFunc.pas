@@ -65,7 +65,6 @@ const
   clNone = TColor($1FFFFFFF);
   clDefault = TColor($20000000);
 
-function IdentToColor(const Ident: string; var Color: Longint): Boolean;
 function StringToColor(const S: string): TColor;
 function IsRelativePath(const Filename: String): Boolean;
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False;
@@ -137,21 +136,20 @@ const
     (Value: clInfoBk; Name: 'clInfoBk'),
     (Value: clNone; Name: 'clNone'));
 
-function IdentToColor(const Ident: string; var Color: Longint): Boolean;
-var
-  I: Integer;
-begin
-  for I := Low(Colors) to High(Colors) do
-    if CompareText(Colors[I].Name, Ident) = 0 then
-    begin
-      Result := True;
-      Color := Longint(Colors[I].Value);
-      Exit;
-    end;
-  Result := False;
-end;
-
 function StringToColor(const S: string): TColor;
+
+  function IdentToColor(const Ident: string; var Color: LongInt): Boolean;
+  begin
+    for var I := Low(Colors) to High(Colors) do
+      if CompareText(Colors[I].Name, Ident) = 0 then
+      begin
+        Result := True;
+        Color := LongInt(Colors[I].Value);
+        Exit;
+      end;
+    Result := False;
+  end;
+
 begin
   if not IdentToColor(S, Longint(Result)) then
     Result := TColor(StrToInt(S));

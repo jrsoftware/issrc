@@ -81,7 +81,6 @@ object WizardForm: TWizardForm
         Width = 164
         Height = 314
         Anchors = [akLeft, akTop, akBottom]
-        BackColor = clWindow
       end
       object FWelcomeLabel2: TNewStaticText
         Left = 176
@@ -706,7 +705,6 @@ object WizardForm: TWizardForm
           Width = 58
           Height = 58
           Anchors = [akTop, akRight]
-          BackColor = clWindow
         end
         object FPageDescriptionLabel: TNewStaticText
           Left = 40
@@ -745,7 +743,6 @@ object WizardForm: TWizardForm
         Width = 164
         Height = 314
         Anchors = [akLeft, akTop, akBottom]
-        BackColor = clWindow
       end
       object FRunList: TNewCheckListBox
         Left = 176

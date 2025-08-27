@@ -298,7 +298,6 @@ procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
 { Copies all bytes from SourceF to DestF, incrementing process meter as it
   goes. Assumes file pointers of both are 0. }
 var
-  BufSize: Cardinal;
   Buf: array[0..16383] of Byte;
   Context: TSHA256Context;
 begin
@@ -322,12 +321,10 @@ begin
   DestF.Truncate;
   DestF.Seek(0);
 
-  while True do begin
-    BufSize := SizeOf(Buf);
+  while BytesLeft > 0 do begin
+    var BufSize: Cardinal := SizeOf(Buf);
     if BytesLeft < BufSize then
-      BufSize := BytesLeft;
-    if BufSize = 0 then
-      Break;
+      BufSize := Cardinal(BytesLeft);
 
     SourceF.ReadBuffer(Buf, BufSize);
     DestF.WriteBuffer(Buf, BufSize);
