@@ -12,6 +12,8 @@ unit NewProgressBar;
   This applies both to Position and State. For example if you set State while the
   progress bar is still moving towards a new Position, the new State doesnt show until
   the moving animation has finished.
+
+  Define VCLSTYLES for full VCL Styles support.
 }
 
 interface

@@ -9,6 +9,8 @@ unit NewCheckListBox;
 
   Note: TNewCheckListBox uses Items.Objects to store the item state. Don't use
   Item.Objects yourself, use ItemObject instead.
+
+  Define VCLSTYLES for full VCL Styles support.
 }
 
 interface
