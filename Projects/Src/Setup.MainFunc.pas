@@ -3141,14 +3141,14 @@ begin
           FileExtractor.CryptKey := CryptKey; { See above }
 
         { Apply style - also see Setup.Uninstall's RunSecondPhase }
-        var WantWizardImagesDarkDynamic := False;
+        var WantWizardImagesDynamicDark := False;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive;
         const IsForcedDark = (SetupHeader.WizardDarkStyle = wdsDark);
         if IsDynamicDark then begin
-          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDarkDynamic;
-          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDarkDynamic;
+          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
+          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
           MainIconPostfix := '_DARK';
-          WantWizardImagesDarkDynamic := True; { Handled below }
+          WantWizardImagesDynamicDark := True; { Handled below }
         end;
         if IsDynamicDark or IsForcedDark then
           WizardIconsPostfix := '_DARK';
@@ -3279,10 +3279,10 @@ begin
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
-        ReadWizardImages(Reader, WizardImages, not WantWizardImagesDarkDynamic);
-        ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDarkDynamic);
-        ReadWizardImages(Reader, WizardImages, WantWizardImagesDarkDynamic);
-        ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDarkDynamic);
+        ReadWizardImages(Reader, WizardImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin

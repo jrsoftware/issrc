@@ -14,9 +14,6 @@ interface
 uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
-type
-  TDarkIconsUpdate = (diuNone, diuActivate, diuRemove);
-
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function ReadSignatureAndChecksumFields64(const F: TCustomFile;

@@ -137,7 +137,7 @@ type
     DiskSliceSize: Int64;
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile: String;
-    WizardImageFile, WizardSmallImageFile, WizardImageFileDarkDynamic, WizardSmallImageFileDarkDynamic: String;
+    WizardImageFile, WizardSmallImageFile, WizardImageFileDynamicDark, WizardSmallImageFileDynamicDark: String;
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -3230,9 +3230,9 @@ begin
           Invalid;
         end;
       end;
-    ssWizardImageBackColorDarkDynamic: begin
+    ssWizardImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardImageBackColorDarkDynamic := StringToColor(Value);
+          SetupHeader.WizardImageBackColorDynamicDark := StringToColor(Value);
         except
           Invalid;
         end;
@@ -3244,9 +3244,9 @@ begin
           Invalid;
         end;
       end;
-    ssWizardSmallImageBackColorDarkDynamic: begin
+    ssWizardSmallImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardSmallImageBackColorDarkDynamic := StringToColor(Value);
+          SetupHeader.WizardSmallImageBackColorDynamicDark := StringToColor(Value);
         except
           Invalid;
         end;
@@ -3257,8 +3257,8 @@ begin
     ssWizardImageFile: begin
         WizardImageFile := Value;
       end;
-    ssWizardImageFileDarkDynamic: begin
-        WizardImageFileDarkDynamic := Value;
+    ssWizardImageFileDynamicDark: begin
+        WizardImageFileDynamicDark := Value;
       end;
     ssWizardResizable: begin
         SetSetupHeaderOption(shWizardResizable);
@@ -3266,8 +3266,8 @@ begin
     ssWizardSmallImageFile: begin
         WizardSmallImageFile := Value;
       end;
-    ssWizardSmallImageFileDarkDynamic: begin
-        WizardSmallImageFileDarkDynamic := Value;
+    ssWizardSmallImageFileDynamicDark: begin
+        WizardSmallImageFileDynamicDark := Value;
       end;
     ssWizardSizePercent: begin
         StrToPercentages(Value, SetupHeader.WizardSizePercentX,
@@ -6913,7 +6913,7 @@ var
   ExeFile: TFile;
   LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
   WizardImages, WizardSmallImages: TWizardImages;
-  WizardImagesDarkDynamic, WizardSmallImagesDarkDynamic: TWizardImages;
+  WizardImagesDynamicDark, WizardSmallImagesDynamicDark: TWizardImages;
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
   SizeOfExe, SizeOfHeaders: Int64;
@@ -7035,8 +7035,8 @@ var
 
       WriteWizardImages(WizardImages, W);
       WriteWizardImages(WizardSmallImages, W);
-      WriteWizardImages(WizardImagesDarkDynamic, W);
-      WriteWizardImages(WizardSmallImagesDarkDynamic, W);
+      WriteWizardImages(WizardImagesDynamicDark, W);
+      WriteWizardImages(WizardSmallImagesDynamicDark, W);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if SetupHeader.SevenZipLibraryName <> '' then
@@ -7736,8 +7736,8 @@ begin
 
   WizardImages := nil;
   WizardSmallImages := nil;
-  WizardImagesDarkDynamic := nil;
-  WizardSmallImagesDarkDynamic := nil;
+  WizardImagesDynamicDark := nil;
+  WizardSmallImagesDynamicDark := nil;
   SetupE32 := nil;
   DecompressorDLL := nil;
   SevenZipDLL := nil;
@@ -8058,7 +8058,7 @@ begin
     CallIdleProc;
 
     { Read main wizard images }
-    const DarkForced = SetupHeader.WizardDarkStyle = wdsDark;
+    const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
     LineNumber := SetupDirectiveLines[ssWizardImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
     if WizardImageFile <> '' then begin
@@ -8070,9 +8070,9 @@ begin
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := clWindow;
     end else begin
-      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], DarkForced);
+      WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], IsForcedDark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
-        SetupHeader.WizardImageBackColor := IfThen(DarkForced, $534831, $f9f3e8); { Bluish (Dark) Gray, also see below }
+        SetupHeader.WizardImageBackColor := IfThen(IsForcedDark, $534831, $f9f3e8); { Bluish (Dark) Gray, also see below }
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
@@ -8085,7 +8085,7 @@ begin
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
     end else begin
-      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], DarkForced);
+      WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], IsForcedDark);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clNone;
     end;
@@ -8093,27 +8093,27 @@ begin
 
     { Read dark dynamic wizard images }
     if SetupHeader.WizardDarkStyle = wdsDynamic then begin
-      LineNumber := SetupDirectiveLines[ssWizardImageFileDarkDynamic];
-      AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFileDarkDynamic']));
-      if WizardImageFileDarkDynamic <> '' then begin
-        WizardImagesDarkDynamic := CreateWizardImagesFromFiles('WizardImageFileDarkDynamic', WizardImageFileDarkDynamic);
-        if SetupDirectiveLines[ssWizardImageBackColorDarkDynamic] = 0 then
-          SetupHeader.WizardImageBackColorDarkDynamic := clWindow;
+      LineNumber := SetupDirectiveLines[ssWizardImageFileDynamicDark];
+      AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFileDynamicDark']));
+      if WizardImageFileDynamicDark <> '' then begin
+        WizardImagesDynamicDark := CreateWizardImagesFromFiles('WizardImageFileDynamicDark', WizardImageFileDynamicDark);
+        if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
+          SetupHeader.WizardImageBackColorDynamicDark := clWindow;
       end else begin
-        WizardImagesDarkDynamic := CreateWizardImagesFromResources(['WizardImage'], ['150'], True);
-        if SetupDirectiveLines[ssWizardImageBackColorDarkDynamic] = 0 then
-          SetupHeader.WizardImageBackColorDarkDynamic := $534831; { See above }
+        WizardImagesDynamicDark := CreateWizardImagesFromResources(['WizardImage'], ['150'], True);
+        if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
+          SetupHeader.WizardImageBackColorDynamicDark := $534831; { See above }
       end;
-      LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDarkDynamic];
-      AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDarkDynamic']));
-      if WizardSmallImageFileDarkDynamic <> '' then begin
-        WizardSmallImagesDarkDynamic := CreateWizardImagesFromFiles('WizardSmallImageDarkDynamic', WizardSmallImageFileDarkDynamic);
-        if SetupDirectiveLines[ssWizardSmallImageBackColorDarkDynamic] = 0 then
-          SetupHeader.WizardSmallImageBackColorDarkDynamic := clWindow;
+      LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
+      AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
+      if WizardSmallImageFileDynamicDark <> '' then begin
+        WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageDynamicDark', WizardSmallImageFileDynamicDark);
+        if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
+          SetupHeader.WizardSmallImageBackColorDynamicDark := clWindow;
       end else begin
-        WizardSmallImagesDarkDynamic := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], True);
-        if SetupDirectiveLines[ssWizardSmallImageBackColorDarkDynamic] = 0 then
-          SetupHeader.WizardSmallImageBackColorDarkDynamic := clNone;
+        WizardSmallImagesDynamicDark := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], True);
+        if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
+          SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
       end;
       LineNumber := 0;
     end;
@@ -8506,8 +8506,8 @@ begin
     SevenZipDLL.Free;
     DecompressorDLL.Free;
     SetupE32.Free;
-    WizardSmallImagesDarkDynamic.Free;
-    WizardImagesDarkDynamic.Free;
+    WizardSmallImagesDynamicDark.Free;
+    WizardImagesDynamicDark.Free;
     WizardSmallImages.Free;
     WizardImages.Free;
     ClearSEList(LanguageEntries, SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
