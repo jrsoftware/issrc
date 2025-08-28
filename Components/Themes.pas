@@ -136,6 +136,7 @@ type
   TStyleManager = class
     class var FSystemHooks: TSystemHooks;
     class property SystemHooks: TSystemHooks read FSystemHooks write FSystemHooks;
+    class function TrySetStyle(const Name: string; ShowErrorDialog: Boolean = True): Boolean;
   end;
 
   { Override ComCtrls }
@@ -232,6 +233,13 @@ end;
 function TCustomStyleServices.IsSystemStyle: Boolean;
 begin
   Result := True;
+end;
+
+{ TStyleManager }
+
+class function TStyleManager.TrySetStyle(const Name: string; ShowErrorDialog: Boolean): Boolean;
+begin
+  Result := False;
 end;
 
 initialization
