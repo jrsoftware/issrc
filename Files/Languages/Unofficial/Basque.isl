@@ -1,7 +1,7 @@
-; *** Inno Setup version 6.4.0+ Basque messages ***
+; *** Inno Setup version 6.5.0+ Basque messages ***
 ;
 ; Basque Translation: (EUS_Xabier Aramendi) (azpidatziak@gmail.com)
-; Default.isl 6.4.0 translation: Marimar (bmarimar2@gmail.com) 
+; Default.isl 6.5.0 translation: Marimar (bmarimar2@gmail.com) 
 ; Based in translation 5.5.3+ by Xabier Aramendi
 ;
 ; To download user-contributed translations of this file, go to:
@@ -68,7 +68,7 @@ SetupAppRunningError=Ezartzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi
 UninstallAppRunningError=Kentzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle= Instalatzeko modua hautatzea
+PrivilegesRequiredOverrideTitle=Instalatzeko modua hautatzea
 PrivilegesRequiredOverrideInstruction=Aukeratu instalatzeko modua
 PrivilegesRequiredOverrideText1=%1 erabiltzaile guztientzat instalatu daiteke (administrazio-pribilegioak behar ditu), edo zuretzat bakarrik.
 PrivilegesRequiredOverrideText2=%1 Zuretzat bakarrik instalatu daiteke, edo erabiltzaile guztientzat (administrazio-pribilegioak behar ditu).
@@ -215,14 +215,12 @@ ReadyMemoGroup=Hasiera Menuko agiritegia:
 ReadyMemoTasks=Eginkizun gehigarriak:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Fitxategi gehigarriak deskargatzen...
+DownloadingLabel2=Fitxategi gehigarriak deskargatzen...
 ButtonStopDownload=&Gelditu deskarga
 StopDownload=Ondoren, deskarga gelditu nahi duzu?
 ErrorDownloadAborted=Deskarga ezeztatuta
 ErrorDownloadFailed=Deskarga huts egin du: %1 %2
 ErrorDownloadSizeFailed=Tamaina lortzea huts egin du: %1 %2
-ErrorFileHash1=Fitxategiaren hash huts egin zuen: %1
-ErrorFileHash2=Fitxategiaren hash ez da baliozkoa: espero %1, aurkitu %2
 ErrorProgress=Aurrerapena ez da baliozkoa: %1 (e) tik %2 (e) ra
 ErrorFileSize=Fitxategiaren tamaina ez da baliozkoa: espero %1, aurkitu %2
 
@@ -232,6 +230,12 @@ ButtonStopExtraction=&Erauzketa gelditu
 StopExtraction=Ziur zaude erauzketa gelditu nahi duzula?
 ErrorExtractionAborted=Erauzketa ezeztatua
 ErrorExtractionFailed=Erauzketak huts egin zuen: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Pasahitza ez da zuzena
+ArchiveIsCorrupted=Fitxategia kaltetuta dago
+ArchiveUnsupportedFormat=Fitxategi-formatuak ez du euskarririk 
+
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Ezartzeko Gertatzen
@@ -277,11 +281,16 @@ AbortRetryIgnoreSelectAction=Hautatu ekintza
 AbortRetryIgnoreRetry=&Berrsaiatu
 AbortRetryIgnoreIgnore=&Errorea alde batera utzi eta jarraitu
 AbortRetryIgnoreCancel=Instalazioa bertan behera utzi
+RetryCancelSelectAction=Hautatu ekintza
+RetryCancelRetry=& Berriz saiatu
+RetryCancelCancel=Ezeztatu
+
 
 ; *** Installation status messages
 StatusClosingApplications=Aplikazioak isten...
 StatusCreateDirs=Zuzenbideak sortzen...
-StatusExtractFiles=Agiriak ateratzen...
+StatusExtractFiles=Agiriak ateratzen…
+StatusDownloadFiles=Fitxategiak deskargatzen...
 StatusCreateIcons=Lasterbideak sortzen...
 StatusCreateIniEntries=INI sarrerak sortzen...
 StatusCreateRegistryEntries=Erregistro sarrerak sortzen...
@@ -311,6 +320,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Omitir fitxategi hau (ez da gomendatua)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Errorea alde batera utzi eta jarraitu (ez da gomendatua)
 SourceIsCorrupted=Iturburu agiria hondatuta dago.
 SourceDoesntExist="%1" iturburu agiria ez dago
+SourceVerificationFailed=Jatorrizko artxiboaren egiaztapenak huts egin zuen: %1
+VerificationSignatureDoesntExist=Ez dago "%1" sinadura-fitxategia
+VerificationSignatureInvalid="%1" sinadura-fitxategiak ez du balio
+VerificationKeyNotFound="%1" sinadura-fitxategiak gako ezezagun bat erabiltzen du
+VerificationFileNameIncorrect=Fitxategiaren izena ez da zuzena
+VerificationFileTagIncorrect=Fitxategiaren etiketa ez da zuzena
+VerificationFileSizeIncorrect=Fitxategiaren tamaina ez da zuzena
+VerificationFileHashIncorrect=Fitxategiaren hash-a ez da zuzena
 ExistingFileReadOnly2=Dagoen fitxategia ezin da ordeztu, bakarrik irakurtzeko markatuta dagoelako.
 ExistingFileReadOnlyRetry=&Ezabatu eguzkitarako eta irakurketarako atributua
 ExistingFileReadOnlyKeepExisting=&Dagoen fitxategia mantentzea
@@ -329,6 +346,8 @@ ErrorChangingAttr=Errorea gertatu zen fitxategiaren atributuak aldatzen saiatzea
 ErrorCreatingTemp=Errore bat gertatu zen helmugako karpetan fitxategi bat sortzen saiatzean:
 ErrorReadingSource=Errore bat gertatu zen jatorrizko fitxategia irakurtzen saiatzean:
 ErrorCopying=Errorea gertatu da fitxategia kopiatzen saiatzean:
+ErrorDownloading=Errorea gertatu da fitxategi bat deskargatzen saiatzean:
+ErrorExtracting=Errorea gertatu da fitxategi bat ateratzen saiatzean:
 ErrorReplacingExistingFile=Errore bat gertatu zen dagoen fitxategia ordezten saiatzean:
 ErrorRestartReplace=Huts egin zuen ordezteko saiakeran:
 ErrorRenamingTemp=Errore bat gertatu zen helmugako karpetan fitxategi bat berrizendatzean:
@@ -340,7 +359,7 @@ ErrorRegisterTypeLib=Ezinezkoa da tipoen liburu-denda erregistratzea: %1
 ; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
-UninstallDisplayNameMarks=%1 ( %2, %3)
+UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit
 UninstallDisplayNameMarkAllUsers=Erabiltzaile guztiak
