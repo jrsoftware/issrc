@@ -63,7 +63,7 @@ var
 implementation
 
 uses
-  TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
+  Themes, TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
@@ -132,8 +132,15 @@ begin
   if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
     WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
 
+  { Initialize wizard style - also see TWizardForm.Create }
+  if IsCustomStyleActive then begin
+    { TNewNotebook ignores VCL Styles so it needs a bit of help }
+    OuterNotebook.ParentColor := True;
+    Color := StyleServices(Self).GetStyleColor(scWindow);
+  end;
   if AModernStyle then begin
-    OuterNotebook.Color := clWindow;
+    if not IsCustomStyleActive then
+      OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
 end;

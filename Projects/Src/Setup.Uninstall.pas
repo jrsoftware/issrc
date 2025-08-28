@@ -17,7 +17,7 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, PathFunc, Shared.CommonFunc.Vcl,
+  Windows, SysUtils, Messages, Forms, Themes, PathFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
@@ -513,6 +513,8 @@ begin
     if IsDynamicDark then
       MainIconPostfix := '_DARK';
     if IsDynamicDark or IsForcedDark then begin
+      if not HighContrastActive then
+        TStyleManager.TrySetStyle('Dark', False);
       IsDarkInstallMode := True;
       WizardIconsPostfix := '_DARK';
     end;

@@ -1,4 +1,4 @@
-program Setup;
+program SetupCustomStyle;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ program Setup;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Setup program - without VCL Styles support
+  Setup program - with VCL Styles support
 }
 
 uses
@@ -106,7 +106,8 @@ uses
   Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
   Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
-  Themes in '..\Components\Themes.pas';
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

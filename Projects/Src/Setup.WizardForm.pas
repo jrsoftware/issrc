@@ -343,7 +343,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, Generics.Collections,
+  ShellApi, ShlObj, Types, Generics.Collections, Themes,
   PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
@@ -825,9 +825,17 @@ begin
   Dec(X, W1);
   BackButton.Left := X;
 
-  { Initialize wizard style }
+  { Initialize wizard style - also see TUninstallProgressForm.Initialize }
+  if IsCustomStyleActive then begin
+    { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
+    WelcomePage.ParentColor := True;
+    OuterNotebook.ParentColor := True;
+    FinishedPage.ParentColor := True;
+    Color := StyleServices(Self).GetStyleColor(scWindow);
+  end;
   if shWizardModern in SetupHeader.Options then begin
-    OuterNotebook.Color := clWindow;
+    if not IsCustomStyleActive then
+      OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
 

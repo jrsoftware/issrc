@@ -241,7 +241,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -2956,7 +2956,6 @@ var
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;
-  SetupFilename: String;
   SetupFile: TFile;
   TestID: TSetupID;
   NameAndVersionMsg: String;
@@ -3095,8 +3094,12 @@ begin
   SetupMessages[msgSetupFileCorruptOrWrongVer] := SSetupFileCorruptOrWrongVer;
 
   { Read setup-0.bin, or from EXE }
+  var SetupFilename: String;
   if not SetupLdrMode then begin
     SetupFilename := PathChangeExt(SetupLdrOriginalFilename, '') + '-0.bin';
+    {$IFDEF DEBUG}
+    SetupFileName := SetupFileName.Replace('SetupCustomStyle', 'Setup');
+    {$ENDIF}
     if not NewFileExists(SetupFilename) then
       AbortInitFmt1(msgSetupFileMissing, PathExtractName(SetupFilename));
   end
@@ -3152,6 +3155,8 @@ begin
           WantWizardImagesDynamicDark := True; { Handled below }
         end;
         if IsDynamicDark or IsForcedDark then begin
+          if not HighContrastActive then
+            TStyleManager.TrySetStyle('Dark', False);
           IsDarkInstallMode := True;
           WizardIconsPostfix := '_DARK';
         end;

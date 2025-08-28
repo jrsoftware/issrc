@@ -7537,12 +7537,16 @@ var
 
   procedure PrepareSetupE32(var M: TMemoryFile);
   var
-    TempFilename, E32Filename, ConvertFilename: String;
+    TempFilename, E32Basename, E32Filename, ConvertFilename: String;
     ConvertFile: TFile;
   begin
     TempFilename := '';
     try
-      E32Filename := CompilerDir + 'Setup.e32';
+      if SetupHeader.WizardDarkStyle = wdsLight then
+        E32Basename := 'Setup.e32'
+      else
+        E32Basename := 'SetupCustomStyle.e32';
+      E32Filename := CompilerDir + E32Basename;
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
       CopyFileOrAbort(E32Filename, ConvertFilename, not(pfSetupE32 in DisablePrecompiledFileVerifications),
@@ -7550,7 +7554,7 @@ var
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
       if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
-        AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.e32']));
+        AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
         LineNumber := SetupDirectiveLines[ssSetupIconFile];
         if LineNumber = 0 then
           LineNumber := SetupDirectiveLines[ssWizardStyle];
@@ -7561,7 +7565,7 @@ var
           UpdateIcons(ConvertFileName, True, '', SetupHeader.WizardDarkStyle);
         LineNumber := 0;
       end;
-      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, ['Setup.e32']));
+      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
       try
         UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
