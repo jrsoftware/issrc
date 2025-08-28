@@ -48,7 +48,6 @@ function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer;
 function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
-procedure ReactivateTopWindow;
 procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
 function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
@@ -407,31 +406,6 @@ function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 begin
   Result := MsgBox(Format(Text, Args), Caption, Typ, Buttons);
-end;
-
-function ReactivateTopWindowEnumProc(Wnd: HWND; LParam: LPARAM): BOOL; stdcall;
-begin
-  { Stop if we encounter the application window; don't consider it or any
-    windows below it }
-  if Wnd = Application.Handle then
-    Result := False
-  else
-  if IsWindowVisible(Wnd) and IsWindowEnabled(Wnd) and
-     (GetWindowLong(Wnd, GWL_EXSTYLE) and (WS_EX_TOPMOST or WS_EX_TOOLWINDOW) = 0) then begin
-    SetActiveWindow(Wnd);
-    Result := False;
-  end
-  else
-    Result := True;
-end;
-
-procedure ReactivateTopWindow;
-{ If the application window is active, reactivates the top window owned by the
-  current thread. Tool windows and windows that are invisible, disabled, or
-  topmost are not considered. }
-begin
-  if GetActiveWindow = Application.Handle then
-    EnumThreadWindows(GetCurrentThreadId, @ReactivateTopWindowEnumProc, 0);
 end;
 
 procedure FreeCaptions; far;
