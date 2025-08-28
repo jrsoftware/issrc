@@ -358,9 +358,6 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
     Result := EditStream.dwError;
   end;
 
-const
-  TextColor: array[Boolean] of TStyleFont = (sfEditBoxTextDisabled, sfEditBoxTextNormal);
-  BkColor: array[Boolean] of TStyleColor = (scEditDisabled, scEdit);
 begin
   if not FUseRichEdit then begin
     Text := String(Value);
