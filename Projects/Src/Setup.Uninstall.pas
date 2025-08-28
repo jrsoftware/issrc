@@ -507,12 +507,15 @@ begin
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     var MainIconPostfix := '';
     var WizardIconsPostfix := '';
+    IsWinDark := DarkModeActive;
     const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and DarkModeActive;
     const IsForcedDark = (ufWizardDarkStyleDark in UninstLog.Flags);
     if IsDynamicDark then
       MainIconPostfix := '_DARK';
-    if IsDynamicDark or IsForcedDark then
+    if IsDynamicDark or IsForcedDark then begin
+      IsDarkInstallMode := True;
       WizardIconsPostfix := '_DARK';
+    end;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 

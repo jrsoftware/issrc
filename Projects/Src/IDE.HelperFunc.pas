@@ -86,7 +86,7 @@ implementation
 
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
-  Messages, DwmApi, Consts, NetEncoding,
+  Messages, Consts, NetEncoding,
   ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
@@ -152,16 +152,7 @@ begin
   Result := (Form = MainForm) or FormTheme.Dark;
   if Result then begin
     Form.Color := InitFormThemeGetBkColor(Form = MainForm); { Prevents some flicker, but not all }
-
-    { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
-      Unlike this article we check for Windows 10 Version 2004 because that's the first version
-      that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
-    if WindowsVersionAtLeast(10, 0, 19041) then begin
-      Form.StyleElements := Form.StyleElements - [seBorder];
-      const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-      var value: BOOL := FormTheme.Dark;
-      DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
-    end;
+    SetDarkTitleBar(Form, FormTheme.Dark);
   end;
 
 {$IF CompilerVersion >= 36.0}

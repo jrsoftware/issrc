@@ -140,7 +140,7 @@ var
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
-    NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
+    NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
@@ -3142,7 +3142,8 @@ begin
 
         { Apply style - also see Setup.Uninstall's RunSecondPhase }
         var WantWizardImagesDynamicDark := False;
-        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and DarkModeActive;
+        IsWinDark := DarkModeActive;
+        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
         const IsForcedDark = (SetupHeader.WizardDarkStyle = wdsDark);
         if IsDynamicDark then begin
           SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
@@ -3150,8 +3151,10 @@ begin
           MainIconPostfix := '_DARK';
           WantWizardImagesDynamicDark := True; { Handled below }
         end;
-        if IsDynamicDark or IsForcedDark then
+        if IsDynamicDark or IsForcedDark then begin
+          IsDarkInstallMode := True;
           WizardIconsPostfix := '_DARK';
+        end;
 
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,

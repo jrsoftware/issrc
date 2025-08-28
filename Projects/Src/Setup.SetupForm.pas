@@ -401,6 +401,7 @@ begin
   inherited;
   if WM_QueryCancelAutoPlay <> 0 then
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
+  SetDarkTitleBar(Self, IsDarkInstallMode);
 end;
 
 procedure TSetupForm.FlipControlsIfNeeded;
