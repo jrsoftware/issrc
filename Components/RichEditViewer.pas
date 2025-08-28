@@ -358,6 +358,9 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
     Result := EditStream.dwError;
   end;
 
+const
+  TextColor: array[Boolean] of TStyleFont = (sfEditBoxTextDisabled, sfEditBoxTextNormal);
+  BkColor: array[Boolean] of TStyleColor = (scEditDisabled, scEdit);
 begin
   if not FUseRichEdit then begin
     Text := String(Value);
@@ -368,6 +371,22 @@ begin
     Result := StreamIn(SF_RTF);
     if Result <> 0 then
       Result := StreamIn(SF_TEXT);
+
+    var LStyle := StyleServices(Self);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+
+    if (LStyle <> nil) and (seFont in StyleElements) and (seClient in StyleElements) then begin
+      { Trigger TRichEditStyleHook.EMSetCharFormat, inspired by TSysRichEditStyleHook.UpdateColors.
+        It changes all colors to match the style. Not needed if FUseRichEdit is False. }
+      var cf: TCharFormat2;
+      ZeroMemory(@cf, sizeof(TCharFormat2));
+      cf.cbSize := sizeof(TCharFormat2);
+      cf.dwMask := CFM_COLOR;
+      SendMessage(Handle, EM_GETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
+      cf.dwMask := CFM_COLOR;
+      SendMessage(Handle, EM_SETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
+    end;
   end;
 end;
 
