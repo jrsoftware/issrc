@@ -1133,12 +1133,16 @@ DefaultGroupName=My Program
 <li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
+<li><link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
+<li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
 <li><link topic="setup_wizardresizable">WizardResizable</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
+<li><link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></li>
+<li><link topic="setup_wizardsmallimagefiledynamicdark">WizardSmallImageFileDynamicDark</link></li>
 <li><link topic="setup_wizardstyle">WizardStyle</link></li>
 </ul>
 
@@ -5482,6 +5486,14 @@ DiskSliceSize=736000000
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardImageFileDynamicDark">
+<setupdefault><i>(blank)</i></setupdefault>
+<body>
+<p>Overrides <link topic="setup_wizardimagefile">WizardImageFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardSmallImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
@@ -5509,6 +5521,14 @@ DiskSliceSize=736000000
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
 <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link><br/>
 <link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSmallImageFileDynamicDark">
+<setupdefault><i>(blank)</i></setupdefault>
+<body>
+<p>Overrides <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</p>
 </body>
 </setuptopic>
 
@@ -5542,9 +5562,18 @@ DiskSliceSize=736000000
 
 <setuptopic directive="WizardImageBackColor">
 <setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
-<setupdefault><tt>$f9f3e8</tt> (bluish gray) if the built-in wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
+<setupdefault><tt>$f9f3e8</tt> (bluish gray) if the built-in wizard image is used, <tt>$534831</tt> (bluish dark gray) if forced dark mode is used, <tt>clWindow</tt> otherwise.</setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardstyle">WizardStyle</link></p></body>
+</setuptopic>
+
+<setuptopic directive="WizardImageBackColorDynamicDark">
+<setupdefault><tt>$534831</tt> (bluish dark gray)</setupdefault>
+<body>
+<p>Overrides <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</p>
 </body>
 </setuptopic>
 
@@ -5553,6 +5582,14 @@ DiskSliceSize=736000000
 <setupdefault><tt>clNone</tt> if the built-in small wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardSmallImageBackColorDynamicDark">
+<setupdefault><tt>clNone</tt></setupdefault>
+<body>
+<p>Overrides <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link>.</p>
 </body>
 </setuptopic>
 
@@ -5609,11 +5646,48 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>classic</tt> or <tt>modern</tt></setupvalid>
+<setupvalid><tt>classic</tt>, <tt>classic/light</tt>, <tt>classic/dark</tt>, <tt>classic/dynamic</tt>, <tt>modern</tt>, <tt>modern/light</tt>, <tt>modern/dark</tt>, or <tt>modern/dynamic</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>modern</tt>, Setup and Uninstall will show a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.</p>
-<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
+<p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
+<p>The base styles are:</p>
+<ul>
+<li><b><tt>classic</tt></b>: Uses the traditional gray wizard appearance.</li>
+<li><b><tt>modern</tt></b>: Uses a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.<br/>
+    Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</li>
+</ul>
+<p>Both base styles support additional appearance modes:</p>
+<ul>
+<li><b><tt>light</tt></b>: Forces a light appearance (default behavior if no mode is specified).</li>
+<li><b><tt>dark</tt></b>: Forces a dark appearance.</li>
+<li><b><tt>dynamic</tt></b>: Automatically switches between light and dark appearance based on the user's Windows system settings.</li>
+</ul>
+<p>Example: <tt>WizardStyle=modern/dynamic</tt> will use the modern style and automatically adapt to the system's light or dark mode setting.</p>
+<p><b>Dark Mode Behavior</b></p>
+<p>When forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active, the following changes occur:</p>
+<ul>
+<li>The main icon of Setup and Uninstall is replaced by its dark mode version, if not overridden by a custom one using <link topic="setup_setupiconfile">SetupIconFile</link>.<br/>
+    Note: Windows may temporarily display a different icon due to its icon cache, this is normal.</li>
+<li>Others icons in Setup and Uninstall are also replaced by dark mode versions. These are not affected by Windows' icon cache.</li>
+<li>The wizard images are replaced by dark mode versions, if not overridden by custom ones using <link topic="setup_wizardimagefile">WizardImageFile</link>.</li>
+<li>The wizard image background color is adjusted for dark mode if not overridden by custom values using <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</li>
+<li>The small wizard images are replaced by dark mode versions, if not overridden by custom ones using <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</li>
+<li>The title bar is made dark to match the system appearance, if the system allows this.</li>
+<li>Any colors in RTF files are removed and replaced by the dark style colors.</li>
+</ul>
+<p><b>Dynamic Mode Special Considerations</b></p>
+<p>When using <tt>dynamic</tt> mode, the following additional considerations apply:</p>
+<ul>
+<li>The main icon as displayed by Windows will always be the light version.</li>
+<li>Separate directives are available to specify images and colors used specifically for dynamic dark mode:
+<ul>
+<li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link> and <link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link></li>
+<li><link topic="setup_wizardsmallimagefiledynamicdark">WizardSmallImageFileDynamicDark</link> and <link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link></li>
+</ul>
+The standard <tt>WizardImageFile</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardImageBackColor</tt>, and <tt>WizardSmallImageBackColor</tt> settings are used for dynamic light mode.</li>
+<li>Forced dark mode (<tt>classic/dark</tt> or <tt>modern/dark</tt>) does not use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
+</ul>
+
 </body>
 </setuptopic>
 
