@@ -55,6 +55,7 @@ type
   end;
 
   TNewProgressBarStyleHook = class(TStyleHook)
+{$IFDEF VCLSTYLES}
   strict private
     FMarqueeTimer: TTimer;
     FMarqueeStep: Integer;
@@ -80,6 +81,7 @@ type
   public
     constructor Create(AControl: TWinControl); override;
     destructor Destroy; override;
+{$ENDIF}
   end;
 
 procedure Register;
@@ -193,6 +195,8 @@ begin
     progress bar moved backwards, so flickering was rarely apparent. }
   DefaultHandler(Message);
 end;
+
+{$IFDEF VCLSTYLES}
 
 { TNewProgressBarStyleHook - same as Vcl.ComCtrls' TProgressBarStyleHook
   except that it accesses the Control property as a TNewProgressBar instead
@@ -436,5 +440,7 @@ function TNewProgressBarStyleHook.GetBorderWidth: Integer;
 begin
   Result := 0;
 end;
+
+{$ENDIF}
 
 end.

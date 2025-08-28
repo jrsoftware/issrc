@@ -78,10 +78,12 @@ type
   end;
 
   TNewStaticTextStyleHook = class(TStyleHook)
+{$IFDEF VCLSTYLES}
   strict protected
     procedure Paint(Canvas: TCanvas); override;
   public
     constructor Create(AControl: TWinControl); override;
+{$ENDIF}
   end;
 
 procedure Register;
@@ -306,6 +308,8 @@ begin
   end;
 end;
 
+{$IFDEF VCLSTYLES}
+
 { TNewStaticTextStyleHook - same as Vcl.StdCtrls' TStaticTextStyleHook
   except that it accesses the Control property as a TNewStaticText instead
   of a TCustomStaticText or TStaticText, and with code related to the
@@ -352,5 +356,7 @@ begin
     end;
   end;
 end;
+
+{$ENDIF}
 
 end.

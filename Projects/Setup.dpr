@@ -105,7 +105,8 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
   Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
-  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas';
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  Themes in '..\Components\Themes.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

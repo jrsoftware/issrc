@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, NewUxTheme;
+  StdCtrls, NewUxTheme, Themes;
 
 const
   WM_UPDATEUISTATE = $0128;
@@ -203,6 +203,7 @@ type
   end;
 
   TNewCheckListBoxStyleHook = class(TScrollingStyleHook)
+{$IFDEF VCLSTYLES}
   strict private
     FStyleColorsChecked: Boolean;
     FStyleColorsCheckedWantTabs: Boolean;
@@ -213,6 +214,7 @@ type
     procedure WMKillFocus(var Message: TMessage); message WM_KILLFOCUS;
   public
     constructor Create(AControl: TWinControl); override;
+{$ENDIF}
   end;
 
 procedure Register;
@@ -220,7 +222,7 @@ procedure Register;
 implementation
 
 uses
-  Themes, NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, UITypes, Types;
+  NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, UITypes, Types;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -1902,6 +1904,8 @@ begin
     inherited;
 end;
 
+{$IFDEF VCLSTYLES}
+
 { TNewCheckListBoxStyleHook - same as Vcl.StdCtrls' TListBoxStyleHook except that it picks the
   correct colors when WantTabs is True }
 
@@ -1976,6 +1980,8 @@ begin
   RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
   Handled := True;
 end;
+
+{$ENDIF}
 
 { TAccObject }
 
