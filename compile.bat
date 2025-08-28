@@ -56,7 +56,7 @@ if errorlevel 1 goto failed
 
 echo - Compil32.dpr
 mkdir %DCUDIR%\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Compil32.dpr -DCOMPIL32PROJ;%ROPSDEF% Compil32.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Compil32.dpr -DCOMPIL32PROJ;VCLSTYLES;%ROPSDEF% Compil32.dpr
 if errorlevel 1 goto failed
 
 echo - ISCC.dpr
