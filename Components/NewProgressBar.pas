@@ -270,6 +270,56 @@ begin
     FMarqueeTimer.Enabled := False;
 end;
 
+{$IF CompilerVersion < 36.0}
+{ From Delphi 12.3's GraphUtil }
+procedure SetPreMutipliedColor(ABitMap: TBitmap; Color: TColor);
+var
+  X, Y: Integer;
+  R, G, B: Byte;
+  LRGBQuad: PRGBQuad;
+begin
+  if ABitMap.PixelFormat <> pf32bit then
+    Exit;
+
+  Color := ColorToRGB(Color);
+  R := GetRValue(Color);
+  G := GetGValue(Color);
+  B := GetBValue(Color);
+  ABitmap.AlphaFormat := afIgnored;
+  for Y := 0 to ABitMap.Height - 1 do
+  begin
+    LRGBQuad := ABitMap.ScanLine[Y];
+    for X := 0 to ABitMap.Width - 1 do
+    begin
+      LRGBQuad.rgbRed := R;
+      LRGBQuad.rgbGreen := G;
+      LRGBQuad.rgbBlue := B;
+      Inc(LRGBQuad);
+    end;
+  end;
+  ABitmap.AlphaFormat := afPremultiplied;
+end;
+{$ENDIF}
+
+{$IF CompilerVersion < 35.0}
+{ From Delphi 12.3's GraphUtil }
+type
+  PRGBAArray = ^TRGBAArray;
+  TRGBAArray = array[0..0] of TRGBQuad;
+
+procedure InitAlpha(ABitmap: TBitmap; AAlpha: Byte);
+var
+  I: Integer;
+  LLastLine: PRGBAArray;
+begin
+  LLastLine := ABitmap.ScanLine[ABitmap.Height - 1];
+  {$IFOPT R+} {$DEFINE RANGECHECKS_ON} {$R-} {$ENDIF}
+  for I := 0 to ABitmap.Width * ABitmap.Height - 1 do
+    LLastLine[I].rgbReserved := AAlpha;
+  {$IFDEF RANGECHECKS_ON} {$R+} {$UNDEF RANGECHECKS_ON} {$ENDIF}
+end;
+{$ENDIF}
+
 procedure TNewProgressBarStyleHook.PaintBar(Canvas: TCanvas);
 const
   cStateColorAlpha = 130;
