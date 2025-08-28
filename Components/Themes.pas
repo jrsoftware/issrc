@@ -77,7 +77,7 @@ type
     tclHeaderItemNormal, tclHeaderItemDisabled
   );
 
-   TElementColor = (
+  TElementColor = (
     ecBorderColor,
     ecFillColor,
     ecTextColor,

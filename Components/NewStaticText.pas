@@ -2,7 +2,9 @@ unit NewStaticText;
 
 {
   TNewStaticText - similar to TStaticText but with multi-line AutoSize
-  support and a WordWrap property, and without a Transparent property
+  support and a WordWrap property, and without a Transparent property.
+
+  Define VCLSTYLES for full VCL Styles support.
 }
 
 interface
