@@ -8,7 +8,10 @@ unit Themes;
 
   VCL Styles dummy functions to easily deactivate inclusion of actual VCL Styles code
 
-  Must be included after ComCtrls and Forms
+  Just add it to your .dpr and use Themes instead of Vcl.Themes everywhere. Requires Vcl to
+  be in the project's unit scope names list to be able to use same code with real Vcl.Themes.
+
+  In units it must be used after ComCtrls and Forms.
 }
 
 interface
