@@ -271,7 +271,7 @@ begin
 end;
 
 {$IF CompilerVersion < 36.0}
-{ From Delphi 12.3's GraphUtil }
+{ From Delphi 12.3's GraphUtil - including the function name typo }
 procedure SetPreMutipliedColor(ABitMap: TBitmap; Color: TColor);
 var
   X, Y: Integer;
