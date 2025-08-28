@@ -73,7 +73,7 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, BidiUtils, PathFunc, ComObj, Themes, ComCtrls;
+  ShellApi, BidiUtils, PathFunc, ComObj, ComCtrls, Themes;
 
 const
   RICHEDIT_CLASSW = 'RichEdit20W';
