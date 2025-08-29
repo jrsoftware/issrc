@@ -6149,7 +6149,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
   <li>You will then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>).</li>
   <li>On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers, without prompting you.</li>
   <li>If you delete the file, you will be prompted again if necessary on the next compile.</li>
-  <li>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link> and VersionInfo directives), will cause a new file to be created under a different name.</li>
+  <li>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link>, <link topic="setup_wizardstyle">WizardStyle</link> and VersionInfo directives), will cause a new file to be created under a different name.</li>
 </ul>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
