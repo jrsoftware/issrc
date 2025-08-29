@@ -62,7 +62,7 @@ type
 
   TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
 
-  TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
+  TPrecompiledFile = (pfSetupE32, pfSetupCustomStyleE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
   TPrecompiledFiles = set of TPrecompiledFile;
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
@@ -2480,7 +2480,8 @@ var
 
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
-    PrecompiledFiles: array of PChar = ['setupe32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
+    PrecompiledFiles: array of PChar = ['setupe32', 'setupcustomstylee23', 'setupldre32', 'is7zdll',
+      'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
   begin
     Result := [];
     while True do
@@ -2488,11 +2489,12 @@ var
         -2: Break;
         -1: Invalid;
         0: Include(Result, pfSetupE32);
-        1: Include(Result, pfSetupLdrE32);
-        2: Include(Result, pfIs7zDll);
-        3: Include(Result, pfIsbunzipDll);
-        4: Include(Result, pfIsunzlibDll);
-        5: Include(Result, pfIslzmaExe);
+        1: Include(Result, pfSetupCustomStyleE32);
+        2: Include(Result, pfSetupLdrE32);
+        3: Include(Result, pfIs7zDll);
+        4: Include(Result, pfIsbunzipDll);
+        5: Include(Result, pfIsunzlibDll);
+        6: Include(Result, pfIslzmaExe);
       end;
   end;
 
@@ -7538,18 +7540,22 @@ var
   procedure PrepareSetupE32(var M: TMemoryFile);
   var
     TempFilename, E32Basename, E32Filename, ConvertFilename: String;
+    E32Pf: TPrecompiledFile;
     ConvertFile: TFile;
   begin
     TempFilename := '';
     try
-      if SetupHeader.WizardDarkStyle = wdsLight then
-        E32Basename := 'Setup.e32'
-      else
+      if SetupHeader.WizardDarkStyle = wdsLight then begin
+        E32Basename := 'Setup.e32';
+        E32Pf := pfSetupE32;
+      end else begin
         E32Basename := 'SetupCustomStyle.e32';
+        E32Pf := pfSetupCustomStyleE32;
+      end;
       E32Filename := CompilerDir + E32Basename;
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, not(pfSetupE32 in DisablePrecompiledFileVerifications),
+      CopyFileOrAbort(E32Filename, ConvertFilename, not(E32Pf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;

@@ -4757,7 +4757,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="DisablePrecompiledFileVerifications">
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>setupe32</tt> <br/><tt>setupldre32</tt> <br/><tt>is7zdll</tt> <br/><tt>isbunzipdll</tt> <br/><tt>isunzlibdll</tt> <br/><tt>islzmaexe</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces:<br/><tt>setupe32</tt><br/><tt>setupcustomstylee32</tt><br/><tt>setupldre32</tt><br/><tt>is7zdll</tt><br/><tt>isbunzipdll</tt><br/><tt>isunzlibdll</tt><br/><tt>islzmaexe</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
