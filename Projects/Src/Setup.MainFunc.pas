@@ -3098,6 +3098,7 @@ begin
   if not SetupLdrMode then begin
     SetupFilename := PathChangeExt(SetupLdrOriginalFilename, '') + '-0.bin';
     {$IFDEF DEBUG}
+    { Also see TFileExtractor.FindSliceFilename }
     SetupFileName := SetupFileName.Replace('SetupCustomStyle', 'Setup');
     {$ENDIF}
     if not NewFileExists(SetupFilename) then
