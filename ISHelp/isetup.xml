@@ -5691,6 +5691,7 @@ DiskSliceSize=736000000
 <ul>
 <li>Windows task dialogs do not currently support dark mode theming. When Setup displays task dialogs to the user (for example, when prompting to abort, retry, or ignore if a file is in use), these dialogs will appear in the system's default light appearance regardless of the chosen wizard style or the user's Windows system settings.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 115 KB. Enabling dynamic dark <tt>dynamic</tt> adds approximately 85 KB more.</li>
+<li>Messages displayed by the so-called "setup loader" will never be dark. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
 </ul>
 
 </body>
