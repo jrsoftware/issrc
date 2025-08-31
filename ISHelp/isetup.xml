@@ -5663,7 +5663,7 @@ DiskSliceSize=736000000
 <li><b><tt>dynamic</tt></b>: Automatically switches between light and dark appearance based on the user's Windows system settings.</li>
 </ul>
 <p>Example: <tt>WizardStyle=modern/dynamic</tt> will use the modern style and automatically adapt to the system's light or dark mode setting.</p>
-<p><b>Dark Mode Behavior</b></p>
+<heading>Dark Mode Behavior</heading>
 <p>When forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active, the following changes occur:</p>
 <ul>
 <li>The main icon of Setup and Uninstall is replaced by its dark mode version, if not overridden by a custom one using <link topic="setup_setupiconfile">SetupIconFile</link>.<br/>
@@ -5675,7 +5675,7 @@ DiskSliceSize=736000000
 <li>The title bar is made dark to match the system appearance, if the system allows this.</li>
 <li>Any colors in RTF files are removed and replaced by the dark style colors.</li>
 </ul>
-<p><b>Dynamic Mode Special Considerations</b></p>
+<heading>Dynamic Mode Special Considerations</heading>
 <p>When using <tt>dynamic</tt> mode, the following additional considerations apply:</p>
 <ul>
 <li>The main icon as displayed by Windows will always be the light version.</li>
@@ -5684,12 +5684,13 @@ DiskSliceSize=736000000
 <li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link> and <link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardsmallimagefiledynamicdark">WizardSmallImageFileDynamicDark</link> and <link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link></li>
 </ul>
-The standard <tt>WizardImageFile</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardImageBackColor</tt>, and <tt>WizardSmallImageBackColor</tt> settings are used for dynamic light mode.</li>
-<li>Forced dark mode (<tt>classic/dark</tt> or <tt>modern/dark</tt>) does not use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
+  The standard <tt>WizardImageFile</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardImageBackColor</tt>, and <tt>WizardSmallImageBackColor</tt> settings are used for dynamic light mode.<br/><br/>
+  Note: Forced dark mode (<tt>classic/dark</tt> or <tt>modern/dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
 </ul>
-<p><b>Limitations</b></p>
+<heading>Other Considerations</heading>
 <ul>
 <li>Windows task dialogs do not currently support dark mode theming. When Setup displays task dialogs to the user (for example, when prompting to abort, retry, or ignore if a file is in use), these dialogs will appear in the system's default light appearance regardless of the chosen wizard style or the user's Windows system settings.</li>
+<li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 115 KB. Enabling dynamic dark <tt>dynamic</tt> adds approximately 85 KB more.</li>
 </ul>
 
 </body>
