@@ -52,11 +52,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>Enhanced <tt>[Setup]</tt> section directive <tt>WizardStyle</tt> with new appearance modes:
   <ul>
-    <li>Added appearance modes: <tt>light</tt> (default, forced light mode), <tt>dark</tt> (forced dark mode), and <tt>dynamic</tt> (automatically follows Windows system settings).</li>
+    <li>Added appearance modes: <tt>light</tt> (default, forced light mode, same appearance as previous versions), <tt>dark</tt> (forced dark mode, new appearance), and <tt>dynamic</tt> (automatically follows Windows system settings).</li>
     <li>For example, to use the modern style and automatically switch between light and dark appearance based on the user's Windows system settings:
       <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic</code></pre>
     </li>
-    <li>Dark mode automatically replaces icons, wizard images, and adjusts colors while maintaining a consistent user experience. It still allows a custom main icon, and custom images and colors.</li>
+    <li>Dark mode automatically replaces icons, wizard images, and adjusts colors while maintaining a consistent user experience. It still allows a custom main icon, and custom images and colors.<br/>
+        <a href="https://jrsoftware.org/images/is-welcome-dark-org-175.png">Example screenshot of Setup in dark mode, at 175% DPI</a>.</li>
     <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information and special considerations.</li>
   </ul>
   <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance.</li>
