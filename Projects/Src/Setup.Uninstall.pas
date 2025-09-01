@@ -513,10 +513,16 @@ begin
     if IsDynamicDark then
       MainIconPostfix := '_DARK';
     if IsDynamicDark or IsForcedDark then begin
-      if not HighContrastActive then
-        TStyleManager.TrySetStyle('Dark', False);
       IsDarkInstallMode := True;
       WizardIconsPostfix := '_DARK';
+    end;
+    if not HighContrastActive then begin
+      var StyleName := 'MYSTYLE1';
+      if IsDynamicDark then
+        StyleName := StyleName + '_DARK';
+      var Handle: TStyleManager.TStyleServicesHandle;
+      if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then
+        TStyleManager.SetStyle(Handle);
     end;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);

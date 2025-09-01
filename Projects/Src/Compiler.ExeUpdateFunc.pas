@@ -24,8 +24,8 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIcons(const FileName: String; const FileIsSetupE32: Boolean; IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle);
+procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
+  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -642,8 +642,8 @@ begin
   Result := True;
 end;
 
-procedure UpdateIcons(const FileName: String; const FileIsSetupE32: Boolean; IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle);
+procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
+  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -678,6 +678,21 @@ type
     Typ: Word;
     ItemCount: Word;
     Items: array [0..MaxInt shr 4 - 1] of TGroupIconDirItem;
+  end;
+
+  function LoadFileIntoMemory(const FileName: String; var P: Pointer): Cardinal;
+  begin
+    const F = TFile.Create(FileName, fdOpenExisting, faRead, fsRead);
+    try
+      const N = F.CappedSize;
+      if Cardinal(N) > Cardinal($100000) then  { sanity check }
+        ResUpdateError('File is too large');
+      GetMem(P, N);
+      F.ReadBuffer(P^, N);
+      Result := N;
+    finally
+      F.Free;
+    end;
   end;
 
   function IsValidIcon(P: Pointer; Size: Cardinal): Boolean;
@@ -789,34 +804,36 @@ var
   M: HMODULE;
   OldGroupIconDir, NewGroupIconDir: PGroupIconDir;
   I: Integer;
-  F: TFile;
-  Ico: PIcoHeader;
-  N: Cardinal;
   NewGroupIconDirSize: LongInt;
 begin
-  if (IcoFileName = '') and (WizardDarkStyle = wdsDynamic) then
+  if (IcoFileName = '') and (WizardDarkStyle = wdsDynamic) and (VsfFileName = '') and (VsfFileNameDark = '') then
     Exit;
 
-  Ico := nil;
+  var Ico: PIcoHeader := nil;
+  var Vsf := nil;
+  var VsfDark := nil;
 
   try
     if IcoFileName <> '' then begin
       { Load the icons }
-      F := TFile.Create(IcoFileName, fdOpenExisting, faRead, fsRead);
-      try
-        N := F.CappedSize;
-        if Cardinal(N) > Cardinal($100000) then  { sanity check }
-          ResUpdateError('Icon file is too large');
-        GetMem(Ico, N);
-        F.ReadBuffer(Ico^, N);
-      finally
-        F.Free;
-      end;
+      var P: Pointer;
+      const IcoSize = LoadFileIntoMemory(IcoFileName, P);
+      Ico := P;
 
       { Ensure the icon is valid }
-      if not IsValidIcon(Ico, N) then
+      if not IsValidIcon(Ico, IcoSize) then
         ResUpdateError('Icon file is invalid');
     end;
+    
+    { Load the styles. Could be checked using TStyleManager.IsValidStyle but that requires using VCL units. }
+
+    var VsfSize: Cardinal := 0;
+    if VsfFileName <> '' then
+      VsfSize := LoadFileIntoMemory(VsfFileName, Vsf);
+
+    var VsfSizeDark: Cardinal := 0;
+    if VsfFileNameDark <> '' then
+      VsfSizeDark := LoadFileIntoMemory(VsfFileNameDark, VsfDark);
 
     { Update the resources }
     var ChangedMainIcon := False;
@@ -894,6 +911,14 @@ begin
               DeleteIcon(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;
         end;
+
+        if VsfFileName <> '' then
+          if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
+            ResUpdateErrorWithLastError('UpdateResource failed (7)');
+
+        if VsfFileNameDark <> '' then
+          if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDark, VsfSizeDark) then
+            ResUpdateErrorWithLastError('UpdateResource failed (8)');
       finally
         FreeLibrary(M);
       end;
@@ -905,6 +930,10 @@ begin
       if ChangedMainIcon then { Only allow errors (likely from faulty AV software) if the update actually is important }
         ResUpdateErrorWithLastError('EndUpdateResource failed, try excluding the Output folder from your antivirus software');
   finally
+    if VsfDark <> nil then
+      FreeMem(VsfDark);
+    if Vsf <> nil then
+      FreeMem(Vsf);
     if Ico <> nil then
       FreeMem(Ico);
   end;

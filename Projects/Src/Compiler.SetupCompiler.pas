@@ -138,6 +138,7 @@ type
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile: String;
     WizardImageFile, WizardSmallImageFile, WizardImageFileDynamicDark, WizardSmallImageFileDynamicDark: String;
+    WizardStyleFile, WizardStyleFileDynamicDark: String; { .vsf files }
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -3298,6 +3299,12 @@ begin
             Invalid;
         end else if Value <> 'classic' then
           Invalid;
+      end;
+    ssWizardStyleFile: begin
+        WizardStyleFile := Value;
+      end;
+    ssWizardStyleFileDynamicDark: begin
+        WizardStyleFileDynamicDark := Value;
       end;
   end;
 end;
@@ -7543,9 +7550,12 @@ var
     E32Pf: TPrecompiledFile;
     ConvertFile: TFile;
   begin
+    if (SetupHeader.WizardDarkStyle <> wdsDynamic) and (WizardStyleFileDynamicDark <> '') then
+      AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected WizardStyleFileDynamicDark value']);
+  
     TempFilename := '';
     try
-      if SetupHeader.WizardDarkStyle = wdsLight then begin
+      if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
         E32Basename := 'Setup.e32';
         E32Pf := pfSetupE32;
       end else begin
@@ -7559,16 +7569,16 @@ var
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
-      if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
+      if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) or (WizardStyleFile <> '') or (WizardStyleFileDynamicDark <> '') then begin
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
         LineNumber := SetupDirectiveLines[ssSetupIconFile];
         if LineNumber = 0 then
           LineNumber := SetupDirectiveLines[ssWizardStyle];
         if SetupIconFilename <> '' then begin
           { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-          UpdateIcons(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle);
+          UpdateIconsAndVsf(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, WizardStyleFile, WizardStyleFileDynamicDark);
         end else
-          UpdateIcons(ConvertFileName, True, '', SetupHeader.WizardDarkStyle);
+          UpdateIconsAndVsf(ConvertFileName, True, '', SetupHeader.WizardDarkStyle, WizardStyleFile, WizardStyleFileDynamicDark);
         LineNumber := 0;
       end;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
@@ -8012,6 +8022,8 @@ begin
     end;
     if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
       Include(SetupHeader.Options, shWizardResizable);
+    if (WizardStyleFileDynamicDark <> '') and (SetupHeader.WizardDarkStyle <> wdsDynamic) then
+      WizardStyleFileDynamicDark := ''; { Avoid unnecessary size increase - also checked for by PrepareSetupE32 }
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
 
@@ -8394,9 +8406,9 @@ begin
             if LineNumber = 0 then
               LineNumber := SetupDirectiveLines[ssWizardStyle];
             if SetupIconFilename <> '' then
-              UpdateIcons(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle)
+              UpdateIconsAndVsf(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '')
             else
-              UpdateIcons(ExeFilename, False, '', SetupHeader.WizardDarkStyle);
+              UpdateIconsAndVsf(ExeFilename, False, '', SetupHeader.WizardDarkStyle, '', '');
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

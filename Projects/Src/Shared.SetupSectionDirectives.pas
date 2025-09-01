@@ -181,7 +181,9 @@ type
     ssWizardSmallImageFile,
     ssWizardSmallImageFileDynamicDark,
     ssWizardSizePercent,
-    ssWizardStyle);
+    ssWizardStyle,
+    ssWizardStyleFile,
+    ssWizardStyleFileDynamicDark);
     
 implementation
 

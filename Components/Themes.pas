@@ -137,8 +137,12 @@ type
   TSystemHooks = set of TSystemHook;
 
   TStyleManager = class
+    type TStyleServicesHandle = type Pointer;
     class var FSystemHooks: TSystemHooks;
+    class procedure SetStyle(Handle: TStyleServicesHandle);
     class property SystemHooks: TSystemHooks read FSystemHooks write FSystemHooks;
+    class function TryLoadFromResource(Instance: HINST; const ResourceName: string;
+      ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
     class function TrySetStyle(const Name: string; ShowErrorDialog: Boolean = True): Boolean;
   end;
 
@@ -239,6 +243,16 @@ begin
 end;
 
 { TStyleManager }
+
+class procedure TStyleManager.SetStyle(Handle: TStyleServicesHandle);
+begin
+end;
+
+class function TStyleManager.TryLoadFromResource(Instance: HINST; const ResourceName: string;
+  ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
+begin
+  Result := False;
+end;
 
 class function TStyleManager.TrySetStyle(const Name: string; ShowErrorDialog: Boolean): Boolean;
 begin

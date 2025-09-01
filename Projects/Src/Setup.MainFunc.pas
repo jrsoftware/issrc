@@ -3144,7 +3144,11 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
-        { Apply style - also see Setup.Uninstall's RunSecondPhase }
+        { Apply style - also see Setup.Uninstall's RunSecondPhase
+          Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
+          instead of the ones prepared by the compiler. This is because the .e32 is started, and
+          not the .exe prepared by the compiler. This is not noticable except for the VCL style
+          resources: it will always see only one style resource, set to the default dark one. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
@@ -3156,10 +3160,16 @@ begin
           WantWizardImagesDynamicDark := True; { Handled below }
         end;
         if IsDynamicDark or IsForcedDark then begin
-          if not HighContrastActive then
-            TStyleManager.TrySetStyle('Dark', False);
           IsDarkInstallMode := True;
           WizardIconsPostfix := '_DARK';
+        end;
+        if not HighContrastActive then begin
+          var StyleName := 'MYSTYLE1';
+          if IsDynamicDark then
+            StyleName := StyleName + '_DARK';
+          var Handle: TStyleManager.TStyleServicesHandle;
+          if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then
+            TStyleManager.SetStyle(Handle);
         end;
 
         { Language entries }
