@@ -54,16 +54,16 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>Added appearance modes: <tt>light</tt> (default, forced light mode, same appearance as previous versions), <tt>dark</tt> (forced dark mode, new appearance), and <tt>dynamic</tt> (automatically follows Windows system settings).</li>
     <li>For example, to use the modern style and automatically switch between light and dark appearance based on the user's Windows system settings:
-      <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic</code></pre>
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic</code></pre>
     </li>
     <li>Dark mode automatically replaces icons, wizard images, and adjusts colors while maintaining a consistent user experience. It still allows a custom main icon, and custom images and colors.<br/>
-        <a href="https://jrsoftware.org/images/is-welcome-dark-org-175.png">Example screenshot of Setup in dark mode, at 175% DPI</a>.</li>
+        <a href="https://jrsoftware.org/images/is-welcome-dark-org-175.png">Example screenshot of Setup using the built-in dark style, at 175% DPI</a>.</li>
     <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information and special considerations.</li>
   </ul>
   <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance.</li>
   <ul>
     <li>For example, to specify two custom colors, one for light mode and one for dark mode:
-      <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic
 <span class="key">WizardImageBackColor</span>=$ffffff
 <span class="key">WizardImageBackColorDynamicDark</span>=$2b2b2b</code></pre>
         Note: Forced dark mode (<tt>classic/dark</tt> or <tt>modern/dark</tt>) does not use the <tt>DynamicDark</tt> settings; it uses the standard settings. Example:
@@ -74,9 +74,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>The default style can be customized by specifying a VCL Styles file using the new <tt>WizardStyleFile</tt> directive and a fifth <tt>DynamicDark</tt> directive.<br/>
   <ul>
     <li>For example, to specify two custom styles, one for light mode and one for dark mode:
-      <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic
-<span class="key">WizardStyleFile</span>=Light.vsf
-<span class="key">WizardStyleFileDynamicDark</span>=Carbon.vsf</code></pre>
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic
+<span class="key">WizardStyleFile</span>=Windows11_Polar_Light.vsf
+<span class="key">WizardStyleFileDynamicDark</span>=Windows11_Polar_Dark.vsf</code></pre>
+        <a href="https://jrsoftware.org/images/is-welcome-polarlight-org-175.png">Example screenshot of Setup using the Polar Light style, at 175% DPI</a> (<a href="https://getitnow.embarcadero.com/vcl-style-windows11-polar-light/">source of this free style</a>).</li>
+        <a href="https://jrsoftware.org/images/is-welcome-polardark-org-175.png">Example screenshot of Setup using the Polar Dark style, at 175% DPI</a> (<a href="https://getitnow.embarcadero.com/vcl-style-windows11-polar-dark/">source of this free style</a>).</li>
     </li>
     <li>When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
   </ul>
