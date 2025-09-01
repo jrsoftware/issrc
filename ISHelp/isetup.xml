@@ -4911,7 +4911,8 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>Values of <tt>2</tt> or higher are currently equivalent to <tt>auto</tt>.</p>
 <p>Note that for the LZMA2 compressor, this directive only controls whether the multi-threaded match finder is used. To enable support for compressing multiple parts of large files in parallel, set <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></p></body>
+<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></p>
+</body>
 </setuptopic>
 
 <setuptopic directive="SolidCompression">
