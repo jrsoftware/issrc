@@ -5708,7 +5708,7 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardStyleFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>This directive specifies a custom VCL Styles file (.vsf) to be used.</p>
+<p>This directive specifies a custom VCL Styles file (.vsf) to be used. It is recommended to use only styles that support high DPI.</p>
 <p>When using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>light</tt> or <tt>dynamic</tt> mode, the specified style should always use a light color theme (such as predominantly white or in other light colors). When using <tt>dark</tt>, use a dark color theme (such as predominantly black or in other dark colors).</p>
 <p>Using a custom style file increases the size of Setup, except when using <tt>dark</tt> mode and a style file that is smaller than the built-in one, which is 199 KB before compression.</p>
 <p><b>See also:</b><br/>
