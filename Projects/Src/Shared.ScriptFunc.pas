@@ -391,6 +391,8 @@ initialization
     'function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer;'+' const Default: Integer): Integer;',
     'function IsWin64: Boolean;',
     'function Is64BitInstallMode: Boolean;',
+    'function IsWinDark: Boolean;',
+    'function IsDarkInstallMode: Boolean;',
     'function ProcessorArchitecture: TSetupProcessorArchitecture;',
     'function IsArm32Compatible: Boolean;',
     'function IsArm64: Boolean;',
