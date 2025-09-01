@@ -22,7 +22,8 @@ uses
   SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
-  Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor;
+  Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
+  Compiler.ExeUpdateFunc;
 
 type
   EISCompileError = class(Exception);
@@ -268,6 +269,7 @@ type
     function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String; const ADark: Boolean): TWizardImages;
     procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
+    procedure OnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -305,7 +307,7 @@ uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
   PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Shared.EncryptionFunc, Compression.Base, Compression.Zlib, Compression.bzlib,
-  Shared.LangOptionsSectionDirectives, Compiler.ExeUpdateFunc,
+  Shared.LangOptionsSectionDirectives,
 {$IFDEF STATICPREPROC}
   ISPP.Preprocess,
 {$ENDIF}
@@ -6779,6 +6781,18 @@ begin
     [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
 end;
 
+procedure TSetupCompiler.OnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
+begin
+  case Operation of
+    uivoIcoFileName: LineNumber := SetupDirectiveLines[ssSetupIconFile];
+    uivoWizardDarkStyle: LineNumber := SetupDirectiveLines[ssWizardStyle];
+    uivoVsfFileName: LineNumber := SetupDirectiveLines[ssWizardStyleFile];
+    uivoVsfFileNameDark: LineNumber := SetupDirectiveLines[ssWizardStyleFileDynamicDark];
+  else
+    LineNumber := 0;
+  end;
+end;
+
 procedure TSetupCompiler.Compile;
 
   procedure InitDebugInfo;
@@ -7571,14 +7585,14 @@ var
       TempFilename := ConvertFilename;
       if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) or (WizardStyleFile <> '') or (WizardStyleFileDynamicDark <> '') then begin
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
-        LineNumber := SetupDirectiveLines[ssSetupIconFile];
-        if LineNumber = 0 then
-          LineNumber := SetupDirectiveLines[ssWizardStyle];
+        { OnUpdateIconsAndVsf will set proper LineNumber }
         if SetupIconFilename <> '' then begin
           { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-          UpdateIconsAndVsf(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, WizardStyleFile, WizardStyleFileDynamicDark);
+          UpdateIconsAndVsf(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+            WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
         end else
-          UpdateIconsAndVsf(ConvertFileName, True, '', SetupHeader.WizardDarkStyle, WizardStyleFile, WizardStyleFileDynamicDark);
+          UpdateIconsAndVsf(ConvertFileName, True, '', SetupHeader.WizardDarkStyle,
+            WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
         LineNumber := 0;
       end;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
@@ -8402,13 +8416,11 @@ begin
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
-            LineNumber := SetupDirectiveLines[ssSetupIconFile];
-            if LineNumber = 0 then
-              LineNumber := SetupDirectiveLines[ssWizardStyle];
+            { OnUpdateIconsAndVsf will set proper LineNumber }
             if SetupIconFilename <> '' then
-              UpdateIconsAndVsf(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '')
+              UpdateIconsAndVsf(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf)
             else
-              UpdateIconsAndVsf(ExeFilename, False, '', SetupHeader.WizardDarkStyle, '', '');
+              UpdateIconsAndVsf(ExeFilename, False, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

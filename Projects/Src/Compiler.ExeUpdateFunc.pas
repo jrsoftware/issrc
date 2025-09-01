@@ -14,6 +14,10 @@ interface
 uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
+type
+  TUpdateIconsAndVsfOperation = (uivoIcoFileName, uivoWizardDarkStyle, uivoVsfFileName, uivoVsfFileNameDark, uivoDone);
+  TOnUpdateIconsAndVsf = procedure(const Operation: TUpdateIconsAndVsfOperation) of object;
+
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function ReadSignatureAndChecksumFields64(const F: TCustomFile;
@@ -25,7 +29,8 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String);
+  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
+  const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -643,7 +648,8 @@ begin
 end;
 
 procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String);
+  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
+  const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -678,6 +684,12 @@ type
     Typ: Word;
     ItemCount: Word;
     Items: array [0..MaxInt shr 4 - 1] of TGroupIconDirItem;
+  end;
+
+  procedure TriggerOnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
+  begin
+    if Assigned(OnUpdateIconsAndVsf) then
+      OnUpdateIconsAndVsf(Operation);
   end;
 
   function LoadFileIntoMemory(const FileName: String; var P: Pointer): Cardinal;
@@ -815,6 +827,8 @@ begin
 
   try
     if IcoFileName <> '' then begin
+      TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+
       { Load the icons }
       var P: Pointer;
       const IcoSize = LoadFileIntoMemory(IcoFileName, P);
@@ -824,16 +838,20 @@ begin
       if not IsValidIcon(Ico, IcoSize) then
         ResUpdateError('Icon file is invalid');
     end;
-    
+
     { Load the styles. Could be checked using TStyleManager.IsValidStyle but that requires using VCL units. }
 
     var VsfSize: Cardinal := 0;
-    if VsfFileName <> '' then
+    if VsfFileName <> '' then begin
+      TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
       VsfSize := LoadFileIntoMemory(VsfFileName, Vsf);
+    end;
 
     var VsfSizeDark: Cardinal := 0;
-    if VsfFileNameDark <> '' then
+    if VsfFileNameDark <> '' then begin
+      TriggerOnUpdateIconsAndVsf(uivoVsfFileNameDark);
       VsfSizeDark := LoadFileIntoMemory(VsfFileNameDark, VsfDark);
+    end;
 
     { Update the resources }
     var ChangedMainIcon := False;
@@ -850,6 +868,8 @@ begin
           until you call EndUpdateResource *and* reload the file using LoadLibrary }
 
         if IcoFileName <> '' then begin
+          TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+
           { Delete default icons }
           OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
           DeleteIcon(H, M, 'MAINICON_DARK');
@@ -882,6 +902,7 @@ begin
           end;
         end else begin
           if WizardDarkStyle <> wdsDynamic then begin { Always True }
+            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
             if WizardDarkStyle = wdsLight then
               DeleteIcon(H, M, 'MAINICON_DARK')
             else begin
@@ -894,10 +915,12 @@ begin
         if FileIsSetupE32 then begin
           const DeleteUninstallIcon = IcoFileName <> '';
           if DeleteUninstallIcon then begin
+            TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
             DeleteIcon(H, M, 'Z_UNINSTALLICON');
             DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
           end;
           if WizardDarkStyle <> wdsDynamic then begin
+            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
             { Unlike for MAINICON (for which we don't have the choice) here it always uses DeleteIcon
               instead of also using RenameIcon, to avoid issues with Windows' icon cache }
             var Postfix := '';
@@ -912,13 +935,19 @@ begin
           end;
         end;
 
-        if VsfFileName <> '' then
+        if VsfFileName <> '' then begin
+          TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
           if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
             ResUpdateErrorWithLastError('UpdateResource failed (7)');
+        end;
 
-        if VsfFileNameDark <> '' then
+        if VsfFileNameDark <> '' then begin
+          TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
           if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDark, VsfSizeDark) then
             ResUpdateErrorWithLastError('UpdateResource failed (8)');
+        end;
+
+        TriggerOnUpdateIconsAndVsf(uivoDone);
       finally
         FreeLibrary(M);
       end;
