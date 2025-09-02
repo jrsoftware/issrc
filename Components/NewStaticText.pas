@@ -26,6 +26,9 @@ type
     FForceLTRReading: Boolean;
     FLastAdjustBoundsRTL: Boolean;
     FShowAccelChar: Boolean;
+    {$IFNDEF TRANSPARENCYSUPPORT}
+    FTransparent: Boolean;
+    {$ENDIF}
     FWordWrap: Boolean;
     class constructor Create;
     class destructor Destroy;
@@ -122,6 +125,7 @@ begin
     csReplicatable, csDoubleClicks, csGestures {$IF CompilerVersion >= 35.0}, csNeedsDesignDisabledState{$ENDIF}];
   {$IFNDEF TRANSPARENCYSUPPORT}
   ControlStyle := ControlStyle + [csOpaque];
+  FTransparent := True;  { Even though Transparent is ignored, we still want it to work as if it isn't at design time }
   {$ENDIF}
   Width := 65;
   Height := 17;
@@ -342,6 +346,8 @@ begin
       ControlStyle := ControlStyle + [csOpaque];
     Invalidate;
   end;
+{$ELSE}
+  FTransparent := Value;
 {$ENDIF}
 end;
 
@@ -350,7 +356,7 @@ begin
 {$IFDEF TRANSPARENCYSUPPORT}
   Result := not (csOpaque in ControlStyle);
 {$ELSE}
-  Result := False;
+  Result := FTransparent;
 {$ENDIF}
 end;
 
@@ -395,11 +401,12 @@ begin
 
   if LStyle.Available then begin
     R := Control.ClientRect;
+    {$IFDEF TRANSPARENCYSUPPORT}
     if TNewStaticText(Control).Transparent then begin
       Details := LStyle.GetElementDetails(tbCheckBoxUncheckedNormal);
       LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False);
       Canvas.Brush.Style := bsClear;
-    end else begin
+    end else {$ENDIF} begin
       Canvas.Brush.Color := LStyle.GetStyleColor(scWindow);
       Canvas.FillRect(R);
     end;
