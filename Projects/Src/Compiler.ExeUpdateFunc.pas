@@ -986,7 +986,7 @@ begin
           end;
 
           if StyleFileNameDynamicDark <> '' then begin
-            TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
+            TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
             { Add the dark custom style, used by dynamic dark only }
             if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
               ResUpdateErrorWithLastError('UpdateResource failed (10)');
