@@ -17,7 +17,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, NewUxTheme, Themes;
+  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
+  StdCtrls, NewUxTheme;
 
 const
   WM_UPDATEUISTATE = $0128;
