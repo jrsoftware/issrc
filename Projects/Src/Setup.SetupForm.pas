@@ -442,7 +442,8 @@ end;
 procedure TSetupForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
- { Flipping must be done first because when flipping after sizing the flipping might get old info for anchors that didn't do their work yet. }
+  { Flipping must be done first because when flipping after sizing the flipping might get old info
+    for anchors that didn't do their work yet }
   FlipControlsIfNeeded;
   SizeAndCenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
 end;
