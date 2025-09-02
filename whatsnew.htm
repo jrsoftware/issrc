@@ -81,6 +81,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         <a href="https://jrsoftware.org/images/is-welcome-polardark-org-175.png">Example screenshot of Setup using the Polar Dark style, at 175% DPI</a> (<a href="https://getitnow.embarcadero.com/vcl-style-windows11-polar-dark/">source of this free style</a>).</li>
     </li>
     <li>When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
+    <li>When a custom style (including the built-in custom dark style) is active, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent rather than opaque.</li>
   </ul>
   <li>Pascal Scripting: Add new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
 </ul>
@@ -90,7 +91,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <li>Improved support for stretching 32-bit .bmp files with transparency.</li>
 <li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized again using Setup section directives <tt>WizardImageBackColor</tt> and <tt>WizardSmallImageBackColor</tt>, which are no longer obsolete.<br/>
     The default values of these directives match previously used colors, so the appearance of all images and icons remains unchanged by default.</li>
-<li>All text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are now transparent.</li>
 <li>Pascal Scripting:
 <ul>
   <li>Added new <tt>TPngImage</tt> support class.</li>
