@@ -15,9 +15,9 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
 type
-  TUpdateIconsAndVsfFile = (uivfSetupE32, uivfSetupCustomStyleE32, uivfSetupLdrE32);
-  TUpdateIconsAndVsfOperation = (uivoIcoFileName, uivoWizardDarkStyle, uivoVsfFileName, uivoVsfFileNameDark, uivoDone);
-  TOnUpdateIconsAndVsf = procedure(const Operation: TUpdateIconsAndVsfOperation) of object;
+  TUpdateIconsAndStyleFile = (uisfSetupE32, uisfSetupCustomStyleE32, uisfSetupLdrE32);
+  TUpdateIconsAndStyleOperation = (uisoIcoFileName, uisoWizardDarkStyle, uisoStyleFileName, uisoStyleFileNameDynamicDark, uisoDone);
+  TOnUpdateIconsAndStyle = procedure(const Operation: TUpdateIconsAndStyleOperation) of object;
 
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
@@ -29,9 +29,9 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIconsAndVsf(const FileName: String; const &File: TUpdateIconsAndVsfFile; const IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
-  const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
+procedure UpdateIconsAndStyle(const FileName: String; const Uisf: TUpdateIconsAndStyleFile; const IcoFileName: String;
+  const WizardDarkStyle: TSetupWizardDarkStyle; const StyleFileName, StyleFileNameDynamicDark: String;
+  const OnUpdateIconsAndStyle: TOnUpdateIconsAndStyle);
 procedure UpdateVersionInfo(const F: TCustomFile;
   const NewBinaryFileVersion, NewBinaryProductVersion: TFileVersionNumbers;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
@@ -648,9 +648,9 @@ begin
   Result := True;
 end;
 
-procedure UpdateIconsAndVsf(const FileName: String; const &File: TUpdateIconsAndVsfFile; const IcoFileName: String;
-  const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
-  const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
+procedure UpdateIconsAndStyle(const FileName: String; const Uisf: TUpdateIconsAndStyleFile; const IcoFileName: String;
+  const WizardDarkStyle: TSetupWizardDarkStyle; const StyleFileName, StyleFileNameDynamicDark: String;
+  const OnUpdateIconsAndStyle: TOnUpdateIconsAndStyle);
 type
   PIcoItemHeader = ^TIcoItemHeader;
   TIcoItemHeader = packed record
@@ -687,10 +687,10 @@ type
     Items: array [0..MaxInt shr 4 - 1] of TGroupIconDirItem;
   end;
 
-  procedure TriggerOnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
+  procedure TriggerOnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
   begin
-    if Assigned(OnUpdateIconsAndVsf) then
-      OnUpdateIconsAndVsf(Operation);
+    if Assigned(OnUpdateIconsAndStyle) then
+      OnUpdateIconsAndStyle(Operation);
   end;
 
   function LoadFileIntoMemory(const FileName: String; var P: Pointer): Cardinal;
@@ -861,11 +861,11 @@ var
 begin
   var Ico: PIcoHeader := nil;
   var Vsf := nil;
-  var VsfDark := nil;
+  var VsfDynamicDark := nil;
 
   try
     if IcoFileName <> '' then begin
-      TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+      TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
 
       { Load the icons }
       var P: Pointer;
@@ -880,15 +880,15 @@ begin
     { Load the styles. Could be checked using TStyleManager.IsValidStyle but that requires using VCL units. }
 
     var VsfSize: Cardinal := 0;
-    if VsfFileName <> '' then begin
-      TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
-      VsfSize := LoadFileIntoMemory(VsfFileName, Vsf);
+    if StyleFileName <> '' then begin
+      TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
+      VsfSize := LoadFileIntoMemory(StyleFileName, Vsf);
     end;
 
-    var VsfSizeDark: Cardinal := 0;
-    if VsfFileNameDark <> '' then begin
-      TriggerOnUpdateIconsAndVsf(uivoVsfFileNameDark);
-      VsfSizeDark := LoadFileIntoMemory(VsfFileNameDark, VsfDark);
+    var VsfSizeDynamicDark: Cardinal := 0;
+    if StyleFileNameDynamicDark <> '' then begin
+      TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
+      VsfSizeDynamicDark := LoadFileIntoMemory(StyleFileNameDynamicDark, VsfDynamicDark);
     end;
 
     { Update the resources }
@@ -906,7 +906,7 @@ begin
           until you call EndUpdateResource *and* reload the file using LoadLibrary }
 
         if IcoFileName <> '' then begin
-          TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+          TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
 
           { Delete default icons }
           OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
@@ -940,7 +940,7 @@ begin
           end;
         end else begin
           if WizardDarkStyle <> wdsDynamic then begin
-            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             if WizardDarkStyle = wdsLight then begin
               { Forced light: remove dark main icon }
               DeleteIcon(H, M, 'MAINICON_DARK')
@@ -952,16 +952,16 @@ begin
           end; { Else keep both main icons }
         end;
 
-        if &File in [uivfSetupE32, uivfSetupCustomStyleE32] then begin
+        if Uisf in [uisfSetupE32, uisfSetupCustomStyleE32] then begin
           const DeleteUninstallIcon = IcoFileName <> '';
           if DeleteUninstallIcon then begin
-            TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+            TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
             { Make UninstallProgressForm use the custom icon }
             DeleteIcon(H, M, 'Z_UNINSTALLICON');
             DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
           end;
           if WizardDarkStyle <> wdsDynamic then begin
-            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             { Unlike for MAINICON (for which we don't have the choice) here it always uses DeleteIcon
               instead of also using RenameIcon, to avoid issues with Windows' icon cache }
             var Postfix := '';
@@ -977,32 +977,32 @@ begin
           end;
         end;
 
-        if &File = uivfSetupCustomStyleE32 then begin
-          if VsfFileName <> '' then begin
-            TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
+        if Uisf = uisfSetupCustomStyleE32 then begin
+          if StyleFileName <> '' then begin
+            TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
             { Add the regular custom style, used by forced light, forced dark and dynamic light }
             if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
               ResUpdateErrorWithLastError('UpdateResource failed (9)');
           end;
 
-          if VsfFileNameDark <> '' then begin
-            TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
+          if StyleFileNameDynamicDark <> '' then begin
+            TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
             { Add the dark custom style, used by dynamic dark only }
-            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDark, VsfSizeDark) then
+            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
               ResUpdateErrorWithLastError('UpdateResource failed (10)');
           end;
 
-          { See if we need to keep the built-in style }
-          if (VsfFileName = '') and (WizardDarkStyle = wdsDark) then begin
-            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+          { See if we need to keep the built-in dark style }
+          if (StyleFileName = '') and (WizardDarkStyle = wdsDark) then begin
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             { Forced dark without a custom style: make the built-in dark style the regular one }
             RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
-          end else if (VsfFileNameDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
-            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+          end else if (StyleFileNameDynamicDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             { Dynamic without a custom dark style: make the built-in dark style the dark one }
             RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
           end else begin
-            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             { Forced dark with a custom style: delete the built-in dark style
               Or, dynamic with a custom dark style: same
               Or, forced light with or without a custom style: same
@@ -1011,7 +1011,7 @@ begin
           end;
         end;
 
-        TriggerOnUpdateIconsAndVsf(uivoDone);
+        TriggerOnUpdateIconsAndStyle(uisoDone);
       finally
         FreeLibrary(M);
       end;
@@ -1023,8 +1023,8 @@ begin
       if ChangedMainIcon then { Only allow errors (likely from faulty AV software) if the update actually is important }
         ResUpdateErrorWithLastError('EndUpdateResource failed, try excluding the Output folder from your antivirus software');
   finally
-    if VsfDark <> nil then
-      FreeMem(VsfDark);
+    if VsfDynamicDark <> nil then
+      FreeMem(VsfDynamicDark);
     if Vsf <> nil then
       FreeMem(Vsf);
     if Ico <> nil then

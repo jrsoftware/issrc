@@ -269,7 +269,7 @@ type
     function CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String; const ADark: Boolean): TWizardImages;
     procedure VerificationError(const AError: TVerificationError;
       const AFilename: String; const ASigFilename: String = '');
-    procedure OnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
+    procedure OnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
   public
     AppData: Longint;
     CallbackProc: TCompilerCallbackProc;
@@ -6781,13 +6781,13 @@ begin
     [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
 end;
 
-procedure TSetupCompiler.OnUpdateIconsAndVsf(const Operation: TUpdateIconsAndVsfOperation);
+procedure TSetupCompiler.OnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
 begin
   case Operation of
-    uivoIcoFileName: LineNumber := SetupDirectiveLines[ssSetupIconFile];
-    uivoWizardDarkStyle: LineNumber := SetupDirectiveLines[ssWizardStyle];
-    uivoVsfFileName: LineNumber := SetupDirectiveLines[ssWizardStyleFile];
-    uivoVsfFileNameDark: LineNumber := SetupDirectiveLines[ssWizardStyleFileDynamicDark];
+    uisoIcoFileName: LineNumber := SetupDirectiveLines[ssSetupIconFile];
+    uisoWizardDarkStyle: LineNumber := SetupDirectiveLines[ssWizardStyle];
+    uisoStyleFileName: LineNumber := SetupDirectiveLines[ssWizardStyleFile];
+    uisoStyleFileNameDynamicDark: LineNumber := SetupDirectiveLines[ssWizardStyleFileDynamicDark];
   else
     LineNumber := 0;
   end;
@@ -7562,7 +7562,7 @@ var
   var
     TempFilename, E32Basename, E32Filename, ConvertFilename: String;
     E32Pf: TPrecompiledFile;
-    E32Uivf: TUpdateIconsAndVsfFile;
+    E32Uisf: TUpdateIconsAndStyleFile;
     ConvertFile: TFile;
   begin
     if (SetupHeader.WizardDarkStyle <> wdsDynamic) and (WizardStyleFileDynamicDark <> '') then
@@ -7573,11 +7573,11 @@ var
       if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
         E32Basename := 'Setup.e32';
         E32Pf := pfSetupE32;
-        E32Uivf := uivfSetupE32;
+        E32Uisf := uisfSetupE32;
       end else begin
         E32Basename := 'SetupCustomStyle.e32';
         E32Pf := pfSetupCustomStyleE32;
-        E32Uivf := uivfSetupCustomStyleE32;
+        E32Uisf := uisfSetupCustomStyleE32;
       end;
       E32Filename := CompilerDir + E32Basename;
       { make a copy and update icons, version info and if needed manifest }
@@ -7586,17 +7586,17 @@ var
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
-      if E32Uivf = uivfSetupCustomStyleE32 then
+      if E32Uisf = uisfSetupCustomStyleE32 then
         AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [E32Basename]))
       else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
-      { OnUpdateIconsAndVsf will set proper LineNumber }
+      { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
-        UpdateIconsAndVsf(ConvertFileName, E32Uivf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf)
+        UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle)
       else
-        UpdateIconsAndVsf(ConvertFileName, E32Uivf, '', SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
+        UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
+          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle);
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
@@ -8419,11 +8419,11 @@ begin
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
-            { OnUpdateIconsAndVsf will set proper LineNumber }
+            { OnUpdateIconsAndStyle will set proper LineNumber }
             if SetupIconFilename <> '' then
-              UpdateIconsAndVsf(ExeFilename, uivfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf)
+              UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle)
             else
-              UpdateIconsAndVsf(ExeFilename, uivfSetupLdrE32, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf);
+              UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
