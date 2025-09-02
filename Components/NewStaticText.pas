@@ -10,7 +10,9 @@ unit NewStaticText;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Controls, Forms, Graphics, Themes;
+  Windows, Messages, SysUtils, Classes, Controls, Forms,
+  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
+  Graphics;
 
 type
   TNewStaticText = class(TWinControl)

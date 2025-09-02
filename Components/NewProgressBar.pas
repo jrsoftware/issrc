@@ -19,7 +19,9 @@ unit NewProgressBar;
 interface
 
 uses
-  Windows, Messages, Classes, Controls, ComCtrls, Themes, ExtCtrls, Types, Graphics;
+  Windows, Messages, Classes, Controls, ComCtrls,
+  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
+  ExtCtrls, Types, Graphics;
 
 type
   TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);
