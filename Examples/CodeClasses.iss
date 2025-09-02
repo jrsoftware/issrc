@@ -348,6 +348,7 @@ begin
   
   BitmapImage := TBitmapImage.Create(Page);
   BitmapImage.AutoSize := True;
+  { Use BitmapImage.PngImage.LoadFromFile to load .png files }
   BitmapImage.Bitmap.LoadFromFile(BitmapFileName);
   BitmapImage.Parent := Page.Surface;
   

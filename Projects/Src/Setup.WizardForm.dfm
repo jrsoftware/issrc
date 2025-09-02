@@ -814,5 +814,6 @@ object WizardForm: TWizardForm
     Enabled = False
     ShowAccelChar = False
     TabOrder = 1
+    Transparent = False
   end
 end

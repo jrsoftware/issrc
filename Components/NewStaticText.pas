@@ -4,7 +4,7 @@ unit NewStaticText;
   TNewStaticText - similar to TStaticText but with multi-line AutoSize
   support and a WordWrap property, and without a Transparent property.
 
-  Define VCLSTYLES for full VCL Styles support.
+  Define VCLSTYLES for full VCL Styles support, and for transparency support.
 }
 
 interface
@@ -13,6 +13,10 @@ uses
   Windows, Messages, SysUtils, Classes, Controls, Forms,
   {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
   Graphics;
+
+{$IFDEF VCLSTYLES}
+  {$DEFINE TRANSPARENCYSUPPORT}
+{$ENDIF}
 
 type
   TNewStaticText = class(TWinControl)
@@ -25,6 +29,9 @@ type
     FWordWrap: Boolean;
     class constructor Create;
     class destructor Destroy;
+    {$IFDEF TRANSPARENCYSUPPORT}
+    procedure CNCtlColorStatic(var Message: TWMCtlColorStatic); message CN_CTLCOLORSTATIC;
+    {$ENDIF}
     procedure CMDialogChar(var Message: TCMDialogChar); message CM_DIALOGCHAR;
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMParentFontChanged(var Message: TMessage); message CM_PARENTFONTCHANGED;
@@ -35,7 +42,9 @@ type
     procedure SetFocusControl(Value: TWinControl);
     procedure SetForceLTRReading(Value: Boolean);
     procedure SetShowAccelChar(Value: Boolean);
+    procedure SetTransparent(const Value: Boolean);
     procedure SetWordWrap(Value: Boolean);
+    function GetTransparent: Boolean;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Loaded; override;
@@ -68,6 +77,8 @@ type
     property StyleName;
     property TabOrder;
     property TabStop;
+    property Transparent: Boolean read GetTransparent write SetTransparent
+      default True;
     property Visible;
     property WordWrap: Boolean read FWordWrap write SetWordWrap default False;
     property OnClick;
@@ -109,6 +120,9 @@ begin
   inherited Create(AOwner);
   ControlStyle := [csCaptureMouse, csClickEvents, csSetCaption,
     csReplicatable, csDoubleClicks, csGestures {$IF CompilerVersion >= 35.0}, csNeedsDesignDisabledState{$ENDIF}];
+  {$IFNDEF TRANSPARENCYSUPPORT}
+  ControlStyle := ControlStyle + [csOpaque];
+  {$ENDIF}
   Width := 65;
   Height := 17;
   FAutoSize := True;
@@ -302,6 +316,44 @@ begin
   end;
 end;
 
+{$IFDEF TRANSPARENCYSUPPORT}
+procedure TNewStaticText.CNCtlColorStatic(var Message: TWMCtlColorStatic);
+begin
+  if StyleServices(Self).Enabled and Transparent then
+  begin
+    SetBkMode(Message.ChildDC, Windows.TRANSPARENT);
+    StyleServices(Self).DrawParentBackground(Handle, Message.ChildDC, nil, False);
+    { Return an empty brush to prevent Windows from overpainting what we just have created. }
+    Message.Result := GetStockObject(NULL_BRUSH);
+  end
+  else
+    inherited;
+end;
+{$ENDIF}
+
+procedure TNewStaticText.SetTransparent(const Value: Boolean);
+begin
+{$IFDEF TRANSPARENCYSUPPORT}
+  if Transparent <> Value then
+  begin
+    if Value then
+      ControlStyle := ControlStyle - [csOpaque]
+    else
+      ControlStyle := ControlStyle + [csOpaque];
+    Invalidate;
+  end;
+{$ENDIF}
+end;
+
+function TNewStaticText.GetTransparent: Boolean;
+begin
+{$IFDEF TRANSPARENCYSUPPORT}
+  Result := not (csOpaque in ControlStyle);
+{$ELSE}
+  Result := False;
+{$ENDIF}
+end;
+
 procedure TNewStaticText.SetWordWrap(Value: Boolean);
 begin
   if FWordWrap <> Value then
@@ -316,8 +368,7 @@ end;
 
 { TNewStaticTextStyleHook - same as Vcl.StdCtrls' TStaticTextStyleHook
   except that it accesses the Control property as a TNewStaticText instead
-  of a TCustomStaticText or TStaticText, and with code related to the
-  Transparent property removed }
+  of a TCustomStaticText or TStaticText }
 
 type
   TControlAccess = class(TControl);
@@ -342,19 +393,23 @@ var
 begin
   LStyle := StyleServices;
 
-  if LStyle.Available then
-  begin
+  if LStyle.Available then begin
     R := Control.ClientRect;
-    Canvas.Brush.Color := LStyle.GetStyleColor(scWindow);
-    Canvas.FillRect(R);
+    if TNewStaticText(Control).Transparent then begin
+      Details := LStyle.GetElementDetails(tbCheckBoxUncheckedNormal);
+      LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False);
+      Canvas.Brush.Style := bsClear;
+    end else begin
+      Canvas.Brush.Color := LStyle.GetStyleColor(scWindow);
+      Canvas.FillRect(R);
+    end;
     Details := LStyle.GetElementDetails(States[Control.Enabled]);
     S := TNewStaticText(Control).Caption;
     if (S = '') or (TNewStaticText(Control).FShowAccelChar and (S[1] = '&') and (S[2] = #0)) then
       S := S + ' ';
     if seFont in Control.StyleElements then
       DrawControlText(Canvas, Details, S, R, TNewStaticText(Control).GetDrawTextFlags)
-    else
-    begin
+    else begin
       Canvas.Font := TNewStaticText(Control).Font;
       DrawText(Canvas.Handle, S, Length(S), R, TNewStaticText(Control).GetDrawTextFlags);
     end;
