@@ -91,6 +91,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 12
         Width = 75
         Height = 25
+        Cancel = True
         Caption = 'CancelButton'
         ModalResult = 2
         TabOrder = 4

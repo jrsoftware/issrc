@@ -27,7 +27,10 @@ type
     RetryButton: TNewButton;
     CancelButton: TNewButton;
   private
+    FCommonButtons: array of TButton;
+    FCommonButtonFlags: array of Cardinal;
     FPadX, FPadY: Integer;
+    procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateHeight;
   public
     constructor Create(AOwner: TComponent); override; 
@@ -38,7 +41,7 @@ function TaskDialogForm(const Instruction, Text, Caption, Icon: String; const Co
 implementation
 
 uses
-  CommCtrl, Setup.WizardForm;
+  CommCtrl, Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.WizardForm;
 
 {$R *.dfm}
 
@@ -59,15 +62,10 @@ function TaskDialogForm(const Instruction, Text, Caption, Icon: String; const Co
       Button.Caption := Caption;
       Button.CommandLinkHint := Hint;
       Button.ModalResult := ButtonIDs[Index];
+      if Button.ModalResult = IDCANCEL then
+        Button.Cancel := True;
       Button.ElevationRequired := Button.ModalResult = ShieldButton;
     end;
-  end;
-
-  procedure UpdateCommonButton(const Button: TButton; const CommonButtonFlag: Cardinal; var MadeVisible: Boolean);
-  begin
-    Button.Visible := (CommonButtons and CommonButtonFlag) <> 0;
-    if Button.Visible then
-      MadeVisible := True;
   end;
 
 begin
@@ -82,14 +80,7 @@ begin
     UpdateMainButton(Form.MainButton2, 1);
     UpdateMainButton(Form.MainButton3, 2);
 
-    var HasCommonButtons := False;
-    UpdateCommonButton(Form.OkButton, TDCBF_OK_BUTTON, HasCommonButtons);
-    UpdateCommonButton(Form.YesButton, TDCBF_YES_BUTTON, HasCommonButtons);
-    UpdateCommonButton(Form.NoButton, TDCBF_NO_BUTTON, HasCommonButtons);
-    UpdateCommonButton(Form.RetryButton, TDCBF_RETRY_BUTTON, HasCommonButtons);
-    UpdateCommonButton(Form.CancelButton, TDCBF_CANCEL_BUTTON, HasCommonButtons);
-    Form.BottomPanel.Visible := HasCommonButtons;
-
+    Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
 
     Result := Form.ShowModal;
@@ -104,10 +95,10 @@ constructor TTaskDialogForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  InitializeFont;
+  FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
+  FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
 
-  KeepSizeY := True; { We will autosize height later }
-  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+  InitializeFont;
 
   const Pad = 10;
   FPadX := ScalePixelsX(Pad);
@@ -122,6 +113,39 @@ begin
   MainStackPanel.Spacing := FPadY;
   BottomStackPanel.Spacing := FPadX;
   BottomStackPanel.Padding.Right := FPadX;
+
+  OkButton.Caption := SetupMessages[msgButtonOK];
+  YesButton.Caption := SetupMessages[msgButtonYes];
+  NoButton.Caption := SetupMessages[msgButtonNo];
+  RetryButton.Caption := SetupMessages[msgAbortRetryIgnoreRetry];
+  CancelButton.Caption := SetupMessages[msgButtonCancel];
+
+  KeepSizeY := True; { We will autosize height later }
+  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+end;
+
+procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
+begin
+  var VisibleCaptions: array of String;
+  var NVisibleCaptions := 0;
+  for var I := 0 to Length(FCommonButtons)-1 do begin
+    const CommonButton = FCommonButtons[I];
+    const CommonButtonFlag = FCommonButtonFlags[I];
+    CommonButton.Visible := CommonButtons and CommonButtonFlag <> 0;
+    if CommonButton.Visible then begin
+      Inc(NVisibleCaptions);
+      SetLength(VisibleCaptions, NVisibleCaptions);
+      VisibleCaptions[NVisibleCaptions-1] := CommonButton.Caption;
+    end;
+  end;
+
+  BottomPanel.Visible := NVisibleCaptions > 0;
+  if BottomPanel.Visible then begin
+    const W = CalculateButtonWidth(VisibleCaptions);
+    for var CommonButton in FCommonButtons do
+      if CommonButton.Visible then
+        CommonButton.Width := W;
+  end;
 end;
 
 procedure TTaskDialogForm.UpdateHeight;
