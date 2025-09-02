@@ -7562,6 +7562,7 @@ var
   var
     TempFilename, E32Basename, E32Filename, ConvertFilename: String;
     E32Pf: TPrecompiledFile;
+    E32Uivf: TUpdateIconsAndVsfFile;
     ConvertFile: TFile;
   begin
     if (SetupHeader.WizardDarkStyle <> wdsDynamic) and (WizardStyleFileDynamicDark <> '') then
@@ -7572,9 +7573,11 @@ var
       if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
         E32Basename := 'Setup.e32';
         E32Pf := pfSetupE32;
+        E32Uivf := uivfSetupE32;
       end else begin
         E32Basename := 'SetupCustomStyle.e32';
         E32Pf := pfSetupCustomStyleE32;
+        E32Uivf := uivfSetupCustomStyleE32;
       end;
       E32Filename := CompilerDir + E32Basename;
       { make a copy and update icons, version info and if needed manifest }
@@ -7583,18 +7586,18 @@ var
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
-      if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) or (WizardStyleFile <> '') or (WizardStyleFileDynamicDark <> '') then begin
+      if E32Uivf = uivfSetupCustomStyleE32 then
+        AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [E32Basename]))
+      else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
-        { OnUpdateIconsAndVsf will set proper LineNumber }
-        if SetupIconFilename <> '' then begin
-          { This also deletes the Z_UNINSTALLICON resource. Removing it makes UninstallProgressForm use the custom icon instead. }
-          UpdateIconsAndVsf(ConvertFileName, True, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-            WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
-        end else
-          UpdateIconsAndVsf(ConvertFileName, True, '', SetupHeader.WizardDarkStyle,
-            WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
-        LineNumber := 0;
-      end;
+      { OnUpdateIconsAndVsf will set proper LineNumber }
+      if SetupIconFilename <> '' then
+        UpdateIconsAndVsf(ConvertFileName, E32Uivf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf)
+      else
+        UpdateIconsAndVsf(ConvertFileName, E32Uivf, '', SetupHeader.WizardDarkStyle,
+          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndVsf);
+      LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
       try
@@ -8418,9 +8421,9 @@ begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             { OnUpdateIconsAndVsf will set proper LineNumber }
             if SetupIconFilename <> '' then
-              UpdateIconsAndVsf(ExeFilename, False, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf)
+              UpdateIconsAndVsf(ExeFilename, uivfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf)
             else
-              UpdateIconsAndVsf(ExeFilename, False, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf);
+              UpdateIconsAndVsf(ExeFilename, uivfSetupLdrE32, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndVsf);
             LineNumber := 0;
           end;
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);

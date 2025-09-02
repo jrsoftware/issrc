@@ -3148,7 +3148,8 @@ begin
           Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
-          resources: it will always see only one style resource, set to the default dark one. }
+          resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. To use a style
+          anyway, change it to load style BUILTIN_DARK. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
@@ -3164,6 +3165,7 @@ begin
           WizardIconsPostfix := '_DARK';
         end;
         if not HighContrastActive then begin
+          { Also see comment above }
           var StyleName := 'MYSTYLE1';
           if IsDynamicDark then
             StyleName := StyleName + '_DARK';

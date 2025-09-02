@@ -15,6 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
 type
+  TUpdateIconsAndVsfFile = (uivfSetupE32, uivfSetupCustomStyleE32, uivfSetupLdrE32);
   TUpdateIconsAndVsfOperation = (uivoIcoFileName, uivoWizardDarkStyle, uivoVsfFileName, uivoVsfFileNameDark, uivoDone);
   TOnUpdateIconsAndVsf = procedure(const Operation: TUpdateIconsAndVsfOperation) of object;
 
@@ -28,7 +29,7 @@ function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
+procedure UpdateIconsAndVsf(const FileName: String; const &File: TUpdateIconsAndVsfFile; const IcoFileName: String;
   const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
   const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
 procedure UpdateVersionInfo(const F: TCustomFile;
@@ -647,7 +648,7 @@ begin
   Result := True;
 end;
 
-procedure UpdateIconsAndVsf(const FileName: String; const FileIsSetupE32: Boolean; const IcoFileName: String;
+procedure UpdateIconsAndVsf(const FileName: String; const &File: TUpdateIconsAndVsfFile; const IcoFileName: String;
   const WizardDarkStyle: TSetupWizardDarkStyle; const VsfFileName, VsfFileNameDark: String;
   const OnUpdateIconsAndVsf: TOnUpdateIconsAndVsf);
 type
@@ -730,6 +731,49 @@ type
     Result := True;
   end;
 
+  procedure DeleteResource(const H: THandle; const M: HMODULE; const ResourceType, ResourceName: PChar);
+  var
+    wLanguage: Word;
+  begin
+    if not GetResourceLanguage(M, ResourceType, ResourceName, wLanguage) then
+      ResUpdateError('GetResourceLanguage failed (1)');
+    if not UpdateResource(H, ResourceType, ResourceName, wLanguage, nil, 0) then
+      ResUpdateErrorWithLastError('UpdateResource failed (1)');
+  end;
+
+  procedure RenameResource(const H: THandle; const M: HMODULE; const ResourceType, OldResourceName, NewResourceName: PChar);
+  var
+    R: HRSRC;
+    Size: DWORD;
+    Res: HGLOBAL;
+    P: Pointer;
+    wLanguage: Word;
+  begin
+    { Load the resource }
+    R := FindResource(M, OldResourceName, ResourceType);
+    if R = 0 then
+      ResUpdateErrorWithLastError('FindResource failed (1)');
+    Size := SizeofResource(M, R);
+    if Size = 0 then
+      ResUpdateErrorWithLastError('SizeofResource failed (1)');
+    Res := LoadResource(M, R);
+    if Res = 0 then
+      ResUpdateErrorWithLastError('LoadResource failed (1)');
+    P := LockResource(Res);
+    if P = nil then
+      ResUpdateErrorWithLastError('LockResource failed (1)');
+
+    { Create a copy resource with the new name }
+    if not GetResourceLanguage(M, ResourceType, OldResourceName, wLanguage) then
+      ResUpdateError('GetResourceLanguage failed (2)');
+    if not UpdateResource(H, ResourceType, NewResourceName, wLanguage, P, Size) then
+      ResUpdateErrorWithLastError('UpdateResource failed (2)');
+
+    { Delete the old resource }
+    if not UpdateResource(H, ResourceType, OldResourceName, wLanguage, nil, 0) then
+      ResUpdateErrorWithLastError('UpdateResource failed (3)');
+ end;
+
   function DeleteIcon(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
   var
     R: HRSRC;
@@ -741,26 +785,23 @@ type
     { Load the group icon resource }
     R := FindResource(M, ResourceName, RT_GROUP_ICON);
     if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (1)');
+      ResUpdateErrorWithLastError('FindResource failed (2)');
     Res := LoadResource(M, R);
     if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (1)');
+      ResUpdateErrorWithLastError('LoadResource failed (2)');
     GroupIconDir := LockResource(Res);
     if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (1)');
+      ResUpdateErrorWithLastError('LockResource failed (2)');
 
     { Delete the group icon resource }
-    if not GetResourceLanguage(M, RT_GROUP_ICON, ResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (1)');
-    if not UpdateResource(H, RT_GROUP_ICON, ResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (1)');
+    DeleteResource(H, M, RT_GROUP_ICON, ResourceName);
 
     { Delete the icon resources that belonged to the group }
     for I := 0 to GroupIconDir.ItemCount-1 do begin
       if not GetResourceLanguage(M, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage) then
-        ResUpdateError('GetResourceLanguage failed (2)');
+        ResUpdateError('GetResourceLanguage failed (3)');
       if not UpdateResource(H, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage, nil, 0) then
-        ResUpdateErrorWithLastError('UpdateResource failed (2)');
+        ResUpdateErrorWithLastError('UpdateResource failed (4)');
     end;
 
     Result := GroupIconDir;
@@ -774,7 +815,7 @@ type
       Result := nil;
   end;
 
-  function RenameIcon(const H: THandle; const M: HMODULE; const OldResourceName, NewResourceName: PChar): PGroupIconDir;
+  function RenameIconWithOverwrite(const H: THandle; const M: HMODULE; const OldResourceName, NewResourceName: PChar): PGroupIconDir;
   var
     R: HRSRC;
     Res: HGLOBAL;
@@ -787,26 +828,26 @@ type
     { Load the group icon resource }
     R := FindResource(M, OldResourceName, RT_GROUP_ICON);
     if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (2)');
+      ResUpdateErrorWithLastError('FindResource failed (3)');
     Res := LoadResource(M, R);
     if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (2)');
+      ResUpdateErrorWithLastError('LoadResource failed (3)');
     GroupIconDir := LockResource(Res);
     if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (2)');
+      ResUpdateErrorWithLastError('LockResource failed (3)');
 
     GroupIconDirSize := Sizeof(Word)*3 + GroupIconDir.ItemCount*Sizeof(TGroupIconDirItem);
 
     { Create a copy group icon resource with the new name - existing icon resources will belong to
       it automatically }
     if not GetResourceLanguage(M, RT_GROUP_ICON, OldResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (2)');
+      ResUpdateError('GetResourceLanguage failed (4)');
     if not UpdateResource(H, RT_GROUP_ICON, NewResourceName, wLanguage, GroupIconDir, GroupIconDirSize) then
-      ResUpdateErrorWithLastError('UpdateResource failed (3)');
+      ResUpdateErrorWithLastError('UpdateResource failed (5)');
 
     { Delete the old group icon resource }
     if not UpdateResource(H, RT_GROUP_ICON, OldResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (4)');
+      ResUpdateErrorWithLastError('UpdateResource failed (6)');
 
     Result := GroupIconDir;
   end;
@@ -818,9 +859,6 @@ var
   I: Integer;
   NewGroupIconDirSize: LongInt;
 begin
-  if (IcoFileName = '') and (WizardDarkStyle = wdsDynamic) and (VsfFileName = '') and (VsfFileNameDark = '') then
-    Exit;
-
   var Ico: PIcoHeader := nil;
   var Vsf := nil;
   var VsfDark := nil;
@@ -890,32 +928,35 @@ begin
             { Update 'MAINICON' }
             for I := 0 to NewGroupIconDir.ItemCount-1 do
               if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (5)');
+                ResUpdateErrorWithLastError('UpdateResource failed (7)');
 
             { Update the icons }
             if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (6)');
+              ResUpdateErrorWithLastError('UpdateResource failed (8)');
 
             ChangedMainIcon := True;
           finally
             FreeMem(NewGroupIconDir);
           end;
         end else begin
-          if WizardDarkStyle <> wdsDynamic then begin { Always True }
+          if WizardDarkStyle <> wdsDynamic then begin
             TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
-            if WizardDarkStyle = wdsLight then
+            if WizardDarkStyle = wdsLight then begin
+              { Forced light: remove dark main icon }
               DeleteIcon(H, M, 'MAINICON_DARK')
-            else begin
-              RenameIcon(H, M, 'MAINICON_DARK', 'MAINICON');
+            end else begin
+              { Forced dark: rename dark main icon to be the regular main icon }
+              RenameIconWithOverwrite(H, M, 'MAINICON_DARK', 'MAINICON');
               ChangedMainIcon := True;
             end;
-          end;
+          end; { Else keep both main icons }
         end;
 
-        if FileIsSetupE32 then begin
+        if &File in [uivfSetupE32, uivfSetupCustomStyleE32] then begin
           const DeleteUninstallIcon = IcoFileName <> '';
           if DeleteUninstallIcon then begin
             TriggerOnUpdateIconsAndVsf(uivoIcoFileName);
+            { Make UninstallProgressForm use the custom icon }
             DeleteIcon(H, M, 'Z_UNINSTALLICON');
             DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
           end;
@@ -926,6 +967,7 @@ begin
             var Postfix := '';
             if WizardDarkStyle = wdsLight then
               Postfix := '_DARK';
+            { Delete the icons we don't need: either the light ones or the dark ones }
             DeleteIcon(H, M, PChar('Z_DIRICON' + Postfix));
             DeleteIcon(H, M, PChar('Z_DISKICON' + Postfix));
             DeleteIcon(H, M, PChar('Z_GROUPICON' + Postfix));
@@ -935,16 +977,38 @@ begin
           end;
         end;
 
-        if VsfFileName <> '' then begin
-          TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
-          if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
-            ResUpdateErrorWithLastError('UpdateResource failed (7)');
-        end;
+        if &File = uivfSetupCustomStyleE32 then begin
+          if VsfFileName <> '' then begin
+            TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
+            { Add the regular custom style, used by forced light, forced dark and dynamic light }
+            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
+              ResUpdateErrorWithLastError('UpdateResource failed (9)');
+          end;
 
-        if VsfFileNameDark <> '' then begin
-          TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
-          if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDark, VsfSizeDark) then
-            ResUpdateErrorWithLastError('UpdateResource failed (8)');
+          if VsfFileNameDark <> '' then begin
+            TriggerOnUpdateIconsAndVsf(uivoVsfFileName);
+            { Add the dark custom style, used by dynamic dark only }
+            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDark, VsfSizeDark) then
+              ResUpdateErrorWithLastError('UpdateResource failed (10)');
+          end;
+
+          { See if we need to keep the built-in style }
+          if (VsfFileName = '') and (WizardDarkStyle = wdsDark) then begin
+            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            { Forced dark without a custom style: make the built-in dark style the regular one }
+            RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
+          end else if (VsfFileNameDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
+            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            { Dynamic without a custom dark style: make the built-in dark style the dark one }
+            RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
+          end else begin
+            TriggerOnUpdateIconsAndVsf(uivoWizardDarkStyle);
+            { Forced dark with a custom style: delete the built-in dark style
+              Or, dynamic with a custom dark style: same
+              Or, forced light with or without a custom style: same
+              Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
+            DeleteResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK');
+          end;
         end;
 
         TriggerOnUpdateIconsAndVsf(uivoDone);
