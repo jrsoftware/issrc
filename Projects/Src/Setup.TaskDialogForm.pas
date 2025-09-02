@@ -29,9 +29,11 @@ type
   private
     FCommonButtons: array of TButton;
     FCommonButtonFlags: array of Cardinal;
+    FMainButtons: array of TButton;
     FPadX, FPadY: Integer;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateHeight;
+    procedure UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
   public
     constructor Create(AOwner: TComponent); override; 
   end;
@@ -46,43 +48,16 @@ uses
 {$R *.dfm}
 
 function TaskDialogForm(const Instruction, Text, Caption, Icon: String; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Integer;
-
-  procedure UpdateMainButton(const Button: TButton; const Index: Integer);
-  begin
-    Button.Visible := Index < Length(ButtonLabels);
-    if Button.Visible then begin
-      var Caption := ButtonLabels[Index];
-      var Hint: String;
-      const P = Pos(#10, Caption);
-      if P <> 0 then begin
-        Hint := Copy(Caption, P+1, MaxInt);
-        Delete(Caption, P, MaxInt);
-      end else
-        Hint := '';
-      Button.Caption := Caption;
-      Button.CommandLinkHint := Hint;
-      Button.ModalResult := ButtonIDs[Index];
-      if Button.ModalResult = IDCANCEL then
-        Button.Cancel := True;
-      Button.ElevationRequired := Button.ModalResult = ShieldButton;
-    end;
-  end;
-
 begin
   const Form = TTaskDialogForm.Create(nil);
   try
+    Form.Caption := Caption;
     Form.InstructionText.Caption := Instruction;
     Form.InstructionText.Font.Size := MulDiv(Form.Font.Size, 13, 9);
     Form.TextText.Caption := Text;
-    Form.Caption := Caption;
-
-    UpdateMainButton(Form.MainButton1, 0);
-    UpdateMainButton(Form.MainButton2, 1);
-    UpdateMainButton(Form.MainButton3, 2);
-
+    Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
-
     Result := Form.ShowModal;
   finally
     Form.Free;
@@ -97,6 +72,7 @@ begin
 
   FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
   FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
+  FMainButtons := [MainButton1, MainButton2, MainButton3];
 
   InitializeFont;
 
@@ -162,6 +138,30 @@ begin
     NewClientHeight := NewClientHeight + BottomPanel.Height;
 
   ClientHeight := NewClientHeight;
+end;
+
+procedure TTaskDialogForm.UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
+begin
+  for var I := 0 to Length(FMainButtons)-1 do begin
+    const MainButton = FMainButtons[I];
+    MainButton.Visible := I < Length(ButtonLabels);
+    if MainButton.Visible then begin
+      var Caption := ButtonLabels[I];
+      var Hint: String;
+      const P = Pos(#10, Caption);
+      if P <> 0 then begin
+        Hint := Copy(Caption, P+1, MaxInt);
+        Delete(Caption, P, MaxInt);
+      end else
+        Hint := '';
+      MainButton.Caption := Caption;
+      MainButton.CommandLinkHint := Hint;
+      MainButton.ModalResult := ButtonIDs[I];
+      if MainButton.ModalResult = IDCANCEL then
+        MainButton.Cancel := True;
+      MainButton.ElevationRequired := MainButton.ModalResult = ShieldButton;
+    end;
+  end;
 end;
 
 end.
