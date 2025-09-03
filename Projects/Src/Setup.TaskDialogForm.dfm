@@ -157,6 +157,7 @@ object TaskDialogForm: TTaskDialogForm
         Width = 351
         Height = 14
         Caption = 'Instruction text'
+        ShowAccelChar = False
         TabOrder = 0
       end
       object TextText: TNewStaticText
@@ -165,6 +166,7 @@ object TaskDialogForm: TTaskDialogForm
         Width = 351
         Height = 14
         Caption = 'Text text'
+        ShowAccelChar = False
         TabOrder = 1
         WordWrap = True
       end
