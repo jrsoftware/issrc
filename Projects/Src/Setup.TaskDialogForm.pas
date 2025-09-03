@@ -38,16 +38,23 @@ type
     constructor Create(AOwner: TComponent); override; 
   end;
 
-function TaskDialogForm(const Instruction, Text, Caption, Icon: String; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Integer;
+function TaskDialogForm(const Instruction, Text, Caption, Icon: String;
+  const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
+  const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
 
 implementation
 
 uses
-  CommCtrl, Shared.SetupMessageIDs, SetupLdrAndSetup.Messages, Setup.WizardForm;
+  CommCtrl,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, SetupLdrAndSetup.Messages, Setup.WizardForm;
 
 {$R *.dfm}
 
-function TaskDialogForm(const Instruction, Text, Caption, Icon: String; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Integer;
+function TaskDialogForm(const Instruction, Text, Caption, Icon: String;
+  const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
+  const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
 begin
   const Form = TTaskDialogForm.Create(nil);
   try
@@ -58,7 +65,12 @@ begin
     Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
-    Result := Form.ShowModal;
+    TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
+    try
+      Result := Form.ShowModal;
+    finally
+      TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
+    end;
   finally
     Form.Free;
   end;

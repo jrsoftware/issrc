@@ -14,13 +14,22 @@ interface
 uses
   Windows, Shared.CommonFunc.Vcl;
 
-function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType;
+  const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 
 implementation
 
+{$IF Defined(SETUPPROJ) and Defined(VCLSTYLES)}
+  {$DEFINE USETASKDIALOGFORM}
+{$IFEND}
+
 uses
-  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Themes,
-  Commctrl, Shared.CommonFunc, {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF} PathFunc;
+  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Themes, Controls, CommCtrl,
+  PathFunc,
+  {$IFDEF USETASKDIALOGFORM} Setup.TaskDialogForm, {$ENDIF}
+  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
+  Shared.CommonFunc;
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;
@@ -34,7 +43,10 @@ begin
   Result := S_OK;
 end;
 
-function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar; const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt; var ModalResult: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Boolean;
+function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar;
+  const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
+  const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  var ModalResult: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Boolean;
 var
   Config: TTaskDialogConfig;
   NButtonLabelsAvailable: Integer;
@@ -109,7 +121,9 @@ begin
   {$ENDIF}
 end;
 
-function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer; const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
+function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const Typ: TMsgBoxType;
+  const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer;
+  const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
   Application.Restore; { See comments in AppMessageBox }
 
@@ -192,9 +206,20 @@ begin
     DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels');
 
   { Go }
+  const MessageBoxCaption = GetMessageBoxCaption(PChar(Caption), Typ);
+  const TriggerMessageBoxCallbackFuncFlags = IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0);
+
+  {$IFDEF USETASKDIALOGFORM}
+  if True then begin
+    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, '', TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked);
+    Exit;
+  end;
+  {$ENDIF}
+
   if not DoTaskDialog(GetOwnerWndForMessageBox, PChar(Instruction), PChar(Text),
-           GetMessageBoxCaption(PChar(Caption), Typ), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
-           GetMessageBoxRightToLeft, IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0), Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
+           MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+           GetMessageBoxRightToLeft, TriggerMessageBoxCallbackFuncFlags, Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
     Result := 0;
 end;
 
