@@ -35,7 +35,8 @@ type
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateIcon(const Icon: PChar);
     procedure UpdateHeight;
-    procedure UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
+    procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
+      const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
   public
     constructor Create(AOwner: TComponent); override; 
   end;
@@ -73,7 +74,7 @@ begin
 
     Form.InstructionText.AdjustHeight;
     Form.TextText.AdjustHeight;
-    Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
+    Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
     Form.Finish;
@@ -200,7 +201,8 @@ begin
     LeftPanel.Visible := False;
 end;
 
-procedure TTaskDialogForm.UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
+procedure TTaskDialogForm.UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
+  const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
 begin
   var HaveCancel := False;
   for var I := 0 to Length(FMainButtons)-1 do begin
@@ -227,7 +229,7 @@ begin
     end;
   end;
 
-  if not HaveCancel then
+  if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then
     BorderIcons := [];
 end;
 
