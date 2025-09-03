@@ -975,39 +975,61 @@ begin
             if not DeleteUninstallIcon then
               DeleteIcon(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;
-        end;
 
-        if Uisf = uisfSetupCustomStyleE32 then begin
-          if StyleFileName <> '' then begin
-            TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
-            { Add the regular custom style, used by forced light, forced dark and dynamic light }
-            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (9)');
+          var HasLightStyle := False;
+          var HasDarkStyle := False;
+
+          if Uisf = uisfSetupCustomStyleE32 then begin
+            if StyleFileName <> '' then begin
+              TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
+              { Add the regular custom style, used by forced light, forced dark and dynamic light }
+              if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
+                ResUpdateErrorWithLastError('UpdateResource failed (9)');
+              if WizardDarkStyle <> wdsDark then
+                HasLightStyle := True
+              else
+                HasDarkStyle := True;
+            end;
+
+            if StyleFileNameDynamicDark <> '' then begin
+              TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
+              { Add the dark custom style, used by dynamic dark only }
+              if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
+                ResUpdateErrorWithLastError('UpdateResource failed (10)');
+              HasDarkStyle := True;
+            end;
+
+            { See if we need to keep the built-in dark style }
+            if (StyleFileName = '') and (WizardDarkStyle = wdsDark) then begin
+              TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
+              { Forced dark without a custom style: make the built-in dark style the regular one }
+              RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
+              HasDarkStyle := True;
+            end else if (StyleFileNameDynamicDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
+              TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
+              { Dynamic without a custom dark style: make the built-in dark style the dark one }
+              RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
+              HasDarkStyle := True;
+            end else begin
+              TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
+              { Forced dark with a custom style: delete the built-in dark style
+                Or, dynamic with a custom dark style: same
+                Or, forced light with or without a custom style: same
+                Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
+              DeleteResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK');
+            end;
           end;
 
-          if StyleFileNameDynamicDark <> '' then begin
-            TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
-            { Add the dark custom style, used by dynamic dark only }
-            if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
-              ResUpdateErrorWithLastError('UpdateResource failed (10)');
+          { Delete taskform icons we don't need }
+          if not HasLightStyle then begin
+            DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON'));
+            DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON'));
+            DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON'));
           end;
-
-          { See if we need to keep the built-in dark style }
-          if (StyleFileName = '') and (WizardDarkStyle = wdsDark) then begin
-            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
-            { Forced dark without a custom style: make the built-in dark style the regular one }
-            RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
-          end else if (StyleFileNameDynamicDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
-            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
-            { Dynamic without a custom dark style: make the built-in dark style the dark one }
-            RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
-          end else begin
-            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
-            { Forced dark with a custom style: delete the built-in dark style
-              Or, dynamic with a custom dark style: same
-              Or, forced light with or without a custom style: same
-              Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
-            DeleteResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK');
+          if not HasDarkStyle then begin
+            DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
+            DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
+            DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
           end;
         end;
 
