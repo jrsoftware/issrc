@@ -66,13 +66,16 @@ begin
     Form.InstructionText.Font.Size := MulDiv(Form.Font.Size, 13, 9);
     Form.TextText.Caption := Text;
     Form.UpdateIcon(Icon);
-    Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
-    Form.UpdateHeight;
+
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
+
     Form.InstructionText.AdjustHeight;
     Form.TextText.AdjustHeight;
+    Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
+    Form.UpdateHeight;
+
     Form.Finish;
 
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
@@ -199,6 +202,7 @@ end;
 
 procedure TTaskDialogForm.UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
 begin
+  var HaveCancel := False;
   for var I := 0 to Length(FMainButtons)-1 do begin
     const MainButton = FMainButtons[I];
     MainButton.Visible := I < Length(ButtonLabels);
@@ -214,11 +218,17 @@ begin
       MainButton.Caption := Caption;
       MainButton.CommandLinkHint := Hint;
       MainButton.ModalResult := ButtonIDs[I];
-      if MainButton.ModalResult = IDCANCEL then
+      if MainButton.ModalResult = IDCANCEL then begin
         MainButton.Cancel := True;
+        HaveCancel := True;
+      end;
       MainButton.ElevationRequired := MainButton.ModalResult = ShieldButton;
+      MainButton.AdjustHeight;
     end;
   end;
+
+  if not HaveCancel then
+    BorderIcons := [];
 end;
 
 end.
