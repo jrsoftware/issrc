@@ -181,7 +181,6 @@
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="Src\Setup.TaskDialogForm.pas">
             <Form>TaskDialogForm</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="Src\Setup.inc"/>
         <BuildConfiguration Include="Base">
