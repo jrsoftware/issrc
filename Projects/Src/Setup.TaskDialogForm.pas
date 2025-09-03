@@ -31,6 +31,7 @@ type
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
     FPadX, FPadY: Integer;
+    procedure Finish;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateHeight;
     procedure UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
@@ -65,9 +66,9 @@ begin
     Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
-
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
+    Form.Finish;
 
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
     try
@@ -102,18 +103,30 @@ begin
   MainPanel.Padding.Bottom := FPadY;
   { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
   MainStackPanel.HandleNeeded;
-  MainStackPanel.Padding.Left := FPadX;
+  MainStackPanel.Padding.Left := FPadX; { Also see below }
   MainStackPanel.Spacing := FPadY;
   BottomStackPanel.Spacing := FPadX;
-  BottomStackPanel.Padding.Right := FPadX;
+  BottomStackPanel.Padding.Right := FPadX; { Also see below }
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
   NoButton.Caption := SetupMessages[msgButtonNo];
   RetryButton.Caption := SetupMessages[msgAbortRetryIgnoreRetry];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
+end;
 
-  KeepSizeY := True; { We will autosize height later }
+procedure TTaskDialogForm.Finish;
+begin
+  if RightToLeft then begin
+    LeftPanel.Align := alRight;
+    MainStackPanel.Padding.Right := MainStackPanel.Padding.Left;
+    MainStackPanel.Padding.Left := 0;
+    BottomStackPanel.Align := alLeft;
+    BottomStackPanel.Padding.Left := BottomStackPanel.Padding.Right;
+    BottomStackPanel.Padding.Right := 0;
+  end;
+
+  KeepSizeY := True;
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 end;
 
