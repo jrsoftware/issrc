@@ -26,6 +26,8 @@ type
     NoButton: TNewButton;
     RetryButton: TNewButton;
     CancelButton: TNewButton;
+    BottomPanel2: TPanel;
+    VerificationCheck: TNewCheckBox;
   private
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
@@ -37,6 +39,7 @@ type
     procedure UpdateHeight;
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
+    procedure UpdateVerificationText(const VerificationText: String; const pfVerificationFlagChecked: PBOOL);
   public
     constructor Create(AOwner: TComponent); override; 
   end;
@@ -68,6 +71,7 @@ begin
     Form.TextText.Caption := Text;
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons);
+    Form.UpdateVerificationText(VerificationText, pfVerificationFlagChecked);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
@@ -82,6 +86,8 @@ begin
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
     try
       Result := Form.ShowModal;
+      if pfVerificationFlagChecked <> nil then
+        pfVerificationFlagChecked^ := Form.VerificationCheck.Checked;
     finally
       TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
     end;
@@ -116,6 +122,7 @@ begin
   MainStackPanel.Spacing := FPadY;
   BottomStackPanel.Spacing := FPadX;
   BottomStackPanel.Padding.Right := FPadX; { Also see below }
+  VerificationCheck.Left := FPadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -179,6 +186,8 @@ begin
   var NewClientHeight := FPadY + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
   if BottomPanel.Visible then
     NewClientHeight := NewClientHeight + BottomPanel.Height;
+  if BottomPanel2.Visible then
+    NewClientHeight := NewClientHeight + BottomPanel2.Height;
 
   ClientHeight := NewClientHeight;
 end;
@@ -231,6 +240,17 @@ begin
 
   if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then
     BorderIcons := [];
+end;
+
+procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String;
+  const pfVerificationFlagChecked: PBOOL);
+begin
+  if VerificationText <> '' then begin
+    VerificationCheck.Caption := VerificationText;
+    if pfVerificationFlagChecked <> nil then
+      VerificationCheck.Checked := pfVerificationFlagChecked^;
+  end else
+    BottomPanel2.Visible := False;
 end;
 
 end.

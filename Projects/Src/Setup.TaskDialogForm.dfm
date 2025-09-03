@@ -4,7 +4,7 @@ object TaskDialogForm: TTaskDialogForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'TaskDialogForm'
-  ClientHeight = 371
+  ClientHeight = 420
   ClientWidth = 383
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,6 @@ object TaskDialogForm: TTaskDialogForm
     Height = 49
     Align = alBottom
     BevelOuter = bvNone
-    ParentColor = True
     TabOrder = 1
     object BottomStackPanel: TStackPanel
       Left = 0
@@ -201,6 +200,24 @@ object TaskDialogForm: TTaskDialogForm
         Style = bsCommandLink
         TabOrder = 4
       end
+    end
+  end
+  object BottomPanel2: TPanel
+    Left = 0
+    Top = 371
+    Width = 383
+    Height = 49
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 2
+    object VerificationCheck: TNewCheckBox
+      Left = 0
+      Top = 17
+      Width = 383
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'VerificationCheck'
+      TabOrder = 0
     end
   end
 end
