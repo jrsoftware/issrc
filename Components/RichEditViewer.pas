@@ -73,7 +73,7 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, BidiUtils, PathFunc, ComObj, ComCtrls, Themes;
+  ShellApi, PathFunc, ComObj, ComCtrls, Themes;
 
 const
   RICHEDIT_CLASSW = 'RichEdit20W';
@@ -276,7 +276,6 @@ begin
       Must have a unique class name since it uses two different classes
       depending on the setting of the UseRichEdit property. }
     StrCat(Params.WinClassName, '/Text');  { don't localize! }
-  SetBiDiStyles(Self, Params);
 end;
 
 procedure TRichEditViewer.CreateWnd;

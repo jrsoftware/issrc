@@ -2,7 +2,7 @@ unit BidiUtils;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,13 +17,10 @@ uses
 procedure FlipControls(const AParentCtl: TWinControl);
 procedure FlipRect(var Rect: TRect; const ParentRect: TRect; const UseRightToLeft: Boolean);
 function IsParentFlipped(const AControl: TControl): Boolean;
-function IsParentRightToLeft(const AControl: TControl): Boolean;
-function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
 
 var
-  { These two callbacks should be set by the caller. Inno Setup: set by the Setup.SetupForm unit: }
+  { This callback should be set by the caller. Inno Setup: set by the Setup.SetupForm unit: }
   IsParentFlippedFunc: function(AControl: TControl): Boolean;
-  IsParentRightToLeftFunc: function(AControl: TControl): Boolean;
 
 implementation
 
@@ -44,21 +41,6 @@ begin
     Result := IsParentFlippedFunc(AControl)
   else
     Result := False;
-end;
-
-function IsParentRightToLeft(const AControl: TControl): Boolean;
-begin
-  if Assigned(IsParentRightToLeftFunc) then
-    Result := IsParentRightToLeftFunc(AControl)
-  else
-    Result := False;
-end;
-
-function SetBiDiStyles(const AControl: TControl; var AParams: TCreateParams): Boolean;
-begin
-  Result := IsParentRightToLeft(AControl);
-  if Result then
-    AParams.ExStyle := AParams.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
 
 type

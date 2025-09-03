@@ -236,17 +236,6 @@ begin
     Result := False;
 end;
 
-function IsParentSetupFormRightToLeft(AControl: TControl): Boolean;
-var
-  ParentForm: TSetupForm;
-begin
-  ParentForm := GetParentSetupForm(AControl);
-  if Assigned(ParentForm) then
-    Result := ParentForm.RightToLeft
-  else
-    Result := False;
-end;
-
 type
   TControlAnchorsList = TDictionary<TControl, TAnchors>;
   TControlAccess = class(TControl);
@@ -287,6 +276,8 @@ begin
   FFlipControlsOnShow := FRightToLeft;
   FSizeAndCenterOnShow := True;
   inherited;
+  if FRightToLeft then
+    BiDiMode := bdRightToLeft;
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
     don't want the form to be changing positions whenever its handle is
     recreated, so change it to the D7 and earlier default of poDesigned. }
@@ -538,6 +529,5 @@ end;
 
 initialization
   BidiUtils.IsParentFlippedFunc := IsParentSetupFormFlipped;
-  BidiUtils.IsParentRightToLeftFunc := IsParentSetupFormRightToLeft;
   WM_QueryCancelAutoPlay := RegisterWindowMessage('QueryCancelAutoPlay');
 end.

@@ -146,7 +146,7 @@ begin
   with Params do
   begin
     Style := Style or SS_NOTIFY;
-    if not SetBiDiStyles(Self, Params) then begin
+    if Style and WS_EX_RIGHT = 0 then begin
       { Quirk: No style is set for WordWrap=False in RTL mode; WS_EX_RIGHT
         overrides SS_LEFTNOWORDWRAP, and there is no SS_RIGHTNOWORDWRAP style.
         WordWrap=False still affects AdjustBounds, though. }
@@ -186,7 +186,7 @@ begin
   inherited;
   { What we're really trapping here is changes to Parent. Recalculate size
     if the new Parent's RTL setting is different. }
-  if IsParentRightToLeft(Self) <> FLastAdjustBoundsRTL then
+  if IsRightToLeft <> FLastAdjustBoundsRTL then
     AdjustBounds;
 end;
 
@@ -208,7 +208,7 @@ begin
   Result := DT_EXPANDTABS or DT_NOCLIP;
   if FWordWrap then Result := Result or DT_WORDBREAK;
   if not FShowAccelChar then Result := Result or DT_NOPREFIX;
-  if IsParentRightToLeft(Self) then begin
+  if IsRightToLeft then begin
     { Note: DT_RTLREADING must be included even when just calculating the
       size, since on certain fonts it can affect the width of characters.
       (Consider the Hebrew string: 'a '#$F9' b'. On 2000 with Lucida Console
@@ -254,7 +254,7 @@ var
 begin
   if not (csLoading in ComponentState) and FAutoSize then
   begin
-    FLastAdjustBoundsRTL := IsParentRightToLeft(Self);
+    FLastAdjustBoundsRTL := IsRightToLeft;
 
     NewBounds := CalcBounds;
 
