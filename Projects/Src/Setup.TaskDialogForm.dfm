@@ -5,7 +5,7 @@ object TaskDialogForm: TTaskDialogForm
   BorderStyle = bsDialog
   Caption = 'TaskDialogForm'
   ClientHeight = 371
-  ClientWidth = 418
+  ClientWidth = 383
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,14 +18,14 @@ object TaskDialogForm: TTaskDialogForm
   object BottomPanel: TPanel
     Left = 0
     Top = 322
-    Width = 418
+    Width = 383
     Height = 49
     Align = alBottom
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 1
     object BottomStackPanel: TStackPanel
-      Left = 35
+      Left = 0
       Top = 0
       Width = 383
       Height = 49
@@ -101,7 +101,7 @@ object TaskDialogForm: TTaskDialogForm
   object MainPanel: TPanel
     Left = 0
     Top = 0
-    Width = 418
+    Width = 383
     Height = 322
     Align = alClient
     BevelOuter = bvNone
@@ -128,7 +128,7 @@ object TaskDialogForm: TTaskDialogForm
     object MainStackPanel: TStackPanel
       Left = 32
       Top = 0
-      Width = 386
+      Width = 351
       Height = 322
       Align = alClient
       BevelOuter = bvNone
@@ -154,7 +154,7 @@ object TaskDialogForm: TTaskDialogForm
       object InstructionText: TNewStaticText
         Left = 0
         Top = 0
-        Width = 386
+        Width = 351
         Height = 14
         Caption = 'Instruction text'
         TabOrder = 0
@@ -162,7 +162,7 @@ object TaskDialogForm: TTaskDialogForm
       object TextText: TNewStaticText
         Left = 0
         Top = 16
-        Width = 386
+        Width = 351
         Height = 14
         Caption = 'Text text'
         TabOrder = 1
@@ -171,7 +171,7 @@ object TaskDialogForm: TTaskDialogForm
       object MainButton1: TButton
         Left = 0
         Top = 32
-        Width = 386
+        Width = 351
         Height = 77
         Caption = 'MainButton1'
         CommandLinkHint = 'Note'
@@ -182,7 +182,7 @@ object TaskDialogForm: TTaskDialogForm
       object MainButton2: TButton
         Left = 0
         Top = 111
-        Width = 386
+        Width = 351
         Height = 77
         Caption = 'MainButton2'
         Style = bsCommandLink
@@ -191,7 +191,7 @@ object TaskDialogForm: TTaskDialogForm
       object MainButton3: TButton
         Left = 0
         Top = 190
-        Width = 386
+        Width = 351
         Height = 77
         Caption = 'MainButton3'
         Style = bsCommandLink

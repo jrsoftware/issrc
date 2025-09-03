@@ -65,6 +65,10 @@ begin
     Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
+
+    if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
+      Form.Width := MulDiv(Form.Width, 125, 100);
+
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
     try
       Result := Form.ShowModal;
