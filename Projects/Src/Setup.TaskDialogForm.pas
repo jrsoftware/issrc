@@ -17,9 +17,9 @@ type
     MainStackPanel: TStackPanel;
     InstructionText: TNewStaticText;
     TextText: TNewStaticText;
-    MainButton1: TButton;
-    MainButton2: TButton;
-    MainButton3: TButton;
+    MainButton1: TNewButton;
+    MainButton2: TNewButton;
+    MainButton3: TNewButton;
     BottomStackPanel: TStackPanel;
     OkButton: TNewButton;
     YesButton: TNewButton;
@@ -27,9 +27,9 @@ type
     RetryButton: TNewButton;
     CancelButton: TNewButton;
   private
-    FCommonButtons: array of TButton;
+    FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
-    FMainButtons: array of TButton;
+    FMainButtons: array of TNewButton;
     FPadX, FPadY: Integer;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateHeight;

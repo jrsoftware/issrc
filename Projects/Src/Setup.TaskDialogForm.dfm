@@ -168,7 +168,7 @@ object TaskDialogForm: TTaskDialogForm
         TabOrder = 1
         WordWrap = True
       end
-      object MainButton1: TButton
+      object MainButton1: TNewButton
         Left = 0
         Top = 32
         Width = 351
@@ -179,7 +179,7 @@ object TaskDialogForm: TTaskDialogForm
         Style = bsCommandLink
         TabOrder = 2
       end
-      object MainButton2: TButton
+      object MainButton2: TNewButton
         Left = 0
         Top = 111
         Width = 351
@@ -188,7 +188,7 @@ object TaskDialogForm: TTaskDialogForm
         Style = bsCommandLink
         TabOrder = 3
       end
-      object MainButton3: TButton
+      object MainButton3: TNewButton
         Left = 0
         Top = 190
         Width = 351
