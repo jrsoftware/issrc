@@ -210,7 +210,8 @@ begin
   const TriggerMessageBoxCallbackFuncFlags = IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0);
 
   {$IFDEF USETASKDIALOGFORM}
-  if True then begin
+  const LStyle = TStyleManager.ActiveStyle;
+  if not LStyle.IsSystemStyle then begin
     Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, '', TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
       TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked);
     Exit;
