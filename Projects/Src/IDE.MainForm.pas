@@ -7458,7 +7458,7 @@ begin
         end;
         var Color: TColor := FTheme.Colors[tcFore];
         const LStyle = TStyleManager.ActiveStyle;
-        if LStyle <> nil then begin
+        if not LStyle.IsSystemStyle then begin
           const Details = LStyle.GetElementDetails(tsPane);
           LStyle.GetElementColor(Details, ecTextColor, Color);
         end;

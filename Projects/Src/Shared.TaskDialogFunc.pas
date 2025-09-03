@@ -180,7 +180,7 @@ begin
   end;
 
   { Allow extra label to replace TDCBF_CANCEL_BUTTON by an IDCANCEL button id }
-  if (TDCommonButtons or TDCBF_CANCEL_BUTTON <> 0) and
+  if (TDCommonButtons and TDCBF_CANCEL_BUTTON <> 0) and
      (NButtonLabelsAvailable-1 = Length(ButtonIDs)) then begin
     TDCommonButtons := TDCommonButtons and not TDCBF_CANCEL_BUTTON;
     SetLength(ButtonIDs, NButtonLabelsAvailable);
