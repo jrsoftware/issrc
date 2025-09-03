@@ -43,10 +43,10 @@ begin
   Result := S_OK;
 end;
 
-function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PWideChar;
+function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt;
-  var ModalResult: Integer; const VerificationText: PWideChar; const pfVerificationFlagChecked: PBOOL): Boolean;
+  var ModalResult: Integer; const VerificationText: PChar; const pfVerificationFlagChecked: PBOOL): Boolean;
 var
   Config: TTaskDialogConfig;
   NButtonLabelsAvailable: Integer;
@@ -212,7 +212,7 @@ begin
   {$IFDEF USETASKDIALOGFORM}
   const LStyle = TStyleManager.ActiveStyle;
   if not LStyle.IsSystemStyle then begin
-    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, '', TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
       TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked);
     Exit;
   end;

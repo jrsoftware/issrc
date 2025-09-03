@@ -23,6 +23,7 @@ type
     FFlipControlsOnShow: Boolean;
     FSizeAndCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
+    FKeepSizeX: Boolean;
     FKeepSizeY: Boolean;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
@@ -56,6 +57,7 @@ type
   published
     property ControlsFlipped: Boolean read FControlsFlipped;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
+    property KeepSizeX: Boolean read FKeepSizeX write FKeepSizeX;
     property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
     property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
@@ -417,7 +419,7 @@ procedure TSetupForm.SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; 
 begin
   if FSizeAndCenterOnShow then begin
     FSizeAndCenterOnShow := False;
-    { Apply custom initial size from script - depends on Anchors being set on all the controls }
+    { Apply custom initial size from script - depends on Align or Anchors being set on all the controls }
     if ShouldSizeX then
       ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
     if ShouldSizeY then
@@ -432,7 +434,7 @@ end;
 
 function TSetupForm.ShouldSizeX: Boolean;
 begin
-  Result := SetupHeader.WizardSizePercentX > 100;
+  Result := not FKeepSizeX and (SetupHeader.WizardSizePercentX > 100);
 end;
 
 function TSetupForm.ShouldSizeY: Boolean;

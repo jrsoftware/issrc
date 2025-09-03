@@ -33,13 +33,14 @@ type
     FPadX, FPadY: Integer;
     procedure Finish;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
+    procedure UpdateIcon(const Icon: PChar);
     procedure UpdateHeight;
     procedure UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
   public
     constructor Create(AOwner: TComponent); override; 
   end;
 
-function TaskDialogForm(const Instruction, Text, Caption, Icon: String;
+function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
   const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
@@ -48,11 +49,12 @@ implementation
 
 uses
   CommCtrl,
-  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, SetupLdrAndSetup.Messages, Setup.WizardForm;
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, SetupLdrAndSetup.Messages, Setup.WizardForm,
+  Setup.MainFunc;
 
 {$R *.dfm}
 
-function TaskDialogForm(const Instruction, Text, Caption, Icon: String;
+function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
   const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
@@ -63,6 +65,7 @@ begin
     Form.InstructionText.Caption := Instruction;
     Form.InstructionText.Font.Size := MulDiv(Form.Font.Size, 13, 9);
     Form.TextText.Caption := Text;
+    Form.UpdateIcon(Icon);
     Form.UpdateMainButtons(ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateHeight;
@@ -118,15 +121,20 @@ end;
 procedure TTaskDialogForm.Finish;
 begin
   if RightToLeft then begin
-    LeftPanel.Align := alRight;
+    { FlipSizeAndCenterIfNeeded does not update Align or Padding }
+    if LeftPanel.Visible then
+      LeftPanel.Align := alRight;
     MainStackPanel.Padding.Right := MainStackPanel.Padding.Left;
     MainStackPanel.Padding.Left := 0;
-    BottomStackPanel.Align := alLeft;
-    BottomStackPanel.Padding.Left := BottomStackPanel.Padding.Right;
-    BottomStackPanel.Padding.Right := 0;
+    if BottomPanel.Visible then begin
+      BottomStackPanel.Align := alLeft;
+      BottomStackPanel.Padding.Left := BottomStackPanel.Padding.Right;
+      BottomStackPanel.Padding.Right := 0;
+    end;
   end;
 
-  KeepSizeY := True;
+  KeepSizeX := True; { Already bit wider than regular task dialogs }
+  KeepSizeY := True; { UpdateHeight already set height }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 end;
 
@@ -167,6 +175,24 @@ begin
     NewClientHeight := NewClientHeight + BottomPanel.Height;
 
   ClientHeight := NewClientHeight;
+end;
+
+procedure TTaskDialogForm.UpdateIcon(const Icon: PChar);
+begin
+  var ResourceName := '';
+  if Icon = TD_INFORMATION_ICON then
+    ResourceName := 'Z_TASKFORM_INFOICON' + WizardIconsPostfix
+  else if Icon = TD_WARNING_ICON then
+    ResourceName := 'Z_TASKFORM_WARNICON' + WizardIconsPostfix
+  else if Icon = TD_ERROR_ICON then
+    ResourceName := 'Z_TASKFORM_ERRORICON' + WizardIconsPostfix
+  else if Icon <> nil then
+    ResourceName := Icon;
+
+  if ResourceName <> '' then
+    BitmapImage.InitializeFromIcon(HInstance, PChar(ResourceName), clNone, [32, 48, 64])
+  else
+    LeftPanel.Visible := False;
 end;
 
 procedure TTaskDialogForm.UpdateMainButtons(const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
