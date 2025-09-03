@@ -2152,12 +2152,11 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
   var
     TypeEntry: PSetupTypeEntry;
     SelectedComponents, SelectedTasks: TStringList;
-    S, MemoUserInfoInfo, MemoDirInfo, MemoGroupInfo, MemoTypeInfo, MemoComponentsInfo, MemoTasksInfo: String;
+    MemoUserInfoInfo, MemoDirInfo, MemoGroupInfo, MemoTypeInfo, MemoComponentsInfo, MemoTasksInfo: String;
     I: Integer;
   begin
-    ReadyMemo.Visible := False;
     if not (shDisableReadyMemo in SetupHeader.Options) then begin
-      ReadyMemo.Lines.Clear();
+      ReadyMemo.Lines.Clear;
 
       if shUserInfoPage in SetupHeader.Options then begin
         MemoUserInfoInfo := SetupMessages[msgReadyMemoUserInfo];
@@ -2232,14 +2231,14 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
       ReadyMemo.SelLength := 0;
     end;
 
-    if ReadyMemo.Lines.Count > 0 then begin
-      S := SetupMessages[msgReadyLabel2a];
-      ChangeReadyLabel(S);
-      ReadyMemo.Visible := True;
-    end else begin
+    ReadyMemo.Visible := ReadyMemo.Lines.Count > 0;
+
+    var S: String;
+    if ReadyMemo.Visible then
+      S := SetupMessages[msgReadyLabel2a]
+    else
       S := SetupMessages[msgReadyLabel2b];
-      ChangeReadyLabel(S);
-    end;
+    ChangeReadyLabel(S);
   end;
 
 begin
