@@ -156,6 +156,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 0
         Width = 351
         Height = 14
+        AutoSize = False
         Caption = 'Instruction text'
         ShowAccelChar = False
         TabOrder = 0
@@ -165,6 +166,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 16
         Width = 351
         Height = 14
+        AutoSize = False
         Caption = 'Text text'
         ShowAccelChar = False
         TabOrder = 1

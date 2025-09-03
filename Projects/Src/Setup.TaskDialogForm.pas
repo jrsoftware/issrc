@@ -71,6 +71,8 @@ begin
     Form.UpdateHeight;
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
+    Form.InstructionText.AdjustHeight;
+    Form.TextText.AdjustHeight;
     Form.Finish;
 
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
