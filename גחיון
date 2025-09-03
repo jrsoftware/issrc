@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ג.חיון סוכות2025</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎪</text></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            direction: rtl;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #4CAF50;
+        }
+        
+        h1 {
+            color: #2E7D32;
+            font-size: 28px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f1f1f1;
+            margin-left: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .product-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            color: #E91E63;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 2px solid #4CAF50;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #E91E63;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2E7D32;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ג.חיון סוכות2025</h1>
+            <p>הזמן סוכה, בדים וסכך במחירים משתלמים</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="products">מוצרים</div>
+            <div class="tab" data-tab="cart">סל קניות</div>
+            <div class="tab" data-tab="checkout">הזמנה</div>
+        </div>
+        
+        <div class="tab-content active" id="products-tab">
+            <h2>קטגוריות מוצרים</h2>
+            <div style="margin: 15px 0;">
+                <button class="category-btn" data-category="all">הכל</button>
+                <button class="category-btn" data-category="sukkot">סוכות</button>
+                <button class="category-btn" data-category="fabrics">בדים</button>
+                <button class="category-btn" data-category="sechach">סכך</button>
+            </div>
+            
+            <div class="product-grid" id="products-container">
+                <!-- המוצרים יוטענו כאן -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="cart-tab">
+            <h2>סל קניות</h2>
+            <div id="cart-items">
+                <p>הסל שלך ריק</p>
+            </div>
+            
+            <div class="summary">
+                <div class="summary-row">
+                    <span>סיכום ביניים:</span>
+                    <span id="subtotal">₪0</span>
+                </div>
+                <div class="summary-row">
+                    <span>מע"מ (17%):</span>
+                    <span id="tax">₪0</span>
+                </div>
+                <div class="summary-row">
+                    <span>משלוח:</span>
+                    <span id="shipping">₪0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>סה"כ לתשלום:</span>
+                    <span id="total">₪0</span>
+                </div>
+            </div>
+            
+            <button id="checkout-btn">לתשלום והזמנה</button>
+        </div>
+        
+        <div class="tab-content" id="checkout-tab">
+            <h2>השלם הזמנה</h2>
+            
+            <div>
+                <label for="customer-name">שם מלא *</label>
+                <input type="text" id="customer-name" required>
+                
+                <label for="customer-phone">טלפון *</label>
+                <input type="tel" id="customer-phone" required>
+                
+                <label for="customer-email">אימייל</label>
+                <input type="email" id="customer-email">
+                
+                <label for="customer-address">כתובת *</label>
+                <input type="text" id="customer-address" required>
+                
+                <label for="payment-method">אמצעי תשלום</label>
+                <select id="payment-method">
+                    <option value="credit">כרטיס אשראי</option>
+                    <option value="bit">ביט</option>
+                    <option value="cash">מזומן</option>
+                </select>
+                
+                <button id="confirm-order-btn">אשר הזמנה</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // נתוני המוצרים
+        const products = [
+            { id: 1, name: "סוכת ירושלים בסיסית 2.1מ", price: 1555, category: "sukkot" },
+            { id: 2, name: "סוכת המלך דוד 2.3מ", price: 1665, category: "sukkot" },
+            { id: 3, name: "סוכה ענקית 2.5מ", price: 3085, category: "sukkot" },
+            { id: 4, name: "סוכה בסיסית 2X2", price: 1126, category: "sukkot" },
+            { id: 5, name: "סוכת הכל כלול 2X3", price: 1719.5, category: "sukkot" },
+            { id: 6, name: "סוכת הכל כלול 3X3", price: 2159.5, category: "sukkot" },
+            { id: 7, name: "בד כותנה 1.5מ", price: 90, category: "fabrics" },
+            { id: 8, name: "בד כותנה 2מ", price: 110, category: "fabrics" },
+            { id: 9, name: "בד כותנה 3מ", price: 165, category: "fabrics" },
+            { id: 10, name: "בד מצנח 3מ", price: 200, category: "fabrics" },
+            { id: 11, name: "בד מודפס 2מ", price: 140, category: "fabrics" },
+            { id: 12, name: "בד מודפס 3מ", price: 210, category: "fabrics" },
+            { id: 13, name: "סכך במבוק - מ\"ר", price: 30, category: "sechach" },
+            { id: 14, name: "סכך פפירוס - מ\"ר", price: 43, category: "sechach" },
+            { id: 15, name: "סכך רפיה - מ\"ר", price: 46, category: "sechach" },
+            { id: 16, name: "סכך קנים - מ\"ר", price: 17, category: "sechach" }
+        ];
+
+        let cart = [];
+        let currentCategory = 'all';
+
+        // אתחול האפליקציה
+        function init() {
+            renderProducts();
+            setupEventListeners();
+        }
+
+        // הצגת המוצרים
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            const filteredProducts = currentCategory === 'all' 
+                ? products 
+                : products.filter(p => p.category === currentCategory);
+            
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-title">${product.name}</div>
+                    <div class="product-price">₪${product.price}</div>
+                    <div>
+                        <label>כמות:</label>
+                        <input type="number" min="1" value="1" id="qty-${product.id}" style="width: 60px;">
+                    </div>
+                    <button onclick="addToCart(${product.id})">הוסף לסל</button>
+                `;
+                container.appendChild(productCard);
+            });
+        }
+
+        // הוספה לסל
+        function addToCart(productId) {
+            const quantity = parseInt(document.getElementById(`qty-${productId}`).value) || 1;
+            const product = products.find(p => p.id === productId);
+            
+            const existingItem = cart.find(item => item.product.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ product, quantity });
+            }
+            
+            alert('המוצר נוסף לסל בהצלחה!');
+            updateCart();
+        }
+
+        // עדכון הסל
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p>הסל שלך ריק</p>';
+            } else {
+                cart.forEach(item => {
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div>${item.product.name} (${item.quantity})</div>
+                        <div>₪${item.product.price * item.quantity}</div>
+                    `;
+                    container.appendChild(cartItem);
+                });
+            }
+            
+            // עדכון סיכומים
+            const subtotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+            const tax = subtotal * 0.17;
+            const shipping = subtotal > 0 ? 200 : 0;
+            const total = subtotal + tax + shipping;
+            
+            document.getElementById('subtotal').textContent = `₪${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `₪${tax.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `₪${shipping.toFixed(2)}`;
+            document.getElementById('total').textContent = `₪${total.toFixed(2)}`;
+        }
+
+        // מעבר בין טאבים
+        function setupEventListeners() {
+            // מעבר בין טאבים
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+            
+            // כפתורי קטגוריות
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentCategory = btn.dataset.category;
+                    renderProducts();
+                });
+            });
+            
+            // מעבר להזמנה
+            document.getElementById('checkout-btn').addEventListener('click', () => {
+                if (cart.length === 0) {
+                    alert('סל הקניות ריק. אנא הוסף מוצרים לפני המעבר להזמנה.');
+                    return;
+                }
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-tab="checkout"]').classList.add('active');
+                document.getElementById('checkout-tab').classList.add('active');
+            });
+            
+            // אישור הזמנה
+            document.getElementById('confirm-order-btn').addEventListener('click', () => {
+                const name = document.getElementById('customer-name').value;
+                const phone = document.getElementById('customer-phone').value;
+                const address = document.getElementById('customer-address').value;
+                
+                if (!name || !phone || !address) {
+                    alert('אנא מלא את כל שדות החובה המסומנים ב-*');
+                    return;
+                }
+                
+                // הדמיית שליחה למערכת הקופה
+                const orderDetails = {
+                    customer: { name, phone, address },
+                    items: cart,
+                    total: document.getElementById('total').textContent
+                };
+                
+                console.log('Order details:', orderDetails);
+                alert('ההזמנה בוצעה successfully! פרטי ההזמנה נשלחו לקופה.');
+                
+                // איפוס
+                cart = [];
+                updateCart();
+                document.querySelectorAll('input').forEach(input => input.value = '');
+                
+                // חזרה לטאב מוצרים
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-tab="products"]').classList.add('active');
+                document.getElementById('products-tab').classList.add('active');
+            });
+        }
+
+        // הפעלת האפליקציה
+        window.onload = init;
+    </script>
+</body>
+</html>
