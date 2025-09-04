@@ -6,7 +6,9 @@ unit BidiCtrls;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  RTL-capable versions of standard controls
+  Previously this unit had RTL-capable versions of standard controls
+  
+  But now standard controls are RTL-capable already, and there's not much code left here
 }
 
 interface
@@ -16,46 +18,24 @@ uses
   StdCtrls, ExtCtrls;
 
 type
-  TNewEdit = class(TEdit)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewEdit = class(TEdit);
 
-  TNewMemo = class(TMemo)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewMemo = class(TMemo);
 
-  TNewComboBox = class(TComboBox)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewComboBox = class(TComboBox);
 
-  TNewListBox = class(TListBox)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewListBox = class(TListBox);
 
   TNewButton = class(TButton)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
   public
     function AdjustHeight: Integer;
   end;
 
-  TNewCheckBox = class(TCheckBox)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewCheckBox = class(TCheckBox);
 
-  TNewRadioButton = class(TRadioButton)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-  end;
+  TNewRadioButton = class(TRadioButton);
 
   TNewLinkLabel = class(TLinkLabel)
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
   public
     function AdjustHeight: Integer;
   end;
@@ -65,44 +45,12 @@ procedure Register;
 implementation
 
 uses
-  CommCtrl, BidiUtils;
+  CommCtrl;
 
 procedure Register;
 begin
   RegisterComponents('JR', [TNewEdit, TNewMemo, TNewComboBox, TNewListBox,
     TNewButton, TNewCheckBox, TNewRadioButton]);
-end;
-
-{ TNewEdit }
-
-procedure TNewEdit.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-end;
-
-{ TNewMemo }
-
-procedure TNewMemo.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-end;
-
-{ TNewComboBox }
-
-procedure TNewComboBox.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-end;
-
-{ TNewListBox }
-
-procedure TNewListBox.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
 end;
 
 { TNewButton }
@@ -112,41 +60,15 @@ begin
   var OldHeight := Height;
   var IdealSize: TSize;
   IdealSize.cx := Width;
-  SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize));
-  Height := IdealSize.cy;
-  Result := Height - OldHeight;
-end;
-
-procedure TNewButton.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-  Params.ExStyle := Params.ExStyle and not WS_EX_RIGHT;
-end;
-
-{ TNewCheckBox }
-
-procedure TNewCheckBox.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-end;
-
-{ TNewRadioButton }
-
-procedure TNewRadioButton.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
+  IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
+  if SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize)) <> 0 then begin
+    Height := IdealSize.cy;
+    Result := Height - OldHeight;
+  end else
+    Result := 0;
 end;
 
 { TNewLinkLabel }
-
-procedure TNewLinkLabel.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  SetBiDiStyles(Self, Params);
-end;
 
 function TNewLinkLabel.AdjustHeight: Integer;
 begin

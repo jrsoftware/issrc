@@ -69,7 +69,6 @@ type
     FHotIndex: Integer;
     FDisableItemStateDeletion: Integer;
     FWheelAccum: Integer;
-    FUseRightToLeft: Boolean;
     class constructor Create;
     class destructor Destroy;
     procedure UpdateThemeData(const Close, Open: Boolean);
@@ -107,7 +106,6 @@ type
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
   protected
-    procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
     procedure DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState);
@@ -428,12 +426,6 @@ begin
   FCaptureIndex := -1;
 end;
 
-procedure TNewCheckListBox.CreateParams(var Params: TCreateParams);
-begin
-  inherited;
-  FUseRightToLeft := SetBiDiStyles(Self, Params);
-end;
-
 procedure TNewCheckListBox.CreateWnd;
 begin
   { TCustomListBox.CreateWnd causes a LB_RESETCONTENT message to be sent when
@@ -646,7 +638,7 @@ begin
       L := ItemStates[itemID].Level;
       if ItemStates[itemID].ItemType <> itGroup then Inc(L);
       rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
-      FlipRect(rcItem, ClientRect, FUseRightToLeft);
+      FlipRect(rcItem, ClientRect, IsRightToLeft);
     end;
     { Don't let TCustomListBox.CNDrawItem draw the focus }
     if FWantTabs or
@@ -695,9 +687,7 @@ begin
     Inc(Rect.Left);
 
     if ItemState.SubItem <> '' then begin
-      DrawTextFormat := DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE;
-      if FUseRightToLeft then
-        DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+      DrawTextFormat := DrawTextBiDiModeFlags(DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE);
       SetRectEmpty(SubItemRect);
       DrawText(Canvas.Handle, PChar(ItemState.SubItem), Length(ItemState.SubItem),
         SubItemRect, DrawTextFormat);
@@ -712,8 +702,7 @@ begin
     DrawTextFormat := DT_NOCLIP or DT_CALCRECT or DT_WORDBREAK or DT_WORD_ELLIPSIS;
     if not FWantTabs or (ItemState.ItemType = itGroup) then
       DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
-    if FUseRightToLeft then
-      DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+    DrawTextFormat := DrawTextBiDiModeFlags(DrawTextFormat);
 
     S := Items[Index]; { Passing Items[Index] directly into DrawText doesn't work on Unicode build. }
     ItemState.MeasuredHeight := DrawText(Canvas.Handle, PChar(S), Length(S), Rect, DrawTextFormat);
@@ -766,7 +755,7 @@ var
 
   function FlipX(const X: Integer): Integer;
   begin
-    if FUseRightToLeft then
+    if IsRightToLeft then
       Result := (SavedClientRect.Right - 1) - X
     else
       Result := X;
@@ -809,7 +798,7 @@ begin
 
   SavedClientRect := ClientRect;
   { Undo flipping performed by TNewCheckListBox.CNDrawItem }
-  FlipRect(Rect, SavedClientRect, FUseRightToLeft);
+  FlipRect(Rect, SavedClientRect, IsRightToLeft);
 
   ItemState := ItemStates[Index];
   UIState := SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
@@ -878,7 +867,7 @@ begin
       CheckRect := Bounds(Rect.Left - (FCheckWidth + FOffset),
         Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
         FCheckWidth, FCheckHeight);
-      FlipRect(CheckRect, SavedClientRect, FUseRightToLeft);
+      FlipRect(CheckRect, SavedClientRect, IsRightToLeft);
       if LStyle <> nil then begin
         var Detail: TThemedButton;
         if ItemState.State <> cbGrayed then begin
@@ -936,7 +925,7 @@ begin
           CheckRect := Bounds(Rect.Left - (Size.cx + FOffset),
             Rect.Top + ((Rect.Bottom - Rect.Top - Size.cy) div 2),
             Size.cx, Size.cy);
-          FlipRect(CheckRect, SavedClientRect, FUseRightToLeft);
+          FlipRect(CheckRect, SavedClientRect, IsRightToLeft);
         end;
         //if IsThemeBackgroundPartiallyTransparent(FThemeData, PartId, StateId) then
         //  DrawThemeParentBackground(Self.Handle, Handle, @CheckRect);
@@ -944,16 +933,14 @@ begin
       end;
     end;
     { Draw SubItem }
-    FlipRect(Rect, SavedClientRect, FUseRightToLeft);
+    FlipRect(Rect, SavedClientRect, IsRightToLeft);
     FillRect(Rect);
-    FlipRect(Rect, SavedClientRect, FUseRightToLeft);
+    FlipRect(Rect, SavedClientRect, IsRightToLeft);
     Inc(Rect.Left);
     OldColor := SetTextColor(Handle, ColorToRGB(NewTextColor));
     if ItemState.SubItem <> '' then
     begin
-      DrawTextFormat := DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER;
-      if FUseRightToLeft then
-        DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+      DrawTextFormat := DrawTextBiDiModeFlags(DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
@@ -961,7 +948,7 @@ begin
       SubItemWidth := SubItemRect.Right + 2 * FOffset;
       SubItemRect := Rect;
       SubItemRect.Left := SubItemRect.Right - SubItemWidth + FOffset;
-      FlipRect(SubItemRect, SavedClientRect, FUseRightToLeft);
+      FlipRect(SubItemRect, SavedClientRect, IsRightToLeft);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat,
         FWantTabs and ItemDisabled);
       Dec(Rect.Right, SubItemWidth);
@@ -977,8 +964,7 @@ begin
       DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
     if (UIState and UISF_HIDEACCEL) <> 0 then
       DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
-    if FUseRightToLeft then
-      DrawTextFormat := DrawTextFormat or (DT_RIGHT or DT_RTLREADING);
+    DrawTextFormat := DrawTextBiDiModeFlags(DrawTextFormat);
     Font.Style := ItemState.ItemFontStyle;
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
@@ -990,7 +976,7 @@ begin
       Wrapping at the same place is important because it can affect how many
       lines are drawn -- and we mustn't draw too many. }
     InternalDrawText(Items[Index], Rect, DrawTextFormat or DT_CALCRECT, False);
-    FlipRect(Rect, SavedClientRect, FUseRightToLeft);
+    FlipRect(Rect, SavedClientRect, IsRightToLeft);
     InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and ItemDisabled and (LStyle = nil));
     { Draw focus rectangle }
     if FWantTabs and not ItemDisabled and (odSelected in State) and Focused and
@@ -1220,7 +1206,7 @@ begin
   IRect := ItemRect(Index);
   Inc(IRect.Left, (FCheckWidth + 2 * Offset) * (ItemLevel[Index]));
   IRect.Right := IRect.Left + (FCheckWidth + 2 * Offset);
-  FlipRect(IRect, ClientRect, FUseRightToLeft);
+  FlipRect(IRect, ClientRect, IsRightToLeft);
   InvalidateRect(Handle, @IRect, FThemeData <> 0);
 end;
 
