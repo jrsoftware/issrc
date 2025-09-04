@@ -146,7 +146,7 @@ begin
   with Params do
   begin
     Style := Style or SS_NOTIFY;
-    if Style and WS_EX_RIGHT = 0 then begin
+    if ExStyle and WS_EX_RIGHT = 0 then begin
       { Quirk: No style is set for WordWrap=False in RTL mode; WS_EX_RIGHT
         overrides SS_LEFTNOWORDWRAP, and there is no SS_RIGHTNOWORDWRAP style.
         WordWrap=False still affects AdjustBounds, though. }
