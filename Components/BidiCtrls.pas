@@ -60,9 +60,12 @@ begin
   var OldHeight := Height;
   var IdealSize: TSize;
   IdealSize.cx := Width;
-  SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize));
-  Height := IdealSize.cy;
-  Result := Height - OldHeight;
+  IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
+  if SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize)) <> 0 then begin
+    Height := IdealSize.cy;
+    Result := Height - OldHeight;
+  end else
+    Result := 0;
 end;
 
 { TNewLinkLabel }
