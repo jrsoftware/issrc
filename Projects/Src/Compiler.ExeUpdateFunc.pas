@@ -981,10 +981,10 @@ begin
               DeleteIconIfExists(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;
 
-          var HasLightStyle := False;
-          var HasDarkStyle := False;
-
           if Uisf = uisfSetupCustomStyleE32 then begin
+            var HasLightStyle := False;
+            var HasDarkStyle := False;
+
             if StyleFileName <> '' then begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
               { Add the regular custom style, used by forced light, forced dark and dynamic light }
@@ -1023,19 +1023,19 @@ begin
                 Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
               DeleteResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK');
             end;
-          end;
 
-          { Delete taskform icons we don't need }
-          TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
-          if not HasLightStyle then begin
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_INFOICON'));
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_ERRORICON'));
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_WARNICON'));
-          end;
-          if not HasDarkStyle then begin
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
-            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
+            { Delete taskform icons we don't need }
+            TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
+            if not HasLightStyle then begin
+              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON'));
+            end;
+            if not HasDarkStyle then begin
+              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
+            end;
           end;
         end;
 
