@@ -2,7 +2,7 @@ unit BidiCtrls;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -39,6 +39,8 @@ type
   TNewButton = class(TButton)
   protected
     procedure CreateParams(var Params: TCreateParams); override;
+  public
+    function AdjustHeight: Integer;
   end;
 
   TNewCheckBox = class(TCheckBox)
@@ -105,7 +107,17 @@ end;
 
 { TNewButton }
 
-procedure TNewButton.CreateParams(var Params: TCreateParams); 
+function TNewButton.AdjustHeight: Integer;
+begin
+  var OldHeight := Height;
+  var IdealSize: TSize;
+  IdealSize.cx := Width;
+  SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize));
+  Height := IdealSize.cy;
+  Result := Height - OldHeight;
+end;
+
+procedure TNewButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   SetBiDiStyles(Self, Params);

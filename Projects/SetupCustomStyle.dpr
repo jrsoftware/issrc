@@ -107,6 +107,7 @@ uses
   Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm};
 
 {$I Src\Setup.inc}

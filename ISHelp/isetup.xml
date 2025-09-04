@@ -5697,8 +5697,8 @@ DiskSliceSize=736000000
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme, nor is the color of the title bar changed. The other elements (icons and wizard images, including their background colors) are activated.</li>
 <li>When a custom style (including the built-in custom dark style) is active, then all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque.</li>
-<li>Windows task dialogs do not currently support dark mode theming. When Setup displays task dialogs to the user (for example, when prompting to abort, retry, or ignore if a file is in use), these dialogs will appear in the system's default light appearance regardless of the chosen wizard style or the user's Windows system settings.</li>
-<li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 115 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
+<li>Windows task dialogs do not currently support custom styling (not even dark mode). When needed, Setup and Uninstall therefore use a custom implementation that does support custom styling, but otherwise looks and feels like Windows task dialogs.</li>
+<li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be dark. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
 </ul>
 <p><b>See also:</b><br/>
