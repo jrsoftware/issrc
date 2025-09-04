@@ -468,14 +468,17 @@ begin
   raise Exception.Create('UpdateSetupPEHeaderFields failed');
 end;
 
-procedure ResUpdateError(const Msg: String);
+procedure ResUpdateError(const Msg: String; const ResourceName: String = '');
 begin
-  raise Exception.Create('Resource update error: ' + Msg);
+  if ResourceName <> '' then
+    raise Exception.CreateFmt('Resource %s update error: %s', [ResourceName, Msg])
+  else
+    raise Exception.CreateFmt('Resource update error: %s', [Msg]);
 end;
 
-procedure ResUpdateErrorWithLastError(const Msg: String);
+procedure ResUpdateErrorWithLastError(const Msg: String; const ResourceName: String = '');
 begin
-  ResUpdateError(Msg + ' (' + IntToStr(GetLastError) + ')');
+  ResUpdateError(Msg + ' (' + IntToStr(GetLastError) + ')', ResourceName);
 end;
 
 procedure UpdateVersionInfo(const F: TCustomFile;
@@ -736,9 +739,9 @@ type
     wLanguage: Word;
   begin
     if not GetResourceLanguage(M, ResourceType, ResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (1)');
+      ResUpdateError('GetResourceLanguage failed (1)', ResourceName);
     if not UpdateResource(H, ResourceType, ResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (1)');
+      ResUpdateErrorWithLastError('UpdateResource failed (1)', ResourceName);
   end;
 
   procedure RenameResource(const H: THandle; const M: HMODULE; const ResourceType, OldResourceName, NewResourceName: PChar);
@@ -752,26 +755,26 @@ type
     { Load the resource }
     R := FindResource(M, OldResourceName, ResourceType);
     if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (1)');
+      ResUpdateErrorWithLastError('FindResource failed (1)', OldResourceName);
     Size := SizeofResource(M, R);
     if Size = 0 then
-      ResUpdateErrorWithLastError('SizeofResource failed (1)');
+      ResUpdateErrorWithLastError('SizeofResource failed (1)', OldResourceName);
     Res := LoadResource(M, R);
     if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (1)');
+      ResUpdateErrorWithLastError('LoadResource failed (1)', OldResourceName);
     P := LockResource(Res);
     if P = nil then
-      ResUpdateErrorWithLastError('LockResource failed (1)');
+      ResUpdateErrorWithLastError('LockResource failed (1)', OldResourceName);
 
     { Create a copy resource with the new name }
     if not GetResourceLanguage(M, ResourceType, OldResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (2)');
+      ResUpdateError('GetResourceLanguage failed (2)', OldResourceName);
     if not UpdateResource(H, ResourceType, NewResourceName, wLanguage, P, Size) then
-      ResUpdateErrorWithLastError('UpdateResource failed (2)');
+      ResUpdateErrorWithLastError('UpdateResource failed (2)', NewResourceName);
 
     { Delete the old resource }
     if not UpdateResource(H, ResourceType, OldResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (3)');
+      ResUpdateErrorWithLastError('UpdateResource failed (3)', OldResourceName);
  end;
 
   function DeleteIcon(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
@@ -785,13 +788,13 @@ type
     { Load the group icon resource }
     R := FindResource(M, ResourceName, RT_GROUP_ICON);
     if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (2)');
+      ResUpdateErrorWithLastError('FindResource failed (2)', ResourceName);
     Res := LoadResource(M, R);
     if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (2)');
+      ResUpdateErrorWithLastError('LoadResource failed (2)', ResourceName);
     GroupIconDir := LockResource(Res);
     if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (2)');
+      ResUpdateErrorWithLastError('LockResource failed (2)', ResourceName);
 
     { Delete the group icon resource }
     DeleteResource(H, M, RT_GROUP_ICON, ResourceName);
@@ -799,9 +802,9 @@ type
     { Delete the icon resources that belonged to the group }
     for I := 0 to GroupIconDir.ItemCount-1 do begin
       if not GetResourceLanguage(M, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage) then
-        ResUpdateError('GetResourceLanguage failed (3)');
+        ResUpdateError('GetResourceLanguage failed (3)', ResourceName);
       if not UpdateResource(H, RT_ICON, MakeIntResource(GroupIconDir.Items[I].Id), wLanguage, nil, 0) then
-        ResUpdateErrorWithLastError('UpdateResource failed (4)');
+        ResUpdateErrorWithLastError('UpdateResource failed (4)', ResourceName);
     end;
 
     Result := GroupIconDir;
@@ -828,26 +831,26 @@ type
     { Load the group icon resource }
     R := FindResource(M, OldResourceName, RT_GROUP_ICON);
     if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (3)');
+      ResUpdateErrorWithLastError('FindResource failed (3)', OldResourceName);
     Res := LoadResource(M, R);
     if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (3)');
+      ResUpdateErrorWithLastError('LoadResource failed (3)', OldResourceName);
     GroupIconDir := LockResource(Res);
     if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (3)');
+      ResUpdateErrorWithLastError('LockResource failed (3)', OldResourceName);
 
     GroupIconDirSize := Sizeof(Word)*3 + GroupIconDir.ItemCount*Sizeof(TGroupIconDirItem);
 
     { Create a copy group icon resource with the new name - existing icon resources will belong to
       it automatically }
     if not GetResourceLanguage(M, RT_GROUP_ICON, OldResourceName, wLanguage) then
-      ResUpdateError('GetResourceLanguage failed (4)');
+      ResUpdateError('GetResourceLanguage failed (4)', OldResourceName);
     if not UpdateResource(H, RT_GROUP_ICON, NewResourceName, wLanguage, GroupIconDir, GroupIconDirSize) then
-      ResUpdateErrorWithLastError('UpdateResource failed (5)');
+      ResUpdateErrorWithLastError('UpdateResource failed (5)', NewResourceName);
 
     { Delete the old group icon resource }
     if not UpdateResource(H, RT_GROUP_ICON, OldResourceName, wLanguage, nil, 0) then
-      ResUpdateErrorWithLastError('UpdateResource failed (6)');
+      ResUpdateErrorWithLastError('UpdateResource failed (6)', OldResourceName);
 
     Result := GroupIconDir;
   end;
@@ -908,9 +911,11 @@ begin
         if IcoFileName <> '' then begin
           TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
 
+          const ResourceName = 'MAINICON';
+
           { Delete default icons }
-          OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
-          DeleteIconIfExists(H, M, 'MAINICON_DARK');
+          OldGroupIconDir := DeleteIcon(H, M, PChar(ResourceName));
+          DeleteIconIfExists(H, M, PChar(ResourceName + '_DARK'));
 
           { Build the new group icon resource }
           NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
@@ -928,11 +933,11 @@ begin
             { Update 'MAINICON' }
             for I := 0 to NewGroupIconDir.ItemCount-1 do
               if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (7)');
+                ResUpdateErrorWithLastError('UpdateResource failed (7)', ResourceName);
 
             { Update the icons }
             if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (8)');
+              ResUpdateErrorWithLastError('UpdateResource failed (8)', ResourceName);
 
             ChangedMainIcon := True;
           finally
@@ -984,7 +989,7 @@ begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
               { Add the regular custom style, used by forced light, forced dark and dynamic light }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (9)');
+                ResUpdateErrorWithLastError('UpdateResource failed (9)', 'MYSTYLE1');
               if WizardDarkStyle <> wdsDark then
                 HasLightStyle := True
               else
@@ -995,7 +1000,7 @@ begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
               { Add the dark custom style, used by dynamic dark only }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
-                ResUpdateErrorWithLastError('UpdateResource failed (10)');
+                ResUpdateErrorWithLastError('UpdateResource failed (10)', 'MYSTYLE1_DARK');
               HasDarkStyle := True;
             end;
 
