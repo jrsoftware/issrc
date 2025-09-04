@@ -11,16 +11,10 @@
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{ The compiler may delete some of the icons included here }
+{ SetupCustomStyle: The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.res}
-{$R Res\Setup.icon.dark.res}
 {$R Res\Setup.images.res}
-{$R Res\Setup.images.dark.res}
 {$R Res\Setup.version.res}
-
-{$IFDEF VCLSTYLES} { Always False in Setup.dpr and always True in SetupCustomStyle.dpr }
-{$R Res\Setup.style.res}
-{$ENDIF}
 
 procedure ShowExceptionMsg;
 var

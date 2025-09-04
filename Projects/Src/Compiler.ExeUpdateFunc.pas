@@ -910,7 +910,7 @@ begin
 
           { Delete default icons }
           OldGroupIconDir := DeleteIcon(H, M, 'MAINICON');
-          DeleteIcon(H, M, 'MAINICON_DARK');
+          DeleteIconIfExists(H, M, 'MAINICON_DARK');
 
           { Build the new group icon resource }
           NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
@@ -943,7 +943,7 @@ begin
             TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             if WizardDarkStyle = wdsLight then begin
               { Forced light: remove dark main icon }
-              DeleteIcon(H, M, 'MAINICON_DARK')
+              DeleteIconIfExists(H, M, 'MAINICON_DARK')
             end else begin
               { Forced dark: rename dark main icon to be the regular main icon }
               RenameIconWithOverwrite(H, M, 'MAINICON_DARK', 'MAINICON');
@@ -958,7 +958,7 @@ begin
             TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
             { Make UninstallProgressForm use the custom icon }
             DeleteIcon(H, M, 'Z_UNINSTALLICON');
-            DeleteIcon(H, M, 'Z_UNINSTALLICON_DARK');
+            DeleteIconIfExists(H, M, 'Z_UNINSTALLICON_DARK');
           end;
           if WizardDarkStyle <> wdsDynamic then begin
             TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
@@ -968,12 +968,12 @@ begin
             if WizardDarkStyle = wdsLight then
               Postfix := '_DARK';
             { Delete the icons we don't need: either the light ones or the dark ones }
-            DeleteIcon(H, M, PChar('Z_DIRICON' + Postfix));
-            DeleteIcon(H, M, PChar('Z_DISKICON' + Postfix));
-            DeleteIcon(H, M, PChar('Z_GROUPICON' + Postfix));
-            DeleteIcon(H, M, PChar('Z_STOPICON' + Postfix));
+            DeleteIconIfExists(H, M, PChar('Z_DIRICON' + Postfix));
+            DeleteIconIfExists(H, M, PChar('Z_DISKICON' + Postfix));
+            DeleteIconIfExists(H, M, PChar('Z_GROUPICON' + Postfix));
+            DeleteIconIfExists(H, M, PChar('Z_STOPICON' + Postfix));
             if not DeleteUninstallIcon then
-              DeleteIcon(H, M, PChar('Z_UNINSTALLICON' + Postfix));
+              DeleteIconIfExists(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;
 
           var HasLightStyle := False;
@@ -1021,15 +1021,16 @@ begin
           end;
 
           { Delete taskform icons we don't need }
+          TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
           if not HasLightStyle then begin
-            DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON'));
-            DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON'));
-            DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_INFOICON'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_ERRORICON'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_WARNICON'));
           end;
           if not HasDarkStyle then begin
-            DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
-            DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
-            DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
+            DeleteIconIfExists(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
           end;
         end;
 
