@@ -1,5 +1,16 @@
 unit Setup.TaskDialogForm;
 
+{
+  Inno Setup
+  Copyright (C) 1997-2025 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Task Dialog form which can be styled
+
+  Supports up to three command links
+}
+
 interface
 
 uses
