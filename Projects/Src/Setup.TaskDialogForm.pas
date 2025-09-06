@@ -245,7 +245,7 @@ begin
         HaveCancel := True;
       end;
       MainButton.ElevationRequired := MainButton.ModalResult = ShieldButton;
-      MainButton.AdjustHeight;
+      MainButton.AdjustHeightIfCommandLink;
     end;
   end;
 

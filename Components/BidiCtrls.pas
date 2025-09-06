@@ -27,8 +27,10 @@ type
   TNewListBox = class(TListBox);
 
   TNewButton = class(TButton)
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
   public
-    function AdjustHeight: Integer;
+    function AdjustHeightIfCommandLink: Integer;
   end;
 
   TNewCheckBox = class(TCheckBox);
@@ -45,7 +47,7 @@ procedure Register;
 implementation
 
 uses
-  CommCtrl;
+  CommCtrl, Themes;
 
 procedure Register;
 begin
@@ -55,17 +57,35 @@ end;
 
 { TNewButton }
 
-function TNewButton.AdjustHeight: Integer;
+procedure TNewButton.CreateParams(var Params: TCreateParams);
 begin
-  var OldHeight := Height;
-  var IdealSize: TSize;
-  IdealSize.cx := Width;
-  IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
-  if SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize)) <> 0 then begin
-    Height := IdealSize.cy;
-    Result := Height - OldHeight;
-  end else
-    Result := 0;
+  inherited;
+  if (Style = bsCommandLink) and IsRightToLeft then begin
+    { Command link buttons need to have WS_EX_LAYOUTRTL enabled for full RTL, in addition to
+      WS_EX_RTLREADING and WS_EX_LEFTSCROLLBAR, but not WS_EX_RIGHT. This can be confirmed by
+      inspecting the style of a task dialog command link button. However, if VCL Styles is
+      active, this should not be done since the style hook does not expect it at all. }
+    var LStyle := StyleServices(Self);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+    if LStyle = nil then
+      Params.ExStyle := Params.ExStyle or WS_EX_LAYOUTRTL;
+  end;
+end;
+
+function TNewButton.AdjustHeightIfCommandLink: Integer;
+begin
+  Result := 0;
+  if Style = bsCommandLink then begin
+    var OldHeight := Height;
+    var IdealSize: TSize;
+    IdealSize.cx := Width;
+    IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
+    if SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize)) <> 0 then begin
+      Height := IdealSize.cy;
+      Result := Height - OldHeight;
+    end;
+  end;
 end;
 
 { TNewLinkLabel }
