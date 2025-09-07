@@ -1,3 +1,3 @@
 BUILTIN_DARK VCLSTYLE Setup.style.Windows11Dark.vsf
 POLAR_LIGHT VCLSTYLE Setup.style.PolarLight.vsf
-POLAR_DARK VCLSTYLE Setup.style.PolarLight.vsf
+POLAR_DARK VCLSTYLE Setup.style.PolarDark.vsf

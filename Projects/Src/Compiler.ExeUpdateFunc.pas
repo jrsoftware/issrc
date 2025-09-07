@@ -847,6 +847,17 @@ type
     Result := GroupIconDir;
   end;
 
+  function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal): Boolean;
+  begin
+    Result := True;
+    if SameText(StyleFileName, 'polar/light') then
+      Vsf := LoadResourcePointer(M, 'VCLSTYLE', 'POLAR_LIGHT', True, VsfSize)
+    else if SameText(StyleFileName, 'polar/dark') then
+      Vsf := LoadResourcePointer(M, 'VCLSTYLE', 'POLAR_DARK', True, VsfSize)
+    else
+      Result := False;
+  end;
+
 var
   H: THandle;
   M: HMODULE;
@@ -856,7 +867,9 @@ var
 begin
   var Ico: PIcoHeader := nil;
   var Vsf := nil;
+  var ShouldFreeVsf := False;
   var VsfDynamicDark := nil;
+  var ShouldFreeVsfDynamicDark := False;
 
   try
     if IcoFileName <> '' then begin
@@ -872,20 +885,6 @@ begin
         ResUpdateError('Icon file is invalid');
     end;
 
-    { Load the styles. Could be checked using TStyleManager.IsValidStyle but that requires using VCL units. }
-
-    var VsfSize: Cardinal := 0;
-    if StyleFileName <> '' then begin
-      TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
-      VsfSize := LoadFileIntoMemory(StyleFileName, Vsf);
-    end;
-
-    var VsfSizeDynamicDark: Cardinal := 0;
-    if StyleFileNameDynamicDark <> '' then begin
-      TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
-      VsfSizeDynamicDark := LoadFileIntoMemory(StyleFileNameDynamicDark, VsfDynamicDark);
-    end;
-
     { Update the resources }
     var ChangedMainIcon := False;
     H := BeginUpdateResource(PChar(FileName), False);
@@ -896,6 +895,25 @@ begin
       if M = 0 then
         ResUpdateErrorWithLastError('LoadLibraryEx failed (1)');
       try
+        { Load the styles. Could be checked using TStyleManager.IsValidStyle but that requires using VCL units. }
+        var VsfSize: Cardinal := 0;
+        if StyleFileName <> '' then begin
+          TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
+          if not HandleBuiltinStyle(M, StyleFileName, Vsf, VsfSize) then begin
+            VsfSize := LoadFileIntoMemory(StyleFileName, Vsf);
+            ShouldFreeVsf := True;
+          end;
+        end;
+
+        var VsfSizeDynamicDark: Cardinal := 0;
+        if StyleFileNameDynamicDark <> '' then begin
+          TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
+          if not HandleBuiltinStyle(M, StyleFileName, Vsf, VsfSize) then begin
+            VsfSizeDynamicDark := LoadFileIntoMemory(StyleFileNameDynamicDark, VsfDynamicDark);
+            ShouldFreeVsfDynamicDark := True;
+          end;
+        end;
+
         { All of the following changes must be independent because updates are not immediate. For
           example, if you call DeleteIcon followed by FindResource then resource will still be found,
           until you call EndUpdateResource *and* reload the file using LoadLibrary }
@@ -1002,7 +1020,7 @@ begin
               { Forced dark without a custom style: make the built-in dark style the regular one }
               RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
               HasDarkStyle := True;
-            end else if (VsfDynamicDark = nil)  and (WizardDarkStyle = wdsDynamic) then begin
+            end else if (VsfDynamicDark = nil) and (WizardDarkStyle = wdsDynamic) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Dynamic without a custom dark style: make the built-in dark style the dark one }
               RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
@@ -1015,6 +1033,10 @@ begin
                 Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
               DeleteResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK');
             end;
+
+            { Delete additional styles - they are handled above }
+            DeleteResource(H, M, 'VCLSTYLE', 'POLAR_LIGHT');
+            DeleteResource(H, M, 'VCLSTYLE', 'POLAR_DARK');
 
             { Delete taskform icons we don't need }
             TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
@@ -1043,9 +1065,9 @@ begin
       if ChangedMainIcon then { Only allow errors (likely from faulty AV software) if the update actually is important }
         ResUpdateErrorWithLastError('EndUpdateResource failed, try excluding the Output folder from your antivirus software');
   finally
-    if VsfDynamicDark <> nil then
+    if ShouldFreeVsfDynamicDark then
       FreeMem(VsfDynamicDark);
-    if Vsf <> nil then
+    if ShouldFreeVsf then
       FreeMem(Vsf);
     if Ico <> nil then
       FreeMem(Ico);
