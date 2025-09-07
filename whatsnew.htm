@@ -77,14 +77,17 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>For example, to specify two custom styles, one for light mode and one for dark mode:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern/dynamic
-<span class="key">WizardStyleFile</span>=Windows11_Polar_Light.vsf
-<span class="key">WizardStyleFileDynamicDark</span>=Windows11_Polar_Dark.vsf</code></pre>
+<span class="key">WizardStyleFile</span>=MyStyleLight.vsf
+<span class="key">WizardStyleFileDynamicDark</span>=MyStyleDark.vsf</code></pre>
         <a href="https://jrsoftware.org/images/is-welcome-polarlight-org-175.png">Example screenshot of Setup using the Polar Light style, at 175% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-polardark-org-175.png">Example screenshot of Setup using the Polar Dark style, at 175% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-zircon-org-125.png">Example screenshot of a task dialog using the Zircon style, at 125% DPI</a>.
     </li>
     <li>When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
     <li>When a custom style (including the built-in custom dark style) is active, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent rather than opaque.</li>
+    <li>The Polar style shown above is available built-in and directly supported by the <tt>WizardStyle</tt> directive. For example:
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=polar/dynamic</code></pre>
+    </li>
   </ul>
   <li>Pascal Scripting: Add new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
 </ul>

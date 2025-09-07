@@ -5649,7 +5649,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>classic</tt>, <tt>classic/light</tt>, <tt>classic/dark</tt>, <tt>classic/dynamic</tt>, <tt>modern</tt>, <tt>modern/light</tt>, <tt>modern/dark</tt>, or <tt>modern/dynamic</tt></setupvalid>
+<setupvalid><tt>classic</tt>, <tt>classic/light</tt>, <tt>classic/dark</tt>, <tt>classic/dynamic</tt>, <tt>modern</tt>, <tt>modern/light</tt>, <tt>modern/dark</tt>, <tt>modern/dynamic</tt>, <tt>polar</tt>, <tt>polar/light</tt>, <tt>polar/dark</tt>, or <tt>polar/dynamic</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
@@ -5658,8 +5658,9 @@ DiskSliceSize=736000000
 <li><b><tt>classic</tt></b>: Uses the traditional gray wizard appearance.</li>
 <li><b><tt>modern</tt></b>: Uses a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.<br/>
     Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</li>
+<li><b><tt>polar</tt></b>: Same as <tt>modern</tt> except uses light blue instead of white for the light appearance, and dark blue instead of black for the dark appearance.</li>
 </ul>
-<p>Both base styles support additional appearance modes:</p>
+<p>All base styles support additional appearance modes:</p>
 <ul>
 <li><b><tt>light</tt></b>: Forces a light appearance (default behavior if no mode is specified).</li>
 <li><b><tt>dark</tt></b>: Forces a dark appearance.</li>
@@ -5712,6 +5713,7 @@ DiskSliceSize=736000000
 <p>This directive specifies a custom VCL Styles file (.vsf) to be used. It is recommended to use only styles that support high DPI.</p>
 <p>When using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>light</tt> or <tt>dynamic</tt> mode, the specified style should always use a light color theme (such as predominantly white or in other light colors). When using <tt>dark</tt>, use a dark color theme (such as predominantly black or in other dark colors).</p>
 <p>Using a custom style file increases the size of Setup, except when using <tt>dark</tt> mode and a style file that is smaller than the built-in one, which is 199 KB before compression.</p>
+<p>Can be set to <tt>polar/light</tt> or <tt>polar/dark</tt> to use the built-in <tt>polar</tt> appearance, see <link topic="setup_wizardstyle">WizardStyle</link>.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardstyle">WizardStyle</link><br/>
 <link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></p>
@@ -5723,7 +5725,7 @@ DiskSliceSize=736000000
 <body>
 <p>Overrides <link topic="setup_wizardstylefile">WizardStyleFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
 <p>The specified style should always use a dark color theme (such as predominantly black or in other dark colors).</p>
-<p>For all details see <link topic="setup_wizardstylefile">WizardStyleFile</link>.</p>
+<p>For all other details see <link topic="setup_wizardstylefile">WizardStyleFile</link>.</p>
 </body>
 </setuptopic>
 
