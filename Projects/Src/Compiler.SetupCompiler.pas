@@ -140,6 +140,7 @@ type
     LicenseFile, InfoBeforeFile, InfoAfterFile: String;
     WizardImageFile, WizardSmallImageFile, WizardImageFileDynamicDark, WizardSmallImageFileDynamicDark: String;
     WizardStyleFile, WizardStyleFileDynamicDark: String; { .vsf files }
+    WizardStyleSpecial: String; { 'polar' }
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -2518,6 +2519,16 @@ var
       Invalid;
   end;
 
+  procedure HandleSubStyle(const SubStyle: String);
+  begin
+    if SubStyle = 'dark' then
+      SetupHeader.WizardDarkStyle := wdsDark
+    else if SubStyle = 'dynamic' then
+      SetupHeader.WizardDarkStyle := wdsDynamic
+    else if SubStyle <> 'light' then
+      Invalid;
+  end;
+
 var
   P: Integer;
   AIncludes: TStringList;
@@ -3282,24 +3293,19 @@ begin
         Value := LowerCase(Trim(Value));
         if Value = 'modern' then
           Include(SetupHeader.Options, shWizardModern)
-        else if Copy(Value, 1, 7) = 'modern/' then begin
+        else if Value = 'polar' then begin
           Include(SetupHeader.Options, shWizardModern);
-          const SubStyle = Copy(Value, 8, Maxint);
-          if SubStyle = 'dark' then
-            SetupHeader.WizardDarkStyle := wdsDark
-          else if SubStyle = 'dynamic' then
-            SetupHeader.WizardDarkStyle := wdsDynamic
-          else if SubStyle <> 'light' then
-            Invalid;
-        end else if Copy(Value, 1, 8) = 'classic/' then begin
-          const SubStyle = Copy(Value, 9, Maxint);
-          if SubStyle = 'dark' then
-            SetupHeader.WizardDarkStyle := wdsDark
-          else if SubStyle = 'dynamic' then
-            SetupHeader.WizardDarkStyle := wdsDynamic
-          else if SubStyle <> 'light' then
-            Invalid;
-        end else if Value <> 'classic' then
+          WizardStyleSpecial := Value;
+        end else if Copy(Value, 1, 7) = 'modern/' then begin
+          Include(SetupHeader.Options, shWizardModern);
+          HandleSubStyle(Copy(Value, 8, Maxint));
+        end else if Copy(Value, 1, 6) = 'polar/' then begin
+          Include(SetupHeader.Options, shWizardModern);
+          HandleSubStyle(Copy(Value, 7, Maxint));
+          WizardStyleSpecial := Copy(Value, 1, 5);
+        end else if Copy(Value, 1, 8) = 'classic/' then
+          HandleSubStyle(Copy(Value, 9, Maxint))
+        else if Value <> 'classic' then
           Invalid;
       end;
     ssWizardStyleFile: begin
@@ -8039,6 +8045,16 @@ begin
     end;
     if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
       Include(SetupHeader.Options, shWizardResizable);
+    if WizardStyleSpecial <> '' then begin
+      if WizardStyleFile = '' then begin
+        if SetupHeader.WizardDarkStyle =  wdsDark then
+          WizardStyleFile := WizardStyleSpecial + '/dark'
+        else
+          WizardStyleFile := WizardStyleSpecial + '/light';
+      end;
+      if WizardStyleFileDynamicDark = '' then
+        WizardStyleFileDynamicDark := WizardStyleSpecial + '/dark' { Might be cleared again below }
+    end;
     if (WizardStyleFileDynamicDark <> '') and (SetupHeader.WizardDarkStyle <> wdsDynamic) then
       WizardStyleFileDynamicDark := ''; { Avoid unnecessary size increase - also checked for by PrepareSetupE32 }
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
