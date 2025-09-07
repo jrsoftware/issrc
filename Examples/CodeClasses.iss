@@ -262,6 +262,7 @@ begin
   LinkLabel.Anchors := [akLeft, akRight, akBottom];
   LinkLabel.Caption := 'TNew<a id="jrsoftware">Link</a>Label with more text and an adjusted label height so it''s multi-line with a second <a id="jrsoftware">link</a> on the second line.';
   LinkLabel.Width := StaticText2.Width;
+  LinkLabel.UseVisualStyle := HighContrastActive;
   LinkLabel.OnLinkClick := @LinkLabelOnLinkClick;
   LinkLabel.Parent := Page.Surface;
   LinkLabel.AdjustHeight;

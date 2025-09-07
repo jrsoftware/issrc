@@ -81,7 +81,7 @@ begin
     var IdealSize: TSize;
     IdealSize.cx := Width;
     IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
-    if SendMessage(Handle, BCM_GETIDEALSIZE, Width, LPARAM(@IdealSize)) <> 0 then begin
+    if SendMessage(Handle, BCM_GETIDEALSIZE, 0, LPARAM(@IdealSize)) <> 0 then begin
       Height := IdealSize.cy;
       Result := Height - OldHeight;
     end;

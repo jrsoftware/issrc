@@ -790,6 +790,10 @@ var
       var N := Stack.GetString(PStart-2);
       Stack.SetBool(PStart, WildcardMatch(PChar(S), PChar(N)));
     end);
+    RegisterScriptFunc('HighContrastActive', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetBool(PStart, HighContrastActive);
+    end);
   end;
 
   procedure RegisterInstallScriptFuncs;
