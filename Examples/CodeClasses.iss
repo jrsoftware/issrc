@@ -196,8 +196,8 @@ begin
 
   TaskDialogButton := TNewButton.Create(Page);
   TaskDialogButton.Caption := 'TaskDialogMsgBox';
-  TaskDialogButton.Top := FormButton.Top;
-  TaskDialogButton.Left := FormButton.Left + FormButton.Width + ScaleX(8);
+  TaskDialogButton.Top := FormButton.Top + FormButton.Height + ScaleY(8);
+  TaskDialogButton.Left := FormButton.Left;
   TaskDialogButton.Width := WizardForm.CalculateButtonWidth([TaskDialogButton.Caption]);
   TaskDialogButton.Height := ScaleY(23);
   TaskDialogButton.Anchors := [akLeft, akBottom];
@@ -206,10 +206,10 @@ begin
   
   CommandLinkButton := TNewButton.Create(Page);
   CommandLinkButton.Style := bsCommandLink;
-  CommandLinkButton.Caption := 'I choose &A';
-  CommandLinkButton.CommandLinkHint := 'TNewButton bsCommandLink style';
+  CommandLinkButton.Caption := 'TNewButton bsCommandLink style';
+  CommandLinkButton.CommandLinkHint := 'A note';
   //CommandLinkButton.ElevationRequired := True;
-  CommandLinkButton.Top := TaskDialogButton.Top;
+  CommandLinkButton.Top := FormButton.Top;
   CommandLinkButton.Left := TaskDialogButton.Left + TaskDialogButton.Width + ScaleX(8);
   CommandLinkButton.Width := Page.Surface.Width - CommandLinkButton.Left;
   CommandLinkButton.Anchors := [akLeft, akRight, akBottom];
