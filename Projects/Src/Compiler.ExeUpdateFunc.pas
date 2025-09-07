@@ -908,7 +908,7 @@ begin
         var VsfSizeDynamicDark: Cardinal := 0;
         if StyleFileNameDynamicDark <> '' then begin
           TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
-          if not HandleBuiltinStyle(M, StyleFileName, Vsf, VsfSize) then begin
+          if not HandleBuiltinStyle(M, StyleFileNameDynamicDark, VsfDynamicDark, VsfSizeDynamicDark) then begin
             VsfSizeDynamicDark := LoadFileIntoMemory(StyleFileNameDynamicDark, VsfDynamicDark);
             ShouldFreeVsfDynamicDark := True;
           end;
