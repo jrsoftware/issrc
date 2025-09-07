@@ -734,6 +734,31 @@ type
     Result := True;
   end;
 
+  function LoadResourcePointer(const M: HMODULE; const ResourceType, ResourceName: PChar;
+    const WantSize: Boolean; out Size: DWORD): Pointer; overload;
+  begin
+    var R := FindResource(M, ResourceName, ResourceType);
+    if R = 0 then
+      ResUpdateErrorWithLastError('FindResource failed (1)', ResourceName);
+    if WantSize then begin
+      Size := SizeofResource(M, R);
+      if Size = 0 then
+        ResUpdateErrorWithLastError('SizeofResource failed (1)', ResourceName);
+    end;
+    var Res := LoadResource(M, R);
+    if Res = 0 then
+      ResUpdateErrorWithLastError('LoadResource failed (1)', ResourceName);
+    Result := LockResource(Res);
+    if Result = nil then
+      ResUpdateErrorWithLastError('LockResource failed (1)', ResourceName);
+  end;
+
+  function LoadResourcePointer(const M: HMODULE; const ResourceType, ResourceName: PChar): Pointer; overload;
+  begin
+    var Dummy: DWORD;
+    Result := LoadResourcePointer(M, ResourceType, ResourceName, False, Dummy);
+  end;
+
   procedure DeleteResource(const H: THandle; const M: HMODULE; const ResourceType, ResourceName: PChar);
   var
     wLanguage: Word;
@@ -746,25 +771,12 @@ type
 
   procedure RenameResource(const H: THandle; const M: HMODULE; const ResourceType, OldResourceName, NewResourceName: PChar);
   var
-    R: HRSRC;
     Size: DWORD;
-    Res: HGLOBAL;
     P: Pointer;
     wLanguage: Word;
   begin
     { Load the resource }
-    R := FindResource(M, OldResourceName, ResourceType);
-    if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (1)', OldResourceName);
-    Size := SizeofResource(M, R);
-    if Size = 0 then
-      ResUpdateErrorWithLastError('SizeofResource failed (1)', OldResourceName);
-    Res := LoadResource(M, R);
-    if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (1)', OldResourceName);
-    P := LockResource(Res);
-    if P = nil then
-      ResUpdateErrorWithLastError('LockResource failed (1)', OldResourceName);
+    P := LoadResourcePointer(M, ResourceType, OldResourceName, True, Size);
 
     { Create a copy resource with the new name }
     if not GetResourceLanguage(M, ResourceType, OldResourceName, wLanguage) then
@@ -779,22 +791,12 @@ type
 
   function DeleteIcon(const H: THandle; const M: HMODULE; const ResourceName: PChar): PGroupIconDir;
   var
-    R: HRSRC;
-    Res: HGLOBAL;
     GroupIconDir: PGroupIconDir;
     I: Integer;
     wLanguage: Word;
   begin
     { Load the group icon resource }
-    R := FindResource(M, ResourceName, RT_GROUP_ICON);
-    if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (2)', ResourceName);
-    Res := LoadResource(M, R);
-    if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (2)', ResourceName);
-    GroupIconDir := LockResource(Res);
-    if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (2)', ResourceName);
+    GroupIconDir := LoadResourcePointer(M, RT_GROUP_ICON, ResourceName);
 
     { Delete the group icon resource }
     DeleteResource(H, M, RT_GROUP_ICON, ResourceName);
@@ -820,8 +822,6 @@ type
 
   function RenameIconWithOverwrite(const H: THandle; const M: HMODULE; const OldResourceName, NewResourceName: PChar): PGroupIconDir;
   var
-    R: HRSRC;
-    Res: HGLOBAL;
     GroupIconDir: PGroupIconDir;
     GroupIconDirSize: DWORD;
     wLanguage: Word;
@@ -829,15 +829,7 @@ type
     DeleteIconIfExists(H, M, NewResourceName);
 
     { Load the group icon resource }
-    R := FindResource(M, OldResourceName, RT_GROUP_ICON);
-    if R = 0 then
-      ResUpdateErrorWithLastError('FindResource failed (3)', OldResourceName);
-    Res := LoadResource(M, R);
-    if Res = 0 then
-      ResUpdateErrorWithLastError('LoadResource failed (3)', OldResourceName);
-    GroupIconDir := LockResource(Res);
-    if GroupIconDir = nil then
-      ResUpdateErrorWithLastError('LockResource failed (3)', OldResourceName);
+    GroupIconDir := LoadResourcePointer(M, RT_GROUP_ICON, OldResourceName);
 
     GroupIconDirSize := Sizeof(Word)*3 + GroupIconDir.ItemCount*Sizeof(TGroupIconDirItem);
 
@@ -985,7 +977,7 @@ begin
             var HasLightStyle := False;
             var HasDarkStyle := False;
 
-            if StyleFileName <> '' then begin
+            if Vsf <> nil then begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
               { Add the regular custom style, used by forced light, forced dark and dynamic light }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
@@ -996,7 +988,7 @@ begin
                 HasDarkStyle := True;
             end;
 
-            if StyleFileNameDynamicDark <> '' then begin
+            if VsfDynamicDark <> nil then begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
               { Add the dark custom style, used by dynamic dark only }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
@@ -1005,12 +997,12 @@ begin
             end;
 
             { See if we need to keep the built-in dark style }
-            if (StyleFileName = '') and (WizardDarkStyle = wdsDark) then begin
+            if (Vsf = nil) and (WizardDarkStyle = wdsDark) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Forced dark without a custom style: make the built-in dark style the regular one }
               RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1');
               HasDarkStyle := True;
-            end else if (StyleFileNameDynamicDark = '')  and (WizardDarkStyle = wdsDynamic) then begin
+            end else if (VsfDynamicDark = nil)  and (WizardDarkStyle = wdsDynamic) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Dynamic without a custom dark style: make the built-in dark style the dark one }
               RenameResource(H, M, 'VCLSTYLE', 'BUILTIN_DARK', 'MYSTYLE1_DARK');
