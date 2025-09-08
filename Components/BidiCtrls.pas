@@ -125,6 +125,11 @@ end;
 
 {$IFDEF VCLSTYLES}
 
+{ TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it
+  fixes RTL support for CommandLinkHint, adds padding to the right side of the button, and improves
+  alignment of the shield icons, especially at high dpi - for other button styles it just calls the
+  original code, and the code for those styles is not copied here }
+
 procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
 var
   Details:  TThemedElementDetails;
@@ -217,20 +222,19 @@ begin
   begin
     R := DrawRect;
     IX := R.Left + 2;
+    IY := R.Top + 15;
     if IsElevationRequired then
     begin
       ImgIndex := 0;
-      IY := R.Top + 15;
-      IX := R.Left + MulDiv(15, LPPI, Screen.DefaultPixelsPerInch);
-    end
-    else
-      IY := R.Top + 15;
+      IX := IX + MulDiv(8, LPPI, Screen.DefaultPixelsPerInch);
+    end;
     ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, IX, IY, ILD_NORMAL);
   end;
   IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
   Inc(DrawRect.Left, IW);
   Inc(DrawRect.Top, 15);
   Inc(DrawRect.Left, 5);
+  Dec(DrawRect.Right, 5);
   ACanvas.Font := TNewButton(Control).Font;
   ACanvas.Font.Style := [];
   ACanvas.Font.Size := 12;
@@ -247,7 +251,7 @@ begin
     BufferLength := Length(Buffer);
     if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
     begin
-        TextFormat := TTextFormatFlags(DT_LEFT or DT_WORDBREAK);
+      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
       Inc(DrawRect.Top, R.Height + 2);
       ACanvas.Font.Size := 8;
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
