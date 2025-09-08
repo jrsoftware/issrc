@@ -2,7 +2,7 @@ unit IDE.FilesDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -28,6 +28,7 @@ type
     AppFilesLabel: TNewStaticText;
     NotCreateAppDirCheck: TCheckBox;
     Bevel1: TBevel;
+    AppFilesAddDownloadButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure InsertButtonClick(Sender: TObject);
@@ -54,7 +55,7 @@ begin
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesEditButton, AppFilesRemoveButton);
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton);
 end;
 
 procedure TFilesDesignerForm.FormDestroy(Sender: TObject);

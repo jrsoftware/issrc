@@ -142,6 +142,7 @@ type
     AppRegistryMinVerDocBitBtn: TBitmapButton;
     WelcomeImageDark: TImage;
     InnerImageDark: TImage;
+    AppFilesAddDownloadButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -285,7 +286,7 @@ begin
   FWizardName := SWizardDefaultName;
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesEditButton, AppFilesRemoveButton);
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton);
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
@@ -974,6 +975,14 @@ begin
       end;
     end;
 
+    var HasExtractArchive: Boolean;
+    FFilesHelper.AddScript(Files, HasExtractArchive);
+    if HasExtractArchive then begin
+      Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
+      Setup := Setup + '; Use "ArchiveExtraction=enhanced" if all your archives are .7z files' + SNewLine;
+      Setup := Setup + '; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected' + SNewLine;
+    end;
+
     { AppAssocation }
     if CreateAssocCheck.Enabled and CreateAssocCheck.Checked then begin
       Setup := Setup + 'ChangesAssociations=yes' + SNewLine;
@@ -982,8 +991,6 @@ begin
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\' + AppExeName + '"" ""%1"""' + SNewLine;
     end;
-
-    FFilesHelper.AddScript(Files);
 
     { AppGroup }
     if not NotCreateAppDirCheck.Checked then begin

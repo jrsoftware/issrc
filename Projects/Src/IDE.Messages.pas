@@ -50,6 +50,11 @@ const
   SWizardAppFiles2 = 'Please specify the files that are part of your application.';
   SWizardAppFiles3 = 'Please specify the source folder.';
   SWizardAppFilesSubDirsMessage = 'Should files in subfolders of "%s" also be included?';
+  SWizardAppFilesDownloadSourcePrompt = 'URL:';
+  SWizardAppFilesDownloadExtractArchiveMessage = 'Is the file to download an archive which should be extracted?';
+  SWizardAppFilesDownloadDestNamePrompt = 'Name of the file:';
+  SWizardAppFilesDownloadArchiveDestNamePrompt = 'Name of the file (extension should match archive format):';
+  SWizardAppFilesDownloadExternalSizePrompt = 'Approximate size of the file in megabytes:';
   SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All files|*.*';
   SWizardAppExeDefaultExt = 'exe';
   SWizardAppAssoc = 'Application File Association';
