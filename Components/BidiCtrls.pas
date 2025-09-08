@@ -61,7 +61,8 @@ procedure Register;
 implementation
 
 uses
-  CommCtrl, Types;
+  CommCtrl, Types,
+  BidiUtils;
 
 procedure Register;
 begin
@@ -126,16 +127,18 @@ end;
 {$IFDEF VCLSTYLES}
 
 { TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it
-  fixes RTL support for CommandLinkHint, adds padding to the right side of the button, and improves
-  alignment of the shield icons, especially at high dpi - for other button styles it just calls the
-  original code, and the code for those styles is not copied here }
+  fixes RTL support for CommandLinkHint, adds padding to the right side of the button, and actually
+  flipping the text and icons + it improves alignment of the shield icons, especially at high dpi -
+  for other button styles it just calls the original code, and the code for those styles is not
+  copied here }
 
 procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
 var
   Details:  TThemedElementDetails;
-  DrawRect, R: TRect;
+  LParentRect, DrawRect, R: TRect;
+  LIsRightToLeft: Boolean;
   IL: BUTTON_IMAGELIST;
-  IW, IH, IX, IY: Integer;
+  IW, IH: Integer;
   TextFormat: TTextFormatFlags;
   ThemeTextColor: TColor;
   Buffer: string;
@@ -185,6 +188,9 @@ begin
   else
     LTextFlags := LTextFlags or DT_VCENTER;
 
+  LParentRect := Control.ClientRect;
+  LIsRightToLeft := Control.IsRightToLeft;
+
   BCaption := Text;
   ImgIndex := 0;
   IsDefault := (Control is TNewButton) and TNewButton(Control).Active;
@@ -214,21 +220,24 @@ begin
   else if Control.Enabled then
     Details := LStyle.GetElementDetails(tbPushButtonNormal);
 
-  DrawRect := Control.ClientRect;
+  DrawRect := LParentRect;
   LStyle.DrawElement(ACanvas.Handle, Details, DrawRect);
 
   if Button_GetImageList(handle, IL) and (IL.himl <> 0) and
      ImageList_GetIconSize(IL.himl, IW, IH) then
   begin
     R := DrawRect;
-    IX := R.Left + 2;
-    IY := R.Top + 15;
+    Inc(R.Left, 2);
+    Inc(R.Top, 15);
     if IsElevationRequired then
     begin
       ImgIndex := 0;
-      IX := IX + MulDiv(8, LPPI, Screen.DefaultPixelsPerInch);
+      Inc(R.Left, MulDiv(8, LPPI, Screen.DefaultPixelsPerInch));
     end;
-    ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, IX, IY, ILD_NORMAL);
+    R.Right := R.Left + IW;
+    R.Bottom := R.Top + IH;
+    FlipRect(R, LParentRect, LIsRightToLeft);
+    ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
   end;
   IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
   Inc(DrawRect.Left, IW);
@@ -244,7 +253,9 @@ begin
   TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
   if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
      ACanvas.Font.Color := ThemeTextColor;
-  LStyle.DrawText(ACanvas.Handle, Details, BCaption, DrawRect, TextFormat, ACanvas.Font.Color);
+  var R2 := DrawRect;
+  FlipRect(R2, LParentRect, LIsRightToLeft);
+  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
   SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
   if Length(Buffer) <> 0 then
   begin
@@ -254,6 +265,7 @@ begin
       TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
       Inc(DrawRect.Top, R.Height + 2);
       ACanvas.Font.Size := 8;
+      FlipRect(DrawRect, LParentRect, LIsRightToLeft);
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
       TextFormat, ACanvas.Font.Color);
     end;
@@ -276,7 +288,21 @@ begin
     DrawRect.Left := 3;
     DrawRect.Top := 10;
     DrawRect.Bottom := DrawRect.Top + IW;
-    LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
+    if Control.IsRightToLeft then begin
+      FlipRect(DrawRect, LParentRect, LIsRightToLeft);
+      var FlipBitmap := TBitmap.Create;
+      try
+        FlipBitmap.Width := DrawRect.Width;
+        FlipBitmap.Height := DrawRect.Height;
+        BitBlt(FlipBitmap.Canvas.Handle, 0, 0, DrawRect.Width, DrawRect.Height, ACanvas.Handle, DrawRect.Left, DrawRect.Top, SRCCOPY);
+        LStyle.DrawElement(FlipBitmap.Canvas.Handle, Details, Rect(0, 0, DrawRect.Width, DrawRect.Height), nil, LPPI);
+        StretchBlt(ACanvas.Handle, DrawRect.Left, DrawRect.Top, DrawRect.Width, DrawRect.Height,
+          FlipBitmap.Canvas.Handle, FlipBitmap.Width-1, 0, -FlipBitmap.Width, FlipBitmap.Height, SRCCOPY);
+      finally
+        FlipBitmap.Free;
+      end;
+    end else
+      LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
   end;
 end;
 
