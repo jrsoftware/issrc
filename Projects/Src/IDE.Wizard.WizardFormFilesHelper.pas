@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFormFilesHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Classes, Forms, StdCtrls,
-  DropListBox;
+  DropListBox, IDE.Wizard.WizardFileForm;
 
 type
   TWizardFormFilesHelper = class
@@ -24,7 +24,7 @@ type
       FFilesListBox: TDropListBox;
       FEditButton: TButton;
       FRemoveButton: TButton;
-      procedure AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
+      function AddWizardFile(const Source: String; const Options: TWizardFileOptions): PWizardFile;
       function GetWizardFilesCount: Integer;
       procedure UpdateWizardFiles;
       procedure UpdateWizardFilesButtons;
@@ -33,27 +33,29 @@ type
       procedure FilesListBoxDropFile(Sender: TDropListBox; const FileName: String);
       procedure AddButtonClick(Sender: TObject);
       procedure AddDirButtonClick(Sender: TObject);
+      procedure AddDownloadButtonClick(Sender: TObject);
       procedure EditButtonClick(Sender: TObject);
       procedure RemoveButtonClick(Sender: TObject);
     public
       constructor Create(const Form: TForm;
         const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
-        const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
+        const AddButton, AddDirButton, AddDownloadButton, EditButton, RemoveButton: TButton);
       destructor Destroy; override;
-      procedure AddScript(var Files: String);
+      procedure AddScript(var Files: String); overload;
+      procedure AddScript(var Files: String; out HasExtractArchive: Boolean); overload;
       property FilesCount: Integer read GetWizardFilesCount;
   end;
 
 implementation
 
 uses
-  SysUtils, UITypes,
+  SysUtils, UITypes, Dialogs,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc, PathFunc,
-  IDE.Messages, IDE.Wizard.WizardFileForm;
+  IDE.Messages;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
-  const AddButton, AddDirButton, EditButton, RemoveButton: TButton);
+  const AddButton, AddDirButton, AddDownloadButton, EditButton, RemoveButton: TButton);
 begin
   inherited Create;
 
@@ -70,6 +72,7 @@ begin
   FilesListBox.OnDropFile :=   FilesListBoxDropFile;
   AddButton.OnClick := AddButtonClick;
   AddDirButton.OnClick := AddDirButtonClick;
+  AddDownloadButton.OnClick := AddDownloadButtonClick;
   EditButton.OnClick := EditButtonClick;
   RemoveButton.OnClick := RemoveButtonClick;
 
@@ -79,25 +82,26 @@ end;
 destructor TWizardFormFilesHelper.Destroy;
 begin
   for var I := 0 to FWizardFiles.Count-1 do
-    Dispose(FWizardFiles[i]);
+    Dispose(PWizardFile(FWizardFiles[i]));
   FWizardFiles.Free;
 end;
 
-procedure TWizardFormFilesHelper.AddWizardFile(const Source: String; const RecurseSubDirs, CreateAllSubDirs: Boolean);
+function TWizardFormFilesHelper.AddWizardFile(const Source: String; const Options: TWizardFileOptions): PWizardFile;
 var
   WizardFile: PWizardFile;
 begin
   New(WizardFile);
   WizardFile.Source := Source;
-  WizardFile.RecurseSubDirs := RecurseSubDirs;
-  WizardFile.CreateAllSubDirs := CreateAllSubDirs;
+  WizardFile.Options := Options;
   WizardFile.DestRootDirIsConstant := True;
   if not FNotCreateAppDirCheck.Checked then
     WizardFile.DestRootDir := '{app}'
   else
     WizardFile.DestRootDir := '{win}';
   WizardFile.DestSubDir := '';
+  WizardFile.DestName := '';
   FWizardFiles.Add(WizardFile);
+  Result := WizardFile;
 end;
 
 function TWizardFormFilesHelper.GetWizardFilesCount: Integer;
@@ -144,9 +148,9 @@ procedure TWizardFormFilesHelper.FilesListBoxDropFile(Sender: TDropListBox;
   const FileName: String);
 begin
   if DirExists(FileName) then
-    AddWizardFile(AddBackslash(FileName) + '*', True, True)
+    AddWizardFile(AddBackslash(FileName) + '*', [foRecurseSubDirs, foCreateAllSubDirs])
   else
-    AddWizardFile(FileName, False, False);
+    AddWizardFile(FileName, []);
   UpdateWizardFiles;
   UpdateWizardFilesButtons;
 end;
@@ -161,7 +165,7 @@ begin
     if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', FForm.Handle) then begin
       FileList.Sort;
       for I := 0 to FileList.Count-1 do
-        AddWizardFile(FileList[I], False, False);
+        AddWizardFile(FileList[I], []);
       UpdateWizardFiles;
     end;
   finally
@@ -182,9 +186,45 @@ begin
     else
       Exit;
     end;
-    AddWizardFile(AddBackslash(Path) + '*', Recurse, Recurse);
+    var Options: TWizardFileOptions;
+    if Recurse then
+      Options := [foRecurseSubDirs, foCreateAllSubDirs]
+    else
+      Options := [];
+    AddWizardFile(AddBackslash(Path) + '*', Options);
     UpdateWizardFiles;
   end;
+end;
+
+procedure TWizardFormFilesHelper.AddDownloadButtonClick(Sender: TObject);
+const
+  DestNamePrompts: array [Boolean] of string = (SWizardAppFilesDownloadDestNamePrompt, SWizardAppFilesDownloadArchiveDestNamePrompt);
+begin
+  var Source := 'https://www.example.com/MyProg.7z';
+  repeat
+    if not InputQuery(FForm.Caption, SWizardAppFilesDownloadSourcePrompt, Source)  then
+      Exit;
+  until Source <> '';
+  const ExtractArchive = MsgBox(SWizardAppFilesDownloadExtractArchiveMessage, '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
+  var DestName := 'MyProg.7z';
+  repeat
+    if not InputQuery(FForm.Caption, DestNamePrompts[ExtractArchive], DestName)  then
+      Exit;
+  until DestName <> '';
+  var ExternalSizeAsString := '';
+  var ExternalSize: Extended;
+  repeat
+    if not InputQuery(FForm.Caption, SWizardAppFilesDownloadExternalSizePrompt, ExternalSizeAsString)  then
+      Exit;
+  until TryStrToFloat(ExternalSizeAsString, ExternalSize);
+
+  var Options: TWizardFileOptions := [foDownload];
+  if ExtractArchive then
+    Options := Options + [foExtractArchive, foRecurseSubDirs, foCreateAllSubDirs];
+  const WizardFile = AddWizardFile(Source, Options);
+  WizardFile.DestName := DestName;
+  WizardFile.ExternalSize := Round(ExternalSize*1024*1024);
+  UpdateWizardFiles;
 end;
 
 procedure TWizardFormFilesHelper.EditButtonClick(Sender: TObject);
@@ -213,26 +253,54 @@ var
   I: Integer;
 begin
   I := FFilesListBox.ItemIndex;
-    Dispose(FWizardFiles[I]);
+  Dispose(PWizardFile(FWizardFiles[I]));
   FWizardFiles.Delete(I);
   UpdateWizardFiles;
   UpdateWizardFilesButtons;
 end;
 
-procedure TWizardFormFilesHelper.AddScript(var Files: String);
+procedure TWizardFormFilesHelper.AddScript(var Files: String; out HasExtractArchive: Boolean);
 var
   WizardFile: PWizardFile;
   I: Integer;
 begin
+  var AddedVerificationNote := False;
+
   for I := 0 to FWizardFiles.Count-1 do begin
     WizardFile := FWizardFiles[I];
-    Files := Files + 'Source: "' + WizardFile.Source + '"; DestDir: "' + RemoveBackslashUnlessRoot(AddBackslash(WizardFile.DestRootDir) + WizardFile.DestSubDir) + '"; Flags: ignoreversion';
-    if WizardFile.RecurseSubDirs then
+
+    if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin
+      Files := Files + '; NOTE: Use the "issigverify" flag or the "Hash" parameter to verify downloads' + SNewLine;
+      AddedVerificationNote := True;
+    end;
+
+    if foExtractArchive in WizardFile.Options then
+      HasExtractArchive := True;
+
+    Files := Files + 'Source: "' + WizardFile.Source + '"; DestDir: "' + RemoveBackslashUnlessRoot(AddBackslash(WizardFile.DestRootDir) + WizardFile.DestSubDir) + '"';
+    if WizardFile.DestName <> '' then
+      Files := Files + '; DestName: "' + WizardFile.DestName + '"';
+    if WizardFile.ExternalSize <> 0 then
+      Files := Files + '; ExternalSize: "' + WizardFile.ExternalSize.ToString + '"';
+    Files := Files + '; Flags: ignoreversion';
+    if WizardFile.Options * [foDownload, foExtractArchive] <> [] then
+      Files := Files + ' external';
+    if foDownload in WizardFile.Options then
+      Files := Files + ' download';
+    if foExtractArchive in WizardFile.Options then
+      Files := Files + ' extractarchive';
+    if foRecurseSubDirs in WizardFile.Options then
       Files := Files + ' recursesubdirs';
-    if WizardFile.CreateAllSubDirs then
+    if foCreateAllSubDirs in WizardFile.Options then
       Files := Files + ' createallsubdirs';
     Files := Files + SNewLine;
   end;
+end;
+
+procedure TWizardFormFilesHelper.AddScript(var Files: String);
+begin
+  var HasExtractArchive: Boolean;
+  AddScript(Files, HasExtractArchive);
 end;
 
 end.

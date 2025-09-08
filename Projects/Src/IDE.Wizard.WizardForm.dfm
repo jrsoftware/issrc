@@ -687,21 +687,21 @@ object WizardForm: TWizardForm
           end
           object AppFilesEditButton: TButton
             Left = 459
-            Top = 175
-            Width = 89
-            Height = 23
-            Anchors = [akTop, akRight]
-            Caption = '&Parameters...'
-            TabOrder = 9
-          end
-          object AppFilesRemoveButton: TButton
-            Left = 459
             Top = 203
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Remo&ve'
+            Caption = '&Parameters...'
             TabOrder = 10
+          end
+          object AppFilesRemoveButton: TButton
+            Left = 459
+            Top = 231
+            Width = 89
+            Height = 23
+            Anchors = [akTop, akRight]
+            Caption = 'Remo&ve'
+            TabOrder = 11
           end
           object AppExeEdit: TEdit
             Left = 36
@@ -748,6 +748,15 @@ object WizardForm: TWizardForm
             Caption = 'The application doe&sn'#39't have a main executable file'
             TabOrder = 4
             OnClick = NoAppExeCheckClick
+          end
+          object AppFilesAddDownloadButton: TButton
+            Left = 459
+            Top = 175
+            Width = 89
+            Height = 23
+            Anchors = [akTop, akRight]
+            Caption = 'Dow&nload...'
+            TabOrder = 9
           end
         end
         object AppAssocPage: TNewNotebookPage

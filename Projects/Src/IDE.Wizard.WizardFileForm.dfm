@@ -4,7 +4,7 @@ object WizardFileForm: TWizardFileForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Script Wizard File'
-  ClientHeight = 297
+  ClientHeight = 345
   ClientWidth = 420
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,29 +16,31 @@ object WizardFileForm: TWizardFileForm
   OnCreate = FormCreate
   DesignSize = (
     420
-    297)
+    345)
   TextHeight = 13
   object RequiredLabel1: TNewStaticText
     Left = 8
-    Top = 271
+    Top = 319
     Width = 21
     Height = 14
+    Anchors = [akLeft, akBottom]
     Caption = 'bold'
     Enabled = False
     TabOrder = 4
   end
   object RequiredLabel2: TNewStaticText
     Left = 36
-    Top = 271
+    Top = 319
     Width = 51
     Height = 14
+    Anchors = [akLeft, akBottom]
     Caption = ' = required'
     Enabled = False
     TabOrder = 5
   end
   object OKButton: TButton
     Left = 258
-    Top = 265
+    Top = 313
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -50,7 +52,7 @@ object WizardFileForm: TWizardFileForm
   end
   object CancelButton: TButton
     Left = 338
-    Top = 265
+    Top = 313
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -63,13 +65,13 @@ object WizardFileForm: TWizardFileForm
     Left = 8
     Top = 108
     Width = 403
-    Height = 149
+    Height = 197
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Destination '
     TabOrder = 0
     DesignSize = (
       403
-      149)
+      197)
     object DestRootDirLabel: TNewStaticText
       Left = 12
       Top = 20
@@ -98,7 +100,7 @@ object WizardFileForm: TWizardFileForm
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
     end
-    object SubDirLabel: TNewStaticText
+    object DestSubDirLabel: TNewStaticText
       Left = 12
       Top = 96
       Width = 103
@@ -114,6 +116,23 @@ object WizardFileForm: TWizardFileForm
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
+    end
+    object DestNameEdit: TEdit
+      Left = 12
+      Top = 164
+      Width = 379
+      Height = 21
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 5
+    end
+    object DestNameLabel: TNewStaticText
+      Left = 12
+      Top = 144
+      Width = 86
+      Height = 14
+      Caption = 'Destination &name:'
+      FocusControl = DestSubDirEdit
+      TabOrder = 6
     end
   end
   object GroupBox1: TGroupBox
@@ -149,19 +168,28 @@ object WizardFileForm: TWizardFileForm
     object RecurseSubDirsCheck: TCheckBox
       Left = 12
       Top = 68
-      Width = 141
+      Width = 125
       Height = 17
       Caption = '&Recurse subfolders'
       TabOrder = 2
-      OnClick = RecurseSubDirsCheckClick
+      OnClick = CheckClick
     end
     object CreateAllSubDirsCheck: TCheckBox
-      Left = 156
+      Left = 138
       Top = 68
-      Width = 165
+      Width = 151
       Height = 17
       Caption = '&Include empty subfolders'
       TabOrder = 3
+    end
+    object ExtractArchiveCheck: TCheckBox
+      Left = 290
+      Top = 68
+      Width = 111
+      Height = 17
+      Caption = '&Extract archive'
+      TabOrder = 4
+      OnClick = CheckClick
     end
   end
 end
