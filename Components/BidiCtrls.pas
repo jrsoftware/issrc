@@ -149,19 +149,7 @@ var
   IsElevationRequired: Boolean;
   LPPI: Integer;
   LStyle: TCustomStyleServices;
-  LTextFlags: Cardinal;
   LControlStyle: NativeInt;
-
-function GetTextWidth: Integer;
-var
-  R: TRect;
-begin
-  R := Rect(0, 0, Control.Width, Control.Height);
-  ACanvas.Font := TNewButton(Control).Font;
-  DrawControlText(ACanvas, Details, BCaption, R, LTextFlags or DT_CALCRECT);
-  Result := R.Width;
-end;
-
 begin
   LControlStyle := GetWindowLong(Handle, GWL_STYLE);
   if (LControlStyle and BS_COMMANDLINK) <> BS_COMMANDLINK then begin
@@ -171,22 +159,6 @@ begin
 
   LPPI := Control.CurrentPPI;
   LStyle := StyleServices;
-
-  LTextFlags := 0;
-  if (LControlStyle and BS_MULTILINE) = BS_MULTILINE then
-    LTextFlags := LTextFlags or DT_WORDBREAK;
-  if (LControlStyle and BS_CENTER) = BS_LEFT then
-    LTextFlags := LTextFlags or DT_LEFT
-  else if (LControlStyle and BS_CENTER) = BS_RIGHT then
-    LTextFlags := LTextFlags or DT_RIGHT
-  else
-    LTextFlags := LTextFlags or DT_CENTER;
-  if (LControlStyle and BS_VCENTER) = BS_TOP then
-    LTextFlags := LTextFlags or DT_TOP
-  else if (LControlStyle and BS_VCENTER) = BS_BOTTOM then
-    LTextFlags := LTextFlags or DT_BOTTOM
-  else
-    LTextFlags := LTextFlags or DT_VCENTER;
 
   LParentRect := Control.ClientRect;
   LIsRightToLeft := Control.IsRightToLeft;
