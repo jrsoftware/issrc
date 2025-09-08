@@ -100,7 +100,7 @@ begin
 
   if foDownload in WizardFile.Options then begin
     SourceLabel.Caption := '&Source URL:';
-    SourceEdit.Text := Format('%s (~%.0f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
+    SourceEdit.Text := Format('%s (~%.1f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
     MakeBold(DestNameLabel);
   end else begin
     SourceEdit.Text := WizardFile.Source;
