@@ -9,12 +9,16 @@ unit BidiCtrls;
   Previously this unit had RTL-capable versions of standard controls
   
   But now standard controls are RTL-capable already, and there's not much code left here
+
+  Define VCLSTYLES to include an improved version TButtonStyleHook.DrawButton for command
+  link buttons
 }
 
 interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
   StdCtrls, ExtCtrls;
 
 type
@@ -37,8 +41,10 @@ type
   end;
 
   TNewButtonStyleHook = class(TButtonStyleHook)
+{$IFDEF VCLSTYLES}
   protected
     procedure DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean); override;
+{$ENDIF}
   end;
 
   TNewCheckBox = class(TCheckBox);
@@ -55,7 +61,7 @@ procedure Register;
 implementation
 
 uses
-  CommCtrl, Themes;
+  CommCtrl, Types;
 
 procedure Register;
 begin
@@ -117,7 +123,7 @@ begin
   Result := Height - OldHeight;
 end;
 
-{ TNewButtonStyleHook }
+{$IFDEF VCLSTYLES}
 
 procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
 var
@@ -129,37 +135,34 @@ var
   ThemeTextColor: TColor;
   Buffer: string;
   BufferLength: Integer;
-  SaveIndex: Integer;
-  X, Y, I, ImgIndex: Integer;
+  ImgIndex: Integer;
   BCaption: String;
   IsDefault: Boolean;
   IsElevationRequired: Boolean;
   LPPI: Integer;
-  LDropDownWidth: Integer;
   LStyle: TCustomStyleServices;
-  LSplitButton: Boolean;
-  LCommandLink: Boolean;
   LTextFlags: Cardinal;
   LControlStyle: NativeInt;
-  LTextRect: TRect;
-  LImageDefined: Boolean;
 
 function GetTextWidth: Integer;
 var
   R: TRect;
 begin
   R := Rect(0, 0, Control.Width, Control.Height);
-  ACanvas.Font := TCustomButton(Control).Font;
+  ACanvas.Font := TNewButton(Control).Font;
   DrawControlText(ACanvas, Details, BCaption, R, LTextFlags or DT_CALCRECT);
   Result := R.Width;
 end;
 
 begin
+  LControlStyle := GetWindowLong(Handle, GWL_STYLE);
+  if (LControlStyle and BS_COMMANDLINK) <> BS_COMMANDLINK then begin
+    inherited;
+    Exit;
+  end;
+
   LPPI := Control.CurrentPPI;
   LStyle := StyleServices;
-  LControlStyle := GetWindowLong(Handle, GWL_STYLE);
-  LSplitButton := (LControlStyle and BS_SPLITBUTTON) = BS_SPLITBUTTON;
-  LCommandLink := (LControlStyle and BS_COMMANDLINK) = BS_COMMANDLINK;
 
   LTextFlags := 0;
   if (LControlStyle and BS_MULTILINE) = BS_MULTILINE then
@@ -177,17 +180,9 @@ begin
   else
     LTextFlags := LTextFlags or DT_VCENTER;
 
-  if LSplitButton then
-  begin
-    LDropDownWidth := GetDropDownWidth;
-    LSplitButton := LDropDownWidth > 0;
-  end
-  else
-    LDropDownWidth := 0;
-
   BCaption := Text;
   ImgIndex := 0;
-  IsDefault := (Control is TCustomButton) and TCustomButton(Control).FActive;
+  IsDefault := (Control is TNewButton) and TNewButton(Control).Active;
   IsElevationRequired := (Control is TCustomButton) and CheckWin32Version(6, 0) and
     TCustomButton(Control).ElevationRequired;
   if not Control.Enabled then
@@ -217,193 +212,70 @@ begin
   DrawRect := Control.ClientRect;
   LStyle.DrawElement(ACanvas.Handle, Details, DrawRect);
 
-  LTextRect := TRect.Empty;
-  LImageDefined := False;
-
   if Button_GetImageList(handle, IL) and (IL.himl <> 0) and
      ImageList_GetIconSize(IL.himl, IW, IH) then
   begin
     R := DrawRect;
-    if LSplitButton then
-      Dec(R.Right, LDropDownWidth);
     IX := R.Left + 2;
-    IY := R.Top + (R.Height - IH) div 2;
     if IsElevationRequired then
     begin
       ImgIndex := 0;
-      if LCommandLink then
-      begin
-        IY := R.Top + 15;
-        IX := R.Left + MulDiv(15, LPPI, Screen.DefaultPixelsPerInch);
-      end
-      else
-      begin
-        Inc(R.Left, IW);
-        IX := R.CenterPoint.X - GetTextWidth div 2 - IW - 2;
-        if LSplitButton then
-          Dec(IX, MulDiv(7, LPPI, Screen.DefaultPixelsPerInch));
-      end;
+      IY := R.Top + 15;
+      IX := R.Left + MulDiv(15, LPPI, Screen.DefaultPixelsPerInch);
     end
     else
-    if LCommandLink then
-      IY := R.Top + 15
-    else
-    if Control is TCustomButton then
-      with TCustomButton(Control) do
-       case ImageAlignment of
-          iaCenter:
-            begin
-              IX := R.CenterPoint.X - IW div 2;
-            end;
-          iaLeft:
-            begin
-              IX := R.Left + 2;
-              Inc(IX, ImageMargins.Left);
-              Inc(IY, ImageMargins.Top);
-              Dec(IY, ImageMargins.Bottom);
-              Inc(R.Left, IX + IW + ImageMargins.Right);
-            end;
-          iaRight:
-            begin
-              IX := R.Right - IW - 2;
-              Dec(IX, ImageMargins.Right);
-              Dec(IX, ImageMargins.Left);
-              Inc(IY, ImageMargins.Top);
-              Dec(IY, ImageMargins.Bottom);
-              R.Right := IX;
-            end;
-          iaTop:
-            begin
-              IX := R.Left + (R.Width - IW) div 2;
-              Inc(IX, ImageMargins.Left);
-              Dec(IX, ImageMargins.Right);
-              IY := R.Top + 2;
-              Inc(IY, ImageMargins.Top);
-              Inc(R.Top, IY + IH + ImageMargins.Bottom);
-            end;
-          iaBottom:
-            begin
-              IX := R.Left + (R.Width - IW) div 2;
-              Inc(IX, ImageMargins.Left);
-              Dec(IX, ImageMargins.Right);
-              IY := R.Bottom - IH - 2;
-              Dec(IY, ImageMargins.Bottom);
-              Dec(IY, ImageMargins.Top);
-              R.Bottom := IY;
-            end;
-        end;
+      IY := R.Top + 15;
     ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, IX, IY, ILD_NORMAL);
-    LImageDefined := True;
-    LTextRect := R;
   end;
-  if LCommandLink then
+  IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
+  Inc(DrawRect.Left, IW);
+  Inc(DrawRect.Top, 15);
+  Inc(DrawRect.Left, 5);
+  ACanvas.Font := TNewButton(Control).Font;
+  ACanvas.Font.Style := [];
+  ACanvas.Font.Size := 12;
+  R := DrawRect;
+  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color);
+  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
+  if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
+     ACanvas.Font.Color := ThemeTextColor;
+  LStyle.DrawText(ACanvas.Handle, Details, BCaption, DrawRect, TextFormat, ACanvas.Font.Color);
+  SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
+  if Length(Buffer) <> 0 then
   begin
-    IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
-    Inc(DrawRect.Left, IW);
-    Inc(DrawRect.Top, 15);
-    Inc(DrawRect.Left, 5);
-    ACanvas.Font := TCustomButton(Control).Font;
-    ACanvas.Font.Style := [];
-    ACanvas.Font.Size := 12;
-    R := DrawRect;
-    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
-    LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color);
-    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
-    if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
-       ACanvas.Font.Color := ThemeTextColor;
-    LStyle.DrawText(ACanvas.Handle, Details, BCaption, DrawRect, TextFormat, ACanvas.Font.Color);
-    SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
-    if Length(Buffer) <> 0 then
+    BufferLength := Length(Buffer);
+    if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
     begin
-      BufferLength := Length(Buffer);
-      if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
-      begin
         TextFormat := TTextFormatFlags(DT_LEFT or DT_WORDBREAK);
-        Inc(DrawRect.Top, R.Height + 2);
-        ACanvas.Font.Size := 8;
-        LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
-        TextFormat, ACanvas.Font.Color);
-      end;
+      Inc(DrawRect.Top, R.Height + 2);
+      ACanvas.Font.Size := 8;
+      LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
+      TextFormat, ACanvas.Font.Color);
     end;
-    if IL.himl = 0 then
-    begin
-      if not Control.Enabled then
-        Details := LStyle.GetElementDetails(tbCommandLinkGlyphDisabled)
-      else
-      if FPressed then
-        Details := LStyle.GetElementDetails(tbCommandLinkGlyphPressed)
-      else if Focused then
-        Details := LStyle.GetElementDetails(tbCommandLinkGlyphDefaulted)
-      else if AMouseInControl then
-        Details := LStyle.GetElementDetails(tbCommandLinkGlyphHot)
-      else
-        Details := LStyle.GetElementDetails(tbCommandLinkGlyphNormal);
-
-      DrawRect.Right := IW;
-      DrawRect.Left := 3;
-      DrawRect.Top := 10;
-      DrawRect.Bottom := DrawRect.Top + IW;
-      LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
-     end;
-  end
-  else
+  end;
+  if IL.himl = 0 then
   begin
-    InflateRect(DrawRect, -2, -2);
-    if LSplitButton then
-    begin
-      Dec(DrawRect.Right, LDropDownWidth);
-      if LTextRect.IsEmpty and not LImageDefined then
-        LTextRect := DrawRect;
-      if not LTextRect.IsEmpty then
-        DrawControlText(ACanvas, Details, Text, LTextRect, Control.DrawTextBiDiModeFlags(LTextFlags));
-      if FDropDown then
-      begin
-        Details := LStyle.GetElementDetails(tbPushButtonPressed);
-        SaveIndex := SaveDC(ACanvas.Handle);
-        try
-          IntersectClipRect(ACanvas.Handle, Control.Width - LDropDownWidth, 0,
-            Control.Width, Control.Height);
-          DrawRect := Rect(Control.Width - LDropDownWidth - 10, 0, Control.Width, Control.Height);
-          LStyle.DrawElement(ACanvas.Handle, Details, DrawRect);
-        finally
-          RestoreDC(ACanvas.Handle, SaveIndex);
-        end;
-      end;
-      with ACanvas do
-      begin
-        // draw split line
-        Pen.Color := LStyle.GetSystemColor(clBtnHighLight);
-        MoveTo(Control.Width - LDropDownWidth, 3);
-        LineTo(Control.Width - LDropDownWidth, Control.Height - 3);
-        if Control.Enabled then
-          Pen.Color := LStyle.GetSystemColor(clBtnShadow)
-        else
-          Pen.Color := Font.Color;
-        MoveTo(Control.Width - LDropDownWidth - 1, 3);
-        LineTo(Control.Width - LDropDownWidth - 1, Control.Height - 3);
-        // draw arrow
-        Pen.Color := Font.Color;
-        X := Control.Width - LDropDownWidth div 2 - 1;
-        IX := MulDiv(3, LDropDownWidth, 15);
-        if IX < 3 then
-          IX := 3;
-        Y := Control.Height div 2 + IX div 2;
-        for i := IX downto 0 do
-        begin
-          MoveTo(X - I, Y - I);
-          LineTo(X + I + 1, Y - I);
-        end;
-      end;
-    end
+    if not Control.Enabled then
+      Details := LStyle.GetElementDetails(tbCommandLinkGlyphDisabled)
     else
-    begin
-      if LTextRect.IsEmpty and not LImageDefined then
- 	      LTextRect := DrawRect;
-      if not LTextRect.IsEmpty then
-        DrawControlText(ACanvas, Details, BCaption, LTextRect,
-          Control.DrawTextBiDiModeFlags(LTextFlags));
-    end;
+    if FPressed then
+      Details := LStyle.GetElementDetails(tbCommandLinkGlyphPressed)
+    else if Focused then
+      Details := LStyle.GetElementDetails(tbCommandLinkGlyphDefaulted)
+    else if AMouseInControl then
+      Details := LStyle.GetElementDetails(tbCommandLinkGlyphHot)
+    else
+      Details := LStyle.GetElementDetails(tbCommandLinkGlyphNormal);
+
+    DrawRect.Right := IW;
+    DrawRect.Left := 3;
+    DrawRect.Top := 10;
+    DrawRect.Bottom := DrawRect.Top + IW;
+    LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
   end;
 end;
+
+{$ENDIF}
 
 end.
