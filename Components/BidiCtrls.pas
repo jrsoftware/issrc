@@ -288,8 +288,8 @@ begin
     DrawRect.Left := 3;
     DrawRect.Top := 10;
     DrawRect.Bottom := DrawRect.Top + IW;
-    if Control.IsRightToLeft then begin
-      FlipRect(DrawRect, LParentRect, LIsRightToLeft);
+    if LIsRightToLeft then begin
+      FlipRect(DrawRect, LParentRect, True);
       var FlipBitmap := TBitmap.Create;
       try
         FlipBitmap.Width := DrawRect.Width;
