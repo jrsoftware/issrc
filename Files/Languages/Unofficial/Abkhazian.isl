@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Abkhazian messages ***
+; *** Inno Setup version 6.5.0+ Abkhazian messages ***
 ;
 ; Translated from English by Abukhba Andrei & Gindia Sergei <aabuchba@mail.ru>.
 ;
@@ -216,8 +216,6 @@ StopDownload=Ишәҭахума иаанышәкыларц аҭагалара а
 ErrorDownloadAborted=Аҭагалара еиԥырҟьоуп
 ErrorDownloadFailed=Аҭагалара агха: %1 %2
 ErrorDownloadSizeFailed=Ашәагаа аиура агха: %1 %2
-ErrorFileHash1=Афаил ахеш агха: %1
-ErrorFileHash2=Афаил ииашам ахеш: ҳазыԥшын%1, иҳауит %2
 ErrorProgress=Анагӡара агха: %1 %2 аҟынтәи
 ErrorFileSize=Афаил ииашам ашәагаа: ҳазыԥшын%1, иҳауит %2
 
@@ -227,6 +225,11 @@ ButtonStopExtraction=&Иаанкылатәуп агәылхра
 StopExtraction=Ишәҭахума иаанышәкыларц агәылхра апроцесс?
 ErrorExtractionAborted=Агәылхра еиԥырҟьоуп
 ErrorExtractionFailed=Агәылхра агха: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Ажәамаӡа иашаӡам
+ArchiveIsCorrupted=Архив ԥхасҭоуп
+ArchiveUnsupportedFormat=Архив иаднамкыло аформат
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Ақәыргылара аҽазыҟаҵара
@@ -272,11 +275,15 @@ AbortRetryIgnoreSelectAction=Иалышәх иҟаҵатәу
 AbortRetryIgnoreRetry=Инашәыгӡа &ҽазнык
 AbortRetryIgnoreIgnore=&Агха иазхьамԥшӡакәа иацҵатәуп
 AbortRetryIgnoreCancel=Ақәыргылара иаҟәыхтәуп
+RetryCancelSelectAction=Иалышәх иҟаҵатәу
+RetryCancelRetry=Инашәыгӡа &ҽазнык
+RetryCancelCancel=Аҟәыхра
 
 ; *** Installation status messages
 StatusClosingApplications=Апрограммақәа раркра...
 StatusCreateDirs=Акаталогқәа раԥҵара...
 StatusExtractFiles=Афаилқәа рагәылхра...
+StatusDownloadFiles=Афаилқәа рҭагалара...
 StatusCreateIcons=Апрограмма иадҳәалоу азхьарԥш адыргаҷ аԥҵара...
 StatusCreateIniEntries=INI-фаилқәа раԥҵара...
 StatusCreateRegistryEntries=Ареестр аҟны анҵамҭақәа раԥҵара...
@@ -306,6 +313,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Ибжьажьтәуп ари афаил
 FileAbortRetryIgnoreIgnoreNotRecommended=&Агха иазхьамԥшӡакәа иацҵатәуп (ирекомендациаӡам)
 SourceIsCorrupted=Ахалагаратә фаил ԥхасҭоуп
 SourceDoesntExist=Ахалагаратә фаил "%1" ыҟаӡам
+SourceVerificationFailed=Ахалагаратә фаил агәаҭара иахымсӡеит: %1
+VerificationSignatureDoesntExist=Анапаҵаҩра афаил "%1" does ыҟаӡам
+VerificationSignatureInvalid=Анапаҵаҩра афаил "%1" иашаӡам
+VerificationKeyNotFound=Анапаҵаҩра афаил "%1" ахы ианархәоит идырым ацаԥха
+VerificationFileNameIncorrect=Афаил ахьӡ иашаӡам
+VerificationFileTagIncorrect=Афаил атег иашаӡам
+VerificationFileSizeIncorrect=Афаил ашәагаа иашаӡам
+VerificationFileHashIncorrect=Афаил ахеш иашаӡам
 ExistingFileReadOnly2=Иауам иҟоу афаил алаԥсахра, избанзар иара азгәаҭоуп «аԥхьара мацараз» ҳәа.
 ExistingFileReadOnlyRetry=&Ианыхтәуп атрибут «аԥхьара мацараз», нас еиҭанашәыгӡа 
 ExistingFileReadOnlyKeepExisting=&Еиқәырхатәуп иҟоу афаил
@@ -324,6 +339,8 @@ ErrorChangingAttr=Иҟалеит агха иҟоу афаил атрибутқә
 ErrorCreatingTemp=Иҟалеит агха иазалху акаталог аҟны афаил аԥҵара аҽазышәараан:
 ErrorReadingSource=Иҟалеит агха ахалагаратә фаил аԥхьара аҽазышәараан:
 ErrorCopying=Иҟалеит агха афаил акопиахыхра аҽазышәараан:
+ErrorDownloading=Иҟалеит агха афаил аҭагалара аҽазышәараан:
+ErrorExtracting=Иҟалеит агха архив аҟынтәи агәылхраан:
 ErrorReplacingExistingFile=Иҟалеит агха иҟоу афаил алаԥсахра аҽазышәараан:
 ErrorRestartReplace=RestartReplace агха:
 ErrorRenamingTemp=Иҟалеит агха иазалху акаталог аҟны афаил ахьӡ аԥсахра аҽазышәараан:
