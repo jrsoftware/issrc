@@ -1881,7 +1881,7 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
     for var I := 0 to Entries[seFile].Count-1 do begin
       const FileEntry: PSetupFileEntry = Entries[seFile][I];
       if (foDownload in FileEntry.Options) and (foExtractArchive in FileEntry.Options) and
-         ShouldProcessFileEntry(SelectedComponents, SelectedComponents, FileEntry, False) then begin
+         ShouldProcessFileEntry(SelectedComponents, SelectedTasks, FileEntry, False) then begin
         if DownloadPage = nil then
           DownloadPage := GetClearedDownloadArchivesPage;
         if not(foCustomDestName in FileEntry.Options) then
