@@ -100,7 +100,7 @@ const
   SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
-  SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
+  SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled to create an installation larger than %d bytes in size for a single Setup.exe, as this approaches the maximum supported by Windows';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
   SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceding, ensure that the file is neither corrupted nor has been tampered with.';
