@@ -210,7 +210,7 @@ ReadyMemoGroup=Акаталог «Астарт» амениу ахь:
 ReadyMemoTasks=Иацҵоу аҳасабтәқәа:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Иацҵоу афаилқәа рҭагалара…
+DownloadingLabel2=Афаилқәа рҭагалара…
 ButtonStopDownload=&Иаанкылатәуп аҭагалара
 StopDownload=Ишәҭахума иаанышәкыларц аҭагалара апроцесс?
 ErrorDownloadAborted=Аҭагалара еиԥырҟьоуп
@@ -220,7 +220,7 @@ ErrorProgress=Анагӡара агха: %1 %2 аҟынтәи
 ErrorFileSize=Афаил ииашам ашәагаа: ҳазыԥшын%1, иҳауит %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Иацҵоу афаилқәа рагәылхра…
+ExtractingLabel=Афаилқәа рагәылхра…
 ButtonStopExtraction=&Иаанкылатәуп агәылхра 
 StopExtraction=Ишәҭахума иаанышәкыларц агәылхра апроцесс?
 ErrorExtractionAborted=Агәылхра еиԥырҟьоуп
