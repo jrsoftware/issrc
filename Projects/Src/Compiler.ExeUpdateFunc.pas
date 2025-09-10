@@ -847,14 +847,17 @@ type
     Result := GroupIconDir;
   end;
 
-  function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal): Boolean;
+  function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal; const Dark: Boolean): Boolean;
   begin
     Result := True;
-    if SameText(StyleFileName, 'polar/light') then
-      Vsf := LoadResourcePointer(M, 'VCLSTYLE', 'POLAR_LIGHT', True, VsfSize)
-    else if SameText(StyleFileName, 'polar/dark') then
-      Vsf := LoadResourcePointer(M, 'VCLSTYLE', 'POLAR_DARK', True, VsfSize)
-    else
+    if SameText(StyleFileName, 'builtin:polar') then begin
+      var StyleName: PChar;
+      if Dark then
+        StyleName := 'POLAR_DARK'
+      else
+        StyleName := 'POLAR_LIGHT';
+      Vsf := LoadResourcePointer(M, 'VCLSTYLE', StyleName, True, VsfSize);
+    end else
       Result := False;
   end;
 
@@ -899,7 +902,7 @@ begin
         var VsfSize: Cardinal := 0;
         if StyleFileName <> '' then begin
           TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
-          if not HandleBuiltinStyle(M, StyleFileName, Vsf, VsfSize) then begin
+          if not HandleBuiltinStyle(M, StyleFileName, Vsf, VsfSize, WizardDarkStyle = wdsDark) then begin
             VsfSize := LoadFileIntoMemory(StyleFileName, Vsf);
             ShouldFreeVsf := True;
           end;
@@ -908,7 +911,7 @@ begin
         var VsfSizeDynamicDark: Cardinal := 0;
         if StyleFileNameDynamicDark <> '' then begin
           TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
-          if not HandleBuiltinStyle(M, StyleFileNameDynamicDark, VsfDynamicDark, VsfSizeDynamicDark) then begin
+          if not HandleBuiltinStyle(M, StyleFileNameDynamicDark, VsfDynamicDark, VsfSizeDynamicDark, True) then begin
             VsfSizeDynamicDark := LoadFileIntoMemory(StyleFileNameDynamicDark, VsfDynamicDark);
             ShouldFreeVsfDynamicDark := True;
           end;

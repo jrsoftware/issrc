@@ -8046,14 +8046,11 @@ begin
     if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
       Include(SetupHeader.Options, shWizardResizable);
     if WizardStyleSpecial <> '' then begin
-      if WizardStyleFile = '' then begin
-        if SetupHeader.WizardDarkStyle =  wdsDark then
-          WizardStyleFile := WizardStyleSpecial + '/dark'
-        else
-          WizardStyleFile := WizardStyleSpecial + '/light';
-      end;
+      const BuiltinStyleFile = 'builtin:' + WizardStyleSpecial;
+      if WizardStyleFile = '' then
+          WizardStyleFile := BuiltinStyleFile;
       if WizardStyleFileDynamicDark = '' then
-        WizardStyleFileDynamicDark := WizardStyleSpecial + '/dark' { Might be cleared again below }
+        WizardStyleFileDynamicDark := BuiltinStyleFile; { Might be cleared again below }
     end;
     if (WizardStyleFileDynamicDark <> '') and (SetupHeader.WizardDarkStyle <> wdsDynamic) then
       WizardStyleFileDynamicDark := ''; { Avoid unnecessary size increase - also checked for by PrepareSetupE32 }
