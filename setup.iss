@@ -13,7 +13,7 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.5.2
+AppVersion=6.5.3
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
