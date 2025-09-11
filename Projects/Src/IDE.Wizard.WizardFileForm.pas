@@ -28,6 +28,7 @@ type
     DestSubDir: String;
     DestName: String;
     ExternalSize: Int64;
+    { Don't forget to initialize new fields in TWizardFormFilesHelper.AddWizardFile }
   end;
 
   TWizardFileForm = class(TUIStateForm)
