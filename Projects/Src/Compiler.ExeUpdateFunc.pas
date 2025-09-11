@@ -849,16 +849,19 @@ type
 
   function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal; const Dark: Boolean): Boolean;
   begin
-    Result := True;
+    var StyleName: PChar := nil;
     if SameText(StyleFileName, 'builtin:polar') then begin
-      var StyleName: PChar;
       if Dark then
         StyleName := 'POLAR_DARK'
       else
         StyleName := 'POLAR_LIGHT';
-      Vsf := LoadResourcePointer(M, 'VCLSTYLE', StyleName, True, VsfSize);
-    end else
-      Result := False;
+    end else if SameText(StyleFileName, 'builtin:slate') then
+      StyleName := 'SLATECLASSICO'
+    else if SameText(StyleFileName, 'builtin:zircon') then
+      StyleName := 'ZIRCON';
+    Result := StyleName <> nil;
+    if Result then
+      Vsf := LoadResourcePointer(M, 'VCLSTYLE', StyleName, True, VsfSize)
   end;
 
 var
