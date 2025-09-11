@@ -5650,12 +5650,12 @@ DiskSliceSize=736000000
 
 <setuptopic directive="WizardStyle">
 <setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <br/><tt>modern</tt> <br/><tt>light</tt> <br/><tt>dark</tt> <br/><tt>dynamic</tt> <br/><tt>polar</tt></setupvalid>
-<setupdefault><tt>classic</tt></setupdefault>
+<setupdefault><tt>classic light</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
 <p>The base styles are:</p>
 <ul>
-<li><b><tt>classic</tt></b>: Uses the traditional gray wizard appearance.</li>
+<li><b><tt>classic</tt></b>: Uses the traditional gray wizard appearance (default behavior if no base style is specified).</li>
 <li><b><tt>modern</tt></b>: Uses a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.<br/>
     Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</li>
 </ul>
