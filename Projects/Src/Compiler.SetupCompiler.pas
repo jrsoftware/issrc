@@ -2519,14 +2519,33 @@ var
       Invalid;
   end;
 
-  procedure HandleSubStyle(const SubStyle: String);
+  procedure HandleWizardStyle(WizardStyle: String);
+  const
+    Styles: array of PChar = ['classic', 'modern', 'light', 'dark', 'dynamic', 'polar'];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2];
   begin
-    if SubStyle = 'dark' then
-      SetupHeader.WizardDarkStyle := wdsDark
-    else if SubStyle = 'dynamic' then
-      SetupHeader.WizardDarkStyle := wdsDynamic
-    else if SubStyle <> 'light' then
-      Invalid;
+    var StylesGroupSeen: array [0..2] of Boolean;
+    for var I := Low(StylesGroupSeen) to High(StylesGroupSeen) do
+      StylesGroupSeen[I] := False;
+    while True do begin
+      const R = ExtractFlag(WizardStyle, Styles);
+      case R of
+        -2: Break;
+        -1: Invalid;
+      end;
+      const StyleGroup = StylesGroups[R];
+      if StylesGroupSeen[StyleGroup] then
+        Invalid;
+      StylesGroupSeen[StyleGroup] := True;
+      case R of
+        0: Exclude(SetupHeader.Options, shWizardModern);
+        1: Include(SetupHeader.Options, shWizardModern);
+        2: SetupHeader.WizardDarkStyle := wdsLight;
+        3: SetupHeader.WizardDarkStyle := wdsDark;
+        4: SetupHeader.WizardDarkStyle := wdsDynamic;
+        5: WizardStyleSpecial := 'polar';
+      end;
+    end;
   end;
 
 var
@@ -3290,23 +3309,7 @@ begin
           SetupHeader.WizardSizePercentY, 100, 150)
       end;
     ssWizardStyle: begin
-        Value := LowerCase(Trim(Value));
-        if Value = 'modern' then
-          Include(SetupHeader.Options, shWizardModern)
-        else if Value = 'polar' then begin
-          Include(SetupHeader.Options, shWizardModern);
-          WizardStyleSpecial := Value;
-        end else if Copy(Value, 1, 7) = 'modern/' then begin
-          Include(SetupHeader.Options, shWizardModern);
-          HandleSubStyle(Copy(Value, 8, Maxint));
-        end else if Copy(Value, 1, 6) = 'polar/' then begin
-          Include(SetupHeader.Options, shWizardModern);
-          HandleSubStyle(Copy(Value, 7, Maxint));
-          WizardStyleSpecial := Copy(Value, 1, 5);
-        end else if Copy(Value, 1, 8) = 'classic/' then
-          HandleSubStyle(Copy(Value, 9, Maxint))
-        else if Value <> 'classic' then
-          Invalid;
+        HandleWizardStyle(Value);
       end;
     ssWizardStyleFile: begin
         WizardStyleFile := Value;
