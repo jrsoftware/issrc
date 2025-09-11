@@ -1070,7 +1070,7 @@ begin
 
     { Other }
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
-    Setup := Setup + 'WizardStyle=modern/dynamic' + SNewLine;
+    Setup := Setup + 'WizardStyle=modern dynamic' + SNewLine;
 
     { Build script }
     if ISPP <> '' then

@@ -5,7 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern/dynamic
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe

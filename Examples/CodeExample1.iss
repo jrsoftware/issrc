@@ -5,7 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern/dynamic
+WizardStyle=modern dynamic
 DisableWelcomePage=no
 DefaultDirName={code:MyConst}\My Program
 DefaultGroupName=My Program
