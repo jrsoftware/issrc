@@ -5649,7 +5649,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid><tt>classic</tt>, <tt>classic/light</tt>, <tt>classic/dark</tt>, <tt>classic/dynamic</tt>, <tt>modern</tt>, <tt>modern/light</tt>, <tt>modern dark</tt>, <tt>modern dynamic</tt>, <tt>polar</tt>, <tt>polar/light</tt>, <tt>polar/dark</tt>, or <tt>modern dynamic polar</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <br/><tt>modern</tt> <br/><tt>light</tt> <br/><tt>dark</tt> <br/><tt>dynamic</tt> <br/><tt>polar</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
@@ -5658,13 +5658,16 @@ DiskSliceSize=736000000
 <li><b><tt>classic</tt></b>: Uses the traditional gray wizard appearance.</li>
 <li><b><tt>modern</tt></b>: Uses a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.<br/>
     Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</li>
-<li><b><tt>polar</tt></b>: Same as <tt>modern</tt> except uses light blue instead of white for the light appearance, and dark blue instead of black for the dark appearance.</li>
 </ul>
-<p>All base styles support additional appearance modes:</p>
+<p>Also supported are additional appearance modes:</p>
 <ul>
 <li><b><tt>light</tt></b>: Forces a light appearance (default behavior if no mode is specified).</li>
 <li><b><tt>dark</tt></b>: Forces a dark appearance.</li>
 <li><b><tt>dynamic</tt></b>: Automatically switches between light and dark appearance based on the user's Windows system settings.</li>
+</ul>
+<p>Also supported are additional custom styles:</p>
+<ul>
+<li><b><tt>polar</tt></b>: Uses light blue instead of gray or white for the light appearance, and dark blue instead of black for the dark appearance.</li>
 </ul>
 <p>Example: <tt>WizardStyle=modern dynamic</tt> will use the modern style and automatically adapt to the system's light or dark mode setting.</p>
 <heading>Dark Mode Behavior</heading>
@@ -5691,7 +5694,7 @@ DiskSliceSize=736000000
 <li><link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></li>
 </ul>
   The standard <tt>WizardImageFile</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
-  Note: Forced dark mode (<tt>classic/dark</tt> or <tt>modern dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
+  Note: Forced dark mode (<tt>dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
 </ul>
 <heading>Other Considerations</heading>
 <ul>
