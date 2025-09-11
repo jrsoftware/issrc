@@ -5668,7 +5668,7 @@ DiskSliceSize=736000000
 <p>Also supported are built-in additional custom styles:</p>
 <ul>
 <li><b><tt>polar</tt></b>: Uses light blue instead of gray or white for the light appearance, and dark blue instead of black for the dark appearance.</li>
-<li><b><tt>slate</tt></b>: Uses medium gray for both the light and darks appearances.</li>
+<li><b><tt>slate</tt></b>: Uses medium gray for both the light and dark appearances.</li>
 <li><b><tt>zircon</tt></b>: Alternative light-only style.</li>
 </ul>
 <p>Example: <tt>WizardStyle=modern dynamic</tt> will use the modern style and automatically adapt to the system's light or dark mode setting.</p>
