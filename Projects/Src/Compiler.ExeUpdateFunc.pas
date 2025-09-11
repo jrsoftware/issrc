@@ -849,6 +849,7 @@ type
 
   function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal; const Dark: Boolean): Boolean;
   begin
+    { Also see DeleteResource calls below }
     var StyleName: PChar := nil;
     if SameText(StyleFileName, 'builtin:polar') then begin
       if Dark then
@@ -1043,6 +1044,8 @@ begin
             { Delete additional styles - they are handled above }
             DeleteResource(H, M, 'VCLSTYLE', 'POLAR_LIGHT');
             DeleteResource(H, M, 'VCLSTYLE', 'POLAR_DARK');
+            DeleteResource(H, M, 'VCLSTYLE', 'SLATECLASSICO');
+            DeleteResource(H, M, 'VCLSTYLE', 'ZIRCON');
 
             { Delete taskform icons we don't need }
             TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
