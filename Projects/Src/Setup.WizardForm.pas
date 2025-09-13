@@ -2231,7 +2231,15 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
       ReadyMemo.SelLength := 0;
     end;
 
+    { If ReadyMemo is initially invisible and remains so, graphical artifacts appear at the locations
+      of both scrollbars. The cause is unclear, but recreating the window resolves the issue.
+      Temporarily setting Visible to True first also fixes it. Maybe there's an issue in
+      TScrollingStyleHook. Note: You can make ReadyMemo initially invisible by navigating to wpReady
+      with it invisible, then clicking Back, followed by Next. }
+    const WasVisible = ReadyMemo.Visible;
     ReadyMemo.Visible := ReadyMemo.Lines.Count > 0;
+    if IsCustomStyleActive and not WasVisible and not ReadyMemo.Visible then
+      ReadyMemo.RecreateWnd;
 
     var S: String;
     if ReadyMemo.Visible then
