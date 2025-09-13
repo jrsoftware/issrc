@@ -100,6 +100,7 @@ begin
     WizardFile.DestRootDir := '{win}';
   WizardFile.DestSubDir := '';
   WizardFile.DestName := '';
+  WizardFile.ExternalSize := 0;
   FWizardFiles.Add(WizardFile);
   Result := WizardFile;
 end;
