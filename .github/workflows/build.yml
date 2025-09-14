@@ -112,7 +112,8 @@ jobs:
           set -x &&
           curdir="$(cygpath -aw Output | sed 's/\\/&&/g')" &&
           ver="$(sed 's/\./\\&/g' <trace/ver)" &&
-          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' -e '/"'$curdir'\\/p' \
+          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' \
+            -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\)"/d' -e '/"'$curdir'\\/p' \
             trace/procmon.csv >trace/filtered.csv &&
           if test -s trace/filtered.csv
           then

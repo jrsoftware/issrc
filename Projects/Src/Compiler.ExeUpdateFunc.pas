@@ -1083,6 +1083,9 @@ begin
   end;
 end;
 
+{ Replaces the entire comctl32 dependency section of the manifest with spaces, then inserts a
+  comctl32 file entry before the other entries. Intended for SetupLdr only. Note: The exact number
+  of spaces is calculated to allow seamless in-place editing. }
 procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 const
   DependencyStartTag: AnsiString = '<dependency>';
