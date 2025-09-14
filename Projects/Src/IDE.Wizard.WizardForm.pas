@@ -304,14 +304,6 @@ begin
   if not InitFormTheme(Self) then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
-  if Font.Name = 'Segoe UI' then begin
-    { See Setup.WizardForm.pas }
-    for I := 0 to OuterNotebook.PageCount-1 do
-      OuterNotebook.Pages[I].HandleNeeded;
-    for I := 0 to InnerNotebook.PageCount-1 do
-      InnerNotebook.Pages[I].HandleNeeded;
-    ClientWidth := MulDiv(ClientWidth, 105, 100);
-  end;
   if FontExists('Verdana') then
     WelcomeLabel1.Font.Name := 'Verdana';
 
