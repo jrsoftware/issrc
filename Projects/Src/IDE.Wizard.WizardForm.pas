@@ -44,15 +44,15 @@ type
     ISPPPage: TNewNotebookPage;
     FinishedPage: TNewNotebookPage;
     Bevel: TBevel;
-    WelcomeImage: TImage;
+    WelcomeImage: TBitmapImage;
     WelcomeLabel1: TNewStaticText;
     PnlMain: TPanel;
     Bevel1: TBevel;
     PageNameLabel: TNewStaticText;
     PageDescriptionLabel: TNewStaticText;
-    InnerImage: TImage;
+    InnerImage: TBitmapImage;
     FinishedLabel: TNewStaticText;
-    FinishedImage: TImage;
+    FinishedImage: TBitmapImage;
     WelcomeLabel2: TNewStaticText;
     EmptyCheck: TCheckBox;
     WelcomeLabel3: TNewStaticText;
@@ -141,8 +141,8 @@ type
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
     AppRegistryMinVerDocBitBtn: TBitmapButton;
-    WelcomeImageDark: TImage;
-    InnerImageDark: TImage;
+    WelcomeImageDark: TBitmapImage;
+    InnerImageDark: TBitmapImage;
     AppFilesAddDownloadButton: TButton;
     WizardStylePage: TNewNotebookPage;
     WizardStyleLabel: TNewStaticText;
@@ -335,10 +335,10 @@ begin
   MakeBold(LanguagesLabel);
 
   if InitFormThemeIsDark then begin
-    WelcomeImage.Picture := WelcomeImageDark.Picture;
-    InnerImage.Picture := InnerImageDark.Picture;
+    WelcomeImage.Bitmap := WelcomeImageDark.Bitmap;
+    InnerImage.Bitmap := InnerImageDark.Bitmap;
   end;
-  FinishedImage.Picture := WelcomeImage.Picture;
+  FinishedImage.Bitmap := WelcomeImage.Bitmap;
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 

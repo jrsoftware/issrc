@@ -75,13 +75,13 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Graphic: TGraphic write SetGraphic;
   published
     property Align;
     property Anchors;
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clBtnFace;
-    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Center: Boolean read FImpl.Center write SetCenter default False;
     property DragCursor;
     property DragMode;
