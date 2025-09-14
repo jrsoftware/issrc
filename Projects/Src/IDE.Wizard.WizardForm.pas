@@ -14,12 +14,13 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton;
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton,
+  BaseImageCollection, ImageCollection, BitmapImage;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
                  wpAppDocs, wpPrivilegesRequired, wpAppRegistry, wpLanguages, wpCompiler,
-                 wpISPP, wpFinished);
+                 wpWizardStyle, wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
@@ -143,6 +144,15 @@ type
     WelcomeImageDark: TImage;
     InnerImageDark: TImage;
     AppFilesAddDownloadButton: TButton;
+    WizardStylePage: TNewNotebookPage;
+    WizardStyleLabel: TNewStaticText;
+    WizardStyleMainComboBox: TComboBox;
+    WizardStyleDarkComboBox: TComboBox;
+    WizardStyleSubStyleComboBox: TComboBox;
+    WizardStyleImageCollection: TImageCollection;
+    WizardStyleImage: TBitmapImage;
+    WizardStyleImage2: TBitmapImage;
+    WizardStyleImageTimer: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -162,6 +172,8 @@ type
     procedure UseAutoProgramsCheckClick(Sender: TObject);
     procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
     procedure CreateAssocCheckClick(Sender: TObject);
+    procedure WizardStyleComboBoxChange(Sender: TObject);
+    procedure WizardStyleImageTimerTimer(Sender: TObject);
   private
     FCurPage: TWizardPage;
     FWizardName: String;
@@ -177,6 +189,8 @@ type
     procedure UpdateAppExeControls;
     procedure UpdateAppAssocControls;
     procedure UpdateAppIconsControls;
+    procedure UpdateWizardStyleImages;
+    function GetWizardStyle: String;
     procedure GenerateScript;
   public
     property WizardName: String write SetWizardName;
@@ -202,20 +216,20 @@ const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
     ((0, -1), (1, 0), (1, 1), (1, 2),
      (1, 3), (1, 4), (1, 5), (1, 6),
-     (1, 7), (1, 8), (1, 9), (1, 10), (2, -1));
+     (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles, SWizardAppAssoc,
      SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardAppRegistry,
-     SWizardLanguages, SWizardCompiler, SWizardISPP, SWizardFinished);
+     SWizardLanguages, SWizardCompiler, SWizardWizardStyle, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2, SWizardAppAssoc2,
          SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardAppRegistry2,
-         SWizardLanguages2, SWizardCompiler2, SWizardISPP2, '');
+         SWizardLanguages2, SWizardCompiler2, SWizardWizardStyle2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, True, False, True, False, True, False, False, False);
+    (False, True, True, True, True, True, False, True, False, True, False, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -461,6 +475,11 @@ begin
     wpAppRegistry: ActiveControl := AppRegistryFileEdit;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
+    wpWizardStyle:
+      begin
+        ActiveControl := WizardStyleMainComboBox;
+        UpdateWizardStyleImages;
+      end;
     wpISPP: ActiveControl := ISPPCheck;
   end;
 end;
@@ -667,6 +686,32 @@ begin
     AppGroupNameLabel.Font.Style := AppGroupNameLabel.Font.Style - [fsBold];
 end;
 
+procedure TWizardForm.UpdateWizardStyleImages;
+
+  procedure UpdateWizardStyleImage(const WizardStyleImage: TBitmapImage; const ImageName: String);
+  begin
+    const ImageIndex = WizardStyleImageCollection.GetIndexByName(ImageName);
+    if ImageIndex = -1 then
+      raise Exception.CreateFmt('Image name ''%s'' not found', [ImageName]);
+    WizardStyleImage.PngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0, True));
+  end;
+
+begin
+  var WizardStyle := GetWizardStyle;
+  const Dynamic = WizardStyle.Contains('dynamic');
+  if Dynamic then begin
+    WizardStyle := WizardStyle.Replace('dynamic', 'dark');
+    UpdateWizardStyleImage(WizardStyleImage2, WizardStyle); { This image is always invisible }
+    WizardStyle := WizardStyle.Replace(' dark', '');
+  end;
+  UpdateWizardStyleImage(WizardStyleImage, WizardStyle);
+
+  { To keep things simple this timer is always running but here we do reset it so the new images
+    will never be swapped too quickly }
+  WizardStyleImageTimer.Enabled := False;
+  WizardStyleImageTimer.Enabled := True;
+end;
+
 {---}
 
 procedure TWizardForm.AppRootDirComboBoxChange(Sender: TObject);
@@ -809,7 +854,37 @@ begin
     PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked := True;
 end;
 
+procedure TWizardForm.WizardStyleComboBoxChange(Sender: TObject);
+begin
+  if (WizardStyleDarkComboBox.Text <> 'light') and ((WizardStyleSubStyleComboBox.Text = 'slate') or (WizardStyleSubStyleComboBox.Text = 'zircon')) then
+    WizardStyleDarkComboBox.ItemIndex := WizardStyleDarkComboBox.Items.IndexOf('light');
+  UpdateWizardStyleImages;
+end;
+
+procedure TWizardForm.WizardStyleImageTimerTimer(Sender: TObject);
+begin
+  if (FCurPage = wpWizardStyle) and (WizardStyleDarkComboBox.Text = 'dynamic') then begin
+    const SaveBitmap = TBitmap.Create;
+    try
+      SaveBitmap.Assign(WizardStyleImage.Bitmap);
+      WizardStyleImage.Bitmap.Assign(WizardStyleImage2.Bitmap);
+      WizardStyleImage2.Bitmap.Assign(SaveBitmap);
+    finally
+      SaveBitmap.Free;
+    end;
+  end;
+end;
+
 { --- }
+
+function TWizardForm.GetWizardStyle: String;
+begin
+  Result := WizardStyleMainComboBox.Text;
+  if WizardStyleDarkComboBox.ItemIndex <> 0 then
+    Result := Result + ' ' + WizardStyleDarkComboBox.Text;
+  if WizardStyleSubStyleComboBox.ItemIndex <> 0 then
+    Result := Result + ' ' + WizardStyleSubStyleComboBox.Text;
+end;
 
 procedure TWizardForm.GenerateScript;
 
@@ -1062,7 +1137,7 @@ begin
 
     { Other }
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
-    Setup := Setup + 'WizardStyle=modern dynamic' + SNewLine;
+    Setup := Setup + 'WizardStyle=' + GetWizardStyle + SNewLine;
 
     { Build script }
     if ISPP <> '' then

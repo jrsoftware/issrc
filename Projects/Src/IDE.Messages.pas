@@ -78,6 +78,8 @@ const
   SWizardCompilerSetupIconFileFilter = 'Icon files (*.ico)|*.ico|All files|*.*';
   SWizardCompilerSetupIconFileDefaultExt = 'ico';
   SWizardCompilerOutputDir = 'Please specify the folder.';
+  SWizardWizardStyle = 'Wizard Style';
+  SWizardWizardStyle2 = 'Please specify which wizard style should be used.';
   SWizardISPP = 'Inno Setup Preprocessor';
   SWizardISPP2 = 'Please specify whether Inno Setup Preprocessor should be used.';
   SWizardISPPLabel = 'The [name] can use #define compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the [name] to use #define compiler directives?';
