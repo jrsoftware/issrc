@@ -150,18 +150,30 @@ end;
 procedure TBitmapAlphaFormat_W(Self: TBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
 procedure TBitmapAlphaFormat_R(Self: TBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
 
+procedure TBitmapButtonBitmap_W(Self: TBitmapButton; const T: TBitmap); begin Self.Bitmap := T; end;
+procedure TBitmapButtonBitmap_R(Self: TBitmapButton; var T: TBitmap); begin T := Self.Bitmap; end;
+
 procedure RegisterBitmapButton_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.FindClass('TBitmap') do
   begin
     RegisterPropertyHelper(@TBitmapAlphaFormat_R, @TBitmapAlphaFormat_W, 'AlphaFormat');
   end;
-  Cl.Add(TBitmapButton);
+  with Cl.Add(TBitmapButton) do
+  begin
+    RegisterPropertyHelper(@TBitmapButtonBitmap_R, @TBitmapButtonBitmap_W, 'Bitmap');
+  end;
 end;
+
+procedure TBitmapImageBitmap_W(Self: TBitmapImage; const T: TBitmap); begin Self.Bitmap := T; end;
+procedure TBitmapImageBitmap_R(Self: TBitmapImage; var T: TBitmap); begin T := Self.Bitmap; end;
 
 procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
 begin
-  Cl.Add(TBitmapImage);
+  with Cl.Add(TBitmapImage) do
+  begin
+    RegisterPropertyHelper(@TBitmapImageBitmap_R, @TBitmapImageBitmap_W, 'Bitmap');
+  end;
 end;
 
 procedure RegisterBidiCtrls_R(Cl: TPSRuntimeClassImporter);
