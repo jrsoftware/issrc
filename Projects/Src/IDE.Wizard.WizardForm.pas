@@ -15,7 +15,7 @@ uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
   IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton,
-  BaseImageCollection, ImageCollection, BitmapImage;
+  Vcl.BaseImageCollection, Vcl.ImageCollection, BitmapImage;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
