@@ -5707,6 +5707,15 @@ DiskSliceSize=736000000
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be dark. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
 </ul>
+<heading>Example screenshots</heading>
+<p><tt>classic</tt><br/><br/><img src="wizardstyle-classic.png"/></p>
+<p><tt>classic dark</tt><br/><br/><img src="wizardstyle-classic-dark.png"/></p>
+<p><tt>modern</tt><br/><br/><img src="wizardstyle-modern.png"/></p>
+<p><tt>modern dark</tt><br/><br/><img src="wizardstyle-modern-dark.png"/></p>
+<p><tt>modern polar</tt><br/><br/><img src="wizardstyle-modern-polar.png"/></p>
+<p><tt>modern dark polar</tt><br/><br/><img src="wizardstyle-modern-dark-polar.png"/></p>
+<p><tt>modern slate</tt><br/><br/><img src="wizardstyle-modern-slate.png"/></p>
+<p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardstylefile">WizardStyleFile</link></p>
 </body>
