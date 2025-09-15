@@ -5650,7 +5650,7 @@ DiskSliceSize=736000000
 
 <setuptopic directive="WizardStyle">
 <setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <br/><tt>modern</tt> <br/><tt>light</tt> <br/><tt>dark</tt> <br/><tt>dynamic</tt> <br/><tt>polar</tt> <br/><tt>slate</tt> <br/><tt>zircon</tt></setupvalid>
-<setupdefault><tt>classic light</tt></setupdefault>
+<setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
 <p>The base styles are:</p>
