@@ -8126,8 +8126,14 @@ begin
         SetupHeader.WizardImageBackColor := clWindow;
     end else begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], IsForcedDark);
-      if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
-        SetupHeader.WizardImageBackColor := IfThen(IsForcedDark, $534831, $f9f3e8); { Bluish (Dark) Gray, also see below }
+      if SetupDirectiveLines[ssWizardImageBackColor] = 0 then begin
+        if WizardStyleSpecial = 'slate' then
+          SetupHeader.WizardImageBackColor := $d4c9b8
+        else if WizardStyleSpecial = 'zircon' then
+          SetupHeader.WizardImageBackColor := $ebe5c6
+        else
+          SetupHeader.WizardImageBackColor := IfThen(IsForcedDark, $534831, $f9f3e8); { Also see below }
+      end;
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
