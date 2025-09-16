@@ -151,8 +151,12 @@ function StringToColor(const S: string): TColor;
   end;
 
 begin
-  if not IdentToColor(S, Longint(Result)) then
-    Result := TColor(StrToInt(S));
+  if not IdentToColor(S, Longint(Result)) then begin
+    var Hex := S;
+    if (Length(Hex) = 7) and (Hex[1] = '#') then
+      Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
+    Result := TColor(StrToInt(Hex));
+  end;
 end;
 
 function IsRelativePath(const Filename: String): Boolean;

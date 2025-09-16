@@ -5564,8 +5564,8 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColor">
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
-<setupdefault><tt>$f9f3e8</tt> (bluish gray) if the built-in wizard image is used, <tt>$534831</tt> (bluish dark gray) if forced dark mode is used, <tt>clWindow</tt> otherwise.</setupdefault>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupdefault><tt>#e8f3f9</tt> (bluish gray) if the built-in wizard image is used, <tt>#314853</tt> (bluish dark gray) if forced dark mode is used, <tt>clWindow</tt> otherwise.</setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
 <p><b>See also:</b><br/>
@@ -5573,7 +5573,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColorDynamicDark">
-<setupdefault><tt>$534831</tt> (bluish dark gray)</setupdefault>
+<setupdefault><tt>#314853</tt> (bluish dark gray)</setupdefault>
 <body>
 <p>Overrides <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
 <p>For all details see <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</p>
@@ -5581,7 +5581,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageBackColor">
-<setupvalid>A value in the form of <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
 <setupdefault><tt>clNone</tt> if the built-in small wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</p>
