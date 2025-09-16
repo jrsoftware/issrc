@@ -1322,14 +1322,6 @@ object WizardForm: TWizardForm
           DesignSize = (
             584
             317)
-          object WizardStyleImage: TBitmapImage
-            Left = 36
-            Top = 56
-            Width = 320
-            Height = 250
-            BackColor = clNone
-            Stretch = True
-          end
           object WizardStyleImage2: TBitmapImage
             Left = 46
             Top = 64
@@ -1338,6 +1330,16 @@ object WizardForm: TWizardForm
             BackColor = clNone
             Stretch = True
             Visible = False
+          end
+          object WizardStyleImage: TBitmapButton
+            Left = 34
+            Top = 54
+            Width = 320
+            Height = 250
+            Cursor = crHandPoint
+            Stretch = True
+            TabOrder = 4
+            OnClick = WizardStyleImageClick
           end
           object WizardStyleLabel: TNewStaticText
             Left = 36

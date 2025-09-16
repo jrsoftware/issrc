@@ -150,7 +150,7 @@ type
     WizardStyleDarkComboBox: TComboBox;
     WizardStyleSubStyleComboBox: TComboBox;
     WizardStyleImageCollection: TImageCollection;
-    WizardStyleImage: TBitmapImage;
+    WizardStyleImage: TBitmapButton;
     WizardStyleImage2: TBitmapImage;
     WizardStyleImageTimer: TTimer;
     procedure FormCreate(Sender: TObject);
@@ -174,6 +174,7 @@ type
     procedure CreateAssocCheckClick(Sender: TObject);
     procedure WizardStyleComboBoxChange(Sender: TObject);
     procedure WizardStyleImageTimerTimer(Sender: TObject);
+    procedure WizardStyleImageClick(Sender: TObject);
   private
     FCurPage: TWizardPage;
     FWizardName: String;
@@ -190,6 +191,8 @@ type
     procedure UpdateAppAssocControls;
     procedure UpdateAppIconsControls;
     procedure UpdateWizardStyleImages;
+    procedure WizardStyleImagePreviewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure WizardStyleImagePreviewImageClick(Sender: TObject);
     function GetWizardStyle: String;
     procedure GenerateScript;
   public
@@ -688,12 +691,12 @@ end;
 
 procedure TWizardForm.UpdateWizardStyleImages;
 
-  procedure UpdateWizardStyleImage(const WizardStyleImage: TBitmapImage; const ImageName: String);
+  procedure UpdateWizardStyleImage(const WizardStylePngImage: TPngImage; const ImageName: String);
   begin
     const ImageIndex = WizardStyleImageCollection.GetIndexByName(ImageName);
     if ImageIndex = -1 then
       raise Exception.CreateFmt('Image name ''%s'' not found', [ImageName]);
-    WizardStyleImage.PngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0, True));
+    WizardStylePngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0, True));
   end;
 
 begin
@@ -701,10 +704,10 @@ begin
   const Dynamic = WizardStyle.Contains('dynamic');
   if Dynamic then begin
     WizardStyle := WizardStyle.Replace('dynamic', 'dark');
-    UpdateWizardStyleImage(WizardStyleImage2, WizardStyle); { This image is always invisible }
+    UpdateWizardStyleImage(WizardStyleImage2.PngImage, WizardStyle); { This image is always invisible }
     WizardStyle := WizardStyle.Replace(' dark', '');
   end;
-  UpdateWizardStyleImage(WizardStyleImage, WizardStyle);
+  UpdateWizardStyleImage(WizardStyleImage.PngImage, WizardStyle);
 
   { To keep things simple this timer is always running but here we do reset it so the new images
     will never be swapped too quickly }
@@ -859,6 +862,48 @@ begin
   if (WizardStyleDarkComboBox.Text <> 'light') and ((WizardStyleSubStyleComboBox.Text = 'slate') or (WizardStyleSubStyleComboBox.Text = 'zircon')) then
     WizardStyleDarkComboBox.ItemIndex := WizardStyleDarkComboBox.Items.IndexOf('light');
   UpdateWizardStyleImages;
+end;
+
+procedure TWizardForm.WizardStyleImagePreviewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    (Sender as TForm).ModalResult := mrCancel;
+end;
+
+procedure TWizardForm.WizardStyleImagePreviewImageClick(Sender: TObject);
+begin
+  const F = GetParentForm(Sender as TControl);
+  if F <> nil then
+    F.ModalResult := mrOk;
+end;
+
+procedure TWizardForm.WizardStyleImageClick(Sender: TObject);
+begin
+  const PreviewForm = TForm.CreateNew(nil);
+  try
+    PreviewForm.AutoSize := True;
+    PreviewForm.BorderStyle := bsNone;
+    PreviewForm.BorderIcons := [];
+    PreviewForm.KeyPreview := True;
+    PreviewForm.OnKeyDown := WizardStyleImagePreviewKeyDown;
+
+    PreviewForm.Position := poDesigned;
+    const R = BoundsRect;
+    PreviewForm.Left := R.Left + MulDiv(32, CurrentPPI, 96);
+    PreviewForm.Top := R.Top + MulDiv(32, CurrentPPI, 96);
+
+    const PreviewImage = TBitmapImage.Create(PreviewForm);
+    PreviewImage.AutoSize := True;
+    PreviewImage.BackColor := clNone;
+    PreviewImage.Bitmap.Assign(WizardStyleImage.Bitmap);
+    PreviewImage.Cursor := crHandPoint;
+    PreviewImage.OnClick := WizardStyleImagePreviewImageClick;
+    PreviewImage.Parent := PreviewForm;
+
+    PreviewForm.ShowModal;
+  finally
+    PreviewForm.Free;
+  end;
 end;
 
 procedure TWizardForm.WizardStyleImageTimerTimer(Sender: TObject);
