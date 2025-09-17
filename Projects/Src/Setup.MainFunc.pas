@@ -3148,9 +3148,8 @@ begin
           Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
-          resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. To use a style
-          anyway, change it to load style BUILTIN_DARK or one of the other built-in styles such
-          as POLAR_LIGHT. }
+          resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
+          it will use the POLAR_LIGHT style, see below. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
@@ -3171,7 +3170,11 @@ begin
           if IsDynamicDark then
             StyleName := StyleName + '_DARK';
           var Handle: TStyleManager.TStyleServicesHandle;
-          if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then
+          if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
+          {$IFDEF DEBUG}
+             or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_LIGHT', 'VCLSTYLE', Handle)
+          {$ENDIF}
+          then
             TStyleManager.SetStyle(Handle);
         end;
 
