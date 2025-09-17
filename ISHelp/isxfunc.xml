@@ -2846,7 +2846,7 @@ begin
     Parent := Page.Surface;
   end;
 
-  InitializeBitmapImageFromIcon(BitmapImage, 'MyProg.ico', Page.SurfaceColor, [32, 48, 64]);
+  InitializeBitmapImageFromIcon(BitmapImage, 'MyProg.ico', clNone, [32, 48, 64]);
 end;</pre></example>
       </function>
     </subcategory>
