@@ -2,7 +2,7 @@ unit Shared.SetupEntFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -33,7 +33,7 @@ begin
     Finalize(String(P^), NumStrings);
   if NumAnsiStrings > 0 then begin
     AnsiP := P;
-    Inc(Cardinal(AnsiP), NumStrings*SizeOf(Pointer));
+    Inc(PByte(AnsiP), NumStrings*SizeOf(Pointer));
     Finalize(AnsiString(AnsiP^), NumAnsiStrings);
   end;
   FreeMem(P);
@@ -46,14 +46,14 @@ var
 begin
   for I := 1 to NumStrings do begin
     String(NewP^) := String(OldP^);
-    Inc(Cardinal(OldP), SizeOf(Pointer));
-    Inc(Cardinal(NewP), SizeOf(Pointer));
+    Inc(PByte(OldP), SizeOf(Pointer));
+    Inc(PByte(NewP), SizeOf(Pointer));
     Dec(Bytes, SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
     AnsiString(NewP^) := AnsiString(OldP^);
-    Inc(Cardinal(OldP), SizeOf(Pointer));
-    Inc(Cardinal(NewP), SizeOf(Pointer));
+    Inc(PByte(OldP), SizeOf(Pointer));
+    Inc(PByte(NewP), SizeOf(Pointer));
     Dec(Bytes, SizeOf(Pointer));
   end;
   Move(OldP^, NewP^, Bytes);
@@ -72,14 +72,14 @@ begin
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
     Len := Length(AnsiString(P^));
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   W.Write(P^, Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer)));
 end;
@@ -100,7 +100,7 @@ begin
     if Len <> 0 then
       R.Read(S[1], Len);
     String(P^) := S;
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
     R.Read(Len, SizeOf(Len));
@@ -108,7 +108,7 @@ begin
     if Len <> 0 then
       R.Read(AnsiS[1], Len);
     AnsiString(P^) := AnsiS;
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   R.Read(P^, Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer)));
 end;

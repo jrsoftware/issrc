@@ -125,13 +125,13 @@ begin
   if (Size <= SizeOf(TMessagesHdrID) + SizeOf(TMessagesHeader)) or
      (TMessagesHdrID(P) <> MessagesHdrID) then
     Corrupted;
-  Cardinal(Header) := Cardinal(@P) + SizeOf(TMessagesHdrID);
+  PByte(Header) := PByte(@P) + SizeOf(TMessagesHdrID);
   if (Header.TotalSize <> not Header.NotTotalSize) or
      (Cardinal(Header.TotalSize) <> Size) or
      (Header.NumMessages <> (Ord(High(SetupMessages)) - Ord(Low(SetupMessages)) + 1)) then
     Corrupted;
-  Cardinal(M) := Cardinal(Header) + SizeOf(TMessagesHeader);
-  Cardinal(EndP) := Cardinal(@P) + Cardinal(Header.TotalSize);
+  PByte(M) := PByte(Header) + SizeOf(TMessagesHeader);
+  PByte(EndP) := PByte(@P) + Cardinal(Header.TotalSize);
   if (GetCRC32(M^, (EndP - M) * SizeOf(Char)) <> Header.CRCMessages) or
      (EndP[-1] <> #0) then
     Corrupted;

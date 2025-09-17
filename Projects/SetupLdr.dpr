@@ -267,7 +267,7 @@ begin
     end;
 
     { Get next region }
-    Cardinal(CurAddr) := Cardinal(MemInfo.BaseAddress) + MemInfo.RegionSize;
+    PByte(CurAddr) := PByte(MemInfo.BaseAddress) + MemInfo.RegionSize;
     if VirtualQuery(CurAddr, MemInfo, SizeOf(MemInfo)) = 0 then
       Break;
   end;
@@ -514,8 +514,8 @@ begin
           SetupLdr }
         SetupLdrWnd := CreateWindowEx(0, 'STATIC', 'InnoSetupLdrWindow', 0,
           0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
-        Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
-          Longint(@SetupLdrWndProc));
+        LONG_PTR(OrigWndProc) := SetWindowLongPtr(SetupLdrWnd, GWL_WNDPROC,
+          LONG_PTR(@SetupLdrWndProc));
 
         { Now execute Setup. Use the exit code it returns as our exit code. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
