@@ -826,7 +826,8 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize }
-  if IsCustomStyleActive then begin
+  const CustomStyleActive = IsCustomStyleActive;
+  if CustomStyleActive then begin
     { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
     WelcomePage.ParentColor := True;
     OuterNotebook.ParentColor := True;
@@ -834,7 +835,7 @@ begin
     Color := StyleServices(Self).GetStyleColor(scWindow);
   end;
   if shWizardModern in SetupHeader.Options then begin
-    if not IsCustomStyleActive then
+    if not CustomStyleActive then
       OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
@@ -2238,7 +2239,7 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
       with it invisible, then clicking Back, followed by Next. }
     const WasVisible = ReadyMemo.Visible;
     ReadyMemo.Visible := ReadyMemo.Lines.Count > 0;
-    if IsCustomStyleActive and not WasVisible and not ReadyMemo.Visible then
+    if ReadyMemo.IsCustomStyleActive and not WasVisible and not ReadyMemo.Visible then
       ReadyMemo.RecreateWnd;
 
     var S: String;

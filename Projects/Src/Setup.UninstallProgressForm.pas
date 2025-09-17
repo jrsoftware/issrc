@@ -133,13 +133,14 @@ begin
     WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
 
   { Initialize wizard style - also see TWizardForm.Create }
-  if IsCustomStyleActive then begin
+  const CustomStyleActive = IsCustomStyleActive;
+  if CustomStyleActive then begin
     { TNewNotebook ignores VCL Styles so it needs a bit of help }
     OuterNotebook.ParentColor := True;
     Color := StyleServices(Self).GetStyleColor(scWindow);
   end;
   if AModernStyle then begin
-    if not IsCustomStyleActive then
+    if not CustomStyleActive then
       OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
