@@ -212,10 +212,10 @@ procedure RunImageLocally(const Module: HMODULE);
   Based on code from http://www.microsoft.com/msj/0398/win320398.htm, with
   some fixes incorporated. }
 
-  procedure Touch(var X: DWORD);
+  procedure Touch(var X: Integer);
   { Note: Uses InterlockedExchangeAdd to ensure it isn't optimized away }
   begin
-    InterlockedExchangeAdd(PInteger(@X)^, 0);
+    InterlockedExchangeAdd(X, 0);
   end;
 
 var
@@ -254,7 +254,7 @@ begin
         This forces the page to be in RAM and swapped to the paging file. }
       var Offset: SIZE_T := 0;
       while Offset < MemInfo.RegionSize do begin
-        Touch(PDWORD(PByte(MemInfo.BaseAddress) + Offset)^);
+        Touch(PInteger(PByte(MemInfo.BaseAddress) + Offset)^);
         Inc(Offset, SysInfo.dwPageSize);
       end;
 
