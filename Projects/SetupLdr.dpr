@@ -213,9 +213,9 @@ procedure RunImageLocally(const Module: HMODULE);
   some fixes incorporated. }
 
   procedure Touch(var X: Integer);
-  { Note: Uses InterlockedExchangeAdd to ensure it isn't optimized away }
+  { Note: Uses InterlockedOr to ensure it isn't optimized away }
   begin
-    InterlockedExchangeAdd(X, 0);
+    InterlockedOr(X, 0);
   end;
 
 var
