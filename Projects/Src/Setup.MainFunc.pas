@@ -3149,7 +3149,8 @@ begin
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
           resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. To use a style
-          anyway, change it to load style BUILTIN_DARK. }
+          anyway, change it to load style BUILTIN_DARK or one of the other built-in styles such
+          as POLAR_LIGHT. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
