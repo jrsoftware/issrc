@@ -512,12 +512,12 @@ begin
           SetupLdr }
         SetupLdrWnd := CreateWindowEx(0, 'STATIC', 'InnoSetupLdrWindow', 0,
           0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
-        LONG_PTR(OrigWndProc) := SetWindowLongPtr(SetupLdrWnd, GWL_WNDPROC,
+        LONG_PTR(OrigWndProc) := SetWindowLongPtr(SetupLdrWnd, GWLP_WNDPROC,
           LONG_PTR(@SetupLdrWndProc));
 
         { Now execute Setup. Use the exit code it returns as our exit code. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
-          [UInt32(SetupLdrWnd), OffsetTable.Offset0, OffsetTable.Offset1]) +
+          [SetupLdrWnd, OffsetTable.Offset0, OffsetTable.Offset1]) +
           SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
 
         { Synchronize our active language with Setup's, in case we need to
