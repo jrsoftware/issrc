@@ -61,7 +61,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125.png">Example screenshot of a task dialog using the built-in dark style, at 125% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125-rtl.png">Includes full right to left support</a>.
     </li>
-    <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information and special considerations.</li>
+    <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information, special considerations, and example screenshots.</li>
   </ul>
   <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance.</li>
   <ul>
@@ -84,12 +84,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         <a href="https://jrsoftware.org/images/is-welcome-polardark-org-175.png">Example screenshot of Setup using the Polar Dark style, at 175% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-zircon-org-125.png">Example screenshot of a task dialog using the Zircon style, at 125% DPI</a>.
     </li>
-    <li>When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
     <li>When a custom style (including the built-in custom dark style) is active, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent rather than opaque.</li>
     <li>The Polar style shown above is available built-in and directly supported by the <tt>WizardStyle</tt> directive. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar</code></pre>
     </li>
-    <li>Two more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, and <tt>zircon</tt> is an alternative light-only style, shown above. For example:
+    <li>Two more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern zircon</code></pre>
     </li>
   </ul>
