@@ -34,7 +34,7 @@ function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: Str
   var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean; overload;
-function IntToBase32(Number: Longint): String;
+function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 
@@ -133,38 +133,41 @@ begin
   Result := CreateSafeDirectory(LimitCurrentUserSidAccess, Path, ErrorCode, Protected);
 end;
 
-function IntToBase32(Number: Longint): String;
-const
-  Table: array[0..31] of Char = '0123456789ABCDEFGHIJKLMNOPQRSTUV';
-var
-  I: Integer;
+function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
 begin
-  Result := '';
-  for I := 0 to 4 do begin
-    Insert(Table[Number and 31], Result, 1);
-    Number := Number shr 5;
+  Result := StringOfChar('0', ADigits);
+  for var I := High(Result) downto Low(Result) do begin
+    var Digit := AValue mod 36;
+    if Digit < 10 then
+      Inc(Digit, Ord('0'))
+    else
+      Inc(Digit, Ord('A') - 10);
+    Result[I] := Chr(Digit);
+    AValue := AValue div 36;
   end;
 end;
 
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
+const
+  RandRange = 36 * 36 * 36 * 36 * 36;
 var
-  Rand, RandOrig: Longint;
   Filename: String;
 begin
   Path := AddBackslash(Path);
-  RandOrig := Random($2000000);
-  Rand := RandOrig;
+  const RandOrig = UInt32(Random(RandRange));
+  var Rand := RandOrig;
   repeat
     Inc(Rand);
-    if Rand > $1FFFFFF then Rand := 0;
+    if Rand >= RandRange then
+      Rand := 0;
     if Rand = RandOrig then
-      { practically impossible to go through 33 million possibilities,
+      { practically impossible to go through 60 million combinations,
         but check "just in case"... }
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
     { Generate a random name }
-    Filename := Path + 'is-' + IntToBase32(Rand) + Extension;
+    Filename := Path + 'is-' + UIntToBase36Str(Rand, 5) + Extension;
   until not FileOrDirExistsRedir(DisableFsRedir, Filename);
   Result := Filename;
 end;

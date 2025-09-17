@@ -161,24 +161,28 @@ function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean
   existing directory was re-created. This is called by Uninstall. A non-random
   name is used because the uninstaller EXE isn't able to delete itself; if it were
   random, there would be one directory added each time an uninstaller is run. }
+const
+  RandRange = 36 * 36 * 36 * 36 * 36;
 var
-  Rand, RandOrig: Longint; { These are actually NOT random in any way }
   ErrorCode: DWORD;
 begin
   Path := AddBackslash(Path);
-  RandOrig := $123456;
-  Rand := RandOrig;
+  { These are actually NOT random in any way }
+  const RandOrig = UInt32((1*36*36*36*36) + (4*36*36*36) + ($D*36*36) + (2*36) + 22);
+    { + 1 = '14D2N' }
+  var Rand := RandOrig;
   repeat
     Result := False;
     Inc(Rand);
-    if Rand > $1FFFFFF then Rand := 0;
+    if Rand >= RandRange then
+      Rand := 0;
     if Rand = RandOrig then
-      { practically impossible to go through 33 million possibilities,
+      { practically impossible to go through 60 million combinations,
         but check "just in case"... }
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
     { Generate a "random" name }
-    TempDir := Path + 'iu-' + IntToBase32(Rand) + '.tmp';
+    TempDir := Path + 'iu-' + UIntToBase36Str(Rand, 5) + '.tmp';
     if DirExists(TempDir) then begin
       if not DeleteDirTree(TempDir) then Continue;
       Result := True;
