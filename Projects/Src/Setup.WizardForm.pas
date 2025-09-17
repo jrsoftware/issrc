@@ -2815,7 +2815,8 @@ const
   ColorChange: array[Boolean] of TColor = (clBtnFace, clWindow);
 begin
   GroupEdit.Enabled := not NoIconsCheck.Checked;
-  GroupEdit.Color := ColorChange[GroupEdit.Enabled];
+  if not GroupEdit.IsCustomStyleActive then
+    GroupEdit.Color := ColorChange[GroupEdit.Enabled];
   GroupBrowseButton.Enabled := not NoIconsCheck.Checked;
 end;
 

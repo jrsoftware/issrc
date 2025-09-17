@@ -111,7 +111,7 @@ procedure Register;
 implementation
 
 uses
-  SysUtils, Math, Resample;
+  SysUtils, Math, Themes, Resample;
 
 procedure Register;
 begin
@@ -345,7 +345,10 @@ begin
   inherited;
   ControlStyle := ControlStyle + [csParentBackground, csReplicatable];
   FImpl.Init(Self);
-  FImpl.BackColor := clBtnFace;
+  if IsCustomStyleActive then
+    FImpl.BackColor := StyleServices(Self).GetStyleColor(scWindow)
+  else
+    FImpl.BackColor := clBtnFace;
   Width := 105;
   Height := 105;
 end;
