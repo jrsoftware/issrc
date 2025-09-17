@@ -213,10 +213,9 @@ procedure RunImageLocally(const Module: HMODULE);
   some fixes incorporated. }
 
   procedure Touch(var X: DWORD);
-  { Note: Uses asm to ensure it isn't optimized away }
-  asm
-    xor edx, edx
-    lock or [eax], edx
+  { Note: Uses InterlockedExchangeAdd to ensure it isn't optimized away }
+  begin
+    InterlockedExchangeAdd(PInteger(@X)^, 0);
   end;
 
 var
@@ -225,7 +224,6 @@ var
   MemInfo: TMemoryBasicInformation;
   ChangedProtection: Boolean;
   OrigProtect: DWORD;
-  Offset: Cardinal;
 begin
   { Get system's page size }
   GetSystemInfo(SysInfo);
@@ -254,9 +252,9 @@ begin
 
       { Write to every page in the region.
         This forces the page to be in RAM and swapped to the paging file. }
-      Offset := 0;
-      while Offset < Cardinal(MemInfo.RegionSize) do begin
-        Touch(PDWORD(Cardinal(MemInfo.BaseAddress) + Offset)^);
+      var Offset: SIZE_T := 0;
+      while Offset < MemInfo.RegionSize do begin
+        Touch(PDWORD(PByte(MemInfo.BaseAddress) + Offset)^);
         Inc(Offset, SysInfo.dwPageSize);
       end;
 
