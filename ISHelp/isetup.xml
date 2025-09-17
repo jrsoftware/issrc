@@ -5568,9 +5568,9 @@ DiskSliceSize=736000000
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
-<p>If the built-in wizard image is not used, then this directives defaults to <tt>clWindow</tt> (usually white).<br/>
-Otherwise, if custom style <tt>slate</tt> is used then this directives defaults to <tt>#b8c9d4</tt> (grayish blue).<br/>
-Otherwise, if custom style <tt>zircon</tt> is used then this directives defaults to <tt>#c6e5eb</tt> (light grayish cyan).<br/>
+<p>If the built-in wizard image is not used, then this directive defaults to <tt>clWindow</tt> (usually white).<br/>
+Otherwise, if custom style <tt>slate</tt> is used then this directive defaults to <tt>#b8c9d4</tt> (grayish blue).<br/>
+Otherwise, if custom style <tt>zircon</tt> is used then this directive defaults to <tt>#c6e5eb</tt> (light grayish cyan).<br/>
 Otherwise, if forced dark mode is used then this directive defaults to <tt>#314853</tt> (dark desaturated blue).<br/>
 Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><b>See also:</b><br/>
