@@ -80,8 +80,11 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj}
-
+{$IFDEF WIN32}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x86.obj}
+{$ELSE}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x64.obj}
+{$ENDIF}
 type
   TLzmaInCallback = record
     Read: function(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer; cdecl;
