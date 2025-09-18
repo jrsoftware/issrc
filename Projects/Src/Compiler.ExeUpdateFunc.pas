@@ -392,29 +392,6 @@ end;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-
-  function SeekToPEHeader(const F: TCustomFile): Boolean;
-  var
-    DosHeader: packed record
-      Sig: array[0..1] of AnsiChar;
-      Other: array[0..57] of Byte;
-      PEHeaderOffset: LongWord;
-    end;
-    Sig: DWORD;
-  begin
-    Result := False;
-    F.Seek(0);
-    if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-      if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-         (DosHeader.PEHeaderOffset <> 0) then begin
-        F.Seek(DosHeader.PEHeaderOffset);
-        if F.Read(Sig, SizeOf(Sig)) = SizeOf(Sig) then
-          if Sig = IMAGE_NT_SIGNATURE then
-            Result := True;
-      end;
-    end;
-  end;
-
 const
   IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA = $0020;
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
@@ -427,8 +404,8 @@ var
 begin
   if SeekToPEHeader(F) then begin
     if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) then begin
-      const PE32 = Header.SizeOfOptionalHeader = 224;
-      const PE32Plus = Header.SizeOfOptionalHeader = 240;
+      const PE32 = Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader);
+      const PE32Plus = Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader64);
       if PE32 or PE32Plus then begin
         const Ofs = F.Position;
         if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and

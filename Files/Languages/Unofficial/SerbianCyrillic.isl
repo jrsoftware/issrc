@@ -1,9 +1,9 @@
-; *** Inno Setup version 6.4.0+ Serbian (Cyrillic) messages ***
+; *** Inno Setup version 6.5.0+ Serbian (Cyrillic) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
-; Maintained by Davor Nikolić (davornik@yahoo.com).
+; Maintained by Davor Nikolić (support@trackworktime.com).
 ; Based on previous translations of Rancher (theranchcowboy@gmail.com)
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
@@ -16,6 +16,8 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=<0421><0440><043F><0441><043A><0438>
 LanguageID=$0C1A
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+; For English it's set to zero anyway because English only uses ASCII characters
 LanguageCodePage=1251
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -100,8 +102,8 @@ ButtonYesToAll=Д&а за све
 ButtonNo=&Не
 ButtonNoToAll=Н&е за све
 ButtonFinish=&Заврши
-ButtonBrowse=&Потражи…
-ButtonWizardBrowse=&Потражи…
+ButtonBrowse=&Потражи...
+ButtonWizardBrowse=&Потражи...
 ButtonNewFolder=&Направи фасциклу
 
 ; *** "Select Language" dialog messages
@@ -153,7 +155,7 @@ UserInfoNameRequired=Морате навести име.
 WizardSelectDir=Одабир одредишне фасцикле
 SelectDirDesc=Изаберите место на ком желите да инсталирате [name].
 SelectDirLabel3=Програм ће инсталирати [name] у следећу фасциклу.
-SelectDirBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи…“.
+SelectDirBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи...“.
 DiskSpaceGBLabel=Потребно је најмање [gb] GB слободног простора на диску.
 DiskSpaceMBLabel=Потребно је најмање [mb] MB слободног простора на диску.
 CannotInstallToNetworkDrive=Не могу да инсталирам на мрежну јединицу.
@@ -194,7 +196,7 @@ SelectTasksLabel2=Изаберите додатне задатке које же
 WizardSelectProgramGroup=Одабир фасцикле у менију „Старт“
 SelectStartMenuFolderDesc=Изаберите место на ком желите да поставите пречице.
 SelectStartMenuFolderLabel3=Инсталација ће поставити пречице програма у следећој фасцикли у менију „Старт“.
-SelectStartMenuFolderBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи…“.
+SelectStartMenuFolderBrowseLabel=Кликните на „Даље“ да наставите. Ако желите да изаберете другу фасциклу, кликните на „Потражи...“.
 MustEnterGroupName=Морате навести назив фасцикле.
 GroupNameTooLong=Назив фасцикле или путања је предугачка.
 InvalidGroupName=Назив фасцикле није исправан.
@@ -214,23 +216,26 @@ ReadyMemoGroup=Фасцикла у менију „Старт“:
 ReadyMemoTasks=Додатни задаци:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Преузимање додатних датотека...
+DownloadingLabel2=Преузимање датотека...
 ButtonStopDownload=&Заустави преузимање
 StopDownload=Да ли сте сигурни да желите да зауставите преузимање?
 ErrorDownloadAborted=Преузимање је прекинуто
 ErrorDownloadFailed=Преузимање није успело: %1 %2
 ErrorDownloadSizeFailed=Добијање величине није успело: %1 %2
-ErrorFileHash1=Хеш датотеке није успео: %1
-ErrorFileHash2=Неисправан хеш датотеке: очекиван %1, пронађен %2
 ErrorProgress=Неисправан напредак: %1 од %2
 ErrorFileSize=Неисправна величина датотеке: очекиван %1, пронађен %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Издвајање додатних датотека...
+ExtractingLabel=Издвајање датотека...
 ButtonStopExtraction=&Заустави издвајање
 StopExtraction=Да ли сте сигурни да желите да зауставите издвајање?
 ErrorExtractionAborted=Издвајање прекинуто
 ErrorExtractionFailed=Издвајање није успело: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Лозинка је нетачна
+ArchiveIsCorrupted=Архива је оштећена
+ArchiveUnsupportedFormat=Формат архиве није подржан
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Припрема за инсталацију
@@ -265,7 +270,7 @@ RunEntryShellExec=Погледај %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Следећи диск
-SelectDiskLabel2=Убаците диск %1 и кликните на „У реду“.%n%nАко се датотеке на овом диску могу пронаћи у некој другој фасцикли, унесите одговарајућу путању или кликните на „Потражи…“.
+SelectDiskLabel2=Убаците диск %1 и кликните на „У реду“.%n%nАко се датотеке на овом диску могу пронаћи у некој другој фасцикли, унесите одговарајућу путању или кликните на „Потражи...“.
 PathLabel=&Путања:
 FileNotInDir2=Датотека „%1“ се не налази у „%2“. Убаците прави диск или изаберите другу фасциклу.
 SelectDirectoryLabel=Изаберите место следећег диска.
@@ -276,19 +281,23 @@ AbortRetryIgnoreSelectAction=Изаберите радњу
 AbortRetryIgnoreRetry=&Покушај опет
 AbortRetryIgnoreIgnore=&Занемари грешку и наставу
 AbortRetryIgnoreCancel=Прекини инсталацију
+RetryCancelSelectAction=Изаберите акцију
+RetryCancelRetry=&Покушај поново
+RetryCancelCancel=Одустани
 
 ; *** Installation status messages
-StatusClosingApplications=Затварам програме…
-StatusCreateDirs=Правим фасцикле…
-StatusExtractFiles=Распакујем датотеке…
-StatusCreateIcons=Постављам пречице…
-StatusCreateIniEntries=Постављам INI уносе…
-StatusCreateRegistryEntries=Постављам уносе у регистар…
-StatusRegisterFiles=Уписујем датотеке…
-StatusSavingUninstall=Чувам податке о деинсталацији…
-StatusRunProgram=Завршавам инсталацију…
-StatusRestartingApplications=Поново покрећем програме…
-StatusRollback=Поништавам измене…
+StatusClosingApplications=Затварам програме...
+StatusCreateDirs=Правим фасцикле...
+StatusExtractFiles=Распакујем датотеке...
+StatusDownloadFiles=Преузимање датотека...
+StatusCreateIcons=Постављам пречице...
+StatusCreateIniEntries=Постављам INI уносе...
+StatusCreateRegistryEntries=Постављам уносе у регистар...
+StatusRegisterFiles=Уписујем датотеке...
+StatusSavingUninstall=Чувам податке о деинсталацији...
+StatusRunProgram=Завршавам инсталацију...
+StatusRestartingApplications=Поново покрећем програме...
+StatusRollback=Поништавам измене...
 
 ; *** Misc. errors
 ErrorInternal2=Унутрашња грешка: %1
@@ -310,6 +319,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Прескочите ову датоте
 FileAbortRetryIgnoreIgnoreNotRecommended=&Занемари грешку и настави (не препоручује се)
 SourceIsCorrupted=Изворна датотека је оштећена
 SourceDoesntExist=Изворна датотека „%1“ не постоји
+SourceVerificationFailed=Верификација изворне датотеке није успела: %1
+VerificationSignatureDoesntExist=Датотека потписа "%1" не постоји
+VerificationSignatureInvalid=Датотека потписа "%1" је неважећа
+VerificationKeyNotFound=Датотека потписа "%1" користи непознат кључ
+VerificationFileNameIncorrect=Назив датотеке није тачан
+VerificationFileTagIncorrect=Ознака датотеке није тачна
+VerificationFileSizeIncorrect=Величина датотеке није тачна
+VerificationFileHashIncorrect=Хеш датотеке није тачан
 ExistingFileReadOnly2=Постојећа датотека не може да се замени јер је само за читање.
 ExistingFileReadOnlyRetry=&Уклоните атрибут само за читање и покушајте поново
 ExistingFileReadOnlyKeepExisting=&Задржите постојећу датотеку
@@ -328,6 +345,8 @@ ErrorChangingAttr=Дошло је до грешке при измени особ
 ErrorCreatingTemp=Дошло је до грешке при стварању датотеке у одредишној фасцикли:
 ErrorReadingSource=Дошло је до грешке при читању изворне датотеке:
 ErrorCopying=Дошло је до грешке при умножавању датотеке:
+ErrorDownloading=Дошло је до грешке при покушају преузимања датотеке:
+ErrorExtracting=Дошло је до грешке при покушају распакивања архиве:
 ErrorReplacingExistingFile=Дошло је до грешке при замени постојеће датотеке:
 ErrorRestartReplace=Не могу да заменим:
 ErrorRenamingTemp=Дошло је до грешке при преименовању датотеке у одредишној фасцикли:
@@ -369,7 +388,7 @@ ConfirmDeleteSharedFile2=Систем је пријавио да следећу 
 SharedFileNameLabel=Назив датотеке:
 SharedFileLocationLabel=Путања:
 WizardUninstalling=Стање деинсталације
-StatusUninstalling=Деинсталирам %1…
+StatusUninstalling=Деинсталирам %1...
 
 ; *** Shutdown block reasons
 ShutdownBlockReasonInstallingApp=Инсталирам %1.
@@ -388,7 +407,7 @@ ProgramOnTheWeb=%1 на интернету
 UninstallProgram=Деинсталирај %1
 LaunchProgram=Покрени %1
 AssocFileExtension=&Повежи %1 са форматом %2
-AssocingFileExtension=Повезујем %1 са форматом %2…
+AssocingFileExtension=Повезујем %1 са форматом %2...
 AutoStartProgramGroupDescription=Покретање:
 AutoStartProgram=Аутоматски покрени %1
 AddonHostProgramNotFound=%1 се не налази у наведеној фасцикли.%n%nЖелите ли ипак да наставите?
