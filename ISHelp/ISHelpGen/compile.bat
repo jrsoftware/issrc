@@ -22,7 +22,7 @@ set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
-set DELPHIXELIB=%DELPHIXEROOT%\lib\win32\release
+set DELPHIXELIB_WIN32=%DELPHIXEROOT%\lib\win32\release
 
 rem -------------------------------------------------------------------------
 
@@ -31,11 +31,11 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1
 set FLAGSCONSOLE=%FLAGS% -CC
 set NAMESPACES=System;System.Win;Winapi
-set DCUDIR=Dcu\Release
+set DCUDIR_WIN32=Dcu\Win32\Release
 
-echo Compiling ISHelpGen.dpr:
-mkdir %DCUDIR%\ISHelpGen.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\ISHelpGen.dpr ISHelpGen.dpr
+echo Compiling ISHelpGen.exe:
+mkdir %DCUDIR_WIN32%\ISHelpGen.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\ISHelpGen.dpr ISHelpGen.dpr
 if errorlevel 1 goto failed
 
 echo Success!
