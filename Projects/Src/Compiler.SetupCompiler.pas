@@ -62,10 +62,12 @@ type
 
   TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
 
-  TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
+  TPrecompiledFile = (pfSetupE32, pfSetupLdrE32, pfSetupLdrE64, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
   TPrecompiledFiles = set of TPrecompiledFile;
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
+
+  TSetupLdr = (slNone, sl32bit, sl64bit);
 
   TSetupCompiler = class
   private
@@ -133,7 +135,8 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
-    UseSetupLdr, DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
+    UseSetupLdr: TSetupLdr;
+    DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize: Int64;
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
     LicenseFile, InfoBeforeFile, InfoAfterFile, WizardImageFile: String;
@@ -2477,7 +2480,7 @@ var
 
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
-    PrecompiledFiles: array of PChar = ['setupe32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
+    PrecompiledFiles: array of PChar = ['setupe32', 'setupldre32', 'setupldre64', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
   begin
     Result := [];
     while True do
@@ -2486,10 +2489,11 @@ var
         -1: Invalid;
         0: Include(Result, pfSetupE32);
         1: Include(Result, pfSetupLdrE32);
-        2: Include(Result, pfIs7zDll);
-        3: Include(Result, pfIsbunzipDll);
-        4: Include(Result, pfIsunzlibDll);
-        5: Include(Result, pfIslzmaExe);
+        2: Include(Result, pfSetupLdrE64);
+        3: Include(Result, pfIs7zDll);
+        4: Include(Result, pfIsbunzipDll);
+        5: Include(Result, pfIsunzlibDll);
+        6: Include(Result, pfIslzmaExe);
       end;
   end;
 
@@ -3168,7 +3172,12 @@ begin
         SetSetupHeaderOption(shUsePreviousUserInfo);
       end;
     ssUseSetupLdr: begin
-        UseSetupLdr := StrToBool(Value);
+        if SameText(Value, '64bit') then
+          UseSetupLdr := sl64bit
+        else if StrToBool(Value) then
+          UseSetupLdr := sl32bit
+        else
+          UseSetupLdr := slNone;
       end;
     ssUserInfoPage: begin
         SetSetupHeaderOption(shUserInfoPage);
@@ -7714,7 +7723,7 @@ begin
     end;
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
-    UseSetupLdr := True;
+    UseSetupLdr := sl32bit;
     TerminalServicesAware := True;
     DEPCompatible := True;
     ASLRCompatible := True;
@@ -7909,7 +7918,7 @@ begin
     end;
     if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
-    if not UseSetupLdr and
+    if (UseSetupLdr = slNone) and
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
@@ -8259,7 +8268,7 @@ begin
       AddStatus(SCompilerStatusCreateSetupFiles);
       ExeFilename := OutputDir + OutputBaseFilename + '.exe';
       try
-        if not UseSetupLdr then begin
+        if UseSetupLdr = slNone then begin
           SetupFile := TFile.Create(ExeFilename, fdCreateAlways, faWrite, fsNone);
           try
             SetupFile.WriteBuffer(SetupE32.Memory^, SetupE32.CappedSize);
@@ -8289,8 +8298,12 @@ begin
           end;
         end
         else begin
-          CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
-            [cftoTrustAllOnDebug], OnCheckedTrust);
+          if UseSetupLdr = sl32bit then
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
+              [cftoTrustAllOnDebug], OnCheckedTrust)
+          else
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
+              [cftoTrustAllOnDebug], OnCheckedTrust);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
           if SetupIconFilename <> '' then begin
@@ -8362,7 +8375,7 @@ begin
               True);
 
             { Update manifest if needed }
-            if UseSetupLdr then begin
+            if UseSetupLdr <> slNone then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['Setup.exe']));
               PreventCOMCTL32Sideloading(ExeFile);
             end;
