@@ -392,36 +392,10 @@ end;
 
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
-
-  function SeekToPEHeader(const F: TCustomFile): Boolean;
-  var
-    DosHeader: packed record
-      Sig: array[0..1] of AnsiChar;
-      Other: array[0..57] of Byte;
-      PEHeaderOffset: LongWord;
-    end;
-    Sig: DWORD;
-  begin
-    Result := False;
-    F.Seek(0);
-    if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-      if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-         (DosHeader.PEHeaderOffset <> 0) then begin
-        F.Seek(DosHeader.PEHeaderOffset);
-        if F.Read(Sig, SizeOf(Sig)) = SizeOf(Sig) then
-          if Sig = IMAGE_NT_SIGNATURE then
-            Result := True;
-      end;
-    end;
-  end;
-
 const
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
-  OffsetOfOperatingSystemVersion = $28;
-  OffsetOfImageVersion = $2C;
-  OffsetOfSubsystemVersion = $30;
   OffsetOfDllCharacteristics = $46;
 var
   Header: TImageFileHeader;
@@ -429,7 +403,7 @@ var
 begin
   if SeekToPEHeader(F) then begin
     if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = 224) then begin
+       (Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader)) then begin
       const Ofs = F.Position;
       if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
          (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
