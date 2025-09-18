@@ -416,44 +416,49 @@ procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   end;
 
 const
+  IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA = $0020;
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
-  OffsetOfOperatingSystemVersion = $28;
-  OffsetOfImageVersion = $2C;
-  OffsetOfSubsystemVersion = $30;
-  OffsetOfDllCharacteristics = $46;
+  OffsetOfDllCharacteristics = $46; { Valid for for PE32 and PE32+ }
 var
   Header: TImageFileHeader;
   OptMagic, DllChars, OrigDllChars: Word;
 begin
   if SeekToPEHeader(F) then begin
-    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = 224) then begin
-      const Ofs = F.Position;
-      if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
-         (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
-        { Update DllCharacteristics }
-        F.Seek(Ofs + OffsetOfDllCharacteristics);
-        if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
-          OrigDllChars := DllChars;
-          if IsTSAware then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
-          if IsDEPCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
-          if IsASLRCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
-          if DllChars <> OrigDllChars then begin
-            F.Seek(Ofs + OffsetOfDllCharacteristics);
-            F.WriteBuffer(DllChars, SizeOf(DllChars));
+    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) then begin
+      const PE32 = Header.SizeOfOptionalHeader = 224;
+      const PE32Plus = Header.SizeOfOptionalHeader = 240;
+      if PE32 or PE32Plus then begin
+        const Ofs = F.Position;
+        if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
+           ((PE32 and (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC)) or
+            (PE32Plus and (OptMagic = IMAGE_NT_OPTIONAL_HDR64_MAGIC))) then begin
+          { Update DllCharacteristics }
+          F.Seek(Ofs + OffsetOfDllCharacteristics);
+          if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
+            OrigDllChars := DllChars;
+            if IsTSAware then
+              DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
+            else
+              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+            if IsDEPCompatible then
+              DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+            else
+              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+            var ASLRFlags: Word := IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
+            if Header.Machine = IMAGE_FILE_MACHINE_AMD64 then
+              ASLRFlags := ASLRFlags or IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA;
+            if IsASLRCompatible then
+              DllChars := DllChars or ASLRFlags
+            else
+              DllChars := DllChars and not ASLRFlags;
+            if DllChars <> OrigDllChars then begin
+              F.Seek(Ofs + OffsetOfDllCharacteristics);
+              F.WriteBuffer(DllChars, SizeOf(DllChars));
+            end;
+            Exit;
           end;
-          Exit;
         end;
       end;
     end;
