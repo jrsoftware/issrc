@@ -61,6 +61,7 @@ call :deletefile files\iscmplr.dll
 call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
 call :deletefile files\setupldr.e32
+call :deletefile files\setupldr.e64
 call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
@@ -74,6 +75,7 @@ call :waitforfile files\iscmplr.dll
 call :waitforfile files\ispp.dll
 call :waitforfile files\setup.e32
 call :waitforfile files\setupldr.e32
+call :waitforfile files\setupldr.e64
 call :waitforfile files\issigtool.exe
 call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 
@@ -89,7 +91,7 @@ if exist .\setup-presign.bat (
 )
 
 rem  Sign using user's private key - also see compile.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

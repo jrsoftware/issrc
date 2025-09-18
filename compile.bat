@@ -24,7 +24,8 @@ set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
-set DELPHIXELIB=%DELPHIXEROOT%\lib\win32\release
+set DELPHIXELIB_WIN32=%DELPHIXEROOT%\lib\win32\release
+set DELPHIXELIB_WIN64=%DELPHIXEROOT%\lib\win64\release
 
 rem -------------------------------------------------------------------------
 
@@ -37,8 +38,10 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
 set FLAGSCONSOLE=%FLAGS% -CC
 set FLAGSE32=%FLAGS% -TX.e32
+set FLAGSE64=%FLAGS% -TX.e64
 set NAMESPACES=System;System.Win;Winapi
-set DCUDIR=Dcu\Release
+set DCUDIR_WIN32=Dcu\Win32\Release
+set DCUDIR_WIN64=Dcu\Win64\Release
 
 set ROPSSRC=..\Components\UniPS\Source
 set ROPSDEF=PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS
@@ -49,40 +52,45 @@ if errorlevel 1 goto failed
 if "%1"=="issigtool" goto issigtool
 if not "%1"=="" goto failed
 
-echo - ISPP.dpr
-mkdir %DCUDIR%\ISPP.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES%  -U"%DELPHIXELIB%"  -NU%DCUDIR%\ISPP.dpr ISPP.dpr
+echo - ISPP.dll
+mkdir %DCUDIR_WIN32%\ISPP.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES%  -U"%DELPHIXELIB_WIN32%"  -NU%DCUDIR_WIN32%\ISPP.dpr ISPP.dpr
 if errorlevel 1 goto failed
 
-echo - Compil32.dpr
-mkdir %DCUDIR%\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Compil32.dpr -DCOMPIL32PROJ;VCLSTYLES;%ROPSDEF% Compil32.dpr
+echo - Compil32.exe
+mkdir %DCUDIR_WIN32%\Compil32.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Compil32.dpr -DCOMPIL32PROJ;VCLSTYLES;%ROPSDEF% Compil32.dpr
 if errorlevel 1 goto failed
 
-echo - ISCC.dpr
-mkdir %DCUDIR%\ISCC.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCC.dpr -D%ROPSDEF% ISCC.dpr
+echo - ISCC.exe
+mkdir %DCUDIR_WIN32%\ISCC.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\ISCC.dpr -D%ROPSDEF% ISCC.dpr
 if errorlevel 1 goto failed
 
-echo - ISCmplr.dpr
-mkdir %DCUDIR%\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
+echo - ISCmplr.dll
+mkdir %DCUDIR_WIN32%\ISCmplr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
 if errorlevel 1 goto failed
 
-echo - SetupLdr.dpr
-mkdir %DCUDIR%\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
+echo - SetupLdr.e32
+mkdir %DCUDIR_WIN32%\SetupLdr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
 if errorlevel 1 goto failed
 
-echo - Setup.dpr
-mkdir %DCUDIR%\Setup.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
+echo - SetupLdr.e64
+mkdir %DCUDIR_WIN64%\SetupLdr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc64.exe" %FLAGSE64% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN64%" -NU%DCUDIR_WIN64%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
+if errorlevel 1 goto failed
+
+echo - Setup.e32
+mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
 if errorlevel 1 goto failed
 
 :issigtool
-echo - ISSigTool.dpr
-mkdir %DCUDIR%\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\ISSigTool.dpr ISSigTool.dpr
+echo - ISSigTool.exe
+mkdir %DCUDIR_WIN32%\ISSigTool.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\ISSigTool.dpr ISSigTool.dpr
 if errorlevel 1 goto failed
 
 cd ..
@@ -92,7 +100,7 @@ echo Success!
 
 if "%1"=="issigtool" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 

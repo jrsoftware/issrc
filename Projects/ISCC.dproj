@@ -61,14 +61,14 @@
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-        <DCC_DcuOutput>Dcu\Release\$(MainSource)</DCC_DcuOutput>
+        <DCC_DcuOutput>Dcu\Win32\Release\$(MainSource)</DCC_DcuOutput>
         <DCC_ExeOutput>..\Files</DCC_ExeOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_DcuOutput>Dcu\Debug\$(MainSource)</DCC_DcuOutput>
+        <DCC_DcuOutput>Dcu\Win32\Debug\$(MainSource)</DCC_DcuOutput>
         <DCC_ExeOutput>Bin</DCC_ExeOutput>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
     </PropertyGroup>
