@@ -57,11 +57,11 @@ begin
 
   if HandleIsConsole then begin
     var CharsWritten: DWORD;
-    WriteConsole(Handle, @S[1], Length(S), CharsWritten, nil);
+    WriteConsole(Handle, @S[1], ULength(S), CharsWritten, nil);
   end else begin
     var Utf8S := Utf8Encode(S);
     var BytesWritten: DWORD;
-    WriteFile(Handle, Utf8S[1], Length(Utf8S), BytesWritten, nil);
+    WriteFile(Handle, Utf8S[1], ULength(Utf8S), BytesWritten, nil);
   end;
 end;
 
