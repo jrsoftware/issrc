@@ -90,6 +90,8 @@ function SetIniInt(const Section, Key: String; const Value: Longint; const Filen
 function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;
 procedure DeleteIniEntry(const Section, Key, Filename: String);
 procedure DeleteIniSection(const Section, Filename: String);
+function ULength(const S: String): UInt32; overload;
+function ULength(const S: AnsiString): UInt32; overload;
 function GetEnv(const EnvVar: String): String;
 function GetCmdTail: String;
 function GetCmdTailEx(StartIndex: Integer): String;
@@ -139,7 +141,7 @@ function GetPreferredUIFont: String;
 function IsWildcard(const Pattern: String): Boolean;
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
 function IntMax(const A, B: Integer): Integer;
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: DWORD): String;
 function DeleteDirTree(const Dir: String): Boolean;
 function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
@@ -245,7 +247,7 @@ end;
 function GetIniString(const Section, Key: String; Default: String;
   const Filename: String): String;
 var
-  BufSize, Len: Integer;
+  BufSize, Len: Cardinal;
 begin
   { On Windows 9x, Get*ProfileString can modify the lpDefault parameter, so
     make sure it's unique and not read-only }
@@ -381,6 +383,16 @@ begin
     WriteProfileString(PChar(Section), nil, nil);
 end;
 
+function ULength(const S: String): UInt32;
+begin
+  Result := UInt32(Length(S));
+end;
+
+function ULength(const S: AnsiString): UInt32;
+begin
+  Result := UInt32(Length(S));
+end;
+
 function GetEnv(const EnvVar: String): String;
 { Gets the value of the specified environment variable. (Just like TP's GetEnv) }
 var
@@ -388,7 +400,7 @@ var
 begin
   SetLength(Result, 255);
   repeat
-    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), Length(Result));
+    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), ULength(Result));
     if Res = 0 then begin
       Result := '';
       Break;
@@ -666,7 +678,7 @@ var
 begin
   SetLength(Result, MAX_PATH);
   repeat
-    Res := GetShortPathName(PChar(LongName), PChar(Result), Length(Result));
+    Res := GetShortPathName(PChar(LongName), PChar(Result), ULength(Result));
     if Res = 0 then begin
       Result := LongName;
       Break;
@@ -716,14 +728,13 @@ function GetSysWow64Dir: String;
 var
   GetSystemWow64DirectoryFunc: function(
     lpBuffer: PWideChar; uSize: UINT): UINT; stdcall;
-  Res: Integer;
   Buf: array[0..MAX_PATH] of Char;
 begin
   Result := '';
   GetSystemWow64DirectoryFunc := GetProcAddress(GetModuleHandle(kernel32),
       'GetSystemWow64DirectoryW');
   if Assigned(GetSystemWow64DirectoryFunc) then begin
-    Res := GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+    const Res = GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
     if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
       Result := Buf;
   end;
@@ -832,7 +843,6 @@ function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String
   Type1, Type2, Type3: DWORD): Boolean;
 var
   Typ, Size: DWORD;
-  Len: Integer;
   S: String;
   ErrorCode: Longint;
 label 1;
@@ -863,7 +873,7 @@ begin
         OutOfMemoryError;
       { Note: If Size isn't a multiple of SizeOf(S[1]), we have to round up
         here so that RegQueryValueEx doesn't overflow the buffer }
-      Len := (Size + (SizeOf(S[1]) - 1)) div SizeOf(S[1]);
+      var Len := (Size + (SizeOf(S[1]) - 1)) div SizeOf(S[1]);
       SetString(S, nil, Len);
       ErrorCode := RegQueryValueEx(H, Name, nil, @Typ, @S[1], @Size);
       if ErrorCode = ERROR_MORE_DATA then begin
@@ -984,7 +994,7 @@ begin
       SetString(KeyName, nil, 256);
       I := 0;
       while True do begin
-        KeyNameCount := Length(KeyName);
+        KeyNameCount := ULength(KeyName);
         ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
         if ErrorCode = ERROR_MORE_DATA then begin
           { Double the size of the buffer and try again }
@@ -1098,7 +1108,6 @@ var
   Token: THandle;
   GroupInfoSize: DWORD;
   GroupInfo: PTokenGroups;
-  I: Integer;
 begin
   Result := False;
 
@@ -1138,7 +1147,7 @@ begin
            GroupInfoSize, GroupInfoSize) then
           Exit;
 
-        for I := 0 to GroupInfo.GroupCount-1 do begin
+        for var I := 0 to GroupInfo.GroupCount-1 do begin
           if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
              (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
               SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
@@ -1373,14 +1382,13 @@ begin
     Result := B;
 end;
 
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: DWORD): String;
 { Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
   which allows the function to succeed on errors like 129 }
 var
-  Len: Integer;
   Buffer: array[0..1023] of Char;
 begin
-  Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
     FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
     ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
   while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
@@ -1806,7 +1814,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
           TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
         { Append newly available data to the incomplete line we might already have }
-        var TotalBytesHave: DWORD := Length(Pipe.Buffer);
+        var TotalBytesHave := ULength(Pipe.Buffer);
         SetLength(Pipe.Buffer, TotalBytesHave+TotalBytesAvail);
         var BytesRead: DWORD;
         Pipe.OKToRead := ReadFile(Pipe.PipeRead, Pipe.Buffer[TotalBytesHave+1],

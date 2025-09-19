@@ -95,14 +95,14 @@ type
     FEof: Boolean;
     FBuffer: array[0..4095] of AnsiChar;
     FSawFirstLine: Boolean;
-    FCodePage: Cardinal;
+    FCodePage: Word;
     function DoReadLine(const UTF8: Boolean): AnsiString;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
     function ReadAnsiLine: AnsiString;
-    property CodePage: Cardinal write FCodePage;
+    property CodePage: Word write FCodePage;
     property Eof: Boolean read GetEof;
   end;
 
@@ -196,7 +196,7 @@ end;
 
 procedure TCustomFile.WriteAnsiString(const S: AnsiString);
 begin
-  WriteBuffer(S[1], Length(S));
+  WriteBuffer(S[1], ULength(S));
 end;
 
 { TFile }
@@ -465,11 +465,11 @@ begin
         Break;
       Inc(I);
     end;
-    L := Length(S);
+    L := ULength(S);
     if Integer(L + (I - FBufferOffset)) < 0 then
       OutOfMemoryError;
     SetLength(S, L + (I - FBufferOffset));
-    Move(FBuffer[FBufferOffset], S[L+1], I - FBufferOffset);
+    Move(FBuffer[FBufferOffset], S[L+1], NativeInt(I - FBufferOffset));
     FBufferOffset := I;
 
     if FBufferOffset < FBufferSize then begin
@@ -556,7 +556,7 @@ begin
       WriteBuffer(UTF8BOM, SizeOf(UTF8BOM));
     FSeekedToEnd := True;
   end;
-  WriteBuffer(Pointer(S)^, Length(S));
+  WriteBuffer(Pointer(S)^, ULength(S));
 end;
 
 procedure TTextFileWriter.Write(const S: String);
@@ -581,8 +581,6 @@ end;
 
 { TFileMapping }
 
-type
-  NTSTATUS = Longint;
 var
   _RtlNtStatusToDosError: function(Status: NTSTATUS): ULONG; stdcall;
 
@@ -651,7 +649,7 @@ begin
       and use it to generate our error message. }
     if (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(3)) and
        Assigned(_RtlNtStatusToDosError) then
-      TFile.RaiseError(_RtlNtStatusToDosError(EExternalException(E).ExceptionRecord.ExceptionInformation[2]))
+      TFile.RaiseError(_RtlNtStatusToDosError(NTSTATUS(EExternalException(E).ExceptionRecord.ExceptionInformation[2])))
     else begin
       { Use generic "The system cannot [read|write] to the specified device" errors }
       if EExternalException(E).ExceptionRecord.ExceptionInformation[0] = 0 then

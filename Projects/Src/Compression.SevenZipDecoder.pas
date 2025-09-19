@@ -317,7 +317,7 @@ procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
       SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
         SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
       SZ_ERROR_MEM:
-        SevenZipError(Win32ErrorString(E_OUTOFMEMORY));
+        SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)));
     else
       SevenZipError(Res.ToString);
     end;
