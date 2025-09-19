@@ -2,7 +2,7 @@ unit Shared.SetupEntFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -23,6 +23,9 @@ procedure SECompressedBlockRead(const R: TCompressedBlockReader; var Buf;
   const Count: Cardinal; const NumStrings, NumAnsiStrings: Integer);
 
 implementation
+
+uses
+  Shared.CommonFunc;
 
 procedure SEFreeRec(const P: Pointer; const NumStrings, NumAnsiStrings: Integer);
 var
@@ -64,18 +67,17 @@ procedure SECompressedBlockWrite(const W: TCompressedBlockWriter; var Buf;
 var
   P: Pointer;
   I: Integer;
-  Len: Integer;
 begin
   P := @Buf;
   for I := 1 to NumStrings do begin
-    Len := Length(String(P^))*SizeOf(Char);
+    const Len = ULength(String(P^))*SizeOf(Char);
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
     Inc(Cardinal(P), SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
-    Len := Length(AnsiString(P^));
+    const Len = ULength(AnsiString(P^));
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
