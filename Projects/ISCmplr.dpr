@@ -60,6 +60,7 @@ uses
 {$WEAKLINKRTTI ON}
 
 {$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.images.dark.res}
 {$R Res\ISCmplr.version.res}
 
 function ISDllCompileScript(const Params: TCompileScriptParamsEx): Integer;

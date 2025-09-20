@@ -1,6 +1,6 @@
 <!--
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -11,7 +11,7 @@
 <!ENTITY copy "&#169;"> 
 
 <!ENTITY % _inlineExceptLink "b | br | i | tt | u">
-<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | a | anchorlink">
+<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink">
 <!ENTITY % _block "p | heading | pre | precode | example | examples | indent | ul | ol | dl | paramlist | flaglist | table">
 
 <!ENTITY % Inline "(#PCDATA | %_inline;)*">
@@ -52,6 +52,8 @@
 <!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED>
 <!ELEMENT extlink %InlineExceptLink;>
 <!ATTLIST extlink href CDATA #REQUIRED>
+<!ELEMENT img %InlineExceptLink;>
+<!ATTLIST img src CDATA #REQUIRED>
 <!ELEMENT a %InlineExceptLink;>
 <!ATTLIST a name CDATA #REQUIRED>
 <!ELEMENT anchorlink %InlineExceptLink;>

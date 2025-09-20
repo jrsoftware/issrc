@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.21';
+  Version = '1.22';
 
   XMLFileVersion = '1';
 
@@ -42,6 +42,7 @@ type
     elFlagList,
     elHeading,
     elI,
+    elImg,
     elIndent,
     elKeyword,
     elLI,
@@ -377,6 +378,11 @@ begin
         Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
       elI:
         Result := Result + '<i>' + ParseFormattedText(Node) + '</i>';
+      elImg:
+        begin
+          S := EscapeHTML(Node.Attributes['src']);
+          Result := Result + Format('<img src="images/%s" />', [S]);
+        end;
       elIndent:
         Result := Result + '<div class="indent">' + ParseFormattedText(Node) + '</div>';
       elLI:
@@ -398,7 +404,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img class="extlink" src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:

@@ -171,13 +171,19 @@ type
     ssWindowVisible,
     ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
+    ssWizardImageBackColorDynamicDark,
     ssWizardImageFile,
+    ssWizardImageFileDynamicDark,
     ssWizardImageStretch,
     ssWizardResizable,
     ssWizardSmallImageBackColor,
+    ssWizardSmallImageBackColorDynamicDark,
     ssWizardSmallImageFile,
+    ssWizardSmallImageFileDynamicDark,
     ssWizardSizePercent,
-    ssWizardStyle);
+    ssWizardStyle,
+    ssWizardStyleFile,
+    ssWizardStyleFileDynamicDark);
     
 implementation
 

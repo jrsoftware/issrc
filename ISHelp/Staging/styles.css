@@ -56,9 +56,11 @@ TD {
 	vertical-align: baseline;
 }
 IMG {
+	border-style: none;
+}
+IMG.extlink {
 	width: 16px;
 	height: 16px;
-	border-style: none;
 	padding-left: 2px;
 }
 A:link, A:visited {

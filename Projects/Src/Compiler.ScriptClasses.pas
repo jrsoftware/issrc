@@ -287,7 +287,10 @@ begin
   Cl.AddClassN(Cl.FindClass('TMemo'), 'TNewMemo');
   Cl.AddClassN(Cl.FindClass('TComboBox'), 'TNewComboBox');
   Cl.AddClassN(Cl.FindClass('TListBox'), 'TNewListBox');
-  Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton');
+  with Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton') do
+  begin
+    RegisterMethod('function AdjustHeightIfCommandLink: Integer');
+  end;
   Cl.AddClassN(Cl.FindClass('TCheckBox'), 'TNewCheckBox');
   Cl.AddClassN(Cl.FindClass('TRadioButton'), 'TNewRadioButton');
   with Cl.AddClassN(Cl.FindClass('TLinkLabel'), 'TNewLinkLabel') do

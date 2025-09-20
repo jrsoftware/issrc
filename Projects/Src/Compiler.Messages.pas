@@ -59,6 +59,7 @@ const
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
+  SCompilerStatusUpdatingIconsAndVsf = '   Updating icons and style (%s)';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusError = 'ERROR:';
   SCompilerStatusWarning = 'Warning: ';

@@ -79,6 +79,11 @@ mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
 if errorlevel 1 goto failed
 
+echo - SetupCustomStyle.dpr
+mkdir %DCUDIR%\SetupCustomStyle.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\SetupCustomStyle.dpr -DSETUPPROJ;VCLSTYLES;%ROPSDEF% SetupCustomStyle.dpr
+if errorlevel 1 goto failed
+
 :issigtool
 echo - ISSigTool.exe
 mkdir %DCUDIR_WIN32%\ISSigTool.dpr 2>nul
@@ -92,7 +97,7 @@ echo Success!
 
 if "%1"=="issigtool" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 

@@ -5,7 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 CreateAppDir=no
 Uninstallable=no
 DisableProgramGroupPage=yes
@@ -113,7 +113,7 @@ end;
 procedure CreateTheWizardPages;
 var
   Page: TWizardPage;
-  Button, FormButton, TaskDialogButton: TNewButton;
+  Button, FormButton, TaskDialogButton, CommandLinkButton: TNewButton;
   Panel: TPanel;
   CheckBox: TNewCheckBox;
   Edit: TNewEdit;
@@ -179,7 +179,7 @@ begin
   Memo := TNewMemo.Create(Page);
   Memo.Top := Edit.Top + Edit.Height + ScaleY(8);
   Memo.Width := Page.SurfaceWidth;
-  Memo.Height := ScaleY(89);
+  Memo.Height := ScaleY(79);
   Memo.Anchors := [akLeft, akTop, akRight, akBottom];
   Memo.ScrollBars := ssVertical;
   Memo.Text := 'TNewMemo';
@@ -196,13 +196,26 @@ begin
 
   TaskDialogButton := TNewButton.Create(Page);
   TaskDialogButton.Caption := 'TaskDialogMsgBox';
-  TaskDialogButton.Top := FormButton.Top;
-  TaskDialogButton.Left := FormButton.Left + FormButton.Width + ScaleX(8);
+  TaskDialogButton.Top := FormButton.Top + FormButton.Height + ScaleY(8);
+  TaskDialogButton.Left := FormButton.Left;
   TaskDialogButton.Width := WizardForm.CalculateButtonWidth([TaskDialogButton.Caption]);
   TaskDialogButton.Height := ScaleY(23);
   TaskDialogButton.Anchors := [akLeft, akBottom];
   TaskDialogButton.OnClick := @TaskDialogButtonOnClick;
   TaskDialogButton.Parent := Page.Surface;
+  
+  CommandLinkButton := TNewButton.Create(Page);
+  CommandLinkButton.Style := bsCommandLink;
+  CommandLinkButton.Caption := 'TNewButton bsCommandLink style';
+  CommandLinkButton.CommandLinkHint := 'A note';
+  //CommandLinkButton.ElevationRequired := True;
+  CommandLinkButton.Top := FormButton.Top;
+  CommandLinkButton.Left := TaskDialogButton.Left + TaskDialogButton.Width + ScaleX(8);
+  CommandLinkButton.Width := Page.Surface.Width - CommandLinkButton.Left;
+  CommandLinkButton.Anchors := [akLeft, akRight, akBottom];
+  CommandLinkButton.OnClick := @ButtonOnClick;
+  CommandLinkButton.Parent := Page.Surface;
+  CommandLinkButton.AdjustHeightIfCommandLink;
 
   { TComboBox and others }
 

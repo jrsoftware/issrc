@@ -56,11 +56,12 @@ procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const APar
 procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
 
 implementation
 
 uses
-  Consts, PathFunc, Shared.CommonFunc;
+  DwmApi, Consts, PathFunc, Shared.CommonFunc;
 
 var
   MessageBoxCaptions: array[TMsgBoxType] of PChar;
@@ -266,6 +267,19 @@ begin
 
   Result := (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) and
     (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0);
+end;
+
+procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
+begin
+  { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
+    Unlike this article we check for Windows 10 Version 2004 because that's the first version
+    that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
+  if CurrentWindowsVersionAtLeast(10, 0, 19041) then begin
+    Form.StyleElements := Form.StyleElements - [seBorder];
+    const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    var value: BOOL := Dark;
+    DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
+  end;
 end;
 
 function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;

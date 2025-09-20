@@ -103,7 +103,8 @@ type
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufModernStyle, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled, ufAdminInstallMode);
+    ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
+    ufWizardDarkStyleDynamic);
 
   TUninstallLog = class
   private
@@ -1257,7 +1258,8 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) - [ufModernStyle] + Flags;
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
+      [ufModernStyle, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic] + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the

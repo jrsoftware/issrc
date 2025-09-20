@@ -114,7 +114,7 @@ because they can function independently from Inno Setup.
 Overview
 --------
 
-Inno Setup consists of seven projects:
+Inno Setup consists of eight projects:
 
 **Compil32** - This is the GUI front-end for the compiler, also known as
 the Compiler IDE. Compil32 does not do the actual compilation itself; it
@@ -135,6 +135,9 @@ to interface to the DLL.
 **Setup** - This is the actual "Setup" program. It displays the wizard, and
 performs all (un)installation-related tasks.
 
+**SetupCustomStyle** - Identical to Setup, except that it includes code to
+support VCL Styles.
+
 **SetupLdr** - This is the "setup loader." It self-extracts a compressed
 Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
@@ -147,10 +150,10 @@ related to Authenticode Code Signing at all.
 
 How do the projects link together?
 
-- Compil32, ISCmplr, ISPP, Setup, and SetupLdr share the unit Shared.Struct.pas.
-  This unit contains various data structures and constants shared by the projects.
-  If Shared.Struct.pas is changed, you usually will need to recompile all these
-  projects so that everything is in synch.
+- Compil32, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
+  Shared.Struct.pas. This unit contains various data structures and constants
+  shared by the projects. If Shared.Struct.pas is changed, you usually will need
+  to recompile all these projects so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular

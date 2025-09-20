@@ -128,6 +128,10 @@ begin
     if NewFileExists(Result) then Exit;
   end;
   Result := AddBackslash(SourceDir) + F1;
+  {$IFDEF DEBUG}
+  { Also see Setup.MainFunc's InitializeSetup }
+  Result := Result.Replace('SetupCustomStyle', 'Setup');
+  {$ENDIF}
   if NewFileExists(Result) then Exit;
   Path := SourceDir;
   LogFmt('Asking user for new disk containing "%s".', [F1]);

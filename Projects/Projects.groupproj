@@ -18,6 +18,9 @@
         <Projects Include="Setup.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="SetupCustomStyle.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="SetupLdr.dproj">
             <Dependencies/>
         </Projects>
@@ -80,6 +83,15 @@
     <Target Name="Setup:Make">
         <MSBuild Projects="Setup.dproj" Targets="Make"/>
     </Target>
+    <Target Name="SetupCustomStyle">
+        <MSBuild Projects="SetupCustomStyle.dproj"/>
+    </Target>
+    <Target Name="SetupCustomStyle:Clean">
+        <MSBuild Projects="SetupCustomStyle.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SetupCustomStyle:Make">
+        <MSBuild Projects="SetupCustomStyle.dproj" Targets="Make"/>
+    </Target>
     <Target Name="SetupLdr">
         <MSBuild Projects="SetupLdr.dproj"/>
     </Target>
@@ -108,13 +120,13 @@
         <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupLdr;ISSigTool;ISHelpGen"/>
+        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupCustomStyle;SetupLdr;ISSigTool;ISHelpGen"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupLdr:Clean;ISSigTool:Clean;ISHelpGen:Clean"/>
+        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupCustomStyle:Clean;SetupLdr:Clean;ISSigTool:Clean;ISHelpGen:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
+        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
