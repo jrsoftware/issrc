@@ -2523,8 +2523,9 @@ var
   const
     Styles: array of PChar = ['classic', 'modern', 'light', 'dark', 'dynamic', 'polar', 'slate', 'zircon'];
     StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 2, 2];
+  var
+    StylesGroupSeen: array [0..2] of Boolean;
   begin
-    var StylesGroupSeen: array [0..2] of Boolean;
     for var I := Low(StylesGroupSeen) to High(StylesGroupSeen) do
       StylesGroupSeen[I] := False;
     while True do begin
