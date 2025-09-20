@@ -155,7 +155,7 @@ var
   Filename: String;
 begin
   Path := AddBackslash(Path);
-  const RandOrig = UInt32(Random(RandRange));
+  const RandOrig = TStrongRandom.GenerateUInt32Range(RandRange);
   var Rand := RandOrig;
   repeat
     Inc(Rand);
