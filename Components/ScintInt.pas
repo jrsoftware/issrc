@@ -1,7 +1,7 @@
 unit ScintInt;
 
 {
-  Delphi translation of Scintilla.h from Scintilla 5.5.0
+  Delphi translation of Scintilla.h
   created by Jordan Russell and updated by Martijn Laan
 }
 

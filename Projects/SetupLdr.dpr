@@ -111,7 +111,7 @@ procedure SetActiveLanguage(const I: Integer);
 { Activates the specified language }
 begin
   if (I >= 0) and (I < LanguageEntryCount) and (I <> ActiveLanguage) then begin
-    AssignSetupMessages(LanguageEntries[I].Data[1], Length(LanguageEntries[I].Data));
+    AssignSetupMessages(LanguageEntries[I].Data[1], ULength(LanguageEntries[I].Data));
     ActiveLanguage := I;
   end;
 end;
@@ -555,5 +555,5 @@ begin
   except
     ShowExceptionMsg;
   end;
-  Halt(SetupLdrExitCode);
+  Halt(Word(SetupLdrExitCode));
 end.
