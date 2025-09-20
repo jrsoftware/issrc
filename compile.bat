@@ -79,7 +79,7 @@ mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
 if errorlevel 1 goto failed
 
-echo - SetupCustomStyle.dpr
+echo - SetupCustomStyle.e32
 mkdir %DCUDIR%\SetupCustomStyle.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\SetupCustomStyle.dpr -DSETUPPROJ;VCLSTYLES;%ROPSDEF% SetupCustomStyle.dpr
 if errorlevel 1 goto failed
