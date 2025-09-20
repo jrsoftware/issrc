@@ -2136,6 +2136,9 @@ begin
   end;
 end;
 
+type
+  TWinControlAccess = class(TWinControl);
+
 procedure TWizardForm.UpdatePage(const PageID: Integer);
 
   procedure ReadyMemoAppend(const Lines: String);
@@ -2240,7 +2243,7 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
     const WasVisible = ReadyMemo.Visible;
     ReadyMemo.Visible := ReadyMemo.Lines.Count > 0;
     if ReadyMemo.IsCustomStyleActive and not WasVisible and not ReadyMemo.Visible then
-      ReadyMemo.RecreateWnd;
+      TWinControlAccess(ReadyMemo).RecreateWnd; { RecreateWnd is public now but used to be protected }
 
     var S: String;
     if ReadyMemo.Visible then
