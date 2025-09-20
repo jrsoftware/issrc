@@ -33,6 +33,19 @@ type
     function TimeRemaining: Cardinal;
   end;
 
+  TStrongRandom = record
+  strict private
+    class var
+      FBCryptGenRandomFunc: function(hAlgorithm: THandle; var pbBuffer;
+        cbBuffer: ULONG; dwFlags: ULONG): NTSTATUS; stdcall;
+    class procedure InitBCrypt; static;
+  public
+    class procedure GenerateBytes(out Buf; const Count: Cardinal); static;
+    class function GenerateUInt32: UInt32; static;
+    class function GenerateUInt32Range(const ARange: UInt32): UInt32; static;
+    class function GenerateUInt64: UInt64; static;
+  end;
+
   TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
   TOutputMode = (omLog, omCapture);
 
@@ -1640,6 +1653,68 @@ begin
     Result := FTimeout - Elapsed
   else
     Result := 0;
+end;
+
+{ TStrongRandom }
+
+class procedure TStrongRandom.GenerateBytes(out Buf; const Count: Cardinal);
+const
+  BCRYPT_USE_SYSTEM_PREFERRED_RNG = $00000002;
+begin
+  InitBCrypt;
+
+  { Zero-fill the buffer first to make it easier to tell if BCryptGenRandom is
+    succeeding without (entirely) filling the buffer. We don't actually expect
+    that to happen, though. (Not using FillChar here because it takes a signed
+    integer for the count.) }
+  var I := Count;
+  while I > 0 do begin
+    Dec(I);
+    PByte(@Buf)[I] := 0;
+  end;
+
+  const Status = FBCryptGenRandomFunc(0, Buf, Count, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+  if Status <> 0 then
+    raise Exception.CreateFmt('TStrongRandom: BCryptGenRandom failed (0x%x)',
+      [Status]);
+end;
+
+class function TStrongRandom.GenerateUInt32: UInt32;
+begin
+  GenerateBytes(Result, SizeOf(Result));
+end;
+
+class function TStrongRandom.GenerateUInt32Range(const ARange: UInt32): UInt32;
+{ Like Delphi's Random function, returns a number in the range 0 to ARange-1 }
+begin
+  const R = GenerateUInt32;
+  Result := UInt32((UInt64(R) * ARange) shr 32);
+end;
+
+class function TStrongRandom.GenerateUInt64: UInt64;
+begin
+  GenerateBytes(Result, SizeOf(Result));
+end;
+
+class procedure TStrongRandom.InitBCrypt;
+begin
+  if Assigned(FBCryptGenRandomFunc) then
+    Exit;
+
+  { If this function is entered by multiple threads concurrently, this will
+    call LoadLibrary more than once, but that's fine }
+  const M = LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'bcrypt.dll'));
+  if M = 0 then
+    raise Exception.Create('TStrongRandom: Failed to load bcrypt.dll');
+
+  const P = GetProcAddress(M, PAnsiChar('BCryptGenRandom'));
+  if P = nil then
+    raise Exception.Create('TStrongRandom: Failed to get address of BCryptGenRandom');
+
+  { Make sure the work of LoadLibrary is fully visible before making the
+    function pointer visible to other threads }
+  MemoryBarrier;
+  FBCryptGenRandomFunc := P;
 end;
 
 { TCreateProcessOutputReader }
