@@ -182,7 +182,10 @@ begin
   Cl.Add(TNewMemo);
   Cl.Add(TNewComboBox);
   Cl.Add(TNewListBox);
-  Cl.Add(TNewButton);
+  with Cl.Add(TNewButton) do
+  begin
+    RegisterMethod(@TNewButton.AdjustHeightIfCommandLink, 'AdjustHeightIfCommandLink');
+  end;
   Cl.Add(TNewCheckBox);
   Cl.Add(TNewRadioButton);
   with Cl.Add(TNewLinkLabel) do

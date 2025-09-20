@@ -427,17 +427,23 @@ end;
 TButtonControl = class(TWinControl)
 end;
 
+TButtonStyle = (bsPushButton, bsCommandLink, bsSplitButton);
+
 TButton = class(TButtonControl)
   property Anchors: TAnchors; read write;
   property Cancel: Boolean; read write;
   property Caption: String; read write;
+  property CommandLinkHint: String; read write;
   property Default: Boolean; read write;
+  property ElevationRequired: Boolean; read write;
   property Font: TFont; read write;
   property ModalResult: Longint; read write;
+  property Style: TButtonStyle; read write;
   property OnClick: TNotifyEvent; read write;
 end;
 
 TNewButton = class(TButton)
+  function AdjustHeightIfCommandLink: Integer;
 end;
 
 TCustomCheckBox = class(TButtonControl)

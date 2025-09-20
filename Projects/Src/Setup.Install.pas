@@ -2802,8 +2802,12 @@ begin
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      if SetupHeader.WizardStyle = wsModern then
+      if shWizardModern in SetupHeader.Options then
         Include(UninstLog.Flags, ufModernStyle);
+      if SetupHeader.WizardDarkStyle = wdsDark then
+        Include(UninstLog.Flags, ufWizardDarkStyleDark)
+      else if SetupHeader.WizardDarkStyle = wdsDynamic then
+        Include(UninstLog.Flags, ufWizardDarkStyleDynamic);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then

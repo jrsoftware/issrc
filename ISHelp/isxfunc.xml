@@ -352,6 +352,24 @@ end;</pre></example>
         <prototype>function IsAdminInstallMode: Boolean;</prototype>
         <description><p>Returns True if Setup is running in <link topic="admininstallmode">administrative install mode</link> or if Uninstall is running with administrative privileges.</p></description>
       </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>IsWinDark</name>
+        <prototype>function IsWinDark: Boolean;</prototype>
+        <description><p>Returns True if the system is running in dark mode.</p></description>
+        <remarks><p>The system's light or dark mode setting is checked only once, at startup.</p></remarks>
+        <seealso><p><link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link></p></seealso>
+      </function>
+      <function>
+        <name>IsDarkInstallMode</name>
+        <prototype>function IsDarkInstallMode: Boolean;</prototype>
+        <description><p>Returns True if Setup or Uninstall is running in dark mode.</p></description>
+        <remarks><p>Can return True, even if <link topic="isxfunc_IsWinDark">IsWinDark</link> does not.</p></remarks>
+        <seealso><p><link topic="isxfunc_IsWinDark">IsWinDark</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
       <function>
         <name>GetWindowsVersion</name>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>

@@ -5,7 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DisableWelcomePage=no
 CreateAppDir=no
 Uninstallable=no

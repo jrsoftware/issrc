@@ -37,7 +37,8 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean;
+      const AMainIconPostfix, AWizardIconsPostfix: String);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   published
     property OuterNotebook: TNewNotebook read FOuterNotebook;
@@ -62,7 +63,7 @@ var
 implementation
 
 uses
-  TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
+  Themes, TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
@@ -106,8 +107,6 @@ begin
 
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
-  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'Z_UNINSTALLICON', clNone, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', clNone, [32, 48, 64]); {don't localize}
   if SetupMessages[msgBeveledLabel] <> '' then begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
     BeveledLabel.Visible := True;
@@ -123,14 +122,26 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean;
+  const AMainIconPostfix, AWizardIconsPostfix: String);
 begin
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
-  
+
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
+
+  { Initialize wizard style - also see TWizardForm.Create }
+  const CustomStyleActive = IsCustomStyleActive;
+  if CustomStyleActive then begin
+    { TNewNotebook ignores VCL Styles so it needs a bit of help }
+    OuterNotebook.ParentColor := True;
+    Color := StyleServices(Self).GetStyleColor(scWindow);
+  end;
   if AModernStyle then begin
-    OuterNotebook.Color := clWindow;
+    if not CustomStyleActive then
+      OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
 end;

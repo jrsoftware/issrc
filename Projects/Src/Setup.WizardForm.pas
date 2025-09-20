@@ -343,7 +343,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, Generics.Collections,
+  ShellApi, ShlObj, Types, Generics.Collections, Themes,
   PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
@@ -825,9 +825,18 @@ begin
   Dec(X, W1);
   BackButton.Left := X;
 
-  { Initialize wizard style }
-  if SetupHeader.WizardStyle = wsModern then begin
-    OuterNotebook.Color := clWindow;
+  { Initialize wizard style - also see TUninstallProgressForm.Initialize }
+  const CustomStyleActive = IsCustomStyleActive;
+  if CustomStyleActive then begin
+    { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
+    WelcomePage.ParentColor := True;
+    OuterNotebook.ParentColor := True;
+    FinishedPage.ParentColor := True;
+    Color := StyleServices(Self).GetStyleColor(scWindow);
+  end;
+  if shWizardModern in SetupHeader.Options then begin
+    if not CustomStyleActive then
+      OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
 
@@ -891,9 +900,9 @@ begin
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  SelectDirBitmapImage.InitializeFromIcon(HInstance, 'Z_DIRICON', clNone, [32, 48, 64]); {don't localize}
-  SelectGroupBitmapImage.InitializeFromIcon(HInstance, 'Z_GROUPICON', clNone, [32, 48, 64]); {don't localize}
-  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, 'Z_STOPICON', clNone, [16, 24, 32]); {don't localize}
+  SelectDirBitmapImage.InitializeFromIcon(HInstance, PChar('Z_DIRICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
+  SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
+  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, PChar('Z_STOPICON' + WizardIconsPostfix), clNone, [16, 24, 32]); {don't localize}
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');
@@ -2144,12 +2153,11 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
   var
     TypeEntry: PSetupTypeEntry;
     SelectedComponents, SelectedTasks: TStringList;
-    S, MemoUserInfoInfo, MemoDirInfo, MemoGroupInfo, MemoTypeInfo, MemoComponentsInfo, MemoTasksInfo: String;
+    MemoUserInfoInfo, MemoDirInfo, MemoGroupInfo, MemoTypeInfo, MemoComponentsInfo, MemoTasksInfo: String;
     I: Integer;
   begin
-    ReadyMemo.Visible := False;
     if not (shDisableReadyMemo in SetupHeader.Options) then begin
-      ReadyMemo.Lines.Clear();
+      ReadyMemo.Lines.Clear;
 
       if shUserInfoPage in SetupHeader.Options then begin
         MemoUserInfoInfo := SetupMessages[msgReadyMemoUserInfo];
@@ -2224,14 +2232,22 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
       ReadyMemo.SelLength := 0;
     end;
 
-    if ReadyMemo.Lines.Count > 0 then begin
-      S := SetupMessages[msgReadyLabel2a];
-      ChangeReadyLabel(S);
-      ReadyMemo.Visible := True;
-    end else begin
+    { If ReadyMemo is initially invisible and remains so, graphical artifacts appear at the locations
+      of both scrollbars. The cause is unclear, but recreating the window resolves the issue.
+      Temporarily setting Visible to True first also fixes it. Maybe there's an issue in
+      TScrollingStyleHook. Note: You can make ReadyMemo initially invisible by navigating to wpReady
+      with it invisible, then clicking Back, followed by Next. }
+    const WasVisible = ReadyMemo.Visible;
+    ReadyMemo.Visible := ReadyMemo.Lines.Count > 0;
+    if ReadyMemo.IsCustomStyleActive and not WasVisible and not ReadyMemo.Visible then
+      ReadyMemo.RecreateWnd;
+
+    var S: String;
+    if ReadyMemo.Visible then
+      S := SetupMessages[msgReadyLabel2a]
+    else
       S := SetupMessages[msgReadyLabel2b];
-      ChangeReadyLabel(S);
-    end;
+    ChangeReadyLabel(S);
   end;
 
 begin
@@ -2800,7 +2816,8 @@ const
   ColorChange: array[Boolean] of TColor = (clBtnFace, clWindow);
 begin
   GroupEdit.Enabled := not NoIconsCheck.Checked;
-  GroupEdit.Color := ColorChange[GroupEdit.Enabled];
+  if not GroupEdit.IsCustomStyleActive then
+    GroupEdit.Color := ColorChange[GroupEdit.Enabled];
   GroupBrowseButton.Enabled := not NoIconsCheck.Checked;
 end;
 

@@ -19,7 +19,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.5.3
+set VER=6.6.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -60,6 +60,7 @@ call :deletefile files\iscc.exe
 call :deletefile files\iscmplr.dll
 call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
+call :deletefile files\setupcustomstyle.e32
 call :deletefile files\setupldr.e32
 call :deletefile files\setupldr.e64
 call :deletefile files\issigtool.exe
@@ -74,6 +75,7 @@ call :waitforfile files\iscc.exe
 call :waitforfile files\iscmplr.dll
 call :waitforfile files\ispp.dll
 call :waitforfile files\setup.e32
+call :waitforfile files\setupcustomstyle.e32
 call :waitforfile files\setupldr.e32
 call :waitforfile files\setupldr.e64
 call :waitforfile files\issigtool.exe
@@ -91,7 +93,7 @@ if exist .\setup-presign.bat (
 )
 
 rem  Sign using user's private key - also see compile.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

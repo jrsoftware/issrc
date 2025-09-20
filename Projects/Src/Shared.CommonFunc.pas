@@ -166,6 +166,8 @@ function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
 function HighContrastActive: Boolean;
+function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+function DarkModeActive: Boolean;
 
 implementation
 
@@ -1606,6 +1608,36 @@ begin
   Result := False;
   if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
     Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
+end;
+
+var
+  WindowsVersion: Cardinal;
+  WindowsVersionRead: Boolean;
+
+function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+begin
+  if not WindowsVersionRead then begin
+    var OSVersionInfo: TOSVersionInfo;
+    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+    GetVersionEx(OSVersionInfo);
+    WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+    WindowsVersionRead := True;
+  end;
+  Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+end;
+
+function DarkModeActive: Boolean;
+var
+  K: HKEY;
+  Size, AppsUseLightTheme: DWORD;
+begin
+  Result := False;
+  if CurrentWindowsVersionAtLeast(10, 0) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+    Size := SizeOf(AppsUseLightTheme);
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+      Result := True;
+    RegCloseKey(K);
+  end;
 end;
 
 { TOneShotTimer }

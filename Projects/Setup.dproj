@@ -180,6 +180,7 @@
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.Interfaces.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="..\Components\Themes.pas"/>
+        <None Include="Src\Setup.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

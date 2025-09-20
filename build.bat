@@ -20,7 +20,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.5.3
+set VER=6.6.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -80,7 +80,7 @@ if exist .\setup-presign.bat (
 ) 
 
 rem  Sign using user's private key - also see compile.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

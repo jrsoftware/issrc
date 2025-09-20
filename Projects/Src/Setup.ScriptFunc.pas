@@ -1199,6 +1199,14 @@ var
     begin
       Stack.SetBool(PStart, Is64BitInstallMode);
     end);
+    RegisterScriptFunc('IsWinDark', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetBool(PStart, IsWinDark);
+    end);
+    RegisterScriptFunc('IsDarkInstallMode', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetBool(PStart, IsDarkInstallMode);
+    end);
     RegisterScriptFunc('PROCESSORARCHITECTURE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       Stack.SetInt(PStart, Integer(ProcessorArchitecture));

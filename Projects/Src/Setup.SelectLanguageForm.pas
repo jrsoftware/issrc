@@ -103,7 +103,7 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  IconBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', clNone, [32, 48, 64]);
+  IconBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + MainIconPostfix), clNone, [32, 48, 64]);
 
   KeepSizeY := True;
 end;

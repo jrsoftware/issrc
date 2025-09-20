@@ -13,7 +13,7 @@
 [Setup]
 AppName=Inno Setup
 AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.5.3
+AppVersion=6.6.0-dev
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -21,7 +21,7 @@ AppUpdatesURL=https://www.innosetup.com/
 VersionInfoCopyright=Copyright (C) 1997-2025 Jordan Russell. Portions Copyright (C) 2000-2025 Martijn Laan.
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={code:GetDefaultDirName|Inno Setup 6}
 DefaultGroupName=Inno Setup 6
 PrivilegesRequiredOverridesAllowed=commandline
@@ -132,6 +132,8 @@ Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify 
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\Setup.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\SetupCustomStyle.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
+Source: "files\SetupCustomStyle.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\SetupLdr.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch

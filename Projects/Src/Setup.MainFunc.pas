@@ -113,6 +113,7 @@ var
   Entries: array[TEntryType] of TList;
   WizardImages: TWizardImages;
   WizardSmallImages: TWizardImages;
+  MainIconPostfix, WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -139,7 +140,7 @@ var
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
-    NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
+    NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
@@ -240,7 +241,7 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -2630,7 +2631,8 @@ var
         Bytes := BytesLeft;
         if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
         Reader.Read(Buf^, Bytes);
-        Stream.WriteBuffer(Buf^, Bytes);
+        if Stream <> nil then
+          Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);
       end;
     finally
@@ -2653,6 +2655,19 @@ var
       Result.LoadFromStream(MemStream);
     finally
       MemStream.Free;
+    end;
+  end;
+
+  procedure ReadWizardImages(const Reader: TCompressedBlockReader; const WizardImages: TWizardImages;
+    const WantImages: Boolean);
+  begin
+    var N: LongInt;
+    Reader.Read(N, SizeOf(LongInt));
+    for var I := 0 to N-1 do begin
+      if WantImages then
+        WizardImages.Add(ReadWizardImage(Reader))
+      else
+        ReadFileIntoStream(Reader, nil);
     end;
   end;
 
@@ -2900,7 +2915,7 @@ var
         else
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
@@ -2909,7 +2924,7 @@ var
             IDCANCEL: Abort;
             end;
         end else begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
@@ -2941,7 +2956,6 @@ var
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;
-  SetupFilename: String;
   SetupFile: TFile;
   TestID: TSetupID;
   NameAndVersionMsg: String;
@@ -3080,8 +3094,13 @@ begin
   SetupMessages[msgSetupFileCorruptOrWrongVer] := SSetupFileCorruptOrWrongVer;
 
   { Read setup-0.bin, or from EXE }
+  var SetupFilename: String;
   if not SetupLdrMode then begin
     SetupFilename := PathChangeExt(SetupLdrOriginalFilename, '') + '-0.bin';
+    {$IFDEF DEBUG}
+    { Also see TFileExtractor.FindSliceFilename }
+    SetupFileName := SetupFileName.Replace('SetupCustomStyle', 'Setup');
+    {$ENDIF}
     if not NewFileExists(SetupFilename) then
       AbortInitFmt1(msgSetupFileMissing, PathExtractName(SetupFilename));
   end
@@ -3124,6 +3143,40 @@ begin
 
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
+
+        { Apply style - also see Setup.Uninstall's RunSecondPhase
+          Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
+          instead of the ones prepared by the compiler. This is because the .e32 is started, and
+          not the .exe prepared by the compiler. This is not noticable except for the VCL style
+          resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
+          it will use the POLAR_LIGHT style, see below. }
+        var WantWizardImagesDynamicDark := False;
+        IsWinDark := DarkModeActive;
+        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
+        const IsForcedDark = (SetupHeader.WizardDarkStyle = wdsDark);
+        if IsDynamicDark then begin
+          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
+          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+          MainIconPostfix := '_DARK';
+          WantWizardImagesDynamicDark := True; { Handled below }
+        end;
+        if IsDynamicDark or IsForcedDark then begin
+          IsDarkInstallMode := True;
+          WizardIconsPostfix := '_DARK';
+        end;
+        if not HighContrastActive then begin
+          { Also see comment above }
+          var StyleName := 'MYSTYLE1';
+          if IsDynamicDark then
+            StyleName := StyleName + '_DARK';
+          var Handle: TStyleManager.TStyleServicesHandle;
+          if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
+          {$IFDEF DEBUG}
+             or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_LIGHT', 'VCLSTYLE', Handle)
+          {$ENDIF}
+          then
+            TStyleManager.SetStyle(Handle);
+        end;
 
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
@@ -3251,12 +3304,10 @@ begin
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardImages.Add(ReadWizardImage(Reader));
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardSmallImages.Add(ReadWizardImage(Reader));
+        ReadWizardImages(Reader, WizardImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
