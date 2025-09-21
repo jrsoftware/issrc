@@ -163,8 +163,9 @@ begin
 end;
 
 procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
+var
+  VisibleCaptions: array of String;
 begin
-  var VisibleCaptions: array of String;
   var NVisibleCaptions := 0;
   for var I := 0 to Length(FCommonButtons)-1 do begin
     const CommonButton = FCommonButtons[I];
