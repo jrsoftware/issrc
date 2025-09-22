@@ -3148,8 +3148,8 @@ begin
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
           resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
-          it will use the POLAR_LIGHT style, see below. This does *not* mean Uninstall will then
-          also use POLAR_LIGHT. To test Uninstall styling use a real Setup compiled by the
+          it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
+          also use ZIRCON. To test Uninstall styling use a real Setup compiled by the
           compiler.  }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
@@ -3173,7 +3173,7 @@ begin
           var Handle: TStyleManager.TStyleServicesHandle;
           if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
           {$IFDEF DEBUG}
-             or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_LIGHT', 'VCLSTYLE', Handle)
+             or TStyleManager.TryLoadFromResource(HInstance, 'ZIRCON', 'VCLSTYLE', Handle)
           {$ENDIF}
           then
             TStyleManager.SetStyle(Handle);
