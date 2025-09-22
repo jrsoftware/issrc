@@ -696,7 +696,7 @@ procedure TWizardForm.UpdateWizardStyleImages;
     const ImageIndex = WizardStyleImageCollection.GetIndexByName(ImageName);
     if ImageIndex = -1 then
       raise Exception.CreateFmt('Image name ''%s'' not found', [ImageName]);
-    WizardStylePngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0, True));
+    WizardStylePngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0));
   end;
 
 begin

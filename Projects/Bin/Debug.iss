@@ -15,7 +15,7 @@ AppName=ɯɐɹƃoɹd ʎɯ
 AppVerName=My Program version 1.5
 DefaultDirName={autopf}\My Program
 AppVersion=1.2.3
-WizardStyle=classic polar
+WizardStyle=modern dynamic
 
 ; These settings enable debugging
 UseSetupLdr=no

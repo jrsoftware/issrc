@@ -7,6 +7,16 @@ unit Setup.SetupForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TSetupForm
+
+  Also used by UninstallProgressForm and UninstallSharedFileForm!
+
+  Requires following globals to be set:
+  -LangOptions.RightToLeft
+  -LangOptions.DialogFontName
+  -LangOptions.DialogFontSize
+  -shWizardBorderStyled in SetupHeader.Options
+  -SetupHeader.WizardSizePercentX
+  -SetupHeader.WizardSizePercentY
 }
 
 interface
@@ -77,7 +87,8 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc, BidiUtils;
+  BidiUtils,
+  Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -295,6 +306,8 @@ begin
   FFlipControlsOnShow := FRightToLeft;
   FSizeAndCenterOnShow := True;
   inherited;
+  if FRightToLeft then
+    BiDiMode := bdRightToLeft;
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
@@ -394,7 +407,13 @@ begin
   inherited;
   if WM_QueryCancelAutoPlay <> 0 then
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
-  SetDarkTitleBar(Self, IsDarkInstallMode);
+  if not (shWizardBorderStyled in SetupHeader.Options) then begin
+    { SetDarkTitleBar also removes seBorder which disables styling of the titlebar and the border.
+      Note that removing seBorder in Create causes a small bit of space to the right of bevels for
+      some reason. Doing it here does not cause this problem. It's also here because SetDarkTitleBar
+      requires the handle of the form. }
+    SetDarkTitleBar(Self, IsDarkInstallMode);
+  end;
 end;
 
 procedure TSetupForm.FlipControlsIfNeeded;

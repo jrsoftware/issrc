@@ -91,6 +91,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Two more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern zircon</code></pre>
     </li>
+    <li>Also supported is a <tt>includetitlebar</tt> modifier: Enables custom styling of both title bars and borders. By default, the system's native light or dark title bar is used instead. For example:
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar includetitlebar</code></pre>
+    </li>
   </ul>
   <li>Compiler IDE: Added a new <i>Wizard Style</i> page to the New Script Wizard, allowing to choose a style and view example screenshots.</li>
   <li>Pascal Scripting: Add new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
@@ -99,7 +102,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li><tt>[Setup]</tt> section directive <tt>WizardImageBackColor</tt> and the other three <tt>BackColor</tt> directives now accept the <tt>#rrggbb</tt> color format in addition to <tt>$bbggrr</tt>.</li>
   <li>Pascal Scripting: Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
-  <li>Minor improvements.</li>
+  <li>Strengthened randomization of temporary directory names for Setup and Uninstall.</li>
+  <li>Minor improvements and fixes.</li>
 </ul>
 
 <p>Using Inno Setup commercially? Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>

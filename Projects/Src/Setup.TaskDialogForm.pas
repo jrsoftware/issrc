@@ -39,6 +39,7 @@ type
     CancelButton: TNewButton;
     BottomPanel2: TPanel;
     VerificationCheck: TNewCheckBox;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
@@ -63,9 +64,9 @@ function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PC
 implementation
 
 uses
-  CommCtrl,
-  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, SetupLdrAndSetup.Messages, Setup.WizardForm,
-  Setup.MainFunc;
+  CommCtrl, Clipbrd,
+  Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
+  SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
 
 {$R *.dfm}
 
@@ -163,8 +164,9 @@ begin
 end;
 
 procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
+var
+  VisibleCaptions: array of String;
 begin
-  var VisibleCaptions: array of String;
   var NVisibleCaptions := 0;
   for var I := 0 to Length(FCommonButtons)-1 do begin
     const CommonButton = FCommonButtons[I];
@@ -262,6 +264,38 @@ begin
       VerificationCheck.Checked := pfVerificationFlagChecked^;
   end else
     BottomPanel2.Visible := False;
+end;
+
+procedure TTaskDialogForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Shift = [ssCtrl]) and (Key = Ord('C')) then begin
+    Key := 0;
+    const SB = TStringBuilder.Create;
+    try
+      { Do not localize }
+      SB.Append('[Window Title]');
+      SB.Append(SNewLine);
+      SB.Append(Caption);
+      SB.Append(SNewLine2);
+      SB.Append('[Main Instruction]');
+      SB.Append(SNewLine);
+      SB.Append(InstructionText.Caption);
+      SB.Append(SNewLine2);
+      SB.Append('[Content]');
+      SB.Append(SNewLine);
+      SB.Append(TextText.Caption);
+      SB.Append(SNewLine2);
+      for var MainButton in FMainButtons do
+        if MainButton.Visible then
+          SB.Append(Format('[%s] ', [RemoveAccelChar(MainButton.Caption)]));
+      for var CommonButton in FCommonButtons do
+        if CommonButton.Visible then
+          SB.Append(Format('[%s] ', [RemoveAccelChar(CommonButton.Caption)]));
+      Clipboard.AsText := SB.ToString.Trim;
+    finally
+      SB.Free;
+    end;
+  end;
 end;
 
 end.

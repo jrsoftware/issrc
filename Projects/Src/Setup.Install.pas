@@ -2803,7 +2803,9 @@ begin
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
       if shWizardModern in SetupHeader.Options then
-        Include(UninstLog.Flags, ufModernStyle);
+        Include(UninstLog.Flags, ufWizardModern);
+      if shWizardBorderStyled in SetupHeader.Options then
+        Include(UninstLog.Flags, ufWizardBorderStyled);
       if SetupHeader.WizardDarkStyle = wdsDark then
         Include(UninstLog.Flags, ufWizardDarkStyleDark)
       else if SetupHeader.WizardDarkStyle = wdsDynamic then

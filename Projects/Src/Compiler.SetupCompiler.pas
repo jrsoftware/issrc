@@ -2525,10 +2525,15 @@ var
 
   procedure HandleWizardStyle(WizardStyle: String);
   const
-    Styles: array of PChar = ['classic', 'modern', 'light', 'dark', 'dynamic', 'polar', 'slate', 'zircon'];
-    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 2, 2];
+    Styles: array of PChar = [
+      'classic', 'modern',
+      'light', 'dark', 'dynamic',
+      'includetitlebar',
+      'polar', 'slate', 'zircon'];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3];
+  var
+    StylesGroupSeen: array [0..3] of Boolean;
   begin
-    var StylesGroupSeen: array [0..2] of Boolean;
     for var I := Low(StylesGroupSeen) to High(StylesGroupSeen) do
       StylesGroupSeen[I] := False;
     while True do begin
@@ -2547,7 +2552,8 @@ var
         2: SetupHeader.WizardDarkStyle := wdsLight;
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
-        5..7: WizardStyleSpecial := Styles[R];
+        5: Include(SetupHeader.Options, shWizardBorderStyled);
+        6..8: WizardStyleSpecial := Styles[R];
       end;
     end;
   end;
@@ -8095,8 +8101,8 @@ begin
     end;
 
     if Password <> '' then begin
-      GenerateRandomBytes(SetupEncryptionHeader.KDFSalt, SizeOf(SetupEncryptionHeader.KDFSalt));
-      GenerateRandomBytes(SetupEncryptionHeader.BaseNonce, SizeOf(SetupEncryptionHeader.BaseNonce));
+      TStrongRandom.GenerateBytes(SetupEncryptionHeader.KDFSalt, SizeOf(SetupEncryptionHeader.KDFSalt));
+      TStrongRandom.GenerateBytes(SetupEncryptionHeader.BaseNonce, SizeOf(SetupEncryptionHeader.BaseNonce));
       GenerateEncryptionKey(Password,  SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       GeneratePasswordTest(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       Include(SetupHeader.Options, shPassword);
