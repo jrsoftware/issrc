@@ -5717,7 +5717,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <li>When a custom style (including the built-in custom dark style) is active, then all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque.</li>
 <li>Windows task dialogs do not currently support custom styling (not even dark mode). When needed, Setup and Uninstall therefore use a custom implementation that does support custom styling, but otherwise looks and feels like Windows task dialogs.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
-<li>Messages displayed by the so-called "setup loader" will never be dark. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
+<li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
 </ul>
 <heading>Example screenshots</heading>
 <p><tt>classic</tt><br/><br/><img src="wizardstyle-classic.png"/></p>
