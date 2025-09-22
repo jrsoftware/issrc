@@ -5725,9 +5725,12 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>modern</tt><br/><br/><img src="wizardstyle-modern.png"/></p>
 <p><tt>modern dark</tt><br/><br/><img src="wizardstyle-modern-dark.png"/></p>
 <p><tt>modern polar</tt><br/><br/><img src="wizardstyle-modern-polar.png"/></p>
+<p><tt>modern polar includetitlebar</tt><br/><br/><img src="wizardstyle-modern-polar-includetitlebar.png"/></p>
 <p><tt>modern dark polar</tt><br/><br/><img src="wizardstyle-modern-dark-polar.png"/></p>
 <p><tt>modern slate</tt><br/><br/><img src="wizardstyle-modern-slate.png"/></p>
+<p><tt>modern slate includetitlebar</tt><br/><br/><img src="wizardstyle-modern-slate-includetitlebar.png"/></p>
 <p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
+<p><tt>modern zircon includetitlebar</tt><br/><br/><img src="wizardstyle-modern-zircon-includetitlebar.png"/></p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardstylefile">WizardStyleFile</link></p>
 </body>
