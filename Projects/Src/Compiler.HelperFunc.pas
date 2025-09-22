@@ -77,7 +77,6 @@ function IsValidIdentString(const S: String; AllowBackslash, AllowOperators: Boo
 procedure SkipWhitespace(var S: PChar);
 function ExtractWords(var S: PChar; const Sep: Char): String;
 function UnescapeBraces(const S: String): String;
-procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
 
 implementation
 
@@ -353,49 +352,4 @@ begin
   end;
 end;
 
-type
-  HCRYPTPROV = DWORD;
-
-const
-  PROV_RSA_FULL = 1;
-  CRYPT_VERIFYCONTEXT = $F0000000;
-
-function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: PAnsiChar;
-  pszProvider: PAnsiChar; dwProvType: DWORD; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptAcquireContextA';
-function CryptReleaseContext(hProv: HCRYPTPROV; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptReleaseContext';
-function CryptGenRandom(hProv: HCRYPTPROV; dwLen: DWORD; pbBuffer: Pointer): BOOL;
-  stdcall; external advapi32 name 'CryptGenRandom';
-
-var
-  CryptProv: HCRYPTPROV;
-
-procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
-var
-  ErrorCode: DWORD;
-begin
-  if CryptProv = 0 then begin
-    if not CryptAcquireContext(CryptProv, nil, nil, PROV_RSA_FULL,
-       CRYPT_VERIFYCONTEXT) then begin
-      ErrorCode := GetLastError;
-      raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-        ['CryptAcquireContext', ErrorCode, Win32ErrorString(ErrorCode)]);
-    end;
-    { Note: CryptProv is released in the 'finalization' section of this unit }
-  end;
-  FillChar(Buffer, Bytes, 0);
-  if not CryptGenRandom(CryptProv, Bytes, @Buffer) then begin
-    ErrorCode := GetLastError;
-    raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-      ['CryptGenRandom', ErrorCode, Win32ErrorString(ErrorCode)]);
-  end;
-end;
-
-initialization
-finalization
-  if CryptProv <> 0 then begin
-    CryptReleaseContext(CryptProv, 0);
-    CryptProv := 0;
-  end;
 end.
