@@ -167,8 +167,7 @@ end;
 
 procedure UpdateProgressGauge;
 begin
-  var NewPosition := CurProgressValue;
-  NewPosition := NewPosition shr ProgressShiftCount;
+  var NewPosition := Integer(CurProgressValue shr ProgressShiftCount);
   if WizardForm.ProgressGauge.Position <> NewPosition then begin
     WizardForm.ProgressGauge.Position := NewPosition;
     WizardForm.ProgressGauge.Update;
