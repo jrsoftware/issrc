@@ -2531,7 +2531,6 @@ procedure InitializeCommonVars;
 begin
   IsAdmin := IsAdminLoggedOn;
   IsPowerUserOrAdmin := IsAdmin or IsPowerUserLoggedOn;
-  Randomize;
 end;
 
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
