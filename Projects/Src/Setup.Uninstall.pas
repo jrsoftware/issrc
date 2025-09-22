@@ -508,7 +508,7 @@ begin
     var MainIconPostfix := '';
     var WizardIconsPostfix := '';
     IsWinDark := DarkModeActive;
-    const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and DarkModeActive;
+    const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
     const IsForcedDark = (ufWizardDarkStyleDark in UninstLog.Flags);
     if IsDynamicDark then
       MainIconPostfix := '_DARK';
