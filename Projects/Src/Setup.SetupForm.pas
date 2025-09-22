@@ -295,6 +295,8 @@ begin
   FFlipControlsOnShow := FRightToLeft;
   FSizeAndCenterOnShow := True;
   inherited;
+  if FRightToLeft then
+    BiDiMode := bdRightToLeft;
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
