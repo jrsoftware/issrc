@@ -92,7 +92,7 @@ end;
 procedure InitializeUninstallProgressForm(const MainIconPostfix, WizardIconsPostfix: String);
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufModernStyle in UninstLog.Flags,
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags,
     MainIconPostfix, WizardIconsPostfix);
   if CodeRunner <> nil then begin
     try
@@ -524,6 +524,12 @@ begin
       if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then
         TStyleManager.SetStyle(Handle);
     end;
+
+    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
+    if ufWizardBorderStyled in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardBorderStyled);
+    SetupHeader.WizardSizePercentX := 100;
+    SetupHeader.WizardSizePercentY := 100;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 

@@ -91,6 +91,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Two more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern zircon</code></pre>
     </li>
+    <li>Also supported is a <tt>includetitlebar</tt> modifier: Enables custom styling of both title bars and borders. By default, the system's native light or dark title bar is used instead. For example:
+        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar includetitlebar</code></pre>
+    </li>
   </ul>
   <li>Compiler IDE: Added a new <i>Wizard Style</i> page to the New Script Wizard, allowing to choose a style and view example screenshots.</li>
   <li>Pascal Scripting: Add new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
