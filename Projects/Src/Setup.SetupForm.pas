@@ -7,6 +7,15 @@ unit Setup.SetupForm;
   For conditions of distribution and use, see LICENSE.TXT.
 
   TSetupForm
+
+  Also used by UninstallProgressForm and UninstallSharedFileForm!
+
+  Requires following globals to be set:
+  -LangOptions.RightToLeft
+  -LangOptions.DialogFontName
+  -LangOptions.DialogFontSize
+  -SetupHeader.WizardSizePercentX
+  -SetupHeader.WizardSizePercentY
 }
 
 interface
