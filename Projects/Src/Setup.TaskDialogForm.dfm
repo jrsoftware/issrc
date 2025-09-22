@@ -12,8 +12,10 @@ object TaskDialogForm: TTaskDialogForm
   Font.Height = -12
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  KeyPreview = True
   PopupMode = pmAuto
   Scaled = False
+  OnKeyDown = FormKeyDown
   TextHeight = 13
   object BottomPanel: TPanel
     Left = 0
