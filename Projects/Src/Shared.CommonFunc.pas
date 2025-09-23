@@ -869,7 +869,7 @@ begin
     if Typ = REG_DWORD then begin
       var Data: DWORD;
       Size := SizeOf(Data);
-      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and
+      if (RegQueryValueEx(H, Name, nil, @Typ, PByte(@Data), @Size) = ERROR_SUCCESS) and
          (Typ = REG_DWORD) and (Size = Sizeof(Data)) then begin
         ResultStr := Data.ToString;
         Result := True;
@@ -890,7 +890,7 @@ begin
         here so that RegQueryValueEx doesn't overflow the buffer }
       var Len := (Size + (SizeOf(S[1]) - 1)) div SizeOf(S[1]);
       SetString(S, nil, Len);
-      ErrorCode := RegQueryValueEx(H, Name, nil, @Typ, @S[1], @Size);
+      ErrorCode := RegQueryValueEx(H, Name, nil, @Typ, PByte(@S[1]), @Size);
       if ErrorCode = ERROR_MORE_DATA then begin
         { The data must've increased in size since the first RegQueryValueEx
           call. Start over. }
@@ -1224,7 +1224,7 @@ begin
   Result := False;
   DC := GetDC(0);
   try
-    EnumFonts(DC, PChar(FaceName), @FontExistsCallback, @Result);
+    EnumFonts(DC, PChar(FaceName), @FontExistsCallback, LPARAM(@Result));
   finally
     ReleaseDC(0, DC);
   end;
@@ -1634,7 +1634,7 @@ begin
   Result := False;
   if CurrentWindowsVersionAtLeast(10, 0) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
     Size := SizeOf(AppsUseLightTheme);
-    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, @AppsUseLightTheme, @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, PByte(@AppsUseLightTheme), @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
       Result := True;
     RegCloseKey(K);
   end;

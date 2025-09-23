@@ -73,7 +73,7 @@ var
   P: PChar;
   I: Integer;
 begin
-  P := @Buf;
+  P := PChar(@Buf);
   for I := 0 to 31 do begin
     P^ := Digits[D[I] shr 4];
     Inc(P);

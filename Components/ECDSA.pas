@@ -159,15 +159,15 @@ begin
   if M = 0 then
     raise EECDSAError.Create('Failed to load bcrypt.dll');
 
-  InitFunc(@BCryptCloseAlgorithmProvider, 'BCryptCloseAlgorithmProvider');
-  InitFunc(@BCryptDestroyKey, 'BCryptDestroyKey');
-  InitFunc(@BCryptExportKey, 'BCryptExportKey');
-  InitFunc(@BCryptFinalizeKeyPair, 'BCryptFinalizeKeyPair');
-  InitFunc(@BCryptGenerateKeyPair, 'BCryptGenerateKeyPair');
-  InitFunc(@BCryptImportKeyPair, 'BCryptImportKeyPair');
-  InitFunc(@BCryptOpenAlgorithmProvider, 'BCryptOpenAlgorithmProvider');
-  InitFunc(@BCryptSignHash, 'BCryptSignHash');
-  InitFunc(@BCryptVerifySignature, 'BCryptVerifySignature');
+  InitFunc(Pointer(@BCryptCloseAlgorithmProvider), 'BCryptCloseAlgorithmProvider');
+  InitFunc(Pointer(@BCryptDestroyKey), 'BCryptDestroyKey');
+  InitFunc(Pointer(@BCryptExportKey), 'BCryptExportKey');
+  InitFunc(Pointer(@BCryptFinalizeKeyPair), 'BCryptFinalizeKeyPair');
+  InitFunc(Pointer(@BCryptGenerateKeyPair), 'BCryptGenerateKeyPair');
+  InitFunc(Pointer(@BCryptImportKeyPair), 'BCryptImportKeyPair');
+  InitFunc(Pointer(@BCryptOpenAlgorithmProvider), 'BCryptOpenAlgorithmProvider');
+  InitFunc(Pointer(@BCryptSignHash), 'BCryptSignHash');
+  InitFunc(Pointer(@BCryptVerifySignature), 'BCryptVerifySignature');
 
   MemoryBarrier;
   BCryptFunctionsInitialized := True;

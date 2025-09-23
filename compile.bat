@@ -87,7 +87,7 @@ if errorlevel 1 goto failed
 :issigtool
 echo - ISSigTool.exe
 mkdir %DCUDIR_WIN32%\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\ISSigTool.dpr ISSigTool.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -$T+ -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\ISSigTool.dpr ISSigTool.dpr
 if errorlevel 1 goto failed
 
 cd ..

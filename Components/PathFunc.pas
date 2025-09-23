@@ -471,7 +471,7 @@ begin
   if (S = '') or (Delimiters = '') then
     Exit;
   P := Pointer(S);
-  E := @P[Length(S)];
+  E := PChar(@P[Length(S)]);
   while P < E do begin
     if P^ <> #0 then begin
       if StrScan(PChar(Pointer(Delimiters)), P^) <> nil then
