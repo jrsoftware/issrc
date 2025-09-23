@@ -103,8 +103,8 @@ function SetIniInt(const Section, Key: String; const Value: Longint; const Filen
 function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;
 procedure DeleteIniEntry(const Section, Key, Filename: String);
 procedure DeleteIniSection(const Section, Filename: String);
-function ULength(const S: String): UInt32; overload;
-function ULength(const S: AnsiString): UInt32; overload;
+function ULength(const S: String): Cardinal; overload;
+function ULength(const S: AnsiString): Cardinal; overload;
 function GetEnv(const EnvVar: String): String;
 function GetCmdTail: String;
 function GetCmdTailEx(StartIndex: Integer): String;
@@ -398,14 +398,14 @@ begin
     WriteProfileString(PChar(Section), nil, nil);
 end;
 
-function ULength(const S: String): UInt32;
+function ULength(const S: String): Cardinal;
 begin
-  Result := UInt32(Length(S));
+  Result := Cardinal(Length(S));
 end;
 
-function ULength(const S: AnsiString): UInt32;
+function ULength(const S: AnsiString): Cardinal;
 begin
-  Result := UInt32(Length(S));
+  Result := Cardinal(Length(S));
 end;
 
 function GetEnv(const EnvVar: String): String;
