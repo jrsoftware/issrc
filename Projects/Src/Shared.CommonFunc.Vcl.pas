@@ -41,11 +41,9 @@ function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
 procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
-function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;
-function MsgBoxP(const Text, Caption: PChar; const Typ: TMsgBoxType;
-  const Buttons: Cardinal): Integer;
+function MsgBox(const Text, Caption: PChar; Flags: Longint): Integer; overload;
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
-  const Buttons: Cardinal): Integer;
+  const Buttons: Cardinal): Integer; overload;
 function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
@@ -231,7 +229,7 @@ function GetOwnerWndForMessageBox: HWND;
   after this function, would use as the owner window for the message box.
   Exception: If the window that would be returned is not shown on the taskbar,
   or is a minimized Application.Handle window, then 0 is returned instead.
-  See comments in AppMessageBox. }
+  See comments in MsgBox. }
 begin
   { This is what Application.MessageBox does (Delphi 11.3) }
   Result := Application.ActiveFormHandle;
@@ -282,7 +280,7 @@ begin
   end;
 end;
 
-function AppMessageBox(const Text, Caption: PChar; Flags: Longint): Integer;
+function MsgBox(const Text, Caption: PChar; Flags: Longint): Integer;
 var
   ActiveWindow: HWND;
   WindowList: Pointer;
@@ -387,19 +385,13 @@ begin
   end;
 end;
 
-function MsgBoxP(const Text, Caption: PChar; const Typ: TMsgBoxType;
+function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer;
 const
   IconFlags: array[TMsgBoxType] of Cardinal =
     (MB_ICONINFORMATION, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONSTOP);
 begin
-  Result := AppMessageBox(Text, GetMessageBoxCaption(Caption, Typ), Buttons or IconFlags[Typ]);
-end;
-
-function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
-  const Buttons: Cardinal): Integer;
-begin
-  Result := MsgBoxP(PChar(Text), PChar(Caption), Typ, Buttons);
+  Result := MsgBox(PChar(Text), GetMessageBoxCaption(PChar(Caption), Typ), Buttons or IconFlags[Typ]);
 end;
 
 function MsgBoxFmt(const Text: String; const Args: array of const;

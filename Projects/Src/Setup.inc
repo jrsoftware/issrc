@@ -17,21 +17,20 @@
 {$R Res\Setup.version.res}
 
 procedure ShowExceptionMsg;
-var
-  S: String;
 begin
+  { Also see ShowExceptionMsg in Setup.Uninstall.pas }
   if ExceptObject is EAbort then begin
     Log('Got EAbort exception.');
     Exit;
   end;
-  S := GetExceptMessage;
+  const Msg = GetExceptMessage;
   Log('Exception message:');
-  LoggedAppMessageBox(PChar(S), Pointer(SetupMessages[msgErrorTitle]),
+  LoggedMsgBox(PChar(Msg), Pointer(SetupMessages[msgErrorTitle]),
     MB_OK or MB_ICONSTOP, True, IDOK);
     { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
       if SetupMessages[msgErrorTitle] is empty due to the messages not being
-      loaded yet. MessageBox displays 'Error' as the caption if the lpCaption
-      parameter is nil. }
+      loaded yet. LoggedMsgBox displays 'Error' as the caption if the lpCaption
+      parameter is nil, see GetMessageBoxCaption. }
 end;
 
 type

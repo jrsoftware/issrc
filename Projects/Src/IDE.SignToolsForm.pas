@@ -2,7 +2,7 @@ unit IDE.SignToolsForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -117,20 +117,20 @@ begin
 
   if InputQuery(Caption, 'Name of the Sign Tool:', SignToolName) then begin
     if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
-      AppMessageBox(PChar('Invalid name.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+      MsgBox('Invalid name.', Caption, mbCriticalError, MB_OK);
       Exit;
     end;
 
     for I := 0 to FSignTools.Count-1 do begin
       if (I <> ExistingIndex) and (Pos(SignToolName + '=', FSignTools[I]) = 1) then begin
-        AppMessageBox(PChar('Duplicate name.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+        MsgBox('Duplicate name.', Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
 
     if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
-        AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+        MsgBox('Invalid command.', Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;

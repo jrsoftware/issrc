@@ -47,7 +47,7 @@ uses
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
-  Application.Restore;  { see comments in AppMessageBox }
+  Application.Restore;  { see comments in MsgBox }
 
   with TNewDiskForm.Create(Application) do
     try

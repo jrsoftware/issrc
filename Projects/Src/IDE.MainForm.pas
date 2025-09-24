@@ -1271,8 +1271,7 @@ end;
 
 class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
 begin
-  AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
-    MB_OK or MB_ICONSTOP);
+  MsgBox(AddPeriod(E.Message), SCompilerFormCaption, mbCriticalError, MB_OK);
 end;
 
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);

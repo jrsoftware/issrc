@@ -198,10 +198,10 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
-  const Suppressible: Boolean; const Default: Integer): Integer;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
+  const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
-  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
+  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
   const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
@@ -2390,32 +2390,32 @@ begin
   end;
 end;
 
-procedure LogSuppressedMessageBox(const Text: PChar; const Buttons: Cardinal;
+procedure LogSuppressedMsgBox(const Text: PChar; const Buttons: Cardinal;
   const Default: Integer);
 begin
   Log(Format('Defaulting to %s for suppressed message box (%s):' + SNewLine,
     [GetMessageBoxResultText(Default), GetButtonsText(Buttons)]) + Text);
 end;
 
-procedure LogMessageBox(const Text: PChar; const Buttons: Cardinal);
+procedure LogMsgBox(const Text: PChar; const Buttons: Cardinal);
 begin
   Log(Format('Message box (%s):' + SNewLine,
     [GetButtonsText(Buttons)]) + Text);
 end;
 
-function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
   const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(Text, Flags, Default);
+    LogSuppressedMsgBox(Text, Flags, Default);
     Result := Default;
   end else begin
-    LogMessageBox(Text, Flags);
-    Result := AppMessageBox(Text, Caption, Flags);
+    LogMsgBox(Text, Flags);
+    Result := MsgBox(Text, Caption, Flags);
     if Result <> 0 then
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
     else
-      Log('AppMessageBox failed.');
+      Log('MsgBox failed.');
   end;
 end;
 
@@ -2423,10 +2423,10 @@ function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
+    LogSuppressedMsgBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(Text), Buttons);
+    LogMsgBox(PChar(Text), Buttons);
     Result := MsgBox(Text, Caption, Typ, Buttons);
     if Result <> 0 then
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
@@ -2441,10 +2441,10 @@ function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
+    LogSuppressedMsgBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(Text), Buttons);
+    LogMsgBox(PChar(Text), Buttons);
     Result := TaskDialogMsgBox(Icon, Instruction, Text,
       Caption, Typ, Buttons, ButtonLabels, ShieldButton, VerificationText, pfVerificationFlagChecked);
     if Result <> 0 then begin
