@@ -826,16 +826,18 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize }
-  const CustomStyleActive = IsCustomStyleActive;
-  if CustomStyleActive then begin
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+  if LStyle <> nil then begin
     { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
     WelcomePage.ParentColor := True;
     OuterNotebook.ParentColor := True;
     FinishedPage.ParentColor := True;
-    Color := StyleServices(Self).GetStyleColor(scWindow);
+    Color := LStyle.GetStyleColor(scWindow);
   end;
   if shWizardModern in SetupHeader.Options then begin
-    if not CustomStyleActive then
+    if LStyle = nil then
       OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
