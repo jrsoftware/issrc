@@ -263,8 +263,11 @@ begin
     end;
   end;
 
-  if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then
-    BorderIcons := [];
+  if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then begin
+    const SystemMenu = GetSystemMenu(Handle, False);
+    if SystemMenu <> 0 then
+      EnableMenuItem(SystemMenu, SC_CLOSE, MF_BYCOMMAND or MF_GRAYED);
+  end;
 end;
 
 procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String;
