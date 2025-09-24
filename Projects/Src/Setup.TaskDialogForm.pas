@@ -19,7 +19,12 @@ uses
   BidiCtrls, BitmapImage, NewStaticText,
   Setup.SetupForm;
 
+const
+  TD_TASKFORM_HELP_ICON = MAKEINTRESOURCEW(Word(-100));
+
 type
+  TCopyFormat = (cfTaskDialog, cfMessageBox);
+
   TTaskDialogForm = class(TSetupForm)
     BottomPanel: TPanel;
     MainPanel: TPanel;
@@ -44,7 +49,8 @@ type
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
-    procedure Finish;
+    FCopyFormat: TCopyFormat;
+    procedure Finish(const DefCommonButton: Integer);
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateIcon(const Icon: PChar);
     procedure UpdateInstructionAndText(const Instruction, Text: String);
@@ -53,13 +59,13 @@ type
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
     procedure UpdateVerificationText(const VerificationText: String; const pfVerificationFlagChecked: PBOOL);
   public
-    constructor Create(AOwner: TComponent); override; 
+    constructor Create(AOwner: TComponent; const CopyFormat: TCopyFormat); reintroduce;
   end;
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
-  const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
+  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat): Integer;
 
 implementation
 
@@ -72,10 +78,10 @@ uses
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
-  const ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL): Integer;
+  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat): Integer;
 begin
-  const Form = TTaskDialogForm.Create(nil);
+  const Form = TTaskDialogForm.Create(nil, CopyFormat);
   try
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
@@ -93,7 +99,7 @@ begin
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
-    Form.Finish;
+    Form.Finish(DefCommonButton);
 
     TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
     try
@@ -110,13 +116,14 @@ end;
 
 { TTaskDialogForm }
 
-constructor TTaskDialogForm.Create(AOwner: TComponent);
+constructor TTaskDialogForm.Create(AOwner: TComponent; const CopyFormat: TCopyFormat);
 begin
-  inherited;
+  inherited Create(AOwner);
 
   FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
   FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
   FMainButtons := [MainButton1, MainButton2, MainButton3];
+  FCopyFormat := CopyFormat;
 
   InitializeFont;
 
@@ -130,10 +137,10 @@ begin
   MainPanel.Padding.Bottom := PadY;
   { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
   MainStackPanel.HandleNeeded;
-  MainStackPanel.Padding.Left := PadX; { Also see below }
+  MainStackPanel.Padding.Left := PadX; { Also see Finish }
   MainStackPanel.Spacing := PadY;
   BottomStackPanel.Spacing := PadX;
-  BottomStackPanel.Padding.Right := PadX; { Also see below }
+  BottomStackPanel.Padding.Right := PadX; { Also see Finish }
   VerificationCheck.Left := PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
@@ -143,7 +150,7 @@ begin
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 end;
 
-procedure TTaskDialogForm.Finish;
+procedure TTaskDialogForm.Finish(const DefCommonButton: Integer);
 begin
   if RightToLeft then begin
     { FlipSizeAndCenterIfNeeded does not update Align or Padding }
@@ -161,6 +168,19 @@ begin
   KeepSizeX := True; { Already bit wider than regular task dialogs }
   KeepSizeY := True; { UpdateHeight already set height }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+
+  if DefCommonButton > 0 then begin
+    var I := DefCommonButton;
+    for var CommonButton in FCommonButtons do begin
+      if CommonButton.Visible then begin
+        Dec(I);
+        if I = 0 then begin
+          ActiveControl := CommonButton;
+          Exit;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
@@ -190,13 +210,30 @@ end;
 
 procedure TTaskDialogForm.UpdateHeight;
 begin
-  var BottomMainButton := MainButton1;
-  if MainButton3.Visible then
-    BottomMainButton := MainButton3
-  else if MainButton2.Visible then
-    BottomMainButton := MainButton2;
+  var BottomControl: TControl := nil;
 
-  var NewClientHeight := MainPanel.Padding.Top + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
+  if MainButton3.Visible then
+    BottomControl := MainButton3
+  else if MainButton2.Visible then
+    BottomControl := MainButton2
+  else if MainButton1.Visible then
+    BottomControl := MainButton1
+  else if TextText.Visible then
+    BottomControl := TextText
+  else if InstructionText.Visible then
+    BottomControl := InstructionText;
+
+  var NewClientHeight := MainPanel.Padding.Top + MainStackPanel.Top;
+  if BottomControl <> nil then
+    NewClientHeight := NewClientHeight + BottomControl.Top + BottomControl.Height;
+
+  if LeftPanel.Visible then begin
+    { Make sure the height is enough to fit the icon }
+    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height;
+    if MinimumClientHeight > NewClientHeight then
+      NewClientHeight := MinimumClientHeight;
+  end;
+
   if BottomPanel.Visible then
     NewClientHeight := NewClientHeight + BottomPanel.Height;
   if BottomPanel2.Visible then
@@ -208,12 +245,14 @@ end;
 procedure TTaskDialogForm.UpdateIcon(const Icon: PChar);
 begin
   var ResourceName := '';
-  if Icon = TD_INFORMATION_ICON then
+  if Icon = TD_ERROR_ICON then
+    ResourceName := 'Z_TASKFORM_ERRORICON' + WizardIconsPostfix
+  else if Icon = TD_TASKFORM_HELP_ICON then
+    ResourceName := 'Z_TASKFORM_HELPICON' + WizardIconsPostfix
+  else if Icon = TD_INFORMATION_ICON then
     ResourceName := 'Z_TASKFORM_INFOICON' + WizardIconsPostfix
   else if Icon = TD_WARNING_ICON then
     ResourceName := 'Z_TASKFORM_WARNICON' + WizardIconsPostfix
-  else if Icon = TD_ERROR_ICON then
-    ResourceName := 'Z_TASKFORM_ERRORICON' + WizardIconsPostfix
   else if Icon <> nil then
     ResourceName := Icon;
 
@@ -279,30 +318,79 @@ begin
 end;
 
 procedure TTaskDialogForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+
+  procedure AddButtonCaption(const SB: TStringBuilder; const MessageBoxFormat: Boolean;
+    const Button: TButton);
+  begin
+    const Caption = RemoveAccelChar(Button.Caption);
+    if MessageBoxFormat then
+      SB.Append(Format('%s   ', [Caption]))
+    else
+      SB.Append(Format('[%s] ', [Caption]));
+  end;
+
 begin
   if (Shift = [ssCtrl]) and (Key = Ord('C')) then begin
     Key := 0;
     const SB = TStringBuilder.Create;
     try
       { Do not localize }
-      SB.Append('[Window Title]');
+
+      const SLine = '---------------------------';
+      const SLineAndNewLine = SLine + SNewLine;
+
+      const MessageBoxFormat = FCopyFormat = cfMessageBox;
+
+      if MessageBoxFormat then
+        SB.Append(SLine)
+      else
+        SB.Append('[Window Title]');
       SB.Append(SNewLine);
       SB.Append(Caption);
-      SB.Append(SNewLine2);
-      SB.Append('[Main Instruction]');
       SB.Append(SNewLine);
-      SB.Append(InstructionText.Caption);
-      SB.Append(SNewLine2);
-      SB.Append('[Content]');
-      SB.Append(SNewLine);
-      SB.Append(TextText.Caption);
-      SB.Append(SNewLine2);
+      if MessageBoxFormat then
+        SB.Append(SLineAndNewLine)
+      else
+        SB.Append(SNewLine);
+
+      if InstructionText.Visible then begin
+        if not MessageBoxFormat then begin
+          SB.Append('[Main Instruction]');
+          SB.Append(SNewLine);
+        end;
+        SB.Append(InstructionText.Caption);
+        SB.Append(SNewLine);
+        if not MessageBoxFormat or TextText.Visible then
+          SB.Append(SNewLine);
+      end;
+
+      if TextText.Visible then begin
+        if not MessageBoxFormat then begin
+          SB.Append('[Content]');
+          SB.Append(SNewLine);
+        end;
+        SB.Append(TextText.Caption);
+        SB.Append(SNewLine);
+        if not MessageBoxFormat then
+          SB.Append(SNewLine);
+      end;
+
+      if MessageBoxFormat then
+        SB.Append(SLineAndNewLine);
+
       for var MainButton in FMainButtons do
         if MainButton.Visible then
-          SB.Append(Format('[%s] ', [RemoveAccelChar(MainButton.Caption)]));
+          AddButtonCaption(SB, MessageBoxFormat, MainButton);
+
       for var CommonButton in FCommonButtons do
         if CommonButton.Visible then
-          SB.Append(Format('[%s] ', [RemoveAccelChar(CommonButton.Caption)]));
+          AddButtonCaption(SB, MessageBoxFormat, CommonButton);
+
+      if MessageBoxFormat then begin
+        SB.Append(SNewLine);
+        SB.Append(SLine); { Causes the spaces after the last button caption not to be trimmed, but this is same as with native MessageBox }
+      end;
+
       Clipboard.AsText := SB.ToString.Trim;
     finally
       SB.Free;

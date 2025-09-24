@@ -2374,7 +2374,8 @@ end;
 
 function GetButtonsText(const Buttons: Cardinal): String;
 const
-  { We don't use this type, but end users are liable to in [Code] }
+  { We don't use this type, but end users are liable to in [Code].
+    Same applies to MB_ABORTRETRYIGNORE. }
   MB_CANCELTRYCONTINUE = $00000006;
 begin
   case Buttons and MB_TYPEMASK of

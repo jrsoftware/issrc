@@ -212,8 +212,8 @@ begin
   {$IFDEF USETASKDIALOGFORM}
   const LStyle = TStyleManager.ActiveStyle;
   if not LStyle.IsSystemStyle then begin
-    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
-      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked);
+    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, 0, ShieldButton,
+      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog);
     Exit;
   end;
   {$ENDIF}
