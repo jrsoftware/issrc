@@ -44,7 +44,6 @@ type
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
-    FPadX, FPadY: Integer;
     procedure Finish;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateIcon(const Icon: PChar);
@@ -122,20 +121,20 @@ begin
   InitializeFont;
 
   const Pad = 10;
-  FPadX := ScalePixelsX(Pad);
-  FPadY := ScalePixelsY(Pad);
+  const PadX = ScalePixelsX(Pad);
+  const PadY = ScalePixelsY(Pad);
 
-  MainPanel.Padding.Left := FPadX;
-  MainPanel.Padding.Top := FPadY;
-  MainPanel.Padding.Right := FPadX;
-  MainPanel.Padding.Bottom := FPadY;
+  MainPanel.Padding.Left := PadX;
+  MainPanel.Padding.Top := PadY;
+  MainPanel.Padding.Right := PadX;
+  MainPanel.Padding.Bottom := PadY;
   { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
   MainStackPanel.HandleNeeded;
-  MainStackPanel.Padding.Left := FPadX; { Also see below }
-  MainStackPanel.Spacing := FPadY;
-  BottomStackPanel.Spacing := FPadX;
-  BottomStackPanel.Padding.Right := FPadX; { Also see below }
-  VerificationCheck.Left := FPadX;
+  MainStackPanel.Padding.Left := PadX; { Also see below }
+  MainStackPanel.Spacing := PadY;
+  BottomStackPanel.Spacing := PadX;
+  BottomStackPanel.Padding.Right := PadX; { Also see below }
+  VerificationCheck.Left := PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -197,7 +196,7 @@ begin
   else if MainButton2.Visible then
     BottomMainButton := MainButton2;
 
-  var NewClientHeight := FPadY + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
+  var NewClientHeight := MainPanel.Padding.Top + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
   if BottomPanel.Visible then
     NewClientHeight := NewClientHeight + BottomPanel.Height;
   if BottomPanel2.Visible then
