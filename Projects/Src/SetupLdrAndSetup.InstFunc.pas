@@ -150,24 +150,25 @@ end;
 function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
   const Extension: String): String;
 const
-  RandRange = 36 * 36 * 36 * 36 * 36;
-var
-  Filename: String;
+  FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
 begin
   Path := AddBackslash(Path);
-  const RandOrig = TStrongRandom.GenerateUInt32Range(RandRange);
-  var Rand := RandOrig;
+  var Filename: String;
+  var AttemptNumber := 0;
   repeat
-    Inc(Rand);
-    if Rand >= RandRange then
-      Rand := 0;
-    if Rand = RandOrig then
-      { practically impossible to go through 60 million combinations,
-        but check "just in case"... }
+    { If 50 attempts were made and every generated name was found to exist
+      already, then stop trying, because something really strange is going
+      on -- like the file system is claiming everything exists regardless of
+      name. }
+    Inc(AttemptNumber);
+    if AttemptNumber > 50 then
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
-    { Generate a random name }
-    Filename := Path + 'is-' + UIntToBase36Str(Rand, 5) + Extension;
+
+    Filename := Path + 'is-' +
+      UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
+      UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
+      Extension;
   until not FileOrDirExistsRedir(DisableFsRedir, Filename);
   Result := Filename;
 end;

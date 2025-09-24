@@ -364,9 +364,17 @@ end;</pre></example>
       <function>
         <name>IsDarkInstallMode</name>
         <prototype>function IsDarkInstallMode: Boolean;</prototype>
-        <description><p>Returns True if Setup or Uninstall is running in dark mode.</p></description>
-        <remarks><p>Can return True, even if <link topic="isxfunc_IsWinDark">IsWinDark</link> does not.</p></remarks>
-        <seealso><p><link topic="isxfunc_IsWinDark">IsWinDark</link></p></seealso>
+        <description><p>Returns True if Setup or Uninstall is running using a <link topic="setup_WizardStyle">dark style</link>.</p></description>
+        <remarks><p>Can return True even if <link topic="isxfunc_IsWinDark">IsWinDark</link> returns False.</p>
+<p>Cannot return True if <link topic="isxfunc_HighContrastActive">HighContrastActive</link> returns True.</p></remarks>
+        <seealso><p><link topic="isxfunc_IsWinDark">IsWinDark</link><br/>
+<link topic="isxfunc_HighContrastActive">HighContrastActive</link></p></seealso>
+      </function>
+      <function>
+        <name>HighContrastActive</name>
+        <prototype>function HighContrastActive: Boolean;</prototype>
+        <description><p>Returns True if the user's system is set to a high-contrast theme.</p></description>
+        <seealso><p><link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>

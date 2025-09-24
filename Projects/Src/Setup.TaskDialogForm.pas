@@ -44,10 +44,10 @@ type
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
-    FPadX, FPadY: Integer;
     procedure Finish;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateIcon(const Icon: PChar);
+    procedure UpdateInstructionAndText(const Instruction, Text: String);
     procedure UpdateHeight;
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
@@ -78,9 +78,7 @@ begin
   const Form = TTaskDialogForm.Create(nil);
   try
     Form.Caption := Caption;
-    Form.InstructionText.Caption := Instruction;
-    Form.InstructionText.Font.Size := MulDiv(Form.Font.Size, 13, 9);
-    Form.TextText.Caption := Text;
+    Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateVerificationText(VerificationText, pfVerificationFlagChecked);
@@ -88,8 +86,10 @@ begin
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
 
-    Form.InstructionText.AdjustHeight;
-    Form.TextText.AdjustHeight;
+    if Form.InstructionText.Visible then
+      Form.InstructionText.AdjustHeight;
+    if Form.TextText.Visible then
+      Form.TextText.AdjustHeight;
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -121,20 +121,20 @@ begin
   InitializeFont;
 
   const Pad = 10;
-  FPadX := ScalePixelsX(Pad);
-  FPadY := ScalePixelsY(Pad);
+  const PadX = ScalePixelsX(Pad);
+  const PadY = ScalePixelsY(Pad);
 
-  MainPanel.Padding.Left := FPadX;
-  MainPanel.Padding.Top := FPadY;
-  MainPanel.Padding.Right := FPadX;
-  MainPanel.Padding.Bottom := FPadY;
+  MainPanel.Padding.Left := PadX;
+  MainPanel.Padding.Top := PadY;
+  MainPanel.Padding.Right := PadX;
+  MainPanel.Padding.Bottom := PadY;
   { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
   MainStackPanel.HandleNeeded;
-  MainStackPanel.Padding.Left := FPadX; { Also see below }
-  MainStackPanel.Spacing := FPadY;
-  BottomStackPanel.Spacing := FPadX;
-  BottomStackPanel.Padding.Right := FPadX; { Also see below }
-  VerificationCheck.Left := FPadX;
+  MainStackPanel.Padding.Left := PadX; { Also see below }
+  MainStackPanel.Spacing := PadY;
+  BottomStackPanel.Spacing := PadX;
+  BottomStackPanel.Padding.Right := PadX; { Also see below }
+  VerificationCheck.Left := PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -196,7 +196,7 @@ begin
   else if MainButton2.Visible then
     BottomMainButton := MainButton2;
 
-  var NewClientHeight := FPadY + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
+  var NewClientHeight := MainPanel.Padding.Top + MainStackPanel.Top + BottomMainButton.Top + BottomMainButton.Height;
   if BottomPanel.Visible then
     NewClientHeight := NewClientHeight + BottomPanel.Height;
   if BottomPanel2.Visible then
@@ -221,6 +221,18 @@ begin
     BitmapImage.InitializeFromIcon(HInstance, PChar(ResourceName), clNone, [32, 48, 64])
   else
     LeftPanel.Visible := False;
+end;
+
+procedure TTaskDialogForm.UpdateInstructionAndText(const Instruction, Text: String);
+begin
+  InstructionText.Visible := Instruction <> '';
+  if InstructionText.Visible then begin
+    InstructionText.Caption := Instruction;
+    InstructionText.Font.Size := MulDiv(Font.Size, 13, 9);
+  end;
+  TextText.Visible := Text <> '';
+  if TextText.Visible then
+    TextText.Caption := Text;
 end;
 
 procedure TTaskDialogForm.UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;

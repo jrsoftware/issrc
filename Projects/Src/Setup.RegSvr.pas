@@ -2,7 +2,7 @@ unit Setup.RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -182,9 +182,9 @@ begin
                   back in as an admin the files will get registered for real,
                   and we won't suppress error messages then. }
                 if not NoErrorMessages then
-                  AppMessageBox(PChar(RegFilename + SNewLine2 +
-                    FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage)),
-                    PChar(SetupMessages[msgSetupAppTitle]), MB_OK or MB_ICONEXCLAMATION);
+                  MsgBox(RegFilename + SNewLine2 +
+                    FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
+                    SetupMessages[msgSetupAppTitle], mbError, MB_OK);
               end;
             end;
           end;

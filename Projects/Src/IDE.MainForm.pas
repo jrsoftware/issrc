@@ -1271,8 +1271,7 @@ end;
 
 class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
 begin
-  AppMessageBox(PChar(AddPeriod(E.Message)), SCompilerFormCaption,
-    MB_OK or MB_ICONSTOP);
+  MsgBox(AddPeriod(E.Message), SCompilerFormCaption, mbCriticalError, MB_OK);
 end;
 
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
@@ -1776,8 +1775,8 @@ begin
     else
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
-  NewCaption := NewCaption + ' - ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version) + ' - ' + GetLicenseeDescription;
+  NewCaption := NewCaption + ' '#$2013' ' + SCompilerFormCaption + ' ' +
+    String(FCompilerVersion.Version) + ' '#$2013' ' + GetLicenseeDescription;
   if FCompiling then
     NewCaption := NewCaption + '  [Compiling]'
   else if FDebugging then begin

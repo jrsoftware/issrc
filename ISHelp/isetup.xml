@@ -5732,7 +5732,9 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
 <p><tt>modern zircon includetitlebar</tt><br/><br/><img src="wizardstyle-modern-zircon-includetitlebar.png"/></p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardstylefile">WizardStyleFile</link></p>
+<link topic="setup_wizardstylefile">WizardStyleFile</link><br/>
+<link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link><br/>
+<link topic="isxfunc_HighContrastActive">HighContrastActive</link></p>
 </body>
 </setuptopic>
 
