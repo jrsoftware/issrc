@@ -48,6 +48,7 @@ type
     procedure Finish;
     procedure UpdateCommonButtons(const CommonButtons: Cardinal);
     procedure UpdateIcon(const Icon: PChar);
+    procedure UpdateInstructionAndText(const Instruction, Text: String);
     procedure UpdateHeight;
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
@@ -78,9 +79,7 @@ begin
   const Form = TTaskDialogForm.Create(nil);
   try
     Form.Caption := Caption;
-    Form.InstructionText.Caption := Instruction;
-    Form.InstructionText.Font.Size := MulDiv(Form.Font.Size, 13, 9);
-    Form.TextText.Caption := Text;
+    Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons);
     Form.UpdateVerificationText(VerificationText, pfVerificationFlagChecked);
@@ -88,8 +87,10 @@ begin
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
 
-    Form.InstructionText.AdjustHeight;
-    Form.TextText.AdjustHeight;
+    if Form.InstructionText.Visible then
+      Form.InstructionText.AdjustHeight;
+    if Form.TextText.Visible then
+      Form.TextText.AdjustHeight;
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -221,6 +222,18 @@ begin
     BitmapImage.InitializeFromIcon(HInstance, PChar(ResourceName), clNone, [32, 48, 64])
   else
     LeftPanel.Visible := False;
+end;
+
+procedure TTaskDialogForm.UpdateInstructionAndText(const Instruction, Text: String);
+begin
+  InstructionText.Visible := Instruction <> '';
+  if InstructionText.Visible then begin
+    InstructionText.Caption := Instruction;
+    InstructionText.Font.Size := MulDiv(Font.Size, 13, 9);
+  end;
+  TextText.Visible := Text <> '';
+  if TextText.Visible then
+    TextText.Caption := Text;
 end;
 
 procedure TTaskDialogForm.UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
