@@ -292,6 +292,9 @@ begin
   FFlipControlsOnShow := FRightToLeft;
   FSizeAndCenterOnShow := True;
   inherited;
+   { Setting BidiMode before inherited causes an AV when TControl tries to
+     send CM_BIDIMODECHANGED. This is why we have additonal RTL code in
+     CreateParams below. }
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
@@ -401,6 +404,8 @@ begin
      not IsWindowOnTaskbar(Params.WndParent) then
     Params.WndParent := 0;
 
+  { See comment in Create. Also: The following does not make the title bar RTL.
+    Achieving this requires adding WS_EX_LAYOUTRTL, which VCL does not support. }
   if FRightToLeft then
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
