@@ -30,7 +30,7 @@ type
   { Note: This type is also present in Compiler.ScriptFunc.pas }
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-  TMsgBoxCallbackFunc = procedure(const Flags: LongInt; const After: Boolean;
+  TMsgBoxCallbackFunc = procedure(const Flags: Integer; const After: Boolean;
     const Param: LongInt);
 
 { Useful constant }
@@ -41,7 +41,7 @@ function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
 procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
-function MsgBox(const Text, Caption: PChar; Flags: Longint): Integer; overload;
+function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer; overload;
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer; overload;
 function MsgBoxFmt(const Text: String; const Args: array of const;
@@ -51,15 +51,22 @@ function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PCh
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
-procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
+procedure TriggerMessageBoxCallbackFunc(const Flags: Integer; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
 
 implementation
 
+{$IF Defined(SETUPPROJ) and Defined(VCLSTYLES)}
+  {$DEFINE USETASKDIALOGFORM}
+{$IFEND}
+
 uses
-  DwmApi, Consts, PathFunc, Shared.CommonFunc;
+  DwmApi, Consts, PathFunc,
+  {$IFDEF USETASKDIALOGFORM} CommCtrl, Themes, Setup.TaskDialogForm, {$ENDIF}
+  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
+  Shared.CommonFunc;
 
 var
   MessageBoxCaptions: array[TMsgBoxType] of PChar;
@@ -212,7 +219,7 @@ begin
   MessageBoxCallbackParam := AParam;
 end;
 
-procedure TriggerMessageBoxCallbackFunc(const Flags: LongInt; const After: Boolean);
+procedure TriggerMessageBoxCallbackFunc(const Flags: Integer; const After: Boolean);
 begin
   if Assigned(MessageBoxCallbackFunc) and not MessageBoxCallbackActive then begin
     MessageBoxCallbackActive := True;
@@ -280,7 +287,51 @@ begin
   end;
 end;
 
-function MsgBox(const Text, Caption: PChar; Flags: Longint): Integer;
+function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
+
+{$IFDEF USETASKDIALOGFORM}
+  procedure DoInternalError(const Msg: String);
+  begin
+    {$IFDEF SETUPPROJ}
+      InternalError(Msg);
+    {$ELSE}
+      raise Exception.Create(Msg);
+    {$ENDIF}
+  end;
+
+  procedure MsgBoxFlagsDecode(const Flags: Integer; out Icon: PChar;
+    out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
+  begin
+    case Flags and MB_ICONMASK of
+      MB_ICONEXCLAMATION {equals MB_ICONWARNING}: Icon := TD_WARNING_ICON;
+      MB_ICONINFORMATION {equals MB_ICONASTERISK}: Icon := TD_INFORMATION_ICON;
+      MB_ICONQUESTION: Icon := TD_TASKFORM_HELP_ICON;
+      MB_ICONSTOP {equals MB_ICONERROR and MB_ICONHAND}:  Icon := TD_ERROR_ICON;
+    else
+      Icon := nil;
+    end;
+
+    case Flags and MB_TYPEMASK of
+      MB_OK: TDCommonButtons := TDCBF_OK_BUTTON;
+      MB_OKCANCEL: TDCommonButtons := TDCBF_OK_BUTTON or TDCBF_CANCEL_BUTTON;
+      MB_YESNOCANCEL: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON or TDCBF_CANCEL_BUTTON;
+      MB_YESNO: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON;
+      MB_RETRYCANCEL: TDCommonButtons := TDCBF_RETRY_BUTTON or TDCBF_CANCEL_BUTTON;
+    else
+      DoInternalError('MsgBoxFlagsDecode: Invalid Flags');
+    end;
+
+    if (Flags and MB_DEFBUTTON2) <> 0 then
+      DefCommonButton := 2
+    else if (Flags and MB_DEFBUTTON3) <> 0 then
+      DefCommonButton := 3
+    else
+      DefCommonButton := 0;
+
+    SetForeground := Flags and MB_SETFOREGROUND <> 0;
+  end;
+{$ENDIF}
+
 var
   ActiveWindow: HWND;
   WindowList: Pointer;
@@ -312,6 +363,30 @@ begin
 
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
+    {$IFDEF USETASKDIALOGFORM}
+    { We don't use MB_ABORTRETRYIGNORE or MB_CANCELTRYCONTINUE, but end users
+      are liable to in [Code]. TaskDialogForm doesn't support them because
+      currently we lack the strings needed for the required common buttons. }
+    const Typ = (Flags and MB_TYPEMASK);
+    const MB_CANCELTRYCONTINUE = $00000006;
+    if (Typ <> MB_ABORTRETRYIGNORE) and (Typ <> MB_CANCELTRYCONTINUE) then begin
+      const LStyle = TStyleManager.ActiveStyle;
+      if not LStyle.IsSystemStyle then begin
+        var Icon: PChar;
+        var TDCommonButtons: Cardinal;
+        var DefCommonButton: Integer;
+        var SetForeground: Boolean;
+        { Ignores MB_DEFBUTTON4 (there are never 4 buttons) and MB_RTLREADING+MB_RIGHT
+          (TaskDialogForm has its own RTL detection) }
+        MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
+        { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
+        Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
+          Flags, '', nil, cfMessageBox, SetForeground);
+        Exit;
+      end;
+    end;
+    {$ENDIF}
+
     { Application.MessageBox uses Application.ActiveFormHandle for the message
       box's owner window. If that window is Application.Handle AND it isn't
       currently shown on the taskbar [1], the result will be a message box
