@@ -214,7 +214,7 @@ begin
   if not LStyle.IsSystemStyle then begin
     { Note: Shared.CommonFunc.Vcl also uses TaskDialogForm }
     Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, 0, ShieldButton,
-      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog);
+      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog, False);
     Exit;
   end;
   {$ENDIF}

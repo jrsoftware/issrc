@@ -299,8 +299,8 @@ function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
     {$ENDIF}
   end;
 
-  procedure MsgBoxFlagsToIconAndButtons(const Flags: Integer; out Icon: PChar;
-    out TDCommonButtons: Cardinal; out DefCommonButton: Integer);
+  procedure MsgBoxFlagsDecode(const Flags: Integer; out Icon: PChar;
+    out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
   begin
     case Flags and MB_ICONMASK of
       MB_ICONEXCLAMATION {equals MB_ICONWARNING}: Icon := TD_WARNING_ICON;
@@ -327,6 +327,8 @@ function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
       DefCommonButton := 3
     else
       DefCommonButton := 0;
+
+    SetForeground := Flags and MB_SETFOREGROUND <> 0;
   end;
 {$ENDIF}
 
@@ -373,13 +375,13 @@ begin
         var Icon: PChar;
         var TDCommonButtons: Cardinal;
         var DefCommonButton: Integer;
-        { Ignores MB_SETFOREGROUND (used in other units) and MB_TASKMODEL
-          (only used below) and MB_DEFBUTTON4 (there are never 4 buttons) and
-          MB_RTLREADING+MB_RIGHT (TaskDialogForm has its own RTL detection) }
-        MsgBoxFlagsToIconAndButtons(Flags, Icon, TDCommonButtons, DefCommonButton);
+        var SetForeground: Boolean;
+        { Ignores MB_DEFBUTTON4 (there are never 4 buttons) and MB_RTLREADING+MB_RIGHT
+          (TaskDialogForm has its own RTL detection) }
+        MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
         { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
         Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
-          Flags, '', nil, cfMessageBox);
+          Flags, '', nil, cfMessageBox, SetForeground);
         Exit;
       end;
     end;

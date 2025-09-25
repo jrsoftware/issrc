@@ -59,13 +59,14 @@ type
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
     procedure UpdateVerificationText(const VerificationText: String; const pfVerificationFlagChecked: PBOOL);
   public
-    constructor Create(AOwner: TComponent; const CopyFormat: TCopyFormat); reintroduce;
+    constructor Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean); reintroduce;
   end;
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat): Integer;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const SetForeground: Boolean): Integer;
 
 implementation
 
@@ -79,9 +80,10 @@ uses
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat): Integer;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const SetForeground: Boolean): Integer;
 begin
-  const Form = TTaskDialogForm.Create(nil, CopyFormat);
+  const Form = TTaskDialogForm.Create(nil, CopyFormat, SetForeground);
   try
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
@@ -116,14 +118,15 @@ end;
 
 { TTaskDialogForm }
 
-constructor TTaskDialogForm.Create(AOwner: TComponent; const CopyFormat: TCopyFormat);
+constructor TTaskDialogForm.Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean);
 begin
   inherited Create(AOwner);
 
   FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
   FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
   FMainButtons := [MainButton1, MainButton2, MainButton3];
-  FCopyFormat := CopyFormat;
+  FCopyFormat := ACopyFormat;
+  SetForeground := ASetForeground;
 
   InitializeFont;
 
