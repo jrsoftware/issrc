@@ -71,7 +71,7 @@ function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PC
 implementation
 
 uses
-  CommCtrl, Clipbrd,
+  CommCtrl, Clipbrd, Themes,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
 
@@ -129,6 +129,15 @@ begin
   SetForeground := ASetForeground;
 
   InitializeFont;
+
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+  if LStyle <> nil then begin
+    { Make MainPanel look the same as WizardForm's main area }
+    MainPanel.StyleElements := [];
+    MainPanel.Color := LStyle.GetStyleColor(scWindow);
+  end;
 
   const Pad = 10;
   const PadX = ScalePixelsX(Pad);

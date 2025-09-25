@@ -825,7 +825,7 @@ begin
   Dec(X, W1);
   BackButton.Left := X;
 
-  { Initialize wizard style - also see TUninstallProgressForm.Initialize }
+  { Initialize wizard style - also see TUninstallProgressForm.Initialize and TTaskDialogForm.Create }
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
