@@ -377,6 +377,7 @@ begin
           (only used below) and MB_DEFBUTTON4 (there are never 4 buttons) and
           MB_RTLREADING+MB_RIGHT (TaskDialogForm has its own RTL detection) }
         MsgBoxFlagsToIconAndButtons(Flags, Icon, TDCommonButtons, DefCommonButton);
+        { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
         Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
           Flags, '', nil, cfMessageBox);
         Exit;

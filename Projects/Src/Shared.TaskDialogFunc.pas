@@ -212,6 +212,7 @@ begin
   {$IFDEF USETASKDIALOGFORM}
   const LStyle = TStyleManager.ActiveStyle;
   if not LStyle.IsSystemStyle then begin
+    { Note: Shared.CommonFunc.Vcl also uses TaskDialogForm }
     Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, 0, ShieldButton,
       TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog);
     Exit;
