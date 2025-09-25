@@ -35,6 +35,8 @@ type
     FControlsFlipped: Boolean;
     FKeepSizeX: Boolean;
     FKeepSizeY: Boolean;
+    FSetForeground: Boolean;
+    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
     procedure Center;
@@ -71,6 +73,7 @@ type
     property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
     property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
+    property SetForeground: Boolean read FSetForeground write FSetForeground;
   end;
 
 procedure CalculateBaseUnitsFromFont(const Font: TFont; var X, Y: Integer);
@@ -520,6 +523,14 @@ begin
     propagated out, which is what we want }
   if not Visible then
     FlipSizeAndCenterIfNeeded;
+end;
+
+procedure TSetupForm.CMShowingChanged(var Message: TMessage);
+begin
+  inherited;
+  { This usually just makes the taskbar button flash }
+  if FSetForeground and Showing then
+    SetForegroundWindow(Handle);
 end;
 
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);
