@@ -318,7 +318,7 @@ function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
       MB_YESNO: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON;
       MB_RETRYCANCEL: TDCommonButtons := TDCBF_RETRY_BUTTON or TDCBF_CANCEL_BUTTON;
     else
-      DoInternalError('MsgBoxFlagsToButtons: Invalid Flags');
+      DoInternalError('MsgBoxFlagsDecode: Invalid Flags');
     end;
 
     if (Flags and MB_DEFBUTTON2) <> 0 then
