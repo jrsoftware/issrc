@@ -52,7 +52,8 @@ uses
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
   StringScanner in '..\Components\StringScanner.pas',
-  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas';
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

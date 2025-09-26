@@ -25,7 +25,7 @@ procedure SECompressedBlockRead(const R: TCompressedBlockReader; var Buf;
 implementation
 
 uses
-  Shared.CommonFunc;
+  UnsignedFunc;
 
 procedure SEFreeRec(const P: Pointer; const NumStrings, NumAnsiStrings: Integer);
 var

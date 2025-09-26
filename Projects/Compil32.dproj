@@ -165,6 +165,7 @@
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
         <DCCReference Include="..\Components\StringScanner.pas"/>
         <DCCReference Include="..\Components\Resample.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

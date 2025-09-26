@@ -20,7 +20,8 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
-  Shared.FileClass in 'Src\Shared.FileClass.pas';
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$APPTYPE CONSOLE}
 {$SETPEOSVERSION 6.1}

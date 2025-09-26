@@ -90,6 +90,7 @@
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

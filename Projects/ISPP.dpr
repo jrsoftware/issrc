@@ -34,8 +34,9 @@ uses
   MD5 in '..\Components\MD5.pas',
   SHA1 in '..\Components\SHA1.pas',
   SHA256 in '..\Components\SHA256.pas',
-  Shared.Struct in 'Src\Shared.Struct.pas';
-  
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
+
 {$IMAGEBASE $01800000}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
