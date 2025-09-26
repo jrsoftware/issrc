@@ -20,7 +20,7 @@ type
                  tcWordAtCursorOccurrenceBack, tcSelTextOccurrenceBack,
                  tcMarginFore, tcMarginBack, tcSplitterBack, tcBraceBack, tcIndentGuideFore,
                  tcRed, tcGreen, tcBlue, tcOrange, tcReallyOrange, tcPurple,
-                 tcYellow, tcTeal, tcGray);
+                 tcTeal, tcGray);
 
   TTheme = class
   private
@@ -87,17 +87,27 @@ const
   CBraceBack = CWACOBack;
   CIndentGuideFore = $C0C0C0;
 
-  { The Microsoft Azure DevOps work well as foreground colors on both dark and light backgrounds.
-    Its red and blue also fit well with the colors used by Microsoft's VS Image Library. }
+  { The colors below might differ slightly from the listed source: the constrast with LBack and
+    DBack has been increased to at least 4.5 using https://webaim.org/resources/contrastchecker }
 
-  MRed = $D65363;            { Azure DevOps, 2 tints lightened using color-hex.com }
-  MGreen = $339933;          { Azure DevOps }
-  MBlue = $0078D4;           { Azure DevOps }   
-  MOrange = $E5885E;         { Azure DevOps }
-  MPurple = $9262A8;         { Azure DevOps, 2 tints lightened using color-hex.com }
-  MYellow = $F2CB1D;         { Azure DevOps }
-  MTeal = $4EC9B0;           { Visual Studio 2017 }
-  MGray = $707070;           { Inno Setup 5 }
+  LRed = $D24152;            { Azure DevOps }
+  LGreen = $2D862D;          { Azure DevOps }
+  LBlue = $0078D4;           { Azure DevOps }
+  LOrange = $C55420;         { Azure DevOps }
+  LPurple = $9262A8;         { Azure DevOps }
+  LYellow = $F2CB1D;         { Azure DevOps }
+  LTeal = $2A8472;           { Visual Studio 2017 }
+  LGray = $707070;           { Inno Setup 5 }
+
+  { All sources same as L* }
+
+  DRed = $D95E6C;
+  DGreen = $339933;
+  DBlue = $0088F0;
+  DOrange = $E5885E;
+  DPurple = $A278B5;
+  DTeal = $4EC9B0;
+  DGray = $878787;
 
   CRed = $FF0000;
   CGreen = $008000;
@@ -105,14 +115,13 @@ const
   COrange = $808000;
   CReallyOrange = $FFA500;
   CPurple = $8000C0;         { Inno Setup 5 }
-  CYellow = $FFFF00;
   CTeal = $008080;
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
-    (LFore, LBack, LToolBack, LSelBack, LIntelliBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIndentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
-    (DFore, DBack, DToolBack, DSelBack, DIntelliBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIndentGuideFore, MRed, MGreen, MBlue, MOrange, MOrange, MPurple, MYellow, MTeal, MGray),
-    (CFore, CBack, CToolBack, CSelBack, CIntelliBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIndentGuideFore, CRed, CGreen, CBlue, COrange, CReallyOrange, CPurple, CYellow, CTeal, CGray)
+    (LFore, LBack, LToolBack, LSelBack, LIntelliBack, LWACOBack, LSTOBack, LMarginFore, LMarginBack, LSplitterBack, LBraceBack, LIndentGuideFore, LRed, LGreen, LBlue, LOrange, LOrange, LPurple, LTeal, LGray),
+    (DFore, DBack, DToolBack, DSelBack, DIntelliBack, DWACOBack, DSTOBack, DMarginFore, DMarginBack, DSplitterBack, DBraceBack, DIndentGuideFore, DRed, DGreen, DBlue, DOrange, DOrange, DPurple, DTeal, DGray),
+    (CFore, CBack, CToolBack, CSelBack, CIntelliBack, CWACOBack, CSTOBack, CMarginFore, CMarginBack, CSplitterBack, CBraceBack, CIndentGuideFore, CRed, CGreen, CBlue, COrange, CReallyOrange, CPurple, CTeal, CGray)
   );
   
 begin
