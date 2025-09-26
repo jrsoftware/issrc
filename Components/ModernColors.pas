@@ -39,7 +39,8 @@ implementation
 
 function TTheme.FGetColor(Color: TThemeColor): TColor;
 const
-  { D = Dark, L = Light, M = Modern, C = Classic }
+  { D = Dark, L = Light, M = Modern, C = Classic
+    All colors should be either RGB or a system color such as clBtnFace - so no clWhite etc! }
 
   DFore = $D6D6D6;           { VSCode Modern Dark, 2 tints lightened using color-hex.com }
   DBack = $1F1F1F;           { VSCode Modern Dark }
@@ -47,11 +48,11 @@ const
     window background color. Value can be found using BitmapStyleDesigner.exe from BDS\Bin. Open the
     style .vsf file, go to the Colors section and then to the Window color. }
   DToolBack = $2B2B2B;       { VCL Style 'Windows11 Dark 1.0' }
-  DSelBack = $764F1D;        { VSCode Modern Dark }
-  //DSelInactiveBack = $51504F;{ VSCode Modern Dark }
+  DSelBack = $1D4F76;        { VSCode Modern Dark }
+  //DSelInactiveBack = $4F5051;{ VSCode Modern Dark }
   DIntelliBack = $202020;    { VSCode Modern Dark }
   DWACOBack = $4A4A4A;       { VSCode Modern Dark }
-  DSTOBACK = $403A33;        { VSCode Modern Dark }
+  DSTOBACK = $333A40;        { VSCode Modern Dark }
   DMarginFore = $716F71;     { Monokai Pro }
   DMarginBack = DToolBack;
   DSplitterBack = DToolBack;
@@ -60,21 +61,21 @@ const
   //Monokai Pro's dark control color: $221F22
 
   LFore = $3B3B3B;           { VSCode Modern Light }
-  LBack = clWhite;
+  LBack = $FFFFFF;
   LToolBack = clBtnFace;
-  LSelBack = $FDD6A7;        { VSCode Modern Light }
-  //LSelInactiveBack = $F1EBE4;{ VSCode Modern Light }
+  LSelBack = $A7D6FD;        { VSCode Modern Light }
+  //LSelInactiveBack = $E4EBF1;{ VSCode Modern Light }
   LIntelliBack = $F8F8F8;    { VSCode Modern Light }
   LWACOBack = $ECECEC;       { Inno Setup 5, 4 tints lightened using color-hex.com }
-  LSTOBACK = $FEEAD3;        { VSCode Modern Light }
+  LSTOBACK = $D3EAFE;        { VSCode Modern Light }
   LMarginFore = $868686;     { VSCode Modern Light, tabset }
   LMarginBack = $F8F8F8;     { VSCode Modern Light, tabset }
   LSplitterBack = LToolBack;
   LBraceBack = LWACOBack;
-  LIndentGuideFore = clSilver;
+  LIndentGuideFore = $C0C0C0;
 
-  CFore = clBlack;
-  CBack = clWhite;
+  CFore = $000000;
+  CBack = $FFFFFF;
   CToolBack = clBtnFace;
   CSelBack = LSelBack;
   CIntelliBack = LIntelliBack;
@@ -84,28 +85,28 @@ const
   CMarginBack = CToolBack;
   CSplitterBack = CToolBack;
   CBraceBack = CWACOBack;
-  CIndentGuideFore = clSilver;
+  CIndentGuideFore = $C0C0C0;
 
   { The Microsoft Azure DevOps work well as foreground colors on both dark and light backgrounds.
     Its red and blue also fit well with the colors used by Microsoft's VS Image Library. }
 
-  MRed = $6353D6;            { Azure DevOps, 2 tints lightened using color-hex.com }
+  MRed = $D65363;            { Azure DevOps, 2 tints lightened using color-hex.com }
   MGreen = $339933;          { Azure DevOps }
-  MBlue = $D47800;           { Azure DevOps }   
-  MOrange = $5E88E5;         { Azure DevOps }
-  MPurple = $A86292;         { Azure DevOps, 2 tints lightened using color-hex.com }
-  MYellow = $1DCBF2;         { Azure DevOps }
-  MTeal = $B0C94E;           { Visual Studio 2017 }
+  MBlue = $0078D4;           { Azure DevOps }   
+  MOrange = $E5885E;         { Azure DevOps }
+  MPurple = $9262A8;         { Azure DevOps, 2 tints lightened using color-hex.com }
+  MYellow = $F2CB1D;         { Azure DevOps }
+  MTeal = $4EC9B0;           { Visual Studio 2017 }
   MGray = $707070;           { Inno Setup 5 }
 
-  CRed = clRed;
-  CGreen = clGreen;
-  CBlue = clBlue;
-  COrange = clOlive;
-  CReallyOrange = $00A5FF;
-  CPurple = $C00080;         { Inno Setup 5 }
-  CYellow = clYellow;
-  CTeal = clTeal;
+  CRed = $FF0000;
+  CGreen = $008000;
+  CBlue = $0000FF;
+  COrange = $808000;
+  CReallyOrange = $FFA500;
+  CPurple = $8000C0;         { Inno Setup 5 }
+  CYellow = $FFFF00;
+  CTeal = $008080;
   CGray = $707070;           { Inno Setup 5 }
 
   Colors: array [TThemeType, TThemeColor] of TColor = (
@@ -116,6 +117,13 @@ const
   
 begin
   Result := Colors[FType, Color];
+  if Result and $FF000000 = 0 then begin
+    { Not a system color so change RGB to BGR as Delphi requires }
+    const R = (Result shr 16) and $FF;
+    const G = (Result shr 8) and $FF;
+    const B = Result and $FF;
+    Result := (B shl 16) or (G shl 8) or R;
+  end;
 end;
 
 function TTheme.FGetDark: Boolean;
