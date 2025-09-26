@@ -50,7 +50,7 @@ end;
 class procedure TMainForm.ShowExceptionMsg(const S: String);
 begin
   Log('Exception message:');
-  LoggedAppMessageBox(PChar(S), PChar(Application.Title), MB_OK or MB_ICONSTOP, True, IDOK);
+  LoggedMsgBox(S, Application.Title, mbCriticalError, MB_OK, True, IDOK);
 end;
 
 class procedure TMainForm.ShowException(Sender: TObject; E: Exception);

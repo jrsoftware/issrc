@@ -35,6 +35,8 @@ type
     FControlsFlipped: Boolean;
     FKeepSizeX: Boolean;
     FKeepSizeY: Boolean;
+    FSetForeground: Boolean;
+    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
     procedure Center;
@@ -71,6 +73,7 @@ type
     property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
     property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
+    property SetForeground: Boolean read FSetForeground write FSetForeground;
   end;
 
 procedure CalculateBaseUnitsFromFont(const Font: TFont; var X, Y: Integer);
@@ -289,6 +292,9 @@ begin
   FFlipControlsOnShow := FRightToLeft;
   FSizeAndCenterOnShow := True;
   inherited;
+   { Setting BidiMode before inherited causes an AV when TControl tries to
+     send CM_BIDIMODECHANGED. This is why we have additonal RTL code in
+     CreateParams below. }
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
@@ -398,6 +404,8 @@ begin
      not IsWindowOnTaskbar(Params.WndParent) then
     Params.WndParent := 0;
 
+  { See comment in Create. Also: The following does not make the title bar RTL.
+    Achieving this requires adding WS_EX_LAYOUTRTL, which VCL does not support. }
   if FRightToLeft then
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
@@ -520,6 +528,14 @@ begin
     propagated out, which is what we want }
   if not Visible then
     FlipSizeAndCenterIfNeeded;
+end;
+
+procedure TSetupForm.CMShowingChanged(var Message: TMessage);
+begin
+  inherited;
+  { This usually just makes the taskbar button flash }
+  if FSetForeground and Showing then
+    SetForegroundWindow(Handle);
 end;
 
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);

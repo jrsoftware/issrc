@@ -52,19 +52,18 @@ var
   OldWindowProc: Pointer;
 
 procedure ShowExceptionMsg;
-var
-  Msg: String;
 begin
+  { Also see ShowExceptionMsg in Setup.inc }
   if ExceptObject is EAbort then
     Exit;
-  Msg := GetExceptMessage;
+  const Msg = GetExceptMessage;
   Log('Exception message:');
-  LoggedAppMessageBox(PChar(Msg), Pointer(SetupMessages[msgErrorTitle]),
+  LoggedMsgBox(PChar(Msg), Pointer(SetupMessages[msgErrorTitle]),
     MB_OK or MB_ICONSTOP, True, IDOK);
     { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
       if SetupMessages[msgErrorTitle] is empty due to the messages not being
-      loaded yet. MessageBox displays 'Error' as the caption if the lpCaption
-      parameter is nil. }
+      loaded yet. LoggedMsgBox displays 'Error' as the caption if the lpCaption
+      parameter is nil, see GetMessageBoxCaption. }
 end;
 
 procedure TExtUninstallLog.HandleException;
@@ -130,7 +129,7 @@ function LoggedMessageBoxFmt1(const ID: TSetupMessageID; const Arg1: String;
   const Title: String; const Flags: UINT; const Suppressible: Boolean;
   const Default: Integer): Integer;
 begin
-  Result := LoggedAppMessageBox(PChar(FmtSetupMessage1(ID, Arg1)), PChar(Title),
+  Result := LoggedMsgBox(PChar(FmtSetupMessage1(ID, Arg1)), PChar(Title),
     Flags, Suppressible, Default);
 end;
 
@@ -538,14 +537,14 @@ begin
       Windows version, or they're running an uninstaller from another machine
       (which they definitely shouldn't be doing). }
     if (ufWin64 in UninstLog.Flags) and not IsWin64 then begin
-      LoggedAppMessageBox(PChar(SetupMessages[msgUninstallOnlyOnWin64]), PChar(Title),
+      LoggedMsgBox(PChar(SetupMessages[msgUninstallOnlyOnWin64]), PChar(Title),
         MB_OK or MB_ICONEXCLAMATION, True, IDOK);
       Abort;
     end;
 
     { Check if admin privileges are needed to uninstall }
     if (ufAdminInstalled in UninstLog.Flags) and not IsAdmin then begin
-      LoggedAppMessageBox(PChar(SetupMessages[msgOnlyAdminCanUninstall]), PChar(Title),
+      LoggedMsgBox(PChar(SetupMessages[msgOnlyAdminCanUninstall]), PChar(Title),
         MB_OK or MB_ICONEXCLAMATION, True, IDOK);
       Abort;
     end;
@@ -746,7 +745,7 @@ begin
       Log('Restarting Windows.');
       RestartInitiatedByThisProcess := True;
       if not RestartComputer then begin
-        LoggedAppMessageBox(PChar(SetupMessages[msgErrorRestartingComputer]),
+        LoggedMsgBox(PChar(SetupMessages[msgErrorRestartingComputer]),
           PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION,
           True, IDOK);
       end;

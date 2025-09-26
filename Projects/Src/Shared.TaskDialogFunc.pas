@@ -125,7 +125,7 @@ function TaskDialogMsgBox(const Icon, Instruction, Text, Caption: String; const 
   const Buttons: Cardinal; const ButtonLabels: array of String; const ShieldButton: Integer;
   const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
-  Application.Restore; { See comments in AppMessageBox }
+  Application.Restore; { See comments in MsgBox }
 
   { Set icon }
   var IconP: PChar;
@@ -212,8 +212,11 @@ begin
   {$IFDEF USETASKDIALOGFORM}
   const LStyle = TStyleManager.ActiveStyle;
   if not LStyle.IsSystemStyle then begin
-    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
-      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked);
+    const SetForeground = True; { See comments in MsgBox }
+
+    { Note: Shared.CommonFunc.Vcl also uses TaskDialogForm }
+    Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, 0, ShieldButton,
+      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog, SetForeground);
     Exit;
   end;
   {$ENDIF}

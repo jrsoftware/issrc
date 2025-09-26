@@ -29,7 +29,6 @@ type
   private
     FFilename: string;
     function GetSanitizedPath: String;
-    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -47,7 +46,7 @@ uses
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
-  Application.Restore;  { see comments in AppMessageBox }
+  Application.Restore;  { see comments in MsgBox }
 
   with TNewDiskForm.Create(Application) do
     try
@@ -81,18 +80,12 @@ begin
 
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
 
+  SetForeground := True;
+
   KeepSizeY := True;
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
   FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
-end;
-
-procedure TNewDiskForm.CMShowingChanged(var Message: TMessage);
-begin
-  inherited;
-  { This usually just makes the taskbar button flash }
-  if Showing then
-    SetForegroundWindow(Handle);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;

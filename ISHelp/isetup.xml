@@ -3975,7 +3975,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt>.</li>
+<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt> (use <link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link> and <link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link> instead).</li>
 </ul>
 </dd>
 
@@ -5714,7 +5714,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme, nor is the color of the title bar changed. The other elements (icons and wizard images, including their background colors) are activated.</li>
-<li>When a custom style (including the built-in custom dark style) is active, then all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque.</li>
+<li>When a custom style (including the built-in custom dark style) is active, then all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Additionally, Setup and Uninstall then use a custom implementation of Windows message boxes.</li>
 <li>Windows task dialogs do not currently support custom styling (not even dark mode). When needed, Setup and Uninstall therefore use a custom implementation that does support custom styling, but otherwise looks and feels like Windows task dialogs.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
@@ -5732,7 +5732,9 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
 <p><tt>modern zircon includetitlebar</tt><br/><br/><img src="wizardstyle-modern-zircon-includetitlebar.png"/></p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardstylefile">WizardStyleFile</link></p>
+<link topic="setup_wizardstylefile">WizardStyleFile</link><br/>
+<link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link><br/>
+<link topic="isxfunc_HighContrastActive">HighContrastActive</link></p>
 </body>
 </setuptopic>
 

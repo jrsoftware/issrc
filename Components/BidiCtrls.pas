@@ -85,10 +85,7 @@ begin
       WS_EX_RTLREADING and WS_EX_LEFTSCROLLBAR, but not WS_EX_RIGHT. This can be confirmed by
       inspecting the style of a task dialog command link button. However, if VCL Styles is
       active, this should not be done since the style hook does not expect it at all. }
-    var LStyle := StyleServices(Self);
-    if not LStyle.Enabled or LStyle.IsSystemStyle then
-      LStyle := nil;
-    if LStyle = nil then
+    if not IsCustomStyleActive then
       Params.ExStyle := Params.ExStyle or WS_EX_LAYOUTRTL;
   end;
 end;
