@@ -59,7 +59,7 @@ begin
     Inc(Cardinal(NewP), SizeOf(Pointer));
     Dec(Bytes, SizeOf(Pointer));
   end;
-  Move(OldP^, NewP^, Bytes);
+  UMove(OldP^, NewP^, Bytes);
 end;
 
 procedure SECompressedBlockWrite(const W: TCompressedBlockWriter; var Buf;
@@ -91,7 +91,7 @@ procedure SECompressedBlockRead(const R: TCompressedBlockReader; var Buf;
 var
   P: Pointer;
   I: Integer;
-  Len: Integer;
+  Len: Cardinal;
   S: String;
   AnsiS: AnsiString;
 begin

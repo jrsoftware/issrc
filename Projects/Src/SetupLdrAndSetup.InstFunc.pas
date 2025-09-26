@@ -22,7 +22,7 @@ function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
   var Protected: Boolean): String; overload;
 function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String; overload;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
-  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
+  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
@@ -240,14 +240,12 @@ begin
 end;
 
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
-  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Integer);
+  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 { Attempts to delete Filename up to MaxTries times, retrying if the file is
   in use. It sleeps FirstRetryDelayMS msec after the first try, and
   SubsequentRetryDelayMS msec after subsequent tries. }
-var
-  I: Integer;
 begin
-  for I := 0 to MaxTries-1 do begin
+  for var I := 0 to MaxTries-1 do begin
     if I = 1 then
       Sleep(FirstRetryDelayMS)
     else if I > 1 then

@@ -83,7 +83,7 @@ function StrToVersionNumbers(const S: String; var Version: TFileVersionNumbers):
       N := StrToInt(Trim(Copy(Z, 1, I-1)));
       if (N < Low(Word)) or (N > High(Word)) then
         Abort;
-      Result := N;
+      Result := Word(N);
       Z := Copy(Z, I+1, Maxint);
     end else
       Result := 0;

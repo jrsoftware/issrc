@@ -114,7 +114,7 @@ type
   end;
 
 function GetCRC32(const Buf; BufSize: Cardinal): Longint;
-procedure TransformCallInstructions(var Buf; Size: Integer;
+procedure TransformCallInstructions(var Buf; Size: UInt32;
   const Encode: Boolean; const AddrOffset: LongWord);
 function UpdateCRC32(CurCRC: Longint; const Buf; BufSize: Cardinal): Longint;
 
@@ -168,7 +168,7 @@ begin
   Result := UpdateCRC32(Longint($FFFFFFFF), Buf, BufSize) xor Longint($FFFFFFFF);
 end;
 
-procedure TransformCallInstructions(var Buf; Size: Integer;
+procedure TransformCallInstructions(var Buf; Size: UInt32;
   const Encode: Boolean; const AddrOffset: LongWord);
 { [Version 3] Converts relative addresses in x86/x64 CALL and JMP instructions
   to absolute addresses if Encode is True, or the inverse if Encode is False. }

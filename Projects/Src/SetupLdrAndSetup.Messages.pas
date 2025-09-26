@@ -120,7 +120,6 @@ var
   Header: ^TMessagesHeader;
   M, EndP: PChar;
   I: TSetupMessageID;
-  L: Integer;
 begin
   if (Size <= SizeOf(TMessagesHdrID) + SizeOf(TMessagesHeader)) or
      (TMessagesHdrID(P) <> MessagesHdrID) then
@@ -138,7 +137,7 @@ begin
   for I := Low(SetupMessages) to High(SetupMessages) do begin
     if M >= EndP then
       Corrupted;
-    L := StrLen(M);
+    const L = StrLen(M);
     SetString(SetupMessages[I], M, L);
     Inc(M, L + 1);
   end;
