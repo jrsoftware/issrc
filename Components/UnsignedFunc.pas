@@ -18,6 +18,7 @@ uses
 function ULength(const S: String): Cardinal; overload;
 function ULength(const S: AnsiString): Cardinal; overload;
 function ULength(const S: TBytes): Cardinal; overload;
+procedure UMove(const Source; var Dest; Count: NativeUInt);
 
 implementation
 
@@ -34,6 +35,21 @@ end;
 function ULength(const S: TBytes): Cardinal;
 begin
   Result := Cardinal(Length(S));
+end;
+
+procedure UMove(const Source; var Dest; Count: NativeUInt);
+begin
+  var SourceBuf: PByte := @Source;
+  var DestBuf: PByte := @Dest;
+  while Count > 0 do begin
+    var MoveCount := High(NativeInt);
+    if Count < NativeUInt(MoveCount) then
+      MoveCount := NativeInt(Count);
+    Move(SourceBuf^, DestBuf^, MoveCount);
+    Dec(Count, MoveCount);
+    Inc(SourceBuf, MoveCount);
+    Inc(DestBuf, MoveCount);
+  end;
 end;
 
 end.

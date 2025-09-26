@@ -37,7 +37,8 @@ procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils,
+  UnsignedFunc;
 
 {$C+}
 
@@ -54,7 +55,7 @@ begin
   ctx[1] := $3320646e;
   ctx[2] := $79622d32;
   ctx[3] := $6b206574;
-  Move(Key, ctx[4], KeyLength);
+  UMove(Key, ctx[4], KeyLength);
   ctx[12] := Count;
   if NonceLength = 12 then
     Move(Nonce, ctx[13], 12)
@@ -134,7 +135,7 @@ begin
 
   var InBuf: PByte := @InBuffer;
   var OutBuf: PByte := @OutBuffer;
-  var KeyStream: PByte := @Context.keystream;
+  var KeyStream := PByte(@Context.keystream);
 
   for var I := 0 to Length-1 do begin
     if Context.position >= 64 then begin
@@ -168,7 +169,7 @@ begin
   var SubKey: TBytes;
   HChaCha20(Key, KeyLength, Nonce, 16, SubKey);
   var NonceBytes: PByte := @Nonce;
-  ChaCha20Init(Context, SubKey[0], Length(SubKey), NonceBytes[16], 8, Count);
+  ChaCha20Init(Context, SubKey[0], ULength(SubKey), NonceBytes[16], 8, Count);
 end;
 
 procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
