@@ -151,7 +151,7 @@ type
     Name, LanguageName, DialogFontName, TitleFontName, WelcomeFontName,
       CopyrightFontName: String;
     Data, LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
-    LanguageID: Cardinal;
+    LanguageID: Word;
     DialogFontSize: Integer;
     TitleFontSize: Integer;
     WelcomeFontSize: Integer;

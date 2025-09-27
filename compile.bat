@@ -71,7 +71,7 @@ if errorlevel 1 goto failed
 
 echo - SetupLdr.e32
 mkdir %DCUDIR_WIN32%\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -$T+ -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
 if errorlevel 1 goto failed
 
 echo - Setup.e32
