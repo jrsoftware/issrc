@@ -235,7 +235,7 @@ procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
   Bytes: Int64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
 var
   Context: TSHA256Context;
-  AddrOffset: LongWord;
+  AddrOffset: UInt32;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used in Setup (TFileExtractor), otherwise
     the TransformCallInstructions call will break }

@@ -314,7 +314,7 @@ procedure TFileExtractor.DecompressFile(const FL: TSetupFileLocationEntry;
   const VerifyChecksum: Boolean);
 var
   Context: TSHA256Context;
-  AddrOffset: LongWord;
+  AddrOffset: UInt32;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used by the compiler (TCompressionHandler),
     otherwise the TransformCallInstructions call will break }
