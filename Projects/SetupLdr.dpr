@@ -154,7 +154,7 @@ begin
         end
         else if WParam = 10001 then begin
           { Setup wants SetupLdr to change its active language }
-          PendingNewLanguage := LParam;
+          PendingNewLanguage := Integer(LParam);
         end;
       end;
   else
