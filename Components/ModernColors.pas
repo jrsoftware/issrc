@@ -95,7 +95,6 @@ const
   LBlue = $0078D4;           { Azure DevOps }
   LOrange = $C55420;         { Azure DevOps }
   LPurple = $9262A8;         { Azure DevOps }
-  LYellow = $F2CB1D;         { Azure DevOps }
   LTeal = $2A8472;           { Visual Studio 2017 }
   LGray = $707070;           { Inno Setup 5 }
 
