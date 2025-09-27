@@ -34,7 +34,7 @@ type
     procedure DecompressBytes(var Buffer; Count: Cardinal);
     class function FindSliceFilename(const ASlice: Integer): String;
     procedure OpenSlice(const ASlice: Integer);
-    function ReadProc(var Buf; Count: Longint): Longint;
+    function ReadProc(var Buf; Count: Cardinal): Cardinal;
     procedure SetCryptKey(const Value: TSetupEncryptionKey);
   public
     constructor Create(ADecompressorClass: TCustomDecompressorClass);
@@ -275,13 +275,13 @@ begin
   end;
 end;
 
-function TFileExtractor.ReadProc(var Buf; Count: Longint): Longint;
+function TFileExtractor.ReadProc(var Buf; Count: Cardinal): Cardinal;
 var
   Buffer: Pointer;
   Left, Res: Cardinal;
 begin
-  if (Count < 0) or (FChunkBytesLeft < 0) then  { sanity checks }
-    InternalError('TFileExtractor.ReadProc: Negative count');
+  if FChunkBytesLeft < 0 then  { sanity checks }
+    InternalError('TFileExtractor.ReadProc: Negative FChunkBytesLeft');
   Buffer := @Buf;
   Left := Count;
   if FChunkBytesLeft < Left then

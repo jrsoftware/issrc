@@ -117,7 +117,7 @@ type
     procedure UpdateProgress;
     procedure WaitForWorkerEvent;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   public
     constructor Create(AWriteProc: TCompressorWriteProc;
@@ -1112,7 +1112,7 @@ begin
   end;
 end;
 
-procedure TLZMACompressor.DoCompress(const Buffer; Count: Longint);
+procedure TLZMACompressor.DoCompress(const Buffer; Count: Cardinal);
 var
   P: ^Byte;
   BytesWritten: Longint;

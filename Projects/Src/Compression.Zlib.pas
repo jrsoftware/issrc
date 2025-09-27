@@ -51,7 +51,7 @@ type
     procedure FlushBuffer;
     procedure InitCompress;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   public
     constructor Create(AWriteProc: TCompressorWriteProc;
@@ -69,7 +69,7 @@ type
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -223,7 +223,7 @@ begin
   end;
 end;
 
-procedure TZCompressor.DoCompress(const Buffer; Count: Longint);
+procedure TZCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   InitCompress;
   FStrm.next_in := @Buffer;
@@ -269,7 +269,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TZDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;

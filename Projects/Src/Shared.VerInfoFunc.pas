@@ -34,7 +34,6 @@ uses
 function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;
 var
-  VersionSize: Integer;
   VersionHandle: DWORD;
   VersionBuf: PChar;
   VerInfo: PVSFixedFileInfo;
@@ -42,7 +41,7 @@ var
 begin
   Result := False;
 
-  VersionSize := GetFileVersionInfoSize(PChar(Filename), VersionHandle);
+  const VersionSize = GetFileVersionInfoSize(PChar(Filename), VersionHandle);
   if VersionSize > 0 then begin
     GetMem(VersionBuf, VersionSize);
     try

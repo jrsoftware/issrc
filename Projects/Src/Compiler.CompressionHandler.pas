@@ -49,7 +49,7 @@ type
       const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
     procedure ProgressProc(BytesProcessed: Cardinal);
     function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
-    procedure WriteProc(const Buf; BufSize: Longint);
+    procedure WriteProc(const Buf; BufSize: Cardinal);
     property ChunkBytesRead: Int64 read FChunkBytesRead;
     property ChunkBytesWritten: Int64 read FChunkBytesWritten;
     property ChunkEncrypted: Boolean read FChunkEncrypted;
@@ -260,7 +260,7 @@ begin
   SHA256Sum := SHA256Final(Context);
 end;
 
-procedure TCompressionHandler.WriteProc(const Buf; BufSize: Longint);
+procedure TCompressionHandler.WriteProc(const Buf; BufSize: Cardinal);
 var
   P, P2: Pointer;
   S: Cardinal;

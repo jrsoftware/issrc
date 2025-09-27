@@ -54,7 +54,7 @@ type
     procedure ProcessHeader;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -176,7 +176,7 @@ begin
   FHeaderProcessed := True;
 end;
 
-procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 var
   CallbackData: TLZMADecompressorCallbackData;
   Code: Integer;
