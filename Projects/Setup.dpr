@@ -106,6 +106,7 @@ uses
   Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
   Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
   Themes in '..\Components\Themes.pas';
 
 {$I Src\Setup.inc}

@@ -114,31 +114,29 @@ begin
   raise Exception.Create(SSetupFileCorrupt);
 end;
 
+type
+  PMessagesHeader = ^TMessagesHeader;
+
 procedure AssignSetupMessages(const P; const Size: Cardinal);
 { Takes message data, and assigns the individual messages to SetupMessages. }
-var
-  Header: ^TMessagesHeader;
-  M, EndP: PChar;
-  I: TSetupMessageID;
-  L: Integer;
 begin
   if (Size <= SizeOf(TMessagesHdrID) + SizeOf(TMessagesHeader)) or
      (TMessagesHdrID(P) <> MessagesHdrID) then
     Corrupted;
-  PByte(Header) := PByte(@P) + SizeOf(TMessagesHdrID);
+  const Header = PMessagesHeader(PByte(@P) + SizeOf(TMessagesHdrID));
   if (Header.TotalSize <> not Header.NotTotalSize) or
-     (Cardinal(Header.TotalSize) <> Size) or
+     (Header.TotalSize <> Size) or
      (Header.NumMessages <> (Ord(High(SetupMessages)) - Ord(Low(SetupMessages)) + 1)) then
     Corrupted;
-  PByte(M) := PByte(Header) + SizeOf(TMessagesHeader);
-  PByte(EndP) := PByte(@P) + Cardinal(Header.TotalSize);
-  if (GetCRC32(M^, (EndP - M) * SizeOf(Char)) <> Header.CRCMessages) or
+  var M := PChar(PByte(Header) + SizeOf(TMessagesHeader));
+  const EndP = PChar(PByte(@P) + Header.TotalSize);
+  if (GetCRC32(M^, Cardinal((EndP - M) * SizeOf(Char))) <> Header.CRCMessages) or
      (EndP[-1] <> #0) then
     Corrupted;
-  for I := Low(SetupMessages) to High(SetupMessages) do begin
+  for var I := Low(SetupMessages) to High(SetupMessages) do begin
     if M >= EndP then
       Corrupted;
-    L := StrLen(M);
+    const L = StrLen(M);
     SetString(SetupMessages[I], M, L);
     Inc(M, L + 1);
   end;

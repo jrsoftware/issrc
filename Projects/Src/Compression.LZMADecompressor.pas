@@ -30,7 +30,7 @@ type
     procedure ProcessHeader; virtual; abstract;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -159,7 +159,7 @@ begin
   inherited;
 end;
 
-procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 var
   NextOut: ^Byte;
   AvailOut: Longint;

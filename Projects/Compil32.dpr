@@ -77,6 +77,7 @@ uses
   ISSigFunc in '..\Components\ISSigFunc.pas',
   StringScanner in '..\Components\StringScanner.pas',
   Resample in '..\Components\Resample.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
   VCL.Styles,
   VCL.Themes;
 

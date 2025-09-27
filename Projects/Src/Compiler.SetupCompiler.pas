@@ -3508,7 +3508,10 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsLanguageID: begin
           if AffectsMultipleLangs then
             AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
-          LangOptions.LanguageID := StrToIntCheck(Value);
+          const LanguageID = StrToIntCheck(Value);
+          if (LanguageID < Low(LangOptions.LanguageID)) or (LanguageID > High(LangOptions.LanguageID)) then
+            Invalid;
+          LangOptions.LanguageID := Word(LanguageID);
         end;
       lsLanguageName: begin
           if AffectsMultipleLangs then

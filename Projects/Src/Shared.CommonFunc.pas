@@ -103,8 +103,6 @@ function SetIniInt(const Section, Key: String; const Value: Longint; const Filen
 function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;
 procedure DeleteIniEntry(const Section, Key, Filename: String);
 procedure DeleteIniSection(const Section, Filename: String);
-function ULength(const S: String): Cardinal; overload;
-function ULength(const S: AnsiString): Cardinal; overload;
 function GetEnv(const EnvVar: String): String;
 function GetCmdTail: String;
 function GetCmdTailEx(StartIndex: Integer): String;
@@ -172,7 +170,7 @@ function DarkModeActive: Boolean;
 implementation
 
 uses
-  PathFunc;
+  PathFunc, UnsignedFunc;
 
 { Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
 
@@ -396,16 +394,6 @@ begin
       PChar(Filename))
   else
     WriteProfileString(PChar(Section), nil, nil);
-end;
-
-function ULength(const S: String): Cardinal;
-begin
-  Result := Cardinal(Length(S));
-end;
-
-function ULength(const S: AnsiString): Cardinal;
-begin
-  Result := Cardinal(Length(S));
 end;
 
 function GetEnv(const EnvVar: String): String;

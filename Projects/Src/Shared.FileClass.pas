@@ -148,6 +148,7 @@ implementation
 
 uses
   WideStrUtils,
+  UnsignedFunc,
   Shared.CommonFunc;
 
 const

@@ -34,7 +34,8 @@ uses
   SHA256 in '..\Components\SHA256.pas',
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
-  StringScanner in '..\Components\StringScanner.pas';
+  StringScanner in '..\Components\StringScanner.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

@@ -30,7 +30,8 @@ uses
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   ChaCha20 in '..\Components\ChaCha20.pas',
-  PBKDF2 in '..\Components\PBKDF2.pas';
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

@@ -179,6 +179,7 @@
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.Interfaces.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="Src\Setup.TaskDialogForm.pas">
             <Form>TaskDialogForm</Form>
         </DCCReference>
