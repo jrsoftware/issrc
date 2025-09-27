@@ -99,12 +99,10 @@ end;
 
 function PathCharCompare(const S1, S2: PChar): Boolean;
 { Compares two first characters, and returns True if they are equal. }
-var
-  N, I: Integer;
 begin
-  N := PathStrNextChar(S1) - S1;
+  const N = PathStrNextChar(S1) - S1;
   if N = PathStrNextChar(S2) - S2 then begin
-    for I := 0 to N-1 do begin
+    for var I := 0 to N-1 do begin
       if S1[I] <> S2[I] then begin
         Result := False;
         Exit;
@@ -475,7 +473,7 @@ begin
   while P < E do begin
     if P^ <> #0 then begin
       if StrScan(PChar(Pointer(Delimiters)), P^) <> nil then
-        Result := (P - PChar(Pointer(S))) + 1;
+        Result := Integer((P - PChar(Pointer(S))) + 1);
       P := PathStrNextChar(P);
     end
     else
