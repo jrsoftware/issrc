@@ -15,9 +15,10 @@ interface
 uses
   SysUtils;
 
-function ULength(const S: String): Cardinal; overload;
-function ULength(const S: AnsiString): Cardinal; overload;
-function ULength(const S: TBytes): Cardinal; overload;
+function ULength(const S: String): Cardinal; overload; inline;
+function ULength(const S: RawByteString): Cardinal; overload; inline;
+function ULength(const S: WideString): Cardinal; overload; inline;
+function ULength(const S: TBytes): Cardinal; overload; inline;
 procedure UMove(const Source; var Dest; Count: NativeUInt);
 
 implementation
@@ -27,7 +28,12 @@ begin
   Result := Cardinal(Length(S));
 end;
 
-function ULength(const S: AnsiString): Cardinal;
+function ULength(const S: RawByteString): Cardinal;
+begin
+  Result := Cardinal(Length(S));
+end;
+
+function ULength(const S: WideString): Cardinal;
 begin
   Result := Cardinal(Length(S));
 end;
