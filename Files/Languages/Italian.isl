@@ -403,7 +403,7 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 
 [CustomMessages]
 
-NameAndVersion=%1 %2
+NameAndVersion=%1 versione %2
 AdditionalIcons=Icone aggiuntive:
 CreateDesktopIcon=Crea un'icona sul &desktop
 CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
