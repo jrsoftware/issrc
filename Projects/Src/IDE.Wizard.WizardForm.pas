@@ -206,9 +206,10 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, BrowseFunc,
-  IDE.Messages, IDE.Wizard.WizardFileForm;
+  SysUtils, ShlObj, ActiveX, UITypes,
+  PathFunc, BrowseFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.LicenseFunc,
+  IDE.HelperFunc, IDE.Messages, IDE.Wizard.WizardFileForm;
 
 type
   TConstant = record
@@ -1213,7 +1214,10 @@ begin
     FResult := wrEmpty;
   end;
 
-  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine2 + Script;
+  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine;
+  if (FResult = wrComplete) and not IsLicensed then
+    FResultScript := FResultScript + '; ' + GetLicenseeDescription + SNewLine;
+  FResultScript := FResultScript + SNewLine + Script;
 end;
 
 { --- }
