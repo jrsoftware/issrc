@@ -200,7 +200,7 @@ function TCTokenizer.InternalNextToken: TTokenKind;
             while CharInSet(FExpr^, ['0'..'7']) and (I < 3) do
             begin
               Inc(I);
-              C := (C shl 3) + (Ord(FExpr^) - Ord('0'));
+              C := Byte(C shl 3 + (Ord(FExpr^) - Ord('0')));
               Inc(FExpr);
               Unterminated;
             end;
@@ -222,12 +222,12 @@ function TCTokenizer.InternalNextToken: TTokenKind;
             while CharInSet(FExpr^, ['0'..'9', 'A'..'F', 'a'..'f']) and (I < 2) do
             begin
               Inc(I);
-              C := C shl 4;
+              C := Byte(C shl 4);
               case FExpr^ of
-                '0'..'9': C := C + (Ord(FExpr^) - Ord('0'));
-                'A'..'F': C := C + (Ord(FExpr^) - Ord('A')) + $0A;
+                '0'..'9': C := Byte(C + (Ord(FExpr^) - Ord('0')));
+                'A'..'F': C := Byte(C + (Ord(FExpr^) - Ord('A')) + $0A);
               else
-                C := C + (Ord(FExpr^) - Ord('a')) + $0A;
+                C := Byte(C + (Ord(FExpr^) - Ord('a')) + $0A);
               end;
               Inc(FExpr);
               Unterminated;
