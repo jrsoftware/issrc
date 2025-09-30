@@ -34,14 +34,13 @@ implementation
 uses
   Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc, PathFunc {$ENDIF};
 
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: Cardinal): String;
 { Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
   which allows the function to succeed on errors like 129 }
 var
-  Len: Integer;
   Buffer: array[0..1023] of Char;
 begin
-  Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
     FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
     ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
   while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
