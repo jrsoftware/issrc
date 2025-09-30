@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -13,16 +13,18 @@ unit ISPP.Funcs;
 interface
 
 uses
-  Windows, Classes, ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
+  Windows, Classes,
+  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
 
 procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
-  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, SHA256, PathFunc, Shared.CommonFunc,
-  Shared.Int64Em;
+  SysUtils, IniFiles, Registry, Math, DateUtils,
+  MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
+  Shared.Int64Em, Shared.FileClass, Shared.CommonFunc,
+  ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
   
 var
   IsWin64: Boolean;
@@ -1700,7 +1702,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1719,7 +1721,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1771,7 +1773,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1790,7 +1792,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1842,7 +1844,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1861,7 +1863,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
