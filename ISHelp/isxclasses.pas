@@ -186,6 +186,10 @@ TCursor = Integer;
 
 { TCursor values: crDefault, crNone, crArrow, crCross, crIBeam, crSizeNESW, crSizeNS, crSizeNWSE, crSizeWE, crUpArrow, crHourGlass, crDrag, crNoDrop, crHSplit, crVSplit, crMultiDrag, crSQLWait, crNo, crAppStart, crHelp, crHandPoint, crSizeAll, crHand }
 
+TStyleElement = (seFont, seClient, seBorder);
+
+TStyleElements = set of TStyleElement;
+
 TControl = class(TComponent)
   constructor Create(AOwner: TComponent);
   procedure BringToFront;
@@ -209,6 +213,8 @@ TControl = class(TComponent)
   property Visible: Boolean; read write;
   property Enabled: Boolean; read write;
   property Cursor: TCursor; read write;
+  property StyleElements: TStyleElements; read write;
+  property StyleName: String; read write;
 end;
 
 TWinControl = class(TControl)
