@@ -1,7 +1,7 @@
 unit SHA256;
 
 {
-  SHA256.pas: System.Hash.pas wrapper in the style of MD5.pas and SHA1.pas 
+  SHA256.pas: System.Hash.pas wrapper in the style of the old versions of MD5.pas and SHA1.pas
   Author: Martijn Laan
   License for SHA256.pas: Public domain, no copyright claimed
 }
