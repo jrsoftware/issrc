@@ -9,7 +9,7 @@ unit SHA256;
 interface
 
 uses
-  SysUtils, System.Hash;
+  System.Hash;
 
 type
   TSHA256Context = record
@@ -27,6 +27,9 @@ function SHA256DigestToString(const D: TSHA256Digest): String;
 function SHA256DigestFromString(const S: String): TSHA256Digest;
 
 implementation
+
+uses
+  System.SysUtils;
 
 procedure SHA256Init(var ctx: TSHA256Context);
 begin
