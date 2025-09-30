@@ -323,7 +323,11 @@ end;
 {$IFDEF TRANSPARENCYSUPPORT}
 procedure TNewStaticText.CNCtlColorStatic(var Message: TWMCtlColorStatic);
 begin
-  if StyleServices(Self).Enabled and Transparent then
+  { Vcl.StdCtrls' TCustomStaticText.CNCtlColorStatic uses StyleServices(Self).Enabled
+    instead of IsCustomStyleActive, but that can return True even when no style is active,
+    which is undesirable because when no style is active the inherited call is required to
+    support the Font and Brush colors }
+  if IsCustomStyleActive and Transparent then
   begin
     SetBkMode(Message.ChildDC, Windows.TRANSPARENT);
     StyleServices(Self).DrawParentBackground(Handle, Message.ChildDC, nil, False);
