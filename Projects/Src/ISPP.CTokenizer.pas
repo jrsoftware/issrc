@@ -200,7 +200,7 @@ function TCTokenizer.InternalNextToken: TTokenKind;
             while CharInSet(FExpr^, ['0'..'7']) and (I < 3) do
             begin
               Inc(I);
-              C := Byte(C shl 3 + (Ord(FExpr^) - Ord('0')));
+              C := Byte((C shl 3) + (Ord(FExpr^) - Ord('0')));
               Inc(FExpr);
               Unterminated;
             end;
