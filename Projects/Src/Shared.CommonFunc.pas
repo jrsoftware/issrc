@@ -968,7 +968,7 @@ begin
   if RegView <> rv64Bit then
     Result := RegDeleteKey(Key, Name)
   else begin
-    if @RegDeleteKeyExFunc = nil then
+    if not Assigned(RegDeleteKeyExFunc) then
       RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
           'RegDeleteKeyExW');
     if Assigned(RegDeleteKeyExFunc) then

@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 22.06.2025  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 28.09.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -88,7 +88,7 @@ ErrorTooManyFilesInDir=Impossibile creare i file nella cartella "%1" perché con
 
 ; *** Setup common messages
 ExitSetupTitle=Uscita dall'installazione
-ExitSetupMessage=L'installazione non è completa.%n%nUscendo dall'installazione in questo momento, il programma non sarà installato.%n%nÈ possibile eseguire l'installazione in un secondo tempo.%n%nVuoi uscire dall'installazione?
+ExitSetupMessage=L'installazione non è stata completata.%n%nUscendo dall'installazione in questo momento, il programma non sarà installato.%n%nÈ possibile eseguire l'installazione in un secondo tempo.%n%nVuoi uscire dall'installazione?
 AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
@@ -244,14 +244,14 @@ ArchiveUnsupportedFormat=Questo formato archivio non è supportato
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] nel computer.
-PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata.%n%nÈ necessario riavviare il sistema per completare l'installazione.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
+PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata.%n%nPer completare l'installazione è necessario riavviare il sistema.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
 CannotContinue=L'installazione non può continuare. Seleziona "Annulla" per uscire.
 ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.
-ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.%n%nAl completamento dell'installazione, il processo tenterà di riavviare le applicazioni.
+ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.%n%nAd installazione completata, il processo tenterà di riavviare le applicazioni.
 CloseApplications=Chiudi &automaticamente le applicazioni
 DontCloseApplications=&Non chiudere le applicazioni
 ErrorCloseApplications=L'installazione non è riuscita a chiudere automaticamente tutte le applicazioni.%n%nPrima di proseguire ti raccomandiamo di chiudere tutte le applicazioni che usano file che devono essere aggiornati durante l'installazione.
-PrepareToInstallNeedsRestart=Il programma di installazione deve riavviare il computer.%nDopo aver riavviato il computer esegui di nuovo il programma di installazione per completare l'installazione di [name].%n%nVuoi riavviare il computer ora?
+PrepareToInstallNeedsRestart=Il programma di installazione deve riavviare il computer.%Per completare l'installazione di [name] dopo aver riavviato il sistema esegui di nuovo il programma di installazione.%n%nVuoi riavviare il sistema?
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
@@ -262,8 +262,8 @@ FinishedHeadingLabel=Installazione di [name] completata
 FinishedLabelNoIcons=Installazione di [name] completata.
 FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando le relative icone.
 ClickFinish=Seleziona "Fine" per uscire dall'installazione.
-FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare adesso?
-FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare adesso?
+FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
+FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 ShowReadmeCheck=Si, visualizza ora il file LEGGIMI
 YesRadio=&Si, riavvia il sistema adesso
 NoRadio=&No, riavvia il sistema più tardi
@@ -383,7 +383,7 @@ OnlyAdminCanUninstall=Questa applicazione può essere disinstallata solo da un u
 UninstallStatusLabel=Attendi fino a che %1 è stato rimosso dal computer.
 UninstalledAll=Disinstallazione di %1 completata.
 UninstalledMost=Disinstallazione di %1 completata.%n%nAlcuni elementi non possono essere rimossi.%n%nDovranno essere rimossi manualmente.
-UninstalledAndNeedsRestart=Per completare la disinstallazione di %1, è necessario riavviare il sistema.%n%nVuoi riavviare il sistema adesso?
+UninstalledAndNeedsRestart=Per completare la disinstallazione di %1, è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 UninstallDataCorrupted=Il file "%1" è danneggiato. Impossibile disinstallare
 
 ; *** Uninstallation phase messages

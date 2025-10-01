@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -13,16 +13,18 @@ unit ISPP.Funcs;
 interface
 
 uses
-  Windows, Classes, ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
+  Windows, Classes,
+  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
 
 procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, Math, ISPP.Consts, ISPP.Base, ISPP.IdentMan,
-  ISPP.Sessions, DateUtils, Shared.FileClass, MD5, SHA1, SHA256, PathFunc, Shared.CommonFunc,
-  Shared.Int64Em;
+  SysUtils, IniFiles, Registry, Math, DateUtils,
+  MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
+  Shared.Int64Em, Shared.FileClass, Shared.CommonFunc,
+  ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
   
 var
   IsWin64: Boolean;
@@ -1004,7 +1006,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)));
+      MakeInt(ResPtr^, Compare64(Get(0).AsInt, Get(1).AsInt));
   except
     on E: Exception do
     begin
@@ -1020,7 +1022,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      if Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)) = 0 then
+      if Get(0).AsInt = Get(1).AsInt then
         MakeInt(ResPtr^, 1)
       else
         MakeInt(ResPtr^, 0)
@@ -1056,7 +1058,6 @@ type
 var
   Filename: string;
   VersionHandle: Cardinal;
-  Size: Integer;
   Langs: PUINTArray;
   LangCount, I: Integer;
   Lang, LangsSize: UINT;
@@ -1070,7 +1071,7 @@ begin
       Success := False;
       ResPtr^.Typ := evNull;
       Filename := PrependPath(Ext, Get(0).AsStr);
-      Size := GetFileVersionInfoSize(PChar(Filename), VersionHandle);
+      const Size = GetFileVersionInfoSize(PChar(Filename), VersionHandle);
       if Size > 0 then
       begin
         GetMem(Buf, Size);
@@ -1192,7 +1193,7 @@ begin
       if FindFirst(Filename, Get(1).AsInt, F^) = 0 then
       begin
         ResPtr^.AsInt := Integer(F);
-        TPreprocessor(Ext).CollectGarbage(F, @GarbageCloseFind);
+        TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFind));
       end
       else
       begin
@@ -1302,7 +1303,7 @@ begin
         else
         begin
           MakeInt(ResPtr^, Integer(F));
-          TPreprocessor(Ext).CollectGarbage(F, @GarbageCloseFile);
+          TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFile));
         end;
       end;
     except
@@ -1700,7 +1701,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1719,7 +1720,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, MD5DigestToString(MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1771,7 +1772,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1790,7 +1791,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA1DigestToString(SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1842,7 +1843,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := AnsiString(Get(0).AsStr);
-      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do
@@ -1861,7 +1862,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       var S := Get(0).AsStr;
-      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]))));
+      MakeStr(ResPtr^, SHA256DigestToString(SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]))));
     end;
   except
     on E: Exception do

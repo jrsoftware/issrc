@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
  
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -87,7 +87,7 @@ var
     else if OptName = 'ISPP:Options' then
       Result := DecodeStringOptions(OptValue, ISPPOptions.Options)
     else if OptName = 'ISPP:VerboseLevel' then
-      ISPPOptions.VerboseLevel := StrToIntDef(OptValue, 0)
+      Byte.TryParse(OptValue, ISPPOptions.VerboseLevel)
     else if OptName = 'ISPP:InlineStart' then
       ISPPOptions.InlineStart := OptValue
     else if OptName = 'ISPP:InlineEnd' then

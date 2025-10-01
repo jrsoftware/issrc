@@ -36,9 +36,9 @@ var
     'TPen', 'TPenMode', 'TPenStyle', 'TPersistent', 'TPngImage', 'TPopupMode', 'TPosition',
     'TRadioButton', 'TRichEditViewer', 'TScrollingWinControl', 'TScrollStyle', 'TSetupForm',
     'TShiftState', 'TSizeConstraints', 'TStartMenuFolderTreeView', 'TStream', 'TStringList',
-    'TStrings', 'TStringStream', 'TSysLinkEvent', 'TSysLinkType', 'TUIStateForm', 'TUninstallProgressForm',
-    'TWinControl', 'TWizardForm', 'TWizardPage', 'TWizardPageButtonEvent', 'TWizardPageCancelEvent',
-    'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
+    'TStrings', 'TStringStream', 'TStyleElement', 'TStyleElements', 'TSysLinkEvent', 'TSysLinkType',
+    'TUIStateForm', 'TUninstallProgressForm', 'TWinControl', 'TWizardForm', 'TWizardPage',
+    'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
   ];
 
   PascalEnumValues_Isxclasses: array of AnsiString = [
@@ -68,6 +68,7 @@ var
     'pmNone', 'pmAuto', 'pmExplicit',
     'poDesigned', 'poDefault', 'poDefaultPosOnly', 'poDefaultSizeOnly', 'poScreenCenter', 'poDesktopCenter', 'poMainFormCenter', 'poOwnerFormCenter',
     'psSolid', 'psDash', 'psDot', 'psDashDot', 'psDashDotDot', 'psClear', 'psInsideFrame',
+    'seFont', 'seClient', 'seBorder',
     'sltURL', 'sltID',
     'ssNone', 'ssHorizontal', 'ssVertical', 'ssBoth',
     'ssShift', 'ssAlt', 'ssCtrl', 'ssLeft', 'ssRight', 'ssMiddle', 'ssDouble',
@@ -206,13 +207,14 @@ var
     'SelectStartMenuFolderBrowseLabel', 'SelectStartMenuFolderLabel', 'SelectTasksLabel',
     'SelectTasksPage', 'SelLength', 'SelStart', 'SelText', 'Shape', 'ShowAccelChar', 'ShowArchiveInsteadOfFile',
     'ShowBaseNameInsteadOfUrl', 'ShowHint', 'Showing', 'ShowLines', 'Size', 'SizeAndCenterOnShow',
-    'Sorted', 'State', 'StatusLabel', 'Stretch', 'Strings', 'Style', 'SubCaptionLabel',
-    'SubItemFontStyle', 'Surface', 'SurfaceColor', 'SurfaceHeight', 'SurfaceWidth', 'TabOrder',
-    'TabStop', 'Tag', 'TasksList', 'Text', 'Top', 'TypesCombo', 'UseRichEdit', 'UserInfoNameEdit',
-    'UserInfoNameLabel', 'UserInfoOrgEdit', 'UserInfoOrgLabel', 'UserInfoPage', 'UserInfoSerialEdit',
-    'UserInfoSerialLabel', 'UseVisualStyle', 'Values', 'Visible', 'WantReturns', 'WantTabs',
-    'WelcomeLabel1', 'WelcomeLabel2', 'WelcomePage', 'Width', 'WizardBitmapImage', 'WizardBitmapImage2',
-    'WizardSmallBitmapImage', 'WordWrap', 'YesRadio'
+    'Sorted', 'State', 'StatusLabel', 'Stretch', 'Strings', 'Style', 'StyleElements', 'StyleName',
+    'SubCaptionLabel', 'SubItemFontStyle', 'Surface', 'SurfaceColor', 'SurfaceHeight',
+    'SurfaceWidth', 'TabOrder', 'TabStop', 'Tag', 'TasksList', 'Text', 'Top', 'TypesCombo',
+    'UseRichEdit', 'UserInfoNameEdit', 'UserInfoNameLabel', 'UserInfoOrgEdit', 'UserInfoOrgLabel',
+    'UserInfoPage', 'UserInfoSerialEdit', 'UserInfoSerialLabel', 'UseVisualStyle', 'Values',
+    'Visible', 'WantReturns', 'WantTabs', 'WelcomeLabel1', 'WelcomeLabel2', 'WelcomePage',
+    'Width', 'WizardBitmapImage', 'WizardBitmapImage2', 'WizardSmallBitmapImage', 'WordWrap',
+    'YesRadio'
   ];
 
 implementation

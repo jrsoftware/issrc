@@ -121,7 +121,7 @@ var
   Memo: TNewMemo;
   ComboBox: TNewComboBox;
   ListBox: TNewListBox;
-  StaticText, StaticText2, ProgressBarLabel: TNewStaticText;
+  StaticText, StaticText2, StaticText3, ProgressBarLabel: TNewStaticText;
   LinkLabel: TNewLinkLabel;
   ProgressBar, ProgressBar2, ProgressBar3: TNewProgressBar;
   CheckListBox, CheckListBox2: TNewCheckListBox;
@@ -254,6 +254,17 @@ begin
   StaticText2.Width := 2 * StaticText.Width;
   StaticText2.Parent := Page.Surface;
   StaticText2.AdjustHeight;
+
+  StaticText3 := TNewStaticText.Create(Page);
+  StaticText3.Top := StaticText.Top + StaticText.Height + ScaleY(8);
+  StaticText3.Anchors := [akLeft, akRight, akBottom];
+  StaticText3.Caption := 'TNewStaticText';
+  StaticText3.Parent := Page.Surface;
+  StaticText3.StyleElements := StaticText3.StyleElements - [seFont];
+  if IsDarkInstallMode then
+    StaticText3.Font.Color := $6C5ED9
+  else
+    StaticText3.Font.Color := $5241d2;
 
   LinkLabel := TNewLinkLabel.Create(Page);
   LinkLabel.AutoSize := False;

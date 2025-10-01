@@ -453,7 +453,7 @@ const
   PascalReservedWords: array of TScintRawString = [
     'and', 'array', 'as', 'begin', 'case', 'const', 'div', 'do', 'downto',
     'else', 'end', 'except', 'external', 'finally', 'for', 'forward', 'function',
-    'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or',
+    'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or', 'out',
     'procedure', 'program', 'record', 'repeat', 'set', 'shl', 'shr', 'then',
     'to', 'try', 'type', 'until', 'var', 'while', 'with', 'xor', 'delayload',
     'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal',

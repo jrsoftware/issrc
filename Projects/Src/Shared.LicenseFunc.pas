@@ -43,7 +43,7 @@ implementation
 uses
  Windows,
  SysUtils, Classes, DateUtils, NetEncoding, RegularExpressions,
- ECDSA, SHA256, Shared.ConfigIniFile;
+ ECDSA, SHA256, UnsignedFunc, Shared.ConfigIniFile;
 
 var
   License: TLicense;
@@ -91,9 +91,9 @@ function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boole
   begin
     const N = S.Length;
     if N = 8 then begin
-      const Year = Copy(S, 1, 4).ToInteger;
-      const Month = Copy(S, 5, 2).ToInteger;
-      const Day = Copy(S, 7, 2).ToInteger;
+      const Year = Word.Parse(Copy(S, 1, 4));
+      const Month = Word.Parse(Copy(S, 5, 2));
+      const Day = Word.Parse(Copy(S, 7, 2));
       D := EncodeDate(Year, Month, Day);
       Result := True;
     end else if N = 0 then begin
@@ -118,7 +118,7 @@ begin
         Move(DecodedKey[0], Signature.Sig_r[0], 32);
         Move(DecodedKey[32], Signature.Sig_s[0], 32);
         const LicenseBytes = Copy(DecodedKey, 64, MaxInt);
-        const LicenseHash = SHA256Buf(LicenseBytes[0], Length(LicenseBytes));
+        const LicenseHash = SHA256Buf(LicenseBytes[0], ULength(LicenseBytes));
 
         var PublicKey: TECDSAPublickey;
         PublicKey.Public_x := ECDSAInt256FromString('76873a71a4d5cae3dfdb52f7e434582c25151e56338d6d7fd5423d1216dc3274');

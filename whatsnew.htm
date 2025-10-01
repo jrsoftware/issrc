@@ -63,7 +63,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     </li>
     <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information, special considerations, and example screenshots.</li>
   </ul>
-  <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance.</li>
+  </li>
+  <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance:
   <ul>
     <li>For example, to specify two custom colors, one for light mode and one for dark mode:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic
@@ -74,7 +75,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="key">WizardImageBackColor</span>=#2b2b2b</code></pre>
     </li>
   </ul>
-  <li>The default style can be customized by specifying a VCL Styles file using the new <tt>WizardStyleFile</tt> directive and a fifth <tt>DynamicDark</tt> directive.<br/>
+  </li>
+  <li>The default style can be customized by specifying a VCL Styles file using the new <tt>WizardStyleFile</tt> directive and a fifth <tt>DynamicDark</tt> directive:
   <ul>
     <li>For example, to specify two custom styles, one for light mode and one for dark mode:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic
@@ -95,8 +97,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar includetitlebar</code></pre>
     </li>
   </ul>
+  </li>
   <li>Compiler IDE: Added a new <i>Wizard Style</i> page to the New Script Wizard, allowing to choose a style and view example screenshots.</li>
-  <li>Pascal Scripting: Add new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>Added new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
+    <li>Added new <tt>StyleElements</tt> and <tt>StyleName</tt> properties to support class <tt>TControl</tt>. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, which also uses <tt>IsDarkInstallMode</tt>.</li>
+  </ul></li>
 </ul>
 <span class="head2">Other changes</span>
 <ul>

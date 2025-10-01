@@ -87,7 +87,7 @@ const
   CBraceBack = CWACOBack;
   CIndentGuideFore = $C0C0C0;
 
-  { The colors below might differ slightly from the listed source: the constrast with LBack and
+  { The colors below might differ slightly from the listed source: the contrast with LBack and
     DBack has been increased to at least 4.5 using https://webaim.org/resources/contrastchecker }
 
   LRed = $D24152;            { Azure DevOps }
