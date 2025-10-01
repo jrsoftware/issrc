@@ -1941,6 +1941,62 @@ begin
   end;
 end;
 
+function StrToInteger64(const S: String; var X: Int64): Boolean;
+{ Converts a string containing an unsigned decimal number, or hexadecimal
+  number prefixed with '$', into an Integer64. Returns True if successful,
+  or False if invalid characters were encountered or an overflow occurred.
+  Supports digits separators. }
+var
+  Len, Base, StartIndex, I: Integer;
+  V: Int64;
+  C: Char;
+begin
+  Result := False;
+
+  Len := Length(S);
+  Base := 10;
+  StartIndex := 1;
+  if Len > 0 then begin
+    if S[1] = '$' then begin
+      Base := 16;
+      Inc(StartIndex);
+    end else if S[1] = '_' then
+      Exit;
+  end;
+
+  if (StartIndex > Len) or (S[StartIndex] = '_') then
+    Exit;
+  V := 0;
+
+  try
+    for I := StartIndex to Len do begin
+      C := UpCase(S[I]);
+      case C of
+        '0'..'9':
+          begin
+            V := V * Base;
+            V := V + (Ord(C) - Ord('0'));
+          end;
+        'A'..'F':
+          begin
+            if Base <> 16 then
+              Exit;
+            V := V * Base;
+            V := V + (Ord(C) - (Ord('A') - 10));
+          end;
+        '_':
+          { Ignore }
+      else
+        Exit;
+      end;
+    end;
+    X := V;
+    Result := True;
+  except on E: EOverflow do
+    ;
+  end;
+end;
+
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 const
