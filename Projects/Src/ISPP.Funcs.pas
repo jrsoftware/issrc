@@ -1006,7 +1006,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)));
+      MakeInt(ResPtr^, Compare64(Get(0).AsInt, Get(1).AsInt));
   except
     on E: Exception do
     begin
@@ -1022,7 +1022,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      if Compare64(Integer64(Get(0).AsInt), Integer64(Get(1).AsInt)) = 0 then
+      if Get(0).AsInt = Get(1).AsInt then
         MakeInt(ResPtr^, 1)
       else
         MakeInt(ResPtr^, 0)

@@ -214,15 +214,13 @@ function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
   const CRC: Longint): Boolean;
 var
   F: TFile;
-  SizeOfFile: Integer64;
   Buf: AnsiString;
 begin
   Result := False;
   try
     F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
-      SizeOfFile := F.Size;
-      if (SizeOfFile.Lo = Size) and (SizeOfFile.Hi = 0) then begin
+      if F.Size = Size then begin
         SetLength(Buf, Size);
         F.ReadBuffer(Buf[1], Size);
         if GetCRC32(Buf[1], Size) = CRC then

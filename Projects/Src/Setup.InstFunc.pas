@@ -64,9 +64,9 @@ function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
 function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
-  var FreeBytes, TotalBytes: Integer64): Boolean;
+  var FreeBytes, TotalBytes: Int64): Boolean;
 function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
-  const StartDir: String; var FreeBytes, TotalBytes: Integer64): Boolean;
+  const StartDir: String; var FreeBytes, TotalBytes: Int64): Boolean;
 function GetUserNameString: String;
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
@@ -966,7 +966,7 @@ begin
 end;
 
 function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
-  var FreeBytes, TotalBytes: Integer64): Boolean;
+  var FreeBytes, TotalBytes: Int64): Boolean;
 var
   GetDiskFreeSpaceExFunc: function(lpDirectoryName: PChar;
     lpFreeBytesAvailable: PLargeInteger; lpTotalNumberOfBytes: PLargeInteger;
@@ -988,19 +988,16 @@ begin
   try
     if Assigned(@GetDiskFreeSpaceExFunc) then begin
       Result := GetDiskFreeSpaceExFunc(PChar(AddBackslash(PathExpand(DriveRoot))),
-        @TLargeInteger(Int64Rec(FreeBytes)), @TLargeInteger(Int64Rec(TotalBytes)), nil);
+        @FreeBytes, @TotalBytes, nil);
     end
     else begin
       Result := GetDiskFreeSpace(PChar(AddBackslash(PathExtractDrive(PathExpand(DriveRoot)))),
-        DWORD(SectorsPerCluster), DWORD(BytesPerSector), DWORD(FreeClusters),
-        DWORD(TotalClusters));
+        SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters);
       if Result then begin
         { The result of GetDiskFreeSpace does not cap at 2GB, so we must use a
           64-bit multiply operation to avoid an overflow. }
-        Multiply32x32to64(BytesPerSector * SectorsPerCluster, FreeClusters,
-          FreeBytes);
-        Multiply32x32to64(BytesPerSector * SectorsPerCluster, TotalClusters,
-          TotalBytes);
+        FreeBytes := Int64(BytesPerSector * SectorsPerCluster) * FreeClusters;
+        TotalBytes := Int64(BytesPerSector * SectorsPerCluster) * TotalClusters;
       end;
     end;
   finally
@@ -1009,7 +1006,7 @@ begin
 end;
 
 function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
-  const StartDir: String; var FreeBytes, TotalBytes: Integer64): Boolean;
+  const StartDir: String; var FreeBytes, TotalBytes: Int64): Boolean;
 { Gets the free and total space available on the specified directory. If that
   fails (e.g. if the directory does not exist), then it strips off the last
   component of the path and tries again. This repeats until it reaches the

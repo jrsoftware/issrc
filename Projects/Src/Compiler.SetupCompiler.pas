@@ -4866,7 +4866,7 @@ type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
     Name: String;
-    Size: Integer64;
+    Size: Int64;
   end;
   PDirListRec = ^TDirListRec;
   TDirListRec = record
@@ -4923,15 +4923,14 @@ type
   end;
 
   procedure AddToFileList(const FileList: TList; const Filename: String;
-    const SizeLo, SizeHi: LongWord);
+    const Size: Int64);
   var
     Rec: PFileListRec;
   begin
     FileList.Expand;
     New(Rec);
     Rec.Name := Filename;
-    Rec.Size.Lo := SizeLo;
-    Rec.Size.Hi := SizeHi;
+    Rec.Size := Size;
     FileList.Add(Rec);
   end;
 
@@ -4977,8 +4976,8 @@ type
           if IsExcluded(SearchSubDir + FileName, AExcludes) then
             Continue;
 
-          AddToFileList(FileList, SearchSubDir + FileName, FindData.nFileSizeLow,
-            FindData.nFileSizeHigh);
+          const Size = (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
+          AddToFileList(FileList, SearchSubDir + FileName, Size);
 
           CallIdleProc;
         until not SourceIsWildcard or not FindNextFile(H, FindData);
@@ -5681,7 +5680,7 @@ begin
           if FileList.Count > 1 then
             SortFileList(FileList, 0, FileList.Count-1, SortFilesByExtension, SortFilesByName);
         end else
-          AddToFileList(FileList, SourceWildcard, 0, 0);
+          AddToFileList(FileList, SourceWildcard, 0);
 
         if FileList.Count > 0 then begin
           if not ExternalFile then
@@ -7392,8 +7391,11 @@ var
             FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
           if floApplyTouchDateTime in FLExtraInfo.Flags then
             ApplyTouchDateTime(FL.SourceTimeStamp);
-          if TimeStampRounding > 0 then
-            Dec64(Integer64(FL.SourceTimeStamp), Mod64(Integer64(FL.SourceTimeStamp), TimeStampRounding * 10000000));
+          if TimeStampRounding > 0 then begin
+            var SourceTimeStamp := Int64(FL.SourceTimeStamp);
+            Dec(SourceTimeStamp, SourceTimeStamp mod (TimeStampRounding * 10000000));
+            FL.SourceTimeStamp := TFileTime(SourceTimeStamp);
+          end;
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
             Include(FL.Flags, floCallInstructionOptimized);

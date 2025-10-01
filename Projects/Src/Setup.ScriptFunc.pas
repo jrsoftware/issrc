@@ -934,29 +934,30 @@ var
     end);
     RegisterScriptFunc('GETSPACEONDISK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      var FreeBytes, TotalBytes: Integer64;
+      var FreeBytes, TotalBytes: Int64;
       if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         if Stack.GetBool(PStart-2) then begin
-          Div64(FreeBytes, 1024*1024);
-          Div64(TotalBytes, 1024*1024);
+          FreeBytes := FreeBytes div (1024*1024);
+          TotalBytes := TotalBytes div (1024*1024);
         end;
         { Cap at 2 GB, as GetSpaceOnDisk doesn't use 64-bit integers }
-        if (FreeBytes.Hi <> 0) or (FreeBytes.Lo and $80000000 <> 0) then
-          FreeBytes.Lo := $7FFFFFFF;
-        if (TotalBytes.Hi <> 0) or (TotalBytes.Lo and $80000000 <> 0) then
-          TotalBytes.Lo := $7FFFFFFF;
-        Stack.SetUInt(PStart-3, FreeBytes.Lo);
-        Stack.SetUInt(PStart-4, TotalBytes.Lo);
+        const MaxBytes = High(Int32);
+        if FreeBytes > MaxBytes then
+          FreeBytes := MaxBytes;
+        if TotalBytes > MaxBytes then
+          TotalBytes := MaxBytes;
+        Stack.SetUInt(PStart-3, Cardinal(FreeBytes));
+        Stack.SetUInt(PStart-4, Cardinal(TotalBytes));
         Stack.SetBool(PStart, True);
       end else
         Stack.SetBool(PStart, False);
     end);
     RegisterScriptFunc('GETSPACEONDISK64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      var FreeBytes, TotalBytes: Integer64;
+      var FreeBytes, TotalBytes: Int64;
       if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
-        Stack.SetInt64(PStart-2, Int64(FreeBytes.Hi) shl 32 + FreeBytes.Lo);
-        Stack.SetInt64(PStart-3, Int64(TotalBytes.Hi) shl 32 + TotalBytes.Lo);
+        Stack.SetInt64(PStart-2, FreeBytes);
+        Stack.SetInt64(PStart-3, TotalBytes);
         Stack.SetBool(PStart, True);
       end else
         Stack.SetBool(PStart, False);
@@ -1490,11 +1491,11 @@ var
     end);
     RegisterScriptFunc('COMPAREPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))));
+      Stack.SetInt(PStart, Compare64(Stack.GetInt64(PStart-1), Stack.GetInt64(PStart-2)));
     end);
     RegisterScriptFunc('SAMEPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetBool(PStart, Compare64(Integer64(Stack.GetInt64(PStart-1)), Integer64(Stack.GetInt64(PStart-2))) = 0);
+      Stack.SetBool(PStart, Stack.GetInt64(PStart-1) = Stack.GetInt64(PStart-2));
     end);
     RegisterScriptFunc('UNPACKVERSIONNUMBERS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

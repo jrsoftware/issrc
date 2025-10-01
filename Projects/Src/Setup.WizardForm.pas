@@ -2509,7 +2509,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   function CheckSelectDirPage: Boolean;
   var
     T: String;
-    FreeSpace, TotalSpace: Integer64;
+    FreeSpace, TotalSpace: Int64;
   begin
     Result := False;
 
@@ -2521,7 +2521,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if InstallMode = imNormal then begin
       { Check if there's enough free disk space }
       if GetSpaceOnNearestMountPoint(False, T, FreeSpace, TotalSpace) then begin
-        if Compare64(FreeSpace, MinimumSpace) < 0 then
+        if FreeSpace < MinimumSpace then
           { If not, show warning }
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
                [IntToKBStr(MinimumSpace), IntToKBStr(FreeSpace)]),
@@ -2553,7 +2553,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   function CheckSelectComponentsPage: Boolean;
   var
     ComponentEntry: PSetupComponentEntry;
-    FreeSpace, TotalSpace: Integer64;
+    FreeSpace, TotalSpace: Int64;
     S: String;
     I: Integer;
   begin
@@ -2561,7 +2561,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
 
     if InstallMode = imNormal then begin
       if GetSpaceOnNearestMountPoint(False, DirEdit.Text, FreeSpace, TotalSpace) then begin
-        if Compare64(FreeSpace, CurrentComponentsSpace) < 0 then
+        if FreeSpace < CurrentComponentsSpace then
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
                [IntToKBStr(CurrentComponentsSpace), IntToKBStr(FreeSpace)]),
              SetupMessages[msgDiskSpaceWarningTitle],
