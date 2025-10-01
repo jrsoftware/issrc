@@ -1058,7 +1058,6 @@ type
 var
   Filename: string;
   VersionHandle: Cardinal;
-  Size: Integer;
   Langs: PUINTArray;
   LangCount, I: Integer;
   Lang, LangsSize: UINT;
@@ -1072,7 +1071,7 @@ begin
       Success := False;
       ResPtr^.Typ := evNull;
       Filename := PrependPath(Ext, Get(0).AsStr);
-      Size := GetFileVersionInfoSize(PChar(Filename), VersionHandle);
+      const Size = GetFileVersionInfoSize(PChar(Filename), VersionHandle);
       if Size > 0 then
       begin
         GetMem(Buf, Size);
@@ -1194,7 +1193,7 @@ begin
       if FindFirst(Filename, Get(1).AsInt, F^) = 0 then
       begin
         ResPtr^.AsInt := Integer(F);
-        TPreprocessor(Ext).CollectGarbage(F, @GarbageCloseFind);
+        TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFind));
       end
       else
       begin
@@ -1304,7 +1303,7 @@ begin
         else
         begin
           MakeInt(ResPtr^, Integer(F));
-          TPreprocessor(Ext).CollectGarbage(F, @GarbageCloseFile);
+          TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFile));
         end;
       end;
     except

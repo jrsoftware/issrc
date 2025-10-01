@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -37,7 +37,7 @@ type
   IIsppFuncParam = interface
     function GetType: TIsppVarType; stdcall;
     function GetAsInt: Int64; stdcall;
-    function GetAsString(Buf: PChar; BufSize: Integer): Integer; stdcall;
+    function GetAsString(Buf: PChar; BufSize: Cardinal): Integer; stdcall;
   end;
 
   IIsppFuncResult = interface
