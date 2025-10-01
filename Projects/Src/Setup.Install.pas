@@ -346,7 +346,7 @@ begin
       for I := 0 to Entries[seComponent].Count-1 do begin
         with PSetupComponentEntry(Entries[seComponent][I])^ do begin
           if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
-            EstimatedSize := EstimatedSize + ExtraDiskSpaceRequired;
+            Inc(EstimatedSize, ExtraDiskSpaceRequired);
         end;
       end;
     end else

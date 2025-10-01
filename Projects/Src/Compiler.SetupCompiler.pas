@@ -1975,14 +1975,14 @@ begin
         '0'..'9':
           begin
             V := V * Base;
-            V := V + (Ord(C) - Ord('0'));
+            Inc(V, Ord(C) - Ord('0'));
           end;
         'A'..'F':
           begin
             if Base <> 16 then
               Exit;
             V := V * Base;
-            V := V + (Ord(C) - (Ord('A') - 10));
+            Inc(V, Ord(C) - (Ord('A') - 10));
           end;
         '_':
           { Ignore }
