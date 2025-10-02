@@ -52,9 +52,9 @@ type
     function GetCount: Integer; stdcall;
   end;
 
-  TIsppFuncResult = packed record
+  TIsppFuncResult = record
     Reserved: Byte;
-    ErrParam: Word;
+    ErrParam: Integer;
     Error: Byte;
   end;
 

@@ -37,7 +37,7 @@ begin
 end;
 
 function CheckParams(const Params: IIsppFuncParams;
-  Types: array of TIsppVarType; Minimum: Byte; var Error: TIsppFuncResult): Boolean;
+  Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult): Boolean;
 var
   I: Integer;
 begin
@@ -224,7 +224,7 @@ begin
       with TIniFile.Create(Get(0).AsStr) do
       try
         case Get(3).Typ of
-          evInt: WriteInteger(Get(1).AsStr, Get(2).AsStr, Get(3).AsInt);
+          evInt: WriteInt64(Get(1).AsStr, Get(2).AsStr, Get(3).AsInt);
           evStr: WriteString(Get(1).AsStr, Get(2).AsStr, Get(3).AsStr);
         else
           WriteString(Get(1).AsStr, Get(2).AsStr, '');
@@ -250,7 +250,7 @@ const
   ISPPRootKeyFlag64Bit = $02000000;
   ISPPRootKeyValidFlags = ISPPRootKeyFlag64Bit;
 
-  procedure CrackISPPRootKey(const ISPPRootKey: Longint; var RegView64: Boolean;
+  procedure CrackISPPRootKey(const ISPPRootKey: Int64; var RegView64: Boolean;
     var RootKey: HKEY);
   begin
     { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
@@ -267,7 +267,7 @@ const
     end
     else
       RegView64 := False;
-    RootKey := ISPPRootKey and not ISPPRootKeyFlagMask;
+    RootKey := HKEY(ISPPRootKey and not ISPPRootKeyFlagMask);
   end;
 
 var
