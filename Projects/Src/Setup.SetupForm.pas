@@ -411,6 +411,19 @@ begin
 end;
 
 procedure TSetupForm.CreateWnd;
+
+  function GetPPI: Integer;
+  begin
+    { Based on TSysStyleHook.GetCurrentPPI. Can't use the CurrentPPI property because it's only set
+      correctly if Scaled is True, but it's False in Setup. }
+    if CheckPerMonitorV2SupportForWindow(Handle) then begin { Currently always False in Setup }
+      { GetDPIForWindow requires Windows 10 version 1607. However, because it is delay-loaded and it's
+        never executed on older versions of Windows, it does not cause entry point not found errors. }
+      Result := GetDPIForWindow(Handle)
+    end else
+      Result := Screen.PixelsPerInch;
+  end;
+
 begin
   inherited;
   if WM_QueryCancelAutoPlay <> 0 then
@@ -425,6 +438,10 @@ begin
     if seBorder in StyleElements then
       StyleElements := StyleElements - [seBorder];
   end;
+
+  { Styled form captions don't work correctly on high DPI, because they depend on a correct CurrentPPI }
+  if (GetPPI > 96) and (seBorder in StyleElements) then
+    StyleElements := StyleElements - [seBorder];
 end;
 
 procedure TSetupForm.FlipControlsIfNeeded;
