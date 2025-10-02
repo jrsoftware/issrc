@@ -421,6 +421,9 @@ begin
       some reason. Doing it here does not cause this problem. It's also here because SetDarkTitleBar
       requires the handle of the form. }
     SetDarkTitleBar(Self, IsDarkInstallMode);
+    { SetDarkTitleBar is a noop on older versions of Windows }
+    if seBorder in StyleElements then
+      StyleElements := StyleElements - [seBorder];
   end;
 end;
 
