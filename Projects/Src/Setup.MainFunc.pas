@@ -2806,7 +2806,7 @@ var
           if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
             Continue;
 
-          Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
+          Inc(Result, FindDataFileSizeToInt64(FindData));
         end;
       until not FindNextFile(H, FindData);
       Windows.FindClose(H);
@@ -2853,7 +2853,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
+            Inc(Result, FindDataFileSizeToInt64(FindData));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally

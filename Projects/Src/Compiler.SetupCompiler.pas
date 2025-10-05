@@ -5032,8 +5032,7 @@ type
           if IsExcluded(SearchSubDir + FileName, AExcludes) then
             Continue;
 
-          const Size = (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
-          AddToFileList(FileList, SearchSubDir + FileName, Size);
+          AddToFileList(FileList, SearchSubDir + FileName, FindDataFileSizeToInt64(FindData));
 
           CallIdleProc;
         until not SourceIsWildcard or not FindNextFile(H, FindData);

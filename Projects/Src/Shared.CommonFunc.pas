@@ -167,6 +167,8 @@ function HighContrastActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function CompareInt64(const N1, N2: Int64): Integer;
+function HighLowToInt64(const High, Low: UInt32): Int64;
+function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 
 implementation
 
@@ -1637,6 +1639,16 @@ begin
     Result := 1
   else
     Result := -1;
+end;
+
+function HighLowToInt64(const High, Low: UInt32): Int64;
+begin
+  Result := Int64((UInt64(High) shl 32) or Low);
+end;
+
+function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
+begin
+  Result := HighLowToInt64(FindData.nFileSizeHigh, FindData.nFileSizeLow);
 end;
 
 { TOneShotTimer }

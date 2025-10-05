@@ -1473,21 +1473,23 @@ var
     begin
       var VersionNumbers: TFileVersionNumbers;
       if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
-        Stack.SetInt64(PStart-2, (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS);
+        Stack.SetInt64(PStart-2, VersionNumbersToInt64(VersionNumbers));
         Stack.SetBool(PStart, True);
       end else
         Stack.SetBool(PStart, False);
     end);
     RegisterScriptFunc('PACKVERSIONNUMBERS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt64(PStart, Int64((UInt64(Stack.GetUInt(PStart-1)) shl 32) or Stack.GetUInt(PStart-2)));
+      const VersionMS = Stack.GetUInt(PStart-1);
+      const VersionLS = Stack.GetUInt(PStart-2);
+      Stack.SetInt64(PStart, HighLowToInt64(VersionMS, VersionLS));
     end);
     RegisterScriptFunc('PACKVERSIONCOMPONENTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var VersionNumbers: TFileVersionNumbers;
       VersionNumbers.MS := (Stack.GetUInt(PStart-1) shl 16) or (Stack.GetUInt(PStart-2) and $FFFF);
       VersionNumbers.LS := (Stack.GetUInt(PStart-3) shl 16) or (Stack.GetUInt(PStart-4) and $FFFF);
-      Stack.SetInt64(PStart, Int64((UInt64(VersionNumbers.MS) shl 32) or VersionNumbers.LS));
+      Stack.SetInt64(PStart, VersionNumbersToInt64(VersionNumbers));
     end);
     RegisterScriptFunc('COMPAREPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
@@ -1527,7 +1529,7 @@ var
     begin
       var VersionNumbers: TFileVersionNumbers;
       if StrToVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
-        Stack.SetInt64(PStart-2, (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS);
+        Stack.SetInt64(PStart-2, VersionNumbersToInt64(VersionNumbers));
         Stack.SetBool(PStart, True);
       end else
         Stack.SetBool(PStart, False);

@@ -1446,7 +1446,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               DestFile := DestFile + SearchSubDir + FileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            var Size := (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
+            var Size := FindDataFileSizeToInt64(FindData);
             if Size > ExpectedBytesLeft then begin
               { Don't allow the progress bar to overflow if the size of the
                 files is greater than when we last checked }
@@ -1575,7 +1575,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
               var SourceFile := IntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
-              var Size := (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
+              var Size := FindDataFileSizeToInt64(FindData);
               if Size > ExpectedBytesLeft then begin
                 { Don't allow the progress bar to overflow if the size of the
                   files is greater than when we last checked }
