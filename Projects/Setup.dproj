@@ -111,7 +111,6 @@
             <Form>SelectLanguageForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Setup.FileExtractor.pas"/>
-        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Setup.SelectFolderForm.pas">
             <Form>SelectFolderForm</Form>
         </DCCReference>

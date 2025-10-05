@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -28,7 +28,7 @@ type
     function PerformOperation(Op1, Op2: TIsppVariant; Op: TTokenKind): TIsppVariant;
     function UnaryOperation(Op: TTokenKind; Op1: TIsppVariant): TIsppVariant;
   protected
-    function Chain(Level: Byte; DoEval: Boolean): TIsppVariant;
+    function Chain(Level: Integer; DoEval: Boolean): TIsppVariant;
     function Factor(DoEval: Boolean): TIsppVariant;
     function Assignment(DoEval: Boolean): TIsppVariant;
     function Conditional(DoEval: Boolean): TIsppVariant;
@@ -37,9 +37,10 @@ type
     constructor Create(const IdentMan: IIdentManager; const Expression: string;
       Offset: Integer; Options: PIsppParserOptions);
     function Evaluate: TIsppVariant;
-    function Expr(StopOnComma: Boolean): TIsppVariant;
-    function IntExpr(StopOnComma: Boolean): Int64;
-    function StrExpr(StopOnComma: Boolean): string;
+    function Expr(const StopOnComma: Boolean; const DoMakeRValue: Boolean = False): TIsppVariant;
+    function IntExpr(const StopOnComma: Boolean): Int64;
+    function IntegerExpr(const StopOnComma: Boolean): Integer;
+    function StrExpr(const StopOnComma: Boolean): string;
   end;
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
@@ -96,8 +97,7 @@ end;
 
 function TParser.Evaluate: TIsppVariant;
 begin
-  Result := Expr(False);
-  MakeRValue(Result);
+  Result := Expr(False, True);
   EndOfExpr;
 end;
 
@@ -111,12 +111,14 @@ begin
   end;
 end;
 
-function TParser.Expr(StopOnComma: Boolean): TIsppVariant;
+function TParser.Expr(const StopOnComma, DoMakeRValue: Boolean): TIsppVariant;
 begin
   if StopOnComma then
     Result := Assignment(True)
   else
-    Result := Sequentional(True)
+    Result := Sequentional(True);
+  if DoMakeRValue then
+    MakeRValue(Result);
 end;
 
 function TParser.Factor(DoEval: Boolean): TIsppVariant;
@@ -349,14 +351,14 @@ begin
           opEqual: AsBool := A = 0;
           opNotEqual: AsBool := A <> 0;
         end;
-        AsInt := Int64(AsBool)
+        AsInt64 := Int64(AsBool)
       end;
     end
     else
       if Op1.Typ = evInt then
       begin
-        A := Op1.AsInt;
-        B := Op2.AsInt;
+        A := Op1.AsInt64;
+        B := Op2.AsInt64;
         Typ := evInt;
         case Op of
           opGreater: AsBool := A > B;
@@ -365,20 +367,21 @@ begin
           opLessEqual: AsBool := A <= B;
           opEqual: AsBool := A = B;
           opNotEqual: AsBool := A <> B;
-          opAdd: AsInt := A + B;
-          opSubtract: AsInt := A - B;
+          opAdd: AsInt64 := A + B;
+          opSubtract: AsInt64 := A - B;
           opOr: AsBool := (A <> 0) or (B <> 0);
-          opBwOr: AsInt := A or B;
-          opXor: AsInt := A xor B;
-          opMul: AsInt := A * B;
-          opDiv: AsInt := A div B;
+          opBwOr: AsInt64 := A or B;
+          opXor: AsInt64 := A xor B;
+          opMul: AsInt64 := A * B;
+          opDiv: AsInt64 := A div B;
           opAnd: AsBool := (A <> 0) and (B <> 0);
-          opBwAnd: AsInt := A and B;
-          opShl: AsInt := A shl B;
-          opShr: AsInt := A shr B;
-          opMod: AsInt := A mod B;
+          opBwAnd: AsInt64 := A and B;
+          opShl: AsInt64 := A shl B;
+          opShr: AsInt64 := A shr B;
+          opMod: AsInt64 := A mod B;
         end;
-        if Op in [opGreater..opNotEqual, opOr, opAnd] then AsInt := Int64(AsBool)
+        if Op in [opGreater..opNotEqual, opOr, opAnd] then
+          AsInt64 := Int64(AsBool)
       end
   except
     on E: Exception do Error(E.Message);
@@ -393,7 +396,7 @@ begin
   A := 0; // satisfy compiler
   case Op1.Typ of
     evNull:;
-    evInt: A := Op1.AsInt
+    evInt: A := Op1.AsInt64
   else
     Error(SWrongUnaryOperator);
   end;
@@ -426,7 +429,7 @@ const
      (Operators: [opAdd, opSubtract];   SCBE: scemNone; SCBEValue: False),
      (Operators: [opMul, opDiv, opMod]; SCBE: scemOptional; SCBEValue: False));
 
-function TParser.Chain(Level: Byte; DoEval: Boolean): TIsppVariant;
+function TParser.Chain(Level: Integer; DoEval: Boolean): TIsppVariant;
 
   function CallNext: TIsppVariant;
   begin
@@ -449,7 +452,7 @@ begin
     begin
       with GetRValue(Result) do
         case Typ of
-          evInt: if AsInt = 0 then R := 0 else R := 1;
+          evInt: if AsInt64 = 0 then R := 0 else R := 1;
           evStr: R := -1
         else
           R := 0;
@@ -469,31 +472,33 @@ begin
   end;
 end;
 
-function TParser.IntExpr(StopOnComma: Boolean): Int64;
-var
-  V: TIsppVariant;
+function TParser.IntExpr(const StopOnComma: Boolean): Int64;
 begin
-  Result := 0;
-  if StopOnComma then
-    V := Assignment(True)
-  else
-    V := Sequentional(True);
-  MakeRValue(V);
+  Result := 0; { silence compiler }
+  var V := Expr(StopOnComma, True);
   if V.Typ = evInt then
-    Result := V.AsInt
+    Result := V.AsInt64
   else
     Error(SIntegerExpressionExpected);
 end;
 
-function TParser.StrExpr(StopOnComma: Boolean): string;
-var
-  V: TIsppVariant;
+function TParser.IntegerExpr(const StopOnComma: Boolean): Integer;
 begin
-  if StopOnComma then
-    V := Assignment(True)
-  else
-    V := Sequentional(True);
-  MakeRValue(V);
+  Result := 0; { silence compiler }
+  var V := Expr(StopOnComma, True);
+  if V.Typ = evInt then begin
+    try
+      Result := V.AsInteger;
+    except on E: Exception do
+      Error(E.Message);
+    end;
+  end else
+    Error(SIntegerExpressionExpected);
+end;
+
+function TParser.StrExpr(const StopOnComma: Boolean): string;
+begin
+  var V := Expr(StopOnComma, True);
   case V.Typ of
     evNull: Result := '';
     evStr: Result := V.AsStr;
@@ -527,13 +532,7 @@ begin
   begin
     NextToken;
     if DoEval then
-      with GetRValue(Result) do
-        case Typ of
-          evNull: R := False;
-          evInt: R := AsInt <> 0;
-        else
-          R := AsStr <> '';
-        end
+      R := GetRValue(Result).AsBoolean
     else
       R := False;
     T := Sequentional(DoEval and R);

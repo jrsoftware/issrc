@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -30,7 +30,6 @@ uses
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
-  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
   MD5 in '..\Components\MD5.pas',
   SHA1 in '..\Components\SHA1.pas',
   SHA256 in '..\Components\SHA256.pas',

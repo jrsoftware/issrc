@@ -21,7 +21,7 @@ uses
   Windows, SysUtils, Classes, Generics.Collections,
   SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
-  Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
+  Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
   Compiler.ExeUpdateFunc;
 
@@ -1941,6 +1941,62 @@ begin
     if Pos('.', S) <> 0 then
       SetupCompiler.AbortCompile(SCompilerCantSpecifyLanguage);
     Result := LanguageEntryIndex;
+  end;
+end;
+
+function StrToInteger64(const S: String; var X: Int64): Boolean;
+{ Converts a string containing an unsigned decimal number, or hexadecimal
+  number prefixed with '$', into an Integer64. Returns True if successful,
+  or False if invalid characters were encountered or an overflow occurred.
+  Supports digits separators. }
+var
+  Len, Base, StartIndex, I: Integer;
+  V: Int64;
+  C: Char;
+begin
+  Result := False;
+
+  Len := Length(S);
+  Base := 10;
+  StartIndex := 1;
+  if Len > 0 then begin
+    if S[1] = '$' then begin
+      Base := 16;
+      Inc(StartIndex);
+    end else if S[1] = '_' then
+      Exit;
+  end;
+
+  if (StartIndex > Len) or (S[StartIndex] = '_') then
+    Exit;
+  V := 0;
+
+  try
+    for I := StartIndex to Len do begin
+      C := UpCase(S[I]);
+      case C of
+        '0'..'9':
+          begin
+            V := V * Base;
+            Inc(V, Ord(C) - Ord('0'));
+          end;
+        'A'..'F':
+          begin
+            if Base <> 16 then
+              Exit;
+            V := V * Base;
+            Inc(V, Ord(C) - (Ord('A') - 10));
+          end;
+        '_':
+          { Ignore }
+      else
+        Exit;
+      end;
+    end;
+    X := V;
+    Result := True;
+  except on E: EOverflow do
+    ;
   end;
 end;
 
@@ -4985,8 +5041,7 @@ type
           if IsExcluded(SearchSubDir + FileName, AExcludes) then
             Continue;
 
-          const Size = (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
-          AddToFileList(FileList, SearchSubDir + FileName, Size);
+          AddToFileList(FileList, SearchSubDir + FileName, FindDataFileSizeToInt64(FindData));
 
           CallIdleProc;
         until not SourceIsWildcard or not FindNextFile(H, FindData);

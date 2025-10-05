@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -27,7 +27,7 @@ function ToInt(Op: TIsppVariant): TIsppVariant;
 function ToStr(Op: TIsppVariant): TIsppVariant;
 
 const
-  NULL: TIsppVariant = (Typ: evNull;  AsStr: ''; AsInt: 0);
+  NULL: TIsppVariant = (Typ: evNull;  AsStr: ''; AsInt64: 0);
 
 implementation
 
@@ -58,7 +58,7 @@ begin
   if Src.Typ = evStr then
   begin
     Dest.Typ := evStr;
-    Dest.AsInt := 0;
+    Dest.AsInt64 := 0;
     Dest.AsStr := Src.AsStr;
   end
   else
@@ -68,14 +68,14 @@ end;
 procedure MakeInt(var Op: TIsppVariant; Value: Int64);
 begin
   Op.Typ := evInt;
-  Op.AsInt := Value;
+  Op.AsInt64 := Value;
   Op.AsStr := '';
 end;
 
 procedure MakeStr(var Op: TIsppVariant; const Value: string);
 begin
   Op.Typ := evStr;
-  Op.AsInt := 0;
+  Op.AsInt64 := 0;
   Op.AsStr := Value;
 end;
 
@@ -117,7 +117,7 @@ function ToStr(Op: TIsppVariant): TIsppVariant;
 begin
   MakeRValue(Op);
   if Op.Typ = evInt then
-    MakeStr(Result, IntToStr(Op.AsInt))
+    MakeStr(Result, IntToStr(Op.AsInt64))
   else
     if Op.Typ = evNull then
       MakeStr(Result, '')

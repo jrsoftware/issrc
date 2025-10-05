@@ -1112,9 +1112,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<line>&dsp;#define FileLine = FileRead(FileHandle)</line>
 						<line>&dsp;#pragma message FileLine</line>
 						<line>#endsub</line>
-						<line>#for {FileHandle = FileOpen("c:\autoexec.bat"); \</line>
-						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""}
-							\</line>
+						<line>#for {FileHandle = FileOpen(AddBackslash(CompilerPath) + "whatsnew.htm"); \</line>
+						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""} \</line>
 						<line>&dsp;ProcessFileLine</line>
 						<line>#if FileHandle</line>
 						<line>&dsp;#expr <link href="FileClose">FileClose</link>(FileHandle)</line>

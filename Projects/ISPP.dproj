@@ -47,8 +47,9 @@
         <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
         <DCC_EXPLICIT_STRING_CAST>false</DCC_EXPLICIT_STRING_CAST>
         <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
-        <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
-        <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_IMPLICIT_INTEGER_CAST_LOSS>true</DCC_IMPLICIT_INTEGER_CAST_LOSS>
+        <DCC_IMPLICIT_CONVERSION_LOSS>true</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -93,7 +94,6 @@
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>

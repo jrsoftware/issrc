@@ -16,15 +16,13 @@ uses
 
 type
   TFileVersionNumbers = record
-    MS, LS: LongWord;
+    MS, LS: UInt32;
   end;
 
-function GetVersionInfo(const Filename: String;
-  var VersionInfo: TVSFixedFileInfo): Boolean;
-function GetVersionNumbers(const Filename: String;
-  var VersionNumbers: TFileVersionNumbers): Boolean;
-function StrToVersionNumbers(const S: String;
-  var Version: TFileVersionNumbers): Boolean;
+function GetVersionInfo(const Filename: String; var VersionInfo: TVSFixedFileInfo): Boolean;
+function GetVersionNumbers(const Filename: String; var VersionNumbers: TFileVersionNumbers): Boolean;
+function StrToVersionNumbers(const S: String; var Version: TFileVersionNumbers): Boolean;
+function VersionNumbersToInt64(const VersionNumbers: TFileVersionNumbers): Int64;
 
 implementation
 
@@ -71,7 +69,7 @@ end;
 
 function StrToVersionNumbers(const S: String; var Version: TFileVersionNumbers): Boolean;
 
-  function SplitNextNumber(var Z: String): Word;
+  function SplitNextNumber(var Z: String): UInt16;
   var
     I, N: Integer;
   begin
@@ -80,9 +78,9 @@ function StrToVersionNumbers(const S: String; var Version: TFileVersionNumbers):
       if I = 0 then
         I := Length(Z)+1;
       N := StrToInt(Trim(Copy(Z, 1, I-1)));
-      if (N < Low(Word)) or (N > High(Word)) then
+      if (N < Low(UInt16)) or (N > High(UInt16)) then
         Abort;
-      Result := Word(N);
+      Result := UInt16(N);
       Z := Copy(Z, I+1, Maxint);
     end else
       Result := 0;
@@ -95,13 +93,18 @@ begin
   try
     Z := S;
     W := SplitNextNumber(Z);
-    Version.MS := (DWord(W) shl 16) or SplitNextNumber(Z);
+    Version.MS := (UInt32(W) shl 16) or SplitNextNumber(Z);
     W := SplitNextNumber(Z);
-    Version.LS := (DWord(W) shl 16) or SplitNextNumber(Z);
+    Version.LS := (UInt32(W) shl 16) or SplitNextNumber(Z);
     Result := True;
   except
     Result := False;
   end;
+end;
+
+function VersionNumbersToInt64(const VersionNumbers: TFileVersionNumbers): Int64;
+begin
+  Result := HighLowToInt64(VersionNumbers.MS, VersionNumbers.LS);
 end;
 
 end.

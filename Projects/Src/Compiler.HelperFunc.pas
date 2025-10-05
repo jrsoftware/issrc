@@ -81,7 +81,7 @@ function UnescapeBraces(const S: String): String;
 implementation
 
 uses
-  TrustFunc, Shared.CommonFunc, Shared.Int64Em,
+  TrustFunc, Shared.CommonFunc,
   Compression.Base, Compiler.Messages;
 
 type

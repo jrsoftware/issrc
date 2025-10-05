@@ -82,7 +82,7 @@ begin
     Exit;
   end;
 
-  PackedVersion := (Int64(VersionNumbers.MS) shl 32) or VersionNumbers.LS;
+  PackedVersion := VersionNumbersToInt64(VersionNumbers);
   Result := PackedVersion >= PackedMinVersion;
   ErrorCode := ERROR_SUCCESS;
 end;

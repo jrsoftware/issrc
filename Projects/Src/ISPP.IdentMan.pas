@@ -25,26 +25,26 @@ type
   PIdent = ^TIdent;
   TIdent = object
     Name: string;
-    Hash: Longint;
+    Hash: Integer;
     IdentType: TIdentType;
   end;
 
   PDefinable = ^TDefinable;
   TDefinable = object(TIdent)
-    Scope: packed record
-      Locality: Word;        // 0 means public
-      IsProtected: WordBool; // False means private,  not used if Locality = 0
+    Scope: record
+      LocalLevel: Integer;  // 0 means public
+      IsProtected: Boolean; // False means private,  not used if Locality = 0
     end;
   end;
 
   PVariable = ^TVariable;
   TVariable = object(TDefinable)
-    Dim: Longint;
+    Dim: Integer;
     Value: array[0..0] of TIsppVariant;
   end;
 
-  TExprPosition = packed record
-    FileIndex, Line, Column: Word;
+  TExprPosition = record
+    FileIndex, Line, Column: Integer;
   end;
 
   PMacro = ^TMacro;
@@ -59,7 +59,7 @@ type
   PFunc = ^TFunc;
   TFunc = object(TIdent)
     Code: TIsppFunction;
-    Ext: Longint;
+    Ext: NativeInt;
   end;
 
   PActualParams = ^TActualParams;
@@ -75,10 +75,10 @@ type
   TIdentManager = class(TObject, IIdentManager)
   private
     FCustomIdents: IIdentManager;
-    FFuncSender: Longint;
+    FFuncSender: NativeInt;
     FRefCount: Integer;
     FVarMan: TList;
-    FLocalLevel: Word;
+    FLocalLevel: Integer;
     function FindIndex(const Name: string; AScope: TDefineScope): Integer;
     function Find(const Name: string; AScope: TDefineScope): PIdent;
     procedure FreeItem(Item: Pointer);
@@ -86,7 +86,7 @@ type
   protected
     function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
   public
-    constructor Create(const CustomIdents: IIdentManager; FuncSender: Longint);
+    constructor Create(const CustomIdents: IIdentManager; FuncSender: NativeInt);
     destructor Destroy; override;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
@@ -94,7 +94,7 @@ type
     procedure EndLocal;
     function Defined(const Name: string): Boolean;
     procedure DefineFunction(const Name: string; Handler: TIsppFunction;
-      Ext: Longint);
+      Ext: NativeInt);
     procedure DefineMacro(const Name, Expression: string; ExprPos: TExprPosition;
       const ParserOptions: TIsppParserOptions; Params: array of TIsppMacroParam;
       Scope: TDefineScope);
@@ -127,12 +127,10 @@ const
   MaxLocalArraySize = 16;
   GL: array[TDefineScope] of string = ('Public', 'Public', 'Protected', 'Private');
 
-function MakeHash(const S: string): Longint;
-var
-  I: Integer;
+function MakeHash(const S: string): Integer;
 begin
   Result := 0;
-  for I := 1 to Length(S) do
+  for var I := 1 to Length(S) do
     Result := ((Result shl 7) or (Result shr 25)) + Ord(UpCase(S[I]));
 end;
 
@@ -212,7 +210,11 @@ begin
     if (Name = '') or (CompareText(Name, 'INDEX') = 0) then
     begin
       if FIndex <> -1 then ErrorDefined('Index');
-      FIndex := ToInt(Value).AsInt;
+      try
+        FIndex := ToInt(Value).AsInteger;
+      except on E: Exception do
+        raise EIdentError(E.Message);
+      end;
     end
     else
       raise EIdentError.CreateFmt(SUnknownParam, [Name]);
@@ -331,7 +333,11 @@ begin
   if (Name = '') or (CompareText(Name, 'INDEX') = 0) then
   begin
     if FIndex <> -1 then ErrorDefined('Index');
-    FIndex := ToInt(Value).AsInt;
+    try
+      FIndex := ToInt(Value).AsInteger;
+    except on E: Exception do
+      raise EIdentError.Create(E.Message);
+    end;
   end
   else
     raise EIdentError.CreateFmt(SUnknownParam, [Name]);
@@ -553,7 +559,7 @@ type
   protected
     constructor Create(Value: PIsppVariant);
     function GetType: TIsppVarType; stdcall;
-    function GetAsInt: Int64; stdcall;
+    function GetAsInt64: Int64; stdcall;
     function GetAsString(Buf: PChar; BufSize: Cardinal): Integer; stdcall;
   end;
 
@@ -562,9 +568,9 @@ begin
   FValue := Value
 end;
 
-function TFuncParam.GetAsInt: Int64;
+function TFuncParam.GetAsInt64: Int64;
 begin
-  Result := FValue^.AsInt
+  Result := FValue^.AsInt64
 end;
 
 function TFuncParam.GetAsString(Buf: PChar; BufSize: Cardinal): Integer;
@@ -585,12 +591,12 @@ type
   TFuncCallContext = class(TCallContext, ICallContext, IInternalFuncParams,
     IIsppFuncResult)
   private
-    FSender: Longint;
+    FSender: NativeInt;
     FFunc: PFunc;
     FResult: TIsppVariant;
     FParams: TList;
   protected
-    constructor Create(Sender: Longint; Func: PFunc);
+    constructor Create(Sender: NativeInt; Func: PFunc);
     destructor Destroy; override;
     { IIsppFuncParams }
     function Get(Index: Integer): IIsppFuncParam; stdcall;
@@ -610,7 +616,7 @@ type
     procedure Clone(out NewContext: ICallContext);
   end;
 
-constructor TFuncCallContext.Create(Sender: Longint; Func: PFunc);
+constructor TFuncCallContext.Create(Sender: NativeInt; Func: PFunc);
 begin
   FSender := Sender;
   FFunc := Func;
@@ -638,7 +644,7 @@ function TFuncCallContext.Call: TIsppVariant;
 var
   InternalParams: IInternalFuncParams;
   Error: TIsppFuncResult;
-  Ext: Longint;
+  Ext: NativeInt;
 begin
   InternalParams := Self;
   if FFunc.Ext = -1 then
@@ -699,7 +705,7 @@ end;
 
 { TIdentManager }
 
-constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: Longint);
+constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: NativeInt);
 begin
   FCustomIdents := CustomIdents;
   FVarMan := TList.Create;
@@ -757,7 +763,7 @@ begin
     P^.Hash := MakeHash(Name);
     P^.IdentType := itMacro;
     P^.Scope.IsProtected := Scope = dsProtected;
-    if Scope >= dsProtected then P^.Scope.Locality := FLocalLevel;
+    if Scope >= dsProtected then P^.Scope.LocalLevel := FLocalLevel;
     P^.Expression := Expression;
     P^.DeclPos := ExprPos;
     P^.ParserOptions := ParserOptions;
@@ -796,7 +802,7 @@ begin
     V^.Hash := MakeHash(Name);
     V^.IdentType := itVariable;
     V^.Scope.IsProtected := Scope = dsProtected;
-    if Scope >= dsProtected then V^.Scope.Locality := FLocalLevel;
+    if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
     V^.Dim := 0;
     V^.Value[0] := Value;
     FVarMan.Add(V);
@@ -824,7 +830,7 @@ begin
     //if PDefinable(P).Scope.Locality <> FLocalLevel then Exit;
     S := dsPublic;
     with PDefinable(P).Scope do
-      if Locality <> 0 then
+      if LocalLevel <> 0 then
         if IsProtected then
           S := dsProtected
         else
@@ -862,7 +868,7 @@ begin
     V.IdentType := itVariable;
     V.Dim := Length;
     V^.Scope.IsProtected := Scope = dsProtected;
-    if Scope >= dsProtected then V^.Scope.Locality := FLocalLevel;
+    if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
 
     if ReDimIndex = -1 then begin
       Delete(Name, Scope);
@@ -887,13 +893,10 @@ begin
 end;
 
 function TIdentManager.FindIndex(const Name: string; AScope: TDefineScope): Integer;
-var
-  I: Integer;
-  H: Longint;
 begin
   Result := -1;
-  H := MakeHash(Name);
-  for I := FVarMan.Count - 1 downto 0 do
+  var H := MakeHash(Name);
+  for var I := FVarMan.Count - 1 downto 0 do
     if (H = PIdent(FVarMan[I]).Hash) and (
       CompareText(PIdent(FVarMan[I]).Name, Name) = 0) then
     begin
@@ -901,13 +904,13 @@ begin
         with PDefinable(FVarMan[I])^.Scope do
           case AScope of
             dsAny:
-              if not ((Locality = 0) or (Locality = FLocalLevel) or IsProtected) then Continue;
+              if not ((LocalLevel = 0) or (LocalLevel = FLocalLevel) or IsProtected) then Continue;
             dsPublic:
-              if Locality <> 0 then Continue;
+              if LocalLevel <> 0 then Continue;
             dsProtected:
-              if not (IsProtected and (Locality <= FLocalLevel)) then Continue;
+              if not (IsProtected and (LocalLevel <= FLocalLevel)) then Continue;
           else
-              if IsProtected or (Locality <> FLocalLevel) then Continue;
+              if IsProtected or (LocalLevel <> FLocalLevel) then Continue;
           end;
       Result := I;
       Exit
@@ -1005,7 +1008,7 @@ var
 begin
   for I := FVarMan.Count - 1 downto 0 do
     if (PIdent(FVarMan.Items[I]).IdentType in [itVariable, itMacro]) and
-      (PDefinable(FVarMan.Items[I]).Scope.Locality = FLocalLevel) then
+      (PDefinable(FVarMan.Items[I]).Scope.LocalLevel = FLocalLevel) then
     begin
       FreeItem(FVarMan[I]);
       FVarMan.Delete(I);

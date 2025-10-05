@@ -1409,7 +1409,7 @@ procedure CreateTempInstallDirAndExtract64BitHelper;
   This is called by Setup, Uninstall, and RegSvr. }
 begin
   var Protected: Boolean;
-  TempInstallDir := CreateTempDir(IsAdmin and not Debugging, Protected);
+  TempInstallDir := CreateTempDir('.tmp', IsAdmin and not Debugging, Protected);
   LogFmt('Created %stemporary directory: %s', [IfThen(Protected, 'protected ', ''), TempInstallDir]);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);
@@ -2806,7 +2806,7 @@ var
           if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
             Continue;
 
-          Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
+          Inc(Result, FindDataFileSizeToInt64(FindData));
         end;
       until not FindNextFile(H, FindData);
       Windows.FindClose(H);
@@ -2853,7 +2853,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            Inc(Result, Int64(FindData.nFileSizeLow) or (Int64(FindData.nFileSizeHigh) shl 32));
+            Inc(Result, FindDataFileSizeToInt64(FindData));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally

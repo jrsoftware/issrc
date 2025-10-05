@@ -19,7 +19,7 @@ implementation
 uses
   Windows, Messages, ShlObj, RegStr, Classes, SysUtils, Forms,
   ISSigFunc, PathFunc, SHA256,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass, Shared.Int64Em,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
   Compression.Base, Compression.SevenZipDLLDecoder,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
@@ -346,7 +346,7 @@ begin
       for I := 0 to Entries[seComponent].Count-1 do begin
         with PSetupComponentEntry(Entries[seComponent][I])^ do begin
           if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
-            EstimatedSize := EstimatedSize + ExtraDiskSpaceRequired;
+            Inc(EstimatedSize, ExtraDiskSpaceRequired);
         end;
       end;
     end else
@@ -1446,7 +1446,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               DestFile := DestFile + SearchSubDir + FileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            var Size := (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
+            var Size := FindDataFileSizeToInt64(FindData);
             if Size > ExpectedBytesLeft then begin
               { Don't allow the progress bar to overflow if the size of the
                 files is greater than when we last checked }
@@ -1575,7 +1575,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
               var SourceFile := IntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
-              var Size := (Int64(FindData.nFileSizeHigh) shl 32) or FindData.nFileSizeLow;
+              var Size := FindDataFileSizeToInt64(FindData);
               if Size > ExpectedBytesLeft then begin
                 { Don't allow the progress bar to overflow if the size of the
                   files is greater than when we last checked }

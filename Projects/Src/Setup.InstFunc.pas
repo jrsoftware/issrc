@@ -12,7 +12,7 @@ unit Setup.InstFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, SHA256, Shared.CommonFunc, Shared.FileClass;
+  Windows, SysUtils, SHA256, Shared.CommonFunc, Shared.FileClass;
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
