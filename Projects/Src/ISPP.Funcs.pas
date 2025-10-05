@@ -29,7 +29,7 @@ uses
 var
   IsWin64: Boolean;
 
-function PrependPath(const Ext: Longint; const Filename: String): String;
+function PrependPath(const Ext: NativeInt; const Filename: String): String;
 begin
   var Preprocessor := TObject(Ext) as TPreprocessor;
   Result := PathExpand(Preprocessor.PrependDirName(Filename,
@@ -73,7 +73,7 @@ begin
   Result := True;
 end;
 
-function Int(Ext: Longint; const Params: IIsppFuncParams;
+function Int(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   procedure MakeError(E: Exception);
@@ -101,7 +101,7 @@ begin
   end;
 end;
 
-function Str(Ext: Longint; const Params: IIsppFuncParams;
+function Str(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evSpecial], 1, Result) then
@@ -118,7 +118,7 @@ begin
 end;
 
 {FileExists(<filename>)}
-function FileExists(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+function FileExists(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function DirExists(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+function DirExists(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
@@ -148,7 +148,7 @@ begin
   end;
 end;
 
-function ForceDirectoriesFunc(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+function ForceDirectoriesFunc(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
@@ -164,7 +164,7 @@ begin
 end;
 
 {FileSize(<filename>)}
-function FileSize(Ext: Longint; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+function FileSize(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   SearchRec: TSearchRec;
 begin
@@ -191,7 +191,7 @@ begin
 end;
 
 {ReadIni(<file:str>,<section:str>,<name:str>,[<default:str>])}
-function ReadIni(Ext: Longint; const Params: IIsppFuncParams;
+function ReadIni(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Default: string;
@@ -215,7 +215,7 @@ begin
   end;
 end;
 
-function WriteIni(Ext: Longint; const Params: IIsppFuncParams;
+function WriteIni(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr, evStr, evSpecial], 4, Result) then
@@ -243,7 +243,7 @@ begin
 end;
 
 {ReadReg(<root:int>,<key:str>,[<name:str>,<default:str>])}
-function ReadReg(Ext: Longint; const Params: IIsppFuncParams;
+function ReadReg(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 const
   ISPPRootKeyFlagMask  = $7F000000;
@@ -311,7 +311,7 @@ begin
   end;
 end;
 
-function GetEnvFunc(Ext: Longint; const Params: IIsppFuncParams;
+function GetEnvFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -330,7 +330,7 @@ end;
 const
   SSetup = '[Setup]';
 
-function SetupSetting(Ext: Longint; const Params: IIsppFuncParams;
+function SetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   function Find(L: TStrings; const S: string): string;
@@ -384,7 +384,7 @@ begin
 end;
 
 {SetSetupSetting(<SetupSectionParameterName>,<ParameterValue>)}
-function SetSetupSetting(Ext: Longint; const Params: IIsppFuncParams;
+function SetSetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   procedure DoSet(L: TStrings; const S, V: string);
@@ -448,7 +448,7 @@ begin
 end;
 
 {EntryCount(<SectionName>)}
-function EntryCountFunc(Ext: Longint; const Params: IIsppFuncParams;
+function EntryCountFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   I, J: Integer;
@@ -488,7 +488,7 @@ begin
 end;
 
 {SaveToFile(<Filename>)}
-function SaveToFile(Ext: Longint; const Params: IIsppFuncParams;
+function SaveToFile(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -505,7 +505,7 @@ begin
 end;
 
 {Find(<what>[,<contains>[,<what>,<contains>[,<what>[,<contains>]]]])}
-function FindLine(Ext: Longint; const Params: IIsppFuncParams;
+function FindLine(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 const
   FIND_WHEREMASK  = $01 or $02;
@@ -733,7 +733,7 @@ end;
   int Exec(str FileName, str Params, str WorkingDir, int Wait, int ShowCmd, int Log)
 }
 
-function ExecFunc(Ext: Longint; const Params: IIsppFuncParams;
+function ExecFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr, evStr, evInt, evInt, evInt], 1, Result) then
@@ -789,7 +789,7 @@ end;
   str ExecAndGetFirstLine(str FileName, str Params, str WorkingDir,)
 }
 
-function ExecAndGetFirstLineFunc(Ext: Longint; const Params: IIsppFuncParams;
+function ExecAndGetFirstLineFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr, evStr], 1, Result) then
@@ -826,7 +826,7 @@ begin
   end;
 end;
 
-function LenFunc(Ext: Longint; const Params: IIsppFuncParams;
+function LenFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -842,7 +842,7 @@ begin
   end;
 end;
 
-function CopyFunc(Ext: Longint; const Params: IIsppFuncParams;
+function CopyFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: string;
@@ -878,7 +878,7 @@ begin
   end;
 end;
 
-function PosFunc(Ext: Longint; const Params: IIsppFuncParams;
+function PosFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
@@ -896,7 +896,7 @@ begin
   end;
 end;
 
-function LowerCaseFunc(Ext: Longint; const Params: IIsppFuncParams;
+function LowerCaseFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -912,7 +912,7 @@ begin
   end;
 end;
 
-function UpperCaseFunc(Ext: Longint; const Params: IIsppFuncParams;
+function UpperCaseFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -928,7 +928,7 @@ begin
   end;
 end;
 
-function RPosFunc(Ext: Longint; const Params: IIsppFuncParams;
+function RPosFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   function RPos(const Substr, S: string): Integer;
@@ -955,7 +955,7 @@ begin
   end;
 end;
 
-function GetVersionNumbersStringFunc(Ext: Longint; const Params: IIsppFuncParams;
+function GetVersionNumbersStringFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -1000,7 +1000,7 @@ begin
   end;
 end;
 
-function ComparePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+function ComparePackedVersionFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
@@ -1016,7 +1016,7 @@ begin
   end;
 end;
 
-function SamePackedVersionFunc(Ext: Longint; const Params: IIsppFuncParams;
+function SamePackedVersionFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
@@ -1036,7 +1036,7 @@ begin
 end;
 
 {str GetStringFileInfo(str FileName, str StringName, int Lang)}
-function GetFileVersionInfoItem(Ext: Longint; const Params: IIsppFuncParams;
+function GetFileVersionInfoItem(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: Pointer;
@@ -1110,7 +1110,7 @@ begin
   end;
 end;
 
-function DelFileFunc(Ext: Longint; const Params: IIsppFuncParams;
+function DelFileFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1129,7 +1129,7 @@ begin
   end;
 end;
 
-function DelFileNowFunc(Ext: Longint; const Params: IIsppFuncParams;
+function DelFileNowFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1148,7 +1148,7 @@ begin
   end;
 end;
 
-function CopyFileFunc(Ext: Longint; const Params: IIsppFuncParams;
+function CopyFileFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
@@ -1176,7 +1176,7 @@ begin
   Dispose(Item);
 end;
 
-function FindFirstFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FindFirstFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
@@ -1209,7 +1209,7 @@ begin
   end;
 end;
 
-function FindNextFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FindNextFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1231,7 +1231,7 @@ begin
   end;
 end;
 
-function FindGetFileName(Ext: Longint; const Params: IIsppFuncParams;
+function FindGetFileName(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1249,7 +1249,7 @@ begin
   end;
 end;
 
-function FindCloseFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FindCloseFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1281,7 +1281,7 @@ begin
   Dispose(F);
 end;
 
-function FileOpenFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FileOpenFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   F: PTextFile;
@@ -1328,7 +1328,7 @@ begin
     raise Exception.Create('Invalid file handle');
 end;
 
-function FileReadFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FileReadFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: string;
@@ -1353,7 +1353,7 @@ begin
   end;
 end;
 
-function FileResetFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FileResetFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1376,7 +1376,7 @@ begin
   end;
 end;
 
-function FileEofFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FileEofFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   IsEof: Boolean;
@@ -1401,7 +1401,7 @@ begin
   end;
 end;
 
-function FileCloseFunc(Ext: Longint; const Params: IIsppFuncParams;
+function FileCloseFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1423,7 +1423,7 @@ begin
   end;
 end;
 
-function SaveStringToFileFunc(Ext: Longint; const Params: IIsppFuncParams;
+function SaveStringToFileFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: String;
@@ -1476,7 +1476,7 @@ begin
   Dispose(Item);
 end;
 
-function FileGetDate(Ext: Longint; const Params: IIsppFuncParams;
+function FileGetDate(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   FileDate: PDateTime;
@@ -1505,7 +1505,7 @@ begin
   end;
 end;
 
-function GetNow(Ext: Longint; const Params: IIsppFuncParams;
+function GetNow(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   DateTime: PDateTime;
@@ -1528,7 +1528,7 @@ begin
   end;
 end;
 
-function GetDateFromDT(Ext: Longint; const Params: IIsppFuncParams;
+function GetDateFromDT(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1551,7 +1551,7 @@ begin
   end;
 end;
 
-function GetTimeFromDT(Ext: Longint; const Params: IIsppFuncParams;
+function GetTimeFromDT(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
@@ -1574,7 +1574,7 @@ begin
   end;
 end;
 
-function GetDateTimeString(Ext: Longint; const Params: IIsppFuncParams;
+function GetDateTimeString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   NewDateSeparatorString, NewTimeSeparatorString: String;
@@ -1608,7 +1608,7 @@ begin
   end;
 end;
 
-function GetFileDateTimeString(Ext: Longint; const Params: IIsppFuncParams;
+function GetFileDateTimeString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   NewDateSeparatorString, NewTimeSeparatorString: String;
@@ -1647,7 +1647,7 @@ begin
   end;
 end;
 
-function GetMD5OfFile(Ext: Longint; const Params: IIsppFuncParams;
+function GetMD5OfFile(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: array[0..65535] of Byte;
@@ -1680,7 +1680,7 @@ begin
   end;
 end;
 
-function GetMD5OfString(Ext: Longint; const Params: IIsppFuncParams;
+function GetMD5OfString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1699,7 +1699,7 @@ begin
   end;
 end;
 
-function GetMD5OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
+function GetMD5OfUnicodeString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1718,7 +1718,7 @@ begin
   end;
 end;
 
-function GetSHA1OfFile(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA1OfFile(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: array[0..65535] of Byte;
@@ -1751,7 +1751,7 @@ begin
   end;
 end;
 
-function GetSHA1OfString(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA1OfString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1770,7 +1770,7 @@ begin
   end;
 end;
 
-function GetSHA1OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA1OfUnicodeString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1789,7 +1789,7 @@ begin
   end;
 end;
 
-function GetSHA256OfFile(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA256OfFile(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: array[0..65535] of Byte;
@@ -1822,7 +1822,7 @@ begin
   end;
 end;
 
-function GetSHA256OfString(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA256OfString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1841,7 +1841,7 @@ begin
   end;
 end;
 
-function GetSHA256OfUnicodeString(Ext: Longint; const Params: IIsppFuncParams;
+function GetSHA256OfUnicodeString(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1860,7 +1860,7 @@ begin
   end;
 end;
 
-function TrimFunc(Ext: Longint; const Params: IIsppFuncParams;
+function TrimFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1876,7 +1876,7 @@ begin
   end;
 end;
 
-function StringChangeFunc(Ext: Longint; const Params: IIsppFuncParams;
+function StringChangeFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   S: String;
@@ -1898,7 +1898,7 @@ begin
   end;
 end;
 
-function IsWin64Func(Ext: Longint; const Params: IIsppFuncParams;
+function IsWin64Func(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [], 0, Result) then
@@ -1916,7 +1916,7 @@ begin
   end;
 end;
 
-function MessageFunc(Ext: Longint; const Params: IIsppFuncParams;
+function MessageFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1935,7 +1935,7 @@ begin
   end;
 end;
 
-function WarningFunc(Ext: Longint; const Params: IIsppFuncParams;
+function WarningFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
@@ -1954,7 +1954,7 @@ begin
   end;
 end;
 
-function ErrorFunc(Ext: Longint; const Params: IIsppFuncParams;
+function ErrorFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   CatchException: Boolean;
@@ -1982,7 +1982,7 @@ begin
   end;
 end;
 
-function AddQuotesFunc(Ext: Longint; const Params: IIsppFuncParams;
+function AddQuotesFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
   if CheckParams(Params, [evStr], 1, Result) then

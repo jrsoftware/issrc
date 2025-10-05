@@ -59,7 +59,7 @@ type
   PFunc = ^TFunc;
   TFunc = object(TIdent)
     Code: TIsppFunction;
-    Ext: Longint;
+    Ext: NativeInt;
   end;
 
   PActualParams = ^TActualParams;
@@ -75,7 +75,7 @@ type
   TIdentManager = class(TObject, IIdentManager)
   private
     FCustomIdents: IIdentManager;
-    FFuncSender: Longint;
+    FFuncSender: NativeInt;
     FRefCount: Integer;
     FVarMan: TList;
     FLocalLevel: Integer;
@@ -86,7 +86,7 @@ type
   protected
     function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
   public
-    constructor Create(const CustomIdents: IIdentManager; FuncSender: Longint);
+    constructor Create(const CustomIdents: IIdentManager; FuncSender: NativeInt);
     destructor Destroy; override;
     function _AddRef: Integer; stdcall;
     function _Release: Integer; stdcall;
@@ -94,7 +94,7 @@ type
     procedure EndLocal;
     function Defined(const Name: string): Boolean;
     procedure DefineFunction(const Name: string; Handler: TIsppFunction;
-      Ext: Longint);
+      Ext: NativeInt);
     procedure DefineMacro(const Name, Expression: string; ExprPos: TExprPosition;
       const ParserOptions: TIsppParserOptions; Params: array of TIsppMacroParam;
       Scope: TDefineScope);
@@ -591,12 +591,12 @@ type
   TFuncCallContext = class(TCallContext, ICallContext, IInternalFuncParams,
     IIsppFuncResult)
   private
-    FSender: Longint;
+    FSender: NativeInt;
     FFunc: PFunc;
     FResult: TIsppVariant;
     FParams: TList;
   protected
-    constructor Create(Sender: Longint; Func: PFunc);
+    constructor Create(Sender: NativeInt; Func: PFunc);
     destructor Destroy; override;
     { IIsppFuncParams }
     function Get(Index: Integer): IIsppFuncParam; stdcall;
@@ -616,7 +616,7 @@ type
     procedure Clone(out NewContext: ICallContext);
   end;
 
-constructor TFuncCallContext.Create(Sender: Longint; Func: PFunc);
+constructor TFuncCallContext.Create(Sender: NativeInt; Func: PFunc);
 begin
   FSender := Sender;
   FFunc := Func;
@@ -644,7 +644,7 @@ function TFuncCallContext.Call: TIsppVariant;
 var
   InternalParams: IInternalFuncParams;
   Error: TIsppFuncResult;
-  Ext: Longint;
+  Ext: NativeInt;
 begin
   InternalParams := Self;
   if FFunc.Ext = -1 then
@@ -705,7 +705,7 @@ end;
 
 { TIdentManager }
 
-constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: Longint);
+constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: NativeInt);
 begin
   FCustomIdents := CustomIdents;
   FVarMan := TList.Create;

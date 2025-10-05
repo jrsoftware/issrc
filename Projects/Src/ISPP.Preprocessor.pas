@@ -137,7 +137,7 @@ type
     procedure IncludeFile(FileName: string; Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure QueueLine(const LineRead: string);
     function PrependDirName(const FileName, Dir: string): string;
-    procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
+    procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
     procedure RaiseError(const Message: string);
     procedure SaveToFile(const FileName: string);
     procedure CollectGarbage(Item: Pointer; Proc: TDropGarbageProc);
@@ -244,7 +244,7 @@ constructor TPreprocessor.Create(const CompilerParams: TPreprocessScriptParams;
 begin
   PushPreproc(Self);
   if VarManager = nil then
-    FIdentManager := TIdentManager.Create(Self, Longint(Self))
+    FIdentManager := TIdentManager.Create(Self, NativeInt(Self))
   else
     FIdentManager := VarManager;
   FOptions := Options;
@@ -1067,7 +1067,7 @@ begin
   Inc(FMainCounter, InternalQueueLine(LineRead, 0, FMainCounter, False));
 end;
 
-procedure TPreprocessor.RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: Longint);
+procedure TPreprocessor.RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
 begin
   FIdentManager.DefineFunction(Name, Handler, Ext);
 end;
@@ -1281,13 +1281,13 @@ end;
 
 function TConditionalTranslationStack.Last: TConditionalBlockInfo;
 begin
-  Result := TConditionalBlockInfo(Longint(List.Last))
+  Result := TConditionalBlockInfo(NativeInt(List.Last));
 end;
 
 procedure TConditionalTranslationStack.UpdateLast(
   const Value: TConditionalBlockInfo);
 begin
-  List.Items[List.Count - 1] := Pointer(Value)
+  List[List.Count - 1] := Pointer(Value);
 end;
 
 procedure TConditionalTranslationStack.VerboseMsg(
@@ -1866,5 +1866,11 @@ begin
     FScopeUpdated := True;
   end;
 end;
+
+initialization
+  { The code above stuffs TConditionalBlockInfo records in a TList without addition allocations.
+    In other words, TConditionalBlockInfo must fit into a Pointer. }
+  if SizeOf(TConditionalBlockInfo) > SizeOf(Pointer) then
+    raise Exception.Create('SizeOf(TConditionalBlockInfo) > SizeOf(Pointer)');
 
 end.

@@ -58,7 +58,7 @@ type
     Error: Byte;
   end;
 
-  TIsppFunction = function (Ext: Longint; const Params: IIsppFuncParams;
+  TIsppFunction = function (Ext: NativeInt; const Params: IIsppFuncParams;
     const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   IPreprocessor = interface
