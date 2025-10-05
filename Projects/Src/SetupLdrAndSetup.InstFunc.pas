@@ -18,9 +18,10 @@ type
   TDetermineDefaultLanguageResult = (ddNoMatch, ddMatch, ddMatchLangParameter);
   TGetLanguageEntryProc = function(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
 
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
-  var Protected: Boolean): String; overload;
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String; overload;
+function CreateTempDir(const Extension: String;
+  const LimitCurrentUserSidAccess: Boolean; var Protected: Boolean): String; overload;
+function CreateTempDir(const Extension: String;
+  const LimitCurrentUserSidAccess: Boolean): String; overload;
 procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
@@ -173,15 +174,15 @@ begin
   Result := Filename;
 end;
 
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean;
-  var Protected: Boolean): String;
+function CreateTempDir(const Extension: String;
+  const LimitCurrentUserSidAccess: Boolean; var Protected: Boolean): String;
 { This is called by SetupLdr, Setup, and Uninstall. }
 var
   Dir: String;
   ErrorCode: DWORD;
 begin
   while True do begin
-    Dir := GenerateUniqueName(False, GetTempDir, '.tmp');
+    Dir := GenerateUniqueName(False, GetTempDir, Extension);
     if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode, Protected) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
@@ -192,10 +193,11 @@ begin
   Result := Dir;
 end;
 
-function CreateTempDir(const LimitCurrentUserSidAccess: Boolean): String;
+function CreateTempDir(const Extension: String;
+  const LimitCurrentUserSidAccess: Boolean): String;
 begin
   var Protected: Boolean;
-  Result := CreateTempDir(LimitCurrentUserSidAccess, Protected);
+  Result := CreateTempDir(Extension, LimitCurrentUserSidAccess, Protected);
 end;
 
 { Work around problem in D2's declaration of the function }

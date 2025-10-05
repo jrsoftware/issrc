@@ -1409,7 +1409,7 @@ procedure CreateTempInstallDirAndExtract64BitHelper;
   This is called by Setup, Uninstall, and RegSvr. }
 begin
   var Protected: Boolean;
-  TempInstallDir := CreateTempDir(IsAdmin and not Debugging, Protected);
+  TempInstallDir := CreateTempDir('.tmp', IsAdmin and not Debugging, Protected);
   LogFmt('Created %stemporary directory: %s', [IfThen(Protected, 'protected ', ''), TempInstallDir]);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);
