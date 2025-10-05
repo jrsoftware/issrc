@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -37,9 +37,9 @@ type
     constructor Create(const IdentMan: IIdentManager; const Expression: string;
       Offset: Integer; Options: PIsppParserOptions);
     function Evaluate: TIsppVariant;
-    function Expr(StopOnComma: Boolean): TIsppVariant;
-    function IntExpr(StopOnComma: Boolean): Int64;
-    function StrExpr(StopOnComma: Boolean): string;
+    function Expr(const StopOnComma: Boolean; const DoMakeRValue: Boolean = False): TIsppVariant;
+    function IntExpr(const StopOnComma: Boolean): Int64;
+    function StrExpr(const StopOnComma: Boolean): string;
   end;
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
@@ -96,8 +96,7 @@ end;
 
 function TParser.Evaluate: TIsppVariant;
 begin
-  Result := Expr(False);
-  MakeRValue(Result);
+  Result := Expr(False, True);
   EndOfExpr;
 end;
 
@@ -111,12 +110,14 @@ begin
   end;
 end;
 
-function TParser.Expr(StopOnComma: Boolean): TIsppVariant;
+function TParser.Expr(const StopOnComma, DoMakeRValue: Boolean): TIsppVariant;
 begin
   if StopOnComma then
     Result := Assignment(True)
   else
-    Result := Sequentional(True)
+    Result := Sequentional(True);
+  if DoMakeRValue then
+    MakeRValue(Result);
 end;
 
 function TParser.Factor(DoEval: Boolean): TIsppVariant;
@@ -469,31 +470,20 @@ begin
   end;
 end;
 
-function TParser.IntExpr(StopOnComma: Boolean): Int64;
-var
-  V: TIsppVariant;
+function TParser.IntExpr(const StopOnComma: Boolean): Int64;
 begin
-  Result := 0;
-  if StopOnComma then
-    V := Assignment(True)
-  else
-    V := Sequentional(True);
-  MakeRValue(V);
+  var V := Expr(StopOnComma, True);
   if V.Typ = evInt then
     Result := V.AsInt
-  else
+  else begin
+    Result := 0; { silence compiler }
     Error(SIntegerExpressionExpected);
+  end;
 end;
 
-function TParser.StrExpr(StopOnComma: Boolean): string;
-var
-  V: TIsppVariant;
+function TParser.StrExpr(const StopOnComma: Boolean): string;
 begin
-  if StopOnComma then
-    V := Assignment(True)
-  else
-    V := Sequentional(True);
-  MakeRValue(V);
+  var V := Expr(StopOnComma, True);
   case V.Typ of
     evNull: Result := '';
     evStr: Result := V.AsStr;
