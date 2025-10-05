@@ -103,39 +103,6 @@ begin
     Result := Rect(0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
 end;
 
-function GetRectOfMonitorContainingRect(const R: TRect): TRect;
-{ Returns bounding rectangle of monitor containing or nearest to R }
-type
-  HMONITOR = type THandle;
-  TMonitorInfo = record
-    cbSize: DWORD;
-    rcMonitor: TRect;
-    rcWork: TRect;
-    dwFlags: DWORD;
-  end;
-const
-  MONITOR_DEFAULTTONEAREST = $00000002;
-var
-  Module: HMODULE;
-  MonitorFromRect: function(const lprc: TRect; dwFlags: DWORD): HMONITOR; stdcall;
-  GetMonitorInfo: function(hMonitor: HMONITOR; var lpmi: TMonitorInfo): BOOL; stdcall;
-  M: HMONITOR;
-  Info: TMonitorInfo;
-begin
-  Module := GetModuleHandle(user32);
-  MonitorFromRect := GetProcAddress(Module, 'MonitorFromRect');
-  GetMonitorInfo := GetProcAddress(Module, 'GetMonitorInfoA');
-  if Assigned(MonitorFromRect) and Assigned(GetMonitorInfo) then begin
-    M := MonitorFromRect(R, MONITOR_DEFAULTTONEAREST);
-    Info.cbSize := SizeOf(Info);
-    if GetMonitorInfo(M, Info) then begin
-      Result := Info.rcWork;
-      Exit;
-    end;
-  end;
-  Result := GetRectOfPrimaryMonitor(True);
-end;
-
 function SetFontNameSize(const AFont: TFont; const AName: String;
   const ASize: Integer; const AFallbackName: String;
   const AFallbackSize: Integer): Boolean;
@@ -188,60 +155,21 @@ begin
   end;
 end;
 
-procedure NewChangeScale(const Ctl: TControl; const XM, XD, YM, YD: Integer);
-var
-  X, Y, W, H: Integer;
-begin
-  X := MulDiv(Ctl.Left, XM, XD);
-  Y := MulDiv(Ctl.Top, YM, YD);
-  if not(csFixedWidth in Ctl.ControlStyle) then
-    W := MulDiv(Ctl.Width, XM, XD)
-  else
-    W := Ctl.Width;
-  if not(csFixedHeight in Ctl.ControlStyle) then
-    H := MulDiv(Ctl.Height, YM, YD)
-  else
-    H := Ctl.Height;
-  Ctl.SetBounds(X, Y, W, H);
-end;
-
-procedure NewScaleControls(const Ctl: TWinControl; const XM, XD, YM, YD: Integer);
-{ This is like TControl.ScaleControls, except it allows the width and height
-  to be scaled independently }
-var
-  I: Integer;
-  C: TControl;
-begin
-  for I := 0 to Ctl.ControlCount-1 do begin
-    C := Ctl.Controls[I];
-    if C is TWinControl then begin
-      TWinControl(C).DisableAlign;
-      try
-        NewScaleControls(TWinControl(C), XM, XD, YM, YD);
-        NewChangeScale(C, XM, XD, YM, YD);
-      finally
-        TWinControl(C).EnableAlign;
-      end;
-    end
-    else
-      NewChangeScale(C, XM, XD, YM, YD);
-  end;
-end;
-
-function GetParentSetupForm(AControl: TControl): TSetupForm;
-begin
-  { Note: Unlike GetParentForm, this checks all levels, not just the top }
-  repeat
-    if AControl is TSetupForm then begin
-      Result := TSetupForm(AControl);
-      Exit;
-    end;
-    AControl := AControl.Parent;
-  until AControl = nil;
-  Result := nil;
-end;
-
 function IsParentSetupFormFlipped(AControl: TControl): Boolean;
+
+  function GetParentSetupForm(AControl: TControl): TSetupForm;
+  begin
+    { Note: Unlike GetParentForm, this checks all levels, not just the top }
+    repeat
+      if AControl is TSetupForm then begin
+        Result := TSetupForm(AControl);
+        Exit;
+      end;
+      AControl := AControl.Parent;
+    until AControl = nil;
+    Result := nil;
+  end;
+
 var
   ParentForm: TSetupForm;
 begin
@@ -250,36 +178,6 @@ begin
     Result := ParentForm.ControlsFlipped
   else
     Result := False;
-end;
-
-type
-  TControlAnchorsList = TDictionary<TControl, TAnchors>;
-  TControlAccess = class(TControl);
-
-procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-var
-  I: Integer;
-begin
-  if Ctl.Anchors <> [akLeft, akTop] then begin
-    AnchorsList.Add(Ctl, Ctl.Anchors);
-    { Before we can set Anchors to [akLeft, akTop] (which has a special
-      'no anchors' meaning to VCL), we first need to update the Explicit*
-      properties so the control doesn't get moved back to an old position. }
-    TControlAccess(Ctl).UpdateExplicitBounds;
-    Ctl.Anchors := [akLeft, akTop];
-  end;
-
-  if Ctl is TWinControl then
-    for I := 0 to TWinControl(Ctl).ControlCount-1 do
-      StripAndStoreCustomAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
-end;
-
-procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-begin
-  { The order in which we restore the anchors shouldn't matter, so just
-    enumerate the list. }
-  for var Item in AnchorsList do
-    Item.Key.Anchors := Item.Value;
 end;
 
 { TSetupForm }
@@ -360,6 +258,40 @@ begin
 end;
 
 procedure TSetupForm.CenterInsideRect(const InsideRect: TRect);
+
+  function GetRectOfMonitorContainingRect(const R: TRect): TRect;
+  { Returns bounding rectangle of monitor containing or nearest to R }
+  type
+    HMONITOR = type THandle;
+    TMonitorInfo = record
+      cbSize: DWORD;
+      rcMonitor: TRect;
+      rcWork: TRect;
+      dwFlags: DWORD;
+    end;
+  const
+    MONITOR_DEFAULTTONEAREST = $00000002;
+  var
+    Module: HMODULE;
+    MonitorFromRect: function(const lprc: TRect; dwFlags: DWORD): HMONITOR; stdcall;
+    GetMonitorInfo: function(hMonitor: HMONITOR; var lpmi: TMonitorInfo): BOOL; stdcall;
+    M: HMONITOR;
+    Info: TMonitorInfo;
+  begin
+    Module := GetModuleHandle(user32);
+    MonitorFromRect := GetProcAddress(Module, 'MonitorFromRect');
+    GetMonitorInfo := GetProcAddress(Module, 'GetMonitorInfoA');
+    if Assigned(MonitorFromRect) and Assigned(GetMonitorInfo) then begin
+      M := MonitorFromRect(R, MONITOR_DEFAULTTONEAREST);
+      Info.cbSize := SizeOf(Info);
+      if GetMonitorInfo(M, Info) then begin
+        Result := Info.rcWork;
+        Exit;
+      end;
+    end;
+    Result := GetRectOfPrimaryMonitor(True);
+  end;
+
 var
   R, MR: TRect;
 begin
@@ -489,7 +421,80 @@ begin
   SizeAndCenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
 end;
 
+type
+  TControlAccess = class(TControl);
+
 procedure TSetupForm.InitializeFont;
+
+  procedure NewChangeScale(const Ctl: TControl; const XM, XD, YM, YD: Integer);
+  var
+    X, Y, W, H: Integer;
+  begin
+    X := MulDiv(Ctl.Left, XM, XD);
+    Y := MulDiv(Ctl.Top, YM, YD);
+    if not(csFixedWidth in Ctl.ControlStyle) then
+      W := MulDiv(Ctl.Width, XM, XD)
+    else
+      W := Ctl.Width;
+    if not(csFixedHeight in Ctl.ControlStyle) then
+      H := MulDiv(Ctl.Height, YM, YD)
+    else
+      H := Ctl.Height;
+    Ctl.SetBounds(X, Y, W, H);
+  end;
+
+  procedure NewScaleControls(const Ctl: TWinControl; const XM, XD, YM, YD: Integer);
+  { This is like TControl.ScaleControls, except it allows the width and height
+    to be scaled independently }
+  var
+    I: Integer;
+    C: TControl;
+  begin
+    for I := 0 to Ctl.ControlCount-1 do begin
+      C := Ctl.Controls[I];
+      if C is TWinControl then begin
+        TWinControl(C).DisableAlign;
+        try
+          NewScaleControls(TWinControl(C), XM, XD, YM, YD);
+          NewChangeScale(C, XM, XD, YM, YD);
+        finally
+          TWinControl(C).EnableAlign;
+        end;
+      end
+      else
+        NewChangeScale(C, XM, XD, YM, YD);
+    end;
+  end;
+
+  type
+    TControlAnchorsList = TDictionary<TControl, TAnchors>;
+
+  procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+  var
+    I: Integer;
+  begin
+    if Ctl.Anchors <> [akLeft, akTop] then begin
+      AnchorsList.Add(Ctl, Ctl.Anchors);
+      { Before we can set Anchors to [akLeft, akTop] (which has a special
+        'no anchors' meaning to VCL), we first need to update the Explicit*
+        properties so the control doesn't get moved back to an old position. }
+      TControlAccess(Ctl).UpdateExplicitBounds;
+      Ctl.Anchors := [akLeft, akTop];
+    end;
+
+    if Ctl is TWinControl then
+      for I := 0 to TWinControl(Ctl).ControlCount-1 do
+        StripAndStoreCustomAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+  end;
+
+  procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+  begin
+    { The order in which we restore the anchors shouldn't matter, so just
+      enumerate the list. }
+    for var Item in AnchorsList do
+      Item.Key.Anchors := Item.Value;
+  end;
+
 var
   ControlAnchorsList: TControlAnchorsList;
   W, H: Integer;
