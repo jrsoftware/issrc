@@ -36,7 +36,7 @@ type
 
   IIsppFuncParam = interface
     function GetType: TIsppVarType; stdcall;
-    function GetAsInt: Int64; stdcall;
+    function GetAsInt64: Int64; stdcall;
     function GetAsString(Buf: PChar; BufSize: Cardinal): Integer; stdcall;
   end;
 

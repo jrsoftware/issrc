@@ -351,14 +351,14 @@ begin
           opEqual: AsBool := A = 0;
           opNotEqual: AsBool := A <> 0;
         end;
-        AsInt := Int64(AsBool)
+        AsInt64 := Int64(AsBool)
       end;
     end
     else
       if Op1.Typ = evInt then
       begin
-        A := Op1.AsInt;
-        B := Op2.AsInt;
+        A := Op1.AsInt64;
+        B := Op2.AsInt64;
         Typ := evInt;
         case Op of
           opGreater: AsBool := A > B;
@@ -367,20 +367,21 @@ begin
           opLessEqual: AsBool := A <= B;
           opEqual: AsBool := A = B;
           opNotEqual: AsBool := A <> B;
-          opAdd: AsInt := A + B;
-          opSubtract: AsInt := A - B;
+          opAdd: AsInt64 := A + B;
+          opSubtract: AsInt64 := A - B;
           opOr: AsBool := (A <> 0) or (B <> 0);
-          opBwOr: AsInt := A or B;
-          opXor: AsInt := A xor B;
-          opMul: AsInt := A * B;
-          opDiv: AsInt := A div B;
+          opBwOr: AsInt64 := A or B;
+          opXor: AsInt64 := A xor B;
+          opMul: AsInt64 := A * B;
+          opDiv: AsInt64 := A div B;
           opAnd: AsBool := (A <> 0) and (B <> 0);
-          opBwAnd: AsInt := A and B;
-          opShl: AsInt := A shl B;
-          opShr: AsInt := A shr B;
-          opMod: AsInt := A mod B;
+          opBwAnd: AsInt64 := A and B;
+          opShl: AsInt64 := A shl B;
+          opShr: AsInt64 := A shr B;
+          opMod: AsInt64 := A mod B;
         end;
-        if Op in [opGreater..opNotEqual, opOr, opAnd] then AsInt := Int64(AsBool)
+        if Op in [opGreater..opNotEqual, opOr, opAnd] then
+          AsInt64 := Int64(AsBool)
       end
   except
     on E: Exception do Error(E.Message);
@@ -395,7 +396,7 @@ begin
   A := 0; // satisfy compiler
   case Op1.Typ of
     evNull:;
-    evInt: A := Op1.AsInt
+    evInt: A := Op1.AsInt64
   else
     Error(SWrongUnaryOperator);
   end;
@@ -451,7 +452,7 @@ begin
     begin
       with GetRValue(Result) do
         case Typ of
-          evInt: if AsInt = 0 then R := 0 else R := 1;
+          evInt: if AsInt64 = 0 then R := 0 else R := 1;
           evStr: R := -1
         else
           R := 0;
@@ -476,7 +477,7 @@ begin
   Result := 0; { silence compiler }
   var V := Expr(StopOnComma, True);
   if V.Typ = evInt then
-    Result := V.AsInt
+    Result := V.AsInt64
   else
     Error(SIntegerExpressionExpected);
 end;
@@ -531,13 +532,7 @@ begin
   begin
     NextToken;
     if DoEval then
-      with GetRValue(Result) do
-        case Typ of
-          evNull: R := False;
-          evInt: R := AsInt <> 0;
-        else
-          R := AsStr <> '';
-        end
+      R := GetRValue(Result).AsBoolean
     else
       R := False;
     T := Sequentional(DoEval and R);

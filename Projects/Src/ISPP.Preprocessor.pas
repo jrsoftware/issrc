@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -27,7 +27,7 @@ type
     constructor Create(Preproc: TPreprocessor; const Msg: string);
   end;
 
-  TConditionalBlockInfo = packed record
+  TConditionalBlockInfo = record
     BlockState, Fired, HadElse, Reserved: Boolean;
   end;
 
@@ -75,7 +75,7 @@ type
     FIncludePath: string;
     FInsertionPoint: Integer;
     FLinePointer: Integer;
-    FMainCounter: Word;
+    FMainCounter: Integer;
     FOutput: TStringList;       { strs: translation }
     FQueuedLine: string;
     FQueuedLineCount: Integer;
@@ -976,13 +976,9 @@ begin
       pcIf, pcElseIf:
         begin
           IfCondition := Evaluate;
-          case IfCondition.Typ of
-            evInt: Result := IfCondition.AsInt <> 0;
-            evStr: Result := IfCondition.AsStr <> ''
-          else
+          Result := IfCondition.AsBoolean;
+          if IfCondition.Typ = evNull then
             WarningMsg(SSpecifiedConditionEvalatedToVoid);
-            Result := False
-          end;
         end;
       pcIfdef, pcIfndef:
         begin
@@ -1653,8 +1649,7 @@ procedure TPreprocessor.IncludeFile(FileName: string;
 var
   CurPath, SearchDirs, FullFileName: String;
   FileHandle: TPreprocFileHandle;
-  I, FileIndex: Integer;
-  J: Word;
+  FileIndex: Integer;
   LineText: PChar;
   LineTextStr: string;
 begin
@@ -1679,7 +1674,7 @@ begin
   begin
     if not UseIncludePathOnly then
     begin
-      for I := FFileStack.Count - 1 downto 0 do
+      for var I := FFileStack.Count - 1 downto 0 do
         AddToPath(SearchDirs, ExtractFileDir(FFileStack[I]));
       if FIncludes[0] <> '' then
         AddToPath(SearchDirs, ExtractFileDir(FIncludes[0]));
@@ -1710,8 +1705,8 @@ begin
       FileIndex := FIncludes.Add(FullFileName);
       FIdentManager.BeginLocal;
       try
-        I := 0;
-        J := 0;
+        var I := 0;
+        var J := 0;
         while True do
         begin
           LineText := FCompilerParams.LineInProc(FCompilerParams.CompilerData,
@@ -1806,7 +1801,7 @@ begin
         NextToken;
         case Param.DefValue.Typ of
           evSpecial: Param.DefValue := GetRValue(Expr(True));
-          evInt: Param.DefValue.AsInt := IntExpr(True);
+          evInt: Param.DefValue.AsInt64 := IntExpr(True);
           evStr: Param.DefValue.AsStr := StrExpr(True);
         end;
         Include(Param.ParamFlags, pfHasDefault);

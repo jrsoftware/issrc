@@ -224,7 +224,7 @@ begin
       with TIniFile.Create(Get(0).AsStr) do
       try
         case Get(3).Typ of
-          evInt: WriteInt64(Get(1).AsStr, Get(2).AsStr, Get(3).AsInt);
+          evInt: WriteInt64(Get(1).AsStr, Get(2).AsStr, Get(3).AsInt64);
           evStr: WriteString(Get(1).AsStr, Get(2).AsStr, Get(3).AsStr);
         else
           WriteString(Get(1).AsStr, Get(2).AsStr, '');
@@ -275,12 +275,12 @@ var
   Default: TIsppVariant;
   RegView64: Boolean;
   ARootKey: HKEY;
-  AAccess: LongWord;
+  AAccess: Cardinal;
 begin
   if CheckParams(Params, [evInt, evStr, evStr, evSpecial], 2, Result) then
   try
     with IInternalFuncParams(Params) do begin
-      CrackISPPRootKey(Get(0).AsInt, RegView64, ARootKey);
+      CrackISPPRootKey(Get(0).AsInt64, RegView64, ARootKey);
       AAccess := KEY_QUERY_VALUE;
       if RegView64 then
         AAccess := AAccess or KEY_WOW64_64KEY;
@@ -745,7 +745,7 @@ begin
       var ShowCmd: Word := SW_SHOWNORMAL;
       if GetCount > 1 then ParamsS := Get(1).AsStr;
       if GetCount > 2 then WorkingDir := PrependPath(Ext, Get(2).AsStr);
-      if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
+      if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsBoolean;
       if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsWord;
       var Preprocessor := TPreprocessor(Ext);
       var ResultCode: Integer;
@@ -853,15 +853,15 @@ begin
     with IInternalFuncParams(Params) do
     begin
       S := Get(0).AsStr;
-      B := Get(1).AsInt;
-      if GetCount > 2 then C := Get(2).AsInt else C := MaxInt;
+      B := Get(1).AsInt64;
+      if GetCount > 2 then C := Get(2).AsInt64 else C := MaxInt;
 
       { Constrain 64-bit arguments to 32 bits without truncating them }
       if B < 1 then
         B := 1;
-      if C > Maxint then
-        C := Maxint;
-      if (B > Maxint) or (C < 0) then begin
+      if C > MaxInt then
+        C := MaxInt;
+      if (B > MaxInt) or (C < 0) then begin
         { Result should be empty in these cases }
         B := 1;
         C := 0;
@@ -1006,7 +1006,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt, Get(1).AsInt));
+      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt64, Get(1).AsInt64));
   except
     on E: Exception do
     begin
@@ -1022,7 +1022,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      if Get(0).AsInt = Get(1).AsInt then
+      if Get(0).AsInt64 = Get(1).AsInt64 then
         MakeInt(ResPtr^, 1)
       else
         MakeInt(ResPtr^, 0)
@@ -1044,7 +1044,7 @@ var
   function GetStringFileInfo(Lang: UINT; const Name: string; var Value: string): Boolean;
   var
     InfoBuf: Pointer;
-    InfoBufSize: Longword;
+    InfoBufSize: Cardinal;
   begin
     Result := VerQueryValue(Buf, PChar('\StringFileInfo\' + IntToHex(LoWord(Lang), 4) +
       IntToHex(HiWord(Lang), 4) +
@@ -1180,24 +1180,24 @@ function FindFirstFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Filename: string;
-  F: PSearchRec;
+  SR: PSearchRec;
 begin
   if CheckParams(Params, [evStr, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
       Filename := PrependPath(Ext, Get(0).AsStr);
-      New(F);
+      New(SR);
       ResPtr^.Typ := evInt;
-      if FindFirst(Filename, Get(1).AsInteger, F^) = 0 then
+      if FindFirst(Filename, Get(1).AsInteger, SR^) = 0 then
       begin
-        ResPtr^.AsInt := Integer(F);
-        TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFind));
+        ResPtr^.AsInt64 := NativeInt(SR);
+        TPreprocessor(Ext).CollectGarbage(SR, Addr(GarbageCloseFind));
       end
       else
       begin
-        ResPtr^.AsInt := 0;
-        Dispose(F);
+        ResPtr^.AsInt64 := 0;
+        Dispose(SR);
       end;
     end;
   except
@@ -1217,10 +1217,10 @@ begin
     with IInternalFuncParams(Params) do
     begin
       ResPtr.Typ := evInt;
-      if FindNext(PSearchRec(Get(0).AsInt)^) = 0 then
-        ResPtr^.AsInt := 1
+      if FindNext(PSearchRec(Get(0).AsInt64)^) = 0 then
+        ResPtr^.AsInt64 := 1
       else
-        ResPtr^.AsInt := 0;
+        ResPtr^.AsInt64 := 0;
     end;
   except
     on E: Exception do
@@ -1238,7 +1238,7 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeStr(ResPtr^, PSearchRec(Get(0).AsInt)^.Name);
+      MakeStr(ResPtr^, PSearchRec(Get(0).AsInt64)^.Name);
     end;
   except
     on E: Exception do
@@ -1256,9 +1256,9 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      FindClose(PSearchRec(Get(0).AsInt)^);
-      Dispose(PSearchRec(Get(0).AsInt));
-      TPreprocessor(Ext).UncollectGarbage(Pointer(Get(0).AsInt));
+      FindClose(PSearchRec(Get(0).AsInt64)^);
+      Dispose(PSearchRec(Get(0).AsInt64));
+      TPreprocessor(Ext).UncollectGarbage(Pointer(Get(0).AsInt64));
     end;
   except
     on E: Exception do
@@ -1323,7 +1323,7 @@ end;
 
 function FileGetHandle(const Params: IInternalFuncParams; const Index: Integer): PTextFile;
 begin
-  Result := PTextFile(Params.Get(Index).AsInt);
+  Result := PTextFile(Params.Get(Index).AsInt64);
   if Result = nil then
     raise Exception.Create('Invalid file handle');
 end;
@@ -1436,8 +1436,8 @@ begin
     with IInternalFuncParams(Params) do
     begin
       Filename := PrependPath(Ext, Get(0).AsStr);
-      if (GetCount < 3) or (Get(2).AsInt <> 0) then DoAppend := True else DoAppend := False;
-      if (GetCount < 4) or (Get(3).AsInt <> 0) then CodePage := CP_UTF8 else CodePage := 0;
+      if (GetCount < 3) or Get(2).AsBoolean then DoAppend := True else DoAppend := False;
+      if (GetCount < 4) or Get(3).AsBoolean then CodePage := CP_UTF8 else CodePage := 0;
       DoAppend := DoAppend and NewFileExists(Filename);
       AssignFile(F, FileName, CodePage);
       {$I-}
@@ -1535,7 +1535,7 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeInt(ResPtr^, DateTimeToTimeStamp(PDateTime(Get(0).AsInt)^).Date);
+      MakeInt(ResPtr^, DateTimeToTimeStamp(PDateTime(Get(0).AsInt64)^).Date);
     end;
   except
     on E: EAccessViolation do
@@ -1558,7 +1558,7 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeInt(ResPtr^, DateTimeToTimeStamp(PDateTime(Get(0).AsInt)^).Time);
+      MakeInt(ResPtr^, DateTimeToTimeStamp(PDateTime(Get(0).AsInt64)^).Time);
     end;
   except
     on E: EAccessViolation do
