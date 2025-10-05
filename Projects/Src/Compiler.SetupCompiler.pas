@@ -21,7 +21,7 @@ uses
   Windows, SysUtils, Classes, Generics.Collections,
   SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
-  Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.Int64Em, Shared.DebugStruct,
+  Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
   Compiler.ExeUpdateFunc;
 

@@ -27,7 +27,7 @@ uses
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
-  Shared.Int64Em, Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc;
@@ -1491,7 +1491,7 @@ var
     end);
     RegisterScriptFunc('COMPAREPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
-      Stack.SetInt(PStart, Compare64(Stack.GetInt64(PStart-1), Stack.GetInt64(PStart-2)));
+      Stack.SetInt(PStart, CompareInt64(Stack.GetInt64(PStart-1), Stack.GetInt64(PStart-2)));
     end);
     RegisterScriptFunc('SAMEPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

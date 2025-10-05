@@ -19,7 +19,7 @@ implementation
 uses
   Windows, Messages, ShlObj, RegStr, Classes, SysUtils, Forms,
   ISSigFunc, PathFunc, SHA256,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass, Shared.Int64Em,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
   Compression.Base, Compression.SevenZipDLLDecoder,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,

@@ -14,7 +14,7 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,
-  Setup.SetupForm, Shared.Struct, Shared.Int64Em, NewCheckListBox, RichEditViewer, NewStaticText,
+  Setup.SetupForm, Shared.Struct, NewCheckListBox, RichEditViewer, NewStaticText,
   NewProgressBar, Shared.SetupMessageIDs, PasswordEdit, FolderTreeView, BitmapImage,
   NewNotebook, BidiCtrls;
 

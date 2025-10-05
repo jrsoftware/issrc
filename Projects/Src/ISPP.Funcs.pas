@@ -23,7 +23,7 @@ implementation
 uses
   SysUtils, IniFiles, Registry, Math, DateUtils,
   MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
-  Shared.Int64Em, Shared.FileClass, Shared.CommonFunc,
+  Shared.FileClass, Shared.CommonFunc,
   ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
   
 var
@@ -1006,7 +1006,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, Compare64(Get(0).AsInt, Get(1).AsInt));
+      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt, Get(1).AsInt));
   except
     on E: Exception do
     begin
