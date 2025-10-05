@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -19,7 +19,7 @@ procedure PushPreproc(APreproc: TPreprocessor);
 function PopPreproc: TPreprocessor;
 function PeekPreproc: TPreprocessor;
 procedure WarningMsg(const Msg: string; const Args: array of const);
-procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
+procedure VerboseMsg(const Level: Integer; const Msg: string; const Args: array of const);
 procedure QueueFileForDeletion(const FileName: string);
 
 implementation
@@ -36,7 +36,7 @@ begin
     P.WarningMsg(Msg, Args)
 end;
 
-procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const);
+procedure VerboseMsg(const Level: Integer; const Msg: string; const Args: array of const);
 var
   P: TPreprocessor;
 begin

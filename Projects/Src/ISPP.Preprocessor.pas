@@ -1746,7 +1746,7 @@ var
     if NewCapacity > High(Byte) then RaiseError(STooManyFormalParams);
     NewCapacity := NewCapacity * SizeOf(TIsppMacroParam);
     ReallocMem(ParamList, NewCapacity);
-    { Initilizing to zeroes is required to prevent compiler's attempts to
+    { Initializing to zeroes is required to prevent compiler's attempts to
       finilize not existing strings }
     FillChar(ParamList^[Result], NewCapacity - OldCapacity, 0)
   end;
@@ -1868,7 +1868,7 @@ begin
 end;
 
 initialization
-  { The code above stuffs TConditionalBlockInfo records in a TList without addition allocations.
+  { The code above stuffs TConditionalBlockInfo records in a TList without additional allocations.
     In other words, TConditionalBlockInfo must fit into a Pointer. }
   if SizeOf(TConditionalBlockInfo) > SizeOf(Pointer) then
     raise Exception.Create('SizeOf(TConditionalBlockInfo) > SizeOf(Pointer)');

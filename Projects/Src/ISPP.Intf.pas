@@ -53,9 +53,8 @@ type
   end;
 
   TIsppFuncResult = record
-    Reserved: Byte;
     ErrParam: Integer;
-    Error: Byte;
+    Error: Integer;
   end;
 
   TIsppFunction = function (Ext: NativeInt; const Params: IIsppFuncParams;
@@ -71,17 +70,17 @@ const
   { TIsppFuncResult.Error values }
 
   // Function executed successfully
-  ISPPFUNC_SUCCESS    = Byte($00);
+  ISPPFUNC_SUCCESS    = 0;
   // Unexpected failure
-  ISPPFUNC_FAIL       = Byte($01);
+  ISPPFUNC_FAIL       = 1;
   // Too many arguments passed, ErrParam contains maximal number of arguments needed
-  ISPPFUNC_MANYARGS   = Byte($02);
+  ISPPFUNC_MANYARGS   = 2;
   // Insufficient required arguments, ErrParam contains minimal number of arguments
-  ISPPFUNC_INSUFARGS  = Byte($03);
+  ISPPFUNC_INSUFARGS  = 3;
   // Wrong type of argument passed, ErrParam is the index of the argument
-  ISPPFUNC_INTWANTED  = Byte($04);
+  ISPPFUNC_INTWANTED  = 4;
   // Wrong type of argument passed, ErrParam is the index of the argument
-  ISPPFUNC_STRWANTED  = Byte($05);
+  ISPPFUNC_STRWANTED  = 5;
 
 const
 
