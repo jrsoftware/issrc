@@ -542,7 +542,7 @@ var
     Result := False;
   end;
 
-  function Meets(const Substr: string; Sensitive: Boolean; Where: Byte): Boolean;
+  function Meets(const Substr: string; Sensitive: Boolean; Where: Integer): Boolean;
   begin
     Result := False;
     case Where of
@@ -1059,7 +1059,6 @@ var
   Filename: string;
   VersionHandle: Cardinal;
   Langs: PUINTArray;
-  LangCount, I: Integer;
   Lang, LangsSize: UINT;
   Value: string;
   Success: Boolean;
@@ -1087,8 +1086,8 @@ begin
             if VerQueryValue(Buf, PChar('\VarFileInfo\Translation'), Pointer(Langs),
               LangsSize) then
             begin
-              LangCount := LangsSize div 4;
-              for I := 0 to LangCount - 1 do
+              const LangCount = LangsSize div 4;
+              for var I := 0 to LangCount - 1 do
               begin
                 Success := GetStringFileInfo(Langs[I], Get(1).AsStr, Value);
                 if Success then Break;
@@ -1270,9 +1269,12 @@ begin
   end;
 end;
 
+type
+  PTextFile = ^TextFile;
+
 procedure GarbageCloseFile(Item: Pointer);
 var
-  F: ^TextFile;
+  F: PTextFile;
 begin
   F := Item;
   Close(F^);
@@ -1282,7 +1284,7 @@ end;
 function FileOpenFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: ^TextFile;
+  F: PTextFile;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
@@ -1302,7 +1304,7 @@ begin
         end
         else
         begin
-          MakeInt(ResPtr^, Integer(F));
+          MakeInt(ResPtr^, NativeInt(F));
           TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFile));
         end;
       end;
@@ -1319,27 +1321,29 @@ begin
   end;
 end;
 
+function FileGetHandle(const Params: IInternalFuncParams; const Index: Integer): PTextFile;
+begin
+  Result := PTextFile(Params.Get(Index).AsInt);
+  if Result = nil then
+    raise Exception.Create('Invalid file handle');
+end;
+
 function FileReadFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: ^TextFile;
   S: string;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
   try
-    with IInternalFuncParams(Params) do
-    begin
-      Integer(F) := Get(0).AsInt;
-      if Integer(F) = 0 then
-        raise Exception.Create('Invalid file handle');
-      {$I-}
-      Readln(F^, S);
-      {$I+}
-      if IOResult <> 0 then
-        ResPtr^ := NULL
-      else
-        MakeStr(ResPtr^, S);
-    end;
+    const P = IInternalFuncParams(Params);
+    const F = FileGetHandle(P, 0);
+    {$I-}
+    Readln(F^, S);
+    {$I+}
+    if IOResult <> 0 then
+      P.ResPtr^ := NULL
+    else
+      MakeStr(P.ResPtr^, S);
   except
     on E: Exception do
     begin
@@ -1351,24 +1355,18 @@ end;
 
 function FileResetFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  F: ^TextFile;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
   try
-    with IInternalFuncParams(Params) do
-    begin
-      Integer(F) := Get(0).AsInt;
-      if Integer(F) = 0 then
-        raise Exception.Create('Invalid file handle');
-      {$I-}
-      Reset(F^);
-      {$I+}
-      if IOResult <> 0 then
-        raise Exception.Create('Failed to reset a file')
-      else
-        ResPtr^ := NULL
-    end;
+    const P = IInternalFuncParams(Params);
+    const F = FileGetHandle(P, 0);
+    {$I-}
+    Reset(F^);
+    {$I+}
+    if IOResult <> 0 then
+      raise Exception.Create('Failed to reset a file')
+    else
+      P.ResPtr^ := NULL
   except
     on E: Exception do
     begin
@@ -1381,24 +1379,19 @@ end;
 function FileEofFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
-  F: ^TextFile;
   IsEof: Boolean;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
   try
-    with IInternalFuncParams(Params) do
-    begin
-      Integer(F) := Get(0).AsInt;
-      if Integer(F) = 0 then
-        raise Exception.Create('Invalid file handle');
-      {$I-}
-      IsEof := Eof(F^);
-      {$I+}
-      if IOResult <> 0 then
-        ResPtr^ := NULL
-      else
-        MakeBool(ResPtr^, IsEof);
-    end;
+    const P = IInternalFuncParams(Params);
+    const F = FileGetHandle(P, 0);
+    {$I-}
+    IsEof := Eof(F^);
+    {$I+}
+    if IOResult <> 0 then
+      P.ResPtr^ := NULL
+    else
+      MakeBool(P.ResPtr^, IsEof);
   except
     on E: Exception do
     begin
@@ -1410,23 +1403,17 @@ end;
 
 function FileCloseFunc(Ext: Longint; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  F: ^TextFile;
 begin
   if CheckParams(Params, [evInt], 1, Result) then
   try
-    with IInternalFuncParams(Params) do
-    begin
-      Integer(F) := Get(0).AsInt;
-      if Integer(F) = 0 then
-        raise Exception.Create('Invalid file handle');
-      {$I-}
-      Close(F^);
-      {$I+}
-      ResPtr^ := NULL;
-      Dispose(F);
-      TPreprocessor(Ext).UncollectGarbage(Pointer(F));
-    end;
+    const P = IInternalFuncParams(Params);
+    const F = FileGetHandle(P, 0);
+    {$I-}
+    Close(F^);
+    {$I+}
+    P.ResPtr^ := NULL;
+    Dispose(F);
+    TPreprocessor(Ext).UncollectGarbage(Pointer(F));
   except
     on E: Exception do
     begin

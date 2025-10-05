@@ -153,8 +153,9 @@ type
 implementation
 
 uses
-  ISPP.Consts, ISPP.Funcs, ISPP.VarUtils, ISPP.Sessions, ISPP.CTokenizer, PathFunc,
-  Shared.CommonFunc, Shared.FileClass, Shared.Struct;
+  PathFunc, UnsignedFunc,
+  Shared.CommonFunc, Shared.FileClass, Shared.Struct,
+  ISPP.Consts, ISPP.Funcs, ISPP.VarUtils, ISPP.Sessions, ISPP.CTokenizer;
 
 const
   PreprocCommands: array[TPreprocessorCommand] of String =
@@ -179,7 +180,7 @@ var
 begin
   SetLength(Result, 255);
   repeat
-    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), Length(Result));
+    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), ULength(Result));
     if Res = 0 then begin
       Result := '';
       Break;
@@ -193,7 +194,7 @@ begin
   begin
     if (P^ = PpCmdSynonyms[Result]) then
       Inc(P)
-    else if (StrLIComp(P, @PreprocCommands[Result][1], Length(PreprocCommands[Result])) = 0) and
+    else if (StrLIComp(P, @PreprocCommands[Result][1], ULength(PreprocCommands[Result])) = 0) and
       CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
       Inc(P, Length(PreprocCommands[Result]))
     else
@@ -637,10 +638,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     Name: string;
     Start, P: PChar;
     IsMacroDefine: Boolean;
-    //Ident: string;
-    //Param: TIsppMacroParam;
     ParamList: PParamList;
-    AParamCount: Byte;
     AExpr: string;
     VarIndex: Integer;
     Scope: TDefineScope;
@@ -664,7 +662,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       if IsMacroDefine then
       begin
         NextToken;
-        AParamCount := ParseFormalParams(Parser, ParamList);
+        const AParamCount = ParseFormalParams(Parser, ParamList);
         try
           Inc(FExpr);
           P := FExpr;
