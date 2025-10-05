@@ -67,8 +67,8 @@ type
     FCompilerParams: TPreprocessScriptParams;
     FCompilerPath: string;
     FCounter: Integer;
-    FCurrentFile: Word;
-    FCurrentLine: Word;
+    FCurrentFile: Integer;
+    FCurrentLine: Integer;
     FDefaultScope: TDefineScope;
     FFileStack: TStringList;   { strs: files being included }
     FIncludes: TStringList;     { strs: files been included, for error msgs }
@@ -96,15 +96,15 @@ type
     function EmitDestination: TStringList;
     procedure SendMsg(Msg: string; Typ: TIsppMessageType);
     function GetFileName(Code: Integer): string;
-    function GetLineNumber(Code: Integer): Word;
+    function GetLineNumber(Code: Integer): Integer;
     procedure RaiseErrorEx(const Message: string; Column: Integer);
     procedure ExecProc(Body: TStrings);
   protected
     function GetDefaultScope: TDefineScope;
     procedure SetDefaultScope(Scope: TDefineScope);
-    procedure InternalAddLine(const LineRead: string; FileIndex, LineNo: Word;
+    procedure InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer;
       NonISS: Boolean);
-    function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Word;
+    function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Integer;
       NonISS: Boolean): Integer;
     function ParseFormalParams(Parser: TParser; var ParamList: PParamList): Integer;
     { IUnknown }
@@ -125,8 +125,8 @@ type
       const SourcePath: string; const CompilerPath: string; const FileName: string = '');
     destructor Destroy; override;
     procedure CallIdleProc;
-    procedure VerboseMsg(Level: Byte; const Msg: string); overload;
-    procedure VerboseMsg(Level: Byte; const Msg: string; const Args: array of const); overload;
+    procedure VerboseMsg(Level: Integer; const Msg: string); overload;
+    procedure VerboseMsg(Level: Integer; const Msg: string; const Args: array of const); overload;
     procedure StatusMsg(const Msg: string); overload;
     procedure StatusMsg(const Msg: string; const Args: array of const); overload;
     procedure WarningMsg(const Msg: string); overload;
@@ -284,15 +284,15 @@ begin
   if Code = -1 then
     Result := FIncludes[FCurrentFile]
   else
-    Result := FIncludes[Longint(FOutput.Objects[Code]) shr 16];
+    Result := FIncludes[Integer(FOutput.Objects[Code]) shr 16];
 end;
 
-function TPreprocessor.GetLineNumber(Code: Integer): Word;
+function TPreprocessor.GetLineNumber(Code: Integer): Integer;
 begin
   if Code = -1 then
     Result := FCurrentLine
   else
-    Result := Word(FOutput.Objects[Code]) and $FFFF
+    Result := Integer(FOutput.Objects[Code]) and $FFFF
 end;
 
 function TPreprocessor.GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
@@ -314,7 +314,7 @@ begin
   FLinePointer := 0;
 end;
 
-procedure TPreprocessor.InternalAddLine(const LineRead: string; FileIndex, LineNo: Word;
+procedure TPreprocessor.InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer;
   NonISS: Boolean);
 var
   IncludeLine: Boolean;
@@ -603,7 +603,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       Scope := GetScope(Parser);
       Name := CheckReservedIdent(TokenString);
       NextTokenExpect([tkOpenBracket]);
-      N := IntExpr(True);
+      N := IntegerExpr(True);
       NValues := 0;
       NextTokenExpect([tkCloseBracket]);
       if PeekAtNextToken = tkOpenBrace then
@@ -686,7 +686,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         if PeekAtNextToken = tkOpenBracket then
         begin
           NextToken;
-          VarIndex := IntExpr(True);
+          VarIndex := IntegerExpr(True);
           NextTokenExpect([tkCloseBracket]);
         end;
         case PeekAtNextToken of
@@ -821,7 +821,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         else if P = 'verboselevel' then
         begin
           Include(FOptions.Options, optVerbose);
-          FOptions.VerboseLevel := IntExpr(True);
+          FOptions.VerboseLevel := IntegerExpr(True);
           VerboseMsg(0, SChangedVerboseLevel, [FOptions.VerboseLevel]);
           EndOfExpr;
         end
@@ -1026,7 +1026,7 @@ begin
         end;
       pcFile: Params := DoFile(StrExpr(False));
       pcExecute: Evaluate;
-      pcGlue: Glue(IntExpr(False));
+      pcGlue: Glue(IntegerExpr(False));
       pcEndGlue: EndGlue;
       pcFor: ParseFor(Parser);
       pcProcedure: BeginProcDecl(Parser);
@@ -1040,7 +1040,7 @@ begin
 end;
 
 function TPreprocessor.InternalQueueLine(const LineRead: string;
-  FileIndex, LineNo: Word; NonISS: Boolean): Integer; //how many just been added
+  FileIndex, LineNo: Integer; NonISS: Boolean): Integer; //how many just been added
 var
   L: Integer;
 begin
@@ -1107,13 +1107,13 @@ begin
   FCompilerParams.IdleProc(FCompilerParams.CompilerData);
 end;
 
-procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string);
+procedure TPreprocessor.VerboseMsg(Level: Integer; const Msg: string);
 begin
   if (optVerbose in FOptions.Options) and (FOptions.VerboseLevel >= Level) then
     StatusMsg(Msg);
 end;
 
-procedure TPreprocessor.VerboseMsg(Level: Byte; const Msg: string;
+procedure TPreprocessor.VerboseMsg(Level: Integer; const Msg: string;
   const Args: array of const);
 begin
   VerboseMsg(Level, Format(Msg, Args));
@@ -1143,12 +1143,11 @@ procedure TPreprocessor.SendMsg(Msg: string; Typ: TIsppMessageType);
 const
   MsgPrefixes: array[TIsppMessageType] of string = ('', 'Warning: ');
 var
-  LineNumber: Word;
   FileName: String;
 begin
   Msg := MsgPrefixes[Typ] + Msg;
 
-  LineNumber := GetLineNumber(-1);
+  const LineNumber = GetLineNumber(-1);
   if LineNumber <> 0 then begin
     FileName := GetFileName(-1);
     if FileName <> '' then

@@ -43,8 +43,8 @@ type
     Value: array[0..0] of TIsppVariant;
   end;
 
-  TExprPosition = packed record
-    FileIndex, Line, Column: Word;
+  TExprPosition = record
+    FileIndex, Line, Column: Integer;
   end;
 
   PMacro = ^TMacro;
@@ -212,7 +212,11 @@ begin
     if (Name = '') or (CompareText(Name, 'INDEX') = 0) then
     begin
       if FIndex <> -1 then ErrorDefined('Index');
-      FIndex := ToInt(Value).AsInt;
+      try
+        FIndex := ToInt(Value).AsInteger;
+      except on E: Exception do
+        raise EIdentError(E.Message);
+      end;
     end
     else
       raise EIdentError.CreateFmt(SUnknownParam, [Name]);
@@ -331,7 +335,11 @@ begin
   if (Name = '') or (CompareText(Name, 'INDEX') = 0) then
   begin
     if FIndex <> -1 then ErrorDefined('Index');
-    FIndex := ToInt(Value).AsInt;
+    try
+      FIndex := ToInt(Value).AsInteger;
+    except on E: Exception do
+      raise EIdentError.Create(E.Message);
+    end;
   end
   else
     raise EIdentError.CreateFmt(SUnknownParam, [Name]);

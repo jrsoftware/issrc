@@ -87,7 +87,7 @@ var
     else if OptName = 'ISPP:Options' then
       Result := DecodeStringOptions(OptValue, ISPPOptions.Options)
     else if OptName = 'ISPP:VerboseLevel' then
-      Byte.TryParse(OptValue, ISPPOptions.VerboseLevel)
+      Integer.TryParse(OptValue, ISPPOptions.VerboseLevel)
     else if OptName = 'ISPP:InlineStart' then
       ISPPOptions.InlineStart := OptValue
     else if OptName = 'ISPP:InlineEnd' then

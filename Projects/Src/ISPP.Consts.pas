@@ -113,6 +113,10 @@ const
   SUndeclaredIdentifier = 'Undeclared identifier: %s';
   SWrongUnaryOperator = 'Wrong unary operator';
 
+  { TIsppVariant errors }
+
+  SRangeCheckError = 'Range check error';
+
 implementation
 
 end.

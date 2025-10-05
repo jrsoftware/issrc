@@ -26,7 +26,7 @@ type
   TIsppOptions = record
     ParserOptions: TIsppParserOptions;
     Options: TOptions;
-    VerboseLevel: Byte;
+    VerboseLevel: Integer;
     InlineStart: String;
     InlineEnd: String;
     SpanSymbol: Char;

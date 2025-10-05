@@ -567,24 +567,24 @@ begin
       Third := False;
       if GetCount > 2 then
       begin
-        Flags[0] := Get(2).AsInt;
+        Flags[0] := Get(2).AsInteger;
         if GetCount > 3 then
         begin
           Strs[1] := Get(3).AsStr;
           Second := True;
           if GetCount > 4 then
           begin
-            Flags[1] := Get(4).AsInt;
+            Flags[1] := Get(4).AsInteger;
             if GetCount > 5 then
             begin
               Strs[2] := Get(5).AsStr;
               Third := True;
-              if GetCount > 6 then Flags[2] := Get(6).AsInt;
+              if GetCount > 6 then Flags[2] := Get(6).AsInteger;
             end
           end;
         end
       end;
-      StartFromLine := Get(0).AsInt;
+      StartFromLine := Get(0).AsInteger;
       if StartFromLine < 0 then StartFromLine := 0;
       with TStringList(TPreprocessor(Ext).StringList) do
         for I := StartFromLine to Count - 1 do
@@ -635,7 +635,7 @@ begin
 end;
 
 function Exec(const Filename, Params: String; WorkingDir: String;
-  const WaitUntilTerminated: Boolean; const ShowCmd: Integer;
+  const WaitUntilTerminated: Boolean; const ShowCmd: Word;
   const Preprocessor: TPreprocessor; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: Integer): Boolean;
 var
@@ -685,7 +685,7 @@ begin
   Result := CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
     dwCreationFlags, nil, WorkingDirP, StartupInfo, ProcessInfo);
   if not Result then begin
-    ResultCode := GetLastError;
+    DWORD(ResultCode) := GetLastError;
     Exit;
   end;
 
@@ -742,11 +742,11 @@ begin
     begin
       var ParamsS, WorkingDir: String;
       var WaitUntilTerminated := True;
-      var ShowCmd := SW_SHOWNORMAL;
+      var ShowCmd: Word := SW_SHOWNORMAL;
       if GetCount > 1 then ParamsS := Get(1).AsStr;
       if GetCount > 2 then WorkingDir := PrependPath(Ext, Get(2).AsStr);
       if (GetCount > 3) and (Get(3).Typ <> evNull) then WaitUntilTerminated := Get(3).AsInt <> 0;
-      if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsInt;
+      if (GetCount > 4) and (Get(4).Typ <> evNull) then ShowCmd := Get(4).AsWord;
       var Preprocessor := TPreprocessor(Ext);
       var ResultCode: Integer;
       var OutputReader := TCreateProcessOutputReader.Create(ExecLog, NativeInt(Preprocessor));
@@ -1078,7 +1078,7 @@ begin
           GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf);
           if GetCount > 2 then
           begin
-            Lang := Get(2).AsInt;
+            Lang := Get(2).AsCardinal;
             Success := GetStringFileInfo(Lang, Get(1).AsStr, Value);
           end
           else
@@ -1189,7 +1189,7 @@ begin
       Filename := PrependPath(Ext, Get(0).AsStr);
       New(F);
       ResPtr^.Typ := evInt;
-      if FindFirst(Filename, Get(1).AsInt, F^) = 0 then
+      if FindFirst(Filename, Get(1).AsInteger, F^) = 0 then
       begin
         ResPtr^.AsInt := Integer(F);
         TPreprocessor(Ext).CollectGarbage(F, Addr(GarbageCloseFind));

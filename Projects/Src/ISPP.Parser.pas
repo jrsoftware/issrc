@@ -28,7 +28,7 @@ type
     function PerformOperation(Op1, Op2: TIsppVariant; Op: TTokenKind): TIsppVariant;
     function UnaryOperation(Op: TTokenKind; Op1: TIsppVariant): TIsppVariant;
   protected
-    function Chain(Level: Byte; DoEval: Boolean): TIsppVariant;
+    function Chain(Level: Integer; DoEval: Boolean): TIsppVariant;
     function Factor(DoEval: Boolean): TIsppVariant;
     function Assignment(DoEval: Boolean): TIsppVariant;
     function Conditional(DoEval: Boolean): TIsppVariant;
@@ -39,6 +39,7 @@ type
     function Evaluate: TIsppVariant;
     function Expr(const StopOnComma: Boolean; const DoMakeRValue: Boolean = False): TIsppVariant;
     function IntExpr(const StopOnComma: Boolean): Int64;
+    function IntegerExpr(const StopOnComma: Boolean): Integer;
     function StrExpr(const StopOnComma: Boolean): string;
   end;
 
@@ -427,7 +428,7 @@ const
      (Operators: [opAdd, opSubtract];   SCBE: scemNone; SCBEValue: False),
      (Operators: [opMul, opDiv, opMod]; SCBE: scemOptional; SCBEValue: False));
 
-function TParser.Chain(Level: Byte; DoEval: Boolean): TIsppVariant;
+function TParser.Chain(Level: Integer; DoEval: Boolean): TIsppVariant;
 
   function CallNext: TIsppVariant;
   begin
@@ -472,13 +473,26 @@ end;
 
 function TParser.IntExpr(const StopOnComma: Boolean): Int64;
 begin
+  Result := 0; { silence compiler }
   var V := Expr(StopOnComma, True);
   if V.Typ = evInt then
     Result := V.AsInt
-  else begin
-    Result := 0; { silence compiler }
+  else
     Error(SIntegerExpressionExpected);
-  end;
+end;
+
+function TParser.IntegerExpr(const StopOnComma: Boolean): Integer;
+begin
+  Result := 0; { silence compiler }
+  var V := Expr(StopOnComma, True);
+  if V.Typ = evInt then begin
+    try
+      Result := V.AsInteger;
+    except on E: Exception do
+      Error(E.Message);
+    end;
+  end else
+    Error(SIntegerExpressionExpected);
 end;
 
 function TParser.StrExpr(const StopOnComma: Boolean): string;
