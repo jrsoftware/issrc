@@ -474,7 +474,7 @@ begin
         if S <> '' then IsppOptions.InlineEnd := S;
       end
       else if IsppMode and GetParam(S, 'V') then begin
-        Integer.TryParse(S, IsppOptions.VerboseLevel);
+        if S <> '' then IsppOptions.VerboseLevel := StrToIntDef(S, 0);
       end
       else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
