@@ -727,7 +727,7 @@ begin
 end;
 
 procedure TIdentManager.DefineFunction(const Name: string;
-  Handler: TIsppFunction; Ext: Integer);
+  Handler: TIsppFunction; Ext: NativeInt);
 var
   F: PFunc;
 begin
