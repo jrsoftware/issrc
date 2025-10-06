@@ -20,13 +20,35 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage,
+  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
-  ExtCtrls, UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Shared.SetupTypes, PasswordEdit,
-  FolderTreeView, BitmapButton, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
-  Setup.UninstallProgressForm;
+  UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, BidiCtrls,
+  Shared.SetupTypes, Shared.CommonFunc.Vcl,
+  Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.ScriptDlg, Setup.UninstallProgressForm;
+
+procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
+
+procedure TControlParentW(Self: TControl; T: TWinControl);
+begin
+  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
+    from scaling the control. Also see TSetupForm.CreateWnd.  }
+  Self.SetCurrentPPI(T.CurrentPPI);
+  Self.Parent := T;
+end;
+
+procedure RegisterControl_R(Cl: TPSRuntimeClassImporter);
+begin
+  RIRegisterTControl(Cl);
+
+  with Cl.FindClass(AnsiString(TControl.ClassName)) do
+  begin
+    { This overrides the property helper added by RIRegisterTControl, because uPSRuntime's SpecImport
+      starts at the end of the FClassItems list when looking for property helpers }
+    RegisterPropertyHelper(@TControlParentR, @TControlParentW, 'Parent');
+  end;
+end;
 
 type
   TWinControlAccess = class(TWinControl);
@@ -207,8 +229,15 @@ begin
   end;
 end;
 
-procedure TNewNotebookPageNotebook_W(Self: TNewNotebookPage; const T: TNewNotebook); begin Self.Notebook := T; end;
 procedure TNewNotebookPageNotebook_R(Self: TNewNotebookPage; var T: TNewNotebook); begin T := Self.Notebook; end;
+
+procedure TNewNotebookPageNotebook_W(Self: TNewNotebookPage; const T: TNewNotebook);
+begin
+  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
+    from scaling the control. Also see TSetupForm.CreateWnd.  }
+  Self.SetCurrentPPI(T.CurrentPPI);
+  Self.Notebook := T;
+end;
 
 procedure RegisterNewNotebookPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -417,7 +446,7 @@ begin
     RIRegisterTBitmap(Cl, True);
 
     { Controls }
-    RIRegisterTControl(Cl);
+    RegisterControl_R(Cl);
     RegisterWinControl_R(Cl);
     RIRegisterTGraphicControl(Cl);
     RIRegisterTCustomControl(Cl);

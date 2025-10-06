@@ -1396,6 +1396,9 @@ begin
     FNextPageID := 100;
 
   NotebookPage := TNewNotebookPage.Create(APage);
+  { Set CurrentPPI of the page to the CurrentPPI of the notebook, preventing VCL from scaling
+    controls placed on the page. Also see TSetupForm.CreateWnd.  }
+  NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
   NotebookPage.Notebook := InnerNotebook;
   NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
   APage.FID := FNextPageID;

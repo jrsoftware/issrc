@@ -179,6 +179,17 @@ begin
     Result := False;
 end;
 
+function GetPPI(const Wnd: HWND): Integer;
+begin
+  { Based on TSysStyleHook.GetCurrentPPI }
+  if CheckPerMonitorV2SupportForWindow(Wnd) then begin { Currently always False in Setup }
+    { GetDPIForWindow requires Windows 10 version 1607. However, because it is delay-loaded and it's
+      never executed on older versions of Windows, it does not cause entry point not found errors. }
+    Result := GetDPIForWindow(Wnd)
+  end else
+    Result := Screen.PixelsPerInch;
+end;
+
 { TSetupForm }
 
 constructor TSetupForm.Create(AOwner: TComponent);
@@ -343,16 +354,16 @@ end;
 
 procedure TSetupForm.CreateWnd;
 
-  function GetPPI: Integer;
+  procedure SetControlsCurrentPPI(const Ctl: TWinControl; const PPI: Integer);
   begin
-    { Based on TSysStyleHook.GetCurrentPPI. Can't use the CurrentPPI property because it's only set
-      correctly if Scaled is True, but it's False in Setup. }
-    if CheckPerMonitorV2SupportForWindow(Handle) then begin { Currently always False in Setup }
-      { GetDPIForWindow requires Windows 10 version 1607. However, because it is delay-loaded and it's
-        never executed on older versions of Windows, it does not cause entry point not found errors. }
-      Result := GetDPIForWindow(Handle)
-    end else
-      Result := Screen.PixelsPerInch;
+    for var I := 0 to Ctl.ControlCount-1 do begin
+      const C = Ctl.Controls[I];
+      if C is TWinControl then begin
+        SetControlsCurrentPPI(TWinControl(C), PPI);
+        C.SetCurrentPPI(PPI);
+      end else
+        C.SetCurrentPPI(PPI)
+    end;
   end;
 
 begin
@@ -370,9 +381,25 @@ begin
       StyleElements := StyleElements - [seBorder];
   end;
 
-  { Styled form captions don't work correctly on high DPI, because they depend on a correct CurrentPPI }
-  if (GetPPI > 96) and (seBorder in StyleElements) then
-    StyleElements := StyleElements - [seBorder];
+  { We don't use the Scaled property for scaling and this means the CurrentPPI property will not be
+    set correctly. This causes problems when VCL code inspects it, for example in THintWindow.CalcHintRect
+    and FormStyleHook.GetBorderSize. So we should update it ourselves by directly writing to the
+    FCurrentPPI private variable of the form and all controls on it, which we can do using a class
+    helper. Note: Doing it later for the form causes issues with incorrect non-client vs. client size
+    when styled title bars are enabled. }
+
+  const PPI = GetPPI(Handle);
+  SetCurrentPPI(PPI);
+  SetControlsCurrentPPI(Self, PPI);
+  
+  { Now that CurrentPPI of the form is set you must make sure that any controls you later parent to
+    the form already have the same CurrentPPI, otherwise VCL will scale the controls. Currently this
+    is done in:
+    -Setup.ScriptClasses's TControlParentW and TNewNotebookPageNotebook_W
+    -Setup.ScriptDlg's SetCtlParent
+    -TWizardForm.AddPage
+    To debug/detect scaling add a breakpoint in Vcl.Controls' TWinControl.ChangeScale and set project
+    option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }
 end;
 
 procedure TSetupForm.FlipControlsIfNeeded;
@@ -552,7 +579,7 @@ begin
     propagated out, which is what we want }
   if not Visible then
     FlipSizeAndCenterIfNeeded;
-end;
+  end;
 
 procedure TSetupForm.CMShowingChanged(var Message: TMessage);
 begin
