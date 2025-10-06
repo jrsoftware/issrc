@@ -123,11 +123,12 @@ end;
 
 {$IFDEF VCLSTYLES}
 
-{ TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it
-  fixes RTL support for CommandLinkHint, adds padding to the right side of the button, and actually
-  flipping the text and icons & it improves alignment of the shield icons, especially at high dpi &
-  it avoids drawing empty notes - for other button styles it just calls the original code, and the
-  code for those styles is not copied here }
+{ TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it:
+  -Fixes RTL support for CommandLinkHint
+  -Actually flips the text and icons on RTL
+  -Improves alignment of shield icons, especially at high dpi
+  -Avoids drawing empty notes
+  For other button styles it just calls the original code, and the code for those styles is not copied here }
 
 procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
 var
@@ -212,7 +213,6 @@ begin
   Inc(DrawRect.Left, IW);
   Inc(DrawRect.Top, 15);
   Inc(DrawRect.Left, 5);
-  Dec(DrawRect.Right, 5);
   ACanvas.Font := TNewButton(Control).Font;
   ACanvas.Font.Style := [];
   ACanvas.Font.Size := 12;
