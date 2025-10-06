@@ -249,15 +249,15 @@ begin
     LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
   end;
   SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
-  if Length(Buffer) <> 0 then
+  if Length(Buffer) > 1 then
   begin
     BufferLength := Length(Buffer);
-    if Button_GetNote(Handle, PChar(Buffer), BufferLength) and (PChar(Buffer) <> '') then
+    if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
     begin
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
       ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       R := DrawRect;
-      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+     TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, R, TextFormat, ACanvas.Font.Color);
       if R.Bottom > Result then
         Result := R.Bottom;
