@@ -218,16 +218,16 @@ begin
   ACanvas.Font := TNewButton(Control).Font;
   R := DrawRect;
   TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
-  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color); { R is used below for the note }
-  RSingleLine := DrawRect;
-  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
-  LStyle.DrawText(ACanvas.Handle, Details, BCaption, RSingleLine, TextFormat, ACanvas.Font.Color); { RSingleLine is used below for the glyphs }
+  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color); { R is used directly below for measuring, and later also for the note }
   Result := R.Bottom;
   if Draw then begin
-    { Does not use any DT_CALCRECT results }
+    RSingleLine := DrawRect;
+    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
+    LStyle.DrawText(ACanvas.Handle, Details, BCaption, RSingleLine, TextFormat, ACanvas.Font.Color); { RSingleLine is used below for the glyphs }
+    { Following does not use any DT_CALCRECT results }
     TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
     if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
-       ACanvas.Font.Color := ThemeTextColor;
+      ACanvas.Font.Color := ThemeTextColor;
     var R2 := DrawRect;
     FlipRect(R2, LParentRect, LIsRightToLeft);
     LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
@@ -246,7 +246,7 @@ begin
       if R.Bottom > Result then
         Result := R.Bottom;
       if Draw then begin
-        { Does not use any DT_CALCRECT results }
+        { Following does not use any DT_CALCRECT results }
         TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
         FlipRect(DrawRect, LParentRect, LIsRightToLeft);
         LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect, TextFormat, ACanvas.Font.Color);
@@ -255,6 +255,9 @@ begin
   end;
 
   Inc(Result, 15);
+
+  if not Draw then
+    Exit;
 
   if Button_GetImageList(handle, IL) and (IL.himl <> 0) and
      ImageList_GetIconSize(IL.himl, IW, IH) then
