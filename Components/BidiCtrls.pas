@@ -128,6 +128,7 @@ end;
   -Actually flips the text and icons on RTL
   -Improves alignment of shield icons, especially at high dpi
   -Avoids drawing empty notes
+  -Respects the font of the control
   For other button styles it just calls the original code, and the code for those styles is not copied here }
 
 procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
@@ -214,8 +215,6 @@ begin
   Inc(DrawRect.Top, 15);
   Inc(DrawRect.Left, 5);
   ACanvas.Font := TNewButton(Control).Font;
-  ACanvas.Font.Style := [];
-  ACanvas.Font.Size := 12;
   R := DrawRect;
   TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
   LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color);
@@ -233,7 +232,7 @@ begin
     begin
       TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
-      ACanvas.Font.Size := 8;
+      ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       FlipRect(DrawRect, LParentRect, LIsRightToLeft);
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
       TextFormat, ACanvas.Font.Color);
