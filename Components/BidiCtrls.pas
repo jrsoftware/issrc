@@ -257,7 +257,7 @@ begin
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
       ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       R := DrawRect;
-     TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, R, TextFormat, ACanvas.Font.Color);
       if R.Bottom > Result then
         Result := R.Bottom;
