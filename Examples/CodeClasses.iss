@@ -13,7 +13,7 @@ DefaultGroupName=My Program
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 
-; Uncomment the following three lines to test the layout when scaling and rtl are active
+; Uncomment the following three lines to test the layout for RTL and scaling
 ;[LangOptions]
 ;RightToLeft=yes
 ;DialogFontSize=12

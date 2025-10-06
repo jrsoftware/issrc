@@ -24,12 +24,13 @@ OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
 ; This makes a task dialog show at startup
-; UsePreviousPrivileges=no
-; PrivilegesRequiredOverridesAllowed=dialog
+;UsePreviousPrivileges=no
+;PrivilegesRequiredOverridesAllowed=dialog
 
-; This enables RTL for testing
-; [LangOptions]
-; RightToLeft=true
+; This enables RTL and scaling for testing
+;[LangOptions]
+;RightToLeft=true
+;DialogFontSize=12
 
 [Languages]
 Name: en; MessagesFile: "..\..\Files\Default.isl"
