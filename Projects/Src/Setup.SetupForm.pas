@@ -77,7 +77,6 @@ type
   end;
 
 procedure CalculateBaseUnitsFromFont(const Font: TFont; var X, Y: Integer);
-function GetRectOfPrimaryMonitor(const WorkArea: Boolean): TRect;
 function SetFontNameSize(const AFont: TFont; const AName: String;
   const ASize: Integer; const AFallbackName: String;
   const AFallbackSize: Integer): Boolean;
