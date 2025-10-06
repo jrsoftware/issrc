@@ -227,9 +227,8 @@ begin
       FlipRect(R, LParentRect, LIsRightToLeft);
       ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
     end;
-    Result := R.Bottom;
-  end else
-    Result := 0;
+  end;
+
   IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
   Inc(DrawRect.Left, IW);
   Inc(DrawRect.Top, 15);
@@ -238,8 +237,7 @@ begin
   R := DrawRect;
   TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
   LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color);
-  if R.Bottom > Result then
-    Result := R.Bottom;
+  Result := R.Bottom;
   if Draw then begin
     TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
     if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
@@ -302,8 +300,7 @@ begin
         end;
       end else
         LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
-    end else if DrawRect.Bottom > Result then
-      Result := DrawRect.Bottom;
+    end;
   end;
 
   Inc(Result, 15);
