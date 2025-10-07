@@ -215,7 +215,7 @@ begin
   Inc(DrawRect.Left, IW);
   Inc(DrawRect.Top, 15);
   Inc(DrawRect.Left, 5);
-  ACanvas.Font := TNewButton(Control).Font;
+  ACanvas.Font := Control.Font;
   R := DrawRect;
   TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
   LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color); { R is used directly below for measuring, and later also for the note }
