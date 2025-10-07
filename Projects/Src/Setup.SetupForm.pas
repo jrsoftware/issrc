@@ -55,7 +55,7 @@ type
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
-    procedure InitializeFont;
+    procedure InitializeFont(FontName: String = ''; FontSize: Integer = 0);
     function ScalePixelsX(const N: Integer): Integer;
     function ScalePixelsY(const N: Integer): Integer;
     function ShouldSizeX: Boolean;
@@ -450,7 +450,7 @@ end;
 type
   TControlAccess = class(TControl);
 
-procedure TSetupForm.InitializeFont;
+procedure TSetupForm.InitializeFont(FontName: String; FontSize: Integer);
 
   procedure NewChangeScale(const Ctl: TControl; const XM, XD, YM, YD: Integer);
   var
@@ -527,9 +527,12 @@ var
   R: TRect;
 begin
   { Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
-    InitializeScaleBaseUnits }
-  SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
-    '', 8);
+    InitializeScaleBaseUnits, except for the font parameters handling }
+  if (FontName = '') or (FontSize = 0) or not FontExists(FontName) then begin
+    FontName := LangOptions.DialogFontName;
+    FontSize := LangOptions.DialogFontSize;
+  end;
+  SetFontNameSize(Font, FontName, FontSize, '', 8);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
