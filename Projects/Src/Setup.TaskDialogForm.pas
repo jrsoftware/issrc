@@ -128,7 +128,10 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  InitializeFont('Segoe UI', 8);
+  if not SameText(LangOptions.DialogFontName, 'Segoe UI') then
+    InitializeFont('Segoe UI', 8)
+  else
+    InitializeFont;
 
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
