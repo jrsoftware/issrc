@@ -3198,6 +3198,24 @@ end;</pre></example>
         <description><p>Beeps.</p></description>
         <example><pre>Beep; //Beeps</pre></example>
       </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Round</name>
+        <prototype>function Round(const E: Extended): Int64;</prototype>
+        <description><p>Returns the value of E rounded to the integer number.</p></description>
+        <remarks><p>If E is exactly halfway between two integer numbers, the result is always the even number. This method of rounding is often called "Banker's rounding."</p></remarks>
+      </function>
+      <function>
+        <name>Trunc</name>
+        <prototype>function Trunc(const E: Extended): Int64;</prototype>
+        <description><p>Returns the truncated value of E; that is, E rounded toward zero, as an integer number.</p></description>
+      </function>
+      <function>
+        <name>Int</name>
+        <prototype>function Int(const E: Extended): Extended;</prototype>
+        <description><p>Returns the integer part of E; that is, E rounded toward zero.</p></description>
+      </function>
       <function>
         <name>Set8087CW</name>
         <prototype>procedure Set8087CW(NewCW: Word);</prototype>

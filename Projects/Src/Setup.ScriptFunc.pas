@@ -20,7 +20,7 @@ implementation
 
 uses
   Windows,
-  Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections,
+  Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections, Math,
   uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage, PSStackHelper,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc, SetupLdrAndSetup.InstFunc,
@@ -1920,6 +1920,20 @@ var
         FreeAndNil(F);
 
       Stack.SetClass(PStart, F);
+    end);
+    RegisterScriptFunc('Round', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      const SaveRoundMode = GetRoundMode;
+      try
+        SetRoundMode(rmNearest);
+        Stack.SetInt64(PStart, Round(Stack.GetReal(PStart-1)));
+      finally
+        SetRoundMode(SaveRoundMode);
+      end;
+    end);
+    RegisterScriptFunc('Trunc', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetInt64(PStart, Trunc(Stack.GetReal(PStart-1)));
     end);
   end;
 
