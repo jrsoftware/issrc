@@ -549,6 +549,7 @@ begin
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
       RestoreAnchors(Self, ControlAnchorsList);
+      ControlAnchorsList.Free;
     end;
   end;
 end;
