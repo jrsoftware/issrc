@@ -388,20 +388,24 @@ var
   I: Integer;
 begin
   try
+    {$IFDEF DEBUG}
+    ReportMemoryLeaksOnShutdown := True;
+    {$ENDIF}
+
     { Ensure all of SetupLdr is paged in so that in the case of a disk spanning
       install Windows will never complain when the disk/CD containing SetupLdr
       is ejected. }
     RunImageLocally(HInstance);
 
     ProcessCommandLine;
-    
+
     SelfFilename := NewParamStr(0);
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
     try
       OffsetTable := GetSetupLdrOffsetTable;
       { Note: We don't check the OffsetTable.ID here because it would put a
         copy of the ID in the data section, and that would confuse external
-        programs that search for the offset table by ID. } 
+        programs that search for the offset table by ID. }
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
          (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
          (SourceF.Size < OffsetTable.TotalSize) then
@@ -416,7 +420,7 @@ begin
       SourceF.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
       SourceF.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
       if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
-         SetupCorruptError;
+        SetupCorruptError;
 
       var CryptKey: TSetupEncryptionKey;
       if SetupEncryptionHeader.EncryptionUse = euFull then begin
