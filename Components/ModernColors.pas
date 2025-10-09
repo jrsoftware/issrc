@@ -12,7 +12,7 @@ unit ModernColors;
 interface
 
 uses
-  Graphics;
+  Vcl.Graphics;
 
 type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
@@ -36,6 +36,9 @@ type
   end;
 
 implementation
+
+uses
+  Winapi.Windows;
 
 function TTheme.FGetColor(Color: TThemeColor): TColor;
 const
@@ -126,12 +129,9 @@ const
   
 begin
   Result := Colors[FType, Color];
-  if Result and $FF000000 = 0 then begin
+  if Result > 0 then begin { Same check as ColorToRGB }
     { Not a system color so change RGB to BGR as Delphi requires }
-    const R = (Result shr 16) and $FF;
-    const G = (Result shr 8) and $FF;
-    const B = Result and $FF;
-    Result := (B shl 16) or (G shl 8) or R;
+    Result := RGB(GetBValue(Result), GetGValue(Result), GetRValue(Result));
   end;
 end;
 
