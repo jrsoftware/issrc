@@ -209,6 +209,7 @@ begin
   CommandLinkButton.Caption := 'TNewButton bsCommandLink style';
   CommandLinkButton.CommandLinkHint := 'A note';
   //CommandLinkButton.ElevationRequired := True;
+  CommandLinkButton.Font.Size := Round(CommandLinkButton.Font.Size * 12 / 8);
   CommandLinkButton.Top := FormButton.Top;
   CommandLinkButton.Left := TaskDialogButton.Left + TaskDialogButton.Width + ScaleX(8);
   CommandLinkButton.Width := Page.Surface.Width - CommandLinkButton.Left;
