@@ -3167,6 +3167,7 @@ begin
           WizardIconsPostfix := '_DARK';
         end;
         if not HighContrastActive then begin
+          TStyleManager.AutoDiscoverStyleResources := False;
           { Also see comment above }
           var StyleName := 'MYSTYLE1';
           if IsDynamicDark then
