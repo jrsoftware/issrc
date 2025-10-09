@@ -179,7 +179,7 @@ begin
   Memo := TNewMemo.Create(Page);
   Memo.Top := Edit.Top + Edit.Height + ScaleY(8);
   Memo.Width := Page.SurfaceWidth;
-  Memo.Height := ScaleY(79);
+  Memo.Height := ScaleY(70);
   Memo.Anchors := [akLeft, akTop, akRight, akBottom];
   Memo.ScrollBars := ssVertical;
   Memo.Text := 'TNewMemo';
@@ -206,7 +206,7 @@ begin
   
   CommandLinkButton := TNewButton.Create(Page);
   CommandLinkButton.Style := bsCommandLink;
-  CommandLinkButton.Caption := 'TNewButton bsCommandLink style';
+  CommandLinkButton.Caption := 'TNewButton bsCommandLink';
   CommandLinkButton.CommandLinkHint := 'A note';
   //CommandLinkButton.ElevationRequired := True;
   CommandLinkButton.Font.Size := Round(CommandLinkButton.Font.Size * 12 / 8);
