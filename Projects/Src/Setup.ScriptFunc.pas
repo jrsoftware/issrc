@@ -1939,6 +1939,13 @@ var
     begin
       Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), Stack.GetInt(PStart-2), Stack.GetInt(PStart-3)));
     end);
+    RegisterScriptFunc('StrToColor', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      var Hex := Stack.GetString(PStart-1);
+      if (Length(Hex) = 7) and (Hex[1] = '#') then
+        Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
+      Stack.SetInt(PStart, SysUtils.StrToInt(Hex));
+    end);
   end;
 
   procedure RegisterDelphiFunction(ProcPtr: Pointer; const Name: AnsiString);

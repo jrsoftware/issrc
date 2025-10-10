@@ -554,7 +554,8 @@ initialization
     'function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;',
     'function Round(const E: Extended): Int64;',
     'function Trunc(const E: Extended): Int64;',
-    'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;'
+    'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;',
+    'function StrToColor(const S: String): TColor;'
   ];
 
   {$IFDEF COMPIL32PROJ}

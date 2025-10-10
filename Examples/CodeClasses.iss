@@ -263,9 +263,9 @@ begin
   StaticText3.Parent := Page.Surface;
   StaticText3.StyleElements := StaticText3.StyleElements - [seFont];
   if IsDarkInstallMode then
-    StaticText3.Font.Color := $6C5ED9
+    StaticText3.Font.Color := StrToColor('#D95E6C')
   else
-    StaticText3.Font.Color := $5241d2;
+    StaticText3.Font.Color := StrToColor('#D24152');
 
   LinkLabel := TNewLinkLabel.Create(Page);
   LinkLabel.AutoSize := False;

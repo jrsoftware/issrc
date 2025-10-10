@@ -1013,7 +1013,7 @@ end;
       <function>
         <name>StrToInt</name>
         <prototype>function StrToInt(S: String): LongInt;</prototype>
-        <description><p>The StrToInt function converts the string passed in S into a number.</p></description>
+        <description><p>The StrToInt function converts the string passed in S into a number. Returns -1 if not successful.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
@@ -1024,13 +1024,18 @@ end;
       <function>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(S: String): Int64;</prototype>
-        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number.</p></description>
+        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number. Raises an exception if not successful.</p></description>
         <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToFloat</name>
         <prototype>function StrToFloat(S: String): Extended;</prototype>
-        <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot.</p></description>
+        <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot. Raises an exception if not successful.</p></description>
+      </function>
+      <function>
+        <name>StrToColor</name>
+        <prototype>function StrToColor(S: String): TColor;</prototype>
+        <description><p>The StrToColor function converts the string passed in S, formatted as <tt>'#rrggbb'</tt>, into a color. Raises an exception if not successful.</p></description>
       </function>
       <function>
         <name>IntToStr</name>
@@ -1040,7 +1045,7 @@ end;
       <function>
         <name>FloatToStr</name>
         <prototype>function FloatToStr(E: Extended): String;</prototype>
-        <description><p>The FloatToStr function converts a floating point number into a string.</p><p>The character used for the decimal point will always be a dot.</p></description>
+        <description><p>The FloatToStr function converts a floating point number into a string. The character used for the decimal point will always be a dot.</p></description>
       </function>
     </subcategory>
     <subcategory>
