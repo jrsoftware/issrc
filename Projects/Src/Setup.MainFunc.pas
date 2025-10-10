@@ -3151,7 +3151,7 @@ begin
           resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
           it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
           also use ZIRCON. To test Uninstall styling use a real Setup compiled by the
-          compiler.  }
+          compiler. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
