@@ -136,8 +136,8 @@ implementation
 }
 
 uses
-  ShellAPI, Types,
-  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
+  ShellAPI, Types, GraphUtil,
+  {$IFDEF VCLSTYLES} Vcl.Themes, ComCtrls, {$ELSE} Themes, {$ENDIF}
   PathFunc, NewUxTheme;
 
 const
@@ -344,7 +344,7 @@ type
 
 class constructor TCustomFolderTreeView.Create;
 begin
-  TCustomStyleEngine.RegisterStyleHook(TCustomFolderTreeView, TScrollingStyleHook);
+  TCustomStyleEngine.RegisterStyleHook(TCustomFolderTreeView, TTreeViewStyleHook);
 end;
 
 constructor TCustomFolderTreeView.Create(AOwner: TComponent);
@@ -386,34 +386,25 @@ var
 begin
   FDestroyingHandle := False;
   inherited;
+  TreeView_SetBkColor(Handle, ColorToRGB(Color));
+  TreeView_SetTextColor(Handle, ColorToRGB(Font.Color));
   FDirectory := '';
   if csDesigning in ComponentState then
     Exit;
 
- { Initialize style colors }
-  var LStyle := StyleServices;
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
-  if (LStyle <> nil) and (seClient in StyleElements) then begin
-    TreeView_SetBkColor(Handle, ColorToRGB(LStyle.GetStyleColor(scTreeview)));
-    TreeView_SetTextColor(Handle, ColorToRGB(LStyle.GetStyleFontColor(sfTreeItemTextNormal)));
-  end;
-
-  { Enable the new Explorer-style look, but only if the background color is bright since this look
-    uses alpha blending which only works well with bright colors }
+  { Enable the new Explorer-style look }
   if Assigned(SetWindowTheme) then begin
-    const BkColor = TreeView_GetBkColor(Handle);
-    const Brightness = { See https://stackoverflow.com/a/596243 }
-      (Integer(GetRValue(BkColor)) * 299 +
-       Integer(GetGValue(BkColor)) * 587 +
-       Integer(GetBValue(BkColor)) * 114) div 1000;
-    if Brightness >= 192 then begin
-      SetWindowTheme(Handle, 'Explorer', nil);
-      { Like Explorer, enable double buffering to avoid flicker when the mouse
-        is moved across the items }
-      SendMessage(Handle, TVM_SETEXTENDEDSTYLE, TVS_EX_DOUBLEBUFFER,
-        TVS_EX_DOUBLEBUFFER);
-    end;
+    var LStyle := StyleServices;
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+     LStyle := nil;
+     if (LStyle = nil) or ColorIsBright(LStyle.GetSystemColor(clWindow)) then
+      SetWindowTheme(Handle, 'Explorer', nil)
+    else
+      SetWindowTheme(Handle, 'DarkMode_Explorer', nil);
+    { Like Explorer, enable double buffering to avoid flicker when the mouse
+      is moved across the items }
+    SendMessage(Handle, TVM_SETEXTENDEDSTYLE, TVS_EX_DOUBLEBUFFER,
+      TVS_EX_DOUBLEBUFFER);
   end;
 
   { Initialize the image list }
@@ -432,7 +423,7 @@ end;
 
 class destructor TCustomFolderTreeView.Destroy;
 begin
-  TCustomStyleEngine.UnRegisterStyleHook(TCustomFolderTreeView, TScrollingStyleHook);
+  TCustomStyleEngine.UnRegisterStyleHook(TCustomFolderTreeView, TTreeViewStyleHook);
 end;
 
 procedure TCustomFolderTreeView.WMDestroy(var Message: TWMDestroy);
