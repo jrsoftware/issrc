@@ -1024,13 +1024,15 @@ begin
             { Delete taskform icons we don't need }
             TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
             if not HasLightStyle then begin
-              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON'));
               DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_HELPICON'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON'));
               DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON'));
             end;
             if not HasDarkStyle then begin
-              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
               DeleteIcon(H, M, PChar('Z_TASKFORM_ERRORICON_DARK'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_HELPICON_DARK'));
+              DeleteIcon(H, M, PChar('Z_TASKFORM_INFOICON_DARK'));
               DeleteIcon(H, M, PChar('Z_TASKFORM_WARNICON_DARK'));
             end;
           end;
