@@ -397,7 +397,7 @@ begin
     var LStyle := StyleServices;
     if not LStyle.Enabled or LStyle.IsSystemStyle then
      LStyle := nil;
-     if (LStyle = nil) or ColorIsBright(LStyle.GetSystemColor(clWindow)) then
+    if (LStyle = nil) or ColorIsBright(LStyle.GetSystemColor(clWindow)) then
       SetWindowTheme(Handle, 'Explorer', nil)
     else
       SetWindowTheme(Handle, 'DarkMode_Explorer', nil);
