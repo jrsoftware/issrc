@@ -1935,6 +1935,10 @@ var
     begin
       Stack.SetInt64(PStart, Trunc(Stack.GetReal(PStart-1)));
     end);
+    RegisterScriptFunc('MulDiv', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      Stack.SetInt(PStart, MulDiv(Stack.GetInt(PStart-1), Stack.GetInt(PStart-2), Stack.GetInt(PStart-3)));
+    end);
   end;
 
   procedure RegisterDelphiFunction(ProcPtr: Pointer; const Name: AnsiString);

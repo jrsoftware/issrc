@@ -553,7 +553,8 @@ initialization
     'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;',
     'function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;',
     'function Round(const E: Extended): Int64;',
-    'function Trunc(const E: Extended): Int64;'
+    'function Trunc(const E: Extended): Int64;',
+    'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;'
   ];
 
   {$IFDEF COMPIL32PROJ}

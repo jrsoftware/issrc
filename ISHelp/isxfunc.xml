@@ -3217,6 +3217,12 @@ end;</pre></example>
         <description><p>Returns the integer part of E; that is, E rounded toward zero.</p></description>
       </function>
       <function>
+        <name>MulDiv</name>
+        <prototype>function MulDiv(const Number, Numerator, Denominator: Integer): Integer;</prototype>
+        <description><p>Multiplies two 32-bit values (Number and Numerator) and then divides the 64-bit result by a third 32-bit value (Denominator). The final result is rounded to the nearest integer.</p></description>
+        <remarks><p>If the result is a positive half integer (ends in .5), it is rounded up. If the result is a negative half integer, it is rounded down.</p></remarks>
+      </function>
+      <function>
         <name>Set8087CW</name>
         <prototype>procedure Set8087CW(NewCW: Word);</prototype>
         <description><p>Sets the FPU control word.</p></description>
