@@ -505,10 +505,9 @@ begin
 
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     var MainIconPostfix := '';
-    var WizardIconsPostfix := '';
     IsWinDark := DarkModeActive;
     const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
-    const IsForcedDark = (ufWizardDarkStyleDark in UninstLog.Flags);
+    const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
     if IsDynamicDark then
       MainIconPostfix := '_DARK';
     if IsDynamicDark or IsForcedDark then begin

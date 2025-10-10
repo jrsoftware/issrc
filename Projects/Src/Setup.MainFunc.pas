@@ -3155,7 +3155,7 @@ begin
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
-        const IsForcedDark = (SetupHeader.WizardDarkStyle = wdsDark);
+        const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
         if IsDynamicDark then begin
           SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
           SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
