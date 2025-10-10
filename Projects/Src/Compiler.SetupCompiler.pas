@@ -2581,8 +2581,8 @@ var
       'classic', 'modern',
       'light', 'dark', 'dynamic',
       'includetitlebar',
-      'polar', 'slate', 'zircon'];
-    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3];
+      'polar', 'slate', 'windows11', 'zircon'];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3, 3];
   var
     StylesGroupSeen: array [0..3] of Boolean;
   begin
@@ -2605,7 +2605,7 @@ var
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
         5: Include(SetupHeader.Options, shWizardBorderStyled);
-        6..8: WizardStyleSpecial := Styles[R];
+        6..9: WizardStyleSpecial := Styles[R];
       end;
     end;
   end;
