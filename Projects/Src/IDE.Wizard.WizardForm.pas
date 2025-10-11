@@ -886,6 +886,7 @@ begin
     PreviewForm.AutoSize := True;
     PreviewForm.BorderStyle := bsNone;
     PreviewForm.BorderIcons := [];
+    PreviewForm.Color := clWindow;
     PreviewForm.KeyPreview := True;
     PreviewForm.OnKeyDown := WizardStyleImagePreviewKeyDown;
 
