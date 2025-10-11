@@ -3541,6 +3541,12 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsDialogFontName: begin
           LangOptions.DialogFontName := Trim(Value);
         end;
+      lsDialogFontScaleFromHeight: begin
+          LangOptions.DialogFontScaleFromHeight := StrToIntCheck(Value);
+        end;
+      lsDialogFontScaleFromWidth: begin
+          LangOptions.DialogFontScaleFromWidth := StrToIntCheck(Value);
+        end;
       lsDialogFontSize: begin
           LangOptions.DialogFontSize := StrToIntCheck(Value);
         end;
@@ -6307,7 +6313,9 @@ begin
     LanguageName := 'English';
     LanguageID := $0409;  { U.S. English }
     DialogFontName := DefaultDialogFontName;
-    DialogFontSize := 8;
+    DialogFontSize := 9;
+    DialogFontScaleFromWidth := 7;
+    DialogFontScaleFromHeight := 15;
     TitleFontName := 'Arial';
     TitleFontSize := 29;
     WelcomeFontName := 'Verdana';
@@ -7916,7 +7924,7 @@ begin
     SetupHeader.Uninstallable := 'yes';
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
-    DefaultDialogFontName := 'Tahoma';
+    DefaultDialogFontName := 'Segoe UI';
     SignToolRetryCount := 2;
     SignToolRetryDelay := 500;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';
