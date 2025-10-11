@@ -306,8 +306,20 @@ begin
   end;
 
   if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < FControl.Width) or (Bmp.Height < FControl.Height)) then begin
+    var BrushColor := BackColor;
+    if ((BrushColor = clBtnFace) or (BrushColor = clWindow)) and (Sender is TControl) then begin
+      var LStyle := StyleServices(TControl(Sender));
+      if not LStyle.Enabled or LStyle.IsSystemStyle then
+        LStyle := nil;
+      if LStyle <> nil then begin
+        if BrushColor = clBtnFace then
+          BrushColor := LStyle.GetStyleColor(scPanel)
+        else
+          BrushColor := LStyle.GetStyleColor(scWindow);
+      end;
+    end;
     Canvas.Brush.Style := bsSolid;
-    Canvas.Brush.Color := BackColor;
+    Canvas.Brush.Color := BrushColor;
     Canvas.FillRect(R);
   end;
 

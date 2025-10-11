@@ -900,7 +900,11 @@ begin
   WizardBitmapImage2.Center := True;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
-  WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
+  if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) then begin
+    { Because the small image is on a panel we need a separate color, see TBitmapImageImplementation.Paint }
+    WizardSmallBitmapImage.BackColor := clBtnFace
+  end else
+    WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   SelectDirBitmapImage.InitializeFromIcon(HInstance, PChar('Z_DIRICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
