@@ -2418,6 +2418,15 @@ DialogFontScaleFromHeight=13
 DialogFontScaleFromWidth=6
 </precode>
 
+<p>If you were already using 9-point <i>Segoe UI</i> before Inno Setup 6.7, you will notice a change in scaling when you update. To use your previous scaling, use:</p>
+
+<precode>
+DialogFontName=Segoe UI
+DialogFontSize=9
+DialogFontScaleFromHeight=13
+DialogFontScaleFromWidth=6
+</precode>
+
 <p><b><a name="WelcomeFontName">WelcomeFontName</a></b> and <b><a name="WelcomeFontSize">WelcomeFontSize</a></b> specify the font name and point size to use at the top of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. If the specified font name does not exist on the user's system or is an empty string, 12-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
 <p><b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> specify the font name and point size to use when displaying the application name on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
