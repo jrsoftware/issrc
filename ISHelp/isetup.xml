@@ -5675,6 +5675,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <ul>
 <li><tt>polar</tt>: Uses light blue instead of gray or white for the light appearance, and dark blue instead of black for the dark appearance.</li>
 <li><tt>slate</tt>: Uses medium gray for both the light and dark appearances.</li>
+<li><tt>windows11</tt>: Enables a light counterpart of the built-in dark style.</li>
 <li><tt>zircon</tt>: Alternative light-only style with cyan accents.</li>
 </ul>
 <p>Also supported is the following modifier:</p>
@@ -5722,7 +5723,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>classic</tt><br/><br/><img src="wizardstyle-classic.png"/></p>
 <p><tt>classic dark</tt><br/><br/><img src="wizardstyle-classic-dark.png"/></p>
 <p><tt>modern</tt><br/><br/><img src="wizardstyle-modern.png"/></p>
-<p><tt>modern dark</tt><br/><br/><img src="wizardstyle-modern-dark.png"/></p>
+<p><tt>modern windows11</tt><br/><br/><img src="wizardstyle-modern-windows11.png"/></p>
+<p><tt>modern dark</tt> (same as <tt>modern dark windows11</tt>)<br/><br/><img src="wizardstyle-modern-dark.png"/></p>
 <p><tt>modern polar</tt><br/><br/><img src="wizardstyle-modern-polar.png"/></p>
 <p><tt>modern polar includetitlebar</tt><br/><br/><img src="wizardstyle-modern-polar-includetitlebar.png"/></p>
 <p><tt>modern dark polar</tt><br/><br/><img src="wizardstyle-modern-dark-polar.png"/></p>
