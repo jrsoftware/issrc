@@ -2351,7 +2351,6 @@ end;
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);
 { Changes which page is currently visible }
 begin
-  const OldCurPageID = CurPageID;
   const Page = PageFromID(NewPageID);
   FCurPageID := NewPageID;
 
@@ -2403,7 +2402,7 @@ begin
   end;
 
   try
-    if (CodeRunner <> nil) and (CurPageID <> OldCurPageID) then
+    if CodeRunner <> nil then
       CodeRunner.RunProcedures('CurPageChanged', [CurPageID], False);
   except
     Application.HandleException(Self);
