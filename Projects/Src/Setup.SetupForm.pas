@@ -14,8 +14,8 @@ unit Setup.SetupForm;
   -LangOptions.RightToLeft
   -LangOptions.DialogFontName
   -LangOptions.DialogFontSize
-  -LangOptions.DialogFontScaleFromWidth
-  -LangOptions.DialogFontScaleFromHeight
+  -LangOptions.DialogFontBaseScaleWidth
+  -LangOptions.DialogFontBaseScaleHeight
   -shWizardBorderStyled in SetupHeader.Options
   -SetupHeader.WizardSizePercentX
   -SetupHeader.WizardSizePercentY
@@ -531,8 +531,8 @@ begin
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
-  const OrigBaseUnitX = LangOptions.DialogFontScaleFromWidth;
-  const OrigBaseUnitY = LangOptions.DialogFontScaleFromHeight;
+  const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
+  const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
 
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
     ControlAnchorsList := TControlAnchorsList.Create;
@@ -555,7 +555,7 @@ end;
 
 class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitX, LangOptions.DialogFontScaleFromWidth);
+  Result := MulDiv(N, BaseUnitX, LangOptions.DialogFontBaseScaleWidth);
 end;
 
 function TSetupForm.ScalePixelsX(const N: Integer): Integer;
@@ -566,7 +566,7 @@ end;
 
 class function TSetupForm.ScalePixelsY(const BaseUnitY, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitY, LangOptions.DialogFontScaleFromHeight);
+  Result := MulDiv(N, BaseUnitY, LangOptions.DialogFontBaseScaleHeight);
 end;
 
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;

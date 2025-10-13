@@ -20,8 +20,8 @@ LanguageCodePage=0
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
 ;DialogFontSize=9
-;DialogFontScaleFromWidth=7
-;DialogFontScaleFromHeight=15
+;DialogFontBaseScaleWidth=7
+;DialogFontBaseScaleHeight=15
 ;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
 ;TitleFontName=Arial

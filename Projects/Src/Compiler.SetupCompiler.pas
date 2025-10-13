@@ -3538,14 +3538,14 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsCopyrightFontSize: begin
           LangOptions.CopyrightFontSize := StrToIntCheck(Value);
         end;
+      lsDialogFontBaseScaleHeight: begin
+          LangOptions.DialogFontBaseScaleHeight := StrToIntCheck(Value);
+        end;
+      lsDialogFontBaseScaleWidth: begin
+          LangOptions.DialogFontBaseScaleWidth := StrToIntCheck(Value);
+        end;
       lsDialogFontName: begin
           LangOptions.DialogFontName := Trim(Value);
-        end;
-      lsDialogFontScaleFromHeight: begin
-          LangOptions.DialogFontScaleFromHeight := StrToIntCheck(Value);
-        end;
-      lsDialogFontScaleFromWidth: begin
-          LangOptions.DialogFontScaleFromWidth := StrToIntCheck(Value);
         end;
       lsDialogFontSize: begin
           LangOptions.DialogFontSize := StrToIntCheck(Value);
@@ -6314,8 +6314,8 @@ begin
     LanguageID := $0409;  { U.S. English }
     DialogFontName := DefaultDialogFontName;
     DialogFontSize := 9;
-    DialogFontScaleFromWidth := 7;
-    DialogFontScaleFromHeight := 15;
+    DialogFontBaseScaleWidth := 7;
+    DialogFontBaseScaleHeight := 15;
     TitleFontName := 'Arial';
     TitleFontSize := 29;
     WelcomeFontName := 'Verdana';

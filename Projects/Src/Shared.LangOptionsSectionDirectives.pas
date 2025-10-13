@@ -17,9 +17,9 @@ type
   TLangOptionsSectionDirective = (
     lsCopyrightFontName,
     lsCopyrightFontSize,
+    lsDialogFontBaseScaleHeight,
+    lsDialogFontBaseScaleWidth,
     lsDialogFontName,
-    lsDialogFontScaleFromHeight,
-    lsDialogFontScaleFromWidth,
     lsDialogFontSize,
     lsDialogFontStandardHeight,
     lsLanguageCodePage,
