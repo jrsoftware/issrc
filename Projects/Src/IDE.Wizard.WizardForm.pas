@@ -346,6 +346,10 @@ begin
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 
+  { See Setup.WizardForm }
+  if IsCustomStyleActive then
+    BackButton.Left := BackButton.Left - 2;
+
   { AppInfo }
   AppNameEdit.Text := 'My Program';
   AppVersionEdit.Text := '1.5';

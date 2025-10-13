@@ -771,6 +771,10 @@ begin
   PrevSelectedTasks := TStringList.Create();
   PrevDeselectedTasks := TStringList.Create();
 
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
   MainPanel.ParentBackground := False;
 
   { Not sure why the following is needed but various things related to
@@ -823,12 +827,16 @@ begin
   Dec(X, W1);
   NextButton.Left := X;
   Dec(X, W1);
+  { The Back and Next buttons are touching. When rendered natively by Windows 11, they don't appear
+    to be touching because Windows draws 1 pixel less on each side (regardless of DPI), but in most
+    custom styles they do. Recreate this 2-pixel space between the buttons when styled. Causes
+    additional space on styles like Zircon which are like Windows 11, but that does not seem worth
+    adding a new directive.  }
+  if LStyle <> nil then
+    Dec(X, 2);
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize and TTaskDialogForm.Create }
-  var LStyle := StyleServices(Self);
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
   if LStyle <> nil then begin
     { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
     WelcomePage.ParentColor := True;
