@@ -5738,7 +5738,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme, nor is the color of the title bar changed. The other elements (icons and wizard images, including their background colors) are activated.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
-<li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more.</li>
+<li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 230 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 85 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 120 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
 </ul>
 <heading>Example screenshots</heading>
@@ -5768,6 +5768,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p>When using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>light</tt> or <tt>dynamic</tt> mode, the specified style should always use a light color theme (such as predominantly white or in other light colors). When using <tt>dark</tt>, use a dark color theme (such as predominantly black or in other dark colors).</p>
 <p>Using a custom style file increases the size of Setup, except when using <tt>dark</tt> mode and a style file that is smaller than the built-in one, which is 199 KB before compression.</p>
 <p>Can also be set to <tt>builtin:polar</tt>, <tt>builtin:slate</tt>, or <tt>builtin:zircon</tt> to use one of the built-in custom styles. See <link topic="setup_wizardstyle">WizardStyle</link> for more information.</p>
+<p>VCL Styles files can be downloaded from sources such as <extlink href="https://getitnow.embarcadero.com/category/styles">GetIt</extlink> (free if 'Subscription' says 'Not Required', requires a Delphi installation to download, which may be a Community Edition for the free styles), and from <extlink href="https://www.delphistyles.com/vcl">DelphiStyles</extlink> (not free).</p>
+<p>FireMonkey (FMX) Styles files are not supported.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardstyle">WizardStyle</link><br/>
 <link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></p>

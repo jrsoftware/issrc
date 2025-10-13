@@ -12,58 +12,56 @@ unit Compiler.HelperFunc;
 interface
 
 uses
-  Windows, Classes, SysUtils, Shared.FileClass;
-
-type
-  TColor = $7FFFFFFF-1..$7FFFFFFF;
+  Windows, Classes, SysUtils, UITypes,
+  Shared.FileClass;
 
 const
-  clScrollBar = TColor(COLOR_SCROLLBAR or $80000000);
-  clBackground = TColor(COLOR_BACKGROUND or $80000000);
-  clActiveCaption = TColor(COLOR_ACTIVECAPTION or $80000000);
-  clInactiveCaption = TColor(COLOR_INACTIVECAPTION or $80000000);
-  clMenu = TColor(COLOR_MENU or $80000000);
-  clWindow = TColor(COLOR_WINDOW or $80000000);
-  clWindowFrame = TColor(COLOR_WINDOWFRAME or $80000000);
-  clMenuText = TColor(COLOR_MENUTEXT or $80000000);
-  clWindowText = TColor(COLOR_WINDOWTEXT or $80000000);
-  clCaptionText = TColor(COLOR_CAPTIONTEXT or $80000000);
-  clActiveBorder = TColor(COLOR_ACTIVEBORDER or $80000000);
-  clInactiveBorder = TColor(COLOR_INACTIVEBORDER or $80000000);
-  clAppWorkSpace = TColor(COLOR_APPWORKSPACE or $80000000);
-  clHighlight = TColor(COLOR_HIGHLIGHT or $80000000);
-  clHighlightText = TColor(COLOR_HIGHLIGHTTEXT or $80000000);
-  clBtnFace = TColor(COLOR_BTNFACE or $80000000);
-  clBtnShadow = TColor(COLOR_BTNSHADOW or $80000000);
-  clGrayText = TColor(COLOR_GRAYTEXT or $80000000);
-  clBtnText = TColor(COLOR_BTNTEXT or $80000000);
-  clInactiveCaptionText = TColor(COLOR_INACTIVECAPTIONTEXT or $80000000);
-  clBtnHighlight = TColor(COLOR_BTNHIGHLIGHT or $80000000);
-  cl3DDkShadow = TColor(COLOR_3DDKSHADOW or $80000000);
-  cl3DLight = TColor(COLOR_3DLIGHT or $80000000);
-  clInfoText = TColor(COLOR_INFOTEXT or $80000000);
-  clInfoBk = TColor(COLOR_INFOBK or $80000000);
+  clScrollBar = TColors.SysScrollBar;
+  clBackground = TColors.SysBackground;
+  clActiveCaption = TColors.SysActiveCaption;
+  clInactiveCaption = TColors.SysInactiveCaption;
+  clMenu = TColors.SysMenu;
+  clWindow = TColors.SysWindow;
+  clWindowFrame = TColors.SysWindowFrame;
+  clMenuText = TColors.SysMenuText;
+  clWindowText = TColors.SysWindowText;
+  clCaptionText = TColors.SysCaptionText;
+  clActiveBorder = TColors.SysActiveBorder;
+  clInactiveBorder = TColors.SysInactiveBorder;
+  clAppWorkSpace = TColors.SysAppWorkSpace;
+  clHighlight = TColors.SysHighlight;
+  clHighlightText = TColors.SysHighlightText;
+  clBtnFace = TColors.SysBtnFace;
+  clBtnShadow = TColors.SysBtnShadow;
+  clGrayText = TColors.SysGrayText;
+  clBtnText = TColors.SysBtnText;
+  clInactiveCaptionText = TColors.SysInactiveCaptionText;
+  clBtnHighlight = TColors.SysBtnHighlight;
+  cl3DDkShadow = TColors.Sys3DDkShadow;
+  cl3DLight = TColors.Sys3DLight;
+  clInfoText = TColors.SysInfoText;
+  clInfoBk = TColors.SysInfoBk;
 
-  clBlack = TColor($000000);
-  clMaroon = TColor($000080);
-  clGreen = TColor($008000);
-  clOlive = TColor($008080);
-  clNavy = TColor($800000);
-  clPurple = TColor($800080);
-  clTeal = TColor($808000);
-  clGray = TColor($808080);
-  clSilver = TColor($C0C0C0);
-  clRed = TColor($0000FF);
-  clLime = TColor($00FF00);
-  clYellow = TColor($00FFFF);
-  clBlue = TColor($FF0000);
-  clFuchsia = TColor($FF00FF);
-  clAqua = TColor($FFFF00);
-  clLtGray = TColor($C0C0C0);
-  clDkGray = TColor($808080);
-  clWhite = TColor($FFFFFF);
-  clNone = TColor($1FFFFFFF);
-  clDefault = TColor($20000000);
+  clBlack = TColors.Black;
+  clMaroon = TColors.Maroon;
+  clGreen = TColors.Green;
+  clOlive = TColors.Olive;
+  clNavy = TColors.Navy;
+  clPurple = TColors.Purple;
+  clTeal = TColors.Teal;
+  clGray = TColors.Gray;
+  clSilver = TColors.Silver;
+  clRed = TColors.Red;
+  clLime = TColors.Lime;
+  clYellow = TColors.Yellow;
+  clBlue = TColors.Blue;
+  clFuchsia = TColors.Fuchsia;
+  clAqua = TColors.Aqua;
+  clLtGray = TColors.LtGray;
+  clDkGray = TColors.DkGray;
+  clWhite = TColors.White;
+  clNone = TColors.SysNone;
+  clDefault = TColors.SysDefault;
 
 function StringToColor(const S: string): TColor;
 function IsRelativePath(const Filename: String): Boolean;

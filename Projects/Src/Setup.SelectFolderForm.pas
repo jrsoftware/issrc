@@ -41,7 +41,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainFunc,
-  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc;
+  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
 
@@ -109,6 +109,7 @@ begin
     otherwise the control's width and height get reduced later. Looks like
     a Delphi 11 bug; the problem is seen in IS 6.3 but not 6.2.2. }
   HandleNeeded;
+  FFolderTreeView.SetCurrentPPI(CurrentPPI);
   FFolderTreeView.Parent := Self;
   PathEdit.BringToFront;     { for MSAA }
   BrowseLabel.BringToFront;  { for MSAA }
