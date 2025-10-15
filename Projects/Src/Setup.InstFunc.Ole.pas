@@ -63,7 +63,7 @@ function GetResultingFilename(const PF: IPersistFile;
   save to the specified filename; it may rename the extension to .pif if the
   shortcut points to an MS-DOS application. }
 var
-  CurFilename: PWideChar;
+  CurFilename: PChar;
   OleResult: HRESULT;
 begin
   Result := '';
@@ -71,7 +71,7 @@ begin
   OleResult := PF.GetCurFile(CurFilename);
   if SUCCEEDED(OleResult) and Assigned(CurFilename) then begin
     if OleResult = S_OK then
-      Result := WideCharToString(CurFilename);
+      Result := CurFilename;
     CoTaskMemFree(CurFilename);
   end;
   { If GetCurFile didn't work, we have no choice but to try to guess the filename }
@@ -124,7 +124,6 @@ var
   PS: PropSys.IPropertyStore;
   PV: TPropVariant;
   PF: IPersistFile;
-  WideAppUserModelID, WideFilename: WideString;
 begin
   Obj := CreateComObject(CLSID_ShellLink);
   SL := Obj as IShellLink;
@@ -159,9 +158,8 @@ begin
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
     end;
     if AppUserModelID <> '' then begin
-      WideAppUserModelID := AppUserModelID;
       PV.vt := VT_BSTR;
-      PV.bstrVal := PWideChar(WideAppUserModelID);
+      PV.bstrVal := PChar(AppUserModelID);
       OleResult := PS.SetValue(PKEY_AppUserModel_ID, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ID)', OleResult);
@@ -193,8 +191,7 @@ begin
   end;
 
   PF := SL as IPersistFile;
-  WideFilename := Filename;
-  OleResult := PF.Save(PWideChar(WideFilename), True);
+  OleResult := PF.Save(PChar(Filename), True);
   if OleResult <> S_OK then
     RaiseOleError('IPersistFile::Save', OleResult);
 
@@ -203,15 +200,15 @@ end;
 
 procedure RegisterTypeLibrary(const Filename: String);
 var
-  WideFilename: WideString;
+  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
 begin
-  WideFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PWideChar(WideFilename), TypeLib);
+  ExpandedFilename := PathExpand(Filename);
+  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PWideChar(WideFilename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -222,7 +219,7 @@ type
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 var
   UnRegTlbProc: TUnRegTlbProc;
-  WideFilename: WideString;
+  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
   LibAttr: PTLibAttr;
@@ -233,8 +230,8 @@ begin
     'UnRegisterTypeLib');
   if @UnRegTlbProc = nil then
     Win32ErrorMsg('GetProcAddress');
-  WideFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PWideChar(WideFilename), TypeLib);
+  ExpandedFilename := PathExpand(Filename);
+  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
   OleResult := TypeLib.GetLibAttr(LibAttr);
