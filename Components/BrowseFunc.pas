@@ -35,6 +35,18 @@ uses
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
   const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
+
+  function RemoveSinglePeriod(const S: String): String;
+  begin
+    Result := S;
+    const FirstPeriodPos = Pos('.', S);
+    if FirstPeriodPos <> 0 then begin
+      const LastPeriodPos = LastDelimiter('.', S);
+      if (FirstPeriodPos = LastPeriodPos) and (LastPeriodPos = Length(S)) then
+        Delete(Result, LastPeriodPos, 1);
+    end;
+  end;
+
 var
   InitialDir: String;
   FileDialog: IFileDialog;
@@ -67,7 +79,7 @@ begin
       Exit;
 
     if Prompt <> '' then
-      FileDialog.SetTitle(PChar(Prompt));
+      FileDialog.SetTitle(PChar(RemoveSinglePeriod(Prompt)));
 
     if (InitialDir <> '') and Succeeded(SHCreateItemFromParsingName(PChar(InitialDir), nil, IID_IShellItem, ShellItem)) then
       FileDialog.SetFolder(ShellItem);
