@@ -177,6 +177,7 @@ begin
       { Set bitmap }
       AutoSize := False;
       BackColor := BkColor;
+      Stretch := True;
       Bitmap.Assign(Icon);
 
       Result := True;
