@@ -16,7 +16,7 @@ unit BitmapImage;
 interface
 
 uses
-  Windows, Controls, Graphics, Classes, Imaging.pngimage;
+  Windows, ShellAPI, Controls, Graphics, Classes, Imaging.pngimage;
 
 type
   TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
@@ -41,6 +41,7 @@ type
       const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
     procedure BitmapChanged(Sender: TObject);
     procedure PngImageChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
@@ -75,6 +76,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
     property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Graphic: TGraphic write SetGraphic;
   published
@@ -111,7 +113,7 @@ procedure Register;
 implementation
 
 uses
-  SysUtils, Math, Themes, Resample;
+  CommCtrl, SysUtils, Math, Themes, Resample;
 
 procedure Register;
 begin
@@ -183,6 +185,43 @@ begin
     end;
   end else
     Result := False;
+end;
+
+const
+  IID_IImageList: TGUID = '{46EB5926-582E-4017-9FDF-E8998DAA0950}';
+
+function TBitmapImageImplementation.InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+begin
+  Result := False;
+
+  var SHStockIconInfo: TSHStockIconInfo;
+  SHStockIconInfo.cbSize := SizeOf(SHStockIconInfo);
+  if Succeeded(SHGetStockIconInfo(siid, SHGSI_SYSICONINDEX, SHStockIconInfo)) then begin
+   var ImageList: HIMAGELIST;
+    { The SHGetImageList documentation remarks that SHIL_SMALL and SHIL_LARGE are DPI-aware. However
+      because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
+      scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
+      the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
+    if Succeeded(SHGetImageList(SHIL_JUMBO, IID_IImageList, Pointer(ImageList))) then begin
+      var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
+      if Handle <> 0 then begin
+        const Icon = TIcon.Create;
+        try
+          Icon.Handle := Handle;
+
+          { Set bitmap }
+          AutoSize := False;
+          BackColor := clNone;
+          Stretch := True;
+          Bitmap.Assign(Icon);
+
+          Result := True;
+        finally
+          Icon.Free;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
@@ -374,6 +413,11 @@ end;
 function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
+end;
+
+function TBitmapImage.InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+begin
+  Result := FImpl.InitializeFromStockIcon(siid, BkColor);
 end;
 
 procedure TBitmapImage.SetAutoSize(Value: Boolean);
