@@ -158,8 +158,9 @@ begin
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
     end;
     if AppUserModelID <> '' then begin
+      const WideAppUserModelID: WideString = AppUserModelID;
       PV.vt := VT_BSTR;
-      PV.bstrVal := PChar(AppUserModelID);
+      PV.bstrVal := PWideChar(WideAppUserModelID);
       OleResult := PS.SetValue(PKEY_AppUserModel_ID, PV);
       if OleResult <> S_OK then
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_ID)', OleResult);
