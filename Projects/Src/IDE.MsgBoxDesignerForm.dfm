@@ -4,7 +4,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   BorderStyle = bsDialog
   Caption = 'MsgBox/TaskDialogMsgBox Call Designer'
   ClientHeight = 380
-  ClientWidth = 548
+  ClientWidth = 562
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,7 +14,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   Position = poScreenCenter
   OnCreate = FormCreate
   DesignSize = (
-    548
+    562
     380)
   TextHeight = 13
   object TaskInstructionLabel: TNewStaticText
@@ -28,7 +28,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object TaskInstructionText: TEdit
     Left = 89
     Top = 10
-    Width = 449
+    Width = 463
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
@@ -44,7 +44,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object TaskMessageText: TEdit
     Left = 89
     Top = 36
-    Width = 449
+    Width = 463
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
@@ -65,7 +65,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     TabOrder = 3
   end
   object Button2Label: TNewStaticText
-    Left = 212
+    Left = 208
     Top = 66
     Width = 38
     Height = 14
@@ -74,14 +74,14 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   end
   object Button2Text: TEdit
     Left = 259
-    Top = 63
+    Top = 62
     Width = 112
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 4
   end
   object Button3Label: TNewStaticText
-    Left = 379
+    Left = 373
     Top = 66
     Width = 38
     Height = 14
@@ -89,9 +89,9 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     TabOrder = 16
   end
   object Button3Text: TEdit
-    Left = 426
-    Top = 63
-    Width = 112
+    Left = 424
+    Top = 62
+    Width = 126
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
@@ -99,18 +99,18 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object GroupBox1: TGroupBox
     Left = 8
     Top = 8
-    Width = 532
+    Width = 546
     Height = 81
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Message '
     TabOrder = 0
     DesignSize = (
-      532
+      546
       81)
     object MSGText: TMemo
       Left = 7
       Top = 20
-      Width = 519
+      Width = 533
       Height = 53
       Anchors = [akLeft, akTop, akRight, akBottom]
       ScrollBars = ssVertical
@@ -148,7 +148,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object cb_TaskDialogMsgBox: TRadioButton
       Left = 115
       Top = 36
-      Width = 115
+      Width = 122
       Height = 17
       Caption = 'TaskDialogMsgBox'
       TabOrder = 2
@@ -157,9 +157,9 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     end
   end
   object GroupBox5: TGroupBox
-    Left = 258
+    Left = 254
     Top = 93
-    Width = 282
+    Width = 300
     Height = 60
     Anchors = [akLeft, akTop, akRight]
     Caption = ' Flags '
@@ -198,7 +198,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object cb_MB_SETFOREGROUND: TCheckBox
       Left = 140
       Top = 24
-      Width = 135
+      Width = 157
       Height = 17
       Caption = 'MB_SETFOREGROUND'
       TabOrder = 2
@@ -207,13 +207,13 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object GroupBox2: TGroupBox
     Left = 8
     Top = 157
-    Width = 160
+    Width = 165
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Icon '
     TabOrder = 8
     DesignSize = (
-      160
+      165
       174)
     object IMGmbInformation: TImage
       Left = 10
@@ -372,7 +372,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rb_mbInformation: TRadioButton
       Left = 53
       Top = 31
-      Width = 99
+      Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbInformation'
@@ -383,7 +383,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rb_mbConfirmation: TRadioButton
       Left = 53
       Top = 68
-      Width = 99
+      Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbConfirmation'
@@ -393,7 +393,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rb_mbError: TRadioButton
       Left = 53
       Top = 105
-      Width = 99
+      Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbError'
@@ -403,7 +403,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rb_mbCriticalError: TRadioButton
       Left = 53
       Top = 142
-      Width = 99
+      Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'mbCriticalError'
@@ -414,18 +414,18 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object GroupBox3: TGroupBox
     Left = 179
     Top = 157
-    Width = 169
+    Width = 182
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Buttons '
     TabOrder = 9
     DesignSize = (
-      169
+      182
       174)
     object rbMB_OK: TRadioButton
       Left = 14
       Top = 23
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_OK'
@@ -437,7 +437,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rbMB_OKCANCEL: TRadioButton
       Left = 14
       Top = 46
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_OKCANCEL'
@@ -448,7 +448,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rbMB_YESNO: TRadioButton
       Left = 14
       Top = 70
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_YESNO'
@@ -459,7 +459,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rbMB_YESNOCANCEL: TRadioButton
       Left = 14
       Top = 94
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_YESNOCANCEL'
@@ -470,7 +470,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rbMB_RETRYCANCEL: TRadioButton
       Left = 14
       Top = 118
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_RETRYCANCEL'
@@ -481,7 +481,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     object rbMB_ABORTRETRYIGNORE: TRadioButton
       Left = 14
       Top = 142
-      Width = 147
+      Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
       Caption = 'MB_ABORTRETRYIGNORE'
@@ -491,9 +491,9 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     end
   end
   object GroupBox4: TGroupBox
-    Left = 359
-    Top = 157
-    Width = 181
+    Left = 367
+    Top = 158
+    Width = 187
     Height = 174
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Return values '
@@ -684,18 +684,18 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   object Panel1: TPanel
     Left = 0
     Top = 338
-    Width = 548
+    Width = 562
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 11
     DesignSize = (
-      548
+      562
       42)
     object Bevel1: TBevel
       Left = 0
       Top = 0
-      Width = 548
+      Width = 562
       Height = 1
       Align = alTop
       Shape = bsTopLine
@@ -713,7 +713,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       OnClick = MBDButtonPreviewClick
     end
     object MBDButtonOK: TButton
-      Left = 379
+      Left = 393
       Top = 11
       Width = 75
       Height = 25
@@ -724,7 +724,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       TabOrder = 1
     end
     object MBDButtonCancel: TButton
-      Left = 463
+      Left = 477
       Top = 11
       Width = 75
       Height = 25

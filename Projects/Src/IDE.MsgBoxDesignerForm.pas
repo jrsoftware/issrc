@@ -559,7 +559,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := ' Return values /  -------- / Default ';
+     GroupBox4.Caption := ' Return values /  ------- / Default ';
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
