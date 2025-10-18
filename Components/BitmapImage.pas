@@ -41,7 +41,7 @@ type
       const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
-    function InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
     procedure BitmapChanged(Sender: TObject);
     procedure PngImageChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
@@ -76,7 +76,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
-    function InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
     property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Graphic: TGraphic write SetGraphic;
   published
@@ -191,7 +191,7 @@ end;
 const
   IID_IImageList: TGUID = '{46EB5926-582E-4017-9FDF-E8998DAA0950}';
 
-function TBitmapImageImplementation.InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+function TBitmapImageImplementation.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
 begin
   Result := False;
 
@@ -209,6 +209,12 @@ begin
         const Icon = TIcon.Create;
         try
           Icon.Handle := Handle;
+
+          { Set sizes (overrides any scaling) }
+          if FControl.Height > FControl.Width then
+            FControl.Height := FControl.Width
+          else if FControl.Width > FControl.Height then
+            FControl.Width := FControl.Height;
 
           { Set bitmap }
           AutoSize := False;
@@ -416,7 +422,7 @@ begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
 end;
 
-function TBitmapImage.InitializeFromStockIcon(const siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
+function TBitmapImage.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor): Boolean;
 begin
   Result := FImpl.InitializeFromStockIcon(siid, BkColor);
 end;
