@@ -203,7 +203,13 @@ begin
       because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
       scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
       the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
-    if Succeeded(SHGetImageList(SHIL_JUMBO, IID_IImageList, Pointer(ImageList))) then begin
+    const IconSize = Min(FControl.Width, FControl.Height);
+    var iImageList: Integer;
+    if IconSize > 24 then
+      iImageList := SHIL_JUMBO
+    else
+      iImageList := SHIL_EXTRALARGE; { For small images use SHIL_EXTRALARGE, which should be 48x48 at least }
+    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageList))) then begin
       var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
       if Handle <> 0 then begin
         const Icon = TIcon.Create;
@@ -211,10 +217,8 @@ begin
           Icon.Handle := Handle;
 
           { Set sizes (overrides any scaling) }
-          if FControl.Height > FControl.Width then
-            FControl.Height := FControl.Width
-          else if FControl.Width > FControl.Height then
-            FControl.Width := FControl.Height;
+          FControl.Width := IconSize;
+          FControl.Height := IconSize;
 
           { Set bitmap }
           AutoSize := False;
