@@ -667,6 +667,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   SignTools := TStringList.Create;
   try
     StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);

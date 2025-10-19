@@ -346,6 +346,10 @@ begin
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 
+  { See Setup.WizardForm }
+  if IsCustomStyleActive then
+    BackButton.Left := BackButton.Left - 2;
+
   { AppInfo }
   AppNameEdit.Text := 'My Program';
   AppVersionEdit.Text := '1.5';
@@ -692,8 +696,9 @@ end;
 
 procedure TWizardForm.UpdateWizardStyleImages;
 
-  procedure UpdateWizardStyleImage(const WizardStylePngImage: TPngImage; const ImageName: String);
+  procedure UpdateWizardStyleImage(const WizardStylePngImage: TPngImage; ImageName: String);
   begin
+    ImageName := ImageName.Replace('dark windows11', 'dark');
     const ImageIndex = WizardStyleImageCollection.GetIndexByName(ImageName);
     if ImageIndex = -1 then
       raise Exception.CreateFmt('Image name ''%s'' not found', [ImageName]);
@@ -885,6 +890,7 @@ begin
     PreviewForm.AutoSize := True;
     PreviewForm.BorderStyle := bsNone;
     PreviewForm.BorderIcons := [];
+    PreviewForm.Color := clWindow;
     PreviewForm.KeyPreview := True;
     PreviewForm.OnKeyDown := WizardStyleImagePreviewKeyDown;
 

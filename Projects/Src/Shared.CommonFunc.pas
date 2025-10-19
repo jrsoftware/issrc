@@ -166,6 +166,7 @@ procedure CreateMutex(const MutexName: String);
 function HighContrastActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
+function DeleteFileOrDirByHandle(const H: THandle): Boolean;
 function CompareInt64(const N1, N2: Int64): Integer;
 function HighLowToInt64(const High, Low: UInt32): Int64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
@@ -1629,6 +1630,35 @@ begin
       Result := True;
     RegCloseKey(K);
   end;
+end;
+
+{ FileInformationClass is really an enum type }
+function SetFileInformationByHandle(hFile: THandle; FileInformationClass: DWORD;
+  lpFileInformation: LPVOID; dwBufferSize: DWORD): BOOL; stdcall; external kernel32;
+
+function DeleteFileOrDirByHandle(const H: THandle): Boolean;
+{ Deletes a file or directory by handle. The deletion happens immediately; it
+  isn't delayed until the handle is closed. DELETE access (Windows._DELETE in
+  Delphi) must have been requested when the handle was opened.
+  If a directory isn't empty, the function fails.
+  When False is returned, call GetLastError to get the error code.
+
+  NOTE: This function should generally only be used with handles opened with
+  the FILE_FLAG_OPEN_REPARSE_POINT flag. If that flag isn't used, then the
+  function will delete the *target* of a symbolic link, not the symbolic link
+  itself, which usually isn't the intention. (The DeleteFile and
+  RemoveDirectory functions delete symbolic links, not their targets.) }
+const
+  FileDispositionInfo = 4;
+type
+  TFileDispositionInfo = record
+    DeleteFile: Boolean;  { actually the Windows BOOLEAN type, also 1-byte }
+  end;
+begin
+  var Info: TFileDispositionInfo;
+  Info.DeleteFile := True;
+  Result := SetFileInformationByHandle(H, FileDispositionInfo, @Info,
+    SizeOf(Info));
 end;
 
 function CompareInt64(const N1, N2: Int64): Integer;

@@ -91,22 +91,24 @@ uses
   IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
-var
-  FontName: String;
-  Metrics: TNonClientMetrics;
 begin
-  begin
-    Metrics.cbSize := SizeOf(Metrics);
-    if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
-       @Metrics, 0) then
-      FontName := Metrics.lfMessageFont.lfFaceName;
-    { Only allow fonts that we know will fit the text correctly }
-    if not SameText(FontName, 'Microsoft Sans Serif') and
-       not SameText(FontName, 'Segoe UI') then
-      FontName := 'Tahoma';
-  end;
+  var Metrics: TNonClientMetrics;
+  var FontName: String;
+  Metrics.cbSize := SizeOf(Metrics);
+  if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, SizeOf(Metrics),
+     @Metrics, 0) then
+    FontName := Metrics.lfMessageFont.lfFaceName;
+  { Only allow fonts that we know will fit the text correctly }
+  if not SameText(FontName, 'Microsoft Sans Serif') and
+     not SameText(FontName, 'Segoe UI') then
+    FontName := 'Tahoma';
+  var FontSize: Integer;
+  if SameText(FontName, 'Segoe UI') then
+    FontSize := 9
+  else
+    FontSize := 8;
   Form.Font.Name := FontName;
-  Form.Font.Size := 8;
+  Form.Font.Size := FontSize;
 end;
 
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);

@@ -71,6 +71,7 @@ var
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
     'procedure UnloadDll(S: String);',
     'function DllGetLastError: LongInt;',
+    'function Int(E: Extended): Extended;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -95,8 +96,6 @@ var
     'function Sin(E: Extended): Extended;',
     'function Cos(E: Extended): Extended;',
     'function Sqrt(E: Extended): Extended;',
-    'function Round(E: Extended): LongInt;',
-    'function Trunc(E: Extended): LongInt;',
     'function Int(E: Extended): Extended;',
     'function Pi: Extended;',
     'function Abs(E: Extended): Extended;',
@@ -545,6 +544,8 @@ initialization
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
+    'function InitializeBitmapButtonFromStockIcon(const BitmapButton: TBitmapButton; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
+    'function InitializeBitmapImageFromStockIcon(const BitmapImage: TBitmapImage; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'procedure Extract7ZipArchive(const ArchiveFileName, DestDir: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
     'procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);',
     'procedure MapArchiveExtensions(const DestExt, SourceExt: String);',
@@ -552,7 +553,11 @@ initialization
     'function StringJoin(const Separator: String; const Values: TArrayOfString): String;',
     'function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;',
     'function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;',
-    'function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;'
+    'function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;',
+    'function Round(const E: Extended): Int64;',
+    'function Trunc(const E: Extended): Int64;',
+    'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;',
+    'function StrToColor(const S: String): TColor;'
   ];
 
   {$IFDEF COMPIL32PROJ}

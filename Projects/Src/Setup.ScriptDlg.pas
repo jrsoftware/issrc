@@ -278,6 +278,14 @@ const
 {------}
 
 procedure SetCtlParent(const AControl, AParent: TWinControl);
+begin
+  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
+    from scaling the control. Also see TSetupForm.CreateWnd.  }
+  AControl.SetCurrentPPI(AParent.CurrentPPI);
+  AControl.Parent := AParent;
+end;
+
+procedure SetCtlParentAtBack(const AControl, AParent: TWinControl);
 { Like assigning to AControl.Parent, but puts the control at the *bottom* of
   the z-order instead of the top, for MSAA compatibility }
 var
@@ -287,7 +295,7 @@ begin
     "OBJ_REORDER" MSAA events don't get sent }
   OldVisible := AControl.Visible;
   AControl.Visible := False;
-  AControl.Parent := AParent;
+  SetCtlParent(AControl, AParent);
   AControl.SendToBack;
   AControl.Visible := OldVisible;
 end;
@@ -317,8 +325,8 @@ begin
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
     WordWrap := True;
     Caption := SubCaption;
-    Parent := Surface;
   end;
+  SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 end;
 
@@ -339,7 +347,7 @@ begin
       WordWrap := True;
       Caption := APrompt;
     end;
-    SetCtlParent(PromptLabel, Surface);
+    SetCtlParentAtBack(PromptLabel, Surface);
     Inc(FY, WizardForm.AdjustLabelHeight(PromptLabel) + WizardForm.ScalePixelsY(16));
   end else
     PromptLabel := nil;
@@ -351,7 +359,7 @@ begin
     Width := SurfaceWidth;
     Anchors := [akLeft, akTop, akRight];
   end;
-  SetCtlParent(Edit, Surface);
+  SetCtlParentAtBack(Edit, Surface);
   Inc(FY, WizardForm.ScalePixelsY(36));
 
   if PromptLabel <> nil then
@@ -396,8 +404,8 @@ begin
     Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
-    Parent := Surface;
   end;
+  SetCtlParent(FSubCaptionLabel, Surface);
   CaptionYDiff := WizardForm.AdjustLabelHeight(SubCaptionLabel);
 
   FCheckListBox := TNewCheckListBox.Create(Self);
@@ -408,7 +416,7 @@ begin
     Anchors := [akLeft, akTop, akRight, akBottom];
     Flat := ListBox and (shFlatComponentsList in SetupHeader.Options);
   end;
-  SetCtlParent(FCheckListBox, Surface);
+  SetCtlParentAtBack(FCheckListBox, Surface);
 
   FExclusive := Exclusive;
   if not ListBox then begin
@@ -526,8 +534,8 @@ begin
     Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
-    Parent := Surface;
   end;
+  SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 
   FAppendDir := AppendDir;
@@ -554,7 +562,7 @@ begin
       WordWrap := True;
       Caption := APrompt;
     end;
-    SetCtlParent(PromptLabel, Surface);
+    SetCtlParentAtBack(PromptLabel, Surface);
     Inc(FY, WizardForm.AdjustLabelHeight(PromptLabel) + WizardForm.ScalePixelsY(16));
   end else
     PromptLabel := nil;
@@ -565,7 +573,7 @@ begin
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
     Anchors := [akLeft, akTop, akRight];
   end;
-  SetCtlParent(Edit, Surface);
+  SetCtlParentAtBack(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
 
   if PromptLabel <> nil then
@@ -585,7 +593,7 @@ begin
       Caption := RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]);
     OnClick := ButtonClick;
   end;
-  SetCtlParent(Button, Surface);
+  SetCtlParentAtBack(Button, Surface);
   Inc(FY, WizardForm.ScalePixelsY(36));
 
   FButtons.Add(Button);
@@ -670,8 +678,8 @@ begin
     Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
-    Parent := Surface;
   end;
+  SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 end;
 
@@ -696,7 +704,7 @@ begin
       WordWrap := True;
       Caption := APrompt;
     end;
-    SetCtlParent(PromptLabel, Surface);
+    SetCtlParentAtBack(PromptLabel, Surface);
     Inc(FY, WizardForm.AdjustLabelHeight(PromptLabel) + WizardForm.ScalePixelsY(16));
   end else
     PromptLabel := nil;
@@ -707,7 +715,7 @@ begin
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
     Anchors := [akLeft, akTop, akRight];
   end;
-  SetCtlParent(Edit, Surface);
+  SetCtlParentAtBack(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
 
   if PromptLabel <> nil then
@@ -727,7 +735,7 @@ begin
       Caption := RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]);
     OnClick := ButtonClick;
   end;
-  SetCtlParent(Button, Surface);
+  SetCtlParentAtBack(Button, Surface);
   Inc(FY, WizardForm.ScalePixelsY(36));
 
   FInputFileFilters.Add(AFilter);
@@ -787,8 +795,8 @@ begin
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
     WordWrap := True;
     Caption := Msg;
-    Parent := Surface;
   end;
+  SetCtlParent(FMsgLabel, Surface);
   WizardForm.AdjustLabelHeight(MsgLabel);
 end;
 
@@ -808,8 +816,8 @@ begin
       Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := SubCaption;
-      Parent := Surface;
     end;
+    SetCtlParent(FSubCaptionLabel, Surface);
     Inc(Y, WizardForm.ScalePixelsY(DefaultBoxTop) +
       WizardForm.AdjustLabelHeight(FSubCaptionLabel));
   end else
@@ -827,7 +835,7 @@ begin
     ScrollBars := ssVertical;
     WantReturns := False;
   end;
-  SetCtlParent(FRichEditViewer, Surface);
+  SetCtlParentAtBack(FRichEditViewer, Surface);
   with FRichEditViewer do begin
     UseRichEdit := True;
     RTFText := Msg;
@@ -852,8 +860,8 @@ begin
     Anchors := [akLeft, akTop, akRight];
     Height := WizardForm.StatusLabel.Height;
     WordWrap := WizardForm.StatusLabel.WordWrap;
-    Parent := Surface;
   end;
+  SetCtlParent(FMsg1Label, Surface);
 
   FMsg2Label := TNewStaticText.Create(Self);
   with FMsg2Label do begin
@@ -865,7 +873,7 @@ begin
     Height := WizardForm.FileNameLabel.Height;
     Anchors := [akLeft, akTop, akRight];
   end;
-  SetCtlParent(FMsg2Label, Surface);
+  SetCtlParentAtBack(FMsg2Label, Surface);
 
   FProgressBar := TNewProgressBar.Create(Self);
   with FProgressBar do begin
@@ -875,7 +883,7 @@ begin
     Anchors := [akLeft, akTop, akRight];
     Visible := False;
   end;
-  SetCtlParent(FProgressBar, Surface);
+  SetCtlParentAtBack(FProgressBar, Surface);
 end;
 
 procedure TOutputProgressWizardPage.Hide;
@@ -1075,7 +1083,7 @@ begin
     Height := WizardForm.CancelButton.Height;
     OnClick := AbortButtonClick;
   end;
-  SetCtlParent(FAbortButton, Surface);
+  SetCtlParentAtBack(FAbortButton, Surface);
 end;
 
 procedure TDownloadWizardPage.Show;
@@ -1288,7 +1296,7 @@ begin
     Height := WizardForm.CancelButton.Height;
     OnClick := AbortButtonClick;
   end;
-  SetCtlParent(FAbortButton, Surface);
+  SetCtlParentAtBack(FAbortButton, Surface);
 end;
 
 procedure TExtractionWizardPage.Show;

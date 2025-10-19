@@ -2585,8 +2585,8 @@ var
       'classic', 'modern',
       'light', 'dark', 'dynamic',
       'includetitlebar',
-      'polar', 'slate', 'zircon'];
-    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3];
+      'polar', 'slate', 'windows11', 'zircon'];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3, 3];
   var
     StylesGroupSeen: array [0..3] of Boolean;
   begin
@@ -2609,7 +2609,7 @@ var
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
         5: Include(SetupHeader.Options, shWizardBorderStyled);
-        6..8: WizardStyleSpecial := Styles[R];
+        6..9: WizardStyleSpecial := Styles[R];
       end;
     end;
   end;
@@ -8202,12 +8202,15 @@ begin
     end else begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], IsForcedDark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then begin
+        { The following colors were determined by using the ColorBlendRGB function to blend from the
+          style's default button face color to its window color, with Mu set to 0.5. The exception is
+          the $f9f3e8 which predates styles and is also used when styles are not active. }
         if WizardStyleSpecial = 'slate' then
-          SetupHeader.WizardImageBackColor := $d4c9b8
+          SetupHeader.WizardImageBackColor := $e2d2bc
         else if WizardStyleSpecial = 'zircon' then
-          SetupHeader.WizardImageBackColor := $ebe5c6
+          SetupHeader.WizardImageBackColor := $eeead0
         else
-          SetupHeader.WizardImageBackColor := IfThen(IsForcedDark, $534831, $f9f3e8); { Also see below }
+          SetupHeader.WizardImageBackColor := IfThen(IsForcedDark, $3f3a2e, $f9f3e8); { Also see below }
       end;
     end;
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
@@ -8238,7 +8241,7 @@ begin
       end else begin
         WizardImagesDynamicDark := CreateWizardImagesFromResources(['WizardImage'], ['150'], True);
         if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
-          SetupHeader.WizardImageBackColorDynamicDark := $534831; { See above }
+          SetupHeader.WizardImageBackColorDynamicDark := $3f3a2e; { See above }
       end;
       LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));

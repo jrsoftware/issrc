@@ -383,6 +383,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
   StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
   var Mode: DWORD;

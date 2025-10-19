@@ -138,9 +138,9 @@ type
 
   TStyleManager = class
     type TStyleServicesHandle = type Pointer;
-    class var FSystemHooks: TSystemHooks;
+    class var AutoDiscoverStyleResources: Boolean;
+    class var SystemHooks: TSystemHooks;
     class procedure SetStyle(Handle: TStyleServicesHandle);
-    class property SystemHooks: TSystemHooks read FSystemHooks write FSystemHooks;
     class function TryLoadFromResource(Instance: HINST; const ResourceName: string;
       ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
     class function TrySetStyle(const Name: string; ShowErrorDialog: Boolean = True): Boolean;

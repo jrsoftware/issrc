@@ -71,7 +71,7 @@ function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PC
 implementation
 
 uses
-  CommCtrl, Clipbrd, Themes,
+  CommCtrl, Clipbrd, Themes, ShellAPI,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
 
@@ -128,7 +128,10 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  InitializeFont;
+  if not SameText(LangOptions.DialogFontName, 'Segoe UI') then
+    InitializeFont('Segoe UI', 8)
+  else
+    InitializeFont;
 
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -256,20 +259,22 @@ end;
 
 procedure TTaskDialogForm.UpdateIcon(const Icon: PChar);
 begin
-  var ResourceName := '';
+  var Siid: SHSTOCKICONID;
   if Icon = TD_ERROR_ICON then
-    ResourceName := 'Z_TASKFORM_ERRORICON' + WizardIconsPostfix
+    Siid := SIID_ERROR
   else if Icon = TD_TASKFORM_HELP_ICON then
-    ResourceName := 'Z_TASKFORM_HELPICON' + WizardIconsPostfix
+    Siid := SIID_HELP
   else if Icon = TD_INFORMATION_ICON then
-    ResourceName := 'Z_TASKFORM_INFOICON' + WizardIconsPostfix
+    Siid := SIID_INFO
   else if Icon = TD_WARNING_ICON then
-    ResourceName := 'Z_TASKFORM_WARNICON' + WizardIconsPostfix
-  else if Icon <> nil then
-    ResourceName := Icon;
+    Siid := SIID_WARNING
+  else
+    Siid := SIID_INVALID;
 
-  if ResourceName <> '' then
-    BitmapImage.InitializeFromIcon(HInstance, PChar(ResourceName), clNone, [32, 48, 64])
+  if Siid <> SIID_INVALID then
+    BitmapImage.InitializeFromStockIcon(Siid, clNone, [32, 48, 64])
+  else if Icon <> nil then
+    BitmapImage.InitializeFromIcon(HInstance, Icon, clNone, [32, 48, 64])
   else
     LeftPanel.Visible := False;
 end;
@@ -279,7 +284,7 @@ begin
   InstructionText.Visible := Instruction <> '';
   if InstructionText.Visible then begin
     InstructionText.Caption := Instruction;
-    InstructionText.Font.Size := MulDiv(Font.Size, 13, 9);
+    InstructionText.Font.Height := MulDiv(InstructionText.Font.Height, 12, 8);
   end;
   TextText.Visible := Text <> '';
   if TextText.Visible then
@@ -303,6 +308,7 @@ begin
       end else
         Hint := '';
       MainButton.Caption := Caption;
+      MainButton.Font.Height := MulDiv(MainButton.Font.Height, 12, 8);
       MainButton.CommandLinkHint := Hint;
       MainButton.ModalResult := ButtonIDs[I];
       if MainButton.ModalResult = IDCANCEL then begin

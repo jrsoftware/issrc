@@ -59,7 +59,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Dark mode automatically replaces icons, wizard images, and colors while maintaining a consistent user experience. It still allows a custom main icon, and custom images and colors. Includes support for styled task dialogs.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-dark-org-175.png">Example screenshot of Setup using the built-in dark style, at 175% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125.png">Example screenshot of a task dialog using the built-in dark style, at 125% DPI</a>.<br/>
-        <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125-rtl.png">Includes full right to left support</a>.
+        <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125-rtl.png">Includes full right-to-left support</a>.
     </li>
     <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information, special considerations, and example screenshots.</li>
   </ul>
@@ -90,7 +90,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>The Polar style shown above is available built-in and directly supported by the <tt>WizardStyle</tt> directive. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar</code></pre>
     </li>
-    <li>Two more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
+    <li>Three more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt>, <tt>windows11</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, <tt>windows11</tt> enables a light counterpart of the built-in dark style, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern zircon</code></pre>
     </li>
     <li>Also supported is an <tt>includetitlebar</tt> modifier: Enables custom styling of both title bars and borders. By default, the system's native light or dark title bar is used instead. For example:
@@ -102,14 +102,31 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Pascal Scripting:
   <ul>
     <li>Added new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
-    <li>Added new <tt>StyleElements</tt> and <tt>StyleName</tt> properties to support class <tt>TControl</tt>. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, which also uses <tt>IsDarkInstallMode</tt>.</li>
-  </ul></li>
+    <li>Added new <tt>StyleElements</tt> and <tt>StyleName</tt> properties to support class <tt>TControl</tt>. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, which also demonstrates the use of <tt>IsDarkInstallMode</tt>.</li>
+  </ul>
+</li>
 </ul>
 <span class="head2">Other changes</span>
 <ul>
-  <li>Compiler IDE: Improved the contrast ratio for various syntax highlighting colors, particularly in dark mode.</li>
+  <li>Compiler IDE:
+  <ul>
+    <li>Improved the contrast ratio for various syntax highlighting colors, particularly in dark mode.</li>
+    <li>Updated the default dialog font from 8pt Segoe UI to 9pt Segoe UI.</li>
+  </ul>
+  </li>
   <li><tt>[Setup]</tt> section directive <tt>WizardImageBackColor</tt> and the other three <tt>BackColor</tt> directives now accept the <tt>#rrggbb</tt> color format in addition to <tt>$bbggrr</tt>.</li>
-  <li>Pascal Scripting: Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
+  <li>Setup now always uses high-quality, system-defined icons instead of custom ones on the <i>Select Destination Location</i> and <i>Preparing to Install</i> wizard pages, and on the <i>Setup Needs the Next Disk</i> form.</li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>Added support functions <tt>InitializeBitmapButtonFromStockIcon</tt> and <tt>InitializeBitmapImageFromStockIcon</tt>. Can be used to display various high-quality, system-defined icons, on all versions of Windows. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
+        <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new CodeClasses.iss example, at 125% DPI and in dark mode</a>.
+    </li>
+    <li>Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
+    <li>Added support functions <tt>Round</tt>, <tt>Trunc</tt>, <tt>Int</tt>, and <tt>MulDiv</tt>.</li>
+    <li>Added support function <tt>StrToColor</tt>.</li>
+    <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
+  </ul>
+  </li>
   <li>Strengthened randomization of temporary directory names for Setup and Uninstall.</li>
   <li>Minor improvements and fixes.</li>
 </ul>

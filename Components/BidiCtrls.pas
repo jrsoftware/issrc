@@ -42,6 +42,11 @@ type
 
   TNewButtonStyleHook = class(TButtonStyleHook)
 {$IFDEF VCLSTYLES}
+  private
+    class function DrawOrMeasureCommandLink(const Draw: Boolean;
+      const Control: TNewButton; const LStyle: TCustomStyleServices; const FPressed: Boolean;
+      const ACanvas: TCanvas; const AMouseInControl: Boolean): Integer;
+    class function GetIdealHeightIfCommandLink(const Control: TNewButton; const Style: TCustomStyleServices): Integer;
   protected
     procedure DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean); override;
 {$ENDIF}
@@ -100,6 +105,21 @@ begin
   Result := 0;
   if Style = bsCommandLink then begin
     var OldHeight := Height;
+
+    {$IFDEF VCLSTYLES}
+    var LStyle := StyleServices(Self);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+
+    if LStyle <> nil then begin
+      const IdealHeight = TNewButtonStyleHook.GetIdealHeightIfCommandLink(Self, LStyle);
+      if IdealHeight <> 0 then begin
+        Height := IdealHeight;
+        Exit(Height- OldHeight);
+      end;
+    end;
+    {$ENDIF}
+
     var IdealSize: TSize;
     IdealSize.cx := Width;
     IdealSize.cy := 0; { Not needed according to docs and tests, but clearing anyway }
@@ -123,16 +143,22 @@ end;
 
 {$IFDEF VCLSTYLES}
 
-{ TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it
-  fixes RTL support for CommandLinkHint, adds padding to the right side of the button, and actually
-  flipping the text and icons & it improves alignment of the shield icons, especially at high dpi &
-  it avoids drawing empty notes - for other button styles it just calls the original code, and the
-  code for those styles is not copied here }
+{ TNewButtonStyleHook - same as Vcl.StdCtrls' TButtonStyleHook except that for command links it:
+  -Adds support for measuring height
+  -Fixes RTL support for CommandLinkHint
+  -Actually flips the text and icons on RTL
+  -Improves alignment of shield icons, especially at high dpi
+  -Avoids drawing empty notes
+  -Respects the font of the control
+  -Properly centers glyphs vertically on the first text line
+  For other button styles it just calls the original code, and the code for those styles is not copied here }
 
-procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
+class function TNewButtonStyleHook.DrawOrMeasureCommandLink(const Draw: Boolean;
+  const Control: TNewButton; const LStyle: TCustomStyleServices; const FPressed: Boolean;
+  const ACanvas: TCanvas; const AMouseInControl: Boolean): Integer;
 var
   Details:  TThemedElementDetails;
-  LParentRect, DrawRect, R: TRect;
+  LParentRect, DrawRect, R, RSingleLine: TRect;
   LIsRightToLeft: Boolean;
   IL: BUTTON_IMAGELIST;
   IW, IH: Integer;
@@ -145,26 +171,18 @@ var
   IsDefault: Boolean;
   IsElevationRequired: Boolean;
   LPPI: Integer;
-  LStyle: TCustomStyleServices;
-  LControlStyle: NativeInt;
 begin
-  LControlStyle := GetWindowLong(Handle, GWL_STYLE);
-  if (LControlStyle and BS_COMMANDLINK) <> BS_COMMANDLINK then begin
-    inherited;
-    Exit;
-  end;
+  const Handle = Control.Handle;
 
   LPPI := Control.CurrentPPI;
-  LStyle := StyleServices;
 
   LParentRect := Control.ClientRect;
   LIsRightToLeft := Control.IsRightToLeft;
 
-  BCaption := Text;
+  BCaption := Control.Caption;
   ImgIndex := 0;
-  IsDefault := (Control is TNewButton) and TNewButton(Control).Active;
-  IsElevationRequired := (Control is TCustomButton) and CheckWin32Version(6, 0) and
-    TCustomButton(Control).ElevationRequired;
+  IsDefault := Control.Active;
+  IsElevationRequired := CheckWin32Version(6, 0) and Control.ElevationRequired;
   if not Control.Enabled then
   begin
     Details := LStyle.GetElementDetails(tbPushButtonDisabled);
@@ -190,14 +208,62 @@ begin
     Details := LStyle.GetElementDetails(tbPushButtonNormal);
 
   DrawRect := LParentRect;
-  LStyle.DrawElement(ACanvas.Handle, Details, DrawRect);
+  if Draw then
+    LStyle.DrawElement(ACanvas.Handle, Details, DrawRect);
+
+  IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
+  Inc(DrawRect.Left, IW);
+  Inc(DrawRect.Top, 15);
+  Inc(DrawRect.Left, 5);
+  ACanvas.Font := Control.Font;
+  R := DrawRect;
+  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color); { R is used directly below for measuring, and later also for the note }
+  Result := R.Bottom;
+  if Draw then begin
+    RSingleLine := DrawRect;
+    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
+    LStyle.DrawText(ACanvas.Handle, Details, BCaption, RSingleLine, TextFormat, ACanvas.Font.Color); { RSingleLine is used below for the glyphs }
+    { Following does not use any DT_CALCRECT results }
+    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
+    if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
+      ACanvas.Font.Color := ThemeTextColor;
+    var R2 := DrawRect;
+    FlipRect(R2, LParentRect, LIsRightToLeft);
+    LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
+  end;
+  SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
+  if Length(Buffer) > 1 then
+  begin
+    BufferLength := Length(Buffer);
+    if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
+    begin
+      Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
+      ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
+      R := DrawRect;
+      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+      LStyle.DrawText(ACanvas.Handle, Details, Buffer, R, TextFormat, ACanvas.Font.Color);  { R is used directly below for measuring }
+      if R.Bottom > Result then
+        Result := R.Bottom;
+      if Draw then begin
+        { Following does not use any DT_CALCRECT results }
+        TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
+        FlipRect(DrawRect, LParentRect, LIsRightToLeft);
+        LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect, TextFormat, ACanvas.Font.Color);
+      end;
+    end;
+  end;
+
+  Inc(Result, 15);
+
+  if not Draw then
+    Exit;
 
   if Button_GetImageList(handle, IL) and (IL.himl <> 0) and
      ImageList_GetIconSize(IL.himl, IW, IH) then
   begin
-    R := DrawRect;
-    Inc(R.Left, 2);
-    Inc(R.Top, 15);
+    R.Left := 2;
+    R.Top := RSingleLine.Top + (RSingleLine.Height - IH) div 2;
     if IsElevationRequired then
     begin
       ImgIndex := 0;
@@ -205,48 +271,17 @@ begin
     end;
     R.Right := R.Left + IW;
     R.Bottom := R.Top + IH;
-    FlipRect(R, LParentRect, LIsRightToLeft);
-    ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
-  end;
-  IW := MulDiv(35, LPPI, Screen.DefaultPixelsPerInch);
-  Inc(DrawRect.Left, IW);
-  Inc(DrawRect.Top, 15);
-  Inc(DrawRect.Left, 5);
-  Dec(DrawRect.Right, 5);
-  ACanvas.Font := TNewButton(Control).Font;
-  ACanvas.Font.Style := [];
-  ACanvas.Font.Size := 12;
-  R := DrawRect;
-  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
-  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color);
-  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
-  if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
-     ACanvas.Font.Color := ThemeTextColor;
-  var R2 := DrawRect;
-  FlipRect(R2, LParentRect, LIsRightToLeft);
-  LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
-  SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
-  if Length(Buffer) <> 0 then
-  begin
-    BufferLength := Length(Buffer);
-    if Button_GetNote(Handle, PChar(Buffer), BufferLength) and (Buffer <> '') then
-    begin
-      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
-      Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
-      ACanvas.Font.Size := 8;
-      FlipRect(DrawRect, LParentRect, LIsRightToLeft);
-      LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect,
-      TextFormat, ACanvas.Font.Color);
+    if Draw then begin
+      FlipRect(R, LParentRect, LIsRightToLeft);
+      ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
     end;
-  end;
-  if IL.himl = 0 then
-  begin
+  end else begin
     if not Control.Enabled then
       Details := LStyle.GetElementDetails(tbCommandLinkGlyphDisabled)
     else
     if FPressed then
       Details := LStyle.GetElementDetails(tbCommandLinkGlyphPressed)
-    else if Focused then
+    else if Control.Focused then
       Details := LStyle.GetElementDetails(tbCommandLinkGlyphDefaulted)
     else if AMouseInControl then
       Details := LStyle.GetElementDetails(tbCommandLinkGlyphHot)
@@ -255,24 +290,53 @@ begin
 
     DrawRect.Right := IW;
     DrawRect.Left := 3;
-    DrawRect.Top := 10;
+    DrawRect.Top := RSingleLine.Top + (RSingleLine.Height - IW) div 2;
     DrawRect.Bottom := DrawRect.Top + IW;
-    if LIsRightToLeft then begin
-      FlipRect(DrawRect, LParentRect, True);
-      var FlipBitmap := TBitmap.Create;
-      try
-        FlipBitmap.Width := DrawRect.Width;
-        FlipBitmap.Height := DrawRect.Height;
-        BitBlt(FlipBitmap.Canvas.Handle, 0, 0, DrawRect.Width, DrawRect.Height, ACanvas.Handle, DrawRect.Left, DrawRect.Top, SRCCOPY);
-        LStyle.DrawElement(FlipBitmap.Canvas.Handle, Details, Rect(0, 0, DrawRect.Width, DrawRect.Height), nil, LPPI);
-        StretchBlt(ACanvas.Handle, DrawRect.Left, DrawRect.Top, DrawRect.Width, DrawRect.Height,
-          FlipBitmap.Canvas.Handle, FlipBitmap.Width-1, 0, -FlipBitmap.Width, FlipBitmap.Height, SRCCOPY);
-      finally
-        FlipBitmap.Free;
-      end;
-    end else
-      LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
+    if Draw then begin
+      if LIsRightToLeft then begin
+        FlipRect(DrawRect, LParentRect, True);
+        var FlipBitmap := TBitmap.Create;
+        try
+          FlipBitmap.Width := DrawRect.Width;
+          FlipBitmap.Height := DrawRect.Height;
+          BitBlt(FlipBitmap.Canvas.Handle, 0, 0, DrawRect.Width, DrawRect.Height, ACanvas.Handle, DrawRect.Left, DrawRect.Top, SRCCOPY);
+          LStyle.DrawElement(FlipBitmap.Canvas.Handle, Details, Rect(0, 0, DrawRect.Width, DrawRect.Height), nil, LPPI);
+          StretchBlt(ACanvas.Handle, DrawRect.Left, DrawRect.Top, DrawRect.Width, DrawRect.Height,
+            FlipBitmap.Canvas.Handle, FlipBitmap.Width-1, 0, -FlipBitmap.Width, FlipBitmap.Height, SRCCOPY);
+        finally
+          FlipBitmap.Free;
+        end;
+      end else
+        LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
+    end;
   end;
+end;
+
+class function TNewButtonStyleHook.GetIdealHeightIfCommandLink(const Control: TNewButton; const Style: TCustomStyleServices): Integer;
+begin
+  const Canvas = TCanvas.Create;
+  try
+    Canvas.Handle := GetDC(0);
+    try
+      Result := DrawOrMeasureCommandLink(False, Control, Style, False, Canvas, False);
+    finally
+      ReleaseDC(0, Canvas.Handle);
+    end;
+  finally
+    Canvas.Handle := 0;
+    Canvas.Free;
+  end;
+end;
+
+procedure TNewButtonStyleHook.DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean);
+begin
+  const LControlStyle = GetWindowLong(Handle, GWL_STYLE);
+  if (LControlStyle and BS_COMMANDLINK) <> BS_COMMANDLINK then begin
+    inherited;
+    Exit;
+  end;
+
+  DrawOrMeasureCommandLink(True, TNewButton(Control), StyleServices, FPressed, ACanvas, AMouseInControl);
 end;
 
 {$ENDIF}

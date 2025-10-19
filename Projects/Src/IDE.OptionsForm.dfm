@@ -162,7 +162,7 @@ object OptionsForm: TOptionsForm
       57)
     object AssocButton: TButton
       Left = 40
-      Top = 20
+      Top = 21
       Width = 201
       Height = 23
       Anchors = [akLeft, akBottom]
@@ -347,7 +347,7 @@ object OptionsForm: TOptionsForm
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 120
-      Top = 338
+      Top = 339
       Width = 120
       Height = 17
       Caption = 'Show whitespace'

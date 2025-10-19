@@ -19,9 +19,9 @@ object TaskDialogForm: TTaskDialogForm
   TextHeight = 13
   object BottomPanel: TPanel
     Left = 0
-    Top = 322
+    Top = 324
     Width = 383
-    Height = 49
+    Height = 47
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
@@ -29,7 +29,7 @@ object TaskDialogForm: TTaskDialogForm
       Left = 0
       Top = 0
       Width = 383
-      Height = 49
+      Height = 47
       Align = alRight
       AutoSize = True
       BevelOuter = bvNone
@@ -55,8 +55,8 @@ object TaskDialogForm: TTaskDialogForm
         Left = 0
         Top = 12
         Width = 75
-        Height = 25
-        Caption = 'OkButton'
+        Height = 23
+        Caption = '*'
         ModalResult = 1
         TabOrder = 0
       end
@@ -64,8 +64,8 @@ object TaskDialogForm: TTaskDialogForm
         Left = 77
         Top = 12
         Width = 75
-        Height = 25
-        Caption = 'YesButton'
+        Height = 23
+        Caption = '*'
         ModalResult = 6
         TabOrder = 1
       end
@@ -73,8 +73,8 @@ object TaskDialogForm: TTaskDialogForm
         Left = 154
         Top = 12
         Width = 75
-        Height = 25
-        Caption = 'NoButton'
+        Height = 23
+        Caption = '*'
         ModalResult = 7
         TabOrder = 2
       end
@@ -82,8 +82,8 @@ object TaskDialogForm: TTaskDialogForm
         Left = 231
         Top = 12
         Width = 75
-        Height = 25
-        Caption = 'RetryButton'
+        Height = 23
+        Caption = '*'
         ModalResult = 4
         TabOrder = 3
       end
@@ -91,9 +91,9 @@ object TaskDialogForm: TTaskDialogForm
         Left = 308
         Top = 12
         Width = 75
-        Height = 25
+        Height = 23
         Cancel = True
-        Caption = 'CancelButton'
+        Caption = '*'
         ModalResult = 2
         TabOrder = 4
       end
@@ -103,7 +103,7 @@ object TaskDialogForm: TTaskDialogForm
     Left = 0
     Top = 0
     Width = 383
-    Height = 322
+    Height = 324
     Align = alClient
     BevelOuter = bvNone
     Color = clWindow
@@ -113,7 +113,7 @@ object TaskDialogForm: TTaskDialogForm
       Left = 0
       Top = 0
       Width = 32
-      Height = 322
+      Height = 324
       Align = alLeft
       BevelOuter = bvNone
       ParentColor = True
@@ -130,7 +130,7 @@ object TaskDialogForm: TTaskDialogForm
       Left = 32
       Top = 0
       Width = 351
-      Height = 322
+      Height = 324
       Align = alClient
       BevelOuter = bvNone
       ControlCollection = <
@@ -158,7 +158,7 @@ object TaskDialogForm: TTaskDialogForm
         Width = 351
         Height = 14
         AutoSize = False
-        Caption = 'Instruction text'
+        Caption = '*'
         ShowAccelChar = False
         TabOrder = 0
       end
@@ -168,7 +168,7 @@ object TaskDialogForm: TTaskDialogForm
         Width = 351
         Height = 14
         AutoSize = False
-        Caption = 'Text text'
+        Caption = '*'
         ShowAccelChar = False
         TabOrder = 1
         WordWrap = True
@@ -178,8 +178,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 32
         Width = 351
         Height = 77
-        Caption = 'MainButton1'
-        CommandLinkHint = 'Note'
+        Caption = '*'
         ElevationRequired = True
         Style = bsCommandLink
         TabOrder = 2
@@ -189,7 +188,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 111
         Width = 351
         Height = 77
-        Caption = 'MainButton2'
+        Caption = '*'
         Style = bsCommandLink
         TabOrder = 3
       end
@@ -198,7 +197,7 @@ object TaskDialogForm: TTaskDialogForm
         Top = 190
         Width = 351
         Height = 77
-        Caption = 'MainButton3'
+        Caption = '*'
         Style = bsCommandLink
         TabOrder = 4
       end
@@ -218,7 +217,7 @@ object TaskDialogForm: TTaskDialogForm
       Width = 383
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'VerificationCheck'
+      Caption = '*'
       TabOrder = 0
     end
   end

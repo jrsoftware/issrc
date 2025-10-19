@@ -33,6 +33,10 @@ type
   TMsgBoxCallbackFunc = procedure(const Flags: Integer; const After: Boolean;
     const Param: LongInt);
 
+  TControlHelper = class helper for TControl
+    procedure SetCurrentPPI(const CurrentPPI: Integer);
+  end;
+
 { Useful constant }
 const
   EnableColor: array[Boolean] of TColor = (clBtnFace, clWindow);
@@ -570,6 +574,13 @@ begin
   if FOwnerWnd <> 0 then
     DestroyWindow(FOwnerWnd);  { will destroy FFallbackWnd too }
   inherited;
+end;
+
+{ TControlHelper }
+
+procedure TControlHelper.SetCurrentPPI(const CurrentPPI: Integer);
+begin
+  FCurrentPPI := CurrentPPI;
 end;
 
 initialization

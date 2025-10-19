@@ -165,6 +165,9 @@ end;
 
 begin
   try
+    {$IFDEF DEBUG}
+    ReportMemoryLeaksOnShutdown := True;
+    {$ENDIF}
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
@@ -241,6 +244,11 @@ begin
     { Show any exception and continue }
     ShowExceptionMsg;
   end;
+
+  {$IFDEF DEBUG}
+  { Prevent a warning about an expected memory leak, at least when exiting normally }
+  Application.UnhookMainWindow(TDummyClass.AntiShutdownHook);
+  {$ENDIF}
 
   Halt(SetupExitCode);
 end.
