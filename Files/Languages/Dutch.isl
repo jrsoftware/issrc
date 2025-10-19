@@ -244,11 +244,11 @@ RunEntryExec=Start %1
 RunEntryShellExec=Bekijk %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Setup heeft de volgende diskette nodig
-SelectDiskLabel2=Voer diskette %1 in en klik op OK.%n%nAls de bestanden op deze diskette in een andere map gevonden kunnen worden dan die hieronder wordt getoond, voer dan het juiste pad in of klik op Bladeren.
+ChangeDiskTitle=Setup heeft de volgende disk nodig
+SelectDiskLabel2=Voer disk %1 in en klik op OK.%n%nAls de bestanden op deze disk in een andere map gevonden kunnen worden dan die hieronder wordt getoond, voer dan het juiste pad in of klik op Bladeren.
 PathLabel=&Pad:
-FileNotInDir2=Kan het bestand "%1" niet vinden in "%2". Voer de juiste diskette in of kies een andere map.
-SelectDirectoryLabel=Geef de locatie van de volgende diskette.
+FileNotInDir2=Kan het bestand "%1" niet vinden in "%2". Voer de juiste disk in of kies een andere map.
+SelectDirectoryLabel=Geef de locatie van de volgende disk.
 
 ; *** Installation phase messages
 SetupAborted=Setup is niet voltooid.%n%nCorrigeer het probleem en voer Setup opnieuw uit.
