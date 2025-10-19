@@ -563,7 +563,6 @@ begin
   Result := ScalePixelsX(BaseUnitX, N);
 end;
 
-
 class function TSetupForm.ScalePixelsY(const BaseUnitY, N: Integer): Integer;
 begin
   Result := MulDiv(N, BaseUnitY, LangOptions.DialogFontBaseScaleHeight);
