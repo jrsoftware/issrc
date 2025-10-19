@@ -969,10 +969,7 @@ begin
             if WizardDarkStyle = wdsLight then
               Postfix := '_DARK';
             { Delete the icons we don't need: either the light ones or the dark ones }
-            DeleteIconIfExists(H, M, PChar('Z_DIRICON' + Postfix));
-            DeleteIconIfExists(H, M, PChar('Z_DISKICON' + Postfix));
             DeleteIconIfExists(H, M, PChar('Z_GROUPICON' + Postfix));
-            DeleteIconIfExists(H, M, PChar('Z_STOPICON' + Postfix));
             if not DeleteUninstallIcon then
               DeleteIconIfExists(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;

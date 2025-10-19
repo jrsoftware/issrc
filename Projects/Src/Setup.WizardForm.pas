@@ -914,9 +914,10 @@ begin
   end else
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  SelectDirBitmapImage.InitializeFromIcon(HInstance, PChar('Z_DIRICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
-  SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, [32, 48, 64]); {don't localize}
-  PreparingErrorBitmapImage.InitializeFromIcon(HInstance, PChar('Z_STOPICON' + WizardIconsPostfix), clNone, [16, 24, 32]); {don't localize}
+  const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
+  SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
+  SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, SelectDirOrGroupSizes); {don't localize}
+  PreparingErrorBitmapImage.InitializeFromStockIcon(SIID_ERROR, clNone, [16, 24, 32]);
 
   { Initialize wpWelcome page }
   RegisterExistingPage(wpWelcome, WelcomePage, nil, '', '');

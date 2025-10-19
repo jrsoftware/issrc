@@ -2861,6 +2861,7 @@ end;</pre></example>
         <description><p>Initializes the given bitmap image with an icon from the given icon file using the given background color for transparent parts.</p>
 <p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
 <p>The array must be sorted already from smallest to highest size.</p>
+<p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
 <p>Returns True if the icon could be loaded, False otherwise.</p></description>
         <example><pre>procedure InitializeWizard;
 var
@@ -2879,18 +2880,22 @@ begin
 
   InitializeBitmapImageFromIcon(BitmapImage, 'MyProg.ico', clNone, [32, 48, 64]);
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_InitializeBitmapImageFromStockIcon">InitializeBitmapImageFromStockIcon</link></p></seealso>
       </function>
       <function>
         <name>InitializeBitmapButtonFromStockIcon</name>
-        <prototype>function InitializeBitmapButtonFromStockIcon(const BitmapButton: TBitmapButton; const Siid: Integer; const BkColor: TColor): Boolean;</prototype>
+        <prototype>function InitializeBitmapButtonFromStockIcon(const BitmapButton: TBitmapButton; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
         <description><p>Initializes the given bitmap button with a system-defined stock icon from the given stock icon id (siid) using the given background color for transparent parts.</p>
 <p>See <link topic="isxfunc_InitializeBitmapImageFromStockIcon">InitializeBitmapImageFromStockIcon</link> for more information.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromStockIcon</name>
-        <prototype>function InitializeBitmapImageFromStockIcon(const BitmapImage: TBitmapImage; const Siid: Integer; const BkColor: TColor): Boolean;</prototype>
+        <prototype>function InitializeBitmapImageFromStockIcon(const BitmapImage: TBitmapImage; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
         <description><p>Initializes the given bitmap image with a system-defined stock icon from the given stock icon id (siid) using the given background color for transparent parts.</p>
-<p>Does not change the size of the bitmap image, except that the function will make it square if needed.</p>
+<p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
+<p>The array must be sorted already from smallest to highest size.</p>
+<p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
+<p>Unlike <link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link>, this function supports arbitrary sizes.</p>
 <p>Returns True if the icon could be loaded, False otherwise.</p></description>
         <remarks><p>See <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.</p>
 <p>Supported values for <tt>Siid</tt> are:</p>
@@ -2930,8 +2935,9 @@ begin
     Parent := Page.Surface;
   end;
 
-  InitializeBitmapImageFromStockIcon(BitmapImage, SIID_ERROR, clNone);
+  InitializeBitmapImageFromStockIcon(BitmapImage, SIID_ERROR, clNone, [32, 48, 64]);
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link></p></seealso>
       </function>
     </subcategory>
   </category>

@@ -120,10 +120,10 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone);
-  IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone);
-  IMGmbError.InitializeFromStockIcon(SIID_WARNING, clNone);
-  IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone);
+  IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone, [32, 48, 64]);
+  IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone, [32, 48, 64]);
+  IMGmbError.InitializeFromStockIcon(SIID_WARNING, clNone, [32, 48, 64]);
+  IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
   MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';

@@ -272,7 +272,7 @@ begin
     Siid := SIID_INVALID;
 
   if Siid <> SIID_INVALID then
-    BitmapImage.InitializeFromStockIcon(Siid, clNone)
+    BitmapImage.InitializeFromStockIcon(Siid, clNone, [32, 48, 64])
   else if Icon <> nil then
     BitmapImage.InitializeFromIcon(HInstance, Icon, clNone, [32, 48, 64])
   else

@@ -405,20 +405,20 @@ begin
   BitmapImage[3] := TBitmapImage.Create(Page);
   BitmapImage[3].Width := ScaleX(16);
   BitmapImage[3].Height := BitmapImage[3].Width;
-  InitializeBitmapImageFromStockIcon(BitmapImage[3], SIID_ERROR, clNone);
+  InitializeBitmapImageFromStockIcon(BitmapImage[3], SIID_ERROR, clNone, [16, 24, 32]);
   BitmapImage[3].Parent := Page.Surface;
 
   BitmapImage[4] := TBitmapImage.Create(Page);
   BitmapImage[4].Width := ScaleX(32);
   BitmapImage[4].Height := BitmapImage[4].Width;
-  InitializeBitmapImageFromStockIcon(BitmapImage[4], SIID_ERROR, clNone);
+  InitializeBitmapImageFromStockIcon(BitmapImage[4], SIID_ERROR, clNone, [32, 48, 64]);
   BitmapImage[4].Left := BitmapImage[3].Left + BitmapImage[3].Width + 10; 
   BitmapImage[4].Parent := Page.Surface;
 
   BitmapImage[5] := TBitmapImage.Create(Page);
   BitmapImage[5].Width := 256;
   BitmapImage[5].Height := BitmapImage[5].Width;
-  InitializeBitmapImageFromStockIcon(BitmapImage[5], SIID_ERROR, clNone);
+  InitializeBitmapImageFromStockIcon(BitmapImage[5], SIID_ERROR, clNone, []);
   BitmapImage[5].Top := BitmapImage[4].Top + BitmapImage[4].Height + 10; 
   BitmapImage[5].Parent := Page.Surface;
  
@@ -434,7 +434,7 @@ begin
     SiidBitmapImage := TBitmapImage.Create(Page);
     SiidBitmapImage.Width := ScaleX(32);
     SiidBitmapImage.Height := SiidBitmapImage.Width;
-    InitializeBitmapImageFromStockIcon(SiidBitmapImage, Siids[I], clNone);
+    InitializeBitmapImageFromStockIcon(SiidBitmapImage, Siids[I], clNone, [32, 48, 64]);
     SiidBitmapImage.Left := BitmapImage[5].Left + BitmapImage[5].Width + 20 + (I mod 5) * ScaleX(42); 
     SiidBitmapImage.Top := (I div 5) * ScaleY(42); 
     SiidBitmapImage.Parent := Page.Surface;
@@ -475,7 +475,7 @@ begin
   BitmapButton[2] := TBitmapButton.Create(Page);
   BitmapButton[2].Width := ScaleX(24);
   BitmapButton[2].Height := ScaleY(24);
-  InitializeBitmapButtonFromStockIcon(BitmapButton[2], SIID_HELP, clNone);
+  InitializeBitmapButtonFromStockIcon(BitmapButton[2], SIID_HELP, clNone, [24, 36, 38]);
   BitmapButton[2].Caption := BitmapButton[0].Caption;
   BitmapButton[2].Hint := BitmapButton[0].Hint;
   BitmapButton[2].ShowHint := True;
