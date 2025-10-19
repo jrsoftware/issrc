@@ -2,7 +2,7 @@ unit IDE.MsgBoxDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,14 +15,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage;
+  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage, BitmapImage;
 
 type
   TMsgBoxDesignerForm = class(TUIStateForm)
-    IMGmbInformation: TImage;
-    IMGmbConfirmation: TImage;
-    IMGmbError: TImage;
-    IMGmbCriticalError: TImage;
+    IMGmbInformation: TBitmapImage;
+    IMGmbConfirmation: TBitmapImage;
+    IMGmbError: TBitmapImage;
+    IMGmbCriticalError: TBitmapImage;
     Panel1: TPanel;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
@@ -110,6 +110,7 @@ type
 implementation
 
 uses
+  ShellAPI,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.TaskDialogFunc, IDE.Messages;
 
 {$R *.DFM}
@@ -118,6 +119,11 @@ procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
   InitFormFont(Self);
   InitFormTheme(Self);
+
+  IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone);
+  IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone);
+  IMGmbError.InitializeFromStockIcon(SIID_WARNING, clNone);
+  IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone);
 
   cb_Suppressible.Checked := True;
   MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';
