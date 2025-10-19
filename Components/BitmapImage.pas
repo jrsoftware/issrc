@@ -16,7 +16,7 @@ unit BitmapImage;
 interface
 
 uses
-  Windows, Controls, Graphics, Classes, Imaging.pngimage;
+  Windows, ShellAPI, Controls, Graphics, Classes, Imaging.pngimage;
 
 type
   TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
@@ -40,7 +40,9 @@ type
     procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
       const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
+    function GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     procedure BitmapChanged(Sender: TObject);
     procedure PngImageChanged(Sender: TObject);
     procedure SetAutoSize(Sender: TObject; Value: Boolean);
@@ -75,6 +77,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Graphic: TGraphic write SetGraphic;
   published
@@ -111,7 +114,7 @@ procedure Register;
 implementation
 
 uses
-  SysUtils, Math, Themes, Resample;
+  CommCtrl, SysUtils, Math, Themes, Resample;
 
 procedure Register;
 begin
@@ -143,18 +146,23 @@ begin
   FreeAndNil(Bitmap);
 end;
 
-function TBitmapImageImplementation.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+function TBitmapImageImplementation.GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
 begin
   { Find the largest regular icon size smaller than the scaled image }
-  var Size := 0;
+  Result := 0;
   for var I := Length(AscendingTrySizes)-1 downto 0 do begin
     if (FControl.Width >= AscendingTrySizes[I]) and (FControl.Height >= AscendingTrySizes[I]) then begin
-      Size := AscendingTrySizes[I];
+      Result := AscendingTrySizes[I];
       Break;
     end;
   end;
-  if Size = 0 then
-    Size := Min(FControl.Width, FControl.Height);
+  if Result = 0 then
+    Result := Min(FControl.Width, FControl.Height);
+end;
+
+function TBitmapImageImplementation.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  const Size = GetInitializeSize(AscendingTrySizes);
 
   { Load the desired icon }
   var Flags := LR_DEFAULTCOLOR;
@@ -175,6 +183,7 @@ begin
       { Set bitmap }
       AutoSize := False;
       BackColor := BkColor;
+      Stretch := True;
       Bitmap.Assign(Icon);
 
       Result := True;
@@ -183,6 +192,53 @@ begin
     end;
   end else
     Result := False;
+end;
+
+const
+  IID_IImageList: TGUID = '{46EB5926-582E-4017-9FDF-E8998DAA0950}';
+
+function TBitmapImageImplementation.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  Result := False;
+
+  var SHStockIconInfo: TSHStockIconInfo;
+  SHStockIconInfo.cbSize := SizeOf(SHStockIconInfo);
+  if Succeeded(SHGetStockIconInfo(siid, SHGSI_SYSICONINDEX, SHStockIconInfo)) then begin
+   var ImageList: HIMAGELIST;
+    { The SHGetImageList documentation remarks that SHIL_SMALL and SHIL_LARGE are DPI-aware. However
+      because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
+      scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
+      the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
+    const Size = GetInitializeSize(AscendingTrySizes);
+    var iImageList: Integer;
+    if Size > 24 then
+      iImageList := SHIL_JUMBO
+    else
+      iImageList := SHIL_EXTRALARGE; { For small images use SHIL_EXTRALARGE, which should be 48x48 at least }
+    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageList))) then begin
+      var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
+      if Handle <> 0 then begin
+        const Icon = TIcon.Create;
+        try
+          Icon.Handle := Handle;
+
+          { Set sizes (overrides any scaling) }
+          FControl.Width := Size;
+          FControl.Height := Size;
+
+          { Set bitmap }
+          AutoSize := False;
+          BackColor := BkColor;
+          Stretch := True;
+          Bitmap.Assign(Icon);
+
+          Result := True;
+        finally
+          Icon.Free;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
@@ -374,6 +430,11 @@ end;
 function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
+end;
+
+function TBitmapImage.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  Result := FImpl.InitializeFromStockIcon(siid, BkColor, AscendingTrySizes);
 end;
 
 procedure TBitmapImage.SetAutoSize(Value: Boolean);

@@ -1839,6 +1839,16 @@ var
       var AscendingTrySizes := Stack.GetIntArray(PStart-4);
       Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromIcon(0, PChar(Stack.GetString(PStart-2)), Stack.GetInt(PStart-3), AscendingTrySizes));
     end);
+    RegisterScriptFunc('InitializeBitmapButtonFromStockIcon', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      var AscendingTrySizes := Stack.GetIntArray(PStart-4);
+      Stack.SetBool(PStart, TBitmapButton(Stack.GetClass(PStart-1)).InitializeFromStockIcon(Stack.GetInt(PStart-2), Stack.GetInt(PStart-3), AscendingTrySizes));
+    end);
+    RegisterScriptFunc('InitializeBitmapImageFromStockIcon', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
+    begin
+      var AscendingTrySizes := Stack.GetIntArray(PStart-4);
+      Stack.SetBool(PStart, TBitmapImage(Stack.GetClass(PStart-1)).InitializeFromStockIcon(Stack.GetInt(PStart-2), Stack.GetInt(PStart-3), AscendingTrySizes));
+    end);
     RegisterScriptFunc(['Extract7ZipArchive', 'ExtractArchive'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       var Password: String;

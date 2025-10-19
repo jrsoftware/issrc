@@ -20,7 +20,7 @@ unit BitmapButton;
 interface
 
 uses
-  Windows, Messages, Controls, Graphics, Classes, Imaging.pngimage,
+  Windows, Messages, ShellAPI, Controls, Graphics, Classes, Imaging.pngimage,
   BitmapImage;
 
 type
@@ -48,6 +48,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
     property Graphic: TGraphic write SetGraphic;
   published
@@ -112,6 +113,11 @@ end;
 function TBitmapButton.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
   Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
+end;
+
+function TBitmapButton.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  Result := FImpl.InitializeFromStockIcon(siid, BkColor, AscendingTrySizes);
 end;
 
 procedure TBitmapButton.SetAutoSize(Value: Boolean);

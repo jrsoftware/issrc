@@ -12,7 +12,7 @@ unit BrowseFunc;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms;
+  Windows, Classes, Forms;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
   const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
@@ -29,79 +29,76 @@ function NewGetSaveFileName(const Prompt: String; var FileName: String;
 implementation
 
 uses
-  CommDlg, ShlObj, ActiveX, Themes,
+  CommDlg, ShlObj, ActiveX,
+  SysUtils, Themes,
   PathFunc;
-
-function BrowseCallback(Wnd: HWND; uMsg: UINT; lParam, lpData: LPARAM): Integer; stdcall;
-var
-  ShouldEnable: Boolean;
-  Path: array[0..MAX_PATH-1] of Char;
-begin
-  case uMsg of
-    BFFM_INITIALIZED:
-      begin
-        if lpData <> 0 then
-          SendMessage(Wnd, BFFM_SETSELECTION, 1, lpData);
-      end;
-    BFFM_SELCHANGED:
-      begin
-        { In a BIF_NEWDIALOGSTYLE dialog, BIF_RETURNONLYFSDIRS does not cause
-          the OK button to be disabled automatically when the user clicks a
-          non-FS item (e.g. My Computer), so do that ourself. }
-        ShouldEnable := SHGetPathFromIDList(PItemIDList(lParam), Path);
-        SendMessage(Wnd, BFFM_ENABLEOK, 0, Ord(ShouldEnable));
-      end;
-  end;
-  Result := 0;
-end;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
   const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
-const
-  BIF_NONEWFOLDERBUTTON = $200;
-  BIF_NEWDIALOGSTYLE = $0040;
+
+  function RemoveSinglePeriod(const S: String): String;
+  begin
+    Result := S;
+    const FirstPeriodPos = Pos('.', S);
+    if FirstPeriodPos <> 0 then begin
+      const LastPeriodPos = LastDelimiter('.', S);
+      if (FirstPeriodPos = LastPeriodPos) and (LastPeriodPos = Length(S)) then
+        Delete(Result, LastPeriodPos, 1);
+    end;
+  end;
+
 var
   InitialDir: String;
-  Malloc: IMalloc;
-  BrowseInfo: TBrowseInfo;
-  DisplayName, Path: array[0..MAX_PATH-1] of Char;
+  FileDialog: IFileDialog;
+  Options: DWORD;
   ActiveWindow: HWND;
   WindowList: Pointer;
-  IDList: PItemIDList;
+  ShellItem: IShellItem;
+  ResultPath: PChar;
 begin
   Result := False;
   InitialDir := RemoveBackslashUnlessRoot(Directory);  { Win95 doesn't allow trailing backslash }
-  if FAILED(SHGetMalloc(Malloc)) then
-    Malloc := nil;
-  FillChar(BrowseInfo, SizeOf(BrowseInfo), 0);
-  with BrowseInfo do begin
-    hwndOwner := ParentWnd;
-    pszDisplayName := @DisplayName;
-    lpszTitle := PChar(Prompt);
-    ulFlags := BIF_RETURNONLYFSDIRS or BIF_NEWDIALOGSTYLE;
-    if not NewFolderButton then
-      ulFlags := ulFlags or BIF_NONEWFOLDERBUTTON;
-    lpfn := BrowseCallback;
-    if InitialDir <> '' then
-      Pointer(lParam) := PChar(InitialDir);
-  end;
+
+  if Failed(CoInitialize(nil)) then
+    Exit;
   ActiveWindow := GetActiveWindow;
   WindowList := DisableTaskWindows(ParentWnd);
-  CoInitialize(nil);
+  const SaveHooks = TStyleManager.SystemHooks;
+  TStyleManager.SystemHooks := []; { See below }
   try
-    IDList := SHBrowseForFolder(BrowseInfo);
+    if Failed(CoCreateInstance(CLSID_FileOpenDialog, nil, CLSCTX_INPROC_SERVER, IID_IFileDialog, FileDialog)) or
+       Failed(FileDialog.GetOptions(Options)) then { On Windows 11 this returned FOS_NOCHANGEDIR or FOS_PATHMUSTEXIST or FOS_FILEMUSTEXIST }
+      Exit;
+
+    Options := Options or FOS_PICKFOLDERS or FOS_FORCEFILESYSTEM;
+    if not NewFolderButton then begin
+      const FOS_NOCREATEFOLDERS: DWORD = $00000200;
+      Options := Options or FOS_NOCREATEFOLDERS;
+    end;
+    if Failed(FileDialog.SetOptions(Options)) then
+      Exit;
+
+    if Prompt <> '' then
+      FileDialog.SetTitle(PChar(RemoveSinglePeriod(Prompt)));
+
+    if (InitialDir <> '') and Succeeded(SHCreateItemFromParsingName(PChar(InitialDir), nil, IID_IShellItem, ShellItem)) then
+      FileDialog.SetFolder(ShellItem);
+
+    if Failed(FileDialog.Show(ParentWnd)) or
+       Failed(FileDialog.GetResult(ShellItem)) or
+       Failed(ShellItem.GetDisplayName(SIGDN_FILESYSPATH, ResultPath)) then
+      Exit;
+
+    try
+      Directory := ResultPath;
+    finally
+      CoTaskMemFree(ResultPath);
+    end;
   finally
-    CoUninitialize();
+    TStyleManager.SystemHooks := SaveHooks;
     EnableTaskWindows(WindowList);
     SetActiveWindow(ActiveWindow);
-  end;
-  try
-    if (IDList = nil) or not SHGetPathFromIDList(IDList, Path) then
-      Exit;
-    Directory := Path;
-  finally
-    if Assigned(Malloc) then
-      Malloc.Free(IDList);
+    CoUninitialize();
   end;
   Result := True;
 end;

@@ -227,8 +227,6 @@ begin
     Result := 0;
 end;
 
-procedure InitCommonControls; external comctl32 name 'InitCommonControls';
-
 initialization
   InitCommonControls;
   TaskDialogIndirectFunc := GetProcAddress(GetModuleHandle(comctl32), 'TaskDialogIndirect');

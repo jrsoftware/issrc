@@ -105,6 +105,19 @@ type
     property OnRename;
   end;
 
+  TFolderTreeViewStyleHook = class(TScrollingStyleHook)
+{$IFDEF VCLSTYLES}
+  strict private
+    procedure UpdateBrushColor;
+    procedure UpdateFontColor;
+    procedure TVMSetBkColor(var Message: TMessage); message TVM_SETBKCOLOR;
+    procedure TVMSetTextColor(var Message: TMessage); message TVM_SETTEXTCOLOR;
+    procedure WMMouseMove(var Msg: TWMMouse); message WM_MOUSEMOVE;
+  public
+    constructor Create(AControl: TWinControl); override;
+{$ENDIF}
+  end;
+
 procedure Register;
 
 implementation
@@ -137,7 +150,7 @@ implementation
 
 uses
   ShellAPI, Types, GraphUtil,
-  {$IFDEF VCLSTYLES} Vcl.Themes, ComCtrls, {$ELSE} Themes, {$ENDIF}
+  {$IFDEF VCLSTYLES} Vcl.Themes, UITypes, {$ELSE} Themes, {$ENDIF}
   PathFunc, NewUxTheme;
 
 const
@@ -344,7 +357,7 @@ type
 
 class constructor TCustomFolderTreeView.Create;
 begin
-  TCustomStyleEngine.RegisterStyleHook(TCustomFolderTreeView, TTreeViewStyleHook);
+  TCustomStyleEngine.RegisterStyleHook(TCustomFolderTreeView, TFolderTreeViewStyleHook);
 end;
 
 constructor TCustomFolderTreeView.Create(AOwner: TComponent);
@@ -423,7 +436,7 @@ end;
 
 class destructor TCustomFolderTreeView.Destroy;
 begin
-  TCustomStyleEngine.UnRegisterStyleHook(TCustomFolderTreeView, TTreeViewStyleHook);
+  TCustomStyleEngine.UnRegisterStyleHook(TCustomFolderTreeView, TFolderTreeViewStyleHook);
 end;
 
 procedure TCustomFolderTreeView.WMDestroy(var Message: TWMDestroy);
@@ -1146,6 +1159,160 @@ begin
   FCommonStartup := ACommonStartup;
   RecreateWnd;
 end;
+
+{$IFDEF VCLSTYLES}
+
+{ TFolderTreeViewStyleHook - same as Vcl.ComCtrls' TTreeViewStyleHook
+  except that it accesses the Control property as a TCustomFolderTreeView instead
+  of a TCustomTreeView }
+
+type
+  TWinControlClass = class(TWinControl);
+
+constructor TFolderTreeViewStyleHook.Create(AControl: TWinControl);
+begin
+  inherited;
+  OverrideEraseBkgnd := True;
+  UpdateFontColor;
+  UpdateBrushColor;
+end;
+
+procedure TFolderTreeViewStyleHook.TVMSetBkColor(var Message: TMessage);
+begin
+  UpdateBrushColor;
+  Message.LParam := LPARAM(ColorToRGB(Brush.Color));
+  Handled := False;
+end;
+
+procedure TFolderTreeViewStyleHook.TVMSetTextColor(var Message: TMessage);
+begin
+  UpdateFontColor;
+  Message.LParam := LPARAM(ColorToRGB(FontColor));
+  Handled := False;
+end;
+
+procedure TFolderTreeViewStyleHook.UpdateBrushColor;
+begin
+  if seClient in Control.StyleElements then
+    Brush.Color := StyleServices.GetStyleColor(scTreeView)
+  else
+    Brush.Color := TWinControlClass(Control).Color;
+end;
+
+procedure TFolderTreeViewStyleHook.UpdateFontColor;
+var
+  LColor : TColor;
+begin
+  if (seFont in Control.StyleElements) then
+  begin
+    if not StyleServices.GetElementColor(StyleServices.GetElementDetails(ttItemNormal), ecTextColor, LColor) or
+       (LColor = clNone) then
+      LColor := StyleServices.GetSystemColor(clWindowText);
+    FontColor := LColor;
+  end else
+    FontColor := TWinControlClass(Control).Font.Color;
+end;
+
+procedure TFolderTreeViewStyleHook.WMMouseMove(var Msg: TWMMouse);
+var
+  SF: TScrollInfo;
+begin
+  if VertSliderState = tsThumbBtnVertPressed then
+  begin
+    SF.fMask := SIF_ALL;
+    SF.cbSize := SizeOf(SF);
+    GetScrollInfo(Handle, SB_VERT, SF);
+    ScrollPos := ScrollPos + (SF.nMax - SF.nMin) * ((Mouse.CursorPos.Y - PrevScrollPos) / VertTrackRect.Height);
+    if ScrollPos < SF.nMin then
+      ScrollPos := SF.nMin;
+    if ScrollPos > SF.nMax then
+      ScrollPos := SF.nMax;
+
+    PrevScrollPos := Mouse.CursorPos.Y;
+    if Control is TCustomFolderTreeView then
+    begin
+      PostMessage(Handle, WM_VSCROLL, Integer(SmallPoint(SB_THUMBTRACK, Round(ScrollPos))), 0);
+      SF.nPos := Round(ScrollPos);
+      SF.nTrackPos := Round(ScrollPos);
+      SetScrollInfo(Handle, SB_VERT, SF, True);
+    end
+    else
+      PostMessage(Handle, WM_VSCROLL, Integer(SmallPoint(SB_THUMBPOSITION, Round(ScrollPos))), 0);
+    PaintScroll;
+    Handled := True;
+    Exit;
+  end;
+
+  if HorzSliderState = tsThumbBtnHorzPressed then
+  begin
+    SF.fMask := SIF_ALL;
+    SF.cbSize := SizeOf(SF);
+    GetScrollInfo(Handle, SB_HORZ, SF);
+    ScrollPos := ScrollPos + (SF.nMax - SF.nMin) * ((Mouse.CursorPos.X - PrevScrollPos) / HorzTrackRect.Width);
+    if ScrollPos < SF.nMin then
+      ScrollPos := SF.nMin;
+    if ScrollPos > SF.nMax then
+      ScrollPos := SF.nMax;
+
+    PrevScrollPos := Mouse.CursorPos.X;
+
+    if Control is TCustomFolderTreeView then
+    begin
+      PostMessage(Handle, WM_HSCROLL, Integer(SmallPoint(SB_THUMBTRACK, Round(ScrollPos))), 0);
+      SF.nPos := Round(ScrollPos);
+      SF.nTrackPos := Round(ScrollPos);
+      SetScrollInfo(Handle, SB_HORZ, SF, True);
+    end
+    else
+      PostMessage(Handle, WM_HSCROLL, Integer(SmallPoint(SB_THUMBPOSITION, Round(ScrollPos))), 0);
+    PaintScroll;
+    Handled := True;
+    Exit;
+  end;
+
+  if (HorzSliderState <> tsThumbBtnHorzPressed) and (HorzSliderState = tsThumbBtnHorzHot) then
+  begin
+    HorzSliderState := tsThumbBtnHorzNormal;
+    PaintScroll;
+  end;
+
+  if (VertSliderState <> tsThumbBtnVertPressed) and (VertSliderState = tsThumbBtnVertHot) then
+  begin
+    VertSliderState := tsThumbBtnVertNormal;
+    PaintScroll;
+  end;
+
+  if (HorzUpState <> tsArrowBtnLeftPressed) and (HorzUpState = tsArrowBtnLeftHot) then
+  begin
+    HorzUpState := tsArrowBtnLeftNormal;
+    PaintScroll;
+  end;
+
+  if (HorzDownState <> tsArrowBtnRightPressed) and (HorzDownState =tsArrowBtnRightHot) then
+  begin
+    HorzDownState := tsArrowBtnRightNormal;
+    PaintScroll;
+  end;
+
+  if (VertUpState <> tsArrowBtnUpPressed) and (VertUpState = tsArrowBtnUpHot) then
+  begin
+    VertUpState := tsArrowBtnUpNormal;
+    PaintScroll;
+  end;
+
+  if (VertDownState <> tsArrowBtnDownPressed) and (VertDownState = tsArrowBtnDownHot) then
+  begin
+    VertDownState := tsArrowBtnDownNormal;
+    PaintScroll;
+  end;
+
+  CallDefaultProc(TMessage(Msg));
+  if LeftButtonDown then
+    PaintScroll;
+  Handled := True;
+end;
+
+{$ENDIF}
 
 function GetSystemDir: String;
 var

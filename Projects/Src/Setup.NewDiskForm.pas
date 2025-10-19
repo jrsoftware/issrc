@@ -38,8 +38,10 @@ function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path
 implementation
 
 uses
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
-  Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
+  ShellAPI,
+  PathFunc, BrowseFunc,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  SetupLdrAndSetup.Messages, Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}
 
@@ -76,7 +78,7 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  DiskBitmapImage.InitializeFromIcon(HInstance, PChar('Z_DISKICON' + WizardIconsPostfix), clNone, [48, 64]); {don't localize}
+  DiskBitmapImage.InitializeFromStockIcon(SIID_MEDIABLANKCD, clNone, [48, 64]);
 
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
 

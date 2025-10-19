@@ -113,8 +113,6 @@ uses
 { The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.dark.res}
 {$R Res\Setup.images.dark.res}
-{$R Res\Setup.extraimages.res}
-{$R Res\Setup.extraimages.dark.res}
 {$R Res\Setup.style.res}
 
 {$I Src\Setup.inc}

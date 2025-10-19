@@ -2,7 +2,7 @@ unit Setup.InstFunc.Ole;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -23,9 +23,11 @@ function UnpinShellLink(const Filename: String): Boolean;
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.MainFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  ActiveX, ComObj, PropSys, ShellAPI, ShlObj;
+  Windows, ActiveX, ComObj, PropSys, ShlObj,
+  SysUtils,
+  PathFunc,
+  Shared.CommonFunc, Shared.SetupMessageIDs,
+  Setup.InstFunc, Setup.MainFunc, SetupLdrAndSetup.Messages;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then
@@ -61,7 +63,7 @@ function GetResultingFilename(const PF: IPersistFile;
   save to the specified filename; it may rename the extension to .pif if the
   shortcut points to an MS-DOS application. }
 var
-  CurFilename: PWideChar;
+  CurFilename: PChar;
   OleResult: HRESULT;
 begin
   Result := '';
@@ -69,7 +71,7 @@ begin
   OleResult := PF.GetCurFile(CurFilename);
   if SUCCEEDED(OleResult) and Assigned(CurFilename) then begin
     if OleResult = S_OK then
-      Result := WideCharToString(CurFilename);
+      Result := CurFilename;
     CoTaskMemFree(CurFilename);
   end;
   { If GetCurFile didn't work, we have no choice but to try to guess the filename }
@@ -122,7 +124,6 @@ var
   PS: PropSys.IPropertyStore;
   PV: TPropVariant;
   PF: IPersistFile;
-  WideAppUserModelID, WideFilename: WideString;
 begin
   Obj := CreateComObject(CLSID_ShellLink);
   SL := Obj as IShellLink;
@@ -157,7 +158,7 @@ begin
         RaiseOleError('IPropertyStore::SetValue(PKEY_AppUserModel_PreventPinning)', OleResult);
     end;
     if AppUserModelID <> '' then begin
-      WideAppUserModelID := AppUserModelID;
+      const WideAppUserModelID: WideString = AppUserModelID;
       PV.vt := VT_BSTR;
       PV.bstrVal := PWideChar(WideAppUserModelID);
       OleResult := PS.SetValue(PKEY_AppUserModel_ID, PV);
@@ -191,8 +192,7 @@ begin
   end;
 
   PF := SL as IPersistFile;
-  WideFilename := Filename;
-  OleResult := PF.Save(PWideChar(WideFilename), True);
+  OleResult := PF.Save(PChar(Filename), True);
   if OleResult <> S_OK then
     RaiseOleError('IPersistFile::Save', OleResult);
 
@@ -201,15 +201,15 @@ end;
 
 procedure RegisterTypeLibrary(const Filename: String);
 var
-  WideFilename: WideString;
+  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
 begin
-  WideFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PWideChar(WideFilename), TypeLib);
+  ExpandedFilename := PathExpand(Filename);
+  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PWideChar(WideFilename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -220,7 +220,7 @@ type
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 var
   UnRegTlbProc: TUnRegTlbProc;
-  WideFilename: WideString;
+  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
   LibAttr: PTLibAttr;
@@ -231,8 +231,8 @@ begin
     'UnRegisterTypeLib');
   if @UnRegTlbProc = nil then
     Win32ErrorMsg('GetProcAddress');
-  WideFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PWideChar(WideFilename), TypeLib);
+  ExpandedFilename := PathExpand(Filename);
+  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
   OleResult := TypeLib.GetLibAttr(LibAttr);
@@ -249,38 +249,20 @@ begin
 end;
 
 const
-  CLSID_StartMenuPin: TGUID = (
-    D1:$a2a9545d; D2:$a0c2; D3:$42b4; D4:($97,$08,$a0,$b2,$ba,$dd,$77,$c8));
-
-  IID_StartMenuPinnedList: TGUID = (
-    D1:$4CD19ADA; D2:$25A5; D3:$4A32; D4:($B3,$B7,$34,$7B,$EE,$5B,$E3,$6B));
-
-  IID_ShellItem: TGUID = (
-    D1:$43826D1E; D2:$E718; D3:$42EE; D4:($BC,$55,$A1,$E2,$61,$C3,$7B,$FE));
-
-type
-  IStartMenuPinnedList = interface(IUnknown)
-    ['{4CD19ADA-25A5-4A32-B3B7-347BEE5BE36B}']
-    function RemoveFromList(const pitem: IShellItem): HRESULT; stdcall;
-  end;
-
-var
-  SHCreateItemFromParsingNameFunc: function(pszPath: LPCWSTR; const pbc: IBindCtx;
-    const riid: TIID; var ppv): HResult; stdcall;
+  IID_StartMenuPinnedList: TGUID = SID_IStartMenuPinnedList;
+  IID_ShellItem: TGUID = SID_IShellItem;
 
 { Attempt to unpin a shortcut. Returns True if the shortcut was successfully
   removed from the list of pinned items and/or the taskbar, or if the shortcut
   was not pinned at all. http://msdn.microsoft.com/en-us/library/bb774817.aspx }
 function UnpinShellLink(const Filename: String): Boolean;
 var
-  WideFileName: WideString;
   ShellItem: IShellItem;
   StartMenuPinnedList: IStartMenuPinnedList;
 begin
-  WideFilename := PathExpand(Filename);
-  if Assigned(SHCreateItemFromParsingNameFunc) and
-     SUCCEEDED(SHCreateItemFromParsingNameFunc(PWideChar(WideFilename), nil, IID_ShellItem, ShellItem)) and
-     SUCCEEDED(CoCreateInstance(CLSID_StartMenuPin, nil, CLSCTX_INPROC_SERVER, IID_StartMenuPinnedList, StartMenuPinnedList)) then
+  const ExpandedFilename = PathExpand(Filename);
+  if Succeeded(SHCreateItemFromParsingName(PChar(ExpandedFilename), nil, IID_ShellItem, ShellItem)) and
+     Succeeded(CoCreateInstance(CLSID_StartMenuPin, nil, CLSCTX_INPROC_SERVER, IID_StartMenuPinnedList, StartMenuPinnedList)) then
     Result := StartMenuPinnedList.RemoveFromList(ShellItem) = S_OK
   else
     Result := True;
@@ -291,7 +273,7 @@ var
   OleResult: HRESULT;
 begin
   OleResult := CoInitialize(nil);
-  if FAILED(OleResult) then
+  if Failed(OleResult) then
     raise Exception.CreateFmt('CoInitialize failed (0x%.8x)', [OleResult]);
     { ^ doesn't use a SetupMessage since messages probably aren't loaded
       during 'initialization' section below, which calls this procedure }
@@ -299,8 +281,6 @@ end;
 
 initialization
   InitOle;
-  SHCreateItemFromParsingNameFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
-    SEM_NOOPENFILEERRORBOX), 'SHCreateItemFromParsingName');
 
 finalization
   CoUninitialize;
