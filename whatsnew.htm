@@ -118,6 +118,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Pascal Scripting:
   <ul>
     <li>Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
+    <li>Added support functions <tt>InitializeBitmapButtonFromStockIcon</tt> and <tt>InitializeBitmapImageFromStockIcon</tt>. Can be used to display various high-quality, system-defined stock icons, on all versions of Windows. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
+        <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new CodeClasses.iss example, at 125% DPI and in dark mode</a>.
+    </li>
     <li>Added support functions <tt>Round</tt>, <tt>Trunc</tt>, <tt>Int</tt>, and <tt>MulDiv</tt>.</li>
     <li>Added support function <tt>StrToColor</tt>.</li>
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>

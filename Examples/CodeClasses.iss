@@ -121,13 +121,17 @@ var
   Memo: TNewMemo;
   ComboBox: TNewComboBox;
   ListBox: TNewListBox;
-  StaticText, StaticText2, StaticText3, ProgressBarLabel: TNewStaticText;
+  StaticText: array [0..2] of TNewStaticText;
+  ProgressBarLabel: TNewStaticText;
   LinkLabel: TNewLinkLabel;
-  ProgressBar, ProgressBar2, ProgressBar3: TNewProgressBar;
-  CheckListBox, CheckListBox2: TNewCheckListBox;
+  ProgressBar: array [0..2] of TNewProgressBar;
+  CheckListBox: array [0..1] of TNewCheckListBox;
   FolderTreeView: TFolderTreeView;
-  BitmapImage, BitmapImage2, BitmapImage3: TBitmapImage;
-  BitmapButton, BitmapButton2: TBitmapButton;
+  BitmapImage: array [0..5] of TBitmapImage;
+  Siids: array of Integer;
+  SiidBitmapImage: TBitmapImage;
+  I: Integer;
+  BitmapButton: array [0..2] of TBitmapButton;
   BitmapFileName: String;
   RichEditViewer: TRichEditViewer;
 begin
@@ -239,41 +243,41 @@ begin
   ListBox.Items.Add('TListBox');
   ListBox.ItemIndex := 0;
 
-  StaticText := TNewStaticText.Create(Page);
-  StaticText.Top := ListBox.Top + ListBox.Height + ScaleY(8);
-  StaticText.Anchors := [akLeft, akRight, akBottom];
-  StaticText.Caption := 'TNewStaticText';
-  StaticText.Parent := Page.Surface;
+  StaticText[0] := TNewStaticText.Create(Page);
+  StaticText[0].Top := ListBox.Top + ListBox.Height + ScaleY(8);
+  StaticText[0].Anchors := [akLeft, akRight, akBottom];
+  StaticText[0].Caption := 'TNewStaticText';
+  StaticText[0].Parent := Page.Surface;
 
-  StaticText2 := TNewStaticText.Create(Page);
-  StaticText2.AutoSize := False;
-  StaticText2.Left := StaticText.Width + ScaleX(32);
-  StaticText2.Top := StaticText.Top;
-  StaticText2.Anchors := [akLeft, akRight, akBottom];
-  StaticText2.WordWrap := True;
-  StaticText2.Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
-  StaticText2.Width := 2 * StaticText.Width;
-  StaticText2.Parent := Page.Surface;
-  StaticText2.AdjustHeight;
+  StaticText[1] := TNewStaticText.Create(Page);
+  StaticText[1].AutoSize := False;
+  StaticText[1].Left := StaticText[0].Width + ScaleX(32);
+  StaticText[1].Top := StaticText[0].Top;
+  StaticText[1].Anchors := [akLeft, akRight, akBottom];
+  StaticText[1].WordWrap := True;
+  StaticText[1].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
+  StaticText[1].Width := 2 * StaticText[0].Width;
+  StaticText[1].Parent := Page.Surface;
+  StaticText[1].AdjustHeight;
 
-  StaticText3 := TNewStaticText.Create(Page);
-  StaticText3.Top := StaticText.Top + StaticText.Height + ScaleY(8);
-  StaticText3.Anchors := [akLeft, akRight, akBottom];
-  StaticText3.Caption := 'TNewStaticText';
-  StaticText3.Parent := Page.Surface;
-  StaticText3.StyleElements := StaticText3.StyleElements - [seFont];
+  StaticText[2] := TNewStaticText.Create(Page);
+  StaticText[2].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
+  StaticText[2].Anchors := [akLeft, akRight, akBottom];
+  StaticText[2].Caption := 'TNewStaticText';
+  StaticText[2].Parent := Page.Surface;
+  StaticText[2].StyleElements := StaticText[2].StyleElements - [seFont];
   if IsDarkInstallMode then
-    StaticText3.Font.Color := StrToColor('#D95E6C')
+    StaticText[2].Font.Color := StrToColor('#D95E6C')
   else
-    StaticText3.Font.Color := StrToColor('#D24152');
+    StaticText[2].Font.Color := StrToColor('#D24152');
 
   LinkLabel := TNewLinkLabel.Create(Page);
   LinkLabel.AutoSize := False;
-  LinkLabel.Left := StaticText2.Left;
-  LinkLabel.Top := StaticText2.Top + StaticText2.Height + ScaleY(8);
+  LinkLabel.Left := StaticText[1].Left;
+  LinkLabel.Top := StaticText[1].Top + StaticText[1].Height + ScaleY(8);
   LinkLabel.Anchors := [akLeft, akRight, akBottom];
   LinkLabel.Caption := 'TNew<a id="jrsoftware">Link</a>Label with more text and an adjusted label height so it''s multi-line with a second <a id="jrsoftware">link</a> on the second line.';
-  LinkLabel.Width := StaticText2.Width;
+  LinkLabel.Width := StaticText[1].Width;
   LinkLabel.UseVisualStyle := HighContrastActive;
   LinkLabel.OnLinkClick := @LinkLabelOnLinkClick;
   LinkLabel.Parent := Page.Surface;
@@ -288,71 +292,71 @@ begin
   ProgressBarLabel.Caption := 'TNewProgressBar';
   ProgressBarLabel.Parent := Page.Surface;
 
-  ProgressBar := TNewProgressBar.Create(Page);
-  ProgressBar.Left := ProgressBarLabel.Width + ScaleX(8);
-  ProgressBar.Top := ProgressBarLabel.Top;
-  ProgressBar.Width := Page.SurfaceWidth - ProgressBar.Left;
-  ProgressBar.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar.Anchors := [akLeft, akRight, akTop];
-  ProgressBar.Parent := Page.Surface;
-  ProgressBar.Position := 25;
+  ProgressBar[0] := TNewProgressBar.Create(Page);
+  ProgressBar[0].Left := ProgressBarLabel.Width + ScaleX(8);
+  ProgressBar[0].Top := ProgressBarLabel.Top;
+  ProgressBar[0].Width := Page.SurfaceWidth - ProgressBar[0].Left;
+  ProgressBar[0].Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar[0].Anchors := [akLeft, akRight, akTop];
+  ProgressBar[0].Parent := Page.Surface;
+  ProgressBar[0].Position := 25;
 
-  ProgressBar2 := TNewProgressBar.Create(Page);
-  ProgressBar2.Left := ProgressBarLabel.Width + ScaleX(8);
-  ProgressBar2.Top := ProgressBar.Top + ProgressBar.Height + ScaleY(4);
-  ProgressBar2.Width := Page.SurfaceWidth - ProgressBar.Left;
-  ProgressBar2.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar2.Anchors := [akLeft, akRight, akTop];
-  ProgressBar2.Parent := Page.Surface;
-  ProgressBar2.Position := 50;
-  ProgressBar2.State := npbsError;
+  ProgressBar[1] := TNewProgressBar.Create(Page);
+  ProgressBar[1].Left := ProgressBarLabel.Width + ScaleX(8);
+  ProgressBar[1].Top := ProgressBar[0].Top + ProgressBar[0].Height + ScaleY(4);
+  ProgressBar[1].Width := Page.SurfaceWidth - ProgressBar[0].Left;
+  ProgressBar[1].Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar[1].Anchors := [akLeft, akRight, akTop];
+  ProgressBar[1].Parent := Page.Surface;
+  ProgressBar[1].Position := 50;
+  ProgressBar[1].State := npbsError;
 
-  ProgressBar3 := TNewProgressBar.Create(Page);
-  ProgressBar3.Left := ProgressBarLabel.Width + ScaleX(8);
-  ProgressBar3.Top := ProgressBar2.Top + ProgressBar2.Height + ScaleY(4);
-  ProgressBar3.Width := Page.SurfaceWidth - ProgressBar.Left;
-  ProgressBar3.Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar3.Anchors := [akLeft, akRight, akTop];
-  ProgressBar3.Parent := Page.Surface;
-  ProgressBar3.Style := npbstMarquee;
+  ProgressBar[2] := TNewProgressBar.Create(Page);
+  ProgressBar[2].Left := ProgressBarLabel.Width + ScaleX(8);
+  ProgressBar[2].Top := ProgressBar[1].Top + ProgressBar[1].Height + ScaleY(4);
+  ProgressBar[2].Width := Page.SurfaceWidth - ProgressBar[0].Left;
+  ProgressBar[2].Height := ProgressBarLabel.Height + ScaleY(8);
+  ProgressBar[2].Anchors := [akLeft, akRight, akTop];
+  ProgressBar[2].Parent := Page.Surface;
+  ProgressBar[2].Style := npbstMarquee;
   
   { TNewCheckListBox }
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TNewCheckListBox');
 
-  CheckListBox := TNewCheckListBox.Create(Page);
-  CheckListBox.Width := Page.SurfaceWidth;
-  CheckListBox.Height := ScaleY(97);
-  CheckListBox.Anchors := [akLeft, akTop, akRight, akBottom];
-  CheckListBox.Flat := True;
-  CheckListBox.Parent := Page.Surface;
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
-  CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, True, True, nil);
-  CheckListBox.AddRadioButton('TNewCheckListBox', '', 1, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, True, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '123', 2, True, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '456', 2, False, True, False, True, nil);
-  CheckListBox.AddCheckBox('TNewCheckListBox', '', 1, False, True, False, True, nil);
-  CheckListBox.ItemFontStyle[5] := [fsBold];
-  CheckListBox.SubItemFontStyle[5] := [fsBold];
-  CheckListBox.ItemFontStyle[6] := [fsBold, fsItalic];
-  CheckListBox.SubItemFontStyle[6] := [fsBold, fsUnderline];
+  CheckListBox[0] := TNewCheckListBox.Create(Page);
+  CheckListBox[0].Width := Page.SurfaceWidth;
+  CheckListBox[0].Height := ScaleY(97);
+  CheckListBox[0].Anchors := [akLeft, akTop, akRight, akBottom];
+  CheckListBox[0].Flat := True;
+  CheckListBox[0].Parent := Page.Surface;
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
+  CheckListBox[0].AddRadioButton('TNewCheckListBox', '', 1, True, True, nil);
+  CheckListBox[0].AddRadioButton('TNewCheckListBox', '', 1, False, True, nil);
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 1, True, True, False, True, nil);
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '123', 2, True, True, False, True, nil);
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '456', 2, False, True, False, True, nil);
+  CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 1, False, True, False, True, nil);
+  CheckListBox[0].ItemFontStyle[5] := [fsBold];
+  CheckListBox[0].SubItemFontStyle[5] := [fsBold];
+  CheckListBox[0].ItemFontStyle[6] := [fsBold, fsItalic];
+  CheckListBox[0].SubItemFontStyle[6] := [fsBold, fsUnderline];
 
-  CheckListBox2 := TNewCheckListBox.Create(Page);
-  CheckListBox2.Top := CheckListBox.Top + CheckListBox.Height + ScaleY(8);
-  CheckListBox2.Width := Page.SurfaceWidth;
-  CheckListBox2.Height := ScaleY(97);
-  CheckListBox2.Anchors := [akLeft, akRight, akBottom];
-  CheckListBox2.BorderStyle := bsNone;
-  CheckListBox2.ParentColor := True;
-  CheckListBox2.MinItemHeight := WizardForm.TasksList.MinItemHeight;
-  CheckListBox2.ShowLines := False;
-  CheckListBox2.WantTabs := True;
-  CheckListBox2.Parent := Page.Surface;
-  CheckListBox2.AddGroup('TNewCheckListBox', '', 0, nil);
-  CheckListBox2.AddRadioButton('TNewCheckListBox', '', 0, True, True, nil);
-  CheckListBox2.AddRadioButton('TNewCheckListBox', '', 0, False, True, nil);
+  CheckListBox[1] := TNewCheckListBox.Create(Page);
+  CheckListBox[1].Top := CheckListBox[0].Top + CheckListBox[0].Height + ScaleY(8);
+  CheckListBox[1].Width := Page.SurfaceWidth;
+  CheckListBox[1].Height := ScaleY(97);
+  CheckListBox[1].Anchors := [akLeft, akRight, akBottom];
+  CheckListBox[1].BorderStyle := bsNone;
+  CheckListBox[1].ParentColor := True;
+  CheckListBox[1].MinItemHeight := WizardForm.TasksList.MinItemHeight;
+  CheckListBox[1].ShowLines := False;
+  CheckListBox[1].WantTabs := True;
+  CheckListBox[1].Parent := Page.Surface;
+  CheckListBox[1].AddGroup('TNewCheckListBox', '', 0, nil);
+  CheckListBox[1].AddRadioButton('TNewCheckListBox', '', 0, True, True, nil);
+  CheckListBox[1].AddRadioButton('TNewCheckListBox', '', 0, False, True, nil);
 
   { TFolderTreeView }
 
@@ -372,29 +376,69 @@ begin
   BitmapFileName := ExpandConstant('{tmp}\WizClassicSmallImage.bmp');
   ExtractTemporaryFile(ExtractFileName(BitmapFileName));
   
-  BitmapImage := TBitmapImage.Create(Page);
-  BitmapImage.AutoSize := True;
-  { Use BitmapImage.PngImage.LoadFromFile to load .png files }
-  BitmapImage.Bitmap.LoadFromFile(BitmapFileName);
-  BitmapImage.Parent := Page.Surface;
+  BitmapImage[0] := TBitmapImage.Create(Page);
+  BitmapImage[0].AutoSize := True;
+  { Use BitmapImage[0].PngImage.LoadFromFile to load .png files }
+  BitmapImage[0].Bitmap.LoadFromFile(BitmapFileName);
+  BitmapImage[0].Parent := Page.Surface;
   
-  BitmapImage2 := TBitmapImage.Create(Page);
-  BitmapImage2.BackColor := clNone;
-  BitmapImage2.Bitmap := BitmapImage.Bitmap;
-  BitmapImage2.Center := True;
-  BitmapImage2.Left := BitmapImage.Width + 10;
-  BitmapImage2.Width := 2*BitmapImage.Width;
-  BitmapImage2.Height := 2*BitmapImage.Height;
-  BitmapImage2.Parent := Page.Surface;
+  BitmapImage[1] := TBitmapImage.Create(Page);
+  BitmapImage[1].BackColor := clNone;
+  BitmapImage[1].Bitmap := BitmapImage[0].Bitmap;
+  BitmapImage[1].Center := True;
+  BitmapImage[1].Left := BitmapImage[0].Width + 10;
+  BitmapImage[1].Width := 2*BitmapImage[0].Width;
+  BitmapImage[1].Height := 2*BitmapImage[0].Height;
+  BitmapImage[1].Parent := Page.Surface;
 
-  BitmapImage3 := TBitmapImage.Create(Page);
-  BitmapImage3.Bitmap := BitmapImage.Bitmap;
-  BitmapImage3.Stretch := True;
-  BitmapImage3.Left := 3*BitmapImage.Width + 20;
-  BitmapImage3.Width := 4*BitmapImage.Width;
-  BitmapImage3.Height := 4*BitmapImage.Height;
-  BitmapImage3.Anchors := [akLeft, akTop, akRight, akBottom];
-  BitmapImage3.Parent := Page.Surface;
+  BitmapImage[2] := TBitmapImage.Create(Page);
+  BitmapImage[2].Bitmap := BitmapImage[0].Bitmap;
+  BitmapImage[2].Stretch := True;
+  BitmapImage[2].Left := 3*BitmapImage[0].Width + 20;
+  BitmapImage[2].Width := 4*BitmapImage[0].Width;
+  BitmapImage[2].Height := 4*BitmapImage[0].Height;
+  BitmapImage[2].Anchors := [akLeft, akTop, akRight, akBottom];
+  BitmapImage[2].Parent := Page.Surface;
+  
+  Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapImage (stock icons)');
+
+  BitmapImage[3] := TBitmapImage.Create(Page);
+  BitmapImage[3].Width := ScaleX(16);
+  BitmapImage[3].Height := BitmapImage[3].Width;
+  InitializeBitmapImageFromStockIcon(BitmapImage[3], SIID_ERROR, clNone);
+  BitmapImage[3].Parent := Page.Surface;
+
+  BitmapImage[4] := TBitmapImage.Create(Page);
+  BitmapImage[4].Width := ScaleX(32);
+  BitmapImage[4].Height := BitmapImage[4].Width;
+  InitializeBitmapImageFromStockIcon(BitmapImage[4], SIID_ERROR, clNone);
+  BitmapImage[4].Left := BitmapImage[3].Left + BitmapImage[3].Width + 10; 
+  BitmapImage[4].Parent := Page.Surface;
+
+  BitmapImage[5] := TBitmapImage.Create(Page);
+  BitmapImage[5].Width := 256;
+  BitmapImage[5].Height := BitmapImage[5].Width;
+  InitializeBitmapImageFromStockIcon(BitmapImage[5], SIID_ERROR, clNone);
+  BitmapImage[5].Top := BitmapImage[4].Top + BitmapImage[4].Height + 10; 
+  BitmapImage[5].Parent := Page.Surface;
+ 
+  { See https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid for all available icons }
+  Siids := [
+    SIID_INFO, SIID_HELP, SIID_WARNING, SIID_LOCK, SIID_KEY,
+    SIID_DOCNOASSOC, SIID_DOCASSOC, SIID_AUDIOFILES, SIID_IMAGEFILES, SIID_VIDEOFILES,
+    SIID_APPLICATION, SIID_SOFTWARE, SIID_FOLDER, SIID_ZIPFILE, SIID_SHIELD,
+    SIID_SERVER, SIID_MYNETWORK, SIID_DEVICECELLPHONE, SIID_DRIVEREMOVE, SIID_PRINTER,
+    SIID_FIND, SIID_MEDIACDAUDIO, SIID_MEDIABLANKCD, SIID_RENAME, SIID_DELETE];
+
+  for I := 0 to High(Siids) do begin
+    SiidBitmapImage := TBitmapImage.Create(Page);
+    SiidBitmapImage.Width := ScaleX(32);
+    SiidBitmapImage.Height := SiidBitmapImage.Width;
+    InitializeBitmapImageFromStockIcon(SiidBitmapImage, Siids[I], clNone);
+    SiidBitmapImage.Left := BitmapImage[5].Left + BitmapImage[5].Width + 20 + (I mod 5) * ScaleX(42); 
+    SiidBitmapImage.Top := (I div 5) * ScaleY(42); 
+    SiidBitmapImage.Parent := Page.Surface;
+  end;
 
   { TBitmapButton - Always has a 2 pixel margin around the image, used to
     display a focus rectangle. Other changes compared to TBitmapImage are:
@@ -404,29 +448,41 @@ begin
 
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapButton (Press Alt to see focus rectangle)');
   
-  BitmapButton := TBitmapButton.Create(Page);
-  BitmapButton.AutoSize := True;
-  BitmapButton.Bitmap := BitmapImage.Bitmap;
-  BitmapButton.Caption := 'Show Message'; { For accessibility }
-  BitmapButton.Hint := 'TBitmapButton is an accessible version of TBitmapImage';
-  BitmapButton.ShowHint := True;
-  BitmapButton.Width := 2*BitmapButton.Width;
-  BitmapButton.Cursor := crHand;
-  BitmapButton.OnClick := @ButtonOnClick;
-  BitmapButton.Parent := Page.Surface;
+  BitmapButton[0] := TBitmapButton.Create(Page);
+  BitmapButton[0].AutoSize := True;
+  BitmapButton[0].Bitmap := BitmapImage[0].Bitmap;
+  BitmapButton[0].Caption := 'Show Message'; { For accessibility }
+  BitmapButton[0].Hint := 'TBitmapButton is an accessible version of TBitmapImage';
+  BitmapButton[0].ShowHint := True;
+  BitmapButton[0].Width := 2*BitmapButton[0].Width;
+  BitmapButton[0].Cursor := crHand;
+  BitmapButton[0].OnClick := @ButtonOnClick;
+  BitmapButton[0].Parent := Page.Surface;
 
-  BitmapButton2 := TBitmapButton.Create(Page);
-  BitmapButton2.BackColor := $400000;
-  BitmapButton2.Bitmap := BitmapImage.Bitmap;
-  BitmapButton2.Caption := BitmapButton.Caption;
-  BitmapButton2.Hint := BitmapButton.Hint;
-  BitmapButton2.ShowHint := True;
-  BitmapButton2.Left := BitmapButton.Width + 10;
-  BitmapButton2.Width := 2*BitmapButton.Width;
-  BitmapButton2.Height := 2*BitmapButton.Height;
-  BitmapButton2.Cursor := crHand;
-  BitmapButton2.OnClick := @ButtonOnClick;
-  BitmapButton2.Parent := Page.Surface;
+  BitmapButton[1] := TBitmapButton.Create(Page);
+  BitmapButton[1].BackColor := $400000;
+  BitmapButton[1].Bitmap := BitmapImage[0].Bitmap;
+  BitmapButton[1].Caption := BitmapButton[0].Caption;
+  BitmapButton[1].Hint := BitmapButton[0].Hint;
+  BitmapButton[1].ShowHint := True;
+  BitmapButton[1].Left := BitmapButton[0].Width + 10;
+  BitmapButton[1].Width := 2*BitmapButton[0].Width;
+  BitmapButton[1].Height := 2*BitmapButton[0].Height;
+  BitmapButton[1].Cursor := crHand;
+  BitmapButton[1].OnClick := @ButtonOnClick;
+  BitmapButton[1].Parent := Page.Surface;
+  
+  BitmapButton[2] := TBitmapButton.Create(Page);
+  BitmapButton[2].Width := ScaleX(24);
+  BitmapButton[2].Height := ScaleY(24);
+  InitializeBitmapButtonFromStockIcon(BitmapButton[2], SIID_HELP, clNone);
+  BitmapButton[2].Caption := BitmapButton[0].Caption;
+  BitmapButton[2].Hint := BitmapButton[0].Hint;
+  BitmapButton[2].ShowHint := True;
+  BitmapButton[2].Left := BitmapButton[1].Left + BitmapButton[1].Width + 10;
+  BitmapButton[2].Cursor := crHand;
+  BitmapButton[2].OnClick := @ButtonOnClick;  
+  BitmapButton[2].Parent := Page.Surface;
 
   { TRichViewer }
 
@@ -467,7 +523,7 @@ begin
 
   URLLabel := TNewLinkLabel.Create(ParentForm);
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
-  URLLabel.Top := AboutButton.Top + AboutButton.Height - URLLabel.Height - 2;
+  URLLabel.Top := AboutButton.Top + (AboutButton.Height - URLLabel.Height) div 2;
   URLLabel.Anchors := [akLeft, akBottom];
   URLLabel.Caption := '<a href="https://jrsoftware.org">jrsoftware.org</a>';
   URLLabel.OnLinkClick := @LinkLabelOnLinkClick;
