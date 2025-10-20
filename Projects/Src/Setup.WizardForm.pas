@@ -853,7 +853,8 @@ begin
   { Correct aspect ratio of the large wizard images after scaling }
   AnchorOuterPages;
 
-  { Adjust small wizard image's size and position }
+  { Adjust small wizard image's size and position - also adjusts
+    page name and description label widths }
   begin
     { Make sure the control is still perfectly square after scaling and flush
       with the right edge of its parent }
@@ -897,6 +898,10 @@ begin
       WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
     end;
   end;
+
+  { Adjust page name and description label }
+  I := AdjustLabelHeight(FPageNameLabel);
+  FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
 
   { Initialize images }
   WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
