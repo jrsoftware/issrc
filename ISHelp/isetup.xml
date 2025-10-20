@@ -6603,6 +6603,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <tr><td>10.0.22621</td><td>Windows 11 Version 22H2 (2022 Update)</td></tr>
 <tr><td>10.0.22631</td><td>Windows 11 Version 23H2 (2023 Update)</td></tr>
 <tr><td>10.0.26100</td><td>Windows 11 Version 24H2 (2024 Update)</td></tr>
+<tr><td>10.0.26200</td><td>Windows 11 Version 25H2 (2025 Update)</td></tr>
 </table>
 <p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>
