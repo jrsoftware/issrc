@@ -55,7 +55,7 @@ begin
     OKButton.Left := Form.ClientWidth - ScaleX(75 + 6 + 75 + 10);
     OKButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     OKButton.Height := ScaleY(23);
-    OKButton.Anchors := [akRight, akBottom]
+    OKButton.Anchors := [akRight, akBottom];
     OKButton.ModalResult := mrOk;
     OKButton.Default := True;
 
@@ -65,7 +65,7 @@ begin
     CancelButton.Left := Form.ClientWidth - ScaleX(75 + 10);
     CancelButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     CancelButton.Height := ScaleY(23);
-    CancelButton.Anchors := [akRight, akBottom]
+    CancelButton.Anchors := [akRight, akBottom];
     CancelButton.ModalResult := mrCancel;
     CancelButton.Cancel := True;
 
