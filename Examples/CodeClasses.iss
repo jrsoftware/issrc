@@ -245,7 +245,7 @@ begin
 
   StaticText[0] := TNewStaticText.Create(Page);
   StaticText[0].Top := ListBox.Top + ListBox.Height + ScaleY(8);
-  StaticText[0].Anchors := [akLeft, akRight, akBottom];
+  StaticText[0].Anchors := [akLeft, akBottom];
   StaticText[0].Caption := 'TNewStaticText';
   StaticText[0].Parent := Page.Surface;
 
@@ -262,7 +262,7 @@ begin
 
   StaticText[2] := TNewStaticText.Create(Page);
   StaticText[2].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
-  StaticText[2].Anchors := [akLeft, akRight, akBottom];
+  StaticText[2].Anchors := [akLeft, akBottom];
   StaticText[2].Caption := 'TNewStaticText';
   StaticText[2].Parent := Page.Surface;
   StaticText[2].StyleElements := StaticText[2].StyleElements - [seFont];
