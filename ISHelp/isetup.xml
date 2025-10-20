@@ -2389,8 +2389,8 @@ DialogFontName=
 DialogFontSize=9
 DialogFontBaseScaleWidth=7
 DialogFontBaseScaleHeight=15
-WelcomeFontName=Verdana
-WelcomeFontSize=12
+WelcomeFontName=Segoe UI
+WelcomeFontSize=14
 RightToLeft=no
 </precode>
 
@@ -2424,6 +2424,13 @@ DialogFontBaseScaleWidth=6
 </precode>
 
 <p><b><a name="WelcomeFontName">WelcomeFontName</a></b> and <b><a name="WelcomeFontSize">WelcomeFontSize</a></b> specify the font name and point size to use at the top of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. If the specified font name does not exist on the user's system or is an empty string, 12-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+
+<p>Before Inno Setup 6.6, the default font was 12-point <i>Verdana</i> instead of 14-point <i>Segoe UI</i>. To use this font again, use:</p>
+
+<precode>
+WelcomeFontName=Verdana
+WelcomeFontSize=12
+</precode>
 
 <p><b><a name="RightToLeft">RightToLeft</a></b> specifies whether the language is written from right to left. If set to <tt>yes</tt>, text alignment and reading order will be reversed (with some intentional exceptions), and controls will be arranged from right to left ("flipped").</p>
 

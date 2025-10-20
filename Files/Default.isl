@@ -22,8 +22,8 @@ LanguageCodePage=0
 ;DialogFontSize=9
 ;DialogFontBaseScaleWidth=7
 ;DialogFontBaseScaleHeight=15
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
+;WelcomeFontName=Segoe UI
+;WelcomeFontSize=14
 
 [Messages]
 

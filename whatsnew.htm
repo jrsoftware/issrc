@@ -109,7 +109,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="head2">Other changes to the look and feel of Setup</span>
 <ul>
   <li>Setup now always uses high-quality, system-defined icons instead of custom ones on the <i>Select Destination Location</i> and <i>Preparing to Install</i> wizard pages, and on the <i>Setup Needs the Next Disk</i> form.</li>
-  <li>The default font of Setup and Uninstall has been changed from 8-point <i>Tahoma</i> to 9-point <i>Segoe UI</i> without changes in scaling, for a more modern appearance.<br/>
+  <li>The default regular font used by Setup and Uninstall has been changed from 8-point <i>Tahoma</i> to 9-point <i>Segoe UI</i> without changes in scaling, for a more modern appearance.<br/>
       To use 8-point <i>Tahoma</i> again, use:
       <pre><code class="innosetup"><span class="sec">[LangOptions]</span>
 <span class="key">DialogFontName</span>=Tahoma
@@ -122,6 +122,12 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
 <span class="key">DialogFontSize</span>=9
 <span class="key">DialogFontBaseScaleHeight</span>=13
 <span class="key">DialogFontBaseScaleWidth</span>=6</code></pre>
+  </li>
+  <li>The default large font used by Setup on the <i>Welcome</i> and <i>Setup Completed</i> wizard pages has been changed from 12-point <i>Verdana</i> to 14-point <i>Segoe UI</i>, for a more modern appearance.<br/>
+      To use 12-point <i>Verdana</i> again, use:
+      <pre><code class="innosetup"><span class="sec">[LangOptions]</span>
+<span class="key">WelcomeFontName</span>=Verdana
+<span class="key">WelcomeFontSize</span>=12</code></pre>
   </li>
   <li>Pascal Scripting:
   <ul>
