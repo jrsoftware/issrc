@@ -53,8 +53,6 @@ function DelTree(const DisableFsRedir: Boolean; const Path: String;
   const Param: Pointer): Boolean;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
-function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean;
-  Path: String; var TempDir: String): Boolean;
 function GetComputerNameString: String;
 function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
   var DateTime: TFileTime): Boolean;
@@ -153,48 +151,6 @@ begin
     { unknown - shouldn't get here }
     Result := Format('[%x]', [Cardinal(RootKey)]);
   end;
-end;
-
-function GenerateNonRandomUniqueTempDir(const LimitCurrentUserSidAccess: Boolean;
-  Path: String; var TempDir: String): Boolean;
-{ Creates a new temporary directory with a non-random name. Returns True if an
-  existing directory was re-created. This is called by Uninstall. A non-random
-  name is used because the uninstaller EXE isn't able to delete itself; if it were
-  random, there would be one directory added each time an uninstaller is run. }
-const
-  RandRange = 36 * 36 * 36 * 36 * 36;
-var
-  ErrorCode: DWORD;
-begin
-  Path := AddBackslash(Path);
-  { These are actually NOT random in any way }
-  const RandOrig = UInt32((1*36*36*36*36) + (4*36*36*36) + ($D*36*36) + (2*36) + 22);
-    { + 1 = '14D2N' }
-  var Rand := RandOrig;
-  repeat
-    Result := False;
-    Inc(Rand);
-    if Rand >= RandRange then
-      Rand := 0;
-    if Rand = RandOrig then
-      { practically impossible to go through 60 million combinations,
-        but check "just in case"... }
-      raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
-        RemoveBackslashUnlessRoot(Path)));
-    { Generate a "random" name }
-    TempDir := Path + 'iu-' + UIntToBase36Str(Rand, 5) + '.tmp';
-    if DirExists(TempDir) then begin
-      if not DeleteDirTree(TempDir) then Continue;
-      Result := True;
-    end else if NewFileExists(TempDir) then
-      if not DeleteFile(TempDir) then Continue;
-
-    if CreateSafeDirectory(LimitCurrentUserSidAccess, TempDir, ErrorCode) then Break;
-    if ErrorCode <> ERROR_ALREADY_EXISTS then
-      raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
-        [FmtSetupMessage1(msgErrorCreatingDir, TempDir), IntToStr(ErrorCode),
-         Win32ErrorString(ErrorCode)]));
-  until False; // continue until a new directory was created
 end;
 
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
