@@ -3532,12 +3532,12 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       AbortCompileFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
     Directive := TLangOptionsSectionDirective(I);
     case Directive of
-      lsCopyrightFontName: begin
-          LangOptions.CopyrightFontName := Trim(Value);
-        end;
-      lsCopyrightFontSize: begin
-          LangOptions.CopyrightFontSize := StrToIntCheck(Value);
-        end;
+      lsCopyrightFontName,
+      lsCopyrightFontSize,
+      lsTitleFontName,
+      lsTitleFontSize: begin
+          WarningsList.Add(Format(SCompilerEntryObsolete, ['LangOptions', KeyName]));
+      end;
       lsDialogFontBaseScaleHeight: begin
           LangOptions.DialogFontBaseScaleHeight := StrToIntCheck(Value);
         end;
@@ -3574,12 +3574,6 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsRightToLeft: begin
           if not TryStrToBoolean(Value, LangOptions.RightToLeft) then
             Invalid;
-        end;
-      lsTitleFontName: begin
-          LangOptions.TitleFontName := Trim(Value);
-        end;
-      lsTitleFontSize: begin
-          LangOptions.TitleFontSize := StrToIntCheck(Value);
         end;
       lsWelcomeFontName: begin
           LangOptions.WelcomeFontName := Trim(Value);
@@ -6316,12 +6310,8 @@ begin
     DialogFontSize := 9;
     DialogFontBaseScaleWidth := 7;
     DialogFontBaseScaleHeight := 15;
-    TitleFontName := 'Arial';
-    TitleFontSize := 29;
     WelcomeFontName := 'Verdana';
     WelcomeFontSize := 12;
-    CopyrightFontName := 'Arial';
-    CopyrightFontSize := 8;
     LicenseText := '';
     InfoBeforeText := '';
     InfoAfterText := '';

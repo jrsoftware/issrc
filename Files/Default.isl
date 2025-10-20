@@ -24,10 +24,6 @@ LanguageCodePage=0
 ;DialogFontBaseScaleHeight=15
 ;WelcomeFontName=Verdana
 ;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
 
 [Messages]
 

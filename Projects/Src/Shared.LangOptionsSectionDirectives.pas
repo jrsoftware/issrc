@@ -15,8 +15,8 @@ const
   LangOptionsSectionDirectivePrefixLength = 2;
 type
   TLangOptionsSectionDirective = (
-    lsCopyrightFontName,
-    lsCopyrightFontSize,
+    lsCopyrightFontName, { obsolete }
+    lsCopyrightFontSize, { obsolete }
     lsDialogFontBaseScaleHeight,
     lsDialogFontBaseScaleWidth,
     lsDialogFontName,
@@ -26,11 +26,11 @@ type
     lsLanguageID,
     lsLanguageName,
     lsRightToLeft,
-    lsTitleFontName,
-    lsTitleFontSize,
+    lsTitleFontName, { obsolete }
+    lsTitleFontSize, { obsolete }
     lsWelcomeFontName,
     lsWelcomeFontSize);
-    
+
 implementation
 
 end.

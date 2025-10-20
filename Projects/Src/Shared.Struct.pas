@@ -143,19 +143,16 @@ type
     Permissions: AnsiString;  { an array of TGrantPermissionEntry's }
   end;
 const
-  SetupLanguageEntryStrings = 6;
+  SetupLanguageEntryStrings = 4;
   SetupLanguageEntryAnsiStrings = 4;
 type
   PSetupLanguageEntry = ^TSetupLanguageEntry;
   TSetupLanguageEntry = packed record
-    Name, LanguageName, DialogFontName, TitleFontName, WelcomeFontName,
-      CopyrightFontName: String;
+    Name, LanguageName, DialogFontName, WelcomeFontName: String;
     Data, LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
     LanguageID: Word;
     DialogFontSize, DialogFontBaseScaleHeight, DialogFontBaseScaleWidth: Integer;
-    TitleFontSize: Integer;
     WelcomeFontSize: Integer;
-    CopyrightFontSize: Integer;
     RightToLeft: Boolean;
   end;
 const
