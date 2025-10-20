@@ -128,10 +128,7 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  if not SameText(LangOptions.DialogFontName, 'Segoe UI') then
-    InitializeFont('Segoe UI', 8)
-  else
-    InitializeFont;
+  InitializeFont;
 
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -284,7 +281,7 @@ begin
   InstructionText.Visible := Instruction <> '';
   if InstructionText.Visible then begin
     InstructionText.Caption := Instruction;
-    InstructionText.Font.Height := MulDiv(InstructionText.Font.Height, 12, 8);
+    InstructionText.Font.Height := MulDiv(InstructionText.Font.Height, 12, 9);
   end;
   TextText.Visible := Text <> '';
   if TextText.Visible then
@@ -308,7 +305,7 @@ begin
       end else
         Hint := '';
       MainButton.Caption := Caption;
-      MainButton.Font.Height := MulDiv(MainButton.Font.Height, 12, 8);
+      MainButton.Font.Height := MulDiv(MainButton.Font.Height, 12, 9);
       MainButton.CommandLinkHint := Hint;
       MainButton.ModalResult := ButtonIDs[I];
       if MainButton.ModalResult = IDCANCEL then begin

@@ -790,6 +790,8 @@ begin
     end;
     LangOptions.DialogFontName := MessagesLangOptions.DialogFontName;
     LangOptions.DialogFontSize := MessagesLangOptions.DialogFontSize;
+    LangOptions.DialogFontBaseScaleWidth := MessagesLangOptions.DialogFontBaseScaleWidth;
+    LangOptions.DialogFontBaseScaleHeight := MessagesLangOptions.DialogFontBaseScaleHeight;
     LangOptions.RightToLeft := lfRightToLeft in MessagesLangOptions.Flags;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));

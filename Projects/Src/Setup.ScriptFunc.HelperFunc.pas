@@ -165,8 +165,7 @@ begin
     Exit;
   Font := TFont.Create;
   try
-    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
-      '', 8);
+    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
     CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
   finally
     Font.Free;
