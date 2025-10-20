@@ -96,7 +96,7 @@ BrowseDialogLabel=Selecteer een map in onderstaande lijst en klik daarna op OK.
 NewFolderName=Nieuwe map
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Welkom bij het installatieprogramma van [name].
+WelcomeLabel1=Welkom bij het installatieprogramma van [name]
 WelcomeLabel2=Hiermee wordt [name/ver] geïnstalleerd op deze computer.%n%nU wordt aanbevolen alle actieve programma's af te sluiten voordat u verder gaat.
 
 ; *** "Password" wizard page
