@@ -26,13 +26,11 @@ LanguageCodePage=949
 ; 번역하려는 언어에 특별한 글꼴이나 크기가 필요한 경우, 
 ; 다음 항목 중 하나를 주석 해제하고 그에 따라 변경하세요.
 ;DialogFontName=
-;DialogFontSize=8
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
+;DialogFontSize=9
+;DialogFontBaseScaleWidth=7
+;DialogFontBaseScaleHeight=15
+;WelcomeFontName=Segoe UI
+;WelcomeFontSize=14
 
 [Messages]
 
