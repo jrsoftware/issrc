@@ -173,6 +173,7 @@ procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Lon
 procedure CreateTempInstallDirAndExtract64BitHelper;
 procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
+procedure DeleteResidualTempUninstallDirs;
 function ExitSetupMsgBox: Boolean;
 function ExpandConst(const S: String): String;
 function ExpandConstEx(const S: String; const CustomConsts: array of String): String;
@@ -247,7 +248,7 @@ uses
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
-  Shared.FileClass, Setup.LoggingFunc,
+  Shared.FileClass, Setup.LoggingFunc, StringScanner,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
   Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
   Compression.SevenZipDLLDecoder;
@@ -1402,6 +1403,137 @@ begin
   finally
     ResStrm.Free;
   end;
+end;
+
+procedure DeleteResidualTempUninstallDirs;
+var
+  SelfExeFilename: String;
+
+  function IsAttrDirectoryAndNotReparsePoint(const Attr: DWORD): Boolean;
+  begin
+    Result := (Attr and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_REPARSE_POINT)) =
+      FILE_ATTRIBUTE_DIRECTORY;
+  end;
+
+  function TryDeleteUninstallDir(const ADir: String): Boolean;
+  begin
+    Result := False;
+
+    const UninsExeFilename = ADir + '\_unins.tmp';
+    { Quick out if it's our own process's directory }
+    if PathSame(UninsExeFilename, SelfExeFilename) then
+      Exit;
+
+    { Open handle to the directory. This serves two purposes:
+      - Avoid TOCTOU race in the reparse point check: We checked the
+        attributes returned by FindFirstFile/FindNextFile, but it's *possible*
+        that the directory was replaced with a reparse point (or a file)
+        between then and now. By passing only FILE_SHARE_READ for the sharing
+        mode, we block other processes from deleting the directory or changing
+        it into a reparse point in-place. We can then re-check the attributes
+        with no worries of them changing afterward, as long as the handle
+        remains open.
+      - It functions like a mutex: If two processes enter this function
+        concurrently for the same directory, this CreateFile call will only
+        succeed in one of them. The other will fail with
+        ERROR_SHARING_VIOLATION, because FILE_SHARE_READ doesn't allow another
+        handle to be opened for DELETE access.
+    }
+    const DirHandle = CreateFile(PChar(ADir), Windows._DELETE, FILE_SHARE_READ,
+      nil, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT or FILE_FLAG_BACKUP_SEMANTICS,
+      0);
+    if DirHandle <> INVALID_HANDLE_VALUE then begin
+      try
+        var Info: TByHandleFileInformation;
+        if GetFileInformationByHandle(DirHandle, Info) and
+           IsAttrDirectoryAndNotReparsePoint(Info.dwFileAttributes) then begin
+          { Try to open _unins-done.tmp, which is an empty file created by
+            Uninstall to signal to us that the directory needs deleting.
+            It also serves as a lock: if the file exists, but opening it fails
+            with ERROR_SHARING_VIOLATION, that means the Uninstall process is
+            still running, so we shouldn't try to delete the directory at this
+            time. (Uninstall holds the file open until it terminates, allowing
+            only FILE_SHARE_READ sharing, which conflicts with the request
+            for DELETE access here.) }
+          const DoneFileHandle = CreateFile(PChar(ADir + '\_unins-done.tmp'),
+            Windows._DELETE, FILE_SHARE_READ, nil, OPEN_EXISTING,
+            FILE_FLAG_OPEN_REPARSE_POINT, 0);
+          if DoneFileHandle <> INVALID_HANDLE_VALUE then begin
+            try
+              Result := Windows.DeleteFile(PChar(UninsExeFilename));
+              if Result then begin
+                LogFmt('Deleted file: %s', [UninsExeFilename]);
+                if not DeleteFileOrDirByHandle(DoneFileHandle) then
+                  LogWithLastError('Failed to delete "_unins-done.tmp".');
+              end;
+            finally
+              CloseHandle(DoneFileHandle);
+            end;
+            { Remove directory only when files were deleted from it. We don't
+              remove directories that were empty to start with because that
+              could interfere with a concurrently-running Uninstall process
+              that just created a new directory. }
+            if Result then
+              if not DeleteFileOrDirByHandle(DirHandle) then
+                LogWithLastError('Failed to remove directory.');
+          end;
+        end;
+      finally
+        CloseHandle(DirHandle);
+      end;
+    end;
+  end;
+
+begin
+  Log('Cleaning up any residual temporary files from previous Uninstall runs.');
+  SelfExeFilename := NewParamStr(0);
+  var NumDirsFound: Cardinal := 0;
+  var NumDirsChecked: Cardinal := 0;
+  var NumFilesDeleted: Cardinal := 0;
+
+  const ParentDir = AddBackslash(GetTempDir);
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(ParentDir + 'is-*-uninstall.tmp'), FindData);
+  if H = INVALID_HANDLE_VALUE then begin
+    if GetLastError <> ERROR_FILE_NOT_FOUND then
+      LogWithLastError('Failed to list directory.');
+  end else begin
+    try
+      var TimeLimitReached := False;
+      var TimeLimitTimer: TOneShotTimer;
+      TimeLimitTimer.Start(3000);
+      repeat
+        if IsAttrDirectoryAndNotReparsePoint(FindData.dwFileAttributes) then begin
+          const BaseName: String = FindData.cFileName;
+
+          { Scrutinize the name further }
+          const SS = TStringScanner.Create(PathLowercase(BaseName));
+          const MatchingName = SS.Consume('is-') and
+            (SS.ConsumeMulti(['0'..'9', 'a'..'z'], False, 10, 20) > 0) and
+            SS.Consume('-uninstall.tmp') and SS.ReachedEnd;
+
+          if MatchingName then begin
+            Inc(NumDirsFound);
+            if not TimeLimitReached then begin
+              if (NumDirsChecked >= 10) and TimeLimitTimer.Expired then begin
+                TimeLimitReached := True;
+                Log('Stopping cleanup because it''s taking too long (>3s).');
+              end else begin
+                Inc(NumDirsChecked);
+                if TryDeleteUninstallDir(ParentDir + BaseName) then
+                  Inc(NumFilesDeleted);
+              end;
+            end;
+          end;
+        end;
+      until not FindNextFile(H, FindData);
+    finally
+      Windows.FindClose(H);
+    end;
+  end;
+
+  LogFmt('Cleanup finished (%u directories found, %u directories checked, %u files deleted).',
+    [NumDirsFound, NumDirsChecked, NumFilesDeleted]);
 end;
 
 procedure CreateTempInstallDirAndExtract64BitHelper;
@@ -3350,6 +3482,18 @@ begin
   InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
   Log64BitInstallMode;
+
+  { Test code. Originally planned to call DeleteResidualTempUninstallDirs
+    during Setup's startup too, but decided against it; it's not really
+    necessary and could slow down the startup (slightly). }
+  (*
+  for var Z := 1 to 5 do begin
+    const TD = CreateTempDir('-uninstall.tmp', IsAdmin);
+    TFile.Create(TD + '\_unins.tmp', fdCreateNew, faWrite, fsNone).Free;
+    TFile.Create(TD + '\_unins-done.tmp', fdCreateNew, faWrite, fsNone).Free;
+  end;
+  DeleteResidualTempUninstallDirs;
+  *)
 
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry

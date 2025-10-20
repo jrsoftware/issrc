@@ -13,6 +13,8 @@ interface
 
 procedure Log(const S: String);
 procedure LogFmt(const S: String; const Args: array of const);
+procedure LogWithErrorCode(const S: String; const ErrorCode: Cardinal);
+procedure LogWithLastError(const S: String);
 procedure StartLogging(const Prefix: String);
 procedure StartLoggingWithFixedFilename(const Filename: String);
 function GetLogFileName: String;
@@ -174,6 +176,16 @@ procedure LogFmt(const S: String; const Args: array of const);
 begin
   if GetLogActive then
     Log(Format(S, Args));
+end;
+
+procedure LogWithErrorCode(const S: String; const ErrorCode: Cardinal);
+begin
+  LogFmt('%s (Error code: %u)', [S, ErrorCode]);
+end;
+
+procedure LogWithLastError(const S: String);
+begin
+  LogWithErrorCode(S, GetLastError);
 end;
 
 initialization

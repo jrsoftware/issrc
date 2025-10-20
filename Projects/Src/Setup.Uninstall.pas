@@ -192,6 +192,32 @@ begin
 end;
 
 procedure DeleteUninstallDataFiles;
+
+  procedure CreateUninstallDoneFile;
+  { Creates the _unins-done.tmp file, which is an empty file that signals to
+    DeleteResidualTempUninstallDirs that the temporary directory needs to be
+    deleted, because we're terminating the first phase. }
+  begin
+    const SelfExeFilename = NewParamStr(0);
+    if not SameText(PathExtractName(SelfExeFilename), '_unins.tmp') then begin
+      { This may be the case when debugging }
+      Log('Current Uninstall EXE is not named "_unins.tmp"; not creating "_unins-done.tmp".');
+      Exit;
+    end;
+
+    const DoneFilename = PathExtractPath(SelfExeFilename) + '_unins-done.tmp';
+
+    Log('Creating "_unins-done.tmp" file.');
+    const H = CreateFile(PChar(DoneFilename), GENERIC_WRITE, FILE_SHARE_READ,
+      nil, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+    if H = INVALID_HANDLE_VALUE then
+      LogWithLastError('Failed to create "_unins-done.tmp".');
+    { The file is intentionally never closed (until it gets closed
+      automatically when this process terminates) so that it can't be opened
+      for DELETE access by DeleteResidualTempUninstallDirs while we're still
+      running; see comments there. }
+  end;
+
 var
   ProcessWnd: HWND;
   ProcessID: DWORD;
@@ -214,6 +240,7 @@ begin
   DeleteFile(UninstMsgFilename);
 
   { Tell the first phase to terminate, then delete its .exe }
+  CreateUninstallDoneFile;
   if FirstPhaseWnd <> 0 then begin
     if InitialProcessWnd <> 0 then
       { If the first phase respawned, wait on the initial process }
@@ -357,25 +384,17 @@ begin
 end;
 
 procedure RunFirstPhase;
-var
-  TempDir, TempFile: String;
-  TempDirExisted: Boolean;
-  Wnd: HWND;
-  ProcessHandle: THandle;
 begin
   { Copy self to a subdirectory of the TEMP directory with a name like
     _iu14D2N.tmp. The actual uninstallation process must be done from
     somewhere outside the application directory since EXE's can't delete
     themselves while they are running. }
-  TempDirExisted := GenerateNonRandomUniqueTempDir(IsAdmin, GetTempDir, TempDir);
-  TempFile := AddBackslash(TempDir) + '_unins.tmp';
-  if not TempDirExisted then
-    try
-      RestartReplace(False, TempFile, '');
-      RestartReplace(False, TempDir, '');
-    except
-      { ignore exceptions }
-    end;
+  var Wnd: HWND := 0;
+  var ProcessHandle: THandle := 0;
+  var ShouldDeleteTempDir := True;
+  const TempDir = CreateTempDir('-uninstall.tmp', IsAdmin);
+  const TempFile = AddBackslash(TempDir) + '_unins.tmp';
+  try
   if not CopyFile(PChar(UninstExeFilename), PChar(TempFile), False) then
     RaiseLastError(SetupMessages[msgLdrCannotCreateTemp]);
   { Don't want any attribute like read-only transferred }
@@ -391,18 +410,39 @@ begin
     HInstance, nil);
   Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
     Longint(@FirstPhaseWindowProc));
-  try
+
     { Execute the copy of itself ("second phase") }
     ProcessHandle := Exec(TempFile, Format('/SECONDPHASE="%s" /FIRSTPHASEWND=$%x ',
       [NewParamStr(0), Wnd]) + GetCmdTail);
+    ShouldDeleteTempDir := False;
 
     { Wait till the second phase process unexpectedly dies or is ready
       for the first phase to terminate. }
-    repeat until ProcessMsgs or (MsgWaitForMultipleObjects(1,
-      ProcessHandle, False, INFINITE, QS_ALLINPUT) <> WAIT_OBJECT_0+1);
-    CloseHandle(ProcessHandle);
+    while not ProcessMsgs do begin
+      const WaitResult = MsgWaitForMultipleObjects(1, ProcessHandle, False,
+        INFINITE, QS_ALLINPUT);
+      if WaitResult <> WAIT_OBJECT_0 + 1 then begin
+        { When the second phase process terminates without us receiving a
+          WM_KillFirstPhase message -- which most commonly happens when the
+          user clicks No on the confirmation dialog -- it is our
+          responsibility to delete TempDir.
+          We also break here if WaitResult is something unexpected like
+          WAIT_FAILED, but don't attempt to delete TempDir in that case
+          because we don't know the status of the second phase process. }
+        if WaitResult = WAIT_OBJECT_0 then
+          ShouldDeleteTempDir := True;
+        Break;
+      end;
+    end;
   finally
-    DestroyWindow(Wnd);
+    if ProcessHandle <> 0 then
+      CloseHandle(ProcessHandle);
+    if Wnd <> 0 then
+      DestroyWindow(Wnd);
+    if ShouldDeleteTempDir then begin
+      DelayDeleteFile(False, TempFile, 13, 50, 250);
+      RemoveDirectory(PChar(TempDir));
+    end;
   end;
 end;
 
@@ -493,6 +533,7 @@ begin
     Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
     Log('Original Uninstall EXE: ' + UninstExeFilename);
     Log('Uninstall DAT: ' + UninstDataFilename);
+    LogFmt('Current Uninstall EXE: %s', [NewParamStr(0)]);
     Log('Uninstall command line: ' + GetCmdTail);
     LogWindowsVersion;
 
@@ -573,6 +614,8 @@ begin
     end
     else
       Initialize64BitInstallMode(False);
+
+    DeleteResidualTempUninstallDirs;
 
     { Create temporary directory and extract 64-bit helper EXE if necessary }
     CreateTempInstallDirAndExtract64BitHelper;
