@@ -160,7 +160,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>All features are fully documented.</li>
 
-<li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink>, <extlink href="https://gitforwindows.org">Git for Windows</extlink>, and <extlink href="https://www.embarcadero.com/products/delphi">Embarcardero Delphi</extlink>.</li>
+<li>Used by <extlink href="https://code.visualstudio.com">Microsoft Visual Studio Code</extlink>, <extlink href="https://gitforwindows.org">Git for Windows</extlink>, and <extlink href="https://www.embarcadero.com/products/delphi">Embarcadero Delphi</extlink>.</li>
 
 </ul>
 
