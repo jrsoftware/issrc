@@ -322,8 +322,10 @@ begin
   if not InitFormTheme(Self) then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
-  if FontExists('Verdana') then
-    WelcomeLabel1.Font.Name := 'Verdana';
+  if FontExists('Segoe UI') then begin
+    WelcomeLabel1.Font.Name := 'Segoe UI';
+    WelcomeLabel1.Font.Size := 14;
+  end;
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);

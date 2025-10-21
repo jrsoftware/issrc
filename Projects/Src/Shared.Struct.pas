@@ -37,7 +37,7 @@ const
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
-  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!001';
+  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!002';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idskb32'#26;
 type
@@ -143,19 +143,16 @@ type
     Permissions: AnsiString;  { an array of TGrantPermissionEntry's }
   end;
 const
-  SetupLanguageEntryStrings = 6;
+  SetupLanguageEntryStrings = 4;
   SetupLanguageEntryAnsiStrings = 4;
 type
   PSetupLanguageEntry = ^TSetupLanguageEntry;
   TSetupLanguageEntry = packed record
-    Name, LanguageName, DialogFontName, TitleFontName, WelcomeFontName,
-      CopyrightFontName: String;
+    Name, LanguageName, DialogFontName, WelcomeFontName: String;
     Data, LicenseText, InfoBeforeText, InfoAfterText: AnsiString;
     LanguageID: Word;
-    DialogFontSize: Integer;
-    TitleFontSize: Integer;
+    DialogFontSize, DialogFontBaseScaleHeight, DialogFontBaseScaleWidth: Integer;
     WelcomeFontSize: Integer;
-    CopyrightFontSize: Integer;
     RightToLeft: Boolean;
   end;
 const
@@ -414,7 +411,7 @@ type
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
     DialogFontName: array[0..31] of Char;
-    DialogFontSize: Integer;
+    DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
     Flags: set of (lfRightToLeft);
   end;
 

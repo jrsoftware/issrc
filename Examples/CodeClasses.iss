@@ -55,7 +55,7 @@ begin
     OKButton.Left := Form.ClientWidth - ScaleX(75 + 6 + 75 + 10);
     OKButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     OKButton.Height := ScaleY(23);
-    OKButton.Anchors := [akRight, akBottom]
+    OKButton.Anchors := [akRight, akBottom];
     OKButton.ModalResult := mrOk;
     OKButton.Default := True;
 
@@ -65,7 +65,7 @@ begin
     CancelButton.Left := Form.ClientWidth - ScaleX(75 + 10);
     CancelButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     CancelButton.Height := ScaleY(23);
-    CancelButton.Anchors := [akRight, akBottom]
+    CancelButton.Anchors := [akRight, akBottom];
     CancelButton.ModalResult := mrCancel;
     CancelButton.Cancel := True;
 
@@ -213,7 +213,7 @@ begin
   CommandLinkButton.Caption := 'TNewButton bsCommandLink';
   CommandLinkButton.CommandLinkHint := 'A note';
   //CommandLinkButton.ElevationRequired := True;
-  CommandLinkButton.Font.Size := MulDiv(CommandLinkButton.Font.Size, 12, 8);
+  CommandLinkButton.Font.Size := MulDiv(CommandLinkButton.Font.Size, 12, 9);
   CommandLinkButton.Top := FormButton.Top;
   CommandLinkButton.Left := TaskDialogButton.Left + TaskDialogButton.Width + ScaleX(8);
   CommandLinkButton.Width := Page.Surface.Width - CommandLinkButton.Left;
@@ -245,7 +245,7 @@ begin
 
   StaticText[0] := TNewStaticText.Create(Page);
   StaticText[0].Top := ListBox.Top + ListBox.Height + ScaleY(8);
-  StaticText[0].Anchors := [akLeft, akRight, akBottom];
+  StaticText[0].Anchors := [akLeft, akBottom];
   StaticText[0].Caption := 'TNewStaticText';
   StaticText[0].Parent := Page.Surface;
 
@@ -262,7 +262,7 @@ begin
 
   StaticText[2] := TNewStaticText.Create(Page);
   StaticText[2].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
-  StaticText[2].Anchors := [akLeft, akRight, akBottom];
+  StaticText[2].Anchors := [akLeft, akBottom];
   StaticText[2].Caption := 'TNewStaticText';
   StaticText[2].Parent := Page.Surface;
   StaticText[2].StyleElements := StaticText[2].StyleElements - [seFont];

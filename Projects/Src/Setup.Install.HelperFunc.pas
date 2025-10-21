@@ -432,6 +432,8 @@ begin
   StrPLCopy(MsgLangOpts.DialogFontName, LangOptions.DialogFontName,
     (SizeOf(MsgLangOpts.DialogFontName) div SizeOf(MsgLangOpts.DialogFontName[0])) - 1);
   MsgLangOpts.DialogFontSize := LangOptions.DialogFontSize;
+  MsgLangOpts.DialogFontBaseScaleWidth := LangOptions.DialogFontBaseScaleWidth;
+  MsgLangOpts.DialogFontBaseScaleHeight := LangOptions.DialogFontBaseScaleHeight;
   if LangOptions.RightToLeft then
     Include(MsgLangOpts.Flags, lfRightToLeft);
   LangEntry := Entries[seLanguage][ActiveLanguage];

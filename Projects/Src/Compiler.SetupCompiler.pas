@@ -3541,11 +3541,17 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       AbortCompileFmt(SCompilerUnknownDirective, ['LangOptions', KeyName]);
     Directive := TLangOptionsSectionDirective(I);
     case Directive of
-      lsCopyrightFontName: begin
-          LangOptions.CopyrightFontName := Trim(Value);
+      lsCopyrightFontName,
+      lsCopyrightFontSize,
+      lsTitleFontName,
+      lsTitleFontSize: begin
+          WarningsList.Add(Format(SCompilerEntryObsolete, ['LangOptions', KeyName]));
+      end;
+      lsDialogFontBaseScaleHeight: begin
+          LangOptions.DialogFontBaseScaleHeight := StrToIntCheck(Value);
         end;
-      lsCopyrightFontSize: begin
-          LangOptions.CopyrightFontSize := StrToIntCheck(Value);
+      lsDialogFontBaseScaleWidth: begin
+          LangOptions.DialogFontBaseScaleWidth := StrToIntCheck(Value);
         end;
       lsDialogFontName: begin
           LangOptions.DialogFontName := Trim(Value);
@@ -3577,12 +3583,6 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
       lsRightToLeft: begin
           if not TryStrToBoolean(Value, LangOptions.RightToLeft) then
             Invalid;
-        end;
-      lsTitleFontName: begin
-          LangOptions.TitleFontName := Trim(Value);
-        end;
-      lsTitleFontSize: begin
-          LangOptions.TitleFontSize := StrToIntCheck(Value);
         end;
       lsWelcomeFontName: begin
           LangOptions.WelcomeFontName := Trim(Value);
@@ -6316,13 +6316,11 @@ begin
     LanguageName := 'English';
     LanguageID := $0409;  { U.S. English }
     DialogFontName := DefaultDialogFontName;
-    DialogFontSize := 8;
-    TitleFontName := 'Arial';
-    TitleFontSize := 29;
-    WelcomeFontName := 'Verdana';
-    WelcomeFontSize := 12;
-    CopyrightFontName := 'Arial';
-    CopyrightFontSize := 8;
+    DialogFontSize := 9;
+    DialogFontBaseScaleWidth := 7;
+    DialogFontBaseScaleHeight := 15;
+    WelcomeFontName := 'Segoe UI';
+    WelcomeFontSize := 14;
     LicenseText := '';
     InfoBeforeText := '';
     InfoAfterText := '';
@@ -7925,7 +7923,7 @@ begin
     SetupHeader.Uninstallable := 'yes';
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
-    DefaultDialogFontName := 'Tahoma';
+    DefaultDialogFontName := 'Segoe UI';
     SignToolRetryCount := 2;
     SignToolRetryDelay := 500;
     SetupHeader.CloseApplicationsFilter := '*.exe,*.dll,*.chm';

@@ -22,10 +22,6 @@ LanguageCodePage=0
 ;DialogFontSize=12
 ;WelcomeFontName=TACBarathi
 ;WelcomeFontSize=12
-;TitleFontName=TACBarathi
-;TitleFontSize=29
-;CopyrightFontName=TACBarathi
-;CopyrightFontSize=12
 
 [Messages]
 

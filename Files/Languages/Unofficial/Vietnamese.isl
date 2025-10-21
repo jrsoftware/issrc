@@ -18,13 +18,11 @@ LanguageCodePage=1258
 ; Nếu ngôn ngữ bạn đang dịch yêu cầu các phông chữ hoặc
 ; kích thước đặc biệt, hãy bỏ ghi chú bất kỳ mục nào sau đây và thay đổi chúng cho phù hợp.
 ;DialogFontName=
-;DialogFontSize=8
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
+;DialogFontSize=9
+;DialogFontBaseScaleWidth=7
+;DialogFontBaseScaleHeight=15
+;WelcomeFontName=Segoe UI
+;WelcomeFontSize=14
 
 [Messages]
 
