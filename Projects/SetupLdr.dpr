@@ -560,5 +560,5 @@ begin
   except
     ShowExceptionMsg;
   end;
-  Halt(Word(SetupLdrExitCode));
+  System.ExitCode := SetupLdrExitCode;
 end.
