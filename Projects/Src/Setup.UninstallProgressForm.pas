@@ -112,6 +112,10 @@ begin
     BeveledLabel.Visible := True;
   end;
   CancelButton.Caption := SetupMessages[msgButtonCancel];
+
+  { Adjust page name and description label - also see TWizardForm.Create }
+  const I = FPageNameLabel.AdjustHeight;
+  FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
 end;
 
 destructor TUninstallProgressForm.Destroy;
@@ -129,9 +133,6 @@ begin
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
 
-  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
-
   { Initialize wizard style - also see TWizardForm.Create }
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -147,9 +148,9 @@ begin
     Bevel1.Visible := False;
   end;
 
-  { Adjust page name and description label - also see TWizardForm.Create }
-  const I = FPageNameLabel.AdjustHeight;
-  FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
+  { Initialize image }
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
 end;
 
 procedure TUninstallProgressForm.CreateParams(var Params: TCreateParams);
