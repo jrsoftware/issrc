@@ -899,7 +899,7 @@ begin
     end;
   end;
 
-  { Adjust page name and description label }
+  { Adjust page name and description label - also see TUninstallProgressForm.Initialize }
   I := AdjustLabelHeight(FPageNameLabel);
   FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
 

@@ -146,6 +146,10 @@ begin
       OuterNotebook.Color := clWindow;
     Bevel1.Visible := False;
   end;
+
+  { Adjust page name and description label - also see TWizardForm.Create }
+  const I = FPageNameLabel.AdjustHeight;
+  FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
 end;
 
 procedure TUninstallProgressForm.CreateParams(var Params: TCreateParams);
