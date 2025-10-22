@@ -101,8 +101,8 @@ ButtonOK=확인
 ButtonCancel=취소
 ButtonYes=예(&Y)
 ButtonYesToAll=모두 예(&A)
-ButtonNo=아니오(&N)
-ButtonNoToAll=모두 아니오(&O)
+ButtonNo=아니요(&N)
+ButtonNoToAll=모두 아니요(&O)
 ButtonFinish=마침(&F)
 ButtonBrowse=찾아보기(&B)...
 ButtonWizardBrowse=찾아보기(&R)...
@@ -131,9 +131,9 @@ PasswordEditLabel=암호(&P):
 IncorrectPassword=입력한 암호가 올바르지 않습니다. 다시 시도하세요.
 
 ; *** "License Agreement" wizard page
-WizardLicense=사용권 계약
+WizardLicense=라이선스 계약
 LicenseLabel=계속하기 전에 다음 중요한 정보를 읽어보세요.
-LicenseLabel3=다음 사용권 계약을 읽어보세요. 설치를 계속하기 전에 이 계약 조건에 동의해야 합니다.
+LicenseLabel3=다음 라이선스 계약을 읽어보세요. 설치를 계속하기 전에 이 계약 조건에 동의해야 합니다.
 LicenseAccepted=동의합니다(&A)
 LicenseNotAccepted=동의하지 않습니다(&D)
 
@@ -196,8 +196,8 @@ SelectTasksLabel2=[name]을(를) 설치하는 동안 수행할 추가 작업을 
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=시작 메뉴 폴더 선택
-SelectStartMenuFolderDesc=프로그램의 바로가기를 어디에 설치하시겠습니까?
-SelectStartMenuFolderLabel3=설치는 다음 시작 메뉴 폴더에 프로그램 바로가기를 만듭니다.
+SelectStartMenuFolderDesc=프로그램의 바로 가기를 어디에 설치하시겠습니까?
+SelectStartMenuFolderLabel3=설치는 다음 시작 메뉴 폴더에 프로그램 바로 가기를 만듭니다.
 SelectStartMenuFolderBrowseLabel=계속하려면 다음을 클릭합니다. 다른 폴더를 선택하려면 찾아보기를 클릭합니다.
 MustEnterGroupName=폴더 이름을 입력하세요.
 GroupNameTooLong=폴더 이름 또는 경로가 너무 깁니다.
@@ -258,13 +258,13 @@ InstallingLabel=컴퓨터에 [name]을(를) 설치하는 동안 잠시 기다려
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=[name] 설치 마법사 완료
 FinishedLabelNoIcons=컴퓨터에 [name] 설치를 완료했습니다.
-FinishedLabel=컴퓨터에 [name] 설치를 완료했습니다. 설치된 바로가기를 선택하여 응용 프로그램을 시작할 수 있습니다.
+FinishedLabel=컴퓨터에 [name] 설치를 완료했습니다. 설치된 바로 가기를 선택하여 응용 프로그램을 시작할 수 있습니다.
 ClickFinish=설치를 종료하려면 마침을 클릭하세요.
 FinishedRestartLabel=[name] 설치를 완료하려면 컴퓨터를 다시 시작해야 합니다. 지금 다시 시작하시겠습니까?
 FinishedRestartMessage=[name] 설치를 완료하려면 컴퓨터를 다시 시작해야 합니다.%n%n지금 다시 시작하시겠습니까?
 ShowReadmeCheck=예, README 파일을 보고 싶습니다.
 YesRadio=예, 지금 컴퓨터를 다시 시작합니다(&Y)
-NoRadio=아니오, 나중에 컴퓨터를 다시 시작하겠습니다(&N)
+NoRadio=아니요, 나중에 컴퓨터를 다시 시작하겠습니다(&N)
 ; 예를 들어 'Run MyProg.exe'로 사용됩니다'
 RunEntryExec=%1 실행
 ; 예를 들어 'Readme.txt 보기'로 사용됩니다'
@@ -291,8 +291,8 @@ RetryCancelCancel=취소
 StatusClosingApplications=응용 프로그램을 닫는 중...
 StatusCreateDirs=디렉터리를 만드는 중...
 StatusExtractFiles=파일을 추출하는 중...
-StatusDownloadFiles=파일을 다운로드 중...
-StatusCreateIcons=바로가기를 만드는 중...
+StatusDownloadFiles=파일을 다운로드하는 중...
+StatusCreateIcons=바로 가기를 만드는 중...
 StatusCreateIniEntries=INI 항목을 만드는 중...
 StatusCreateRegistryEntries=레지스트리 항목을 만드는 중...
 StatusRegisterFiles=파일을 등록하는 중...
@@ -347,8 +347,8 @@ ErrorChangingAttr=기존 파일의 속성을 변경하는 동안 오류 발생:
 ErrorCreatingTemp=대상 디렉터리에 파일을 만드는 동안 오류 발생:
 ErrorReadingSource=원본 파일을 읽는 동안 오류 발생:
 ErrorCopying=파일을 복사하는 동안 오류 발생:
-ErrorDownloading=파일을 다운로드하는 동안 오류가 발생했습니다:
-ErrorExtracting=압축파일을 추출하는 동안 오류가 발생했습니다:
+ErrorDownloading=파일을 다운로드하는 동안 오류 발생:
+ErrorExtracting=압축파일을 추출하는 동안 오류 발생:
 ErrorReplacingExistingFile=기존 파일을 교체하는 동안 오류 발생:
 ErrorRestartReplace=RestartReplace 실패:
 ErrorRenamingTemp=대상 디렉터리 내의 파일 이름을 바꾸는 동안 오류 발생:
@@ -402,8 +402,8 @@ ShutdownBlockReasonUninstallingApp=%1을(를) 제거하는 중입니다.
 [CustomMessages]
 
 NameAndVersion=%1 버전 %2
-AdditionalIcons=바로가기 추가:
-CreateDesktopIcon=바탕 화면에 바로가기 만들기(&D)
+AdditionalIcons=바로 가기 추가:
+CreateDesktopIcon=바탕 화면에 바로 가기 만들기(&D)
 CreateQuickLaunchIcon=빠른 실행 아이콘 만들기(&Q)
 ProgramOnTheWeb=%1 웹페이지
 UninstallProgram=%1 제거
@@ -413,3 +413,4 @@ AssocingFileExtension=%1을(를) %2 파일 확장자와 연결하는 중...
 AutoStartProgramGroupDescription=시작:
 AutoStartProgram=%1 자동 시작
 AddonHostProgramNotFound=%1을(를) 선택한 폴더에서 찾을 수 없습니다.%n%n계속하시겠습니까?
+
