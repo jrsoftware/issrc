@@ -436,7 +436,7 @@ begin
 end;
 
 procedure TUninstallLog.Clear;
-{ Frees all entries in the uninstall list and clears AppName/AppName/Flags/WizardSizePercentX/Y }
+{ Frees all entries in the uninstall list and clears AppId/AppName/Flags/WizardSizePercentX/Y }
 begin
   while FLastList <> nil do
     Delete(FLastList);
