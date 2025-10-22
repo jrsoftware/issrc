@@ -281,11 +281,17 @@ Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
 
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
-Access Token with access to your fork or all repositories you own, ensuring it has Read and
-Write permissions for Contents. After that, add this token as a new repository secret, under
-the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
-by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
-and will automatically run the aforementioned build workflow on changes, if it's configured.
+Access Token (at https://github.com/settings/personal-access-tokens) with access to your
+fork or all repositories you own, ensuring it has Read and Write permissions for Contents
+and (see below) optionally also for Pull Requests. After that, add this token as a new
+repository secret, under the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your
+fork has this secret, by adding the topic `has-issrc-build-env-sync-token`. Your fork will
+now synchronize daily, and will automatically run the aforementioned build workflow on
+changes, if it's configured.
+
+If you also create a PR named `copilot-review` to merge main into a branch, and you have
+included permissions for Pull Requests as well as access to Copilot reviews, then it will
+automatically request a review from Copilot once the synchronization completes.
 
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and

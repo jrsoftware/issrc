@@ -16,3 +16,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           BRANCH_NAME: ${{ github.ref_name }}
+      - run: |
+          PR_NUMBER=$(gh pr list --repo "$REPOSITORY" --state open --base "$PR_BASE" --json number,headRefName --jq ".[] | select(.headRefName == \"$BRANCH_NAME\") | .number" | head -n 1)
+          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+            gh api --method POST /repos/$REPOSITORY/pulls/$PR_NUMBER/requested_reviewers -f "reviewers[]=copilot-pull-request-reviewer[bot]"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          PR_BASE: copilot-review
