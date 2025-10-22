@@ -17,6 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
   -shWizardBorderStyled in SetupHeader.Options
+  Also requires following globals to be set, but 0 is allowed:
   -SetupHeader.WizardSizePercentX
   -SetupHeader.WizardSizePercentY
 }

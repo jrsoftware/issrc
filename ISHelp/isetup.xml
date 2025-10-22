@@ -5655,11 +5655,11 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
 <setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
 <body>
-<p>Lets you increase the default size of all Setup wizard windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
+<p>Lets you increase the default size of all Setup and Uninstall windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
 <example><pre>WizardSizePercent=120</pre></example>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
-<p>Note: Some of the wizard windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
+<p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardresizable">WizardResizable</link><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>

@@ -567,8 +567,8 @@ begin
     { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
     if ufWizardBorderStyled in UninstLog.Flags then
       Include(SetupHeader.Options, shWizardBorderStyled);
-    SetupHeader.WizardSizePercentX := 100;
-    SetupHeader.WizardSizePercentY := 100;
+    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
+    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 

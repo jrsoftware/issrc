@@ -2809,6 +2809,8 @@ begin
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
+      UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
+      UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 
