@@ -138,7 +138,7 @@
         <DCCReference Include="Src\Setup.SetupForm.pas"/>
         <DCCReference Include="Src\Setup.RegSvr.pas"/>
         <DCCReference Include="..\Components\BrowseFunc.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup.RedirFunc.pas"/>
+        <DCCReference Include="Src\Setup.RedirFunc.pas"/>
         <DCCReference Include="Src\Setup.SecurityFunc.pas"/>
         <DCCReference Include="Src\Setup.Helper.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>

@@ -2,7 +2,7 @@ unit Setup.SecurityFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,7 +24,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc, Setup.LoggingFunc,
-  SetupLdrAndSetup.RedirFunc, Setup.Helper;
+  Setup.RedirFunc, Setup.Helper;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;

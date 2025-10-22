@@ -65,7 +65,7 @@ uses
   Setup.SetupForm in 'Src\Setup.SetupForm.pas',
   Setup.RegSvr in 'Src\Setup.RegSvr.pas',
   BrowseFunc in '..\Components\BrowseFunc.pas',
-  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
+  Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
   Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
   Setup.Helper in 'Src\Setup.Helper.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',

@@ -115,7 +115,7 @@ implementation
 uses
   Forms, SysUtils, Graphics,
   uPSUtils, PathFunc, ASMInline, PSStackHelper,
-  Setup.MainFunc, SetupLdrAndSetup.RedirFunc, Setup.InstFunc,
+  Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
 

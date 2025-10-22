@@ -20,8 +20,7 @@ uses
   Windows, SysUtils,
   PathFunc,
   Shared.CommonFunc, Shared.FileClass, Shared.Struct,
-  SetupLdrAndSetup.RedirFunc,
-  Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
+  Setup.RedirFunc, Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalExtractTemporaryFile(const DestName: String;
   const CurFile: PSetupFileEntry; const CurFileLocation: PSetupFileLocationEntry;
