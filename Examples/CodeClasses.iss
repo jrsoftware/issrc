@@ -181,7 +181,7 @@ begin
   Memo := TNewMemo.Create(Page);
   Memo.Top := Edit.Top + Edit.Height + ScaleY(8);
   Memo.Width := Page.SurfaceWidth;
-  Memo.Height := ScaleY(70);
+  Memo.Height := ScaleY(70) + Page.SurfaceExtraHeight;
   Memo.Anchors := [akLeft, akTop, akRight, akBottom];
   Memo.ScrollBars := ssVertical;
   Memo.Text := 'TNewMemo';
@@ -235,7 +235,7 @@ begin
   ListBox := TNewListBox.Create(Page);
   ListBox.Top := ComboBox.Top + ComboBox.Height + ScaleY(8);
   ListBox.Width := Page.SurfaceWidth;
-  ListBox.Height := ScaleY(97);
+  ListBox.Height := ScaleY(97) + Page.SurfaceExtraHeight;
   ListBox.Anchors := [akLeft, akTop, akRight, akBottom];
   ListBox.Parent := Page.Surface;
   ListBox.Items.Add('TListBox');
@@ -254,7 +254,7 @@ begin
   StaticText[1].Anchors := [akLeft, akRight, akBottom];
   StaticText[1].WordWrap := True;
   StaticText[1].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
-  StaticText[1].Width := 2 * StaticText[0].Width;
+  StaticText[1].Width := Page.SurfaceWidth - StaticText[1].Left - ScaleX(8);
   StaticText[1].Parent := Page.Surface;
   StaticText[1].AdjustHeight;
 
@@ -324,7 +324,7 @@ begin
 
   CheckListBox[0] := TNewCheckListBox.Create(Page);
   CheckListBox[0].Width := Page.SurfaceWidth;
-  CheckListBox[0].Height := ScaleY(97);
+  CheckListBox[0].Height := ScaleY(97) + Page.SurfaceExtraHeight;
   CheckListBox[0].Anchors := [akLeft, akTop, akRight, akBottom];
   CheckListBox[0].Flat := True;
   CheckListBox[0].Parent := Page.Surface;

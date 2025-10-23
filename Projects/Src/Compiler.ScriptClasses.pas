@@ -337,6 +337,8 @@ begin
     RegisterMethod('function ShouldSizeY: Boolean;');
     RegisterMethod('procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
     RegisterProperty('ControlsFlipped', 'Boolean', iptr);
+    RegisterProperty('ExtraClientWidth', 'Integer', iptr);
+    RegisterProperty('ExtraClientHeight', 'Integer', iptr);
     RegisterProperty('FlipControlsOnShow', 'Boolean', iptrw);
     RegisterProperty('KeepSizeX', 'Boolean', iptr);
     RegisterProperty('KeepSizeY', 'Boolean', iptr);
@@ -475,8 +477,10 @@ begin
     RegisterProperty('Description', 'String', iptrw);
     RegisterProperty('Surface', 'TNewNotebookPage', iptr);
     RegisterProperty('SurfaceColor', 'TColor', iptr);
-    RegisterProperty('SurfaceHeight', 'Integer', iptr);
     RegisterProperty('SurfaceWidth', 'Integer', iptr);
+    RegisterProperty('SurfaceExtraWidth', 'Integer', iptr);
+    RegisterProperty('SurfaceHeight', 'Integer', iptr);
+    RegisterProperty('SurfaceExtraHeight', 'Integer', iptr);
     RegisterProperty('OnActivate', 'TWizardPageNotifyEvent', iptrw);
     RegisterProperty('OnBackButtonClick', 'TWizardPageButtonEvent', iptrw);
     RegisterProperty('OnCancelButtonClick', 'TWizardPageCancelEvent', iptrw);
