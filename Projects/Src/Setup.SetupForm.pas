@@ -74,6 +74,8 @@ type
   published
     property ControlsFlipped: Boolean read FControlsFlipped;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
+    property KeepSizeX: Boolean read FKeepSizeX;
+    property KeepSizeY: Boolean read FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
     property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property SetForeground: Boolean read FSetForeground write FSetForeground;
