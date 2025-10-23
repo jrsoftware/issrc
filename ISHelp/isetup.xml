@@ -5648,7 +5648,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <setuptopic directive="WizardSizePercent">
 <setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
 <setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
-<setupdefault><tt>120,120</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>100,100</tt> otherwise</setupdefault>
+<setupdefault><tt>120,120</tt></setupdefault>
 <body>
 <p>Lets you increase the default size of all Setup and Uninstall windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
