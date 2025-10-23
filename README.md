@@ -294,7 +294,8 @@ have included permissions for Pull Requests as well as access to Copilot reviews
 will automatically request a review from Copilot once the synchronization completes. You
 should then regularly fast-forward your branch to the commit immediately preceding the
 head of `main`. Do not fast-forward to the head of `main`, as this will close your PR and
-you will not be able to recreate it until another commit is made.
+you will not be able to recreate it until another commit is made. After fast-forwarding,
+close and reopen the PR on GitHub to make it display updated information.
 
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
