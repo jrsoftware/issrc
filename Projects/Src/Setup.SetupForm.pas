@@ -74,6 +74,7 @@ type
     property BaseUnitX: Integer read FBaseUnitX;
     property BaseUnitY: Integer read FBaseUnitY;
   published
+    property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property ControlsFlipped: Boolean read FControlsFlipped;
     property ExtraClientWidth: Integer read GetExtraClientWidth;
     property ExtraClientHeight: Integer read GetExtraClientHeight;
@@ -81,7 +82,6 @@ type
     property KeepSizeX: Boolean read FKeepSizeX;
     property KeepSizeY: Boolean read FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
-    property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property SetForeground: Boolean read FSetForeground write FSetForeground;
   end;
 
