@@ -2403,7 +2403,7 @@ If no code page currently exists for the language, set <tt>LanguageCodePage</tt>
 If the language only uses ASCII characters (like English), set <tt>LanguageCodePage</tt> to zero as well.<br/>
 If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
 
-<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
 
 <p>Before Inno Setup 6.6, the default font was 8-point <i>Tahoma</i> instead of 9-point <i>Segoe UI</i>. To use this font again without changes in scaling, use:</p>
 
@@ -2423,7 +2423,7 @@ DialogFontBaseScaleHeight=13
 DialogFontBaseScaleWidth=6
 </precode>
 
-<p><b><a name="WelcomeFontName">WelcomeFontName</a></b> and <b><a name="WelcomeFontSize">WelcomeFontSize</a></b> specify the font name and point size to use at the top of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. If the specified font name does not exist on the user's system or is an empty string, 12-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><b><a name="WelcomeFontName">WelcomeFontName</a></b> and <b><a name="WelcomeFontSize">WelcomeFontSize</a></b> specify the font name and point size to use at the top of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. If the specified font name does not exist on the user's system or is an empty string, 14-point <i>Segoe UI</i> will be substituted.</p>
 
 <p>Before Inno Setup 6.6, the default font was 12-point <i>Verdana</i> instead of 14-point <i>Segoe UI</i>. To use this font again, use:</p>
 
@@ -5843,7 +5843,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <setupdefault><tt>Segoe UI</tt></setupdefault>
 <body>
 <p>Specifies the name of the font that should be used in dialogs on languages that do not set <tt>DialogFontName</tt> in their <link topic="langoptionssection">[LangOptions] section</link>.</p>
-<p>If the specified font name does not exist on the user's system or is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p>If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
 </body>
 </setuptopic>
 

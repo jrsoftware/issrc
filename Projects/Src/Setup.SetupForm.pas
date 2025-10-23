@@ -129,7 +129,7 @@ begin
       Exit;
     end;
   end;
-  AFont.Name := GetPreferredUIFont;
+  AFont.Name := 'Segoe UI';
   AFont.Height := SizeToHeight(AFallbackSize);
 end;
 
@@ -520,7 +520,7 @@ var
 begin
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
-  SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
+  SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
   { Scale }
