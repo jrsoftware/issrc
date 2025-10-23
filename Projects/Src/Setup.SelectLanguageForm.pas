@@ -96,7 +96,7 @@ begin
 
   MainPanel.ParentBackground := False;
 
-  InitializeFont;
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgSelectLanguageTitle];
   SelectLabel.Caption := SetupMessages[msgSelectLanguageLabel];
@@ -104,8 +104,6 @@ begin
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
   IconBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + MainIconPostfix), clNone, [32, 48, 64]);
-
-  KeepSizeY := True;
 end;
 
 end.

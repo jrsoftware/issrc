@@ -34,7 +34,7 @@ type
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
     FFlipControlsOnShow: Boolean;
-    FSizeAndCenterOnShow: Boolean;
+    FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
     FKeepSizeX: Boolean;
     FKeepSizeY: Boolean;
@@ -49,7 +49,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure FlipControlsIfNeeded;
-    procedure SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+    procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl;
       const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
@@ -58,7 +58,7 @@ type
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
-    procedure InitializeFont;
+    procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const BaseUnitX, N: Integer): Integer; overload;
     class function ScalePixelsY(const BaseUnitY, N: Integer): Integer; overload;
     function ScalePixelsX(const N: Integer): Integer; overload;
@@ -66,7 +66,7 @@ type
     function ShouldSizeX: Boolean;
     function ShouldSizeY: Boolean;
     function ShowModal: Integer; override;
-    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
+    procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
@@ -74,10 +74,8 @@ type
   published
     property ControlsFlipped: Boolean read FControlsFlipped;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
-    property KeepSizeX: Boolean read FKeepSizeX write FKeepSizeX;
-    property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
-    property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
+    property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property SetForeground: Boolean read FSetForeground write FSetForeground;
   end;
 
@@ -199,7 +197,7 @@ begin
     CreateNew isn't virtual on Delphi 2 and 3 }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
-  FSizeAndCenterOnShow := True;
+  FCenterOnShow := True;
   inherited;
    { Setting BidiMode before inherited causes an AV when TControl tries to
      send CM_BIDIMODECHANGED. This is why we have additonal RTL code in
@@ -219,7 +217,7 @@ begin
     when TSetupForm.CreateNew is called explicitly }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
-  FSizeAndCenterOnShow := True;
+  FCenterOnShow := True;
   inherited;
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
@@ -412,15 +410,10 @@ begin
   end;
 end;
 
-procedure TSetupForm.SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+procedure TSetupForm.CenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
-  if FSizeAndCenterOnShow then begin
-    FSizeAndCenterOnShow := False;
-    { Apply custom initial size from script - depends on Align or Anchors being set on all the controls }
-    if ShouldSizeX then
-      ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
-    if ShouldSizeY then
-      ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if FCenterOnShow then begin
+    FCenterOnShow := False;
     { Center }
     if ACenterInsideControl then
       CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
@@ -439,19 +432,17 @@ begin
   Result := not FKeepSizeY and (SetupHeader.WizardSizePercentY > 100);
 end;
 
-procedure TSetupForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+procedure TSetupForm.FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
-  { Flipping must be done first because when flipping after sizing the flipping might get old info
-    for anchors that didn't do their work yet }
   FlipControlsIfNeeded;
-  SizeAndCenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+  CenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
 end;
 
 type
   TControlAccess = class(TControl);
 
-procedure TSetupForm.InitializeFont;
+procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
 
   procedure NewChangeScale(const Ctl: TControl; const XM, XD, YM, YD: Integer);
   var
@@ -527,11 +518,12 @@ var
   W, H: Integer;
   R: TRect;
 begin
-  { Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
+  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
+  { Scale }
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
   const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
 
@@ -552,6 +544,14 @@ begin
       ControlAnchorsList.Free;
     end;
   end;
+
+  { Size }
+  FKeepSizeX := KeepSizeX;
+  FKeepSizeY := KeepSizeY;
+  if ShouldSizeX then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+  if ShouldSizeY then
+    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
 end;
 
 class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
@@ -592,7 +592,7 @@ begin
   { Note: Unlike DoShow, any exceptions raised in VisibleChanging will be
     propagated out, which is what we want }
   if not Visible then
-    FlipSizeAndCenterIfNeeded;
+    FlipAndCenterIfNeeded;
   end;
 
 procedure TSetupForm.CMShowingChanged(var Message: TMessage);

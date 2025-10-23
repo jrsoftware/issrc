@@ -34,10 +34,9 @@ var
   OKButton, CancelButton: TNewButton;
   W: Integer;
 begin
-  Form := CreateCustomForm();
+  { Keep the form from sizing vertically since we don't have any controls which can size vertically }
+  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, True);
   try
-    Form.ClientWidth := ScaleX(256);
-    Form.ClientHeight := ScaleY(128);
     Form.Caption := 'TSetupForm';
 
     Edit := TNewEdit.Create(Form);
@@ -74,10 +73,9 @@ begin
     CancelButton.Width := W;
 
     Form.ActiveControl := Edit;
-    { Keep the form from sizing vertically since we don't have any controls which can size vertically }
-    Form.KeepSizeY := True;
+
     { Center on WizardForm. Without this call it will still automatically center, but on the screen }
-    Form.FlipSizeAndCenterIfNeeded(True, WizardForm, False);
+    Form.FlipAndCenterIfNeeded(True, WizardForm, False);
 
     if Form.ShowModal() = mrOk then
       MsgBox('You clicked OK.', mbInformation, MB_OK);

@@ -259,7 +259,7 @@ begin
     RegisterMethod(@TSetupForm.CalculateButtonWidth, 'CalculateButtonWidth');
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
-    RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
+    RegisterMethod(@TSetupForm.FlipAndCenterIfNeeded, 'FlipAndCenterIfNeeded');
   end;
 end;
 

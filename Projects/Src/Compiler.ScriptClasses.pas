@@ -335,12 +335,13 @@ begin
     RegisterMethod('function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;');
     RegisterMethod('function ShouldSizeX: Boolean;');
     RegisterMethod('function ShouldSizeY: Boolean;');
-    RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
+    RegisterMethod('procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
     RegisterProperty('ControlsFlipped', 'Boolean', iptr);
     RegisterProperty('FlipControlsOnShow', 'Boolean', iptrw);
-    RegisterProperty('KeepSizeY', 'Boolean', iptrw);
+    RegisterProperty('KeepSizeX', 'Boolean', iptr);
+    RegisterProperty('KeepSizeY', 'Boolean', iptr);
     RegisterProperty('RightToLeft', 'Boolean', iptr);
-    RegisterProperty('SizeAndCenterOnShow', 'Boolean', iptrw);
+    RegisterProperty('CenterOnShow', 'Boolean', iptrw);
   end;
 end;
 

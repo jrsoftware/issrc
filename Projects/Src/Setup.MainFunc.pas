@@ -3807,7 +3807,7 @@ begin
       raise;
     end;
   end;
-  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
+  WizardForm.FlipAndCenterIfNeeded(False, nil, False);
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }
