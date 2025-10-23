@@ -18,3 +18,4 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 - Code must be compatible with Delphi 10.4 Sydney and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - All errors must be checked. Installers should be reliable above all.
+- Do not nitpick, especially not about readability or subjective matters.
