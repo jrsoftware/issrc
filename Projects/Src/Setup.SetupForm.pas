@@ -36,8 +36,8 @@ type
     FFlipControlsOnShow: Boolean;
     FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
-    FKeepSizeX: Boolean;
-    FKeepSizeY: Boolean;
+    FKeepSizeX, FKeepSizeY: Boolean;
+    FOrgClientWidth, FOrgClientHeight: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -48,6 +48,8 @@ type
     procedure CenterInsideRect(const InsideRect: TRect);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
+    function GetExtraClientWidth: Integer;
+    function GetExtraClientHeight: Integer;
     procedure FlipControlsIfNeeded;
     procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl;
@@ -73,6 +75,8 @@ type
     property BaseUnitY: Integer read FBaseUnitY;
   published
     property ControlsFlipped: Boolean read FControlsFlipped;
+    property ExtraClientWidth: Integer read GetExtraClientWidth;
+    property ExtraClientHeight: Integer read GetExtraClientHeight;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
     property KeepSizeX: Boolean read FKeepSizeX;
     property KeepSizeY: Boolean read FKeepSizeY;
@@ -550,10 +554,22 @@ begin
   { Size }
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
+  FOrgClientWidth := ClientWidth;
+  FOrgClientHeight := ClientHeight;
   if ShouldSizeX then
     ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
   if ShouldSizeY then
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+end;
+
+function TSetupForm.GetExtraClientWidth: Integer;
+begin
+  Result := ClientWidth - FOrgClientWidth;
+end;
+
+function TSetupForm.GetExtraClientHeight: Integer;
+begin
+  Result := ClientHeight - FOrgClientHeight;
 end;
 
 class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;

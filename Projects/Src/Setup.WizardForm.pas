@@ -45,7 +45,9 @@ type
     function GetSurface: TNewNotebookPage;
     function GetSurfaceColor: TColor;
     function GetSurfaceHeight: Integer;
+    function GetSurfaceExtraHeight: Integer;
     function GetSurfaceWidth: Integer;
+    function GetSurfaceExtraWidth: Integer;
     procedure SetCaption(const Value: String);
     procedure SetDescription(const Value: String);
     procedure SyncCaptionAndDescription;
@@ -68,7 +70,9 @@ type
     property Surface: TNewNotebookPage read GetSurface;
     property SurfaceColor: TColor read GetSurfaceColor;
     property SurfaceHeight: Integer read GetSurfaceHeight;
+    property SurfaceExtraHeight: Integer read GetSurfaceExtraHeight;
     property SurfaceWidth: Integer read GetSurfaceWidth;
+    property SurfaceExtraWidth: Integer read GetSurfaceExtraWidth;
     property OnActivate: TWizardPageNotifyEvent read FOnActivate write FOnActivate;
     property OnBackButtonClick: TWizardPageButtonEvent read FOnBackButtonClick write FOnBackButtonClick;
     property OnCancelButtonClick: TWizardPageCancelEvent read FOnCancelButtonClick write FOnCancelButtonClick;
@@ -691,14 +695,24 @@ begin
   Result := TNewNotebook(Surface.Parent).Color;
 end;
 
+function TWizardPage.GetSurfaceWidth: Integer;
+begin
+  Result := Surface.Parent.Width;
+end;
+
+function TWizardPage.GetSurfaceExtraWidth: Integer;
+begin
+  Result := FWizardForm.GetExtraClientWidth;
+end;
+
 function TWizardPage.GetSurfaceHeight: Integer;
 begin
   Result := Surface.Parent.Height;
 end;
 
-function TWizardPage.GetSurfaceWidth: Integer;
+function TWizardPage.GetSurfaceExtraHeight: Integer;
 begin
-  Result := Surface.Parent.Width;
+  Result := FWizardForm.GetExtraClientHeight;
 end;
 
 procedure TWizardPage.SetCaption(const Value: String);

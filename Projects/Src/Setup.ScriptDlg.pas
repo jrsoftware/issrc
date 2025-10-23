@@ -412,7 +412,7 @@ begin
   with FCheckListBox do begin
     Top := CaptionYDiff + WizardForm.ScalePixelsY(DefaultBoxTop);
     Width := SurfaceWidth;
-    Height := WizardForm.ScalePixelsY(DefaultBoxBottom) - Top;
+    Height := WizardForm.ScalePixelsY(DefaultBoxBottom) + SurfaceExtraHeight - Top;
     Anchors := [akLeft, akTop, akRight, akBottom];
     Flat := ListBox and (shFlatComponentsList in SetupHeader.Options);
   end;
@@ -827,7 +827,7 @@ begin
   with FRichEditViewer do begin
     Top := Y;
     Width := SurfaceWidth;
-    Height := WizardForm.ScalePixelsY(DefaultBoxBottom) - Y;
+    Height := WizardForm.ScalePixelsY(DefaultBoxBottom) + SurfaceExtraHeight - Y;
     Anchors := [akLeft, akTop, akRight, akBottom];
     BevelKind := bkFlat;
     BorderStyle := bsNone;
