@@ -10,7 +10,7 @@ env:
 jobs:
   build:
     # Only set the topic `has-issrc-build-env` if the secrets are available
-    if: contains(github.event.repository.topics, 'has-issrc-build-env')
+    if: contains(github.event.repository.topics, 'has-issrc-build-env') && github.ref != 'refs/heads/copilot-review'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3

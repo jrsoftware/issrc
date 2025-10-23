@@ -282,11 +282,11 @@ workflow will be triggered automatically.
 
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
 Access Token (at https://github.com/settings/personal-access-tokens) with access to your
-fork or all repositories you own, ensuring it has Read and Write permissions for Contents
-and (see below) optionally also for Pull Requests. After that, add this token as a new
-repository secret, under the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your
-fork has this secret, by adding the topic `has-issrc-build-env-sync-token`. Your fork will
-now synchronize daily, and will automatically run the aforementioned build workflow on
+fork or all repositories you own, ensuring it has Read and Write permissions for Contents,
+Workflows, and (see below) optionally also for Pull Requests. After that, add this token as
+a new repository secret, under the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that
+your fork has this secret, by adding the topic `has-issrc-build-env-sync-token`. Your fork
+will now synchronize daily, and will automatically run the aforementioned build workflow on
 changes, if it's configured.
 
 If you also create a draft PR to merge `main` into a branch named `copilot-review`, and you
