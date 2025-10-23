@@ -17,6 +17,9 @@ DefaultDirName={autopf}\My Program
 AppVersion=1.2.3
 WizardStyle=modern dynamic
 
+DisableDirPage=no
+DisableProgramGroupPage=no
+
 ; This enables debugging
 UseSetupLdr=no
 OutputDir={#CompilerPath}
