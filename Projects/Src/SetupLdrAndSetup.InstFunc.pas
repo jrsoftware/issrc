@@ -22,7 +22,7 @@ function CreateTempDir(const Extension: String;
   const LimitCurrentUserSidAccess: Boolean; var Protected: Boolean): String; overload;
 function CreateTempDir(const Extension: String;
   const LimitCurrentUserSidAccess: Boolean): String; overload;
-procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
+procedure DelayDeleteFile({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
@@ -36,13 +36,13 @@ function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: Str
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD): Boolean; overload;
 function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
-function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
+function GenerateUniqueName({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} Path: String;
   const Extension: String): String;
 
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, SetupLdrAndSetup.RedirFunc;
+  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs{$IFDEF SETUPPROJ}, Setup.RedirFunc{$ENDIF};
 
 function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSecurityDescriptor: PWideChar;
@@ -148,7 +148,7 @@ begin
   end;
 end;
 
-function GenerateUniqueName(const DisableFsRedir: Boolean; Path: String;
+function GenerateUniqueName({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} Path: String;
   const Extension: String): String;
 const
   FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
@@ -170,7 +170,7 @@ begin
       UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
       UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
       Extension;
-  until not FileOrDirExistsRedir(DisableFsRedir, Filename);
+  until not {$IFDEF SETUPPROJ}FileOrDirExistsRedir(DisableFsRedir, Filename){$ELSE}FileOrDirExists(Filename){$ENDIF};
   Result := Filename;
 end;
 
@@ -182,7 +182,7 @@ var
   ErrorCode: DWORD;
 begin
   while True do begin
-    Dir := GenerateUniqueName(False, GetTempDir, Extension);
+    Dir := GenerateUniqueName({$IFDEF SETUPPROJ}False,{$ENDIF} GetTempDir, Extension);
     if CreateSafeDirectory(LimitCurrentUserSidAccess, Dir, ErrorCode, Protected) then
       Break;
     if ErrorCode <> ERROR_ALREADY_EXISTS then
@@ -241,7 +241,7 @@ begin
     WM_QUERYENDSESSION and WM_ENDSESSION messages. }
 end;
 
-procedure DelayDeleteFile(const DisableFsRedir: Boolean; const Filename: String;
+procedure DelayDeleteFile({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} const Filename: String;
   const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 { Attempts to delete Filename up to MaxTries times, retrying if the file is
   in use. It sleeps FirstRetryDelayMS msec after the first try, and
@@ -252,7 +252,7 @@ begin
       Sleep(FirstRetryDelayMS)
     else if I > 1 then
       Sleep(SubsequentRetryDelayMS);
-    if DeleteFileRedir(DisableFsRedir, Filename) or
+    if {$IFDEF SETUPPROJ}DeleteFileRedir(DisableFsRedir, Filename){$ELSE}Windows.DeleteFile(PChar(Filename)){$ENDIF} or
        (GetLastError = ERROR_FILE_NOT_FOUND) or
        (GetLastError = ERROR_PATH_NOT_FOUND) then
       Break;

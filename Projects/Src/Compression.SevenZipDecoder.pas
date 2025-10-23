@@ -32,7 +32,7 @@ uses
   Windows, Forms,
   PathFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
-  SetupLdrAndSetup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record

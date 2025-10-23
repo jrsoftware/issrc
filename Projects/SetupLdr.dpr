@@ -26,7 +26,6 @@ uses
   SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   SHA256 in '..\Components\SHA256.pas',
-  SetupLdrAndSetup.RedirFunc in 'Src\SetupLdrAndSetup.RedirFunc.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   ChaCha20 in '..\Components\ChaCha20.pas',
@@ -539,7 +538,7 @@ begin
         { Even though Setup has terminated by now, the system may still have
           the file locked for a short period of time (esp. on multiprocessor
           systems), so use DelayDeleteFile to delete it. }
-        DelayDeleteFile(False, TempFile, 13, 50, 250);
+        DelayDeleteFile(TempFile, 13, 50, 250);
       if TempDir <> '' then
         RemoveDirectory(PChar(TempDir));
       if SetupLdrWnd <> 0 then
@@ -561,5 +560,5 @@ begin
   except
     ShowExceptionMsg;
   end;
-  Halt(Word(SetupLdrExitCode));
+  System.ExitCode := SetupLdrExitCode;
 end.

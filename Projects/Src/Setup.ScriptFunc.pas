@@ -23,7 +23,7 @@ uses
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections, Math,
   uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage, PSStackHelper,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
-  Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.RedirFunc, SetupLdrAndSetup.InstFunc,
+  Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc, Setup.RedirFunc,
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,

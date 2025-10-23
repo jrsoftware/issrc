@@ -789,7 +789,7 @@ begin
 
   InitializeFont;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
-    LangOptions.WelcomeFontSize, '', 12);
+    LangOptions.WelcomeFontSize, '', 14);
   WelcomeLabel1.Font.Style := [fsBold];
   PageNameLabel.Font.Style := [fsBold];
 
@@ -899,7 +899,7 @@ begin
     end;
   end;
 
-  { Adjust page name and description label }
+  { Adjust page name and description label - also see TUninstallProgressForm.Create }
   I := AdjustLabelHeight(FPageNameLabel);
   FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
 
@@ -1085,7 +1085,7 @@ begin
   { Initialize wpFinished page }
   RegisterExistingPage(wpFinished, FinishedPage, nil, '', '');
   SetFontNameSize(FinishedHeadingLabel.Font, LangOptions.WelcomeFontName,
-    LangOptions.WelcomeFontSize, '', 12);
+    LangOptions.WelcomeFontSize, '', 14);
   FinishedHeadingLabel.Font.Style := [fsBold];
   FinishedHeadingLabel.Caption := ExpandSetupMessage(msgFinishedHeadingLabel) +
     SNewLine;

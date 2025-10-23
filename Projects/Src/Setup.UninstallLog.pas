@@ -124,6 +124,7 @@ type
     NeedRestart: Boolean;
     Flags: TUninstallLogFlags;
     Version: Integer;
+    WizardSizePercentX, WizardSizePercentY: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -157,7 +158,7 @@ implementation
 uses
   Messages, ShlObj, AnsiStrings,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
-  Setup.InstFunc.Ole, SetupLdrAndSetup.RedirFunc, Compression.Base,
+  Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
 
 type
@@ -168,9 +169,10 @@ type
     AppId: array[0..127] of AnsiChar;
     AppName: array[0..127] of AnsiChar;
     Version, NumRecs: Integer;
-    EndOffset: LongWord;
-    Flags: Longint;
-    Reserved: array[0..26] of Longint;  { reserved for future use }
+    EndOffset: UInt32;
+    Flags: Integer;
+    WizardSizePercentX, WizardSizePercentY: Integer;
+    Reserved: array[0..24] of Integer;  { reserved for future use }
     CRC: Longint;
   end;
   TUninstallCrcHeader = packed record
@@ -179,7 +181,7 @@ type
   end;
   TUninstallFileRec = packed record
     Typ: TUninstallRecTyp;
-    ExtraData: Longint;
+    ExtraData: Integer;
     DataSize: Cardinal;
   end;
 
@@ -434,7 +436,7 @@ begin
 end;
 
 procedure TUninstallLog.Clear;
-{ Frees all entries in the uninstall list and clears AppName/AppDir }
+{ Frees all entries in the uninstall list and clears AppId/AppName/Flags/WizardSizePercentX/Y }
 begin
   while FLastList <> nil do
     Delete(FLastList);
@@ -442,6 +444,8 @@ begin
   AppId := '';
   AppName := '';
   Flags := [];
+  WizardSizePercentX := 0;
+  WizardSizePercentY := 0;
 end;
 
 type
@@ -1260,6 +1264,8 @@ begin
       Header.Version := Version;
     TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
       [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled] + Flags;
+    Header.WizardSizePercentX := WizardSizePercentX;
+    Header.WizardSizePercentY := WizardSizePercentY;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1352,6 +1358,8 @@ begin
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);
   Flags := TUninstallLogFlags((@Header.Flags)^);
+  WizardSizePercentX := Header.WizardSizePercentX;
+  WizardSizePercentY := Header.WizardSizePercentY;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));

@@ -281,11 +281,21 @@ Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
 
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
-Access Token with access to your fork or all repositories you own, ensuring it has Read and
-Write permissions for Contents. After that, add this token as a new repository secret, under
-the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that your fork has this secret,
-by adding the topic `has-issrc-build-env-sync-token`. Your fork will now synchronize daily,
-and will automatically run the aforementioned build workflow on changes, if it's configured.
+Access Token (at https://github.com/settings/personal-access-tokens) with access to your
+fork or all repositories you own, ensuring it has Read and Write permissions for Contents,
+Workflows, and (see below) optionally also for Pull Requests. After that, add this token as
+a new repository secret, under the name `ISSRC_BUILD_ENV_SYNC_TOKEN`. Finally, indicate that
+your fork has this secret, by adding the topic `has-issrc-build-env-sync-token`. Your fork
+will now synchronize daily, and will automatically run the aforementioned build workflow on
+changes, if it's configured.
+
+If you also create a draft PR to merge `main` into a branch named `copilot-review`, and you
+have included permissions for Pull Requests as well as access to Copilot reviews, then it
+will automatically request a review from Copilot once the synchronization completes. You
+should then regularly fast-forward your branch to the commit immediately preceding the
+head of `main`. Do not fast-forward to the head of `main`, as this will close your PR and
+you will not be able to recreate it until another commit is made. After fast-forwarding,
+close and reopen the PR on GitHub to make it display updated information.
 
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and

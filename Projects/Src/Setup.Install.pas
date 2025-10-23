@@ -22,7 +22,7 @@ uses
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
   Compression.Base, Compression.SevenZipDLLDecoder,
-  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
+  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.RedirFunc,
   Setup.DebugClient, Setup.DotNetFunc, Setup.DownloadFileFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc, Setup.Helper,
   Setup.MainFunc, Setup.LoggingFunc, Setup.RegDLL, Setup.SecurityFunc,
@@ -2809,6 +2809,8 @@ begin
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
+      UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
+      UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

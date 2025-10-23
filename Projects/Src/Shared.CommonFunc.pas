@@ -1637,11 +1637,16 @@ function SetFileInformationByHandle(hFile: THandle; FileInformationClass: DWORD;
   lpFileInformation: LPVOID; dwBufferSize: DWORD): BOOL; stdcall; external kernel32;
 
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
-{ Deletes a file or directory by handle. The deletion happens immediately; it
-  isn't delayed until the handle is closed. DELETE access (Windows._DELETE in
+{ Deletes a file or directory by handle. DELETE access (Windows._DELETE in
   Delphi) must have been requested when the handle was opened.
   If a directory isn't empty, the function fails.
   When False is returned, call GetLastError to get the error code.
+
+  The directory entry for the file/directory doesn't disappear until all
+  handles have been closed. This function does not request "POSIX delete
+  semantics" -- which would cause the directory entry to disappear
+  immediately, as with DeleteFile -- because it's only supported on Windows 10
+  1607 and later.
 
   NOTE: This function should generally only be used with handles opened with
   the FILE_FLAG_OPEN_REPARSE_POINT flag. If that flag isn't used, then the

@@ -57,8 +57,8 @@ uses
   Classes, SysUtils, Forms, Variants, ActiveX, ComObj, Generics.Collections, Generics.Defaults,
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc,
-  SetupLdrAndSetup.Messages, SetupLdrAndSetup.RedirFunc,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  SetupLdrAndSetup.Messages,
+  Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TInStream = class(TInterfacedObject, IInStream)

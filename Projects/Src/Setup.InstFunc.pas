@@ -100,7 +100,7 @@ implementation
 
 uses
   Messages, ShellApi, PathFunc, SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, SetupLdrAndSetup.RedirFunc, Shared.SetupTypes,
+  Shared.SetupMessageIDs, Setup.RedirFunc, Shared.SetupTypes,
   Classes, RegStr, Math;
 
 procedure InternalError(const Id: String);

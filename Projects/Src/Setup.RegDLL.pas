@@ -2,7 +2,7 @@ unit Setup.RegDLL;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,7 +21,7 @@ implementation
 
 uses
   SysUtils, Forms, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.InstFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  Setup.LoggingFunc, SetupLdrAndSetup.RedirFunc, Setup.MainFunc;
+  Setup.LoggingFunc, Setup.RedirFunc, Setup.MainFunc;
 
 function WaitForAndCloseProcessHandle(var AProcessHandle: THandle): DWORD;
 var

@@ -17,6 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
   -shWizardBorderStyled in SetupHeader.Options
+  Also requires following globals to be set, but 0 is allowed:
   -SetupHeader.WizardSizePercentX
   -SetupHeader.WizardSizePercentY
 }
@@ -130,7 +131,7 @@ begin
       Exit;
     end;
   end;
-  AFont.Name := GetPreferredUIFont;
+  AFont.Name := 'Segoe UI';
   AFont.Height := SizeToHeight(AFallbackSize);
 end;
 
@@ -528,7 +529,7 @@ var
 begin
   { Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
-  SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
+  SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
