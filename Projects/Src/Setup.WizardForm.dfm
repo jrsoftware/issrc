@@ -14,7 +14,6 @@ object WizardForm: TWizardForm
   Font.Style = []
   Scaled = False
   OnClose = FormClose
-  OnResize = FormResize
   DesignSize = (
     497
     360)

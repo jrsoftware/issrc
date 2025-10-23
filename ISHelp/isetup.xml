@@ -1137,7 +1137,6 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
-<li><link topic="setup_wizardresizable">WizardResizable</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link></li>
@@ -1168,6 +1167,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_windowvisible">WindowShowCaption</link></li>
 <li><link topic="setup_windowvisible">WindowStartMaximized</link></li>
 <li><link topic="setup_windowvisible">WindowVisible</link></li>
+<li><link topic="setup_wizardresizable">WizardResizable</link></li>
 </ul>
 
 </body>
@@ -5640,13 +5640,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardResizable">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt> if <link topic="setup_wizardstyle">WizardStyle</link> is set to <tt>modern</tt>, <tt>no</tt> otherwise</setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the user will be able to resize the main Setup wizard window.</p>
-<p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls, custom wizard pages and <tt>TSetupForm</tt> forms if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
-<p><b>See also:</b><br/>
-<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
+<p><i>Obsolete in 6.6.0.</i></p>
 </body>
 </setuptopic>
 
@@ -5661,7 +5656,6 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p>Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</p>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardresizable">WizardResizable</link><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
 </body>
 </setuptopic>
@@ -5690,8 +5684,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p>The base styles are:</p>
 <ul>
 <li><tt>classic</tt>: Uses the traditional gray wizard appearance (default behavior if no base style is specified).</li>
-<li><tt>modern</tt>: Uses a more modern look. For Setup this also changes the defaults for <link topic="setup_wizardresizable">WizardResizable</link> and <link topic="setup_wizardsizepercent">WizardSizePercent</link> to respectively <tt>yes</tt> and <tt>120,120</tt>.<br/>
-    Use <tt>Anchors</tt> and <tt>KeepSizeY</tt> properties to add full support for <tt>WizardResizable</tt> and <tt>WizardSizePercent</tt> to all your custom controls and wizard pages if you have any. See the <i>CodeClasses.iss</i> example script for an example.</li>
+<li><tt>modern</tt>: Uses a more modern look.</li>
 </ul>
 <p>Also supported are additional appearance modes:</p>
 <ul>

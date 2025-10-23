@@ -170,7 +170,6 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
-    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -186,8 +185,6 @@ type
     HasLargeComponents: Boolean;
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
-    EnableAnchorOuterPagesOnResize: Boolean;
-    EnableAdjustReadyLabelHeightOnResize: Boolean;
     FDownloadArchivesPage: TWizardPage; { TWizardPage to avoid circular reference. Is always a TDownloadWizardPage. }
     procedure AdjustFocus;
     procedure AnchorOuterPages;
@@ -238,8 +235,6 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
-    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
-      const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -797,20 +792,6 @@ begin
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
-
-  if shWizardResizable in SetupHeader.Options then begin
-    const SaveClientWidth = ClientWidth;
-    const SaveClientHeight = ClientHeight;
-    BorderStyle := bsSizeable;
-    ClientWidth := SaveClientWidth;
-    ClientHeight := SaveClientHeight;
-    EnableAnchorOuterPagesOnResize := True;
-    { Do not allow user to resize it smaller than 100% nor larger than 150%. }
-    Constraints.MinHeight := Height;
-    Constraints.MinWidth := Width;
-    Constraints.MaxHeight := MulDiv(Height, 150, 100);
-    Constraints.MaxWidth := MulDiv(Width, 150, 100);
-  end;
   
   { Position the buttons, and scale their size }
   W1 := CalculateButtonWidth([SetupMessages[msgButtonBack], SetupMessages[msgButtonCancel],
@@ -1330,22 +1311,6 @@ begin
   AnchorOuterPage(FinishedPage, WizardBitmapImage2);
 end;
 
-procedure TWizardForm.FormResize(Sender: TObject);
-begin
-  if EnableAnchorOuterPagesOnResize then
-    AnchorOuterPages;
-  if EnableAdjustReadyLabelHeightOnResize then
-    IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
-end;
-
-procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
-  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
-begin
-  if ShouldSizeX or ShouldSizeY then
-    EnableAnchorOuterPagesOnResize := True;
-  inherited;
-end;
-
 destructor TWizardForm.Destroy;
 begin
   FreeAndNil(PrevDeselectedComponents);
@@ -1475,7 +1440,6 @@ procedure TWizardForm.ChangeReadyLabel(const S: String);
 begin
   ReadyLabel.Caption := S;
   IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
-  EnableAdjustReadyLabelHeightOnResize := True;
 end;
 
 procedure TWizardForm.ChangeFinishedLabel(const S: String);

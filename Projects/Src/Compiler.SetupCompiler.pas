@@ -3358,7 +3358,7 @@ begin
         WizardImageFileDynamicDark := Value;
       end;
     ssWizardResizable: begin
-        SetSetupHeaderOption(shWizardResizable);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardSmallImageFile: begin
         WizardSmallImageFile := Value;
@@ -8110,8 +8110,6 @@ begin
         SetupHeader.WizardSizePercentX := 100;
       SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
     end;
-    if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
-      Include(SetupHeader.Options, shWizardResizable);
     if WizardStyleSpecial <> '' then begin
       const BuiltinStyleFile = 'builtin:' + WizardStyleSpecial;
       if WizardStyleFile = '' then
