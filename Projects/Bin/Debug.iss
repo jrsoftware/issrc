@@ -17,6 +17,9 @@ DefaultDirName={autopf}\My Program
 AppVersion=1.2.3
 WizardStyle=modern dynamic
 
+DisableDirPage=no
+DisableProgramGroupPage=no
+
 ; This enables debugging
 UseSetupLdr=no
 OutputDir={#CompilerPath}
@@ -24,13 +27,13 @@ OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 
 ; This makes a task dialog show at startup
-;UsePreviousPrivileges=no
-;PrivilegesRequiredOverridesAllowed=dialog
+; UsePreviousPrivileges=no
+; PrivilegesRequiredOverridesAllowed=dialog
 
 ; This enables RTL and scaling for testing
 ;[LangOptions]
-;RightToLeft=true
-;DialogFontSize=12
+; RightToLeft=true
+; DialogFontSize=12
 
 [Languages]
 Name: en; MessagesFile: "..\..\Files\Default.isl"
@@ -40,6 +43,9 @@ Name: nl; MessagesFile: "..\..\Files\Languages\Dutch.isl"
 Source: "..\..\Examples\MyProg.exe"; DestDir: "{app}"
 Source: "..\..\Examples\MyProg.chm"; DestDir: "{app}"
 Source: "..\..\Examples\Readme.txt"; DestDir: "{app}"; Flags: isreadme
+
+[Icons]
+Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
 [Code]
 function InitializeSetup: Boolean;
