@@ -545,24 +545,22 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     end;
   end;
 
-var
-  ControlAnchorsList: TControlAnchorsList;
-  W, H: Integer;
-  R: TRect;
 begin
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
+
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
 
   { Scale }
+
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
   const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
 
   var HasCustomAnchors: Boolean;
 
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
-    ControlAnchorsList := TControlAnchorsList.Create;
+    const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
         afterward }
@@ -570,9 +568,9 @@ begin
       HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
-      R := ClientRect;
-      W := MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
-      H := MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
+      const R = ClientRect;
+      const W = MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
+      const H = MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
       RestoreAnchors(ControlAnchorsList);
@@ -582,6 +580,7 @@ begin
     HasCustomAnchors := GetHasChildControlCustomAnchors(Self);
 
   { Size }
+
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
   FOrgClientWidth := ClientWidth;
