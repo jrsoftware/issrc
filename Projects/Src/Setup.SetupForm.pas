@@ -493,30 +493,56 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   type
     TControlAnchorsList = TDictionary<TControl, TAnchors>;
 
-  procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-  var
-    I: Integer;
+  procedure StripAndStoreChildControlCustomAnchors(const ParentCtl: TControl; const AnchorsList: TControlAnchorsList);
   begin
-    if Ctl.Anchors <> [akLeft, akTop] then begin
-      AnchorsList.Add(Ctl, Ctl.Anchors);
-      { Before we can set Anchors to [akLeft, akTop] (which has a special
-        'no anchors' meaning to VCL), we first need to update the Explicit*
-        properties so the control doesn't get moved back to an old position. }
-      TControlAccess(Ctl).UpdateExplicitBounds;
-      Ctl.Anchors := [akLeft, akTop];
-    end;
+    if ParentCtl is TWinControl then begin
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
 
-    if Ctl is TWinControl then
-      for I := 0 to TWinControl(Ctl).ControlCount-1 do
-        StripAndStoreCustomAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+        if Ctl.Anchors <> [akLeft, akTop] then begin
+          AnchorsList.Add(Ctl, Ctl.Anchors);
+          { Before we can set Anchors to [akLeft, akTop] (which has a special
+            'no anchors' meaning to VCL), we first need to update the Explicit*
+            properties so the control doesn't get moved back to an old position }
+          TControlAccess(Ctl).UpdateExplicitBounds;
+          Ctl.Anchors := [akLeft, akTop];
+        end;
+
+        StripAndStoreChildControlCustomAnchors(Ctl, AnchorsList);
+      end;
+    end;
   end;
 
-  procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+  function GetHasChildControlCustomAnchors(const ParentCtl: TControl): Boolean;
+  begin
+    if ParentCtl is TWinControl then begin
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
+        if (Ctl.Anchors <> [akLeft, akTop]) or GetHasChildControlCustomAnchors(Ctl) then
+          Exit(True);
+      end;
+    end;
+
+    Result := False;
+  end;
+
+  procedure RestoreAnchors(const AnchorsList: TControlAnchorsList);
   begin
     { The order in which we restore the anchors shouldn't matter, so just
-      enumerate the list. }
+      enumerate the list }
     for var Item in AnchorsList do
       Item.Key.Anchors := Item.Value;
+  end;
+
+  procedure ChildControlHandlesNeeded(const ParentCtl: TControl);
+  begin
+    if ParentCtl is TWinControl then
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
+        if Ctl is TWinControl then
+          TWinControl(Ctl).HandleNeeded;
+        ChildControlHandlesNeeded(Ctl);
+    end;
   end;
 
 var
@@ -533,12 +559,15 @@ begin
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
   const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
 
+  var HasCustomAnchors: Boolean;
+
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
     ControlAnchorsList := TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
-        afterwards. }
-      StripAndStoreCustomAnchors(Self, ControlAnchorsList);
+        afterward }
+      StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
+      HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
       R := ClientRect;
@@ -546,10 +575,11 @@ begin
       H := MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
-      RestoreAnchors(Self, ControlAnchorsList);
+      RestoreAnchors(ControlAnchorsList);
       ControlAnchorsList.Free;
     end;
-  end;
+  end else
+    HasCustomAnchors := GetHasChildControlCustomAnchors(Self);
 
   { Size }
   FKeepSizeX := KeepSizeX;
@@ -560,6 +590,13 @@ begin
     ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
   if ShouldSizeY then
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if HasCustomAnchors and (ClientWidth <> FOrgClientWidth) or (FOrgClientHeight <> ClientHeight) then begin
+    { Various things related to positioning and anchoring don't work without this:
+      you get positions of child controls back as if there was no anchoring until
+      handles are automatically created }
+    HandleNeeded; { Also see ShowModal }
+    ChildControlHandlesNeeded(Self);
+  end;
 end;
 
 function TSetupForm.GetExtraClientWidth: Integer;
@@ -600,7 +637,7 @@ begin
     TCustomForm.CreateParams finds that the active window is disabled, and
     doesn't use it as the owner. It then falls back to pmNone behavior, which
     is to use the main form or application window as the owner. }
-  HandleNeeded;
+  HandleNeeded; { Also see InitializeFont }
   Result := inherited;
 end;
 

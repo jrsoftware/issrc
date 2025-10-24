@@ -786,16 +786,6 @@ begin
 
   MainPanel.ParentBackground := False;
 
-  { Not sure why the following is needed but various things related to
-    positioning and anchoring don't work without this (you get positions of
-    page controls back as if there was no anchoring until the page handle
-    is automatically created. Cause might be related to the comment in
-    TNewNotebook.AlignControls. }
-  for I := 0 to OuterNotebook.PageCount-1 do
-    OuterNotebook.Pages[I].HandleNeeded;
-  for I := 0 to InnerNotebook.PageCount-1 do
-    InnerNotebook.Pages[I].HandleNeeded;
-
   InitializeFont;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
     LangOptions.WelcomeFontSize, '', 14);
@@ -1397,7 +1387,7 @@ begin
     controls placed on the page. Also see TSetupForm.CreateWnd.  }
   NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
   NotebookPage.Notebook := InnerNotebook;
-  NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
+  NotebookPage.HandleNeeded; { See TSetupForm.InitializeFont comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
   APage.FInnerNotebookPage := NotebookPage;

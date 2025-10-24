@@ -149,8 +149,6 @@ begin
   MainPanel.Padding.Top := PadY;
   MainPanel.Padding.Right := PadX;
   MainPanel.Padding.Bottom := PadY;
-  { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
-  MainStackPanel.HandleNeeded;
   MainStackPanel.Padding.Left := PadX; { Also see Finish }
   MainStackPanel.Spacing := PadY;
   BottomStackPanel.Spacing := PadX;

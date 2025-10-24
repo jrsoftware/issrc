@@ -101,12 +101,6 @@ begin
 
   SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
 
-  { See TWizardForm.Create }
-  for var I := 0 to OuterNotebook.PageCount-1 do
-    OuterNotebook.Pages[I].HandleNeeded;
-  for var I := 0 to InnerNotebook.PageCount-1 do
-    InnerNotebook.Pages[I].HandleNeeded;
-
   InitializeFont;
 
   MainPanel.ParentBackGround := False;
