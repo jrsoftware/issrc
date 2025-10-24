@@ -128,7 +128,9 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  InitializeFont;
+  { KeepSizeX: Already bit wider than regular task dialogs
+    KeepSizeY: UpdateHeight will set height }
+  InitializeFont(True, True);
 
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -147,8 +149,6 @@ begin
   MainPanel.Padding.Top := PadY;
   MainPanel.Padding.Right := PadX;
   MainPanel.Padding.Bottom := PadY;
-  { Similar to WizardForm: without this UpdateHeight will see wrong BottomMainButton.Top }
-  MainStackPanel.HandleNeeded;
   MainStackPanel.Padding.Left := PadX; { Also see Finish }
   MainStackPanel.Spacing := PadY;
   BottomStackPanel.Spacing := PadX;
@@ -177,9 +177,7 @@ begin
     end;
   end;
 
-  KeepSizeX := True; { Already bit wider than regular task dialogs }
-  KeepSizeY := True; { UpdateHeight already set height }
-  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+  FlipAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 
   if DefCommonButton > 0 then begin
     var I := DefCommonButton;

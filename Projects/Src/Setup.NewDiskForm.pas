@@ -70,7 +70,7 @@ constructor TNewDiskForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  InitializeFont;
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgChangeDiskTitle];
   PathLabel.Caption := SetupMessages[msgPathLabel];
@@ -84,10 +84,9 @@ begin
 
   SetForeground := True;
 
-  KeepSizeY := True;
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
-  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
+  FlipAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;

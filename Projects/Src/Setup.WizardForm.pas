@@ -45,7 +45,9 @@ type
     function GetSurface: TNewNotebookPage;
     function GetSurfaceColor: TColor;
     function GetSurfaceHeight: Integer;
+    function GetSurfaceExtraHeight: Integer;
     function GetSurfaceWidth: Integer;
+    function GetSurfaceExtraWidth: Integer;
     procedure SetCaption(const Value: String);
     procedure SetDescription(const Value: String);
     procedure SyncCaptionAndDescription;
@@ -68,7 +70,9 @@ type
     property Surface: TNewNotebookPage read GetSurface;
     property SurfaceColor: TColor read GetSurfaceColor;
     property SurfaceHeight: Integer read GetSurfaceHeight;
+    property SurfaceExtraHeight: Integer read GetSurfaceExtraHeight;
     property SurfaceWidth: Integer read GetSurfaceWidth;
+    property SurfaceExtraWidth: Integer read GetSurfaceExtraWidth;
     property OnActivate: TWizardPageNotifyEvent read FOnActivate write FOnActivate;
     property OnBackButtonClick: TWizardPageButtonEvent read FOnBackButtonClick write FOnBackButtonClick;
     property OnCancelButtonClick: TWizardPageCancelEvent read FOnCancelButtonClick write FOnCancelButtonClick;
@@ -170,7 +174,6 @@ type
     procedure UserInfoEditChange(Sender: TObject);
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
-    procedure FormResize(Sender: TObject);
   private
     { Private declarations }
     FPageList: TList;
@@ -186,8 +189,6 @@ type
     HasLargeComponents: Boolean;
     DoneWithWizard: Boolean;
     PrepareToInstallNeedsRestart: Boolean;
-    EnableAnchorOuterPagesOnResize: Boolean;
-    EnableAdjustReadyLabelHeightOnResize: Boolean;
     FDownloadArchivesPage: TWizardPage; { TWizardPage to avoid circular reference. Is always a TDownloadWizardPage. }
     procedure AdjustFocus;
     procedure AnchorOuterPages;
@@ -238,8 +239,6 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
-    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
-      const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean); override;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -696,14 +695,24 @@ begin
   Result := TNewNotebook(Surface.Parent).Color;
 end;
 
+function TWizardPage.GetSurfaceWidth: Integer;
+begin
+  Result := Surface.Parent.Width;
+end;
+
+function TWizardPage.GetSurfaceExtraWidth: Integer;
+begin
+  Result := FWizardForm.GetExtraClientWidth;
+end;
+
 function TWizardPage.GetSurfaceHeight: Integer;
 begin
   Result := Surface.Parent.Height;
 end;
 
-function TWizardPage.GetSurfaceWidth: Integer;
+function TWizardPage.GetSurfaceExtraHeight: Integer;
 begin
-  Result := Surface.Parent.Width;
+  Result := FWizardForm.GetExtraClientHeight;
 end;
 
 procedure TWizardPage.SetCaption(const Value: String);
@@ -777,16 +786,6 @@ begin
 
   MainPanel.ParentBackground := False;
 
-  { Not sure why the following is needed but various things related to
-    positioning and anchoring don't work without this (you get positions of
-    page controls back as if there was no anchoring until the page handle
-    is automatically created. Cause might be related to the comment in
-    TNewNotebook.AlignControls. }
-  for I := 0 to OuterNotebook.PageCount-1 do
-    OuterNotebook.Pages[I].HandleNeeded;
-  for I := 0 to InnerNotebook.PageCount-1 do
-    InnerNotebook.Pages[I].HandleNeeded;
-
   InitializeFont;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
     LangOptions.WelcomeFontSize, '', 14);
@@ -797,20 +796,6 @@ begin
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppVerName)
   else
     Caption := FmtSetupMessage1(msgSetupWindowTitle, ExpandedAppName);
-
-  if shWizardResizable in SetupHeader.Options then begin
-    const SaveClientWidth = ClientWidth;
-    const SaveClientHeight = ClientHeight;
-    BorderStyle := bsSizeable;
-    ClientWidth := SaveClientWidth;
-    ClientHeight := SaveClientHeight;
-    EnableAnchorOuterPagesOnResize := True;
-    { Do not allow user to resize it smaller than 100% nor larger than 150%. }
-    Constraints.MinHeight := Height;
-    Constraints.MinWidth := Width;
-    Constraints.MaxHeight := MulDiv(Height, 150, 100);
-    Constraints.MaxWidth := MulDiv(Width, 150, 100);
-  end;
   
   { Position the buttons, and scale their size }
   W1 := CalculateButtonWidth([SetupMessages[msgButtonBack], SetupMessages[msgButtonCancel],
@@ -1330,22 +1315,6 @@ begin
   AnchorOuterPage(FinishedPage, WizardBitmapImage2);
 end;
 
-procedure TWizardForm.FormResize(Sender: TObject);
-begin
-  if EnableAnchorOuterPagesOnResize then
-    AnchorOuterPages;
-  if EnableAdjustReadyLabelHeightOnResize then
-    IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
-end;
-
-procedure TWizardForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
-  const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
-begin
-  if ShouldSizeX or ShouldSizeY then
-    EnableAnchorOuterPagesOnResize := True;
-  inherited;
-end;
-
 destructor TWizardForm.Destroy;
 begin
   FreeAndNil(PrevDeselectedComponents);
@@ -1418,7 +1387,7 @@ begin
     controls placed on the page. Also see TSetupForm.CreateWnd.  }
   NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
   NotebookPage.Notebook := InnerNotebook;
-  NotebookPage.HandleNeeded; { See TWizardForm.Create comment }
+  NotebookPage.HandleNeeded; { See TSetupForm.InitializeFont comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
   APage.FInnerNotebookPage := NotebookPage;
@@ -1475,7 +1444,6 @@ procedure TWizardForm.ChangeReadyLabel(const S: String);
 begin
   ReadyLabel.Caption := S;
   IncTopDecHeight(ReadyMemo, AdjustLabelHeight(ReadyLabel));
-  EnableAdjustReadyLabelHeightOnResize := True;
 end;
 
 procedure TWizardForm.ChangeFinishedLabel(const S: String);
@@ -2026,11 +1994,9 @@ begin
     if PrepareToInstallNeedsRestart then begin
       Y := PreparingLabel.Top + PreparingLabel.Height;
       PreparingYesRadio.Top := Y;
-      PreparingYesRadio.Anchors := [akLeft, akTop, akRight];
       PreparingYesRadio.Caption := SetupMessages[msgYesRadio];
       PreparingYesRadio.Visible := True;
       PreparingNoRadio.Top := Y + ScalePixelsY(22);
-      PreparingNoRadio.Anchors := [akLeft, akTop, akRight];
       PreparingNoRadio.Caption := SetupMessages[msgNoRadio];
       PreparingNoRadio.Visible := True;
     end;
@@ -2149,11 +2115,9 @@ begin
     PreparingMemo.Visible := True;
     Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
     PreparingYesRadio.Top := Y;
-    PreparingYesRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
     PreparingYesRadio.Visible := True;
     PreparingNoRadio.Top := Y + ScalePixelsY(22);
-    PreparingNoRadio.Anchors := [akLeft, akRight, akBottom];
     PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
   end;

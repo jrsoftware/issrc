@@ -224,7 +224,7 @@ initialization
     'function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;',
     'function ScaleX(X: Integer): Integer;',
     'function ScaleY(Y: Integer): Integer;',
-    'function CreateCustomForm: TSetupForm;'
+    'function CreateCustomForm(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;'
   ];
 
   ScriptFuncTables[sftNewDiskForm] :=

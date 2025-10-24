@@ -34,10 +34,10 @@ type
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
     FFlipControlsOnShow: Boolean;
-    FSizeAndCenterOnShow: Boolean;
+    FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
-    FKeepSizeX: Boolean;
-    FKeepSizeY: Boolean;
+    FKeepSizeX, FKeepSizeY: Boolean;
+    FOrgClientWidth, FOrgClientHeight: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -48,8 +48,10 @@ type
     procedure CenterInsideRect(const InsideRect: TRect);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
+    function GetExtraClientWidth: Integer;
+    function GetExtraClientHeight: Integer;
     procedure FlipControlsIfNeeded;
-    procedure SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+    procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
       const CenterInsideControlCtl: TWinControl;
       const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
@@ -58,7 +60,7 @@ type
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
-    procedure InitializeFont;
+    procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const BaseUnitX, N: Integer): Integer; overload;
     class function ScalePixelsY(const BaseUnitY, N: Integer): Integer; overload;
     function ScalePixelsX(const N: Integer): Integer; overload;
@@ -66,18 +68,20 @@ type
     function ShouldSizeX: Boolean;
     function ShouldSizeY: Boolean;
     function ShowModal: Integer; override;
-    procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
+    procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean = False;
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
     property BaseUnitY: Integer read FBaseUnitY;
   published
+    property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property ControlsFlipped: Boolean read FControlsFlipped;
+    property ExtraClientWidth: Integer read GetExtraClientWidth;
+    property ExtraClientHeight: Integer read GetExtraClientHeight;
     property FlipControlsOnShow: Boolean read FFlipControlsOnShow write FFlipControlsOnShow;
-    property KeepSizeX: Boolean read FKeepSizeX write FKeepSizeX;
-    property KeepSizeY: Boolean read FKeepSizeY write FKeepSizeY;
+    property KeepSizeX: Boolean read FKeepSizeX;
+    property KeepSizeY: Boolean read FKeepSizeY;
     property RightToLeft: Boolean read FRightToLeft;
-    property SizeAndCenterOnShow: Boolean read FSizeAndCenterOnShow write FSizeAndCenterOnShow;
     property SetForeground: Boolean read FSetForeground write FSetForeground;
   end;
 
@@ -199,7 +203,7 @@ begin
     CreateNew isn't virtual on Delphi 2 and 3 }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
-  FSizeAndCenterOnShow := True;
+  FCenterOnShow := True;
   inherited;
    { Setting BidiMode before inherited causes an AV when TControl tries to
      send CM_BIDIMODECHANGED. This is why we have additonal RTL code in
@@ -219,7 +223,7 @@ begin
     when TSetupForm.CreateNew is called explicitly }
   FRightToLeft := LangOptions.RightToLeft;
   FFlipControlsOnShow := FRightToLeft;
-  FSizeAndCenterOnShow := True;
+  FCenterOnShow := True;
   inherited;
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
@@ -412,15 +416,10 @@ begin
   end;
 end;
 
-procedure TSetupForm.SizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+procedure TSetupForm.CenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
-  if FSizeAndCenterOnShow then begin
-    FSizeAndCenterOnShow := False;
-    { Apply custom initial size from script - depends on Align or Anchors being set on all the controls }
-    if ShouldSizeX then
-      ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
-    if ShouldSizeY then
-      ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if FCenterOnShow then begin
+    FCenterOnShow := False;
     { Center }
     if ACenterInsideControl then
       CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
@@ -439,19 +438,17 @@ begin
   Result := not FKeepSizeY and (SetupHeader.WizardSizePercentY > 100);
 end;
 
-procedure TSetupForm.FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean;
+procedure TSetupForm.FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
 begin
-  { Flipping must be done first because when flipping after sizing the flipping might get old info
-    for anchors that didn't do their work yet }
   FlipControlsIfNeeded;
-  SizeAndCenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+  CenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
 end;
 
 type
   TControlAccess = class(TControl);
 
-procedure TSetupForm.InitializeFont;
+procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
 
   procedure NewChangeScale(const Ctl: TControl; const XM, XD, YM, YD: Integer);
   var
@@ -496,62 +493,119 @@ procedure TSetupForm.InitializeFont;
   type
     TControlAnchorsList = TDictionary<TControl, TAnchors>;
 
-  procedure StripAndStoreCustomAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
-  var
-    I: Integer;
+  procedure StripAndStoreChildControlCustomAnchors(const ParentCtl: TControl; const AnchorsList: TControlAnchorsList);
   begin
-    if Ctl.Anchors <> [akLeft, akTop] then begin
-      AnchorsList.Add(Ctl, Ctl.Anchors);
-      { Before we can set Anchors to [akLeft, akTop] (which has a special
-        'no anchors' meaning to VCL), we first need to update the Explicit*
-        properties so the control doesn't get moved back to an old position. }
-      TControlAccess(Ctl).UpdateExplicitBounds;
-      Ctl.Anchors := [akLeft, akTop];
-    end;
+    if ParentCtl is TWinControl then begin
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
 
-    if Ctl is TWinControl then
-      for I := 0 to TWinControl(Ctl).ControlCount-1 do
-        StripAndStoreCustomAnchors(TWinControl(Ctl).Controls[I], AnchorsList);
+        if Ctl.Anchors <> [akLeft, akTop] then begin
+          AnchorsList.Add(Ctl, Ctl.Anchors);
+          { Before we can set Anchors to [akLeft, akTop] (which has a special
+            'no anchors' meaning to VCL), we first need to update the Explicit*
+            properties so the control doesn't get moved back to an old position }
+          TControlAccess(Ctl).UpdateExplicitBounds;
+          Ctl.Anchors := [akLeft, akTop];
+        end;
+
+        StripAndStoreChildControlCustomAnchors(Ctl, AnchorsList);
+      end;
+    end;
   end;
 
-  procedure RestoreAnchors(const Ctl: TControl; const AnchorsList: TControlAnchorsList);
+  function GetHasChildControlCustomAnchors(const ParentCtl: TControl): Boolean;
+  begin
+    if ParentCtl is TWinControl then begin
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
+        if (Ctl.Anchors <> [akLeft, akTop]) or GetHasChildControlCustomAnchors(Ctl) then
+          Exit(True);
+      end;
+    end;
+
+    Result := False;
+  end;
+
+  procedure RestoreAnchors(const AnchorsList: TControlAnchorsList);
   begin
     { The order in which we restore the anchors shouldn't matter, so just
-      enumerate the list. }
+      enumerate the list }
     for var Item in AnchorsList do
       Item.Key.Anchors := Item.Value;
   end;
 
-var
-  ControlAnchorsList: TControlAnchorsList;
-  W, H: Integer;
-  R: TRect;
+  procedure ChildControlHandlesNeeded(const ParentCtl: TControl);
+  begin
+    if ParentCtl is TWinControl then
+      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
+        const Ctl = TWinControl(ParentCtl).Controls[I];
+        if Ctl is TWinControl then
+          TWinControl(Ctl).HandleNeeded;
+        ChildControlHandlesNeeded(Ctl);
+    end;
+  end;
+
 begin
-  { Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
+  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
+
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
+
+  { Scale }
 
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
   const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
 
+  var HasCustomAnchors: Boolean;
+
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
-    ControlAnchorsList := TControlAnchorsList.Create;
+    const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
-        afterwards. }
-      StripAndStoreCustomAnchors(Self, ControlAnchorsList);
+        afterward }
+      StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
+      HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
-      R := ClientRect;
-      W := MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
-      H := MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
+      const R = ClientRect;
+      const W = MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
+      const H = MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
-      RestoreAnchors(Self, ControlAnchorsList);
+      RestoreAnchors(ControlAnchorsList);
       ControlAnchorsList.Free;
     end;
+  end else
+    HasCustomAnchors := GetHasChildControlCustomAnchors(Self);
+
+  { Size }
+
+  FKeepSizeX := KeepSizeX;
+  FKeepSizeY := KeepSizeY;
+  FOrgClientWidth := ClientWidth;
+  FOrgClientHeight := ClientHeight;
+  if ShouldSizeX then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+  if ShouldSizeY then
+    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if HasCustomAnchors and ((ClientWidth <> FOrgClientWidth) or (FOrgClientHeight <> ClientHeight)) then begin
+    { Various things related to positioning and anchoring don't work without this:
+      you get positions of child controls back as if there was no anchoring until
+      handles are automatically created }
+    HandleNeeded; { Also see ShowModal }
+    ChildControlHandlesNeeded(Self);
   end;
+end;
+
+function TSetupForm.GetExtraClientWidth: Integer;
+begin
+  Result := ClientWidth - FOrgClientWidth;
+end;
+
+function TSetupForm.GetExtraClientHeight: Integer;
+begin
+  Result := ClientHeight - FOrgClientHeight;
 end;
 
 class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
@@ -582,7 +636,7 @@ begin
     TCustomForm.CreateParams finds that the active window is disabled, and
     doesn't use it as the owner. It then falls back to pmNone behavior, which
     is to use the main form or application window as the owner. }
-  HandleNeeded;
+  HandleNeeded; { Also see InitializeFont }
   Result := inherited;
 end;
 
@@ -592,7 +646,7 @@ begin
   { Note: Unlike DoShow, any exceptions raised in VisibleChanging will be
     propagated out, which is what we want }
   if not Visible then
-    FlipSizeAndCenterIfNeeded;
+    FlipAndCenterIfNeeded;
   end;
 
 procedure TSetupForm.CMShowingChanged(var Message: TMessage);

@@ -136,7 +136,7 @@ begin
     OKButton.Top + YDiff, W, OKButton.Height);
   ClientHeight := ClientHeight + YDiff;
 
-  FlipSizeAndCenterIfNeeded(True, WizardForm, False);
+  FlipAndCenterIfNeeded(True, WizardForm, False);
 end;
 
 constructor TSelectFolderForm.Create2(AOwner: TComponent; AStartMenu: Boolean);

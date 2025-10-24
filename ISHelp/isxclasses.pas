@@ -740,7 +740,9 @@ TWizardPage = class(TComponent)
   property Surface: TNewNotebookPage; read;
   property SurfaceColor: TColor; read;
   property SurfaceHeight: Integer; read;
+  property SurfaceExtraHeight: Integer; read;
   property SurfaceWidth: Integer; read;
+  property SurfaceExtraWidth: Integer; read;
   property OnActivate: TWizardPageNotifyEvent; read write;
   property OnBackButtonClick: TWizardPageButtonEvent; read write;
   property OnCancelButtonClick: TWizardPageCancelEvent; read write;
@@ -838,12 +840,15 @@ TSetupForm = class(TUIStateForm)
   function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
   function ShouldSizeX: Boolean;
   function ShouldSizeY: Boolean;
-  procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+  procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+  property CenterOnShow: Boolean; read write;
   property ControlsFlipped: Boolean; read;
+  property GetExtraClientWidth: Integer; read;
+  property GetExtraClientHeight: Integer; read;
   property FlipControlsOnShow: Boolean; read write;
-  property KeepSizeY: Boolean; read; write;
+  property KeepSizeX: Boolean; read;
+  property KeepSizeY: Boolean; read;
   property RightToLeft: Boolean; read;
-  property SizeAndCenterOnShow: Boolean; read write;
 end;
 
 TWizardForm = class(TSetupForm)
