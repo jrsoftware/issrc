@@ -590,7 +590,7 @@ begin
     ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
   if ShouldSizeY then
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
-  if HasCustomAnchors and (ClientWidth <> FOrgClientWidth) or (FOrgClientHeight <> ClientHeight) then begin
+  if HasCustomAnchors and ((ClientWidth <> FOrgClientWidth) or (FOrgClientHeight <> ClientHeight)) then begin
     { Various things related to positioning and anchoring don't work without this:
       you get positions of child controls back as if there was no anchoring until
       handles are automatically created }
