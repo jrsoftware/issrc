@@ -343,7 +343,6 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -357,7 +356,6 @@ begin
     Password := APassword;
     Top := FY;
     Width := SurfaceWidth;
-    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParentAtBack(Edit, Surface);
   Inc(FY, WizardForm.ScalePixelsY(36));
@@ -401,7 +399,6 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
   end;
@@ -413,7 +410,6 @@ begin
     Top := CaptionYDiff + WizardForm.ScalePixelsY(DefaultBoxTop);
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultBoxBottom) + SurfaceExtraHeight - Top;
-    Anchors := [akLeft, akTop, akRight, akBottom];
     Flat := ListBox and (shFlatComponentsList in SetupHeader.Options);
   end;
   SetCtlParentAtBack(FCheckListBox, Surface);
@@ -531,7 +527,6 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
   end;
@@ -558,7 +553,6 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -571,7 +565,6 @@ begin
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
-    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParentAtBack(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
@@ -585,7 +578,6 @@ begin
     Top := Edit.Top-1;
     Width := ButtonWidth;
     Height := WizardForm.NextButton.Height;
-    Anchors := [akTop, akRight];
     if FEdits.Count = 0 then
       Caption := SetupMessages[msgButtonWizardBrowse]
     else
@@ -675,7 +667,6 @@ begin
     AutoSize := False;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-    Anchors := [akLeft, akTop, akRight];
     WordWrap := True;
     Caption := SubCaption;
   end;
@@ -700,7 +691,6 @@ begin
       Top := FY;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := APrompt;
     end;
@@ -713,7 +703,6 @@ begin
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
-    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParentAtBack(Edit, Surface);
   TryEnableAutoCompleteFileSystem(Edit.Handle);
@@ -727,7 +716,6 @@ begin
     Top := Edit.Top-1;
     Width := ButtonWidth;
     Height := WizardForm.NextButton.Height;
-    Anchors := [akTop, akRight];
     if FButtons.Count = 0 then
       Caption := SetupMessages[msgButtonWizardBrowse]
     else
@@ -813,7 +801,6 @@ begin
       AutoSize := False;
       Width := SurfaceWidth;
       Height := WizardForm.ScalePixelsY(DefaultLabelHeight);
-      Anchors := [akLeft, akTop, akRight];
       WordWrap := True;
       Caption := SubCaption;
     end;
@@ -828,7 +815,6 @@ begin
     Top := Y;
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(DefaultBoxBottom) + SurfaceExtraHeight - Y;
-    Anchors := [akLeft, akTop, akRight, akBottom];
     BevelKind := bkFlat;
     BorderStyle := bsNone;
     ReadOnly := True;
@@ -857,7 +843,6 @@ begin
     AutoSize := False;
     ShowAccelChar := False;
     Width := SurfaceWidth;
-    Anchors := [akLeft, akTop, akRight];
     Height := WizardForm.StatusLabel.Height;
     WordWrap := WizardForm.StatusLabel.WordWrap;
   end;
@@ -871,7 +856,6 @@ begin
     Top := WizardForm.ScalePixelsY(16);
     Width := SurfaceWidth;
     Height := WizardForm.FileNameLabel.Height;
-    Anchors := [akLeft, akTop, akRight];
   end;
   SetCtlParentAtBack(FMsg2Label, Surface);
 
@@ -880,7 +864,6 @@ begin
     Top := WizardForm.ScalePixelsY(42);
     Width := SurfaceWidth;
     Height := WizardForm.ScalePixelsY(21);
-    Anchors := [akLeft, akTop, akRight];
     Visible := False;
   end;
   SetCtlParentAtBack(FProgressBar, Surface);
@@ -1079,7 +1062,6 @@ begin
     Caption := SetupMessages[msgButtonStopDownload];
     Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
     Width := WizardForm.CalculateButtonWidth([Caption]);
-    Anchors := [akLeft, akTop];
     Height := WizardForm.CancelButton.Height;
     OnClick := AbortButtonClick;
   end;
@@ -1292,7 +1274,6 @@ begin
     Caption := SetupMessages[msgButtonStopExtraction];
     Top := FProgressBar.Top + FProgressBar.Height + WizardForm.ScalePixelsY(8);
     Width := WizardForm.CalculateButtonWidth([Caption]);
-    Anchors := [akLeft, akTop];
     Height := WizardForm.CancelButton.Height;
     OnClick := AbortButtonClick;
   end;
