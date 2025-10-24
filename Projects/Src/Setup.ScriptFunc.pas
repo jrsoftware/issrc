@@ -294,7 +294,9 @@ var
         NewSetupForm.PopupMode := pmAuto;
         NewSetupForm.AutoScroll := False;
         NewSetupForm.BorderStyle := bsDialog;
-        NewSetupForm.InitializeFont;
+        NewSetupForm.ClientWidth := Stack.GetInt(PStart-1);
+        NewSetupForm.ClientHeight := Stack.GetInt(PStart-2);
+        NewSetupForm.InitializeFont(Stack.GetBool(PStart-3), Stack.GetBool(PStart-4));
       except
         NewSetupForm.Free;
         raise;

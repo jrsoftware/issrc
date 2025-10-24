@@ -46,7 +46,6 @@ begin
   DonateBitmapButton.Caption := CustomMessage('IsDonateAndMailDonateCaption');
   DonateBitmapButton.Hint := CustomMessage('IsDonateAndMailDonateHint');
   DonateBitmapButton.ShowHint := True;
-  DonateBitmapButton.Anchors := [akLeft, akBottom];
   BevelTop := WizardForm.Bevel.Top;
   DonateBitmapButton.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateBitmapButton.Bitmap.Height) div 2;
   DonateBitmapButton.Left := DonateBitmapButton.Top - BevelTop;
@@ -63,7 +62,6 @@ begin
   MailBitmapButton.Caption := CustomMessage('IsDonateAndMailMailCaption');
   MailBitmapButton.Hint := CustomMessage('IsDonateAndMailMailHint');
   MailBitmapButton.ShowHint := True;
-  MailBitmapButton.Anchors := [akLeft, akBottom];
   MailBitmapButton.Top := DonateBitmapButton.Top
   MailBitmapButton.Left := DonateBitmapButton.Left + DonateBitmapButton.Width + ScaleX(4);
   MailBitmapButton.Cursor := crHand;

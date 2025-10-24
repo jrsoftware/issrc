@@ -66,7 +66,7 @@ constructor TUninstallSharedFileForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  InitializeFont;
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgConfirmDeleteSharedFileTitle];
   BodyLabel.Caption := SetupMessages[msgConfirmDeleteSharedFile2];
@@ -76,8 +76,6 @@ begin
   YesToAllButton.Caption := SetupMessages[msgButtonYesToAll];
   NoButton.Caption := SetupMessages[msgButtonNo];
   NoToAllButton.Caption := SetupMessages[msgButtonNoToAll];
-
-  KeepSizeY := True;
 end;
 
 procedure TUninstallSharedFileForm.CreateParams(var Params: TCreateParams);

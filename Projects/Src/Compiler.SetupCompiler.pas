@@ -3367,7 +3367,7 @@ begin
         WizardImageFileDynamicDark := Value;
       end;
     ssWizardResizable: begin
-        SetSetupHeaderOption(shWizardResizable);
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssWizardSmallImageFile: begin
         WizardSmallImageFile := Value;
@@ -7933,6 +7933,8 @@ begin
     NotRecognizedMessagesWarning := True;
     UsedUserAreasWarning := True;
     SetupHeader.WizardDarkStyle := wdsLight;
+    SetupHeader.WizardSizePercentX := 120;
+    SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8112,15 +8114,6 @@ begin
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
-    if SetupDirectiveLines[ssWizardSizePercent] = 0 then begin
-      if shWizardModern in SetupHeader.Options then
-        SetupHeader.WizardSizePercentX := 120
-      else
-        SetupHeader.WizardSizePercentX := 100;
-      SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
-    end;
-    if (SetupDirectiveLines[ssWizardResizable] = 0) and (shWizardModern in SetupHeader.Options) then
-      Include(SetupHeader.Options, shWizardResizable);
     if WizardStyleSpecial <> '' then begin
       const BuiltinStyleFile = 'builtin:' + WizardStyleSpecial;
       if WizardStyleFile = '' then

@@ -34,10 +34,9 @@ var
   OKButton, CancelButton: TNewButton;
   W: Integer;
 begin
-  Form := CreateCustomForm();
+  { Keep the form from sizing vertically since we don't have any controls which can size vertically }
+  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, True);
   try
-    Form.ClientWidth := ScaleX(256);
-    Form.ClientHeight := ScaleY(128);
     Form.Caption := 'TSetupForm';
 
     Edit := TNewEdit.Create(Form);
@@ -45,7 +44,6 @@ begin
     Edit.Left := ScaleX(10);
     Edit.Width := Form.ClientWidth - ScaleX(2 * 10);
     Edit.Height := ScaleY(23);
-    Edit.Anchors := [akLeft, akTop, akRight];
     Edit.Text := 'TNewEdit';
     Edit.Parent := Form;
 
@@ -55,7 +53,6 @@ begin
     OKButton.Left := Form.ClientWidth - ScaleX(75 + 6 + 75 + 10);
     OKButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     OKButton.Height := ScaleY(23);
-    OKButton.Anchors := [akRight, akBottom];
     OKButton.ModalResult := mrOk;
     OKButton.Default := True;
 
@@ -65,7 +62,6 @@ begin
     CancelButton.Left := Form.ClientWidth - ScaleX(75 + 10);
     CancelButton.Top := Form.ClientHeight - ScaleY(23 + 10);
     CancelButton.Height := ScaleY(23);
-    CancelButton.Anchors := [akRight, akBottom];
     CancelButton.ModalResult := mrCancel;
     CancelButton.Cancel := True;
 
@@ -74,10 +70,9 @@ begin
     CancelButton.Width := W;
 
     Form.ActiveControl := Edit;
-    { Keep the form from sizing vertically since we don't have any controls which can size vertically }
-    Form.KeepSizeY := True;
+
     { Center on WizardForm. Without this call it will still automatically center, but on the screen }
-    Form.FlipSizeAndCenterIfNeeded(True, WizardForm, False);
+    Form.FlipAndCenterIfNeeded(True, WizardForm, False);
 
     if Form.ShowModal() = mrOk then
       MsgBox('You clicked OK.', mbInformation, MB_OK);
@@ -150,7 +145,6 @@ begin
   Panel.Width := Page.SurfaceWidth div 2 - ScaleX(8);
   Panel.Left :=  Page.SurfaceWidth - Panel.Width;
   Panel.Height := Button.Height * 2;
-  Panel.Anchors := [akLeft, akTop, akRight];
   Panel.Caption := 'TPanel';
   Panel.Color := clWindow;
   Panel.BevelKind := bkFlat;
@@ -176,15 +170,13 @@ begin
   PasswordEdit.Left := Page.SurfaceWidth - Edit.Width;
   PasswordEdit.Top := CheckBox.Top + CheckBox.Height + ScaleY(8);
   PasswordEdit.Width := Edit.Width;
-  PasswordEdit.Anchors := [akLeft, akTop, akRight];
   PasswordEdit.Text := 'TPasswordEdit';
   PasswordEdit.Parent := Page.Surface;
 
   Memo := TNewMemo.Create(Page);
   Memo.Top := Edit.Top + Edit.Height + ScaleY(8);
   Memo.Width := Page.SurfaceWidth;
-  Memo.Height := ScaleY(70);
-  Memo.Anchors := [akLeft, akTop, akRight, akBottom];
+  Memo.Height := ScaleY(70) + Page.SurfaceExtraHeight;
   Memo.ScrollBars := ssVertical;
   Memo.Text := 'TNewMemo';
   Memo.Parent := Page.Surface;
@@ -194,7 +186,6 @@ begin
   FormButton.Top := Memo.Top + Memo.Height + ScaleY(8);
   FormButton.Width := WizardForm.CalculateButtonWidth([FormButton.Caption]);
   FormButton.Height := ScaleY(23);
-  FormButton.Anchors := [akLeft, akBottom];
   FormButton.OnClick := @FormButtonOnClick;
   FormButton.Parent := Page.Surface;
 
@@ -204,7 +195,6 @@ begin
   TaskDialogButton.Left := FormButton.Left;
   TaskDialogButton.Width := WizardForm.CalculateButtonWidth([TaskDialogButton.Caption]);
   TaskDialogButton.Height := ScaleY(23);
-  TaskDialogButton.Anchors := [akLeft, akBottom];
   TaskDialogButton.OnClick := @TaskDialogButtonOnClick;
   TaskDialogButton.Parent := Page.Surface;
   
@@ -217,7 +207,6 @@ begin
   CommandLinkButton.Top := FormButton.Top;
   CommandLinkButton.Left := TaskDialogButton.Left + TaskDialogButton.Width + ScaleX(8);
   CommandLinkButton.Width := Page.Surface.Width - CommandLinkButton.Left;
-  CommandLinkButton.Anchors := [akLeft, akRight, akBottom];
   CommandLinkButton.OnClick := @ButtonOnClick;
   CommandLinkButton.Parent := Page.Surface;
   CommandLinkButton.AdjustHeightIfCommandLink;
@@ -228,7 +217,6 @@ begin
 
   ComboBox := TNewComboBox.Create(Page);
   ComboBox.Width := Page.SurfaceWidth;
-  ComboBox.Anchors := [akLeft, akTop, akRight];
   ComboBox.Parent := Page.Surface;
   ComboBox.Style := csDropDownList;
   ComboBox.Items.Add('TComboBox');
@@ -237,15 +225,13 @@ begin
   ListBox := TNewListBox.Create(Page);
   ListBox.Top := ComboBox.Top + ComboBox.Height + ScaleY(8);
   ListBox.Width := Page.SurfaceWidth;
-  ListBox.Height := ScaleY(97);
-  ListBox.Anchors := [akLeft, akTop, akRight, akBottom];
+  ListBox.Height := ScaleY(97) + Page.SurfaceExtraHeight;
   ListBox.Parent := Page.Surface;
   ListBox.Items.Add('TListBox');
   ListBox.ItemIndex := 0;
 
   StaticText[0] := TNewStaticText.Create(Page);
   StaticText[0].Top := ListBox.Top + ListBox.Height + ScaleY(8);
-  StaticText[0].Anchors := [akLeft, akBottom];
   StaticText[0].Caption := 'TNewStaticText';
   StaticText[0].Parent := Page.Surface;
 
@@ -253,16 +239,14 @@ begin
   StaticText[1].AutoSize := False;
   StaticText[1].Left := StaticText[0].Width + ScaleX(32);
   StaticText[1].Top := StaticText[0].Top;
-  StaticText[1].Anchors := [akLeft, akRight, akBottom];
   StaticText[1].WordWrap := True;
   StaticText[1].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
-  StaticText[1].Width := 2 * StaticText[0].Width;
+  StaticText[1].Width := Page.SurfaceWidth - StaticText[1].Left - ScaleX(8);
   StaticText[1].Parent := Page.Surface;
   StaticText[1].AdjustHeight;
 
   StaticText[2] := TNewStaticText.Create(Page);
   StaticText[2].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
-  StaticText[2].Anchors := [akLeft, akBottom];
   StaticText[2].Caption := 'TNewStaticText';
   StaticText[2].Parent := Page.Surface;
   StaticText[2].StyleElements := StaticText[2].StyleElements - [seFont];
@@ -275,7 +259,6 @@ begin
   LinkLabel.AutoSize := False;
   LinkLabel.Left := StaticText[1].Left;
   LinkLabel.Top := StaticText[1].Top + StaticText[1].Height + ScaleY(8);
-  LinkLabel.Anchors := [akLeft, akRight, akBottom];
   LinkLabel.Caption := 'TNew<a id="jrsoftware">Link</a>Label with more text and an adjusted label height so it''s multi-line with a second <a id="jrsoftware">link</a> on the second line.';
   LinkLabel.Width := StaticText[1].Width;
   LinkLabel.UseVisualStyle := HighContrastActive;
@@ -288,7 +271,6 @@ begin
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TNewProgressBar');
 
   ProgressBarLabel := TNewStaticText.Create(Page);
-  ProgressBarLabel.Anchors := [akLeft, akTop];
   ProgressBarLabel.Caption := 'TNewProgressBar';
   ProgressBarLabel.Parent := Page.Surface;
 
@@ -297,7 +279,6 @@ begin
   ProgressBar[0].Top := ProgressBarLabel.Top;
   ProgressBar[0].Width := Page.SurfaceWidth - ProgressBar[0].Left;
   ProgressBar[0].Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar[0].Anchors := [akLeft, akRight, akTop];
   ProgressBar[0].Parent := Page.Surface;
   ProgressBar[0].Position := 25;
 
@@ -306,7 +287,6 @@ begin
   ProgressBar[1].Top := ProgressBar[0].Top + ProgressBar[0].Height + ScaleY(4);
   ProgressBar[1].Width := Page.SurfaceWidth - ProgressBar[0].Left;
   ProgressBar[1].Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar[1].Anchors := [akLeft, akRight, akTop];
   ProgressBar[1].Parent := Page.Surface;
   ProgressBar[1].Position := 50;
   ProgressBar[1].State := npbsError;
@@ -316,7 +296,6 @@ begin
   ProgressBar[2].Top := ProgressBar[1].Top + ProgressBar[1].Height + ScaleY(4);
   ProgressBar[2].Width := Page.SurfaceWidth - ProgressBar[0].Left;
   ProgressBar[2].Height := ProgressBarLabel.Height + ScaleY(8);
-  ProgressBar[2].Anchors := [akLeft, akRight, akTop];
   ProgressBar[2].Parent := Page.Surface;
   ProgressBar[2].Style := npbstMarquee;
   
@@ -326,8 +305,7 @@ begin
 
   CheckListBox[0] := TNewCheckListBox.Create(Page);
   CheckListBox[0].Width := Page.SurfaceWidth;
-  CheckListBox[0].Height := ScaleY(97);
-  CheckListBox[0].Anchors := [akLeft, akTop, akRight, akBottom];
+  CheckListBox[0].Height := ScaleY(97) + Page.SurfaceExtraHeight;
   CheckListBox[0].Flat := True;
   CheckListBox[0].Parent := Page.Surface;
   CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
@@ -347,7 +325,6 @@ begin
   CheckListBox[1].Top := CheckListBox[0].Top + CheckListBox[0].Height + ScaleY(8);
   CheckListBox[1].Width := Page.SurfaceWidth;
   CheckListBox[1].Height := ScaleY(97);
-  CheckListBox[1].Anchors := [akLeft, akRight, akBottom];
   CheckListBox[1].BorderStyle := bsNone;
   CheckListBox[1].ParentColor := True;
   CheckListBox[1].MinItemHeight := WizardForm.TasksList.MinItemHeight;
@@ -365,7 +342,6 @@ begin
   FolderTreeView := TFolderTreeView.Create(Page);
   FolderTreeView.Width := Page.SurfaceWidth;
   FolderTreeView.Height := Page.SurfaceHeight;
-  FolderTreeView.Anchors := [akLeft, akTop, akRight, akBottom];
   FolderTreeView.Parent := Page.Surface;
   FolderTreeView.Directory := ExpandConstant('{src}');
 
@@ -397,7 +373,6 @@ begin
   BitmapImage[2].Left := 3*BitmapImage[0].Width + 20;
   BitmapImage[2].Width := 4*BitmapImage[0].Width;
   BitmapImage[2].Height := 4*BitmapImage[0].Height;
-  BitmapImage[2].Anchors := [akLeft, akTop, akRight, akBottom];
   BitmapImage[2].Parent := Page.Surface;
   
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapImage (stock icons)');
@@ -491,7 +466,6 @@ begin
   RichEditViewer := TRichEditViewer.Create(Page);
   RichEditViewer.Width := Page.SurfaceWidth;
   RichEditViewer.Height := Page.SurfaceHeight;
-  RichEditViewer.Anchors := [akLeft, akTop, akRight, akBottom];
   RichEditViewer.BevelKind := bkFlat;
   RichEditViewer.BorderStyle := bsNone;
   RichEditViewer.Parent := Page.Surface;
@@ -516,7 +490,6 @@ begin
   AboutButton.Top := CancelButton.Top;
   AboutButton.Width := CancelButton.Width;
   AboutButton.Height := CancelButton.Height;
-  AboutButton.Anchors := [akLeft, akBottom];
   AboutButton.Caption := '&About...';
   AboutButton.OnClick := @AboutButtonOnClick;
   AboutButton.Parent := ParentForm;
@@ -524,7 +497,6 @@ begin
   URLLabel := TNewLinkLabel.Create(ParentForm);
   URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
   URLLabel.Top := AboutButton.Top + (AboutButton.Height - URLLabel.Height) div 2;
-  URLLabel.Anchors := [akLeft, akBottom];
   URLLabel.Caption := '<a href="https://jrsoftware.org">jrsoftware.org</a>';
   URLLabel.OnLinkClick := @LinkLabelOnLinkClick;
   URLLabel.UseVisualStyle := True;
