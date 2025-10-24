@@ -5652,7 +5652,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <body>
 <p>Lets you increase the default size of all Setup and Uninstall windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
-<example><pre>WizardSizePercent=120</pre></example>
+<example><pre>WizardSizePercent=130</pre></example>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
@@ -5676,14 +5676,14 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt><br/><tt>modern</tt><br/><tt>light</tt><br/><tt>dark</tt><br/><tt>dynamic</tt><br/><tt>polar</tt><br/><tt>slate</tt><br/><tt>windows11</tt><br/><tt>zircon</tt><br/><tt>includetitlebar</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
 <p>The base styles are:</p>
 <ul>
-<li><tt>classic</tt>: Uses the traditional gray wizard appearance (default behavior if no base style is specified).</li>
-<li><tt>modern</tt>: Uses a more modern look.</li>
+<li><tt>classic</tt>: Uses the traditional gray background (default behavior if no base style is specified).</li>
+<li><tt>modern</tt>: Uses a more modern white background and hides the top bevel (horizontal line).</li>
 </ul>
 <p>Also supported are additional appearance modes:</p>
 <ul>
@@ -5753,6 +5753,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
 <p><tt>modern zircon includetitlebar</tt><br/><br/><img src="wizardstyle-modern-zircon-includetitlebar.png"/></p>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardsizepercent">WizardSizePercent</link><br/>
 <link topic="setup_wizardstylefile">WizardStyleFile</link><br/>
 <link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link><br/>
 <link topic="isxfunc_HighContrastActive">HighContrastActive</link></p>
