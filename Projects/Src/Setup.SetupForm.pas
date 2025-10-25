@@ -496,8 +496,9 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   procedure StripAndStoreChildControlCustomAnchors(const ParentCtl: TControl; const AnchorsList: TControlAnchorsList);
   begin
     if ParentCtl is TWinControl then begin
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
+      const ParentWinCtl = TWinControl(ParentCtl);
+      for var I := 0 to ParentWinCtl.ControlCount-1 do begin
+        const Ctl = ParentWinCtl.Controls[I];
 
         if Ctl.Anchors <> [akLeft, akTop] then begin
           AnchorsList.Add(Ctl, Ctl.Anchors);
@@ -516,8 +517,9 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   function GetHasChildControlCustomAnchors(const ParentCtl: TControl): Boolean;
   begin
     if ParentCtl is TWinControl then begin
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
+      const ParentWinCtl = TWinControl(ParentCtl);
+      for var I := 0 to ParentWinCtl.ControlCount-1 do begin
+        const Ctl = ParentWinCtl.Controls[I];
         if (Ctl.Anchors <> [akLeft, akTop]) or GetHasChildControlCustomAnchors(Ctl) then
           Exit(True);
       end;
@@ -534,14 +536,15 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
       Item.Key.Anchors := Item.Value;
   end;
 
-  procedure ChildControlHandlesNeeded(const ParentCtl: TControl);
+  procedure ParentHandlesNeeded(const ParentCtl: TControl);
   begin
-    if ParentCtl is TWinControl then
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
-        if Ctl is TWinControl then
-          TWinControl(Ctl).HandleNeeded;
-        ChildControlHandlesNeeded(Ctl);
+    if ParentCtl is TWinControl then begin
+      const ParentWinCtl = TWinControl(ParentCtl);
+      if ParentWinCtl.ControlCount > 0 then begin
+        ParentWinCtl.HandleNeeded;
+        for var I := 0 to ParentWinCtl.ControlCount-1 do
+          ParentHandlesNeeded(ParentWinCtl.Controls[I]);
+      end;
     end;
   end;
 
@@ -593,8 +596,7 @@ begin
     { Various things related to positioning and anchoring don't work without this:
       you get positions of child controls back as if there was no anchoring until
       handles are automatically created }
-    HandleNeeded; { Also see ShowModal }
-    ChildControlHandlesNeeded(Self);
+    ParentHandlesNeeded(Self); { Also see ShowModal }
   end;
 end;
 
