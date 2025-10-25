@@ -169,7 +169,9 @@ function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
 function CompareInt64(const N1, N2: Int64): Integer;
 function HighLowToInt64(const High, Low: UInt32): Int64;
+function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
+function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
 
 implementation
 
@@ -1681,9 +1683,19 @@ begin
   Result := Int64((UInt64(High) shl 32) or Low);
 end;
 
+function HighLowToUInt64(const High, Low: UInt32): UInt64;
+begin
+  Result := (UInt64(High) shl 32) or Low;
+end;
+
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 begin
   Result := HighLowToInt64(FindData.nFileSizeHigh, FindData.nFileSizeLow);
+end;
+
+function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
+begin
+  Result := HighLowToUInt64(FileTime.dwHighDateTime, FileTime.dwLowDateTime);
 end;
 
 { TOneShotTimer }

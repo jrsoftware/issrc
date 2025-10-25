@@ -1415,6 +1415,24 @@ var
       FILE_ATTRIBUTE_DIRECTORY;
   end;
 
+  function IsRecentFileTime(const AFileTime: TFileTime): Boolean;
+  const
+    ThresholdSecs = 5 * 60;  { 5 minutes }
+  begin
+    var NowTime: TFileTime;
+    GetSystemTimeAsFileTime(NowTime);
+
+    const A = FileTimeToUInt64(AFileTime);
+    const B = FileTimeToUInt64(NowTime);
+    { Past and future times are both considered recent }
+    var Diff: UInt64;
+    if A > B then
+      Diff := A - B
+    else
+      Diff := B - A;
+    Result := Diff < ThresholdSecs * UInt64(10000000);
+  end;
+
   function TryDeleteUninstallDir(const ADir: String): Boolean;
   begin
     Result := False;
@@ -1469,14 +1487,26 @@ var
             finally
               CloseHandle(DoneFileHandle);
             end;
-            { Remove directory only when files were deleted from it. We don't
-              remove directories that were empty to start with because that
-              could interfere with a concurrently-running Uninstall process
-              that just created a new directory. }
-            if Result then
-              if not DeleteFileOrDirByHandle(DirHandle) then
-                LogWithLastError('Failed to remove directory.');
           end;
+
+          { Try to remove the directory (if empty) in two cases:
+            - If we just deleted files from it. (Any failure is logged.)
+            - If it wasn't modified recently. It could be an empty directory
+              that this function couldn't remove before because an AV or other
+              process was holding handles to the directory or now-deleted
+              files inside. Or, it could be an empty directory that
+              Uninstall's RunFirstPhase couldn't remove because this function
+              was running concurrently in another process and had it open (an
+              unlikely race).
+              The time check prevents removal of a directory that a
+              concurrently-running Uninstall process just created (also an
+              unlikely race).
+              The time check is intentionally done first (often unnecessarily)
+              just to ensure that code path gets regularly exercised. }
+          if not IsRecentFileTime(Info.ftLastWriteTime) or Result then
+            if not DeleteFileOrDirByHandle(DirHandle) then
+              if Result then
+                LogWithLastError('Failed to remove directory.');
         end;
       finally
         CloseHandle(DirHandle);
