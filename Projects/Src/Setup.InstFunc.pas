@@ -89,7 +89,6 @@ function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
 procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
-procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
 function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
@@ -998,27 +997,6 @@ begin
     be delayed if another app is hung, but it'll have to do. }
   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
-end;
-
-procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
-{ Reads a command line parameter. If it is in the form "/PARAM=VALUE" then
-  AName is set to "/PARAM=" and AValue is set to "VALUE". Otherwise, the full
-  parameter is stored in AName, and AValue is set to an empty string. }
-var
-  S: String;
-  P: Integer;
-begin
-  S := NewParamStr(Index);
-  if (S <> '') and (S[1] = '/') then begin
-    P := PathPos('=', S);
-    if P <> 0 then begin
-      AName := Copy(S, 1, P);
-      AValue := Copy(S, P+1, Maxint);
-      Exit;
-    end;
-  end;
-  AName := S;
-  AValue := '';
 end;
 
 function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;

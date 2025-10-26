@@ -90,21 +90,17 @@ var
   RestartSystem: Boolean = False;
 
 procedure ProcessCommandLine;
-var
-  I: Integer;
-  Name: String;
 begin
-  for I := 1 to NewParamCount do begin
-    Name := NewParamStr(I);
-    if (CompareText(Name, '/SP-') = 0) or
-       (CompareText(Copy(Name, 1, 10), '/SPAWNWND=') = 0) then
+  for var I := 1 to NewParamCount do begin
+    var ParamName, ParamValue: String;
+    SplitNewParamStr(I, ParamName, ParamValue);
+    if SameText(ParamName, '/SP-') or SameText(ParamName, '/SPAWNWND=') then
       InitDisableStartupPrompt := True
-    else if CompareText(Copy(Name, 1, 6), '/Lang=') = 0 then
-      InitLang := Copy(Name, 7, Maxint)
-    else if CompareText(Copy(Name, 1, 10), '/Password=') = 0 then
-      InitPassword := Copy(Name, 11, Maxint)
-    else if (CompareText(Name, '/HELP') = 0) or
-            (CompareText(Name, '/?') = 0) then
+    else if SameText(ParamName, '/Lang=') then
+      InitLang := ParamValue
+    else if SameText(ParamName, '/Password=') then
+      InitPassword := ParamValue
+    else if SameText(ParamName, '/HELP') or SameText(ParamName, '/?') then
       InitShowHelp := True;
   end;
 end;

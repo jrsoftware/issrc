@@ -3138,7 +3138,7 @@ begin
           <setup 1 data offset>,<original exe filename>"
   }
   SplitNewParamStr(1, ParamName, ParamValue);
-  if CompareText(ParamName, '/SL5=') = 0 then begin
+  if SameText(ParamName, '/SL5=') then begin
     StartParam := 2;
     SetupLdrMode := True;
     SetupNotifyWnd := UInt32(ExtractInt64(ParamValue));
@@ -3160,83 +3160,83 @@ begin
   for I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
-    if CompareText(ParamName, '/Log') = 0 then begin
+    if SameText(ParamName, '/Log') then begin
       EnableLogging := True;
       LogFilename := '';
-    end else if CompareText(ParamName, '/Log=') = 0 then begin
+    end else if SameText(ParamName, '/Log=') then begin
       EnableLogging := True;
       LogFilename := ParamValue;
-    end else if CompareText(ParamName, '/Silent') = 0 then
+    end else if SameText(ParamName, '/Silent') then
       InitSilent := True
-    else if CompareText(ParamName, '/VerySilent') = 0 then
+    else if SameText(ParamName, '/VerySilent') then
       InitVerySilent := True
-    else if CompareText(ParamName, '/NoRestart') = 0 then
+    else if SameText(ParamName, '/NoRestart') then
       InitNoRestart := True
-    else if CompareText(ParamName, '/CloseApplications') = 0 then
+    else if SameText(ParamName, '/CloseApplications') then
       InitCloseApplications := True
-    else if CompareText(ParamName, '/NoCloseApplications') = 0 then
+    else if SameText(ParamName, '/NoCloseApplications') then
       InitNoCloseApplications := True
-    else if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+    else if SameText(ParamName, '/ForceCloseApplications') then
       InitForceCloseApplications := True
-    else if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+    else if SameText(ParamName, '/NoForceCloseApplications') then
       InitNoForceCloseApplications := True
-    else if CompareText(ParamName, '/LogCloseApplications') = 0 then
+    else if SameText(ParamName, '/LogCloseApplications') then
       InitLogCloseApplications := True
-    else if CompareText(ParamName, '/RestartApplications') = 0 then
+    else if SameText(ParamName, '/RestartApplications') then
       InitRestartApplications := True
-    else if CompareText(ParamName, '/NoRestartApplications') = 0 then
+    else if SameText(ParamName, '/NoRestartApplications') then
       InitNoRestartApplications := True
-    else if CompareText(ParamName, '/NoIcons') = 0 then
+    else if SameText(ParamName, '/NoIcons') then
       InitNoIcons := True
-    else if CompareText(ParamName, '/NoCancel') = 0 then
+    else if SameText(ParamName, '/NoCancel') then
       InitNoCancel := True
-    else if CompareText(ParamName, '/Lang=') = 0 then
+    else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
-    else if CompareText(ParamName, '/Type=') = 0 then
+    else if SameText(ParamName, '/Type=') then
       InitSetupType := ParamValue
-    else if CompareText(ParamName, '/Components=') = 0 then begin
+    else if SameText(ParamName, '/Components=') then begin
       InitComponentsSpecified := True;
       SetStringsFromCommaString(InitComponents, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/Tasks=') = 0 then begin
+    end else if SameText(ParamName, '/Tasks=') then begin
       InitDeselectAllTasks := True;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/MergeTasks=') = 0 then begin
+    end else if SameText(ParamName, '/MergeTasks=') then begin
       InitDeselectAllTasks := False;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/LoadInf=') = 0 then
+    end else if SameText(ParamName, '/LoadInf=') then
       InitLoadInf := PathExpand(ParamValue)
-    else if CompareText(ParamName, '/SaveInf=') = 0 then
+    else if SameText(ParamName, '/SaveInf=') then
       InitSaveInf := PathExpand(ParamValue)
-    else if CompareText(ParamName, '/DIR=') = 0 then
+    else if SameText(ParamName, '/DIR=') then
       InitDir := ParamValue
-    else if CompareText(ParamName, '/GROUP=') = 0 then
+    else if SameText(ParamName, '/GROUP=') then
       InitProgramGroup := ParamValue
-    else if CompareText(ParamName, '/Password=') = 0 then
+    else if SameText(ParamName, '/Password=') then
       InitPassword := ParamValue
-    else if CompareText(ParamName, '/RestartExitCode=') = 0 then
+    else if SameText(ParamName, '/RestartExitCode=') then
       InitRestartExitCode := StrToIntDef(ParamValue, 0)
-    else if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
+    else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
-    else if CompareText(ParamName, '/DETACHEDMSG') = 0 then  { for debugging }
+    else if SameText(ParamName, '/DETACHEDMSG') then { for debugging }
       DetachedUninstMsgFile := True
-    else if CompareText(ParamName, '/SPAWNWND=') = 0 then begin
+    else if SameText(ParamName, '/SPAWNWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       IsRespawnedProcess := True;
       InitializeSpawnClient(StrToInt(ParamValue));
-    end else if CompareText(ParamName, '/NOTIFYWND=') = 0 then begin
+    end else if SameText(ParamName, '/NOTIFYWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       { /NOTIFYWND= takes precedence over any previously set SetupNotifyWnd }
       SetupNotifyWnd := StrToInt(ParamValue);
       SetupNotifyWndPresent := True;
-    end else if CompareText(ParamName, '/DebugSpawnServer') = 0 then  { for debugging }
+    end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
-    else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
+    else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True; { sent by IDE.MainForm's StartProcess }
       DebugServerWnd := StrToInt(ParamValue);
-    end else if CompareText(ParamName, '/ALLUSERS') = 0 then begin
+    end else if SameText(ParamName, '/ALLUSERS') then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
-    end else if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
+    end else if SameText(ParamName, '/CURRENTUSER') then begin
       InitPrivilegesRequired := prLowest;
       HasInitPrivilegesRequired := True;
     end;

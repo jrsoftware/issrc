@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -28,9 +28,12 @@ function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryP
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
 function RestartComputer: Boolean;
+procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 
+{$IFDEF SETUPPROJ}
 { The following are not called by other SetupLdr units: they are only called by the
-  code below and by other Setup units }
+  code below and by other Setup units - so the implementatons exist below but they
+  are not included here in the interface, for clarity }
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
@@ -38,6 +41,7 @@ function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: Str
 function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
 function GenerateUniqueName({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} Path: String;
   const Extension: String): String;
+{$ENDIF}
 
 implementation
 
@@ -339,6 +343,27 @@ begin
       Inc(I);
     end;
   end;
+end;
+
+procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
+{ Reads a command line parameter. If it is in the form "/PARAM=VALUE" then
+  AName is set to "/PARAM=" and AValue is set to "VALUE". Otherwise, the full
+  parameter is stored in AName, and AValue is set to an empty string. }
+var
+  S: String;
+  P: Integer;
+begin
+  S := NewParamStr(Index);
+  if (S <> '') and (S[1] = '/') then begin
+    P := PathPos('=', S);
+    if P <> 0 then begin
+      AName := Copy(S, 1, P);
+      AValue := Copy(S, P+1, Maxint);
+      Exit;
+    end;
+  end;
+  AName := S;
+  AValue := '';
 end;
 
 end.
