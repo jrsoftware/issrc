@@ -239,7 +239,7 @@ begin
 
   if LeftPanel.Visible then begin
     { Make sure the height is enough to fit the icon }
-    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height;
+    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height + MainPanel.Padding.Bottom;
     if MinimumClientHeight > NewClientHeight then
       NewClientHeight := MinimumClientHeight;
   end;
