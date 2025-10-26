@@ -44,6 +44,19 @@ type
 const
   DebugTargetStrings: array[TDebugTarget] of String = ('Setup', 'Uninstall');
 
+const
+  MRUListMaxCount = 10;
+
+  { Status bar panel indexes }
+  spCaretPos = 0;
+  spModified = 1;
+  spEditMode = 2;
+  spFindRegEx = 3;
+  spHiddenFilesCount = 4;
+  spCompileIcon = 5;
+  spCompileProgress = 6;
+  spExtraStatus = 7;
+
 type
   TStatusMessageKind = (smkStartEnd, smkNormal, smkWarning, smkError);
 
@@ -89,6 +102,43 @@ type
   end;
 
   TUpdatePanelMessages = TObjectList<TUpdatePanelMessage>;
+
+  TOptions = record
+    ShowStartupForm: Boolean;
+    UseWizard: Boolean;
+    Autosave: Boolean;
+    Autoreload: Boolean;
+    MakeBackups: Boolean;
+    FullPathInTitleBar: Boolean;
+    UndoAfterSave: Boolean;
+    UndoAfterReload: Boolean;
+    PauseOnDebuggerExceptions: Boolean;
+    RunAsDifferentUser: Boolean;
+    AutoAutoComplete: Boolean;
+    AutoCallTips: Boolean;
+    UseSyntaxHighlighting: Boolean;
+    ColorizeCompilerOutput: Boolean;
+    UnderlineErrors: Boolean;
+    HighlightWordAtCursorOccurrences: Boolean;
+    HighlightSelTextOccurrences: Boolean;
+    CursorPastEOL: Boolean;
+    TabWidth: Integer;
+    UseTabCharacter: Boolean;
+    ShowWhiteSpace: Boolean;
+    UseFolding: Boolean;
+    FindRegEx: Boolean;
+    WordWrap: Boolean;
+    AutoIndent: Boolean;
+    IndentationGuides: Boolean;
+    LowPriorityDuringCompile: Boolean;
+    GutterLineNumbers: Boolean;
+    KeyMappingType: TKeyMappingType;
+    MemoKeyMappingType: TIDEScintKeyMappingType;
+    ThemeType: TThemeType;
+    ShowPreprocessorOutput: Boolean;
+    OpenIncludedFiles: Boolean;
+    ShowCaretPosition: Boolean;
+  end;
 
   TMainForm = class(TUIStateForm)
     MainMenu1: TMainMenu;
@@ -400,57 +450,17 @@ type
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
   private
-    { Private declarations }
     FMemos: TList<TIDEScintEdit>;                      { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above }
     FMainMemo: TIDEScintFileEdit;                      { Doesn't change }
     FPreprocessorOutputMemo: TIDEScintEdit;            { Doesn't change and is the only memo which isnt a TIDEScint*File*Edit}
     FFileMemos: TList<TIDEScintFileEdit>;              { All memos except FPreprocessorOutputMemo, including those without a tab }
-    FHiddenFiles: TStringList;                          { List of files which *do* use a memo but are hidden by the user and have no tab }
-    FActiveMemo: TIDEScintEdit;                        { Changes depending on user input }
+    FHiddenFiles: TStringList;                         { List of files which *do* use a memo but are hidden by the user and have no tab }
+    { FActiveMemo: TIDEScintEdit; - declared below }   { Changes depending on user input }
     FErrorMemo, FStepMemo: TIDEScintFileEdit;          { These change depending on user input }
-    FMemosStyler: TInnoSetupStyler;                     { Single styler for all memos }
+    FMemosStyler: TInnoSetupStyler;                    { Single styler for all memos }
     FCompilerVersion: PCompilerVersionInfo;
     FMRUMainFilesMenuItems: array[0..MRUListMaxCount-1] of TMenuItem;
-    FMRUMainFilesList: TStringList;
-    FMRUParametersList: TStringList;
-    FOptions: record
-      ShowStartupForm: Boolean;
-      UseWizard: Boolean;
-      Autosave: Boolean;
-      Autoreload: Boolean;
-      MakeBackups: Boolean;
-      FullPathInTitleBar: Boolean;
-      UndoAfterSave: Boolean;
-      UndoAfterReload: Boolean;
-      PauseOnDebuggerExceptions: Boolean;
-      RunAsDifferentUser: Boolean;
-      AutoAutoComplete: Boolean;
-      AutoCallTips: Boolean;
-      UseSyntaxHighlighting: Boolean;
-      ColorizeCompilerOutput: Boolean;
-      UnderlineErrors: Boolean;
-      HighlightWordAtCursorOccurrences: Boolean;
-      HighlightSelTextOccurrences: Boolean;
-      CursorPastEOL: Boolean;
-      TabWidth: Integer;
-      UseTabCharacter: Boolean;
-      ShowWhiteSpace: Boolean;
-      UseFolding: Boolean;
-      FindRegEx: Boolean;
-      WordWrap: Boolean;
-      AutoIndent: Boolean;
-      IndentationGuides: Boolean;
-      LowPriorityDuringCompile: Boolean;
-      GutterLineNumbers: Boolean;
-      KeyMappingType: TKeyMappingType;
-      MemoKeyMappingType: TIDEScintKeyMappingType;
-      ThemeType: TThemeType;
-      ShowPreprocessorOutput: Boolean;
-      OpenIncludedFiles: Boolean;
-      ShowCaretPosition: Boolean;
-    end;
     FOptionsLoaded: Boolean;
-    FTheme: TTheme;
     FSignTools: TStringList;
     FFindResults: TFindResults;
     FCompiling: Boolean;
@@ -487,11 +497,8 @@ type
     FProgress, FProgressMax: Cardinal;
     FTaskbarProgressValue: Cardinal;
     FProgressThemeData: HTHEME;
-    FMenuThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
     FStatusBarThemeData: HTHEME;
-    FMenuDarkBackgroundBrush: TBrush;
-    FMenuDarkHotOrSelectedBrush: TBrush;
     FDebugLogListTimestampsWidth: Integer;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
@@ -502,8 +509,6 @@ type
     FMenuBitmapsSize: TSize;
     FMenuBitmapsSourceImageCollection: TCustomImageCollection;
     FSynchingZoom: Boolean;
-    FNavStacks: TIDEScintEditNavStacks;
-    FCurrentNavItem: TIDEScintEditNavItem;
     FKeyMappedMenus: TKeyMappedMenus;
     FBackNavButtonShortCut, FForwardNavButtonShortCut: TShortCut;
     FBackNavButtonShortCut2, FForwardNavButtonShortCut2: TShortCut;
@@ -525,7 +530,6 @@ type
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
     procedure CheckIfTerminated;
-    procedure ClearMRUMainFilesList;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -576,27 +580,16 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
-    function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     function MultipleSelectionPasteFromClipboard(const AMemo: TIDESCintEdit): Boolean;
     procedure UpdateReopenTabMenu(const Menu: TMenuItem);
-    procedure ModifyMRUMainFilesList(const AFilename: String; const AddNewItem: Boolean);
-    procedure ModifyMRUParametersList(const AParameter: String; const AddNewItem: Boolean);
-    procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
-      const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
-      const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
-    procedure NavItemClick(Sender: TObject);
     procedure NewMainFile(const IsReload: Boolean = False);
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean;
       const IsReload: Boolean = False);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
-    procedure ReadMRUMainFilesList;
-    procedure ReadMRUParametersList;
-    procedure RemoveMemoFromNav(const AMemo: TIDEScintEdit);
-    procedure RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
     procedure ReopenTabClick(Sender: TObject);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
@@ -620,7 +613,6 @@ type
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
-    procedure UpdateCaretPosPanelAndBackNavStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
@@ -635,7 +627,6 @@ type
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMenuBitmapsIfNeeded;
     procedure UpdateModifiedPanel;
-    procedure UpdateNavButtons;
     procedure UpdateNewMainFileButtons;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -670,13 +661,27 @@ type
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUAHDrawMenu(var Message: TMessage); message WM_UAHDRAWMENU;
     procedure WMUAHDrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
-    procedure UAHDrawMenuBottomLine;
     procedure WMNCActivate(var Message: TMessage); message WM_NCACTIVATE;
     procedure WMNCPaint(var Message: TMessage); message WM_NCPAINT;
   protected
+    { Used by class helpers }
+    FActiveMemo: TIDEScintEdit;
+    FOptions: TOptions;
+    FTheme: TTheme;
+    FMRUMainFilesList: TStringList;
+    FMRUParametersList: TStringList;
+    FNavStacks: TIDEScintEditNavStacks;
+    FCurrentNavItem: TIDEScintEditNavItem;
+    FMenuDarkBackgroundBrush: TBrush;
+    FMenuDarkHotOrSelectedBrush: TBrush;
+    FMenuThemeData: HTHEME;
+    function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
+    procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
+      const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
+      const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
+    { Other }
     procedure WndProc(var Message: TMessage); override;
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
@@ -702,7 +707,8 @@ uses
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
-  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm;
+  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm,
+  IDE.MainForm.FinalHelper;
 
 {$R *.DFM}
 
@@ -710,16 +716,6 @@ const
   { Memos }
   MaxMemos = 22; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
-
-  { Status bar panel indexes }
-  spCaretPos = 0;
-  spModified = 1;
-  spEditMode = 2;
-  spFindRegEx = 3;
-  spHiddenFilesCount = 4;
-  spCompileIcon = 5;
-  spCompileProgress = 6;
-  spExtraStatus = 7;
 
   { Output tab set indexes }
   tiCompilerOutput = 0;
@@ -2249,69 +2245,6 @@ begin
           Exit;
       end;
     end;
-  end;
-end;
-
-procedure TMainForm.ClearMRUMainFilesList;
-begin
-  try
-    ClearMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew');
-  except
-    { Ignore any exceptions. }
-  end;
-end;
-
-procedure TMainForm.ReadMRUMainFilesList;
-begin
-  try
-    ReadMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History');
-  except
-    { Ignore any exceptions. }
-  end;
-end;
-
-procedure TMainForm.ModifyMRUMainFilesList(const AFilename: String;
-  const AddNewItem: Boolean);
-begin
-  { Load most recent items first, just in case they've changed }
-  try
-    ReadMRUMainFilesList;
-  except
-    { Ignore any exceptions. }
-  end;
-  try
-    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
-  except
-    { Handle exceptions locally; failure to save the MRU list should not be
-      a fatal error. }
-    Application.HandleException(Self);
-  end;
-end;
-
-procedure TMainForm.ReadMRUParametersList;
-begin
-  try
-    ReadMRUList(FMRUParametersList, 'ParametersHistory', 'History');
-  except
-    { Ignore any exceptions. }
-  end;
-end;
-
-procedure TMainForm.ModifyMRUParametersList(const AParameter: String;
-  const AddNewItem: Boolean);
-begin
-  { Load most recent items first, just in case they've changed }
-  try
-    ReadMRUParametersList;
-  except
-    { Ignore any exceptions. }
-  end;
-  try
-    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, @CompareText);
-  except
-    { Handle exceptions locally; failure to save the MRU list should not be
-      a fatal error. }
-    Application.HandleException(Self);
   end;
 end;
 
@@ -4939,160 +4872,24 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
 end;
 
-procedure TMainForm.RemoveMemoFromNav(const AMemo: TIDEScintEdit);
-begin
-  if FNavStacks.RemoveMemo(AMemo) then
-    UpdateNavButtons;
-  if FCurrentNavItem.Memo = AMemo then
-    FCurrentNavItem.Invalidate;
-end;
-
-procedure TMainForm.RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
-begin
-  if FNavStacks.RemoveMemoBadLines(AMemo) then
-    UpdateNavButtons;
-  { We do NOT update FCurrentNav here so it might point to a line that's
-    deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
-end;
-
-procedure TMainForm.UpdateNavButtons;
-begin
-  ForwardNavButton.Enabled := FNavStacks.Forward.Count > 0;
-  BackNavButton.Enabled := (FNavStacks.Back.Count > 0) or
-                           ForwardNavButton.Enabled; { for the dropdown }
-end;
-
 procedure TMainForm.BackNavButtonClick(Sender: TObject);
 begin
-  { Delphi does not support BTNS_WHOLEDROPDOWN so we can't be like VS which
-    can have a disabled back nav button with an enabled dropdown. To avoid
-    always showing two dropdowns we keep the back button enabled when we need
-    the dropdown. So we need to check for this. }
-  if FNavStacks.Back.Count = 0 then begin
-    Beep;
-    Exit;
-  end;
-
-  FNavStacks.Forward.Add(FCurrentNavItem);
-  var NewNavItem := FNavStacks.Back.ExtractAt(FNavStacks.Back.Count-1);
-  UpdateNavButtons;
-  FCurrentNavItem := NewNavItem; { Must be done *before* moving }
-  MoveCaretAndActivateMemo(NewNavItem.Memo,
-    NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
+  DoBackNavClick;
 end;
 
 procedure TMainForm.ForwardNavButtonClick(Sender: TObject);
 begin
-  FNavStacks.Back.Add(FCurrentNavItem);
-  var NewNavItem := FNavStacks.Forward.ExtractAt(FNavStacks.Forward.Count-1);
-  UpdateNavButtons;
-  FCurrentNavItem := NewNavItem; { Must be done *before* moving }
-  MoveCaretAndActivateMemo(NewNavItem.Memo,
-    NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
+  DoForwardNavClick;
 end;
 
 procedure TMainForm.WMAppCommand(var Message: TMessage);
 begin
-  var Command := GET_APPCOMMAND_LPARAM(Message.LParam);
-
-  if Command = APPCOMMAND_BROWSER_BACKWARD then begin
-    if BackNavButton.Enabled then
-      BackNavButton.Click;
-    Message.Result := 1;
-  end else if Command = APPCOMMAND_BROWSER_FORWARD then begin
-    if ForwardNavButton.Enabled then
-      ForwardNavButton.Click;
-    Message.Result := 1;
-  end;
-end;
-
-procedure TMainForm.NavItemClick(Sender: TObject);
-begin
-  var MenuItem := Sender as TMenuItem;
-  var Clicks := Abs(MenuItem.Tag);
-  if Clicks > 0 then begin
-    var ButtonToClick: TToolButton;
-    if MenuItem.Tag > 0 then
-      ButtonToClick := ForwardNavButton
-    else
-      ButtonToClick := BackNavButton;
-    while Clicks > 0 do begin
-      if not ButtonToClick.Enabled then
-        raise Exception.Create('not ButtonToClick.Enabled');
-      ButtonToClick.Click;
-      Dec(Clicks);
-    end;
-  end;
+  AppCommand(Message);
 end;
 
 procedure TMainForm.NavPopupMenuClick(Sender: TObject);
-
-  procedure AddNavItemToMenu(const NavItem: TIDEScintEditNavItem; const Checked: Boolean;
-    const ClicksNeeded: Integer; const Menu: TMenuItem);
-  begin
-    if NavItem.Line >= NavItem.Memo.Lines.Count then
-      raise Exception.Create('NavItem.Line >= NavItem.Memo.Lines.Count');
-    var LineInfo :=  NavItem.Memo.Lines[NavItem.Line];
-    if LineInfo.Trim = '' then
-      LineInfo := Format('Line %d', [NavItem.Line+1]);
-
-    var Caption: String;
-    if MemosTabSet.Visible then
-      Caption := Format('%s: %s', [MemosTabSet.Tabs[MemoToTabIndex(NavItem.Memo)], LineInfo])
-    else
-      Caption := LineInfo;
-
-    var MenuItem := TMenuItem.Create(Menu);
-    MenuItem.Caption := DoubleAmp(Caption);
-    MenuItem.Checked := Checked;
-    MenuItem.RadioItem := True;
-    MenuItem.Tag := ClicksNeeded;
-    MenuItem.OnClick := NavItemClick;
-    Menu.Add(MenuItem);
-  end;
-
 begin
-  var Menu := Sender as TMenuItem;
-
-  Menu.Clear;
-
-  { Setup dropdown. The result should end up being just like Visual Studio 2022
-    which means from top to bottom:
-    - Furthest (=oldest) forward item
-    - ...
-    - Closest (=next) forward item
-    - Current position in the active memo, checked
-    - Closest (=next) back item
-    - ...
-    - Furthest (=oldest) back item
-    The Tag parameter should be set to the amount of clicks needed to get to
-    the item, positive for forward and negative for back }
-
-  for var I := 0 to FNavStacks.Forward.Count-1 do
-    AddNavItemToMenu(FNavStacks.Forward[I], False, FNavStacks.Forward.Count-I, Menu);
-  AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
-  for var I := FNavStacks.Back.Count-1 downto 0 do
-    AddNavItemToMenu(FNavStacks.Back[I], False, -(FNavStacks.Back.Count-I), Menu);
-end;
-
-procedure TMainForm.UpdateCaretPosPanelAndBackNavStack;
-begin
-  { Update panel }
-  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpandedForTabs + 1]);
-  if FOptions.ShowCaretPosition then begin
-    const CaretPos = FActiveMemo.CaretPosition;
-    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
-    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
-      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
-  end;
-  StatusBar.Panels[spCaretPos].Text := Text;
-
-  { Update NavStacks.Back if needed and remember new position }
-  var NewNavItem := TIDEScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
-  if FCurrentNavItem.Valid and FNavStacks.AddNewBackForJump(FCurrentNavItem, NewNavItem) then
-    UpdateNavButtons;
-  FCurrentNavItem := NewNavItem;
+  DoNavPopupMenuClick(Sender);
 end;
 
 procedure TMainForm.UpdateEditModePanel;
@@ -7618,96 +7415,18 @@ end;
 
 procedure TMainForm.WMUAHDrawMenu(var Message: TMessage);
 begin
-  if FTheme.Dark then begin
-    var MenuBarInfo: TMenuBarInfo;
-    MenuBarInfo.cbSize := SizeOf(MenuBarInfo);
-    GetMenuBarInfo(Handle, Integer(OBJID_MENU), 0, MenuBarInfo);
-
-    var WindowRect: TRect;
-    GetWindowRect(Handle, WindowRect);
-
-    var Rect := MenuBarInfo.rcBar;
-    OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
-
-    var UAHMenu := PUAHMenu(Message.lParam);
-    FillRect(UAHMenu.hdc, Rect, FMenuDarkBackgroundBrush.Handle);
-  end else
+  if FTheme.Dark then
+    DoWMUAHDrawMenu(Message)
+  else
     inherited;
 end;
 
 procedure TMainForm.WMUAHDrawMenuItem(var Message: TMessage);
-const
-  ODS_NOACCEL = $100;
-  DTT_TEXTCOLOR = 1;
-  MENU_BARITEM = 8;
-  MBI_NORMAL = 1;
-var
-  Buffer: array of Char;
 begin
-  if FTheme.Dark then begin
-    var UAHDrawMenuItem := PUAHDrawMenuItem(Message.lParam);
-
-    var MenuItemInfo: TMenuItemInfo;
-    MenuItemInfo.cbSize := SizeOf(MenuItemInfo);
-    MenuItemInfo.fMask := MIIM_STRING;
-    MenuItemInfo.dwTypeData := nil;
-    GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
-    Inc(MenuItemInfo.cch);
-    SetLength(Buffer, MenuItemInfo.cch);
-    MenuItemInfo.dwTypeData := @Buffer[0];
-    GetMenuItemInfo(UAHDrawMenuItem.um.hmenu, UAHDrawMenuItem.umi.iPosition, True, MenuItemInfo);
-
-    var dwFlags: DWORD := DT_CENTER or DT_SINGLELINE or DT_VCENTER;
-    if (UAHDrawMenuItem.dis.itemState and ODS_NOACCEL) <> 0 then
-      dwFlags := dwFlags or DT_HIDEPREFIX;
-
-    var Inactive := (UAHDrawMenuItem.dis.itemState and ODS_INACTIVE) <> 0;
-
-    var TextColor: TThemeColor;
-    if Inactive then
-      TextColor := tcMarginFore
-    else
-      TextColor := tcFore;
-
-    var opts: TDTTOpts;
-    opts.dwSize := SizeOf(opts);
-    opts.dwFlags := DTT_TEXTCOLOR;
-    opts.crText := FTheme.Colors[TextColor];
-
-    var Brush: HBrush;
-    { ODS_HOTLIGHT can be set when the menu is inactive so we check Inactive as well. }
-    if not Inactive and ((UAHDrawMenuItem.dis.itemState and (ODS_HOTLIGHT or ODS_SELECTED)) <> 0) then
-      Brush := FMenuDarkHotOrSelectedBrush.Handle
-    else
-      Brush := FMenuDarkBackgroundBrush.Handle;
-
-    FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
-    DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
-  end else
+  if FTheme.Dark then
+    DoWMUAHDrawMenuItem(Message)
+  else
     inherited;
-end;
-
-{ Should be removed if the main menu ever gets removed }
-procedure TMainForm.UAHDrawMenuBottomLine;
-begin
-  if not (csDestroying in ComponentState) and (FTheme <> nil) and FTheme.Dark then begin
-    var ClientRect: TRect;
-    Windows.GetClientRect(Handle, ClientRect);
-		MapWindowPoints(Handle, 0, ClientRect, 2);
-
-    var WindowRect: TRect;
-    GetWindowRect(Handle, WindowRect);
-
-    var Rect := ClientRect;
-    OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
-
-    Rect.Bottom := Rect.Top;
-    Dec(Rect.Top);
-
-    var DC := GetWindowDC(Handle);
-  	FillRect(DC, Rect, FMenuDarkBackgroundBrush.Handle);
-		ReleaseDC(Handle, DC);
-  end;
 end;
 
 procedure TMainForm.WMNCActivate(var Message: TMessage);

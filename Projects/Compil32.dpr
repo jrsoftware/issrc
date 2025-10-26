@@ -79,7 +79,11 @@ uses
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
   VCL.Styles,
-  VCL.Themes;
+  VCL.Themes,
+  IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',
+  IDE.MainForm.UAHHelper in 'Src\IDE.MainForm.UAHHelper.pas',
+  IDE.MainForm.NavigationHelper in 'Src\IDE.MainForm.NavigationHelper.pas',
+  IDE.MainForm.FinalHelper in 'Src\IDE.MainForm.FinalHelper.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
