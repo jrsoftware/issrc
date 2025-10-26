@@ -32,7 +32,7 @@ procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 
 {$IFDEF SETUPPROJ}
 { The following are not called by other SetupLdr units: they are only called by the
-  code below and by other Setup units - so the implementatons exist below but they
+  code below and by other Setup units - so the implementations exist below but they
   are not included here in the interface, for clarity }
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
   var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
