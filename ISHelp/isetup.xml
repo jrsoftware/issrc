@@ -3980,7 +3980,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
 <dd>
-<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
+<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the '/SUPPRESSMSGBOXES' command line option explained below) and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
 </dd>
 
