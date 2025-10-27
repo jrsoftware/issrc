@@ -79,7 +79,7 @@ var
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
     InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCancel, InitRedirectionGuard, InitNoRedirectionGuard: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -703,6 +703,8 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitRedirectionGuard := GetIniBool(Section, 'InitRedirectionGuard', InitRedirectionGuard, FileName);
+  InitNoRedirectionGuard := GetIniBool(Section, 'InitNoRedirectionGuard', InitNoRedirectionGuard, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
@@ -3230,6 +3232,10 @@ begin
       InitNoIcons := True
     else if SameText(ParamName, '/NoCancel') then
       InitNoCancel := True
+    else if SameText(ParamName, '/RedirectionGuard') then
+      InitRedirectionGuard := True
+    else if SameText(ParamName, '/NoRedirectionGuard') then
+      InitNoRedirectionGuard := True
     else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
     else if SameText(ParamName, '/Type=') then
@@ -3553,7 +3559,9 @@ begin
 
   Log64BitInstallMode;
 
-  RedirectionGuardConfigure(shRedirectionGuard in SetupHeader.Options);
+  const EnableRedirectionGuard = InitRedirectionGuard or
+    ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
+  RedirectionGuardConfigure(EnableRedirectionGuard);
 
   { Test code. Originally planned to call DeleteResidualTempUninstallDirs
     during Setup's startup too, but decided against it; it's not really
