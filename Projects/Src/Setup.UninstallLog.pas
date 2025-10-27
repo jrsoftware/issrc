@@ -104,7 +104,7 @@ type
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
-    ufWizardDarkStyleDynamic, ufWizardBorderStyled);
+    ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufRedirectionGuard);
 
   TUninstallLog = class
   private
@@ -1212,6 +1212,12 @@ var
     end;
   end;
 
+  function GetNonStickyFlags: TUninstallLogFlags;
+  begin
+    Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
+      ufRedirectionGuard];
+  end;
+
 var
   Header: TUninstallLogHeader;
   FileRec: TUninstallFileRec;
@@ -1263,7 +1269,7 @@ begin
     if Version > Header.Version then
       Header.Version := Version;
     TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled] + Flags;
+      GetNonStickyFlags + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));

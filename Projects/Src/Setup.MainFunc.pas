@@ -212,6 +212,8 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
+function RedirectionGuardEnabled: Boolean;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
@@ -2461,7 +2463,10 @@ begin
   SetActiveLanguage(I);
 end;
 
-procedure ConfigureRedirectionGuard(const AEnable: Boolean);
+var
+  IsRedirectionGuardEnabled: Boolean;
+
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
 const
   ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
 var
@@ -2475,9 +2480,10 @@ begin
       PAnsiChar('SetProcessMitigationPolicy'));
     if Assigned(SetProcessMitigationPolicyFunc) then begin
       const Flags: DWORD = 1;  { = EnforceRedirectionTrust bit set }
-      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then
+      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then begin
+        IsRedirectionGuardEnabled := True;
         Status := 'Enabled in enforcing mode'
-      else begin
+      end else begin
         const ErrorCode = GetLastError;
         Status := Format('Could not enable (SetProcessMitigationPolicy failed with error code %u)',
           [ErrorCode]);
@@ -2488,6 +2494,11 @@ begin
     Status := 'Not enabling';
 
   LogFmt('RedirectionGuard status for current process: %s', [Status]);
+end;
+
+function RedirectionGuardEnabled: Boolean;
+begin
+  Result := IsRedirectionGuardEnabled;
 end;
 
 procedure LogCompatibilityMode;
@@ -3542,7 +3553,7 @@ begin
 
   Log64BitInstallMode;
 
-  ConfigureRedirectionGuard(shRedirectionGuard in SetupHeader.Options);
+  RedirectionGuardConfigure(shRedirectionGuard in SetupHeader.Options);
 
   { Test code. Originally planned to call DeleteResidualTempUninstallDirs
     during Setup's startup too, but decided against it; it's not really
