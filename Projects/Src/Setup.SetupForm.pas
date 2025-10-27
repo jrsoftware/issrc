@@ -94,7 +94,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  BidiUtils,
+  BidiUtils, NewNotebook,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
@@ -541,7 +541,8 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     if ParentCtl is TWinControl then begin
       const ParentWinCtl = TWinControl(ParentCtl);
       if ParentWinCtl.ControlCount > 0 then begin
-        ParentWinCtl.HandleNeeded;
+        if not (ParentWinCtl is TNewNotebook) then { For notebooks: only need handles on pages }
+          ParentWinCtl.HandleNeeded;
         for var I := 0 to ParentWinCtl.ControlCount-1 do
           ParentHandlesNeeded(ParentWinCtl.Controls[I]);
       end;
