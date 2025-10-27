@@ -2461,6 +2461,35 @@ begin
   SetActiveLanguage(I);
 end;
 
+procedure ConfigureRedirectionGuard(const AEnable: Boolean);
+const
+  ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
+var
+  SetProcessMitigationPolicyFunc: function(MitigationPolicy: TProcessMitigationPolicy;
+    lpBuffer: PVOID; dwLength: SIZE_T): BOOL; stdcall;
+begin
+  var Status: String;
+
+  if AEnable then begin
+    SetProcessMitigationPolicyFunc := GetProcAddress(GetModuleHandle(kernel32),
+      PAnsiChar('SetProcessMitigationPolicy'));
+    if Assigned(SetProcessMitigationPolicyFunc) then begin
+      const Flags: DWORD = 1;  { = EnforceRedirectionTrust bit set }
+      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then
+        Status := 'Enabled in enforcing mode'
+      else begin
+        const ErrorCode = GetLastError;
+        Status := Format('Could not enable (SetProcessMitigationPolicy failed with error code %u)',
+          [ErrorCode]);
+      end;
+    end else
+      Status := 'Could not enable (SetProcessMitigationPolicy unavailable)';
+  end else
+    Status := 'Not enabling';
+
+  LogFmt('RedirectionGuard status for current process: %s', [Status]);
+end;
+
 procedure LogCompatibilityMode;
 var
   S: String;
@@ -3512,6 +3541,8 @@ begin
   InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
   Log64BitInstallMode;
+
+  ConfigureRedirectionGuard(shRedirectionGuard in SetupHeader.Options);
 
   { Test code. Originally planned to call DeleteResidualTempUninstallDirs
     during Setup's startup too, but decided against it; it's not really
