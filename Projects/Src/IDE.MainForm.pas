@@ -3210,34 +3210,7 @@ end;
 
 procedure TMainForm.EBraceMatchClick(Sender: TObject);
 begin
-  var AMemo := FActiveMemo;
-
-  var Selections: TScintCaretAndAnchorList := nil;
-  var VirtualSpaces: TScintCaretAndAnchorList := nil;
-  try
-    Selections := TScintCaretAndAnchorList.Create;
-    VirtualSpaces := TScintCaretAndAnchorList.Create;
-    AMemo.GetSelections(Selections, VirtualSpaces);
-    for var I := 0 to Selections.Count-1 do begin
-      if VirtualSpaces[I].CaretPos = 0 then begin
-        var Pos := Selections[I].CaretPos;
-        var MatchPos := AMemo.GetPositionOfMatchingBrace(Pos);
-        if MatchPos = -1 then begin
-          Pos := AMemo.GetPositionBefore(Pos);
-          MatchPos := AMemo.GetPositionOfMatchingBrace(Pos)
-        end;
-        if MatchPos <> -1 then begin
-          AMemo.SelectionCaretPosition[I] := MatchPos;
-          AMemo.SelectionAnchorPosition[I] := MatchPos;
-          if I = 0 then
-            AMemo.ScrollCaretIntoView;
-        end;
-      end;
-    end;
-  finally
-    VirtualSpaces.Free;
-    Selections.Free;
-  end;
+  FActiveMemo.BraceMatch;
 end;
 
 procedure TMainForm.ESelectAllFindMatchesClick(Sender: TObject);
