@@ -170,6 +170,7 @@
         <DCCReference Include="Src\IDE.MainForm.UAHHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.NavigationHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.FindReplaceHelper.pas"/>
+        <DCCReference Include="Src\IDE.MainForm.MenuClickHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.FinalHelper.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
