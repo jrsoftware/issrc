@@ -686,7 +686,7 @@ begin
   finally
     VirtualSpaces.Free;
     Selections.Free;
-  end
+  end;
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
