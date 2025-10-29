@@ -42,27 +42,6 @@ uses
 {$R Res\SetupLdr.version.res}
 {$R Res\SetupLdr.offsettable.res}
 
-procedure RaiseLastError(const Msg: TSetupMessageID);
-var
-  ErrorCode: DWORD;
-begin
-  ErrorCode := GetLastError;
-  raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
-    [SetupMessages[Msg], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
-end;
-
-procedure ShowExceptionMsg;
-begin
-  if ExceptObject is EAbort then
-    Exit;
-  MessageBox(0, PChar(GetExceptMessage), Pointer(SetupMessages[msgErrorTitle]),
-    MB_OK or MB_ICONSTOP);
-    { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
-      if SetupMessages[msgErrorTitle] is empty due to the messages not being
-      loaded yet. MessageBox displays 'Error' as the caption if the lpCaption
-      parameter is nil. }
-end;
-
 const
   { Exit codes that are returned by SetupLdr.
     Note: Setup also returns exit codes with the same numbers. }
@@ -77,6 +56,7 @@ type
 var
   InitShowHelp: Boolean = False;
   InitDisableStartupPrompt: Boolean = False;
+  InitSuppressMsgBoxes: Boolean = False;
   InitLang, InitPassword: String;
   ActiveLanguage: Integer = -1;
   PendingNewLanguage: Integer = -1;
@@ -89,24 +69,51 @@ var
   OrigWndProc: Pointer;
   RestartSystem: Boolean = False;
 
-procedure ProcessCommandLine;
+procedure RaiseLastError(const Msg: TSetupMessageID);
 var
-  I: Integer;
-  Name: String;
+  ErrorCode: DWORD;
 begin
-  for I := 1 to NewParamCount do begin
-    Name := NewParamStr(I);
-    if (CompareText(Name, '/SP-') = 0) or
-       (CompareText(Copy(Name, 1, 10), '/SPAWNWND=') = 0) then
+  ErrorCode := GetLastError;
+  raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
+    [SetupMessages[Msg], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
+end;
+
+procedure ShowExceptionMsg;
+begin
+  if ExceptObject is EAbort then
+    Exit;
+  if not InitSuppressMsgBoxes then
+    MessageBox(0, PChar(GetExceptMessage), Pointer(SetupMessages[msgErrorTitle]),
+      MB_OK or MB_ICONSTOP);
+      { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
+        if SetupMessages[msgErrorTitle] is empty due to the messages not being
+        loaded yet. MessageBox displays 'Error' as the caption if the lpCaption
+        parameter is nil. }
+end;
+
+procedure ProcessCommandLine;
+begin
+  var SilentOrVerySilent := False;
+  var WantToSuppressMsgBoxes := False;
+  for var I := 1 to NewParamCount do begin
+    var ParamName, ParamValue: String;
+    SplitNewParamStr(I, ParamName, ParamValue);
+    if SameText(ParamName, '/SP-') or SameText(ParamName, '/SPAWNWND=') then
       InitDisableStartupPrompt := True
-    else if CompareText(Copy(Name, 1, 6), '/Lang=') = 0 then
-      InitLang := Copy(Name, 7, Maxint)
-    else if CompareText(Copy(Name, 1, 10), '/Password=') = 0 then
-      InitPassword := Copy(Name, 11, Maxint)
-    else if (CompareText(Name, '/HELP') = 0) or
-            (CompareText(Name, '/?') = 0) then
-      InitShowHelp := True;
+    else if SameText(ParamName, '/Lang=') then
+      InitLang := ParamValue
+    else if SameText(ParamName, '/Password=') then
+      InitPassword := ParamValue
+    else if SameText(ParamName, '/HELP') or SameText(ParamName, '/?') then
+      InitShowHelp := True
+    else if SameText(ParamName, '/Silent') or SameText(ParamName, '/VerySilent') then
+      SilentOrVerySilent := True
+     else if SameText(ParamName, '/SuppressMsgBoxes') then
+      WantToSuppressMsgBoxes := True
   end;
+
+  if WantToSuppressMsgBoxes and SilentOrVerySilent then
+    InitSuppressMsgBoxes := True;
 end;
 
 procedure SetActiveLanguage(const I: Integer);
@@ -552,7 +559,7 @@ begin
       end;
     end;
     if RestartSystem then begin
-      if not RestartComputer then
+      if not RestartComputer and not InitSuppressMsgBoxes then
         MessageBox(0, PChar(SetupMessages[msgErrorRestartingComputer]),
           PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION or
           MB_SETFOREGROUND);

@@ -248,6 +248,7 @@ type
     procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
       const Command: TScintCommand); overload;
     procedure BeginUndoAction;
+    procedure BraceMatch;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint; overload;
     function Call(Msg: Cardinal; WParam: Longint; LParam: Longint; out WarnStatus: Integer): Longint; overload;
     function Call(Msg: Cardinal; WParam: Longint; const LParamStr: TScintRawString): Longint; overload;
@@ -656,6 +657,36 @@ end;
 procedure TScintEdit.BeginUndoAction;
 begin
   Call(SCI_BEGINUNDOACTION, 0, 0);
+end;
+
+procedure TScintEdit.BraceMatch;
+begin
+  var Selections: TScintCaretAndAnchorList := nil;
+  var VirtualSpaces: TScintCaretAndAnchorList := nil;
+  try
+    Selections := TScintCaretAndAnchorList.Create;
+    VirtualSpaces := TScintCaretAndAnchorList.Create;
+    GetSelections(Selections, VirtualSpaces);
+    for var I := 0 to Selections.Count-1 do begin
+      if VirtualSpaces[I].CaretPos = 0 then begin
+        var Pos := Selections[I].CaretPos;
+        var MatchPos := GetPositionOfMatchingBrace(Pos);
+        if MatchPos = -1 then begin
+          Pos := GetPositionBefore(Pos);
+          MatchPos := GetPositionOfMatchingBrace(Pos)
+        end;
+        if MatchPos <> -1 then begin
+          SelectionCaretPosition[I] := MatchPos;
+          SelectionAnchorPosition[I] := MatchPos;
+          if I = 0 then
+            ScrollCaretIntoView;
+        end;
+      end;
+    end;
+  finally
+    VirtualSpaces.Free;
+    Selections.Free;
+  end;
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;

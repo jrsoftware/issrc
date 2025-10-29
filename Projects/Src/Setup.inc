@@ -113,17 +113,17 @@ begin
   { When SignedUninstaller=yes, the EXE header specifies uninstaller mode by
     default. Use Setup mode instead if we're being called from SetupLdr. }
   SplitNewParamStr(1, ParamName, ParamValue);
-  if CompareText(ParamName, '/SL5=') = 0 then
+  if SameText(ParamName, '/SL5=') then
     Exit;
 
   Mode := smSetup;
 
   for I := 1 to NewParamCount do begin
-    if CompareText(NewParamStr(I), '/UNINSTMODE') = 0 then begin
+    if SameText(NewParamStr(I), '/UNINSTMODE') then begin
       Mode := smUninstaller;
       Break;
     end;
-    if CompareText(NewParamStr(I), '/REGSVRMODE') = 0 then begin
+    if SameText(NewParamStr(I), '/REGSVRMODE') then begin
       Mode := smRegSvr;
       Break;
     end;

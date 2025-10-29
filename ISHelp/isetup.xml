@@ -70,7 +70,8 @@
     <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
   </contentsheading>
   <contentsheading title="Other Information">
-    <contentstopic title="Support Inno Setup" topic="donate" />
+    <contentstopic title="Purchase Inno Setup" topic="purchase" />
+    <contentstopic title="Donate to Inno Setup" topic="donate" />
     <contentstopic title="Unicode Inno Setup" topic="unicode" />
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
@@ -3980,7 +3981,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
 <dd>
-<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
+<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the '/SUPPRESSMSGBOXES' command line option explained below) and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
 </dd>
 
@@ -4443,19 +4444,52 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 
 
-<topic name="donate" title="Support Inno Setup">
-<keyword value="Support Inno Setup" />
+<topic name="purchase" title="Purchase Inno Setup">
 <keyword value="Commercial use" />
 <keyword value="Order license" />
-<keyword value="Purchase license" />
-<keyword value="Donate" />
+<keyword value="License key" />
 <body>
 
-<p>If you or your organization benefit from using Inno Setup in a commercial context, we kindly ask that you <extlink href="https://jrsoftware.org/isorder.php">purchase a license</extlink>.</p>
+<p>To support our development efforts, we request that all commercial users of Inno Setup <extlink href="https://jrsoftware.org/isorder.php">purchase licenses</extlink>, regardless of the version being used.</p>
+
+<p>Thank you for helping ensure the continued development of this software.</p>
+
+<p>After purchase, you will receive your license key via email. If you do not receive your key in your inbox, please check your spam or junk folder. The sender address is innosetup@mlsoft.nl. Please make sure it is not blocked by your email system.</p>
+
+<p>Once you have received your key, copy and paste it into the 'Enter Commercial License Key' dialog in the Inno Setup Compiler IDE, which can be opened from the 'Help' menu.</p>
+
+<p>Your license key can also be activated for a user by writing it as a single line to the following registry key:</p>
+
+<ul>
+<li>Key: <tt>HKEY_CURRENT_USER\Software\Jordan Russell\Inno Setup\License</tt></li>
+<li>Name: <tt>LicenseKey</tt></li>
+<li>Type: <tt>REG_SZ</tt></li>
+</ul>
+
+<p>You can do this before or after installation, or even while Inno Setup is running.</p>
+
+<p>A license key is a string of at least 108 characters. It always starts with 'in' and ends with 'no', without the quotes. To users the key is presented as multiple lines of 28 characters per line.</p>
+
+<p>Please note that installers built without a license are not explicitly marked as unlicensed. This means you may choose not to install the license key on a CI machine, even if we ask you to assign a license to it.</p>
+
+<p>Also see <link topic="donate">Donate to Inno Setup</link>.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="donate" title="Donate to Inno Setup">
+<keyword value="Support Inno Setup" />
+<keyword value="Donate" />
+<keyword value="Non-commercial use" />
+<body>
 
 <p>We're not requesting that non-commercial users purchase licenses - but <extlink href="https://jrsoftware.org/isdonate.php">donations</extlink> of any amount, from both non-commercial and commercial users, are accepted and appreciated.</p>
 
-<p>Thank you for helping ensure the continued development of this software!</p>
+<p>Thank you for helping ensure the continued development of this software.</p>
+
+<p>Also see <link topic="purchase">Purchase Inno Setup</link>.</p>
 
 </body>
 </topic>

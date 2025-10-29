@@ -16,11 +16,7 @@ uses
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
   ScintEdit, IDE.IDEScintEdit, ModernColors;
 
-const
-  MRUListMaxCount = 10;
-
 type
-  TMRUItemCompareProc = function(const S1, S2: String): Integer;
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
 
@@ -48,10 +44,6 @@ function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 procedure LaunchFileOrURL(const AFilename: String; const AParameters: String = '');
 procedure OpenDonateSite;
 procedure OpenMailingListSite;
-procedure ClearMRUList(const MRUList: TStringList; const Section: String);
-procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
-procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
@@ -74,7 +66,6 @@ function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
 function FindOptionsToSearchOptions(const MatchCase: Boolean;
   const RegEx: Boolean): TScintFindOptions; overload;
 function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
-procedure StartAddRemovePrograms;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
@@ -322,73 +313,6 @@ end;
 procedure OpenMailingListSite;
 begin
   LaunchFileOrURL('https://jrsoftware.org/ismail.php');
-end;
-
-procedure ClearMRUList(const MRUList: TStringList; const Section: String);
-var
-  Ini: TConfigIniFile;
-begin
-  Ini := TConfigIniFile.Create;
-  try
-    MRUList.Clear;
-    Ini.EraseSection(Section);
-  finally
-    Ini.Free;
-  end;
-end;
-
-procedure ReadMRUList(const MRUList: TStringList; const Section, Ident: String);
-{ Loads a list of MRU items from the registry }
-var
-  Ini: TConfigIniFile;
-  I: Integer;
-  S: String;
-begin
-  Ini := TConfigIniFile.Create;
-  try
-    MRUList.Clear;
-    for I := 0 to MRUListMaxCount-1 do begin
-      S := Ini.ReadString(Section, Ident + IntToStr(I), '');
-      if S <> '' then MRUList.Add(S);
-    end;
-  finally
-    Ini.Free;
-  end;
-end;
-
-procedure ModifyMRUList(const MRUList: TStringList; const Section, Ident: String;
-  const AItem: String; const AddNewItem: Boolean; CompareProc: TMRUItemCompareProc);
-var
-  I: Integer;
-  Ini: TConfigIniFile;
-  S: String;
-begin
-  I := 0;
-  while I < MRUList.Count do begin
-    if CompareProc(MRUList[I], AItem) = 0 then
-      MRUList.Delete(I)
-    else
-      Inc(I);
-  end;
-  if AddNewItem then
-    MRUList.Insert(0, AItem);
-  while MRUList.Count > MRUListMaxCount do
-    MRUList.Delete(MRUList.Count-1);
-
-  { Save new MRU items }
-  Ini := TConfigIniFile.Create;
-  try
-    { MRU list }
-    for I := 0 to MRUListMaxCount-1 do begin
-      if I < MRUList.Count then
-        S := MRUList[I]
-      else
-        S := '';
-      Ini.WriteString(Section, Ident + IntToStr(I), S);
-    end;
-  finally
-    Ini.Free;
-  end;
 end;
 
 procedure LoadConfigIniList(const AIni: TConfigIniFile; const ASection, AIdent: String;
@@ -772,42 +696,6 @@ begin
     Result := srmRegEx
   else
     Result := srmMinimal;
-end;
-
-procedure StartAddRemovePrograms;
-var
-  Dir: String;
-  Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
-  Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
-  RedirDisabled: Boolean;
-  RedirOldValue: Pointer;
-  StartupInfo: TStartupInfo;
-  ProcessInfo: TProcessInformation;
-begin
-  Dir := GetSystemDir;
-
-  FillChar(StartupInfo, SizeOf(StartupInfo), 0);
-  StartupInfo.cb := SizeOf(StartupInfo);
-  { Have to disable file system redirection because the 32-bit version of
-    appwiz.cpl is buggy on XP x64 RC2 -- it doesn't show any Change/Remove
-    buttons on 64-bit MSI entries, and it doesn't list non-MSI 64-bit apps
-    at all. }
-  Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64DisableWow64FsRedirection');
-  Wow64RevertWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64RevertWow64FsRedirection');
-  RedirDisabled := Assigned(Wow64DisableWow64FsRedirectionFunc) and
-    Assigned(Wow64RevertWow64FsRedirectionFunc) and
-    Wow64DisableWow64FsRedirectionFunc(RedirOldValue);
-  try
-    Win32Check(CreateProcess(nil, PChar('"' + AddBackslash(Dir) + 'control.exe" appwiz.cpl'),
-       nil, nil, False, 0, nil, PChar(Dir), StartupInfo, ProcessInfo));
-  finally
-    if RedirDisabled then
-      Wow64RevertWow64FsRedirectionFunc(RedirOldValue);
-  end;
-  CloseHandle(ProcessInfo.hProcess);
-  CloseHandle(ProcessInfo.hThread);
 end;
 
 function GetSourcePath(const AFilename: String): String;

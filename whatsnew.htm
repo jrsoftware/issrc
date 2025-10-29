@@ -107,6 +107,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </li>
 </ul>
 <span class="head2">Other changes to the look and feel of Setup and Uninstall</span>
+<p>The default look and feel of Setup and Uninstall has been further modernized by switching to the Segoe UI font, along with other improvements.</p>
 <ul>
   <li>Setup now always uses high-quality, system-defined icons instead of custom ones on the <i>Select Destination Location</i> and <i>Preparing to Install</i> wizard pages, and on the <i>Setup Needs the Next Disk</i> form.</li>
   <li><tt>[Setup]</tt> section directive <tt>WizardSizePercent</tt> now always defaults to <tt>120,120</tt>. This means that, if you are using <tt>WizardStyle=classic</tt>, your Setup windows will increase in size by 20% by default.</li>
@@ -138,7 +139,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
         See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
         <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new CodeClasses.iss example, at 125% DPI and in dark mode</a>.
     </li>
-    <li>Sizing of the wizard form is now done before event function <tt>InitializeWizard</tt> is called, instead of after it.<br/>
+    <li>Wizard form sizing for <tt>WizardSizePercent</tt> is now done before event function <tt>InitializeWizard</tt> is called, instead of after, consistent with scaling for system DPI or for a custom <tt>DialogFontSize</tt>.<br/>
          If you have custom controls that must grow with <tt>WizardSizePercent</tt>, and those controls use the <tt>Anchors</tt> property to achieve this (that is, they have both <tt>akLeft</tt> and <tt>akRight</tt> set, or both <tt>akTop</tt> and <tt>akBottom</tt> set), and they do not use <tt>SurfaceWidth</tt> or <tt>SurfaceHeight</tt>, you must either start using the new <tt>SurfaceExtraWidth</tt> and <tt>SurfaceExtraHeight</tt> properties (as demonstrated by the updated <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> example script), or switch to using <tt>SurfaceWidth</tt> and <tt>SurfaceHeight</tt>.<br/>
          Existing custom code that assigns the <tt>Anchors</tt> property can be removed from your scripts.
     </li>
@@ -147,15 +148,23 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   </ul>
   </li>
 </ul>
+<span class="head2">Security improvements</span>
+<p>Updating is strongly recommended, even if you don’t plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
+<ul>
+  <li>Strengthened randomization of temporary directory names for Setup and Uninstall.</li>
+</ul>
+<p>We are also currently working on enabling Windows' RedirectionGuard in Setup and Uninstall in a future version.</p>
 <span class="head2">Other changes</span>
 <ul>
   <li>Compiler IDE:
   <ul>
     <li>Improved the contrast ratio for various syntax highlighting colors, particularly in dark mode.</li>
     <li>Updated the default dialog font from 8-point <i>Segoe UI</i> to 9-point <i>Segoe UI</i>.</li>
+    <li>Enabled dark mode support for the menus on Windows 11 Version 25H2 (2025 Update).</li>
   </ul>
   </li>
   <li><tt>[Setup]</tt> section directive <tt>WizardImageBackColor</tt> and the other three <tt>BackColor</tt> directives now accept the <tt>#rrggbb</tt> color format in addition to <tt>$bbggrr</tt>.</li>
+  <li>Setup command line parameter '/SUPPRESSMSGBOXES' can now suppress additional early fatal error messages and the final restart error message. The parameter still only has an effect when combined with '/SILENT' or '/VERYSILENT'.</li>
   <li>Pascal Scripting:
   <ul>
     <li>Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
@@ -164,7 +173,6 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
   </ul>
   </li>
-  <li>Strengthened randomization of temporary directory names for Setup and Uninstall.</li>
   <li>Minor improvements and fixes.</li>
 </ul>
 

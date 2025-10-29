@@ -177,8 +177,6 @@ begin
     end;
   end;
 
-  FlipAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
-
   if DefCommonButton > 0 then begin
     var I := DefCommonButton;
     for var CommonButton in FCommonButtons do begin
@@ -239,7 +237,7 @@ begin
 
   if LeftPanel.Visible then begin
     { Make sure the height is enough to fit the icon }
-    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height;
+    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height + MainPanel.Padding.Bottom;
     if MinimumClientHeight > NewClientHeight then
       NewClientHeight := MinimumClientHeight;
   end;

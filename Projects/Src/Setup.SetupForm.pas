@@ -94,7 +94,7 @@ implementation
 
 uses
   Generics.Collections, UITypes,
-  BidiUtils,
+  BidiUtils, NewNotebook,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
@@ -496,8 +496,9 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   procedure StripAndStoreChildControlCustomAnchors(const ParentCtl: TControl; const AnchorsList: TControlAnchorsList);
   begin
     if ParentCtl is TWinControl then begin
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
+      const ParentWinCtl = TWinControl(ParentCtl);
+      for var I := 0 to ParentWinCtl.ControlCount-1 do begin
+        const Ctl = ParentWinCtl.Controls[I];
 
         if Ctl.Anchors <> [akLeft, akTop] then begin
           AnchorsList.Add(Ctl, Ctl.Anchors);
@@ -516,8 +517,9 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   function GetHasChildControlCustomAnchors(const ParentCtl: TControl): Boolean;
   begin
     if ParentCtl is TWinControl then begin
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
+      const ParentWinCtl = TWinControl(ParentCtl);
+      for var I := 0 to ParentWinCtl.ControlCount-1 do begin
+        const Ctl = ParentWinCtl.Controls[I];
         if (Ctl.Anchors <> [akLeft, akTop]) or GetHasChildControlCustomAnchors(Ctl) then
           Exit(True);
       end;
@@ -534,14 +536,16 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
       Item.Key.Anchors := Item.Value;
   end;
 
-  procedure ChildControlHandlesNeeded(const ParentCtl: TControl);
+  procedure ParentHandlesNeeded(const ParentCtl: TControl);
   begin
-    if ParentCtl is TWinControl then
-      for var I := 0 to TWinControl(ParentCtl).ControlCount-1 do begin
-        const Ctl = TWinControl(ParentCtl).Controls[I];
-        if Ctl is TWinControl then
-          TWinControl(Ctl).HandleNeeded;
-        ChildControlHandlesNeeded(Ctl);
+    if ParentCtl is TWinControl then begin
+      const ParentWinCtl = TWinControl(ParentCtl);
+      if ParentWinCtl.ControlCount > 0 then begin
+        if not (ParentWinCtl is TNewNotebook) then { For notebooks: only need handles on pages }
+          ParentWinCtl.HandleNeeded;
+        for var I := 0 to ParentWinCtl.ControlCount-1 do
+          ParentHandlesNeeded(ParentWinCtl.Controls[I]);
+      end;
     end;
   end;
 
@@ -585,17 +589,23 @@ begin
   FKeepSizeY := KeepSizeY;
   FOrgClientWidth := ClientWidth;
   FOrgClientHeight := ClientHeight;
-  if ShouldSizeX then
-    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
-  if ShouldSizeY then
-    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
-  if HasCustomAnchors and ((ClientWidth <> FOrgClientWidth) or (FOrgClientHeight <> ClientHeight)) then begin
+
+  const LShouldSizeX = ShouldSizeX;
+  const LShouldSizeY = ShouldSizeY;
+
+  if HasCustomAnchors and (LShouldSizeX or LShouldSizeY) then begin
     { Various things related to positioning and anchoring don't work without this:
       you get positions of child controls back as if there was no anchoring until
-      handles are automatically created }
-    HandleNeeded; { Also see ShowModal }
-    ChildControlHandlesNeeded(Self);
+      handles are automatically created. For WizardForm it works if done after
+      sizing but for UninstallProgressForm it must be done before sizing (for
+      unknown reasons), so doing before sizing. }
+    ParentHandlesNeeded(Self); { Also see ShowModal }
   end;
+
+  if LShouldSizeX then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+  if LShouldSizeY then
+    ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
 end;
 
 function TSetupForm.GetExtraClientWidth: Integer;

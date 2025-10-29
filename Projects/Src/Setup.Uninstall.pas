@@ -288,32 +288,32 @@ begin
   for I := 1 to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
-    if CompareText(ParamName, '/Log') = 0 then begin
+    if SameText(ParamName, '/Log') then begin
       EnableLogging := True;
       LogFilename := '';
-    end else if CompareText(ParamName, '/Log=') = 0 then begin
+    end else if SameText(ParamName, '/Log=') then begin
       EnableLogging := True;
       LogFilename := ParamValue;
-    end else if CompareText(ParamName, '/INITPROCWND=') = 0 then begin
+    end else if SameText(ParamName, '/INITPROCWND=') then begin
       ParamIsAutomaticInternal := True;
       DidRespawn := True;
       InitialProcessWnd := StrToInt(ParamValue);
-    end else if CompareText(ParamName, '/SECONDPHASE=') = 0 then begin
+    end else if SameText(ParamName, '/SECONDPHASE=') then begin
       ParamIsAutomaticInternal := True;
       SecondPhase := True;
       UninstExeFilename := ParamValue;
-    end else if CompareText(ParamName, '/FIRSTPHASEWND=') = 0 then begin
+    end else if SameText(ParamName, '/FIRSTPHASEWND=') then begin
       ParamIsAutomaticInternal := True;
       FirstPhaseWnd := StrToInt(ParamValue)
-    end else if CompareText(ParamName, '/SILENT') = 0 then
+    end else if SameText(ParamName, '/SILENT') then
       Silent := True
-    else if CompareText(ParamName, '/VERYSILENT') = 0 then
+    else if SameText(ParamName, '/VERYSILENT') then
       VerySilent := True
-    else if CompareText(ParamName, '/NoRestart') = 0 then
+    else if SameText(ParamName, '/NoRestart') then
       NoRestart := True
-    else if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
+    else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
-    else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
+    else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True;
       DebugServerWnd := StrToInt(ParamValue);
     end;

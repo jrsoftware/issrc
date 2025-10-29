@@ -121,20 +121,20 @@ begin
   Caption := SetupMessages[msgBrowseDialogTitle];
   BrowseLabel.Caption := SetupMessages[msgBrowseDialogLabel];
   YDiff := WizardForm.AdjustLabelHeight(BrowseLabel);
+  ClientHeight := ClientHeight + YDiff;  { moves buttons down due to their anchors }
   PathEdit.Top := PathEdit.Top + YDiff;
   TryEnableAutoCompleteFileSystem(PathEdit.Handle);
   FFolderTreeView.Top := FFolderTreeView.Top + YDiff;
+  FFolderTreeView.Height := FFolderTreeView.Height - YDiff;
   NewFolderButton.Caption := SetupMessages[msgButtonNewFolder];
-  NewFolderButton.Top := NewFolderButton.Top + YDiff;
   NewFolderButton.Width := CalculateButtonWidth([SetupMessages[msgButtonNewFolder]]);
   W := CalculateButtonWidth([SetupMessages[msgButtonOK], SetupMessages[msgButtonCancel]]);
   CancelButton.Caption := SetupMessages[msgButtonCancel];
   CancelButton.SetBounds(CancelButton.Left + CancelButton.Width - W,
-    CancelButton.Top + YDiff, W, CancelButton.Height);
+    CancelButton.Top, W, CancelButton.Height);
   OKButton.Caption := SetupMessages[msgButtonOK];
   OKButton.SetBounds(CancelButton.Left - ScalePixelsX(6) - W,
-    OKButton.Top + YDiff, W, OKButton.Height);
-  ClientHeight := ClientHeight + YDiff;
+    OKButton.Top, W, OKButton.Height);
 
   FlipAndCenterIfNeeded(True, WizardForm, False);
 end;
