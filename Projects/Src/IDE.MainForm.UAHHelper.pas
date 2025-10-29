@@ -8,6 +8,10 @@ unit IDE.MainForm.UAHHelper;
 
   Compiler form - UAH helper which has the MRU helper as ancestor
 
+  This adds support for dark menu bars, meaning just the row which displays
+  'File', 'Edit', etc. Support for dark menus, meaning the actual popups,
+  is enabled using SetPreferredAppMode and FlushMenuThemes in IDE.MainForm
+
   Not used by MainForm: it uses IDE.MainForm.FinalHelper instead
 }
 
