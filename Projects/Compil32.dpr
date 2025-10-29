@@ -268,10 +268,13 @@ begin
       Title := SCompilerFormCaption;
   end;
 
-  if Assigned(FlushMenuThemes) then begin
-    { We don't need VCL Styles for dark menus. This keeps shDialogs and shTooltips. }
-    TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus];
-  end;
+  { Don't allow VCL Styles to style menus using owner drawing. Instead we get native dark menus
+    using SetPreferredAppMode and FlushMenuThemes in IDE.MainForm. If you get light menus anyway on
+    modern Windows then you should update the version check at the bottom of NewUxTheme. Using
+    VCL Styles anyway, for example on older versions of Windows, is not the correct approach:
+    TSysPopupStyleHook does not support our use of bitmaps set using MIIM_BITMAP on a TMenuItem, nor
+    does it support our fake shortcuts set with SetFakeShortCut. }
+  TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus]; { This keeps shDialogs and shTooltips }
 
   Application.CreateForm(TImagesModule, ImagesModule);
   Application.CreateForm(TMainForm, MainForm);
