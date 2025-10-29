@@ -86,6 +86,7 @@ uses
   IDE.MainForm.FindReplaceHelper in 'Src\IDE.MainForm.FindReplaceHelper.pas',
   IDE.MainForm.UpdateMenuHelper in 'Src\IDE.MainForm.UpdateMenuHelper.pas',
   IDE.MainForm.ToolsHelper in 'Src\IDE.MainForm.ToolsHelper.pas',
+  IDE.MainForm.AutoCompleteAndCallTipsHelper in 'Src\IDE.MainForm.AutoCompleteAndCallTipsHelper.pas',
   IDE.MainForm.FinalHelper in 'Src\IDE.MainForm.FinalHelper.pas';
 
 {$SETPEOSVERSION 6.1}
