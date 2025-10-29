@@ -84,7 +84,7 @@ uses
   IDE.MainForm.UAHHelper in 'Src\IDE.MainForm.UAHHelper.pas',
   IDE.MainForm.NavigationHelper in 'Src\IDE.MainForm.NavigationHelper.pas',
   IDE.MainForm.FindReplaceHelper in 'Src\IDE.MainForm.FindReplaceHelper.pas',
-  IDE.MainForm.MenuClickHelper in 'Src\IDE.MainForm.MenuClickHelper.pas',
+  IDE.MainForm.UpdateMenuHelper in 'Src\IDE.MainForm.UpdateMenuHelper.pas',
   IDE.MainForm.FinalHelper in 'Src\IDE.MainForm.FinalHelper.pas';
 
 {$SETPEOSVERSION 6.1}
