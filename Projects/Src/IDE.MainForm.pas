@@ -3734,38 +3734,38 @@ end;
 
 procedure TMainForm.EFindClick(Sender: TObject);
 begin
-  DoEFindClick(Sender);
+  ShowFindDialog(True);
 end;
 
 procedure TMainForm.EFindInFilesClick(Sender: TObject);
 begin
-  DoEFindInFilesClick(Sender);
+  ShowFindInFilesDialog;
 end;
 
 procedure TMainForm.EFindNextOrPreviousClick(Sender: TObject);
 begin
-  DoEFindNextOrPreviousClick(Sender);
+  DoFindNext(Sender = EFindNext);
 end;
 
 procedure TMainForm.FindDialogFind(Sender: TObject);
 begin
   { This event handler is shared between FindDialog & ReplaceDialog }
-  DoFindDialogFind(Sender);
+  DoFindOrReplaceDialogFind(Sender as TFindDialog);
 end;
 
 procedure TMainForm.FindInFilesDialogFind(Sender: TObject);
 begin
-  DoFindInFilesDialogFind(Sender);
+  DoFindInFilesDialogFind;
 end;
 
 procedure TMainForm.EReplaceClick(Sender: TObject);
 begin
-  DoEReplaceClick(Sender);
+  ShowReplaceDialog;
 end;
 
 procedure TMainForm.ReplaceDialogReplace(Sender: TObject);
 begin
-  DoReplaceDialogReplace(Sender);
+  DoReplaceDialogReplace;
 end;
 
 procedure TMainForm.EFindRegExClick(Sender: TObject);
