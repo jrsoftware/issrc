@@ -12,10 +12,10 @@ unit IDE.MainForm.FinalHelper;
 interface
 
 uses
-  IDE.MainForm, IDE.MainForm.MenuClickHelper;
+  IDE.MainForm, IDE.MainForm.UpdateMenuHelper;
 
 type
-  TMainFormFinalHelper = class helper(TMainFormMenuClickHelper) for TMainForm
+  TMainFormFinalHelper = class helper(TMainFormUpdateMenuHelper) for TMainForm
   end;
 
 implementation
