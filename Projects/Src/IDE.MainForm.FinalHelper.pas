@@ -12,10 +12,10 @@ unit IDE.MainForm.FinalHelper;
 interface
 
 uses
-  IDE.MainForm, IDE.MainForm.AutoCompleteAndCallTipsHelper;
+  IDE.MainForm, IDE.MainForm.ScintHelper;
 
 type
-  TMainFormFinalHelper = class helper(TMainFormAutoCompleteAndCallTipsHelper) for TMainForm
+  TMainFormFinalHelper = class helper(TMainFormScintHelper) for TMainForm
   end;
 
 implementation
