@@ -458,7 +458,6 @@ type
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
-    FSignTools: TStringList;
     FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
@@ -666,6 +665,7 @@ type
     FMenuThemeData: HTHEME;
     FNavStacks: TIDEScintEditNavStacks;
     FOptions: TOptions;
+    FSignTools: TStringList;
     FTheme: TTheme;
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
@@ -698,9 +698,8 @@ uses
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass,
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
-  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.SignToolsForm,
-  Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm, IDE.MsgBoxDesignerForm,
-  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper,
+  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm,
+  Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm,
   Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm,
   IDE.MainForm.FinalHelper;
 
@@ -4104,97 +4103,27 @@ end;
 
 procedure TMainForm.TGenerateGUIDClick(Sender: TObject);
 begin
-  if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
-     SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-    FActiveMemo.MainSelText := GenerateGuid;
+  InsertGeneratedGuid;
 end;
 
 procedure TMainForm.TMsgBoxDesignerClick(Sender: TObject);
 begin
-  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scCode) and
-     (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
-      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
-    Exit;
-
-  var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
-  try
-    if MsgBoxForm.ShowModal = mrOk then
-      FActiveMemo.MainSelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
-  finally
-    MsgBoxForm.Free;
-  end;
+  ShowMsgBoxDesignerForm;
 end;
 
 procedure TMainForm.TRegistryDesignerClick(Sender: TObject);
 begin
-  var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
-  try
-    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
-    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
-    if PrivilegesRequiredOverridesAllowed = '' then begin
-      if SameText(PrivilegesRequired, 'admin') then
-        RegistryDesignerForm.PrivilegesRequired := prAdmin
-      else
-        RegistryDesignerForm.PrivilegesRequired := prLowest
-    end else
-      RegistryDesignerForm.PrivilegesRequired := prDynamic;
-    if RegistryDesignerForm.ShowModal = mrOk then
-    begin
-      FActiveMemo.CaretColumn := 0;
-      var Text := RegistryDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
-        Text := '[Registry]' + SNewLine + Text;
-      FActiveMemo.MainSelText := Text;
-    end;
-  finally
-    RegistryDesignerForm.Free;
-  end;
+  ShowRegistryDesignerForm;
 end;
 
 procedure TMainForm.TFilesDesignerClick(Sender: TObject);
 begin
-  var FilesDesignerForm := TFilesDesignerForm.Create(Application);
-  try
-    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
-    if FilesDesignerForm.ShowModal = mrOk then begin
-      FActiveMemo.CaretColumn := 0;
-      var Text := FilesDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles then
-        Text := '[Files]' + SNewLine + Text;
-      FActiveMemo.MainSelText := Text;
-    end;
-  finally
-    FilesDesignerForm.Free;
-  end;
+  ShowFilesDesignerForm;
 end;
 
 procedure TMainForm.TSignToolsClick(Sender: TObject);
-var
-  SignToolsForm: TSignToolsForm;
-  Ini: TConfigIniFile;
-  I: Integer;
 begin
-  SignToolsForm := TSignToolsForm.Create(Application);
-  try
-    SignToolsForm.SignTools := FSignTools;
-
-    if SignToolsForm.ShowModal <> mrOK then
-      Exit;
-
-    FSignTools.Assign(SignToolsForm.SignTools);
-
-    { Save new options }
-    Ini := TConfigIniFile.Create;
-    try
-      Ini.EraseSection('SignTools');
-      for I := 0 to FSignTools.Count-1 do
-        Ini.WriteString('SignTools', 'SignTool' + IntToStr(I), FSignTools[I]);
-    finally
-      Ini.Free;
-    end;
-  finally
-    SignToolsForm.Free;
-  end;
+  ShowSignToolsForm;
 end;
 
 procedure TMainForm.TOptionsClick(Sender: TObject);
