@@ -587,6 +587,7 @@ type
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
     procedure UpdateCaption;
+    procedure UpdateCaretPosPanelAndBackNavStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
@@ -1083,7 +1084,7 @@ begin
   FLastTabSelectShortCut := ShortCut(Ord('9'), [ssCtrl]);
 
   FNavStacks := TIDEScintEditNavStacks.Create;
-  UpdateNavButtons;
+  UpdateNavigationButtons;
   FCurrentNavItem.Invalidate;
 
   BackNavButton.Style := tbsDropDown;
@@ -1816,7 +1817,7 @@ begin
     FMainMemo.ClearUndo;
 
   FNavStacks.Clear;
-  UpdateNavButtons;
+  UpdateNavigationButtons;
   FCurrentNavItem.Invalidate;
 end;
 
@@ -2057,7 +2058,7 @@ begin
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
         if NameChange then  { Also see below the other case which needs to be done after load }
-          RemoveMemoFromNav(AMemo);
+          RemoveMemoFromNavigation(AMemo);
       end;
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
@@ -2071,7 +2072,7 @@ begin
       end else
         AMemo.Lines.Text := TextStr;
       if (AMemo <> FMainMemo) and not NameChange then
-        RemoveMemoBadLinesFromNav(AMemo);
+        RemoveMemoBadLinesFromNavigation(AMemo);
     finally
       Stream.Free;
       if IsReload then
@@ -2637,7 +2638,7 @@ end;
 
 procedure TMainForm.FMenuClick(Sender: TObject);
 begin
-  DoFMenuClick(Sender);
+  UpdateFileMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.FNewMainFileClick(Sender: TObject);
@@ -3037,7 +3038,7 @@ end;
 
 procedure TMainForm.EMenuClick(Sender: TObject);
 begin
-  DoEMenuClick(Sender);
+  UpdateEditMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.EUndoClick(Sender: TObject);
@@ -3249,7 +3250,7 @@ end;
 
 procedure TMainForm.VMenuClick(Sender: TObject);
 begin
-  DoVMenuClick(Sender);
+  UpdateViewMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.VNextTabClick(Sender: TObject);
@@ -3443,7 +3444,7 @@ end;
 
 procedure TMainForm.BMenuClick(Sender: TObject);
 begin
-  DoBMenuClick(Sender);
+  UpdateBuildMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.BCompileClick(Sender: TObject);
@@ -3479,7 +3480,7 @@ end;
 
 procedure TMainForm.HMenuClick(Sender: TObject);
 begin
-  DoHMenuClick(Sender);
+  UpdateHelpMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.HPurchaseClick(Sender: TObject);
@@ -3700,7 +3701,7 @@ end;
 
 procedure TMainForm.MemosTabSetPopupMenuClick(Sender: TObject);
 begin
-  DoMemosTabSetPopupMenuClick(Sender);
+  UpdateMemosTabSetMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.MemosTabSetClick(Sender: TObject);
@@ -4088,12 +4089,12 @@ end;
 
 procedure TMainForm.SimpleMenuClick(Sender: TObject);
 begin
-  DoSimpleMenuClick(Sender);
+  UpdateSimpleMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.TMenuClick(Sender: TObject);
 begin
-  DoTMenuClick(Sender);
+  UpdateToolsMenu(Sender as TMenuItem);
 end;
 
 procedure TMainForm.TAddRemoveProgramsClick(Sender: TObject);
@@ -4473,22 +4474,38 @@ end;
 
 procedure TMainForm.BackNavButtonClick(Sender: TObject);
 begin
-  DoBackNavClick;
+  NavigateBack;
 end;
 
 procedure TMainForm.ForwardNavButtonClick(Sender: TObject);
 begin
-  DoForwardNavClick;
+  NavigateForward;
 end;
 
 procedure TMainForm.WMAppCommand(var Message: TMessage);
 begin
-  AppCommand(Message);
+  HandleNavigationAppCommand(Message);
 end;
 
 procedure TMainForm.NavPopupMenuClick(Sender: TObject);
 begin
-  DoNavPopupMenuClick(Sender);
+  UpdateNavigationMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.UpdateCaretPosPanelAndBackNavStack;
+begin
+  { Update panel }
+  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
+    FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  if FOptions.ShowCaretPosition then begin
+    const CaretPos = FActiveMemo.CaretPosition;
+    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
+    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
+      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
+  end;
+  StatusBar.Panels[spCaretPos].Text := Text;
+
+  UpdateBackNavigationStack;
 end;
 
 procedure TMainForm.UpdateEditModePanel;
@@ -4551,7 +4568,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       FPreprocessorOutputMemo.Used := True;
     end else begin
       if FPreprocessorOutputMemo.Used then
-        RemoveMemoFromNav(FPreprocessorOutputMemo);
+        RemoveMemoFromNavigation(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.Used := False;
       FPreprocessorOutputMemo.Visible := False;
     end;
@@ -4608,7 +4625,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       for I := NextMemoIndex to FFileMemos.Count-1 do begin
         FFileMemos[I].BreakPoints.Clear;
         if FFileMemos[I].Used then
-          RemoveMemoFromNav(FFileMemos[I]);
+          RemoveMemoFromNavigation(FFileMemos[I]);
         FFileMemos[I].Used := False;
         FFileMemos[I].Visible := False;
       end;
@@ -4616,7 +4633,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       for I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
         FFileMemos[I].BreakPoints.Clear;
         if FFileMemos[I].Used then
-          RemoveMemoFromNav(FFileMemos[I]);
+          RemoveMemoFromNavigation(FFileMemos[I]);
         FFileMemos[I].Used := False;
         FFileMemos[I].Visible := False;
       end;
@@ -4915,7 +4932,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
       BuildAndSaveBreakPointLines(Memo);
 
     if FNavStacks.LinesDeleted(Memo, FirstLine, Count) then
-      UpdateNavButtons;
+      UpdateNavigationButtons;
     { We do NOT update FCurrentNavItem here so it might point to a line that's
       deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
 
@@ -6086,12 +6103,12 @@ end;
 
 procedure TMainForm.RMenuClick(Sender: TObject);
 begin
-  DoRMenuClick(Sender);
+  UpdateRunMenu2(RMenu);
 end;
 
 procedure TMainForm.BreakPointsPopupMenuClick(Sender: TObject);
 begin
-  DoBreakPointsPopupMenuClick(Sender);
+  UpdateBreakPointsMenu(Sender as TMenuItem);
 end;
 
 { Should always be called when one of the Enabled states would change because
@@ -6922,7 +6939,7 @@ end;
 procedure TMainForm.WMUAHDrawMenu(var Message: TMessage);
 begin
   if FTheme.Dark then
-    DoWMUAHDrawMenu(Message)
+    UAHDrawMenu(PUAHMenu(Message.lParam))
   else
     inherited;
 end;
@@ -6930,8 +6947,8 @@ end;
 procedure TMainForm.WMUAHDrawMenuItem(var Message: TMessage);
 begin
   if FTheme.Dark then
-    DoWMUAHDrawMenuItem(Message)
-  else
+    UAHDrawMenuItem(PUAHDrawMenuItem(Message.lParam))
+    else
     inherited;
 end;
 

@@ -20,8 +20,8 @@ uses
 
 type
   TMainFormUAHHelper = class helper(TMainFormMRUHelper) for TMainForm
-    procedure DoWMUAHDrawMenu(var Message: TMessage);
-    procedure DoWMUAHDrawMenuItem(var Message: TMessage);
+    procedure UAHDrawMenu(const UAHMenu: PUAHMenu);
+    procedure UAHDrawMenuItem(const UAHDrawMenuItem: PUAHDrawMenuItem);
     procedure UAHDrawMenuBottomLine;
   end;
 
@@ -32,7 +32,7 @@ uses
   Classes,
   ModernColors;
 
-procedure TMainFormUAHHelper.DoWMUAHDrawMenu(var Message: TMessage);
+procedure TMainFormUAHHelper.UAHDrawMenu(const UAHMenu: PUAHMenu);
 begin
   var MenuBarInfo: TMenuBarInfo;
   MenuBarInfo.cbSize := SizeOf(MenuBarInfo);
@@ -44,11 +44,10 @@ begin
   var Rect := MenuBarInfo.rcBar;
   OffsetRect(Rect, -WindowRect.Left, -WindowRect.Top);
 
-  var UAHMenu := PUAHMenu(Message.lParam);
   FillRect(UAHMenu.hdc, Rect, FMenuDarkBackgroundBrush.Handle);
 end;
 
-procedure TMainFormUAHHelper.DoWMUAHDrawMenuItem(var Message: TMessage);
+procedure TMainFormUAHHelper.UAHDrawMenuItem(const UAHDrawMenuItem: PUAHDrawMenuItem);
 const
   ODS_NOACCEL = $100;
   DTT_TEXTCOLOR = 1;
@@ -57,8 +56,6 @@ const
 var
   Buffer: array of Char;
 begin
-  var UAHDrawMenuItem := PUAHDrawMenuItem(Message.lParam);
-
   var MenuItemInfo: TMenuItemInfo;
   MenuItemInfo.cbSize := SizeOf(MenuItemInfo);
   MenuItemInfo.fMask := MIIM_STRING;

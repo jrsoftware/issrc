@@ -15,53 +15,55 @@ interface
 
 uses
   Messages,
+  Menus,
   IDE.MainForm, IDE.MainForm.UAHHelper,
   IDE.IDEScintEdit;
 
 type
   TMainFormNavigationHelper = class helper(TMainFormUAHHelper) for TMainForm
-    procedure RemoveMemoFromNav(const AMemo: TIDEScintEdit);
-    procedure RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
-    procedure UpdateNavButtons;
-    procedure DoBackNavClick;
-    procedure DoForwardNavClick;
-    procedure AppCommand(var Message: TMessage);
-    procedure NavItemClick(Sender: TObject);
-    procedure DoNavPopupMenuClick(Sender: TObject);
-    procedure UpdateCaretPosPanelAndBackNavStack;
+    procedure RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
+    procedure RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
+    procedure UpdateNavigationButtons;
+    procedure NavigateBack;
+    procedure NavigateForward;
+    procedure HandleNavigationAppCommand(var Message: TMessage);
+    procedure UpdateNavigationMenu(const Menu: TMenuItem);
+    procedure UpdateBackNavigationStack;
+    { Private }
+    procedure _NavigationMenuItemClick(Sender: TObject);
   end;
 
 implementation
 
 uses
   Windows,
-  SysUtils, TypInfo, Menus, ComCtrls,
+  SysUtils, TypInfo, ComCtrls,
   IDE.HelperFunc, IDE.ScintStylerInnoSetup;
 
-procedure TMainFormNavigationHelper.RemoveMemoFromNav(const AMemo: TIDEScintEdit);
+procedure TMainFormNavigationHelper.RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
 begin
   if FNavStacks.RemoveMemo(AMemo) then
-    UpdateNavButtons;
+    UpdateNavigationButtons;
   if FCurrentNavItem.Memo = AMemo then
     FCurrentNavItem.Invalidate;
 end;
 
-procedure TMainFormNavigationHelper.RemoveMemoBadLinesFromNav(const AMemo: TIDEScintEdit);
+procedure TMainFormNavigationHelper.RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
 begin
   if FNavStacks.RemoveMemoBadLines(AMemo) then
-    UpdateNavButtons;
+    UpdateNavigationButtons;
   { We do NOT update FCurrentNav here so it might point to a line that's
     deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
 end;
 
-procedure TMainFormNavigationHelper.UpdateNavButtons;
+procedure TMainFormNavigationHelper.UpdateNavigationButtons;
 begin
   ForwardNavButton.Enabled := FNavStacks.Forward.Count > 0;
   BackNavButton.Enabled := (FNavStacks.Back.Count > 0) or
                            ForwardNavButton.Enabled; { for the dropdown }
 end;
 
-procedure TMainFormNavigationHelper.DoBackNavClick;
+procedure TMainFormNavigationHelper.NavigateBack;
 begin
   { Delphi does not support BTNS_WHOLEDROPDOWN so we can't be like VS which
     can have a disabled back nav button with an enabled dropdown. To avoid
@@ -74,23 +76,23 @@ begin
 
   FNavStacks.Forward.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Back.ExtractAt(FNavStacks.Back.Count-1);
-  UpdateNavButtons;
+  UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
   MoveCaretAndActivateMemo(NewNavItem.Memo,
     NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
 end;
 
-procedure TMainFormNavigationHelper.DoForwardNavClick;
+procedure TMainFormNavigationHelper.NavigateForward;
 begin
   FNavStacks.Back.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Forward.ExtractAt(FNavStacks.Forward.Count-1);
-  UpdateNavButtons;
+  UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
   MoveCaretAndActivateMemo(NewNavItem.Memo,
     NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
 end;
 
-procedure TMainFormNavigationHelper.AppCommand(var Message: TMessage);
+procedure TMainFormNavigationHelper.HandleNavigationAppCommand(var Message: TMessage);
 begin
   var Command := GET_APPCOMMAND_LPARAM(Message.LParam);
 
@@ -105,7 +107,7 @@ begin
   end;
 end;
 
-procedure TMainFormNavigationHelper.NavItemClick(Sender: TObject);
+procedure TMainFormNavigationHelper._NavigationMenuItemClick(Sender: TObject);
 begin
   var MenuItem := Sender as TMenuItem;
   var Clicks := Abs(MenuItem.Tag);
@@ -124,7 +126,7 @@ begin
   end;
 end;
 
-procedure TMainFormNavigationHelper.DoNavPopupMenuClick(Sender: TObject);
+procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
 
   procedure AddNavItemToMenu(const NavItem: TIDEScintEditNavItem; const Checked: Boolean;
     const ClicksNeeded: Integer; const Menu: TMenuItem);
@@ -146,13 +148,11 @@ procedure TMainFormNavigationHelper.DoNavPopupMenuClick(Sender: TObject);
     MenuItem.Checked := Checked;
     MenuItem.RadioItem := True;
     MenuItem.Tag := ClicksNeeded;
-    MenuItem.OnClick := NavItemClick;
+    MenuItem.OnClick := _NavigationMenuItemClick;
     Menu.Add(MenuItem);
   end;
 
 begin
-  var Menu := Sender as TMenuItem;
-
   Menu.Clear;
 
   { Setup dropdown. The result should end up being just like Visual Studio 2022
@@ -174,7 +174,7 @@ begin
     AddNavItemToMenu(FNavStacks.Back[I], False, -(FNavStacks.Back.Count-I), Menu);
 end;
 
-procedure TMainFormNavigationHelper.UpdateCaretPosPanelAndBackNavStack;
+procedure TMainFormNavigationHelper.UpdateBackNavigationStack;
 begin
   { Update panel }
   var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
@@ -190,7 +190,7 @@ begin
   { Update NavStacks.Back if needed and remember new position }
   var NewNavItem := TIDEScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
   if FCurrentNavItem.Valid and FNavStacks.AddNewBackForJump(FCurrentNavItem, NewNavItem) then
-    UpdateNavButtons;
+    UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem;
 end;
 
