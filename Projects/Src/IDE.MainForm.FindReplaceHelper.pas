@@ -24,6 +24,8 @@ type
     procedure DoFindNext(const Down: Boolean);
     procedure DoFindOrReplaceDialogFind(const Dialog: TFindDialog);
     procedure DoFindInFilesDialogFind;
+    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+      const NewLine, NewLineStartPos: Integer);
     function FindSetupDirectiveValue(const DirectiveName,
       DefaultValue: String): String; overload;
     function FindSetupDirectiveValue(const DirectiveName: String;
@@ -248,6 +250,21 @@ begin
 
   OutputTabSet.TabIndex := tiFindResults;
   SetStatusPanelVisible(True);
+end;
+
+procedure TMainFormFindReplaceHelper.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+  const NewLine, NewLineStartPos: Integer);
+begin
+  { Also see DoFindInFilesDialogFind }
+  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResult.Line := NewLine;
+  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
+  FindResult.PrefixStringLength := Length(NewPrefix);
+  const PosChange = NewLineStartPos - FindResult.LineStartPos;
+  FindResult.LineStartPos := NewLineStartPos;
+  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
+  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
 end;
 
 function TMainFormFindReplaceHelper.FindSetupDirectiveValue(const DirectiveName,

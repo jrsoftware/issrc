@@ -584,8 +584,6 @@ type
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModePanel;
     procedure UpdateFindRegExUI;
-    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
-      const NewLine, NewLineStartPos: Integer);
     procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
@@ -6767,21 +6765,6 @@ begin
       BuildAndSaveBreakPointLines(Memo);
     end;
   end;
-end;
-
-procedure TMainForm.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
-  const NewLine, NewLineStartPos: Integer);
-begin
-  { Also see FindInFilesDialogFind }
-  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
-  FindResult.Line := NewLine;
-  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
-  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
-  FindResult.PrefixStringLength := Length(NewPrefix);
-  const PosChange = NewLineStartPos - FindResult.LineStartPos;
-  FindResult.LineStartPos := NewLineStartPos;
-  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
-  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
 end;
 
 procedure TMainForm.UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
