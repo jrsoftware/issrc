@@ -2873,7 +2873,7 @@ end;
 
 procedure TMainForm.EToggleLinesCommentClick(Sender: TObject);
 begin
-  ToggleLinesComment;
+  ToggleLinesComment(FActiveMemo);
 end;
 
 procedure TMainForm.EBraceMatchClick(Sender: TObject);
@@ -2885,7 +2885,7 @@ procedure TMainForm.ESelectAllFindMatchesClick(Sender: TObject);
 begin
   { Might be called even if ESelectAllFindMatches.Enabled would be False in EMenuClick }
   if FLastFindText <> ''  then
-    SelectAllFindMatches;
+    SelectAllFindMatches(FActiveMemo);
 end;
 
 procedure TMainForm.VMenuClick(Sender: TObject);

@@ -24,8 +24,8 @@ type
     procedure AddCursorUpOrDown(const AMemo: TIDEScintEdit; const Up: Boolean);
     procedure AddCursorsToLineEnds(const AMemo: TIDEScintEdit);
     function MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
-    procedure ToggleLinesComment;
-    procedure SelectAllFindMatches;
+    procedure ToggleLinesComment(const AMemo: TIDEScintEdit);
+    procedure SelectAllFindMatches(const AMemo: TIDEScintEdit);
   end;
 
 implementation
@@ -101,7 +101,7 @@ begin
           var MainSelection := AMemo.Selection;
           if not NewSelection.Range.Within(AMemo.Selection) then begin
             AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
-            { if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then begin
+            { if svsUserAccessible in AMemo.VirtualSpaceOptions then begin
               var MainSel := AMemo.MainSelection;
               AMemo.SelectionCaretVirtualSpace[MainSel] := NewCaretVirtualSpace;
               AMemo.SelectionAnchorVirtualSpace[MainSel] := NewAnchorVirtualSpace;
@@ -143,11 +143,11 @@ begin
         { Move the caret or the anchor up or down to extend the selection }
         if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
           AMemo.SelectionCaretPosition[I] := NewStartOrEndPos;
-          if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+          if svsUserAccessible in AMemo.VirtualSpaceOptions then
             AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
         end else begin
           AMemo.SelectionAnchorPosition[I] := NewStartOrEndPos;
-          if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
+          if svsUserAccessible in AMemo.VirtualSpaceOptions then
             AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
         end;
       end;
@@ -278,10 +278,8 @@ begin
   end;
 end;
 
-procedure TMainFormScintHelper.ToggleLinesComment;
+procedure TMainFormScintHelper.ToggleLinesComment(const AMemo: TIDEScintEdit);
 begin
-  var AMemo := FActiveMemo;
-
   { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
     for the main selection }
 
@@ -354,34 +352,34 @@ begin
   end;
 end;
 
-procedure TMainFormScintHelper.SelectAllFindMatches;
+procedure TMainFormScintHelper.SelectAllFindMatches(const AMemo: TIDEScintEdit);
 begin
   var StartPos := 0;
-  var EndPos := FActiveMemo.RawTextLength;
+  var EndPos := AMemo.RawTextLength;
   var FoundRange: TScintRange;
   var ClosestSelection := -1;
   var ClosestSelectionDistance := 0; { Silence compiler }
-  var CaretPos := FActiveMemo.CaretPosition;
+  var CaretPos := AMemo.CaretPosition;
 
   while (StartPos < EndPos) and
-        FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
+        AMemo.FindText(StartPos, EndPos, FLastFindText,
           FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), FoundRange) do begin
     if StartPos = 0 then
-      FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
+      AMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
     else
-      FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
+      AMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
 
     var Distance := Abs(CaretPos-FoundRange.EndPos);
     if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
-      ClosestSelection := FActiveMemo.SelectionCount-1;
+      ClosestSelection := AMemo.SelectionCount-1;
       ClosestSelectionDistance := Distance;
     end;
 
     StartPos := FoundRange.EndPos;
   end;
   if ClosestSelection <> -1 then begin
-    FActiveMemo.MainSelection := ClosestSelection;
-    FActiveMemo.ScrollCaretIntoView;
+    AMemo.MainSelection := ClosestSelection;
+    AMemo.ScrollCaretIntoView;
   end;
 end;
 
