@@ -177,8 +177,6 @@ begin
     end;
   end;
 
-  FlipAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
-
   if DefCommonButton > 0 then begin
     var I := DefCommonButton;
     for var CommonButton in FCommonButtons do begin
