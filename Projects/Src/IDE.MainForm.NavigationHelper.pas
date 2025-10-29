@@ -176,17 +176,6 @@ end;
 
 procedure TMainFormNavigationHelper.UpdateBackNavigationStack;
 begin
-  { Update panel }
-  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpandedForTabs + 1]);
-  if FOptions.ShowCaretPosition then begin
-    const CaretPos = FActiveMemo.CaretPosition;
-    const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
-    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
-      CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
-  end;
-  StatusBar.Panels[spCaretPos].Text := Text;
-
   { Update NavStacks.Back if needed and remember new position }
   var NewNavItem := TIDEScintEditNavItem.Create(FActiveMemo); { This is a record so no need to free }
   if FCurrentNavItem.Valid and FNavStacks.AddNewBackForJump(FCurrentNavItem, NewNavItem) then
