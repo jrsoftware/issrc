@@ -1460,9 +1460,14 @@ var
         succeed in one of them. The other will fail with
         ERROR_SHARING_VIOLATION, because FILE_SHARE_READ doesn't allow another
         handle to be opened for DELETE access.
-    }
-    const DirHandle = CreateFile(PChar(ADir), Windows._DELETE, FILE_SHARE_READ,
-      nil, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT or FILE_FLAG_BACKUP_SEMANTICS,
+      The docs for GetFileInformationByHandle (called below) don't specify
+      what access rights, if any, are required. Even though the function
+      succeeds with only DELETE access on Windows 11, we also include
+      FILE_READ_ATTRIBUTES to be sure we aren't depending on undocumented
+      implementation details. }
+    const DirHandle = CreateFile(PChar(ADir),
+      Windows._DELETE or FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nil,
+      OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT or FILE_FLAG_BACKUP_SEMANTICS,
       0);
     if DirHandle <> INVALID_HANDLE_VALUE then begin
       try

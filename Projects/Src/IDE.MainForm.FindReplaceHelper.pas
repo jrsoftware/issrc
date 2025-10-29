@@ -19,21 +19,24 @@ uses
 
 type
   TMainFormFindReplaceHelper = class helper(TMainFormNavigationHelper) for TMainForm
-    procedure InitializeFindText(Dlg: TFindDialog);
-    procedure DoEFindClick(Sender: TObject);
-    procedure DoEFindInFilesClick(Sender: TObject);
-    procedure DoEFindNextOrPreviousClick(Sender: TObject);
-    procedure FindNext(const ReverseDirection: Boolean);
-    function StoreAndTestLastFindOptions(Sender: TObject): Boolean;
-    function TestLastFindOptions: Boolean;
-    procedure DoFindDialogFind(Sender: TObject);
-    procedure DoFindInFilesDialogFind(Sender: TObject);
+    procedure ShowFindDialog(const Down: Boolean);
+    procedure ShowFindInFilesDialog;
+    procedure DoFindNext(const Down: Boolean);
+    procedure DoFindOrReplaceDialogFind(const Dialog: TFindDialog);
+    procedure DoFindInFilesDialogFind;
+    procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+      const NewLine, NewLineStartPos: Integer);
     function FindSetupDirectiveValue(const DirectiveName,
       DefaultValue: String): String; overload;
     function FindSetupDirectiveValue(const DirectiveName: String;
       DefaultValue: Boolean): Boolean; overload;
-    procedure DoEReplaceClick(Sender: TObject);
-    procedure DoReplaceDialogReplace(Sender: TObject);
+    procedure ShowReplaceDialog;
+    procedure DoReplaceDialogReplace;
+    { Private }
+    procedure _InitializeFindText(Dlg: TFindDialog);
+    procedure _FindNext(const ReverseDirection: Boolean);
+    function _StoreAndTestLastFindOptions(const Dialog: TFindDialog): Boolean;
+    function _TestLastFindOptions: Boolean;
   end;
 
 implementation
@@ -44,17 +47,6 @@ uses
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.Messages, IDE.HelperFunc, IDE.ScintStylerInnoSetup;
-
-procedure TMainFormFindReplaceHelper.InitializeFindText(Dlg: TFindDialog);
-var
-  S: String;
-begin
-  S := FActiveMemo.MainSelText;
-  if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
-    Dlg.FindText := S
-  else
-    Dlg.FindText := FLastFindText;
-end;
 
 const
   OldFindReplaceWndProcProp = 'OldFindReplaceWndProc';
@@ -95,41 +87,54 @@ begin
   end;
 end;
 
-procedure TMainFormFindReplaceHelper.DoEFindClick(Sender: TObject);
+{  TMainFormFindReplaceHelper }
+
+procedure TMainFormFindReplaceHelper._InitializeFindText(Dlg: TFindDialog);
+var
+  S: String;
+begin
+  S := FActiveMemo.MainSelText;
+  if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
+    Dlg.FindText := S
+  else
+    Dlg.FindText := FLastFindText;
+end;
+
+procedure TMainFormFindReplaceHelper.ShowFindDialog(const Down: Boolean);
 begin
   ReplaceDialog.CloseDialog;
   if FindDialog.Handle = 0 then
-    InitializeFindText(FindDialog);
-  if (Sender = EFind) or (Sender = EFindNext) then
+    _InitializeFindText(FindDialog);
+  if Down then
     FindDialog.Options := FindDialog.Options + [frDown]
   else
     FindDialog.Options := FindDialog.Options - [frDown];
   ExecuteFindDialogAllowingAltEnter(FindDialog);
 end;
 
-procedure TMainFormFindReplaceHelper.DoEFindInFilesClick(Sender: TObject);
+procedure TMainFormFindReplaceHelper.ShowFindInFilesDialog;
 begin
-  InitializeFindText(FindInFilesDialog);
+  _InitializeFindText(FindInFilesDialog);
   FindInFilesDialog.Execute;
 end;
 
-procedure TMainFormFindReplaceHelper.DoEFindNextOrPreviousClick(Sender: TObject);
+procedure TMainFormFindReplaceHelper.DoFindNext(const Down: Boolean);
 begin
   if FLastFindText = '' then
-    DoEFindClick(Sender)
+    ShowFindDialog(Down)
   else begin
-    if Sender = EFindNext then
+    if Down then
       FLastFindOptions := FLastFindOptions + [frDown]
     else
       FLastFindOptions := FLastFindOptions - [frDown];
     FLastFindRegEx := FOptions.FindRegEx;
-    if not TestLastFindOptions then
+    if not _TestLastFindOptions then
       Exit;
-    FindNext(False);
+    _FindNext(False);
   end;
 end;
 
-procedure TMainFormFindReplaceHelper.FindNext(const ReverseDirection: Boolean);
+procedure TMainFormFindReplaceHelper._FindNext(const ReverseDirection: Boolean);
 var
   StartPos, EndPos: Integer;
   Range: TScintRange;
@@ -153,26 +158,26 @@ begin
       mbInformation, MB_OK);
 end;
 
-function TMainFormFindReplaceHelper.StoreAndTestLastFindOptions(Sender: TObject): Boolean;
+function TMainFormFindReplaceHelper._StoreAndTestLastFindOptions(const Dialog: TFindDialog): Boolean;
 begin
   { TReplaceDialog is a subclass of TFindDialog must check for TReplaceDialog first }
-  if Sender is TReplaceDialog then begin
-    with Sender as TReplaceDialog do begin
+  if Dialog is TReplaceDialog then begin
+    with Dialog as TReplaceDialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end else begin
-    with Sender as TFindDialog do begin
+    with Dialog do begin
       FLastFindOptions := Options;
       FLastFindText := FindText;
     end;
   end;
   FLastFindRegEx := FOptions.FindRegEx;
 
-  Result := TestLastFindOptions;
+  Result := _TestLastFindOptions;
 end;
 
-function TMainFormFindReplaceHelper.TestLastFindOptions;
+function TMainFormFindReplaceHelper._TestLastFindOptions;
 begin
   if FLastFindRegEx then begin
     Result := FActiveMemo.TestRegularExpression(FLastFindText);
@@ -183,22 +188,22 @@ begin
     Result := True;
 end;
 
-procedure TMainFormFindReplaceHelper.DoFindDialogFind(Sender: TObject);
+procedure TMainFormFindReplaceHelper.DoFindOrReplaceDialogFind(const Dialog: TFindDialog);
 begin
-  if not StoreAndTestLastFindOptions(Sender) then
+  if not _StoreAndTestLastFindOptions(Dialog) then
     Exit;
 
   if GetKeyState(VK_MENU) < 0 then begin
     { Alt+Enter was used to close the dialog }
-    (Sender as TFindDialog).CloseDialog;
+    Dialog.CloseDialog;
     ESelectAllFindMatchesClick(Self); { Uses the copy made above }
   end else
-    FindNext(GetKeyState(VK_SHIFT) < 0);
+    _FindNext(GetKeyState(VK_SHIFT) < 0);
 end;
 
-procedure TMainFormFindReplaceHelper.DoFindInFilesDialogFind(Sender: TObject);
+procedure TMainFormFindReplaceHelper.DoFindInFilesDialogFind;
 begin
-  if not StoreAndTestLastFindOptions(Sender) then
+  if not _StoreAndTestLastFindOptions(FindInFilesDialog) then
     Exit;
 
   FindResultsList.Clear;
@@ -247,6 +252,21 @@ begin
   SetStatusPanelVisible(True);
 end;
 
+procedure TMainFormFindReplaceHelper.UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
+  const NewLine, NewLineStartPos: Integer);
+begin
+  { Also see DoFindInFilesDialogFind }
+  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResult.Line := NewLine;
+  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
+  FindResult.PrefixStringLength := Length(NewPrefix);
+  const PosChange = NewLineStartPos - FindResult.LineStartPos;
+  FindResult.LineStartPos := NewLineStartPos;
+  FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
+  FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
+end;
+
 function TMainFormFindReplaceHelper.FindSetupDirectiveValue(const DirectiveName,
   DefaultValue: String): String;
 begin
@@ -290,19 +310,19 @@ begin
     Result := DefaultValue;
 end;
 
-procedure TMainFormFindReplaceHelper.DoEReplaceClick(Sender: TObject);
+procedure TMainFormFindReplaceHelper.ShowReplaceDialog;
 begin
   FindDialog.CloseDialog;
   if ReplaceDialog.Handle = 0 then begin
-    InitializeFindText(ReplaceDialog);
+    _InitializeFindText(ReplaceDialog);
     ReplaceDialog.ReplaceText := FLastReplaceText;
   end;
   ExecuteFindDialogAllowingAltEnter(ReplaceDialog);
 end;
 
-procedure TMainFormFindReplaceHelper.DoReplaceDialogReplace(Sender: TObject);
+procedure TMainFormFindReplaceHelper.DoReplaceDialogReplace;
 begin
-  if not StoreAndTestLastFindOptions(Sender) then
+  if not _StoreAndTestLastFindOptions(ReplaceDialog) then
     Exit;
 
   FLastReplaceText := ReplaceDialog.ReplaceText;
@@ -336,7 +356,7 @@ begin
         below is safe even if the user just enabled regex }
       FActiveMemo.ReplaceMainSelText(FLastReplaceText, ReplaceMode);
     end;
-    FindNext(GetKeyState(VK_SHIFT) < 0);
+    _FindNext(GetKeyState(VK_SHIFT) < 0);
   end;
 end;
 

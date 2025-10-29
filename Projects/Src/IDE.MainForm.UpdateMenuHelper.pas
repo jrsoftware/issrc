@@ -1,4 +1,4 @@
-unit IDE.MainForm.MenuClickHelper;
+unit IDE.MainForm.UpdateMenuHelper;
 
 {
   Inno Setup
@@ -6,7 +6,7 @@ unit IDE.MainForm.MenuClickHelper;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Compiler form - Menu click helper which has the find & replace helper as ancestor
+  Compiler form - Menu update helper which has the find & replace helper as ancestor
 
   Not used by MainForm: it uses IDE.MainForm.FinalHelper instead
 }
@@ -18,21 +18,22 @@ uses
   IDE.MainForm, IDE.MainForm.FindReplaceHelper;
 
 type
-  TMainFormMenuClickHelper = class helper(TMainFormFindReplaceHelper) for TMainForm
-    procedure UpdateMenuBitmapsIfNeeded;
-    procedure ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
-    procedure DoFMenuClick(Sender: TObject);
-    procedure DoEMenuClick(Sender: TObject);
-    procedure UpdateReopenTabMenu(const Menu: TMenuItem);
-    procedure DoVMenuClick(Sender: TObject);
-    procedure DoBMenuClick(Sender: TObject);
-    procedure DoMemosTabSetPopupMenuClick(Sender: TObject);
-    procedure DoHMenuClick(Sender: TObject);
-    procedure DoSimpleMenuClick(Sender: TObject);
-    procedure DoTMenuClick(Sender: TObject);
-    function AnyMemoHasBreakPoint: Boolean;
-    procedure DoRMenuClick(Sender: TObject);
-    procedure DoBreakPointsPopupMenuClick(Sender: TObject);
+  TMainFormUpdateMenuHelper = class helper(TMainFormFindReplaceHelper) for TMainForm
+    procedure UpdateFileMenu(const Menu: TMenuItem);
+    procedure UpdateEditMenu(const Menu: TMenuItem);
+    procedure UpdateViewMenu(const Menu: TMenuItem);
+    procedure UpdateBuildMenu(const Menu: TMenuItem);
+    procedure UpdateMemosTabSetMenu(const Menu: TMenuItem);
+    procedure UpdateHelpMenu(const Menu: TMenuItem);
+    procedure UpdateSimpleMenu(const Menu: TMenuItem);
+    procedure UpdateToolsMenu(const Menu: TMenuItem);
+    procedure UpdateRunMenu2(const Menu: TMenuItem);
+    procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
+    { Private }
+    procedure _UpdateMenuBitmapsIfNeeded;
+    procedure _ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
+    procedure _UpdateReopenTabMenu(const Menu: TMenuItem);
+    function _AnyMemoHasBreakPoint: Boolean;
   end;
 
 implementation
@@ -44,7 +45,7 @@ uses
   Shared.LicenseFunc,
   IDE.HelperFunc, IDE.IDEScintEdit;
 
-procedure TMainFormMenuClickHelper.UpdateMenuBitmapsIfNeeded;
+procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
   procedure AddMenuBitmap(const MenuBitmaps: TMenuBitmaps; const DC: HDC; const BitmapInfo: TBitmapInfo;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
@@ -195,9 +196,9 @@ begin
   end;
 end;
 
-procedure TMainFormMenuClickHelper.ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
+procedure TMainFormUpdateMenuHelper._ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
 begin
-  UpdateMenuBitmapsIfNeeded;
+  _UpdateMenuBitmapsIfNeeded;
 
   { Setting MainMenu1.ImageList or a menu item's .Bitmap to make a menu item
     show a bitmap is not OK: it causes the entire menu to become owner drawn
@@ -257,12 +258,12 @@ begin
       if FMenuBitmaps.TryGetValue(MenuItem, mmi.hbmpItem) then
         SetMenuItemInfo(ParentMenuItem.Handle, MenuItem.Command, False, mmi);
       if MenuItem.Count > 0 then
-        ApplyMenuBitmaps(MenuItem);
+        _ApplyMenuBitmaps(MenuItem);
     end;
   end;
 end;
 
-procedure TMainFormMenuClickHelper.DoFMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateFileMenu(const Menu: TMenuItem);
 var
   I: Integer;
 begin
@@ -284,10 +285,10 @@ begin
         Visible := False;
     end;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoEMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateEditMenu(const Menu: TMenuItem);
 var
   MemoHasFocus, MemoIsReadOnly: Boolean;
 begin
@@ -316,10 +317,10 @@ begin
   EToggleLinesComment.Enabled := not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.UpdateReopenTabMenu(const Menu: TMenuItem);
+procedure TMainFormUpdateMenuHelper._UpdateReopenTabMenu(const Menu: TMenuItem);
 begin
   Menu.Clear;
   for var I := 0 to FHiddenFiles.Count-1 do begin
@@ -331,7 +332,7 @@ begin
   end;
 end;
 
-procedure TMainFormMenuClickHelper.DoVMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateViewMenu(const Menu: TMenuItem);
 begin
   VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
@@ -343,7 +344,7 @@ begin
   VCloseCurrentTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
   VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
   if VReopenTab.Visible then
-    UpdateReopenTabMenu(VReopenTab);
+    _UpdateReopenTabMenu(VReopenTab);
   VReopenTabs.Visible := VReopenTab.Visible;
   VHide.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
@@ -352,44 +353,44 @@ begin
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
   VWordWrap.Checked := FOptions.WordWrap;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoBMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateBuildMenu(const Menu: TMenuItem);
 begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoMemosTabSetPopupMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateMemosTabSetMenu(const Menu: TMenuItem);
 begin
   { Main and preprocessor memos can't be hidden }
   VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
 
   VReopenTab2.Visible := FHiddenFiles.Count > 0;
   if VReopenTab2.Visible then
-    UpdateReopenTabMenu(VReopenTab2);
+    _UpdateReopenTabMenu(VReopenTab2);
   VReopenTabs2.Visible := VReopenTab2.Visible;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoHMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateHelpMenu(const Menu: TMenuItem);
 begin
   HUnregister.Visible := IsLicensed;
   HDonate.Visible := not HUnregister.Visible;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoSimpleMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateSimpleMenu(const Menu: TMenuItem);
 begin
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoTMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateToolsMenu(const Menu: TMenuItem);
 var
   MemoIsReadOnly: Boolean;
 begin
@@ -399,10 +400,10 @@ begin
   TFilesDesigner.Enabled := not MemoIsReadOnly;
   TRegistryDesigner.Enabled := not MemoIsReadOnly;
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-function TMainFormMenuClickHelper.AnyMemoHasBreakPoint: Boolean;
+function TMainFormUpdateMenuHelper._AnyMemoHasBreakPoint: Boolean;
 begin
   { Also see RDeleteBreakPointsClick }
   for var Memo in FFileMemos do
@@ -411,21 +412,21 @@ begin
   Result := False;
 end;
 
-procedure TMainFormMenuClickHelper.DoRMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateRunMenu2(const Menu: TMenuItem);
 begin
-  RDeleteBreakPoints.Enabled := AnyMemoHasBreakPoint;
+  RDeleteBreakPoints.Enabled := _AnyMemoHasBreakPoint;
   { See UpdateRunMenu for other menu items }
 
-  ApplyMenuBitmaps(RMenu);
+  _ApplyMenuBitmaps(Menu);
 end;
 
-procedure TMainFormMenuClickHelper.DoBreakPointsPopupMenuClick(Sender: TObject);
+procedure TMainFormUpdateMenuHelper.UpdateBreakPointsMenu(const Menu: TMenuItem);
 begin
   RToggleBreakPoint2.Enabled := FActiveMemo is TIDEScintFileEdit;
-  RDeleteBreakPoints2.Enabled := AnyMemoHasBreakPoint;
+  RDeleteBreakPoints2.Enabled := _AnyMemoHasBreakPoint;
   { Also see UpdateRunMenu }
 
-  ApplyMenuBitmaps(Sender as TMenuItem);
+  _ApplyMenuBitmaps(Menu);
 end;
 
 end.
