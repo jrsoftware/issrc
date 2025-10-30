@@ -199,7 +199,7 @@ type
     RRunToCursor: TMenuItem;
     N10: TMenuItem;
     REvaluate: TMenuItem;
-    CheckIfRunningTimer: TTimer;
+    CheckIfTerminatedTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
     OutputListPopupMenu: TMenuItem;
@@ -364,7 +364,7 @@ type
     procedure RRunToCursorClick(Sender: TObject);
     procedure RRunClick(Sender: TObject);
     procedure REvaluateClick(Sender: TObject);
-    procedure CheckIfRunningTimerTimer(Sender: TObject);
+    procedure CheckIfTerminatedTimerTimer(Sender: TObject);
     procedure RPauseClick(Sender: TObject);
     procedure RParametersClick(Sender: TObject);
     procedure POutputListCopyClick(Sender: TObject);
@@ -5245,7 +5245,7 @@ begin
   CloseHandle(FProcessHandle);
   FProcessHandle := 0;
   FTempDir := '';
-  CheckIfRunningTimer.Enabled := False;
+  CheckIfTerminatedTimer.Enabled := False;
   HideError;
   SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
@@ -5616,7 +5616,7 @@ begin
   FDebugging := True;
   FPaused := False;
   FProcessHandle := Info.hProcess;
-  CheckIfRunningTimer.Enabled := True;
+  CheckIfTerminatedTimer.Enabled := True;
   UpdateRunMenu;
   UpdateCaption;
   DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
@@ -5826,7 +5826,7 @@ begin
   end;
 end;
 
-procedure TMainForm.CheckIfRunningTimerTimer(Sender: TObject);
+procedure TMainForm.CheckIfTerminatedTimerTimer(Sender: TObject);
 begin
   { In cases of normal Setup termination, we receive a WM_Debugger_Goodbye
     message. But in case we don't get that, use a timer to periodically check
