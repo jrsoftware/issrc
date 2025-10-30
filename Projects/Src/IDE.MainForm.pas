@@ -458,7 +458,6 @@ type
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
-    FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
@@ -468,15 +467,12 @@ type
     FVariableDebugEntriesCount: Integer;
     FCompiledCodeText: AnsiString;
     FCompiledCodeDebugInfo: AnsiString;
-    FDebugClientWnd: HWND;
     FProcessHandle, FDebugClientProcessHandle: THandle;
-    FDebugTarget: TDebugTarget;
     FUninstExe, FTempDir: String;
     FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
-    FDebugging: Boolean;
     FStepMode: TStepMode;
-    FPaused, FPausedAtCodeLine: Boolean;
+    FPausedAtCodeLine: Boolean;
     FRunToCursorPoint: TDebugEntry;
     FReplyString: String;
     FDebuggerException: String;
@@ -514,7 +510,6 @@ type
     procedure BringToForeground;
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
-    procedure CheckIfTerminated;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -592,9 +587,6 @@ type
     procedure UpdateNewMainFileButtons;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
-    procedure UpdateRunMenu;
-    procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateTargetMenu;
     procedure UpdateUpdatePanel;
     procedure UpdateKeyMapping;
     procedure UpdateTheme;
@@ -637,7 +629,11 @@ type
     { Used by class helpers }
     FCallTipState: TCallTipState;
     FCompiledExe: String;
+    FCompiling: Boolean;
     FCurrentNavItem: TIDEScintEditNavItem;
+    FDebugClientWnd: HWND;
+    FDebugging: Boolean;
+    FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
@@ -655,8 +651,10 @@ type
     FMenuThemeData: HTHEME;
     FNavStacks: TIDEScintEditNavStacks;
     FOptions: TOptions;
+    FPaused: Boolean;
     FSignTools: TStringList;
     FTheme: TTheme;
+    procedure CheckIfTerminated;
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
@@ -5283,49 +5281,6 @@ end;
 procedure TMainForm.BreakPointsPopupMenuClick(Sender: TObject);
 begin
   UpdateBreakPointsMenu(Sender as TMenuItem);
-end;
-
-{ Should always be called when one of the Enabled states would change because
-  other code depends on the states being correct always even if the user never
-  clicks the Run menu. This is unlike the other menus. Note: also updates
-  BCompile and BStopCompile from the Build menu. }
-procedure TMainForm.UpdateRunMenu;
-begin
-  CheckIfTerminated;
-  BCompile.Enabled := not FCompiling and not FDebugging;
-  CompileButton.Enabled := BCompile.Enabled;
-  BStopCompile.Enabled := FCompiling;
-  StopCompileButton.Enabled := BStopCompile.Enabled;
-  RRun.Enabled := not FCompiling and (not FDebugging or FPaused);
-  RunButton.Enabled := RRun.Enabled;
-  RPause.Enabled := FDebugging and not FPaused;
-  PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
-  RStepInto.Enabled := RRun.Enabled;
-  RStepOver.Enabled := RRun.Enabled;
-  RStepOut.Enabled := FPaused;
-  RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
-  RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  TerminateButton.Enabled := RTerminate.Enabled;
-  REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  { See RMenuClick for other menu items and also see BreakPointsPopupMenuClick }
-end;
-
-procedure TMainForm.UpdateSaveMenuItemAndButton;
-begin
-  FSave.Enabled := FActiveMemo is TIDEScintFileEdit;
-  SaveButton.Enabled := FSave.Enabled;
-end;
-
-procedure TMainForm.UpdateTargetMenu;
-begin
-  if FDebugTarget = dtSetup then begin
-    RTargetSetup.Checked := True;
-    TargetSetupButton.Down := True;
-  end else begin
-    RTargetUninstall.Checked := True;
-    TargetUninstallButton.Down := True;
-  end;
 end;
 
 procedure TMainForm.UpdateKeyMapping;
