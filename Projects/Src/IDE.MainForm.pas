@@ -502,7 +502,6 @@ type
     FBuildImageList: TImageList;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
-    class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -523,7 +522,6 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
-    function FromCurrentPPI(const XY: Integer): Integer;
     function GetBorderStyle: TFormBorderStyle;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -566,7 +564,6 @@ type
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
-    function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure UpdateAllMemosLineMarkers;
@@ -1237,11 +1234,6 @@ begin
 
   if Value <> bsNone then
     inherited BorderStyle := Value;
-end;
-
-class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
-begin
-  MsgBox(AddPeriod(E.Message), SCompilerFormCaption, mbCriticalError, MB_OK);
 end;
 
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
@@ -6489,16 +6481,6 @@ begin
     between and the color of the toolbar and memo margins is the same }
   Bevel1.Visible := (ToolBarPanel.Color = FTheme.Colors[tcMarginBack]) and
                     not UpdatePanel.Visible and not MemosTabSet.Visible;
-end;
-
-function TMainForm.ToCurrentPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, CurrentPPI, 96);
-end;
-
-function TMainForm.FromCurrentPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
 initialization
