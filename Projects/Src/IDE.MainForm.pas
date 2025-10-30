@@ -584,7 +584,6 @@ type
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateModifiedPanel;
-    procedure UpdateNewMainFileButtons;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateUpdatePanel;
@@ -1545,19 +1544,6 @@ begin
   Caption := NewCaption;
   if not CommandLineWizard then
     Application.Title := NewCaption;
-end;
-
-procedure TMainForm.UpdateNewMainFileButtons;
-begin
-  if FOptions.UseWizard then begin
-    FNewMainFile.Caption := '&New...';
-    FNewMainFile.OnClick := FNewMainFileUserWizardClick;
-    NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
-  end else begin
-    FNewMainFile.Caption := '&New';
-    FNewMainFile.OnClick := FNewMainFileClick;
-    NewMainFileButton.OnClick := FNewMainFileClick;
-  end;
 end;
 
 procedure TMainForm.NewMainFile(const IsReload: Boolean);

@@ -20,6 +20,7 @@ uses
 type
   TMainFormUpdateMenuHelper = class helper(TMainFormFindReplaceHelper) for TMainForm
     procedure UpdateFileMenu(const Menu: TMenuItem);
+    procedure UpdateNewMainFileButtons;
     procedure UpdateSaveMenuItemAndButton;
     procedure UpdateEditMenu(const Menu: TMenuItem);
     procedure UpdateViewMenu(const Menu: TMenuItem);
@@ -289,6 +290,19 @@ begin
     end;
 
   _ApplyMenuBitmaps(Menu);
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateNewMainFileButtons;
+begin
+  if FOptions.UseWizard then begin
+    FNewMainFile.Caption := '&New...';
+    FNewMainFile.OnClick := FNewMainFileUserWizardClick;
+    NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
+  end else begin
+    FNewMainFile.Caption := '&New';
+    FNewMainFile.OnClick := FNewMainFileClick;
+    NewMainFileButton.OnClick := FNewMainFileClick;
+  end;
 end;
 
 procedure TMainFormUpdateMenuHelper.UpdateSaveMenuItemAndButton;
