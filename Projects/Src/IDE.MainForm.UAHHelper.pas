@@ -104,7 +104,7 @@ begin
   if not (csDestroying in ComponentState) and (FTheme <> nil) and FTheme.Dark then begin
     var ClientRect: TRect;
     Windows.GetClientRect(Handle, ClientRect);
-		MapWindowPoints(Handle, 0, ClientRect, 2);
+    MapWindowPoints(Handle, 0, ClientRect, 2);
 
     var WindowRect: TRect;
     GetWindowRect(Handle, WindowRect);
@@ -116,8 +116,8 @@ begin
     Dec(Rect.Top);
 
     var DC := GetWindowDC(Handle);
-  	FillRect(DC, Rect, FMenuDarkBackgroundBrush.Handle);
-		ReleaseDC(Handle, DC);
+    FillRect(DC, Rect, FMenuDarkBackgroundBrush.Handle);
+    ReleaseDC(Handle, DC);
   end;
 end;
 
