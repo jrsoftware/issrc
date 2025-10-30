@@ -149,9 +149,11 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   </li>
 </ul>
 <span class="head2">Security improvements</span>
-<p>Updating is strongly recommended, even if you don’t plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
+<p>Updating is recommended, even if you don't plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
 <ul>
-  <li>Strengthened randomization of temporary directory names for Setup and Uninstall.</li>
+  <li>In temporary directory/file names, the number of random base-36 digits has been doubled from 5 to 10, and the digits are now generated using a <abbr title="Cryptographically Secure Pseudorandom Number Generator">CSPRNG</abbr> function (<tt>BCryptGenRandom</tt>). This is intended to provide defense against an attack that might depend on the generated names being predictable.</li>
+  <li>Uninstall now uses a random name for its temporary directory (<tt>is-XXXXXXXXXX-uninstall.tmp</tt>), instead of attempting to re-use a fixed name whenever possible (usually <tt>iu-14D2N.tmp</tt> in previous versions). This is primarily intended to add defense-in-depth. Additionally, this change addresses a non-security issue in previous versions &mdash; extremely unlikely to be seen in practice &mdash; where if two uninstallers were started near-simultaneously, one could potentially overwrite the other's temporary file.</li>
+  <li>In previous versions, before Uninstall deleted a pre-existing temporary directory (usually named <tt>iu-14D2N.tmp</tt>), it checked for the <tt>FILE_ATTRIBUTE_REPARSE_POINT</tt> attribute to ensure it wasn't following a junction or symbolic link. However, this check had a <abbr title="Time-of-Check to Time-of-Use">TOCTOU</abbr> problem &mdash; it was theoretically possible for the directory to be changed into a junction or symbolic link between the check and the deletion. We are not aware of any way to practically exploit the race condition, and this issue is only potentially relevant when other, untrusted users have write access to the temporary directory, which is not common. (Before Inno Setup 6.5, when Setup/Uninstall ran under the <tt>SYSTEM</tt> account, the world-writable <tt>C:\Windows\Temp</tt> directory was often used, but beginning in Inno Setup 6.5, <tt>C:\Windows\SystemTemp</tt> is used instead on Windows 11 and up-to-date Windows 10 systems.)</li>
 </ul>
 <p>We are also currently working on enabling Windows' RedirectionGuard in Setup and Uninstall in a future version.</p>
 <span class="head2">Other changes</span>
