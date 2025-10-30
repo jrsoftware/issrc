@@ -15,27 +15,27 @@ interface
 
 uses
   Menus,
-  IDE.MainForm, IDE.MainForm.AutoCompleteAndCallTipsHelper,
-  IDE.IDEScintEdit;
+  ScintEdit,
+  IDE.MainForm, IDE.MainForm.AutoCompleteAndCallTipsHelper;
 
 type
   TMainFormScintHelper = class helper(TMainFormAutoCompleteAndCallTipsHelper) for TMainForm
-    procedure SimplifySelection(const AMemo: TIDEScintEdit);
-    procedure AddCursorUpOrDown(const AMemo: TIDEScintEdit; const Up: Boolean);
-    procedure AddCursorsToLineEnds(const AMemo: TIDEScintEdit);
-    function MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
-    procedure ToggleLinesComment(const AMemo: TIDEScintEdit);
-    procedure SelectAllFindMatches(const AMemo: TIDEScintEdit);
+    procedure SimplifySelection(const AMemo: TScintEdit);
+    procedure AddCursorUpOrDown(const AMemo: TScintEdit; const Up: Boolean);
+    procedure AddCursorsToLineEnds(const AMemo: TScintEdit);
+    function MultipleSelectionPasteFromClipboard(const AMemo: TScintEdit): Boolean;
+    procedure ToggleLinesComment(const AMemo: TScintEdit);
+    procedure SelectAllFindMatches(const AMemo: TScintEdit);
   end;
 
 implementation
 
 uses
   SysUtils, Clipbrd, Math,
-  ScintInt, ScintEdit,
+  ScintInt,
   IDE.HelperFunc, IDE.ScintStylerInnoSetup;
 
-procedure TMainFormScintHelper.SimplifySelection(const AMemo: TIDEScintEdit);
+procedure TMainFormScintHelper.SimplifySelection(const AMemo: TScintEdit);
 begin
   { The built in Esc (SCI_CANCEL) simply drops all additional selections
     and does not empty the main selection, It doesn't matter if Esc is
@@ -48,7 +48,7 @@ begin
   AMemo.ScrollCaretIntoView;
 end;
 
-procedure TMainFormScintHelper.AddCursorUpOrDown(const AMemo: TIDEScintEdit; const Up: Boolean);
+procedure TMainFormScintHelper.AddCursorUpOrDown(const AMemo: TScintEdit; const Up: Boolean);
 begin
   { Does not try to keep the main selection. }
 
@@ -158,7 +158,7 @@ begin
   end;
 end;
 
-procedure TMainFormScintHelper.AddCursorsToLineEnds(const AMemo: TIDEScintEdit);
+procedure TMainFormScintHelper.AddCursorsToLineEnds(const AMemo: TScintEdit);
 begin
   { Does not try to keep the main selection. Otherwise behaves the same as
     observed in Visual Studio Code, see comments. }
@@ -241,7 +241,7 @@ begin
   end;
 end;
 
-function TMainFormScintHelper.MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
+function TMainFormScintHelper.MultipleSelectionPasteFromClipboard(const AMemo: TScintEdit): Boolean;
 begin
   { Scintilla doesn't yet properly support multiple selection paste. Handle it
     here, just like VS and VSCode do: if there's multiple selections and the paste
@@ -278,7 +278,7 @@ begin
   end;
 end;
 
-procedure TMainFormScintHelper.ToggleLinesComment(const AMemo: TIDEScintEdit);
+procedure TMainFormScintHelper.ToggleLinesComment(const AMemo: TScintEdit);
 begin
   { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
     for the main selection }
@@ -352,7 +352,7 @@ begin
   end;
 end;
 
-procedure TMainFormScintHelper.SelectAllFindMatches(const AMemo: TIDEScintEdit);
+procedure TMainFormScintHelper.SelectAllFindMatches(const AMemo: TScintEdit);
 begin
   var StartPos := 0;
   var EndPos := AMemo.RawTextLength;

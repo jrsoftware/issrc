@@ -15,15 +15,16 @@ interface
 
 uses
   Menus,
+  ScintEdit,
   IDE.MainForm, IDE.MainForm.UpdateMenuHelper;
 
 type
   TMainFormToolsHelper = class helper(TMainFormUpdateMenuHelper) for TMainForm
     procedure StartAddRemovePrograms;
-    procedure InsertGeneratedGuid;
-    procedure ShowMsgBoxDesignerForm;
-    procedure ShowRegistryDesignerForm;
-    procedure ShowFilesDesignerForm;
+    procedure InsertGeneratedGuid(const AMemo: TScintEdit);
+    procedure ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
+    procedure ShowRegistryDesignerForm(const AMemo: TScintEdit);
+    procedure ShowFilesDesignerForm(const AMemo: TScintEdit);
     procedure ShowSignToolsForm;
   end;
 
@@ -73,16 +74,16 @@ begin
   CloseHandle(ProcessInfo.hThread);
 end;
 
-procedure TMainFormToolsHelper.InsertGeneratedGuid;
+procedure TMainFormToolsHelper.InsertGeneratedGuid(const AMemo: TScintEdit);
 begin
   if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
-    FActiveMemo.MainSelText := GenerateGuid;
+    AMemo.MainSelText := GenerateGuid;
 end;
 
-procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm;
+procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
-  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scCode) and
+  if (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
      (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
@@ -90,13 +91,13 @@ begin
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
   try
     if MsgBoxForm.ShowModal = mrOk then
-      FActiveMemo.MainSelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
+      AMemo.MainSelText := MsgBoxForm.GetText(FOptions.TabWidth, FOptions.UseTabCharacter);
   finally
     MsgBoxForm.Free;
   end;
 end;
 
-procedure TMainFormToolsHelper.ShowRegistryDesignerForm;
+procedure TMainFormToolsHelper.ShowRegistryDesignerForm(const AMemo: TScintEdit);
 begin
   var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
   try
@@ -111,28 +112,28 @@ begin
       RegistryDesignerForm.PrivilegesRequired := prDynamic;
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
-      FActiveMemo.CaretColumn := 0;
+      AMemo.CaretColumn := 0;
       var Text := RegistryDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scRegistry then
+      if FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scRegistry then
         Text := '[Registry]' + SNewLine + Text;
-      FActiveMemo.MainSelText := Text;
+      AMemo.MainSelText := Text;
     end;
   finally
     RegistryDesignerForm.Free;
   end;
 end;
 
-procedure TMainFormToolsHelper.ShowFilesDesignerForm;
+procedure TMainFormToolsHelper.ShowFilesDesignerForm(const AMemo: TScintEdit);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
     FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
-      FActiveMemo.CaretColumn := 0;
+      AMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]) <> scFiles then
+      if FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
         Text := '[Files]' + SNewLine + Text;
-      FActiveMemo.MainSelText := Text;
+      AMemo.MainSelText := Text;
     end;
   finally
     FilesDesignerForm.Free;

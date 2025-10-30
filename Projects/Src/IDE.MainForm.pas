@@ -1425,7 +1425,7 @@ begin
         Key := 0;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
-    CallTipsHandleCtrlSpace;
+    CallTipsHandleCtrlSpace(FActiveMemo);
   end else begin
     var AShortCut := ShortCut(Key, Shift);
     { Check if the memo keymap wants us to handle the shortcut but first check
@@ -1476,7 +1476,7 @@ begin
       forward button. So that's why we handle #9 here. Doesn't mean Ctrl+Tab
       doesn't work: it doesnt trigger KeyPress, even if it wasn't a menu
       shortcut for Next Tab (which it is). }
-    InitiateAutoComplete(#0);
+    InitiateAutoComplete(FActiveMemo, #0);
     Key := #0;
   end else if (Key <= #31) or (Key = #127) then begin
     { Prevent "control characters" from being entered in text. Don't need to be
@@ -3744,22 +3744,22 @@ end;
 
 procedure TMainForm.TGenerateGUIDClick(Sender: TObject);
 begin
-  InsertGeneratedGuid;
+  InsertGeneratedGuid(FActiveMemo);
 end;
 
 procedure TMainForm.TMsgBoxDesignerClick(Sender: TObject);
 begin
-  ShowMsgBoxDesignerForm;
+  ShowMsgBoxDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TRegistryDesignerClick(Sender: TObject);
 begin
-  ShowRegistryDesignerForm;
+  ShowRegistryDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TFilesDesignerClick(Sender: TObject);
 begin
-  ShowFilesDesignerForm;
+  ShowFilesDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TSignToolsClick(Sender: TObject);
@@ -4362,7 +4362,7 @@ end;
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
   const Up: Boolean);
 begin
-  CallTipsHandleArrowClick(Up);
+  CallTipsHandleArrowClick(FActiveMemo, Up);
 end;
 
 procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
@@ -4594,7 +4594,7 @@ begin
     end;
   end;
 
-  AutoCompleteAndCallTipsHandleCharAdded(Ch);
+  AutoCompleteAndCallTipsHandleCharAdded(FActiveMemo, Ch);
 end;
 
 procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
