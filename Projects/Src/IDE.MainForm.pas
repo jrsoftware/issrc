@@ -575,7 +575,7 @@ type
     procedure UpdateCaretPosPanelAndBackNavStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
-    procedure UpdateEditModePanel;
+    procedure UpdateEditModeStatusPanel;
     procedure UpdateFindRegExUI;
     procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
@@ -583,7 +583,7 @@ type
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
-    procedure UpdateModifiedPanel;
+    procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
     procedure UpdateUpdatePanel;
@@ -2246,7 +2246,7 @@ begin
     CompilerOutputList.Cursor := crAppStart;
     for Memo in FFileMemos do
       Memo.ReadOnly := True;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
     HideError;
     CompilerOutputList.Clear;
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -2333,7 +2333,7 @@ begin
     CompilerOutputList.Cursor := crDefault;
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
     UpdateRunMenu;
     UpdateCaption;
     UpdatePreprocMemos;
@@ -3345,8 +3345,8 @@ begin
     UpdateSaveMenuItemAndButton;
     UpdateRunMenu;
     UpdateCaretPosPanelAndBackNavStack;
-    UpdateEditModePanel;
-    UpdateModifiedPanel;
+    UpdateEditModeStatusPanel;
+    UpdateModifiedStatusPanel;
   end;
 end;
 
@@ -4061,7 +4061,7 @@ begin
   UpdateBackNavigationStack;
 end;
 
-procedure TMainForm.UpdateEditModePanel;
+procedure TMainForm.UpdateEditModeStatusPanel;
 const
   InsertText: array[Boolean] of String = ('Overwrite', 'Insert');
 begin
@@ -4092,7 +4092,7 @@ begin
     MemosTabSet.TabIndex := 0; { For next time }
 end;
 
-procedure TMainForm.UpdateModifiedPanel;
+procedure TMainForm.UpdateModifiedStatusPanel;
 begin
   if FActiveMemo.Modified then
     StatusBar.Panels[spModified].Text := 'Modified'
@@ -4328,7 +4328,7 @@ begin
 
   if Memo = FActiveMemo then begin
     UpdateCaretPosPanelAndBackNavStack;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
   end;
 
   UpdatePendingSquiggly(Memo);
@@ -4339,7 +4339,7 @@ end;
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
 begin
   if Sender = FActiveMemo then
-    UpdateModifiedPanel;
+    UpdateModifiedStatusPanel;
 end;
 
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
