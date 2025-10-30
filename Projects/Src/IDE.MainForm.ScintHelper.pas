@@ -65,7 +65,7 @@ begin
       var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
       if LineCaret = LineAnchor then begin
         { Add selection with same caret and anchor offsets one line up or down. }
-        var OtherLine := LineCaret + IfThen(Up, -1, 1);;
+        var OtherLine := LineCaret + IfThen(Up, -1, 1);
         if (OtherLine < 0) or (OtherLine >= AMemo.Lines.Count) then
           Continue { Already at the top or bottom, can't add }
         else begin
@@ -99,7 +99,7 @@ begin
             is why we ultimately don't set virtual space: it leads to duplicate
             selections. }
           var MainSelection := AMemo.Selection;
-          if not NewSelection.Range.Within(AMemo.Selection) then begin
+          if not NewSelection.Range.Within(MainSelection) then begin
             AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
             { if svsUserAccessible in AMemo.VirtualSpaceOptions then begin
               var MainSel := AMemo.MainSelection;
