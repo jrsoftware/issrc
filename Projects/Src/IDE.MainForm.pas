@@ -530,7 +530,7 @@ type
       out Output: String): Integer;
     function FromCurrentPPI(const XY: Integer): Integer;
     function GetBorderStyle: TFormBorderStyle;
-    procedure Go(AStepMode: TStepMode);
+    procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
     function InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -561,7 +561,6 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
-    procedure StartProcess;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
     procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
@@ -5542,86 +5541,6 @@ begin
   UpdateBevel1Visibility;
 end;
 
-procedure TMainForm.StartProcess;
-var
-  RunFilename, RunParameters, WorkingDir: String;
-  Info: TShellExecuteInfo;
-  SaveFocusWindow: HWND;
-  WindowList: Pointer;
-  ShellExecuteResult: BOOL;
-  ErrorCode: DWORD;
-begin
-  if FDebugTarget = dtUninstall then begin
-    if FUninstExe = '' then
-      raise Exception.Create(SCompilerNeedUninstExe);
-    RunFilename := FUninstExe;
-  end else begin
-    if FCompiledExe = '' then
-      raise Exception.Create(SCompilerNeedCompiledExe);
-    RunFilename := FCompiledExe;
-  end;
-  RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
-
-  ResetAllMemosLineState;
-  DebugOutputList.Clear;
-  SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  DebugCallStackList.Clear;
-  SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
-    OutputTabSet.TabIndex := tiDebugOutput;
-  SetStatusPanelVisible(True);
-
-  FillChar(Info, SizeOf(Info), 0);
-  Info.cbSize := SizeOf(Info);
-  Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
-    SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
-  Info.Wnd := Handle;
-  if FOptions.RunAsDifferentUser then
-    Info.lpVerb := 'runas'
-  else
-    Info.lpVerb := 'open';
-  Info.lpFile := PChar(RunFilename);
-  Info.lpParameters := PChar(RunParameters);
-  WorkingDir := PathExtractDir(RunFilename);
-  Info.lpDirectory := PChar(WorkingDir);
-  Info.nShow := SW_SHOWNORMAL;
-  { When the RunAsDifferentUser option is enabled, it's this process that
-    waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
-    prevent the user from clicking other things before the UAC dialog is
-    dismissed (which is definitely a possibility if the "Switch to the secure
-    desktop when prompting for elevation" setting is disabled in Group
-    Policy). }
-  SaveFocusWindow := GetFocus;
-  WindowList := DisableTaskWindows(Handle);
-  try
-    { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed if Windows doesn't switch to
-      the secure desktop immediately and instead shows a flashing taskbar
-      button that the user must click (which happened on Windows Vista; I'm
-      unable to reproduce it on Windows 11). }
-    Windows.SetFocus(0);
-    ShellExecuteResult := ShellExecuteEx(@Info);
-    ErrorCode := GetLastError;
-  finally
-    EnableTaskWindows(WindowList);
-    Windows.SetFocus(SaveFocusWindow);
-  end;
-  if not ShellExecuteResult then begin
-    { Don't display error message if user clicked Cancel at UAC dialog }
-    if ErrorCode = ERROR_CANCELLED then
-      Abort;
-    raise Exception.CreateFmt(SCompilerExecuteSetupError2, [RunFilename,
-      ErrorCode, Win32ErrorString(ErrorCode)]);
-  end;
-  FDebugging := True;
-  FPaused := False;
-  FProcessHandle := Info.hProcess;
-  CheckIfTerminatedTimer.Enabled := True;
-  UpdateRunMenu;
-  UpdateCaption;
-  DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
-end;
-
 procedure TMainForm.CompileIfNecessary;
 
   function UnopenedIncludedFileModifiedSinceLastCompile: Boolean;
@@ -5659,13 +5578,90 @@ begin
     CompileFile('', False);
 end;
 
-procedure TMainForm.Go(AStepMode: TStepMode);
-begin
-  CompileIfNecessary;
-  FStepMode := AStepMode;
-  HideError;
-  SetStepLine(FStepMemo, -1);
-  if FDebugging then begin
+procedure TMainForm.Go(const AStepMode: TStepMode);
+
+  procedure StartProcess;
+  var
+    RunFilename, RunParameters, WorkingDir: String;
+    Info: TShellExecuteInfo;
+    SaveFocusWindow: HWND;
+    WindowList: Pointer;
+    ShellExecuteResult: BOOL;
+    ErrorCode: DWORD;
+  begin
+    if FDebugTarget = dtUninstall then begin
+      if FUninstExe = '' then
+        raise Exception.Create(SCompilerNeedUninstExe);
+      RunFilename := FUninstExe;
+    end else begin
+      if FCompiledExe = '' then
+        raise Exception.Create(SCompilerNeedCompiledExe);
+      RunFilename := FCompiledExe;
+    end;
+    RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
+
+    ResetAllMemosLineState;
+    DebugOutputList.Clear;
+    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.Clear;
+    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
+      OutputTabSet.TabIndex := tiDebugOutput;
+    SetStatusPanelVisible(True);
+
+    FillChar(Info, SizeOf(Info), 0);
+    Info.cbSize := SizeOf(Info);
+    Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
+      SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
+    Info.Wnd := Handle;
+    if FOptions.RunAsDifferentUser then
+      Info.lpVerb := 'runas'
+    else
+      Info.lpVerb := 'open';
+    Info.lpFile := PChar(RunFilename);
+    Info.lpParameters := PChar(RunParameters);
+    WorkingDir := PathExtractDir(RunFilename);
+    Info.lpDirectory := PChar(WorkingDir);
+    Info.nShow := SW_SHOWNORMAL;
+    { When the RunAsDifferentUser option is enabled, it's this process that
+      waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
+      prevent the user from clicking other things before the UAC dialog is
+      dismissed (which is definitely a possibility if the "Switch to the secure
+      desktop when prompting for elevation" setting is disabled in Group
+      Policy). }
+    SaveFocusWindow := GetFocus;
+    WindowList := DisableTaskWindows(Handle);
+    try
+      { Also temporarily remove the focus since a disabled window's children can
+        still receive keystrokes. This is needed if Windows doesn't switch to
+        the secure desktop immediately and instead shows a flashing taskbar
+        button that the user must click (which happened on Windows Vista; I'm
+        unable to reproduce it on Windows 11). }
+      Windows.SetFocus(0);
+      ShellExecuteResult := ShellExecuteEx(@Info);
+      ErrorCode := GetLastError;
+    finally
+      EnableTaskWindows(WindowList);
+      Windows.SetFocus(SaveFocusWindow);
+    end;
+    if not ShellExecuteResult then begin
+      { Don't display error message if user clicked Cancel at UAC dialog }
+      if ErrorCode = ERROR_CANCELLED then
+        Abort;
+      raise Exception.CreateFmt(SCompilerExecuteSetupError2, [RunFilename,
+        ErrorCode, Win32ErrorString(ErrorCode)]);
+    end;
+    FDebugging := True;
+    FPaused := False;
+    FProcessHandle := Info.hProcess;
+    CheckIfTerminatedTimer.Enabled := True;
+    UpdateRunMenu;
+    UpdateCaption;
+    DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
+  end;
+
+  procedure ContinueProcessIfPaused(const AStepMode: TStepMode);
+  begin
     if FPaused then begin
       FPaused := False;
       UpdateRunMenu;
@@ -5679,7 +5675,15 @@ begin
       SendNotifyMessage(FDebugClientWnd, WM_DebugClient_Continue,
         Ord(AStepMode = smStepOver), 0);
     end;
-  end
+  end;
+
+begin
+  CompileIfNecessary;
+  FStepMode := AStepMode;
+  HideError;
+  SetStepLine(FStepMemo, -1);
+  if FDebugging then
+    ContinueProcessIfPaused(AStepMode)
   else
     StartProcess;
 end;
