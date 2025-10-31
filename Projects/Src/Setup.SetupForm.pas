@@ -37,7 +37,7 @@ type
     FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
     FKeepSizeX, FKeepSizeY: Boolean;
-    FOrgClientWidthAfterScale, FOrgClientHeightAfterScale: Integer;
+    FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -560,6 +560,8 @@ begin
 
   const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
   const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
+  const OrigClientWidthBeforeScale = ClientWidth;
+  const OrigClientHeightBeforeScale = ClientHeight;
 
   var HasCustomAnchors: Boolean;
 
@@ -587,8 +589,8 @@ begin
 
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
-  FOrgClientWidthAfterScale := ClientWidth;
-  FOrgClientHeightAfterScale := ClientHeight;
+  FOrigClientWidthAfterScale := ClientWidth;
+  FOrigClientHeightAfterScale := ClientHeight;
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
@@ -602,20 +604,29 @@ begin
     ParentHandlesNeeded(Self); { Also see ShowModal }
   end;
 
-  if LShouldSizeX then
-    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
+  { Should restore aspect ratio if X and Y sizing is same (so either both not
+    sizing, or both sizing with same value) }
+  const RestoreAspectRatio =
+    (LShouldSizeX = LShouldSizeY) and
+    (not LShouldSizeX or (SetupHeader.WizardSizePercentX = SetupHeader.WizardSizePercentY));
+
   if LShouldSizeY then
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
+  if RestoreAspectRatio then begin
+    { Using height as the base because it usually increases by a higher percentage than width }
+    ClientWidth := MulDiv(OrigClientWidthBeforeScale, ClientHeight, OrigClientHeightBeforeScale)
+  end else if LShouldSizeX then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
 end;
 
 function TSetupForm.GetExtraClientWidth: Integer;
 begin
-  Result := ClientWidth - FOrgClientWidthAfterScale;
+  Result := ClientWidth - FOrigClientWidthAfterScale;
 end;
 
 function TSetupForm.GetExtraClientHeight: Integer;
 begin
-  Result := ClientHeight - FOrgClientHeightAfterScale;
+  Result := ClientHeight - FOrigClientHeightAfterScale;
 end;
 
 class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
