@@ -614,7 +614,7 @@ begin
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
   if RestoreAspectRatio then begin
     { Using height as the base because it usually increases by a higher percentage than width }
-    ClientWidth := MulDiv(OrigClientWidthBeforeScale, ClientHeight, OrigClientHeightBeforeScale)
+    ClientWidth := MulDiv(OrigClientWidthBeforeScale, ClientHeight, OrigClientHeightBeforeScale);
   end else if LShouldSizeX then
     ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
 end;
