@@ -108,7 +108,8 @@ uses
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
   Vcl.Themes,
   Vcl.Styles,
-  Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm};
+  Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm},
+  FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas';
 
 { The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.dark.res}

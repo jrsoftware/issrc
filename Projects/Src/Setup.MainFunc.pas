@@ -244,14 +244,14 @@ implementation
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes, ChaCha20, ECDSA, ISSigFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc, FormBackgroundStyleHook,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
   Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
-  Compression.SevenZipDLLDecoder;
+  Compression.SevenZipDLLDecoder, Setup.SetupForm;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -3346,8 +3346,10 @@ begin
              { Comment the line above to activate POLAR_DARK instead of ZIRCON }
              or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_DARK', 'VCLSTYLE', Handle)
           {$ENDIF}
-          then
+          then begin
             TStyleManager.SetStyle(Handle);
+            TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+          end;
         end;
 
         { Language entries }
