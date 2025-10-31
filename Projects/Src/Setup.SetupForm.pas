@@ -550,6 +550,17 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
   end;
 
 begin
+  { Various things related to positioning and anchoring don't work without this:
+    you get positions of child controls back as if there was no anchoring until
+    handles are automatically created. Initially we did this only when sizing the
+    form (for WizardForm it worked if done after sizing but for UninstallProgressForm
+    it had be done before sizing, or unknown reasons). For FWizardForm.FBeveledLabel
+    though, it needs it before the font name/size change (again for unknown reasons),
+    otherwise the label will end up in the wrong position, even if all we do is
+    changing the font. Setting AutoSize to False also causes it to stay in the correct
+    position. }
+  ParentHandlesNeeded(Self); { Also see ShowModal }
+
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
 
@@ -563,15 +574,12 @@ begin
   const OrigClientWidthBeforeScale = ClientWidth;
   const OrigClientHeightBeforeScale = ClientHeight;
 
-  var HasCustomAnchors: Boolean;
-
   if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
     const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
         afterward }
       StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
-      HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
       const R = ClientRect;
@@ -582,8 +590,7 @@ begin
       RestoreAnchors(ControlAnchorsList);
       ControlAnchorsList.Free;
     end;
-  end else
-    HasCustomAnchors := GetHasChildControlCustomAnchors(Self);
+  end;
 
   { Size }
 
@@ -594,15 +601,6 @@ begin
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
-
-  if HasCustomAnchors and (LShouldSizeX or LShouldSizeY) then begin
-    { Various things related to positioning and anchoring don't work without this:
-      you get positions of child controls back as if there was no anchoring until
-      handles are automatically created. For WizardForm it works if done after
-      sizing but for UninstallProgressForm it must be done before sizing (for
-      unknown reasons), so doing before sizing. }
-    ParentHandlesNeeded(Self); { Also see ShowModal }
-  end;
 
   { Should restore aspect ratio if X and Y sizing is same (so either both not
     sizing, or both sizing with same value) }
