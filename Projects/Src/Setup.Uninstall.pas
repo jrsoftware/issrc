@@ -567,6 +567,8 @@ begin
     { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
     if ufWizardBorderStyled in UninstLog.Flags then
       Include(SetupHeader.Options, shWizardBorderStyled);
+    if ufWizardKeepAspectRatio in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardKeepAspectRatio);
     SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
     SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
 

@@ -199,7 +199,7 @@ type
     RRunToCursor: TMenuItem;
     N10: TMenuItem;
     REvaluate: TMenuItem;
-    CheckIfRunningTimer: TTimer;
+    CheckIfTerminatedTimer: TTimer;
     RPause: TMenuItem;
     RParameters: TMenuItem;
     OutputListPopupMenu: TMenuItem;
@@ -364,7 +364,7 @@ type
     procedure RRunToCursorClick(Sender: TObject);
     procedure RRunClick(Sender: TObject);
     procedure REvaluateClick(Sender: TObject);
-    procedure CheckIfRunningTimerTimer(Sender: TObject);
+    procedure CheckIfTerminatedTimerTimer(Sender: TObject);
     procedure RPauseClick(Sender: TObject);
     procedure RParametersClick(Sender: TObject);
     procedure POutputListCopyClick(Sender: TObject);
@@ -458,7 +458,6 @@ type
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
-    FCompiling: Boolean;
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
@@ -468,15 +467,12 @@ type
     FVariableDebugEntriesCount: Integer;
     FCompiledCodeText: AnsiString;
     FCompiledCodeDebugInfo: AnsiString;
-    FDebugClientWnd: HWND;
     FProcessHandle, FDebugClientProcessHandle: THandle;
-    FDebugTarget: TDebugTarget;
     FUninstExe, FTempDir: String;
     FPreprocessorOutput: String;
     FIncludedFiles: TIncludedFiles;
-    FDebugging: Boolean;
     FStepMode: TStepMode;
-    FPaused, FPausedAtCodeLine: Boolean;
+    FPausedAtCodeLine: Boolean;
     FRunToCursorPoint: TDebugEntry;
     FReplyString: String;
     FDebuggerException: String;
@@ -506,7 +502,6 @@ type
     FBuildImageList: TImageList;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
-    class procedure AppOnException(Sender: TObject; E: Exception);
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -514,7 +509,6 @@ type
     procedure BringToForeground;
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
-    procedure CheckIfTerminated;
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -528,9 +522,8 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
-    function FromCurrentPPI(const XY: Integer): Integer;
     function GetBorderStyle: TFormBorderStyle;
-    procedure Go(AStepMode: TStepMode);
+    procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
     function InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -553,7 +546,6 @@ type
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
-    function MultipleSelectionPasteFromClipboard(const AMemo: TIDESCintEdit): Boolean;
     procedure NewMainFile(const IsReload: Boolean = False);
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean;
@@ -562,7 +554,6 @@ type
     procedure ParseDebugInfo(DebugInfo: Pointer);
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
-    procedure StartProcess;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
     procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
@@ -573,7 +564,6 @@ type
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
-    function ToCurrentPPI(const XY: Integer): Integer;
     procedure ToggleBreakPoint(Line: Integer);
     procedure UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure UpdateAllMemosLineMarkers;
@@ -582,7 +572,7 @@ type
     procedure UpdateCaretPosPanelAndBackNavStack;
     procedure UpdateCompileStatusPanels(const AProgress, AProgressMax: Cardinal;
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
-    procedure UpdateEditModePanel;
+    procedure UpdateEditModeStatusPanel;
     procedure UpdateFindRegExUI;
     procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
@@ -590,13 +580,9 @@ type
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
-    procedure UpdateModifiedPanel;
-    procedure UpdateNewMainFileButtons;
+    procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
-    procedure UpdateRunMenu;
-    procedure UpdateSaveMenuItemAndButton;
-    procedure UpdateTargetMenu;
     procedure UpdateUpdatePanel;
     procedure UpdateKeyMapping;
     procedure UpdateTheme;
@@ -639,7 +625,11 @@ type
     { Used by class helpers }
     FCallTipState: TCallTipState;
     FCompiledExe: String;
+    FCompiling: Boolean;
     FCurrentNavItem: TIDEScintEditNavItem;
+    FDebugClientWnd: HWND;
+    FDebugging: Boolean;
+    FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
@@ -657,8 +647,10 @@ type
     FMenuThemeData: HTHEME;
     FNavStacks: TIDEScintEditNavStacks;
     FOptions: TOptions;
+    FPaused: Boolean;
     FSignTools: TStringList;
     FTheme: TTheme;
+    procedure CheckIfTerminated;
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
     procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
@@ -1244,11 +1236,6 @@ begin
     inherited BorderStyle := Value;
 end;
 
-class procedure TMainForm.AppOnException(Sender: TObject; E: Exception);
-begin
-  MsgBox(AddPeriod(E.Message), SCompilerFormCaption, mbCriticalError, MB_OK);
-end;
-
 class procedure TMainForm.AppOnGetActiveFormHandle(var AHandle: HWND);
 begin
   { As of Delphi 11.3, the default code in TApplication.GetActiveFormHandle
@@ -1388,213 +1375,6 @@ end;
 
 procedure TMainForm.MemoKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-
-  procedure SimplifySelection(const AMemo: TIDEScintEdit);
-  begin
-    { The built in Esc (SCI_CANCEL) simply drops all additional selections
-      and does not empty the main selection, It doesn't matter if Esc is
-      pressed once or twice. Implement our own behaviour, same as VSCode.
-      Also see https://github.com/microsoft/vscode/issues/118835. }
-    if AMemo.SelectionCount > 1 then
-      AMemo.RemoveAdditionalSelections
-    else if not AMemo.SelEmpty then
-     AMemo.SetEmptySelection;
-    AMemo.ScrollCaretIntoView;
-  end;
-
-  procedure AddCursor(const AMemo: TIDEScintEdit; const Up: Boolean);
-  begin
-    { Does not try to keep the main selection. }
-
-    var Selections: TScintCaretAndAnchorList := nil;
-    var VirtualSpaces: TScintCaretAndAnchorList := nil;
-    try
-      Selections := TScintCaretAndAnchorList.Create;
-      VirtualSpaces := TScintCaretAndAnchorList.Create;
-      { Get all the virtual spaces as well before we start doing modifications }
-      AMemo.GetSelections(Selections, VirtualSpaces);
-      for var I := 0 to Selections.Count-1 do begin
-        var Selection := Selections[I];
-        var LineCaret := AMemo.GetLineFromPosition(Selection.CaretPos);
-        var LineAnchor := AMemo.GetLineFromPosition(Selection.AnchorPos);
-        if LineCaret = LineAnchor then begin
-          { Add selection with same caret and anchor offsets one line up or down. }
-          var OtherLine := LineCaret + IfThen(Up, -1, 1);;
-          if (OtherLine < 0) or (OtherLine >= AMemo.Lines.Count) then
-            Continue { Already at the top or bottom, can't add }
-          else begin
-            var LineStartPos := AMemo.GetPositionFromLine(LineCaret);
-            var CaretCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.CaretPos) + VirtualSpaces[I].CaretPos;
-            var AnchorCharacterCount := AMemo.GetCharacterCount(LineStartPos, Selection.AnchorPos) + VirtualSpaces[I].AnchorPos;
-            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
-            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
-            var NewCaretCharacterCount := CaretCharacterCount;
-            var NewCaretVirtualSpace := 0;
-            var NewAnchorCharacterCount := AnchorCharacterCount;
-            var NewAnchorVirtualSpace := 0;
-            if NewCaretCharacterCount > MaxCharacterCount then begin
-              NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
-              NewCaretCharacterCount := MaxCharacterCount;
-            end;
-            if NewAnchorCharacterCount > MaxCharacterCount then begin
-              NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
-              NewAnchorCharacterCount := MaxCharacterCount;
-            end;
-            var NewSelection: TScintCaretAndAnchor;
-            NewSelection.CaretPos := AMemo.GetPositionRelative(OtherLineStart, NewCaretCharacterCount);
-            NewSelection.AnchorPos := AMemo.GetPositionRelative(OtherLineStart, NewAnchorCharacterCount);
-            { AddSelection trims selections except for the main selection so
-              we need to check that ourselves unfortunately. Not doing a check
-              gives a problem when you AddCursor two times starting with an
-              empty single selection. The result will be 4 cursors, with 2 of
-              them in the same place. The check below fixes this but not
-              other cases when there's only partial overlap and Scintilla still
-              behaves weird. The check also doesn't handle virtual space which
-              is why we ultimately don't set virtual space: it leads to duplicate
-              selections. }
-            var MainSelection := AMemo.Selection;
-            if not NewSelection.Range.Within(AMemo.Selection) then begin
-              AMemo.AddSelection(NewSelection.CaretPos, NewSelection.AnchorPos);
-              { if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then begin
-                var MainSel := AMemo.MainSelection;
-                AMemo.SelectionCaretVirtualSpace[MainSel] := NewCaretVirtualSpace;
-                AMemo.SelectionAnchorVirtualSpace[MainSel] := NewAnchorVirtualSpace;
-              end; }
-            end;
-          end;
-        end else begin
-          { Extend multiline selection up or down. This is not the same as
-            LineExtendUp/Down because those can shrink instead of extend. }
-          var CaretBeforeAnchor := Selection.CaretPos < Selection.AnchorPos;
-          var Down := not Up;
-          var LineStartOrEnd, StartOrEndPos, VirtualSpace: Integer;
-          { Does it start (when going up) or end (when going down) at the caret or the anchor? }
-          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
-            LineStartOrEnd := LineCaret;
-            StartOrEndPos := Selection.CaretPos;
-            VirtualSpace := VirtualSpaces[I].CaretPos;
-          end else begin
-            LineStartOrEnd := LineAnchor;
-            StartOrEndPos := Selection.AnchorPos;
-            VirtualSpace := VirtualSpaces[I].AnchorPos;
-          end;
-          var NewStartOrEndPos: Integer;
-          var NewVirtualSpace := 0;
-          { Go up or down one line or to the start or end of the document }
-          if (Up and (LineStartOrEnd > 0)) or (Down and  (LineStartOrEnd < AMemo.Lines.Count-1))  then begin
-            var CharacterCount := AMemo.GetCharacterCount(AMemo.GetPositionFromLine(LineStartOrEnd), StartOrEndPos) + VirtualSpace;
-            var OtherLine := LineStartOrEnd + IfThen(Up, -1, 1);
-            var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
-            var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
-            var NewCharacterCount := CharacterCount;
-            if NewCharacterCount > MaxCharacterCount then begin
-              NewVirtualSpace := NewCharacterCount - MaxCharacterCount;
-              NewCharacterCount := MaxCharacterCount;
-            end;
-            NewStartOrEndPos := AMemo.GetPositionRelative(OtherLineStart, NewCharacterCount);
-          end else
-            NewStartOrEndPos := IfThen(Up, 0, AMemo.GetPositionFromLine(AMemo.Lines.Count));
-          { Move the caret or the anchor up or down to extend the selection }
-          if (Up and CaretBeforeAnchor) or (Down and not CaretBeforeAnchor) then begin
-            AMemo.SelectionCaretPosition[I] := NewStartOrEndPos;
-            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
-              AMemo.SelectionCaretVirtualSpace[I] := NewVirtualSpace;
-          end else begin
-            AMemo.SelectionAnchorPosition[I] := NewStartOrEndPos;
-            if svsUserAccessible in FActiveMemo.VirtualSpaceOptions then
-              AMemo.SelectionAnchorVirtualSpace[I] := NewVirtualSpace;
-          end;
-        end;
-      end;
-    finally
-      VirtualSpaces.Free;
-      Selections.Free;
-    end;
-  end;
-
-  procedure AddCursorsToLineEnds(const AMemo: TIDEScintEdit);
-  begin
-    { Does not try to keep the main selection. Otherwise behaves the same as
-      observed in Visual Studio Code, see comments. }
-
-    var Selections: TScintCaretAndAnchorList := nil;
-    var VirtualSpaces: TScintCaretAndAnchorList := nil;
-    try
-      Selections := TScintCaretAndAnchorList.Create;
-      VirtualSpaces := TScintCaretAndAnchorList.Create;
-      AMemo.GetSelections(Selections, VirtualSpaces);
-
-      { First remove all empty selections }
-      for var I := Selections.Count-1 downto 0 do begin
-        var Selection := Selections[I];
-        var VirtualSpace := VirtualSpaces[I];
-        if (Selection.CaretPos + VirtualSpace.CaretPos) =
-           (Selection.AnchorPos + VirtualSpace.AnchorPos) then begin
-          Selections.Delete(I);
-          VirtualSpaces.Delete(I);
-        end;
-      end;
-
-      { If all selections were empty do nothing }
-      if Selections.Count = 0 then
-        Exit;
-
-      { Handle non empty selections }
-      for var I := Selections.Count-1 downto 0 do begin
-        var Selection := Selections[I];
-        var Line1 := AMemo.GetLineFromPosition(Selection.CaretPos);
-        var Line2 := AMemo.GetLineFromPosition(Selection.AnchorPos);
-        var SelSingleLine := Line1 = Line2;
-        if SelSingleLine then begin
-          { Single line selections are updated into empty selection at end of selection }
-          var VirtualSpace := VirtualSpaces[I];
-          if Selection.CaretPos + VirtualSpace.CaretPos > Selection.AnchorPos + VirtualSpace.AnchorPos then begin
-            Selection.AnchorPos := Selection.CaretPos;
-            VirtualSpace.AnchorPos := VirtualSpace.CaretPos;
-          end else begin
-            Selection.CaretPos := Selection.AnchorPos;
-            VirtualSpace.CaretPos := VirtualSpace.AnchorPos;
-          end;
-          Selections[I] := Selection;
-          VirtualSpaces[I] := VirtualSpace;
-        end else begin
-          { Multiline selections are replaced by empty selections at each end of line }
-          if Line1 > Line2 then begin
-            var TmpLine := Line1;
-            Line1 := Line2;
-            Line2 := TmpLine;
-          end;
-          { Ignore last line if the selection doesn't really select anything on that line }
-          if Selection.Range.EndPos = AMemo.GetPositionFromLine(Line2) then
-            Dec(Line2);
-          for var Line := Line1 to Line2 do begin
-            Selection.CaretPos := AMemo.GetLineEndPosition(Line);
-            Selection.AnchorPos := Selection.CaretPos;
-            Selections.Add(Selection);
-            VirtualSpaces.Add(TScintCaretAndAnchor.Create(0, 0));
-          end;
-          Selections.Delete(I);
-          VirtualSpaces.Delete(I);
-        end;
-      end;
-
-      { Send updated selections to memo }
-      for var I := 0 to Selections.Count-1 do begin
-        var Selection := Selections[I];
-        var VirtualSpace := VirtualSpaces[I];
-        if I = 0 then
-          AMemo.SetSingleSelection(Selection.CaretPos, Selection.AnchorPos)
-        else
-          AMemo.AddSelection(Selection.CaretPos, Selection.AnchorPos);
-        AMemo.SelectionCaretVirtualSpace[I] := VirtualSpaces[I].CaretPos;
-        AMemo.SelectionAnchorVirtualSpace[I] := VirtualSpaces[I].AnchorPos;
-      end;
-    finally
-      VirtualSpaces.Free;
-      Selections.Free;
-    end;
-  end;
-
 begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TIDEScintEdit;
@@ -1633,7 +1413,7 @@ begin
         Key := 0;
   end else if (Key = VK_SPACE) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
     Key := 0;
-    CallTipsHandleCtrlSpace;
+    CallTipsHandleCtrlSpace(FActiveMemo);
   end else begin
     var AShortCut := ShortCut(Key, Shift);
     { Check if the memo keymap wants us to handle the shortcut but first check
@@ -1659,9 +1439,9 @@ begin
           ccSimplifySelection:
             SimplifySelection(FActiveMemo);
           ccToggleLinesComment:
-            EToggleLinesCommentClick(Self); //GetCompexCommand already checked ReadOnly for us
+            EToggleLinesCommentClick(Self); //GetComplexCommand already checked ReadOnly for us
           ccAddCursorUp, ccAddCursorDown:
-            AddCursor(FActiveMemo, ComplexCommand = ccAddCursorUp);
+            AddCursorUpOrDown(FActiveMemo, ComplexCommand = ccAddCursorUp);
           ccBraceMatch:
             EBraceMatchClick(Self);
           ccAddCursorsToLineEnds:
@@ -1684,7 +1464,7 @@ begin
       forward button. So that's why we handle #9 here. Doesn't mean Ctrl+Tab
       doesn't work: it doesnt trigger KeyPress, even if it wasn't a menu
       shortcut for Next Tab (which it is). }
-    InitiateAutoComplete(#0);
+    InitiateAutoComplete(FActiveMemo, #0);
     Key := #0;
   end else if (Key <= #31) or (Key = #127) then begin
     { Prevent "control characters" from being entered in text. Don't need to be
@@ -1756,19 +1536,6 @@ begin
   Caption := NewCaption;
   if not CommandLineWizard then
     Application.Title := NewCaption;
-end;
-
-procedure TMainForm.UpdateNewMainFileButtons;
-begin
-  if FOptions.UseWizard then begin
-    FNewMainFile.Caption := '&New...';
-    FNewMainFile.OnClick := FNewMainFileUserWizardClick;
-    NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
-  end else begin
-    FNewMainFile.Caption := '&New';
-    FNewMainFile.OnClick := FNewMainFileClick;
-    NewMainFileButton.OnClick := FNewMainFileClick;
-  end;
 end;
 
 procedure TMainForm.NewMainFile(const IsReload: Boolean);
@@ -2471,7 +2238,7 @@ begin
     CompilerOutputList.Cursor := crAppStart;
     for Memo in FFileMemos do
       Memo.ReadOnly := True;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
     HideError;
     CompilerOutputList.Clear;
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -2558,7 +2325,7 @@ begin
     CompilerOutputList.Cursor := crDefault;
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
     UpdateRunMenu;
     UpdateCaption;
     UpdatePreprocMemos;
@@ -3044,44 +2811,6 @@ procedure TMainForm.ECopyClick(Sender: TObject);
 begin
   FActiveMemo.CopyToClipboard;
 end;
-
-function TMainForm.MultipleSelectionPasteFromClipboard(const AMemo: TIDEScintEdit): Boolean;
-begin
-  { Scintilla doesn't yet properly support multiple selection paste. Handle it
-    here, just like VS and VSCode do: if there's multiple selections and the paste
-    text has the same amount of lines then paste 1 line per selection. Do this even
-    if the paste text is marked as rectangular. Otherwise (so no match between
-    the selection count and the line count) paste all lines into each selection.
-    For the latter we don't need handling here: this is Scintilla's default
-    behaviour if SC_MULTIPASTE_EACH is on. }
-  Result := False;
-  var SelectionCount := AMemo.SelectionCount;
-  if SelectionCount > 1 then begin
-    var PasteLines := Clipboard.AsText.Replace(#13#10, #13).Split([#13, #10]);
-    if SelectionCount = Length(PasteLines) then begin
-      AMemo.BeginUndoAction;
-      try
-        for var I := 0 to SelectionCount-1 do begin
-          var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
-          var EndPos := AMemo.SelectionEndPosition[I];
-          AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
-          { Update the selection to an empty selection at the end of the inserted
-            text, just like ReplaceMainSelText }
-          var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
-          AMemo.SelectionCaretPosition[I] := Pos;
-          AMemo.SelectionAnchorPosition[I] := Pos;
-        end;
-        { Be like SCI_PASTE }
-        AMemo.ChooseCaretX;
-        AMemo.ScrollCaretIntoView;
-      finally
-        AMemo.EndUndoAction;
-      end;
-      Result := True;
-    end;
-  end;
-end;
-
 procedure TMainForm.EPasteClick(Sender: TObject);
 begin
   if not MultipleSelectionPasteFromClipboard(FActiveMemo) then
@@ -3119,78 +2848,7 @@ end;
 
 procedure TMainForm.EToggleLinesCommentClick(Sender: TObject);
 begin
-  var AMemo := FActiveMemo;
-
-  { Based on SciTE 5.50's SciTEBase::StartBlockComment - only toggles comments
-    for the main selection }
-
-  var Selection := AMemo.Selection;
-  var CaretPosition := AMemo.CaretPosition;
-  // checking if caret is located in _beginning_ of selected block
-  var MoveCaret := CaretPosition < Selection.EndPos;
-  var SelStartLine := AMemo.GetLineFromPosition(Selection.StartPos);
-  var SelEndLine := AMemo.GetLineFromPosition(Selection.EndPos);
-  var Lines := SelEndLine - SelStartLine;
-  var FirstSelLineStart := AMemo.GetPositionFromLine(SelStartLine);
-  // "caret return" is part of the last selected line
-  if (Lines > 0) and (Selection.EndPos = AMemo.GetPositionFromLine(SelEndLine)) then
-    Dec(SelEndLine);
-  { We rely on the styler to identify [Code] section lines, but we
-    may be searching into areas that haven't been styled yet }
-  AMemo.StyleNeeded(Selection.EndPos);
-  AMemo.BeginUndoAction;
-  try
-    var LastLongCommentLength := 0;
-    for var I := SelStartLine to SelEndLine do begin
-      var LineIndent := AMemo.GetLineIndentPosition(I);
-      var LineEnd := AMemo.GetLineEndPosition(I);
-      var LineBuf := AMemo.GetTextRange(LineIndent, LineEnd);
-      // empty lines are not commented
-      if LineBuf = '' then
-        Continue;
-      var Comment: String;
-      if LineBuf.StartsWith('//') or
-         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
-        Comment := '//'
-      else
-        Comment := ';';
-      var LongComment := Comment + ' ';
-      LastLongCommentLength := Length(LongComment);
-      if LineBuf.StartsWith(Comment) then begin
-        var CommentLength := Length(Comment);
-        if LineBuf.StartsWith(LongComment) then begin
-          // Removing comment with space after it.
-          CommentLength := Length(LongComment);
-        end;
-        AMemo.Selection := TScintRange.Create(LineIndent, LineIndent + CommentLength);
-        AMemo.SelText := '';
-        if I = SelStartLine then // is this the first selected line?
-          Dec(Selection.StartPos, CommentLength);
-        Dec(Selection.EndPos, CommentLength); // every iteration
-        Continue;
-      end;
-      if I = SelStartLine then // is this the first selected line?
-        Inc(Selection.StartPos, Length(LongComment));
-      Inc(Selection.EndPos, Length(LongComment)); // every iteration
-      AMemo.Call(SCI_INSERTTEXT, LineIndent, AMemo.ConvertStringToRawString(LongComment));
-    end;
-    // after uncommenting selection may promote itself to the lines
-    // before the first initially selected line;
-    // another problem - if only comment symbol was selected;
-    if Selection.StartPos < FirstSelLineStart then begin
-      if Selection.StartPos >= Selection.EndPos - (LastLongCommentLength - 1) then
-        Selection.EndPos := FirstSelLineStart;
-      Selection.StartPos := FirstSelLineStart;
-    end;
-    if MoveCaret then begin
-      // moving caret to the beginning of selected block
-      AMemo.CaretPosition := Selection.EndPos;
-      AMemo.CaretPositionWithSelectFromAnchor := Selection.StartPos;
-    end else
-      AMemo.Selection := Selection;
-  finally
-    AMemo.EndUndoAction;
-  end;
+  ToggleLinesComment(FActiveMemo);
 end;
 
 procedure TMainForm.EBraceMatchClick(Sender: TObject);
@@ -3201,35 +2859,8 @@ end;
 procedure TMainForm.ESelectAllFindMatchesClick(Sender: TObject);
 begin
   { Might be called even if ESelectAllFindMatches.Enabled would be False in EMenuClick }
-  if FLastFindText <> ''  then begin
-    var StartPos := 0;
-    var EndPos := FActiveMemo.RawTextLength;
-    var FoundRange: TScintRange;
-    var ClosestSelection := -1;
-    var ClosestSelectionDistance := 0; { Silence compiler }
-    var CaretPos := FActiveMemo.CaretPosition;
-
-    while (StartPos < EndPos) and
-          FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-            FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), FoundRange) do begin
-      if StartPos = 0 then
-        FActiveMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
-      else
-        FActiveMemo.AddSelection(FoundRange.EndPos, FoundRange.StartPos);
-
-      var Distance := Abs(CaretPos-FoundRange.EndPos);
-      if (ClosestSelection = -1) or (Distance < ClosestSelectionDistance) then begin
-        ClosestSelection := FActiveMemo.SelectionCount-1;
-        ClosestSelectionDistance := Distance;
-      end;
-
-      StartPos := FoundRange.EndPos;
-    end;
-    if ClosestSelection <> -1 then begin
-      FActiveMemo.MainSelection := ClosestSelection;
-      FActiveMemo.ScrollCaretIntoView;
-    end;
-  end;
+  if FLastFindText <> ''  then
+    SelectAllFindMatches(FActiveMemo);
 end;
 
 procedure TMainForm.VMenuClick(Sender: TObject);
@@ -3706,8 +3337,8 @@ begin
     UpdateSaveMenuItemAndButton;
     UpdateRunMenu;
     UpdateCaretPosPanelAndBackNavStack;
-    UpdateEditModePanel;
-    UpdateModifiedPanel;
+    UpdateEditModeStatusPanel;
+    UpdateModifiedStatusPanel;
   end;
 end;
 
@@ -4088,22 +3719,22 @@ end;
 
 procedure TMainForm.TGenerateGUIDClick(Sender: TObject);
 begin
-  InsertGeneratedGuid;
+  InsertGeneratedGuid(FActiveMemo);
 end;
 
 procedure TMainForm.TMsgBoxDesignerClick(Sender: TObject);
 begin
-  ShowMsgBoxDesignerForm;
+  ShowMsgBoxDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TRegistryDesignerClick(Sender: TObject);
 begin
-  ShowRegistryDesignerForm;
+  ShowRegistryDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TFilesDesignerClick(Sender: TObject);
 begin
-  ShowFilesDesignerForm;
+  ShowFilesDesignerForm(FActiveMemo);
 end;
 
 procedure TMainForm.TSignToolsClick(Sender: TObject);
@@ -4422,7 +4053,7 @@ begin
   UpdateBackNavigationStack;
 end;
 
-procedure TMainForm.UpdateEditModePanel;
+procedure TMainForm.UpdateEditModeStatusPanel;
 const
   InsertText: array[Boolean] of String = ('Overwrite', 'Insert');
 begin
@@ -4453,7 +4084,7 @@ begin
     MemosTabSet.TabIndex := 0; { For next time }
 end;
 
-procedure TMainForm.UpdateModifiedPanel;
+procedure TMainForm.UpdateModifiedStatusPanel;
 begin
   if FActiveMemo.Modified then
     StatusBar.Panels[spModified].Text := 'Modified'
@@ -4689,7 +4320,7 @@ begin
 
   if Memo = FActiveMemo then begin
     UpdateCaretPosPanelAndBackNavStack;
-    UpdateEditModePanel;
+    UpdateEditModeStatusPanel;
   end;
 
   UpdatePendingSquiggly(Memo);
@@ -4700,13 +4331,13 @@ end;
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
 begin
   if Sender = FActiveMemo then
-    UpdateModifiedPanel;
+    UpdateModifiedStatusPanel;
 end;
 
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
   const Up: Boolean);
 begin
-  CallTipsHandleArrowClick(Up);
+  CallTipsHandleArrowClick(FActiveMemo, Up);
 end;
 
 procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo);
@@ -4938,7 +4569,7 @@ begin
     end;
   end;
 
-  AutoCompleteAndCallTipsHandleCharAdded(Ch);
+  AutoCompleteAndCallTipsHandleCharAdded(FActiveMemo, Ch);
 end;
 
 procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
@@ -5589,7 +5220,7 @@ begin
   CloseHandle(FProcessHandle);
   FProcessHandle := 0;
   FTempDir := '';
-  CheckIfRunningTimer.Enabled := False;
+  CheckIfTerminatedTimer.Enabled := False;
   HideError;
   SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
@@ -5628,49 +5259,6 @@ end;
 procedure TMainForm.BreakPointsPopupMenuClick(Sender: TObject);
 begin
   UpdateBreakPointsMenu(Sender as TMenuItem);
-end;
-
-{ Should always be called when one of the Enabled states would change because
-  other code depends on the states being correct always even if the user never
-  clicks the Run menu. This is unlike the other menus. Note: also updates
-  BCompile and BStopCompile from the Build menu. }
-procedure TMainForm.UpdateRunMenu;
-begin
-  CheckIfTerminated;
-  BCompile.Enabled := not FCompiling and not FDebugging;
-  CompileButton.Enabled := BCompile.Enabled;
-  BStopCompile.Enabled := FCompiling;
-  StopCompileButton.Enabled := BStopCompile.Enabled;
-  RRun.Enabled := not FCompiling and (not FDebugging or FPaused);
-  RunButton.Enabled := RRun.Enabled;
-  RPause.Enabled := FDebugging and not FPaused;
-  PauseButton.Enabled := RPause.Enabled;
-  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
-  RStepInto.Enabled := RRun.Enabled;
-  RStepOver.Enabled := RRun.Enabled;
-  RStepOut.Enabled := FPaused;
-  RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
-  RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  TerminateButton.Enabled := RTerminate.Enabled;
-  REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  { See RMenuClick for other menu items and also see BreakPointsPopupMenuClick }
-end;
-
-procedure TMainForm.UpdateSaveMenuItemAndButton;
-begin
-  FSave.Enabled := FActiveMemo is TIDEScintFileEdit;
-  SaveButton.Enabled := FSave.Enabled;
-end;
-
-procedure TMainForm.UpdateTargetMenu;
-begin
-  if FDebugTarget = dtSetup then begin
-    RTargetSetup.Checked := True;
-    TargetSetupButton.Down := True;
-  end else begin
-    RTargetUninstall.Checked := True;
-    TargetUninstallButton.Down := True;
-  end;
 end;
 
 procedure TMainForm.UpdateKeyMapping;
@@ -5886,86 +5474,6 @@ begin
   UpdateBevel1Visibility;
 end;
 
-procedure TMainForm.StartProcess;
-var
-  RunFilename, RunParameters, WorkingDir: String;
-  Info: TShellExecuteInfo;
-  SaveFocusWindow: HWND;
-  WindowList: Pointer;
-  ShellExecuteResult: BOOL;
-  ErrorCode: DWORD;
-begin
-  if FDebugTarget = dtUninstall then begin
-    if FUninstExe = '' then
-      raise Exception.Create(SCompilerNeedUninstExe);
-    RunFilename := FUninstExe;
-  end else begin
-    if FCompiledExe = '' then
-      raise Exception.Create(SCompilerNeedCompiledExe);
-    RunFilename := FCompiledExe;
-  end;
-  RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
-
-  ResetAllMemosLineState;
-  DebugOutputList.Clear;
-  SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  DebugCallStackList.Clear;
-  SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-  if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
-    OutputTabSet.TabIndex := tiDebugOutput;
-  SetStatusPanelVisible(True);
-
-  FillChar(Info, SizeOf(Info), 0);
-  Info.cbSize := SizeOf(Info);
-  Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
-    SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
-  Info.Wnd := Handle;
-  if FOptions.RunAsDifferentUser then
-    Info.lpVerb := 'runas'
-  else
-    Info.lpVerb := 'open';
-  Info.lpFile := PChar(RunFilename);
-  Info.lpParameters := PChar(RunParameters);
-  WorkingDir := PathExtractDir(RunFilename);
-  Info.lpDirectory := PChar(WorkingDir);
-  Info.nShow := SW_SHOWNORMAL;
-  { When the RunAsDifferentUser option is enabled, it's this process that
-    waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
-    prevent the user from clicking other things before the UAC dialog is
-    dismissed (which is definitely a possibility if the "Switch to the secure
-    desktop when prompting for elevation" setting is disabled in Group
-    Policy). }
-  SaveFocusWindow := GetFocus;
-  WindowList := DisableTaskWindows(Handle);
-  try
-    { Also temporarily remove the focus since a disabled window's children can
-      still receive keystrokes. This is needed if Windows doesn't switch to
-      the secure desktop immediately and instead shows a flashing taskbar
-      button that the user must click (which happened on Windows Vista; I'm
-      unable to reproduce it on Windows 11). }
-    Windows.SetFocus(0);
-    ShellExecuteResult := ShellExecuteEx(@Info);
-    ErrorCode := GetLastError;
-  finally
-    EnableTaskWindows(WindowList);
-    Windows.SetFocus(SaveFocusWindow);
-  end;
-  if not ShellExecuteResult then begin
-    { Don't display error message if user clicked Cancel at UAC dialog }
-    if ErrorCode = ERROR_CANCELLED then
-      Abort;
-    raise Exception.CreateFmt(SCompilerExecuteSetupError2, [RunFilename,
-      ErrorCode, Win32ErrorString(ErrorCode)]);
-  end;
-  FDebugging := True;
-  FPaused := False;
-  FProcessHandle := Info.hProcess;
-  CheckIfRunningTimer.Enabled := True;
-  UpdateRunMenu;
-  UpdateCaption;
-  DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
-end;
-
 procedure TMainForm.CompileIfNecessary;
 
   function UnopenedIncludedFileModifiedSinceLastCompile: Boolean;
@@ -6003,13 +5511,90 @@ begin
     CompileFile('', False);
 end;
 
-procedure TMainForm.Go(AStepMode: TStepMode);
-begin
-  CompileIfNecessary;
-  FStepMode := AStepMode;
-  HideError;
-  SetStepLine(FStepMemo, -1);
-  if FDebugging then begin
+procedure TMainForm.Go(const AStepMode: TStepMode);
+
+  procedure StartProcess;
+  var
+    RunFilename, RunParameters, WorkingDir: String;
+    Info: TShellExecuteInfo;
+    SaveFocusWindow: HWND;
+    WindowList: Pointer;
+    ShellExecuteResult: BOOL;
+    ErrorCode: DWORD;
+  begin
+    if FDebugTarget = dtUninstall then begin
+      if FUninstExe = '' then
+        raise Exception.Create(SCompilerNeedUninstExe);
+      RunFilename := FUninstExe;
+    end else begin
+      if FCompiledExe = '' then
+        raise Exception.Create(SCompilerNeedCompiledExe);
+      RunFilename := FCompiledExe;
+    end;
+    RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
+
+    ResetAllMemosLineState;
+    DebugOutputList.Clear;
+    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.Clear;
+    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
+      OutputTabSet.TabIndex := tiDebugOutput;
+    SetStatusPanelVisible(True);
+
+    FillChar(Info, SizeOf(Info), 0);
+    Info.cbSize := SizeOf(Info);
+    Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
+      SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
+    Info.Wnd := Handle;
+    if FOptions.RunAsDifferentUser then
+      Info.lpVerb := 'runas'
+    else
+      Info.lpVerb := 'open';
+    Info.lpFile := PChar(RunFilename);
+    Info.lpParameters := PChar(RunParameters);
+    WorkingDir := PathExtractDir(RunFilename);
+    Info.lpDirectory := PChar(WorkingDir);
+    Info.nShow := SW_SHOWNORMAL;
+    { When the RunAsDifferentUser option is enabled, it's this process that
+      waits on the UAC dialog, not Setup(Ldr), so we need to disable windows to
+      prevent the user from clicking other things before the UAC dialog is
+      dismissed (which is definitely a possibility if the "Switch to the secure
+      desktop when prompting for elevation" setting is disabled in Group
+      Policy). }
+    SaveFocusWindow := GetFocus;
+    WindowList := DisableTaskWindows(Handle);
+    try
+      { Also temporarily remove the focus since a disabled window's children can
+        still receive keystrokes. This is needed if Windows doesn't switch to
+        the secure desktop immediately and instead shows a flashing taskbar
+        button that the user must click (which happened on Windows Vista; I'm
+        unable to reproduce it on Windows 11). }
+      Windows.SetFocus(0);
+      ShellExecuteResult := ShellExecuteEx(@Info);
+      ErrorCode := GetLastError;
+    finally
+      EnableTaskWindows(WindowList);
+      Windows.SetFocus(SaveFocusWindow);
+    end;
+    if not ShellExecuteResult then begin
+      { Don't display error message if user clicked Cancel at UAC dialog }
+      if ErrorCode = ERROR_CANCELLED then
+        Abort;
+      raise Exception.CreateFmt(SCompilerExecuteSetupError2, [RunFilename,
+        ErrorCode, Win32ErrorString(ErrorCode)]);
+    end;
+    FDebugging := True;
+    FPaused := False;
+    FProcessHandle := Info.hProcess;
+    CheckIfTerminatedTimer.Enabled := True;
+    UpdateRunMenu;
+    UpdateCaption;
+    DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
+  end;
+
+  procedure ContinueProcessIfPaused(const AStepMode: TStepMode);
+  begin
     if FPaused then begin
       FPaused := False;
       UpdateRunMenu;
@@ -6023,7 +5608,15 @@ begin
       SendNotifyMessage(FDebugClientWnd, WM_DebugClient_Continue,
         Ord(AStepMode = smStepOver), 0);
     end;
-  end
+  end;
+
+begin
+  CompileIfNecessary;
+  FStepMode := AStepMode;
+  HideError;
+  SetStepLine(FStepMemo, -1);
+  if FDebugging then
+    ContinueProcessIfPaused(AStepMode)
   else
     StartProcess;
 end;
@@ -6170,7 +5763,7 @@ begin
   end;
 end;
 
-procedure TMainForm.CheckIfRunningTimerTimer(Sender: TObject);
+procedure TMainForm.CheckIfTerminatedTimerTimer(Sender: TObject);
 begin
   { In cases of normal Setup termination, we receive a WM_Debugger_Goodbye
     message. But in case we don't get that, use a timer to periodically check
@@ -6888,16 +6481,6 @@ begin
     between and the color of the toolbar and memo margins is the same }
   Bevel1.Visible := (ToolBarPanel.Color = FTheme.Colors[tcMarginBack]) and
                     not UpdatePanel.Visible and not MemosTabSet.Visible;
-end;
-
-function TMainForm.ToCurrentPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, CurrentPPI, 96);
-end;
-
-function TMainForm.FromCurrentPPI(const XY: Integer): Integer;
-begin
-  Result := MulDiv(XY, 96, CurrentPPI);
 end;
 
 initialization

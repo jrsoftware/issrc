@@ -20,6 +20,8 @@ uses
 type
   TMainFormUpdateMenuHelper = class helper(TMainFormFindReplaceHelper) for TMainForm
     procedure UpdateFileMenu(const Menu: TMenuItem);
+    procedure UpdateNewMainFileButtons;
+    procedure UpdateSaveMenuItemAndButton;
     procedure UpdateEditMenu(const Menu: TMenuItem);
     procedure UpdateViewMenu(const Menu: TMenuItem);
     procedure UpdateBuildMenu(const Menu: TMenuItem);
@@ -27,8 +29,10 @@ type
     procedure UpdateHelpMenu(const Menu: TMenuItem);
     procedure UpdateSimpleMenu(const Menu: TMenuItem);
     procedure UpdateToolsMenu(const Menu: TMenuItem);
+    procedure UpdateRunMenu;
     procedure UpdateRunMenu2(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
+    procedure UpdateTargetMenu;
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmaps(const ParentMenuItem: TMenuItem);
@@ -288,6 +292,25 @@ begin
   _ApplyMenuBitmaps(Menu);
 end;
 
+procedure TMainFormUpdateMenuHelper.UpdateNewMainFileButtons;
+begin
+  if FOptions.UseWizard then begin
+    FNewMainFile.Caption := '&New...';
+    FNewMainFile.OnClick := FNewMainFileUserWizardClick;
+    NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
+  end else begin
+    FNewMainFile.Caption := '&New';
+    FNewMainFile.OnClick := FNewMainFileClick;
+    NewMainFileButton.OnClick := FNewMainFileClick;
+  end;
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateSaveMenuItemAndButton;
+begin
+  FSave.Enabled := FActiveMemo is TIDEScintFileEdit;
+  SaveButton.Enabled := FSave.Enabled;
+end;
+
 procedure TMainFormUpdateMenuHelper.UpdateEditMenu(const Menu: TMenuItem);
 var
   MemoHasFocus, MemoIsReadOnly: Boolean;
@@ -412,6 +435,32 @@ begin
   Result := False;
 end;
 
+{ Should always be called when one of the Enabled states would change because
+  other code depends on the states being correct always even if the user never
+  clicks the Run menu. This is unlike the other menus. Note: also updates
+  BCompile and BStopCompile from the Build menu. }
+procedure TMainFormUpdateMenuHelper.UpdateRunMenu;
+begin
+  CheckIfTerminated;
+  BCompile.Enabled := not FCompiling and not FDebugging;
+  CompileButton.Enabled := BCompile.Enabled;
+  BStopCompile.Enabled := FCompiling;
+  StopCompileButton.Enabled := BStopCompile.Enabled;
+  RRun.Enabled := not FCompiling and (not FDebugging or FPaused);
+  RunButton.Enabled := RRun.Enabled;
+  RPause.Enabled := FDebugging and not FPaused;
+  PauseButton.Enabled := RPause.Enabled;
+  RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
+  RStepInto.Enabled := RRun.Enabled;
+  RStepOver.Enabled := RRun.Enabled;
+  RStepOut.Enabled := FPaused;
+  RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
+  RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
+  TerminateButton.Enabled := RTerminate.Enabled;
+  REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
+  { See UpdateRunMenu2 for other menu items and also see UpdateBreakPointsMenu }
+end;
+
 procedure TMainFormUpdateMenuHelper.UpdateRunMenu2(const Menu: TMenuItem);
 begin
   RDeleteBreakPoints.Enabled := _AnyMemoHasBreakPoint;
@@ -427,6 +476,17 @@ begin
   { Also see UpdateRunMenu }
 
   _ApplyMenuBitmaps(Menu);
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateTargetMenu;
+begin
+  if FDebugTarget = dtSetup then begin
+    RTargetSetup.Checked := True;
+    TargetSetupButton.Down := True;
+  end else begin
+    RTargetUninstall.Checked := True;
+    TargetUninstallButton.Down := True;
+  end;
 end;
 
 end.

@@ -15,21 +15,21 @@ interface
 
 uses
   Menus,
-  IDE.MainForm, IDE.MainForm.ToolsHelper,
-  IDE.IDEScintEdit;
+  ScintEdit,
+  IDE.MainForm, IDE.MainForm.ToolsHelper;
 
 type
   TMainFormAutoCompleteAndCallTipsHelper = class helper(TMainFormToolsHelper) for TMainForm
-    procedure InitiateAutoComplete(const Key: AnsiChar);
-    procedure AutoCompleteAndCallTipsHandleCharAdded(const Ch: AnsiChar);
-    procedure CallTipsHandleArrowClick(const Up: Boolean);
-    procedure CallTipsHandleCtrlSpace;
+    procedure InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
+    procedure AutoCompleteAndCallTipsHandleCharAdded(const AMemo: TScintEdit; const Ch: AnsiChar);
+    procedure CallTipsHandleArrowClick(const AMemo: TScintEdit; const Up: Boolean);
+    procedure CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
     { Private }
-    function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TIDEScintEdit;
+    function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
-    procedure _UpdateCallTipFunctionDefinition(const Pos: Integer = -1);
-    procedure _InitiateCallTip(const Key: AnsiChar);
-    procedure _ContinueCallTip;
+    procedure _UpdateCallTipFunctionDefinition(const AMemo: TScintEdit; const Pos: Integer = -1);
+    procedure _InitiateCallTip(const AMemo: TScintEdit; const Key: AnsiChar);
+    procedure _ContinueCallTip(const AMemo: TScintEdit);
   end;
 
 implementation
@@ -38,16 +38,16 @@ uses
   SysUtils, Math,
   IDE.ScintStylerInnoSetup;
 
-function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TIDEScintEdit;
+function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
 begin
   Result := (PositionBeforeWordStartPos < WordStartLinePos) or
             not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const Key: AnsiChar);
+procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
 
-  function OnlyWhiteSpaceBeforeWord(const Memo: TIDEScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  function OnlyWhiteSpaceBeforeWord(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   var
     I: Integer;
     C: AnsiChar;
@@ -56,10 +56,10 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const Key:
     I := WordStartPos;
     Result := False;
     while I > LinePos do begin
-      I := FActiveMemo.GetPositionBefore(I);
+      I := AMemo.GetPositionBefore(I);
       if I < LinePos then
         Exit;  { shouldn't get here }
-      C := FActiveMemo.GetByteAtPosition(I);
+      C := AMemo.GetByteAtPosition(I);
       if C > ' ' then
         Exit;
     end;
@@ -75,23 +75,23 @@ var
   FoundSemicolon, FoundFlagsOrType, FoundDot: Boolean;
   C: AnsiChar;
 begin
-  if FActiveMemo.AutoCompleteActive or FActiveMemo.ReadOnly then
+  if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
 
   if Key = #0 then begin
     { If a character is typed then Scintilla will handle selections but
       otherwise we should empty them and also make sure the caret is visible
       before we start autocompletion }
-    FActiveMemo.SetEmptySelections;
-    FActiveMemo.ScrollCaretIntoView;
+    AMemo.SetEmptySelections;
+    AMemo.ScrollCaretIntoView;
   end;
 
-  CaretPos := FActiveMemo.CaretPosition;
-  Line := FActiveMemo.GetLineFromPosition(CaretPos);
-  LinePos := FActiveMemo.GetPositionFromLine(Line);
+  CaretPos := AMemo.CaretPosition;
+  Line := AMemo.GetLineFromPosition(CaretPos);
+  LinePos := AMemo.GetPositionFromLine(Line);
 
-  WordStartPos := FActiveMemo.GetWordStartPosition(CaretPos, True);
-  WordEndPos := FActiveMemo.GetWordEndPosition(CaretPos, True);
+  WordStartPos := AMemo.GetWordStartPosition(CaretPos, True);
+  WordEndPos := AMemo.GetWordEndPosition(CaretPos, True);
   CharsBefore := CaretPos - WordStartPos;
 
   { Don't auto start autocompletion after a character is typed if there are any
@@ -103,38 +103,38 @@ begin
       Exit;
   end;
 
-  case FActiveMemo.GetByteAtPosition(WordStartPos) of
+  case AMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
-        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.ISPPDirectivesWordList;
-        FActiveMemo.SetAutoCompleteFillupChars(' ');
+        AMemo.SetAutoCompleteFillupChars(' ');
       end;
     '{':
       begin
         WordList := FMemosStyler.ConstantsWordList;
-        FActiveMemo.SetAutoCompleteFillupChars('\:');
+        AMemo.SetAutoCompleteFillupChars('\:');
       end;
     '[':
       begin
-        if not OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
+        if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
           Exit;
         WordList := FMemosStyler.SectionsWordList;
-        FActiveMemo.SetAutoCompleteFillupChars('');
+        AMemo.SetAutoCompleteFillupChars('');
       end;
     else
       begin
-        Section := FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]);
+        Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
         if Section = scCode then begin
           { Space can only initiate autocompletion after non whitespace }
-          if (Key = ' ') and OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, WordStartPos) then
+          if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
             Exit;
 
-          var PositionBeforeWordStartPos := FActiveMemo.GetPositionBefore(WordStartPos);
+          var PositionBeforeWordStartPos := AMemo.GetPositionBefore(WordStartPos);
           if Key <> #0 then begin
-            FActiveMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
-            if not _InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo, LinePos, PositionBeforeWordStartPos) then
+            AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
+            if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos) then
               Exit;
           end;
 
@@ -143,26 +143,26 @@ begin
           { Autocomplete event functions if the current word on the line has
             exactly 1 space before it which has the word 'function' or
             'procedure' before it which has only whitespace before it }
-          if (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
+          if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
             var FunctionWordEndPos := PositionBeforeWordStartPos;
-            var FunctionWordStartPos := FActiveMemo.GetWordStartPosition(FunctionWordEndPos, True);
-            if OnlyWhiteSpaceBeforeWord(FActiveMemo, LinePos, FunctionWordStartPos) then begin
-              var FunctionWord := FActiveMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
+            var FunctionWordStartPos := AMemo.GetWordStartPosition(FunctionWordEndPos, True);
+            if OnlyWhiteSpaceBeforeWord(AMemo, LinePos, FunctionWordStartPos) then begin
+              var FunctionWord := AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
               if SameText(FunctionWord, 'procedure') then
                 WordList := FMemosStyler.EventFunctionsWordList[True]
               else if SameText(FunctionWord, 'function') then
                 WordList := FMemosStyler.EventFunctionsWordList[False];
               if WordList <> '' then
-                FActiveMemo.SetAutoCompleteFillupChars('');
+                AMemo.SetAutoCompleteFillupChars('');
             end;
           end;
 
           { If no event function was found then autocomplete script functions,
             types, etc if the current word has no dot before it }
           if WordList = '' then begin
-            var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+            var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
             WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
-            FActiveMemo.SetAutoCompleteFillupChars('');
+            AMemo.SetAutoCompleteFillupChars('');
           end;
 
           if WordList = '' then
@@ -178,18 +178,18 @@ begin
           FoundDot := False;
           var I := WordStartPos;
           while I > LinePos do begin
-            I := FActiveMemo.GetPositionBefore(I);
+            I := AMemo.GetPositionBefore(I);
             if I < LinePos then
               Exit;  { shouldn't get here }
-            C := FActiveMemo.GetByteAtPosition(I);
+            C := AMemo.GetByteAtPosition(I);
 
             if IsParamSection and (C in [';', ':']) and
-               FMemosStyler.IsSymbolStyle(FActiveMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
+               FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
               FoundSemicolon := C = ';';
               if not FoundSemicolon then begin
                 var ParameterWordEndPos := I;
-                var ParameterWordStartPos := FActiveMemo.GetWordStartPosition(ParameterWordEndPos, True);
-                var ParameterWord := FActiveMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
+                var ParameterWordStartPos := AMemo.GetWordStartPosition(ParameterWordEndPos, True);
+                var ParameterWord := AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                 FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                     ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
@@ -200,7 +200,7 @@ begin
             if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
               { Verify that a word (language name) precedes the '.', then check for
                 any non-whitespace characters before the word }
-              LangNamePos := FActiveMemo.GetWordStartPosition(I, True);
+              LangNamePos := AMemo.GetWordStartPosition(I, True);
               if LangNamePos >= I then
                 Exit;
               I := LangNamePos;
@@ -210,9 +210,9 @@ begin
                  (FMemosStyler.FlagsWordList[Section] <> '') then begin
                 { Verify word before the current word (or before that when we get here again) is
                   a valid flag and if so, continue looking before it instead of stopping }
-                var FlagEndPos := FActiveMemo.GetWordEndPosition(I, True);
-                var FlagStartPos := FActiveMemo.GetWordStartPosition(I, True);
-                var FlagWord := FActiveMemo.GetTextRange(FlagStartPos, FlagEndPos);
+                var FlagEndPos := AMemo.GetWordEndPosition(I, True);
+                var FlagStartPos := AMemo.GetWordStartPosition(I, True);
+                var FlagWord := AMemo.GetTextRange(FlagStartPos, FlagEndPos);
                 if FMemosStyler.SectionHasFlag(Section, FlagWord) then
                   I := FlagStartPos
                 else
@@ -229,23 +229,24 @@ begin
             WordList := FMemosStyler.FlagsWordList[Section];
             if WordList = '' then
               Exit;
-            FActiveMemo.SetAutoCompleteFillupChars(' ');
+            AMemo.SetAutoCompleteFillupChars(' ');
           end else begin
             WordList := FMemosStyler.KeywordsWordList[Section];
             if WordList = '' then { CustomMessages }
               Exit;
             if IsParamSection then
-              FActiveMemo.SetAutoCompleteFillupChars(':')
+              AMemo.SetAutoCompleteFillupChars(':')
             else
-              FActiveMemo.SetAutoCompleteFillupChars('=');
+              AMemo.SetAutoCompleteFillupChars('=');
           end;
         end;
       end;
   end;
-  FActiveMemo.ShowAutoComplete(CharsBefore, WordList);
+  AMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper._UpdateCallTipFunctionDefinition(const Pos: Integer { = -1 });
+procedure TMainFormAutoCompleteAndCallTipsHelper._UpdateCallTipFunctionDefinition(const AMemo: TScintEdit;
+  const Pos: Integer { = -1 });
 begin
   { Based on SciTE 5.50's SciTEBase::FillFunctionDefinition }
 
@@ -260,28 +261,28 @@ begin
     if FCallTipState.MaxCallTips > 1 then
       FCallTipState.FunctionDefinition := AnsiString(Format(#1'%d of %d'#2'%s', [FCallTipState.CurrentCallTip+1, FCallTipState.MaxCallTips, FCallTipState.FunctionDefinition]));
 
-    FActiveMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
-    _ContinueCallTip;
+    AMemo.ShowCallTip(FCallTipState.LastPosCallTip - Length(FCallTipState.CurrentCallTipWord), FCallTipState.FunctionDefinition);
+    _ContinueCallTip(AMemo);
   end;
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper._InitiateCallTip(const Key: AnsiChar);
+procedure TMainFormAutoCompleteAndCallTipsHelper._InitiateCallTip(const AMemo: TScintEdit; const Key: AnsiChar);
 begin
-  var Pos := FActiveMemo.CaretPosition;
+  var Pos := AMemo.CaretPosition;
 
-  if (FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.GetLineFromPosition(Pos)]) <> scCode) or
-     ((Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(FActiveMemo,
-       FActiveMemo.GetPositionFromLine(FActiveMemo.GetLineFromPosition(Pos)),
-       FActiveMemo.GetPositionBefore(Pos))) then
+  if (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.GetLineFromPosition(Pos)]) <> scCode) or
+     ((Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo,
+       AMemo.GetPositionFromLine(AMemo.GetLineFromPosition(Pos)),
+       AMemo.GetPositionBefore(Pos))) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete }
 
   FCallTipState.CurrentCallTip := 0;
   FCallTipState.CurrentCallTipWord := '';
-  var Line := FActiveMemo.CaretLineText;
-  var Current := FActiveMemo.CaretPositionInLine;
-  var CallTipWordCharacters := FActiveMemo.WordCharsAsSet;
+  var Line := AMemo.CaretLineText;
+  var Current := AMemo.CaretPositionInLine;
+  var CallTipWordCharacters := AMemo.WordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
@@ -319,15 +320,15 @@ begin
   FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
   FCallTipState.FunctionDefinition := '';
-  _UpdateCallTipFunctionDefinition(Pos);
+  _UpdateCallTipFunctionDefinition(AMemo, Pos);
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper._ContinueCallTip;
+procedure TMainFormAutoCompleteAndCallTipsHelper._ContinueCallTip(const AMemo: TScintEdit);
 begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
-	var Line := FActiveMemo.CaretLineText;
-	var Current := FActiveMemo.CaretPositionInLine;
+	var Line := AMemo.CaretLineText;
+	var Current := AMemo.CaretPositionInLine;
 
 	var Braces := 0;
 	var Commas := 0;
@@ -367,36 +368,36 @@ begin
 		Inc(EndHighlight);
   {$ZEROBASEDSTRINGS OFF}
 
-	FActiveMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
+	AMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
 end;
 
 procedure TMainFormAutoCompleteAndCallTipsHelper.AutoCompleteAndCallTipsHandleCharAdded(
-  const Ch: AnsiChar);
+  const AMemo: TScintEdit; const Ch: AnsiChar);
 begin
   { Based on SciTE 5.50's SciTEBase::CharAdded but with an altered interaction
     between calltips and autocomplete }
 
   var DoAutoComplete := False;
 
-  if FActiveMemo.CallTipActive then begin
+  if AMemo.CallTipActive then begin
     if Ch = ')' then begin
       Dec(FCallTipState.BraceCount);
       if FCallTipState.BraceCount < 1 then
-        FActiveMemo.CancelCallTip
+        AMemo.CancelCallTip
       else if FOptions.AutoCallTips then
-        _InitiateCallTip(Ch);
+        _InitiateCallTip(AMemo, Ch);
     end else if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
       if FOptions.AutoCallTips then
-        _InitiateCallTip(Ch);
+        _InitiateCallTip(AMemo, Ch);
     end else
-      _ContinueCallTip;
-  end else if FActiveMemo.AutoCompleteActive then begin
+      _ContinueCallTip(AMemo);
+  end else if AMemo.AutoCompleteActive then begin
     if Ch = '(' then begin
       Inc(FCallTipState.BraceCount);
       if FOptions.AutoCallTips then begin
-        _InitiateCallTip(Ch);
-        if not FActiveMemo.CallTipActive then begin
+        _InitiateCallTip(AMemo, Ch);
+        if not AMemo.CallTipActive then begin
           { Normally the calltip activation means any active autocompletion gets
             cancelled by Scintilla but if the current word has no call tip then
             we should make sure ourselves that the added brace still cancels
@@ -411,46 +412,47 @@ begin
   end else if Ch = '(' then begin
     FCallTipState.BraceCount := 1;
     if FOptions.AutoCallTips then
-      _InitiateCallTip(Ch);
+      _InitiateCallTip(AMemo, Ch);
   end else
     DoAutoComplete := True;
 
   if DoAutoComplete then begin
     case Ch of
       'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<', '0'..'9':
-        if not FActiveMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
-          InitiateAutoComplete(Ch);
+        if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
+          InitiateAutoComplete(AMemo, Ch);
     else
       var RestartAutoComplete := (Ch in [' ', '.']) and
-        (FOptions.AutoAutoComplete or FActiveMemo.AutoCompleteActive);
-      FActiveMemo.CancelAutoComplete;
+        (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
+      AMemo.CancelAutoComplete;
       if RestartAutoComplete then
-        InitiateAutoComplete(Ch);
+        InitiateAutoComplete(AMemo, Ch);
     end;
   end;
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleArrowClick(const Up: Boolean);
+procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleArrowClick(const AMemo: TScintEdit;
+  const Up: Boolean);
 begin
   { Based on SciTE 5.50's SciTEBase::Notify SA::Notification::CallTipClick }
   if Up and (FCallTipState.CurrentCallTip > 0) then begin
     Dec(FCallTipState.CurrentCallTip);
-    _UpdateCallTipFunctionDefinition;
+    _UpdateCallTipFunctionDefinition(AMemo);
   end else if not Up and (FCallTipState.CurrentCallTip + 1 < FCallTipState.MaxCallTips) then begin
     Inc(FCallTipState.CurrentCallTip);
-    _UpdateCallTipFunctionDefinition;
+    _UpdateCallTipFunctionDefinition(AMemo);
   end;
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleCtrlSpace;
+procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
 begin
   { Based on SciTE 5.50's SciTEBase::MenuCommand IDM_SHOWCALLTIP }
-  if FActiveMemo.CallTipActive then begin
+  if AMemo.CallTipActive then begin
     FCallTipState.CurrentCallTip := IfThen(FCallTipState.CurrentCallTip + 1 = FCallTipState.MaxCallTips, 0, FCallTipState.CurrentCallTip + 1);
-    _UpdateCallTipFunctionDefinition;
+    _UpdateCallTipFunctionDefinition(AMemo);
   end else begin
     FCallTipState.BraceCount := 1; { Missing in SciTE, see https://sourceforge.net/p/scintilla/bugs/2446/ }
-    _InitiateCallTip(#0);
+    _InitiateCallTip(AMemo, #0);
   end;
 end;
 

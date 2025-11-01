@@ -7,6 +7,13 @@ unit Setup.ScriptFunc.HelperFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Helper types and functions for the script support functions (run time - used by Setup)
+
+  Requires following globals to be set:
+  -LangOptions.DialogFontName
+  -LangOptions.DialogFontSize
+  -LangOptions.DialogFontBaseScaleWidth
+  -LangOptions.DialogFontBaseScaleHeight
+  -shWizardKeepAspectRatio in SetupHeader.Options
 }
 
 interface
@@ -66,6 +73,7 @@ type
   end;
 
 var
+  OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
@@ -116,7 +124,7 @@ uses
   Forms, SysUtils, Graphics,
   uPSUtils, PathFunc, ASMInline, PSStackHelper,
   Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
@@ -166,7 +174,21 @@ begin
   Font := TFont.Create;
   try
     SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
+
     CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
+
+    OrigScaleBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
+    OrigScaleBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
+
+    if shWizardKeepAspectRatio in SetupHeader.Options then begin
+      if ScaleBaseUnitX / OrigScaleBaseUnitX > ScaleBaseUnitY / OrigScaleBaseUnitY then begin
+        ScaleBaseUnitY := ScaleBaseUnitX;
+        OrigScaleBaseUnitY := OrigScaleBaseUnitX;
+      end else begin
+        ScaleBaseUnitX := ScaleBaseUnitY;
+        OrigScaleBaseUnitX := OrigScaleBaseUnitY;
+      end;
+    end;
   finally
     Font.Free;
   end;

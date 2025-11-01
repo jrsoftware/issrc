@@ -173,6 +173,7 @@
         <DCCReference Include="Src\IDE.MainForm.UpdateMenuHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.ToolsHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.AutoCompleteAndCallTipsHelper.pas"/>
+        <DCCReference Include="Src\IDE.MainForm.ScintHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.FinalHelper.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

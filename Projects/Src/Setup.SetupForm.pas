@@ -17,6 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
   -shWizardBorderStyled in SetupHeader.Options
+  -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
   -SetupHeader.WizardSizePercentX
   -SetupHeader.WizardSizePercentY
@@ -31,13 +32,14 @@ uses
 type
   TSetupForm = class(TUIStateForm)
   private
+    FOrigBaseUnitX, FOrigBaseUnitY: Integer;
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
     FFlipControlsOnShow: Boolean;
     FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
     FKeepSizeX, FKeepSizeY: Boolean;
-    FOrgClientWidth, FOrgClientHeight: Integer;
+    FOrgClientWidthAfterScale, FOrgClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -61,8 +63,8 @@ type
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
-    class function ScalePixelsX(const BaseUnitX, N: Integer): Integer; overload;
-    class function ScalePixelsY(const BaseUnitY, N: Integer): Integer; overload;
+    class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload;
+    class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload;
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;
     function ShouldSizeX: Boolean;
@@ -72,7 +74,6 @@ type
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
-    property BaseUnitY: Integer read FBaseUnitY;
   published
     property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property ControlsFlipped: Boolean read FControlsFlipped;
@@ -93,8 +94,8 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes,
-  BidiUtils, NewNotebook,
+  Generics.Collections, UITypes, StdCtrls,
+  BidiUtils, NewNotebook, NewStaticText,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
@@ -549,21 +550,58 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     end;
   end;
 
+  function GetHasTopLevelAutoSizeAnchoredStaticText(const ParentCtl: TWinControl): Boolean;
+  begin
+    for var I := 0 to ParentCtl.ControlCount-1 do begin
+      if ParentCtl.Controls[I] is TNewStaticText then begin
+        const Ctl = TNewStaticText(ParentCtl.Controls[I]);
+        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
+          Exit(True);
+      end else if ParentCtl.Controls[I] is TStaticText then begin
+        const Ctl = TStaticText(ParentCtl.Controls[I]);
+        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
+          Exit(True);
+      end;
+    end;
+
+    Result := False;
+  end;
+
 begin
+  { T(New)StaticText's which have AutoSize set, and also akBottom or akRight, and have the form
+    itself as the parent, need an early HandleNeeded call on the parent to ensure correct positioning.
+    It's needed even if no sizing and no scaling is done, and it is somehow related to the
+    SetFontNameSize call below and T(New)StaticText's AdjustBounds. Example control with this issue:
+    WizardForm.BeveledLabel. }
+
+  if GetHasTopLevelAutoSizeAnchoredStaticText(Self) then
+    HandleNeeded; { Also see ShowModal, and below }
+
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
 
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
+
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
+
+  FOrigBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
+  FOrigBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
+
+  if shWizardKeepAspectRatio in SetupHeader.Options then begin
+    if FBaseUnitX / FOrigBaseUnitX > FBaseUnitY / FOrigBaseUnitY then begin
+      FBaseUnitY := FBaseUnitX;
+      FOrigBaseUnitY := FOrigBaseUnitX;
+    end else begin
+      FBaseUnitX := FBaseUnitY;
+      FOrigBaseUnitX := FOrigBaseUnitY;
+    end;
+  end;
 
   { Scale }
 
-  const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
-  const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
-
   var HasCustomAnchors: Boolean;
 
-  if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
+  if (FBaseUnitX <> FOrigBaseUnitX) or (FBaseUnitY <> FOrigBaseUnitY) then begin
     const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
@@ -571,10 +609,10 @@ begin
       StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
       HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
-      NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
+      NewScaleControls(Self, FBaseUnitX, FOrigBaseUnitX, FBaseUnitY, FOrigBaseUnitY);
       const R = ClientRect;
-      const W = MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
-      const H = MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
+      const W = MulDiv(R.Right, FBaseUnitX, FOrigBaseUnitX);
+      const H = MulDiv(R.Bottom, FBaseUnitY, FOrigBaseUnitY);
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
       RestoreAnchors(ControlAnchorsList);
@@ -587,8 +625,8 @@ begin
 
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
-  FOrgClientWidth := ClientWidth;
-  FOrgClientHeight := ClientHeight;
+  FOrgClientWidthAfterScale := ClientWidth;
+  FOrgClientHeightAfterScale := ClientHeight;
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
@@ -599,7 +637,7 @@ begin
       handles are automatically created. For WizardForm it works if done after
       sizing but for UninstallProgressForm it must be done before sizing (for
       unknown reasons), so doing before sizing. }
-    ParentHandlesNeeded(Self); { Also see ShowModal }
+    ParentHandlesNeeded(Self); { Also see ShowModal, and above }
   end;
 
   if LShouldSizeX then
@@ -610,32 +648,32 @@ end;
 
 function TSetupForm.GetExtraClientWidth: Integer;
 begin
-  Result := ClientWidth - FOrgClientWidth;
+  Result := ClientWidth - FOrgClientWidthAfterScale;
 end;
 
 function TSetupForm.GetExtraClientHeight: Integer;
 begin
-  Result := ClientHeight - FOrgClientHeight;
+  Result := ClientHeight - FOrgClientHeightAfterScale;
 end;
 
-class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
+class function TSetupForm.ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitX, LangOptions.DialogFontBaseScaleWidth);
+  Result := MulDiv(N, BaseUnitX, OrigBaseUnitX);
 end;
 
 function TSetupForm.ScalePixelsX(const N: Integer): Integer;
 begin
-  Result := ScalePixelsX(BaseUnitX, N);
+  Result := ScalePixelsX(FOrigBaseUnitX, FBaseUnitX, N);
 end;
 
-class function TSetupForm.ScalePixelsY(const BaseUnitY, N: Integer): Integer;
+class function TSetupForm.ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitY, LangOptions.DialogFontBaseScaleHeight);
+  Result := MulDiv(N, BaseUnitY, OrigBaseUnitY);
 end;
 
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
-  Result := ScalePixelsY(BaseUnitY, N);
+  Result := ScalePixelsY(FOrigBaseUnitY, FBaseUnitY, N);
 end;
 
 function TSetupForm.ShowModal: Integer;

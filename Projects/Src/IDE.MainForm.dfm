@@ -978,10 +978,10 @@ object MainForm: TMainForm
     Left = 160
     Top = 120
   end
-  object CheckIfRunningTimer: TTimer
+  object CheckIfTerminatedTimer: TTimer
     Enabled = False
     Interval = 100
-    OnTimer = CheckIfRunningTimerTimer
+    OnTimer = CheckIfTerminatedTimerTimer
     Left = 160
     Top = 64
   end
