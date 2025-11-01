@@ -176,6 +176,7 @@ type
     ssWizardImageFile,
     ssWizardImageFileDynamicDark,
     ssWizardImageStretch,
+    ssWizardKeepAspectRatio,
     ssWizardResizable,
     ssWizardSmallImageBackColor,
     ssWizardSmallImageBackColorDynamicDark,

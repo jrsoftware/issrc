@@ -48,6 +48,9 @@ Source: "..\..\Examples\Readme.txt"; DestDir: "{app}"; Flags: isreadme
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
+[Messages]
+BeveledLabel=BeveledLabel
+
 [Code]
 function InitializeSetup: Boolean;
 begin

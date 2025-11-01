@@ -291,6 +291,11 @@ begin
   end;
 end;
 
+{$IFDEF USETASKDIALOGFORM}
+var
+  MsgBoxTaskDialogFormActive: Boolean;
+{$ENDIF}
+
 function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
 
 {$IFDEF USETASKDIALOGFORM}
@@ -368,25 +373,32 @@ begin
   TriggerMessageBoxCallbackFunc(Flags, False);
   try
     {$IFDEF USETASKDIALOGFORM}
-    { We don't use MB_ABORTRETRYIGNORE or MB_CANCELTRYCONTINUE, but end users
-      are liable to in [Code]. TaskDialogForm doesn't support them because
-      currently we lack the strings needed for the required common buttons. }
-    const Typ = (Flags and MB_TYPEMASK);
-    const MB_CANCELTRYCONTINUE = $00000006;
-    if (Typ <> MB_ABORTRETRYIGNORE) and (Typ <> MB_CANCELTRYCONTINUE) then begin
-      const LStyle = TStyleManager.ActiveStyle;
-      if not LStyle.IsSystemStyle then begin
-        var Icon: PChar;
-        var TDCommonButtons: Cardinal;
-        var DefCommonButton: Integer;
-        var SetForeground: Boolean;
-        { Ignores MB_DEFBUTTON4 (there are never 4 buttons) and MB_RTLREADING+MB_RIGHT
-          (TaskDialogForm has its own RTL detection) }
-        MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
-        { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
-        Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
-          Flags, '', nil, cfMessageBox, SetForeground);
-        Exit;
+    if not MsgBoxTaskDialogFormActive then begin { Protect against TaskDialogForm calling MsgBox }
+      MsgBoxTaskDialogFormActive := True;
+      try
+        { We don't use MB_ABORTRETRYIGNORE or MB_CANCELTRYCONTINUE, but end users
+          are liable to in [Code]. TaskDialogForm doesn't support them because
+          currently we lack the strings needed for the required common buttons. }
+        const Typ = (Flags and MB_TYPEMASK);
+        const MB_CANCELTRYCONTINUE = $00000006;
+        if (Typ <> MB_ABORTRETRYIGNORE) and (Typ <> MB_CANCELTRYCONTINUE) then begin
+          const LStyle = TStyleManager.ActiveStyle;
+          if not LStyle.IsSystemStyle then begin
+            var Icon: PChar;
+            var TDCommonButtons: Cardinal;
+            var DefCommonButton: Integer;
+            var SetForeground: Boolean;
+            { Ignores MB_DEFBUTTON4 (there are never 4 buttons) and MB_RTLREADING+MB_RIGHT
+              (TaskDialogForm has its own RTL detection) }
+            MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
+            { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
+            Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
+              Flags, '', nil, cfMessageBox, SetForeground);
+            Exit;
+          end;
+        end;
+      finally
+        MsgBoxTaskDialogFormActive := False;
       end;
     end;
     {$ENDIF}

@@ -280,12 +280,12 @@ var
     RegisterScriptFunc('SCALEX', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       InitializeScaleBaseUnits;
-      Stack.SetInt(PStart, TSetupForm.ScalePixelsX(ScaleBaseUnitX, Stack.GetInt(PStart-1)));
+      Stack.SetInt(PStart, TSetupForm.ScalePixelsX(OrigScaleBaseUnitX, ScaleBaseUnitX, Stack.GetInt(PStart-1)));
     end);
     RegisterScriptFunc('SCALEY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin
       InitializeScaleBaseUnits;
-      Stack.SetInt(PStart, TSetupForm.ScalePixelsY(ScaleBaseUnitY, Stack.GetInt(PStart-1)));
+      Stack.SetInt(PStart, TSetupForm.ScalePixelsY(OrigScaleBaseUnitY, ScaleBaseUnitY, Stack.GetInt(PStart-1)));
     end);
     RegisterScriptFunc('CREATECUSTOMFORM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Cardinal)
     begin

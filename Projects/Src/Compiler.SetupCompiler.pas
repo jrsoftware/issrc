@@ -3360,6 +3360,9 @@ begin
     ssWizardImageFileDynamicDark: begin
         WizardImageFileDynamicDark := Value;
       end;
+    ssWizardKeepAspectRatio: begin
+        SetSetupHeaderOption(shWizardKeepAspectRatio);
+      end;
     ssWizardResizable: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
@@ -7906,7 +7909,7 @@ begin
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
       shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
-      shUsePreviousPrivileges, shRedirectionGuard];
+      shUsePreviousPrivileges, shWizardKeepAspectRatio, shRedirectionGuard];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
