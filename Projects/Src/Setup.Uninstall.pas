@@ -617,6 +617,8 @@ begin
     else
       Initialize64BitInstallMode(False);
 
+    RedirectionGuardConfigure(ufRedirectionGuard in UninstLog.Flags);
+
     DeleteResidualTempUninstallDirs;
 
     { Create temporary directory and extract 64-bit helper EXE if necessary }
