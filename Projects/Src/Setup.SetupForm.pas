@@ -31,13 +31,14 @@ uses
 type
   TSetupForm = class(TUIStateForm)
   private
+    FOrigBaseUnitX, FOrigBaseUnitY: Integer;
     FBaseUnitX, FBaseUnitY: Integer;
     FRightToLeft: Boolean;
     FFlipControlsOnShow: Boolean;
     FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
     FKeepSizeX, FKeepSizeY: Boolean;
-    FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
+    FOrgClientWidthAfterScale, FOrgClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -61,8 +62,8 @@ type
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
-    class function ScalePixelsX(const BaseUnitX, N: Integer): Integer; overload;
-    class function ScalePixelsY(const BaseUnitY, N: Integer): Integer; overload;
+    class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload;
+    class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload;
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;
     function ShouldSizeX: Boolean;
@@ -72,7 +73,6 @@ type
       const CenterInsideControlCtl: TWinControl = nil;
       const CenterInsideControlInsideClientArea: Boolean = False); virtual;
     property BaseUnitX: Integer read FBaseUnitX;
-    property BaseUnitY: Integer read FBaseUnitY;
   published
     property CenterOnShow: Boolean read FCenterOnShow write FCenterOnShow;
     property ControlsFlipped: Boolean read FControlsFlipped;
@@ -580,18 +580,25 @@ begin
     InitializeScaleBaseUnits }
 
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
+
   CalculateBaseUnitsFromFont(Font, FBaseUnitX, FBaseUnitY);
+
+  FOrigBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
+  FOrigBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
+
+  if FBaseUnitX / FOrigBaseUnitX > FBaseUnitY / FOrigBaseUnitY then begin
+    FBaseUnitY := FBaseUnitX;
+    FOrigBaseUnitY := FOrigBaseUnitX;
+  end else begin
+    FBaseUnitX := FBaseUnitY;
+    FOrigBaseUnitX := FOrigBaseUnitY;
+  end;
 
   { Scale }
 
-  const OrigBaseUnitX = LangOptions.DialogFontBaseScaleWidth;
-  const OrigBaseUnitY = LangOptions.DialogFontBaseScaleHeight;
-  const OrigClientWidthBeforeScale = ClientWidth;
-  const OrigClientHeightBeforeScale = ClientHeight;
-
   var HasCustomAnchors: Boolean;
 
-  if (FBaseUnitX <> OrigBaseUnitX) or (FBaseUnitY <> OrigBaseUnitY) then begin
+  if (FBaseUnitX <> FOrigBaseUnitX) or (FBaseUnitY <> FOrigBaseUnitY) then begin
     const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
@@ -599,10 +606,10 @@ begin
       StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
       HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
-      NewScaleControls(Self, BaseUnitX, OrigBaseUnitX, BaseUnitY, OrigBaseUnitY);
+      NewScaleControls(Self, FBaseUnitX, FOrigBaseUnitX, FBaseUnitY, FOrigBaseUnitY);
       const R = ClientRect;
-      const W = MulDiv(R.Right, FBaseUnitX, OrigBaseUnitX);
-      const H = MulDiv(R.Bottom, FBaseUnitY, OrigBaseUnitY);
+      const W = MulDiv(R.Right, FBaseUnitX, FOrigBaseUnitX);
+      const H = MulDiv(R.Bottom, FBaseUnitY, FOrigBaseUnitY);
       SetBounds(Left, Top, W + (Width - R.Right), H + (Height - R.Bottom));
     finally
       RestoreAnchors(ControlAnchorsList);
@@ -615,8 +622,8 @@ begin
 
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
-  FOrigClientWidthAfterScale := ClientWidth;
-  FOrigClientHeightAfterScale := ClientHeight;
+  FOrgClientWidthAfterScale := ClientWidth;
+  FOrgClientHeightAfterScale := ClientHeight;
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
@@ -630,50 +637,40 @@ begin
     ParentHandlesNeeded(Self); { Also see ShowModal, and above }
   end;
 
-  { Should restore aspect ratio if X and Y sizing is same (so either both not
-    sizing, or both sizing with same value) }
-  const RestoreAspectRatio =
-    (LShouldSizeX = LShouldSizeY) and
-    (not LShouldSizeX or (SetupHeader.WizardSizePercentX = SetupHeader.WizardSizePercentY));
-
+  if LShouldSizeX then
+    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
   if LShouldSizeY then
     ClientHeight := MulDiv(ClientHeight, SetupHeader.WizardSizePercentY, 100);
-  if RestoreAspectRatio then begin
-    { Using height as the base because it usually increases by a higher percentage than width }
-    if ClientHeight <> OrigClientHeightBeforeScale then
-      ClientWidth := MulDiv(OrigClientWidthBeforeScale, ClientHeight, OrigClientHeightBeforeScale);
-  end else if LShouldSizeX then
-    ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
 end;
 
 function TSetupForm.GetExtraClientWidth: Integer;
 begin
-  Result := ClientWidth - FOrigClientWidthAfterScale;
+  Result := ClientWidth - FOrgClientWidthAfterScale;
 end;
 
 function TSetupForm.GetExtraClientHeight: Integer;
 begin
-  Result := ClientHeight - FOrigClientHeightAfterScale;
+  Result := ClientHeight - FOrgClientHeightAfterScale;
 end;
 
-class function TSetupForm.ScalePixelsX(const BaseUnitX, N: Integer): Integer;
+class function TSetupForm.ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitX, LangOptions.DialogFontBaseScaleWidth);
+  Result := MulDiv(N, BaseUnitX, OrigBaseUnitX);
 end;
 
 function TSetupForm.ScalePixelsX(const N: Integer): Integer;
 begin
-  Result := ScalePixelsX(BaseUnitX, N);
+  Result := ScalePixelsX(FOrigBaseUnitX, FBaseUnitX, N);
 end;
 
-class function TSetupForm.ScalePixelsY(const BaseUnitY, N: Integer): Integer;
+class function TSetupForm.ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer;
 begin
-  Result := MulDiv(N, BaseUnitY, LangOptions.DialogFontBaseScaleHeight);
+  Result := MulDiv(N, BaseUnitY, OrigBaseUnitY);
 end;
 
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
-  Result := ScalePixelsY(BaseUnitY, N);
+  Result := ScalePixelsY(FOrigBaseUnitY, FBaseUnitY, N);
 end;
 
 function TSetupForm.ShowModal: Integer;

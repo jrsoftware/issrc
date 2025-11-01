@@ -66,6 +66,7 @@ type
   end;
 
 var
+  OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
@@ -166,7 +167,19 @@ begin
   Font := TFont.Create;
   try
     SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
+
     CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
+
+    OrigScaleBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
+    OrigScaleBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
+
+    if ScaleBaseUnitX / OrigScaleBaseUnitX > ScaleBaseUnitY / OrigScaleBaseUnitY then begin
+      ScaleBaseUnitY := ScaleBaseUnitX;
+      OrigScaleBaseUnitY := OrigScaleBaseUnitX;
+    end else begin
+      ScaleBaseUnitX := ScaleBaseUnitY;
+      OrigScaleBaseUnitX := OrigScaleBaseUnitY;
+  end
   finally
     Font.Free;
   end;
