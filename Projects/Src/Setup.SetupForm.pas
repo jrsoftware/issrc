@@ -93,8 +93,8 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes,
-  BidiUtils, NewNotebook,
+  Generics.Collections, UITypes, StdCtrls,
+  BidiUtils, NewNotebook, NewStaticText,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
@@ -549,7 +549,33 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     end;
   end;
 
+  function GetHasTopLevelAutoSizeAnchoredStaticText(const ParentCtl: TWinControl): Boolean;
+  begin
+    for var I := 0 to ParentCtl.ControlCount-1 do begin
+      if ParentCtl.Controls[I] is TNewStaticText then begin
+        const Ctl = TNewStaticText(ParentCtl.Controls[I]);
+        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
+          Exit(True);
+      end else if ParentCtl.Controls[I] is TStaticText then begin
+        const Ctl = TStaticText(ParentCtl.Controls[I]);
+        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
+          Exit(True);
+      end;
+    end;
+
+    Result := False;
+  end;
+
 begin
+  { T(New)StaticText's which have AutoSize set, and also akBottom or akRight, and have the form
+    itself as the parent, need an early HandleNeeded call on the parent to ensure correct positioning.
+    It's needed even if no sizing and no scaling is done, and it is somehow related to the
+    SetFontNameSize call below and T(New)StaticText's AdjustBounds. Example control with this issue:
+    WizardForm.BeveledLabel. }
+
+  if GetHasTopLevelAutoSizeAnchoredStaticText(Self) then
+    HandleNeeded; { Also see ShowModal, and below }
+
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
 
@@ -601,7 +627,7 @@ begin
       handles are automatically created. For WizardForm it works if done after
       sizing but for UninstallProgressForm it must be done before sizing (for
       unknown reasons), so doing before sizing. }
-    ParentHandlesNeeded(Self); { Also see ShowModal }
+    ParentHandlesNeeded(Self); { Also see ShowModal, and above }
   end;
 
   { Should restore aspect ratio if X and Y sizing is same (so either both not
