@@ -17,6 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
   -shWizardBorderStyled in SetupHeader.Options
+  -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
   -SetupHeader.WizardSizePercentX
   -SetupHeader.WizardSizePercentY
@@ -586,12 +587,14 @@ begin
   FOrigBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
   FOrigBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
 
-  if FBaseUnitX / FOrigBaseUnitX > FBaseUnitY / FOrigBaseUnitY then begin
-    FBaseUnitY := FBaseUnitX;
-    FOrigBaseUnitY := FOrigBaseUnitX;
-  end else begin
-    FBaseUnitX := FBaseUnitY;
-    FOrigBaseUnitX := FOrigBaseUnitY;
+  if shWizardKeepAspectRatio in SetupHeader.Options then begin
+    if FBaseUnitX / FOrigBaseUnitX > FBaseUnitY / FOrigBaseUnitY then begin
+      FBaseUnitY := FBaseUnitX;
+      FOrigBaseUnitY := FOrigBaseUnitX;
+    end else begin
+      FBaseUnitX := FBaseUnitY;
+      FOrigBaseUnitX := FOrigBaseUnitY;
+    end;
   end;
 
   { Scale }

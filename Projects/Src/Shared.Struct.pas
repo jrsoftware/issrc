@@ -64,7 +64,8 @@ type
     shSignedUninstaller, shUsePreviousLanguage, shDisableWelcomePage,
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
-    shUninstallLogging, shWizardModern, shWizardBorderStyled);
+    shUninstallLogging, shWizardModern, shWizardBorderStyled,
+    shWizardKeepAspectRatio);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;
