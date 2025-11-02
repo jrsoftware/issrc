@@ -20,7 +20,7 @@ object WizardForm: TWizardForm
   TextHeight = 13
   object FBevel: TBevel
     Left = 0
-    Top = 313
+    Top = 314
     Width = 497
     Height = 1
     Anchors = [akLeft, akRight, akBottom]
@@ -62,7 +62,7 @@ object WizardForm: TWizardForm
     Left = 0
     Top = 0
     Width = 497
-    Height = 313
+    Height = 314
     ActivePage = FInnerPage
     Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
@@ -73,7 +73,7 @@ object WizardForm: TWizardForm
       ParentColor = False
       DesignSize = (
         497
-        313)
+        314)
       object FWizardBitmapImage: TBitmapImage
         Left = 0
         Top = 0
@@ -109,7 +109,7 @@ object WizardForm: TWizardForm
     object FInnerPage: TNewNotebookPage
       DesignSize = (
         497
-        313)
+        314)
       object FBevel1: TBevel
         Left = 0
         Top = 58
@@ -735,7 +735,7 @@ object WizardForm: TWizardForm
       ParentColor = False
       DesignSize = (
         497
-        313)
+        314)
       object FWizardBitmapImage2: TBitmapImage
         Left = 0
         Top = 0
@@ -805,7 +805,7 @@ object WizardForm: TWizardForm
   end
   object FBeveledLabel: TNewStaticText
     Left = 0
-    Top = 306
+    Top = 307
     Width = 5
     Height = 14
     Anchors = [akLeft, akBottom]

@@ -173,7 +173,7 @@ begin
     Exit;
   Font := TFont.Create;
   try
-    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 8);
+    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
 
     CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
 
@@ -181,7 +181,7 @@ begin
     OrigScaleBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
 
     if shWizardKeepAspectRatio in SetupHeader.Options then begin
-      if ScaleBaseUnitX / OrigScaleBaseUnitX > ScaleBaseUnitY / OrigScaleBaseUnitY then begin
+      if ScaleBaseUnitX * OrigScaleBaseUnitY > ScaleBaseUnitY * OrigScaleBaseUnitX then begin
         ScaleBaseUnitY := ScaleBaseUnitX;
         OrigScaleBaseUnitY := OrigScaleBaseUnitX;
       end else begin
