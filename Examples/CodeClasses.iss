@@ -123,7 +123,6 @@ var
   CheckListBox: array [0..1] of TNewCheckListBox;
   FolderTreeView: TFolderTreeView;
   BitmapImage: array [0..5] of TBitmapImage;
-  IconSizesFrom16, IconSizesFrom32: TArrayOfInteger;
   Siids: array of Integer;
   SiidBitmapImage: TBitmapImage;
   I: Integer;
@@ -378,19 +377,16 @@ begin
   
   Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TBitmapImage (stock icons)');
   
-  IconSizesFrom16 := [16, 20, 24, 28, 32];
-  IconSizesFrom32 := [32, 40, 48, 56, 64];
-
   BitmapImage[3] := TBitmapImage.Create(Page);
   BitmapImage[3].Width := ScaleX(16);
   BitmapImage[3].Height := BitmapImage[3].Width;
-  InitializeBitmapImageFromStockIcon(BitmapImage[3], SIID_ERROR, clNone, IconSizesFrom16);
+  InitializeBitmapImageFromStockIcon(BitmapImage[3], SIID_ERROR, clNone, []);
   BitmapImage[3].Parent := Page.Surface;
 
   BitmapImage[4] := TBitmapImage.Create(Page);
   BitmapImage[4].Width := ScaleX(32);
   BitmapImage[4].Height := BitmapImage[4].Width;
-  InitializeBitmapImageFromStockIcon(BitmapImage[4], SIID_ERROR, clNone, IconSizesFrom32);
+  InitializeBitmapImageFromStockIcon(BitmapImage[4], SIID_ERROR, clNone, []);
   BitmapImage[4].Left := BitmapImage[3].Left + BitmapImage[3].Width + 10; 
   BitmapImage[4].Parent := Page.Surface;
 
@@ -413,7 +409,7 @@ begin
     SiidBitmapImage := TBitmapImage.Create(Page);
     SiidBitmapImage.Width := ScaleX(32);
     SiidBitmapImage.Height := SiidBitmapImage.Width;
-    InitializeBitmapImageFromStockIcon(SiidBitmapImage, Siids[I], clNone, IconSizesFrom32);
+    InitializeBitmapImageFromStockIcon(SiidBitmapImage, Siids[I], clNone, []);
     SiidBitmapImage.Left := BitmapImage[5].Left + BitmapImage[5].Width + 20 + (I mod 5) * ScaleX(42); 
     SiidBitmapImage.Top := (I div 5) * ScaleY(42); 
     SiidBitmapImage.Parent := Page.Surface;
