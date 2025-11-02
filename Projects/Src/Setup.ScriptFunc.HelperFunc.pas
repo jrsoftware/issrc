@@ -181,7 +181,7 @@ begin
     OrigScaleBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
 
     if shWizardKeepAspectRatio in SetupHeader.Options then begin
-      if ScaleBaseUnitX / OrigScaleBaseUnitX > ScaleBaseUnitY / OrigScaleBaseUnitY then begin
+      if ScaleBaseUnitX * OrigScaleBaseUnitY > ScaleBaseUnitY * OrigScaleBaseUnitX then begin
         ScaleBaseUnitY := ScaleBaseUnitX;
         OrigScaleBaseUnitY := OrigScaleBaseUnitX;
       end else begin
