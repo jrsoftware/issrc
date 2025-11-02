@@ -3233,14 +3233,14 @@ begin
       InitRestartApplications := True
     else if SameText(ParamName, '/NoRestartApplications') then
       InitNoRestartApplications := True
-    else if SameText(ParamName, '/NoIcons') then
-      InitNoIcons := True
-    else if SameText(ParamName, '/NoCancel') then
-      InitNoCancel := True
     else if SameText(ParamName, '/RedirectionGuard') then
       InitRedirectionGuard := True
     else if SameText(ParamName, '/NoRedirectionGuard') then
       InitNoRedirectionGuard := True
+    else if SameText(ParamName, '/NoIcons') then
+      InitNoIcons := True
+    else if SameText(ParamName, '/NoCancel') then
+      InitNoCancel := True
     else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
     else if SameText(ParamName, '/Type=') then
