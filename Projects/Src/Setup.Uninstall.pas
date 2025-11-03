@@ -557,6 +557,7 @@ begin
       WizardIconsPostfix := '_DARK';
     end;
     if not HighContrastActive then begin
+      TStyleManager.AutoDiscoverStyleResources := False;
       var StyleName := 'MYSTYLE1';
       if IsDynamicDark then
         StyleName := StyleName + '_DARK';
