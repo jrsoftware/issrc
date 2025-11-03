@@ -65,7 +65,8 @@ type
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
-    shWizardKeepAspectRatio, shRedirectionGuard);
+    shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
+    shRedirectionGuard);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;

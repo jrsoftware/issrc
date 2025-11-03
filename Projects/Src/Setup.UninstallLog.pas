@@ -105,7 +105,8 @@ type
     ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
     ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-    ufWizardKeepAspectRatio, ufRedirectionGuard);
+    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio,
+    ufRedirectionGuard);
 
   TUninstallLog = class
   private
@@ -1216,7 +1217,7 @@ var
   function GetNonStickyFlags: TUninstallLogFlags;
   begin
     Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-      ufWizardKeepAspectRatio, ufRedirectionGuard];
+      ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio, ufRedirectionGuard];
   end;
 
 var
@@ -1270,7 +1271,7 @@ begin
     if Version > Header.Version then
       Header.Version := Version;
     TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      GetNonStickyFlags + Flags;
+      [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio] + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));

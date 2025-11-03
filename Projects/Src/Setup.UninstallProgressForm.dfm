@@ -147,6 +147,7 @@ object UninstallProgressForm: TUninstallProgressForm
     Caption = '*'
     Enabled = False
     TabOrder = 1
+    Transparent = False
     Visible = False
   end
 end

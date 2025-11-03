@@ -140,6 +140,7 @@ type
     type TStyleServicesHandle = type Pointer;
     class var AutoDiscoverStyleResources: Boolean;
     class var SystemHooks: TSystemHooks;
+    class var SystemStyleName: String;
     class procedure SetStyle(Handle: TStyleServicesHandle);
     class function TryLoadFromResource(Instance: HINST; const ResourceName: string;
       ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
