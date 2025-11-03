@@ -4281,6 +4281,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
+<keyword value="/REDIRECTIONGUARD" anchor="REDIRECTIONGUARD" />
+<keyword value="/NOREDIRECTIONGUARD" anchor="NOREDIRECTIONGUARD" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
 <keyword value="/SUPPRESSMSGBOXES" anchor="SUPPRESSMSGBOXES" />
@@ -4320,6 +4322,16 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dt><b><a name="NORESTART">/NORESTART</a></b></dt>
 <dd>
 <p>Instructs the uninstaller not to reboot even if it's necessary.</p>
+</dd>
+
+<dt><b><a name="REDIRECTIONGUARD">/REDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Instructs the uninstaller to enable RedirectionGuard if possible.</p>
+</dd>
+
+<dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Prevents the uninstaller from enabling RedirectionGuard. If /REDIRECTIONGUARD was also used, this command line parameter is ignored.</p>
 </dd>
 
 </dl>
