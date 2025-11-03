@@ -17,8 +17,9 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, Themes, PathFunc, Shared.CommonFunc.Vcl,
-  Shared.CommonFunc, Setup.UninstallLog, SetupLdrAndSetup.Messages,
+  Windows, SysUtils, Messages, Forms, Themes,
+  PathFunc, BidiCtrls,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
   Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupSteps,
@@ -560,8 +561,11 @@ begin
       if IsDynamicDark then
         StyleName := StyleName + '_DARK';
       var Handle: TStyleManager.TStyleServicesHandle;
-      if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then
+      if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
         TStyleManager.SetStyle(Handle);
+        if not IsDarkInstallMode and (ufWizardLightButtonsUnstyled in UninstLog.Flags) then
+          TNewButton.DontStyle := True;
+      end;
     end;
 
     { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }

@@ -2581,10 +2581,11 @@ var
       'classic', 'modern',
       'light', 'dark', 'dynamic',
       'includetitlebar',
+      'excludelightbuttons',
       'polar', 'slate', 'windows11', 'zircon'];
-    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 3, 3, 3];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 4, 4, 4, 4];
   var
-    StylesGroupSeen: array [0..3] of Boolean;
+    StylesGroupSeen: array [0..4] of Boolean;
   begin
     for var I := Low(StylesGroupSeen) to High(StylesGroupSeen) do
       StylesGroupSeen[I] := False;
@@ -2605,7 +2606,8 @@ var
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
         5: Include(SetupHeader.Options, shWizardBorderStyled);
-        6..9: WizardStyleSpecial := Styles[R];
+        6: Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
+        7..10: WizardStyleSpecial := Styles[R];
       end;
     end;
   end;

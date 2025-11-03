@@ -5720,7 +5720,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt> <tt>excludelightbuttons</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
@@ -5742,9 +5742,10 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <li><tt>windows11</tt>: Enables a light counterpart of the built-in dark style.</li>
 <li><tt>zircon</tt>: Alternative light-only style with cyan accents.</li>
 </ul>
-<p>Also supported is the following modifier:</p>
+<p>Also supported are the following modifiers:</p>
 <ul>
 <li><tt>includetitlebar</tt>: Enables custom styling of both title bars and borders when a custom style (including the built-in custom dark style) is active. By default, the system's native light or dark title bar is used instead.</li>
+<li><tt>excludelightbuttons</tt>: Disables custom styling of all buttons (including command link buttons, as used in task dialogs) when a light style is active.</li>
 </ul>
 <p><b>Examples:</b></p>
 <p><tt>WizardStyle=modern dynamic</tt> will use the modern look and automatically adapt to the system's light or dark mode setting.<br/>
@@ -5788,6 +5789,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>classic dark</tt><br/><br/><img src="wizardstyle-classic-dark.png"/></p>
 <p><tt>modern</tt><br/><br/><img src="wizardstyle-modern.png"/></p>
 <p><tt>modern windows11</tt><br/><br/><img src="wizardstyle-modern-windows11.png"/></p>
+<p><tt>modern windows11 excludelightbuttons</tt><br/><br/><img src="wizardstyle-modern-windows11-excludelightbuttons.png"/></p>
 <p><tt>modern dark</tt> (same as <tt>modern dark windows11</tt>)<br/><br/><img src="wizardstyle-modern-dark.png"/></p>
 <p><tt>modern polar</tt><br/><br/><img src="wizardstyle-modern-polar.png"/></p>
 <p><tt>modern polar includetitlebar</tt><br/><br/><img src="wizardstyle-modern-polar-includetitlebar.png"/></p>

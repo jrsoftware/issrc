@@ -242,7 +242,8 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -3346,8 +3347,11 @@ begin
              { Comment the line above to activate POLAR_DARK instead of ZIRCON }
              or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_DARK', 'VCLSTYLE', Handle)
           {$ENDIF}
-          then
+          then begin
             TStyleManager.SetStyle(Handle);
+            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+              TNewButton.DontStyle := True;
+          end;
         end;
 
         { Language entries }
