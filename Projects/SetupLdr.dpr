@@ -335,24 +335,16 @@ begin
           'Prevents Setup from restarting the system following a successful installation, or after a Preparing to Install failure that requests a restart.' + SNewLine +
           '/RESTARTEXITCODE=exit code' + SNewLine +
           'Specifies a custom exit code that Setup is to return when the system needs to be restarted.' + SNewLine +
-          '/CLOSEAPPLICATIONS' + SNewLine +
-          'Instructs Setup to close applications using files that need to be updated.' + SNewLine +
-          '/NOCLOSEAPPLICATIONS' + SNewLine +
-          'Prevents Setup from closing applications using files that need to be updated.' + SNewLine +
-          '/FORCECLOSEAPPLICATIONS' + SNewLine +
-          'Instructs Setup to force close when closing applications.' + SNewLine +
-          '/FORCENOCLOSEAPPLICATIONS' + SNewLine +
-          'Prevents Setup from force closing when closing applications.' + SNewLine +
+          '/CLOSEAPPLICATIONS, /NOCLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to attempt closing applications using files that need to be updated, or prevents it from doing so.' + SNewLine +
+          '/FORCECLOSEAPPLICATIONS, /FORCENOCLOSEAPPLICATIONS' + SNewLine +
+          'Instructs Setup to force close when closing applications, or prevents it from doing so.' + SNewLine +
           '/LOGCLOSEAPPLICATIONS' + SNewLine +
           'Instructs Setup to create extra logging when closing applications for debugging purposes.' + SNewLine +
-          '/RESTARTAPPLICATIONS' + SNewLine +
-          'Instructs Setup to restart applications.' + SNewLine +
-          '/NORESTARTAPPLICATIONS' + SNewLine +
-          'Prevents Setup from restarting applications.' + SNewLine +
-          '/LOADINF="filename"' + SNewLine +
-          'Instructs Setup to load the settings from the specified file after having checked the command line.' + SNewLine +
-          '/SAVEINF="filename"' + SNewLine +
-          'Instructs Setup to save installation settings to the specified file.' + SNewLine +
+          '/RESTARTAPPLICATIONS, /NORESTARTAPPLICATIONS' + SNewLine +
+          'Instructs Setup to attempt restarting applications, or prevents it from doing so.' + SNewLine +
+          '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
+          'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
           '/LANG=language' + SNewLine +
           'Specifies the internal name of the language to use.' + SNewLine +
           '/DIR="x:\dirname"' + SNewLine +

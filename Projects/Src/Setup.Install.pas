@@ -2801,6 +2801,8 @@ begin
         Include(UninstLog.Flags, ufWizardModern);
       if shWizardBorderStyled in SetupHeader.Options then
         Include(UninstLog.Flags, ufWizardBorderStyled);
+      if shWizardLightButtonsUnstyled in SetupHeader.Options then
+        Include(UninstLog.Flags, ufWizardLightButtonsUnstyled);
       if shWizardKeepAspectRatio in SetupHeader.Options then
         Include(UninstLog.Flags, ufWizardKeepAspectRatio);
       if SetupHeader.WizardDarkStyle = wdsDark then

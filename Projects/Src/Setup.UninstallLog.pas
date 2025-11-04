@@ -105,7 +105,7 @@ type
     ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
     ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-    ufWizardKeepAspectRatio);
+    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio);
 
   TUninstallLog = class
   private
@@ -1264,7 +1264,7 @@ begin
     if Version > Header.Version then
       Header.Version := Version;
     TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufWizardKeepAspectRatio] + Flags;
+      [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio] + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));

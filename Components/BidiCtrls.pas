@@ -32,12 +32,15 @@ type
 
   TNewButton = class(TButton)
   private
+    class var FDontStyle: Boolean;
     class constructor Create;
     class destructor Destroy;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
+    constructor Create(AOwner: TComponent); override;
     function AdjustHeightIfCommandLink: Integer;
+    class property DontStyle: Boolean write FDontStyle;
   end;
 
   TNewButtonStyleHook = class(TButtonStyleHook)
@@ -80,6 +83,13 @@ end;
 class constructor TNewButton.Create;
 begin
   TCustomStyleEngine.RegisterStyleHook(TNewButton, TNewButtonStyleHook);
+end;
+
+constructor TNewButton.Create(AOwner: TComponent);
+begin
+  inherited;
+  if FDontStyle then
+    StyleName := TStyleManager.SystemStyleName;
 end;
 
 procedure TNewButton.CreateParams(var Params: TCreateParams);
