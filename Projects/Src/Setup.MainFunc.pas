@@ -242,7 +242,8 @@ function IsWindows11: Boolean;
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes, ChaCha20, ECDSA, ISSigFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc, FormBackgroundStyleHook,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -3348,6 +3349,8 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
+            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+              TNewButton.DontStyle := True;
             TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
           end;
         end;

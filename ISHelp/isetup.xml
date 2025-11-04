@@ -1138,6 +1138,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
+<li><link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
 <li><link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link></li>
 <li><link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link></li>
@@ -5679,6 +5680,15 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardKeepAspectRatio">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>If set to <tt>yes</tt>, the default, Setup and Uninstall keep the original aspect ratio of their windows when scaling for DPI.</p>
+<p>If set to <tt>no</tt>, the aspect ratio may be changed when scaling for DPI. As a result, your Setup and Uninstall windows will by default be 14% narrower at 125% DPI or higher.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardSizePercent">
 <setupformat><tt><i>a</i>,<i>b</i></tt>, where <tt><i>a</i></tt> is the horizontal size, and <tt><i>b</i></tt> is the vertical size.</setupformat>
 <setupvalid>each size: <tt>100</tt> through <tt>150</tt></setupvalid>
@@ -5710,7 +5720,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt> <tt>excludelightbuttons</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
@@ -5732,9 +5742,10 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <li><tt>windows11</tt>: Enables a light counterpart of the built-in dark style.</li>
 <li><tt>zircon</tt>: Alternative light-only style with cyan accents.</li>
 </ul>
-<p>Also supported is the following modifier:</p>
+<p>Also supported are the following modifiers:</p>
 <ul>
 <li><tt>includetitlebar</tt>: Enables custom styling of both title bars and borders when a custom style (including the built-in custom dark style) is active. By default, the system's native light or dark title bar is used instead.</li>
+<li><tt>excludelightbuttons</tt>: Disables custom styling of all buttons (including command link buttons, as used in task dialogs) when a light style is active.</li>
 </ul>
 <p><b>Examples:</b></p>
 <p><tt>WizardStyle=modern dynamic</tt> will use the modern look and automatically adapt to the system's light or dark mode setting.<br/>
@@ -5768,7 +5779,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <heading>Other Considerations</heading>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
-<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme, nor is the color of the title bar changed. The other elements (icons and wizard images, including their background colors) are activated.</li>
+<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme. Other elements (title bar color, icons and wizard images, including their background colors) are activated.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
@@ -5778,6 +5789,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><tt>classic dark</tt><br/><br/><img src="wizardstyle-classic-dark.png"/></p>
 <p><tt>modern</tt><br/><br/><img src="wizardstyle-modern.png"/></p>
 <p><tt>modern windows11</tt><br/><br/><img src="wizardstyle-modern-windows11.png"/></p>
+<p><tt>modern windows11 excludelightbuttons</tt><br/><br/><img src="wizardstyle-modern-windows11-excludelightbuttons.png"/></p>
 <p><tt>modern dark</tt> (same as <tt>modern dark windows11</tt>)<br/><br/><img src="wizardstyle-modern-dark.png"/></p>
 <p><tt>modern polar</tt><br/><br/><img src="wizardstyle-modern-polar.png"/></p>
 <p><tt>modern polar includetitlebar</tt><br/><br/><img src="wizardstyle-modern-polar-includetitlebar.png"/></p>

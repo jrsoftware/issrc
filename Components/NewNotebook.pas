@@ -2,7 +2,7 @@ unit NewNotebook;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -255,8 +255,7 @@ begin
   Result := nil;
 end;
 
-procedure TNewNotebook.GetChildren(Proc: TGetChildProc {$IFNDEF DELPHI2} ;
-  Root: TComponent {$ENDIF});
+procedure TNewNotebook.GetChildren(Proc: TGetChildProc; Root: TComponent);
 var
   I: Integer;
 begin
@@ -296,13 +295,11 @@ begin
 end;
 
 procedure TNewNotebook.SetActivePage(Page: TNewNotebookPage);
-var
-  ParentForm: {$IFDEF DELPHI2} TForm {$ELSE} TCustomForm {$ENDIF};
 begin
   if Assigned(Page) and (Page.FNotebook <> Self) then
     Exit;
   if FActivePage <> Page then begin
-    ParentForm := GetParentForm(Self);
+    const ParentForm = GetParentForm(Self);
     if Assigned(ParentForm) and Assigned(FActivePage) and
        FActivePage.ContainsControl(ParentForm.ActiveControl) then
       ParentForm.ActiveControl := FActivePage;
