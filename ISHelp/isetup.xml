@@ -5686,6 +5686,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <body>
 <p>If set to <tt>yes</tt>, the default, Setup and Uninstall keep the original aspect ratio of their windows when scaling for DPI.</p>
 <p>If set to <tt>no</tt>, the aspect ratio may be changed when scaling for DPI. As a result, your Setup and Uninstall windows will by default be 14% narrower at 125% DPI or higher.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
 </body>
 </setuptopic>
 
@@ -5699,6 +5701,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <example><pre>WizardSizePercent=130</pre></example>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
 </body>
 </setuptopic>
