@@ -331,7 +331,7 @@ begin
 
   var W, H: Integer;
   var Bmp: TBitmap;
-  if Stretch then begin
+  if Stretch and not Bitmap.Empty then begin
     W := R.Width;
     H := R.Height;
     Bmp := StretchedBitmap;
@@ -385,22 +385,25 @@ begin
     Canvas.Rectangle(0, 0, FControl.Width, FControl.Height);
   end;
 
-  var X := R.Left;
-  var Y := R.Top;
-  if Center then begin
-    Inc(X, (R.Width - W) div 2);
-    if X < 0 then
-      X := 0;
-    Inc(Y, (R.Height - H) div 2);
-    if Y < 0 then
-      Y := 0;
-  end;
 
-  if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin
-    Canvas.Brush.Color := ReplaceWithColor;
-    Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), ReplaceColor);
-  end else
-    Canvas.Draw(X, Y, Bmp);
+  if not Bitmap.Empty then begin
+    var X := R.Left;
+    var Y := R.Top;
+    if Center then begin
+      Inc(X, (R.Width - W) div 2);
+      if X < 0 then
+        X := 0;
+      Inc(Y, (R.Height - H) div 2);
+      if Y < 0 then
+        Y := 0;
+    end;
+
+    if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin
+      Canvas.Brush.Color := ReplaceWithColor;
+      Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), ReplaceColor);
+    end else
+      Canvas.Draw(X, Y, Bmp);
+  end;
 
   if Assigned(OnPaint) then
     OnPaint(Sender, Canvas, R);
