@@ -94,10 +94,14 @@ begin
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
 
-    if Form.InstructionText.Visible then
+    if Form.InstructionText.Visible then begin
+      Form.InstructionText.Parent.HandleNeeded;
       Form.InstructionText.AdjustHeight;
-    if Form.TextText.Visible then
+    end;
+    if Form.TextText.Visible then begin
+      Form.TextText.Parent.HandleNeeded;
       Form.TextText.AdjustHeight;
+    end;
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
