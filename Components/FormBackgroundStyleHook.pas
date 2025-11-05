@@ -12,51 +12,68 @@ unit FormBackgroundStyleHook;
 interface
 
 uses
-  Vcl.Forms, Vcl.Controls, Vcl.Graphics,
-  BitmapImage;
+  Vcl.Forms, Vcl.Controls, Vcl.Graphics {$IFDEF VCLSTYLES}, BitmapImage {$ENDIF};
 
 type
   TFormBackgroundStyleHook = class(TFormStyleHook)
+{$IFDEF VCLSTYLES}
   private
+    class constructor Create;
     class destructor Destroy;
     class var FBitmapImageImpl: TBitmapImageImplementation;
+    class var FBitmapImageImplInitialized: Boolean;
+{$ENDIF}
     class var FBackColor: TColor;
     class var FGraphic: TGraphic;
-    class var FCurrentControl: TControl;
+    class var FGraphicTarget: TControl;
+{$IFDEF VCLSTYLES}
   protected
     procedure PaintBackground(Canvas: TCanvas); override;
+{$ENDIF}
   public
     class property BackColor: TColor write FBackColor;
     class property Graphic: TGraphic write FGraphic;
+    class property GraphicTarget: TControl write FGraphicTarget;
   end;
 
 implementation
+
+{$IFDEF VCLSTYLES}
 
 uses
   System.Classes;
 
 { TFormBackgroundStyleHook }
 
+class constructor TFormBackgroundStyleHook.Create;
+begin
+  FBackColor := clNone;
+end;
+
 class destructor TFormBackgroundStyleHook.Destroy;
 begin
-  if FCurrentControl <> nil then
+  if FBitmapImageImplInitialized then
     FBitmapImageImpl.DeInit;
 end;
 
 procedure TFormBackgroundStyleHook.PaintBackground(Canvas: TCanvas);
 begin
-  if Control <> FCurrentControl then begin
-    if FCurrentControl <> nil then
-      FBitmapImageImpl.DeInit;
-    FCurrentControl := Control;
-    FBitmapImageImpl.Init(FCurrentControl);
-    FBitmapImageImpl.BackColor := FBackColor;
-    if FGraphic <> nil then
-      FBitmapImageImpl.SetGraphic(FGraphic);
-  end;
-
   var R := Rect(0, 0, Control.Width, Control.Height);
-  FBitmapImageImpl.Paint(Self, Canvas, R);
+
+  if (FGraphic <> nil) and (FGraphicTarget = Control) then begin
+    if not FBitmapImageImplInitialized then begin
+      FBitmapImageImpl.Init(Control);
+      FBitmapImageImpl.SetGraphic(FGraphic);
+      FBitmapImageImplInitialized := True;
+    end;
+    FBitmapImageImpl.BackColor := FBackColor;
+    FBitmapImageImpl.Paint(Self, Canvas, R);
+  end else if FBackColor <> clNone then begin
+    Canvas.Brush.Color := FBackColor;
+    Canvas.FillRect(R);
+  end;
 end;
+
+{$ENDIF}
 
 end.
