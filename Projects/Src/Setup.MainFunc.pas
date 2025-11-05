@@ -3330,6 +3330,9 @@ begin
           SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
           SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
           MainIconPostfix := '_DARK';
+          { If the main icon is custom, a dark version will not be available, so check for this }
+          if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+            MainIconPostfix := '';
           WantWizardImagesDynamicDark := True; { Handled below }
         end;
         if IsDynamicDark or IsForcedDark then begin
