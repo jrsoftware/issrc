@@ -3312,6 +3312,20 @@ begin
     ssWindowVisible: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
+    ssWizardBackColor: begin
+        try
+          SetupHeader.WizardBackColor := StringToColor(Value);
+        except
+          Invalid;
+        end;
+      end;
+    ssWizardBackColorDynamicDark: begin
+        try
+          SetupHeader.WizardBackColorDynamicDark := StringToColor(Value);
+        except
+          Invalid;
+        end;
+      end;
     ssWizardImageAlphaFormat: begin
         if CompareText(Value, 'none') = 0 then
           SetupHeader.WizardImageAlphaFormat := afIgnored
@@ -7931,6 +7945,8 @@ begin
     SetupHeader.WizardDarkStyle := wdsLight;
     SetupHeader.WizardSizePercentX := 120;
     SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
+    SetupHeader.WizardBackColor := clNone;
+    SetupHeader.WizardBackColorDynamicDark := clNone;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8110,6 +8126,9 @@ begin
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
+    if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then
+      if WizardStyleSpecial = '' then
+        WizardStyleSpecial := 'windows11';
     if WizardStyleSpecial <> '' then begin
       const BuiltinStyleFile = 'builtin:' + WizardStyleSpecial;
       if WizardStyleFile = '' then

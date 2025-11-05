@@ -784,7 +784,8 @@ begin
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
 
-  MainPanel.ParentBackground := False;
+  if not CustomWizardBackground then
+    MainPanel.ParentBackground := False;
 
   InitializeFont;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
@@ -822,16 +823,28 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize and TTaskDialogForm.Create }
-  if LStyle <> nil then begin
-    { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
-    WelcomePage.ParentColor := True;
-    OuterNotebook.ParentColor := True;
-    FinishedPage.ParentColor := True;
-    Color := LStyle.GetStyleColor(scWindow);
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then begin
+      { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
+      WelcomePage.ParentColor := True;
+      OuterNotebook.ParentColor := True;
+      FinishedPage.ParentColor := True;
+      Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else begin
+    OuterNotebook.ParentBackground := True;
+    for I := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[I].ParentBackground := True;
+    InnerNotebook.ParentBackground := True;
+    for I := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[I].ParentBackground := True;
   end;
   if shWizardModern in SetupHeader.Options then begin
-    if LStyle = nil then
+    if LStyle = nil then begin
+      if CustomWizardBackground then
+        InternalError('Unexpected CustomWizardBackground value');
       OuterNotebook.Color := clWindow;
+    end;
     Bevel1.Visible := False;
   end;
 
@@ -1086,6 +1099,11 @@ begin
   else
     BeveledLabel.Caption := '';
   BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then
+      BeveledLabel.Color := LStyle.GetStyleColor(scWindow)
+  end else
+    BeveledLabel.Color := SetupHeader.WizardBackColor;
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }
@@ -1388,6 +1406,7 @@ begin
     controls placed on the page. Also see TSetupForm.CreateWnd.  }
   NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
   NotebookPage.Notebook := InnerNotebook;
+  NotebookPage.ParentBackground := InnerNotebook.ParentBackground;
   NotebookPage.HandleNeeded; { See TSetupForm.InitializeFont comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;

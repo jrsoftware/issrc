@@ -132,14 +132,17 @@ begin
     KeepSizeY: UpdateHeight will set height }
   InitializeFont(True, True);
 
-  var LStyle := StyleServices(Self);
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
-  if LStyle <> nil then begin
-    { Make MainPanel look the same as WizardForm's main area }
-    MainPanel.StyleElements := [];
-    MainPanel.Color := LStyle.GetStyleColor(scWindow);
-  end;
+  if not CustomWizardBackground then begin
+   var LStyle := StyleServices(Self);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+    if LStyle <> nil then begin
+      { Make MainPanel look the same as WizardForm's main area }
+      MainPanel.StyleElements := [];
+      MainPanel.Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else
+    MainPanel.ParentBackground := True;
 
   const Pad = 10;
   const PadX = ScalePixelsX(Pad);

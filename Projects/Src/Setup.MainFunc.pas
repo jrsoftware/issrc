@@ -141,7 +141,8 @@ var
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
-    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
+    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
+    CustomWizardBackground: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
@@ -243,9 +244,9 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
-  ChaCha20, ECDSA, ISSigFunc, BidiCtrls,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, PathFunc, FormBackgroundStyleHook,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc, FormBackgroundStyleHook,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
@@ -3327,6 +3328,7 @@ begin
         if IsDynamicDark then begin
           SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
           SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+          SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
           MainIconPostfix := '_DARK';
           WantWizardImagesDynamicDark := True; { Handled below }
         end;
@@ -3351,7 +3353,11 @@ begin
             TStyleManager.SetStyle(Handle);
             if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
               TNewButton.DontStyle := True;
-            TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+            CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
+            if CustomWizardBackground then begin
+              TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+              TFormBackgroundStyleHook.BackColor := SetupHeader.WizardBackColor;
+            end;
           end;
         end;
 

@@ -169,6 +169,8 @@ type
     ssWindowShowCaption,
     ssWindowStartMaximized,
     ssWindowVisible,
+    ssWizardBackColor,
+    ssWizardBackColorDynamicDark,
     ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageBackColorDynamicDark,

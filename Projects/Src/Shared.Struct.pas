@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.0)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.1)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
@@ -120,8 +120,8 @@ type
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardDarkStyle: TSetupWizardDarkStyle;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    WizardImageBackColor, WizardSmallImageBackColor: LongInt;
-    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark: LongInt;
+    WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: LongInt;
+    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: LongInt;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
