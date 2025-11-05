@@ -386,7 +386,7 @@ begin
   end;
 
 
-  if not Bitmap.Empty then begin
+  if not Bmp.Empty then begin
     var X := R.Left;
     var Y := R.Top;
     if Center then begin
