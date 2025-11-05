@@ -550,8 +550,11 @@ begin
     IsWinDark := DarkModeActive;
     const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
     const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
-    if IsDynamicDark then
+    if IsDynamicDark then begin
       MainIconPostfix := '_DARK';
+      if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+        MainIconPostfix := '';
+    end;
     if IsDynamicDark or IsForcedDark then begin
       IsDarkInstallMode := True;
       WizardIconsPostfix := '_DARK';
