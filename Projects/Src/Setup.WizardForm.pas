@@ -1085,6 +1085,7 @@ begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' '
   else
     BeveledLabel.Caption := '';
+  BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }
