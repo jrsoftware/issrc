@@ -22,17 +22,18 @@ type
     class destructor Destroy;
     class var FBitmapImageImpl: TBitmapImageImplementation;
     class var FBitmapImageImplInitialized: Boolean;
+    class var FGraphic: TGraphic;
 {$ENDIF}
     class var FBackColor: TColor;
-    class var FGraphic: TGraphic;
     class var FGraphicTarget: TControl;
+    class procedure SetGraphic(Value: TGraphic); static;
 {$IFDEF VCLSTYLES}
   protected
     procedure PaintBackground(Canvas: TCanvas); override;
 {$ENDIF}
   public
     class property BackColor: TColor write FBackColor;
-    class property Graphic: TGraphic write FGraphic;
+    class property Graphic: TGraphic write SetGraphic;
     class property GraphicTarget: TControl write FGraphicTarget;
   end;
 
@@ -41,7 +42,7 @@ implementation
 {$IFDEF VCLSTYLES}
 
 uses
-  System.Classes;
+  System.Classes, System.SysUtils;
 
 { TFormBackgroundStyleHook }
 
@@ -54,16 +55,18 @@ class destructor TFormBackgroundStyleHook.Destroy;
 begin
   if FBitmapImageImplInitialized then
     FBitmapImageImpl.DeInit;
+  FGraphic.Free;
 end;
 
 procedure TFormBackgroundStyleHook.PaintBackground(Canvas: TCanvas);
 begin
   var R := Rect(0, 0, Control.Width, Control.Height);
 
-  if (FGraphic <> nil) and (FGraphicTarget = Control) then begin
+  if (FGraphicTarget = Control) and (FBitmapImageImplInitialized or (FGraphic <> nil)) then begin
     if not FBitmapImageImplInitialized then begin
       FBitmapImageImpl.Init(Control);
       FBitmapImageImpl.SetGraphic(FGraphic);
+      FreeAndNil(FGraphic);
       FBitmapImageImplInitialized := True;
     end;
     FBitmapImageImpl.BackColor := FBackColor;
@@ -75,5 +78,20 @@ begin
 end;
 
 {$ENDIF}
+
+class procedure TFormBackgroundStyleHook.SetGraphic(Value: TGraphic);
+begin
+{$IFDEF VCLSTYLES}
+  if not FBitmapImageImplInitialized then begin
+    if FGraphic <> nil then
+      FreeAndNil(FGraphic);
+    if Value <> nil then begin
+      FGraphic := TGraphicClass(Value.ClassType).Create;
+      FGraphic.Assign(Value);
+    end;
+  end;
+{$ENDIF}
+end;
+
 
 end.
