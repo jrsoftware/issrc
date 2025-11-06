@@ -864,36 +864,38 @@ begin
     PageNameLabel.Width := PageNameLabel.Width - I;
     PageDescriptionLabel.Width := PageDescriptionLabel.Width - I;
 
-    { Reduce the size of the control if appropriate:
-      - If the user supplied a single image AND that image is not larger than
-        the default control size before scaling (58x58), then reduce the
-        control size to match the image dimensions. That avoids stretching to
-        58x58 when the user is purposely using a smaller-than-default image
-        (such as 55x55 or 32x32) and WizardImageStretch=yes.
-      - Otherwise, it's unclear what size/shape the user prefers for the
-        control. Keep the default control size. }
-    var NewWidth := WizardSmallImages[0].Width;
-    var NewHeight := WizardSmallImages[0].Height;
-    if (WizardSmallImages.Count > 1) or
-       (NewWidth > 58) or
-       (NewHeight > 58) then begin
-      NewWidth := 58;
-      NewHeight := 58;
-    end;
+    if WizardSmallImages.Count > 0 then begin
+      { Reduce the size of the control if appropriate:
+        - If the user supplied a single image AND that image is not larger than
+          the default control size before scaling (58x58), then reduce the
+          control size to match the image dimensions. That avoids stretching to
+          58x58 when the user is purposely using a smaller-than-default image
+          (such as 55x55 or 32x32) and WizardImageStretch=yes.
+        - Otherwise, it's unclear what size/shape the user prefers for the
+          control. Keep the default control size. }
+      var NewWidth := WizardSmallImages[0].Width;
+      var NewHeight := WizardSmallImages[0].Height;
+      if (WizardSmallImages.Count > 1) or
+         (NewWidth > 58) or
+         (NewHeight > 58) then begin
+        NewWidth := 58;
+        NewHeight := 58;
+      end;
 
-    { Scale the new width and height }
-    NewWidth := MulDiv(NewWidth, WizardSmallBitmapImage.Width, 58);
-    NewHeight := MulDiv(NewHeight, WizardSmallBitmapImage.Height, 58);
+      { Scale the new width and height }
+      NewWidth := MulDiv(NewWidth, WizardSmallBitmapImage.Width, 58);
+      NewHeight := MulDiv(NewHeight, WizardSmallBitmapImage.Height, 58);
 
-    I := WizardSmallBitmapImage.Height - NewHeight;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
-      WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
-    end;
-    I := WizardSmallBitmapImage.Width - NewWidth;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
-      WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+      I := WizardSmallBitmapImage.Height - NewHeight;
+      if I > 0 then begin
+        WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
+        WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
+      end;
+      I := WizardSmallBitmapImage.Width - NewWidth;
+      if I > 0 then begin
+        WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
+        WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+      end;
     end;
   end;
 
