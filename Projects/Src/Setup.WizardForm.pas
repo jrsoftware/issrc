@@ -838,6 +838,8 @@ begin
     InnerNotebook.ParentBackground := True;
     for I := 0 to InnerNotebook.PageCount-1 do
       InnerNotebook.Pages[I].ParentBackground := True;
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
   end;
   if shWizardModern in SetupHeader.Options then begin
     if LStyle = nil then begin
@@ -924,7 +926,6 @@ begin
     TFormBackgroundStyleHook.GraphicTarget := Self;
     TFormBackgroundStyleHook.Center := True;
     TFormBackgroundStyleHook.Stretch := (shWizardImageStretch in SetupHeader.Options);
-    Bevel.Visible := False;
   end;
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);

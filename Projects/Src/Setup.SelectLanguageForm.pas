@@ -95,7 +95,9 @@ begin
   inherited;
 
   if not CustomWizardBackground then
-    MainPanel.ParentBackground := False;
+    MainPanel.ParentBackground := False
+  else
+    Bevel.Visible := False;
 
   InitializeFont(False, True);
 
