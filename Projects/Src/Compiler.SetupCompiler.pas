@@ -8137,16 +8137,23 @@ begin
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
-    if (WizardBackImageFile <> '') and (SetupHeader.WizardBackColor = clNone) then begin
-      LineNumber := SetupDirectiveLines[ssWizardBackImageFile];
-      AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'WizardBackColor']);
+    if WizardBackImageFile <> '' then begin
+      if SetupDirectiveLines[ssWizardBackColor] = 0 then
+        SetupHeader.WizardBackColor := clWindow
+      else if SetupHeader.WizardBackColor = clNone then begin
+        LineNumber := SetupDirectiveLines[ssWizardBackColor];
+        AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColor']);
+      end;
     end;
-    if (WizardBackImageFileDynamicDark <> '') and (SetupHeader.WizardBackColorDynamicDark = clNone) then begin
-      LineNumber := SetupDirectiveLines[ssWizardBackImageFileDynamicDark];
-      AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'WizardBackColorDynamicDark']);
+    if WizardBackImageFileDynamicDark <> '' then begin
+      if SetupDirectiveLines[ssWizardBackColorDynamicDark] = 0 then
+        SetupHeader.WizardBackColorDynamicDark := clWindow
+      else if SetupHeader.WizardBackColorDynamicDark = clNone then begin
+        LineNumber := SetupDirectiveLines[ssWizardBackColorDynamicDark];
+        AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColorDynamicDark']);
+      end;
     end;
-    if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) or
-       (WizardBackImageFile <> '') or (WizardBackImageFileDynamicDark <> '') then begin
+    if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
       if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';
         Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
