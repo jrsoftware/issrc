@@ -171,6 +171,8 @@ type
     ssWindowVisible,
     ssWizardBackColor,
     ssWizardBackColorDynamicDark,
+    ssWizardBackImageFile,
+    ssWizardBackImageFileDynamicDark,
     ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageBackColorDynamicDark,

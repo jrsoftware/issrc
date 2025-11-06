@@ -111,8 +111,7 @@ var
   SetupHeader: TSetupHeader;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImages: TWizardImages;
-  WizardSmallImages: TWizardImages;
+  WizardImages, WizardSmallImages, WizardBackImages: TWizardImages;
   MainIconPostfix, WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
@@ -3492,8 +3491,10 @@ begin
         { Wizard images }
         ReadWizardImages(Reader, WizardImages, not WantWizardImagesDynamicDark);
         ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardBackImages, not WantWizardImagesDynamicDark);
         ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
         ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardBackImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
@@ -4222,8 +4223,9 @@ end;
 
 procedure FreeWizardImages;
 begin
-  FreeAndNil(WizardImages);
+  FreeAndNil(WizardBackImages);
   FreeAndNil(WizardSmallImages);
+  FreeAndNil(WizardImages);
 end;
 
 initialization
@@ -4243,6 +4245,7 @@ initialization
   CloseApplicationsFilterExcludesList := TStringList.Create;
   WizardImages := TWizardImages.Create;
   WizardSmallImages := TWizardImages.Create;
+  WizardBackImages := TWizardImages.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 

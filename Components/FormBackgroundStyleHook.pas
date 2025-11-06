@@ -25,7 +25,9 @@ type
     class var FGraphic: TGraphic;
 {$ENDIF}
     class var FBackColor: TColor;
+    class var FCenter: Boolean;
     class var FGraphicTarget: TControl;
+    class var FStretch: Boolean;
     class procedure SetGraphic(Value: TGraphic); static;
 {$IFDEF VCLSTYLES}
   protected
@@ -33,8 +35,10 @@ type
 {$ENDIF}
   public
     class property BackColor: TColor write FBackColor;
+    class property Center: Boolean write FCenter;
     class property Graphic: TGraphic write SetGraphic;
     class property GraphicTarget: TControl write FGraphicTarget;
+    class property Stretch: Boolean write FStretch;
   end;
 
 implementation
@@ -60,17 +64,19 @@ end;
 
 procedure TFormBackgroundStyleHook.PaintBackground(Canvas: TCanvas);
 begin
-  var R := Rect(0, 0, Control.Width, Control.Height);
+  var R := Rect(0, 0, Control.ClientWidth, Control.ClientHeight);
 
   if (FGraphicTarget = Control) and (FBitmapImageImplInitialized or (FGraphic <> nil)) then begin
     if not FBitmapImageImplInitialized then begin
       FBitmapImageImpl.Init(Control);
+      FBitmapImageImpl.Center := FCenter;
       FBitmapImageImpl.SetGraphic(FGraphic);
+      FBitmapImageImpl.Stretch := FStretch;
       FreeAndNil(FGraphic);
       FBitmapImageImplInitialized := True;
     end;
     FBitmapImageImpl.BackColor := FBackColor;
-    FBitmapImageImpl.Paint(Self, Canvas, R);
+    FBitmapImageImpl.Paint(Control, Canvas, R);
   end else if FBackColor <> clNone then begin
     Canvas.Brush.Color := FBackColor;
     Canvas.FillRect(R);

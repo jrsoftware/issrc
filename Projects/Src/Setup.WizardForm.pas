@@ -343,7 +343,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Generics.Collections, Themes,
-  PathFunc, RestartManager, SHA256,
+  PathFunc, RestartManager, SHA256, FormBackgroundStyleHook,
   SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
@@ -917,6 +917,13 @@ begin
   end else
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
+  if CustomWizardBackground then begin
+    TFormBackgroundStyleHook.Graphic := SelectBestImage(WizardBackImages, ClientWidth, clientHeight);
+    TFormBackgroundStyleHook.GraphicTarget := Self;
+    TFormBackgroundStyleHook.Center := True;
+    TFormBackgroundStyleHook.Stretch := (shWizardImageStretch in SetupHeader.Options);
+    Bevel.Visible := False;
+  end;
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, SelectDirOrGroupSizes); {don't localize}
