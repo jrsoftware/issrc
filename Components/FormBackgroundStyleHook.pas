@@ -88,13 +88,15 @@ end;
 class procedure TFormBackgroundStyleHook.SetGraphic(Value: TGraphic);
 begin
 {$IFDEF VCLSTYLES}
-  if not FBitmapImageImplInitialized then begin
-    if FGraphic <> nil then
-      FreeAndNil(FGraphic);
-    if Value <> nil then begin
-      FGraphic := TGraphicClass(Value.ClassType).Create;
-      FGraphic.Assign(Value);
-    end;
+  if FBitmapImageImplInitialized then begin
+    FBitmapImageImpl.DeInit;
+    FBitmapImageImplInitialized := False;
+  end;
+  if FGraphic <> nil then
+    FreeAndNil(FGraphic);
+  if Value <> nil then begin
+    FGraphic := TGraphicClass(Value.ClassType).Create;
+    FGraphic.Assign(Value);
   end;
 {$ENDIF}
 end;
