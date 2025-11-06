@@ -128,7 +128,7 @@ begin
   SetForeground := ASetForeground;
 
   if not CustomWizardBackground then begin
-   var LStyle := StyleServices(Self);
+    var LStyle := StyleServices(Self);
     if not LStyle.Enabled or LStyle.IsSystemStyle then
       LStyle := nil;
     if LStyle <> nil then begin
