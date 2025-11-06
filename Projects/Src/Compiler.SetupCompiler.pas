@@ -8126,9 +8126,12 @@ begin
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
       UsedUserAreas.Add('AlwaysUsePersonalGroup');
-    if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then
-      if WizardStyleSpecial = '' then
+    if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
+      if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';
+        Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
+      end;
+    end;
     if WizardStyleSpecial <> '' then begin
       const BuiltinStyleFile = 'builtin:' + WizardStyleSpecial;
       if WizardStyleFile = '' then
