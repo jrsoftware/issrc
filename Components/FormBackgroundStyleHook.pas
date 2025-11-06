@@ -78,7 +78,7 @@ begin
     FBitmapImageImpl.BackColor := FBackColor;
     FBitmapImageImpl.Paint(Control, Canvas, R);
   end else if FBackColor <> clNone then begin
-    Canvas.Brush.Color := FBackColor;
+    Canvas.Brush.Color := TBitmapImageImplementation.AdjustColorForStyle(Control, FBackColor);
     Canvas.FillRect(R);
   end;
 end;

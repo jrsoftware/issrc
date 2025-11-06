@@ -40,6 +40,7 @@ type
     procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
       const AAutoSizeExtraHeight: Integer = 0);
     procedure DeInit;
+    class function AdjustColorForStyle(const Control: TControl; const Color: TColor): TColor; static;
     function GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
     function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
@@ -144,6 +145,23 @@ begin
   FreeAndNil(StretchedBitmap);
   FreeAndNil(PngImage);
   FreeAndNil(Bitmap);
+end;
+
+class function TBitmapImageImplementation.AdjustColorForStyle(const Control: TControl;
+  const Color: TColor): TColor;
+begin
+  Result := Color;
+  if (Result = clBtnFace) or (Result = clWindow) then begin
+    var LStyle := StyleServices(Control);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+    if LStyle <> nil then begin
+      if Result = clBtnFace then
+        Result := LStyle.GetStyleColor(scPanel)
+      else
+        Result := LStyle.GetStyleColor(scWindow);
+    end;
+  end;
 end;
 
 function TBitmapImageImplementation.GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
@@ -363,17 +381,8 @@ begin
 
   if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < FControl.Width) or (Bmp.Height < FControl.Height)) then begin
     var BrushColor := BackColor;
-    if ((BrushColor = clBtnFace) or (BrushColor = clWindow)) and (Sender is TControl) then begin
-      var LStyle := StyleServices(TControl(Sender));
-      if not LStyle.Enabled or LStyle.IsSystemStyle then
-        LStyle := nil;
-      if LStyle <> nil then begin
-        if BrushColor = clBtnFace then
-          BrushColor := LStyle.GetStyleColor(scPanel)
-        else
-          BrushColor := LStyle.GetStyleColor(scWindow);
-      end;
-    end;
+    if Sender is TControl then
+      BrushColor := AdjustColorForStyle(TControl(Sender), BrushColor);
     Canvas.Brush.Style := bsSolid;
     Canvas.Brush.Color := BrushColor;
     Canvas.FillRect(R);
