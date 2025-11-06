@@ -8228,7 +8228,8 @@ begin
       WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := clWindow;
-    end else if SetupDirectiveLines[ssWizardImageFile] = 0 then begin
+    end else if (SetupDirectiveLines[ssWizardImageFile] = 0) and
+                (SetupDirectiveLines[ssWizardBackImageFile] = 0) then begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], IsForcedDark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then begin
         { The following colors were determined by using the ColorBlendRGB function to blend from the
@@ -8253,7 +8254,8 @@ begin
       WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
-    end else if SetupDirectiveLines[ssWizardSmallImageFile] = 0 then begin
+    end else if (SetupDirectiveLines[ssWizardSmallImageFile] = 0) and
+                (SetupDirectiveLines[ssWizardBackImageFile] = 0) then begin
       WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], IsForcedDark);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clNone;
@@ -8275,7 +8277,8 @@ begin
         WizardImagesDynamicDark := CreateWizardImagesFromFiles('WizardImageFileDynamicDark', WizardImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardImageBackColorDynamicDark := clWindow;
-      end else if SetupDirectiveLines[ssWizardImageFileDynamicDark] = 0 then begin
+      end else if (SetupDirectiveLines[ssWizardImageFileDynamicDark] = 0) and
+                  (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] = 0) then begin
         WizardImagesDynamicDark := CreateWizardImagesFromResources(['WizardImage'], ['150'], True);
         if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardImageBackColorDynamicDark := $3f3a2e; { See above }
@@ -8287,7 +8290,8 @@ begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageDynamicDark', WizardSmallImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clWindow;
-      end else if SetupDirectiveLines[ssWizardSmallImageFileDynamicDark] = 0 then begin
+      end else if (SetupDirectiveLines[ssWizardSmallImageFileDynamicDark] = 0) and
+                  (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] = 0) then begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], True);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
