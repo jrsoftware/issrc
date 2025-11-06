@@ -93,15 +93,10 @@ begin
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
-
-    if Form.InstructionText.Visible then begin
-      Form.InstructionText.Parent.HandleNeeded;
+    if Form.InstructionText.Visible then
       Form.InstructionText.AdjustHeight;
-    end;
-    if Form.TextText.Visible then begin
-      Form.TextText.Parent.HandleNeeded;
+    if Form.TextText.Visible then
       Form.TextText.AdjustHeight;
-    end;
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -132,10 +127,6 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  { KeepSizeX: Already bit wider than regular task dialogs
-    KeepSizeY: UpdateHeight will set height }
-  InitializeFont(True, True);
-
   if not CustomWizardBackground then begin
    var LStyle := StyleServices(Self);
     if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -147,6 +138,10 @@ begin
     end;
   end else
     MainPanel.ParentBackground := True;
+
+  { KeepSizeX: Already bit wider than regular task dialogs
+    KeepSizeY: UpdateHeight will set height }
+  InitializeFont(True, True);
 
   const Pad = 10;
   const PadX = ScalePixelsX(Pad);

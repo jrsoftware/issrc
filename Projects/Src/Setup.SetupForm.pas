@@ -94,8 +94,8 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes, StdCtrls,
-  BidiUtils, NewNotebook, NewStaticText,
+  Generics.Collections, UITypes, WinXPanels,
+  BidiUtils, NewNotebook,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
 
 var
@@ -515,20 +515,6 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     end;
   end;
 
-  function GetHasChildControlCustomAnchors(const ParentCtl: TControl): Boolean;
-  begin
-    if ParentCtl is TWinControl then begin
-      const ParentWinCtl = TWinControl(ParentCtl);
-      for var I := 0 to ParentWinCtl.ControlCount-1 do begin
-        const Ctl = ParentWinCtl.Controls[I];
-        if (Ctl.Anchors <> [akLeft, akTop]) or GetHasChildControlCustomAnchors(Ctl) then
-          Exit(True);
-      end;
-    end;
-
-    Result := False;
-  end;
-
   procedure RestoreAnchors(const AnchorsList: TControlAnchorsList);
   begin
     { The order in which we restore the anchors shouldn't matter, so just
@@ -537,11 +523,20 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
       Item.Key.Anchors := Item.Value;
   end;
 
+  function ExcludeFromParentHandlesNeeded(const ParentCtl: TWinControl): Boolean;
+  begin
+    { Right-aligned TStackPanels are excluded. For example, calling
+      HandleNeeded on TaskDialogForm's BottomStackPanel causes it to become
+      left-aligned instead of right-aligned. This occurs regardless of the
+      timing of the HandleNeeded call, such as before or after sizing. }
+    Result := (ParentCtl is TStackPanel) and (TStackPanel(ParentCtl).Align = alRight);
+  end;
+
   procedure ParentHandlesNeeded(const ParentCtl: TControl);
   begin
     if ParentCtl is TWinControl then begin
       const ParentWinCtl = TWinControl(ParentCtl);
-      if ParentWinCtl.ControlCount > 0 then begin
+      if (ParentWinCtl.ControlCount > 0) and not ExcludeFromParentHandlesNeeded(ParentWinCtl) then begin
         if not (ParentWinCtl is TNewNotebook) then { For notebooks: only need handles on pages }
           ParentWinCtl.HandleNeeded;
         for var I := 0 to ParentWinCtl.ControlCount-1 do
@@ -550,32 +545,35 @@ procedure TSetupForm.InitializeFont(const KeepSizeX, KeepSizeY: Boolean);
     end;
   end;
 
-  function GetHasTopLevelAutoSizeAnchoredStaticText(const ParentCtl: TWinControl): Boolean;
-  begin
-    for var I := 0 to ParentCtl.ControlCount-1 do begin
-      if ParentCtl.Controls[I] is TNewStaticText then begin
-        const Ctl = TNewStaticText(ParentCtl.Controls[I]);
-        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
-          Exit(True);
-      end else if ParentCtl.Controls[I] is TStaticText then begin
-        const Ctl = TStaticText(ParentCtl.Controls[I]);
-        if Ctl.AutoSize and (Ctl.Anchors * [akBottom, akRight] <> []) then
-          Exit(True);
-      end;
-    end;
-
-    Result := False;
-  end;
-
 begin
-  { T(New)StaticText's which have AutoSize set, and also akBottom or akRight, and have the form
-    itself as the parent, need an early HandleNeeded call on the parent to ensure correct positioning.
-    It's needed even if no sizing and no scaling is done, and it is somehow related to the
-    SetFontNameSize call below and T(New)StaticText's AdjustBounds. Example control with this issue:
-    WizardForm.BeveledLabel. }
+  { Create parent handles.
 
-  if GetHasTopLevelAutoSizeAnchoredStaticText(Self) then
-    HandleNeeded; { Also see ShowModal, and below }
+    Various things related to positioning and anchoring don't work without this:
+    you get positions of child controls back as if there was no anchoring until
+    handles are automatically created.
+    
+    Initially we did this only when sizing the form (for WizardForm it worked if
+    done after sizing but for UninstallProgressForm it had be done before sizing,
+    for unknown reasons).
+    
+    For WizardForm's BeveledLabel though, it needs it before the font name/size
+    change (again for unknown reasons), otherwise the label will end up in the
+    wrong position, even if all we do is changing the font. Setting AutoSize to
+    False also causes it to stay in the correct position. (To see the bad
+    positioning for WizardForm.BeveledLabel you would first have to disable next
+    ParentHandlesNeeded call and then also the automatic vertical recentering in
+    WizardForm.)
+
+    Doing it always, instead of only before or after sizing, also helps
+    TaskDialogForm which does its own sizing (so KeepSizeX and KeepSizeY are
+    both True), but still needs parent handles to be created to avoid the issue.
+
+    Note: Caller should make sure the created handles do not get lost again. For
+    example, setting StyleElements to [] on a parent would cause the handle to
+    get deallocated again, and would reintroduce the issue. So this must be done
+    before calling us, and not after. }
+
+  ParentHandlesNeeded(Self); { Also see ShowModal }
 
   { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
     InitializeScaleBaseUnits }
@@ -599,15 +597,12 @@ begin
 
   { Scale }
 
-  var HasCustomAnchors: Boolean;
-
   if (FBaseUnitX <> FOrigBaseUnitX) or (FBaseUnitY <> FOrigBaseUnitY) then begin
     const ControlAnchorsList = TControlAnchorsList.Create;
     try
       { Custom anchors interfere with our scaling code, so strip them and restore
         afterward }
       StripAndStoreChildControlCustomAnchors(Self, ControlAnchorsList);
-      HasCustomAnchors := ControlAnchorsList.Count > 0;
       { Loosely based on scaling code from TForm.ReadState: }
       NewScaleControls(Self, FBaseUnitX, FOrigBaseUnitX, FBaseUnitY, FOrigBaseUnitY);
       const R = ClientRect;
@@ -618,8 +613,7 @@ begin
       RestoreAnchors(ControlAnchorsList);
       ControlAnchorsList.Free;
     end;
-  end else
-    HasCustomAnchors := GetHasChildControlCustomAnchors(Self);
+  end;
 
   { Size }
 
@@ -630,15 +624,6 @@ begin
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
-
-  if HasCustomAnchors and (LShouldSizeX or LShouldSizeY) then begin
-    { Various things related to positioning and anchoring don't work without this:
-      you get positions of child controls back as if there was no anchoring until
-      handles are automatically created. For WizardForm it works if done after
-      sizing but for UninstallProgressForm it must be done before sizing (for
-      unknown reasons), so doing before sizing. }
-    ParentHandlesNeeded(Self); { Also see ShowModal, and above }
-  end;
 
   if LShouldSizeX then
     ClientWidth := MulDiv(ClientWidth, SetupHeader.WizardSizePercentX, 100);
