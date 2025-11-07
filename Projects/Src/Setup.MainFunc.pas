@@ -79,7 +79,7 @@ var
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
     InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCancel, InitNoStyle: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -702,6 +702,7 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitNoStyle := GetIniBool(Section, 'NoStyle', InitNoStyle, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
@@ -3196,6 +3197,8 @@ begin
       InitNoIcons := True
     else if SameText(ParamName, '/NoCancel') then
       InitNoCancel := True
+    else if SameText(ParamName, '/NoStyle') then
+      InitNoStyle := True
     else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
     else if SameText(ParamName, '/Type=') then
@@ -3322,22 +3325,22 @@ begin
           compiler. }
         var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
-        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
-        const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
-        if IsDynamicDark then begin
-          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
-          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
-          MainIconPostfix := '_DARK';
-          { If the main icon is custom, a dark version will not be available, so check for this }
-          if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
-            MainIconPostfix := '';
-          WantWizardImagesDynamicDark := True; { Handled below }
-        end;
-        if IsDynamicDark or IsForcedDark then begin
-          IsDarkInstallMode := True;
-          WizardIconsPostfix := '_DARK';
-        end;
-        if not HighContrastActive then begin
+        if not HighContrastActive and not InitNoStyle then begin
+          const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
+          const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
+          if IsDynamicDark then begin
+            SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
+            SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+            MainIconPostfix := '_DARK';
+            { If the main icon is custom, a dark version will not be available, so check for this }
+            if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+              MainIconPostfix := '';
+            WantWizardImagesDynamicDark := True; { Handled below }
+          end;
+          if IsDynamicDark or IsForcedDark then begin
+            IsDarkInstallMode := True;
+            WizardIconsPostfix := '_DARK';
+          end;
           TStyleManager.AutoDiscoverStyleResources := False;
           { Also see comment above }
           var StyleName := 'MYSTYLE1';

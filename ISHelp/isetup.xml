@@ -3953,6 +3953,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <keyword value="/TASKS=" anchor="TASKS" />
 <keyword value="/MERGETASKS=" anchor="MERGETASKS" />
 <keyword value="/NOCANCEL" anchor="NOCANCEL" />
+<keyword value="/NOSTYLE" anchor="NOSTYLE" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
 <keyword value="/PASSWORD=" anchor="PASSWORD" />
@@ -3984,6 +3985,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dd>
 <p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the '/SUPPRESSMSGBOXES' command line option explained below) and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
+</dd>
+
+<dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
+<dd>
+<p>Prevents Setup from activating custom styles (including the built-in custom dark style).</p>
 </dd>
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
@@ -4269,6 +4275,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
+<keyword value="/NOSTYLE" anchor="NOSTYLE" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
 <keyword value="/SUPPRESSMSGBOXES" anchor="SUPPRESSMSGBOXES" />
@@ -4286,6 +4293,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dd>
 <p>When specified, the uninstaller will not ask the user for startup confirmation or display a message stating that uninstall is complete. Shared files that are no longer in use are deleted automatically without prompting. Any critical error messages will still be shown on the screen. When '/VERYSILENT' is specified, the uninstallation progress window is not displayed.</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and '/VERYSILENT' is specified, the uninstaller will reboot without asking.</p>
+</dd>
+
+<dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
+<dd>
+<p>Prevents the uninstaller from activating custom styles (including the built-in custom dark style).</p>
 </dd>
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
@@ -5802,7 +5814,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <heading>Other Considerations</heading>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
-<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme. Other elements (title bar color, icons and wizard images, including their background colors) are activated.</li>
+<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
