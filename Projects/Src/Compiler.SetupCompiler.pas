@@ -140,7 +140,7 @@ type
     LicenseFile, InfoBeforeFile, InfoAfterFile: String;
     WizardImageFile, WizardSmallImageFile, WizardImageFileDynamicDark, WizardSmallImageFileDynamicDark: String;
     WizardStyleFile, WizardStyleFileDynamicDark: String; { .vsf files }
-    WizardStyleSpecial: String; { 'polar' }
+    WizardStyleSpecial: String; { 'polar', etc. }
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -1421,7 +1421,9 @@ begin
   end
   else begin
     Prefix := Copy(Filename, 1, P-1);
-    if Prefix = 'compiler' then
+    if Prefix = 'builtin' then
+      Result := Filename
+    else if Prefix = 'compiler' then
       Result := CompilerDir + Copy(Filename, P+1, Maxint)
     else if Prefix = 'userdocs' then
       Result := GetShellFolderPathCached(CSIDL_PERSONAL, CachedUserDocsDir) +
