@@ -91,6 +91,7 @@ type
     function FindNextItem(StartFrom: Integer; GoForward,
       SkipUncheckedRadios: Boolean): Integer;
     function GetItemState(Index: Integer): TItemState;
+    procedure HandleScroll;
     procedure InvalidateCheck(Index: Integer);
     function RemeasureItem(Index: Integer): Integer;
     procedure Toggle(Index: Integer);
@@ -135,6 +136,7 @@ type
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
     procedure SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
+    procedure SetItemIndex(const Value: Integer); override;
     procedure SetObject(Index: Integer; const AObject: TObject);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
@@ -1225,6 +1227,16 @@ begin
   Result := WantTabs;
 end;
 
+procedure TNewCheckListBox.HandleScroll;
+begin
+  { Windows copies item backgrounds when scrolling, but if the listbox is
+    transparent and its parent background is complex (such as a bitmap),
+    the item backgrounds need to be updated. Can be called even if it's
+    not sure the list was actually scrolled. }
+  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then
+    InvalidateRect(Handle, nil, True);
+end;
+
 procedure TNewCheckListBox.InvalidateCheck(Index: Integer);
 var
   IRect: TRect;
@@ -1280,6 +1292,7 @@ begin
           FCaptureIndex := Index;
           FLastMouseMoveIndex := Index;
           InvalidateCheck(Index);
+          HandleScroll; { Might have scrolled a new item into view }
         end;
       end
       else
@@ -1611,6 +1624,15 @@ begin
   end;
 end;
 
+procedure TNewCheckListBox.SetItemIndex(const Value: Integer);
+begin
+  const Before = ItemIndex;
+  inherited;
+  const After = ItemIndex;
+  if (Before <> After) then
+    HandleScroll; { Might have scrolled a new item into view }
+end;
+
 procedure TNewCheckListBox.SetObject(Index: Integer; const AObject: TObject);
 begin
   ItemStates[Index].Obj := AObject;
@@ -1852,29 +1874,22 @@ end;
 
 procedure TNewCheckListBox.WMMouseWheel(var Message: TWMMouseWheel);
 begin
-  { See WMVScroll below for same code }
-  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
-    { Same as TCustomListView.WMVScroll }
-    const Before = GetScrollPos(Handle, SB_VERT);
-    inherited;
-    const After = GetScrollPos(Handle, SB_VERT);
-    if (Before <> After) then
-      InvalidateRect(Handle, nil, True);
-  end else
-    inherited;
+  { See WMVScroll below and TCustomListView.WMVScroll for same code }
+  const Before = GetScrollPos(Handle, SB_VERT);
+  inherited;
+  const After = GetScrollPos(Handle, SB_VERT);
+  if (Before <> After) then
+    HandleScroll;
 end;
 
 procedure TNewCheckListBox.WMVScroll(var Message: TWMVScroll);
 begin
   { See WMMouseWheel above for same code }
-  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
-    const Before = GetScrollPos(Handle, SB_VERT);
-    inherited;
-    const After = GetScrollPos(Handle, SB_VERT);
-    if (Before <> After) then
-      InvalidateRect(Handle, nil, True);
-  end else
-    inherited;
+  const Before = GetScrollPos(Handle, SB_VERT);
+  inherited;
+  const After = GetScrollPos(Handle, SB_VERT);
+  if (Before <> After) then
+    HandleScroll;
 end;
 
 procedure TNewCheckListBox.WMNCHitTest(var Message: TWMNCHitTest);
