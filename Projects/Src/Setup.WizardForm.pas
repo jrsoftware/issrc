@@ -1113,7 +1113,7 @@ begin
   BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
   if not CustomWizardBackground then begin
     if LStyle <> nil then
-      BeveledLabel.Color := LStyle.GetStyleColor(scWindow)
+      BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
   end else
     BeveledLabel.Color := SetupHeader.WizardBackColor;
 
