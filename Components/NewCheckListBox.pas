@@ -1233,8 +1233,13 @@ begin
     transparent and its parent background is complex (such as a bitmap),
     the item backgrounds need to be updated. Can be called even if it's
     not sure the list was actually scrolled. }
-  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then
-    InvalidateRect(Handle, nil, True);
+  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
+    var ScrollBarInfo: TScrollBarInfo;
+    ScrollBarInfo.cbSize := SizeOf(ScrollBarInfo);
+    if GetScrollBarInfo(Handle, OBJID_VSCROLL, ScrollBarInfo) and
+       (ScrollBarInfo.rgstate[0] <> STATE_SYSTEM_INVISIBLE) then
+      InvalidateRect(Handle, nil, True);
+  end;
 end;
 
 procedure TNewCheckListBox.InvalidateCheck(Index: Integer);
@@ -1874,7 +1879,7 @@ end;
 
 procedure TNewCheckListBox.WMMouseWheel(var Message: TWMMouseWheel);
 begin
-  { See WMVScroll below and TCustomListView.WMVScroll for same code }
+  { See TCustomListView.WMVScroll for same code and also see WMVScroll below }
   const Before = GetScrollPos(Handle, SB_VERT);
   inherited;
   const After = GetScrollPos(Handle, SB_VERT);
@@ -1884,11 +1889,14 @@ end;
 
 procedure TNewCheckListBox.WMVScroll(var Message: TWMVScroll);
 begin
-  { See WMMouseWheel above for same code }
+  { Also see WMMouseWheel above }
   const Before = GetScrollPos(Handle, SB_VERT);
   inherited;
-  const After = GetScrollPos(Handle, SB_VERT);
-  if (Before <> After) then
+  if Message.ScrollCode <> SB_THUMBTRACK then begin
+    const After = GetScrollPos(Handle, SB_VERT);
+    if (Before <> After) then
+      HandleScroll;
+  end else
     HandleScroll;
 end;
 
