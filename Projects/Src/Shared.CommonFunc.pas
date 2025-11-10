@@ -765,6 +765,27 @@ begin
     Result := '';
 end;
 
+function OldGetTempDir: String;
+{ Returns fully qualified path of the temporary directory, with trailing
+  backslash. This does not use the Win32 function GetTempPath, due to platform
+  differences. }
+label 1;
+begin
+  Result := GetEnv('TMP');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
+  Result := GetEnv('TEMP');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
+  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
+    are not set }
+  Result := GetEnv('USERPROFILE');
+  if (Result <> '') and DirExists(Result) then
+    goto 1;
+  Result := GetWinDir;
+1:Result := AddBackslash(PathExpand(Result));
+end;
+
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
   backslash. }
@@ -784,6 +805,11 @@ begin
     { The docs say the returned path is fully qualified and ends with a
       backslash, but let's be really sure! }
     Result := AddBackslash(PathExpand(Buf));
+    { We might receive a directory which does not exist, see for example
+      https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted
+      Revert to the old behaviour if this happens. }
+    if not DirExists(Result) then
+      Result := OldGetTempDir;
     Exit;
   end;
 
