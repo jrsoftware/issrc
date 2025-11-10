@@ -1236,7 +1236,7 @@ begin
   if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
     var ScrollBarInfo: TScrollBarInfo;
     ScrollBarInfo.cbSize := SizeOf(ScrollBarInfo);
-    if GetScrollBarInfo(Handle, OBJID_VSCROLL, ScrollBarInfo) and
+    if GetScrollBarInfo(Handle, Integer(OBJID_VSCROLL), ScrollBarInfo) and
        (ScrollBarInfo.rgstate[0] <> STATE_SYSTEM_INVISIBLE) then
       InvalidateRect(Handle, nil, True);
   end;
