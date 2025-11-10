@@ -765,27 +765,6 @@ begin
     Result := '';
 end;
 
-function OldGetTempDir: String;
-{ Returns fully qualified path of the temporary directory, with trailing
-  backslash. This does not use the Win32 function GetTempPath, due to platform
-  differences. }
-label 1;
-begin
-  Result := GetEnv('TMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetEnv('TEMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
-    are not set }
-  Result := GetEnv('USERPROFILE');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetWinDir;
-1:Result := AddBackslash(PathExpand(Result));
-end;
-
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
   backslash. }
