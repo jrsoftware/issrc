@@ -42,7 +42,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.6.0"></a><span class="ver">6.6.0-dev </span><span class="date">(?)</span></p>
+<p><a name="6.6.0"></a><span class="ver">6.6.0 </span><span class="date">(2025-11-11)</span></p>
 
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
@@ -101,6 +101,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     </li>
   </ul>
   </li>
+  <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when new command line parameter '/NOSTYLE' is used.</li>
   <li>Compiler IDE: Added a new <i>Wizard Style</i> page to the New Script Wizard, allowing to choose a style and view example screenshots.</li>
   <li>Pascal Scripting:
   <ul>
@@ -119,7 +120,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>WizardKeepAspectRatio</tt> to <tt>no</tt>.
   </li>
   <li>Support for <tt>[Setup]</tt> section directive <tt>WizardResizable</tt> has been dropped, so the user will no longer be able to resize the main Setup wizard window.</li>
-  <li>The default regular font used by Setup and Uninstall has been changed from 8-point <i>Tahoma</i> to 9-point <i>Segoe UI</i> without changes in scaling, for a more modern appearance.<br/>
+  <li>The default regular font used by Setup and Uninstall has been changed from 8-point <i>Tahoma</i> to 9-point <i>Segoe UI</i>, for a more modern appearance.<br/>
       To use 8-point <i>Tahoma</i> again, use:
       <pre><code class="innosetup"><span class="sec">[LangOptions]</span>
 <span class="key">DialogFontName</span>=Tahoma
@@ -181,6 +182,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
   </ul>
   </li>
+  <li>If Windows returns a <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted">temporary directory that does not exist</a>, Setup and Uninstall will now recreate it, but only if they detect the specific scenario described in the linked article. Starting with version 6.5.0, Setup and Uninstall could not run in this scenario. Prior to version 6.5.0, they would select a different temporary directory, which was also undesirable.</li>
   <li>Minor improvements and fixes.</li>
 </ul>
 

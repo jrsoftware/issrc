@@ -7694,10 +7694,10 @@ var
       { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle)
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
       else
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle);
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
@@ -8258,7 +8258,7 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
         WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
       end;
-      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile);
+      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImageFile', WizardSmallImageFile);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
     end else if (SetupDirectiveLines[ssWizardSmallImageFile] = 0) and
@@ -8294,7 +8294,7 @@ begin
       LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
       if WizardSmallImageFileDynamicDark <> '' then begin
-        WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageDynamicDark', WizardSmallImageFileDynamicDark);
+        WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageFileDynamicDark', WizardSmallImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clWindow;
       end else if (SetupDirectiveLines[ssWizardSmallImageFileDynamicDark] = 0) and
