@@ -182,7 +182,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
   </ul>
   </li>
-  <li>If Windows returns a <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted">temporary directory that does not exist</a>, Setup and Uninstall will now revert to the pre-Inno Setup 6.5.0 behavior, selecting a different temporary directory.</li>
+  <li>If Windows returns a <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted">temporary directory that does not exist</a>, Setup and Uninstall will now recreate it, but only if they detect the specific scenario described in the linked article. Starting with version 6.5.0, Setup and Uninstall could not run in this scenario. Prior to version 6.5.0, they would select a different temporary directory, which was also undesirable.</li>
   <li>Minor improvements and fixes.</li>
 </ul>
 
