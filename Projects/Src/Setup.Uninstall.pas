@@ -89,7 +89,7 @@ begin
   end;
 end;
 
-procedure InitializeUninstallProgressForm(const MainIconPostfix, WizardIconsPostfix: String);
+procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
   UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags,
@@ -550,7 +550,6 @@ begin
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
     if not HighContrastActive and not InitNoStyle then begin
-      var MainIconPostfix := '';
       const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
       const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
       if IsDynamicDark then begin
@@ -701,7 +700,7 @@ begin
           FmtSetupMessage1(msgShutdownBlockReasonUninstallingApp, UninstLog.AppName));
 
         { Create and show the progress form }
-        InitializeUninstallProgressForm(MainIconPostfix, WizardIconsPostfix);
+        InitializeUninstallProgressForm;
 
         CurUninstallStepChanged(usUninstall, False);
 
