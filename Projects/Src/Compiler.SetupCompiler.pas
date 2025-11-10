@@ -7671,10 +7671,10 @@ var
       { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle)
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
       else
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle);
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
