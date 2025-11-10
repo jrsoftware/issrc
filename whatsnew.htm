@@ -42,7 +42,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.6.0"></a><span class="ver">6.6.0 </span><span class="date">(2025-11-10)</span></p>
+<p><a name="6.6.0"></a><span class="ver">6.6.0 </span><span class="date">(2025-11-11)</span></p>
 
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
@@ -182,6 +182,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
   </ul>
   </li>
+  <li>If Windows returns a <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted">temporary directory that does not exist</a>, Setup and Uninstall will now revert to the pre-Inno Setup 6.5.0 behavior, selecting a different temporary directory.</li>
   <li>Minor improvements and fixes.</li>
 </ul>
 
