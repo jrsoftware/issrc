@@ -922,10 +922,12 @@ begin
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   if CustomWizardBackground then begin
-    TFormBackgroundStyleHook.Graphic := SelectBestImage(WizardBackImages, ClientWidth, clientHeight);
+    const Graphic = SelectBestImage(WizardBackImages, ClientWidth, clientHeight);
+    TFormBackgroundStyleHook.Graphic := Graphic;
     TFormBackgroundStyleHook.GraphicTarget := Self;
     TFormBackgroundStyleHook.Center := True;
     TFormBackgroundStyleHook.Stretch := (shWizardImageStretch in SetupHeader.Options);
+    TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
   end;
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);

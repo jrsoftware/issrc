@@ -71,6 +71,7 @@ type
     FWheelAccum: Integer;
     class constructor Create;
     class destructor Destroy;
+    class var FComplexParentBackground: Boolean;
     procedure UpdateThemeData(const Close, Open: Boolean);
     function CanFocusItem(Item: Integer): Boolean;
     function CheckPotentialRadioParents(Index, ALevel: Integer): Boolean;
@@ -100,11 +101,13 @@ type
     procedure WMGetObject(var Message: TMessage); message WM_GETOBJECT;
     procedure WMKeyDown(var Message: TWMKeyDown); message WM_KEYDOWN;
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
+    procedure WMMouseWheel(var Message: TWMMouseWheel); message WM_MOUSEWHEEL;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
+    procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
   protected
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
@@ -119,6 +122,7 @@ type
     function GetState(Index: Integer): TCheckBoxState;
     function GetSubItem(Index: Integer): string;
     function GetSubItemFontStyle(Index: Integer): TFontStyles;
+    function GetTransparentIfStyled: Boolean;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -161,6 +165,8 @@ type
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
     property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFontStyle write SetSubItemFontStyle;
+    property TransparentIfStyled: Boolean read GetTransparentIfStyled;
+    class property ComplexParentBackground: Boolean read FComplexParentBackground write FComplexParentBackground;
   published
     property Align;
     property Anchors;
@@ -210,6 +216,7 @@ type
     FStyleColorsCheckedWantTabs: Boolean;
     procedure UpdateColors;
   strict protected
+    procedure PaintBackground(Canvas: TCanvas); override;
     procedure WndProc(var Message: TMessage); override;
     procedure WMSetFocus(var Message: TMessage); message WM_SETFOCUS;
     procedure WMKillFocus(var Message: TMessage); message WM_KILLFOCUS;
@@ -810,7 +817,7 @@ begin
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
 
-  with Canvas do begin
+  with Canvas do begin { From now on Handle refers to Canvas.Handle! }
     { Initialize colors }
     if not FWantTabs and (odSelected in State) and Focused then begin
       NewTextColor := clHighlightText;
@@ -932,9 +939,17 @@ begin
         DrawThemeBackGround(FThemeData, Handle, PartId, StateId, CheckRect, @CheckRect);
       end;
     end;
-    { Draw SubItem }
+    { Draw background & subitem }
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
-    FillRect(Rect);
+    if TransparentIfStyled and (LStyle <> nil) then begin
+      { Same method as TTrackBar.CNNotify uses }
+      const Rgn = CreateRectRgn(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
+      SelectClipRgn(Handle, Rgn);
+      LStyle.DrawParentBackground(Self.Handle, Handle, nil, False, Rect);
+      DeleteObject(Rgn);
+      SelectClipRgn(Handle, 0);
+    end else
+      FillRect(Rect);
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
     Inc(Rect.Left);
     OldColor := SetTextColor(Handle, ColorToRGB(NewTextColor));
@@ -977,7 +992,13 @@ begin
       lines are drawn -- and we mustn't draw too many. }
     InternalDrawText(Items[Index], Rect, DrawTextFormat or DT_CALCRECT, False);
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
-    InternalDrawText(Items[Index], Rect, DrawTextFormat, FWantTabs and ItemDisabled and (LStyle = nil));
+    const Embossed = FWantTabs and ItemDisabled and (LStyle = nil);
+    if TransparentIfStyled and (LStyle <> nil) then begin
+      const OldBkMode = SetBkMode(Handle, Windows.TRANSPARENT);
+      InternalDrawText(Items[Index], Rect, DrawTextFormat, Embossed);
+      SetBkMode(Handle, OldBkMode);
+    end else
+      InternalDrawText(Items[Index], Rect, DrawTextFormat, Embossed);
     { Draw focus rectangle }
     if FWantTabs and not ItemDisabled and (odSelected in State) and Focused and
       (UIState and UISF_HIDEFOCUS = 0) then
@@ -1197,6 +1218,11 @@ end;
 function TNewCheckListBox.GetSubItemFontStyle(Index: Integer): TFontStyles;
 begin
   Result := ItemStates[Index].SubItemFontStyle;
+end;
+
+function TNewCheckListBox.GetTransparentIfStyled: Boolean;
+begin
+  Result := WantTabs;
 end;
 
 procedure TNewCheckListBox.InvalidateCheck(Index: Integer);
@@ -1824,6 +1850,33 @@ begin
   UpdateHotIndex(NewHotIndex);
 end;
 
+procedure TNewCheckListBox.WMMouseWheel(var Message: TWMMouseWheel);
+begin
+  { See WMVScroll below for same code }
+  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
+    { Same as TCustomListView.WMVScroll }
+    const Before = GetScrollPos(Handle, SB_VERT);
+    inherited;
+    const After = GetScrollPos(Handle, SB_VERT);
+    if (Before <> After) then
+      InvalidateRect(Handle, nil, True);
+  end else
+    inherited;
+end;
+
+procedure TNewCheckListBox.WMVScroll(var Message: TWMVScroll);
+begin
+  { See WMMouseWheel above for same code }
+  if FComplexParentBackground and TransparentIfStyled and IsCustomStyleActive then begin
+    const Before = GetScrollPos(Handle, SB_VERT);
+    inherited;
+    const After = GetScrollPos(Handle, SB_VERT);
+    if (Before <> After) then
+      InvalidateRect(Handle, nil, True);
+  end else
+    inherited;
+end;
+
 procedure TNewCheckListBox.WMNCHitTest(var Message: TWMNCHitTest);
 var
   I: Integer;
@@ -1929,8 +1982,14 @@ begin
       begin
         UpdateColors;
         SetTextColor(Message.WParam, ColorToRGB(FontColor));
-        SetBkColor(Message.WParam, ColorToRGB(Brush.Color));
-        Message.Result := LRESULT(Brush.Handle);
+      	const Transparent = (Control is TNewCheckListBox) and TNewCheckListBox(Control).TransparentIfStyled;
+        if Transparent and (Message.Msg = CN_CTLCOLORLISTBOX) then begin
+          SetBkMode(Message.WParam, Windows.TRANSPARENT);
+          Message.Result := GetStockObject(NULL_BRUSH);
+        end else begin
+          SetBkColor(Message.WParam, ColorToRGB(Brush.Color));
+          Message.Result := LRESULT(Brush.Handle);
+        end;
         Handled := True;
       end;
     CM_ENABLEDCHANGED:
@@ -1941,6 +2000,15 @@ begin
   else
     inherited WndProc(Message);
   end;
+end;
+
+procedure TNewCheckListBoxStyleHook.PaintBackground(Canvas: TCanvas);
+begin
+  const Transparent = (Control is TNewCheckListBox) and TNewCheckListBox(Control).TransparentIfStyled;
+  if Transparent then
+    StyleServices.DrawParentBackground(Handle, Canvas.Handle, nil, False)
+  else
+    inherited;
 end;
 
 procedure TNewCheckListBoxStyleHook.UpdateColors;
