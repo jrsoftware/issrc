@@ -5538,7 +5538,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardImageFile">
-<setupdefault><i>(blank)</i></setupdefault>
+<setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
@@ -5555,7 +5555,8 @@ DiskSliceSize=736000000
 <tr><td>250%</td><td>534x1022</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>If this directive is not specified or is blank, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is not specified, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is set to a blank value, no wizard image will be used.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
@@ -5586,7 +5587,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageFile">
-<setupdefault><i>(blank)</i></setupdefault>
+<setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
@@ -5604,7 +5605,8 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
-<p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is not specified, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is set to a blank value, no wizard image will be used.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>58x58</td></tr>
@@ -5681,7 +5683,9 @@ DiskSliceSize=736000000
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>. Using <tt>clNone</tt> as the fill color keeps transparency.</p>
-<p>If a custom wizard image is used, then this directive defaults to <tt>clWindow</tt>.<br/>
+<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clNone</tt>.<br/>
+Otherwise, if <link topic="setup_wizardimagefile">WizardImageFile</link> specifies a blank value, then this directive also defaults to <tt>clNone</tt>.<br/>
+Otherwise, if a custom wizard image is used, then this directive defaults to <tt>clWindow</tt>.<br/>
 Otherwise, if custom style <tt>slate</tt> is used then this directive defaults to <tt>#bcd2e2</tt> (light grayish blue).<br/>
 Otherwise, if custom style <tt>zircon</tt> is used then this directive defaults to <tt>#d0eaee</tt> (light grayish cyan).<br/>
 Otherwise, if forced dark mode is used then this directive defaults to <tt>#2e3a3f</tt> (very dark grayish blue).<br/>
@@ -5701,9 +5705,13 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 
 <setuptopic directive="WizardSmallImageBackColor">
 <setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
-<setupdefault><tt>clNone</tt> if the built-in small wizard image is used, <tt>clWindow</tt> otherwise.</setupdefault>
+<setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>. Using <tt>clNone</tt> as the fill color keeps transparency.</p>
+<p>If a custom background image is used via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clNone</tt>.<br/>
+Otherwise, if <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> specifies a blank value, then this directive also defaults to <tt>clNone</tt>.<br/>
+Otherwise, if a custom wizard image is used, then this directive defaults to <tt>clWindow</tt>.<br/>
+Otherwise, it defaults to <tt>clNone</tt>.</p>
 </body>
 </setuptopic>
 
