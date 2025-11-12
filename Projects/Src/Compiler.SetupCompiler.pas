@@ -3352,14 +3352,17 @@ begin
           Invalid;
         end;
       end;
-    ssWizardImageStretch: begin
-        SetSetupHeaderOption(shWizardImageStretch);
-      end;
     ssWizardImageFile: begin
         WizardImageFile := Value;
       end;
     ssWizardImageFileDynamicDark: begin
         WizardImageFileDynamicDark := Value;
+      end;
+    ssWizardImageOpacity: begin
+        SetupHeader.WizardImageOpacity := StrToIntRange(Value, 0, 255);
+      end;
+    ssWizardImageStretch: begin
+        SetSetupHeaderOption(shWizardImageStretch);
       end;
     ssWizardKeepAspectRatio: begin
         SetSetupHeaderOption(shWizardKeepAspectRatio);
@@ -7933,6 +7936,7 @@ begin
     SetupHeader.WizardDarkStyle := wdsLight;
     SetupHeader.WizardSizePercentX := 120;
     SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
+    SetupHeader.WizardImageOpacity := 255;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
