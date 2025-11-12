@@ -5639,6 +5639,15 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardBackImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
+<table>
+<tr><td>100%</td><td>596x432</td></tr>
+<tr><td>125%</td><td>796x576</td></tr>
+<tr><td>150%</td><td>994x720</td></tr>
+<tr><td>175%</td><td>1193x864</td></tr>
+<tr><td>200%</td><td>1272x922</td></tr>
+<tr><td>225%</td><td>1471x1066</td></tr>
+<tr><td>250%</td><td>1630x1148</td></tr>
+</table>
 </body>
 </setuptopic>
 
