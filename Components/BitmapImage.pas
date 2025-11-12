@@ -30,6 +30,7 @@ type
     BackColor: TColor;
     Bitmap: TBitmap;
     Center: Boolean;
+    Opacity: Byte;
     PngImage: TPngImage;
     ReplaceColor: TColor;
     ReplaceWithColor: TColor;
@@ -51,6 +52,7 @@ type
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Sender: TObject; Value: Boolean);
     procedure SetGraphic(Value: TGraphic);
+    procedure SetOpacity(Sender: TObject; Value: Byte);
     procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Sender: TObject; Value: TColor);
     procedure SetReplaceWithColor(Sender: TObject; Value: TColor);
@@ -65,6 +67,7 @@ type
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
+    procedure SetOpacity(Value: Byte);
     procedure SetGraphic(Value: TGraphic);
     procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Value: TColor);
@@ -90,6 +93,7 @@ type
     property DragCursor;
     property DragMode;
     property Enabled;
+    property Opacity: Byte read FImpl.Opacity write SetOpacity;
     property ParentShowHint;
     property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;
@@ -133,6 +137,7 @@ begin
   BackColor := clNone;
   Bitmap := TBitmap.Create;
   Bitmap.OnChange := BitmapChanged;
+  Opacity := 255;
   PngImage := TPngImage.Create;
   PngImage.OnChange := PngImageChanged;
   ReplaceColor := clNone;
@@ -308,6 +313,14 @@ begin
     Bitmap.Assign(Value);
 end;
 
+procedure TBitmapImageImplementation.SetOpacity(Sender: TObject; Value: Byte);
+begin
+  if Opacity <> Value then begin
+    Opacity := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
 procedure TBitmapImageImplementation.SetPngImage(Value: TPngImage);
 begin
   PngImage.Assign(Value);
@@ -410,7 +423,9 @@ begin
     if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin
       Canvas.Brush.Color := ReplaceWithColor;
       Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), ReplaceColor);
-    end else
+    end else if Opacity <> 255 then
+      Canvas.Draw(X, Y, Bmp, Opacity)
+    else
       Canvas.Draw(X, Y, Bmp);
   end;
 
@@ -472,6 +487,11 @@ end;
 procedure TBitmapImage.SetGraphic(Value: TGraphic);
 begin
   FImpl.SetGraphic(Value);
+end;
+
+procedure TBitmapImage.SetOpacity(Value: Byte);
+begin
+  FImpl.SetOpacity(Self, Value);
 end;
 
 procedure TBitmapImage.SetPngImage(Value: TPngImage);

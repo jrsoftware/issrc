@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.6.0';
-  SetupBinVersion = (6 shl 24) + (6 shl 16) + (0 shl 8) + 0;
+  SetupVersion = '6.6.1-dev';
+  SetupBinVersion = (6 shl 24) + (6 shl 16) + (1 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -122,6 +122,7 @@ type
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
     WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
+    WizardImageOpacity: Byte;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);

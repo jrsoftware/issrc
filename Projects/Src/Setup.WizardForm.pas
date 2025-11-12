@@ -909,10 +909,12 @@ begin
   WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage.Center := True;
+  WizardBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
   WizardBitmapImage2.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage2.Center := True;
+  WizardBitmapImage2.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) then begin
@@ -920,6 +922,7 @@ begin
     WizardSmallBitmapImage.BackColor := clBtnFace
   end else
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
+  WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   if CustomWizardBackground then begin
     const Graphic = SelectBestImage(WizardBackImages, ClientWidth, clientHeight);
