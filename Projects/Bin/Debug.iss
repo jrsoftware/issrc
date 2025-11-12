@@ -18,6 +18,7 @@ DefaultGroupName=My Program
 AppVersion=1.2.3
 WizardStyle=modern dynamic
 
+; DisableWelcomePage=no
 DisableDirPage=no
 DisableProgramGroupPage=no
 
