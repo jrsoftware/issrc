@@ -5773,6 +5773,8 @@ WizardImageOpacity=150</pre></example>
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
+<keyword value="Dark mode" />
+<keyword value="Custom style" />
 <setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt> <tt>excludelightbuttons</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
@@ -5860,6 +5862,7 @@ WizardImageOpacity=150</pre></example>
 </setuptopic>
 
 <setuptopic directive="WizardStyleFile">
+<keyword value="VCL Styles" />
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>This directive specifies a custom VCL Styles file (.vsf) to be used. It is recommended to use only styles that support high DPI.</p>
