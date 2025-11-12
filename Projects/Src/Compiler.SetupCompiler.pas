@@ -8241,8 +8241,7 @@ begin
       WizardImages := CreateWizardImagesFromFiles('WizardImageFile', WizardImageFile);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
         SetupHeader.WizardImageBackColor := clWindow;
-    end else if (SetupDirectiveLines[ssWizardImageFile] = 0) and
-                (SetupDirectiveLines[ssWizardBackImageFile] = 0) then begin
+    end else if SetupDirectiveLines[ssWizardImageFile] = 0 then begin
       WizardImages := CreateWizardImagesFromResources(['WizardImage'], ['150'], IsForcedDark);
       if SetupDirectiveLines[ssWizardImageBackColor] = 0 then begin
         { The following colors were determined by using the ColorBlendRGB function to blend from the
@@ -8257,6 +8256,10 @@ begin
       end;
     end else if SetupDirectiveLines[ssWizardImageBackColor] = 0 then
       SetupHeader.WizardImageBackColor := clNone;
+
+    if (SetupDirectiveLines[ssWizardImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
+      SetupHeader.WizardImageBackColor := clNone;
+
     LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
@@ -8267,13 +8270,16 @@ begin
       WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImageFile', WizardSmallImageFile);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
-    end else if (SetupDirectiveLines[ssWizardSmallImageFile] = 0) and
-                (SetupDirectiveLines[ssWizardBackImageFile] = 0) then begin
+    end else if SetupDirectiveLines[ssWizardSmallImageFile] = 0 then begin
       WizardSmallImages := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], IsForcedDark);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clNone;
     end else if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
       SetupHeader.WizardSmallImageBackColor := clNone;
+
+    if (SetupDirectiveLines[ssWizardSmallImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
+      SetupHeader.WizardSmallImageBackColor := clNone;
+
     LineNumber := SetupDirectiveLines[ssWizardBackImageFile];
     if LineNumber <> 0 then begin
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFile']));
@@ -8290,26 +8296,32 @@ begin
         WizardImagesDynamicDark := CreateWizardImagesFromFiles('WizardImageFileDynamicDark', WizardImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardImageBackColorDynamicDark := clWindow;
-      end else if (SetupDirectiveLines[ssWizardImageFileDynamicDark] = 0) and
-                  (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] = 0) then begin
+      end else if SetupDirectiveLines[ssWizardImageFileDynamicDark] = 0 then begin
         WizardImagesDynamicDark := CreateWizardImagesFromResources(['WizardImage'], ['150'], True);
         if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardImageBackColorDynamicDark := $3f3a2e; { See above }
       end else if SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0 then
         SetupHeader.WizardImageBackColorDynamicDark := clNone;
+
+      if (SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
+        SetupHeader.WizardImageBackColorDynamicDark := clNone;
+
       LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
       if WizardSmallImageFileDynamicDark <> '' then begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageFileDynamicDark', WizardSmallImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clWindow;
-      end else if (SetupDirectiveLines[ssWizardSmallImageFileDynamicDark] = 0) and
-                  (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] = 0) then begin
+      end else if SetupDirectiveLines[ssWizardSmallImageFileDynamicDark] = 0 then begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromResources(['WizardSmallImage'], ['250'], True);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
       end else if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
         SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
+
+      if (SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
+        SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
+
       LineNumber := SetupDirectiveLines[ssWizardBackImageFileDynamicDark];
       if LineNumber <> 0 then begin
         AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFileDynamicDark']));
