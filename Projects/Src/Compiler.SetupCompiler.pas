@@ -3335,6 +3335,9 @@ begin
     ssWizardBackImageFileDynamicDark: begin
         WizardBackImageFileDynamicDark := Value;
       end;
+    ssWizardBackImageOpacity: begin
+        SetupHeader.WizardBackImageOpacity := StrToIntRange(Value, 0, 255);
+      end;
     ssWizardImageAlphaFormat: begin
         if CompareText(Value, 'none') = 0 then
           SetupHeader.WizardImageAlphaFormat := afIgnored
@@ -7964,6 +7967,7 @@ begin
     SetupHeader.WizardImageOpacity := 255;
     SetupHeader.WizardBackColor := clNone;
     SetupHeader.WizardBackColorDynamicDark := clNone;
+    SetupHeader.WizardBackImageOpacity := 255;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);

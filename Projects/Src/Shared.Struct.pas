@@ -122,7 +122,7 @@ type
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
     WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
     WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
-    WizardImageOpacity: Byte;
+    WizardImageOpacity, WizardBackImageOpacity: Byte;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);

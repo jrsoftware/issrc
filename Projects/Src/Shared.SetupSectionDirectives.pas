@@ -173,6 +173,7 @@ type
     ssWizardBackColorDynamicDark,
     ssWizardBackImageFile,
     ssWizardBackImageFileDynamicDark,
+    ssWizardBackImageOpacity,
     ssWizardImageAlphaFormat,
     ssWizardImageBackColor,
     ssWizardImageBackColorDynamicDark,
