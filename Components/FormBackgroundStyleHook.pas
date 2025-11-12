@@ -27,6 +27,7 @@ type
     class var FBackColor: TColor;
     class var FCenter: Boolean;
     class var FGraphicTarget: TControl;
+    class var FOpacity: Byte;
     class var FStretch: Boolean;
     class procedure SetGraphic(Value: TGraphic); static;
 {$IFDEF VCLSTYLES}
@@ -38,6 +39,7 @@ type
     class property Center: Boolean write FCenter;
     class property Graphic: TGraphic write SetGraphic;
     class property GraphicTarget: TControl write FGraphicTarget;
+    class property Opacity: Byte write FOpacity;
     class property Stretch: Boolean write FStretch;
   end;
 
@@ -69,13 +71,14 @@ begin
   if (FGraphicTarget = Control) and (FBitmapImageImplInitialized or (FGraphic <> nil)) then begin
     if not FBitmapImageImplInitialized then begin
       FBitmapImageImpl.Init(Control);
-      FBitmapImageImpl.Center := FCenter;
       FBitmapImageImpl.SetGraphic(FGraphic);
-      FBitmapImageImpl.Stretch := FStretch;
       FreeAndNil(FGraphic);
       FBitmapImageImplInitialized := True;
     end;
     FBitmapImageImpl.BackColor := FBackColor;
+    FBitmapImageImpl.Center := FCenter;
+    FBitmapImageImpl.Opacity := FOpacity;
+    FBitmapImageImpl.Stretch := FStretch;
     FBitmapImageImpl.Paint(Control, Canvas, R);
   end else if FBackColor <> clNone then begin
     Canvas.Brush.Color := TBitmapImageImplementation.AdjustColorForStyle(Control, FBackColor);

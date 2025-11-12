@@ -929,6 +929,7 @@ begin
     TFormBackgroundStyleHook.Graphic := Graphic;
     TFormBackgroundStyleHook.GraphicTarget := Self;
     TFormBackgroundStyleHook.Center := True;
+    TFormBackgroundStyleHook.Opacity := SetupHeader.WizardImageOpacity;
     TFormBackgroundStyleHook.Stretch := (shWizardImageStretch in SetupHeader.Options);
     TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
   end;
