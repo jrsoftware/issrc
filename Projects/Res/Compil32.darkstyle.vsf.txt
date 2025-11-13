@@ -1,0 +1,10 @@
+Currently equals VCL Style 'Windows11 Dark 1.0' by Embarcadero from GetIt
+
+For easier testing, you could instead use VCL Style 'Stellar 2.0' by Embarcadero
+from GetIt, in either variant. This style features a colored (blue) background with
+a white foreground. This combination is very rare, if not unique, among all available
+styles. Other styles with a colored background use a black foreground, but since things
+are black by default, those are not useful for testing.
+
+Another interesting style to test with is 'Zircon 2.0' by Embarcadero from GetIt. This
+style has a textured form background.
