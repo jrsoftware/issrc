@@ -127,7 +127,7 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  if not CustomWizardBackground then begin
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then begin
     var LStyle := StyleServices(Self);
     if not LStyle.Enabled or LStyle.IsSystemStyle then
       LStyle := nil;

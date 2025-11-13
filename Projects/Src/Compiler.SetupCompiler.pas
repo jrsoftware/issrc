@@ -8154,7 +8154,8 @@ begin
         LineNumber := SetupDirectiveLines[ssWizardBackColor];
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColor']);
       end;
-    end;
+    end else if SetupHeader.WizardBackColor = clWindow then
+      SetupHeader.WizardBackColor := clNone;
     if WizardBackImageFileDynamicDark <> '' then begin
       if SetupDirectiveLines[ssWizardBackColorDynamicDark] = 0 then
         SetupHeader.WizardBackColorDynamicDark := clWindow
@@ -8162,7 +8163,8 @@ begin
         LineNumber := SetupDirectiveLines[ssWizardBackColorDynamicDark];
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColorDynamicDark']);
       end;
-    end;
+    end else if SetupHeader.WizardBackColorDynamicDark = clWindow then
+      SetupHeader.WizardBackColorDynamicDark := clNone;
     if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
       if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';

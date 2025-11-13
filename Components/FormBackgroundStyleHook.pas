@@ -80,10 +80,11 @@ begin
     FBitmapImageImpl.Opacity := FOpacity;
     FBitmapImageImpl.Stretch := FStretch;
     FBitmapImageImpl.Paint(Control, Canvas, R);
-  end else if FBackColor <> clNone then begin
+  end else if (FBackColor <> clNone) and (FBackColor <> clWindow) then begin
     Canvas.Brush.Color := TBitmapImageImplementation.AdjustColorForStyle(Control, FBackColor);
     Canvas.FillRect(R);
-  end;
+  end else
+    inherited;
 end;
 
 {$ENDIF}

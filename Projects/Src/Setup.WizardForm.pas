@@ -1119,7 +1119,7 @@ begin
     if LStyle <> nil then
       BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
   end else
-    BeveledLabel.Color := SetupHeader.WizardBackColor;
+    BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardImageBackColor);
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }
