@@ -5759,7 +5759,7 @@ Otherwise, it defaults to <tt>clNone</tt>.</p>
 <p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialogs, in both Setup and Uninstall.</p>
 <p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clWindow</tt> and setting it to <tt>clNone</tt> is not allowed.<br/>
 Otherwise, it defaults to <tt>clNone</tt>.</p>
-<p>Using <tt>clWindow</tt> without also specifying custom background image has no effect.</p>
+<p>Using <tt>clWindow</tt> without also specifying a custom background image has no effect.</p>
 <p>Using <tt>clNone</tt> disables this feature and native background colors will be used, as determined by the system or the custom style.</p>
 <p>If this feature is enabled, and the color is set to another value than <tt>clWindow</tt>, then all bevels (horizontal lines) in Setup and Uninstall will be hidden and all panels will become transparent.</p>
 <p>Additionally, if a custom style is not specified, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightbuttons</tt>. See <link topic="setup_wizardstyle">WizardStyle</link> for more information.</p>
