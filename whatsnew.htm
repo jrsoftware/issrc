@@ -44,13 +44,17 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><a name="6.6.1"></a><span class="ver">6.6.1-dev </span><span class="date">(?)</span></p>
 
+<p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
+
 <ul>
-  <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specifiy the opacity of wizard images. This is useful if you want to use single wizard images for both light and dark appearances. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
+  <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use single wizard images for both light and dark appearances. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
+  <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but the documentation was not updated accordingly. This has now been corrected.</li>
+  <li>Other minor improvements.</li>
 </ul>
 
-<p><a name="6.6.0"></a><span class="ver">6.6.0 </span><span class="date">(2025-11-11)</span></p>
+<p>Using Inno Setup commercially? Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
-<p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
+<p><a name="6.6.0"></a><span class="ver">6.6.0 </span><span class="date">(2025-11-11)</span></p>
 
 <span class="head2">Dark mode and custom styles in Setup and Uninstall</span>
 <p>Setup and Uninstall now both support dark mode, forced or automatic. Custom styles are also supported.</p>
@@ -191,8 +195,6 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <li>If Windows returns a <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted">temporary directory that does not exist</a>, Setup and Uninstall will now recreate it, but only if they detect the specific scenario described in the linked article. Starting with version 6.5.0, Setup and Uninstall could not run in this scenario. Prior to version 6.5.0, they would select a different temporary directory, which was also undesirable.</li>
   <li>Minor improvements and fixes.</li>
 </ul>
-
-<p>Using Inno Setup commercially? Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
 <p><a href="files/is6.5-whatsnew.htm">Inno Setup 6.5 Revision History</a></p>
 
