@@ -5570,6 +5570,7 @@ DiskSliceSize=736000000
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
 <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link><br/>
@@ -5620,6 +5621,7 @@ DiskSliceSize=736000000
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
 <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link><br/>
@@ -5639,6 +5641,11 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardBackImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
+<p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link> to increase transparency.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. If <tt>WizardKeepAspectRatio</tt> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>596x432</td></tr>
 <tr><td>125%</td><td>796x576</td></tr>
@@ -5648,6 +5655,15 @@ DiskSliceSize=736000000
 <tr><td>225%</td><td>1471x1066</td></tr>
 <tr><td>250%</td><td>1630x1148</td></tr>
 </table>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>If this directive is set to a blank value, no background image will be used.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
+<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
+<link topic="setup_wizardbackcolor">WizardBackColor</link><br/>
+<link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link><br/>
+<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
+<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
 
@@ -5676,12 +5692,13 @@ DiskSliceSize=736000000
 <setupvalid><tt>none</tt>, <tt>defined</tt>, <tt>premultiplied</tt></setupvalid>
 <setupdefault><tt>none</tt></setupdefault>
 <body>
-<p>If set to <tt>none</tt>, the default, any wizard image which is a 32-bit .bmp file should not have an alpha channel.</p>
-<p>If set to <tt>premultiplied</tt>, any wizard image which is a 32-bit .bmp file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
-<p>If set to <tt>defined</tt>, any wizard image which is a 32-bit .bmp file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>none</tt>, the default, any wizard image (including the background image) which is a 32-bit .bmp file should not have an alpha channel.</p>
+<p>If set to <tt>premultiplied</tt>, any wizard image (including the background image) which is a 32-bit .bmp file should have its red, green and blue channel values premultiplied with the alpha channel value.</p>
+<p>If set to <tt>defined</tt>, any wizard image (including the background image) which is a 32-bit .bmp file should not have its red, green and blue channel values premultiplied with the alpha channel value.</p>
 <p>This directive has no effect for a wizard image which is not a 32-bit .bmp file.</p>
 <p>To create transparent .bmp files compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>. These files may appear large, but Inno Setup compresses them using LZMA, which typically achieves better compression ratios than, for example, PNG compression.</p>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
 </body>
@@ -5732,6 +5749,28 @@ Otherwise, it defaults to <tt>clNone</tt>.</p>
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardBackColor">
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupdefault><i>(see below)</i></setupdefault>
+<body>
+<p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialogs, in both Setup and Uninstall.</p>
+<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clWindow</tt> and setting it to <tt>clNone</tt> is not allowed.<br/>
+Otherwise, it defaults to <tt>clNone</tt>.</p>
+<p>Using <tt>clNone</tt> disables this feature and native background colors will be used as determined by the system or the custom style.</p>
+<p>If this feature is enabled, then all bevels (horizontal lines) in the wizard will be hidden and all panels will become transparent.</p>
+<p>Additionally, if a custom style is not specified, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightbuttons</tt>. See <link topic="setup_wizardstyle">WizardStyle</link> for more information.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
+<link topic="setup_wizardstyle">WizardStyle</link></p></body>
+</setuptopic>
+
+<setuptopic directive="WizardBackColorDynamicDark">
+<body>
+<p>Overrides <link topic="setup_wizardbackcolor">WizardBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <link topic="setup_wizardbackcolor">WizardBackColor</link>.</p>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardImageOpacity">
 <setupvalid><tt>0</tt> through <tt>255</tt></setupvalid>
 <setupdefault><tt>255</tt></setupdefault>
@@ -5744,6 +5783,23 @@ WizardImageFileDynamicDark=MyImage.png
 WizardSmallImageFile=MySmallImage.png
 WizardSmallImageFileDynamicDark=MySmallImage.png
 WizardImageOpacity=150</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="WizardBackImageOpacity">
+<setupvalid><tt>0</tt> through <tt>255</tt></setupvalid>
+<setupdefault><tt>255</tt></setupdefault>
+<body>
+<p>If set to <tt>0</tt>, the background wizard image set via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
+<p>This is useful if you want to use a single background image for both light and dark appearances. For example, you can set <tt>WizardBackImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
+<example><pre>WizardStyle=modern dynamic
+WizardBackImageFile=MyBackImage.png
+WizardBackImageFileDynamicDark=MyBackImage.png
+WizardBackImageOpacity=150</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardimageopacity">WizardImageOpacity</link></p>
 </body>
 </setuptopic>
 
@@ -5751,8 +5807,12 @@ WizardImageOpacity=150</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the default, the wizard images will be stretched or shrunk if the images are larger or smaller than required.</p>
-<p>If set to <tt>no</tt>, the wizard images will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required.</p>
+<p>If set to <tt>yes</tt>, the default, the wizard images (including the background image) will be stretched or shrunk if the images are larger or smaller than required.</p>
+<p>If set to <tt>no</tt>, the wizard images (including the background image) will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
+<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
+<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
 </body>
 </setuptopic>
 
