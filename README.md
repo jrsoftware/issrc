@@ -44,6 +44,19 @@ Getting Started
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
 
+   After installation of Delphi, you must install the following free VCL
+   styles, using GetIt.
+
+   - Windows11 Dark 1.0
+
+   To install styles using GetIt, use the 'GetIt Package Manager' menu item
+   from the 'Tools' menu in the Delphi IDE, or run `getitcmd.exe` from the
+   Bin directory of your Delphi installation, as follows:
+
+   ```
+   > getitcmd --accepteulas -i=VCLStyle-Windows11Dark-1.0
+   ```
+ 
 3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.

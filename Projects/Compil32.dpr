@@ -94,10 +94,10 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
+{$R *.res}
 {$R Res\Compil32.docicon.res}
 {$R Res\Compil32.manifest.res}
 {$R Res\Compil32.versionandicon.res}
-{$R Res\Compil32.darkstyle.res}
 
 procedure SetAppUserModelID;
 var
