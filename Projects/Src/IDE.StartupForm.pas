@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, BitmapButton;
+  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
@@ -33,6 +33,8 @@ type
     OpenImage: TImage;
     DonateBitBtn: TBitmapButton;
     MailingListBitBtn: TBitmapButton;
+    DonateImageDark: TBitmapImage;
+    MailingListImageDark: TBitmapImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -109,6 +111,12 @@ begin
     StartupCheck.Left := StartupCheck.Left - DiffX;
   end else
 	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+
+  if InitFormThemeIsDark then begin
+    if DonateBitBtn.Visible then
+      DonateBitBtn.Bitmap := DonateImageDark.Bitmap;
+    MailingListBitBtn.Bitmap := MailingListImageDark.Bitmap;
+  end;
 
   UpdateImages;
 
