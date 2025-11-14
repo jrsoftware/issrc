@@ -925,7 +925,7 @@ begin
   WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   if CustomWizardBackground then begin
-    const Graphic = SelectBestImage(WizardBackImages, ClientWidth, clientHeight);
+    const Graphic = SelectBestImage(WizardBackImages, ClientWidth, ClientHeight);
     TFormBackgroundStyleHook.Graphic := Graphic;
     TFormBackgroundStyleHook.GraphicTarget := Self;
     TFormBackgroundStyleHook.Center := True;
