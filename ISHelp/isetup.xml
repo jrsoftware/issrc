@@ -5559,7 +5559,7 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is not specified, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
-<p>If this directive is set to a blank value, no wizard image will be used.</p>
+<p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
@@ -5610,7 +5610,7 @@ DiskSliceSize=736000000
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
 <p>If this directive is not specified, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
-<p>If this directive is set to a blank value, no wizard image will be used.</p>
+<p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>58x58</td></tr>
