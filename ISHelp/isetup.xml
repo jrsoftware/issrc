@@ -5786,7 +5786,7 @@ Otherwise, it defaults to <tt>clNone</tt>.</p>
 <setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialogs, in both Setup and Uninstall.</p>
+<p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</p>
 <p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clWindow</tt> and setting it to <tt>clNone</tt> is not allowed.<br/>
 Otherwise, it defaults to <tt>clNone</tt>.</p>
 <p>Using <tt>clWindow</tt> without also specifying a custom background image has no effect.</p>

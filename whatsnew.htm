@@ -46,8 +46,48 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
+<span class="head2">Improved wizard images support</span>
+<p>Setup now allows you to specify a custom background color and optionally also a background image. This supports blending the color and images with each other, and optionally supports using a separate background color and image if dark mode is active. Custom background colors are also supported by Uninstall.</p>
+<p>All these changes are backward compatible: if you do not set any of the new directives, then your installers and uninstallers will look the same as before.</p>
 <ul>
-  <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use single wizard images for both light and dark appearances. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
+  <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackColor</tt> and <tt>WizardBackColorDynamicDark</tt> to specify custom background colors to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</li>
+  <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
+      Supports specifying multiple files for high-quality results on all DPI settings.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>WizardBackImageOpacity</tt> to specify the opacity (non-transparency) of the background image.<br/>
+      This is useful if you want to use a single background image for both light and dark appearances.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images set via <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.<br/>
+      This is useful if you want to use single wizard images for both light and dark appearances, or if you want to use them in combination with a custom background image set via <tt>WizardBackImageFile</tt>.<br/>
+      Supports setting opacity of the built-in wizard images.</li>
+  <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard.</li>
+  <li>Examples:
+<pre><code class="innosetup"><span class="com">; Use separate background images for light and dark appearances</span>
+<span class="key">WizardBackImageFile</span>=MyBackImage.png
+<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage_Dark.png
+<span class="com">; Hide the large and small wizard images</span>
+<span class="key">WizardImageFile</span>=
+<span class="key">WizardSmallImageFile</span>=
+
+<span class="com">; Use the same background image for both light and dark appearances</span>
+<span class="key">WizardBackImageFile</span>=MyBackImage.png
+<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage.png
+<span class="com">; Apply transparency to the background image so it works well in</span>
+<span class="com">; both light and dark appearances</span>
+<span class="key">WizardBackImageOpacity</span>=150
+<span class="com">; Keep large and small wizard images, applying transparency so they</span>
+<span class="com">; blend with the background image</span>
+<span class="key">WizardImageOpacity</span>=150
+
+<span class="com">; Use a background image in the wizard, and also use custom</span>
+<span class="com">; background colors on other windows, and in Uninstall</span>
+<span class="key">WizardBackImageFile</span>=MyBackImage.png
+<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage.png
+<span class="key">WizardBackColor</span>=#ffc0cb
+<span class="key">WizardBackColorDynamicDark</span>=#570c22
+<span class="com">; On wizard pages blend the background image and color together</span>
+<span class="key">WizardBackImageOpacity</span>=150</code></pre></li>
+</ul>
+<span class="head2">Other changes</span>
+<ul>
   <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
   <li>Other minor improvements.</li>
 </ul>
