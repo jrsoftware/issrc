@@ -5661,6 +5661,34 @@ DiskSliceSize=736000000
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
 <p>To show only the background image and no other wizard images, set both <link topic="setup_wizardimagefile">WizardImageFile</link> and <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> to blank values. Alternatively set <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to for example <tt>150</tt> to make both those images partially transparent.</p>
+<examples>
+<pre>
+; Use separate background images for light and dark appearances
+WizardBackImageFile=MyBackImage.png
+WizardBackImageFileDynamicDark=MyBackImage_Dark.png
+; Hide the large and small wizard images
+WizardImageFile=
+WizardSmallImageFile=
+
+; Use the same background image for both light and dark appearances
+WizardBackImageFile=MyBackImage.png
+WizardBackImageFileDynamicDark=MyBackImage.png
+; Apply transparency to the background image so it works well in
+; both light and dark appearances
+WizardBackImageOpacity=150
+; Keep large and small wizard images, applying transparency so they
+; blend with the background image
+WizardImageOpacity=150
+
+; Use a background image in the wizard, and also use a custom
+; background color on other windows, and in Uninstall
+WizardBackImageFile=MyBackImage.png
+WizardBackImageFileDynamicDark=MyBackImage.png
+WizardBackColor=#FFC0CB
+; On wizard pages blend the background image and color together
+WizardBackImageOpacity=150
+</pre>
+</examples>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
