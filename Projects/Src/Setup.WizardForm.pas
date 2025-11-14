@@ -1083,7 +1083,7 @@ begin
   NoRadio.Caption := SetupMessages[msgNoRadio];
   RunList.MinItemHeight := ScalePixelsY(22);
 
-  { Initialize BeveledLabel }
+  { Initialize BeveledLabel. Don't forget that UninstallProgressForm has one as well! }
   if SetupMessages[msgBeveledLabel] <> '' then
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' '
   else
