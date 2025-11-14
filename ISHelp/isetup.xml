@@ -5680,11 +5680,12 @@ WizardBackImageOpacity=150
 ; blend with the background image
 WizardImageOpacity=150
 
-; Use a background image in the wizard, and also use a custom
-; background color on other windows, and in Uninstall
+; Use a background image in the wizard, and also use custom
+; background colors on other windows, and in Uninstall
 WizardBackImageFile=MyBackImage.png
 WizardBackImageFileDynamicDark=MyBackImage.png
-WizardBackColor=#FFC0CB
+WizardBackColor=#ffc0cb
+WizardBackColorDynamicDark=#570c22
 ; On wizard pages blend the background image and color together
 WizardBackImageOpacity=150
 </pre>
