@@ -2812,7 +2812,21 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <link topic="isxfunc_ScaleX">ScaleX</link> and <link topic="isxfunc_ScaleY">ScaleY</link> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
-<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <link topic="setup_wizardsizepercent">WizardSizePercent</link>.</p></remarks>
+<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <link topic="setup_wizardsizepercent">WizardSizePercent</link>.</p>
+<p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
+<pre>
+  Form := CreateCustomForm;
+  Form.Caption := 'TSetupForm';
+  Form.ClientWidth := ScaleX(256);
+  Form.ClientHeight := ScaleY(128);
+</pre>
+<p>Starting with version 6.6.0, it should be updated as follows:</p>
+<pre>
+  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, False);
+  Form.Caption := 'TSetupForm';
+</pre>
+<p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
+</remarks>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TForm">TForm</link><br />
 <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></p></seealso>
