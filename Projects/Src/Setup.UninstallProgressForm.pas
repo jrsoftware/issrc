@@ -37,8 +37,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean;
-      const AMainIconPostfix, AWizardIconsPostfix: String);
+    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   published
     property OuterNotebook: TNewNotebook read FOuterNotebook;
@@ -63,8 +62,8 @@ var
 implementation
 
 uses
-  Themes, TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl;
+  Themes, TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages, Setup.MainFunc,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Setup.InstFunc;
 
 {$R *.DFM}
 
@@ -101,22 +100,36 @@ begin
 
   SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
 
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then
+    MainPanel.ParentBackGround := False;
+
   InitializeFont;
-
-  MainPanel.ParentBackGround := False;
-
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
-  if SetupMessages[msgBeveledLabel] <> '' then begin
-    BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
-    BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
-    BeveledLabel.Visible := True;
-  end;
-  CancelButton.Caption := SetupMessages[msgButtonCancel];
+
+  { Initialize wizard style: not done here but in TUninstallProgressForm.Initialize }
 
   { Adjust page name and description label - also see TWizardForm.Create }
   const I = FPageNameLabel.AdjustHeight;
   FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
+
+  { Initialize BeveledLabel }
+  if SetupMessages[msgBeveledLabel] <> '' then begin
+    BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
+    BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
+    if not CustomWizardBackground then begin
+      if LStyle <> nil then
+        BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
+    end else
+      BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardImageBackColor);
+    BeveledLabel.Visible := True;
+  end;
+
+  CancelButton.Caption := SetupMessages[msgButtonCancel];
 end;
 
 destructor TUninstallProgressForm.Destroy;
@@ -127,31 +140,45 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean;
-  const AMainIconPostfix, AWizardIconsPostfix: String);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
 begin
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
 
   { Initialize wizard style - also see TWizardForm.Create }
-  var LStyle := StyleServices(Self);
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
-  if LStyle <> nil then begin
-    { TNewNotebook ignores VCL Styles so it needs a bit of help }
-    OuterNotebook.ParentColor := True;
-    Color := LStyle.GetStyleColor(scWindow);
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then begin
+      { TNewNotebook ignores VCL Styles so it needs a bit of help }
+      OuterNotebook.ParentColor := True;
+      Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else begin
+    OuterNotebook.ParentBackground := True;
+    for var I := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[I].ParentBackground := True;
+    InnerNotebook.ParentBackground := True;
+    for var I := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[I].ParentBackground := True;
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
   end;
   if AModernStyle then begin
-    if LStyle = nil then
+    if LStyle = nil then begin
+      if CustomWizardBackground then
+        InternalError('Unexpected CustomWizardBackground value');
       OuterNotebook.Color := clWindow;
+    end;
     Bevel1.Visible := False;
   end;
 
   { Initialize image }
-  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + AWizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + AMainIconPostfix), clNone, [32, 48, 64]); {don't localize}
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + WizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + MainIconPostfix), clNone, [32, 48, 64]); {don't localize}
 end;
 
 procedure TUninstallProgressForm.CreateParams(var Params: TCreateParams);

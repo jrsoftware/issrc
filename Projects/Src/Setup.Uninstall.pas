@@ -17,13 +17,13 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, Themes,
-  PathFunc, BidiCtrls,
+  Windows, SysUtils, Messages, Forms, Themes, Graphics,
+  PathFunc, BidiCtrls, FormBackgroundStyleHook,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
   Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupSteps,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer, Setup.SetupForm;
 
 type
   TExtUninstallLog = class(TUninstallLog)
@@ -92,8 +92,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags,
-    MainIconPostfix, WizardIconsPostfix);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
@@ -547,6 +546,15 @@ begin
     UninstLog := TExtUninstallLog.Create;
     UninstLog.Load(UninstDataFile, UninstDataFilename);
 
+    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
+    if ufWizardBorderStyled in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardBorderStyled);
+    if ufWizardKeepAspectRatio in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardKeepAspectRatio);
+    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
+    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
+    SetupHeader.WizardBackColor := UninstLog.WizardBackColor; { Not used by TSetupForm but in other places }
+
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
     if not HighContrastActive and not InitNoStyle then begin
@@ -570,16 +578,14 @@ begin
         TStyleManager.SetStyle(Handle);
         if not IsDarkInstallMode and (ufWizardLightButtonsUnstyled in UninstLog.Flags) then
           TNewButton.DontStyle := True;
+        CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
+          (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
+        if CustomWizardBackground then begin
+          TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+          TFormBackgroundStyleHook.BackColor := SetupHeader.WizardBackColor;
+        end;
       end;
     end;
-
-    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
-    if ufWizardBorderStyled in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardBorderStyled);
-    if ufWizardKeepAspectRatio in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardKeepAspectRatio);
-    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
-    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 

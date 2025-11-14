@@ -126,6 +126,7 @@ type
     Flags: TUninstallLogFlags;
     Version: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
+    WizardBackColor: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -157,7 +158,7 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj, AnsiStrings,
+  Messages, ShlObj, AnsiStrings, Graphics,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
@@ -173,7 +174,8 @@ type
     EndOffset: UInt32;
     Flags: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
-    Reserved: array[0..24] of Integer;  { reserved for future use }
+    WizardBackColor: Integer;
+    Reserved: array[0..23] of Integer;  { reserved for future use }
     CRC: Longint;
   end;
   TUninstallCrcHeader = packed record
@@ -447,6 +449,7 @@ begin
   Flags := [];
   WizardSizePercentX := 0;
   WizardSizePercentY := 0;
+  WizardBackColor := clNone;
 end;
 
 type
@@ -1267,6 +1270,7 @@ begin
       [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio] + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
+    Header.WizardBackColor := WizardBackColor;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1361,6 +1365,7 @@ begin
   Flags := TUninstallLogFlags((@Header.Flags)^);
   WizardSizePercentX := Header.WizardSizePercentX;
   WizardSizePercentY := Header.WizardSizePercentY;
+  WizardBackColor := Header.WizardBackColor;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));
