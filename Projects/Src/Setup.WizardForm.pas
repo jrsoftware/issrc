@@ -784,6 +784,9 @@ begin
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
 
+  { Unlike other forms (which use only WizardBackColor and not WizardBackImageFile), we do not check
+    for clWindow here. The compiler guarantees that if WizardBackColor (i.e., SetupHeader.BackColor)
+    equals clWindow, a background image is always present. }
   if not CustomWizardBackground then
     MainPanel.ParentBackground := False;
 
