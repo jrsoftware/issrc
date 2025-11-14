@@ -125,7 +125,7 @@ begin
       if LStyle <> nil then
         BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
     end else
-      BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardImageBackColor);
+      BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardBackColor);
     BeveledLabel.Visible := True;
   end;
 
