@@ -126,7 +126,7 @@ type
     Flags: TUninstallLogFlags;
     Version: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
-    WizardBackColor: Integer;
+    WizardBackColor, WizardBackColorDynamicDark: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -174,8 +174,8 @@ type
     EndOffset: UInt32;
     Flags: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
-    WizardBackColor: Integer;
-    Reserved: array[0..23] of Integer;  { reserved for future use }
+    WizardBackColor, WizardBackColorDynamicDark: Integer;
+    Reserved: array[0..22] of Integer;  { reserved for future use }
     CRC: Longint;
   end;
   TUninstallCrcHeader = packed record
@@ -450,6 +450,7 @@ begin
   WizardSizePercentX := 0;
   WizardSizePercentY := 0;
   WizardBackColor := clNone;
+  WizardBackColorDynamicDark := clNone;
 end;
 
 type
@@ -1271,6 +1272,7 @@ begin
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
     Header.WizardBackColor := WizardBackColor;
+    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1366,6 +1368,7 @@ begin
   WizardSizePercentX := Header.WizardSizePercentX;
   WizardSizePercentY := Header.WizardSizePercentY;
   WizardBackColor := Header.WizardBackColor;
+  WizardBackColorDynamicDark := Header.WizardBackColorDynamicDark;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));

@@ -109,6 +109,7 @@ var
   { Variables read in from the Setup.0 file }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
+  OrigSetupHeaderWizardBackColor: Integer;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
   WizardImages, WizardSmallImages, WizardBackImages: TWizardImages;
@@ -3315,6 +3316,10 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
+        { SetupHeader.WizardBackColor may be overwritten below, and we need to keep the original
+          value for Uninstall }
+        OrigSetupHeaderWizardBackColor := SetupHeader.WizardBackColor;
+        
         { Apply style - also see Setup.Uninstall's RunSecondPhase
           Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32 is started, and

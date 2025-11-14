@@ -554,6 +554,7 @@ begin
     SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
     SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
     SetupHeader.WizardBackColor := UninstLog.WizardBackColor; { Not used by TSetupForm but in other places }
+    SetupHeader.WizardBackColorDynamicDark := UninstLog.WizardBackColorDynamicDark; { Same }
 
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
@@ -561,6 +562,7 @@ begin
       const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
       const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
       if IsDynamicDark then begin
+        SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
         MainIconPostfix := '_DARK';
         if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
           MainIconPostfix := '';
