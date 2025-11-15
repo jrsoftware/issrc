@@ -54,9 +54,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
       Supports specifying multiple files for high-quality results on all DPI settings.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>WizardBackImageOpacity</tt> to specify the opacity (non-transparency) of the background image.<br/>
-      This is useful if you want to use a single background image for both light and dark appearances.</li>
+      This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images set via <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.<br/>
-      This is useful if you want to use single wizard images for both light and dark appearances, or if you want to use them in combination with a custom background image set via <tt>WizardBackImageFile</tt>.<br/>
+      This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images, or if you want to use them in combination with a custom background image set via <tt>WizardBackImageFile</tt>.<br/>
       Supports setting opacity of the built-in wizard images.</li>
   <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard.</li>
   <li>Examples:
@@ -88,6 +88,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 </ul>
 <span class="head2">Other changes</span>
 <ul>
+  <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once, shrinking the size of Setup and speeding up compilation.</li>
   <li>When a custom style (including the built-in custom dark style) is active, foreground colors are dropped from any RTF text displayed to ensure readability. This now only occurs if forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active.</li>
   <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
   <li>Other minor improvements.</li>

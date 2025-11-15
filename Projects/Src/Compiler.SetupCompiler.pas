@@ -7056,14 +7056,38 @@ var
       W.Write(Stream.Memory^, Size);
     end;
 
-    procedure WriteWizardImages(const WizardImages: TWizardImages; const W: TCompressedBlockWriter);
+    function WizardImagesEqual(const Left, Right: TWizardImages): Boolean;
     begin
+      if Left.Count <> Right.Count then
+        Exit(False);
+      for var I := 0 to Left.Count-1 do begin
+        var LeftStream := Left[I];
+        var RightStream := Right[I];
+        if LeftStream.Size <> RightStream.Size then
+          Exit(False);
+        if (LeftStream.Size > 0) and
+           not CompareMem(LeftStream.Memory, RightStream.Memory, LeftStream.Size) then
+          Exit(False);
+      end;
+      Result := True;
+    end;
+
+    procedure WriteWizardImages(const WizardImages: TWizardImages; const W: TCompressedBlockWriter;
+      const CompareTo: TWizardImages = nil);
+    begin
+      var Count: Integer;
       if WizardImages <> nil then begin
-        W.Write(WizardImages.Count, SizeOf(Integer));
-        for var I := 0 to WizardImages.Count-1 do
-          WriteStream(WizardImages[I], W);
+        if (CompareTo <> nil) and (WizardImages.Count > 0) and WizardImagesEqual(WizardImages, CompareTo) then begin
+          Count := -1;
+          W.Write(Count, SizeOf(Integer));
+        end else begin
+          Count := WizardImages.Count;
+          W.Write(Count, SizeOf(Integer));
+          for var I := 0 to Count-1 do
+            WriteStream(WizardImages[I], W);
+        end;
       end else begin
-        const Count: Integer = 0;
+        Count := 0;
         W.Write(Count, SizeOf(Integer));
       end;
     end;
@@ -7163,9 +7187,9 @@ var
       WriteWizardImages(WizardImages, W);
       WriteWizardImages(WizardSmallImages, W);
       WriteWizardImages(WizardBackImages, W);
-      WriteWizardImages(WizardImagesDynamicDark, W);
-      WriteWizardImages(WizardSmallImagesDynamicDark, W);
-      WriteWizardImages(WizardBackImagesDynamicDark, W);
+      WriteWizardImages(WizardImagesDynamicDark, W, WizardImages);
+      WriteWizardImages(WizardSmallImagesDynamicDark, W, WizardSmallImages);
+      WriteWizardImages(WizardBackImagesDynamicDark, W, WizardBackImages);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if SetupHeader.SevenZipLibraryName <> '' then
