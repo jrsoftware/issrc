@@ -5953,11 +5953,12 @@ WizardBackImageOpacity=150</pre></example>
 <li>The system's light or dark mode setting is checked only once, at startup.</li>
 <li>Separate directives are available to specify images and colors used specifically for dynamic dark mode:
 <ul>
+<li><link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link> and <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>.</li>
 <li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link> and <link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link>.</li>
 <li><link topic="setup_wizardsmallimagefiledynamicdark">WizardSmallImageFileDynamicDark</link> and <link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link>.</li>
 <li><link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></li>
 </ul>
-  The standard <tt>WizardImageFile</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
+  The standard <tt>WizardBackImageFile</tt>, <tt>WizardBackColor</tt>, <tt>WizardImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
   Note: Forced dark mode (<tt>dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
 </ul>
 <heading>Other Considerations</heading>
