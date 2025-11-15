@@ -38,7 +38,7 @@ var
 begin
   if WizardSilent then
     Exit;
-    
+
   if IsDarkInstallMode then
     ImageFileNamePostfix := '_dark'
   else
