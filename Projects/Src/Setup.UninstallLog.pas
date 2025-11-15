@@ -1223,6 +1223,17 @@ var
       ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
   end;
 
+  function ColorToHeaderInt(const Color: TColor): TColor;
+  begin
+    { Header fields set to 0 should be treated as "not specified", so we
+      can't write clBlack to it since that equals 0. Workaround this by
+      writing 1 which is still very black. }
+    if Color <> 0 then
+      Result := Color
+    else
+      Result := 1;
+  end;
+
 var
   Header: TUninstallLogHeader;
   FileRec: TUninstallFileRec;
@@ -1277,8 +1288,8 @@ begin
       GetNonStickyFlags + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
-    Header.WizardBackColor := WizardBackColor;
-    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
+    Header.WizardBackColor := ColorToHeaderInt(WizardBackColor);
+    Header.WizardBackColorDynamicDark := ColorToHeaderInt(WizardBackColorDynamicDark);
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1357,6 +1368,14 @@ var
     end;
   end;
 
+  function HeaderIntToColor(const HeaderInt: Integer): TColor;
+  begin
+    if HeaderInt <> 0 then
+      Result := HeaderInt
+    else
+      Result := clNone;
+  end;
+
 var
   FileRec: TUninstallFileRec;
   I: Integer;
@@ -1373,8 +1392,8 @@ begin
   Flags := TUninstallLogFlags((@Header.Flags)^);
   WizardSizePercentX := Header.WizardSizePercentX;
   WizardSizePercentY := Header.WizardSizePercentY;
-  WizardBackColor := Header.WizardBackColor;
-  WizardBackColorDynamicDark := Header.WizardBackColorDynamicDark;
+  WizardBackColor := HeaderIntToColor(Header.WizardBackColor);
+  WizardBackColorDynamicDark := HeaderIntToColor(Header.WizardBackColorDynamicDark);
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));
