@@ -2815,6 +2815,8 @@ begin
         Include(UninstLog.Flags, ufChangesEnvironment);
       UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
       UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
+      UninstLog.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }
+      UninstLog.WizardBackColorDynamicDark := SetupHeader.WizardBackColorDynamicDark;
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

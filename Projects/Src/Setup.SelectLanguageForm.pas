@@ -94,7 +94,10 @@ constructor TSelectLanguageForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  MainPanel.ParentBackground := False;
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then
+    MainPanel.ParentBackground := False
+  else
+    Bevel.Visible := False;
 
   InitializeFont(False, True);
 
