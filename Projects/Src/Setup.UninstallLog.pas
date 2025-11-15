@@ -1271,7 +1271,7 @@ begin
     if Version > Header.Version then
       Header.Version := Version;
     TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled, ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio] + Flags;
+      GetNonStickyFlags + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
