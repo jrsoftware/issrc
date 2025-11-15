@@ -892,10 +892,12 @@ begin
   WizardBitmapImage.Graphic := SelectBestImage(WizardImages, WizardBitmapImage.Width, WizardBitmapImage.Height);
   WizardBitmapImage.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage.Center := True;
+  WizardBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardBitmapImage2.Bitmap := WizardBitmapImage.Bitmap;
   WizardBitmapImage2.BackColor := SetupHeader.WizardImageBackColor;
   WizardBitmapImage2.Center := True;
+  WizardBitmapImage2.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
   if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) then begin
@@ -903,6 +905,7 @@ begin
     WizardSmallBitmapImage.BackColor := clBtnFace
   end else
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
+  WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
@@ -1080,11 +1083,12 @@ begin
   NoRadio.Caption := SetupMessages[msgNoRadio];
   RunList.MinItemHeight := ScalePixelsY(22);
 
-  { Initialize BeveledLabel }
+  { Initialize BeveledLabel. Don't forget that UninstallProgressForm has one as well! }
   if SetupMessages[msgBeveledLabel] <> '' then
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' '
   else
     BeveledLabel.Caption := '';
+  BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }

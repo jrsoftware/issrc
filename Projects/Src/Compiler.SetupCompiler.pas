@@ -143,7 +143,7 @@ type
     LicenseFile, InfoBeforeFile, InfoAfterFile: String;
     WizardImageFile, WizardSmallImageFile, WizardImageFileDynamicDark, WizardSmallImageFileDynamicDark: String;
     WizardStyleFile, WizardStyleFileDynamicDark: String; { .vsf files }
-    WizardStyleSpecial: String; { 'polar' }
+    WizardStyleSpecial: String; { 'polar', etc. }
     DefaultDialogFontName: String;
 
     VersionInfoVersion, VersionInfoProductVersion: TFileVersionNumbers;
@@ -1424,7 +1424,9 @@ begin
   end
   else begin
     Prefix := Copy(Filename, 1, P-1);
-    if Prefix = 'compiler' then
+    if Prefix = 'builtin' then
+      Result := Filename
+    else if Prefix = 'compiler' then
       Result := CompilerDir + Copy(Filename, P+1, Maxint)
     else if Prefix = 'userdocs' then
       Result := GetShellFolderPathCached(CSIDL_PERSONAL, CachedUserDocsDir) +
@@ -3359,14 +3361,17 @@ begin
           Invalid;
         end;
       end;
-    ssWizardImageStretch: begin
-        SetSetupHeaderOption(shWizardImageStretch);
-      end;
     ssWizardImageFile: begin
         WizardImageFile := Value;
       end;
     ssWizardImageFileDynamicDark: begin
         WizardImageFileDynamicDark := Value;
+      end;
+    ssWizardImageOpacity: begin
+        SetupHeader.WizardImageOpacity := StrToIntRange(Value, 0, 255);
+      end;
+    ssWizardImageStretch: begin
+        SetSetupHeaderOption(shWizardImageStretch);
       end;
     ssWizardKeepAspectRatio: begin
         SetSetupHeaderOption(shWizardKeepAspectRatio);
@@ -7036,14 +7041,38 @@ var
       W.Write(Stream.Memory^, Size);
     end;
 
-    procedure WriteWizardImages(const WizardImages: TWizardImages; const W: TCompressedBlockWriter);
+    function WizardImagesEqual(const Left, Right: TWizardImages): Boolean;
     begin
+      if Left.Count <> Right.Count then
+        Exit(False);
+      for var I := 0 to Left.Count-1 do begin
+        var LeftStream := Left[I];
+        var RightStream := Right[I];
+        if LeftStream.Size <> RightStream.Size then
+          Exit(False);
+        if (LeftStream.Size > 0) and
+           not CompareMem(LeftStream.Memory, RightStream.Memory, LeftStream.Size) then
+          Exit(False);
+      end;
+      Result := True;
+    end;
+
+    procedure WriteWizardImages(const WizardImages: TWizardImages; const W: TCompressedBlockWriter;
+      const CompareTo: TWizardImages = nil);
+    begin
+      var Count: Integer;
       if WizardImages <> nil then begin
-        W.Write(WizardImages.Count, SizeOf(Integer));
-        for var I := 0 to WizardImages.Count-1 do
-          WriteStream(WizardImages[I], W);
+        if (CompareTo <> nil) and (WizardImages.Count > 0) and WizardImagesEqual(WizardImages, CompareTo) then begin
+          Count := -1;
+          W.Write(Count, SizeOf(Integer));
+        end else begin
+          Count := WizardImages.Count;
+          W.Write(Count, SizeOf(Integer));
+          for var I := 0 to Count-1 do
+            WriteStream(WizardImages[I], W);
+        end;
       end else begin
-        const Count: Integer = 0;
+        Count := 0;
         W.Write(Count, SizeOf(Integer));
       end;
     end;
@@ -7142,8 +7171,8 @@ var
 
       WriteWizardImages(WizardImages, W);
       WriteWizardImages(WizardSmallImages, W);
-      WriteWizardImages(WizardImagesDynamicDark, W);
-      WriteWizardImages(WizardSmallImagesDynamicDark, W);
+      WriteWizardImages(WizardImagesDynamicDark, W, WizardImages);
+      WriteWizardImages(WizardSmallImagesDynamicDark, W, WizardSmallImages);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
       if SetupHeader.SevenZipLibraryName <> '' then
@@ -7680,10 +7709,10 @@ var
       { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle)
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
       else
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
-          WizardStyleFile, WizardStyleFileDynamicDark, OnUpdateIconsAndStyle);
+          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
@@ -7940,6 +7969,7 @@ begin
     SetupHeader.WizardDarkStyle := wdsLight;
     SetupHeader.WizardSizePercentX := 120;
     SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
+    SetupHeader.WizardImageOpacity := 255;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8216,7 +8246,7 @@ begin
         WarningsList.Add(Format(SCompilerWizImageRenamed, [WizardSmallImageFile, 'compiler:WizClassicSmallImage.bmp']));
         WizardSmallImageFile := 'compiler:WizClassicSmallImage.bmp';
       end;
-      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImage', WizardSmallImageFile);
+      WizardSmallImages := CreateWizardImagesFromFiles('WizardSmallImageFile', WizardSmallImageFile);
       if SetupDirectiveLines[ssWizardSmallImageBackColor] = 0 then
         SetupHeader.WizardSmallImageBackColor := clWindow;
     end else begin
@@ -8242,7 +8272,7 @@ begin
       LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
       if WizardSmallImageFileDynamicDark <> '' then begin
-        WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageDynamicDark', WizardSmallImageFileDynamicDark);
+        WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageFileDynamicDark', WizardSmallImageFileDynamicDark);
         if SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0 then
           SetupHeader.WizardSmallImageBackColorDynamicDark := clWindow;
       end else begin

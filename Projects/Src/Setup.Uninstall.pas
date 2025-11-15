@@ -89,7 +89,7 @@ begin
   end;
 end;
 
-procedure InitializeUninstallProgressForm(const MainIconPostfix, WizardIconsPostfix: String);
+procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
   UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags,
@@ -312,6 +312,8 @@ begin
       VerySilent := True
     else if SameText(ParamName, '/NoRestart') then
       NoRestart := True
+    else if SameText(ParamName, '/NoStyle') then
+      InitNoStyle := True
     else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
     else if SameText(ParamName, '/DEBUGWND=') then begin
@@ -546,17 +548,19 @@ begin
     UninstLog.Load(UninstDataFile, UninstDataFilename);
 
     { Apply style - also see Setup.MainFunc's InitializeSetup }
-    var MainIconPostfix := '';
     IsWinDark := DarkModeActive;
-    const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
-    const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
-    if IsDynamicDark then
-      MainIconPostfix := '_DARK';
-    if IsDynamicDark or IsForcedDark then begin
-      IsDarkInstallMode := True;
-      WizardIconsPostfix := '_DARK';
-    end;
-    if not HighContrastActive then begin
+    if not HighContrastActive and not InitNoStyle then begin
+      const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
+      const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
+      if IsDynamicDark then begin
+        MainIconPostfix := '_DARK';
+        if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+          MainIconPostfix := '';
+      end;
+      if IsDynamicDark or IsForcedDark then begin
+        IsDarkInstallMode := True;
+        WizardIconsPostfix := '_DARK';
+      end;
       TStyleManager.AutoDiscoverStyleResources := False;
       var StyleName := 'MYSTYLE1';
       if IsDynamicDark then
@@ -696,7 +700,7 @@ begin
           FmtSetupMessage1(msgShutdownBlockReasonUninstallingApp, UninstLog.AppName));
 
         { Create and show the progress form }
-        InitializeUninstallProgressForm(MainIconPostfix, WizardIconsPostfix);
+        InitializeUninstallProgressForm;
 
         CurUninstallStepChanged(usUninstall, False);
 

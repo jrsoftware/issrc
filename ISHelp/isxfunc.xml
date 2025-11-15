@@ -364,7 +364,7 @@ end;</pre></example>
       <function>
         <name>IsDarkInstallMode</name>
         <prototype>function IsDarkInstallMode: Boolean;</prototype>
-        <description><p>Returns True if Setup or Uninstall is running using a <link topic="setup_WizardStyle">dark style</link>.</p></description>
+        <description><p>Returns True if Setup or Uninstall runs with a <link topic="setup_wizardstyle">dark style</link>.</p></description>
         <remarks><p>Can return True even if <link topic="isxfunc_IsWinDark">IsWinDark</link> returns False.</p>
 <p>Cannot return True if <link topic="isxfunc_HighContrastActive">HighContrastActive</link> returns True.</p></remarks>
         <seealso><p><link topic="isxfunc_IsWinDark">IsWinDark</link><br/>
@@ -1629,7 +1629,7 @@ end;</pre></example>
       <function>
         <name>GetTempDir</name>
         <prototype>function GetTempDir: String;</prototype>
-        <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. This does not use the Win32 function GetTempPath, due to platform differences.<br />Gets the temporary file path as follows:<br />1. The path specified by the TMP environment variable.<br />2. The path specified by the TEMP environment variable, if TMP is not defined or if TMP specifies a directory that does not exist.<br />3. The path specified by the USERPROFILE environment variable, if both TMP and TEMP are not defined or specify nonexistent directories.<br />4. The Windows directory, if all the above TMP, TEMP and USERPROFILE are not defined or specify nonexistent directories.</p></description>
+        <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. Uses the Win32 function GetTempPath2 if available, and GetTempPath otherwise.</p></description>
       </function>
       <function>
         <name>GetShellFolderByCSIDL</name>
@@ -2807,10 +2807,26 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
     <subcategory>
       <function>
         <name>CreateCustomForm</name>
-        <prototype>function CreateCustomForm: TSetupForm;</prototype>
+        <prototype>function CreateCustomForm(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;</prototype>
         <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instance returned by this function).</p></description>
         <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
-<p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p></remarks>
+<p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
+<p>You should use <link topic="isxfunc_ScaleX">ScaleX</link> and <link topic="isxfunc_ScaleY">ScaleY</link> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
+<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <link topic="setup_wizardsizepercent">WizardSizePercent</link>.</p>
+<p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
+<pre>
+  Form := CreateCustomForm;
+  Form.Caption := 'TSetupForm';
+  Form.ClientWidth := ScaleX(256);
+  Form.ClientHeight := ScaleY(128);
+</pre>
+<p>Starting with version 6.6.0, it should be updated as follows:</p>
+<pre>
+  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, False);
+  Form.Caption := 'TSetupForm';
+</pre>
+<p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
+</remarks>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TForm">TForm</link><br />
 <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></p></seealso>
@@ -2842,12 +2858,12 @@ end;</pre></example>
       <function>
         <name>ScaleX</name>
         <prototype>function ScaleX(X: Integer): Integer;</prototype>
-        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then X is returned unchanged.</p></description>
+        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then X is returned unchanged.</p></description>
       </function>
       <function>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
-        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If the dialog font is 8-point MS Sans Serif and the user is running Windows in 100% DPI (96 dpi), then Y is returned unchanged.</p></description>
+        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then Y is returned unchanged.</p></description>
       </function>
       <function>
         <name>InitializeBitmapButtonFromIcon</name>

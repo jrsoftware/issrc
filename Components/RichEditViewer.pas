@@ -43,6 +43,7 @@ type
   private
     class var
       FCustomShellExecute: TRichEditViewerCustomShellExecute;
+      FDontStyleFont: Boolean;
     var
       FUseRichEdit: Boolean;
       FRichEditLoaded: Boolean;
@@ -64,6 +65,7 @@ type
     function SetRTFText(const Value: AnsiString): Integer;
     property RTFText: AnsiString write SetRTFTextProp;
     class property CustomShellExecute: TRichEditViewerCustomShellExecute read FCustomShellExecute write FCustomShellExecute;
+    class property DontStyleFont: Boolean read FDontStyleFont write FDontStyleFont;
   published
     property UseRichEdit: Boolean read FUseRichEdit write SetUseRichEdit default True;
   end;
@@ -240,6 +242,8 @@ begin
   inherited;
   FUseRichEdit := True;
   FCallback := TBasicRichEditOleCallback.Create;
+  if FDontStyleFont then
+    StyleElements := StyleElements - [seFont];
 end;
 
 class destructor TRichEditViewer.Destroy;
@@ -374,7 +378,8 @@ begin
 
     if (LStyle <> nil) and (seFont in StyleElements) and (seClient in StyleElements) then begin
       { Trigger TRichEditStyleHook.EMSetCharFormat, inspired by TSysRichEditStyleHook.UpdateColors.
-        It changes all colors to match the style. Not needed if FUseRichEdit is False. }
+        It changes all colors to match the style. Not needed if FUseRichEdit is False. Can be
+        disabled using class property DontStyleFont. }
       var cf: TCharFormat2;
       ZeroMemory(@cf, sizeof(TCharFormat2));
       cf.cbSize := sizeof(TCharFormat2);

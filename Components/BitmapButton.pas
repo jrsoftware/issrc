@@ -32,6 +32,7 @@ type
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
     procedure SetGraphic(Value: TGraphic);
+    procedure SetOpacity(Value: Byte);
     procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
@@ -59,6 +60,7 @@ type
     property Caption;
     property Center: Boolean read FImpl.Center write SetCenter default True;
     property Enabled;
+    property Opacity: Byte read FImpl.Opacity write SetOpacity;
     property ParentShowHint;
     property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;
@@ -143,6 +145,11 @@ end;
 procedure TBitmapButton.SetGraphic(Value: TGraphic);
 begin
   FImpl.SetGraphic(Value);
+end;
+
+procedure TBitmapButton.SetOpacity(Value: Byte);
+begin
+  FImpl.SetOpacity(Self, Value);
 end;
 
 procedure TBitmapButton.SetPngImage(Value: TPngImage);

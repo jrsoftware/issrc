@@ -323,6 +323,8 @@ begin
           'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
+          '/NOSTYLE' + SNewLine +
+          'Prevents Setup from activating custom styles (including the built-in custom dark style).' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
           'Instructs Setup to suppress message boxes.' + SNewLine +
           '/LOG' + SNewLine +
