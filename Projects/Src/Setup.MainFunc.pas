@@ -244,7 +244,7 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
-  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, PathFunc, FormBackgroundStyleHook,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, PathFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -3361,8 +3361,11 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
-            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-              TNewButton.DontStyle := True;
+            if not IsDarkInstallMode then begin
+              TRichEditViewer.DontStyleFont := True; { Keep foreground colors }
+              if (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+                TNewButton.DontStyle := True; { Keep native buttons (including command links) }
+            end;
             CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
             if CustomWizardBackground then begin
               TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
