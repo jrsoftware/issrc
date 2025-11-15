@@ -920,7 +920,7 @@ begin
   WizardBitmapImage2.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
-  if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) then begin
+  if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) and not MainPanel.ParentBackground then begin
     { Because the small image is on a panel we need a separate color, see TBitmapImageImplementation.Paint }
     WizardSmallBitmapImage.BackColor := clBtnFace
   end else
