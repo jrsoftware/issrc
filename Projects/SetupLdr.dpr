@@ -347,6 +347,8 @@ begin
           'Instructs Setup to create extra logging when closing applications for debugging purposes.' + SNewLine +
           '/RESTARTAPPLICATIONS, /NORESTARTAPPLICATIONS' + SNewLine +
           'Instructs Setup to attempt restarting applications, or prevents it from doing so.' + SNewLine +
+          '/REDIRECTIONGUARD, /NOREDIRECTIONGUARD' + SNewLine +
+          'Instructs Setup to attempt enabling RedirectionGuard, or prevents it from doing so.' + SNewLine +
           '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
           'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
           '/LANG=language' + SNewLine +

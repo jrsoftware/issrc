@@ -110,6 +110,7 @@ type
     ssPassword,
     ssPrivilegesRequired,
     ssPrivilegesRequiredOverridesAllowed,
+    ssRedirectionGuard,
     ssReserveBytes,
     ssRestartApplications,
     ssRestartIfNeededByRun,
