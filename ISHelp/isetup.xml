@@ -5708,7 +5708,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <setupdefault><tt>255</tt></setupdefault>
 <body>
 <p>If set to <tt>0</tt>, the wizard images will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
-<p>This is useful if you want to use single wizard images for both light and dark appearances. For example, you can set it to <tt>150</tt> to achieve partial transparency.</p>
+<p>This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency.</p>
 <example><pre>WizardStyle=modern dynamic
 WizardImageFile=MyImage.png
 WizardImageFileDynamicDark=MyImage.png
