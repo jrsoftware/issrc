@@ -3,7 +3,9 @@
 //
 [Files]
 Source: "{#__DIR__}\isdonate.bmp"; Flags: dontcopy noencryption
+Source: "{#__DIR__}\isdonate_dark.bmp"; Flags: dontcopy noencryption
 Source: "{#__DIR__}\ismail.bmp"; Flags: dontcopy noencryption
+Source: "{#__DIR__}\ismail_dark.bmp"; Flags: dontcopy noencryption
 
 [CustomMessages]
 ; No need to localize: The IS website is in English only
@@ -30,14 +32,19 @@ end;
 <event('InitializeWizard')>
 procedure IsDonateAndMailInitializeWizard;
 var
-  ImageFileName: String;
+  ImageFileName, ImageFileNamePostfix: String;
   DonateBitmapButton, MailBitmapButton: TBitmapButton;
   BevelTop: Integer;
 begin
   if WizardSilent then
     Exit;
 
-  ImageFileName := ExpandConstant('{tmp}\isdonate.bmp');
+  if IsDarkInstallMode then
+    ImageFileNamePostfix := '_dark'
+  else
+    ImageFileNamePostfix := '';
+
+  ImageFileName := ExpandConstant(Format('{tmp}\isdonate%s.bmp', [ImageFileNamePostfix]));
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
   DonateBitmapButton := TBitmapButton.Create(WizardForm);
@@ -47,13 +54,13 @@ begin
   DonateBitmapButton.Hint := CustomMessage('IsDonateAndMailDonateHint');
   DonateBitmapButton.ShowHint := True;
   BevelTop := WizardForm.Bevel.Top;
-  DonateBitmapButton.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateBitmapButton.Bitmap.Height) div 2;
+  DonateBitmapButton.Top := BevelTop + (WizardForm.ClientHeight - BevelTop - DonateBitmapButton.Height) div 2;
   DonateBitmapButton.Left := DonateBitmapButton.Top - BevelTop;
   DonateBitmapButton.Cursor := crHand;
   DonateBitmapButton.OnClick := @DonateBitmapButtonOnClick;
   DonateBitmapButton.Parent := WizardForm;
 
-  ImageFileName := ExpandConstant('{tmp}\ismail.bmp');
+  ImageFileName := ExpandConstant(Format('{tmp}\ismail%s.bmp', [ImageFileNamePostfix]));
   ExtractTemporaryFile(ExtractFileName(ImageFileName));
 
   MailBitmapButton := TBitmapButton.Create(WizardForm);

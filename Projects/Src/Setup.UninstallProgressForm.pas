@@ -109,6 +109,7 @@ begin
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
   if SetupMessages[msgBeveledLabel] <> '' then begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
+    BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
     BeveledLabel.Visible := True;
   end;
   CancelButton.Caption := SetupMessages[msgButtonCancel];

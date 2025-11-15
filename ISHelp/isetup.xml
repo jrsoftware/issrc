@@ -105,7 +105,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.6.0-dev</b><br/>
+<b>Inno Setup version 6.6.1-dev</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -126,7 +126,7 @@
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
-<li>Resizable standard Windows wizard interface, with support for dark mode and custom styles.</li>
+<li>Resizable standard Windows wizard interface, with support for <link topic="setup_wizardstyle">dark mode and custom styles</link>.</li>
 
 <li>Customizable setup <link topic="typessection">types</link>, e.g. Full, Minimal, Custom.</li>
 
@@ -1137,6 +1137,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardimagefile">WizardImageFile</link></li>
 <li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link></li>
+<li><link topic="setup_wizardimageopacity">WizardImageOpacity</link></li>
 <li><link topic="setup_wizardimagestretch">WizardImageStretch</link></li>
 <li><link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link></li>
 <li><link topic="setup_wizardsizepercent">WizardSizePercent</link></li>
@@ -2222,6 +2223,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
@@ -2230,6 +2232,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
@@ -2239,6 +2242,7 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
@@ -2445,7 +2449,7 @@ en.LanguageName=English
 
 <heading>Obsolete</heading>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specifiy the font name and point size to use when displaying the application name on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
 <p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <tt>AppCopyright</tt> message on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
@@ -3955,6 +3959,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <keyword value="/TASKS=" anchor="TASKS" />
 <keyword value="/MERGETASKS=" anchor="MERGETASKS" />
 <keyword value="/NOCANCEL" anchor="NOCANCEL" />
+<keyword value="/NOSTYLE" anchor="NOSTYLE" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
 <keyword value="/PASSWORD=" anchor="PASSWORD" />
@@ -3986,6 +3991,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dd>
 <p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the '/SUPPRESSMSGBOXES' command line option explained below) and the startup prompt is (if you haven't disabled it with DisableStartupPrompt or the '/SP-' command line option explained above).</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
+</dd>
+
+<dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
+<dd>
+<p>Prevents Setup from activating custom styles (including the built-in custom dark style).</p>
 </dd>
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
@@ -4281,6 +4291,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
+<keyword value="/NOSTYLE" anchor="NOSTYLE" />
 <keyword value="/REDIRECTIONGUARD" anchor="REDIRECTIONGUARD" />
 <keyword value="/NOREDIRECTIONGUARD" anchor="NOREDIRECTIONGUARD" />
 <keyword value="/LOG" anchor="LOG" />
@@ -4300,6 +4311,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dd>
 <p>When specified, the uninstaller will not ask the user for startup confirmation or display a message stating that uninstall is complete. Shared files that are no longer in use are deleted automatically without prompting. Any critical error messages will still be shown on the screen. When '/VERYSILENT' is specified, the uninstallation progress window is not displayed.</p>
 <p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and '/VERYSILENT' is specified, the uninstaller will reboot without asking.</p>
+</dd>
+
+<dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
+<dd>
+<p>Prevents the uninstaller from activating custom styles (including the built-in custom dark style).</p>
 </dd>
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
@@ -5551,10 +5567,22 @@ DiskSliceSize=736000000
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 164x314 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 164x314 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
-<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to increase transparency.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
+<table>
+<tr><td>100%</td><td>202x386</td></tr>
+<tr><td>125%</td><td>269x515</td></tr>
+<tr><td>150%</td><td>336x643</td></tr>
+<tr><td>175%</td><td>403x772</td></tr>
+<tr><td>200%</td><td>430x824</td></tr>
+<tr><td>225%</td><td>498x953</td></tr>
+<tr><td>250%</td><td>534x1022</td></tr>
+</table>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>If this directive is not specified or is blank, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>164x314</td></tr>
 <tr><td>125%</td><td>202x386</td></tr>
@@ -5564,14 +5592,13 @@ DiskSliceSize=736000000
 <tr><td>225%</td><td>366x700</td></tr>
 <tr><td>250%</td><td>416x797</td></tr>
 </table>
-<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>If this directive is not specified or is blank, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
 <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link><br/>
+<link topic="setup_wizardimageopacity">WizardImageOpacity</link><br/>
 <link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
@@ -5588,10 +5615,23 @@ DiskSliceSize=736000000
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. At standard DPI with the default font settings, the size of the area is 58x58 pixels. At 200% DPI, the width and height will be roughly double that. In all cases, the area is square; thus, the specified image should be square as well.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to increase transparency.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. In all cases, the area is square; thus, the specified image should be square as well.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
+<table>
+<tr><td>100%</td><td>58x58</td></tr>
+<tr><td>125%</td><td>77x77</td></tr>
+<tr><td>150%</td><td>97x97</td></tr>
+<tr><td>175%</td><td>116x116</td></tr>
+<tr><td>200%</td><td>124x124</td></tr>
+<tr><td>225%</td><td>143x143</td></tr>
+<tr><td>250%</td><td>159x159</td></tr>
+</table>
+<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
+<p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>71x71</td></tr>
@@ -5601,15 +5641,13 @@ DiskSliceSize=736000000
 <tr><td>225%</td><td>129x129</td></tr>
 <tr><td>250%</td><td>147x147</td></tr>
 </table>
-<p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
-<p>If this directive is not specified or is blank, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
 <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
 <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link><br/>
+<link topic="setup_wizardimageopacity">WizardImageOpacity</link><br/>
 <link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
 </body>
 </setuptopic>
@@ -5689,6 +5727,21 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </body>
 </setuptopic>
 
+<setuptopic directive="WizardImageOpacity">
+<setupvalid><tt>0</tt> through <tt>255</tt></setupvalid>
+<setupdefault><tt>255</tt></setupdefault>
+<body>
+<p>If set to <tt>0</tt>, the wizard images will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
+<p>This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency.</p>
+<example><pre>WizardStyle=modern dynamic
+WizardImageFile=MyImage.png
+WizardImageFileDynamicDark=MyImage.png
+WizardSmallImageFile=MySmallImage.png
+WizardSmallImageFileDynamicDark=MySmallImage.png
+WizardImageOpacity=150</pre></example>
+</body>
+</setuptopic>
+
 <setuptopic directive="WizardImageStretch">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
@@ -5710,6 +5763,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <body>
 <p>If set to <tt>yes</tt>, the default, Setup and Uninstall keep the original aspect ratio of their windows when scaling for DPI.</p>
 <p>If set to <tt>no</tt>, the aspect ratio may be changed when scaling for DPI. As a result, your Setup and Uninstall windows will by default be 14% narrower at 125% DPI or higher.</p>
+<p><b>See also:</b><br/>
+<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
 </body>
 </setuptopic>
 
@@ -5723,6 +5778,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <example><pre>WizardSizePercent=130</pre></example>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
+<link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
 </body>
 </setuptopic>
@@ -5744,6 +5800,8 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardStyle">
+<keyword value="Dark mode" />
+<keyword value="Custom style" />
 <setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>includetitlebar</tt> <tt>excludelightbuttons</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
@@ -5803,7 +5861,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <heading>Other Considerations</heading>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
-<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme, nor is the color of the title bar changed. The other elements (icons and wizard images, including their background colors) are activated.</li>
+<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
@@ -5831,6 +5889,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardStyleFile">
+<keyword value="VCL Styles" />
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>This directive specifies a custom VCL Styles file (.vsf) to be used. It is recommended to use only styles that support high DPI.</p>
@@ -6380,7 +6439,7 @@ SignTool=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
-<p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-1 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-1 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
+<p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
 <link topic="setup_signtoolretrycount">SignToolRetryCount</link><br/>

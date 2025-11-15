@@ -768,6 +768,23 @@ end;
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
   backslash. }
+
+  procedure RestoreDeletedTempDirWithLogonSessionId(const DeletedTempDir: String);
+  { Restores a deleted temporary directory in the specific scenario described at
+    https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted }
+  begin
+    const DirWithoutSlash = RemoveBackslashUnlessRoot(DeletedTempDir);
+    const BaseName = PathExtractName(DirWithoutSlash);
+    var BaseNameIsNumber := False;
+    for var I := Low(BaseName) to High(BaseName) do begin
+      BaseNameIsNumber := CharInSet(BaseName[I], ['0'..'9']);
+      if not BaseNameIsNumber then
+        Break;
+    end;
+    if BaseNameIsNumber then
+      CreateDirectory(PChar(DirWithoutSlash), nil);
+  end;
+
 var
   GetTempPathFunc: function(nBufferLength: DWORD; lpBuffer: LPWSTR): DWORD; stdcall;
   Buf: array[0..MAX_PATH] of Char;
@@ -784,6 +801,8 @@ begin
     { The docs say the returned path is fully qualified and ends with a
       backslash, but let's be really sure! }
     Result := AddBackslash(PathExpand(Buf));
+    if not DirExists(Result) then
+      RestoreDeletedTempDirWithLogonSessionId(Result);
     Exit;
   end;
 

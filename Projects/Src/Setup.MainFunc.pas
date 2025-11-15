@@ -79,7 +79,7 @@ var
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
     InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel, InitRedirectionGuard, InitNoRedirectionGuard: Boolean;
+    InitNoCancel, InitNoStyle, InitRedirectionGuard, InitNoRedirectionGuard: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -245,7 +245,7 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
-  ChaCha20, ECDSA, ISSigFunc, BidiCtrls,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -704,6 +704,7 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitNoStyle := GetIniBool(Section, 'NoStyle', InitNoStyle, FileName);
   InitRedirectionGuard := GetIniBool(Section, 'InitRedirectionGuard', InitRedirectionGuard, FileName);
   InitNoRedirectionGuard := GetIniBool(Section, 'InitNoRedirectionGuard', InitNoRedirectionGuard, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
@@ -2871,9 +2872,13 @@ var
   procedure ReadWizardImages(const Reader: TCompressedBlockReader; const WizardImages: TWizardImages;
     const WantImages: Boolean);
   begin
-    var N: LongInt;
-    Reader.Read(N, SizeOf(LongInt));
-    for var I := 0 to N-1 do begin
+    var Count: Integer;
+    Reader.Read(Count, SizeOf(Integer));
+    if Count = -1 then { True if DynamicDark images were same as 'regular' images }
+      Exit;
+    if WantImages then
+      WizardImages.Clear; { This is to clear 'regular' images which have been read already }
+    for var I := 0 to Count-1 do begin
       if WantImages then
         WizardImages.Add(ReadWizardImage(Reader))
       else
@@ -3242,6 +3247,8 @@ begin
       InitNoIcons := True
     else if SameText(ParamName, '/NoCancel') then
       InitNoCancel := True
+    else if SameText(ParamName, '/NoStyle') then
+      InitNoStyle := True
     else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
     else if SameText(ParamName, '/Type=') then
@@ -3366,21 +3373,24 @@ begin
           it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
           also use ZIRCON. To test Uninstall styling use a real Setup compiled by the
           compiler. }
-        var WantWizardImagesDynamicDark := False;
+  var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
-        const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
-        const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
-        if IsDynamicDark then begin
-          SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
-          SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
-          MainIconPostfix := '_DARK';
-          WantWizardImagesDynamicDark := True; { Handled below }
-        end;
-        if IsDynamicDark or IsForcedDark then begin
-          IsDarkInstallMode := True;
-          WizardIconsPostfix := '_DARK';
-        end;
-        if not HighContrastActive then begin
+        if not HighContrastActive and not InitNoStyle then begin
+          const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
+          const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
+          if IsDynamicDark then begin
+            SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
+            SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+            MainIconPostfix := '_DARK';
+            { If the main icon is custom, a dark version will not be available, so check for this }
+            if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+              MainIconPostfix := '';
+            WantWizardImagesDynamicDark := True; { Handled below }
+          end;
+          if IsDynamicDark or IsForcedDark then begin
+            IsDarkInstallMode := True;
+            WizardIconsPostfix := '_DARK';
+          end;
           TStyleManager.AutoDiscoverStyleResources := False;
           { Also see comment above }
           var StyleName := 'MYSTYLE1';
@@ -3395,8 +3405,11 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
-            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-              TNewButton.DontStyle := True;
+            if not IsDarkInstallMode then begin
+              TRichEditViewer.DontStyleFont := True; { Keep foreground colors }
+              if (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+                TNewButton.DontStyle := True; { Keep native buttons (including command links) }
+            end;
           end;
         end;
 
@@ -3526,8 +3539,8 @@ begin
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
-        ReadWizardImages(Reader, WizardImages, not WantWizardImagesDynamicDark);
-        ReadWizardImages(Reader, WizardSmallImages, not WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardImages, True);      { If WantWizardImagesDynamicDark is True, then these might be overwritten below }
+        ReadWizardImages(Reader, WizardSmallImages, True); { Same }
         ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
         ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
