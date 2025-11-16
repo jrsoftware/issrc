@@ -12,7 +12,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, RichEdit, ActiveX;
+  StdCtrls, RichEdit, ActiveX, Themes;
 
 type
   IRichEditOleCallback = interface(IUnknown)
@@ -43,7 +43,6 @@ type
   private
     class var
       FCustomShellExecute: TRichEditViewerCustomShellExecute;
-      FDontStyleFont: Boolean;
     var
       FUseRichEdit: Boolean;
       FRichEditLoaded: Boolean;
@@ -53,6 +52,7 @@ type
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
+    procedure RecolorAutoForegroundText(const NewTextColor: TColor);
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMSysColorChange(var Message: TMessage); message CM_SYSCOLORCHANGE;
     procedure CNNotify(var Message: TWMNotify); message CN_NOTIFY;
@@ -65,9 +65,15 @@ type
     function SetRTFText(const Value: AnsiString): Integer;
     property RTFText: AnsiString write SetRTFTextProp;
     class property CustomShellExecute: TRichEditViewerCustomShellExecute read FCustomShellExecute write FCustomShellExecute;
-    class property DontStyleFont: Boolean read FDontStyleFont write FDontStyleFont;
   published
     property UseRichEdit: Boolean read FUseRichEdit write SetUseRichEdit default True;
+  end;
+
+  TRichEditViewerStyleHook = class(TScrollingStyleHook)
+{$IFDEF VCLSTYLES}
+  private
+    procedure EMSetBkgndColor(var Message: TMessage); message EM_SETBKGNDCOLOR;
+{$ENDIF}
   end;
 
 procedure Register;
@@ -75,7 +81,7 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, PathFunc, ComObj, ComCtrls, Themes;
+  ShellApi, PathFunc, ComObj;
 
 const
   RICHEDIT_CLASSW = 'RichEdit20W';
@@ -234,7 +240,7 @@ end;
 
 class constructor TRichEditViewer.Create;
 begin
-  TCustomStyleEngine.RegisterStyleHook(TRichEditViewer, TRichEditStyleHook);
+  TCustomStyleEngine.RegisterStyleHook(TRichEditViewer, TRichEditViewerStyleHook);
 end;
 
 constructor TRichEditViewer.Create(AOwner: TComponent);
@@ -242,13 +248,11 @@ begin
   inherited;
   FUseRichEdit := True;
   FCallback := TBasicRichEditOleCallback.Create;
-  if FDontStyleFont then
-    StyleElements := StyleElements - [seFont];
 end;
 
 class destructor TRichEditViewer.Destroy;
 begin
-  TCustomStyleEngine.UnregisterStyleHook(TRichEditViewer, TRichEditStyleHook);
+  TCustomStyleEngine.UnregisterStyleHook(TRichEditViewer, TRichEditViewerStyleHook);
 end;
 
 destructor TRichEditViewer.Destroy;
@@ -377,17 +381,88 @@ begin
       LStyle := nil;
 
     if (LStyle <> nil) and (seFont in StyleElements) and (seClient in StyleElements) then begin
-      { Trigger TRichEditStyleHook.EMSetCharFormat, inspired by TSysRichEditStyleHook.UpdateColors.
-        It changes all colors to match the style. Not needed if FUseRichEdit is False. Can be
-        disabled using class property DontStyleFont. }
-      var cf: TCharFormat2;
-      ZeroMemory(@cf, sizeof(TCharFormat2));
-      cf.cbSize := sizeof(TCharFormat2);
-      cf.dwMask := CFM_COLOR;
-      SendMessage(Handle, EM_GETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
-      cf.dwMask := CFM_COLOR;
-      SendMessage(Handle, EM_SETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
+      const StyleTextColor = ColorToRGB(LStyle.GetStyleFontColor(sfEditBoxTextNormal));
+      if StyleTextColor <> ColorToRGB(clWindowText) then
+        RecolorAutoForegroundText(StyleTextColor);
     end;
+  end;
+end;
+
+procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: TColor);
+
+  function GetTextLength: Integer;
+  begin
+    var GetTextLengthEx: TGetTextLengthEx;
+    ZeroMemory(@GetTextLengthEx, SizeOf(TGetTextLengthEx));
+    GetTextLengthEx.flags := GTL_NUMCHARS or GTL_PRECISE;
+    GetTextLengthEx.codepage := 1200;
+    Result := SendMessage(Handle, EM_GETTEXTLENGTHEX, WPARAM(@GetTextLengthEx), 0);
+    if Result < 0 then
+      Result := 0;
+  end;
+
+  procedure SetSelection(const StartPos, EndPos: Integer);
+  begin
+    var Range: TCharRange;
+    Range.cpMin := StartPos;
+    Range.cpMax := EndPos;
+    SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@Range));
+  end;
+
+  function GetTextColorAndEffectsAt(const Pos: Integer; out Format: TCharFormat2): Boolean;
+  begin
+    SetSelection(Pos, Pos + 1);
+    ZeroMemory(@Format, SizeOf(TCharFormat2));
+    Format.cbSize := SizeOf(TCharFormat2);
+    Format.dwMask := CFM_EFFECTS or CFM_COLOR; { CFM_COLOR does *not* refer to crBackColor }
+    Result := SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0;
+  end;
+
+begin
+  if not FUseRichEdit then
+    Exit;;
+
+  const TextLength = GetTextLength;
+  if TextLength = 0 then
+    Exit;
+
+  var SaveSel: TCharRange;
+  SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
+  SendMessage(Handle, WM_SETREDRAW, 0, 0);
+  try
+    var StartPos := 0;
+    { Find sections of auto colored text. Do not pay attention to background colors while doing so.
+      This exactly replicates the behavior seen when a high-contrast theme is active. }
+    while StartPos < TextLength do begin
+      var StartColorAndEffects: TCharFormat2;
+      if not GetTextColorAndEffectsAt(StartPos, StartColorAndEffects) or
+         (StartColorAndEffects.dwEffects and CFE_AUTOCOLOR = 0) then begin
+        Inc(StartPos);
+        Continue;
+      end;
+      { Found start of auto colored section, look for the end }
+      var EndPos := StartPos + 1;
+      while EndPos < TextLength do begin
+        var NextColorAndEffects: TCharFormat2;
+        { Stop on any change, such as CFE_BOLD, and not just on CFE_AUTOCOLOR }
+        if not GetTextColorAndEffectsAt(EndPos, NextColorAndEffects) or
+           (NextColorAndEffects.dwEffects <> StartColorAndEffects.dwEffects) then
+          Break;
+        Inc(EndPos);
+      end;
+      if StartPos < EndPos then begin
+        { Update the section's foreground color }
+        SetSelection(StartPos, EndPos);
+        StartColorAndEffects.crTextColor := NewTextColor;
+        StartColorAndEffects.dwEffects := StartColorAndEffects.dwEffects and not CFE_AUTOCOLOR;
+        SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@StartColorAndEffects));
+        StartPos := EndPos;
+      end;
+    end;
+  finally
+    SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
+    SendMessage(Handle, WM_SETREDRAW, 1, 0);
+    Invalidate;
   end;
 end;
 
@@ -441,6 +516,21 @@ begin
     end;
   end;
 end;
+
+{$IFDEF VCLSTYLES}
+
+{ TRichEditViewerStyleHook- same as Vcl.ComCtrls' TRichEditStyleHook except
+  that it is reduced to EM_SETBKGNDCOLOR handling only }
+
+procedure TRichEditViewerStyleHook.EMSetBkgndColor(var Message: TMessage);
+begin
+  if seClient in Control.StyleElements then begin
+    Message.LParam := ColorToRGB(StyleServices.GetStyleColor(scEdit));
+    Handled := False;
+  end;
+end;
+
+{$ENDIF}
 
 procedure Register;
 begin

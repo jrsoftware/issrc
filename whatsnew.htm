@@ -49,7 +49,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
   <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once, shrinking the size of Setup and speeding up compilation.</li>
-  <li>When a custom style (including the built-in custom dark style) is active, foreground colors are dropped from any RTF text displayed to ensure readability. This now only occurs if forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active.</li>
+  <li>Previously, when displaying any RTF text with a custom style (including the built-in custom dark style) active, all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
   <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
   <li>Other minor improvements.</li>
 </ul>

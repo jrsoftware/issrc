@@ -2223,7 +2223,6 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
@@ -2232,7 +2231,6 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
@@ -2242,7 +2240,6 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
