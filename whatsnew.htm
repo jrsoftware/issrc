@@ -47,9 +47,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
 <ul>
+  <li>Previously, when displaying any RTF text with a custom style active (including the built-in custom dark style), all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
   <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
   <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once.</li>
-  <li>Previously, when displaying any RTF text with a custom style (including the built-in custom dark style) active, all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
   <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
   <li>Other minor improvements.</li>
 </ul>
