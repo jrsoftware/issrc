@@ -83,6 +83,11 @@ implementation
 uses
   ShellApi, PathFunc, ComObj;
 
+{$IF CompilerVersion < 36.0}
+const
+  MSFTEDIT_CLASS = 'RICHEDIT50W';
+{$ENDIF}
+
 type
  { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects. }
   TBasicRichEditOleCallback = class(TInterfacedObject, IRichEditOleCallback)
@@ -107,13 +112,24 @@ type
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
 
+{$IF CompilerVersion < 36.0}
+  PEnLink = ^TEnLink;
+  TENLink = record
+    nmhdr: TNMHdr;
+    msg: UINT;
+    wParam: WPARAM;
+    lParam: LPARAM;
+    chrg: TCharRange;
+  end;
+{$ENDIF}
+
   TTextRange = record
     chrg: TCharRange;
     lpstrText: PWideChar;
   end;
 
   { The following interface definitions are simplified to contain only function
-    prootypes up to the last one we need }
+    prototypes up to the last one we need }
 
   IRichEditOle = interface(IUnknown)
     ['{00020D00-0000-0000-C000-000000000046}']
