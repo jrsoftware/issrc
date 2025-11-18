@@ -509,7 +509,9 @@ begin
   const TextLength = StoryLength-1;
 
   SendMessage(Handle, WM_SETREDRAW, 0, 0);
+  const SaveReadOnly = ReadOnly;
   try
+    ReadOnly := False;
     while True do begin
       { Move the end of the range (which starts at 0,0) to the end of constant formatting }
       var Delta: Integer;
@@ -522,7 +524,7 @@ begin
       if Succeeded(Range.GetFont(Font)) and
          Succeeded(Font.GetForeColor(TextColor)) and
          (TextColor = tomAutoColor) then
-        Font.SetForeColor(NewTextColor);
+        Font.SetForeColor(NewTextColor); { Ignore failure }
 
       { Move the start of the range to the end of it, unless it ends at the end of the text }
       var EndPos: Integer;
@@ -532,6 +534,7 @@ begin
         Break;
     end;
   finally
+    ReadOnly := SaveReadOnly;
     SendMessage(Handle, WM_SETREDRAW, 1, 0);
     Invalidate;
   end;
