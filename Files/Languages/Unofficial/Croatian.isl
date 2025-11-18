@@ -214,7 +214,7 @@ ReadyMemoGroup=Mapa u "Start" izborniku:
 ReadyMemoTasks=Dodatni zadaci:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Preuzimanje dodatnih datoteka …
+DownloadingLabel2=Preuzimanje datoteka …
 ButtonStopDownload=&Prekini preuzimanje
 StopDownload=Stvarno želiš prekinuti preuzimanje?
 ErrorDownloadAborted=Preuzimanje je prekinuto
@@ -224,7 +224,7 @@ ErrorProgress=Neispravan napredak: %1 od %2
 ErrorFileSize=Neispravna veličina datoteke: očekivano %1, pronađeno %2
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Raspakiravanje dodatnih datoteka …
+ExtractingLabel=Raspakiravanje datoteka …
 ButtonStopExtraction=&Prekini raspakiravanje
 StopExtraction=Stvarno želiš prekinuti raspakiravanje?
 ErrorExtractionAborted=Raspakiravanje prekinuto
