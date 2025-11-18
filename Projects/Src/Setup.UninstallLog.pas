@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedHeaderVersion = 1048;
+  HighestSupportedHeaderVersion = 1053;
   { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
     must be incremented, even if the change seems backward compatible (such as
     adding a new flag, or using one of the Reserved slots). When this happens, the
@@ -1234,17 +1234,6 @@ var
       ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
   end;
 
-  function ColorToHeaderInt(const Color: TColor): TColor;
-  begin
-    { Header fields set to 0 should be treated as "not specified", so we
-      can't write clBlack to it since that equals 0. Workaround this by
-      writing 1 which is still very black. }
-    if Color <> 0 then
-      Result := Color
-    else
-      Result := 1;
-  end;
-
 var
   Header: TUninstallLogHeader;
   FileRec: TUninstallFileRec;
@@ -1299,8 +1288,8 @@ begin
       GetNonStickyFlags + Flags;
     Header.WizardSizePercentX := WizardSizePercentX;
     Header.WizardSizePercentY := WizardSizePercentY;
-    Header.WizardBackColor := ColorToHeaderInt(WizardBackColor);
-    Header.WizardBackColorDynamicDark := ColorToHeaderInt(WizardBackColorDynamicDark);
+    Header.WizardBackColor := WizardBackColor;
+    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1379,14 +1368,6 @@ var
     end;
   end;
 
-  function HeaderIntToColor(const HeaderInt: Integer): TColor;
-  begin
-    if HeaderInt <> 0 then
-      Result := HeaderInt
-    else
-      Result := clNone;
-  end;
-
 var
   FileRec: TUninstallFileRec;
   I: Integer;
@@ -1403,8 +1384,14 @@ begin
   Flags := TUninstallLogFlags((@Header.Flags)^);
   WizardSizePercentX := Header.WizardSizePercentX;
   WizardSizePercentY := Header.WizardSizePercentY;
-  WizardBackColor := HeaderIntToColor(Header.WizardBackColor);
-  WizardBackColorDynamicDark := HeaderIntToColor(Header.WizardBackColorDynamicDark);
+  if Header.Version >= 1053 then begin
+    WizardBackColor := Header.WizardBackColor;
+    WizardBackColorDynamicDark := Header.WizardBackColorDynamicDark;
+  end else begin
+    { Header.WizardBackColor(DynamicDark) default to 0, which is clBlack and not clNone }
+    WizardBackColor := clNone;
+    WizardBackColorDynamicDark := clNone;
+  end;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));
