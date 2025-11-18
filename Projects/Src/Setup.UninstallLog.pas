@@ -15,13 +15,24 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedVersion = 1048;
-  { Each time the format of the uninstall log changes (usually a new entry type
-    is added), HighestSupportedVersion and the file version number of Setup
-    are incremented to match (51.x). Do NOT do this yourself; doing so could cause
-    incompatibilities with future Inno Setup releases. It's recommended that you
-    use the "utUserDefined" log entry type if you wish to implement your own
-    custom uninstall log entries; see below for more information. }
+  HighestSupportedHeaderVersion = 1048;
+  { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
+    must be incremented, even if the change seems backward compatible (such as
+    adding a new flag, or using one of the Reserved slots). When this happens, the
+    file version number of Setup must also be incremented to match (51.x).
+
+    The file version number (but not HighestSupportedHeaderVersion) must also be
+    incremented when an improvement or bugfix to Uninstall is made. Failing to do
+    so can cause older installers to replace the uninstaller .exe with an older
+    and inferior version. Next time HighestSupportedHeaderVersion is incremented
+    (along with the file version number), it should 'jump' ahead so both numbers
+    are in sync again. While technically not required, this approach keeps things
+    more sensible.
+
+    If you want to customize the uninstall log but maintain compatibility with
+    official Inno Setup releases, you should NOT do any of the above. Instead, it's
+    recommended to use the "utUserDefined" log entry type if you wish to implement
+    your own custom uninstall log entries; see below for more information. }
 
 type
   TUninstallRecTyp = type Word;
@@ -398,8 +409,8 @@ begin
   Move(Pointer(S)^, NewRec.Data, NewRec.DataSize);
   InternalAdd(NewRec);
 
-  if Version < HighestSupportedVersion then
-    Version := HighestSupportedVersion;
+  if Version < HighestSupportedHeaderVersion then
+    Version := HighestSupportedHeaderVersion;
 end;
 
 procedure TUninstallLog.AddReg(const Typ: TUninstallRecTyp;
@@ -1385,7 +1396,7 @@ begin
   BufLeft := 0;
 
   ReadUninstallLogHeader(F, Filename, Header, InstallMode64Bit);
-  if Header.Version > HighestSupportedVersion then
+  if Header.Version > HighestSupportedHeaderVersion then
     raise Exception.Create(FmtSetupMessage1(msgUninstallUnsupportedVer, Filename));
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);
