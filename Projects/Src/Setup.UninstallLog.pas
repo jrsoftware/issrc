@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedHeaderVersion = 1053;
+  HighestSupportedHeaderVersion = 1054;
   { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
     must be incremented, even if the change seems backward compatible (such as
     adding a new flag, or using one of the Reserved slots). When this happens, the
@@ -1384,7 +1384,7 @@ begin
   Flags := TUninstallLogFlags((@Header.Flags)^);
   WizardSizePercentX := Header.WizardSizePercentX;
   WizardSizePercentY := Header.WizardSizePercentY;
-  if Header.Version >= 1053 then begin
+  if Header.Version >= 1054 then begin
     WizardBackColor := Header.WizardBackColor;
     WizardBackColorDynamicDark := Header.WizardBackColorDynamicDark;
   end else begin
