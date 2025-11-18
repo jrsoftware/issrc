@@ -478,7 +478,7 @@ begin
     if (LStyle <> nil) and (seFont in StyleElements) and (seClient in StyleElements) then begin
       const StyleTextColor = ColorToRGB(LStyle.GetStyleFontColor(sfEditBoxTextNormal));
       if StyleTextColor <> ColorToRGB(clWindowText) then
-        RecolorAutoForegroundText(StyleTextColor);
+        RecolorAutoForegroundText(StyleTextColor); { Must be done even if SF_TEXT was used above }
     end;
   end;
 end;
@@ -495,8 +495,8 @@ begin
 
   var RichEditOle: IRichEditOle;
   var TextDocument: ITextDocument;
-  var StoryLength: Integer;
   var Range: ITextRange;
+  var StoryLength: Integer;
   if (SendMessage(Handle, EM_GETOLEINTERFACE, 0, LPARAM(@RichEditOle)) = 0) or
      Failed(RichEditOle.QueryInterface(IID_ITextDocument, TextDocument)) or
      Failed(TextDocument.Range(0, 0, Range)) or
@@ -513,7 +513,7 @@ begin
   try
     ReadOnly := False;
     while True do begin
-      { Move the end of the range (which starts at 0,0) to the end of constant formatting }
+      { Move the end of the range (which initializes at 0,0) to the end of constant formatting }
       var Delta: Integer;
       if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) or (Delta = 0) then
         Break;
