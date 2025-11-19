@@ -178,7 +178,9 @@ uses
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
-    fits into a single disk sector and can be written atomically }
+    fits into a single disk sector and can be written atomically.
+    Do not add "non-sticky" flags and fields that are set only by the
+    latest installer. Add these to TMessagesLangOptions instead. }
   TUninstallLogHeader = packed record
     ID: TUninstallLogID;
     AppId: array[0..127] of AnsiChar;
