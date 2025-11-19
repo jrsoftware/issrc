@@ -1228,10 +1228,15 @@ var
     end;
   end;
 
-  function GetNonStickyFlags: TUninstallLogFlags;
+  function GetWizardFlags: TUninstallLogFlags;
   begin
     Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
       ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
+  end;
+
+  function GetNonStickyFlags: TUninstallLogFlags;
+  begin
+    Result := GetWizardFlags;
   end;
 
 var
@@ -1284,12 +1289,27 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      GetNonStickyFlags + Flags;
-    Header.WizardSizePercentX := WizardSizePercentX;
-    Header.WizardSizePercentY := WizardSizePercentY;
-    Header.WizardBackColor := WizardBackColor;
-    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
+
+    const NonWizardFlags = Flags - GetWizardFlags;
+    const NonStickyNonWizardFlags = GetNonStickyFlags - GetWizardFlags;
+    var NewFlags := TUninstallLogFlags((@Header.Flags)^) - NonStickyNonWizardFlags + NonWizardFlags;
+
+    { Update wizard header flags and fields only if we are certain the
+      header does not contain any unknown flags or fields. This ensures that
+      either all wizard flags and fields are updated, or none at all, thus
+      avoiding any scenario where an invalid combination might occur. }
+    if Header.Version <= HighestSupportedHeaderVersion then begin
+      const WizardFlags = Flags * GetWizardFlags;
+      const NonStickyWizardFlags = GetNonStickyFlags * GetWizardFlags;
+      NewFlags := NewFlags - NonStickyWizardFlags + WizardFlags;
+      Header.WizardSizePercentX := WizardSizePercentX;
+      Header.WizardSizePercentY := WizardSizePercentY;
+	    Header.WizardBackColor := WizardBackColor;
+	    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
+    end;
+
+    TUninstallLogFlags((@Header.Flags)^) := NewFlags;
+
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
