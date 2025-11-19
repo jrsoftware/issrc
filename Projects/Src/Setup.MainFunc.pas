@@ -3319,7 +3319,25 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
+        { Language entries }
+        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
+          SizeOf(TSetupLanguageEntry));
+        { CustomMessage entries }
+        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
+          SizeOf(TSetupCustomMessageEntry));
+        { Permission entries }
+        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
+          SizeOf(TSetupPermissionEntry));
+        { Type entries }
+        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
+          Integer(@PSetupTypeEntry(nil).MinVersion),
+          Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
+
+        ActivateDefaultLanguage;
+
         { Apply style - also see Setup.Uninstall's RunSecondPhase
+          Must be ordered after ActivateDefaultLanguage since TTaskDialogForm
+          and its parent TSetupForm use LangOptions and SetupMessages.
           Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
@@ -3363,22 +3381,6 @@ begin
               TNewButton.DontStyle := True; { Keep native buttons (including command links) }
           end;
         end;
-
-        { Language entries }
-        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
-          SizeOf(TSetupLanguageEntry));
-        { CustomMessage entries }
-        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
-          SizeOf(TSetupCustomMessageEntry));
-        { Permission entries }
-        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
-          SizeOf(TSetupPermissionEntry));
-        { Type entries }
-        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
-          Integer(@PSetupTypeEntry(nil).MinVersion),
-          Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
-
-        ActivateDefaultLanguage;
 
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
