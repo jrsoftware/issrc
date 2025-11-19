@@ -29,6 +29,9 @@ const
     are in sync again. While technically not required, this approach keeps things
     more sensible.
 
+    Note that something as simple as adding a new [Code] function is an improvement
+    to Uninstall.
+
     If you want to customize the uninstall log but maintain compatibility with
     official Inno Setup releases, you should NOT do any of the above. Instead, it's
     recommended to use the "utUserDefined" log entry type if you wish to implement
