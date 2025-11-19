@@ -46,9 +46,9 @@ begin
         not (foDontVerifyChecksum in CurFile^.Options));
 
       if floTimeStampInUTC in CurFileLocation^.Flags then
-        CurFileDate := CurFileLocation^.SourceTimeStamp
+        CurFileDate := CurFileLocation^.TimeStamp
       else
-        LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
+        LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
       SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
     finally
       DestF.Free;

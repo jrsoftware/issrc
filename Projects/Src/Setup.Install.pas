@@ -794,9 +794,9 @@ Retry:
       var CurFileDateDidRead := True; { Set to False later if needed }
       if Assigned(CurFileLocation) then begin
         if floTimeStampInUTC in CurFileLocation^.Flags then
-          CurFileDate := CurFileLocation^.SourceTimeStamp
+          CurFileDate := CurFileLocation^.TimeStamp
         else
-          LocalFileTimeToFileTime(CurFileLocation^.SourceTimeStamp, CurFileDate);
+          LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
         CurFileDateValid := True;
       end else if Assigned(AExternalFileDate) then begin
         CurFileDate := AExternalFileDate^;

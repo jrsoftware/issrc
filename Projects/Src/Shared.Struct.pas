@@ -281,7 +281,7 @@ type
     OriginalSize: Int64;
     ChunkCompressedSize: Int64;
     SHA256Sum: TSHA256Digest;
-    SourceTimeStamp: TFileTime;
+    TimeStamp: TFileTime;
     FileVersionMS, FileVersionLS: DWORD;
     Flags: set of (floVersionInfoValid, floTimeStampInUTC, floCallInstructionOptimized,
       floChunkEncrypted, floChunkCompressed);

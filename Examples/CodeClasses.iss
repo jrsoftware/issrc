@@ -469,10 +469,10 @@ begin
   RichEditViewer.BevelKind := bkFlat;
   RichEditViewer.BorderStyle := bsNone;
   RichEditViewer.Parent := Page.Surface;
+  RichEditViewer.ReadOnly := True;
   RichEditViewer.ScrollBars := ssVertical;
   RichEditViewer.UseRichEdit := True;
   RichEditViewer.RTFText := '{\rtf1\ansi\ansicpg1252\deff0\deflang1043{\fonttbl{\f0\fswiss\fcharset0 Arial;}}{\colortbl ;\red255\green0\blue0;\red0\green128\blue0;\red0\green0\blue128;}\viewkind4\uc1\pard\f0\fs20 T\cf1 Rich\cf2 Edit\cf3 Viewer\cf0\par}';
-  RichEditViewer.ReadOnly := True;
 end;
 
 procedure AboutButtonOnClick(Sender: TObject);
