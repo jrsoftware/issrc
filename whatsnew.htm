@@ -42,7 +42,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.6.1"></a><span class="ver">6.6.1-dev </span><span class="date">(?)</span></p>
+<p><a name="6.6.2"></a><span class="ver">6.6.2-dev </span><span class="date">(?)</span></p>
 
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
@@ -53,12 +53,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackColor</tt> and <tt>WizardBackColorDynamicDark</tt> to specify custom background colors to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</li>
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
       Supports specifying multiple files for high-quality results on all DPI settings.</li>
+  <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard. Alternatively, set <tt>WizardImageOpacity</tt> to blend these images with the background image (or color). Note: <tt>WizardImageOpacity</tt> also supports setting opacity of the built-in wizard images.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>WizardBackImageOpacity</tt> to specify the opacity (non-transparency) of the background image.<br/>
       This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image.</li>
-  <li>Added new <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images set via <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.<br/>
-      This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images, or if you want to use them in combination with a custom background image set via <tt>WizardBackImageFile</tt>.<br/>
-      Supports setting opacity of the built-in wizard images.</li>
-  <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard.</li>
   <li>Examples:
 <pre><code class="innosetup"><span class="com">; Use separate background images for light and dark appearances</span>
 <span class="key">WizardBackImageFile</span>=MyBackImage.png
@@ -86,11 +83,25 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="com">; On wizard pages blend the background image and color together</span>
 <span class="key">WizardBackImageOpacity</span>=150</code></pre></li>
 </ul>
-<span class="head2">Other changes</span>
+
+<p><a name="6.6.1"></a><span class="ver">6.6.1 </span><span class="date">(2025-11-19)</span></p>
+
+<p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
+
 <ul>
-  <li>Previously, when displaying any RTF text with a custom style active (including the built-in custom dark style), all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
-  <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once.</li>
-  <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
+  <li>Changes related to custom styles:
+  <ul>
+    <li>Previously, when displaying any RTF text with a custom style active (including the built-in custom dark style), all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
+    <li>Added new <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
+    <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once.</li>
+    <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
+  </ul>
+  </li>
+  <li>Security improvement:
+  <ul>
+    <li>Added new <tt>[Files]</tt> section flag <tt>notimestamp</tt>, preventing the file from being stored with a timestamp. Use this flag to help make builds reproducible, even if you are unable to preserve timestamps on source files.</li>
+  </ul>
+  </li>
   <li>Other minor improvements.</li>
 </ul>
 

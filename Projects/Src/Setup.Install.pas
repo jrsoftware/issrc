@@ -793,19 +793,28 @@ Retry:
 
       var CurFileDateDidRead := True; { Set to False later if needed }
       if Assigned(CurFileLocation) then begin
-        if floTimeStampInUTC in CurFileLocation^.Flags then
-          CurFileDate := CurFileLocation^.TimeStamp
-        else
-          LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
-        CurFileDateValid := True;
-      end else if Assigned(AExternalFileDate) then begin
-        CurFileDate := AExternalFileDate^;
-        CurFileDateValid := CurFileDate.HasTime;
-      end else if not(foDownload in CurFile^.Options) then
-        CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate)
-      else begin
-        CurFileDateValid := False;
-        CurFileDateDidRead := False;
+        { Not an "external" file }
+        if CurFileLocation^.TimeStamp.HasTime then begin
+          if floTimeStampInUTC in CurFileLocation^.Flags then
+            CurFileDate := CurFileLocation^.TimeStamp
+          else
+            LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+          CurFileDateValid := True;
+        end else begin
+          CurFileDateValid := False;
+          CurFileDateDidRead := False;
+        end;
+      end else begin
+        { An "external" file }
+        if Assigned(AExternalFileDate) then begin
+          CurFileDate := AExternalFileDate^;
+          CurFileDateValid := CurFileDate.HasTime;
+        end else if not(foDownload in CurFile^.Options) then
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate)
+        else begin
+          CurFileDateValid := False;
+          CurFileDateDidRead := False;
+        end;
       end;
       if CurFileDateValid then
         LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])

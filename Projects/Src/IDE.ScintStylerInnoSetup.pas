@@ -253,7 +253,7 @@ const
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
     'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
     'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
-    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'noregerror',
+    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'notimestamp', 'noregerror',
     'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
     'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
     'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
