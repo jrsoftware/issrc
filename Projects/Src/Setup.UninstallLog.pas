@@ -1228,12 +1228,12 @@ var
   function GetWizardFlags: TUninstallLogFlags;
   begin
     Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-      ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio, ufRedirectionGuard];
+      ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
   end;
 
   function GetNonStickyFlags: TUninstallLogFlags;
   begin
-    Result := GetWizardFlags;
+    Result := GetWizardFlags + [ufRedirectionGuard];
   end;
 
 var
