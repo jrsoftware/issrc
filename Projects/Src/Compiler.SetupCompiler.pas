@@ -7480,17 +7480,17 @@ var
               ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
           end;
           if TimeStampsInUTC then begin
-            FL.SourceTimeStamp := FT;
+            FL.TimeStamp := FT;
             Include(FL.Flags, floTimeStampInUTC);
           end
           else
-            FileTimeToLocalFileTime(FT, FL.SourceTimeStamp);
+            FileTimeToLocalFileTime(FT, FL.TimeStamp);
           if floApplyTouchDateTime in FLExtraInfo.Flags then
-            ApplyTouchDateTime(FL.SourceTimeStamp);
+            ApplyTouchDateTime(FL.TimeStamp);
           if TimeStampRounding > 0 then begin
-            var SourceTimeStamp := Int64(FL.SourceTimeStamp);
-            Dec(SourceTimeStamp, SourceTimeStamp mod (TimeStampRounding * 10000000));
-            FL.SourceTimeStamp := TFileTime(SourceTimeStamp);
+            var TimeStamp := Int64(FL.TimeStamp);
+            Dec(TimeStamp, TimeStamp mod (TimeStampRounding * 10000000));
+            FL.TimeStamp := TFileTime(TimeStamp);
           end;
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
@@ -7823,7 +7823,7 @@ var
         FL := FileLocationEntries[I];
         FLExtraInfo := FileLocationEntryExtraInfos[I];
         S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
-          FileTimeToString(FL.SourceTimeStamp, floTimeStampInUTC in FL.Flags) + #9;
+          FileTimeToString(FL.TimeStamp, floTimeStampInUTC in FL.Flags) + #9;
         if floVersionInfoValid in FL.Flags then
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
             FL.FileVersionMS and $FFFF, FL.FileVersionLS shr 16,

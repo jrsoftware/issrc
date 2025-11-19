@@ -12,7 +12,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, RichEdit, ActiveX;
+  StdCtrls, RichEdit, ActiveX, Themes;
 
 type
   IRichEditOleCallback = interface(IUnknown)
@@ -23,7 +23,7 @@ type
       lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
     function ShowContainerUI(fShow: BOOL): HResult; stdcall;
     function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-      cp: Longint): HResult; stdcall;
+      cp: Integer): HResult; stdcall;
     function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
     function QueryAcceptData(const dataobj: IDataObject;
       var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
@@ -36,14 +36,13 @@ type
     function GetContextMenu(seltype: Word; const oleobj: IOleObject;
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
-  
+
   TRichEditViewerCustomShellExecute = procedure(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-  
+
   TRichEditViewer = class(TMemo)
   private
     class var
       FCustomShellExecute: TRichEditViewerCustomShellExecute;
-      FDontStyleFont: Boolean;
     var
       FUseRichEdit: Boolean;
       FRichEditLoaded: Boolean;
@@ -53,6 +52,7 @@ type
     procedure SetRTFTextProp(const Value: AnsiString);
     procedure SetUseRichEdit(Value: Boolean);
     procedure UpdateBackgroundColor;
+    procedure RecolorAutoForegroundText(const NewTextColor: Integer);
     procedure CMColorChanged(var Message: TMessage); message CM_COLORCHANGED;
     procedure CMSysColorChange(var Message: TMessage); message CM_SYSCOLORCHANGE;
     procedure CNNotify(var Message: TWMNotify); message CN_NOTIFY;
@@ -65,9 +65,15 @@ type
     function SetRTFText(const Value: AnsiString): Integer;
     property RTFText: AnsiString write SetRTFTextProp;
     class property CustomShellExecute: TRichEditViewerCustomShellExecute read FCustomShellExecute write FCustomShellExecute;
-    class property DontStyleFont: Boolean read FDontStyleFont write FDontStyleFont;
   published
     property UseRichEdit: Boolean read FUseRichEdit write SetUseRichEdit default True;
+  end;
+
+  TRichEditViewerStyleHook = class(TScrollingStyleHook)
+{$IFDEF VCLSTYLES}
+  private
+    procedure EMSetBkgndColor(var Message: TMessage); message EM_SETBKGNDCOLOR;
+{$ENDIF}
   end;
 
 procedure Register;
@@ -75,14 +81,12 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, PathFunc, ComObj, ComCtrls, Themes;
+  ShellApi, PathFunc, ComObj;
 
+{$IF CompilerVersion < 36.0}
 const
-  RICHEDIT_CLASSW = 'RichEdit20W';
   MSFTEDIT_CLASS = 'RICHEDIT50W';
-  EM_AUTOURLDETECT = WM_USER + 91;
-  ENM_LINK = $04000000;
-  EN_LINK = $070b;
+{$ENDIF}
 
 type
  { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects. }
@@ -94,7 +98,7 @@ type
       lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
     function ShowContainerUI(fShow: BOOL): HResult; stdcall;
     function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-      cp: Longint): HResult; stdcall;
+      cp: Integer): HResult; stdcall;
     function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
     function QueryAcceptData(const dataobj: IDataObject;
       var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
@@ -108,6 +112,7 @@ type
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
 
+{$IF CompilerVersion < 36.0}
   PEnLink = ^TEnLink;
   TENLink = record
     nmhdr: TNMHdr;
@@ -116,10 +121,106 @@ type
     lParam: LPARAM;
     chrg: TCharRange;
   end;
+{$ENDIF}
 
   TTextRange = record
     chrg: TCharRange;
     lpstrText: PWideChar;
+  end;
+
+  { The following interface definitions are simplified to contain only function
+    prototypes up to the last one we need }
+
+  IRichEditOle = interface(IUnknown)
+    ['{00020D00-0000-0000-C000-000000000046}']
+  end;
+
+  ITextFont = interface(IDispatch)
+    ['{8CC497C3-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetDuplicate(out Font: ITextFont): HResult; stdcall;
+    function SetDuplicate(const Font: ITextFont): HResult; stdcall;
+    function CanChange(out Value: Integer): HResult; stdcall;
+    function IsEqual(const Font: ITextFont; out Value: Integer): HResult; stdcall;
+    function Reset(Value: Integer): HResult; stdcall;
+    function GetStyle(out Value: Integer): HResult; stdcall;
+    function SetStyle(Value: Integer): HResult; stdcall;
+    function GetAllCaps(out Value: Integer): HResult; stdcall;
+    function SetAllCaps(Value: Integer): HResult; stdcall;
+    function GetAnimation(out Value: Integer): HResult; stdcall;
+    function SetAnimation(Value: Integer): HResult; stdcall;
+    function GetBackColor(out Value: Integer): HResult; stdcall;
+    function SetBackColor(Value: Integer): HResult; stdcall;
+    function GetBold(out Value: Integer): HResult; stdcall;
+    function SetBold(Value: Integer): HResult; stdcall;
+    function GetEmboss(out Value: Integer): HResult; stdcall;
+    function SetEmboss(Value: Integer): HResult; stdcall;
+    function GetForeColor(out Value: Integer): HResult; stdcall;
+    function SetForeColor(Value: Integer): HResult; stdcall;
+  end;
+
+  ITextPara = interface(IDispatch)
+    ['{8CC497C4-A1DF-11CE-8098-00AA0047BE5D}']
+  end;
+
+  ITextRange = interface(IDispatch)
+    ['{8CC497C2-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetText(out Text: WideString): HResult; stdcall;
+    function SetText(const Text: WideString): HResult; stdcall;
+    function GetChar(out CharCode: Integer): HResult; stdcall;
+    function SetChar(CharCode: Integer): HResult; stdcall;
+    function GetDuplicate(out Range: ITextRange): HResult; stdcall;
+    function GetFormattedText(out Range: ITextRange): HResult; stdcall;
+    function SetFormattedText(const Range: ITextRange): HResult; stdcall;
+    function GetStart(out cpFirst: Integer): HResult; stdcall;
+    function SetStart(cpFirst: Integer): HResult; stdcall;
+    function GetEnd(out cpLim: Integer): HResult; stdcall;
+    function SetEnd(cpLim: Integer): HResult; stdcall;
+    function GetFont(out Font: ITextFont): HResult; stdcall;
+    function SetFont(const Font: ITextFont): HResult; stdcall;
+    function GetPara(out Para: ITextPara): HResult; stdcall;
+    function SetPara(const Para: ITextPara): HResult; stdcall;
+    function GetStoryLength(out Count: Integer): HResult; stdcall;
+    function GetStoryType(out TypeValue: Integer): HResult; stdcall;
+    function Collapse(Start: Integer): HResult; stdcall;
+    function Expand(UnitValue: Integer; out Delta: Integer): HResult; stdcall;
+    function GetIndex(UnitValue: Integer; out Index: Integer): HResult; stdcall;
+    function SetIndex(UnitValue, Index, Extend: Integer): HResult; stdcall;
+    function SetRange(Anchor, Active: Integer): HResult; stdcall;
+    function InRange(const Range: ITextRange; out InRangeValue: Integer): HResult; stdcall;
+    function InStory(const Range: ITextRange; out InStoryValue: Integer): HResult; stdcall;
+    function IsEqual(const Range: ITextRange; out Equal: Integer): HResult; stdcall;
+    function Select: HResult; stdcall;
+    function StartOf(UnitValue, Extend: Integer; out Delta: Integer): HResult; stdcall;
+    function EndOf(UnitValue, Extend: Integer; out Delta: Integer): HResult; stdcall;
+    function Move(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+    function MoveStart(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+    function MoveEnd(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+  end;
+
+  ITextSelection = interface(ITextRange)
+    ['{8CC497C1-A1DF-11CE-8098-00AA0047BE5D}']
+  end;
+
+  ITextDocument = interface(IDispatch)
+    ['{8CC497C0-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetName(out Name: WideString): HResult; stdcall;
+    function GetSelection(out Selection: ITextSelection): HResult; stdcall;
+    function GetStoryCount(out Count: Integer): HResult; stdcall;
+    function GetStoryRanges(out Stories: IDispatch): HResult; stdcall;
+    function GetSaved(out Value: Integer): HResult; stdcall;
+    function SetSaved(Value: Integer): HResult; stdcall;
+    function GetDefaultTabStop(out Value: Single): HResult; stdcall;
+    function SetDefaultTabStop(Value: Single): HResult; stdcall;
+    function New: HResult; stdcall;
+    function Open(var Data: OleVariant; Flags, CodePage: Integer): HResult; stdcall;
+    function Save(var Data: OleVariant; Flags, CodePage: Integer): HResult; stdcall;
+    function Freeze(out Count: Integer): HResult; stdcall;
+    function Unfreeze(out Count: Integer): HResult; stdcall;
+    function BeginEditCollection: HResult; stdcall;
+    function EndEditCollection: HResult; stdcall;
+    function Undo(Count: Integer; out Prop: Integer): HResult; stdcall;
+    function Redo(Count: Integer; out Prop: Integer): HResult; stdcall;
+    function Range(cp1, cp2: Integer; out Range: ITextRange): HResult; stdcall;
   end;
 
 var
@@ -188,7 +289,7 @@ begin
 end;
 
 function TBasicRichEditOleCallback.QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-  cp: Longint): HResult;
+  cp: Integer): HResult;
 begin
   Result := S_OK;
 end;
@@ -234,7 +335,7 @@ end;
 
 class constructor TRichEditViewer.Create;
 begin
-  TCustomStyleEngine.RegisterStyleHook(TRichEditViewer, TRichEditStyleHook);
+  TCustomStyleEngine.RegisterStyleHook(TRichEditViewer, TRichEditViewerStyleHook);
 end;
 
 constructor TRichEditViewer.Create(AOwner: TComponent);
@@ -242,13 +343,11 @@ begin
   inherited;
   FUseRichEdit := True;
   FCallback := TBasicRichEditOleCallback.Create;
-  if FDontStyleFont then
-    StyleElements := StyleElements - [seFont];
 end;
 
 class destructor TRichEditViewer.Destroy;
 begin
-  TCustomStyleEngine.UnregisterStyleHook(TRichEditViewer, TRichEditStyleHook);
+  TCustomStyleEngine.UnregisterStyleHook(TRichEditViewer, TRichEditViewerStyleHook);
 end;
 
 destructor TRichEditViewer.Destroy;
@@ -324,8 +423,8 @@ type
     BytesLeft: Integer;
   end;
 
-function StreamLoad(dwCookie: Longint; pbBuff: PByte;
-  cb: Longint; var pcb: Longint): Longint; stdcall;
+function StreamLoad(dwCookie: DWORD_PTR; pbBuff: PByte;
+  cb: Integer; var pcb: Integer): Integer; stdcall;
 begin
   Result := 0;
   with PStreamLoadData(dwCookie)^ do begin
@@ -354,7 +453,7 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
       Inc(Data.Buf, 2);
       Dec(Data.BytesLeft, 2);
     end;
-    EditStream.dwCookie := Longint(@Data);
+    EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
     EditStream.pfnCallback := @StreamLoad;
     SendMessage(Handle, EM_STREAMIN, AFormat, LPARAM(@EditStream));
@@ -377,17 +476,67 @@ begin
       LStyle := nil;
 
     if (LStyle <> nil) and (seFont in StyleElements) and (seClient in StyleElements) then begin
-      { Trigger TRichEditStyleHook.EMSetCharFormat, inspired by TSysRichEditStyleHook.UpdateColors.
-        It changes all colors to match the style. Not needed if FUseRichEdit is False. Can be
-        disabled using class property DontStyleFont. }
-      var cf: TCharFormat2;
-      ZeroMemory(@cf, sizeof(TCharFormat2));
-      cf.cbSize := sizeof(TCharFormat2);
-      cf.dwMask := CFM_COLOR;
-      SendMessage(Handle, EM_GETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
-      cf.dwMask := CFM_COLOR;
-      SendMessage(Handle, EM_SETCHARFORMAT, SCF_DEFAULT, LParam(@cf));
+      const StyleTextColor = ColorToRGB(LStyle.GetStyleFontColor(sfEditBoxTextNormal));
+      if StyleTextColor <> ColorToRGB(clWindowText) then
+        RecolorAutoForegroundText(StyleTextColor); { Must be done even if SF_TEXT was used above }
     end;
+  end;
+end;
+
+procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer);
+const
+  IID_ITextDocument: TGUID = '{8CC497C0-A1DF-11CE-8098-00AA0047BE5D}';
+  { See https://learn.microsoft.com/en-us/windows/win32/api/tom/ne-tom-tomconstants }
+  tomAutoColor = -9999997;
+  tomCharFormat = 13;
+begin
+  if not FUseRichEdit or not HandleAllocated then
+    Exit;
+
+  var RichEditOle: IRichEditOle;
+  var TextDocument: ITextDocument;
+  var Range: ITextRange;
+  var StoryLength: Integer;
+  if (SendMessage(Handle, EM_GETOLEINTERFACE, 0, LPARAM(@RichEditOle)) = 0) or
+     Failed(RichEditOle.QueryInterface(IID_ITextDocument, TextDocument)) or
+     Failed(TextDocument.Range(0, 0, Range)) or
+     Failed(Range.GetStoryLength(StoryLength)) or
+     (StoryLength < 2) then
+    Exit;
+
+  { See https://learn.microsoft.com/en-us/windows/win32/api/tom/nn-tom-itextrange:
+    All stories contain an undeletable final CR (0xD) character at the end }
+  const TextLength = StoryLength-1;
+
+  SendMessage(Handle, WM_SETREDRAW, 0, 0);
+  const SaveReadOnly = ReadOnly;
+  try
+    ReadOnly := False;
+    while True do begin
+      { Move the end of the range (which initializes at 0,0) to the end of constant formatting }
+      var Delta: Integer;
+      if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) or (Delta = 0) then
+        Break;
+
+      { Recolor the range if the foreground color is automatic }
+      var Font: ITextFont;
+      var TextColor: Integer;
+      if Succeeded(Range.GetFont(Font)) and
+         Succeeded(Font.GetForeColor(TextColor)) and
+         (TextColor = tomAutoColor) then
+        Font.SetForeColor(NewTextColor); { Ignore failure }
+
+      { Move the start of the range to the end of it, unless it ends at the end of the text }
+      var EndPos: Integer;
+      if Failed(Range.GetEnd(EndPos)) or
+         (EndPos >= TextLength) or
+         Failed(Range.SetStart(EndPos)) then
+        Break;
+    end;
+  finally
+    ReadOnly := SaveReadOnly;
+    SendMessage(Handle, WM_SETREDRAW, 1, 0);
+    Invalidate;
   end;
 end;
 
@@ -441,6 +590,21 @@ begin
     end;
   end;
 end;
+
+{$IFDEF VCLSTYLES}
+
+{ TRichEditViewerStyleHook- same as Vcl.ComCtrls' TRichEditStyleHook except
+  that it is reduced to EM_SETBKGNDCOLOR handling only }
+
+procedure TRichEditViewerStyleHook.EMSetBkgndColor(var Message: TMessage);
+begin
+  if seClient in Control.StyleElements then begin
+    Message.LParam := ColorToRGB(StyleServices.GetStyleColor(scEdit));
+    Handled := False;
+  end;
+end;
+
+{$ENDIF}
 
 procedure Register;
 begin

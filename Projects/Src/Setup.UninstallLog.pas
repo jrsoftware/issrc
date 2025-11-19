@@ -15,13 +15,24 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedVersion = 1048;
-  { Each time the format of the uninstall log changes (usually a new entry type
-    is added), HighestSupportedVersion and the file version number of Setup
-    are incremented to match (51.x). Do NOT do this yourself; doing so could cause
-    incompatibilities with future Inno Setup releases. It's recommended that you
-    use the "utUserDefined" log entry type if you wish to implement your own
-    custom uninstall log entries; see below for more information. }
+  HighestSupportedHeaderVersion = 1048;
+  { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
+    must be incremented, even if the change seems backward compatible (such as
+    adding a new flag, or using one of the Reserved slots). When this happens, the
+    file version number of Setup must also be incremented to match (51.x).
+
+    The file version number (but not HighestSupportedHeaderVersion) must also be
+    incremented when an improvement or bugfix to Uninstall is made. Failing to do
+    so can cause older installers to replace the uninstaller .exe with an older
+    and inferior version. Next time HighestSupportedHeaderVersion is incremented
+    (along with the file version number), it should 'jump' ahead so both numbers
+    are in sync again. While technically not required, this approach keeps things
+    more sensible.
+
+    If you want to customize the uninstall log but maintain compatibility with
+    official Inno Setup releases, you should NOT do any of the above. Instead, it's
+    recommended to use the "utUserDefined" log entry type if you wish to implement
+    your own custom uninstall log entries; see below for more information. }
 
 type
   TUninstallRecTyp = type Word;
@@ -396,8 +407,8 @@ begin
   Move(Pointer(S)^, NewRec.Data, NewRec.DataSize);
   InternalAdd(NewRec);
 
-  if Version < HighestSupportedVersion then
-    Version := HighestSupportedVersion;
+  if Version < HighestSupportedHeaderVersion then
+    Version := HighestSupportedHeaderVersion;
 end;
 
 procedure TUninstallLog.AddReg(const Typ: TUninstallRecTyp;
@@ -1213,10 +1224,15 @@ var
     end;
   end;
 
-  function GetNonStickyFlags: TUninstallLogFlags;
+  function GetWizardFlags: TUninstallLogFlags;
   begin
     Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
       ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
+  end;
+
+  function GetNonStickyFlags: TUninstallLogFlags;
+  begin
+    Result := GetWizardFlags;
   end;
 
 var
@@ -1269,10 +1285,25 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
-      GetNonStickyFlags + Flags;
-    Header.WizardSizePercentX := WizardSizePercentX;
-    Header.WizardSizePercentY := WizardSizePercentY;
+
+    const NonWizardFlags = Flags - GetWizardFlags;
+    const NonStickyNonWizardFlags = GetNonStickyFlags - GetWizardFlags;
+    var NewFlags := TUninstallLogFlags((@Header.Flags)^) - NonStickyNonWizardFlags + NonWizardFlags;
+
+    { Update wizard header flags and fields only if we are certain the
+      header does not contain any unknown flags or fields. This ensures that
+      either all wizard flags and fields are updated, or none at all, thus
+      avoiding any scenario where an invalid combination might occur. }
+    if Header.Version <= HighestSupportedHeaderVersion then begin
+      const WizardFlags = Flags * GetWizardFlags;
+      const NonStickyWizardFlags = GetNonStickyFlags * GetWizardFlags;
+      NewFlags := NewFlags - NonStickyWizardFlags + WizardFlags;
+      Header.WizardSizePercentX := WizardSizePercentX;
+      Header.WizardSizePercentY := WizardSizePercentY;
+    end;
+
+    TUninstallLogFlags((@Header.Flags)^) := NewFlags;
+
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1360,7 +1391,7 @@ begin
   BufLeft := 0;
 
   ReadUninstallLogHeader(F, Filename, Header, InstallMode64Bit);
-  if Header.Version > HighestSupportedVersion then
+  if Header.Version > HighestSupportedHeaderVersion then
     raise Exception.Create(FmtSetupMessage1(msgUninstallUnsupportedVer, Filename));
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);

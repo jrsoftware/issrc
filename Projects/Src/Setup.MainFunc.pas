@@ -3327,7 +3327,7 @@ begin
           it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
           also use ZIRCON. To test Uninstall styling use a real Setup compiled by the
           compiler. }
-  var WantWizardImagesDynamicDark := False;
+        var WantWizardImagesDynamicDark := False;
         IsWinDark := DarkModeActive;
         if not HighContrastActive and not InitNoStyle then begin
           const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
@@ -3359,11 +3359,8 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
-            if not IsDarkInstallMode then begin
-              TRichEditViewer.DontStyleFont := True; { Keep foreground colors }
-              if (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-                TNewButton.DontStyle := True; { Keep native buttons (including command links) }
-            end;
+            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+              TNewButton.DontStyle := True; { Keep native buttons (including command links) }
           end;
         end;
 

@@ -2221,28 +2221,21 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 </param>
 
 <param name="LicenseFile">
-<p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
+<p>Specifies the name of an optional license agreement file, overriding the <link topic="setup_licensefile">LicenseFile</link> [Setup] section directive.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoBeforeFile">
-<p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <link topic="setup_infobeforefile">InfoBeforeFile</link> [Setup] section directive.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoAfterFile">
-<p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If a .rtf file is used and Setup runs with a <link topic="setup_wizardstyle">dark style</link>, any foreground colors are dropped to ensure readability.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <link topic="setup_infoafterfile">InfoAfterFile</link> [Setup] section directive.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
@@ -5422,7 +5415,11 @@ DiskSliceSize=736000000
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If using a .rtf file with custom colors, be mindful of contrast ratios, especially if supporting a <link topic="setup_wizardstyle">dark style</link>. Aim for at least an AA pass for normal text, using a <extlink href="https://webaim.org/resources/contrastchecker">contrast checker</extlink>. Example colors that pass on both light and dark backgrounds include: red #eb0000, green #008a00, and blue #6161ff.</p>
 <example><pre>LicenseFile=license.txt</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_infobeforefile">InfoBeforeFile</link><br/>
+<link topic="setup_infoafterfile">InfoAfterFile</link></p>
 </body>
 </setuptopic>
 
@@ -5431,7 +5428,11 @@ DiskSliceSize=736000000
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
 <example><pre>InfoBeforeFile=infobefore.txt</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_infoafterfile">InfoAfterFile</link><br/>
+<link topic="setup_licensefile">LicenseFile</link></p>
 </body>
 </setuptopic>
 
@@ -5441,7 +5442,11 @@ DiskSliceSize=736000000
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
 <example><pre>InfoAfterFile=infoafter.txt</pre></example>
+<p><b>See also:</b><br/>
+<link topic="setup_infobeforefile">InfoBeforeFile</link><br/>
+<link topic="setup_licensefile">LicenseFile</link></p>
 </body>
 </setuptopic>
 
