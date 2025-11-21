@@ -705,8 +705,8 @@ begin
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
   InitNoStyle := GetIniBool(Section, 'NoStyle', InitNoStyle, FileName);
-  InitRedirectionGuard := GetIniBool(Section, 'InitRedirectionGuard', InitRedirectionGuard, FileName);
-  InitNoRedirectionGuard := GetIniBool(Section, 'InitNoRedirectionGuard', InitNoRedirectionGuard, FileName);
+  InitRedirectionGuard := GetIniBool(Section, 'RedirectionGuard', InitRedirectionGuard, FileName);
+  InitNoRedirectionGuard := GetIniBool(Section, 'NoRedirectionGuard', InitNoRedirectionGuard, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
