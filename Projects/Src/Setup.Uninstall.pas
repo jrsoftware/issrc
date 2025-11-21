@@ -551,6 +551,14 @@ begin
     UninstLog := TExtUninstallLog.Create;
     UninstLog.Load(UninstDataFile, UninstDataFilename);
 
+    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
+    if ufWizardBorderStyled in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardBorderStyled);
+    if ufWizardKeepAspectRatio in UninstLog.Flags then
+      Include(SetupHeader.Options, shWizardKeepAspectRatio);
+    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
+    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
+
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
     if not HighContrastActive and not InitNoStyle then begin
@@ -576,14 +584,6 @@ begin
           TNewButton.DontStyle := True;
       end;
     end;
-
-    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
-    if ufWizardBorderStyled in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardBorderStyled);
-    if ufWizardKeepAspectRatio in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardKeepAspectRatio);
-    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
-    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 

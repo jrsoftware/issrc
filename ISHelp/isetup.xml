@@ -105,7 +105,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.6.1-dev</b><br/>
+<b>Inno Setup version 6.6.1</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -1791,9 +1791,16 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noencryption">
 <p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>) but want to be able to extract the file using the [Code] section support function <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> before the user has entered the correct password.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
+</flag>
+<flag name="notimestamp">
+<p>Prevents the file from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</p>
+<p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>touch</tt> flags.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noregerror">
 <p>When combined with either the <tt>regserver</tt> or <tt>regtypelib</tt> flags, Setup will not display any error message if the registration fails.</p>

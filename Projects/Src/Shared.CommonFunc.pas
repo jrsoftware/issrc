@@ -46,6 +46,11 @@ type
     class function GenerateUInt64: UInt64; static;
   end;
 
+  TFileTimeHelper = record helper for TFileTime
+    procedure Clear;
+    function HasTime: Boolean;
+  end;
+
   TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
   TOutputMode = (omLog, omCapture);
 
@@ -1824,6 +1829,22 @@ begin
     function pointer visible to other threads }
   MemoryBarrier;
   FBCryptGenRandomFunc := P;
+end;
+
+{ TFileTimeHelper }
+
+procedure TFileTimeHelper.Clear;
+begin
+  { SetFileTime regards a pointer to a FILETIME structure with both members
+    set to 0 the same as a NULL pointer and we make use of that. Note that
+    7-Zip may return a value with both members set to 0 as well. }
+  dwLowDateTime := 0;
+  dwHighDateTime := 0;
+end;
+
+function TFileTimeHelper.HasTime: Boolean;
+begin
+  Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
 
 { TCreateProcessOutputReader }

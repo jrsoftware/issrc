@@ -45,11 +45,13 @@ begin
       FileExtractor.DecompressFile(CurFileLocation^, DestF, nil,
         not (foDontVerifyChecksum in CurFile^.Options));
 
-      if floTimeStampInUTC in CurFileLocation^.Flags then
-        CurFileDate := CurFileLocation^.TimeStamp
-      else
-        LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
-      SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
+      if CurFileLocation^.TimeStamp.HasTime then begin
+        if floTimeStampInUTC in CurFileLocation^.Flags then
+          CurFileDate := CurFileLocation^.TimeStamp
+        else
+          LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+        SetFileTime(DestF.Handle, nil, nil, @CurFileDate);
+      end;
     finally
       DestF.Free;
     end;

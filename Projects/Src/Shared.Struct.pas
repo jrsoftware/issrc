@@ -17,7 +17,7 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.6.1-dev';
+  SetupVersion = '6.6.1';
   SetupBinVersion = (6 shl 24) + (6 shl 16) + (1 shl 8) + 0;
 
 type
@@ -409,8 +409,13 @@ type
     TableCRC: Int32;                { CRC of all prior fields in this record }
   end;
 
-  { TMessagesLangOptions is a simplified version of TSetupLanguageEntry that
-    is used by the uninstaller and RegSvr }
+  { TMessagesLangOptions contains options used by the uninstaller and RegSvr,
+    which are set exclusively by the latest installer, without being affected
+    by any previously installed version. As a result, it is neither backward
+    nor forward compatible, unlike TUninstallLogHeader. Be sure to update
+    MessagesLangOptionsID whenever you make changes to this record. It is
+    named TMessagesLangOptions because it is stored in the Setup.msg file,
+    not because all options must be language-specific. }
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
     DialogFontName: array[0..31] of Char;
