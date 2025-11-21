@@ -401,7 +401,6 @@ var
     cchFilePath: DWORD; dwFlags: DWORD): DWORD; stdcall;
   Attr, FlagsAndAttributes: DWORD;
   H: THandle;
-  Res: Integer;
   Buf: array[0..4095] of Char;
 begin
   GetFinalPathNameByHandleFunc := GetProcAddress(GetModuleHandle(kernel32),
@@ -418,7 +417,7 @@ begin
       H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE or
         FILE_SHARE_DELETE, nil, OPEN_EXISTING, FlagsAndAttributes, 0);
       if H <> INVALID_HANDLE_VALUE then begin
-        Res := GetFinalPathNameByHandleFunc(H, Buf, SizeOf(Buf) div SizeOf(Buf[0]), 0);
+        const Res = GetFinalPathNameByHandleFunc(H, Buf, SizeOf(Buf) div SizeOf(Buf[0]), 0);
         CloseHandle(H);
         if (Res > 0) and (Res < (SizeOf(Buf) div SizeOf(Buf[0])) - 16) then begin
           { ShellExecuteEx fails with error 3 on \\?\UNC\ paths, so try to
