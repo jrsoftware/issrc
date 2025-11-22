@@ -68,7 +68,7 @@ AboutSetupMenuItem=&Acerca de...
 AboutSetupTitle=Acerca do Assistente de Instalação
 AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
 AboutSetupNote=
-TranslatorNote=Original PT-PT translation by NARS. Revised and fully updated to AO90 by BlackSpirits
+TranslatorNote=Portuguese (Portugal) translation by Nuno Silva (nars@gmx.net) and BlackSpirits
 
 ; *** Buttons
 ButtonBack=< &Anterior
@@ -390,3 +390,4 @@ AssocingFileExtension=A associar o %1 aos ficheiros com a extensão %2...
 AutoStartProgramGroupDescription=Inicialização Automática:
 AutoStartProgram=Iniciar %1 automaticamente
 AddonHostProgramNotFound=Não foi possível localizar %1 na pasta selecionada.%n%nDeseja continuar de qualquer forma?
+
