@@ -2822,6 +2822,8 @@ begin
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
+      if RedirectionGuardEnabled then
+        Include(UninstLog.Flags, ufRedirectionGuard);
       UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
       UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
       UninstLog.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }

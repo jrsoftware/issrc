@@ -313,6 +313,10 @@ begin
       NoRestart := True
     else if SameText(ParamName, '/NoStyle') then
       InitNoStyle := True
+    else if SameText(ParamName, '/RedirectionGuard') then
+      InitRedirectionGuard := True
+    else if SameText(ParamName, '/NoRedirectionGuard') then
+      InitNoRedirectionGuard := True
     else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
     else if SameText(ParamName, '/DEBUGWND=') then begin
@@ -633,6 +637,10 @@ begin
     end
     else
       Initialize64BitInstallMode(False);
+
+    const EnableRedirectionGuard = InitRedirectionGuard or
+      ((ufRedirectionGuard in UninstLog.Flags) and not InitNoRedirectionGuard);
+    RedirectionGuardConfigure(EnableRedirectionGuard);
 
     DeleteResidualTempUninstallDirs;
 
