@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedHeaderVersion = 1048;
+  HighestSupportedHeaderVersion = 1054;
   { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
     must be incremented, even if the change seems backward compatible (such as
     adding a new flag, or using one of the Reserved slots). When this happens, the
@@ -116,11 +116,13 @@ type
   TDeleteUninstallDataFilesProc = procedure;
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
-    ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
-    ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio,
-    ufRedirectionGuard);
+    ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
+    ufPowerUserInstalled, ufAdminInstallMode,
+    ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5
+    { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
+        ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
+        ufWizardLightButtonsUnstyled, and ufWizardKeepAspectRatio }
+    { add next new flag here, replacing this comment (but not the one above) } );
 
   TUninstallLog = class
   private
@@ -189,7 +191,7 @@ type
     Version, NumRecs: Integer;
     EndOffset: UInt32;
     Flags: Integer;
-    WizardSizePercentX, WizardSizePercentY: Integer;
+    DoNotUse0, DoNotUse1: Integer; { cannot be used again, were used for WizardSizePercentX and WizardSizePercentY }
     Reserved: array[0..24] of Integer;  { reserved for future use }
     CRC: Longint;
   end;
@@ -1230,17 +1232,6 @@ var
     end;
   end;
 
-  function GetWizardFlags: TUninstallLogFlags;
-  begin
-    Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-      ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
-  end;
-
-  function GetNonStickyFlags: TUninstallLogFlags;
-  begin
-    Result := GetWizardFlags + [ufRedirectionGuard];
-  end;
-
 var
   Header: TUninstallLogHeader;
   FileRec: TUninstallFileRec;
@@ -1291,25 +1282,7 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-
-    const NonWizardFlags = Flags - GetWizardFlags;
-    const NonStickyNonWizardFlags = GetNonStickyFlags - GetWizardFlags;
-    var NewFlags := TUninstallLogFlags((@Header.Flags)^) - NonStickyNonWizardFlags + NonWizardFlags;
-
-    { Update wizard header flags and fields only if we are certain the
-      header does not contain any unknown flags or fields. This ensures that
-      either all wizard flags and fields are updated, or none at all, thus
-      avoiding any scenario where an invalid combination might occur. }
-    if Header.Version <= HighestSupportedHeaderVersion then begin
-      const WizardFlags = Flags * GetWizardFlags;
-      const NonStickyWizardFlags = GetNonStickyFlags * GetWizardFlags;
-      NewFlags := NewFlags - NonStickyWizardFlags + WizardFlags;
-      Header.WizardSizePercentX := WizardSizePercentX;
-      Header.WizardSizePercentY := WizardSizePercentY;
-    end;
-
-    TUninstallLogFlags((@Header.Flags)^) := NewFlags;
-
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1402,8 +1375,6 @@ begin
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);
   Flags := TUninstallLogFlags((@Header.Flags)^);
-  WizardSizePercentX := Header.WizardSizePercentX;
-  WizardSizePercentY := Header.WizardSizePercentY;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));

@@ -55,7 +55,8 @@ procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
   const KeyName: String; const ErrorCode: Longint);
-procedure WriteMsgData(const F: TFile);
+procedure WriteMsgData(const F: TFile; const WizardSizePercentX, WizardSizePercentY: Integer;
+  const ExtraFlags: TMessagesLangOptionsFlags);
 procedure MarkExeHeader(const F: TFile; const ModeID: Longint);
 procedure ProcessInstallDeleteEntries;
 procedure ProcessNeedRestartEvent;
@@ -422,13 +423,17 @@ begin
       [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 end;
 
-procedure WriteMsgData(const F: TFile);
+procedure WriteMsgData(const F: TFile; const WizardSizePercentX, WizardSizePercentY: Integer;
+  const ExtraFlags: TMessagesLangOptionsFlags);
 var
   MsgLangOpts: TMessagesLangOptions;
   LangEntry: PSetupLanguageEntry;
 begin
   FillChar(MsgLangOpts, SizeOf(MsgLangOpts), 0);
   MsgLangOpts.ID := MessagesLangOptionsID;
+
+  { TMessagesLangOptions fields and flags from LangOptions - together these are a simplified
+    version of TSetupLanguageEntry }
   StrPLCopy(MsgLangOpts.DialogFontName, LangOptions.DialogFontName,
     (SizeOf(MsgLangOpts.DialogFontName) div SizeOf(MsgLangOpts.DialogFontName[0])) - 1);
   MsgLangOpts.DialogFontSize := LangOptions.DialogFontSize;
@@ -436,6 +441,12 @@ begin
   MsgLangOpts.DialogFontBaseScaleHeight := LangOptions.DialogFontBaseScaleHeight;
   if LangOptions.RightToLeft then
     Include(MsgLangOpts.Flags, lfRightToLeft);
+
+  { Other TMessagesLangOptions fields and flags }
+  MsgLangOpts.WizardSizePercentX := WizardSizePercentX;
+  MsgLangOpts.WizardSizePercentY := WizardSizePercentY;
+  MsgLangOpts.Flags := MsgLangOpts.Flags + ExtraFlags;
+
   LangEntry := Entries[seLanguage][ActiveLanguage];
   F.WriteBuffer(LangEntry.Data[1], Length(LangEntry.Data));
   F.WriteBuffer(MsgLangOpts, SizeOf(MsgLangOpts));
