@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.22';
+  Version = '1.23';
 
   XMLFileVersion = '1';
 
