@@ -83,6 +83,7 @@ begin
   RegisterType('TArrayOfChar', 'array of Char');
   RegisterType('TArrayOfBoolean', 'array of Boolean');
   RegisterType('TArrayOfInteger', 'array of Integer');
+  RegisterType('TArrayOfGraphic', 'array of TGraphic');
 
   RegisterType('DWORD', 'LongWord');
   RegisterType('UINT', 'LongWord');

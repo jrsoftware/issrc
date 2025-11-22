@@ -126,20 +126,6 @@ end;</pre></example>
 end;</pre></example>
       </function>
       <function>
-        <name>WizardSelectComponents</name>
-        <prototype>procedure WizardSelectComponents(const Components: String);</prototype>
-        <description><p>Selects the specified comma separated list of component names.</p>
-<p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
-<p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
-</description>
-        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
-<link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
-        <example><pre>begin
-  WizardSelectComponents('!helpfiles');
-  // the 'helpfiles' component is deselected
-end;</pre></example>
-      </function>
-      <function>
         <name>WizardSelectedTasks</name>
         <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
@@ -155,20 +141,6 @@ end;</pre></example>
         <example><pre>begin
   if WizardIsTaskSelected('desktopicon') then
     // the 'desktopicon' task is selected
-end;</pre></example>
-      </function>
-      <function>
-        <name>WizardSelectTasks</name>
-        <prototype>procedure WizardSelectTasks(const Tasks: String);</prototype>
-        <description><p>Selects the specified comma separated list of task names.</p>
-<p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
-<p>This function does not change the state of unspecified tasks.</p>
-</description>
-        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
-<link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
-        <example><pre>begin
-  WizardSelectTasks('!desktopicon');
-  // the 'desktopicon' task is deselected
 end;</pre></example>
       </function>
       <function>
@@ -267,6 +239,83 @@ end;</pre></example>
         <prototype>function GetUninstallProgressForm: TUninstallProgressForm;</prototype>
         <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
         <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
+      </function>
+    </subcategory>
+  </category>
+  <category>
+    <description>Wizard Update</description>
+    <subcategory>
+      <function>
+        <name>WizardSelectComponents</name>
+        <prototype>procedure WizardSelectComponents(const Components: String);</prototype>
+        <description><p>Selects the specified comma separated list of component names.</p>
+<p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
+<p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
+<link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectComponents('!helpfiles');
+  // the 'helpfiles' component is deselected
+end;</pre></example>
+      </function>
+      <function>
+        <name>WizardSelectTasks</name>
+        <prototype>procedure WizardSelectTasks(const Tasks: String);</prototype>
+        <description><p>Selects the specified comma separated list of task names.</p>
+<p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
+<p>This function does not change the state of unspecified tasks.</p>
+</description>
+        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
+<link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+        <example><pre>begin
+  WizardSelectTasks('!desktopicon');
+  // the 'desktopicon' task is deselected
+end;</pre></example>
+      </function>
+      <function>
+        <name>WizardSetBackImage</name>
+        <prototype>procedure WizardSetBackImage(const BackImages: TArrayOfGraphic; const Stretch, Center: Boolean; const Opacity: Byte);</prototype>
+          <description><p>Sets a wizard background image. If multiple images are specified, the best-fitting one will be selected. If no images are specified, any existing background image will be cleared.</p>
+<p>If <tt>Stretch</tt> is <tt>True</tt>, the image will be stretched or shrunk if the image is larger or smaller than required. If <tt>Stretch</tt> is <tt>False</tt> and <tt>Center</tt> is <tt>True</tt>, the image will be centered in the wizard window if it is smaller than required, and clipped if it is larger than required. Otherwise, the image will be positioned in the upper-left corner in its original size.</p>
+<p>See <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> for information about the recommended image size(s).</p>
+<p></p><p><tt>Opacity</tt> specifies the opacity of the image, from <tt>0</tt> (fully transparent) to <tt>255</tt> (fully opaque, so non-transparent).</p>
+<p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <link topic="setup_wizardbackcolor">WizardBackColor</link>, <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>, <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, or <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
+</description>
+        <example><pre>[Setup]
+WizardStyle=modern dynamic
+WizardBackColor=#f3f3f3
+WizardBackColorDynamicDark=#202020
+
+[Files]
+Source: MyImageNormal.png; Flags: dontcopy
+Source: MyImageLarge.png; Flags: dontcopy
+
+[Code]
+&lt;event('CurStepChanged')&gt;
+procedure CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
+var
+  PngImages: TArrayOfGraphic; 
+begin
+  if CurStep = ssInstall then begin
+    SetLength(PngImages, 2);
+    PngImages[0] := TPngImage.Create;
+    PngImages[1] := TPngImage.Create;
+    try
+      ExtractTemporaryFile('MyImageNormal.png');
+      PngImages[0].LoadFromFile(ExpandConstant('{tmp}\MyImageNormal.png'));
+      ExtractTemporaryFile('MyImageLarge.png');
+      PngImages[1].LoadFromFile(ExpandConstant('{tmp}\MyImageLarge.png'));
+      WizardSetBackImage(PngImages, True, True, 150);
+    finally
+      PngImages[1].Free;
+      PngImages[0].Free;
+    end;
+  end else if CurStep = ssPostInstall then
+     WizardSetBackImage([], True, True, 150);
+end;
+
+; See CodeClasses.iss for another example.</pre></example>
       </function>
     </subcategory>
   </category>
