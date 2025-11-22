@@ -119,7 +119,8 @@ type
     ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
     ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio);
+    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio,
+    ufRedirectionGuard);
 
   TUninstallLog = class
   private
@@ -1237,7 +1238,7 @@ var
 
   function GetNonStickyFlags: TUninstallLogFlags;
   begin
-    Result := GetWizardFlags;
+    Result := GetWizardFlags + [ufRedirectionGuard];
   end;
 
 var

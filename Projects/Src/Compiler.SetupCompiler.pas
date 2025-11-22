@@ -3086,6 +3086,9 @@ begin
     ssPrivilegesRequiredOverridesAllowed: begin
         SetupHeader.PrivilegesRequiredOverridesAllowed := StrToPrivilegesRequiredOverrides(Value);
       end;
+    ssRedirectionGuard: begin
+        SetSetupHeaderOption(shRedirectionGuard);
+      end;
     ssReserveBytes: begin
         Val(Value, ReserveBytes, I);
         if (I <> 0) or (ReserveBytes < 0) then
@@ -7953,7 +7956,7 @@ begin
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
       shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
-      shUsePreviousPrivileges, shWizardKeepAspectRatio];
+      shUsePreviousPrivileges, shWizardKeepAspectRatio, shRedirectionGuard];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';
