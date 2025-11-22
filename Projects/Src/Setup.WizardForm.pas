@@ -14,9 +14,10 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,
-  Setup.SetupForm, Shared.Struct, NewCheckListBox, RichEditViewer, NewStaticText,
-  NewProgressBar, Shared.SetupMessageIDs, PasswordEdit, FolderTreeView, BitmapImage,
-  NewNotebook, BidiCtrls;
+  NewProgressBar, NewCheckListBox, RichEditViewer, NewStaticText,
+  PasswordEdit, FolderTreeView, BitmapImage, NewNotebook, BidiCtrls,
+  Shared.Struct, Shared.SetupMessageIDs,
+  Setup.SetupForm, Setup.MainFunc;
 
 type
   TWizardForm = class;
@@ -175,7 +176,6 @@ type
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
   private
-    { Private declarations }
     FPageList: TList;
     FCurPageID, FNextPageID: Integer;
     ExpandedDefaultDirName, ExpandedDefaultGroupName: String;
@@ -215,7 +215,6 @@ type
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMWindowPosChanging(var Message: TWMWindowPosChanging); message WM_WINDOWPOSCHANGING;
   public
-    { Public declarations }
     PrepareToInstallFailureMessage: String;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -239,6 +238,7 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
+    procedure SetBackImage(const BackImages: TWizardImages; const Center, Stretch: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -344,7 +344,7 @@ implementation
 uses
   ShellApi, ShlObj, Types, Generics.Collections, Themes,
   PathFunc, RestartManager, SHA256, FormBackgroundStyleHook,
-  SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
+  SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
   Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.DownloadFileFunc;
@@ -737,31 +737,30 @@ end;
 
 { TWizardForm }
 
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
+var
+  TargetArea, Difference, SmallestDifference, I: Integer;
+begin
+  if WizardImages.Count <> 1 then begin
+    { Find the image with the smallest area difference compared to the target area. }
+    TargetArea := TargetWidth*TargetHeight;
+    SmallestDifference := -1;
+    Result := nil;
+    for I := 0 to WizardImages.Count-1 do begin
+      Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
+      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+        Result := WizardImages[I];
+        SmallestDifference := Difference;
+      end;
+    end;
+  end else
+    Result := WizardImages[0];
+end;
+
 constructor TWizardForm.Create(AOwner: TComponent);
 { Do all initialization of the wizard form. We're overriding Create instead of
   using the FormCreate event, because if an exception is raised in FormCreate
   it's not propagated out. }
-
-  function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
-  var
-    TargetArea, Difference, SmallestDifference, I: Integer;
-  begin
-    if WizardImages.Count <> 1 then begin
-      { Find the image with the smallest area difference compared to the target area. }
-      TargetArea := TargetWidth*TargetHeight;
-      SmallestDifference := -1;
-      Result := nil;
-      for I := 0 to WizardImages.Count-1 do begin
-        Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
-        if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-          Result := WizardImages[I];
-          SmallestDifference := Difference;
-        end;
-      end;
-    end else
-      Result := WizardImages[0];
-  end;
-
 var
   X, W1, W2: Integer;
   SystemMenu: HMENU;
@@ -927,15 +926,8 @@ begin
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
-  if CustomWizardBackground then begin
-    const Graphic = SelectBestImage(WizardBackImages, ClientWidth, ClientHeight);
-    TFormBackgroundStyleHook.Graphic := Graphic;
-    TFormBackgroundStyleHook.GraphicTarget := Self;
-    TFormBackgroundStyleHook.Center := True;
-    TFormBackgroundStyleHook.Opacity := SetupHeader.WizardBackImageOpacity;
-    TFormBackgroundStyleHook.Stretch := (shWizardImageStretch in SetupHeader.Options);
-    TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
-  end;
+  if CustomWizardBackground then
+    SetBackImage(WizardBackImages, True, shWizardImageStretch in SetupHeader.Options, SetupHeader.WizardBackImageOpacity, False);
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, SelectDirOrGroupSizes); {don't localize}
@@ -2355,6 +2347,22 @@ begin
   else
     Flags := MF_GRAYED;
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
+end;
+
+procedure TWizardForm.SetBackImage(const BackImages: TWizardImages; const Center, Stretch: Boolean;
+  const Opacity: Byte; const Redraw: Boolean);
+begin
+  if not CustomWizardBackground then
+    InternalError('Cannot set a background image at this time: custom wizard background not active');
+  const Graphic = SelectBestImage(BackImages, ClientWidth, ClientHeight);
+  TFormBackgroundStyleHook.Graphic := Graphic;
+  TFormBackgroundStyleHook.GraphicTarget := Self;
+  TFormBackgroundStyleHook.Center := Center;
+  TFormBackgroundStyleHook.Opacity := Opacity;
+  TFormBackgroundStyleHook.Stretch := Stretch;
+  TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
+  if Redraw and HandleAllocated then
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_ALLCHILDREN);
 end;
 
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);

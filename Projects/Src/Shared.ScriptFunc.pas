@@ -515,6 +515,7 @@ initialization
     'function WizardSelectedTasks(const Descriptions: Boolean): String;',
     'procedure WizardSelectComponents(const Components: String);',
     'procedure WizardSelectTasks(const Tasks: String);',
+    'procedure WizardSetBackImage(const BackImages: TArrayOfGraphic; const Center, Stretch: Boolean; const Opacity: Byte);',
     'function WizardSilent: Boolean;',
     'function IsUninstaller: Boolean;',
     'function UninstallSilent: Boolean;',
