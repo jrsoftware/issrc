@@ -238,7 +238,7 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
-    procedure SetBackImage(const BackImages: TWizardImages; const Center, Stretch: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
+    procedure SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -2349,7 +2349,7 @@ begin
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
 end;
 
-procedure TWizardForm.SetBackImage(const BackImages: TWizardImages; const Center, Stretch: Boolean;
+procedure TWizardForm.SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean;
   const Opacity: Byte; const Redraw: Boolean);
 begin
   if not CustomWizardBackground then
@@ -2357,12 +2357,12 @@ begin
   const Graphic = SelectBestImage(BackImages, ClientWidth, ClientHeight);
   TFormBackgroundStyleHook.Graphic := Graphic;
   TFormBackgroundStyleHook.GraphicTarget := Self;
+  TFormBackgroundStyleHook.Stretch := Stretch;
   TFormBackgroundStyleHook.Center := Center;
   TFormBackgroundStyleHook.Opacity := Opacity;
-  TFormBackgroundStyleHook.Stretch := Stretch;
   TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
   if Redraw and HandleAllocated then
-    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_ALLCHILDREN);
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_UPDATENOW or RDW_ALLCHILDREN);
 end;
 
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);

@@ -495,8 +495,8 @@ const
     'TMsgBoxType', 'TSetupMessageID', 'TSetupStep', 'TUninstallStep',
     'TSetupProcessorArchitecture', 'TDotNetVersion',
     { ScriptFunc's non real enums and other types - also see PascalEnumValues below }
-    'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'DWORD',
-    'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
+    'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'TArrayOfGraphic',
+    'DWORD', 'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
     'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog'
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }
