@@ -47,14 +47,15 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
 <span class="head2">Custom wizard background colors and images</span>
-<p>Setup now allows you to specify a custom background color and optionally also a background image. This supports blending the color and images with each other, and optionally supports using a separate background color and image if dark mode is active.</p>
+<p>Setup now allows you to specify a custom background color and optionally also a background image. This supports blending the color and image with each other, and optionally supports using a separate background color and image if dark mode is active.</p>
 <p>Custom background colors are also supported by Uninstall.</p>
 <p>These changes are backward compatible: if you do not set any of the new directives, then your installers and uninstallers will look the same as before.</p>
 <ul>
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackColor</tt> and <tt>WizardBackColorDynamicDark</tt> to specify custom background colors to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</li>
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
       Supports specifying multiple files for high-quality results on all DPI settings.</li>
-  <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard. Alternatively, set <tt>WizardImageOpacity</tt> to blend these images with the background image (or color). Note: <tt>WizardImageOpacity</tt> also supports setting opacity of the built-in wizard images.</li>
+  <li><tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt> can now be set to blank values when you want the background image (or color) to stand on its own. Doing so does not change the layout of the wizard.<br/>
+      Alternatively, set <tt>WizardImageOpacity</tt> to blend these images with the background image (or color). Can be used with the built-in wizard images as well.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>WizardBackImageOpacity</tt> to specify the opacity (non-transparency) of the background image.<br/>
       This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image.</li>
   <li>Examples:
