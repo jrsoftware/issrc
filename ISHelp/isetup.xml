@@ -5898,7 +5898,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the default, the wizard images (including the background image) will be stretched or shrunk if the images are larger or smaller than required.</p>
-<p>If set to <tt>no</tt>, the wizard images (including the background image) will be centered in their respective areas if the images are larger than required, and clipped if the images are smaller than required.</p>
+<p>If set to <tt>no</tt>, the wizard images (including the background image) will be centered in their respective areas if the images are smaller than required, and clipped if the images are larger than required.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
 <link topic="setup_wizardimagefile">WizardImageFile</link><br/>
