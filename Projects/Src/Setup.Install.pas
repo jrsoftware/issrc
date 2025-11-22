@@ -485,6 +485,25 @@ begin
     end;
 end;
 
+function GetMsgDataExtraFlags: TMessagesLangOptionsFlags;
+begin
+  Result := [];
+  if shWizardModern in SetupHeader.Options then
+    Include(Result, lfWizardModern);
+  if shWizardBorderStyled in SetupHeader.Options then
+    Include(Result, lfWizardBorderStyled);
+  if shWizardLightButtonsUnstyled in SetupHeader.Options then
+    Include(Result, lfWizardLightButtonsUnstyled);
+  if shWizardKeepAspectRatio in SetupHeader.Options then
+    Include(Result, lfWizardKeepAspectRatio);
+  if SetupHeader.WizardDarkStyle = wdsDark then
+    Include(Result, lfWizardDarkStyleDark)
+  else if SetupHeader.WizardDarkStyle = wdsDynamic then
+    Include(Result, lfWizardDarkStyleDynamic);
+  if RedirectionGuardEnabled then
+    Include(Result, lfRedirectionGuard);
+end;
+
 procedure BindUninstallMsgDataToExe(const ExpandedAppId: String; const F: TFile);
 var
   UniqueValue: TSHA256Digest;
@@ -502,7 +521,7 @@ begin
 
   UninstallerMsgTail.ID := UninstallerMsgTailID;
   UninstallerMsgTail.Offset := F.Position;
-  WriteMsgData(F);
+  WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
   F.WriteBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
 end;
 
@@ -2346,7 +2365,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     begin
       F := TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
       try
-        WriteMsgData(F);
+        WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
       finally
         F.Free;
       end;
@@ -2754,7 +2773,7 @@ begin
     try
       if UninstallExeCreated = ueNew then
         Result := True;
-      WriteMsgData(F);
+      WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
     finally
       F.Free;
     end;
@@ -2806,26 +2825,10 @@ begin
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      if shWizardModern in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardModern);
-      if shWizardBorderStyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardBorderStyled);
-      if shWizardLightButtonsUnstyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardLightButtonsUnstyled);
-      if shWizardKeepAspectRatio in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardKeepAspectRatio);
-      if SetupHeader.WizardDarkStyle = wdsDark then
-        Include(UninstLog.Flags, ufWizardDarkStyleDark)
-      else if SetupHeader.WizardDarkStyle = wdsDynamic then
-        Include(UninstLog.Flags, ufWizardDarkStyleDynamic);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
-      if RedirectionGuardEnabled then
-        Include(UninstLog.Flags, ufRedirectionGuard);
-      UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
-      UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

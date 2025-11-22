@@ -37,7 +37,7 @@ const
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
-  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!002';
+  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!003';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idskb32'#26;
 type
@@ -416,11 +416,16 @@ type
     MessagesLangOptionsID whenever you make changes to this record. It is
     named TMessagesLangOptions because it is stored in the Setup.msg file,
     not because all options must be language-specific. }
+  TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
+    lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
+    lfWizardKeepAspectRatio, lfRedirectionGuard);
+  TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
     DialogFontName: array[0..31] of Char;
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
-    Flags: set of (lfRightToLeft);
+    WizardSizePercentX, WizardSizePercentY: Integer;
+    Flags: TMessagesLangOptionsFlags;
   end;
 
   TUninstallerMsgTail = packed record
