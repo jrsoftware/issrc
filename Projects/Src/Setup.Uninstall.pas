@@ -611,7 +611,7 @@ begin
     UninstDataFile := OpenUninstDataFile(faReadWrite);
 
     if not UninstLog.ExtractLatestRecData(utCompiledCode,
-         SetupBinVersion or Longint($80000000), CompiledCodeData) then
+         SetupBinVersion or Integer($80000000), CompiledCodeData) then
       InternalError('Cannot find utCompiledCode record for this version of the uninstaller');
     if DebugServerWnd <> 0 then
       CompiledCodeText := DebugClientCompiledCodeText
