@@ -276,7 +276,7 @@ end;</pre></example>
       <function>
         <name>WizardSetBackImage</name>
         <prototype>procedure WizardSetBackImage(const BackImages: TArrayOfGraphic; const Stretch, Center: Boolean; const Opacity: Byte);</prototype>
-          <description><p>Sets a wizard background image. If multiple images are specified, the best-fitting one will be selected. If no images are specified, any existing background image will be cleared.</p>
+          <description><p>Sets a wizard background image. If multiple images are specified, the best-fitting one will be selected. If no images are specified, any existing background image is cleared and the other function parameters are ignored.</p>
 <p>If <tt>Stretch</tt> is <tt>True</tt>, the image will be stretched or shrunk if the image is larger or smaller than required. If <tt>Stretch</tt> is <tt>False</tt> and <tt>Center</tt> is <tt>True</tt>, the image will be centered in the wizard window if it is smaller than required, and clipped if it is larger than required. Otherwise, the image will be positioned in the upper-left corner in its original size.</p>
 <p>See <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> for information about the recommended image size(s).</p>
 <p></p><p><tt>Opacity</tt> specifies the opacity of the image, from <tt>0</tt> (fully transparent) to <tt>255</tt> (fully opaque, so non-transparent).</p>
