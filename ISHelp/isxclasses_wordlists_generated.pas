@@ -76,6 +76,12 @@ var
   ];
 
   PascalMembers_Isxclasses: TScriptTable = [
+    'constructor Create(AHandle: Integer);',
+    'constructor Create(AOwner: TComponent);',
+    'constructor Create(AString: String);',
+    'constructor Create(Filename: String; Mode: Word);',
+    'constructor Create;',
+    'constructor CreateNew(AOwner: TComponent);',
     'function Add(ACaption: String): Integer;',
     'function Add(APrompt, AFilter, ADefaultExtension: String): Integer;',
     'function Add(APrompt: String): Integer;',
