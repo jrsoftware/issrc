@@ -82,7 +82,7 @@ ErrorTooManyFilesInDir=Datoteku nije moguće stvoriti u mapi "%1", jer mapa sadr
 
 ; *** Setup common messages
 ExitSetupTitle=Prekini instalaciju
-ExitSetupMessage=Instalacija nije završena. Ako sad izađeš, program se neće instalirti.%n%nInstalaciju možeš pokrenuti kasnije, ukoliko je želiš dovršiti.%n%nŽeliš prekinuti instalaciju?
+ExitSetupMessage=Instalacija nije završena. Ako sad izađeš, program se neće instalirati.%n%nInstalaciju možeš pokrenuti kasnije, ukoliko je želiš dovršiti.%n%nŽeliš prekinuti instalaciju?
 AboutSetupMenuItem=&O instalaciji …
 AboutSetupTitle=O instalaciji
 AboutSetupMessage=%1 verzija %2%n%3%n%n%1 web-stranica:%n%4
@@ -318,7 +318,7 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Zanemari grešku i nastavi (ne preporu
 SourceIsCorrupted=Izvorna datoteka je oštećena
 SourceDoesntExist=Izvorna datoteka "%1" ne postoji
 SourceVerificationFailed=Provjera izvorne datoteke nije uspjela: %1
-VerificationSignatureDoesntExist=Datoteka potpisa "%1" ne postiji
+VerificationSignatureDoesntExist=Datoteka potpisa "%1" ne postoji
 VerificationSignatureInvalid=Datoteka potpisa "%1" nije valjana
 VerificationKeyNotFound=Datoteka potpisa "%1" koristi nepoznati ključ
 VerificationFileNameIncorrect=Ime datoteke je neispravno
@@ -343,7 +343,7 @@ ErrorChangingAttr=Greška prilikom pokušaja promjene svojstva postojeće datote
 ErrorCreatingTemp=Greška prilikom pokušaja stvaranja datoteke u odredišnoj mapi:
 ErrorReadingSource=Greška prilikom pokušaja čitanja izvorišne datoteke:
 ErrorCopying=Greška prilikom pokušaja kopiranja datoteke:
-ErrorDownloading=Greška prilikom pruzimanja datoteke:
+ErrorDownloading=Greška prilikom preuzimanja datoteke:
 ErrorExtracting=Greška prilikom pokušaja raspakiravanja arhive:
 ErrorReplacingExistingFile=Greška prilikom pokušaja zamijenjivanja datoteke:
 ErrorRestartReplace=Zamijenjivanje nakon ponovnog pokretanja nije uspjelo:
