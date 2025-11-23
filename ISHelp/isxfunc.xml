@@ -312,7 +312,7 @@ begin
       PngImages[0].Free;
     end;
   end else if CurStep = ssPostInstall then
-     WizardSetBackImage([], True, True, 150);
+    WizardSetBackImage([], True, True, 150);
 end;
 
 ; See CodeClasses.iss for another example.</pre></example>

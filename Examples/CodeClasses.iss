@@ -293,7 +293,6 @@ begin
   ProgressBar[1].Height := ProgressBarLabel.Height + ScaleY(8);
   ProgressBar[1].Parent := Page.Surface;
   ProgressBar[1].Position := 50;
-  
   ProgressBar[1].State := npbsError;
 
   ProgressBar[2] := TNewProgressBar.Create(Page);
@@ -497,10 +496,10 @@ begin
     BackImages := [WizardForm.WizardSmallBitmapImage.Bitmap]
   else
     BackImages := [];
-   WizardSetBackImage(BackImages, True, True, 150);
-   WizardForm.WizardBitmapImage.Visible := not ShowBackImage;
-   WizardForm.WizardBitmapImage2.Visible := not ShowBackImage;
-   WizardForm.WizardSmallBitmapImage.Visible := not ShowBackImage;
+  WizardSetBackImage(BackImages, True, True, 150);
+  WizardForm.WizardBitmapImage.Visible := not ShowBackImage;
+  WizardForm.WizardBitmapImage2.Visible := not ShowBackImage;
+  WizardForm.WizardSmallBitmapImage.Visible := not ShowBackImage;
 end;
 
 procedure CreateBottomButtonsAndURLLabel(ParentForm: TSetupForm; CancelButton: TNewButton);
