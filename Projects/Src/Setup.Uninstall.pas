@@ -623,7 +623,7 @@ begin
       Initialize64BitInstallMode(False);
 
     const EnableRedirectionGuard = InitRedirectionGuard or
-      ((lfRedirectionGuard in MessagesLangOptions.Flags) and not InitNoRedirectionGuard);
+      ((ufRedirectionGuard in UninstLog.Flags) and not InitNoRedirectionGuard);
     RedirectionGuardConfigure(EnableRedirectionGuard);
 
     DeleteResidualTempUninstallDirs;

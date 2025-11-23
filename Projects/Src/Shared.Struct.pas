@@ -409,8 +409,8 @@ type
     TableCRC: Int32;                { CRC of all prior fields in this record }
   end;
 
-  { TMessagesLangOptions contains options used by the uninstaller and RegSvr,
-    which are set exclusively by the latest installer, without being affected
+  { TMessagesLangOptions contains appearence settings used by the uninstaller
+    and RegSvr, set when the .exe was last replaced, without being affected
     by any previously installed version. As a result, it is neither backward
     nor forward compatible, unlike TUninstallLogHeader. Be sure to update
     MessagesLangOptionsID whenever you make changes to this record. It is
@@ -418,7 +418,7 @@ type
     not because all options must be language-specific. }
   TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
     lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
-    lfWizardKeepAspectRatio, lfRedirectionGuard);
+    lfWizardKeepAspectRatio);
   TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;

@@ -485,25 +485,6 @@ begin
     end;
 end;
 
-function GetMsgDataExtraFlags: TMessagesLangOptionsFlags;
-begin
-  Result := [];
-  if shWizardModern in SetupHeader.Options then
-    Include(Result, lfWizardModern);
-  if shWizardBorderStyled in SetupHeader.Options then
-    Include(Result, lfWizardBorderStyled);
-  if shWizardLightButtonsUnstyled in SetupHeader.Options then
-    Include(Result, lfWizardLightButtonsUnstyled);
-  if shWizardKeepAspectRatio in SetupHeader.Options then
-    Include(Result, lfWizardKeepAspectRatio);
-  if SetupHeader.WizardDarkStyle = wdsDark then
-    Include(Result, lfWizardDarkStyleDark)
-  else if SetupHeader.WizardDarkStyle = wdsDynamic then
-    Include(Result, lfWizardDarkStyleDynamic);
-  if RedirectionGuardEnabled then
-    Include(Result, lfRedirectionGuard);
-end;
-
 procedure BindUninstallMsgDataToExe(const ExpandedAppId: String; const F: TFile);
 var
   UniqueValue: TSHA256Digest;
@@ -521,7 +502,7 @@ begin
 
   UninstallerMsgTail.ID := UninstallerMsgTailID;
   UninstallerMsgTail.Offset := F.Position;
-  WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
+  WriteMsgData(F);
   F.WriteBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
 end;
 
@@ -2365,7 +2346,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     begin
       F := TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
       try
-        WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
+        WriteMsgData(F);
       finally
         F.Free;
       end;
@@ -2773,7 +2754,7 @@ begin
     try
       if UninstallExeCreated = ueNew then
         Result := True;
-      WriteMsgData(F, SetupHeader.WizardSizePercentX, SetupHeader.WizardSizePercentY, GetMsgDataExtraFlags);
+      WriteMsgData(F);
     finally
       F.Free;
     end;
@@ -2829,6 +2810,8 @@ begin
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
+      if RedirectionGuardEnabled then
+        Include(UninstLog.Flags, ufRedirectionGuard);
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

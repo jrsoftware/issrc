@@ -118,7 +118,8 @@ type
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode,
-    ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5
+    ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5,
+    ufRedirectionGuard
     { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
         ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
         ufWizardLightButtonsUnstyled, and ufWizardKeepAspectRatio }
@@ -182,8 +183,8 @@ uses
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
     fits into a single disk sector and can be written atomically.
-    Do not add "non-sticky" flags and fields that are set only by the
-    latest installer. Add these to TMessagesLangOptions instead. }
+    Do not add "non-sticky" appearance flags and fields that are set only
+    by the latest installer. Add these to TMessagesLangOptions instead. }
   TUninstallLogHeader = packed record
     ID: TUninstallLogID;
     AppId: array[0..127] of AnsiChar;
@@ -1232,6 +1233,11 @@ var
     end;
   end;
 
+  function GetNonStickyFlags: TUninstallLogFlags;
+  begin
+    Result := [ufRedirectionGuard];
+  end;
+
 var
   Header: TUninstallLogHeader;
   FileRec: TUninstallFileRec;
@@ -1282,7 +1288,8 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) + Flags;
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
+      GetNonStickyFlags + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the

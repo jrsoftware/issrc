@@ -55,8 +55,7 @@ procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
   const KeyName: String; const ErrorCode: Longint);
-procedure WriteMsgData(const F: TFile; const WizardSizePercentX, WizardSizePercentY: Integer;
-  const ExtraFlags: TMessagesLangOptionsFlags);
+procedure WriteMsgData(const F: TFile);
 procedure MarkExeHeader(const F: TFile; const ModeID: Longint);
 procedure ProcessInstallDeleteEntries;
 procedure ProcessNeedRestartEvent;
@@ -423,8 +422,7 @@ begin
       [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 end;
 
-procedure WriteMsgData(const F: TFile; const WizardSizePercentX, WizardSizePercentY: Integer;
-  const ExtraFlags: TMessagesLangOptionsFlags);
+procedure WriteMsgData(const F: TFile);
 var
   MsgLangOpts: TMessagesLangOptions;
   LangEntry: PSetupLanguageEntry;
@@ -442,10 +440,21 @@ begin
   if LangOptions.RightToLeft then
     Include(MsgLangOpts.Flags, lfRightToLeft);
 
-  { Other TMessagesLangOptions fields and flags }
-  MsgLangOpts.WizardSizePercentX := WizardSizePercentX;
-  MsgLangOpts.WizardSizePercentY := WizardSizePercentY;
-  MsgLangOpts.Flags := MsgLangOpts.Flags + ExtraFlags;
+  { Other TMessagesLangOptions fields and flags - all appearence only }
+  MsgLangOpts.WizardSizePercentX := SetupHeader.WizardSizePercentX;
+  MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
+  if shWizardModern in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardModern);
+  if shWizardBorderStyled in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardBorderStyled);
+  if shWizardLightButtonsUnstyled in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardLightButtonsUnstyled);
+  if shWizardKeepAspectRatio in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardKeepAspectRatio);
+  if SetupHeader.WizardDarkStyle = wdsDark then
+    Include(MsgLangOpts.Flags, lfWizardDarkStyleDark)
+  else if SetupHeader.WizardDarkStyle = wdsDynamic then
+    Include(MsgLangOpts.Flags, lfWizardDarkStyleDynamic);
 
   LangEntry := Entries[seLanguage][ActiveLanguage];
   F.WriteBuffer(LangEntry.Data[1], Length(LangEntry.Data));
