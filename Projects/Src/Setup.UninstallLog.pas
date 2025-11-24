@@ -143,7 +143,6 @@ type
     NeedRestart: Boolean;
     Flags: TUninstallLogFlags;
     Version: Integer;
-    WizardSizePercentX, WizardSizePercentY: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -465,8 +464,6 @@ begin
   AppId := '';
   AppName := '';
   Flags := [];
-  WizardSizePercentX := 0;
-  WizardSizePercentY := 0;
 end;
 
 type
