@@ -2006,7 +2006,7 @@ begin
         UpdateColors;
         SetTextColor(Message.WParam, ColorToRGB(FontColor));
         const Transparent = (Control is TNewCheckListBox) and TNewCheckListBox(Control).TransparentIfStyled;
-        if Transparent and (Message.Msg = CN_CTLCOLORLISTBOX) then begin
+        if Transparent then begin
           SetBkMode(Message.WParam, Windows.TRANSPARENT);
           Message.Result := GetStockObject(NULL_BRUSH);
         end else begin
