@@ -143,8 +143,6 @@ type
     NeedRestart: Boolean;
     Flags: TUninstallLogFlags;
     Version: Integer;
-    WizardSizePercentX, WizardSizePercentY: Integer;
-    WizardBackColor, WizardBackColorDynamicDark: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -176,7 +174,7 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj, AnsiStrings, Graphics,
+  Messages, ShlObj, AnsiStrings,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
@@ -466,10 +464,6 @@ begin
   AppId := '';
   AppName := '';
   Flags := [];
-  WizardSizePercentX := 0;
-  WizardSizePercentY := 0;
-  WizardBackColor := clNone;
-  WizardBackColorDynamicDark := clNone;
 end;
 
 type
