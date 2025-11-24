@@ -440,7 +440,7 @@ begin
   if LangOptions.RightToLeft then
     Include(MsgLangOpts.Flags, lfRightToLeft);
 
-  { Other TMessagesLangOptions fields and flags - all appearence only }
+  { Other TMessagesLangOptions fields and flags - all appearance only }
   MsgLangOpts.WizardSizePercentX := SetupHeader.WizardSizePercentX;
   MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
   if shWizardModern in SetupHeader.Options then

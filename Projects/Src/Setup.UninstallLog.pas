@@ -119,11 +119,10 @@ type
     ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode,
     ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5,
-    ufRedirectionGuard
     { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
         ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
         ufWizardLightButtonsUnstyled, and ufWizardKeepAspectRatio }
-    { add next new flag here, replacing this comment (but not the one above) } );
+    ufRedirectionGuard);
 
   TUninstallLog = class
   private
