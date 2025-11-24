@@ -1329,6 +1329,11 @@ begin
     Key := 0;
     if BCompile.Enabled then
       BCompileClick(Self);
+  end else if (Key = Ord('W')) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
+    Key := 0;
+    UpdateViewMenu(VMenu); { VCloseCurrentTab.Enabled is not kept updated }
+    if VCloseCurrentTab.Enabled then
+      VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the active bottom pane, and the active banner }
     Key := 0;
