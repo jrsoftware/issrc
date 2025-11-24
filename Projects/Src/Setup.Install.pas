@@ -75,7 +75,7 @@ begin
   { Record [Code] even if empty to 'overwrite' old versions }
   UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
     LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Longint($80000000));
+    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Integer($80000000));
 end;
 
 procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;
@@ -2806,28 +2806,12 @@ begin
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      if shWizardModern in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardModern);
-      if shWizardBorderStyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardBorderStyled);
-      if shWizardLightButtonsUnstyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardLightButtonsUnstyled);
-      if shWizardKeepAspectRatio in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardKeepAspectRatio);
-      if SetupHeader.WizardDarkStyle = wdsDark then
-        Include(UninstLog.Flags, ufWizardDarkStyleDark)
-      else if SetupHeader.WizardDarkStyle = wdsDynamic then
-        Include(UninstLog.Flags, ufWizardDarkStyleDynamic);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
       if RedirectionGuardEnabled then
         Include(UninstLog.Flags, ufRedirectionGuard);
-      UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
-      UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
-      UninstLog.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }
-      UninstLog.WizardBackColorDynamicDark := SetupHeader.WizardBackColorDynamicDark;
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

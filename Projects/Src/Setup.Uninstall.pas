@@ -92,7 +92,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, lfWizardModern in MessagesLangOptions.Flags);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
@@ -550,21 +550,11 @@ begin
     UninstLog := TExtUninstallLog.Create;
     UninstLog.Load(UninstDataFile, UninstDataFilename);
 
-    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
-    if ufWizardBorderStyled in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardBorderStyled);
-    if ufWizardKeepAspectRatio in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardKeepAspectRatio);
-    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
-    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
-    SetupHeader.WizardBackColor := UninstLog.WizardBackColor; { Not used by TSetupForm but in other places }
-    SetupHeader.WizardBackColorDynamicDark := UninstLog.WizardBackColorDynamicDark; { Same }
-
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
     if not HighContrastActive and not InitNoStyle then begin
-      const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
-      const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
+      const IsDynamicDark = (lfWizardDarkStyleDynamic in MessagesLangOptions.Flags) and IsWinDark;
+      const IsForcedDark = lfWizardDarkStyleDark in MessagesLangOptions.Flags;
       if IsDynamicDark then begin
         SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
         MainIconPostfix := '_DARK';
@@ -582,7 +572,7 @@ begin
       var Handle: TStyleManager.TStyleServicesHandle;
       if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
         TStyleManager.SetStyle(Handle);
-        if not IsDarkInstallMode and (ufWizardLightButtonsUnstyled in UninstLog.Flags) then
+        if not IsDarkInstallMode and (lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags) then
           TNewButton.DontStyle := True;
         CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
           (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
@@ -619,7 +609,7 @@ begin
     UninstDataFile := OpenUninstDataFile(faReadWrite);
 
     if not UninstLog.ExtractLatestRecData(utCompiledCode,
-         SetupBinVersion or Longint($80000000), CompiledCodeData) then
+         SetupBinVersion or Integer($80000000), CompiledCodeData) then
       InternalError('Cannot find utCompiledCode record for this version of the uninstaller');
     if DebugServerWnd <> 0 then
       CompiledCodeText := DebugClientCompiledCodeText
@@ -863,6 +853,14 @@ begin
     LangOptions.DialogFontBaseScaleWidth := MessagesLangOptions.DialogFontBaseScaleWidth;
     LangOptions.DialogFontBaseScaleHeight := MessagesLangOptions.DialogFontBaseScaleHeight;
     LangOptions.RightToLeft := lfRightToLeft in MessagesLangOptions.Flags;
+    if lfWizardBorderStyled in MessagesLangOptions.Flags then
+      Include(SetupHeader.Options, shWizardBorderStyled);
+    if lfWizardKeepAspectRatio in MessagesLangOptions.Flags then
+      Include(SetupHeader.Options, shWizardKeepAspectRatio);
+    SetupHeader.WizardSizePercentX := MessagesLangOptions.WizardSizePercentX;
+    SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
+    SetupHeader.WizardBackColor := MessagesLangOptions.WizardBackColor;
+    SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));

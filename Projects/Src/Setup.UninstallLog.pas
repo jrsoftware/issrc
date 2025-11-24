@@ -29,8 +29,8 @@ const
     are in sync again. While technically not required, this approach keeps things
     more sensible.
 
-    Note that something as simple as adding a new [Code] function is an improvement
-    to Uninstall.
+    Adding [Code] functions does not require bumping the file version number as a
+    utCompiledCode record is associated with one specific SetupBinVersion number.
 
     If you want to customize the uninstall log but maintain compatibility with
     official Inno Setup releases, you should NOT do any of the above. Instead, it's
@@ -51,7 +51,7 @@ const
   utUserDefined          = $01;
   utStartInstall         = $10;
   utEndInstall           = $11;
-  utCompiledCode         = $20;
+  utCompiledCode         = $20; { SetupBinVersion or-ed with $80000000 as ExtraData }
   utRun                  = $80;
   utDeleteDirOrFiles     = $81;
   utDeleteFile           = $82;
@@ -116,11 +116,14 @@ type
   TDeleteUninstallDataFilesProc = procedure;
 
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
-    ufWizardModern, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled, ufAdminInstallMode, ufWizardDarkStyleDark,
-    ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-    ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio,
-    ufRedirectionGuard);
+    ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
+    ufPowerUserInstalled, ufAdminInstallMode,
+    ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5,
+    ufRedirectionGuard
+    { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
+        ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
+        ufWizardLightButtonsUnstyled, and ufWizardKeepAspectRatio }
+    { add next new flag here, replacing this comment (but not the one above) } );
 
   TUninstallLog = class
   private
@@ -181,8 +184,8 @@ uses
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
     fits into a single disk sector and can be written atomically.
-    Do not add "non-sticky" flags and fields that are set only by the
-    latest installer. Add these to TMessagesLangOptions instead. }
+    Do not add "non-sticky" appearance flags and fields that are set only
+    by the latest installer. Add these to TMessagesLangOptions instead. }
   TUninstallLogHeader = packed record
     ID: TUninstallLogID;
     AppId: array[0..127] of AnsiChar;
@@ -190,9 +193,8 @@ type
     Version, NumRecs: Integer;
     EndOffset: UInt32;
     Flags: Integer;
-    WizardSizePercentX, WizardSizePercentY: Integer;
-    WizardBackColor, WizardBackColorDynamicDark: Integer;
-    Reserved: array[0..22] of Integer;  { reserved for future use }
+    DoNotUse0, DoNotUse1: Integer; { cannot be used again, were used for WizardSizePercentX and WizardSizePercentY }
+    Reserved: array[0..24] of Integer;  { reserved for future use }
     CRC: Longint;
   end;
   TUninstallCrcHeader = packed record
@@ -1234,15 +1236,9 @@ var
     end;
   end;
 
-  function GetWizardFlags: TUninstallLogFlags;
-  begin
-    Result := [ufWizardModern, ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
-      ufWizardLightButtonsUnstyled, ufWizardKeepAspectRatio];
-  end;
-
   function GetNonStickyFlags: TUninstallLogFlags;
   begin
-    Result := GetWizardFlags + [ufRedirectionGuard];
+    Result := [ufRedirectionGuard];
   end;
 
 var
@@ -1295,27 +1291,8 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-
-    const NonWizardFlags = Flags - GetWizardFlags;
-    const NonStickyNonWizardFlags = GetNonStickyFlags - GetWizardFlags;
-    var NewFlags := TUninstallLogFlags((@Header.Flags)^) - NonStickyNonWizardFlags + NonWizardFlags;
-
-    { Update wizard header flags and fields only if we are certain the
-      header does not contain any unknown flags or fields. This ensures that
-      either all wizard flags and fields are updated, or none at all, thus
-      avoiding any scenario where an invalid combination might occur. }
-    if Header.Version <= HighestSupportedHeaderVersion then begin
-      const WizardFlags = Flags * GetWizardFlags;
-      const NonStickyWizardFlags = GetNonStickyFlags * GetWizardFlags;
-      NewFlags := NewFlags - NonStickyWizardFlags + WizardFlags;
-      Header.WizardSizePercentX := WizardSizePercentX;
-      Header.WizardSizePercentY := WizardSizePercentY;
-	    Header.WizardBackColor := WizardBackColor;
-	    Header.WizardBackColorDynamicDark := WizardBackColorDynamicDark;
-    end;
-
-    TUninstallLogFlags((@Header.Flags)^) := NewFlags;
-
+    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
+      GetNonStickyFlags + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
       records we wrote earlier are flushed to disk. This should prevent the
@@ -1408,16 +1385,6 @@ begin
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);
   Flags := TUninstallLogFlags((@Header.Flags)^);
-  WizardSizePercentX := Header.WizardSizePercentX;
-  WizardSizePercentY := Header.WizardSizePercentY;
-  if Header.Version >= 1054 then begin
-    WizardBackColor := Header.WizardBackColor;
-    WizardBackColorDynamicDark := Header.WizardBackColorDynamicDark;
-  end else begin
-    { Header.WizardBackColor(DynamicDark) default to 0, which is clBlack and not clNone }
-    WizardBackColor := clNone;
-    WizardBackColorDynamicDark := clNone;
-  end;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));

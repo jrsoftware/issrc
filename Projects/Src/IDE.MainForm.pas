@@ -679,7 +679,7 @@ uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm,
@@ -4704,10 +4704,12 @@ begin
             FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
           if HintStr <> '' then
             HintStr := HintStr + #13;
-          if FunctionDefinition.WasFunction then
+          if FunctionDefinition.HeaderKind = hkFunction then
             HintStr := HintStr + 'function '
+          else if FunctionDefinition.HeaderKind = hkProcedure then
+            HintStr := HintStr + 'procedure '
           else
-            HintStr := HintStr + 'procedure ';
+            HintStr := HintStr + 'constructor ';
           HintStr := HintStr + String(FunctionDefinition.ScriptFuncWithoutHeader);
           Inc(Index);
         end;
