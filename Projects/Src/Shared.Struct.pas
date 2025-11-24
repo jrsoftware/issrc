@@ -17,7 +17,7 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.6.1-dev';
+  SetupVersion = '6.6.1';
   SetupBinVersion = (6 shl 24) + (6 shl 16) + (1 shl 8) + 0;
 
 type
@@ -37,7 +37,7 @@ const
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
-  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!002';
+  MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!003';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idskb32'#26;
 type
@@ -65,7 +65,8 @@ type
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
-    shWizardKeepAspectRatio, shWizardLightButtonsUnstyled);
+    shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
+    shRedirectionGuard);
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;
@@ -408,13 +409,23 @@ type
     TableCRC: Int32;                { CRC of all prior fields in this record }
   end;
 
-  { TMessagesLangOptions is a simplified version of TSetupLanguageEntry that
-    is used by the uninstaller and RegSvr }
+  { TMessagesLangOptions contains appearence settings used by the uninstaller
+    and RegSvr, set when the .exe was last replaced, without being affected
+    by any previously installed version. As a result, it is neither backward
+    nor forward compatible, unlike TUninstallLogHeader. Be sure to update
+    MessagesLangOptionsID whenever you make changes to this record. It is
+    named TMessagesLangOptions because it is stored in the Setup.msg file,
+    not because all options must be language-specific. }
+  TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
+    lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
+    lfWizardKeepAspectRatio);
+  TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
     DialogFontName: array[0..31] of Char;
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
-    Flags: set of (lfRightToLeft);
+    WizardSizePercentX, WizardSizePercentY: Integer;
+    Flags: TMessagesLangOptionsFlags;
   end;
 
   TUninstallerMsgTail = packed record

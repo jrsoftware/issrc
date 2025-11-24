@@ -6,10 +6,11 @@
 AppName=My Program
 AppVersion=1.5
 WizardStyle=modern dynamic
-CreateAppDir=no
-Uninstallable=no
+DefaultDirName={autopf}\My Program
+DisableDirPage=yes
 DisableProgramGroupPage=yes
 DefaultGroupName=My Program
+UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 

@@ -186,10 +186,15 @@ var
 begin
   CmdLine := '"' + Filename + '" ' + Parms;
 
+  { Pass current directory in "final" reparsed form so that Setup won't have
+    trouble accessing the directory after enabling RedirectionGuard if there's
+    an untrusted redirect in the path. }
+  const WorkingDir = GetFinalCurrentDir;
+
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);
-  if not CreateProcess(nil, PChar(CmdLine), nil, nil, False, 0, nil, nil,
-     StartupInfo, ProcessInfo) then
+  if not CreateProcess(nil, PChar(CmdLine), nil, nil, False, 0, nil,
+     PChar(WorkingDir), StartupInfo, ProcessInfo) then
     RaiseLastError(msgLdrCannotExecTemp);
   CloseHandle(ProcessInfo.hThread);
   { Wait for the process to terminate, processing messages in the meantime }
@@ -345,6 +350,8 @@ begin
           'Instructs Setup to create extra logging when closing applications for debugging purposes.' + SNewLine +
           '/RESTARTAPPLICATIONS, /NORESTARTAPPLICATIONS' + SNewLine +
           'Instructs Setup to attempt restarting applications, or prevents it from doing so.' + SNewLine +
+          '/REDIRECTIONGUARD, /NOREDIRECTIONGUARD' + SNewLine +
+          'Instructs Setup to attempt enabling RedirectionGuard, or prevents it from doing so.' + SNewLine +
           '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
           'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
           '/LANG=language' + SNewLine +
@@ -523,10 +530,13 @@ begin
 
         { Now execute Setup. Use the exit code it returns as our exit code.
           The UInt32 cast prevents sign extension. Also see
-          https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication }
+          https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
+          SelfFilename is passed in "final" reparsed form so that Setup won't
+          have trouble accessing the file after enabling RedirectionGuard if
+          there's an untrusted redirect in the path. }
         ExecAndWait(TempFile, Format('/SL5="$%x,%d,%d,',
           [UInt32(SetupLdrWnd), OffsetTable.Offset0, OffsetTable.Offset1]) +
-          SelfFilename + '" ' + GetCmdTail, SetupLdrExitCode);
+          GetFinalFileName(SelfFilename) + '" ' + GetCmdTail, SetupLdrExitCode);
 
         { Synchronize our active language with Setup's, in case we need to
           display any messages below } 

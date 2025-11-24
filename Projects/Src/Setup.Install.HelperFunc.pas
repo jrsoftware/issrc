@@ -429,6 +429,9 @@ var
 begin
   FillChar(MsgLangOpts, SizeOf(MsgLangOpts), 0);
   MsgLangOpts.ID := MessagesLangOptionsID;
+
+  { TMessagesLangOptions fields and flags from LangOptions - together these are a simplified
+    version of TSetupLanguageEntry }
   StrPLCopy(MsgLangOpts.DialogFontName, LangOptions.DialogFontName,
     (SizeOf(MsgLangOpts.DialogFontName) div SizeOf(MsgLangOpts.DialogFontName[0])) - 1);
   MsgLangOpts.DialogFontSize := LangOptions.DialogFontSize;
@@ -436,6 +439,23 @@ begin
   MsgLangOpts.DialogFontBaseScaleHeight := LangOptions.DialogFontBaseScaleHeight;
   if LangOptions.RightToLeft then
     Include(MsgLangOpts.Flags, lfRightToLeft);
+
+  { Other TMessagesLangOptions fields and flags - all appearence only }
+  MsgLangOpts.WizardSizePercentX := SetupHeader.WizardSizePercentX;
+  MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
+  if shWizardModern in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardModern);
+  if shWizardBorderStyled in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardBorderStyled);
+  if shWizardLightButtonsUnstyled in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardLightButtonsUnstyled);
+  if shWizardKeepAspectRatio in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardKeepAspectRatio);
+  if SetupHeader.WizardDarkStyle = wdsDark then
+    Include(MsgLangOpts.Flags, lfWizardDarkStyleDark)
+  else if SetupHeader.WizardDarkStyle = wdsDynamic then
+    Include(MsgLangOpts.Flags, lfWizardDarkStyleDynamic);
+
   LangEntry := Entries[seLanguage][ActiveLanguage];
   F.WriteBuffer(LangEntry.Data[1], Length(LangEntry.Data));
   F.WriteBuffer(MsgLangOpts, SizeOf(MsgLangOpts));

@@ -45,12 +45,6 @@ function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
   const OnExtractToHandleProgress: TOnExtractToHandleProgress; const OnExtractToHandleProgressParam: Int64);
 
-type
-  TFileTimeHelper = record helper for TFileTime
-    procedure Clear;
-    function HasTime: Boolean;
-  end;
-
 implementation
 
 uses
@@ -1264,22 +1258,6 @@ begin
       State.Password, State.currentIndex, DestF, OnExtractToHandleProgress,
       OnExtractToHandleProgressParam);
   (ExtractCallback as TArchiveExtractToHandleCallback).Extract;
-end;
-
-{ TFileTimeHelper }
-
-procedure TFileTimeHelper.Clear;
-begin
-  { SetFileTime regards a pointer to a FILETIME structure with both members
-    set to 0 the same as a NULL pointer and we make use of that. Note that
-    7-Zip may return a value with both members set to 0 as well. }
-  dwLowDateTime := 0;
-  dwHighDateTime := 0;
-end;
-
-function TFileTimeHelper.HasTime: Boolean;
-begin
-  Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
 
 { SevenZipDLLDeInit }

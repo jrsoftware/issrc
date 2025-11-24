@@ -78,7 +78,8 @@ type
   TWordsBySection = TObjectDictionary<TInnoSetupStylerSection, TStringList>;
   TFunctionDefinition = record
     ScriptFuncWithoutHeader: AnsiString;
-    WasFunction, HasParams: Boolean;
+    HeaderKind: TScriptFuncHeaderKind;
+    HasParams: Boolean;
     constructor Create(const ScriptFunc: AnsiString);
   end;
   TFunctionDefinitions = array of TFunctionDefinition;
@@ -253,7 +254,7 @@ const
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
     'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
     'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
-    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'noregerror',
+    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'notimestamp', 'noregerror',
     'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
     'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
     'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
@@ -612,7 +613,7 @@ end;
 
 constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
 begin
-  ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, WasFunction);
+  ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, HeaderKind);
   HasParams := ScriptFuncHasParameters(ScriptFunc);
 end;
 
@@ -921,12 +922,14 @@ begin
     SLFunctions := TStringList.Create;
     SLProcedures := TStringList.Create;
     for var FullEventFunction in FullEventFunctions do begin
-      var WasFunction: Boolean;
-      var S := RemoveScriptFuncHeader(FullEventFunction, WasFunction);
-      if WasFunction then
+      var HeaderKind: TScriptFuncHeaderKind;
+      var S := RemoveScriptFuncHeader(FullEventFunction, HeaderKind);
+      if HeaderKind = hkFunction then
         AddWordToList(SLFunctions, S, awtScriptEvent)
+      else if HeaderKind = hkProcedure then
+        AddWordToList(SLProcedures, S, awtScriptEvent)
       else
-        AddWordToList(SLProcedures, S, awtScriptEvent);
+        raise Exception.Create('Got invalid HeaderKind for event function');
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);

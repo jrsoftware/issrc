@@ -338,8 +338,8 @@ type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floIsUninstExe, floApplyTouchDateTime,
-      floSolidBreak);
+    Flags: set of (floVersionInfoNotValid, floIsUninstExe, floTouch,
+      floSolidBreak, floNoTimeStamp);
     Sign: TFileLocationSign;
     Verification: TSetupFileVerification;
     ISSigKeyUsedID: String;
@@ -3090,6 +3090,9 @@ begin
     ssPrivilegesRequiredOverridesAllowed: begin
         SetupHeader.PrivilegesRequiredOverridesAllowed := StrToPrivilegesRequiredOverrides(Value);
       end;
+    ssRedirectionGuard: begin
+        SetSetupHeaderOption(shRedirectionGuard);
+      end;
     ssReserveBytes: begin
         Val(Value, ReserveBytes, I);
         if (I <> 0) or (ReserveBytes < 0) then
@@ -4905,7 +4908,7 @@ const
     (Name: ParamCommonAfterInstall; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..43] of PChar = (
+  Flags: array[0..44] of PChar = (
     'confirmoverwrite', 'uninsneveruninstall', 'isreadme', 'regserver',
     'sharedfile', 'restartreplace', 'deleteafterinstall',
     'comparetimestamp', 'fontisnttruetype', 'regtypelib', 'external',
@@ -4917,7 +4920,7 @@ const
     'uninsnosharedfileprompt', 'createallsubdirs', '32bit', '64bit',
     'solidbreak', 'setntfscompression', 'unsetntfscompression',
     'sortfilesbyname', 'gacinstall', 'sign', 'signonce', 'signcheck',
-    'issigverify', 'download', 'extractarchive');
+    'issigverify', 'download', 'extractarchive', 'notimestamp');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
   AttribsFlags: array[0..3] of PChar = (
@@ -4935,7 +4938,7 @@ var
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
-    AllowUnsafeFiles, Touch, NoCompression, NoEncryption, SolidBreak: Boolean;
+    AllowUnsafeFiles, Touch, NoTimeStamp, NoCompression, NoEncryption, SolidBreak: Boolean;
   Sign: TFileLocationSign;
 type
   PFileListRec = ^TFileListRec;
@@ -5198,7 +5201,9 @@ type
             AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
         end;
         if Touch then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floApplyTouchDateTime);
+          Include(NewFileLocationEntryExtraInfo^.Flags, floTouch);
+        if NoTimeStamp then
+          Include(NewFileLocationEntryExtraInfo^.Flags, floNoTimeStamp);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -5420,6 +5425,7 @@ begin
         RecurseSubdirs := False;
         AllowUnsafeFiles := False;
         Touch := False;
+        NoTimeStamp := False;
         SortFilesByExtension := False;
         NoCompression := False;
         NoEncryption := False;
@@ -5479,6 +5485,7 @@ begin
                    41: ApplyNewVerificationType(Verification.Typ, fvISSig, SCompilerFilesParamFlagConflict);
                    42: Include(Options, foDownload);
                    43: Include(Options, foExtractArchive);
+                   44: NoTimeStamp := True;
                  end;
 
                { Source }
@@ -5664,6 +5671,13 @@ begin
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
           Excludes := AExcludes.DelimitedText;
+        end;
+
+        if NoTimeStamp then begin
+          if Touch then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'touch']);
+          if foCompareTimeStamp in Options then
+            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
         end;
 
         if foDownload in Options then begin
@@ -7479,18 +7493,21 @@ var
             AbortCompileFmt(SCompilerFunctionFailedWithCode,
               ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
           end;
-          if TimeStampsInUTC then begin
-            FL.TimeStamp := FT;
-            Include(FL.Flags, floTimeStampInUTC);
-          end
-          else
-            FileTimeToLocalFileTime(FT, FL.TimeStamp);
-          if floApplyTouchDateTime in FLExtraInfo.Flags then
-            ApplyTouchDateTime(FL.TimeStamp);
-          if TimeStampRounding > 0 then begin
-            var TimeStamp := Int64(FL.TimeStamp);
-            Dec(TimeStamp, TimeStamp mod (TimeStampRounding * 10000000));
-            FL.TimeStamp := TFileTime(TimeStamp);
+          if floNoTimeStamp in FLExtraInfo.Flags then
+            FL.TimeStamp.Clear
+          else begin
+            if TimeStampsInUTC then begin
+              FL.TimeStamp := FT;
+              Include(FL.Flags, floTimeStampInUTC);
+            end else
+              FileTimeToLocalFileTime(FT, FL.TimeStamp);
+            if floTouch in FLExtraInfo.Flags then
+              ApplyTouchDateTime(FL.TimeStamp);
+            if TimeStampRounding > 0 then begin
+              var TimeStamp := Int64(FL.TimeStamp);
+              Dec(TimeStamp, TimeStamp mod (TimeStampRounding * 10000000));
+              FL.TimeStamp := TFileTime(TimeStamp);
+            end;
           end;
 
           if ChunkCompressed and IsX86OrX64Executable(SourceFile) then
@@ -7783,7 +7800,9 @@ var
     var
       ST: TSystemTime;
     begin
-      if FileTimeToSystemTime(FileTime, ST) then
+      if not FileTime.HasTime then
+        Result := '(not stored)'
+      else if FileTimeToSystemTime(FileTime, ST) then
         Result := Format('%.4u-%.2u-%.2u %.2u:%.2u:%.2u.%.3u',
           [ST.wYear, ST.wMonth, ST.wDay, ST.wHour, ST.wMinute, ST.wSecond,
            ST.wMilliseconds])
@@ -7946,7 +7965,7 @@ begin
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
       shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
-      shUsePreviousPrivileges, shWizardKeepAspectRatio];
+      shUsePreviousPrivileges, shWizardKeepAspectRatio, shRedirectionGuard];
     SetupHeader.PrivilegesRequired := prAdmin;
     SetupHeader.UninstallFilesDir := '{app}';
     SetupHeader.DefaultUserInfoName := '{sysuserinfoname}';

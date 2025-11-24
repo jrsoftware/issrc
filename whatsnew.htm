@@ -42,15 +42,37 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
 
-<p><a name="6.6.1"></a><span class="ver">6.6.1-dev </span><span class="date">(?)</span></p>
+<ul>
+  <li>Security improvement:
+  <ul>
+    <li>Setup and Uninstall now always try to enable <a href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">Windows RedirectionGuard</a> by default.<br/>
+        This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
+        Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
+        When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
+        RedirectionGuard status is logged, so you can verify whether the mitigation was active.</li>
+  </ul>
+  </li>
+  <li>Other minor improvements.</li>
+</ul>
+
+<p><a name="6.6.1"></a><span class="ver">6.6.1 </span><span class="date">(2025-11-20)</span></p>
 
 <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
 
 <ul>
-  <li>Previously, when displaying any RTF text with a custom style active (including the built-in custom dark style), all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
-  <li>Added new [Setup] section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
-  <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once.</li>
-  <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
+  <li>Changes related to custom styles:
+  <ul>
+    <li>Previously, when displaying any RTF text with a custom style active (including the built-in custom dark style), all foreground colors were replaced by the style's foreground color. This has been improved to only replace default foreground colors, preserving any custom colors.</li>
+    <li>Added new <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> to specify the opacity of wizard images. This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images. For example, you can set it to <tt>150</tt> to achieve partial transparency. Defaults to fully opaque (non-transparent).</li>
+    <li>The compiler now stores identical regular and <tt>DynamicDark</tt> wizard images only once.</li>
+    <li><i>Documentation fix:</i> The prototype of Pascal Scripting support function <tt>CreateCustomForm</tt> was changed in the previous version, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> was not updated accordingly. This has now been corrected.</li>
+  </ul>
+  </li>
+  <li>Security improvement:
+  <ul>
+    <li>Added new <tt>[Files]</tt> section flag <tt>notimestamp</tt>, preventing the file from being stored with a timestamp. Use this flag to help make builds reproducible, even if you are unable to preserve timestamps on source files.</li>
+  </ul>
+  </li>
   <li>Other minor improvements.</li>
 </ul>
 

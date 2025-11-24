@@ -79,7 +79,7 @@ var
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
     InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel, InitNoStyle: Boolean;
+    InitNoCancel, InitNoStyle, InitRedirectionGuard, InitNoRedirectionGuard: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -212,6 +212,8 @@ procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
+function RedirectionGuardEnabled: Boolean;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
@@ -703,6 +705,8 @@ begin
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
   InitNoStyle := GetIniBool(Section, 'NoStyle', InitNoStyle, FileName);
+  InitRedirectionGuard := GetIniBool(Section, 'RedirectionGuard', InitRedirectionGuard, FileName);
+  InitNoRedirectionGuard := GetIniBool(Section, 'NoRedirectionGuard', InitNoRedirectionGuard, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
@@ -2468,6 +2472,44 @@ begin
   SetActiveLanguage(I);
 end;
 
+var
+  IsRedirectionGuardEnabled: Boolean;
+
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
+const
+  ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
+var
+  SetProcessMitigationPolicyFunc: function(MitigationPolicy: TProcessMitigationPolicy;
+    lpBuffer: PVOID; dwLength: SIZE_T): BOOL; stdcall;
+begin
+  var Status: String;
+
+  if AEnable then begin
+    SetProcessMitigationPolicyFunc := GetProcAddress(GetModuleHandle(kernel32),
+      PAnsiChar('SetProcessMitigationPolicy'));
+    if Assigned(SetProcessMitigationPolicyFunc) then begin
+      const Flags: DWORD = 1;  { = EnforceRedirectionTrust bit set }
+      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then begin
+        IsRedirectionGuardEnabled := True;
+        Status := 'Enabled in enforcing mode'
+      end else begin
+        const ErrorCode = GetLastError;
+        Status := Format('Could not enable (SetProcessMitigationPolicy failed with error code %u)',
+          [ErrorCode]);
+      end;
+    end else
+      Status := 'Could not enable (SetProcessMitigationPolicy unavailable)';
+  end else
+    Status := 'Not enabling';
+
+  LogFmt('RedirectionGuard status for current process: %s', [Status]);
+end;
+
+function RedirectionGuardEnabled: Boolean;
+begin
+  Result := IsRedirectionGuardEnabled;
+end;
+
 procedure LogCompatibilityMode;
 var
   S: String;
@@ -3197,6 +3239,10 @@ begin
       InitRestartApplications := True
     else if SameText(ParamName, '/NoRestartApplications') then
       InitNoRestartApplications := True
+    else if SameText(ParamName, '/RedirectionGuard') then
+      InitRedirectionGuard := True
+    else if SameText(ParamName, '/NoRedirectionGuard') then
+      InitNoRedirectionGuard := True
     else if SameText(ParamName, '/NoIcons') then
       InitNoIcons := True
     else if SameText(ParamName, '/NoCancel') then
@@ -3319,7 +3365,25 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
+        { Language entries }
+        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
+          SizeOf(TSetupLanguageEntry));
+        { CustomMessage entries }
+        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
+          SizeOf(TSetupCustomMessageEntry));
+        { Permission entries }
+        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
+          SizeOf(TSetupPermissionEntry));
+        { Type entries }
+        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
+          Integer(@PSetupTypeEntry(nil).MinVersion),
+          Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
+
+        ActivateDefaultLanguage;
+
         { Apply style - also see Setup.Uninstall's RunSecondPhase
+          Must be ordered after ActivateDefaultLanguage since TTaskDialogForm
+          and its parent TSetupForm use LangOptions and SetupMessages.
           Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
@@ -3363,22 +3427,6 @@ begin
               TNewButton.DontStyle := True; { Keep native buttons (including command links) }
           end;
         end;
-
-        { Language entries }
-        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
-          SizeOf(TSetupLanguageEntry));
-        { CustomMessage entries }
-        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
-          SizeOf(TSetupCustomMessageEntry));
-        { Permission entries }
-        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
-          SizeOf(TSetupPermissionEntry));
-        { Type entries }
-        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
-          Integer(@PSetupTypeEntry(nil).MinVersion),
-          Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
-
-        ActivateDefaultLanguage;
 
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
@@ -3531,6 +3579,10 @@ begin
   InitializeAdminInstallMode(IsAdmin and (SetupHeader.PrivilegesRequired <> prLowest));
 
   Log64BitInstallMode;
+
+  const EnableRedirectionGuard = InitRedirectionGuard or
+    ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
+  RedirectionGuardConfigure(EnableRedirectionGuard);
 
   { Test code. Originally planned to call DeleteResidualTempUninstallDirs
     during Setup's startup too, but decided against it; it's not really

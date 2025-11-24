@@ -75,7 +75,7 @@ begin
   { Record [Code] even if empty to 'overwrite' old versions }
   UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
     LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Longint($80000000));
+    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Integer($80000000));
 end;
 
 procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;
@@ -793,19 +793,28 @@ Retry:
 
       var CurFileDateDidRead := True; { Set to False later if needed }
       if Assigned(CurFileLocation) then begin
-        if floTimeStampInUTC in CurFileLocation^.Flags then
-          CurFileDate := CurFileLocation^.TimeStamp
-        else
-          LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
-        CurFileDateValid := True;
-      end else if Assigned(AExternalFileDate) then begin
-        CurFileDate := AExternalFileDate^;
-        CurFileDateValid := CurFileDate.HasTime;
-      end else if not(foDownload in CurFile^.Options) then
-        CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate)
-      else begin
-        CurFileDateValid := False;
-        CurFileDateDidRead := False;
+        { Not an "external" file }
+        if CurFileLocation^.TimeStamp.HasTime then begin
+          if floTimeStampInUTC in CurFileLocation^.Flags then
+            CurFileDate := CurFileLocation^.TimeStamp
+          else
+            LocalFileTimeToFileTime(CurFileLocation^.TimeStamp, CurFileDate);
+          CurFileDateValid := True;
+        end else begin
+          CurFileDateValid := False;
+          CurFileDateDidRead := False;
+        end;
+      end else begin
+        { An "external" file }
+        if Assigned(AExternalFileDate) then begin
+          CurFileDate := AExternalFileDate^;
+          CurFileDateValid := CurFileDate.HasTime;
+        end else if not(foDownload in CurFile^.Options) then
+          CurFileDateValid := GetFileDateTime(DisableFsRedir, AExternalSourceFile, CurFileDate)
+        else begin
+          CurFileDateValid := False;
+          CurFileDateDidRead := False;
+        end;
       end;
       if CurFileDateValid then
         LogFmt('Time stamp of our file: %s', [FileTimeToStr(CurFileDate)])
@@ -2797,24 +2806,12 @@ begin
       else if IsPowerUserOrAdmin then
         { Note: This flag is only set in 5.1.9 and later }
         Include(UninstLog.Flags, ufPowerUserInstalled);
-      if shWizardModern in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardModern);
-      if shWizardBorderStyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardBorderStyled);
-      if shWizardLightButtonsUnstyled in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardLightButtonsUnstyled);
-      if shWizardKeepAspectRatio in SetupHeader.Options then
-        Include(UninstLog.Flags, ufWizardKeepAspectRatio);
-      if SetupHeader.WizardDarkStyle = wdsDark then
-        Include(UninstLog.Flags, ufWizardDarkStyleDark)
-      else if SetupHeader.WizardDarkStyle = wdsDynamic then
-        Include(UninstLog.Flags, ufWizardDarkStyleDynamic);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then
         Include(UninstLog.Flags, ufChangesEnvironment);
-      UninstLog.WizardSizePercentX := SetupHeader.WizardSizePercentX;
-      UninstLog.WizardSizePercentY := SetupHeader.WizardSizePercentY;
+      if RedirectionGuardEnabled then
+        Include(UninstLog.Flags, ufRedirectionGuard);
       RecordStartInstall(UninstLog);
       RecordCompiledCode(UninstLog);
 

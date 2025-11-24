@@ -82,7 +82,6 @@ function IsProtectedSystemFile(const DisableFsRedir: Boolean;
   const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
-procedure RaiseFunctionFailedError(const FunctionName: String);
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
@@ -127,12 +126,6 @@ procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 begin
   raise Exception.Create(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
     [FunctionName, IntToHexStr8(ResultCode), Win32ErrorString(ResultCode)]));
-end;
-
-procedure RaiseFunctionFailedError(const FunctionName: String);
-begin
-  raise Exception.Create(FmtSetupMessage1(msgErrorFunctionFailedNoCode,
-    FunctionName));
 end;
 
 function GetRegRootKeyName(const RootKey: HKEY): String;

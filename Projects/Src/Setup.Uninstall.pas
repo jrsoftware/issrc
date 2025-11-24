@@ -92,7 +92,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, ufWizardModern in UninstLog.Flags,
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName, lfWizardModern in MessagesLangOptions.Flags,
     MainIconPostfix, WizardIconsPostfix);
   if CodeRunner <> nil then begin
     try
@@ -314,6 +314,10 @@ begin
       NoRestart := True
     else if SameText(ParamName, '/NoStyle') then
       InitNoStyle := True
+    else if SameText(ParamName, '/RedirectionGuard') then
+      InitRedirectionGuard := True
+    else if SameText(ParamName, '/NoRedirectionGuard') then
+      InitNoRedirectionGuard := True
     else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
     else if SameText(ParamName, '/DEBUGWND=') then begin
@@ -550,8 +554,8 @@ begin
     { Apply style - also see Setup.MainFunc's InitializeSetup }
     IsWinDark := DarkModeActive;
     if not HighContrastActive and not InitNoStyle then begin
-      const IsDynamicDark = (ufWizardDarkStyleDynamic in UninstLog.Flags) and IsWinDark;
-      const IsForcedDark = ufWizardDarkStyleDark in UninstLog.Flags;
+      const IsDynamicDark = (lfWizardDarkStyleDynamic in MessagesLangOptions.Flags) and IsWinDark;
+      const IsForcedDark = lfWizardDarkStyleDark in MessagesLangOptions.Flags;
       if IsDynamicDark then begin
         MainIconPostfix := '_DARK';
         if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
@@ -568,18 +572,10 @@ begin
       var Handle: TStyleManager.TStyleServicesHandle;
       if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
         TStyleManager.SetStyle(Handle);
-        if not IsDarkInstallMode and (ufWizardLightButtonsUnstyled in UninstLog.Flags) then
+        if not IsDarkInstallMode and (lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags) then
           TNewButton.DontStyle := True;
       end;
     end;
-
-    { Initialize SetupHeader items used by TSetupForm (LangOptions items already done) }
-    if ufWizardBorderStyled in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardBorderStyled);
-    if ufWizardKeepAspectRatio in UninstLog.Flags then
-      Include(SetupHeader.Options, shWizardKeepAspectRatio);
-    SetupHeader.WizardSizePercentX := UninstLog.WizardSizePercentX;
-    SetupHeader.WizardSizePercentY := UninstLog.WizardSizePercentY;
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 
@@ -607,7 +603,7 @@ begin
     UninstDataFile := OpenUninstDataFile(faReadWrite);
 
     if not UninstLog.ExtractLatestRecData(utCompiledCode,
-         SetupBinVersion or Longint($80000000), CompiledCodeData) then
+         SetupBinVersion or Integer($80000000), CompiledCodeData) then
       InternalError('Cannot find utCompiledCode record for this version of the uninstaller');
     if DebugServerWnd <> 0 then
       CompiledCodeText := DebugClientCompiledCodeText
@@ -625,6 +621,10 @@ begin
     end
     else
       Initialize64BitInstallMode(False);
+
+    const EnableRedirectionGuard = InitRedirectionGuard or
+      ((ufRedirectionGuard in UninstLog.Flags) and not InitNoRedirectionGuard);
+    RedirectionGuardConfigure(EnableRedirectionGuard);
 
     DeleteResidualTempUninstallDirs;
 
@@ -847,6 +847,12 @@ begin
     LangOptions.DialogFontBaseScaleWidth := MessagesLangOptions.DialogFontBaseScaleWidth;
     LangOptions.DialogFontBaseScaleHeight := MessagesLangOptions.DialogFontBaseScaleHeight;
     LangOptions.RightToLeft := lfRightToLeft in MessagesLangOptions.Flags;
+    if lfWizardBorderStyled in MessagesLangOptions.Flags then
+      Include(SetupHeader.Options, shWizardBorderStyled);
+    if lfWizardKeepAspectRatio in MessagesLangOptions.Flags then
+      Include(SetupHeader.Options, shWizardKeepAspectRatio);
+    SetupHeader.WizardSizePercentX := MessagesLangOptions.WizardSizePercentX;
+    SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));

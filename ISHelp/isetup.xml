@@ -105,7 +105,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 6.6.1-dev</b><br/>
+<b>Inno Setup version 6.6.1</b><br/>
 <b>Copyright &copy; 1997-2025 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2025 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -1096,6 +1096,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_password">Password</link></li>
 <li><link topic="setup_privilegesrequired">PrivilegesRequired</link></li>
 <li><link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></li>
+<li><link topic="setup_redirectionguard">RedirectionGuard</link></li>
 <li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
@@ -1791,9 +1792,16 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noencryption">
 <p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>) but want to be able to extract the file using the [Code] section support function <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> before the user has entered the correct password.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
+</flag>
+<flag name="notimestamp">
+<p>Prevents the file from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</p>
+<p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>touch</tt> flags.</p>
+<p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noregerror">
 <p>When combined with either the <tt>regserver</tt> or <tt>regtypelib</tt> flags, Setup will not display any error message if the registration fails.</p>
@@ -3939,6 +3947,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <keyword value="/LOGCLOSEAPPLICATIONS" anchor="LOGCLOSEAPPLICATIONS" />
 <keyword value="/RESTARTAPPLICATIONS" anchor="RESTARTAPPLICATIONS" />
 <keyword value="/NORESTARTAPPLICATIONS" anchor="NORESTARTAPPLICATIONS" />
+<keyword value="/REDIRECTIONGUARD" anchor="REDIRECTIONGUARD" />
+<keyword value="/NOREDIRECTIONGUARD" anchor="NOREDIRECTIONGUARD" />
 <keyword value="/LOADINF=" anchor="LOADINF" />
 <keyword value="/SAVEINF=" anchor="SAVEINF" />
 <keyword value="/LANG=" anchor="LANG" />
@@ -4082,6 +4092,16 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
 <dd>
 <p>Prevents Setup from restarting applications. If /RESTARTAPPLICATIONS was also used, this command line parameter is ignored.</p>
+</dd>
+
+<dt><b><a name="REDIRECTIONGUARD">/REDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Instructs Setup to enable RedirectionGuard if possible.</p>
+</dd>
+
+<dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Prevents Setup from enabling RedirectionGuard. If /REDIRECTIONGUARD was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
@@ -4273,6 +4293,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
 <keyword value="/NOSTYLE" anchor="NOSTYLE" />
+<keyword value="/REDIRECTIONGUARD" anchor="REDIRECTIONGUARD" />
+<keyword value="/NOREDIRECTIONGUARD" anchor="NOREDIRECTIONGUARD" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
 <keyword value="/SUPPRESSMSGBOXES" anchor="SUPPRESSMSGBOXES" />
@@ -4317,6 +4339,16 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <dt><b><a name="NORESTART">/NORESTART</a></b></dt>
 <dd>
 <p>Instructs the uninstaller not to reboot even if it's necessary.</p>
+</dd>
+
+<dt><b><a name="REDIRECTIONGUARD">/REDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Instructs the uninstaller to enable RedirectionGuard if possible.</p>
+</dd>
+
+<dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
+<dd>
+<p>Prevents the uninstaller from enabling RedirectionGuard. If /REDIRECTIONGUARD was also used, this command line parameter is ignored.</p>
 </dd>
 
 </dl>
@@ -4827,6 +4859,21 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="RedirectionGuard">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>yes</tt></setupdefault>
+<body>
+<p>This directive lets you disable Setup and Uninstall always trying to enable Windows RedirectionGuard.</p>
+<p>This mitigation blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.</p>
+<p>Can also be disabled or enabled using Setup and Uninstall command line parameters /NOREDIRECTIONGUARD and /REDIRECTIONGUARD.</p>
+<p>When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.</p>
+<p>RedirectionGuard status is logged, so you can verify whether the mitigation was active.</p>
+<p><b>See also:</b><br/>
+<link topic="setupcmdline">Setup Command Line Parameters</link><br/>
+<link topic="uninstcmdline">Uninstaller Command Line Parameters</link></p>
 </body>
 </setuptopic>
 
