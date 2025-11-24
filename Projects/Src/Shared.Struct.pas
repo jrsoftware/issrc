@@ -409,7 +409,7 @@ type
     TableCRC: Int32;                { CRC of all prior fields in this record }
   end;
 
-  { TMessagesLangOptions contains appearence settings used by the uninstaller
+  { TMessagesLangOptions contains appearance settings used by the uninstaller
     and RegSvr, set when the .exe was last replaced, without being affected
     by any previously installed version. As a result, it is neither backward
     nor forward compatible, unlike TUninstallLogHeader. Be sure to update

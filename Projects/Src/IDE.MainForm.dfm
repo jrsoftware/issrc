@@ -844,7 +844,7 @@ object MainForm: TMainForm
         Caption = 'Target &Uninstall'
         GroupIndex = 1
         RadioItem = True
-        ShortCut = 16471
+        ShortCut = 32849
         OnClick = RTargetClick
       end
     end

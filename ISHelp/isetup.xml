@@ -3579,6 +3579,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
 </tr>
 <tr>
+  <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>
+</tr>
+<tr>
   <td>Switch between the active memo, the active bottom pane, and the active banner</td><td>F6</td>
 </tr>
 </table>
