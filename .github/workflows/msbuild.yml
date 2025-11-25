@@ -33,5 +33,18 @@ jobs:
       - name: Build issrc
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
+          "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
           "set BDS=$env:DELPHIXEROOT" | Out-File -Encoding ascii issrc-build-env\bin\rsvars.bat
-      - uses: fawazahmed0/action-debug-vscode@main
+          .\compile-msbuild.bat
+      - name: Clean up temporary files
+        if: always()
+        shell: bash
+        run: rm -rf mykey.isprivatekey
+      - name: Copy license.txt into all artifacts
+        run: |
+          copy license.txt Files
+      - name: Upload Files/
+        uses: actions/upload-artifact@v4
+        with:
+          name: Files
+          path: Files/
