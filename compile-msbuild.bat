@@ -33,14 +33,14 @@ cd Projects
 if errorlevel 1 goto failed
 
 if "%1"=="issigtool" (
-	set PROJ=ISSigTool.dproj
+  set PROJ=ISSigTool.dproj
 ) else (
-	if not "%1"=="" goto failed
+  if not "%1"=="" goto failed
   set PROJ=Projects.groupproj
 )
 
 echo - %PROJ%
-msbuild.exe %PROJ% /t:Build /p:Config=Release /p:Platform=Win32
+msbuild.exe %PROJ% /t:Build /p:Config=Release /p:Platform=Win32 /p:EnvOptionsWarn=false
 if errorlevel 1 goto failed
 
 cd ..
