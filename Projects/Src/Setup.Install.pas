@@ -34,10 +34,8 @@ type
     Filename: String;
     Is64Bit, TypeLib, NoErrorMessages: Boolean;
   end;
-var
-  UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String;
-  UninstallExeCreated: (ueNone, ueNew, ueReplaced);
-  UninstallDataCreated, AppendUninstallData: Boolean;
+
+  TUninstallExeCreated = (ueNone, ueNew, ueReplaced);
   
 procedure RecordStartInstall(const UninstLog: TUninstallLog);
 var
@@ -514,7 +512,8 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   const DisableFsRedir: Boolean; AExternalSourceFile, ADestFile: String;
   const FileLocationFilenames: TStringList; const AExternalSize: Int64;
   var ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll: TOverwriteAll;
-  var WarnedPerUserFonts: Boolean; const AExternalFileDate: PFileTime);
+  var WarnedPerUserFonts: Boolean; const AExternalFileDate: PFileTime;
+  var UninstallTempExeFilename: String; var UninstallExeCreated: TUninstallExeCreated);
 { Not external: AExternalSourceFile and ADestFile should be empty strings,
                 FileLocationFilenames should be set, AExternalSize is unused,
                 AExternalFileDate should not be set
@@ -1413,7 +1412,8 @@ Retry:
 end;
 
 procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
-  const RegisterFilesList: TList; Uninstallable: Boolean);
+  const RegisterFilesList: TList; Uninstallable: Boolean;
+  var UninstallTempExeFilename: String; var UninstallExeCreated: TUninstallExeCreated);
 { Copies all the application's files }
 
   function RecurseExternalCopyFiles(const DisableFsRedir: Boolean;
@@ -1464,7 +1464,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
             ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
               CurFile, DisableFsRedir, SourceFile, DestFile, nil,
               Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-              WarnedPerUserFonts, nil);
+              WarnedPerUserFonts, nil, UninstallTempExeFilename, UninstallExeCreated);
             Dec(ExpectedBytesLeft, Size);
           end;
         until not FindNextFile(H, FindData);
@@ -1593,7 +1593,8 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
                 CurFile, DisableFsRedir, SourceFile, DestFile,
                 nil, Size, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts, @FindData.ftLastWriteTime);
+                WarnedPerUserFonts, @FindData.ftLastWriteTime,
+                UninstallTempExeFilename, UninstallExeCreated);
               Dec(ExpectedBytesLeft, Size);
             end else if foCreateAllSubDirs in CurFile.Options then begin
               var Flags: TMakeDirFlags := [];
@@ -1658,7 +1659,8 @@ begin
         if CurFile^.LocationEntry <> -1 then begin
           ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
             CurFile, DisableFsRedir, '', '', FileLocationFilenames, 0,
-            ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil);
+            ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll, WarnedPerUserFonts, nil,
+            UninstallTempExeFilename, UninstallExeCreated);
         end
         else begin
           { File is an 'external' file }
@@ -1686,7 +1688,8 @@ begin
               ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
                 CurFile, DisableFsRedir, SourceWildcard, ExpandConst(CurFile^.DestName),
                 nil, ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
-                WarnedPerUserFonts, nil);
+                WarnedPerUserFonts, nil,
+                UninstallTempExeFilename, UninstallExeCreated);
               FoundFiles := True;
             end else if foExtractArchive in CurFile^.Options then
               FoundFiles := RecurseExternalArchiveCopyFiles(DisableFsRedir,
@@ -2596,12 +2599,11 @@ begin
   end;
 end;
 
-procedure GenerateUninstallInfoFilename(const UninstLog: TUninstallLog);
-var
-  ExistingFiles: array[0..999] of Boolean;
-  BaseDir: String;
+procedure GenerateUninstallInfoFilename(const UninstLog: TUninstallLog;
+  var UninstallDataFilename, UninstallMsgFilename: String;
+  var UninstallDataCreated, AppendUninstallData: Boolean);
 
-  procedure FindFiles;
+  procedure FindFiles(const BaseDir: String; var ExistingFiles: array of Boolean);
   var
     H: THandle;
     FindData: TWin32FindData;
@@ -2621,12 +2623,12 @@ var
     end;
   end;
 
-  procedure GenerateFilenames(const I: Integer);
+  procedure GenerateFilenames(const BaseDir: String; const I: Integer);
   var
     BaseFilename: String;
   begin
     BaseFilename := AddBackslash(BaseDir) + Format('unins%.3d', [I]);
-    UninstallExeFilename := BaseFilename + '.exe';
+    UninstallExeFilename := BaseFilename + '.exe'; { UninstallExeFilename is a global }
     UninstallDataFilename := BaseFilename + '.dat';
     UninstallMsgFilename := BaseFilename + '.msg';
   end;
@@ -2645,8 +2647,7 @@ var
   end;
 
 var
-  I: Integer;
-  ExistingFlags: TUninstallLogFlags;
+  ExistingFiles: array[0..999] of Boolean;
 begin
   { Note: We never disable FS redirection when writing to UninstallFilesDir.
     If someone sets UninstallFilesDir to "sys", we can't place a 32-bit
@@ -2660,20 +2661,20 @@ begin
     to syswow64, otherwise Add/Remove Programs would look for the
     UninstallString executable in the 64-bit system directory (at least
     when using a 64-bit Uninstall key) }
-  BaseDir := ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
+  const BaseDir = ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
   MakeDir(UninstLog, False, BaseDir, []);
 
   FillChar(ExistingFiles, SizeOf(ExistingFiles), 0);  { set all to False }
-  FindFiles;
+  FindFiles(BaseDir, ExistingFiles);
 
   { Look for an existing .dat file to append to or overwrite }
   if SetupHeader.UninstallLogMode <> lmNew then
-    for I := 0 to 999 do
+    for var I := 0 to 999 do
       if ExistingFiles[I] then begin
-        GenerateFilenames(I);
+        GenerateFilenames(BaseDir, I);
         if NewFileExists(UninstallDataFilename) and
-           UninstLog.CanAppend(UninstallDataFilename, ExistingFlags) then begin
+           UninstLog.CanAppend(UninstallDataFilename) then begin
           if SetupHeader.UninstallLogMode = lmAppend then begin
             LogFmt('Will append to existing uninstall log: %s', [UninstallDataFilename]);
             AppendUninstallData := True;
@@ -2684,9 +2685,9 @@ begin
         end;
       end;
   { None found; use a new .dat file }
-  for I := 0 to 999 do
+  for var I := 0 to 999 do
     if not ExistingFiles[I] then begin
-      GenerateFilenames(I);
+      GenerateFilenames(BaseDir, I);
       LogFmt('Creating new uninstall log: %s', [UninstallDataFilename]);
       ReserveDataFile;
       Exit;
@@ -2695,7 +2696,7 @@ begin
     BaseDir));
 end;
 
-procedure RenameUninstallExe;
+procedure RenameUninstallExe(var UninstallTempExeFilename: String);
 begin
   { If the uninstall EXE wasn't extracted to a .tmp file because it isn't
     replacing an existing uninstall EXE, exit. }
@@ -2738,7 +2739,8 @@ begin
   UninstallTempExeFilename := '';
 end;
 
-function CreateUninstallMsgFile: Boolean;
+function CreateUninstallMsgFile(const UninstallExeCreated: TUninstallExeCreated;
+  const UninstallMsgFilename: String): Boolean;
 { If the uninstaller EXE has a digital signature, or if Setup was started
   with /DETACHEDMSG, create the unins???.msg file }
 var
@@ -2763,10 +2765,6 @@ end;
 
 procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
   ChangesAssociations: Boolean);
-var
-  Uninstallable, UninstLogCleared: Boolean;
-  I: Integer;
-  UninstallRegKeyBaseName: String;
 begin
   Succeeded := False;
   Log('Starting the installation process.');
@@ -2774,14 +2772,14 @@ begin
   var InstallFilesSize, AfterInstallFilesSize: Int64;
   CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
   InitProgressGauge(InstallFilesSize);
-  UninstallExeCreated := ueNone;
-  UninstallDataCreated := False;
-  var UninstallMsgCreated := False;
-  AppendUninstallData := False;
-  UninstLogCleared := False;
   var RegisterFilesList: TList := nil;
   const UninstLog = TSetupUninstallLog.Create;
   try
+    var UninstallExeCreated := ueNone;
+    var UninstallDataCreated := False;
+    var UninstallMsgCreated := False;
+    var UninstLogCleared := False;
+    var UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String; { There's also UninstallExeFilename but it's a global }
     try
       { Get AppId, UninstallRegKeyBaseName, and Uninstallable now so the user
         can't change them while we're installing }
@@ -2790,8 +2788,8 @@ begin
         InternalError('Failed to get a non empty installation "AppId"');
       if TUninstallLog.WriteSafeHeaderString(nil, ExpandedAppId, 0) > 128 then
         InternalError('"AppId" cannot exceed 128 bytes (encoded)');
-      UninstallRegKeyBaseName := GetUninstallRegKeyBaseName(ExpandedAppId);
-      Uninstallable := EvalDirectiveCheck(SetupHeader.Uninstallable);
+      const UninstallRegKeyBaseName = GetUninstallRegKeyBaseName(ExpandedAppId);
+      const Uninstallable = EvalDirectiveCheck(SetupHeader.Uninstallable);
 
       { Init }
       UninstLog.InstallMode64Bit := Is64BitInstallMode;
@@ -2853,16 +2851,20 @@ begin
       CreateDirs(UninstLog);
       ProcessEvents;
 
+      var AppendUninstallData := False;
+
       if Uninstallable then begin
         { Generate the filenam(UninstLog)es for the uninstall info in the application
           directory }
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
-        GenerateUninstallInfoFilename(UninstLog);
+        GenerateUninstallInfoFilename(UninstLog, UninstallDataFilename, UninstallMsgFilename,
+          UninstallDataCreated, AppendUninstallData);
       end;
 
       { Copy the files }
       SetStatusLabelText(SetupMessages[msgStatusExtractFiles]);
-      CopyFiles(UninstLog, ExpandedAppId, RegisterFilesList, Uninstallable);
+      CopyFiles(UninstLog, ExpandedAppId, RegisterFilesList, Uninstallable,
+        UninstallTempExeFilename, UninstallExeCreated);
       ProcessEvents;
 
       { Create program icons, if any }
@@ -2906,8 +2908,8 @@ begin
       if Uninstallable then begin
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         Log('Saving uninstall information.');
-        RenameUninstallExe;
-        UninstallMsgCreated := CreateUninstallMsgFile;
+        RenameUninstallExe(UninstallTempExeFilename);
+        UninstallMsgCreated := CreateUninstallMsgFile(UninstallExeCreated, UninstallMsgFilename);
         { Register uninstall information so the program can be uninstalled
           through the Add/Remove Programs Control Panel applet. This is done
           on NT 3.51 too, so that the uninstall entry for the app will appear
@@ -2978,7 +2980,7 @@ begin
     end;
   finally
     if Assigned(RegisterFilesList) then begin
-      for I := RegisterFilesList.Count-1 downto 0 do
+      for var I := RegisterFilesList.Count-1 downto 0 do
         Dispose(PRegisterFilesListRec(RegisterFilesList[I]));
       RegisterFilesList.Free;
     end;

@@ -149,7 +149,8 @@ type
     procedure AddReg(const Typ: TUninstallRecTyp; const RegView: TRegView;
       const RootKey: HKEY; const Data: array of String);
     function CanAppend(const Filename: String;
-      var ExistingFlags: TUninstallLogFlags): Boolean;
+      var ExistingFlags: TUninstallLogFlags): Boolean; overload;
+    function CanAppend(const Filename: String): Boolean; overload;
     function CheckMutexes: Boolean;
     procedure Clear;
     class function ExtractRecData(const Rec: PUninstallRec;
@@ -1423,6 +1424,12 @@ begin
     end;
   except
   end;
+end;
+
+function TUninstallLog.CanAppend(const Filename: String): Boolean;
+begin
+  var ExistingFlags: TUninstallLogFlags;
+  Result := CanAppend(Filename, ExistingFlags);
 end;
 
 end.
