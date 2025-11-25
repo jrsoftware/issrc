@@ -243,8 +243,8 @@ Inno Setup-specific editing guidelines for the help files
 Setting up Continuous Integration
 ---------------------------------
 
-Inno Setup's source code includes a GitHub workflow that performs unattended builds
-upon `push` events, it requires some setting up, though.
+Inno Setup's source code includes a GitHub workflow named **build.yml** that
+performs unattended builds upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
 of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\23.0`. This may
@@ -304,7 +304,7 @@ close and reopen the PR on GitHub to make it display updated information.
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
 `ISSRC_BUILD2_ENV_ZIP_PASSWORD`. Unlike the main build, the second build does not produce
-any artifacts.
+any artifacts. It uses workflow **build2.yml**.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
