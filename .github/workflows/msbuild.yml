@@ -30,16 +30,19 @@ jobs:
           Remove-Item issrc-build-env.zip
           $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
           "DELPHIXEROOT=$DELPHIXEROOT" | Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
-      - name: Build issrc
+          "set BDS=$DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii issrc-build-env\bin\rsvars.bat
+      - name: Configure build
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
           "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
-          "set BDS=$env:DELPHIXEROOT" | Out-File -Encoding ascii issrc-build-env\bin\rsvars.bat
+      - name: Build issrc
+        run: |
           .\compile-msbuild.bat
       - name: Clean up temporary files
         if: always()
         shell: bash
-        run: rm -rf mykey.isprivatekey
+        run: |
+          rm -rf mykey.isprivatekey
       - name: Copy license.txt into all artifacts
         run: |
           copy license.txt Files
