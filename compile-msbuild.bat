@@ -32,11 +32,15 @@ if errorlevel 1 goto failed
 cd Projects
 if errorlevel 1 goto failed
 
-if "%1"=="issigtool" goto issigtool
-if not "%1"=="" goto failed
+if "%1"=="issigtool" (
+	set PROJ=ISSigTool.dproj
+) else (
+	if not "%1"=="" goto failed
+  set PROJ=Projects.groupproj
+)
 
-echo - Projects.groupproj
-msbuild.exe Projects.groupproj /t:Build /p:Config=Release /p:Platform=Win32
+echo - %PROJ%
+msbuild.exe %PROJ% /t:Build /p:Config=Release /p:Platform=Win32
 if errorlevel 1 goto failed
 
 cd ..
