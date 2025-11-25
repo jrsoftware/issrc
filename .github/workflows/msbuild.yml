@@ -30,7 +30,7 @@ jobs:
           }
           Remove-Item issrc-build-env.zip
           $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
-          "DELPHIXEROOT=$DELPHIXEROOT" | Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
+          "DELPHIXEROOT=$DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii -Append "$env:GITHUB_ENV"
           "set BDS=$DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii issrc-build-env\bin\rsvars.bat
       - name: Configure build
         run: |
