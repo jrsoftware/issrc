@@ -1,4 +1,4 @@
-name: msbuild
+name: msbuild-debug
 
 on:
   workflow_dispatch:
