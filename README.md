@@ -261,12 +261,12 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 "C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
 	%USERPROFILE%\issrc-build-env.zip ^
 	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
-	lib/win32/release/Sys*.dcu lib/win32/release/*.res ^
-	lib/win32/release/System.*.dcu lib/win32/release/System.Generics.*.dcu ^
-	lib/win32/release/System.Internal.*.dcu lib/win32/release/System.Net.*.dcu ^
-	lib/win32/release/System.Net.HttpClient.*.dcu lib/win32/release/System.Win.*.dcu ^
-	lib/win32/release/Vcl.*.dcu lib/win32/release/Vcl.Imaging.*.dcu ^
-	lib/win32/release/Winapi.*.dcu
+	lib\win32\release\Sys*.dcu lib\win32\release\*.res ^
+	lib\win32\release\System.*.dcu lib\win32\release\System.Generics.*.dcu ^
+	lib\win32\release\System.Internal.*.dcu lib\win32\release\System.Net.*.dcu ^
+	lib\win32\release\System.Net.HttpClient.*.dcu lib\win32\release\System.Win.*.dcu ^
+	lib\win32\release\Vcl.*.dcu lib\win32\release\Vcl.Imaging.*.dcu ^
+	lib\win32\release\Winapi.*.dcu
 ```
 
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
