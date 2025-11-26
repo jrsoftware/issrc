@@ -74,7 +74,7 @@ type
     FCompressor: TCustomCompressor;
     FFile: TFile;
     FStartPos: Int64;
-    FTotalBytesStored: Cardinal;
+    FTotalBytesStored: Int64;
     FInBufferCount, FOutBufferCount: Cardinal;
     FInBuffer, FOutBuffer: array[0..4095] of Byte;
     FEncrypt: Boolean;
@@ -96,7 +96,7 @@ type
   private
     FDecompressor: TCustomDecompressor;
     FFile: TFile;
-    FInBytesLeft: Cardinal;
+    FInBytesLeft: Int64;
     FInitialized: Boolean;
     FInBufferNext: Cardinal;
     FInBufferAvail: Cardinal;
@@ -289,7 +289,7 @@ end;
 
 type
   TCompressedBlockHeader = packed record
-    StoredSize: Cardinal;   { Total bytes written, including the CRCs }
+    StoredSize: Int64;      { Total bytes written, including the CRCs }
     Compressed: Boolean;    { True if data is compressed, False if not }
   end;
 
@@ -472,9 +472,10 @@ begin
   Dec(FInBytesLeft, SizeOf(CRC));
 
   { Read chunk data }
-  Len := FInBytesLeft;
-  if Len > SizeOf(FInBuffer) then
-    Len := SizeOf(FInBuffer);
+  if FInBytesLeft > SizeOf(FInBuffer) then
+    Len := SizeOf(FInBuffer)
+  else
+    Len := Cardinal(FInBytesLeft);
   FFile.ReadBuffer(FInBuffer, Len);
   Dec(FInBytesLeft, Len);
   FInBufferNext := 0;
