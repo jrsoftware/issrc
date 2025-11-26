@@ -2545,7 +2545,7 @@ var
 
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
-    PrecompiledFiles: array of PChar = ['setupe32', 'setupcustomstylee23', 'setupldre32', 'setupldre64',
+    PrecompiledFiles: array of PChar = ['setupe32', 'setupcustomstylee32', 'setupldre32', 'setupldre64',
       'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
   begin
     Result := [];
