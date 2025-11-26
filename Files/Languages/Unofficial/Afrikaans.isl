@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.4.0+ Afrikaans messages ***
+; *** Inno Setup version 6.5.0+ Afrikaans messages ***
 ;
 ; Created by: Leon Odendaal
 ; E-mail:     leonrsa@gmail.com
@@ -212,24 +212,26 @@ ReadyMemoGroup=Begin-kieslysvouer:
 ReadyMemoTasks=Bykomende take:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Bykomende leers word afgelaai files...
+DownloadingLabel2=Leers word afgelaai...
 ButtonStopDownload=&Staak aflaai
 StopDownload=Is jy seker jy will die aflaai staak?
 ErrorDownloadAborted=Aflaai laat vaar
 ErrorDownloadFailed=Aflaai fout: %1 %2
 ErrorDownloadSizeFailed=Groote van aflaai fout: %1 %2
-ErrorFileHash1=Leersom fout: %1
-ErrorFileHash2=Ongeldige leersom: %1 verwag, %2 gevind
 ErrorProgress=Ongeldige vordering: %1 of %2
 ErrorFileSize=Ongeldige leer grootte: %1 verwag, %2 gevind
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Onttrek bykomende leers...
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractionLabel=Onttrek leers...
 ButtonStopExtraction=&Staak onttrekking
 StopExtraction=Is jy seker jy wil die onttrekking staak?
 ErrorExtractionAborted=Ontrekking laat vaar
 ErrorExtractionFailed=Onttrekking fout: %1
 
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Die wagwoord is verkeerd
+ArchiveIsCorrupted=Die argief is korrup
+ArchiveUnsupportedFormat=Die argief formaat word nie ondersteun nie
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Berei voor om te Installeer
@@ -275,11 +277,15 @@ AbortRetryIgnoreSelectAction=Kies aksie
 AbortRetryIgnoreRetry=&Probeer weer
 AbortRetryIgnoreIgnore=&Ignoreer die fout en gaan aan
 AbortRetryIgnoreCancel=Kanseleer die installasie
+RetryCancelSelectAction=Kies aksie
+RetryCancelRetry=&Probeer weer
+RetryCancelCancel=Kanseleer
 
 ; *** Installation status messages
 StatusClosingApplications=Maak programme toe...
 StatusCreateDirs=Skep vouers...
 StatusExtractFiles=Pak leers uit...
+StatusDownloadFiles=leers word afgelaai...
 StatusCreateIcons=Skep kortpaaie...
 StatusCreateIniEntries=Skep INI-inskrywings...
 StatusCreateRegistryEntries=Skep van registerinskrywings...
@@ -309,6 +315,15 @@ FileAbortRetryIgnoreSkipNotRecommended=&Slaan hierdie leer oor (nie aanbeveel ni
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignoreer die fout en gaan aan (nie aanbeveel nie)
 SourceIsCorrupted=Die bronleer is korrup
 SourceDoesntExist=Die bronleer "%1" bestaan nie
+SourceVerificationFailed=Bevestiging van die bronleer het gefaal: %1
+VerificationSignatureDoesntExist=Die getekende leer "%1" bestaan nie
+VerificationSignatureInvalid=Die getekende leer "%1" is ongeldig
+VerificationKeyNotFound=Die getekende leer "%1" gebruik 'n onbekende sleutel
+VerificationFileNameIncorrect=Die naam van die leer is verkeerd
+VerificationFileTagIncorrect=Die merk van die leer is verkeerd
+VerificationFileSizeIncorrect=Die grootte naam van die leer is verkeerd
+VerificationFileHashIncorrect=Die huts van die leer is verkeerd
+
 ExistingFileReadOnly2=Die bestaande leer kon nie vervang word nie want dit is Alleenlik vir lees gemerk.
 ExistingFileReadOnlyRetry=&Verwyder die Alleenlik-lees merker en probeer weer
 ExistingFileReadOnlyKeepExisting=&Behou die bestaande leer
@@ -327,6 +342,8 @@ ErrorChangingAttr='n Fout het voorgekom terwyl die attribute van die bestaande l
 ErrorCreatingTemp='n Fout het voorgekom toe 'n leer in die bestaande gids geskep is:
 ErrorReadingSource='n Fout het voorgekom terwyl die bronleer gelees is:
 ErrorCopying='n Fout het voorgekom terwyl 'n leer gekopieer is:
+ErrorDownloading='n Fout het voorgekom terwyl 'n leer afgelaai is:
+ErrorExtracting='n Fout het voorgekom terwyl die argief onttrek is:
 ErrorReplacingExistingFile='n Fout het voorgekom toe die bestaande leer oorskryf is:
 ErrorRestartReplace=HerbeginVervang gefaal:
 ErrorRenamingTemp='n Fout het voorgekom terwyl 'n leer in die bestemmingsgids van naam verander is:
