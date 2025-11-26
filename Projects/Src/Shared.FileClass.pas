@@ -635,23 +635,28 @@ var
   E: TObject;
 begin
   E := ExceptObject;
-  if (E is EExternalException) and
-     (EExternalException(E).ExceptionRecord.ExceptionCode = EXCEPTION_IN_PAGE_ERROR) and
-     (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(2)) and
-     (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) >= Cardinal(FMemory)) and
-     (Cardinal(EExternalException(E).ExceptionRecord.ExceptionInformation[1]) < Cardinal(Cardinal(FMemory) + FMapSize)) then begin
-    { There should be a third parameter containing the NT status code of the error
-      condition that caused the exception. Convert that into a Win32 error code
-      and use it to generate our error message. }
-    if (Cardinal(EExternalException(E).ExceptionRecord.NumberParameters) >= Cardinal(3)) and
-       Assigned(_RtlNtStatusToDosError) then
-      TFile.RaiseError(_RtlNtStatusToDosError(NTSTATUS(EExternalException(E).ExceptionRecord.ExceptionInformation[2])))
-    else begin
-      { Use generic "The system cannot [read|write] to the specified device" errors }
-      if EExternalException(E).ExceptionRecord.ExceptionInformation[0] = 0 then
-        TFile.RaiseError(ERROR_READ_FAULT)
-      else
-        TFile.RaiseError(ERROR_WRITE_FAULT);
+  if E is EExternalException then begin
+    const ExceptionRecord = EExternalException(E).ExceptionRecord;
+    if (ExceptionRecord.ExceptionCode = EXCEPTION_IN_PAGE_ERROR) and
+       (Cardinal(ExceptionRecord.NumberParameters) >= Cardinal(2)) then begin
+      const MemoryStart: PByte = PByte(FMemory);
+      const MemoryEnd: PByte = MemoryStart + FMapSize;
+      const FaultAddress: PByte = PByte(ExceptionRecord.ExceptionInformation[1]);
+      if (FaultAddress >= MemoryStart) and (FaultAddress < MemoryEnd) then begin
+        { There should be a third parameter containing the NT status code of the error
+          condition that caused the exception. Convert that into a Win32 error code
+          and use it to generate our error message. }
+        if (Cardinal(ExceptionRecord.NumberParameters) >= Cardinal(3)) and
+           Assigned(_RtlNtStatusToDosError) then
+          TFile.RaiseError(_RtlNtStatusToDosError(NTSTATUS(ExceptionRecord.ExceptionInformation[2])))
+        else begin
+          { Use generic "The system cannot [read|write] to the specified device" errors }
+          if ExceptionRecord.ExceptionInformation[0] = 0 then
+            TFile.RaiseError(ERROR_READ_FAULT)
+          else
+            TFile.RaiseError(ERROR_WRITE_FAULT);
+        end;
+      end;
     end;
   end;
 end;
