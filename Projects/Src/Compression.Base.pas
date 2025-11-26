@@ -113,10 +113,10 @@ type
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
-function GetCRC32(const Buf; BufSize: Cardinal): Longint;
+function GetCRC32(const Buf; BufSize: Cardinal): Integer;
 procedure TransformCallInstructions(var Buf; Size: Cardinal;
   const Encode: Boolean; const AddrOffset: UInt32);
-function UpdateCRC32(CurCRC: Longint; const Buf; BufSize: Cardinal): Longint;
+function UpdateCRC32(CurCRC: Integer; const Buf; BufSize: Cardinal): Integer;
 
 implementation
 
@@ -130,18 +130,18 @@ const
 
 var
   CRC32TableInited: BOOL;
-  CRC32Table: array[Byte] of Longint;
+  CRC32Table: array[Byte] of Integer;
 
 procedure InitCRC32Table;
 var
-  CRC: Longint;
+  CRC: Integer;
   I, N: Integer;
 begin
   for I := 0 to 255 do begin
     CRC := I;
     for N := 0 to 7 do begin
       if Odd(CRC) then
-        CRC := (CRC shr 1) xor Longint($EDB88320)
+        CRC := (CRC shr 1) xor Integer($EDB88320)
       else
         CRC := CRC shr 1;
     end;
@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-function UpdateCRC32(CurCRC: Longint; const Buf; BufSize: Cardinal): Longint;
+function UpdateCRC32(CurCRC: Integer; const Buf; BufSize: Cardinal): Integer;
 begin
   if not CRC32TableInited then begin
     InitCRC32Table;
@@ -164,9 +164,9 @@ begin
   Result := CurCRC;
 end;
 
-function GetCRC32(const Buf; BufSize: Cardinal): Longint;
+function GetCRC32(const Buf; BufSize: Cardinal): Integer;
 begin
-  Result := UpdateCRC32(Longint($FFFFFFFF), Buf, BufSize) xor Longint($FFFFFFFF);
+  Result := UpdateCRC32(Integer($FFFFFFFF), Buf, BufSize) xor Integer($FFFFFFFF);
 end;
 
 procedure TransformCallInstructions(var Buf; Size: Cardinal;
@@ -289,7 +289,7 @@ end;
 
 type
   TCompressedBlockHeader = packed record
-    StoredSize: LongWord;   { Total bytes written, including the CRCs }
+    StoredSize: Cardinal;   { Total bytes written, including the CRCs }
     Compressed: Boolean;    { True if data is compressed, False if not }
   end;
 
@@ -297,7 +297,7 @@ constructor TCompressedBlockWriter.Create(AFile: TFile;
   ACompressorClass: TCustomCompressorClass; CompressionLevel: Integer;
   ACompressorProps: TCompressorProps);
 var
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
 begin
   inherited Create;
@@ -332,7 +332,7 @@ end;
 procedure TCompressedBlockWriter.FlushOutputBuffer;
 { Flushes contents of FOutBuffer into the file, with a preceding CRC }
 var
-  CRC: Longint;
+  CRC: Integer;
 begin
   if FEncrypt then
     XChaCha20Crypt(FCryptContext, FOutBuffer, FOutBuffer, FOutBufferCount);
@@ -392,7 +392,7 @@ end;
 
 procedure TCompressedBlockWriter.Finish;
 var
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
 begin
   DoCompress(FInBuffer, FInBufferCount);
@@ -416,7 +416,7 @@ end;
 constructor TCompressedBlockReader.Create(AFile: TFile;
   ADecompressorClass: TCustomDecompressorClass);
 var
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
 begin
   inherited Create;
@@ -462,7 +462,7 @@ end;
 
 procedure TCompressedBlockReader.ReadChunk;
 var
-  CRC: Longint;
+  CRC: Integer;
   Len: Cardinal;
 begin
   { Read chunk CRC }
