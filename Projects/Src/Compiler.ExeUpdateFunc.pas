@@ -418,7 +418,7 @@ const
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
-  OffsetOfDllCharacteristics = $46; { Valid for for PE32 and PE32+ }
+  OffsetOfDllCharacteristics = $46; { Valid for both PE32 and PE32+ }
 var
   Header: TImageFileHeader;
   OptMagic, DllChars, OrigDllChars: Word;
