@@ -243,8 +243,8 @@ Inno Setup-specific editing guidelines for the help files
 Setting up Continuous Integration
 ---------------------------------
 
-Inno Setup's source code includes a GitHub workflow that performs unattended builds
-upon `push` events, it requires some setting up, though.
+Inno Setup's source code includes a GitHub workflow named **build.yml** that
+performs unattended builds upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
 of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\23.0`. This may
@@ -259,14 +259,18 @@ Inno Setup using [7-Zip]:
 ```
 cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
 "C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
-	%USERPROFILE%\issrc-build-env.zip ^
-	bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
-	lib/win32/release/Sys*.dcu lib/win32/release/*.res ^
-	lib/win32/release/System.*.dcu lib/win32/release/System.Generics.*.dcu ^
-	lib/win32/release/System.Internal.*.dcu lib/win32/release/System.Net.*.dcu ^
-	lib/win32/release/System.Net.HttpClient.*.dcu lib/win32/release/System.Win.*.dcu ^
-	lib/win32/release/Vcl.*.dcu lib/win32/release/Vcl.Imaging.*.dcu ^
-	lib/win32/release/Winapi.*.dcu
+  %USERPROFILE%\issrc-build-env.zip ^
+  bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
+  lib\win32\release\Sys*.dcu lib\win32\release\*.res ^
+  lib\win32\release\System.*.dcu lib\win32\release\System.Generics.*.dcu ^
+  lib\win32\release\System.Internal.*.dcu lib\win32\release\System.Net.*.dcu ^
+  lib\win32\release\System.Net.HttpClient.*.dcu lib\win32\release\System.Win.*.dcu ^
+  lib\win32\release\Vcl.*.dcu lib\win32\release\Vcl.Imaging.*.dcu ^
+  lib\win32\release\Winapi.*.dcu ^
+  bin\cgrc.exe bin\lnkdfm290.dll bin\rc.exe bin\RcDLL.dll ^
+  bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
+  bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets ^
+  bin\GetItCmd.exe
 ```
 
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
@@ -300,7 +304,7 @@ close and reopen the PR on GitHub to make it display updated information.
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
 `ISSRC_BUILD2_ENV_ZIP_PASSWORD`. Unlike the main build, the second build does not produce
-any artifacts.
+any artifacts. It uses workflow **build2.yml**.
 
 <!-- Link references -->
 [CONTRIBUTING.md]: <CONTRIBUTING.md>
