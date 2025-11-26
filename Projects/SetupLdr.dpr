@@ -91,7 +91,7 @@ begin
         parameter is nil. }
 end;
 
-procedure ProcessCommandLine;
+procedure ProcessCommandLine(var SelfFilename: String);
 begin
   var SilentOrVerySilent := False;
   var WantToSuppressMsgBoxes := False;
@@ -108,8 +108,12 @@ begin
       InitShowHelp := True
     else if SameText(ParamName, '/Silent') or SameText(ParamName, '/VerySilent') then
       SilentOrVerySilent := True
-     else if SameText(ParamName, '/SuppressMsgBoxes') then
+    else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
+    {$IFDEF DEBUG}
+    else if SameText(ParamName, '/SELFFILENAME=') then
+      SelfFilename := PathExpand(ParamValue);
+    {$ENDIF};
   end;
 
   if WantToSuppressMsgBoxes and SilentOrVerySilent then
@@ -285,18 +289,18 @@ begin
   end;
 end;
 
-function GetSetupLdrOffsetTable: PSetupLdrOffsetTable;
+function GetSetupLdrOffsetTable(const M: HMODULE): PSetupLdrOffsetTable;
 { Locates the offset table resource, and returns a pointer to it }
 var
   Rsrc: HRSRC;
   ResData: HGLOBAL;
 begin
-  Rsrc := FindResource(0, MAKEINTRESOURCE(SetupLdrOffsetTableResID), RT_RCDATA);
+  Rsrc := FindResource(M, MAKEINTRESOURCE(SetupLdrOffsetTableResID), RT_RCDATA);
   if Rsrc = 0 then
     SetupCorruptError;
-  if SizeofResource(0, Rsrc) <> SizeOf(Result^) then
+  if SizeofResource(M, Rsrc) <> SizeOf(Result^) then
     SetupCorruptError;
-  ResData := LoadResource(0, Rsrc);
+  ResData := LoadResource(M, Rsrc);
   if ResData = 0 then
     SetupCorruptError;
   Result := LockResource(ResData);
@@ -381,9 +385,8 @@ begin
 end;
 
 var
-  SelfFilename: String;
   SourceF, DestF: TFile;
-  OffsetTable: PSetupLdrOffsetTable;
+  OffsetTable: TSetupLdrOffsetTable;
   TempDir: String;
   S: String;
   TempFile: String;
@@ -402,17 +405,30 @@ begin
       is ejected. }
     RunImageLocally(HInstance);
 
-    ProcessCommandLine;
+    var SelfFilename := NewParamStr(0);
 
-    SelfFilename := NewParamStr(0);
+    ProcessCommandLine(SelfFilename);
+
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
     try
-      OffsetTable := GetSetupLdrOffsetTable;
+      var M: HMODULE := 0;
+      if not PathSame(SelfFilename, NewParamStr(0)) then begin { Can only happen on DEBUG }
+        M := LoadLibraryEx(PChar(SelfFilename), 0, LOAD_LIBRARY_AS_DATAFILE);
+        if M = 0 then
+          raise Exception.Create('LoadLibraryEx failed');
+      end;
+      try
+        OffsetTable := GetSetupLdrOffsetTable(M)^;
+      finally
+        if M <> 0 then
+          FreeLibrary(M);
+      end;
+
       { Note: We don't check the OffsetTable.ID here because it would put a
         copy of the ID in the data section, and that would confuse external
         programs that search for the offset table by ID. }
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
-         (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
+         (GetCRC32(OffsetTable, SizeOf(OffsetTable) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
          (SourceF.Size < OffsetTable.TotalSize) then
         SetupCorruptError;
 
