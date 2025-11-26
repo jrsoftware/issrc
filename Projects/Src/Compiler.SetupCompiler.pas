@@ -3281,7 +3281,7 @@ begin
     ssUseSetupLdr: begin
         if SameText(Value, '64bit') then
           UseSetupLdr := sl64bit
-        else if StrToBool(Value) then
+        else if SameText(Value, '32bit') or StrToBool(Value) then
           UseSetupLdr := sl32bit
         else
           UseSetupLdr := slNone;
