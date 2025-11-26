@@ -119,11 +119,10 @@ type
     ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode,
     ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5,
-    ufRedirectionGuard
     { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
         ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,
         ufWizardLightButtonsUnstyled, and ufWizardKeepAspectRatio }
-    { add next new flag here, replacing this comment (but not the one above) } );
+    ufRedirectionGuard);
 
   TUninstallLog = class
   private
@@ -143,7 +142,6 @@ type
     NeedRestart: Boolean;
     Flags: TUninstallLogFlags;
     Version: Integer;
-    WizardSizePercentX, WizardSizePercentY: Integer;
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
@@ -151,7 +149,8 @@ type
     procedure AddReg(const Typ: TUninstallRecTyp; const RegView: TRegView;
       const RootKey: HKEY; const Data: array of String);
     function CanAppend(const Filename: String;
-      var ExistingFlags: TUninstallLogFlags): Boolean;
+      var ExistingFlags: TUninstallLogFlags): Boolean; overload;
+    function CanAppend(const Filename: String): Boolean; overload;
     function CheckMutexes: Boolean;
     procedure Clear;
     class function ExtractRecData(const Rec: PUninstallRec;
@@ -457,7 +456,7 @@ begin
 end;
 
 procedure TUninstallLog.Clear;
-{ Frees all entries in the uninstall list and clears AppId/AppName/Flags/WizardSizePercentX/Y }
+{ Frees all entries in the uninstall list and clears AppId/AppName/Flags }
 begin
   while FLastList <> nil do
     Delete(FLastList);
@@ -465,8 +464,6 @@ begin
   AppId := '';
   AppName := '';
   Flags := [];
-  WizardSizePercentX := 0;
-  WizardSizePercentY := 0;
 end;
 
 type
@@ -1427,6 +1424,12 @@ begin
     end;
   except
   end;
+end;
+
+function TUninstallLog.CanAppend(const Filename: String): Boolean;
+begin
+  var ExistingFlags: TUninstallLogFlags;
+  Result := CanAppend(Filename, ExistingFlags);
 end;
 
 end.

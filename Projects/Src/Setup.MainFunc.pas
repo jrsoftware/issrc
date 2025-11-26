@@ -2967,6 +2967,12 @@ var
     end;
   end;
 
+  function ShouldEnableRedirectionGuard: Boolean;
+  begin
+    Result := InitRedirectionGuard or
+      ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
+  end;
+
   function HandleInitPassword(const NeedPassword: Boolean): Boolean;
   { Handles InitPassword and returns the updated value of NeedPassword }
   { Also see WizardForm.CheckPassword }
@@ -3454,6 +3460,7 @@ begin
              SetupHeader.PrivilegesRequired <> prLowest) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
+          RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
           RespawnParams := GetCmdTailEx(StartParam);
           if ExtraRespawnParam <> '' then
             RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
@@ -3580,9 +3587,7 @@ begin
 
   Log64BitInstallMode;
 
-  const EnableRedirectionGuard = InitRedirectionGuard or
-    ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
-  RedirectionGuardConfigure(EnableRedirectionGuard);
+  RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
 
   { Test code. Originally planned to call DeleteResidualTempUninstallDirs
     during Setup's startup too, but decided against it; it's not really

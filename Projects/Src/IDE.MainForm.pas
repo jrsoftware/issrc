@@ -1329,6 +1329,11 @@ begin
     Key := 0;
     if BCompile.Enabled then
       BCompileClick(Self);
+  end else if (Key = Ord('W')) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
+    Key := 0;
+    UpdateViewMenu(VMenu); { VCloseCurrentTab.Enabled is not kept updated }
+    if VCloseCurrentTab.Enabled then
+      VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the active bottom pane, and the active banner }
     Key := 0;
@@ -2907,17 +2912,20 @@ begin
     MemosTabSetClick will skip it }
 
   if MemoWasActiveMemo then begin
-    { Select next tab, except when we're already at the end. Avoiding flicker by
-      doing this before hiding old active memo. We do this in a dirty way by
-      clicking two tabs while making sure TabSetClick doesn't see the first
-      'fake' one. }
-    FIgnoreTabSetClick := True;
-    try
-      VNextTabClick(Self);
-    finally
-      FIgnoreTabSetClick := False;
-    end;
-    VPreviousTabClick(Self);
+    if MemosTabSet.Tabs.Count > 1 then begin
+      { Select next tab, except when we're already at the end. Avoiding flicker by
+        doing this before hiding old active memo. We do this in a dirty way by
+        clicking two tabs while making sure TabSetClick doesn't see the first
+        'fake' one. }
+      FIgnoreTabSetClick := True;
+      try
+        VNextTabClick(Self);
+      finally
+        FIgnoreTabSetClick := False;
+      end;
+      VPreviousTabClick(Self);
+    end else
+      MemosTabSet.TabIndex := 0;
     Memo.CancelAutoCompleteAndCallTip;
     Memo.Visible := False;
   end else if TabIndex < MemosTabset.TabIndex then

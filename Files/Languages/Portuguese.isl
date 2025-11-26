@@ -1,6 +1,7 @@
 ; *** Inno Setup version 6.5.0+ Portuguese (Portugal) messages ***
 ;
-; TranslatorNote=Portuguese (Portugal) translation by Nuno Silva (nars@gmx.net) and BlackSpirits (blackspirits@gmail.com)
+; Original translation by Nuno Silva (nars@gmx.net)
+; Revised and updated to AO90 by BlackSpirits (blackspirits@gmail.com)
 ; Last modified: 22 November 2025 by BlackSpirits
 
 [LangOptions]
@@ -67,7 +68,7 @@ AboutSetupMenuItem=&Acerca de...
 AboutSetupTitle=Acerca do Assistente de Instalação
 AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
 AboutSetupNote=
-TranslatorNote=Portuguese (Portugal) translation by Nuno Silva (nars@gmx.net) and BlackSpirits
+TranslatorNote=Portuguese (Portugal) translation by Nuno Silva (nars@gmx.net) and BlackSpirits (blackspirits@gmail.com)
 
 ; *** Buttons
 ButtonBack=< &Anterior
@@ -389,5 +390,3 @@ AssocingFileExtension=A associar o %1 aos ficheiros com a extensão %2...
 AutoStartProgramGroupDescription=Inicialização Automática:
 AutoStartProgram=Iniciar %1 automaticamente
 AddonHostProgramNotFound=Não foi possível localizar %1 na pasta selecionada.%n%nDeseja continuar de qualquer forma?
-
-

@@ -39,7 +39,7 @@ type
     FCenterOnShow: Boolean;
     FControlsFlipped: Boolean;
     FKeepSizeX, FKeepSizeY: Boolean;
-    FOrgClientWidthAfterScale, FOrgClientHeightAfterScale: Integer;
+    FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -619,8 +619,8 @@ begin
 
   FKeepSizeX := KeepSizeX;
   FKeepSizeY := KeepSizeY;
-  FOrgClientWidthAfterScale := ClientWidth;
-  FOrgClientHeightAfterScale := ClientHeight;
+  FOrigClientWidthAfterScale := ClientWidth;
+  FOrigClientHeightAfterScale := ClientHeight;
 
   const LShouldSizeX = ShouldSizeX;
   const LShouldSizeY = ShouldSizeY;
@@ -633,12 +633,12 @@ end;
 
 function TSetupForm.GetExtraClientWidth: Integer;
 begin
-  Result := ClientWidth - FOrgClientWidthAfterScale;
+  Result := ClientWidth - FOrigClientWidthAfterScale;
 end;
 
 function TSetupForm.GetExtraClientHeight: Integer;
 begin
-  Result := ClientHeight - FOrgClientHeightAfterScale;
+  Result := ClientHeight - FOrigClientHeightAfterScale;
 end;
 
 class function TSetupForm.ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer;
