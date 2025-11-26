@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.1)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.2)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
@@ -328,7 +328,7 @@ type
     Subkey, ValueName, ValueData: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    RootKey: HKEY;
+    RootKey: UInt64; { Not using HKEY because it equals NativeUInt }
     PermissionsEntry: Smallint;
     Typ: (rtNone, rtString, rtExpandString, rtDWord, rtBinary, rtMultiString, rtQWord);
     Options: set of (roCreateValueIfDoesntExist, roUninsDeleteValue,

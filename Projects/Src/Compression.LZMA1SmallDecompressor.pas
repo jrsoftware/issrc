@@ -177,7 +177,7 @@ begin
       OutOfMemoryError;
     FHeapSize := NewHeapSize;
   end;
-  LzmaMyDecoderInit(FDecoderState, FHeapBase, Pointer(Cardinal(FHeapBase) + ProbsSize));
+  LzmaMyDecoderInit(FDecoderState, FHeapBase, PByte(FHeapBase) + ProbsSize);
 
   FHeaderProcessed := True;
 end;

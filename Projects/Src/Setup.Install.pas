@@ -2087,7 +2087,7 @@ begin
         DebugNotifyEntry(seRegistry, CurRegNumber);
         NotifyBeforeInstallEntry(BeforeInstall);
         Log('-- Registry entry --');
-        RK := RootKey;
+        RK := HKEY(RootKey);
         if RK = HKEY_AUTO then
           RK := InstallModeRootKey;
         S := ExpandConst(Subkey);
