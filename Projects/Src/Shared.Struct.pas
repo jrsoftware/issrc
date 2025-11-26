@@ -328,7 +328,7 @@ type
     Subkey, ValueName, ValueData: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    RootKey: HKEY;
+    RootKey: UInt64; { Not using HKEY because it equals NativeUInt }
     PermissionsEntry: Smallint;
     Typ: (rtNone, rtString, rtExpandString, rtDWord, rtBinary, rtMultiString, rtQWord);
     Options: set of (roCreateValueIfDoesntExist, roUninsDeleteValue,
