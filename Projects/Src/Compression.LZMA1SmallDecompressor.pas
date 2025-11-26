@@ -8,6 +8,9 @@ unit Compression.LZMA1SmallDecompressor;
 
   Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ in
   Compression.LZMA1SmallDecompressor\LzmaDecode, used by SetupLdr.
+
+  This OBJ uses UInt32 for dictionary and buffer sizes, even in its 64-bit
+  build, because LZMA_SYSTEM_SIZE_T is not defined.
 }
 
 interface
