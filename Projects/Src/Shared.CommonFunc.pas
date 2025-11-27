@@ -120,7 +120,7 @@ function GetWinDir: String;
 function GetSystemWinDir: String;
 function GetSystemDir: String;
 function GetSysWow64Dir: String;
-{$IFDEF WIN32}
+{$IFNDEF WIN64}
 function GetSysNativeDir(const IsWin64: Boolean): String;
 {$ENDIF}
 function GetTempDir: String;
@@ -756,7 +756,7 @@ begin
   end;
 end;
 
-{$IFDEF WIN32}
+{$IFNDEF WIN64}
 
 function GetSysNativeDir(const IsWin64: Boolean): String;
 { Returns the special Sysnative alias, without trailing backslash.

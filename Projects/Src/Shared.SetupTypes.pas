@@ -50,7 +50,7 @@ const
   CodeRootKeyFlag64Bit = $02000000;
   CodeRootKeyValidFlags = CodeRootKeyFlag32Bit or CodeRootKeyFlag64Bit;
 
-  HKEY_AUTO = HKEY(1); { Any value will work as long as it isn't 0 and doesn't match a predefined key handle (8xxxxxxx) nor includes any of the CodeRootKeyValidFlags flags. }
+  HKEY_AUTO = HKEY(1); { Any UInt32 value will work as long as it isn't 0 and doesn't match a predefined key handle (8xxxxxxx) nor includes any of the CodeRootKeyValidFlags flags. }
 
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
