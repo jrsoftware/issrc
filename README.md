@@ -178,11 +178,11 @@ Source code tips
 
 - To debug the SetupLdr project, build all projects in Debug mode and compile
   the Debug.iss script as explained above, except with the `UseSetupLdr=no` line
-  set to `x86` or `x64`. Then open and run the SetupLdr project with a 32-bit
-  or 64-bit target. It will automatically set a special debug-only
-  `/SELFFILENAME=Setup.exe` command line parameter, which will cause it to load
-  and run the Setup.exe you just compiled using Compil32, instead of the
-  SetupLdr.e32 or .e64 just compiled by Delphi.
+  set to `yes`. Then open and run the SetupLdr project with a 32-bit or 64-bit
+  target (former does not require using `UseSetupLdr=x64`). It will automatically
+  set a special debug-only `/SELFFILENAME=Setup.exe` command line parameter,
+  which will cause it to load and run the Setup.exe you just compiled using
+  Compil32, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   `/DETACHEDMSG` command line parameter set. Afterwards copy uninst000.dat and
