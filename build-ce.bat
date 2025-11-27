@@ -67,7 +67,7 @@ call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build all projects in Release mode
+echo Now open Projects\Projects.groupproj and build all projects and targets in Release mode
 
 echo - Waiting for files...
 call :waitforfile files\compil32.exe
