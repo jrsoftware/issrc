@@ -274,7 +274,7 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
   lib\win64\release\System.Net.HttpClient.*.dcu lib\win64\release\System.Win.*.dcu ^
   lib\win64\release\Vcl.*.dcu lib\win64\release\Vcl.Imaging.*.dcu ^
   lib\win64\release\Winapi.*.dcu ^
-  bin\cgrc.exe bin\lnkdfm290.dll bin\rc.exe bin\RcDLL.dll ^
+  bin\cgrc.exe bin\lnkdfm*.dll bin\rc.exe bin\RcDLL.dll ^
   bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
   bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets
 ```
