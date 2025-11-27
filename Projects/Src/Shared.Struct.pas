@@ -72,7 +72,7 @@ type
       incompatibility with 64-bit builds, where the minimum size for a set with
       more than 32 flags is 8 bytes. Once the amount of actual flags reaches
       57, the padding can be removed, as the set will then be naturally
-      compatible again betwen 32-bit and 64-bit builds. Note that this is not
+      compatible again between 32-bit and 64-bit builds. Note that this is not
       necessary for sets with fewer than 32 flags, which is why
       TSetupHeaderOption is the only set with padding. Also see
       https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
