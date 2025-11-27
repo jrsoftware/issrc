@@ -180,10 +180,10 @@ Source code tips
   because they dynamically scale themselves at run-time by calling a function
   named InitializeFont.
 
-- A note for those curious: The Setup Compiler creates single exe Setups by
-  first creating the Setup.exe as usual, then concatenating the Setup.0 and
-  Setup-1.bin to the end of the Setup.exe, and finally modifying an internal
-  data block in Setup.exe so it knows it's in "single exe" form.
+- A note for those curious: Compil32 creates single exe Setups by first creating
+  the Setup.exe as usual, then concatenating the Setup.0 and Setup-1.bin to the
+  end of the Setup.exe, and finally modifying an internal data block in Setup.exe
+  so it knows it's in "single exe" form.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
