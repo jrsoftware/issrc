@@ -300,6 +300,8 @@ head of `main`. Do not fast-forward to the head of `main`, as this will close yo
 you will not be able to recreate it until another commit is made. After fast-forwarding,
 close and reopen the PR on GitHub to make it display updated information.
 
+Both automatic synchronization and automatic review use workflow **sync-fork.yml**.
+
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
 `ISSRC_BUILD2_ENV_ZIP_PASSWORD`. Unlike the main build, the second build does not produce
