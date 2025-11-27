@@ -179,7 +179,7 @@ Source code tips
 - To debug the SetupLdr project, build all projects in Debug mode and compile
   the Debug.iss script as explained above, except with the `UseSetupLdr=no` line
   set to `yes`. Then open and run the SetupLdr project with a 32-bit or 64-bit
-  target (former does not require using `UseSetupLdr=x64`). It will automatically
+  target (latter does not require using `UseSetupLdr=x64`). It will automatically
   set a special debug-only `/SELFFILENAME=Setup.exe` command line parameter,
   which will cause it to load and run the Setup.exe you just compiled using
   Compil32, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
