@@ -321,7 +321,7 @@ VerificationSignatureInvalid=Die getekende leer "%1" is ongeldig
 VerificationKeyNotFound=Die getekende leer "%1" gebruik 'n onbekende sleutel
 VerificationFileNameIncorrect=Die naam van die leer is verkeerd
 VerificationFileTagIncorrect=Die merk van die leer is verkeerd
-VerificationFileSizeIncorrect=Die grootte naam van die leer is verkeerd
+VerificationFileSizeIncorrect=Die grootte van die leer is verkeerd
 VerificationFileHashIncorrect=Die huts van die leer is verkeerd
 
 ExistingFileReadOnly2=Die bestaande leer kon nie vervang word nie want dit is Alleenlik vir lees gemerk.
