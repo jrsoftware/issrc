@@ -66,13 +66,15 @@ type
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
     shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
-    shRedirectionGuard, sh48, sh49, sh50, sh51, sh52, sh53, sh54, sh55, sh56, sh57);
-  { ^ Contains extra unused flags to ensure the size of the set is 8 bytes
-      instead of less in a 32-bit build, by making the amount of flags 57.
-      This prevents incompatibility with 64-bit builds, where the minimum size
-      for a set with more than 32 flags is 8 bytes. You can simply replace the
-      first unused flag when adding a new one. Note: This is only needed when
-      there are more than 32 and less than 57 flags in the set. See
+    shRedirectionGuard, shUnusedPadding = 56);
+  { ^ Contains padding to raise the amount of flags to 57, ensuring the size of
+      the set is 8 bytes (instead of less) in 32-bit builds. This prevents
+      incompatibility with 64-bit builds, where the minimum size for a set with
+      more than 32 flags is 8 bytes. Once the amount of actual flags reaches
+      57, the padding can be removed, as the set will then be naturally
+      compatible again betwen 32-bit and 64-bit builds. Note that this is not
+      necessary for sets with fewer than 32 flags, which is why
+      TSetupHeaderOption is the only set with padding. Also see
       https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
   TSetupHeaderOptions = packed set of TSetupHeaderOption;
   { ^ Adding more flags adds 1 byte for every 8 flags, in both 32-bit and

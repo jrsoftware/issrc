@@ -276,8 +276,7 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
   lib\win64\release\Winapi.*.dcu ^
   bin\cgrc.exe bin\lnkdfm290.dll bin\rc.exe bin\RcDLL.dll ^
   bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
-  bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets ^
-  bin\GetItCmd.exe
+  bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets
 ```
 
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
