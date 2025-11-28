@@ -3342,10 +3342,11 @@ begin
       AbortInit(msgSetupFileCorruptOrWrongVer);
 
     var SetupEncryptionHeaderCRC: Longint;
-    SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
-    SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    if (SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC)) <> SizeOf(SetupEncryptionHeaderCRC)) or
+       (SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) <> SizeOf(SetupEncryptionHeader)) then
+      AbortInit(msgSetupFileCorrupt);
     if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
-      AbortInit(msgSetupFileCorruptOrWrongVer);
+      AbortInit(msgSetupFileCorrupt);
 
     var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
