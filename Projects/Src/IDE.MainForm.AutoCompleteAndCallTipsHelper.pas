@@ -204,7 +204,7 @@ begin
                 const FlagEndPos = AMemo.GetWordEndPosition(I, True);
                 const FlagStartPos = AMemo.GetWordStartPosition(I, True);
                 const FlagWord = AMemo.GetTextRange(FlagStartPos, FlagEndPos);
-                if FMemosStyler.SectionHasFlag(Section, FlagWord) then
+                if FMemosStyler.SectionHasFlag(Section, FlagWord) or FlagWord.StartsWith('{#') then
                   I := FlagStartPos
                 else
                   Exit;
