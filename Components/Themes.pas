@@ -123,6 +123,8 @@ type
     public
       function DrawElement(DC: HDC; Details: TThemedElementDetails; const R: TRect;
         ClipRect: PRect = nil; DPI: Integer = 0): Boolean;
+      function DrawParentBackground(Window: HWND; Target: HDC;
+        Details: TThemedElementDetails; OnlyIfTransparent: Boolean; const Bounds: TRect): Boolean;
       function Enabled: Boolean;
       function GetElementColor(Details: TThemedElementDetails; ElementColor: TElementColor; out Color: TColor): Boolean;
       function GetElementDetails(Detail: TThemedButton): TThemedElementDetails; overload;
@@ -198,6 +200,12 @@ end;
 
 function TCustomStyleServices.DrawElement(DC: HDC; Details: TThemedElementDetails; const R: TRect;
   ClipRect: PRect = nil; DPI: Integer = 0): Boolean;
+begin
+  Result := False;
+end;
+
+function TCustomStyleServices.DrawParentBackground(Window: HWND; Target: HDC;
+  Details: TThemedElementDetails; OnlyIfTransparent: Boolean; const Bounds: TRect): Boolean;
 begin
   Result := False;
 end;

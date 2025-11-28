@@ -177,6 +177,7 @@
         <DCCReference Include="Src\Setup.TaskDialogForm.pas">
             <Form>TaskDialogForm</Form>
         </DCCReference>
+        <DCCReference Include="..\Components\FormBackgroundStyleHook.pas"/>
         <None Include="Src\Setup.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

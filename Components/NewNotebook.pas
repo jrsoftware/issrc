@@ -46,6 +46,7 @@ type
     property DragMode;
     property Enabled;
     property Font;
+    property ParentBackground;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -86,6 +87,7 @@ type
     property Height stored False;
     property Left stored False;
     property PageIndex: Integer read GetPageIndex write SetPageIndex stored False;
+    property ParentBackground;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;

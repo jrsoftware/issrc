@@ -23,6 +23,7 @@ type
   public
     type
       TArrayOfInteger = array of Integer;
+      TArrayOfObject = array of TObject;
       TArrayOfString = array of String;
       TArrayBuilder = record
         Arr: TPSVariantIFC;
@@ -36,6 +37,7 @@ type
         function Next: String;
       end;
     function GetChar(const ItemNo: Longint): Char;
+    function GetClassArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfObject;
     function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
@@ -75,6 +77,15 @@ begin
     Result := S[1]
   else
     Result := #0;
+end;
+
+function TPSStackHelper.GetClassArray(const ItemNo, FieldNo: Longint): TArrayOfObject;
+begin
+  var N: Integer;
+  var Arr := GetArray(ItemNo, FieldNo, N);
+  SetLength(Result, N);
+  for var I := 0 to N-1 do
+    Result[I] := VNGetObject(PSGetArrayField(Arr, I));
 end;
 
 function TPSStackHelper.GetIntArray(const ItemNo, FieldNo: Longint): TArrayOfInteger;

@@ -127,14 +127,17 @@ begin
   FCopyFormat := ACopyFormat;
   SetForeground := ASetForeground;
 
-  var LStyle := StyleServices(Self);
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
-  if LStyle <> nil then begin
-    { Make MainPanel look the same as WizardForm's main area }
-    MainPanel.StyleElements := []; { Must be done before InitializeFont, see its comments }
-    MainPanel.Color := LStyle.GetStyleColor(scWindow);
-  end;
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then begin
+    var LStyle := StyleServices(Self);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+    if LStyle <> nil then begin
+      { Make MainPanel look the same as WizardForm's main area }
+      MainPanel.StyleElements := [];
+      MainPanel.Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else
+    MainPanel.ParentBackground := True;
 
   { KeepSizeX: Already bit wider than regular task dialogs
     KeepSizeY: UpdateHeight will set height }

@@ -443,6 +443,8 @@ begin
   { Other TMessagesLangOptions fields and flags - all appearance only }
   MsgLangOpts.WizardSizePercentX := SetupHeader.WizardSizePercentX;
   MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
+  MsgLangOpts.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }
+  MsgLangOpts.WizardBackColorDynamicDark := SetupHeader.WizardBackColorDynamicDark;
   if shWizardModern in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardModern);
   if shWizardBorderStyled in SetupHeader.Options then

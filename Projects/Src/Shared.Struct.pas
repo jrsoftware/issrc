@@ -134,9 +134,9 @@ type
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardDarkStyle: TSetupWizardDarkStyle;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    WizardImageBackColor, WizardSmallImageBackColor: Integer;
-    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark: Integer;
-    WizardImageOpacity: Byte;
+    WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
+    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
+    WizardImageOpacity, WizardBackImageOpacity: Byte;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
@@ -438,6 +438,7 @@ type
     DialogFontName: array[0..31] of Char;
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
+    WizardBackColor, WizardBackColorDynamicDark: Integer;
     Flags: TMessagesLangOptionsFlags;
   end;
 

@@ -378,7 +378,8 @@ end;
 
 { TNewStaticTextStyleHook - same as Vcl.StdCtrls' TStaticTextStyleHook
   except that it accesses the Control property as a TNewStaticText instead
-  of a TCustomStaticText or TStaticText }
+  of a TCustomStaticText or TStaticText, and that it uses the control's
+  Color property }
 
 type
   TControlAccess = class(TControl);
@@ -411,7 +412,7 @@ begin
       LStyle.DrawParentBackground(Handle, Canvas.Handle, Details, False);
       Canvas.Brush.Style := bsClear;
     end else {$ENDIF} begin
-      Canvas.Brush.Color := LStyle.GetStyleColor(scWindow);
+      Canvas.Brush.Color := TNewStaticText(Control).Color;
       Canvas.FillRect(R);
     end;
     Details := LStyle.GetElementDetails(States[Control.Enabled]);
