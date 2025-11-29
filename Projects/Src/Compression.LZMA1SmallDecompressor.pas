@@ -8,6 +8,9 @@ unit Compression.LZMA1SmallDecompressor;
 
   Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ in
   Compression.LZMA1SmallDecompressor\LzmaDecode, used by SetupLdr.
+
+  This OBJ uses UInt32 for dictionary and buffer sizes, even in its 64-bit
+  build, because LZMA_SYSTEM_SIZE_T is not defined.
 }
 
 interface
@@ -80,8 +83,11 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj}
-
+{$IFDEF WIN32}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x86.obj}
+{$ELSE}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x64.obj}
+{$ENDIF}
 type
   TLzmaInCallback = record
     Read: function(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer; cdecl;
@@ -95,12 +101,12 @@ const
 
 function LzmaMyDecodeProperties(var vs: TLZMAInternalDecoderState;
   vsSize: Integer; const propsData; propsDataSize: Integer;
-  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; cdecl; external name '_LzmaMyDecodeProperties';
+  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; {$IFDEF WIN32} cdecl; external name '_LzmaMyDecodeProperties'; {$ELSE} external name 'LzmaMyDecodeProperties'; {$ENDIF}
 procedure LzmaMyDecoderInit(var vs: TLZMAInternalDecoderState;
-  probsPtr: Pointer; dictionaryPtr: Pointer); cdecl; external name '_LzmaMyDecoderInit';
+  probsPtr: Pointer; dictionaryPtr: Pointer); {$IFDEF WIN32} cdecl; external name '_LzmaMyDecoderInit'; {$ELSE} external name 'LzmaMyDecoderInit'; {$ENDIF}
 function LzmaDecode(var vs: TLZMAInternalDecoderState;
   var inCallback: TLzmaInCallback; var outStream; outSize: Cardinal;
-  var outSizeProcessed: Cardinal): Integer; cdecl; external name '_LzmaDecode';
+  var outSizeProcessed: Cardinal): Integer; {$IFDEF WIN32} cdecl; external name '_LzmaDecode'; {$ELSE} external name 'LzmaDecode'; {$ENDIF}
 
 type
   TLZMADecompressorCallbackData = record

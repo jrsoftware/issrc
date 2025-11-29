@@ -162,20 +162,36 @@ How do the projects link together?
 Source code tips
 ----------------
 
+- When building the projects in Release mode, it outputs to [Files]. Before
+  running Compil32, ensure that all .issig files are up to date.
+
 - When building the projects in Debug mode, it outputs to [Projects\Bin] and when
   debugging, it will run from within this directory. To prepare this directory
   with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
   the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
-- When debugging the Setup project, you should first build all projects in Debug
+- To debug the Setup project, you should first build all projects in Debug
   mode, then run the Compil32 project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
   Delphi debugger.
-  
-- When building the projects in Release mode, it outputs to [Files]. Before
-  running Compil32, ensure that all .issig files are up to date.
-  
+
+- To debug the SetupLdr project, build all projects in Debug mode and compile
+  the Debug.iss script as explained above, except with the `UseSetupLdr=no` line
+  set to `yes`. Then open and run the SetupLdr project with a 32-bit or 64-bit
+  target (latter does not require using `UseSetupLdr=x64`). It will automatically
+  set a special debug-only `/SELFFILENAME=Setup.exe` command line parameter,
+  which will cause it to load and run the Setup.exe you just compiled using
+  Compil32, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
+
+- To debug the uninstaller first run Setup.exe to completion with the
+  `/DETACHEDMSG` command line parameter set. Afterwards copy uninst000.dat and
+  uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
+  issrc path. Then open the Setup project and set the command line parameters to
+  `/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
+  debugging. Note: each time setup.dat and setup.msg will be deleted if you
+  allow the uninstaller to complete so make sure to keep copies.
+
 - All of the forms in the Setup project have Scaled set to False. This is
   because they dynamically scale themselves at run-time by calling a function
   named InitializeFont.
@@ -185,13 +201,6 @@ Source code tips
   end of the Setup.exe, and finally modifying an internal data block in Setup.exe
   so it knows it's in "single exe" form.
 
-- To debug the uninstaller first run Setup.exe to completion with the
-  ``/DETACHEDMSG`` command line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
-  issrc path. Then open the Setup project and set the command line parameters to
-  ``/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"`` and start
-  debugging. Note: each time setup.dat and setup.msg will be deleted if you
-  allow the uninstaller to complete so make sure to keep copies.
 
 
 Precompiled executables and libraries
@@ -221,7 +230,7 @@ stored in a compiled resource file.
 **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
-**Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj** -
+**Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno(.x86|.x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
 
 **Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj** -
@@ -267,6 +276,13 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
   lib\win32\release\System.Net.HttpClient.*.dcu lib\win32\release\System.Win.*.dcu ^
   lib\win32\release\Vcl.*.dcu lib\win32\release\Vcl.Imaging.*.dcu ^
   lib\win32\release\Winapi.*.dcu ^
+  bin\dcc64.exe ^
+  lib\win64\release\Sys*.dcu lib\win64\release\*.res ^
+  lib\win64\release\System.*.dcu lib\win64\release\System.Generics.*.dcu ^
+  lib\win64\release\System.Internal.*.dcu lib\win64\release\System.Net.*.dcu ^
+  lib\win64\release\System.Net.HttpClient.*.dcu lib\win64\release\System.Win.*.dcu ^
+  lib\win64\release\Vcl.*.dcu lib\win64\release\Vcl.Imaging.*.dcu ^
+  lib\win64\release\Winapi.*.dcu ^
   bin\cgrc.exe bin\lnkdfm*.dll bin\rc.exe bin\RcDLL.dll ^
   bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
   bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets

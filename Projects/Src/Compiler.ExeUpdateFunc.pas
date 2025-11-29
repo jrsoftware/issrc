@@ -69,6 +69,7 @@ type
     VirtualAddress: DWORD;
     Size: DWORD;
   end;
+  TDataDirectory = packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
   PImageOptionalHeader = ^TImageOptionalHeader;
   TImageOptionalHeader = packed record
     { Standard fields. }
@@ -103,7 +104,7 @@ type
     SizeOfHeapCommit: DWORD;
     LoaderFlags: DWORD;
     NumberOfRvaAndSizes: DWORD;
-    DataDirectory: packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
+    DataDirectory: TDataDirectory;
   end;
   PImageOptionalHeader64 = ^TImageOptionalHeader64;
   TImageOptionalHeader64 = packed record
@@ -138,7 +139,7 @@ type
     SizeOfHeapCommit: Int64;
     LoaderFlags: DWORD;
     NumberOfRvaAndSizes: DWORD;
-    DataDirectory: packed array[0..IMAGE_NUMBEROF_DIRECTORY_ENTRIES-1] of TImageDataDirectory;
+    DataDirectory: TDataDirectory;
   end;
   TISHMisc = packed record
     case Integer of
@@ -245,6 +246,7 @@ var
   PEHeaderOffset, PESig: Cardinal;
   PEHeader: TImageFileHeader;
   PEOptHeader: TImageOptionalHeader;
+  PEOptHeader64: TImageOptionalHeader64;
   PESectionHeader: TImageSectionHeader;
   I: Integer;
 begin
@@ -264,17 +266,29 @@ begin
   if PESig <> $00004550 {'PE'#0#0} then
     Error('File isn''t a PE file (2)');
   F.ReadBuffer(PEHeader, SizeOf(PEHeader));
-  if PEHeader.SizeOfOptionalHeader <> SizeOf(PEOptHeader) then
+  const PE32 = PEHeader.SizeOfOptionalHeader = SizeOf(PEOptHeader);
+  const PE32Plus = PEHeader.SizeOfOptionalHeader = SizeOf(PEOptHeader64);
+  if not PE32 and not PE32Plus then
     Error('File isn''t a PE file (3)');
-  F.ReadBuffer(PEOptHeader, SizeOf(PEOptHeader));
-  if PEOptHeader.Magic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC then
-    Error('File isn''t a PE file (4)');
+
+  var DataDirectory: TDataDirectory;
+  if PE32 then begin
+    F.ReadBuffer(PEOptHeader, SizeOf(PEOptHeader));
+    if PEOptHeader.Magic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC then
+      Error('File isn''t a PE file (4)');
+    DataDirectory := PEOptHeader.DataDirectory;
+  end else begin
+    F.ReadBuffer(PEOptHeader64, SizeOf(PEOptHeader64));
+    if PEOptHeader64.Magic <> IMAGE_NT_OPTIONAL_HDR64_MAGIC then
+      Error('File isn''t a PE file (5)');
+    DataDirectory := PEOptHeader64.DataDirectory;
+  end;
 
   { Scan section headers for resource section }
-  if (PEOptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress = 0) or
-     (PEOptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].Size = 0) then
+  if (DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress = 0) or
+     (DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].Size = 0) then
     Error('No resources (1)');
-  SectionVirtualAddr := PEOptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
+  SectionVirtualAddr := DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
   SectionPhysOffset := 0;
   for I := 0 to PEHeader.NumberOfSections-1 do begin
     F.ReadBuffer(PESectionHeader, SizeOf(PESectionHeader));
@@ -400,41 +414,49 @@ end;
 procedure UpdateSetupPEHeaderFields(const F: TCustomFile;
   const IsTSAware, IsDEPCompatible, IsASLRCompatible: Boolean);
 const
+  IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA = $0020;
   IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE = $0040;
   IMAGE_DLLCHARACTERISTICS_NX_COMPAT = $0100;
   IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = $8000;
-  OffsetOfDllCharacteristics = $46;
+  OffsetOfDllCharacteristics = $46; { Valid for both PE32 and PE32+ }
 var
   Header: TImageFileHeader;
   OptMagic, DllChars, OrigDllChars: Word;
 begin
   if SeekToPEHeader(F) then begin
-    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader)) then begin
-      const Ofs = F.Position;
-      if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
-         (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then begin
-        { Update DllCharacteristics }
-        F.Seek(Ofs + OffsetOfDllCharacteristics);
-        if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
-          OrigDllChars := DllChars;
-          if IsTSAware then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
-          if IsDEPCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
-          if IsASLRCompatible then
-            DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
-          else
-            DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
-          if DllChars <> OrigDllChars then begin
-            F.Seek(Ofs + OffsetOfDllCharacteristics);
-            F.WriteBuffer(DllChars, SizeOf(DllChars));
+    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) then begin
+      const PE32 = Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader);
+      const PE32Plus = Header.SizeOfOptionalHeader = SizeOf(TImageOptionalHeader64);
+      if PE32 or PE32Plus then begin
+        const Ofs = F.Position;
+        if (F.Read(OptMagic, SizeOf(OptMagic)) = SizeOf(OptMagic)) and
+           ((PE32 and (OptMagic = IMAGE_NT_OPTIONAL_HDR32_MAGIC)) or
+            (PE32Plus and (OptMagic = IMAGE_NT_OPTIONAL_HDR64_MAGIC))) then begin
+          { Update DllCharacteristics }
+          F.Seek(Ofs + OffsetOfDllCharacteristics);
+          if F.Read(DllChars, SizeOf(DllChars)) = SizeOf(DllChars) then begin
+            OrigDllChars := DllChars;
+            if IsTSAware then
+              DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
+            else
+              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+            if IsDEPCompatible then
+              DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+            else
+              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+            var ASLRFlags: Word := IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
+            if Header.Machine = IMAGE_FILE_MACHINE_AMD64 then
+              ASLRFlags := ASLRFlags or IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA;
+            if IsASLRCompatible then
+              DllChars := DllChars or ASLRFlags
+            else
+              DllChars := DllChars and not ASLRFlags;
+            if DllChars <> OrigDllChars then begin
+              F.Seek(Ofs + OffsetOfDllCharacteristics);
+              F.WriteBuffer(DllChars, SizeOf(DllChars));
+            end;
+            Exit;
           end;
-          Exit;
         end;
       end;
     end;

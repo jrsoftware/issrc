@@ -43,6 +43,12 @@ echo - %PROJ%
 msbuild.exe %PROJ% /t:Build /p:Config=Release /p:Platform=Win32 /p:EnvOptionsWarn=false
 if errorlevel 1 goto failed
 
+if not "%1"=="issigtool" (
+  echo - SetupLdr.e64
+  msbuild.exe SetupLdr.dproj /t:Build /p:Config=Release /p:Platform=Win64 /p:EnvOptionsWarn=false
+  if errorlevel 1 goto failed
+)
+
 cd ..
 if errorlevel 1 goto failed
 
@@ -50,7 +56,7 @@ echo Success!
 
 if "%1"=="issigtool" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 

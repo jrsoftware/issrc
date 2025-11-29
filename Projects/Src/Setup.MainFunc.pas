@@ -3200,7 +3200,7 @@ begin
   if SameText(ParamName, '/SL5=') then begin
     StartParam := 2;
     SetupLdrMode := True;
-    SetupNotifyWnd := UInt32(ExtractInt64(ParamValue));
+    SetupNotifyWnd := HWND(ExtractInt64(ParamValue));
     SetupNotifyWndPresent := True;
     SetupLdrOffset0 := ExtractInt64(ParamValue);
     SetupLdrOffset1 := ExtractInt64(ParamValue);

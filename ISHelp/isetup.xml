@@ -4542,12 +4542,15 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 
 <setuptopic directive="UseSetupLdr">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link> or <tt>x86</tt> or <tt>x64</tt></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This tells the compiler which type of Setup to create. If this is <tt>yes</tt>, it compiles all setup data into a single EXE. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes.</p>
-<p><i>Note:</i> Do not use <tt>UseSetupLdr=no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When <tt>UseSetupLdr</tt> is <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when <tt>UseSetupLdr</tt> is <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
-<p><i>Note:</i> Do not use <tt>UseSetupLdr=no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing a <tt>UseSetupLdr=no</tt> based Setup will lead to an invalid digital signature for Uninstall.</p>
+<p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
+<p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+<p><i>Note:</i> Using <tt>x64</tt> does not mean that Setup itself will also 64-bit: Setup itself is currently always built as a 32-bit x86 binary. Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit. The downside is that your installer will no longer load on systems running x86 Windows, and you must set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing Setup when using<tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
 </setuptopic>
 
@@ -4881,7 +4884,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="DisablePrecompiledFileVerifications">
-<setupvalid>One or more of the following, separated by spaces:<br/><tt>setupe32</tt><br/><tt>setupcustomstylee32</tt><br/><tt>setupldre32</tt><br/><tt>is7zdll</tt><br/><tt>isbunzipdll</tt><br/><tt>isunzlibdll</tt><br/><tt>islzmaexe</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces:<br/><tt>setupe32</tt><br/><tt>setupcustomstylee32</tt><br/><tt>setupldre32</tt><br/><tt>setupldre64</tt><br/><tt>is7zdll</tt><br/><tt>isbunzipdll</tt><br/><tt>isunzlibdll</tt><br/><tt>islzmaexe</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
