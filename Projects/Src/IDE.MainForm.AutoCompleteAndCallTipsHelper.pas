@@ -173,6 +173,9 @@ begin
               Exit;  { shouldn't get here }
             const C = AMemo.GetByteAtPosition(I);
 
+            { Note: The first time we get here C equals the character before the current word,
+              like a space before the current flag }
+
             if IsParamSection and (C in [';', ':']) and
                FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
               FoundSemicolon := C = ';';
@@ -207,7 +210,7 @@ begin
                 else
                   Exit;
               end else
-                Exit;
+                Exit; { Non-whitespace which should not be there }
             end;
           end;
           { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' in parameterized sections }
