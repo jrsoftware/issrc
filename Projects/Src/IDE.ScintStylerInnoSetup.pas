@@ -532,9 +532,28 @@ const
     'CurUninstallStep'
   ];
 
-  SetupSectionDirectivesAutoYesNo = [ssDisableDirPage];
+  SetupSectionDirectivesYesNo = [
+    ssAllowCancelDuringInstall, ssAllowNetworkDrive, ssAllowNoIcons, ssAllowRootDirectory,
+    ssAllowUNCPath, ssAlwaysRestart, ssAlwaysShowComponentsList, ssAlwaysShowDirOnReadyPage,
+    ssAlwaysShowGroupOnReadyPage, ssAlwaysUsePersonalGroup, ssAppendDefaultDirName,
+    ssAppendDefaultGroupName, ssASLRCompatible, ssCreateAppDir, ssDEPCompatible,
+    ssDisableFinishedPage, ssDisableReadyMemo, ssDisableReadyPage, ssDisableStartupPrompt,
+    ssDisableWelcomePage, ssDiskSpanning, ssDontMergeDuplicateFiles, ssEnableDirDoesntExistWarning,
+    ssFlatComponentsList, ssMergeDuplicateFiles, ssMissingMessagesWarning,
+    ssMissingRunOnceIdsWarning, ssNotRecognizedMessagesWarning, ssOutput, ssRedirectionGuard,
+    ssRestartApplications, ssRestartIfNeededByRun, ssSetupLogging, ssShowComponentSizes,
+    ssShowTasksTreeLines, ssSignedUninstaller, ssSignToolRunMinimized, ssSolidCompression,
+    ssTerminalServicesAware, ssTimeStampsInUTC, ssUpdateUninstallLogAppName, ssUninstallLogging,
+    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousAppDir, ssUsePreviousGroup,
+    ssUsePreviousLanguage, ssUsePreviousPrivileges, ssUsePreviousSetupType, ssUsePreviousTasks,
+    ssUsePreviousUserInfo, ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
 
-  SetupSectionDirectivesYesNo = [ssDisableWelcomePage];
+  SetupSectionDirectivesAutoYesNo = [
+    ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
+
+  SYes = 'yes';
+  SNo = 'no';
+  SAuto = 'auto';
 
 type
   TSetupSectionDirectiveValue = record
@@ -698,9 +717,9 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildSetupDirectiveValueWordLists;
   begin
-    { Yes/no directives: we don't show true/false/1/0 }
-    FSetupSectionDirectiveValueAutoYesNoWordList := BuildWordList(['auto', 'yes', 'no']);
-    FSetupSectionDirectiveValueYesNoWordList := BuildWordList(['yes', 'no']);
+    { Yes/no directives: we don't list true/false/1/0 }
+    FSetupSectionDirectiveValueYesNoWordList := BuildWordList([SYes, SNo]);
+    FSetupSectionDirectiveValueAutoYesNoWordList := BuildWordList([SAuto, SYes, SNo]);
     for var Item in SetupSectionDirectivesValues do
       FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
   end;
@@ -1840,6 +1859,43 @@ begin
   Result.Values := Values;
 end;
 
+type
+  TZipLevel = 1..9;
+
+const
+  LZMALevels: TArray<TScintRawString> = ['none', 'fast', 'normal', 'max', 'ultra', 'ultra64'];
+
+function GetCompressionValues: TArray<TScintRawString>;
+
+procedure SetResult(var I: Integer; const S: TScintRawString);
+begin
+  Result[I] := S;
+  Inc(I);
+end;
+
+const
+  ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
+  LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
+type
+  TZipLevels = 1..9;
+begin
+  SetLength(Result, 1 +
+    Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
+    Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels));
+  var I := 0;
+  SetResult(I, 'none');
+  for var Algo in ZipAlgos do begin
+    SetResult(I, Algo);
+    for var Level := Low(TZipLevel) to High(TZipLevel) do
+      SetResult(I, TScintRawString(String(Algo) + '/' + Level.ToString));
+  end;
+  for var Algo in LZMAAlgos do begin
+    SetResult(I, Algo);
+    for var Level in  LZMALevels do
+      SetResult(I, TScintRawString(Algo + '/' + Level));
+  end;
+end;
+
 initialization
   SectionMap := [
     SMI('Code', scCode),
@@ -1896,7 +1952,30 @@ initialization
   PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
 
+  const ArchitecturesExpressionValues: TArray<TScintRawString> = [
+    'not', 'and', 'or',
+    'arm32compatible', 'arm64', 'win64',
+    'x64', 'x64os', 'x64compatible',
+    'x86', 'x86os', 'x86compatible'];
+
   SetupSectionDirectivesValues := [
-    SSDV(ssWizardStyle, ['classic', 'modern'])];
+    SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
+    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues),
+    SSDV(ssArchiveExtraction, ['enhanced/nopassword', 'enhanced', 'full', 'basic']),
+    SSDV(ssCloseApplications, ['force', SYes, SNo]),
+    SSDV(ssCompression, GetCompressionValues),
+    SSDV(ssDisablePrecompiledFileVerifications, ['setupe32', 'setupcustomstylee32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe']),
+    SSDV(ssEncryption, ['full', SYes, SNo]),
+    SSDV(ssInternalCompressLevel, LZMALevels),
+    SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),
+    SSDV(ssLZMAAlgorithm, ['0', '1']),
+    SSDV(ssLZMAMatchFinder, ['BT', 'HC']),
+    SSDV(ssLZMAUseSeparateProcess, ['x86', SYes, SNo]),
+    SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
+    SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
+    SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
+    SSDV(ssUseSetupLdr, [SYes, SNo]), { To be updated in e64 }
+    SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
+    SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'includetitlebar', 'excludelightbuttons', 'polar', 'slate', 'windows11', 'zircon'])];
 
 end.
