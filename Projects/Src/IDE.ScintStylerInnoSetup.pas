@@ -1863,7 +1863,7 @@ type
   TZipLevel = 1..9;
 
 const
-  LZMALevels: TArray<TScintRawString> = ['none', 'fast', 'normal', 'max', 'ultra', 'ultra64'];
+  LZMALevels: TArray<TScintRawString> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
 
 function GetCompressionValues: TArray<TScintRawString>;
 
@@ -1966,7 +1966,7 @@ initialization
     SSDV(ssCompression, GetCompressionValues),
     SSDV(ssDisablePrecompiledFileVerifications, ['setupe32', 'setupcustomstylee32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe']),
     SSDV(ssEncryption, ['full', SYes, SNo]),
-    SSDV(ssInternalCompressLevel, LZMALevels),
+    SSDV(ssInternalCompressLevel, ['none'] + LZMALevels), { We don't list 0 }
     SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),
     SSDV(ssLZMAAlgorithm, ['0', '1']),
     SSDV(ssLZMAMatchFinder, ['BT', 'HC']),
