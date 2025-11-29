@@ -194,28 +194,10 @@ type
     Section: TInnoSetupStylerSection;
   end;
 
-const
-  SectionMap: array[0..18] of TSectionMapItem = (
-    (Name: 'Code'; Section: scCode),
-    (Name: 'Components'; Section: scComponents),
-    (Name: 'CustomMessages'; Section: scCustomMessages),
-    (Name: 'Dirs'; Section: scDirs),
-    (Name: 'ISSigKeys'; Section: scISSigKeys),
-    (Name: 'Files'; Section: scFiles),
-    (Name: 'Icons'; Section: scIcons),
-    (Name: 'INI'; Section: scINI),
-    (Name: 'InstallDelete'; Section: scInstallDelete),
-    (Name: 'LangOptions'; Section: scLangOptions),
-    (Name: 'Languages'; Section: scLanguages),
-    (Name: 'Messages'; Section: scMessages),
-    (Name: 'Registry'; Section: scRegistry),
-    (Name: 'Run'; Section: scRun),
-    (Name: 'Setup'; Section: scSetup),
-    (Name: 'Tasks'; Section: scTasks),
-    (Name: 'Types'; Section: scTypes),
-    (Name: 'UninstallDelete'; Section: scUninstallDelete),
-    (Name: 'UninstallRun'; Section: scUninstallRun));
+var
+  SectionMap: array of TSectionMapItem; { Initialized below }
 
+const
   ComponentsSectionParameters: array of TScintRawString = [
     'Check', 'Description', 'ExtraDiskSpaceRequired', 'Flags', 'Languages',
     'MinVersion', 'Name', 'OnlyBelowVersion', 'Types'
@@ -361,33 +343,10 @@ type
     OpenCountChange: ShortInt;
   end;
 
-const
-  ISPPDirectives: array[0..23] of TISPPDirective = (
-    (Name: 'preproc'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
-    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
+var
+  ISPPDirectives: array of TISPPDirective; { Initialized below }
 
+const
   { The following and some others below are not used by StyleNeeded and therefore
     simply of type AnsiString instead of TScintRawString }
   ConstantsWithParam: array of AnsiString = [
@@ -580,13 +539,13 @@ const
 type
   TSetupSectionDirectiveValue = record
     Directive: TSetupSectionDirective;
-    Values: array of TScintRawString;
+    Values: TArray<TScintRawString>;
   end;
 
-const
-  SetupSectionDirectivesValues: array[0..0] of TSetupSectionDirectiveValue = (
-    (Directive: ssWizardStyle; Values: ['classic', 'modern']));
+var
+  SetupSectionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
 
+const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
@@ -1862,7 +1821,73 @@ begin
   LineState := TScintLineState(NewLineState);
 end;
 
+function SMI(const Name: TScintRawString; const Section: TInnoSetupStylerSection): TSectionMapItem;
+begin
+  Result.Name := Name;
+  Result.Section := Section;
+end;
+
+function ISPPD(const Name: TScintRawString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
+begin
+  Result.Name := Name;
+  Result.RequiresParameter := RequiresParameter;
+  Result.OpenCountChange := OpenCountChange;
+end;
+
+function SSDV(const Directive: TSetupSectionDirective; const Values: TArray<TScintRawString>): TSetupSectionDirectiveValue;
+begin
+  Result.Directive := Directive;
+  Result.Values := Values;
+end;
+
 initialization
+  SectionMap := [
+    SMI('Code', scCode),
+    SMI('Components', scComponents),
+    SMI('CustomMessages', scCustomMessages),
+    SMI('Dirs', scDirs),
+    SMI('ISSigKeys', scISSigKeys),
+    SMI('Files', scFiles),
+    SMI('Icons', scIcons),
+    SMI('INI', scINI),
+    SMI('InstallDelete', scInstallDelete),
+    SMI('LangOptions', scLangOptions),
+    SMI('Languages', scLanguages),
+    SMI('Messages', scMessages),
+    SMI('Registry', scRegistry),
+    SMI('Run', scRun),
+    SMI('Setup', scSetup),
+    SMI('Tasks', scTasks),
+    SMI('Types', scTypes),
+    SMI('UninstallDelete', scUninstallDelete),
+    SMI('UninstallRun', scUninstallRun)];
+
+ ISPPDirectives := [
+    ISPPD('preproc', True, 0),
+    ISPPD('define', True, 0),
+    ISPPD('dim', True, 0),
+    ISPPD('redim', True, 0),
+    ISPPD('undef', True, 0),
+    ISPPD('include', True, 0),
+    ISPPD('file', True, 0),
+    ISPPD('emit', True, 0),
+    ISPPD('expr', True, 0),
+    ISPPD('insert', True, 0),
+    ISPPD('append', False, 0),
+    ISPPD('if', True, 1),
+    ISPPD('elif', False { bug in ISPP? }, 0),
+    ISPPD('else', False, 0),
+    ISPPD('endif', False, -1),
+    ISPPD('ifdef', True, 1),
+    ISPPD('ifndef', True, 1),
+    ISPPD('ifexist', True, 1),
+    ISPPD('ifnexist', True, 1),
+    ISPPD('for', True, 0),
+    ISPPD('sub', True, 1),
+    ISPPD('endsub', False, -1),
+    ISPPD('pragma', False, 0),
+    ISPPD('error', False, 0)];
+
   SetLength(PascalRealEnumValues, 6);
   PascalRealEnumValues[0] := TypeInfo(TMsgBoxType);
   PascalRealEnumValues[1] := TypeInfo(TSetupMessageID);
@@ -1870,5 +1895,8 @@ initialization
   PascalRealEnumValues[3] := TypeInfo(TUninstallStep);
   PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
+
+  SetupSectionDirectivesValues := [
+    SSDV(ssWizardStyle, ['classic', 'modern'])];
 
 end.
