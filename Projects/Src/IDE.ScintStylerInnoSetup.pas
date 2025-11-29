@@ -1974,7 +1974,7 @@ initialization
     SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
     SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
     SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
-    SSDV(ssUseSetupLdr, [SYes, SNo]), { To be updated in e64 }
+    SSDV(ssUseSetupLdr, ['x86', 'x64', SYes, SNo]),
     SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
     SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'includetitlebar', 'excludelightbuttons', 'polar', 'slate', 'windows11', 'zircon'])];
 
