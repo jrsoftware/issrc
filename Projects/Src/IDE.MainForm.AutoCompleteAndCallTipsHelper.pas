@@ -35,7 +35,8 @@ type
 implementation
 
 uses
-  SysUtils, Math,
+  SysUtils, Math, TypInfo,
+  Shared.SetupSectionDirectives,
   IDE.ScintStylerInnoSetup;
 
 function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
@@ -48,32 +49,21 @@ end;
 procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
 
   function OnlyWhiteSpaceBeforeWord(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
-  var
-    I: Integer;
-    C: AnsiChar;
   begin
     { Only allow autocompletion if no non-whitespace characters exist before the current word on the line }
-    I := WordStartPos;
+    var I := WordStartPos;
     Result := False;
     while I > LinePos do begin
       I := AMemo.GetPositionBefore(I);
       if I < LinePos then
         Exit;  { shouldn't get here }
-      C := AMemo.GetByteAtPosition(I);
+      const C = AMemo.GetByteAtPosition(I);
       if C > ' ' then
         Exit;
     end;
     Result := True;
   end;
 
-var
-  CaretPos, Line, LinePos, WordStartPos, WordEndPos, CharsBefore,
-    LangNamePos: Integer;
-  Section: TInnoSetupStylerSection;
-  IsParamSection: Boolean;
-  WordList: AnsiString;
-  FoundSemicolon, FoundFlagsOrType, FoundDot: Boolean;
-  C: AnsiChar;
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
@@ -86,13 +76,13 @@ begin
     AMemo.ScrollCaretIntoView;
   end;
 
-  CaretPos := AMemo.CaretPosition;
-  Line := AMemo.GetLineFromPosition(CaretPos);
-  LinePos := AMemo.GetPositionFromLine(Line);
+  const CaretPos = AMemo.CaretPosition;
+  const Line = AMemo.GetLineFromPosition(CaretPos);
+  const LinePos = AMemo.GetPositionFromLine(Line);
 
-  WordStartPos := AMemo.GetWordStartPosition(CaretPos, True);
-  WordEndPos := AMemo.GetWordEndPosition(CaretPos, True);
-  CharsBefore := CaretPos - WordStartPos;
+  const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
+  const WordEndPos = AMemo.GetWordEndPosition(CaretPos, True);
+  const CharsBefore = CaretPos - WordStartPos;
 
   { Don't auto start autocompletion after a character is typed if there are any
     word characters adjacent to the character }
@@ -102,6 +92,8 @@ begin
     if WordEndPos > CaretPos then
       Exit;
   end;
+
+  var WordList: AnsiString;
 
   case AMemo.GetByteAtPosition(WordStartPos) of
     '#':
@@ -125,13 +117,13 @@ begin
       end;
     else
       begin
-        Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
+        const Section = FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
         if Section = scCode then begin
           { Space can only initiate autocompletion after non whitespace }
           if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
             Exit;
 
-          var PositionBeforeWordStartPos := AMemo.GetPositionBefore(WordStartPos);
+          const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
           if Key <> #0 then begin
             AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
             if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos) then
@@ -144,10 +136,10 @@ begin
             exactly 1 space before it which has the word 'function' or
             'procedure' before it which has only whitespace before it }
           if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
-            var FunctionWordEndPos := PositionBeforeWordStartPos;
-            var FunctionWordStartPos := AMemo.GetWordStartPosition(FunctionWordEndPos, True);
+            const FunctionWordEndPos = PositionBeforeWordStartPos;
+            const FunctionWordStartPos = AMemo.GetWordStartPosition(FunctionWordEndPos, True);
             if OnlyWhiteSpaceBeforeWord(AMemo, LinePos, FunctionWordStartPos) then begin
-              var FunctionWord := AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
+              const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
               if SameText(FunctionWord, 'procedure') then
                 WordList := FMemosStyler.EventFunctionsWordList[True]
               else if SameText(FunctionWord, 'function') then
@@ -160,7 +152,7 @@ begin
           { If no event function was found then autocomplete script functions,
             types, etc if the current word has no dot before it }
           if WordList = '' then begin
-            var ClassOrRecordMember := (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+            const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
             WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
             AMemo.SetAutoCompleteFillupChars('');
           end;
@@ -168,28 +160,28 @@ begin
           if WordList = '' then
             Exit;
         end else begin
-          IsParamSection := FMemosStyler.IsParamSection(Section);
+          const IsParamSection = FMemosStyler.IsParamSection(Section);
 
-          { Autocomplete if the current word on the line has only whitespace
-            before it, or else also: after the last ';' or after 'Flags:' or
-            'Type:' in parameterized sections }
-          FoundSemicolon := False;
-          FoundFlagsOrType := False;
-          FoundDot := False;
+          var FoundSemicolon := False;
+          var FoundFlagsOrType := False;
+          var FoundSetupDirectiveName := '';
           var I := WordStartPos;
           while I > LinePos do begin
             I := AMemo.GetPositionBefore(I);
             if I < LinePos then
               Exit;  { shouldn't get here }
-            C := AMemo.GetByteAtPosition(I);
+            const C = AMemo.GetByteAtPosition(I);
+
+            { Note: The first time we get here C equals the character before the current word,
+              like a space before the current flag }
 
             if IsParamSection and (C in [';', ':']) and
-               FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
+               FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
               FoundSemicolon := C = ';';
               if not FoundSemicolon then begin
-                var ParameterWordEndPos := I;
-                var ParameterWordStartPos := AMemo.GetWordStartPosition(ParameterWordEndPos, True);
-                var ParameterWord := AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
+                const ParameterWordEndPos = I;
+                const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
+                const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                 FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                     ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
               end else
@@ -197,37 +189,65 @@ begin
               if FoundSemicolon or FoundFlagsOrType then
                 Break;
             end;
-            if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
-              { Verify that a word (language name) precedes the '.', then check for
-                any non-whitespace characters before the word }
-              LangNamePos := AMemo.GetWordStartPosition(I, True);
-              if LangNamePos >= I then
+
+            if ((Section = scLangOptions) and (C = '.')) or ((Section = scSetup) and (C = '=')) then begin
+              { Verify that a word (language or directive name) precedes the '.' or '=', then check for
+                any non-whitespace characters before the word. Among other things, this ensures
+                we're not inside a comment. }
+              const NameStartPos = AMemo.GetWordStartPosition(I, True);
+              if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
                 Exit;
-              I := LangNamePos;
-              FoundDot := True;
+              if Section = scSetup then begin
+                const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
+                FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
+              end;
+              Break;
             end else if C > ' ' then begin
               if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
                  (FMemosStyler.FlagsWordList[Section] <> '') then begin
                 { Verify word before the current word (or before that when we get here again) is
                   a valid flag and if so, continue looking before it instead of stopping }
-                var FlagEndPos := AMemo.GetWordEndPosition(I, True);
-                var FlagStartPos := AMemo.GetWordStartPosition(I, True);
-                var FlagWord := AMemo.GetTextRange(FlagStartPos, FlagEndPos);
-                if FMemosStyler.SectionHasFlag(Section, FlagWord) then
+                const FlagEndPos = AMemo.GetWordEndPosition(I, True);
+                const FlagStartPos = AMemo.GetWordStartPosition(I, True);
+                const FlagWord = AMemo.GetTextRange(FlagStartPos, FlagEndPos);
+                if FMemosStyler.SectionHasFlag(Section, FlagWord) or FlagWord.StartsWith('{#') then
                   I := FlagStartPos
                 else
                   Exit;
+              end else if Section = scSetup then begin
+                { Continue looking for '='. We don't do a verification like it does for
+                  flags above because we don't know the directive name yet. In fact, we
+                  don't even know whether we are before or after the '='. As a workaround
+                  we check for the expected style before '=', which is stKeyword or stComment,
+                  and only autocomplete if we don't find that.
+
+                  Does not take into account that only some directives allow multiple space
+                  separated values. Should not matter much in practice since it won't auto start
+                  autocompletion for a second value without typing space instead of enter. }
+                if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then
+                  I := AMemo.GetWordStartPosition(I, True)
+                else
+                  Exit;
               end else
-                Exit;
+                Exit; { Non-whitespace which should not be there }
             end;
           end;
-          { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' in parameterized sections }
-          if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType) then
+          { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a [Setup] directive }
+          if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or (FoundSetupDirectiveName <> '')) then
             Exit;
 
-          if FoundFlagsOrType then begin
+          if FoundSetupDirectiveName <> '' then begin
+            const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + FoundSetupDirectiveName);
+            if V <> -1 then begin
+              WordList := FMemosStyler.SetupSectionDirectiveValueWordList[TSetupSectionDirective(V)];
+              if WordList = '' then
+                Exit;
+              AMemo.SetAutoCompleteFillupChars(' ');
+            end else
+              Exit;
+          end else if FoundFlagsOrType then begin
             WordList := FMemosStyler.FlagsWordList[Section];
-            if WordList = '' then
+            if WordList = '' then { Should never be True, since we already checked above }
               Exit;
             AMemo.SetAutoCompleteFillupChars(' ');
           end else begin
@@ -282,7 +302,7 @@ begin
   FCallTipState.CurrentCallTipWord := '';
   var Line := AMemo.CaretLineText;
   var Current := AMemo.CaretPositionInLine;
-  var CallTipWordCharacters := AMemo.WordCharsAsSet;
+  const CallTipWordCharacters = AMemo.WordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
@@ -327,8 +347,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper._ContinueCallTip(const AMemo: T
 begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
-	var Line := AMemo.CaretLineText;
-	var Current := AMemo.CaretPositionInLine;
+	const Line = AMemo.CaretLineText;
+	const Current = AMemo.CaretPositionInLine;
 
 	var Braces := 0;
 	var Commas := 0;
@@ -345,8 +365,8 @@ begin
 
   {$ZEROBASEDSTRINGS ON}
 	var StartHighlight := 0;
-  var FunctionDefinition := FCallTipState.FunctionDefinition;
-  var FunctionDefinitionLength := Length(FunctionDefinition);
+  const FunctionDefinition = FCallTipState.FunctionDefinition;
+  const FunctionDefinitionLength = Length(FunctionDefinition);
 	while (StartHighlight < FunctionDefinitionLength) and not (FunctionDefinition[StartHighlight] = '(') do
 		Inc(StartHighlight);
 	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
@@ -422,7 +442,7 @@ begin
         if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(AMemo, Ch);
     else
-      var RestartAutoComplete := (Ch in [' ', '.']) and
+      const RestartAutoComplete = (Ch in [' ', '.', '=']) and
         (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
       AMemo.CancelAutoComplete;
       if RestartAutoComplete then

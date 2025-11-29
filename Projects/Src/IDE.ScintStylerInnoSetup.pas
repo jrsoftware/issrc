@@ -13,7 +13,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
-  ScintEdit, ModernColors, Shared.ScriptFunc;
+  ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -23,7 +23,7 @@ const
   awtSection = 0;
   awtParameter = 1;
   awtDirective = 2;
-  awtFlag = 3;
+  awtFlagOrSetupDirectiveValue = 3;
   awtPreprocessorDirective = 4;
   awtConstant = 5;
   awtScriptFunction = 10;
@@ -92,9 +92,12 @@ type
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
-    FSectionsWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
     FScriptWordList: array[Boolean] of AnsiString;
+    FSectionsWordList: AnsiString;
+    FSetupSectionDirectiveValueAutoYesNoWordList: AnsiString;
+    FSetupSectionDirectiveValueYesNoWordList: AnsiString;
+    FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
@@ -113,8 +116,9 @@ type
       const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
-    function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
+    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
+    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -134,6 +138,7 @@ type
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
+    function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -146,6 +151,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
+    class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
@@ -163,6 +169,7 @@ type
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
+    property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -170,7 +177,7 @@ implementation
 
 uses
   Generics.Defaults,
-  Shared.SetupMessageIDs, ScintInt, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
+  Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
   Shared.CommonFunc.Vcl, Shared.SetupSteps, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
 
 type
@@ -187,28 +194,10 @@ type
     Section: TInnoSetupStylerSection;
   end;
 
-const
-  SectionMap: array[0..18] of TSectionMapItem = (
-    (Name: 'Code'; Section: scCode),
-    (Name: 'Components'; Section: scComponents),
-    (Name: 'CustomMessages'; Section: scCustomMessages),
-    (Name: 'Dirs'; Section: scDirs),
-    (Name: 'ISSigKeys'; Section: scISSigKeys),
-    (Name: 'Files'; Section: scFiles),
-    (Name: 'Icons'; Section: scIcons),
-    (Name: 'INI'; Section: scINI),
-    (Name: 'InstallDelete'; Section: scInstallDelete),
-    (Name: 'LangOptions'; Section: scLangOptions),
-    (Name: 'Languages'; Section: scLanguages),
-    (Name: 'Messages'; Section: scMessages),
-    (Name: 'Registry'; Section: scRegistry),
-    (Name: 'Run'; Section: scRun),
-    (Name: 'Setup'; Section: scSetup),
-    (Name: 'Tasks'; Section: scTasks),
-    (Name: 'Types'; Section: scTypes),
-    (Name: 'UninstallDelete'; Section: scUninstallDelete),
-    (Name: 'UninstallRun'; Section: scUninstallRun));
+var
+  SectionMap: array of TSectionMapItem; { Initialized below }
 
+const
   ComponentsSectionParameters: array of TScintRawString = [
     'Check', 'Description', 'ExtraDiskSpaceRequired', 'Flags', 'Languages',
     'MinVersion', 'Name', 'OnlyBelowVersion', 'Types'
@@ -354,33 +343,10 @@ type
     OpenCountChange: ShortInt;
   end;
 
-const
-  ISPPDirectives: array[0..23] of TISPPDirective = (
-    (Name: 'preproc'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'define'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'dim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'redim'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'undef'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'include'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'file'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'emit'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'expr'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'insert'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'append'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'if'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'elif'; RequiresParameter: False { bug in ISPP? }; OpenCountChange: 0),
-    (Name: 'else'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'endif'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'ifdef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifndef'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'ifnexist'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'for'; RequiresParameter: True; OpenCountChange: 0),
-    (Name: 'sub'; RequiresParameter: True; OpenCountChange: 1),
-    (Name: 'endsub'; RequiresParameter: False; OpenCountChange: -1),
-    (Name: 'pragma'; RequiresParameter: False; OpenCountChange: 0),
-    (Name: 'error'; RequiresParameter: False; OpenCountChange: 0));
+var
+  ISPPDirectives: array of TISPPDirective; { Initialized below }
 
+const
   { The following and some others below are not used by StyleNeeded and therefore
     simply of type AnsiString instead of TScintRawString }
   ConstantsWithParam: array of AnsiString = [
@@ -558,7 +524,7 @@ const
     'function UninstallNeedRestart: Boolean;'
   ];
 
-    EventFunctionsParameters: array of AnsiString = [
+  EventFunctionsParameters: array of AnsiString = [
     'CurStep', 'CurProgress', 'MaxProgress', 'CurPageID', 'Cancel', 'Confirm',
     'PageID', 'Password', 'Space', 'NewLine', 'MemoUserInfoInfo',
     'MemoDirInfo', 'MemoTypeInfo', 'MemoComponentsInfo', 'MemoGroupInfo',
@@ -566,6 +532,39 @@ const
     'CurUninstallStep'
   ];
 
+  SetupSectionDirectivesYesNo = [
+    ssAllowCancelDuringInstall, ssAllowNetworkDrive, ssAllowNoIcons, ssAllowRootDirectory,
+    ssAllowUNCPath, ssAlwaysRestart, ssAlwaysShowComponentsList, ssAlwaysShowDirOnReadyPage,
+    ssAlwaysShowGroupOnReadyPage, ssAlwaysUsePersonalGroup, ssAppendDefaultDirName,
+    ssAppendDefaultGroupName, ssASLRCompatible, ssCreateAppDir, ssDEPCompatible,
+    ssDisableFinishedPage, ssDisableReadyMemo, ssDisableReadyPage, ssDisableStartupPrompt,
+    ssDisableWelcomePage, ssDiskSpanning, ssDontMergeDuplicateFiles, ssEnableDirDoesntExistWarning,
+    ssFlatComponentsList, ssMergeDuplicateFiles, ssMissingMessagesWarning,
+    ssMissingRunOnceIdsWarning, ssNotRecognizedMessagesWarning, ssOutput, ssRedirectionGuard,
+    ssRestartApplications, ssRestartIfNeededByRun, ssSetupLogging, ssShowComponentSizes,
+    ssShowTasksTreeLines, ssSignedUninstaller, ssSignToolRunMinimized, ssSolidCompression,
+    ssTerminalServicesAware, ssTimeStampsInUTC, ssUpdateUninstallLogAppName, ssUninstallLogging,
+    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousAppDir, ssUsePreviousGroup,
+    ssUsePreviousLanguage, ssUsePreviousPrivileges, ssUsePreviousSetupType, ssUsePreviousTasks,
+    ssUsePreviousUserInfo, ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
+
+  SetupSectionDirectivesAutoYesNo = [
+    ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
+
+  SYes = 'yes';
+  SNo = 'no';
+  SAuto = 'auto';
+
+type
+  TSetupSectionDirectiveValue = record
+    Directive: TSetupSectionDirective;
+    Values: TArray<TScintRawString>;
+  end;
+
+var
+  SetupSectionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
+
+const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
@@ -653,7 +652,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
     BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
     BuildKeywordsWordList(scRun, RunSectionParameters);
-    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefixLength);
+    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
     BuildKeywordsWordList(scTasks, TasksSectionParameters);
     BuildKeywordsWordList(scTypes, TypesSectionParameters);
     BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
@@ -716,6 +715,15 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
+  procedure BuildSetupDirectiveValueWordLists;
+  begin
+    { Yes/no directives: we don't list true/false/1/0 }
+    FSetupSectionDirectiveValueYesNoWordList := BuildWordList([SYes, SNo]);
+    FSetupSectionDirectiveValueAutoYesNoWordList := BuildWordList([SAuto, SYes, SNo]);
+    for var Item in SetupSectionDirectivesValues do
+      FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
+  end;
+
   function CreateWordsBySectionList: TStringList;
   begin
     Result := TStringList.Create;
@@ -737,6 +745,7 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
+  BuildSetupDirectiveValueWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -776,6 +785,18 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
+end;
+
+function TInnoSetupStyler.BuildWordList(const Values: array of TScintRawString): AnsiString;
+begin
+  const SL = TStringList.Create;
+  try
+    for var Value in Values do
+      AddWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
+    Result := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
 end;
 
 function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
@@ -851,7 +872,7 @@ begin
   try
     for var Flag in Flags do begin
       SL1.Add(String(Flag));
-      AddWordToList(SL2, Flag, awtFlag);
+      AddWordToList(SL2, Flag, awtFlagOrSetupDirectiveValue);
     end;
     FFlagsWordList[Section] := BuildWordList(SL2);
   finally
@@ -1026,6 +1047,17 @@ class function TInnoSetupStyler.GetSectionFromLineState(
   const LineState: TScintLineState): TInnoSetupStylerSection;
 begin
   Result := TInnoSetupStylerLineState(LineState).Section;
+end;
+
+function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
+  SetupSectionDirective: TSetupSectionDirective): AnsiString;
+begin
+  if SetupSectionDirective in SetupSectionDirectivesAutoYesNo then
+    Result := FSetupSectionDirectiveValueAutoYesNoWordList
+  else if SetupSectionDirective in SetupSectionDirectivesYesNo then
+    Result := FSetupSectionDirectiveValueYesNoWordList
+  else
+    Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
 end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
@@ -1557,6 +1589,11 @@ begin
   end;
 end;
 
+class function TInnoSetupStyler.IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := Style in [Ord(stComment), Ord(stKeyword)];
+end;
+
 class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
 begin
   Result := Style in [Ord(stComment), Ord(stPascalString)];
@@ -1803,7 +1840,110 @@ begin
   LineState := TScintLineState(NewLineState);
 end;
 
+function SMI(const Name: TScintRawString; const Section: TInnoSetupStylerSection): TSectionMapItem;
+begin
+  Result.Name := Name;
+  Result.Section := Section;
+end;
+
+function ISPPD(const Name: TScintRawString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
+begin
+  Result.Name := Name;
+  Result.RequiresParameter := RequiresParameter;
+  Result.OpenCountChange := OpenCountChange;
+end;
+
+function SSDV(const Directive: TSetupSectionDirective; const Values: TArray<TScintRawString>): TSetupSectionDirectiveValue;
+begin
+  Result.Directive := Directive;
+  Result.Values := Values;
+end;
+
+type
+  TZipLevel = 1..9;
+
+const
+  LZMALevels: TArray<TScintRawString> = ['none', 'fast', 'normal', 'max', 'ultra', 'ultra64'];
+
+function GetCompressionValues: TArray<TScintRawString>;
+
+procedure SetResult(var I: Integer; const S: TScintRawString);
+begin
+  Result[I] := S;
+  Inc(I);
+end;
+
+const
+  ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
+  LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
+type
+  TZipLevels = 1..9;
+begin
+  SetLength(Result, 1 +
+    Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
+    Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels));
+  var I := 0;
+  SetResult(I, 'none');
+  for var Algo in ZipAlgos do begin
+    SetResult(I, Algo);
+    for var Level := Low(TZipLevel) to High(TZipLevel) do
+      SetResult(I, TScintRawString(String(Algo) + '/' + Level.ToString));
+  end;
+  for var Algo in LZMAAlgos do begin
+    SetResult(I, Algo);
+    for var Level in  LZMALevels do
+      SetResult(I, TScintRawString(Algo + '/' + Level));
+  end;
+end;
+
 initialization
+  SectionMap := [
+    SMI('Code', scCode),
+    SMI('Components', scComponents),
+    SMI('CustomMessages', scCustomMessages),
+    SMI('Dirs', scDirs),
+    SMI('ISSigKeys', scISSigKeys),
+    SMI('Files', scFiles),
+    SMI('Icons', scIcons),
+    SMI('INI', scINI),
+    SMI('InstallDelete', scInstallDelete),
+    SMI('LangOptions', scLangOptions),
+    SMI('Languages', scLanguages),
+    SMI('Messages', scMessages),
+    SMI('Registry', scRegistry),
+    SMI('Run', scRun),
+    SMI('Setup', scSetup),
+    SMI('Tasks', scTasks),
+    SMI('Types', scTypes),
+    SMI('UninstallDelete', scUninstallDelete),
+    SMI('UninstallRun', scUninstallRun)];
+
+  ISPPDirectives := [
+    ISPPD('preproc', True, 0),
+    ISPPD('define', True, 0),
+    ISPPD('dim', True, 0),
+    ISPPD('redim', True, 0),
+    ISPPD('undef', True, 0),
+    ISPPD('include', True, 0),
+    ISPPD('file', True, 0),
+    ISPPD('emit', True, 0),
+    ISPPD('expr', True, 0),
+    ISPPD('insert', True, 0),
+    ISPPD('append', False, 0),
+    ISPPD('if', True, 1),
+    ISPPD('elif', False { bug in ISPP? }, 0),
+    ISPPD('else', False, 0),
+    ISPPD('endif', False, -1),
+    ISPPD('ifdef', True, 1),
+    ISPPD('ifndef', True, 1),
+    ISPPD('ifexist', True, 1),
+    ISPPD('ifnexist', True, 1),
+    ISPPD('for', True, 0),
+    ISPPD('sub', True, 1),
+    ISPPD('endsub', False, -1),
+    ISPPD('pragma', False, 0),
+    ISPPD('error', False, 0)];
+
   SetLength(PascalRealEnumValues, 6);
   PascalRealEnumValues[0] := TypeInfo(TMsgBoxType);
   PascalRealEnumValues[1] := TypeInfo(TSetupMessageID);
@@ -1811,5 +1951,31 @@ initialization
   PascalRealEnumValues[3] := TypeInfo(TUninstallStep);
   PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
+
+  const ArchitecturesExpressionValues: TArray<TScintRawString> = [
+    'not', 'and', 'or',
+    'arm32compatible', 'arm64', 'win64',
+    'x64', 'x64os', 'x64compatible',
+    'x86', 'x86os', 'x86compatible'];
+
+  SetupSectionDirectivesValues := [
+    SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
+    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues),
+    SSDV(ssArchiveExtraction, ['enhanced/nopassword', 'enhanced', 'full', 'basic']),
+    SSDV(ssCloseApplications, ['force', SYes, SNo]),
+    SSDV(ssCompression, GetCompressionValues),
+    SSDV(ssDisablePrecompiledFileVerifications, ['setupe32', 'setupcustomstylee32', 'setupldre32', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe']),
+    SSDV(ssEncryption, ['full', SYes, SNo]),
+    SSDV(ssInternalCompressLevel, LZMALevels),
+    SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),
+    SSDV(ssLZMAAlgorithm, ['0', '1']),
+    SSDV(ssLZMAMatchFinder, ['BT', 'HC']),
+    SSDV(ssLZMAUseSeparateProcess, ['x86', SYes, SNo]),
+    SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
+    SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
+    SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
+    SSDV(ssUseSetupLdr, [SYes, SNo]), { To be updated in e64 }
+    SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
+    SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'includetitlebar', 'excludelightbuttons', 'polar', 'slate', 'windows11', 'zircon'])];
 
 end.

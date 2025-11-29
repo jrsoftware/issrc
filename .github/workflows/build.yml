@@ -13,7 +13,8 @@ jobs:
     if: contains(github.event.repository.topics, 'has-issrc-build-env') && github.ref != 'refs/heads/copilot-review'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           submodules: true
       - name: Initialize build environment

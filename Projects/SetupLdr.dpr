@@ -439,8 +439,8 @@ begin
         SetupCorruptError;
 
       var SetupEncryptionHeaderCRC: Longint;
-      SourceF.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
-      SourceF.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+      SourceF.ReadBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+      SourceF.ReadBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
       if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
         SetupCorruptError;
 

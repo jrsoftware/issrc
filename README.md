@@ -196,10 +196,10 @@ Source code tips
   because they dynamically scale themselves at run-time by calling a function
   named InitializeFont.
 
-- A note for those curious: The Setup Compiler creates single exe Setups by
-  first creating the Setup.exe as usual, then concatenating the Setup.0 and
-  Setup-1.bin to the end of the Setup.exe, and finally modifying an internal
-  data block in Setup.exe so it knows it's in "single exe" form.
+- A note for those curious: Compil32 creates single exe Setups by first creating
+  the Setup.exe as usual, then concatenating the Setup.0 and Setup-1.bin to the
+  end of the Setup.exe, and finally modifying an internal data block in Setup.exe
+  so it knows it's in "single exe" form.
 
 
 
@@ -315,6 +315,8 @@ should then regularly fast-forward your branch to the commit immediately precedi
 head of `main`. Do not fast-forward to the head of `main`, as this will close your PR and
 you will not be able to recreate it until another commit is made. After fast-forwarding,
 close and reopen the PR on GitHub to make it display updated information.
+
+Both automatic synchronization and automatic review use workflow **sync-fork.yml**.
 
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and

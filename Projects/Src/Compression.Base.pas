@@ -428,9 +428,7 @@ begin
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if HdrCRC <> GetCRC32(Hdr, SizeOf(Hdr)) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
-  var P := AFile.Position;
-  Inc(P, Hdr.StoredSize);
-  if P > AFile.Size then
+  if (Hdr.StoredSize < 0) or (AFile.Position > AFile.Size - Hdr.StoredSize) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if Hdr.Compressed then
     FDecompressor := ADecompressorClass.Create(DecompressorReadProc);
@@ -516,7 +514,7 @@ begin
     FDecompressor.DecompressInto(Buffer, Count)
   else begin
     { Not compressed -- call DecompressorReadProc directly }
-    if Cardinal(DecompressorReadProc(Buffer, Count)) <> Count then
+    if DecompressorReadProc(Buffer, Count) <> Count then
       raise ECompressDataError.Create(SCompressedBlockDataError);
   end;
 end;
