@@ -219,7 +219,11 @@ begin
                   flags above because we don't know the directive name yet. In fact, we
                   don't even know whether we are before or after the '='. As a workaround
                   we check for the expected style before '=', which is stKeyword or stComment,
-                  and only autocomplete if we don't find that. }
+                  and only autocomplete if we don't find that.
+
+                  Does not take into account that only some directives allow multiple space
+                  separated values. Should not matter much in practice since it won't auto start
+                  autocompletion for a second value without typing space instead of enter. }
                 if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then
                   I := AMemo.GetWordStartPosition(I, True)
                 else
