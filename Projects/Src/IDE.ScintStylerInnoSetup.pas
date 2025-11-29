@@ -23,7 +23,7 @@ const
   awtSection = 0;
   awtParameter = 1;
   awtDirective = 2;
-  awtFlag = 3;
+  awtFlagOrSetupDirectiveValue = 3;
   awtPreprocessorDirective = 4;
   awtConstant = 5;
   awtScriptFunction = 10;
@@ -92,9 +92,12 @@ type
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
-    FSectionsWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
     FScriptWordList: array[Boolean] of AnsiString;
+    FSectionsWordList: AnsiString;
+    FSetupSectionDirectiveValueAutoYesNoWordList: AnsiString;
+    FSetupSectionDirectiveValueYesNoWordList: AnsiString;
+    FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
@@ -113,8 +116,9 @@ type
       const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
-    function BuildWordList(const WordStringList: TStringList): AnsiString;
     procedure BuildSectionsWordList;
+    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
+    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -561,13 +565,27 @@ const
     'function UninstallNeedRestart: Boolean;'
   ];
 
-    EventFunctionsParameters: array of AnsiString = [
+  EventFunctionsParameters: array of AnsiString = [
     'CurStep', 'CurProgress', 'MaxProgress', 'CurPageID', 'Cancel', 'Confirm',
     'PageID', 'Password', 'Space', 'NewLine', 'MemoUserInfoInfo',
     'MemoDirInfo', 'MemoTypeInfo', 'MemoComponentsInfo', 'MemoGroupInfo',
     'MemoTasksInfo', 'PreviousDataKey', 'Serial', 'NeedsRestart',
     'CurUninstallStep'
   ];
+
+  SetupSectionDirectivesAutoYesNo = [ssDisableDirPage];
+
+  SetupSectionDirectivesYesNo = [ssDisableWelcomePage];
+
+type
+  TSetupSectionDirectiveValue = record
+    Directive: TSetupSectionDirective;
+    Values: array of TScintRawString;
+  end;
+
+const
+  SetupSectionDirectivesValues: array[0..0] of TSetupSectionDirectiveValue = (
+    (Directive: ssWizardStyle; Values: ['classic', 'modern']));
 
   inSquiggly = 0;
   inPendingSquiggly = 1;
@@ -719,6 +737,15 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
+  procedure BuildSetupDirectiveValueWordLists;
+  begin
+    { Yes/no directives: we don't show true/false/1/0 }
+    FSetupSectionDirectiveValueAutoYesNoWordList := BuildWordList(['auto', 'yes', 'no']);
+    FSetupSectionDirectiveValueYesNoWordList := BuildWordList(['yes', 'no']);
+    for var Item in SetupSectionDirectivesValues do
+      FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
+  end;
+
   function CreateWordsBySectionList: TStringList;
   begin
     Result := TStringList.Create;
@@ -740,6 +767,7 @@ begin
   BuildISPPDirectivesWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
+  BuildSetupDirectiveValueWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -779,6 +807,18 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
+end;
+
+function TInnoSetupStyler.BuildWordList(const Values: array of TScintRawString): AnsiString;
+begin
+  const SL = TStringList.Create;
+  try
+    for var Value in Values do
+      AddWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
+    Result := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
 end;
 
 function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
@@ -854,7 +894,7 @@ begin
   try
     for var Flag in Flags do begin
       SL1.Add(String(Flag));
-      AddWordToList(SL2, Flag, awtFlag);
+      AddWordToList(SL2, Flag, awtFlagOrSetupDirectiveValue);
     end;
     FFlagsWordList[Section] := BuildWordList(SL2);
   finally
@@ -1031,10 +1071,15 @@ begin
   Result := TInnoSetupStylerLineState(LineState).Section;
 end;
 
-function TInnoSetupStyler.GetSetupSectionDirectiveWordList(
+function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
   SetupSectionDirective: TSetupSectionDirective): AnsiString;
 begin
-  Result := '';
+  if SetupSectionDirective in SetupSectionDirectivesAutoYesNo then
+    Result := FSetupSectionDirectiveValueAutoYesNoWordList
+  else if SetupSectionDirective in SetupSectionDirectivesYesNo then
+    Result := FSetupSectionDirectiveValueYesNoWordList
+  else
+    Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
 end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
