@@ -138,6 +138,7 @@ type
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
+    function GetSetupSectionDirectiveValueIsMultiValue(SetupSectionDirective: TSetupSectionDirective): Boolean;
     function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
@@ -169,6 +170,7 @@ type
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
+    property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
     property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -1049,6 +1051,14 @@ begin
   Result := TInnoSetupStylerLineState(LineState).Section;
 end;
 
+function TInnoSetupStyler.GetSetupSectionDirectiveValueIsMultiValue(
+  SetupSectionDirective: TSetupSectionDirective): Boolean;
+{ "MultiValue" means a directive like WizardStyle which accepts a space separated list of values }
+begin
+  Result := SetupSectionDirective in [ssDisablePrecompiledFileVerifications,
+    ssPrivilegesRequiredOverridesAllowed, ssWizardStyle];
+end;
+
 function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
   SetupSectionDirective: TSetupSectionDirective): AnsiString;
 begin
@@ -1867,11 +1877,11 @@ const
 
 function GetCompressionValues: TArray<TScintRawString>;
 
-procedure SetResult(var I: Integer; const S: TScintRawString);
-begin
-  Result[I] := S;
-  Inc(I);
-end;
+  procedure SetResult(var I: Integer; const S: TScintRawString);
+  begin
+    Result[I] := S;
+    Inc(I);
+  end;
 
 const
   ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];

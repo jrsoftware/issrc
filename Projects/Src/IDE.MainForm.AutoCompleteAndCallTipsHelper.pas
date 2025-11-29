@@ -165,6 +165,7 @@ begin
           var FoundSemicolon := False;
           var FoundFlagsOrType := False;
           var FoundSetupDirectiveName := '';
+          var FoundMultipleSetupDirectiveValues := False;
           var I := WordStartPos;
           while I > LinePos do begin
             I := AMemo.GetPositionBefore(I);
@@ -219,14 +220,11 @@ begin
                   flags above because we don't know the directive name yet. In fact, we
                   don't even know whether we are before or after the '='. As a workaround
                   we check for the expected style before '=', which is stKeyword or stComment,
-                  and only autocomplete if we don't find that.
-
-                  Does not take into account that only some directives allow multiple space
-                  separated values. Should not matter much in practice since it won't auto start
-                  autocompletion for a second value without typing space instead of enter. }
-                if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then
-                  I := AMemo.GetWordStartPosition(I, True)
-                else
+                  and only continue if we don't find that. }
+                if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
+                  FoundMultipleSetupDirectiveValues := True;
+                  I := AMemo.GetWordStartPosition(I, True);
+                end else
                   Exit;
               end else
                 Exit; { Non-whitespace which should not be there }
@@ -237,14 +235,17 @@ begin
             Exit;
 
           if FoundSetupDirectiveName <> '' then begin
+            WordList := '';
             const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + FoundSetupDirectiveName);
             if V <> -1 then begin
-              WordList := FMemosStyler.SetupSectionDirectiveValueWordList[TSetupSectionDirective(V)];
-              if WordList = '' then
-                Exit;
-              AMemo.SetAutoCompleteFillupChars(' ');
-            end else
+              const Directive = TSetupSectionDirective(V);
+              if not FoundMultipleSetupDirectiveValues or
+                 FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then
+                WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+            end;
+            if WordList = '' then
               Exit;
+            AMemo.SetAutoCompleteFillupChars(' ');
           end else if FoundFlagsOrType then begin
             WordList := FMemosStyler.FlagsWordList[Section];
             if WordList = '' then { Should never be True, since we already checked above }
