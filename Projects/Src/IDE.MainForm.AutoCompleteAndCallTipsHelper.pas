@@ -35,7 +35,8 @@ type
 implementation
 
 uses
-  SysUtils, Math,
+  SysUtils, Math, TypInfo,
+  Shared.SetupSectionDirectives,
   IDE.ScintStylerInnoSetup;
 
 function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
@@ -166,6 +167,7 @@ begin
             'Type:' in parameterized sections }
           var FoundSemicolon := False;
           var FoundFlagsOrType := False;
+          var FoundSetupDirectiveName := '';
           var I := WordStartPos;
           while I > LinePos do begin
             I := AMemo.GetPositionBefore(I);
@@ -177,7 +179,7 @@ begin
               like a space before the current flag }
 
             if IsParamSection and (C in [';', ':']) and
-               FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string }
+               FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
               FoundSemicolon := C = ';';
               if not FoundSemicolon then begin
                 const ParameterWordEndPos = I;
@@ -190,12 +192,18 @@ begin
               if FoundSemicolon or FoundFlagsOrType then
                 Break;
             end;
-            if (Section = scLangOptions) and (C = '.') then begin
-              { Verify that a word (language name) precedes the '.', then check for
-                any non-whitespace characters before the word }
-              const LangNamePos = AMemo.GetWordStartPosition(I, True);
-              if (LangNamePos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, LangNamePos) then
+
+            if ((Section = scLangOptions) and (C = '.')) or ((Section = scSetup) and (C = '=')) then begin
+              { Verify that a word (language or directive name) precedes the '.' or '=', then check for
+                any non-whitespace characters before the word. Among other things, this ensures
+                we're not inside a comment. }
+              const NameStartPos = AMemo.GetWordStartPosition(I, True);
+              if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
                 Exit;
+              if Section = scSetup then begin
+                const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
+                FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
+              end;
               Break;
             end else if C > ' ' then begin
               if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
@@ -209,15 +217,34 @@ begin
                   I := FlagStartPos
                 else
                   Exit;
+              end else if Section = scSetup then begin
+                { Continue looking for '='. We don't do a verification like it does for
+                  flags above because we don't know the directive name yet. In fact, we
+                  don't even know whether we are before or after the '='. As a workaround
+                  we check for the expected style before '=', which is stKeyword or stComment,
+                  and only autocomplete if we don't find that. }
+                if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then
+                  I := AMemo.GetWordStartPosition(I, True)
+                else
+                  Exit;
               end else
                 Exit; { Non-whitespace which should not be there }
             end;
           end;
-          { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' in parameterized sections }
-          if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType) then
+          { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a [Setup] directive }
+          if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or (FoundSetupDirectiveName <> '')) then
             Exit;
 
-          if FoundFlagsOrType then begin
+          if FoundSetupDirectiveName <> '' then begin
+            const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + FoundSetupDirectiveName);
+            if V <> -1 then begin
+              WordList := FMemosStyler.SetupSectionDirectiveValueWordList[TSetupSectionDirective(V)];
+              if WordList = '' then
+                Exit;
+              AMemo.SetAutoCompleteFillupChars(' ');
+            end else
+              Exit;
+          end else if FoundFlagsOrType then begin
             WordList := FMemosStyler.FlagsWordList[Section];
             if WordList = '' then
               Exit;
@@ -414,7 +441,7 @@ begin
         if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(AMemo, Ch);
     else
-      const RestartAutoComplete = (Ch in [' ', '.']) and
+      const RestartAutoComplete = (Ch in [' ', '.', '=']) and
         (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
       AMemo.CancelAutoComplete;
       if RestartAutoComplete then

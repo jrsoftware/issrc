@@ -13,7 +13,7 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
-  ScintEdit, ModernColors, Shared.ScriptFunc;
+  ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -134,6 +134,7 @@ type
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
+    function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -146,6 +147,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
+    class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
@@ -163,6 +165,7 @@ type
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
+    property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -170,7 +173,7 @@ implementation
 
 uses
   Generics.Defaults,
-  Shared.SetupMessageIDs, ScintInt, Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
+  Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
   Shared.CommonFunc.Vcl, Shared.SetupSteps, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
 
 type
@@ -653,7 +656,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
     BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
     BuildKeywordsWordList(scRun, RunSectionParameters);
-    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefixLength);
+    BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
     BuildKeywordsWordList(scTasks, TasksSectionParameters);
     BuildKeywordsWordList(scTypes, TypesSectionParameters);
     BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
@@ -1026,6 +1029,12 @@ class function TInnoSetupStyler.GetSectionFromLineState(
   const LineState: TScintLineState): TInnoSetupStylerSection;
 begin
   Result := TInnoSetupStylerLineState(LineState).Section;
+end;
+
+function TInnoSetupStyler.GetSetupSectionDirectiveWordList(
+  SetupSectionDirective: TSetupSectionDirective): AnsiString;
+begin
+  Result := '';
 end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
@@ -1555,6 +1564,11 @@ begin
     StyleConstsUntilChars([], stDefault, BraceLevel);
     CommitStyle(stDefault);
   end;
+end;
+
+class function TInnoSetupStyler.IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := Style in [Ord(stComment), Ord(stKeyword)];
 end;
 
 class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
