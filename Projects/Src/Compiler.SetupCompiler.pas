@@ -8149,7 +8149,9 @@ begin
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
     if (UseSetupLdr = sl64bit) and ArchitecturesAllowedAllowsX86 then begin
-      LineNumber := SetupDirectiveLines[ssUseSetupLdr];
+      LineNumber := SetupDirectiveLines[ssArchitecturesAllowed];
+      if LineNumber = 0 then
+        LineNumber := SetupDirectiveLines[ssUseSetupLdr];
       AbortCompile(SCompilerSetupLdrX64MustExcludeX86);
     end;
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
