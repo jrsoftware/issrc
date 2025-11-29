@@ -1862,7 +1862,7 @@ initialization
     SMI('UninstallDelete', scUninstallDelete),
     SMI('UninstallRun', scUninstallRun)];
 
- ISPPDirectives := [
+  ISPPDirectives := [
     ISPPD('preproc', True, 0),
     ISPPD('define', True, 0),
     ISPPD('dim', True, 0),

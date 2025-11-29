@@ -162,9 +162,6 @@ begin
         end else begin
           const IsParamSection = FMemosStyler.IsParamSection(Section);
 
-          { Autocomplete if the current word on the line has only whitespace
-            before it, or else also: after the last ';' or after 'Flags:' or
-            'Type:' in parameterized sections }
           var FoundSemicolon := False;
           var FoundFlagsOrType := False;
           var FoundSetupDirectiveName := '';
@@ -246,7 +243,7 @@ begin
               Exit;
           end else if FoundFlagsOrType then begin
             WordList := FMemosStyler.FlagsWordList[Section];
-            if WordList = '' then
+            if WordList = '' then { Should never be True, since we already checked above }
               Exit;
             AMemo.SetAutoCompleteFillupChars(' ');
           end else begin
