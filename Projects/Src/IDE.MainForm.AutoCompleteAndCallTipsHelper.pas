@@ -166,7 +166,6 @@ begin
             'Type:' in parameterized sections }
           var FoundSemicolon := False;
           var FoundFlagsOrType := False;
-          var FoundDot := False;
           var I := WordStartPos;
           while I > LinePos do begin
             I := AMemo.GetPositionBefore(I);
@@ -188,14 +187,13 @@ begin
               if FoundSemicolon or FoundFlagsOrType then
                 Break;
             end;
-            if (Section = scLangOptions) and (C = '.') and not FoundDot then begin
+            if (Section = scLangOptions) and (C = '.') then begin
               { Verify that a word (language name) precedes the '.', then check for
                 any non-whitespace characters before the word }
               const LangNamePos = AMemo.GetWordStartPosition(I, True);
-              if LangNamePos >= I then
+              if (LangNamePos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, LangNamePos) then
                 Exit;
-              I := LangNamePos; { Not sure why it doesnt just Break }
-              FoundDot := True;
+              Break;
             end else if C > ' ' then begin
               if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
                  (FMemosStyler.FlagsWordList[Section] <> '') then begin
