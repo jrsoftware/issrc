@@ -441,7 +441,7 @@ begin
   TempFileLeftOver := True;
 
   HTTPDataReceiver := THTTPDataReceiver.Create(Url,
-      DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
+    DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
   try
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
@@ -487,12 +487,13 @@ begin
       LastError := GetLastError;
       { Does the error code indicate that it is possibly in use? }
       if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
-        LogFmt('  The existing file appears to be in use (%d). ' +
-          'Retrying.', [LastError]);
-        Dec(RetriesLeft);
-        Sleep(1000);
-        if RetriesLeft > 0 then
+        if RetriesLeft > 0 then begin
+          LogFmt('  The existing file appears to be in use (%d). ' +
+            'Retrying.', [LastError]);
+          Dec(RetriesLeft);
+          Sleep(1000);
           Continue;
+        end;
       end;
       { Some other error occurred, or we ran out of tries }
       SetLastError(LastError);
