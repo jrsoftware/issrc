@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.6.1';
-  SetupBinVersion = (6 shl 24) + (6 shl 16) + (1 shl 8) + 0;
+  SetupVersion = '6.7.0-dev';
+  SetupBinVersion = (6 shl 24) + (7 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.2)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.7.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
