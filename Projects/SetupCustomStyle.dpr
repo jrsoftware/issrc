@@ -111,10 +111,11 @@ uses
   Vcl.Styles,
   Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm};
 
+{$R *.res}
+
 { The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.dark.res}
 {$R Res\Setup.images.dark.res}
-{$R Res\Setup.style.res}
 
 { Note: Setup.Start.pas includes more resources }
 

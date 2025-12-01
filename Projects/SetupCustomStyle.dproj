@@ -45,6 +45,7 @@
         <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
         <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
         <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
+        <Custom_Styles>&quot;Slate Classico|VCLSTYLE|$(BDSCOMMONDIR)\Styles\SlateClassico.vsf&quot;;&quot;Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf&quot;;&quot;Windows11 Modern Light|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Light.vsf&quot;;&quot;Windows11 Polar Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Polar_Dark.vsf&quot;;&quot;Windows11 Polar Light|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Polar_Light.vsf&quot;;Zircon|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Zircon.vsf</Custom_Styles>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>

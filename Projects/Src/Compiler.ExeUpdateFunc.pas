@@ -849,14 +849,14 @@ type
     var StyleName: PChar := nil;
     if SameText(StyleFileName, 'builtin:polar') then begin
       if Dark then
-        StyleName := 'POLAR_DARK'
+        StyleName := 'WINDOWSPOLARDARK'
       else
-        StyleName := 'POLAR_LIGHT';
+        StyleName := 'WINDOWSPOLARLIGHT';
     end else if SameText(StyleFileName, 'builtin:windows11') then begin
       if Dark then
-        StyleName := 'WINDOWS11_DARK'
+        StyleName := 'WINDOWSMODERNDARK'
       else
-        StyleName := 'WINDOWS11_LIGHT';
+        StyleName := 'WINDOWSMODERNLIGHT';
     end else if SameText(StyleFileName, 'builtin:slate') then
       StyleName := 'SLATECLASSICO'
     else if SameText(StyleFileName, 'builtin:zircon') then
@@ -1015,24 +1015,24 @@ begin
             if (Vsf = nil) and (WizardDarkStyle = wdsDark) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Forced dark without a custom style: make the built-in dark style the regular one }
-              RenameResource(H, M, 'VCLSTYLE', 'WINDOWS11_DARK', 'MYSTYLE1');
+              RenameResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK', 'MYSTYLE1');
             end else if (VsfDynamicDark = nil) and (WizardDarkStyle = wdsDynamic) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Dynamic without a custom dark style: make the built-in dark style the dark one }
-              RenameResource(H, M, 'VCLSTYLE', 'WINDOWS11_DARK', 'MYSTYLE1_DARK');
+              RenameResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK', 'MYSTYLE1_DARK');
             end else begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Forced dark with a custom style: delete the built-in dark style
                 Or, dynamic with a custom dark style: same
                 Or, forced light with or without a custom style: same
                 Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
-              DeleteResource(H, M, 'VCLSTYLE', 'WINDOWS11_DARK');
+              DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK');
             end;
 
             { Delete additional styles - they are handled above }
-            DeleteResource(H, M, 'VCLSTYLE', 'WINDOWS11_LIGHT');
-            DeleteResource(H, M, 'VCLSTYLE', 'POLAR_LIGHT');
-            DeleteResource(H, M, 'VCLSTYLE', 'POLAR_DARK');
+            DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNLIGHT');
+            DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSPOLARLIGHT');
+            DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSPOLARDARK');
             DeleteResource(H, M, 'VCLSTYLE', 'SLATECLASSICO');
             DeleteResource(H, M, 'VCLSTYLE', 'ZIRCON');
           end;
