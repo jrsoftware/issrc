@@ -44,6 +44,9 @@ Getting Started
    There's a free version of Delphi available called the Community Edition.
    See https://www.embarcadero.com/products/delphi/starter/free-download.
 
+   After installation of Delphi, you must install GetIt dependencies by
+   running **getit.bat** and following the instructions.
+
 3. **Install Microsoft HTML Help Workshop**
 
    Install Microsoft HTML Help Workshop if you haven't already done so.

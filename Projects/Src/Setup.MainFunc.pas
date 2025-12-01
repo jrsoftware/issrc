@@ -3444,8 +3444,8 @@ begin
           if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
           {$IFDEF DEBUG}
              or TStyleManager.TryLoadFromResource(HInstance, 'ZIRCON', 'VCLSTYLE', Handle)
-             { Comment the line above to activate POLAR_DARK instead of ZIRCON }
-             or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_DARK', 'VCLSTYLE', Handle)
+             { Comment the line above to activate WINDOWSPOLARDARK instead of ZIRCON }
+             or TStyleManager.TryLoadFromResource(HInstance, 'WINDOWSPOLARDARK', 'VCLSTYLE', Handle)
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
