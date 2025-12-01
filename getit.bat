@@ -29,6 +29,10 @@ rem -------------------------------------------------------------------------
 call "%DELPHIXEROOT%\bin\rsvars.bat"
 if errorlevel 1 goto failed
 
+rem Delphi 10.4 note: Delphi 10.4 does not display these styles when using the
+rem GetIt Package Manager from the IDE, but its GetItCmd.exe can still retrieve
+rem them. When it does, it obtains the same files as Delphi 12.3.
+
 GetItCmd.exe --accepteulas --donotsetenvfile -i=VCLStyle-Windows11Light-1.0;VCLStyle-Windows11Dark-1.0;VCLStyle-PolarLight-1.0;VCLStyle-PolarDark-1.0;VCLStyle-Zircon-2.0
 if errorlevel 1 goto failed
 

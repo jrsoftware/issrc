@@ -259,17 +259,18 @@ Inno Setup's source code includes a GitHub workflow named **build.yml** that
 performs unattended builds upon `push` events, it requires some setting up, though.
 
 Note: The following instructions assume that you have a correctly-licensed version
-of Delphi installed into `C:\Program Files (x86)\Embarcadero\Studio\23.0`. This may
-not be a Community Edition because it does not support command line compilation.
+of Delphi installed and ran **getit.bat** as mentioned above. Your Delphi version
+may not be a Community Edition because it does not support command line compilation.
 Also ensure your current Delphi license still allows you to copy a subset of the
 Delphi files to another machine for the specific purpose of supporting unattended
 builds.
 
-First, generate an encrypted `.zip` file containing the files needed to build
-Inno Setup using [7-Zip]:
+First, run **rsvars.bat** from your Delphi Bin directory and then in the same session
+generate an encrypted `.zip` file containing the files needed to build Inno Setup
+using [7-Zip]:
 
 ```
-cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
+cd /d "%BDS%"
 "C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
   %USERPROFILE%\issrc-build-env.zip ^
   bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
@@ -289,6 +290,15 @@ cd /d C:\Program Files (x86)\Embarcadero\Studio\23.0
   bin\cgrc.exe bin\lnkdfm*.dll bin\rc.exe bin\RcDLL.dll ^
   bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
   bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets
+cd /d "%BDSCOMMONDIR%"
+"C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+  %USERPROFILE%\issrc-build-env.zip ^
+  Styles\SlateClassico.vsf ^
+  Styles\Windows11_Modern_Dark.vsf ^
+  Styles\Windows11_Modern_Light.vsf ^
+  Styles\Windows11_Polar_Dark.vsf ^
+  Styles\Windows11_Polar_Light.vsf ^
+  Styles\Zircon.vsf
 ```
 
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
