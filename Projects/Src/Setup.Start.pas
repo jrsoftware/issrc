@@ -1,3 +1,5 @@
+unit Setup.Start;
+
 {
   Inno Setup
   Copyright (C) 1997-2025 Jordan Russell
@@ -7,6 +9,12 @@
   Setup program .dpr code
 }
 
+interface
+
+procedure Start;
+
+implementation
+
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
@@ -15,6 +23,15 @@
 {$R Res\Setup.icon.res}
 {$R Res\Setup.images.res}
 {$R Res\Setup.version.res}
+
+uses
+  Windows, Messages,
+  SysUtils,
+  Forms,
+  RichEditViewer,
+  Shared.CommonFunc, Shared.SetupMessageIDs, Shared.FileClass, Shared.Struct,
+  SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
+  Setup.LoggingFunc, Setup.MainFunc, Setup.Uninstall, Setup.RegSvr, Setup.MainForm;
 
 procedure ShowExceptionMsg;
 begin
@@ -163,6 +180,7 @@ begin
   end;
 end;
 
+procedure Start;
 begin
   try
     {$IFDEF DEBUG}
@@ -251,4 +269,6 @@ begin
   {$ENDIF}
 
   Halt(SetupExitCode);
+end;
+
 end.

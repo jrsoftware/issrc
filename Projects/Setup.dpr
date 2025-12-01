@@ -19,6 +19,7 @@ uses
   RichEditViewer in '..\Components\RichEditViewer.pas',
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Setup.Start in 'Src\Setup.Start.pas',
   Setup.MainForm in 'Src\Setup.MainForm.pas',
   Setup.MainFunc in 'Src\Setup.MainFunc.pas',
   Setup.Install in 'Src\Setup.Install.pas',
@@ -109,4 +110,9 @@ uses
   Themes in '..\Components\Themes.pas',
   FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas';
 
-{$I Src\Setup.inc}
+begin
+  { Don't remove, see SetupCustomStyle.dpr }
+  Application.Title := 'Setup';
+
+  Start;
+end.
