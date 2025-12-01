@@ -435,8 +435,12 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
   begin
     if PermsEntry <> -1 then begin
       LogFmt('Setting permissions on directory: %s', [Filename]);
+      const RedirFilename = ApplyPathRedirRules(DisableFsRedir, Filename);
+      if RedirFilename <> Filename then
+        LogFmt(#$2514#$2500' Redirected path: %s', [RedirFilename]);
+
       P := Entries[sePermission][PermsEntry];
-      if not GrantPermissionOnFile(DisableFsRedir, Filename,
+      if not GrantPermissionOnFile(False, RedirFilename,
          TGrantPermissionEntry(Pointer(P.Permissions)^),
          Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
         LogFmt('Failed to set permissions on directory (%d).', [GetLastError]);
@@ -607,15 +611,22 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   procedure ApplyPermissions(const DisableFsRedir: Boolean;
     const Filename: String; const PermsEntry: Integer);
   var
-    Attr: DWORD;
     P: PSetupPermissionEntry;
   begin
     if PermsEntry <> -1 then begin
-      Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
-      if (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and FILE_ATTRIBUTE_DIRECTORY = 0) then begin
-        LogFmt('Setting permissions on file: %s', [Filename]);
+      LogFmt('Setting permissions on file: %s', [Filename]);
+      const RedirFilename = ApplyPathRedirRules(DisableFsRedir, Filename);
+      if RedirFilename <> Filename then
+        LogFmt(#$2514#$2500' Redirected path: %s', [RedirFilename]);
+
+      const Attr = GetFileAttributes(PChar(RedirFilename));
+      if Attr = INVALID_FILE_ATTRIBUTES then
+        LogWithLastError('Cannot set permissions; failed to read file attributes.')
+      else if Attr and FILE_ATTRIBUTE_DIRECTORY <> 0 then
+        Log('Cannot set permissions; a directory exists at that path.')
+      else begin
         P := Entries[sePermission][PermsEntry];
-        if not GrantPermissionOnFile(DisableFsRedir, Filename,
+        if not GrantPermissionOnFile(False, RedirFilename,
            TGrantPermissionEntry(Pointer(P.Permissions)^),
            Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
           LogFmt('Failed to set permissions on file (%d).', [GetLastError]);
