@@ -40,12 +40,12 @@ if "%1"=="issigtool" (
 )
 
 echo - %PROJ%
-msbuild.exe %PROJ% /t:Build /p:Config=Release /p:Platform=Win32 /p:EnvOptionsWarn=false
+msbuild.exe %PROJ% /t:Build /p:Config=Release;Platform=Win32;EnvOptionsWarn=false /nologo
 if errorlevel 1 goto failed
 
 if not "%1"=="issigtool" (
   echo - SetupLdr.e64
-  msbuild.exe SetupLdr.dproj /t:Build /p:Config=Release /p:Platform=Win64 /p:EnvOptionsWarn=false
+  msbuild.exe SetupLdr.dproj /t:Build /p:Config=Release;Platform=Win64;EnvOptionsWarn=false /nologo
   if errorlevel 1 goto failed
 )
 
