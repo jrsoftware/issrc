@@ -91,7 +91,7 @@ begin
         parameter is nil. }
 end;
 
-procedure ProcessCommandLine;
+procedure ProcessCommandLine(var SelfFilename: String);
 begin
   var SilentOrVerySilent := False;
   var WantToSuppressMsgBoxes := False;
@@ -108,8 +108,12 @@ begin
       InitShowHelp := True
     else if SameText(ParamName, '/Silent') or SameText(ParamName, '/VerySilent') then
       SilentOrVerySilent := True
-     else if SameText(ParamName, '/SuppressMsgBoxes') then
+    else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
+    {$IFDEF DEBUG}
+    else if SameText(ParamName, '/SELFFILENAME=') then
+      SelfFilename := PathExpand(ParamValue);
+    {$ENDIF};
   end;
 
   if WantToSuppressMsgBoxes and SilentOrVerySilent then
@@ -226,11 +230,11 @@ procedure RunImageLocally(const Module: HMODULE);
   Based on code from http://www.microsoft.com/msj/0398/win320398.htm, with
   some fixes incorporated. }
 
-  procedure Touch(var X: DWORD);
-  { Note: Uses asm to ensure it isn't optimized away }
-  asm
-    xor edx, edx
-    lock or [eax], edx
+  procedure Touch(var X: Integer);
+  begin
+    { An atomic operation is used to ensure we can't corrupt a simultaneous
+      write by another thread (though there shouldn't be other threads) }
+    InterlockedExchangeAdd(X, 0);
   end;
 
 var
@@ -239,7 +243,6 @@ var
   MemInfo: TMemoryBasicInformation;
   ChangedProtection: Boolean;
   OrigProtect: DWORD;
-  Offset: Cardinal;
 begin
   { Get system's page size }
   GetSystemInfo(SysInfo);
@@ -268,9 +271,9 @@ begin
 
       { Write to every page in the region.
         This forces the page to be in RAM and swapped to the paging file. }
-      Offset := 0;
-      while Offset < Cardinal(MemInfo.RegionSize) do begin
-        Touch(PDWORD(Cardinal(MemInfo.BaseAddress) + Offset)^);
+      var Offset: SIZE_T := 0;
+      while Offset < MemInfo.RegionSize do begin
+        Touch(PInteger(PByte(MemInfo.BaseAddress) + Offset)^);
         Inc(Offset, SysInfo.dwPageSize);
       end;
 
@@ -281,24 +284,24 @@ begin
     end;
 
     { Get next region }
-    Cardinal(CurAddr) := Cardinal(MemInfo.BaseAddress) + MemInfo.RegionSize;
+    PByte(CurAddr) := PByte(MemInfo.BaseAddress) + MemInfo.RegionSize;
     if VirtualQuery(CurAddr, MemInfo, SizeOf(MemInfo)) = 0 then
       Break;
   end;
 end;
 
-function GetSetupLdrOffsetTable: PSetupLdrOffsetTable;
+function GetSetupLdrOffsetTable(const M: HMODULE): PSetupLdrOffsetTable;
 { Locates the offset table resource, and returns a pointer to it }
 var
   Rsrc: HRSRC;
   ResData: HGLOBAL;
 begin
-  Rsrc := FindResource(0, MAKEINTRESOURCE(SetupLdrOffsetTableResID), RT_RCDATA);
+  Rsrc := FindResource(M, MAKEINTRESOURCE(SetupLdrOffsetTableResID), RT_RCDATA);
   if Rsrc = 0 then
     SetupCorruptError;
-  if SizeofResource(0, Rsrc) <> SizeOf(Result^) then
+  if SizeofResource(M, Rsrc) <> SizeOf(Result^) then
     SetupCorruptError;
-  ResData := LoadResource(0, Rsrc);
+  ResData := LoadResource(M, Rsrc);
   if ResData = 0 then
     SetupCorruptError;
   Result := LockResource(ResData);
@@ -383,9 +386,8 @@ begin
 end;
 
 var
-  SelfFilename: String;
   SourceF, DestF: TFile;
-  OffsetTable: PSetupLdrOffsetTable;
+  OffsetTable: TSetupLdrOffsetTable;
   TempDir: String;
   S: String;
   TempFile: String;
@@ -404,17 +406,30 @@ begin
       is ejected. }
     RunImageLocally(HInstance);
 
-    ProcessCommandLine;
+    var SelfFilename := NewParamStr(0);
 
-    SelfFilename := NewParamStr(0);
+    ProcessCommandLine(SelfFilename);
+
     SourceF := TFile.Create(SelfFilename, fdOpenExisting, faRead, fsRead);
     try
-      OffsetTable := GetSetupLdrOffsetTable;
+      var M: HMODULE := 0;
+      if not PathSame(SelfFilename, NewParamStr(0)) then begin { Can only happen on DEBUG }
+        M := LoadLibraryEx(PChar(SelfFilename), 0, LOAD_LIBRARY_AS_DATAFILE);
+        if M = 0 then
+          raise Exception.Create('LoadLibraryEx failed');
+      end;
+      try
+        OffsetTable := GetSetupLdrOffsetTable(M)^;
+      finally
+        if M <> 0 then
+          FreeLibrary(M);
+      end;
+
       { Note: We don't check the OffsetTable.ID here because it would put a
         copy of the ID in the data section, and that would confuse external
         programs that search for the offset table by ID. }
       if (OffsetTable.Version <> SetupLdrOffsetTableVersion) or
-         (GetCRC32(OffsetTable^, SizeOf(OffsetTable^) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
+         (GetCRC32(OffsetTable, SizeOf(OffsetTable) - SizeOf(OffsetTable.TableCRC)) <> OffsetTable.TableCRC) or
          (SourceF.Size < OffsetTable.TotalSize) then
         SetupCorruptError;
 
@@ -424,8 +439,8 @@ begin
         SetupCorruptError;
 
       var SetupEncryptionHeaderCRC: Longint;
-      SourceF.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
-      SourceF.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+      SourceF.ReadBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
+      SourceF.ReadBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
       if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
         SetupCorruptError;
 
@@ -527,10 +542,12 @@ begin
           SetupLdr }
         SetupLdrWnd := CreateWindowEx(0, 'STATIC', 'InnoSetupLdrWindow', 0,
           0, 0, 0, 0, HWND_DESKTOP, 0, HInstance, nil);
-        Longint(OrigWndProc) := SetWindowLong(SetupLdrWnd, GWL_WNDPROC,
-          Longint(@SetupLdrWndProc));
+        LONG_PTR(OrigWndProc) := SetWindowLongPtr(SetupLdrWnd, GWLP_WNDPROC,
+          LONG_PTR(@SetupLdrWndProc));
 
         { Now execute Setup. Use the exit code it returns as our exit code.
+          The UInt32 cast prevents sign extension. Also see
+          https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication
           SelfFilename is passed in "final" reparsed form so that Setup won't
           have trouble accessing the file after enabling RedirectionGuard if
           there's an untrusted redirect in the path. }

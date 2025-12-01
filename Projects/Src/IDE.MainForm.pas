@@ -3646,7 +3646,7 @@ begin
           NNT(awtSection, 'ac\structure-filled'),
           NNT(awtParameter, 'ac\xml-filled'),
           NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlag, 'ac\values'),
+          NNT(awtFlagOrSetupDirectiveValue, 'ac\values'),
           NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
           NNT(awtConstant, 'ac\constant-filled_2'),
           NNT(awtScriptFunction, 'ac\method-filled'),

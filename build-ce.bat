@@ -19,7 +19,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=6.6.1
+set VER=6.7.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -43,7 +43,8 @@ rem  Note: Other precompiled binaries are verified by Setup.iss
 call .\issig.bat verify --key-file=def01.ispublickey ^
   Projects\Src\Setup.HelperEXEs.res ^
   Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
-  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj ^
+  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x86.obj ^
+  Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.x64.obj ^
   Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj
 if errorlevel 1 goto failed
 echo ISSigTool verify done
@@ -61,11 +62,12 @@ call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
 call :deletefile files\setupcustomstyle.e32
 call :deletefile files\setupldr.e32
+call :deletefile files\setupldr.e64
 call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build all projects in Release mode
+echo Now open Projects\Projects.groupproj and build all projects and targets in Release mode
 
 echo - Waiting for files...
 call :waitforfile files\compil32.exe
@@ -75,6 +77,7 @@ call :waitforfile files\ispp.dll
 call :waitforfile files\setup.e32
 call :waitforfile files\setupcustomstyle.e32
 call :waitforfile files\setupldr.e32
+call :waitforfile files\setupldr.e64
 call :waitforfile files\issigtool.exe
 call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 
@@ -90,7 +93,7 @@ if exist .\setup-presign.bat (
 )
 
 rem  Sign using user's private key - also see compile.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 pause

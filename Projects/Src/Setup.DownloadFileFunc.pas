@@ -387,8 +387,6 @@ var
   TempF: TFile;
   TempFileLeftOver: Boolean;
   HTTPDataReceiver: THTTPDataReceiver;
-  RetriesLeft: Integer;
-  LastError: DWORD;
 begin
   if Url = '' then
     InternalError('DownloadTemporaryFile: Invalid Url value');
@@ -441,7 +439,7 @@ begin
   TempFileLeftOver := True;
 
   HTTPDataReceiver := THTTPDataReceiver.Create(Url,
-      DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
+    DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
   try
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
@@ -481,23 +479,22 @@ begin
     end;
 
     { Rename the temporary file to the new name now, with retries if needed }
-    RetriesLeft := 4;
-    while not MoveFile(PChar(TempFile), PChar(DestFile)) do begin
-      { Couldn't rename the temporary file... }
-      LastError := GetLastError;
-      { Does the error code indicate that it is possibly in use? }
-      if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
+    const CapturableDestFile = DestFile;
+    PerformFileOperationWithRetries(4, True,
+      function: Boolean
+      begin
+        Result := MoveFile(PChar(TempFile), PChar(CapturableDestFile));
+      end,
+      procedure(const LastError: Cardinal)
+      begin
         LogFmt('  The existing file appears to be in use (%d). ' +
           'Retrying.', [LastError]);
-        Dec(RetriesLeft);
         Sleep(1000);
-        if RetriesLeft > 0 then
-          Continue;
-      end;
-      { Some other error occurred, or we ran out of tries }
-      SetLastError(LastError);
-      Win32ErrorMsg('MoveFile'); { Throws an exception }
-    end;
+      end,
+      procedure(const LastError: Cardinal; var DoExit: Boolean)
+      begin
+        Win32ErrorMsg('MoveFile'); { Throws an exception }
+      end);
     TempFileLeftOver := False;
   finally
     TempF.Free;

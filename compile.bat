@@ -25,6 +25,7 @@ call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
 set DELPHIXELIB_WIN32=%DELPHIXEROOT%\lib\win32\release
+set DELPHIXELIB_WIN64=%DELPHIXEROOT%\lib\win64\release
 
 rem -------------------------------------------------------------------------
 
@@ -37,8 +38,10 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
 set FLAGSCONSOLE=%FLAGS% -CC
 set FLAGSE32=%FLAGS% -TX.e32
+set FLAGSE64=%FLAGS% -TX.e64
 set NAMESPACES=System;System.Win;Winapi
 set DCUDIR_WIN32=Dcu\Win32\Release
+set DCUDIR_WIN64=Dcu\Win64\Release
 
 set ROPSSRC=..\Components\UniPS\Source
 set ROPSDEF=PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS
@@ -74,6 +77,11 @@ mkdir %DCUDIR_WIN32%\SetupLdr.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -$T+ -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
 if errorlevel 1 goto failed
 
+echo - SetupLdr.e64
+mkdir %DCUDIR_WIN64%\SetupLdr.dpr 2>nul
+"%DELPHIXEROOT%\bin\dcc64.exe" %FLAGSE64% -$T+ -NS%NAMESPACES% -U"%DELPHIXELIB_WIN64%" -NU%DCUDIR_WIN64%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
+if errorlevel 1 goto failed
+
 echo - Setup.e32
 mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
 "%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
@@ -97,7 +105,7 @@ echo Success!
 
 if "%1"=="issigtool" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32
+call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
 

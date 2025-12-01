@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.6.1';
-  SetupBinVersion = (6 shl 24) + (6 shl 16) + (1 shl 8) + 0;
+  SetupVersion = '6.7.0-dev';
+  SetupBinVersion = (6 shl 24) + (7 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.6.2)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (6.7.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
@@ -66,7 +66,20 @@ type
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
     shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
-    shRedirectionGuard);
+    shRedirectionGuard, shUnusedPadding = 56);
+  { ^ Contains padding to raise the amount of flags to 57, ensuring the size of
+      the set is 8 bytes (instead of less) in 32-bit builds. This prevents
+      incompatibility with 64-bit builds, where the minimum size for a set with
+      more than 32 flags is 8 bytes. Once the amount of actual flags reaches
+      57, the padding can be removed, as the set will then be naturally
+      compatible again between 32-bit and 64-bit builds. Note that this is not
+      necessary for sets with fewer than 32 flags, which is why
+      TSetupHeaderOption is the only set with padding. Also see
+      https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
+  TSetupHeaderOptions = packed set of TSetupHeaderOption;
+  { ^ Adding more flags adds 1 byte for every 8 flags, in both 32-bit and
+      64-bit builds, even without specifying packed. But to be sure we specify
+      it anyway. }
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
   TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
   TSetupKDFSalt = array[0..15] of Byte;
@@ -135,7 +148,7 @@ type
     CompressMethod: TSetupCompressMethod;
     DisableDirPage, DisableProgramGroupPage: TSetupDisablePage;
     UninstallDisplaySize: Int64;
-    Options: set of TSetupHeaderOption;
+    Options: TSetupHeaderOptions;
   end;
 const
   SetupPermissionEntryStrings = 0;
@@ -328,7 +341,7 @@ type
     Subkey, ValueName, ValueData: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    RootKey: HKEY;
+    RootKey: UInt32; { Not using HKEY because it equals NativeUInt. UInt32 fits all predefined keys and utReg* use Integer to store it. }
     PermissionsEntry: Smallint;
     Typ: (rtNone, rtString, rtExpandString, rtDWord, rtBinary, rtMultiString, rtQWord);
     Options: set of (roCreateValueIfDoesntExist, roUninsDeleteValue,

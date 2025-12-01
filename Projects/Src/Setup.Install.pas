@@ -435,8 +435,12 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
   begin
     if PermsEntry <> -1 then begin
       LogFmt('Setting permissions on directory: %s', [Filename]);
+      const RedirFilename = ApplyPathRedirRules(DisableFsRedir, Filename);
+      if RedirFilename <> Filename then
+        LogFmt(#$2514#$2500' Redirected path: %s', [RedirFilename]);
+
       P := Entries[sePermission][PermsEntry];
-      if not GrantPermissionOnFile(DisableFsRedir, Filename,
+      if not GrantPermissionOnFile(False, RedirFilename,
          TGrantPermissionEntry(Pointer(P.Permissions)^),
          Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
         LogFmt('Failed to set permissions on directory (%d).', [GetLastError]);
@@ -502,6 +506,37 @@ begin
   UninstallerMsgTail.Offset := F.Position;
   WriteMsgData(F);
   F.WriteBuffer(UninstallerMsgTail, SizeOf(UninstallerMsgTail));
+end;
+
+procedure DoHandleFailedDeleteOrMoveFileTry(const CurFile: PSetupFileEntry;
+  const DisableFsRedir: Boolean; const Func, TempFile, DestFile: String;
+  const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
+  var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
+begin
+  { Automatically retry. Wait with replace on restart until no
+    retries left, unless we already know we're going to restart. }
+  if ((RetriesLeft = 0) or NeedsRestart) and
+     (foRestartReplace in CurFile^.Options) and IsAdmin then begin
+    LogFmt('%s: The existing file appears to be in use (%d). ' +
+      'Will replace on restart.', [Func, LastError]);
+    LastOperation := SetupMessages[msgErrorRestartReplace];
+    NeedsRestart := True;
+    RestartReplace(DisableFsRedir, TempFile, DestFile);
+    ReplaceOnRestart := True;
+    DoBreak := True;
+    DoContinue := False;
+  end else if RetriesLeft > 0 then begin
+    LogFmt('%s: The existing file appears to be in use (%d). ' +
+      'Retrying.', [Func, LastError]);
+    Dec(RetriesLeft);
+    Sleep(1000);
+    ProcessEvents;
+    DoBreak := False;
+    DoContinue := True;
+  end else begin
+    DoBreak := False;
+    DoContinue := False;
+  end;
 end;
 
 type
@@ -607,15 +642,22 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   procedure ApplyPermissions(const DisableFsRedir: Boolean;
     const Filename: String; const PermsEntry: Integer);
   var
-    Attr: DWORD;
     P: PSetupPermissionEntry;
   begin
     if PermsEntry <> -1 then begin
-      Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
-      if (Attr <> INVALID_FILE_ATTRIBUTES) and (Attr and FILE_ATTRIBUTE_DIRECTORY = 0) then begin
-        LogFmt('Setting permissions on file: %s', [Filename]);
+      LogFmt('Setting permissions on file: %s', [Filename]);
+      const RedirFilename = ApplyPathRedirRules(DisableFsRedir, Filename);
+      if RedirFilename <> Filename then
+        LogFmt(#$2514#$2500' Redirected path: %s', [RedirFilename]);
+
+      const Attr = GetFileAttributes(PChar(RedirFilename));
+      if Attr = INVALID_FILE_ATTRIBUTES then
+        LogWithLastError('Cannot set permissions; failed to read file attributes.')
+      else if Attr and FILE_ATTRIBUTE_DIRECTORY <> 0 then
+        Log('Cannot set permissions; a directory exists at that path.')
+      else begin
         P := Entries[sePermission][PermsEntry];
-        if not GrantPermissionOnFile(DisableFsRedir, Filename,
+        if not GrantPermissionOnFile(False, RedirFilename,
            TGrantPermissionEntry(Pointer(P.Permissions)^),
            Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
           LogFmt('Failed to set permissions on file (%d).', [GetLastError]);
@@ -632,36 +674,6 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
       LogFmt('Unsetting NTFS compression on file: %s', [Filename]);
     if not SetNTFSCompressionRedir(DisableFsRedir, Filename, Compress) then
       LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
-  end;
-
-  procedure DoHandleFailedDeleteOrMoveFileTry(const Func, TempFile, DestFile: String;
-    const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
-    var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
-  begin
-    { Automatically retry. Wait with replace on restart until no
-      retries left, unless we already know we're going to restart. }
-    if ((RetriesLeft = 0) or NeedsRestart) and
-       (foRestartReplace in CurFile^.Options) and IsAdmin then begin
-      LogFmt('%s: The existing file appears to be in use (%d). ' +
-        'Will replace on restart.', [Func, LastError]);
-      LastOperation := SetupMessages[msgErrorRestartReplace];
-      NeedsRestart := True;
-      RestartReplace(DisableFsRedir, TempFile, DestFile);
-      ReplaceOnRestart := True;
-      DoBreak := True;
-      DoContinue := False;
-    end else if RetriesLeft > 0 then begin
-      LogFmt('%s: The existing file appears to be in use (%d). ' +
-        'Retrying.', [Func, LastError]);
-      Dec(RetriesLeft);
-      Sleep(1000);
-      ProcessEvents;
-      DoBreak := False;
-      DoContinue := True;
-    end else begin
-      DoBreak := False;
-      DoContinue := False;
-    end;
   end;
 
   function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
@@ -1168,27 +1180,23 @@ Retry:
         restarted. Do retry deletion before doing this. }
       if DestFileExists and (CurFile^.FileType <> ftUninstExe) then begin
         LastOperation := SetupMessages[msgErrorReplacingExistingFile];
-        RetriesLeft := 4;
-        while not DeleteFileRedir(DisableFsRedir, DestFile) do begin
-          { Couldn't delete the existing file... }
-          LastError := GetLastError;
-          { If the file inexplicably vanished, it's not a problem }
-          if LastError = ERROR_FILE_NOT_FOUND then
-            Break;
-          { Does the error code indicate that it is possibly in use? }
-          if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
-            DoHandleFailedDeleteOrMoveFileTry('DeleteFile', TempFile, DestFile,
+        PerformFileOperationWithRetries(4, False,
+          function: Boolean
+          begin
+            Result := DeleteFileRedir(DisableFsRedir, DestFile);
+            if not Result and (GetLastError = ERROR_FILE_NOT_FOUND) then
+              Result := True; { If the file inexplicably vanished, it's not a problem }
+          end,
+          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+          begin
+            DoHandleFailedDeleteOrMoveFileTry(CurFile, DisableFsRedir, 'DeleteFile', TempFile, DestFile,
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
               DoBreak, DoContinue);
-            if DoBreak then
-              Break
-            else if DoContinue then
-              Continue;
-          end;
-          { Some other error occurred, or we ran out of tries }
-          SetLastError(LastError);
-          Win32ErrorMsg('DeleteFile');
-        end;
+          end,
+          procedure(const LastError: Cardinal; var DoExit: Boolean)
+          begin
+            Win32ErrorMsg('DeleteFile'); { Throws an exception }
+          end);
       end;
 
       { Rename the temporary file to the new name now, unless the file is
@@ -1202,24 +1210,21 @@ Retry:
         LastOperation := SetupMessages[msgErrorRenamingTemp];
         { Since the DeleteFile above succeeded you would expect the rename to
           also always succeed, but if it doesn't retry anyway. }
-        RetriesLeft := 4;
-        while not MoveFileRedir(DisableFsRedir, TempFile, DestFile) do begin
-          { Couldn't rename the temporary file... }
-          LastError := GetLastError;
-          { Does the error code indicate that it is possibly in use? }
-          if LastErrorIndicatesPossiblyInUse(LastError, True) then begin
-            DoHandleFailedDeleteOrMoveFileTry('MoveFile', TempFile, DestFile,
+        PerformFileOperationWithRetries(4, True,
+          function: Boolean
+          begin
+            Result := MoveFileRedir(DisableFsRedir, TempFile, DestFile);
+          end,
+          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+          begin
+            DoHandleFailedDeleteOrMoveFileTry(CurFile, DisableFsRedir, 'MoveFile', TempFile, DestFile,
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
               DoBreak, DoContinue);
-            if DoBreak then
-              Break
-            else if DoContinue then
-              Continue;
-          end;
-          { Some other error occurred, or we ran out of tries }
-          SetLastError(LastError);
-          Win32ErrorMsg('MoveFile'); { Throws an exception }
-        end;
+          end,
+          procedure(const LastError: Cardinal; var DoExit: Boolean)
+          begin
+            Win32ErrorMsg('MoveFile'); { Throws an exception }
+          end);
 
         { If ReplaceOnRestart is still False the rename succeeded so handle this.
           Then set any file attributes. }
@@ -2087,7 +2092,7 @@ begin
         DebugNotifyEntry(seRegistry, CurRegNumber);
         NotifyBeforeInstallEntry(BeforeInstall);
         Log('-- Registry entry --');
-        RK := RootKey;
+        RK := HKEY(RootKey);
         if RK = HKEY_AUTO then
           RK := InstallModeRootKey;
         S := ExpandConst(Subkey);
@@ -2704,38 +2709,36 @@ begin
     Exit;
   Log('Renaming uninstaller.');
   var Timer: TOneShotTimer;
-  var RetriesLeft := 4;
-  while True do begin
-    Timer.Start(1000);
-    if MoveFileReplace(UninstallTempExeFilename, UninstallExeFilename) then
-      Break;
-    var LastError := GetLastError;
-    { Does the error code indicate that the file is possibly in use? }
-    if LastErrorIndicatesPossiblyInUse(LastError, False) then begin
-      if RetriesLeft > 0 then begin
-        LogFmt('The existing file appears to be in use (%d). ' +
-          'Retrying.', [LastError]);
-        Dec(RetriesLeft);
-        Timer.SleepUntilExpired;
-        ProcessEvents;
-        Continue;
+  const CapturableUninstallTempExeFilename = UninstallTempExeFilename;
+  PerformFileOperationWithRetries(4, False,
+    function: Boolean
+    begin
+      Timer.Start(1000);
+      Result := MoveFileReplace(CapturableUninstallTempExeFilename, UninstallExeFilename);
+    end,
+    procedure(const LastError: Cardinal)
+    begin
+      LogFmt('The existing file appears to be in use (%d). ' +
+        'Retrying.', [LastError]);
+      Timer.SleepUntilExpired;
+      ProcessEvents;
+    end,
+    procedure(const LastError: Cardinal; var DoExit: Boolean)
+    begin
+      const LastOperation = SetupMessages[msgErrorReplacingExistingFile];
+      const Failed = AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+        ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)]));
+      const Text = UninstallExeFilename + SNewLine2 + LastOperation + SNewLine + Failed;
+      case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
+         mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
+         0, True, IDCANCEL) of
+        IDRETRY: DoExit := False;
+        IDCANCEL: Abort;
+      else
+        Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
+        Abort;
       end;
-    end;
-
-    const LastOperation = SetupMessages[msgErrorReplacingExistingFile];
-    const Failed = AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-      ['MoveFileEx', IntToStr(LastError), Win32ErrorString(LastError)]));
-    const Text = UninstallExeFilename + SNewLine2 + LastOperation + SNewLine + Failed;
-    case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
-       mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
-       0, True, IDCANCEL) of
-      IDRETRY: ;
-      IDCANCEL: Abort;
-    else
-      Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');
-      Abort;
-    end;
-  end;
+    end);
   UninstallTempExeFilename := '';
 end;
 

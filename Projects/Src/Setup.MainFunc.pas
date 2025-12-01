@@ -163,6 +163,7 @@ var
 
   CodeRunner: TScriptRunner;
 
+function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: LongInt;
@@ -305,6 +306,24 @@ end;
 function IsWindows11: Boolean;
 begin
   Result := WindowsVersionAtLeast(10, 0, 22000);
+end;
+
+function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
+begin
+  var NewPath := PathExpand(APath);
+
+  if A64Bit then begin
+    { system32 -> sysnative }
+    if not IsWin64 then
+      InternalError('ApplyPathRedirRules: A64Bit=True but IsWin64=False');
+    NewPath := ReplaceSystemDirWithSysNative(NewPath, IsWin64);
+  end else begin
+    { system32 -> syswow64 rule currently disabled; it's only really needed
+      when the target process is 64-bit. }
+    //NewPath := ReplaceSystemDirWithSysWow64(NewPath);
+  end;
+
+  Result := NewPath;
 end;
 
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
@@ -3201,7 +3220,7 @@ begin
   if SameText(ParamName, '/SL5=') then begin
     StartParam := 2;
     SetupLdrMode := True;
-    SetupNotifyWnd := UInt32(ExtractInt64(ParamValue));
+    SetupNotifyWnd := HWND(ExtractInt64(ParamValue));
     SetupNotifyWndPresent := True;
     SetupLdrOffset0 := ExtractInt64(ParamValue);
     SetupLdrOffset1 := ExtractInt64(ParamValue);
@@ -3343,10 +3362,11 @@ begin
       AbortInit(msgSetupFileCorruptOrWrongVer);
 
     var SetupEncryptionHeaderCRC: Longint;
-    SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
-    SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
+    if (SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC)) <> SizeOf(SetupEncryptionHeaderCRC)) or
+       (SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) <> SizeOf(SetupEncryptionHeader)) then
+      AbortInit(msgSetupFileCorrupt);
     if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
-      AbortInit(msgSetupFileCorruptOrWrongVer);
+      AbortInit(msgSetupFileCorrupt);
 
     var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
