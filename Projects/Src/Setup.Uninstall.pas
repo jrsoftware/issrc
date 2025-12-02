@@ -480,7 +480,7 @@ procedure AssignCustomMessages(AData: Pointer; ADataSize: Cardinal);
       Corrupted;
     SetString(S, nil, N);
     if N <> 0 then
-      Read(Pointer(S)^, N * SizeOf(S[1]));
+      Read(Pointer(S)^, Cardinal(N * SizeOf(S[1])));
   end;
 
 var

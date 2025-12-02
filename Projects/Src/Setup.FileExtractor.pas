@@ -285,7 +285,7 @@ begin
   Buffer := @Buf;
   Left := Count;
   if FChunkBytesLeft < Left then
-    Left := FChunkBytesLeft;
+    Left := Cardinal(FChunkBytesLeft);
   Result := Left;
   while Left <> 0 do begin
     Res := FSourceF.Read(Buffer^, Left);

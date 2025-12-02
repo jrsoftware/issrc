@@ -211,7 +211,7 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       J := StrToInt(Copy(Z, I+2, Maxint));
       if (J < Low(Byte)) or (J > High(Byte)) then
         Abort;
-      ServicePack := J shl 8;
+      ServicePack := Word(J shl 8);
       { ^ Shift left 8 bits because we're setting the "major" service pack
         version number. This parser doesn't currently accept "minor" service
         pack version numbers. }
@@ -223,7 +223,7 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       J := StrToInt(Copy(Z, 1, I-1));
       if (J < 0) or (J > 127) then
         Abort;
-      Ver.Major := J;
+      Ver.Major := Byte(J);
       Z := Copy(Z, I+1, Maxint);
       I := Pos('.', Z);
       HasBuild := I <> 0;
@@ -233,19 +233,19 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       Z := Copy(Z, 1, I-1);
       J := StrToInt(Z);
       if (J < 0) or (J > 99) then Abort;
-      Ver.Minor := J;
+      Ver.Minor := Byte(J);
       if HasBuild then begin
         J := StrToInt(B);
         if (J < Low(Ver.Build)) or (J > High(Ver.Build)) then
           Abort;
-        Ver.Build := J;
+        Ver.Build := Word(J);
       end;
     end
     else begin  { no minor version specified }
       J := StrToInt(Z);
       if (J < 0) or (J > 127) then
         Abort;
-      Ver.Major := J;
+      Ver.Major := Byte(J);
     end;
   end;
 var

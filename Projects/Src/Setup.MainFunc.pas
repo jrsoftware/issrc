@@ -246,7 +246,7 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
-  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, RichEditViewer,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, RichEditViewer, UnsignedFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
@@ -350,7 +350,7 @@ begin
     end;
     if UseAnsiCRC32 then begin
       S := AnsiString(Result);
-      FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], Length(S)*SizeOf(S[1]))]);
+      FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], ULength(S)*SizeOf(S[1]))]);
     end;
   end;
 end;
@@ -945,7 +945,7 @@ function ExpandIndividualConst(Cnst: String;
       PCount := NewParamCount();
       for I := 1 to PCount do begin
         Z := NewParamStr(I);
-        if StrLIComp(PChar(Z), PChar('/'+Param+'='), Length(Param)+2) = 0 then begin
+        if StrLIComp(PChar(Z), PChar('/'+Param+'='), ULength(Param)+2) = 0 then begin
           Delete(Z, 1, Length(Param)+2);
           Result := Z;
           Exit;
@@ -2202,7 +2202,7 @@ begin
     or because we're done scanning and have leftovers. }
   if ((Filename <> '') and (RegisterFileFilenamesBatchCount = RegisterFileFilenamesBatchMax)) or
      ((Filename = '') and (RegisterFileFilenamesBatchCount > 0)) then begin
-    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesBatchCount, RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+    if RmRegisterResources(RmSessionHandle, UINT(RegisterFileFilenamesBatchCount), RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
       for I := 0 to RegisterFileFilenamesBatchCount-1 do
         FreeMem(RegisterFileBatchFilenames[I]);
       RegisterFileFilenamesBatchCount := 0;
@@ -2411,7 +2411,7 @@ begin
 
   LangEntry := Entries[seLanguage][I];
 
-  AssignSetupMessages(LangEntry.Data[1], Length(LangEntry.Data));
+  AssignSetupMessages(LangEntry.Data[1], ULength(LangEntry.Data));
 
   { Remove outdated < and > markers from the Back and Next buttons. Done here for now to avoid a Default.isl change. }
   StringChange(SetupMessages[msgButtonBack], '< ', '');
@@ -2862,7 +2862,7 @@ var
       while BytesLeft > 0 do begin
         Bytes := BytesLeft;
         if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
-        Reader.Read(Buf^, Bytes);
+        Reader.Read(Buf^, Cardinal(Bytes));
         if Stream <> nil then
           Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);
@@ -4259,8 +4259,8 @@ begin
     { ^ Note: We MUST clip dwBuildNumber to 16 bits for Win9x compatibility }
     OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
     if GetVersionEx(POSVersionInfo(@OSVersionInfoEx)^) then begin
-      NTServicePackLevel := (Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
-        Byte(OSVersionInfoEx.wServicePackMinor);
+      NTServicePackLevel := Word((Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
+        Byte(OSVersionInfoEx.wServicePackMinor));
       WindowsProductType := OSVersionInfoEx.wProductType;
       WindowsSuiteMask := OSVersionInfoEx.wSuiteMask;
     end;

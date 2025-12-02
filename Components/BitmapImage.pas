@@ -170,7 +170,7 @@ begin
   const Size = GetInitializeSize(AscendingTrySizes);
 
   { Load the desired icon }
-  var Flags := LR_DEFAULTCOLOR;
+  var Flags: UINT := LR_DEFAULTCOLOR;
   if Instance = 0 then
     Flags := Flags or LR_LOADFROMFILE;
   var Handle := LoadImage(Instance, Name, IMAGE_ICON, Size, Size, Flags);

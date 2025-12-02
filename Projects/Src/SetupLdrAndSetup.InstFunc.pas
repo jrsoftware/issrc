@@ -23,7 +23,7 @@ function CreateTempDir(const Extension: String;
 function CreateTempDir(const Extension: String;
   const LimitCurrentUserSidAccess: Boolean): String; overload;
 procedure DelayDeleteFile({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} const Filename: String;
-  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
+  const MaxTries: Integer; const FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 function DetermineDefaultLanguage(const GetLanguageEntryProc: TGetLanguageEntryProc;
   const Method: TSetupLanguageDetectionMethod; const LangParameter: String;
   var ResultIndex: Integer): TDetermineDefaultLanguageResult;
@@ -249,7 +249,7 @@ begin
 end;
 
 procedure DelayDeleteFile({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$ENDIF} const Filename: String;
-  const MaxTries, FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
+  const MaxTries: Integer; const FirstRetryDelayMS, SubsequentRetryDelayMS: Cardinal);
 { Attempts to delete Filename up to MaxTries times, retrying if the file is
   in use. It sleeps FirstRetryDelayMS msec after the first try, and
   SubsequentRetryDelayMS msec after subsequent tries. }

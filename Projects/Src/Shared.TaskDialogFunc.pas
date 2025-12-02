@@ -88,7 +88,7 @@ begin
           ButtonItem.ModalResult := ButtonIDs[I];
         end;
         Config.pButtons := ButtonItems.Buttons;
-        Config.cButtons := ButtonItems.Count;
+        Config.cButtons := UINT(ButtonItems.Count);
       end;
       TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
       ActiveWindow := GetActiveWindow;
