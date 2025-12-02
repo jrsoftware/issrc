@@ -904,7 +904,7 @@ begin
     EndDebug;
 
     { Don't use Halt. See Setup.Start.pas WM_ENDSESSION }
-    TerminateProcess(GetCurrentProcess, Cardinal(UninstallExitCode));
+    TerminateProcess(GetCurrentProcess, UINT(UninstallExitCode));
   end;
 end;
 
