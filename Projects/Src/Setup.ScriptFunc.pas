@@ -617,7 +617,7 @@ var
         var ValueName := Stack.GetString(PStart-3);
         var Typ, Data: DWORD;
         var Size: DWORD := SizeOf(Data);
-        if (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
+        if (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, PByte(@Data), @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
           Stack.SetInt(PStart-4, Integer(Data));
           Stack.SetBool(PStart, True);
         end else
@@ -639,7 +639,7 @@ var
         if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
           var Data: AnsiString;
           SetLength(Data, Size);
-          if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, @Data[1], @Size) = ERROR_SUCCESS then begin
+          if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, PByte(@Data[1]), @Size) = ERROR_SUCCESS then begin
             Stack.SetAnsiString(PStart-4, Data);
             Stack.SetBool(PStart, True);
           end else

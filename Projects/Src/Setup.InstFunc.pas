@@ -385,7 +385,7 @@ begin
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, FilenameP, nil, nil, @Count, @Size) <> ERROR_SUCCESS then
+              if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 Abort;
               NewType := REG_BINARY;
@@ -393,7 +393,7 @@ begin
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, FilenameP, nil, nil, @Count, @Size) <> ERROR_SUCCESS then
+            if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
               Abort;
           end;
       end;
@@ -454,14 +454,14 @@ begin
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, PChar(Filename), nil, nil, @Count, @Size) = ERROR_SUCCESS then
+              if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 CountRead := True;
             end;
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, PChar(Filename), nil, nil, @Count, @Size) = ERROR_SUCCESS then
+            if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
               CountRead := True;
           end;
       end;

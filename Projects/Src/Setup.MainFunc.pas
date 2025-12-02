@@ -2975,8 +2975,8 @@ var
       SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
         EntryAnsiStrings[Entrytype]);
       if (MinVersionOfs = -1) or
-         (InstallOnThisVersion(TSetupVersionData((@PByteArray(P)[MinVersionOfs])^),
-          TSetupVersionData((@PByteArray(P)[OnlyBelowVersionOfs])^)) = irInstall) then begin
+         (InstallOnThisVersion(PSetupVersionData(PByte(P) + MinVersionOfs)^,
+            PSetupVersionData(PByte(P) + OnlyBelowVersionOfs)^) = irInstall) then begin
         Entries[EntryType].Add(P);
         if Debugging then
           OriginalEntryIndexes[EntryType].Add(Pointer(I));

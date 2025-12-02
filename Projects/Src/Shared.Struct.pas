@@ -45,6 +45,7 @@ type
     Build: Word;
     Minor, Major: Byte;
   end;
+  PSetupVersionData = ^TSetupVersionData;
   TSetupVersionData = packed record
     WinVersion, NTVersion: Cardinal;
     NTServicePack: Word;

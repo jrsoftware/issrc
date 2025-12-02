@@ -89,14 +89,14 @@ if errorlevel 1 goto failed
 
 echo - Setup.e32
 mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -$T+ -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
 if errorlevel 1 goto failed
 
 echo - SetupCustomStyle.e32
 msbuild.exe SetupCustomStyle.dproj /t:BuildVersionResource /p:Config=Release;Platform=Win32 /nologo /v:q
 if errorlevel 1 goto failed
 mkdir %DCUDIR_WIN32%\SetupCustomStyle.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\SetupCustomStyle.dpr -DSETUPPROJ;VCLSTYLES;%ROPSDEF% SetupCustomStyle.dpr
+"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -$T+ -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\SetupCustomStyle.dpr -DSETUPPROJ;VCLSTYLES;%ROPSDEF% SetupCustomStyle.dpr
 if errorlevel 1 goto failed
 
 :issigtool
