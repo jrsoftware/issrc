@@ -274,12 +274,6 @@ begin
 end;
 
 procedure ProcessCommandLine;
-
-  function StrToWnd(const S: String): HWND;
-  begin
-    Result := HWND(StrToInt(S));
-  end;
-
 var
   WantToSuppressMsgBoxes, ParamIsAutomaticInternal: Boolean;
   I: Integer;
@@ -389,8 +383,9 @@ begin
   RequireAdmin := (ufAdminInstalled in Flags) or (ufPowerUserInstalled in Flags);
 
   if NeedToRespawnSelfElevated(RequireAdmin, False) then begin
+    { The UInt32 cast prevents sign extension }
     RespawnSelfElevated(UninstExeFilename,
-      Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
+      Format('/INITPROCWND=$%x ', [UInt32(Application.Handle)]) + GetCmdTail,
       UninstallExitCode);
     Result := True;
   end;
@@ -424,9 +419,10 @@ begin
   Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
     Longint(@FirstPhaseWindowProc));
 
-    { Execute the copy of itself ("second phase") }
+    { Execute the copy of itself ("second phase"). The UInt32 cast prevents
+      sign extension }
     ProcessHandle := Exec(TempFile, Format('/SECONDPHASE="%s" /FIRSTPHASEWND=$%x ',
-      [NewParamStr(0), Wnd]) + GetCmdTail);
+      [NewParamStr(0), UInt32(Wnd)]) + GetCmdTail);
     ShouldDeleteTempDir := False;
 
     { Wait till the second phase process unexpectedly dies or is ready

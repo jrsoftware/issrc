@@ -228,7 +228,8 @@ var
 begin
   Server := TSpawnServer.Create;
   try
-    Application.Title := Format('Wnd=$%x', [Server.FWnd]);
+    { The UInt32 cast prevents sign extension }
+    Application.Title := Format('Wnd=$%x', [UInt32(Server.FWnd)]);
     while True do begin
       ProcessMessagesProc;
       if (GetFocus = Application.Handle) and (GetKeyState(VK_F11) < 0) then

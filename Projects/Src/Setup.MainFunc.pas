@@ -2718,8 +2718,9 @@ begin
         ParamNotifyWnd := SetupNotifyWnd
       else
         ParamNotifyWnd := Server.Wnd;
+      { The UInt32 casts prevent sign extension }
       RespawnSelfElevated(SetupLdrOriginalFilename,
-        Format('/SPAWNWND=$%x /NOTIFYWND=$%x ', [Server.Wnd, ParamNotifyWnd]) +
+        Format('/SPAWNWND=$%x /NOTIFYWND=$%x ', [UInt32(Server.Wnd), UInt32(ParamNotifyWnd)]) +
         AParams, RespawnResults.ExitCode);
       RespawnResults.NotifyRestartRequested := Server.NotifyRestartRequested;
       RespawnResults.NotifyNewLanguage := Server.NotifyNewLanguage;
@@ -3306,17 +3307,17 @@ begin
     else if SameText(ParamName, '/SPAWNWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       IsRespawnedProcess := True;
-      InitializeSpawnClient(StrToInt(ParamValue));
+      InitializeSpawnClient(StrToWnd(ParamValue));
     end else if SameText(ParamName, '/NOTIFYWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       { /NOTIFYWND= takes precedence over any previously set SetupNotifyWnd }
-      SetupNotifyWnd := StrToInt(ParamValue);
+      SetupNotifyWnd := StrToWnd(ParamValue);
       SetupNotifyWndPresent := True;
     end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
     else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True; { sent by IDE.MainForm's StartProcess }
-      DebugServerWnd := StrToInt(ParamValue);
+      DebugServerWnd := StrToWnd(ParamValue);
     end else if SameText(ParamName, '/ALLUSERS') then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
