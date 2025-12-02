@@ -200,7 +200,7 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
   const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
@@ -2634,7 +2634,7 @@ begin
     [GetButtonsText(Buttons)]) + Text);
 end;
 
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
   const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin

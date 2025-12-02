@@ -442,8 +442,8 @@ type
   end;
 
   TUninstallerMsgTail = packed record
-    ID: Longint;
-    Offset: Longint;
+    ID: Integer;
+    Offset: Int64;
   end;
 const
   SetupLdrOffsetTableResID = 11111;

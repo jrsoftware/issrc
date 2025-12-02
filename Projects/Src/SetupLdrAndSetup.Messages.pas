@@ -30,7 +30,7 @@ function FmtMessage(S: PChar; const Args: array of String): String;
 function FmtSetupMessage(const ID: TSetupMessageID; const Args: array of String): String;
 function FmtSetupMessage1(const ID: TSetupMessageID; const Arg1: String): String;
 procedure AssignSetupMessages(const P; const Size: Cardinal);
-procedure LoadSetupMessages(const Filename: String; const Offset: Cardinal;
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
   const LoadMessagesLangOptions: Boolean);
 function IntToHexStr8(I: Integer): String;
 
@@ -142,7 +142,7 @@ begin
   end;
 end;
 
-procedure LoadSetupMessages(const Filename: String; const Offset: Cardinal;
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
   const LoadMessagesLangOptions: Boolean);
 { Loads Setup messages from an uncompressed file }
 var
