@@ -2659,13 +2659,13 @@ end;
 procedure TScintEditStrings.CheckIndexRange(const Index: Integer);
 begin
   if (Index < 0) or (Index >= GetCount) then
-    Error(@SListIndexError, Index);
+    Error(SListIndexError, Index);
 end;
 
 procedure TScintEditStrings.CheckIndexRangePlusOne(const Index: Integer);
 begin
   if (Index < 0) or (Index > GetCount) then
-    Error(@SListIndexError, Index);
+    Error(SListIndexError, Index);
 end;
 
 procedure TScintEditStrings.Clear;

@@ -132,7 +132,7 @@ begin
     { Ignore any exceptions. }
   end;
   try
-    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, @PathCompare);
+    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, TMRUItemCompareProc(@PathCompare));
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
@@ -159,7 +159,7 @@ begin
     { Ignore any exceptions. }
   end;
   try
-    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, @CompareText);
+    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, TMRUItemCompareProc(@CompareText));
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
