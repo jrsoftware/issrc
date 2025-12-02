@@ -11,7 +11,6 @@ unit Setup.Start;
 
 interface
 
-function GetDefaultApplicationTitle: String;
 procedure Start;
 
 implementation
@@ -33,22 +32,6 @@ uses
   Shared.CommonFunc, Shared.SetupMessageIDs, Shared.FileClass, Shared.Struct,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
   Setup.LoggingFunc, Setup.MainFunc, Setup.Uninstall, Setup.RegSvr, Setup.MainForm;
-
-function GetDefaultApplicationTitle: String;
-var
-  ModuleName: array[0..255] of Char;
-begin
-  { Same code as in TApplication.Create }
-  GetModuleFileName(MainInstance, ModuleName, Length(ModuleName));
-  var P := AnsiStrRScan(ModuleName, '\');
-  if P <> nil then
-    StrCopy(ModuleName, P + 1);
-  P := AnsiStrScan(ModuleName, '.');
-  if P <> nil then
-    P^ := #0;
-  CharLower(CharNext(ModuleName));
-  Result := ModuleName;
-end;
 
 procedure ShowExceptionMsg;
 begin
