@@ -317,7 +317,7 @@ begin
   FPSExec := TPSDebugExec.Create();
   FPSExec.ID := Self;
 
-  FPSExec.AddSpecialProcImport('dll', TPSOnSpecialProcImport(@PSExecOnSpecialProcImport), nil);
+  FPSExec.AddSpecialProcImport('dll', PSExecOnSpecialProcImport, nil);
   FPSExec.OnSourceLine := PSExecOnSourceLine;
   FPSExec.OnException := PSExecOnException;
 
