@@ -32,14 +32,16 @@ if errorlevel 1 goto failed
 cd Projects
 if errorlevel 1 goto failed
 
+set EnvOptionsWarn=false
+
 if "%1"=="issigtool" (
   echo - ISSigTool.exe
-  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32;EnvOptionsWarn=false /nologo
+  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32 /nologo
 ) else (
   echo - Projects.groupproj
   rem This emits warning MSB4056, but that's ok since the build doesn't use COM
   rem Modern MSBuild supports /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not
-  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release;EnvOptionsWarn=false /nologo
+  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release /nologo
 )
 if errorlevel 1 goto failed
 

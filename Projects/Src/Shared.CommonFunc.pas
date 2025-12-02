@@ -1732,7 +1732,7 @@ end;
 
 function StrToWnd(const S: String): HWND;
 begin
-  Result := UInt32(StrToUInt64(S))
+  Result := UInt32(StrToUInt64(S));
 end;
 
 { TOneShotTimer }
