@@ -89,7 +89,7 @@ function FindFirstHelper(const FileName: String; var FindRec: TFindRec): Boolean
 function FindNextHelper(var FindRec: TFindRec): Boolean;
 procedure FindCloseHelper(var FindRec: TFindRec);
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
@@ -273,7 +273,7 @@ begin
   Version.SuiteMask := WindowsSuiteMask;
 end;
 
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 begin
   if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin

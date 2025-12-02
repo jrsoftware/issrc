@@ -36,6 +36,7 @@ type
         function Next: String;
       end;
     function GetChar(const ItemNo: Longint): Char;
+    function GetUInt32(const ItemNo: Longint): UInt32;
     function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
@@ -100,6 +101,11 @@ begin
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetString(PSGetArrayField(Arr, I));
+end;
+
+function TPSStackHelper.GetUInt32(const ItemNo: Longint): UInt32;
+begin
+  Result := UInt32(GetInt(ItemNo));
 end;
 
 function TPSStackHelper.InitArrayBuilder(const ItemNo, FieldNo: Longint): TArrayBuilder;

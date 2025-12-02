@@ -505,7 +505,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -518,7 +518,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -532,7 +532,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKey := Stack.GetString(PStart-2);
       Stack.SetBool(PStart, RegDeleteKeyIncludingSubkeys(RegView, RootKey, PChar(SubKey)) = ERROR_SUCCESS);
     end);
@@ -540,7 +540,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       Stack.SetBool(PStart, RegDeleteKeyIfEmpty(RegView, RootKey, PChar(SubKeyName)) = ERROR_SUCCESS);
     end);
@@ -548,7 +548,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
@@ -562,7 +562,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
         Stack.GetString(PStart-2), Stack, PStart-3, True));
     end);
@@ -570,7 +570,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
         Stack.GetString(PStart-2), Stack, PStart-3, False));
     end);
@@ -578,7 +578,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -594,7 +594,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -610,7 +610,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -630,7 +630,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -654,7 +654,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -677,7 +677,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -695,7 +695,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -719,7 +719,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -737,7 +737,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
+      CrackCodeRootKey(Stack.GetUInt32(PStart-1), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
