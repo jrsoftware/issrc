@@ -119,26 +119,10 @@ uses
 
 { Note: Setup.Start.pas includes more resources }
 
-function GetDefaultTitle: String;
-var
-  ModuleName: array[0..255] of Char;
-begin
-  { Same code as in TApplication.Create }
-  GetModuleFileName(MainInstance, ModuleName, Length(ModuleName));
-  var P := AnsiStrRScan(ModuleName, '\');
-  if P <> nil then
-    StrCopy(ModuleName, P + 1);
-  P := AnsiStrScan(ModuleName, '.');
-  if P <> nil then
-    P^ := #0;
-  CharLower(CharNext(ModuleName));
-  Result :=  ModuleName;
-end;
-
 begin
   { This is a noop but makes the Delphi IDE show the Application->Appearance item in the
     project options. Removing it also stops generation of the SetupCustomStyle.res file. }
-  Application.Title := GetDefaultTitle;
+  Application.Title := GetDefaultApplicationTitle; { Using GetDefaultApplicationTitle instead of Application.Title to make actually make it a noop }
 
   Start;
 end.
