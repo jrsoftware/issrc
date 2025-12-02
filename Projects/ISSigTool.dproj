@@ -92,7 +92,7 @@
         <DCC_DcuOutput>Dcu\Win32\Release\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <DCC_DcuOutput>Dcu\x64\Release\$(MainSource)</DCC_DcuOutput>
+        <DCC_DcuOutput>Dcu\Win64\Release\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -104,7 +104,7 @@
         <DCC_DcuOutput>Dcu\Win32\Debug\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <DCC_DcuOutput>Dcu\x64\Debug\$(MainSource)</DCC_DcuOutput>
+        <DCC_DcuOutput>Dcu\Win64\Debug\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

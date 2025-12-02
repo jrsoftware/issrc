@@ -31,7 +31,7 @@ set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_C
 set FLAGS=--no-config -Q -B -$L- -$C- -H -W -$T+ %DELPHIXEDISABLEDWARNINGS% %1
 set FLAGSCONSOLE=%FLAGS% -CC
 set NAMESPACES=System;System.Win;Winapi
-set DCUDIR_WIN64=Dcu\x64\Release
+set DCUDIR_WIN64=Dcu\Win64\Release
 
 echo Compiling ISHelpGen.exe:
 mkdir %DCUDIR_WIN64%\ISHelpGen.dpr 2>nul
