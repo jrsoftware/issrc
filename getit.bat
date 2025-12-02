@@ -42,7 +42,6 @@ goto exit
 
 :failed
 echo *** FAILED ***
-cd ..
 :failed2
 exit /b 1
 
