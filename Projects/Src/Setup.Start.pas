@@ -241,9 +241,10 @@ begin
       { don't propagate any exceptions, so that Halt is always called }
       ShowExceptionMsg;
     end;
-    if SetupExitCode <> 0 then
-      Halt(SetupExitCode)
-    else
+    if SetupExitCode <> 0 then begin
+      System.ExitCode := SetupExitCode;
+      Halt;
+    end else
       Halt(ecInitializationError);
   end;
 
@@ -268,7 +269,8 @@ begin
   Application.UnhookMainWindow(TDummyClass.AntiShutdownHook);
   {$ENDIF}
 
-  Halt(SetupExitCode);
+  System.ExitCode := SetupExitCode;
+  Halt;
 end;
 
 end.

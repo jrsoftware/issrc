@@ -41,7 +41,7 @@ const
   WM_KillFirstPhase = WM_USER + 333;
 
 var
-  UninstallExitCode: DWORD = 1;
+  UninstallExitCode: Integer = 1;
   UninstExeFilename, UninstDataFilename, UninstMsgFilename: String;
   UninstDataFile: TFile;
   UninstLog: TExtUninstallLog = nil;
@@ -883,7 +883,8 @@ begin
     the IDE's Debug Output }
   EndDebug;
 
-  Halt(UninstallExitCode);
+  System.ExitCode := UninstallExitCode;
+  Halt;
 end;
 
 procedure HandleUninstallerEndSession;
@@ -903,7 +904,7 @@ begin
     EndDebug;
 
     { Don't use Halt. See Setup.Start.pas WM_ENDSESSION }
-    TerminateProcess(GetCurrentProcess, UninstallExitCode);
+    TerminateProcess(GetCurrentProcess, Cardinal(UninstallExitCode));
   end;
 end;
 

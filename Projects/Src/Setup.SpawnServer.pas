@@ -38,7 +38,7 @@ procedure EnterSpawnServerDebugMode;
 function NeedToRespawnSelfElevated(const ARequireAdministrator,
   AEmulateHighestAvailable: Boolean): Boolean;
 procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  var AExitCode: DWORD);
+  var AExitCode: Integer);
 
 implementation
 
@@ -157,7 +157,7 @@ end;
 {$ENDIF}
 
 procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  var AExitCode: DWORD);
+  var AExitCode: Integer);
 { Spawns a new process using the "runas" verb.
   Notes:
   1. Despite the function's name, the spawned process may not actually be
@@ -212,7 +212,7 @@ begin
       still queued if MWFMO saw the process terminate before checking for
       new messages.) }
     ProcessMessagesProc;
-    if not GetExitCodeProcess(Info.hProcess, AExitCode) then
+    if not GetExitCodeProcess(Info.hProcess, DWORD(AExitCode)) then
       Win32ErrorMsg('GetExitCodeProcess');
   finally
     CloseHandle(Info.hProcess);

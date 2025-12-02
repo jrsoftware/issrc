@@ -2705,7 +2705,7 @@ var
   Server: TSpawnServer;
   ParamNotifyWnd: HWND;
   RespawnResults: record
-    ExitCode: DWORD;
+    ExitCode: Integer;
     NotifyRestartRequested: Boolean;
     NotifyNewLanguage: Integer;
   end;
@@ -2755,7 +2755,8 @@ begin
     end;
   end;
 
-  Halt(RespawnResults.ExitCode);
+  System.ExitCode := RespawnResults.ExitCode;
+  Halt;
 end;
 
 procedure InitializeCommonVars;
