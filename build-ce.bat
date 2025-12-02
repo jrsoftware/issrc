@@ -31,7 +31,7 @@ if not "%1"=="" goto failed
 
 if not exist files\issigtool.exe (
   echo Missing ISSigTool
-  echo Now open Projects\Projects.groupproj and build ISSigTool in Release mode
+  echo Now open Projects\Projects.groupproj and build the ISSigTool project and its Win32 target in Release mode
 
   echo - Waiting for file...
   call :waitforfile files\issigtool.exe
@@ -67,7 +67,8 @@ call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build all projects and targets in Release mode
+echo Now open Projects\Projects.groupproj and build all projects and their Win32 targets in Release mode
+echo After that also build the SetupLdr project and its Win64 target in Release mode
 
 echo - Waiting for files...
 call :waitforfile files\compil32.exe
