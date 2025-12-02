@@ -20,7 +20,7 @@ type
   private
     FReachedEnd: Boolean;
     FHeaderProcessed: Boolean;
-    FNextIn: ^Byte;
+    FNextIn: PByte;
     FAvailIn: Cardinal;
     FBuffer: array[0..65535] of Byte;
   protected
@@ -161,7 +161,7 @@ end;
 
 procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 var
-  NextOut: ^Byte;
+  NextOut: PByte;
   AvailOut: Longint;
   OutBytes, InBytes: Cardinal;
   Code: TLZMASRes;
@@ -169,7 +169,7 @@ var
 begin
   if not FHeaderProcessed then begin
     { Reset these following a reset }
-    FNextIn := @FBuffer;
+    FNextIn := PByte(@FBuffer);
     FAvailIn := 0;
     ProcessHeader;
     FHeaderProcessed := True;
@@ -178,7 +178,7 @@ begin
   AvailOut := Count;
   while AvailOut > 0 do begin
     if (FAvailIn = 0) and not FReachedEnd then begin
-      FNextIn := @FBuffer;
+      FNextIn := PByte(@FBuffer);
       FAvailIn := ReadProc(FBuffer, SizeOf(FBuffer));
       if FAvailIn = 0 then
         FReachedEnd := True;  { not really necessary, but for consistency }

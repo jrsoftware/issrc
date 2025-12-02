@@ -539,7 +539,7 @@ begin
 
   H[0] := FEvents.TerminateWorkerEvent;
   H[1] := FEvents.StartEncodeEvent;
-  while WaitForMultipleObjects(2, @H, False, INFINITE) = WAIT_OBJECT_0 + 1 do begin
+  while WaitForMultipleObjects(2, PWOHandleArray(@H), False, INFINITE) = WAIT_OBJECT_0 + 1 do begin
     FShared.EncodeResult := LZMA_Encode(FLZMAHandle, InStream, OutStream,
       CompressProgress);
     if not SetEvent(FEvents.WorkerEncodeFinishedEvent) then
@@ -559,7 +559,7 @@ begin
   end;
   H[0] := FEvents.TerminateWorkerEvent;
   H[1] := AWaitEvent;
-  case WaitForMultipleObjects(2, @H, False, INFINITE) of
+  case WaitForMultipleObjects(2, PWOHandleArray(@H), False, INFINITE) of
     WAIT_OBJECT_0 + 0: Result := E_ABORT;
     WAIT_OBJECT_0 + 1: Result := S_OK;
   else
@@ -1101,7 +1101,7 @@ begin
   H[2] := FProgressTimer;
   H[3] := FEvents.WorkerWaitingOnInputEvent;
   H[4] := FEvents.WorkerWaitingOnOutputEvent;
-  case WaitForMultipleObjects(5, @H, False, INFINITE) of
+  case WaitForMultipleObjects(5, PWOHandleArray(@H), False, INFINITE) of
     WAIT_OBJECT_0 + 0: FWorker.UnexpectedTerminationError;
     WAIT_OBJECT_0 + 1: FEncodeFinished := True;
     WAIT_OBJECT_0 + 2: FProgressTimerSignaled := True;

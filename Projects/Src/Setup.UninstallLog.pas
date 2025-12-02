@@ -115,6 +115,7 @@ type
 
   TDeleteUninstallDataFilesProc = procedure;
 
+  PUninstallLogFlags = ^TUninstallLogFlags;
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
     ufPowerUserInstalled, ufAdminInstallMode,
@@ -238,7 +239,7 @@ var
   Header64Bit: Boolean;
 begin
   ReadUninstallLogHeader(F, Filename, Header, Header64Bit);
-  Result := TUninstallLogFlags((@Header.Flags)^);
+  Result := PUninstallLogFlags(@Header.Flags)^;
 end;
 
 { Misc. uninstallation functions }
@@ -401,7 +402,7 @@ begin
 
     SetLength(X, SizeOf(Byte) + SizeOf(Integer));
     X[1] := AnsiChar($FE);
-    Integer((@X[2])^) := Integer(-L);
+    PInteger(@X[2])^ := -L;
     S := S + X;
 
     SetString(AData, PAnsiChar(Pointer(Data[I])), L);
@@ -501,12 +502,12 @@ class function TUninstallLog.ExtractRecData(const Rec: PUninstallRec;
   var Data: array of String): Integer;
 var
   I, L: Integer;
-  X: ^Byte;
+  X: PByte;
 begin
   for I := 0 to High(Data) do
     Data[I] := '';
   I := 0;
-  X := @Rec^.Data;
+  X := PByte(@Rec^.Data);
   while I <= High(Data) do begin
     case X^ of
       $00..$FC: begin
@@ -1285,7 +1286,7 @@ begin
       WriteSafeHeaderString(Header.AppName, AppName, SizeOf(Header.AppName));
     if Version > Header.Version then
       Header.Version := Version;
-    TUninstallLogFlags((@Header.Flags)^) := TUninstallLogFlags((@Header.Flags)^) -
+    PUninstallLogFlags(@Header.Flags)^ := PUninstallLogFlags(@Header.Flags)^ -
       GetNonStickyFlags + Flags;
     Header.CRC := GetCRC32(Header, SizeOf(Header)-SizeOf(Longint));
     { Prior to rewriting the header with the new EndOffset value, ensure the
@@ -1378,7 +1379,7 @@ begin
     raise Exception.Create(FmtSetupMessage1(msgUninstallUnsupportedVer, Filename));
   AppId := ReadSafeHeaderString(Header.AppId);
   AppName := ReadSafeHeaderString(Header.AppName);
-  Flags := TUninstallLogFlags((@Header.Flags)^);
+  Flags := PUninstallLogFlags(@Header.Flags)^;
 
   for I := 1 to Header.NumRecs do begin
     ReadBuf(FileRec, SizeOf(FileRec));
@@ -1417,7 +1418,7 @@ begin
          (Header.ID <> UninstallLogID[InstallMode64Bit]) or
          (ReadSafeHeaderString(Header.AppId) <> AppId) then
         Exit;
-      ExistingFlags := TUninstallLogFlags((@Header.Flags)^);
+      ExistingFlags := PUninstallLogFlags(@Header.Flags)^;
       Result := True;
     finally
       F.Free;

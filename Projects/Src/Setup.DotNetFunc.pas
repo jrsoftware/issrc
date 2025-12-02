@@ -213,7 +213,7 @@ function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVer
   begin
     if RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, PChar(SubKey), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       Size := SizeOf(Value);
-      Result := (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, @Value, @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD);
+      Result := (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, PByte(@Value), @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD);
       RegCloseKey(K);
     end else
       Result := False;

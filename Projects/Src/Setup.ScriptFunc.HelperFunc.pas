@@ -122,7 +122,7 @@ implementation
 
 uses
   Forms, SysUtils, Graphics,
-  uPSUtils, PathFunc, ASMInline, PSStackHelper,
+  uPSUtils, PathFunc, ASMInline, PSStackHelper, UnsignedFunc,
   Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
@@ -316,7 +316,7 @@ begin
   try
     var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
     while True do begin
-      BufSize := Length(Buf);
+      BufSize := ULength(Buf);
       if Subkey then
         R := RegEnumKeyEx(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil)
       else

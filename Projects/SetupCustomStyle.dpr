@@ -112,17 +112,18 @@ uses
   Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm},
   FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas';
 
+{$R *.res}
+
 { The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.dark.res}
 {$R Res\Setup.images.dark.res}
-{$R Res\Setup.style.res}
 
 { Note: Setup.Start.pas includes more resources }
 
 begin
   { This is a noop but makes the Delphi IDE show the Application->Appearance item in the
     project options. Removing it also stops generation of the SetupCustomStyle.res file. }
-  Application.Title := 'Setupcustomstyle';
+  Application.Title := GetDefaultApplicationTitle; { Using GetDefaultApplicationTitle instead of Application.Title to make actually make it a noop }
 
   Start;
 end.

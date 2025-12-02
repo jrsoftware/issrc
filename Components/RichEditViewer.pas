@@ -444,7 +444,7 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
     Data: TStreamLoadData;
     EditStream: TEditStream;
   begin
-    Data.Buf := @Value[1];
+    Data.Buf := PByte(@Value[1]);
     Data.BytesLeft := Length(Value);
     { Check for UTF-16 BOM }
     if (AFormat and SF_TEXT <> 0) and (Data.BytesLeft >= 2) and
@@ -455,7 +455,7 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
     end;
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
-    EditStream.pfnCallback := @StreamLoad;
+    EditStream.pfnCallback := TEditStreamCallBack(@StreamLoad);
     SendMessage(Handle, EM_STREAMIN, AFormat, LPARAM(@EditStream));
     Result := EditStream.dwError;
   end;

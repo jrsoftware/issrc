@@ -45,6 +45,7 @@ type
     Build: Word;
     Minor, Major: Byte;
   end;
+  PSetupVersionData = ^TSetupVersionData;
   TSetupVersionData = packed record
     WinVersion, NTVersion: Cardinal;
     NTServicePack: Word;
@@ -443,8 +444,8 @@ type
   end;
 
   TUninstallerMsgTail = packed record
-    ID: Longint;
-    Offset: Longint;
+    ID: Integer;
+    Offset: Int64;
   end;
 const
   SetupLdrOffsetTableResID = 11111;

@@ -201,7 +201,7 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
   const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
@@ -2635,7 +2635,7 @@ begin
     [GetButtonsText(Buttons)]) + Text);
 end;
 
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Longint;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
   const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
@@ -2976,8 +2976,8 @@ var
       SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
         EntryAnsiStrings[Entrytype]);
       if (MinVersionOfs = -1) or
-         (InstallOnThisVersion(TSetupVersionData((@PByteArray(P)[MinVersionOfs])^),
-          TSetupVersionData((@PByteArray(P)[OnlyBelowVersionOfs])^)) = irInstall) then begin
+         (InstallOnThisVersion(PSetupVersionData(PByte(P) + MinVersionOfs)^,
+            PSetupVersionData(PByte(P) + OnlyBelowVersionOfs)^) = irInstall) then begin
         Entries[EntryType].Add(P);
         if Debugging then
           OriginalEntryIndexes[EntryType].Add(Pointer(I));
@@ -3450,8 +3450,8 @@ begin
           if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
           {$IFDEF DEBUG}
              or TStyleManager.TryLoadFromResource(HInstance, 'ZIRCON', 'VCLSTYLE', Handle)
-             { Comment the line above to activate POLAR_DARK instead of ZIRCON }
-             or TStyleManager.TryLoadFromResource(HInstance, 'POLAR_DARK', 'VCLSTYLE', Handle)
+             { Comment the line above to activate WINDOWSPOLARDARK instead of ZIRCON }
+             or TStyleManager.TryLoadFromResource(HInstance, 'WINDOWSPOLARDARK', 'VCLSTYLE', Handle)
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);

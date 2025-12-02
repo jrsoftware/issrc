@@ -21,7 +21,8 @@ implementation
 uses
   Windows,
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections, Math,
-  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage, PSStackHelper,
+  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage,
+  PSStackHelper, UnsignedFunc,
   Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc, Setup.RedirFunc,
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
@@ -517,7 +518,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -531,7 +532,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKey := Stack.GetString(PStart-2);
       Stack.SetBool(PStart, RegDeleteKeyIncludingSubkeys(RegView, RootKey, PChar(SubKey)) = ERROR_SUCCESS);
     end);
@@ -539,7 +540,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       Stack.SetBool(PStart, RegDeleteKeyIfEmpty(RegView, RootKey, PChar(SubKeyName)) = ERROR_SUCCESS);
     end);
@@ -547,7 +548,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
@@ -561,7 +562,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
         Stack.GetString(PStart-2), Stack, PStart-3, True));
     end);
@@ -569,7 +570,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       Stack.SetBool(PStart, GetSubkeyOrValueNames(RegView, RootKey,
         Stack.GetString(PStart-2), Stack, PStart-3, False));
     end);
@@ -577,7 +578,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -593,7 +594,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -609,15 +610,15 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
         var ValueName := Stack.GetString(PStart-3);
         var Typ, Data: DWORD;
         var Size: DWORD := SizeOf(Data);
-        if (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
-          Stack.SetInt(PStart-4, Data);
+        if (RegQueryValueEx(K, PChar(ValueName), nil, @Typ, PByte(@Data), @Size) = ERROR_SUCCESS) and (Typ = REG_DWORD) then begin
+          Stack.SetInt(PStart-4, Integer(Data));
           Stack.SetBool(PStart, True);
         end else
           Stack.SetBool(PStart, False);
@@ -629,7 +630,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
@@ -638,7 +639,7 @@ var
         if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, nil, @Size) = ERROR_SUCCESS then begin
           var Data: AnsiString;
           SetLength(Data, Size);
-          if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, @Data[1], @Size) = ERROR_SUCCESS then begin
+          if RegQueryValueEx(K, PChar(ValueName), nil, @Typ, PByte(@Data[1]), @Size) = ERROR_SUCCESS then begin
             Stack.SetAnsiString(PStart-4, Data);
             Stack.SetBool(PStart, True);
           end else
@@ -653,7 +654,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -664,7 +665,7 @@ var
           Typ := REG_EXPAND_SZ
         else
           Typ := REG_SZ;
-        if RegSetValueEx(K, PChar(ValueName), 0, Typ, PChar(Data), (Length(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
+        if RegSetValueEx(K, PChar(ValueName), 0, Typ, PChar(Data), (ULength(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
           Stack.SetBool(PStart, True)
         else
           Stack.SetBool(PStart, False);
@@ -676,13 +677,13 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
         var ValueName := Stack.GetString(PStart-3);
         var Data := Stack.GetString(PStart-4);
-        if RegSetValueEx(K, PChar(ValueName), 0, REG_EXPAND_SZ, PChar(Data), (Length(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
+        if RegSetValueEx(K, PChar(ValueName), 0, REG_EXPAND_SZ, PChar(Data), (ULength(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
           Stack.SetBool(PStart, True)
         else
           Stack.SetBool(PStart, False);
@@ -694,7 +695,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -706,7 +707,7 @@ var
           needs to be added to the end. }
         if (Data <> '') and (Data[Length(Data)] <> #0) then
           Data := Data + #0;
-        if RegSetValueEx(K, PChar(ValueName), 0, REG_MULTI_SZ, PChar(Data), (Length(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
+        if RegSetValueEx(K, PChar(ValueName), 0, REG_MULTI_SZ, PChar(Data), (ULength(Data)+1)*SizeOf(Data[1])) = ERROR_SUCCESS then
           Stack.SetBool(PStart, True)
         else
           Stack.SetBool(PStart, False);
@@ -718,7 +719,7 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
@@ -736,13 +737,13 @@ var
     begin
       var RegView: TRegView;
       var RootKey: HKEY;
-      CrackCodeRootKey(Stack.GetInt(PStart-1), RegView, RootKey);
+      CrackCodeRootKey(HKEY(Stack.GetInt(PStart-1)), RegView, RootKey);
       var SubKeyName := Stack.GetString(PStart-2);
       var K: HKEY;
       if RegCreateKeyExView(RegView, RootKey, PChar(SubKeyName), 0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, K, nil) = ERROR_SUCCESS then begin
         var ValueName := Stack.GetString(PStart-3);
         var Data := Stack.GetAnsiString(PStart-4);
-        if RegSetValueEx(K, PChar(ValueName), 0, REG_BINARY, @Data[1], Length(Data)) = ERROR_SUCCESS then
+        if RegSetValueEx(K, PChar(ValueName), 0, REG_BINARY, @Data[1], ULength(Data)) = ERROR_SUCCESS then
           Stack.SetBool(PStart, True)
         else
           Stack.SetBool(PStart, False);

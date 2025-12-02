@@ -52,7 +52,6 @@ var
 
 procedure SetDebugServerWnd(Wnd: HWND; WantCodeText: Boolean);
 var
-  DebuggerVersion: Cardinal;
   I: Integer;
 begin
   { First, verify that the debugger/IDE is the same version as Setup.
@@ -60,7 +59,7 @@ begin
     EXE was created by an installer built with a later version of IS. We can't
     continue in such a case because the debugger would send over updated
     "compiled code text" that is incompatible with this version of Setup. }
-  DebuggerVersion := SendMessage(Wnd, WM_Debugger_QueryVersion, 0, 0);
+  const DebuggerVersion = SendMessage(Wnd, WM_Debugger_QueryVersion, 0, 0);
   if DebuggerVersion <> SetupBinVersion then
     raise Exception.CreateFmt('Cannot debug. Debugger version ($%.8x) does ' +
       'not match Setup version ($%.8x)', [DebuggerVersion, SetupBinVersion]);
@@ -134,7 +133,7 @@ begin
         -1: Break; { if GetMessage failed }
         0: begin
              { Repost WM_QUIT messages }
-             PostQuitMessage(Msg.WParam);
+             PostQuitMessage(Integer(Msg.WParam));
              Break;
            end;
       end;

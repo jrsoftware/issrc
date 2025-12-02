@@ -18,7 +18,7 @@ implementation
 
 uses
   Windows, SysUtils, Messages, Forms, Themes, Graphics,
-  PathFunc, BidiCtrls, FormBackgroundStyleHook,
+  PathFunc, BidiCtrls, UnsignedFunc, FormBackgroundStyleHook,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
@@ -126,7 +126,7 @@ begin
 end;
 
 function LoggedMessageBoxFmt1(const ID: TSetupMessageID; const Arg1: String;
-  const Title: String; const Flags: UINT; const Suppressible: Boolean;
+  const Title: String; const Flags: Integer; const Suppressible: Boolean;
   const Default: Integer): Integer;
 begin
   Result := LoggedMsgBox(PChar(FmtSetupMessage1(ID, Arg1)), PChar(Title),
@@ -273,6 +273,12 @@ begin
 end;
 
 procedure ProcessCommandLine;
+
+  function StrToWnd(const S: String): HWND;
+  begin
+    Result := HWND(StrToInt(S));
+  end;
+
 var
   WantToSuppressMsgBoxes, ParamIsAutomaticInternal: Boolean;
   I: Integer;
@@ -297,14 +303,14 @@ begin
     end else if SameText(ParamName, '/INITPROCWND=') then begin
       ParamIsAutomaticInternal := True;
       DidRespawn := True;
-      InitialProcessWnd := StrToInt(ParamValue);
+      InitialProcessWnd := StrToWnd(ParamValue);
     end else if SameText(ParamName, '/SECONDPHASE=') then begin
       ParamIsAutomaticInternal := True;
       SecondPhase := True;
       UninstExeFilename := ParamValue;
     end else if SameText(ParamName, '/FIRSTPHASEWND=') then begin
       ParamIsAutomaticInternal := True;
-      FirstPhaseWnd := StrToInt(ParamValue)
+      FirstPhaseWnd := StrToWnd(ParamValue)
     end else if SameText(ParamName, '/SILENT') then
       Silent := True
     else if SameText(ParamName, '/VERYSILENT') then
@@ -321,7 +327,7 @@ begin
       WantToSuppressMsgBoxes := True
     else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True;
-      DebugServerWnd := StrToInt(ParamValue);
+      DebugServerWnd := StrToWnd(ParamValue);
     end;
     if not ParamIsAutomaticInternal then
       NewParamsForCode.Add(NewParamStr(I));
@@ -463,7 +469,7 @@ procedure AssignCustomMessages(AData: Pointer; ADataSize: Cardinal);
   begin
     if Count > ADataSize then
       Corrupted;
-    Move(AData^, Buf, Count);
+    UMove(AData^, Buf, Count);
     Dec(ADataSize, Count);
     Inc(Cardinal(AData), Count);
   end;
@@ -651,7 +657,7 @@ begin
       UninstallExpandedGroup := CompiledCodeData[3];
       UninstallExpandedGroupName := CompiledCodeData[4];
       UninstallExpandedLanguage := CompiledCodeData[5];
-      AssignCustomMessages(Pointer(CompiledCodeData[6]), Length(CompiledCodeData[6])*SizeOf(CompiledCodeData[6][1]));
+      AssignCustomMessages(Pointer(CompiledCodeData[6]), ULength(CompiledCodeData[6])*SizeOf(CompiledCodeData[6][1]));
 
       CodeRunner := TScriptRunner.Create();
       CodeRunner.NamingAttribute := CodeRunnerNamingAttribute;
@@ -908,7 +914,7 @@ begin
 
     EndDebug;
 
-    { Don't use Halt. See Setup.dpr }
+    { Don't use Halt. See Setup.Start.pas WM_ENDSESSION }
     TerminateProcess(GetCurrentProcess, UninstallExitCode);
   end;
 end;
