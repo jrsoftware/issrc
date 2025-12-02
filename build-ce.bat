@@ -67,8 +67,8 @@ call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build all projects and their Win32 targets in Release mode
-echo After that also build the SetupLdr project and its Win64 target in Release mode
+echo Now open Projects\Projects.groupproj and build the Release build group
+echo You can open the Build Groups pane from the Projects tool window
 
 echo - Waiting for files...
 call :waitforfile files\compil32.exe
