@@ -104,7 +104,7 @@ const
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled to create an installation larger than %d bytes in size for a single Setup.exe, as this approaches the maximum supported by Windows';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
-  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceding, ensure that the file is neither corrupted nor has been tampered with.';
+  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceeding, ensure that the file is neither corrupted nor has been tampered with.';
 
   { [Setup] }
   SCompilerUnknownDirective = 'Unrecognized [%s] section directive "%s"';
@@ -257,11 +257,11 @@ const
   { [Components], [Tasks], [Languages], [ISSigKeys] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
+  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component, or maximum number of levels reached';
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task, or maximum number of levels reached';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use"';
+  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use';
   SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
   SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
   SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
@@ -318,7 +318,7 @@ const
   SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
   SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
   SCompilerFilesValueConflict = 'Parameter "%s" cannot allow different values on the same source file';
-  SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
+  SCompilerFilesUnknownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +

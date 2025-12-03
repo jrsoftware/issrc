@@ -89,7 +89,7 @@ function FindFirstHelper(const FileName: String; var FindRec: TFindRec): Boolean
 function FindNextHelper(var FindRec: TFindRec): Boolean;
 procedure FindCloseHelper(var FindRec: TFindRec);
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
@@ -273,7 +273,7 @@ begin
   Version.SuiteMask := WindowsSuiteMask;
 end;
 
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 begin
   if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
@@ -307,7 +307,6 @@ const
 var
   K: HKEY;
   Buf, S: String;
-  BufSize, R: DWORD;
 begin
   Result := False;
   SetString(Buf, nil, 512);
@@ -316,11 +315,12 @@ begin
   try
     var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
     while True do begin
-      BufSize := ULength(Buf);
+      var BufSize := ULength(Buf);
+      var R: Integer;
       if Subkey then
-        R := RegEnumKeyEx(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil)
+        R := RegEnumKeyEx(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil)
       else
-        R := RegEnumValue(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil);
+        R := RegEnumValue(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil);
       case R of
         ERROR_SUCCESS: ;
         ERROR_NO_MORE_ITEMS: Break;
@@ -393,22 +393,22 @@ end;
 
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 begin
-  Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 begin
-  Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
 begin
-  Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 begin
-  Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 procedure ProcessMessagesProc; far;
@@ -559,7 +559,7 @@ function SetCodePreviousData(const PreviousDataKey: HKEY; const ValueName, Value
 begin
   if ValueData <> '' then begin
     { do not localize or change the following string }
-    Result := RegSetValueEx(PreviousDataKey, PChar('Inno Setup CodeFile: ' + ValueName), 0, REG_SZ, PChar(ValueData), (Length(ValueData)+1)*SizeOf(ValueData[1])) = ERROR_SUCCESS
+    Result := RegSetValueEx(PreviousDataKey, PChar('Inno Setup CodeFile: ' + ValueName), 0, REG_SZ, PChar(ValueData), (ULength(ValueData)+1)*SizeOf(ValueData[1])) = ERROR_SUCCESS
   end else
     Result := True;
 end;

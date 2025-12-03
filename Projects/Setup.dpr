@@ -112,7 +112,8 @@ uses
 
 begin
   { Don't remove, see SetupCustomStyle.dpr }
-  Application.Title := GetDefaultApplicationTitle;
+  if False then
+    Application.Title := 'Setup';
 
   Start;
 end.

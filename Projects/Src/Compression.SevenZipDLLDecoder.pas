@@ -554,7 +554,7 @@ begin
   const E = TArchiveExtractBaseCallback(Parameter);
   try
     const Indices = E.GetIndices;
-    const NIndices = Length(Indices);
+    const NIndices = Cardinal(Length(Indices));
     if NIndices > 0 then begin
        { From IArchive.h: indices must be sorted. Also: 7-Zip's code crashes if
          sent an invalid index. So we check them fully. }
@@ -1199,7 +1199,7 @@ begin
 
         { Finish find data & exit }
         State.FinishCurrentFindData(FindFileData);
-        Exit(ArchiveFindStates.Count-1);
+        Exit(TArchiveFindHandle(UInt32(ArchiveFindStates.Count-1))); { The UInt32 cast prevents sign extension }
       end;
     end;
   end;

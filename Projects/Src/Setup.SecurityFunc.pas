@@ -109,7 +109,7 @@ begin
       PSID(ExplicitAccess[I].Trustee.ptstrName) := Sid;
       Inc(E);
     end;
-    Result := SetEntriesInAclW(EntryCount, ExplicitAccess[0], Dacl, NewDacl);
+    Result := SetEntriesInAclW(ULONG(EntryCount), ExplicitAccess[0], Dacl, NewDacl);
     if Result <> ERROR_SUCCESS then
       Exit;
     try

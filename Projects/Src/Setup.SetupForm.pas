@@ -191,7 +191,7 @@ begin
   if CheckPerMonitorV2SupportForWindow(Wnd) then begin { Currently always False in Setup }
     { GetDPIForWindow requires Windows 10 version 1607. However, because it is delay-loaded and it's
       never executed on older versions of Windows, it does not cause entry point not found errors. }
-    Result := GetDPIForWindow(Wnd)
+    Result := Integer(GetDPIForWindow(Wnd))
   end else
     Result := Screen.PixelsPerInch;
 end;

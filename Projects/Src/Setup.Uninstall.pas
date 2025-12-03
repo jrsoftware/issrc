@@ -41,7 +41,7 @@ const
   WM_KillFirstPhase = WM_USER + 333;
 
 var
-  UninstallExitCode: DWORD = 1;
+  UninstallExitCode: Integer = 1;
   UninstExeFilename, UninstDataFilename, UninstMsgFilename: String;
   UninstDataFile: TFile;
   UninstLog: TExtUninstallLog = nil;
@@ -273,12 +273,6 @@ begin
 end;
 
 procedure ProcessCommandLine;
-
-  function StrToWnd(const S: String): HWND;
-  begin
-    Result := HWND(StrToInt(S));
-  end;
-
 var
   WantToSuppressMsgBoxes, ParamIsAutomaticInternal: Boolean;
   I: Integer;
@@ -388,8 +382,9 @@ begin
   RequireAdmin := (ufAdminInstalled in Flags) or (ufPowerUserInstalled in Flags);
 
   if NeedToRespawnSelfElevated(RequireAdmin, False) then begin
+    { The UInt32 cast prevents sign extension }
     RespawnSelfElevated(UninstExeFilename,
-      Format('/INITPROCWND=$%x ', [Application.Handle]) + GetCmdTail,
+      Format('/INITPROCWND=$%x ', [UInt32(Application.Handle)]) + GetCmdTail,
       UninstallExitCode);
     Result := True;
   end;
@@ -423,9 +418,10 @@ begin
   Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
     Longint(@FirstPhaseWindowProc));
 
-    { Execute the copy of itself ("second phase") }
+    { Execute the copy of itself ("second phase"). The UInt32 cast prevents
+      sign extension }
     ProcessHandle := Exec(TempFile, Format('/SECONDPHASE="%s" /FIRSTPHASEWND=$%x ',
-      [NewParamStr(0), Wnd]) + GetCmdTail);
+      [NewParamStr(0), UInt32(Wnd)]) + GetCmdTail);
     ShouldDeleteTempDir := False;
 
     { Wait till the second phase process unexpectedly dies or is ready
@@ -483,7 +479,7 @@ procedure AssignCustomMessages(AData: Pointer; ADataSize: Cardinal);
       Corrupted;
     SetString(S, nil, N);
     if N <> 0 then
-      Read(Pointer(S)^, N * SizeOf(S[1]));
+      Read(Pointer(S)^, Cardinal(N * SizeOf(S[1])));
   end;
 
 var
@@ -895,7 +891,8 @@ begin
     the IDE's Debug Output }
   EndDebug;
 
-  Halt(UninstallExitCode);
+  System.ExitCode := UninstallExitCode;
+  Halt;
 end;
 
 procedure HandleUninstallerEndSession;
@@ -915,7 +912,7 @@ begin
     EndDebug;
 
     { Don't use Halt. See Setup.Start.pas WM_ENDSESSION }
-    TerminateProcess(GetCurrentProcess, UninstallExitCode);
+    TerminateProcess(GetCurrentProcess, UINT(UninstallExitCode));
   end;
 end;
 

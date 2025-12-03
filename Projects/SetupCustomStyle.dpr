@@ -123,7 +123,8 @@ uses
 begin
   { This is a noop but makes the Delphi IDE show the Application->Appearance item in the
     project options. Removing it also stops generation of the SetupCustomStyle.res file. }
-  Application.Title := GetDefaultApplicationTitle; { Using GetDefaultApplicationTitle instead of Application.Title to make actually make it a noop }
+  if False then
+    Application.Title := 'Setup';
 
   Start;
 end.

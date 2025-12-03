@@ -152,12 +152,12 @@ end;
 
 function EncodeSIB(scale, index, base: byte): byte;
 begin
-  result := base or (index shl 3) or (scale shl 6);
+  result := byte(base or (index shl 3) or (scale shl 6));
 end;
 
 function EncodeModRM(aMod, aReg, aRM: byte): byte; overload;
 begin
-  result := (aMod shl 6) or (areg shl 3) or aRM;
+  result := byte((aMod shl 6) or (areg shl 3) or aRM);
 end;
 
 {$IFOPT R+}
@@ -169,11 +169,11 @@ end;
 {$Q-}
 {$ENDIF}
 procedure TASMInline.Relocate(base: pointer);
-var oldpos, diff, orig: integer;
+var diff, orig: integer;
   i: integer;
   reloc: TReloc;
 begin
-  oldpos := fbuffer.Position;
+  const oldpos = fbuffer.Position;
   try
 
     diff := -(longword(base) - fbase);

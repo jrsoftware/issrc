@@ -5541,7 +5541,8 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
         raise Exception.Create(SCompilerNeedCompiledExe);
       RunFilename := FCompiledExe;
     end;
-    RunParameters := Format('/DEBUGWND=$%x ', [Handle]) + FRunParameters;
+    { The UInt32 cast prevents sign extension }
+    RunParameters := Format('/DEBUGWND=$%x ', [UInt32(Handle)]) + FRunParameters;
 
     ResetAllMemosLineState;
     DebugOutputList.Clear;

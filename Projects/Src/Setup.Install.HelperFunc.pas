@@ -54,7 +54,7 @@ function GetLocalTimeAsStr: String;
 procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
-  const KeyName: String; const ErrorCode: Longint);
+  const KeyName: String; const ErrorCode: Integer);
 procedure WriteMsgData(const F: TFile);
 procedure MarkExeHeader(const F: TFile; const ModeID: Longint);
 procedure ProcessInstallDeleteEntries;
@@ -67,7 +67,7 @@ implementation
 
 uses
   Classes, SysUtils, Forms,
-  NewProgressBar, PathFunc, RestartManager, TaskbarProgressFunc,
+  NewProgressBar, PathFunc, RestartManager, TaskbarProgressFunc, UnsignedFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs, Shared.SetupTypes,
   SetupLdrAndSetup.Messages,
   Setup.InstFunc, Setup.ISSigVerifyFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.ScriptRunner,
@@ -161,7 +161,7 @@ begin
     NewMaxValue := NewMaxValue shr 1;
     Inc(ProgressShiftCount);
   end;
-  WizardForm.ProgressGauge.Max := NewMaxValue;
+  WizardForm.ProgressGauge.Max := Integer(NewMaxValue);
   SetMessageBoxCallbackFunc(InstallMessageBoxCallback, 0);
 end;
 
@@ -172,7 +172,7 @@ begin
     WizardForm.ProgressGauge.Position := NewPosition;
     WizardForm.ProgressGauge.Update;
   end;
-  SetAppTaskbarProgressValue(NewPosition, WizardForm.ProgressGauge.Max);
+  SetAppTaskbarProgressValue(Cardinal(NewPosition), Cardinal(WizardForm.ProgressGauge.Max));
 
   if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try
@@ -409,7 +409,7 @@ begin
 end;
 
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
-  const KeyName: String; const ErrorCode: Longint);
+  const KeyName: String; const ErrorCode: Integer);
 const
   ErrorMsgs: array[TRegErrorFunc] of TSetupMessageID =
     (msgErrorRegWriteKey, msgErrorRegCreateKey, msgErrorRegOpenKey);
@@ -419,7 +419,7 @@ begin
   raise Exception.Create(FmtSetupMessage(ErrorMsgs[Func],
       [GetRegRootKeyName(RootKey), KeyName]) + SNewLine2 +
     FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-      [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
+      [FuncNames[Func], IntToStr(ErrorCode), Win32ErrorString(DWORD(ErrorCode))]));
 end;
 
 procedure WriteMsgData(const F: TFile);
@@ -459,7 +459,7 @@ begin
     Include(MsgLangOpts.Flags, lfWizardDarkStyleDynamic);
 
   LangEntry := Entries[seLanguage][ActiveLanguage];
-  F.WriteBuffer(LangEntry.Data[1], Length(LangEntry.Data));
+  F.WriteBuffer(LangEntry.Data[1], ULength(LangEntry.Data));
   F.WriteBuffer(MsgLangOpts, SizeOf(MsgLangOpts));
 end;
 

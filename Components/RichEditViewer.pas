@@ -455,7 +455,7 @@ function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
     end;
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
-    EditStream.pfnCallback := TEditStreamCallBack(@StreamLoad);
+    EditStream.pfnCallback := StreamLoad;
     SendMessage(Handle, EM_STREAMIN, AFormat, LPARAM(@EditStream));
     Result := EditStream.dwError;
   end;

@@ -30,7 +30,7 @@ implementation
 
 uses
   Windows, Forms,
-  PathFunc,
+  PathFunc, UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
   Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
@@ -200,13 +200,13 @@ procedure __aulldiv; stdcall; external 'ntdll.dll' name '_aulldiv';
 
 function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
 begin
-  Move(src^, dest^, n);
+  UMove(src^, dest^, n);
   Result := dest;
 end;
 
 function _memset(dest: Pointer; c: Integer; n: Cardinal): Pointer; cdecl;
 begin
-  FillChar(dest^, n, c);
+  UFillChar(dest^, n, c);
   Result := dest;
 end;
 

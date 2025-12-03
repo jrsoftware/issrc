@@ -18,7 +18,7 @@ implementation
 
 uses
   Windows, Messages, ShlObj, RegStr, Classes, SysUtils, Forms,
-  ISSigFunc, PathFunc, SHA256,
+  ISSigFunc, PathFunc, SHA256, UnsignedFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
   Compression.Base, Compression.SevenZipDLLDecoder,
@@ -98,7 +98,7 @@ var
     ErrorCode: Longint;
   begin
     ErrorCode := RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data),
-       (Length(Data)+1)*SizeOf(Data[1]));
+       (ULength(Data)+1)*SizeOf(Data[1]));
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegSetValueEx, RootKey, SubkeyName, ErrorCode);
   end;
@@ -129,7 +129,7 @@ var
     Result := Format('%.4u%.2u%.2u', [ST.wYear, ST.wMonth, ST.wDay]);
   end;
 
-  function ExtractMajorMinorVersion(Version: String; var Major, Minor: Integer): Boolean;
+  function ExtractMajorMinorVersion(Version: String; var Major, Minor: Cardinal): Boolean;
   var
     P, I: Integer;
   begin
@@ -224,7 +224,7 @@ var
   H2: HKEY;
   ErrorCode: Longint;
   Z: String;
-  MajorVersion, MinorVersion, I: Integer;
+  I: Integer;
   EstimatedSize: Int64;
 begin
   RegView := InstallDefaultRegView;
@@ -330,6 +330,7 @@ begin
       SetDWordValue(H2, 'NoModify', 1);
     SetDWordValue(H2, 'NoRepair', 1);
     SetStringValue(H2, 'InstallDate', GetInstallDateString);
+    var MajorVersion, MinorVersion: Cardinal;
     if ExtractMajorMinorVersion(ExpandConst(SetupHeader.AppVersion), MajorVersion, MinorVersion) then begin
       { Originally MSDN said to write to Major/MinorVersion, now it says to write to VersionMajor/Minor. So write to both. }
       SetDWordValue(H2, 'MajorVersion', MajorVersion);
@@ -585,7 +586,7 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
       if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts', 0,
          KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
         if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
-           (Length(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
+           (ULength(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
           Log('Failed to set value in Fonts registry key.');
         RegCloseKey(K);
       end
@@ -615,7 +616,7 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   begin
     Filename := PathExpand(Filename);
     LowercaseFilename := PathLowercase(Filename);
-    Hash := GetCRC32(LowercaseFilename[1], Length(LowercaseFilename)*SizeOf(LowercaseFilename[1]));
+    Hash := GetCRC32(LowercaseFilename[1], ULength(LowercaseFilename)*SizeOf(LowercaseFilename[1]));
     { If Filename was already associated with another LocationEntry,
       disassociate it. If we *don't* do this, then this script won't
       produce the expected result:
@@ -1097,7 +1098,7 @@ Retry:
             LastOperation := SetupMessages[msgErrorExtracting];
             var MaxProgress := CurProgress;
             Inc(MaxProgress, AExternalSize);
-            ArchiveFindExtract(StrToInt(SourceFile), DestF, ExternalProgressProc64, MaxProgress);
+            ArchiveFindExtract(UInt32(StrToUInt64(SourceFile)), DestF, ExternalProgressProc64, MaxProgress);
           end
           else if foDownload in CurFile^.Options then begin
             { Download a file with or without ISSigVerify. Note: estimate of
@@ -2233,13 +2234,13 @@ begin
                             V := V + #0;
                         end;
                         ErrorCode := RegSetValueEx(K, PChar(N), 0, NewType,
-                          PChar(V), (Length(V)+1)*SizeOf(V[1]));
+                          PChar(V), (ULength(V)+1)*SizeOf(V[1]));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
                       end;
                     rtDWord: begin
-                        DV := StrToInt(ExpandConst(ValueData));
+                        DV := DWORD(StrToInt(ExpandConst(ValueData)));
                         ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_DWORD,
                           @DV, SizeOf(DV));
                         if (ErrorCode <> ERROR_SUCCESS) and
@@ -2259,7 +2260,7 @@ begin
                         for I := 1 to Length(ValueData) do
                           AnsiS := AnsiS + AnsiChar(Ord(ValueData[I]));
                         ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
-                          PAnsiChar(AnsiS), Length(AnsiS));
+                          PAnsiChar(AnsiS), ULength(AnsiS));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
@@ -2440,7 +2441,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
             { Note: RegSvr expects /REG(U) to be the first parameter }
             Data := Data + ' /REGSVRMODE';
             ErrorCode := RegSetValueEx(H, PChar(ValueName), 0, REG_SZ, PChar(Data),
-              (Length(Data)+1)*SizeOf(Data[1]));
+              (ULength(Data)+1)*SizeOf(Data[1]));
             if ErrorCode <> ERROR_SUCCESS then
               RegError(reRegSetValueEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
             Break;

@@ -156,7 +156,7 @@ type
       constructor Create(AOwner: TComponent); override;
       procedure Hide;
       procedure Initialize; virtual;
-      procedure SetProgress(const Position, Max: Longint);
+      procedure SetProgress(const Position, Max: Integer);
       procedure SetText(const Msg1, Msg2: String);
       procedure Show; virtual;
     published
@@ -170,14 +170,14 @@ type
       constructor Create(AOwner: TComponent); override;
       procedure Animate;
       procedure Initialize; override;
-      procedure SetProgress(const Position, Max: Longint);
+      procedure SetProgress(const Position, Max: Integer);
   end;
 
   TDownloadFile = class
     Url, BaseName, UserName, Password: String;
     Verification: TSetupFileVerification;
     DotISSigEntry: Boolean;
-    Data: NativeUInt; { Only valid if DotISSigEntry is False }
+    Data: NativeInt; { Only valid if DotISSigEntry is False }
   end;
   TDownloadFiles = TObjectList<TDownloadFile>;
 
@@ -195,7 +195,7 @@ type
       FLastBaseNameOrUrl: String;
       function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
         const UserName, Password: String; const ISSigVerify: Boolean;
-        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeUInt): Integer;
+        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeInt): Integer;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       function InternalOnDownloadNoProgress: Boolean;
@@ -209,11 +209,11 @@ type
       function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
         const AllowedKeysRuntimeIDs: TStringList): Integer;
       function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-        const Data: NativeUInt): Integer;
+        const Data: NativeInt): Integer;
       function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
-        const AllowedKeysRuntimeIDs: TStringList; const Data: NativeUInt): Integer; overload;
+        const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): Integer; overload;
       function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
-        const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer; overload;
+        const ISSigAllowedKeys: AnsiString; const Data: NativeInt): Integer; overload;
       procedure Clear;
       function Download(const OnDownloadFileCompleted: TDownloadFileCompleted): Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
@@ -888,7 +888,7 @@ begin
     Application.ProcessMessages;
 end;
 
-procedure TOutputProgressWizardPage.SetProgress(const Position, Max: Longint);
+procedure TOutputProgressWizardPage.SetProgress(const Position, Max: Integer);
 begin
   if Max > 0 then begin
     FProgressBar.Style := npbstNormal;
@@ -896,7 +896,7 @@ begin
     FProgressBar.Position := Position;
     FProgressBar.Visible := True;
     SetAppTaskbarProgressState(tpsNormal);
-    SetAppTaskbarProgressValue(Position, Max);
+    SetAppTaskbarProgressValue(Cardinal(Position), Cardinal(Max));
   end else begin
     if FUseMarqueeStyle then
       FProgressBar.Style := npbstMarquee
@@ -968,7 +968,7 @@ begin
   inherited SetProgress(0, 0);
 end;
 
-procedure TOutputMarqueeProgressWizardPage.SetProgress(const Position, Max: Longint);
+procedure TOutputMarqueeProgressWizardPage.SetProgress(const Position, Max: Integer);
 begin
   InternalError('Cannot call TOutputMarqueeProgressWizardPage.SetProgress');
 end;
@@ -982,19 +982,19 @@ end;
 
 function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
 var
-  Progress32, ProgressMax32: LongInt;
+  Progress32, ProgressMax32: Integer;
 begin
   if FAbortedByUser then begin
     Log('Need to abort download.');
     Result := False;
   end else begin
     FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(BaseName), Url);
-    if ProgressMax > MaxLongInt then begin
-      Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
-      ProgressMax32 := MaxLongInt;
+    if ProgressMax > MaxInt then begin
+      Progress32 := Integer(Round((Progress / ProgressMax) * MaxInt));
+      ProgressMax32 := MaxInt;
     end else begin
-      Progress32 := Progress;
-      ProgressMax32 := ProgressMax;
+      Progress32 := Integer(Progress);
+      ProgressMax32 := Integer(ProgressMax);
     end;
     SetProgress(Progress32, ProgressMax32); { This will process messages which we need for the abort button to work }
 
@@ -1085,7 +1085,7 @@ end;
 
 function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean;
-  const Data: NativeUInt): Integer;
+  const Data: NativeInt): Integer;
 begin
   if ISSigVerify and DotISSigEntry then
     InternalError('ISSigVerify and DotISSigEntry');
@@ -1142,20 +1142,20 @@ begin
 end;
 
 function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-  const Data: NativeUInt): Integer;
+  const Data: NativeInt): Integer;
 begin
   Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password, False, '', False, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
-  Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeUInt): Integer;
+  Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): Integer;
 begin
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
   Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
-  Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeUInt): Integer;
+  Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeInt): Integer;
 begin
   { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '', True, 0);
@@ -1204,7 +1204,7 @@ end;
 
 function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
 var
-  Progress32, ProgressMax32: LongInt;
+  Progress32, ProgressMax32: Integer;
 begin
   if FAbortedByUser then begin
     Log('Need to abort extraction.');
@@ -1213,12 +1213,12 @@ begin
     { Unlike TDownloadWizardPage we don't log progress here. This is because 7zMain.c already logs output dirs and names. }
 
     FMsg2Label.Caption := IfThen(FShowArchiveInsteadOfFile, ArchiveName, FileName);
-    if ProgressMax > MaxLongInt then begin
-      Progress32 := Round((Progress / ProgressMax) * MaxLongInt);
-      ProgressMax32 := MaxLongInt;
+    if ProgressMax > MaxInt then begin
+      Progress32 := Integer(Round((Progress / ProgressMax) * MaxInt));
+      ProgressMax32 := MaxInt;
     end else begin
-      Progress32 := Progress;
-      ProgressMax32 := ProgressMax;
+      Progress32 := Integer(Progress);
+      ProgressMax32 := Integer(ProgressMax);
     end;
     SetProgress(Progress32, ProgressMax32); { This will process messages which we need for the abort button to work }
 

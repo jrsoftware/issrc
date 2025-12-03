@@ -179,6 +179,7 @@ function HighLowToInt64(const High, Low: UInt32): Int64;
 function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
+function StrToWnd(const S: String): HWND;
 
 implementation
 
@@ -1727,6 +1728,11 @@ end;
 function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
 begin
   Result := HighLowToUInt64(FileTime.dwHighDateTime, FileTime.dwLowDateTime);
+end;
+
+function StrToWnd(const S: String): HWND;
+begin
+  Result := UInt32(StrToUInt64(S));
 end;
 
 { TOneShotTimer }
