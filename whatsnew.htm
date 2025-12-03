@@ -95,6 +95,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <span class="head2">Other changes</span>
 <ul>
+  <li>Compiler IDE:
+  <ul>
+    <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
+    <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
+  </ul>
+  </li>
   <li>Security improvements:
   <ul>
     <li>Setup and Uninstall now always try to enable <a href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">Windows RedirectionGuard</a> by default.<br/>
@@ -106,12 +112,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
         Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
         The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</li>
-  </ul>
-  </li>
-  <li>Compiler IDE:
-  <ul>
-    <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
-    <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
   </ul>
   </li>
   <li>Other minor improvements.</li>
