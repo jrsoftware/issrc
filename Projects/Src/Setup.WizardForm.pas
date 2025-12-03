@@ -2009,7 +2009,7 @@ end;
 
 function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TStringList): String;
 
-  procedure CheckAndAddRebootReasonToString(var S: String; const RebootReasons, RebootReason: Integer; const RebootReasonString: String);
+  procedure CheckAndAddRebootReasonToString(var S: String; const RebootReasons, RebootReason: Cardinal; const RebootReasonString: String);
   begin
     if (RebootReasons and RebootReason) <> 0 then begin
       if S <> '' then
@@ -2018,9 +2018,7 @@ function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TS
     end;
   end;
 
-  function RebootReasonsToString(const RebootReasons: Integer): String;
-  var
-    UnknownReasons: Integer;
+  function RebootReasonsToString(const RebootReasons: Cardinal): String;
   begin
     Result := '';
     if RebootReasons <> RmRebootReasonNone then begin
@@ -2029,9 +2027,9 @@ function TWizardForm.QueryRestartManager(const WizardComponents, WizardTasks: TS
       CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonCriticalProcess, 'Critical Process');
       CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonCriticalService, 'Critical Service');
       CheckAndAddRebootReasonToString(Result, RebootReasons, RmRebootReasonDetectedSelf, 'Detected Self');
-      UnknownReasons := RebootReasons and not (RmRebootReasonNone or RmRebootReasonPermissionDenied or
-                                               RmRebootReasonSessionMismatch or RmRebootReasonCriticalProcess or
-                                               RmRebootReasonCriticalService or RmRebootReasonDetectedSelf);
+      const UnknownReasons = RebootReasons and not (RmRebootReasonNone or RmRebootReasonPermissionDenied or
+                                                    RmRebootReasonSessionMismatch or RmRebootReasonCriticalProcess or
+                                                    RmRebootReasonCriticalService or RmRebootReasonDetectedSelf);
       CheckAndAddRebootReasonToString(Result, RebootReasons, UnknownReasons, Format('Unknown Reason(s) %d', [UnknownReasons]));
       Result := ': ' + Result;
     end;
@@ -2042,7 +2040,7 @@ type
   TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
   PArrayOfProcessInfo = ^TArrayOfProcessInfo;
 var
-  Y, I: Integer;
+  Y: Integer;
   ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Cardinal;
   ProcessInfos: PArrayofProcessInfo;
   AppName: String;
@@ -2082,7 +2080,7 @@ begin
         if RmSessionStarted then begin
           Log('RmGetList finished successfully.');
           if ProcessInfosCount > 0 then begin
-            for I := 0 to ProcessInfosCount-1 do begin
+            for var I := 0 to ProcessInfosCount-1 do begin
               AppName := WideCharToString(ProcessInfos[I].strAppName);
               LogFmt('RestartManager found an application using one of our files: %s', [AppName]);
               if RebootReasons = RmRebootReasonNone then begin

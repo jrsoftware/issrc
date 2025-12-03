@@ -148,7 +148,7 @@ begin
     InternalError('FillWideCharBuffer: Invalid Buf');
   if Length(S) > High(Buf) then
     InternalError('FillWideCharBuffer: String too long');
-  StrPLCopy(Buf, S, High(Buf));
+  StrPLCopy(Buf, S, Cardinal(High(Buf)));
 end;
 
 { THelper }

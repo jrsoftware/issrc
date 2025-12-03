@@ -73,11 +73,11 @@ begin
   end;
 end;
 
-function ExtractLongint(var Data: TPtrAndSize; var Value: Longint): Boolean;
+function ExtractInteger(var Data: TPtrAndSize; var Value: Integer): Boolean;
 var
   P: Pointer;
 begin
-  Result := ExtractBytes(Data, SizeOf(Longint), P);
+  Result := ExtractBytes(Data, SizeOf(Integer), P);
   if Result then
     Value := Longint(P^);
 end;
@@ -87,12 +87,12 @@ var
   Len: Longint;
   P: Pointer;
 begin
-  Result := ExtractLongint(Data, Len);
+  Result := ExtractInteger(Data, Len);
   if Result then begin
     if (Len < 0) or (Len > $FFFF) then
       Result := False
     else begin
-      Result := ExtractBytes(Data, Len * SizeOf(Value[1]), P);
+      Result := ExtractBytes(Data, Cardinal(Len) * SizeOf(Value[1]), P);
       if Result then
         SetString(Value, PChar(P), Len);
     end;
@@ -264,9 +264,9 @@ function TSpawnServer.HandleExec(const IsShellExec: Boolean;
   const ADataPtr: Pointer; const ADataSize: Cardinal): LRESULT;
 var
   Data: TPtrAndSize;
-  EDisableFsRedir: Longint;
+  EDisableFsRedir: Integer;
   EVerb, EFilename, EParams, EWorkingDir: String;
-  EWait, EShowCmd: Longint;
+  EWait, EShowCmd: Integer;
   ClientCurrentDir, SaveCurrentDir: String;
   ExecResult: Boolean;
 begin
@@ -283,13 +283,13 @@ begin
     if not ExtractString(Data, EVerb) then Exit;
   end
   else begin
-    if not ExtractLongint(Data, EDisableFsRedir) then Exit;
+    if not ExtractInteger(Data, EDisableFsRedir) then Exit;
   end;
   if not ExtractString(Data, EFilename) then Exit;
   if not ExtractString(Data, EParams) then Exit;
   if not ExtractString(Data, EWorkingDir) then Exit;
-  if not ExtractLongint(Data, EWait) then Exit;
-  if not ExtractLongint(Data, EShowCmd) then Exit;
+  if not ExtractInteger(Data, EWait) then Exit;
+  if not ExtractInteger(Data, EShowCmd) then Exit;
   if not ExtractString(Data, ClientCurrentDir) then Exit;
   if Data.Size <> 0 then Exit;
 

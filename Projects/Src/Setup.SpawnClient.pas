@@ -97,7 +97,9 @@ var
   LastQueryTime, NowTime: DWORD;
 begin
   CopyDataStruct.dwData := CopyDataMsg;
-  CopyDataStruct.cbData := M.Size;
+  if M.Size > High(DWORD) then
+    InternalError('CallSpawnServer: Size limit exceeded');
+  CopyDataStruct.cbData := DWORD(M.Size);
   CopyDataStruct.lpData := M.Memory;
   AllowSpawnServerToSetForegroundWindow;
   MsgResult := SendMessage(SpawnServerWnd, WM_COPYDATA, 0, LPARAM(@CopyDataStruct));

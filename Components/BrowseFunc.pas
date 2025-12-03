@@ -214,10 +214,8 @@ function NewGetOpenFileNameMulti(const Prompt: String; const FileNameList: TStri
   const ParentWnd: HWND): Boolean;
 
   function ExtractStr(var P: PChar): String;
-  var
-    L: Integer;
   begin
-    L := StrLen(P);
+    const L = Integer(StrLen(P));
     SetString(Result, P, L);
     if L > 0 then
       Inc(P, L + 1);

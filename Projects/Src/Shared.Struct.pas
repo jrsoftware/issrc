@@ -205,7 +205,7 @@ type
   TSetupComponentEntry = packed record
     Name, Description, Types, Languages, CheckOnce: String;
     ExtraDiskSpaceRequired: Int64;
-    Level: Integer;
+    Level: Byte;
     Used: Boolean;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: set of (coFixed, coRestart, coDisableNoUninstallWarning,
@@ -220,7 +220,7 @@ type
   PSetupTaskEntry = ^TSetupTaskEntry;
   TSetupTaskEntry = packed record
     Name, Description, GroupDescription, Components, Languages, Check: String;
-    Level: Integer;
+    Level: Byte;
     Used: Boolean;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: set of (toExclusive, toUnchecked, toRestart, toCheckedOnce,

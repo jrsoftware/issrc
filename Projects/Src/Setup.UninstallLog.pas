@@ -130,7 +130,7 @@ type
     FList, FLastList: PUninstallRec;
     FCount: Integer;
     class function AllocRec(const Typ: TUninstallRecTyp;
-      const ExtraData: Longint; const DataSize: Integer): PUninstallRec;
+      const ExtraData: Longint; const DataSize: Cardinal): PUninstallRec;
     function Delete(const Rec: PUninstallRec): PUninstallRec;
     procedure InternalAdd(const NewRec: PUninstallRec);
   protected
@@ -176,6 +176,7 @@ implementation
 
 uses
   Messages, ShlObj, AnsiStrings,
+  UnsignedFunc,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
@@ -358,17 +359,17 @@ begin
 end;
 
 class function TUninstallLog.AllocRec(const Typ: TUninstallRecTyp;
-  const ExtraData: Longint; const DataSize: Integer): PUninstallRec;
+  const ExtraData: Longint; const DataSize: Cardinal): PUninstallRec;
 { Allocates a new PUninstallRec, but does not add it to the list. Returns nil
   if the value of the DataSize parameter is out of range. }
 begin
   { Sanity check the size to protect against integer overflows. 128 MB should
     be way more than enough. }
-  if (DataSize < 0) or (DataSize > $08000000) then begin
+  if DataSize > $08000000 then begin
     Result := nil;
     Exit;
   end;
-  Result := AllocMem(Integer(@PUninstallRec(nil).Data) + DataSize);
+  Result := AllocMem(NativeInt(Cardinal(@PUninstallRec(nil).Data) + DataSize));
   Result.Typ := Typ;
   Result.ExtraData := ExtraData;
   Result.DataSize := DataSize;
@@ -410,10 +411,10 @@ begin
   end;
   S := S + AnsiChar($FF);
 
-  NewRec := AllocRec(Typ, ExtraData, Length(S)*SizeOf(S[1]));
+  NewRec := AllocRec(Typ, ExtraData, ULength(S)*SizeOf(S[1]));
   if NewRec = nil then
     InternalError('DataSize range exceeded');
-  Move(Pointer(S)^, NewRec.Data, NewRec.DataSize);
+  UMove(Pointer(S)^, NewRec.Data, NewRec.DataSize);
   InternalAdd(NewRec);
 
   if Version < HighestSupportedHeaderVersion then
@@ -1158,13 +1159,10 @@ class function TUninstallLog.WriteSafeHeaderString(Dest: PAnsiChar;
 { Copies a string into a PAnsiChar including null terminator, either directly
   if Source only contains ASCII characters, or else UTF-8-encoded with a special
   #1 marker. If MaxDestBytes = 0 it returns the amount of bytes needed. }
-var
-  N: Integer;
-  I: Integer;
 begin
-  N := Length(Source);
+  const N = ULength(Source);
   { Only UTF-8-encode when non-ASCII characters are present }
-  for I := 1 to N do begin
+  for var I := 1 to N do begin
     if Ord(Source[I]) > 126 then begin
       if MaxDestBytes <> 0 then begin
         Dest^ := #1;
@@ -1222,7 +1220,7 @@ var
       S := Size;
       if S > SizeOf(Buffer) - BufCount then
         S := SizeOf(Buffer) - BufCount;
-      Move(P^, Buffer[BufCount], S);
+      UMove(P^, Buffer[BufCount], S);
       Inc(BufCount, S);
       if BufCount = SizeOf(Buffer) then
         Flush;
@@ -1358,7 +1356,7 @@ var
       S := Size;
       if S > BufLeft then
         S := BufLeft;
-      Move(Buffer[BufPos], P^, S);
+      UMove(Buffer[BufPos], P^, S);
       Inc(BufPos, S);
       Dec(BufLeft, S);
       Inc(Cardinal(P), S);

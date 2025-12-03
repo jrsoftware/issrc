@@ -3758,7 +3758,10 @@ begin
       StringChange(Name, '/', '\');
       if not IsValidIdentString(Name, True, False) then
         AbortCompile(SCompilerComponentsOrTasksBadName);
-      Level := CountChars(Name, '\');
+      const CountedChars = CountChars(Name, '\');
+      if CountedChars > High(Byte) then
+        AbortCompile(SCompilerComponentsInvalidLevel);
+      Level := Byte(CountedChars);
       if ComponentEntries.Count > 0 then
         PrevLevel := PSetupComponentEntry(ComponentEntries[ComponentEntries.Count-1]).Level
       else
@@ -3861,7 +3864,10 @@ begin
       StringChange(Name, '/', '\');
       if not IsValidIdentString(Name, True, False) then
         AbortCompile(SCompilerComponentsOrTasksBadName);
-      Level := CountChars(Name, '\');
+      const CountedChars = CountChars(Name, '\');
+      if CountedChars > High(Byte) then
+        AbortCompile(SCompilerTasksInvalidLevel);
+      Level := Byte(CountedChars);
       if TaskEntries.Count > 0 then
         PrevLevel := PSetupTaskEntry(TaskEntries[TaskEntries.Count-1]).Level
       else

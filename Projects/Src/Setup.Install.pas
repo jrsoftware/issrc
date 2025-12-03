@@ -1098,7 +1098,7 @@ Retry:
             LastOperation := SetupMessages[msgErrorExtracting];
             var MaxProgress := CurProgress;
             Inc(MaxProgress, AExternalSize);
-            ArchiveFindExtract(StrToInt(SourceFile), DestF, ExternalProgressProc64, MaxProgress);
+            ArchiveFindExtract(UInt32(StrToUInt64(SourceFile)), DestF, ExternalProgressProc64, MaxProgress);
           end
           else if foDownload in CurFile^.Options then begin
             { Download a file with or without ISSigVerify. Note: estimate of

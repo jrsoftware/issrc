@@ -257,8 +257,8 @@ const
   { [Components], [Tasks], [Languages], [ISSigKeys] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
+  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component, or maximum number of levels reached';
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task, or maximum number of levels reached';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use"';
