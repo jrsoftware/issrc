@@ -453,6 +453,8 @@ begin
     Include(MsgLangOpts.Flags, lfWizardLightButtonsUnstyled);
   if shWizardKeepAspectRatio in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardKeepAspectRatio);
+  if shWizardBevelsHidden in SetupHeader.Options then
+    Include(MsgLangOpts.Flags, lfWizardBevelsHidden);
   if SetupHeader.WizardDarkStyle = wdsDark then
     Include(MsgLangOpts.Flags, lfWizardDarkStyleDark)
   else if SetupHeader.WizardDarkStyle = wdsDynamic then

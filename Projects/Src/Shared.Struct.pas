@@ -67,7 +67,7 @@ type
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
     shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
-    shRedirectionGuard, shUnusedPadding = 56);
+    shRedirectionGuard, shWizardBevelsHidden, shUnusedPadding = 56);
   { ^ Contains padding to raise the amount of flags to 57, ensuring the size of
       the set is 8 bytes (instead of less) in 32-bit builds. This prevents
       incompatibility with 64-bit builds, where the minimum size for a set with
@@ -432,7 +432,7 @@ type
     not because all options must be language-specific. }
   TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
     lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
-    lfWizardKeepAspectRatio);
+    lfWizardKeepAspectRatio, lfWizardBevelsHidden);
   TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;

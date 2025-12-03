@@ -840,8 +840,6 @@ begin
     InnerNotebook.ParentBackground := True;
     for I := 0 to InnerNotebook.PageCount-1 do
       InnerNotebook.Pages[I].ParentBackground := True;
-    Bevel1.Visible := False;
-    Bevel.Visible := False;
   end;
   if shWizardModern in SetupHeader.Options then begin
     if LStyle = nil then begin
@@ -850,6 +848,10 @@ begin
       OuterNotebook.Color := clWindow;
     end;
     Bevel1.Visible := False;
+  end;
+  if shWizardBevelsHidden in SetupHeader.Options then begin
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
   end;
 
   { Correct aspect ratio of the large wizard images after scaling }

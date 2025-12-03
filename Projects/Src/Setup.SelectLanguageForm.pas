@@ -95,8 +95,9 @@ begin
   inherited;
 
   if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then
-    MainPanel.ParentBackground := False
-  else
+    MainPanel.ParentBackground := False;
+
+  if shWizardBevelsHidden in SetupHeader.Options then
     Bevel.Visible := False;
 
   InitializeFont(False, True);

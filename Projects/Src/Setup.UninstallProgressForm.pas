@@ -37,7 +37,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+    procedure Initialize(const ATitle, AAppName: String);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   published
     property OuterNotebook: TNewNotebook read FOuterNotebook;
@@ -62,8 +62,11 @@ var
 implementation
 
 uses
-  Themes, TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages, Setup.MainFunc,
-  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Setup.InstFunc;
+  Themes,
+  TaskbarProgressFunc,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.Struct,
+  SetupLdrAndSetup.Messages,
+  Setup.MainForm, Setup.MainFunc, Setup.InstFunc;
 
 {$R *.DFM}
 
@@ -140,7 +143,7 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String);
 begin
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
@@ -164,16 +167,18 @@ begin
     InnerNotebook.ParentBackground := True;
     for var I := 0 to InnerNotebook.PageCount-1 do
       InnerNotebook.Pages[I].ParentBackground := True;
-    Bevel1.Visible := False;
-    Bevel.Visible := False;
   end;
-  if AModernStyle then begin
+  if lfWizardModern in MessagesLangOptions.Flags then begin
     if LStyle = nil then begin
       if CustomWizardBackground then
         InternalError('Unexpected CustomWizardBackground value');
       OuterNotebook.Color := clWindow;
     end;
     Bevel1.Visible := False;
+  end;
+  if lfWizardBevelsHidden in MessagesLangOptions.Flags then begin
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
   end;
 
   { Initialize image }
