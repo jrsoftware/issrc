@@ -8239,6 +8239,8 @@ begin
       if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';
         Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
+        if SetupDirectiveLines[ssWizardBackImageFile] <> 0 then
+          Include(SetupHeader.Options, shWizardBevelsHidden);
       end;
     end;
     if WizardStyleSpecial <> '' then begin
