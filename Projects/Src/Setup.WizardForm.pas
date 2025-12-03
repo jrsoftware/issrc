@@ -929,7 +929,7 @@ begin
   WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
   if CustomWizardBackground then
-    SetBackImage(WizardBackImages, True, shWizardImageStretch in SetupHeader.Options, SetupHeader.WizardBackImageOpacity, False);
+    SetBackImage(WizardBackImages, shWizardImageStretch in SetupHeader.Options, True, SetupHeader.WizardBackImageOpacity, False);
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, SelectDirOrGroupSizes); {don't localize}
