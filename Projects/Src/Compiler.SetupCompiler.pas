@@ -5614,7 +5614,7 @@ begin
                    end;
                  end;
                  if not FoundKey then
-                   AbortCompileFmt(SCompilerFilesUnkownISSigKeyNameOrGroupName, [ParamFilesISSigAllowedKeys]);
+                   AbortCompileFmt(SCompilerFilesUnknownISSigKeyNameOrGroupName, [ParamFilesISSigAllowedKeys]);
                end;
 
                { Common parameters }
