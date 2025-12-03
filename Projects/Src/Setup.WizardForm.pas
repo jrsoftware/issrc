@@ -14,9 +14,10 @@ interface
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,
-  Setup.SetupForm, Shared.Struct, NewCheckListBox, RichEditViewer, NewStaticText,
-  NewProgressBar, Shared.SetupMessageIDs, PasswordEdit, FolderTreeView, BitmapImage,
-  NewNotebook, BidiCtrls;
+  NewProgressBar, NewCheckListBox, RichEditViewer, NewStaticText,
+  PasswordEdit, FolderTreeView, BitmapImage, NewNotebook, BidiCtrls,
+  Shared.Struct, Shared.SetupMessageIDs,
+  Setup.SetupForm, Setup.MainFunc;
 
 type
   TWizardForm = class;
@@ -175,7 +176,6 @@ type
     procedure DirBrowseButtonClick(Sender: TObject);
     procedure GroupBrowseButtonClick(Sender: TObject);
   private
-    { Private declarations }
     FPageList: TList;
     FCurPageID, FNextPageID: Integer;
     ExpandedDefaultDirName, ExpandedDefaultGroupName: String;
@@ -215,7 +215,6 @@ type
     procedure WMSysCommand(var Message: TWMSysCommand); message WM_SYSCOMMAND;
     procedure WMWindowPosChanging(var Message: TWMWindowPosChanging); message WM_WINDOWPOSCHANGING;
   public
-    { Public declarations }
     PrepareToInstallFailureMessage: String;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -239,6 +238,7 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
+    procedure SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -343,8 +343,8 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Generics.Collections, Themes,
-  PathFunc, RestartManager, SHA256,
-  SetupLdrAndSetup.Messages, Setup.MainForm, Setup.MainFunc, Shared.CommonFunc.Vcl,
+  PathFunc, RestartManager, SHA256, FormBackgroundStyleHook,
+  SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
   Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.DownloadFileFunc;
@@ -737,31 +737,30 @@ end;
 
 { TWizardForm }
 
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
+var
+  TargetArea, Difference, SmallestDifference, I: Integer;
+begin
+  if WizardImages.Count <> 1 then begin
+    { Find the image with the smallest area difference compared to the target area. }
+    TargetArea := TargetWidth*TargetHeight;
+    SmallestDifference := -1;
+    Result := nil;
+    for I := 0 to WizardImages.Count-1 do begin
+      Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
+      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+        Result := WizardImages[I];
+        SmallestDifference := Difference;
+      end;
+    end;
+  end else
+    Result := WizardImages[0];
+end;
+
 constructor TWizardForm.Create(AOwner: TComponent);
 { Do all initialization of the wizard form. We're overriding Create instead of
   using the FormCreate event, because if an exception is raised in FormCreate
   it's not propagated out. }
-
-  function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
-  var
-    TargetArea, Difference, SmallestDifference, I: Integer;
-  begin
-    if WizardImages.Count <> 1 then begin
-      { Find the image with the smallest area difference compared to the target area. }
-      TargetArea := TargetWidth*TargetHeight;
-      SmallestDifference := -1;
-      Result := nil;
-      for I := 0 to WizardImages.Count-1 do begin
-        Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
-        if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-          Result := WizardImages[I];
-          SmallestDifference := Difference;
-        end;
-      end;
-    end else
-      Result := WizardImages[0];
-  end;
-
 var
   X, W1, W2: Integer;
   SystemMenu: HMENU;
@@ -784,7 +783,11 @@ begin
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
 
-  MainPanel.ParentBackground := False;
+  { Unlike other forms (which use only WizardBackColor and not WizardBackImageFile), we do not check
+    for clWindow here. The compiler guarantees that if WizardBackColor (i.e., SetupHeader.BackColor)
+    equals clWindow, a background image is always present. }
+  if not CustomWizardBackground then
+    MainPanel.ParentBackground := False;
 
   InitializeFont;
   SetFontNameSize(WelcomeLabel1.Font, LangOptions.WelcomeFontName,
@@ -822,17 +825,33 @@ begin
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize and TTaskDialogForm.Create }
-  if LStyle <> nil then begin
-    { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
-    WelcomePage.ParentColor := True;
-    OuterNotebook.ParentColor := True;
-    FinishedPage.ParentColor := True;
-    Color := LStyle.GetStyleColor(scWindow);
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then begin
+      { TNewNotebook(Page) ignores VCL Styles so it needs a bit of help }
+      WelcomePage.ParentColor := True;
+      OuterNotebook.ParentColor := True;
+      FinishedPage.ParentColor := True;
+      Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else begin
+    OuterNotebook.ParentBackground := True;
+    for I := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[I].ParentBackground := True;
+    InnerNotebook.ParentBackground := True;
+    for I := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[I].ParentBackground := True;
   end;
   if shWizardModern in SetupHeader.Options then begin
-    if LStyle = nil then
+    if LStyle = nil then begin
+      if CustomWizardBackground then
+        InternalError('Unexpected CustomWizardBackground value');
       OuterNotebook.Color := clWindow;
+    end;
     Bevel1.Visible := False;
+  end;
+  if shWizardBevelsHidden in SetupHeader.Options then begin
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
   end;
 
   { Correct aspect ratio of the large wizard images after scaling }
@@ -851,36 +870,38 @@ begin
     PageNameLabel.Width := PageNameLabel.Width - I;
     PageDescriptionLabel.Width := PageDescriptionLabel.Width - I;
 
-    { Reduce the size of the control if appropriate:
-      - If the user supplied a single image AND that image is not larger than
-        the default control size before scaling (58x58), then reduce the
-        control size to match the image dimensions. That avoids stretching to
-        58x58 when the user is purposely using a smaller-than-default image
-        (such as 55x55 or 32x32) and WizardImageStretch=yes.
-      - Otherwise, it's unclear what size/shape the user prefers for the
-        control. Keep the default control size. }
-    var NewWidth := WizardSmallImages[0].Width;
-    var NewHeight := WizardSmallImages[0].Height;
-    if (WizardSmallImages.Count > 1) or
-       (NewWidth > 58) or
-       (NewHeight > 58) then begin
-      NewWidth := 58;
-      NewHeight := 58;
-    end;
+    if WizardSmallImages.Count > 0 then begin
+      { Reduce the size of the control if appropriate:
+        - If the user supplied a single image AND that image is not larger than
+          the default control size before scaling (58x58), then reduce the
+          control size to match the image dimensions. That avoids stretching to
+          58x58 when the user is purposely using a smaller-than-default image
+          (such as 55x55 or 32x32) and WizardImageStretch=yes.
+        - Otherwise, it's unclear what size/shape the user prefers for the
+          control. Keep the default control size. }
+      var NewWidth := WizardSmallImages[0].Width;
+      var NewHeight := WizardSmallImages[0].Height;
+      if (WizardSmallImages.Count > 1) or
+         (NewWidth > 58) or
+         (NewHeight > 58) then begin
+        NewWidth := 58;
+        NewHeight := 58;
+      end;
 
-    { Scale the new width and height }
-    NewWidth := MulDiv(NewWidth, WizardSmallBitmapImage.Width, 58);
-    NewHeight := MulDiv(NewHeight, WizardSmallBitmapImage.Height, 58);
+      { Scale the new width and height }
+      NewWidth := MulDiv(NewWidth, WizardSmallBitmapImage.Width, 58);
+      NewHeight := MulDiv(NewHeight, WizardSmallBitmapImage.Height, 58);
 
-    I := WizardSmallBitmapImage.Height - NewHeight;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
-      WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
-    end;
-    I := WizardSmallBitmapImage.Width - NewWidth;
-    if I > 0 then begin
-      WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
-      WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+      I := WizardSmallBitmapImage.Height - NewHeight;
+      if I > 0 then begin
+        WizardSmallBitmapImage.Height := WizardSmallBitmapImage.Height - I;
+        WizardSmallBitmapImage.Top := WizardSmallBitmapImage.Top + (I div 2);
+      end;
+      I := WizardSmallBitmapImage.Width - NewWidth;
+      if I > 0 then begin
+        WizardSmallBitmapImage.Width := WizardSmallBitmapImage.Width - I;
+        WizardSmallBitmapImage.Left := WizardSmallBitmapImage.Left + (I div 2);
+      end;
     end;
   end;
 
@@ -900,13 +921,15 @@ begin
   WizardBitmapImage2.Opacity := SetupHeader.WizardImageOpacity;
   WizardBitmapImage2.Stretch := (shWizardImageStretch in SetupHeader.Options);
   WizardSmallBitmapImage.Graphic := SelectBestImage(WizardSmallImages, WizardSmallBitmapImage.Width, WizardSmallBitmapImage.Height);
-  if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) then begin
+  if IsCustomStyleActive and (SetupHeader.WizardSmallImageBackColor = clWindow) and not MainPanel.ParentBackground then begin
     { Because the small image is on a panel we need a separate color, see TBitmapImageImplementation.Paint }
     WizardSmallBitmapImage.BackColor := clBtnFace
   end else
     WizardSmallBitmapImage.BackColor := SetupHeader.WizardSmallImageBackColor;
   WizardSmallBitmapImage.Opacity := SetupHeader.WizardImageOpacity;
   WizardSmallBitmapImage.Stretch := (shWizardImageStretch in SetupHeader.Options);
+  if CustomWizardBackground then
+    SetBackImage(WizardBackImages, shWizardImageStretch in SetupHeader.Options, True, SetupHeader.WizardBackImageOpacity, False);
   const SelectDirOrGroupSizes = [32, 48, 64]; { Images should use the same sizes to keep the layout consistent between pages }
   SelectDirBitmapImage.InitializeFromStockIcon(SIID_FOLDER, clNone, SelectDirOrGroupSizes);
   SelectGroupBitmapImage.InitializeFromIcon(HInstance, PChar('Z_GROUPICON' + WizardIconsPostfix), clNone, SelectDirOrGroupSizes); {don't localize}
@@ -1089,6 +1112,11 @@ begin
   else
     BeveledLabel.Caption := '';
   BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then
+      BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
+  end else
+    BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardBackColor);
 
   { Don't set UseRichEdit to True on the TRichEditViewers unless they are going
     to be used. There's no need to load riched*.dll unnecessarily. }
@@ -1391,6 +1419,7 @@ begin
     controls placed on the page. Also see TSetupForm.CreateWnd.  }
   NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
   NotebookPage.Notebook := InnerNotebook;
+  NotebookPage.ParentBackground := InnerNotebook.ParentBackground;
   NotebookPage.HandleNeeded; { See TSetupForm.InitializeFont comment }
   APage.FID := FNextPageID;
   APage.FOuterNotebookPage := InnerPage;
@@ -2318,6 +2347,22 @@ begin
   else
     Flags := MF_GRAYED;
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
+end;
+
+procedure TWizardForm.SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean;
+  const Opacity: Byte; const Redraw: Boolean);
+begin
+  if not CustomWizardBackground then
+    InternalError('Cannot set a background image at this time: custom wizard background not active');
+  const Graphic = SelectBestImage(BackImages, ClientWidth, ClientHeight);
+  TFormBackgroundStyleHook.Graphic := Graphic;
+  TFormBackgroundStyleHook.GraphicTarget := Self;
+  TFormBackgroundStyleHook.Stretch := Stretch;
+  TFormBackgroundStyleHook.Center := Center;
+  TFormBackgroundStyleHook.Opacity := Opacity;
+  TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
+  if Redraw and HandleAllocated then
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_UPDATENOW or RDW_ALLCHILDREN);
 end;
 
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);

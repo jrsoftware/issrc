@@ -14,6 +14,10 @@ UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 PrivilegesRequired=lowest
 
+; This enables to use of WizardSetBackImage in [Code]
+WizardBackColor=#f3f3f3
+WizardBackColorDynamicDark=#202020
+
 ; Uncomment the following three lines to test the layout for RTL and scaling
 ;[LangOptions]
 ;RightToLeft=yes
@@ -481,9 +485,27 @@ begin
   MsgBox('This demo shows some features of the various form objects and control classes.', mbInformation, mb_Ok);
 end;
 
-procedure CreateAboutButtonAndURLLabel(ParentForm: TSetupForm; CancelButton: TNewButton);
 var
-  AboutButton: TNewButton;
+  ShowBackImage: Boolean;
+
+procedure BackImageButtonOnClick(Sender: TObject);
+var
+  BackImages: array of TGraphic;
+begin
+  ShowBackImage := not ShowBackImage;
+  if ShowBackImage then
+    BackImages := [WizardForm.WizardSmallBitmapImage.Bitmap]
+  else
+    BackImages := [];
+  WizardSetBackImage(BackImages, True, True, 150);
+  WizardForm.WizardBitmapImage.Visible := not ShowBackImage;
+  WizardForm.WizardBitmapImage2.Visible := not ShowBackImage;
+  WizardForm.WizardSmallBitmapImage.Visible := not ShowBackImage;
+end;
+
+procedure CreateBottomButtonsAndURLLabel(ParentForm: TSetupForm; CancelButton: TNewButton);
+var
+  AboutButton, BackImageButton, RightButton: TNewButton;
   URLLabel: TNewLinkLabel;
 begin
   AboutButton := TNewButton.Create(ParentForm);
@@ -495,9 +517,22 @@ begin
   AboutButton.OnClick := @AboutButtonOnClick;
   AboutButton.Parent := ParentForm;
 
+  if not IsUninstaller then begin
+    BackImageButton := TNewButton.Create(ParentForm);
+    BackImageButton.Left := BackImageButton.Left + BackImageButton.Width + ScaleX(20);
+    BackImageButton.Top := CancelButton.Top;
+    BackImageButton.Width := CancelButton.Width;
+    BackImageButton.Height := CancelButton.Height;
+    BackImageButton.Caption := '&BackImage';
+    BackImageButton.OnClick := @BackImageButtonOnClick;
+    BackImageButton.Parent := ParentForm;
+    RightButton := BackImageButton;
+  end else
+    RightButton := AboutButton;
+  
   URLLabel := TNewLinkLabel.Create(ParentForm);
-  URLLabel.Left := AboutButton.Left + AboutButton.Width + ScaleX(20);
-  URLLabel.Top := AboutButton.Top + (AboutButton.Height - URLLabel.Height) div 2;
+  URLLabel.Left := RightButton.Left + RightButton.Width + ScaleX(20);
+  URLLabel.Top := RightButton.Top + (RightButton.Height - URLLabel.Height) div 2;
   URLLabel.Caption := '<a href="https://jrsoftware.org">jrsoftware.org</a>';
   URLLabel.OnLinkClick := @LinkLabelOnLinkClick;
   URLLabel.UseVisualStyle := True;
@@ -512,7 +547,7 @@ begin
   
   { Custom controls }
 
-  CreateAboutButtonAndURLLabel(WizardForm, WizardForm.CancelButton);
+  CreateBottomButtonsAndURLLabel(WizardForm, WizardForm.CancelButton);
 
   { Custom beveled label }
 
@@ -523,6 +558,6 @@ procedure InitializeUninstallProgressForm();
 begin
   { Custom controls }
 
-  CreateAboutButtonAndURLLabel(UninstallProgressForm, UninstallProgressForm.CancelButton);
+  CreateBottomButtonsAndURLLabel(UninstallProgressForm, UninstallProgressForm.CancelButton);
 end;
 

@@ -17,13 +17,13 @@ procedure HandleUninstallerEndSession;
 implementation
 
 uses
-  Windows, SysUtils, Messages, Forms, Themes,
-  PathFunc, BidiCtrls, UnsignedFunc,
+  Windows, SysUtils, Messages, Forms, Themes, Graphics,
+  PathFunc, BidiCtrls, UnsignedFunc, FormBackgroundStyleHook,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
   Shared.FileClass, Setup.ScriptRunner, Setup.DebugClient, Shared.SetupSteps,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.SpawnServer, Setup.SetupForm;
 
 type
   TExtUninstallLog = class(TUninstallLog)
@@ -92,8 +92,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName, lfWizardModern in MessagesLangOptions.Flags,
-    MainIconPostfix, WizardIconsPostfix);
+  UninstallProgressForm.Initialize(Title, UninstLog.AppName);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
@@ -559,6 +558,7 @@ begin
       const IsDynamicDark = (lfWizardDarkStyleDynamic in MessagesLangOptions.Flags) and IsWinDark;
       const IsForcedDark = lfWizardDarkStyleDark in MessagesLangOptions.Flags;
       if IsDynamicDark then begin
+        SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
         MainIconPostfix := '_DARK';
         if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
           MainIconPostfix := '';
@@ -576,6 +576,12 @@ begin
         TStyleManager.SetStyle(Handle);
         if not IsDarkInstallMode and (lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags) then
           TNewButton.DontStyle := True;
+        CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
+          (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
+        if CustomWizardBackground then begin
+          TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+          TFormBackgroundStyleHook.BackColor := SetupHeader.WizardBackColor;
+        end;
       end;
     end;
 
@@ -855,6 +861,8 @@ begin
       Include(SetupHeader.Options, shWizardKeepAspectRatio);
     SetupHeader.WizardSizePercentX := MessagesLangOptions.WizardSizePercentX;
     SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
+    SetupHeader.WizardBackColor := MessagesLangOptions.WizardBackColor;
+    SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));

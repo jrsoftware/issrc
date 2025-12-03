@@ -67,7 +67,7 @@ type
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
     shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
-    shRedirectionGuard, shUnusedPadding = 56);
+    shRedirectionGuard, shWizardBevelsHidden, shUnusedPadding = 56);
   { ^ Contains padding to raise the amount of flags to 57, ensuring the size of
       the set is 8 bytes (instead of less) in 32-bit builds. This prevents
       incompatibility with 64-bit builds, where the minimum size for a set with
@@ -135,9 +135,9 @@ type
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardDarkStyle: TSetupWizardDarkStyle;
     WizardImageAlphaFormat: (afIgnored, afDefined, afPremultiplied); // Must be same as Graphics.TAlphaFormat
-    WizardImageBackColor, WizardSmallImageBackColor: Integer;
-    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark: Integer;
-    WizardImageOpacity: Byte;
+    WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
+    WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
+    WizardImageOpacity, WizardBackImageOpacity: Byte;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
@@ -432,13 +432,14 @@ type
     not because all options must be language-specific. }
   TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
     lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
-    lfWizardKeepAspectRatio);
+    lfWizardKeepAspectRatio, lfWizardBevelsHidden);
   TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
     DialogFontName: array[0..31] of Char;
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
+    WizardBackColor, WizardBackColorDynamicDark: Integer;
     Flags: TMessagesLangOptionsFlags;
   end;
 

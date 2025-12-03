@@ -109,10 +109,10 @@ var
   { Variables read in from the Setup.0 file }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
+  OrigSetupHeaderWizardBackColor: Integer;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImages: TWizardImages;
-  WizardSmallImages: TWizardImages;
+  WizardImages, WizardSmallImages, WizardBackImages: TWizardImages;
   MainIconPostfix, WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
@@ -141,7 +141,8 @@ var
   InstallMode: (imNormal, imSilent, imVerySilent);
   HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
-    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
+    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
+    CustomWizardBackground: Boolean;
   InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
@@ -246,16 +247,16 @@ implementation
 
 uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
-  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, RichEditViewer, UnsignedFunc,
+  ChaCha20, ECDSA, ISSigFunc, BidiCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc, PathFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
   SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
   Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
-  Compression.SevenZipDLLDecoder;
+  Compression.SevenZipDLLDecoder, Setup.SetupForm;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
@@ -3393,6 +3394,10 @@ begin
         if SetupEncryptionHeader.EncryptionUse = euFull then
           FileExtractor.CryptKey := CryptKey; { See above }
 
+        { SetupHeader.WizardBackColor may be overwritten below, and we need to keep the original
+          value for Uninstall }
+        OrigSetupHeaderWizardBackColor := SetupHeader.WizardBackColor;
+
         { Language entries }
         ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
           SizeOf(TSetupLanguageEntry));
@@ -3427,6 +3432,7 @@ begin
           if IsDynamicDark then begin
             SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
             SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+            SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
             MainIconPostfix := '_DARK';
             { If the main icon is custom, a dark version will not be available, so check for this }
             if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
@@ -3453,6 +3459,11 @@ begin
             TStyleManager.SetStyle(Handle);
             if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
               TNewButton.DontStyle := True; { Keep native buttons (including command links) }
+            CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
+            if CustomWizardBackground then begin
+              TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+              TFormBackgroundStyleHook.BackColor := SetupHeader.WizardBackColor;
+            end;
           end;
         end;
 
@@ -3569,8 +3580,10 @@ begin
         { Wizard images }
         ReadWizardImages(Reader, WizardImages, True);      { If WantWizardImagesDynamicDark is True, then these might be overwritten below }
         ReadWizardImages(Reader, WizardSmallImages, True); { Same }
+        ReadWizardImages(Reader, WizardBackImages, True);  { Same }
         ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
         ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardBackImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
@@ -4301,8 +4314,9 @@ end;
 
 procedure FreeWizardImages;
 begin
-  FreeAndNil(WizardImages);
+  FreeAndNil(WizardBackImages);
   FreeAndNil(WizardSmallImages);
+  FreeAndNil(WizardImages);
 end;
 
 initialization
@@ -4322,6 +4336,7 @@ initialization
   CloseApplicationsFilterExcludesList := TStringList.Create;
   WizardImages := TWizardImages.Create;
   WizardSmallImages := TWizardImages.Create;
+  WizardBackImages := TWizardImages.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 

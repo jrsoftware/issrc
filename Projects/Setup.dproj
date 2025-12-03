@@ -177,6 +177,7 @@
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="..\Components\Themes.pas"/>
+        <DCCReference Include="..\Components\FormBackgroundStyleHook.pas"/>
         <None Include="Src\Setup.inc"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
