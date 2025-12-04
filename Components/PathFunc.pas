@@ -295,8 +295,14 @@ begin
   DWORD(Res) := GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
     Buf, FilePart);
   Result := (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0]));
-  if Result then
-    SetString(ExpandedFilename, Buf, Res)
+  if Result then begin
+    SetString(ExpandedFilename, Buf, Res);
+    { Memory usage optimization: Most of the time, no changes are made to the
+      path. When that is the case, return a reference to the passed-in string
+      so that there aren't two identical strings on the heap. }
+    if ExpandedFilename = Filename then
+      ExpandedFilename := Filename;
+  end;
 end;
 
 function PathExpand(const Filename: String): String;
