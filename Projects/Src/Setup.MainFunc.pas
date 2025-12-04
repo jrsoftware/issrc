@@ -1198,7 +1198,7 @@ begin
   end
   else if Cnst = 'wizardhwnd' then begin
     if Assigned(WizardForm) then
-      Result := IntToStr(WizardForm.Handle)
+      Result := Format('%d', [UInt32(WizardForm.Handle)])
     else
       Result := '0';
   end

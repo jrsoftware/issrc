@@ -149,7 +149,7 @@ begin
     HKEY_DYN_DATA: Result := 'HKEY_DYN_DATA';
   else
     { unknown - shouldn't get here }
-    Result := Format('[%x]', [Cardinal(RootKey)]);
+    Result := Format('[%x]', [UInt32(RootKey)]);
   end;
 end;
 
