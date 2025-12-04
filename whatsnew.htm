@@ -59,6 +59,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
       Supports specifying multiple files for high-quality results on all DPI settings.<br/>
       If you set this directive but a custom style is not specified by <tt>WizardStyle</tt>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightbuttons</tt> and <tt>hidebevels</tt>.<br/>
+      Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</li>
       <a href="https://jrsoftware.org/images/is-welcome-dark-backimage-org-150.png">Example screenshot of Setup using a background image in dark mode, at 150% DPI</a>.<br/>
       <a href="https://jrsoftware.org/images/is-welcome-backimage-org-150.png">Example screenshot of Setup using a background image in light mode, at 150% DPI</a>.<br/>
       <a href="https://jrsoftware.org/images/is-taskdialog-backcolor-org-125.png">Example screenshot of a task dialog using a background color, at 125% DPI</a>.
@@ -99,6 +100,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <span class="head2">Other changes</span>
 <ul>
+  <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</tt></li>
   <li>Compiler IDE:
   <ul>
     <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
@@ -164,7 +166,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>For example, to specify two custom colors, one for light mode and one for dark mode:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic
-<span class="key">WizardImageBackColor</span>=clWhite
+<span class="key">WizardImageBackColor</span>=white
 <span class="key">WizardImageBackColorDynamicDark</span>=#2b2b2b</code></pre>
         Note: Forced dark mode (<tt>dark</tt>) does not use the <tt>DynamicDark</tt> settings; it uses the standard settings. Example:
       <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dark
@@ -258,7 +260,6 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <li>Uninstall now uses a random name for its temporary directory (<tt>is-XXXXXXXXXX-uninstall.tmp</tt>), instead of attempting to re-use a fixed name whenever possible (usually <tt>iu-14D2N.tmp</tt> in previous versions). This is primarily intended to add defense-in-depth. Additionally, this change addresses a non-security issue in previous versions &mdash; extremely unlikely to be seen in practice &mdash; where if two uninstallers were started near-simultaneously, one could potentially overwrite the other's temporary file.</li>
   <li>In previous versions, before Uninstall deleted a pre-existing temporary directory (usually named <tt>iu-14D2N.tmp</tt>), it checked for the <tt>FILE_ATTRIBUTE_REPARSE_POINT</tt> attribute to ensure it wasn't following a junction or symbolic link. However, this check had a <abbr title="Time-of-Check to Time-of-Use">TOCTOU</abbr> problem &mdash; it was theoretically possible for the directory to be changed into a junction or symbolic link between the check and the deletion. We are not aware of any way to practically exploit the race condition, and this issue is only potentially relevant when other, untrusted users have write access to the temporary directory, which is not common. (Before Inno Setup 6.5, when Setup/Uninstall ran under the <tt>SYSTEM</tt> account, the world-writable <tt>C:\Windows\Temp</tt> directory was often used, but beginning in Inno Setup 6.5, <tt>C:\Windows\SystemTemp</tt> is used instead on Windows 11 and up-to-date Windows 10 systems.)</li>
 </ul>
-<p>We are also currently working on enabling Windows' RedirectionGuard in Setup and Uninstall in a future version.</p>
 <span class="head2">Other changes</span>
 <ul>
   <li>Compiler IDE:

@@ -5721,7 +5721,7 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
-<p>Otherwise, if a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightbuttons</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>clWhite</tt>.</p>
+<p>Otherwise, if a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightbuttons</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
 <p>To show only the background image and no other wizard images, set both <link topic="setup_wizardimagefile">WizardImageFile</link> and <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> to blank values. Alternatively set <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to for example <tt>150</tt> to make both those images partially transparent.</p>
 <p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
 <examples>
@@ -5801,13 +5801,13 @@ WizardBackImageOpacity=150
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>. Using <tt>clNone</tt> as the fill color keeps transparency.</p>
-<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clNone</tt>.<br/>
-Otherwise, if <link topic="setup_wizardimagefile">WizardImageFile</link> specifies a blank value, then this directive also defaults to <tt>clNone</tt>.<br/>
-Otherwise, if a custom wizard image is used, then this directive defaults to <tt>clWindow</tt>.<br/>
+<p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>. Using <tt>none</tt> as the fill color keeps transparency.</p>
+<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>none</tt>.<br/>
+Otherwise, if <link topic="setup_wizardimagefile">WizardImageFile</link> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
+Otherwise, if a custom wizard image is used, then this directive defaults to <tt>window</tt>.<br/>
 Otherwise, if custom style <tt>slate</tt> is used then this directive defaults to <tt>#bcd2e2</tt> (light grayish blue).<br/>
 Otherwise, if custom style <tt>zircon</tt> is used then this directive defaults to <tt>#d0eaee</tt> (light grayish cyan).<br/>
 Otherwise, if forced dark mode is used then this directive defaults to <tt>#2e3a3f</tt> (very dark grayish blue).<br/>
@@ -5826,19 +5826,19 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>. Using <tt>clNone</tt> as the fill color keeps transparency.</p>
-<p>If a custom background image is used via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clNone</tt>.<br/>
-Otherwise, if <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> specifies a blank value, then this directive also defaults to <tt>clNone</tt>.<br/>
-Otherwise, if a custom wizard image is used, then this directive defaults to <tt>clWindow</tt>.<br/>
-Otherwise, it defaults to <tt>clNone</tt>.</p>
+<p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>. Using <tt>none</tt> as the fill color keeps transparency.</p>
+<p>If a custom background image is used via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>none</tt>.<br/>
+Otherwise, if <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
+Otherwise, if a custom wizard image is used, then this directive defaults to <tt>window</tt>.<br/>
+Otherwise, it defaults to <tt>none</tt>.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageBackColorDynamicDark">
-<setupdefault><tt>clNone</tt></setupdefault>
+<setupdefault><tt>none</tt></setupdefault>
 <body>
 <p>Overrides <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
 <p>For all details see <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link>.</p>
@@ -5846,15 +5846,15 @@ Otherwise, it defaults to <tt>clNone</tt>.</p>
 </setuptopic>
 
 <setuptopic directive="WizardBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>clBlack</tt>, <tt>clMaroon</tt>, <tt>clGreen</tt>, <tt>clOlive</tt>, <tt>clNavy</tt>, <tt>clPurple</tt>, <tt>clTeal</tt>, <tt>clGray</tt>, <tt>clSilver</tt>, <tt>clRed</tt>, <tt>clLime</tt>, <tt>clYellow</tt>, <tt>clBlue</tt>, <tt>clFuchsia</tt>, <tt>clAqua</tt>, <tt>clWhite</tt>, <tt>clNone</tt>, <tt>clWindow</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</p>
-<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>clWindow</tt> and setting it to <tt>clNone</tt> is not allowed.<br/>
-Otherwise, it defaults to <tt>clNone</tt>.</p>
-<p>Using <tt>clWindow</tt> without also specifying a custom background image has no effect.</p>
-<p>Using <tt>clNone</tt> disables this feature, so native background colors will be used, as determined by the system or the custom style.</p>
-<p>If this feature is enabled, and the color is set to another value than <tt>clWindow</tt>, then all panels will become transparent. To also hide all bevels (horizontal lines) in Setup and Uninstall, enable <link topic="setup_wizardstyle">WizardStyle</link> modifier <tt>hidebevels</tt>.</p>
+<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>window</tt> and setting it to <tt>none</tt> is not allowed.<br/>
+Otherwise, it defaults to <tt>none</tt>.</p>
+<p>Using <tt>window</tt> without also specifying a custom background image has no effect.</p>
+<p>Using <tt>none</tt> disables this feature, so native background colors will be used, as determined by the system or the custom style.</p>
+<p>If this feature is enabled, and the color is set to another value than <tt>window</tt>, then all panels will become transparent. To also hide all bevels (horizontal lines) in Setup and Uninstall, enable <link topic="setup_wizardstyle">WizardStyle</link> modifier <tt>hidebevels</tt>.</p>
 <p>Additionally, if this feature is enabled but a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightbuttons</tt>.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>

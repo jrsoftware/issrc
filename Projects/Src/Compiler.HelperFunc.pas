@@ -135,20 +135,20 @@ const
 
 function StringToColor(const S: string): TColor;
 
-  function IdentToColor(const Ident: string; var Color: LongInt): Boolean;
+  function IdentToColor(Ident: string; var Color: Integer): Boolean;
   begin
+    if not Ident.StartsWith('cl') then
+      Ident := 'cl' + Ident;
     for var I := Low(Colors) to High(Colors) do
-      if CompareText(Colors[I].Name, Ident) = 0 then
-      begin
-        Result := True;
-        Color := LongInt(Colors[I].Value);
-        Exit;
+      if SameText(Colors[I].Name, Ident) then begin
+        Color := Integer(Colors[I].Value);
+        Exit(True);
       end;
     Result := False;
   end;
 
 begin
-  if not IdentToColor(S, Longint(Result)) then begin
+  if not IdentToColor(S, Integer(Result)) then begin
     var Hex := S;
     if (Length(Hex) = 7) and (Hex[1] = '#') then
       Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
