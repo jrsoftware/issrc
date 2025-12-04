@@ -821,8 +821,10 @@ begin
     custom styles they do. Recreate this 2-pixel space between the buttons when styled. Causes
     additional space on styles like Zircon which are like Windows 11, but that does not seem worth
     adding a new directive.  }
-  if LStyle <> nil then
-    Dec(X, 2);
+  if BackButton.IsCustomStyleActive then
+    Dec(X, 1);
+  if NextButton.IsCustomStyleActive then
+    Dec(X, 1);
   BackButton.Left := X;
 
   { Initialize wizard style - also see TUninstallProgressForm.Initialize and TTaskDialogForm.Create }
