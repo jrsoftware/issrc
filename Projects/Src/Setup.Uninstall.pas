@@ -574,8 +574,12 @@ begin
       var Handle: TStyleManager.TStyleServicesHandle;
       if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
         TStyleManager.SetStyle(Handle);
-        if not IsDarkInstallMode and (lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags) then
-          TNewButton.DontStyle := True;
+        if not IsDarkInstallMode then begin
+          if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
+            DontStyleBidiCtrls := True;
+          end else if SetupHeader.WizardControlStyling = wcsAllButButtons then
+            TNewButton.DontStyle := True;
+        end;
         CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
           (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
         if CustomWizardBackground then begin
@@ -863,6 +867,7 @@ begin
     SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
     SetupHeader.WizardBackColor := MessagesLangOptions.WizardBackColor;
     SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
+    SetupHeader.WizardControlStyling := MessagesLangOptions.WizardControlStyling;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));

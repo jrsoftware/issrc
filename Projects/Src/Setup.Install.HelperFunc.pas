@@ -445,12 +445,11 @@ begin
   MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
   MsgLangOpts.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }
   MsgLangOpts.WizardBackColorDynamicDark := SetupHeader.WizardBackColorDynamicDark;
+  MsgLangOpts.WizardControlStyling := SetupHeader.WizardControlStyling;
   if shWizardModern in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardModern);
   if shWizardBorderStyled in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardBorderStyled);
-  if shWizardLightButtonsUnstyled in SetupHeader.Options then
-    Include(MsgLangOpts.Flags, lfWizardLightButtonsUnstyled);
   if shWizardKeepAspectRatio in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardKeepAspectRatio);
   if shWizardBevelsHidden in SetupHeader.Options then

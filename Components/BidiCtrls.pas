@@ -8,10 +8,8 @@ unit BidiCtrls;
 
   Previously this unit had RTL-capable versions of standard controls
   
-  But now standard controls are RTL-capable already, and there's not much code left here
-
-  Define VCLSTYLES to include an improved version TButtonStyleHook.DrawButton for command
-  link buttons
+  But now standard controls are RTL-capable already, and the code left is mostly related
+  to VCL Styles, activated fully when VCLSTYLES is defined
 }
 
 interface
@@ -22,7 +20,10 @@ uses
   StdCtrls, ExtCtrls;
 
 type
-  TNewEdit = class(TEdit);
+  TNewEdit = class(TEdit)
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
 
   TNewMemo = class(TMemo);
 
@@ -64,8 +65,11 @@ type
     function AdjustHeight: Integer;
   end;
 
+var
+  DontStyleBidiCtrls: Boolean;
+
 procedure Register;
-  
+
 implementation
 
 uses
@@ -78,6 +82,15 @@ begin
     TNewButton, TNewCheckBox, TNewRadioButton]);
 end;
 
+{ TNewEdit }
+
+constructor TNewEdit.Create(AOwner: TComponent);
+begin
+  inherited;
+  if DontStyleBidiCtrls then
+    StyleName := TStyleManager.SystemStyleName;
+end;
+
 { TNewButton }
 
 class constructor TNewButton.Create;
@@ -88,7 +101,7 @@ end;
 constructor TNewButton.Create(AOwner: TComponent);
 begin
   inherited;
-  if FDontStyle then
+  if DontStyleBidiCtrls or FDontStyle then
     StyleName := TStyleManager.SystemStyleName;
 end;
 

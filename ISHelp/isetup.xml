@@ -5721,7 +5721,7 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
-<p>Otherwise, if a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightbuttons</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
+<p>Otherwise, if a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
 <p>To show only the background image and no other wizard images, set both <link topic="setup_wizardimagefile">WizardImageFile</link> and <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> to blank values. Alternatively set <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to for example <tt>150</tt> to make both those images partially transparent.</p>
 <p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
 <examples>
@@ -5855,7 +5855,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <p>Using <tt>window</tt> without also specifying a custom background image has no effect.</p>
 <p>Using <tt>none</tt> disables this feature, so native background colors will be used, as determined by the system or the custom style.</p>
 <p>If this feature is enabled, and the color is set to another value than <tt>window</tt>, then all panels will become transparent. To also hide all bevels (horizontal lines) in Setup and Uninstall, enable <link topic="setup_wizardstyle">WizardStyle</link> modifier <tt>hidebevels</tt>.</p>
-<p>Additionally, if this feature is enabled but a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightbuttons</tt>.</p>
+<p>Additionally, if this feature is enabled but a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightcontrols</tt>.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
 <link topic="setup_wizardstyle">WizardStyle</link></p></body>
@@ -5964,7 +5964,7 @@ WizardBackImageOpacity=150</pre></example>
 <setuptopic directive="WizardStyle">
 <keyword value="Dark mode" />
 <keyword value="Custom style" />
-<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>excludelightbuttons</tt> <tt>hidebevels</tt> <tt>includetitlebar</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces: <br/><tt>classic</tt> <tt>modern</tt><br/><tt>light</tt> <tt>dark</tt> <tt>dynamic</tt><br/><tt>polar</tt> <tt>slate</tt> <tt>windows11</tt> <tt>zircon</tt><br/><tt>excludelightbuttons</tt> <tt>excludelightcontrols</tt><br/><tt>hidebevels</tt><br/><tt>includetitlebar</tt></setupvalid>
 <setupdefault><tt>classic</tt></setupdefault>
 <body>
 <p>This directive controls the visual style and appearance of Setup and Uninstall.</p>
@@ -5989,6 +5989,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>Also supported are the following modifiers:</p>
 <ul>
 <li><tt>excludelightbuttons</tt>: Disables custom styling of all buttons (including command link buttons, as used in task dialogs) when a light style is active.</li>
+<li><tt>excludelightcontrols</tt>: Disables custom styling of all interactive controls (including buttons) when a light style is active, except when styling is required to achieve transparency.</li>
 <li><tt>hidebevels</tt>: Hides all bevels (horizontal lines) across Setup and Uninstall, except those in native system dialogs.</li>
 <li><tt>includetitlebar</tt>: Enables custom styling of both title bars and borders when a custom style (including the built-in custom dark style) is active. By default, the system's native light or dark title bar is used instead.</li>
 </ul>

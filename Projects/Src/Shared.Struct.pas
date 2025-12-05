@@ -66,8 +66,8 @@ type
     shCloseApplications, shRestartApplications, shAllowNetworkDrive,
     shForceCloseApplications, shAppNameHasConsts, shUsePreviousPrivileges,
     shUninstallLogging, shWizardModern, shWizardBorderStyled,
-    shWizardKeepAspectRatio, shWizardLightButtonsUnstyled,
-    shRedirectionGuard, shWizardBevelsHidden, shUnusedPadding = 56);
+    shWizardKeepAspectRatio, shRedirectionGuard, shWizardBevelsHidden,
+    shUnusedPadding = 56);
   { ^ Contains padding to raise the amount of flags to 57, ensuring the size of
       the set is 8 bytes (instead of less) in 32-bit builds. This prevents
       incompatibility with 64-bit builds, where the minimum size for a set with
@@ -97,6 +97,7 @@ type
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
   TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);
+  TSetupWizardControlStyling = (wcsAll, wcsAllButButtons, wcsOnlyRequired);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
@@ -138,6 +139,7 @@ type
     WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
     WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
     WizardImageOpacity, WizardBackImageOpacity: Byte;
+    WizardControlStyling: TSetupWizardControlStyling;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
@@ -431,8 +433,8 @@ type
     named TMessagesLangOptions because it is stored in the Setup.msg file,
     not because all options must be language-specific. }
   TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
-    lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardLightButtonsUnstyled,
-    lfWizardKeepAspectRatio, lfWizardBevelsHidden);
+    lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardKeepAspectRatio,
+    lfWizardBevelsHidden);
   TMessagesLangOptionsFlags = set of TMessagesLangOptionsFlag;
   TMessagesLangOptions = packed record
     ID: TMessagesLangOptionsID;
@@ -440,6 +442,7 @@ type
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardBackColor, WizardBackColorDynamicDark: Integer;
+    WizardControlStyling: TSetupWizardControlStyling;
     Flags: TMessagesLangOptionsFlags;
   end;
 
