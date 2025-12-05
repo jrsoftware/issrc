@@ -404,23 +404,31 @@ procedure TSetupForm.CreateWnd;
   end;
 
 begin
-  inherited;
-  if WM_QueryCancelAutoPlay <> 0 then
-    AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
+  { Updating StyleElements causes a RecreateWnd if Handle is allocated
+    which is why we update it before calling inherited. See also
+    related SetDarkTitleBar call below. }
+  if not (shWizardBorderStyled in SetupHeader.Options) then
+    StyleElements := StyleElements - [seBorder];
 
+  { DisableChildControlsStylesAsNeeded works both before and after
+    calling inherited. But it does require the child controls to have
+    no handle allocated, which is why it's in CreateWnd and not in
+    Create: in Create it can't be before inherited since it wouldn't
+    yet know about the children, and also not after since the
+    handles might be allocated. }
   if not IsDarkInstallMode and (SetupHeader.WizardControlStyling <> wcsAll) then
     DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
 
-  if not (shWizardBorderStyled in SetupHeader.Options) then begin
-    { SetDarkTitleBar also removes seBorder which disables styling of the titlebar and the border.
-      Note that removing seBorder in Create causes a small bit of space to the right of bevels for
-      some reason. Doing it here does not cause this problem. It's also here because SetDarkTitleBar
-      requires the handle of the form. }
+  inherited;
+
+  if WM_QueryCancelAutoPlay <> 0 then
+    AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
+
+  { SetDarkTitleBar requires Handle to be allocated, which is why we
+    we call it after calling inherited. See also related StyleElements
+    update above. }
+  if not (seBorder in StyleElements) then
     SetDarkTitleBar(Self, IsDarkInstallMode);
-    { SetDarkTitleBar is a noop on older versions of Windows }
-    if seBorder in StyleElements then
-      StyleElements := StyleElements - [seBorder];
-  end;
 
   { We don't use the Scaled property for scaling and this means the CurrentPPI property will not be
     set correctly. This causes problems when VCL code inspects it, for example in THintWindow.CalcHintRect
@@ -432,7 +440,7 @@ begin
   const PPI = GetPPI(Handle);
   SetCurrentPPI(PPI);
   SetControlsCurrentPPI(Self, PPI);
-  
+
   { Now that CurrentPPI of the form is set you must make sure that any controls you later parent to
     the form already have the same CurrentPPI, otherwise VCL will scale the controls. Currently this
     is done in:

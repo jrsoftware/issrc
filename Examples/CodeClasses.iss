@@ -519,7 +519,7 @@ begin
 
   if not IsUninstaller then begin
     BackImageButton := TNewButton.Create(ParentForm);
-    BackImageButton.Left := BackImageButton.Left + BackImageButton.Width + ScaleX(20);
+    BackImageButton.Left := AboutButton.Left + AboutButton.Width + ScaleX(2);
     BackImageButton.Top := CancelButton.Top;
     BackImageButton.Width := CancelButton.Width;
     BackImageButton.Height := CancelButton.Height;
