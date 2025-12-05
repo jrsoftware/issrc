@@ -873,7 +873,7 @@ TWizardForm = class(TSetupForm)
   property InstallingPage: TNewNotebookPage; read;
   property InfoAfterPage: TNewNotebookPage; read;
   property DiskSpaceLabel: TNewStaticText; read;
-  property DirEdit: TEdit; read;
+  property DirEdit: TNewEdit; read;
   property GroupEdit: TNewEdit; read;
   property NoIconsCheck: TNewCheckBox; read;
   property PasswordLabel: TNewStaticText; read;

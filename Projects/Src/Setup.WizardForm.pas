@@ -103,7 +103,7 @@ type
     FInstallingPage: TNewNotebookPage;
     FInfoAfterPage: TNewNotebookPage;
     FDiskSpaceLabel: TNewStaticText;
-    FDirEdit: TEdit;
+    FDirEdit: TNewEdit;
     FGroupEdit: TNewEdit;
     FNoIconsCheck: TNewCheckBox;
     FPasswordLabel: TNewStaticText;
@@ -266,7 +266,7 @@ type
     property InstallingPage: TNewNotebookPage read FInstallingPage;
     property InfoAfterPage: TNewNotebookPage read FInfoAfterPage;
     property DiskSpaceLabel: TNewStaticText read FDiskSpaceLabel;
-    property DirEdit: TEdit read FDirEdit;
+    property DirEdit: TNewEdit read FDirEdit;
     property GroupEdit: TNewEdit read FGroupEdit;
     property NoIconsCheck: TNewCheckBox read FNoIconsCheck;
     property PasswordLabel: TNewStaticText read FPasswordLabel;
