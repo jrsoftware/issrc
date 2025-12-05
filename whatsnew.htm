@@ -59,7 +59,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackImageFile</tt> and <tt>WizardBackImageFileDynamicDark</tt> to specify custom images to display as the background of wizard pages in Setup, but not in Uninstall.<br/>
       Supports specifying multiple files for high-quality results on all DPI settings.<br/>
       If you set this directive but a custom style is not specified by <tt>WizardStyle</tt>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightbuttons</tt> and <tt>hidebevels</tt>.<br/>
-      Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</li>
+      Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.<br/>
       <a href="https://jrsoftware.org/images/is-welcome-dark-backimage-org-150.png">Example screenshot of Setup using a background image in dark mode, at 150% DPI</a>.<br/>
       <a href="https://jrsoftware.org/images/is-welcome-backimage-org-150.png">Example screenshot of Setup using a background image in light mode, at 150% DPI</a>.<br/>
       <a href="https://jrsoftware.org/images/is-taskdialog-backcolor-org-125.png">Example screenshot of a task dialog using a background color, at 125% DPI</a>.
@@ -98,26 +98,28 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for another example.</li>
 </ul>
 
+<span class="head2">Security improvements</span>
+<p>Updating is recommended, even if you don't plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
+<ul>
+  <li>Setup and Uninstall now always try to enable <a href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">Windows RedirectionGuard</a> by default.<br/>
+      This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
+      Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
+      When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
+      RedirectionGuard status is logged, so you can verify whether the mitigation was active.</li>
+  <li><i>Experimental</i>: Added support for using a 64-bit version of the "Setup Loader" program by setting existing <tt>[Setup]</tt> section directive <tt>UseSetupLdr</tt> to <tt>x64</tt>.<br/>
+      Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
+      Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
+      The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</li>
+  </li>
+</ul>
+
 <span class="head2">Other changes</span>
 <ul>
-  <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</tt></li>
+  <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</li>
   <li>Compiler IDE:
   <ul>
     <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
     <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
-  </ul>
-  </li>
-  <li>Security improvements:
-  <ul>
-    <li>Setup and Uninstall now always try to enable <a href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">Windows RedirectionGuard</a> by default.<br/>
-        This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
-        Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
-        When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
-        RedirectionGuard status is logged, so you can verify whether the mitigation was active.</li>
-    <li><i>Experimental</i>: Added support for using a 64-bit version of the "Setup Loader" program by setting existing <tt>[Setup]</tt> section directive <tt>UseSetupLdr</tt> to <tt>x64</tt>.<br/>
-        Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
-        Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
-        The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</li>
   </ul>
   </li>
   <li>Other minor improvements.</li>
