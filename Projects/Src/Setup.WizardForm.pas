@@ -785,7 +785,7 @@ begin
 
   { Unlike other forms (which use only WizardBackColor and not WizardBackImageFile), we do not check
     for clWindow here. The compiler guarantees that if WizardBackColor (i.e., SetupHeader.BackColor)
-    equals clWindow, a background image is always present. This is because if a image was not set,
+    equals clWindow, a background image is always present. This is because if an image was not set,
     but WizardBackColor was clWindow, the compiler changes it to clNone, as documented.}
   if not CustomWizardBackground then
     MainPanel.ParentBackground := False;
