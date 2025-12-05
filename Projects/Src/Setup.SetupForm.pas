@@ -17,7 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontSize
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
-  -shWizardLightButtonsUnstyled in SetupHeader.Options
+  -SetupHeader.WizardControlStyling
   -shWizardBorderStyled in SetupHeader.Options
   -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
@@ -364,6 +364,7 @@ end;
 procedure TSetupForm.CreateWnd;
 
   procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl; const SystemStyleName: String);
+  { Caller must check SetupHeader.WizardControlStyling <> wcsAll }
   begin
     for var I := 0 to ParentCtl.ControlCount-1 do begin
       const Ctl = ParentCtl.Controls[I];
@@ -379,9 +380,14 @@ procedure TSetupForm.CreateWnd;
         DisableChildControlsStylesAsNeeded(WinCtl, SystemStyleName);
       end;
 
-      { Update self }
+      { Update self. Note that SetupHeader.WizardControlStyling is either wcsAllButButtons
+        or wcsOnlyRequired, so for buttons the style must always be disabled. }
       if Ctl is TButton then
-        Ctl.StyleName := SystemStyleName;
+        Ctl.StyleName := SystemStyleName
+      else if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
+        if Ctl is TEdit then
+          Ctl.StyleName := SystemStyleName;
+      end;
     end;
   end;
 
@@ -402,7 +408,7 @@ begin
   if WM_QueryCancelAutoPlay <> 0 then
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
 
-  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+  if not IsDarkInstallMode and (SetupHeader.WizardControlStyling <> wcsAll) then
     DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
 
   if not (shWizardBorderStyled in SetupHeader.Options) then begin
