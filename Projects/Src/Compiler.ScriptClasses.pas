@@ -281,7 +281,7 @@ begin
   end;
 end;
 
-procedure RegisterBidiCtrls_C(Cl: TPSPascalCompiler);
+procedure RegisterNewCtrls_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddClassN(Cl.FindClass('TEdit'), 'TNewEdit');
   Cl.AddClassN(Cl.FindClass('TMemo'), 'TNewMemo');
@@ -705,7 +705,7 @@ begin
   RegisterStartMenuFolderTreeView_C(Cl);
   RegisterBitmapButton_C(Cl);
   RegisterBitmapImage_C(Cl);
-  RegisterBidiCtrls_C(Cl);
+  RegisterNewCtrls_C(Cl);
 
   RegisterNewNotebook_C(Cl);
   RegisterNewNotebookPage_C(Cl);

@@ -24,7 +24,7 @@ uses
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
-  UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, BidiCtrls,
+  UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, NewCtrls,
   Shared.SetupTypes, Shared.CommonFunc.Vcl,
   Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.ScriptDlg, Setup.UninstallProgressForm;
 
@@ -198,7 +198,7 @@ begin
   end;
 end;
 
-procedure RegisterBidiCtrls_R(Cl: TPSRuntimeClassImporter);
+procedure RegisterNewCtrls_R(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TNewEdit);
   Cl.Add(TNewMemo);
@@ -496,7 +496,7 @@ begin
     RegisterStartMenuFolderTreeView_R(Cl);
     RegisterBitmapButton_R(Cl);
     RegisterBitmapImage_R(Cl);
-    RegisterBidiCtrls_R(Cl);
+    RegisterNewCtrls_R(Cl);
 
     RegisterNewNotebook_R(Cl);
     RegisterNewNotebookPage_R(Cl);

@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, ExtCtrls,
   NewProgressBar, NewCheckListBox, RichEditViewer, NewStaticText,
-  PasswordEdit, FolderTreeView, BitmapImage, NewNotebook, BidiCtrls,
+  PasswordEdit, FolderTreeView, BitmapImage, NewNotebook, NewCtrls,
   Shared.Struct, Shared.SetupMessageIDs,
   Setup.SetupForm, Setup.MainFunc;
 

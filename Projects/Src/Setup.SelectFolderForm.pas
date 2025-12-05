@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, FolderTreeView, NewStaticText, BidiCtrls;
+  Setup.SetupForm, StdCtrls, FolderTreeView, NewStaticText, NewCtrls;
 
 type
   TSelectFolderForm = class(TSetupForm)

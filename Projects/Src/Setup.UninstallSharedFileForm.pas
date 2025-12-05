@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, NewStaticText, BidiCtrls;
+  Setup.SetupForm, StdCtrls, NewStaticText, NewCtrls;
 
 type
   TUninstallSharedFileForm = class(TSetupForm)

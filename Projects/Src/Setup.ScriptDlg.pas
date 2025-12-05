@@ -16,7 +16,7 @@ uses
   Shared.Struct, Setup.WizardForm, Setup.DownloadFileFunc, Setup.ISSigVerifyFunc,
   Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
-  BidiCtrls, TaskbarProgressFunc;
+  NewCtrls, TaskbarProgressFunc;
 
 type
   TInputQueryWizardPage = class(TWizardPage)

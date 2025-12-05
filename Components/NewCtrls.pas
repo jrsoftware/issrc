@@ -1,4 +1,4 @@
-unit BidiCtrls;
+unit NewCtrls;
 
 {
   Inno Setup
@@ -8,8 +8,10 @@ unit BidiCtrls;
 
   Previously this unit had RTL-capable versions of standard controls
   
-  But now standard controls are RTL-capable already, and the code left is mostly related
-  to VCL Styles, activated fully when VCLSTYLES is defined
+  But now standard controls are RTL-capable already, and there's not much code left here
+
+  Define VCLSTYLES to include an improved version TButtonStyleHook.DrawButton for command
+  link buttons
 }
 
 interface
@@ -20,10 +22,7 @@ uses
   StdCtrls, ExtCtrls;
 
 type
-  TNewEdit = class(TEdit)
-  public
-    constructor Create(AOwner: TComponent); override;
-  end;
+  TNewEdit = class(TEdit);
 
   TNewMemo = class(TMemo);
 
@@ -33,15 +32,12 @@ type
 
   TNewButton = class(TButton)
   private
-    class var FDontStyle: Boolean;
     class constructor Create;
     class destructor Destroy;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
-    constructor Create(AOwner: TComponent); override;
     function AdjustHeightIfCommandLink: Integer;
-    class property DontStyle: Boolean write FDontStyle;
   end;
 
   TNewButtonStyleHook = class(TButtonStyleHook)
@@ -65,11 +61,8 @@ type
     function AdjustHeight: Integer;
   end;
 
-var
-  DontStyleBidiCtrls: Boolean;
-
 procedure Register;
-
+  
 implementation
 
 uses
@@ -82,27 +75,11 @@ begin
     TNewButton, TNewCheckBox, TNewRadioButton]);
 end;
 
-{ TNewEdit }
-
-constructor TNewEdit.Create(AOwner: TComponent);
-begin
-  inherited;
-  if DontStyleBidiCtrls then
-    StyleName := TStyleManager.SystemStyleName;
-end;
-
 { TNewButton }
 
 class constructor TNewButton.Create;
 begin
   TCustomStyleEngine.RegisterStyleHook(TNewButton, TNewButtonStyleHook);
-end;
-
-constructor TNewButton.Create(AOwner: TComponent);
-begin
-  inherited;
-  if DontStyleBidiCtrls or FDontStyle then
-    StyleName := TStyleManager.SystemStyleName;
 end;
 
 procedure TNewButton.CreateParams(var Params: TCreateParams);
