@@ -574,8 +574,6 @@ begin
       var Handle: TStyleManager.TStyleServicesHandle;
       if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
         TStyleManager.SetStyle(Handle);
-        if not IsDarkInstallMode and (lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags) then
-          TNewButton.DontStyle := True;
         CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
           (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
         if CustomWizardBackground then begin
@@ -855,6 +853,8 @@ begin
     LangOptions.DialogFontBaseScaleWidth := MessagesLangOptions.DialogFontBaseScaleWidth;
     LangOptions.DialogFontBaseScaleHeight := MessagesLangOptions.DialogFontBaseScaleHeight;
     LangOptions.RightToLeft := lfRightToLeft in MessagesLangOptions.Flags;
+    if lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags then
+      Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
     if lfWizardBorderStyled in MessagesLangOptions.Flags then
       Include(SetupHeader.Options, shWizardBorderStyled);
     if lfWizardKeepAspectRatio in MessagesLangOptions.Flags then

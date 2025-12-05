@@ -11,11 +11,13 @@ unit Setup.SetupForm;
   Also used by UninstallProgressForm and UninstallSharedFileForm!
 
   Requires following globals to be set:
+  -IsDarkInstallMode
   -LangOptions.RightToLeft
   -LangOptions.DialogFontName
   -LangOptions.DialogFontSize
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
+  -shWizardLightButtonsUnstyled in SetupHeader.Options
   -shWizardBorderStyled in SetupHeader.Options
   -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
@@ -94,9 +96,10 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes, WinXPanels,
-  BidiUtils, NewNotebook,
-  Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.MainFunc;
+  Generics.Collections, UITypes, WinXPanels, Themes,
+  BidiUtils, NewCtrls, NewNotebook,
+  Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl,
+  Setup.MainFunc, Setup.InstFunc;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -196,6 +199,28 @@ begin
     Result := Screen.PixelsPerInch;
 end;
 
+procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl; const SystemStyleName: String);
+begin
+  for var I := 0 to ParentCtl.ControlCount-1 do begin
+    const Ctl = ParentCtl.Controls[I];
+
+    if Ctl is TWinControl then begin
+      const WinCtl = Ctl as TWinControl;
+      { Sanity check that the control's handle isn't already allocated,
+        because otherwise it would run TWinControl.UpdateStyleElements
+        which does a RecreateWnd. Might work but isn't efficient. }
+      if WinCtl.HandleAllocated then
+        InternalError('Unexpected HandleAllocated');
+      { Update children }
+      DisableChildControlsStylesAsNeeded(WinCtl, SystemStyleName);
+    end;
+
+    { Update self }
+    if Ctl is TNewButton then
+      Ctl.StyleName := SystemStyleName;
+  end;
+end;
+
 { TSetupForm }
 
 constructor TSetupForm.Create(AOwner: TComponent);
@@ -211,6 +236,8 @@ begin
      CreateParams below. }
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
+  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
     don't want the form to be changing positions whenever its handle is
     recreated, so change it to the D7 and earlier default of poDesigned. }
@@ -228,6 +255,8 @@ begin
   inherited;
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
+  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;

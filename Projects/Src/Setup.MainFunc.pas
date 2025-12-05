@@ -3457,8 +3457,6 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
-            if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-              TNewButton.DontStyle := True; { Keep native buttons (including command links) }
             CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
             if CustomWizardBackground then begin
               TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
