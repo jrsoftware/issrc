@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, BidiCtrls;
+  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, NewCtrls;
 
 type
   TNewDiskForm = class(TSetupForm)

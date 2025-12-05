@@ -18,7 +18,7 @@ implementation
 
 uses
   Windows, SysUtils, Messages, Forms, Themes, Graphics,
-  PathFunc, BidiCtrls, UnsignedFunc, FormBackgroundStyleHook,
+  PathFunc, NewCtrls, UnsignedFunc, FormBackgroundStyleHook,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,

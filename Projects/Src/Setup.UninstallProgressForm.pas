@@ -14,7 +14,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Setup.SetupForm, StdCtrls, ExtCtrls, BitmapImage, NewProgressBar, NewStaticText,
-  NewNotebook, BidiCtrls;
+  NewNotebook, NewCtrls;
 
 type
   TUninstallProgressForm = class(TSetupForm)

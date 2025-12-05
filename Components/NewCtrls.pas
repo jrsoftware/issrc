@@ -1,4 +1,4 @@
-unit BidiCtrls;
+unit NewCtrls;
 
 {
   Inno Setup

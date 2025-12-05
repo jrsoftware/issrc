@@ -16,7 +16,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, WinXPanels, ExtCtrls, StdCtrls,
-  BidiCtrls, BitmapImage, NewStaticText,
+  NewCtrls, BitmapImage, NewStaticText,
   Setup.SetupForm;
 
 const

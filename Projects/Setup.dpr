@@ -77,7 +77,7 @@ uses
   Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  BidiCtrls in '..\Components\BidiCtrls.pas',
+  NewCtrls in '..\Components\NewCtrls.pas',
   BitmapButton in '..\Components\BitmapButton.pas',
   BitmapImage in '..\Components\BitmapImage.pas',
   FolderTreeView in '..\Components\FolderTreeView.pas',

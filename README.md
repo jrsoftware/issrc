@@ -86,11 +86,11 @@ If you intend to view or modify the Setup project's forms, you must install
 the following component units, which can be found in the [Components]
 directory.
 
-- BidiCtrls
 - BitmapButton
 - BitmapImage
 - FolderTreeView
 - NewCheckListBox
+- NewCtrls
 - NewNotebookReg
 - NewProgressBar
 - NewStaticText
