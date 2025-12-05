@@ -96,8 +96,8 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes, WinXPanels, Themes,
-  BidiUtils, NewCtrls, NewNotebook,
+  Generics.Collections, UITypes, WinXPanels, Themes, StdCtrls,
+  BidiUtils, NewNotebook,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   Setup.MainFunc, Setup.InstFunc;
 
@@ -199,28 +199,6 @@ begin
     Result := Screen.PixelsPerInch;
 end;
 
-procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl; const SystemStyleName: String);
-begin
-  for var I := 0 to ParentCtl.ControlCount-1 do begin
-    const Ctl = ParentCtl.Controls[I];
-
-    if Ctl is TWinControl then begin
-      const WinCtl = Ctl as TWinControl;
-      { Sanity check that the control's handle isn't already allocated,
-        because otherwise it would run TWinControl.UpdateStyleElements
-        which does a RecreateWnd. Might work but isn't efficient. }
-      if WinCtl.HandleAllocated then
-        InternalError('Unexpected HandleAllocated');
-      { Update children }
-      DisableChildControlsStylesAsNeeded(WinCtl, SystemStyleName);
-    end;
-
-    { Update self }
-    if Ctl is TNewButton then
-      Ctl.StyleName := SystemStyleName;
-  end;
-end;
-
 { TSetupForm }
 
 constructor TSetupForm.Create(AOwner: TComponent);
@@ -236,8 +214,6 @@ begin
      CreateParams below. }
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
-  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
   { In Delphi 2005 and later, Position defaults to poDefaultPosOnly, but we
     don't want the form to be changing positions whenever its handle is
     recreated, so change it to the D7 and earlier default of poDesigned. }
@@ -255,8 +231,6 @@ begin
   inherited;
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
-  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
-    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
@@ -389,6 +363,28 @@ end;
 
 procedure TSetupForm.CreateWnd;
 
+  procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl; const SystemStyleName: String);
+  begin
+    for var I := 0 to ParentCtl.ControlCount-1 do begin
+      const Ctl = ParentCtl.Controls[I];
+
+      if Ctl is TWinControl then begin
+        const WinCtl = Ctl as TWinControl;
+        { Sanity check that the control's handle isn't already allocated,
+          because otherwise it would run TWinControl.UpdateStyleElements
+          which does a RecreateWnd. Might work but isn't efficient. }
+        if WinCtl.HandleAllocated then
+          InternalError('Unexpected HandleAllocated');
+        { Update children }
+        DisableChildControlsStylesAsNeeded(WinCtl, SystemStyleName);
+      end;
+
+      { Update self }
+      if Ctl is TButton then
+        Ctl.StyleName := SystemStyleName;
+    end;
+  end;
+
   procedure SetControlsCurrentPPI(const Ctl: TWinControl; const PPI: Integer);
   begin
     for var I := 0 to Ctl.ControlCount-1 do begin
@@ -405,6 +401,10 @@ begin
   inherited;
   if WM_QueryCancelAutoPlay <> 0 then
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
+
+  if not IsDarkInstallMode and (shWizardLightButtonsUnstyled in SetupHeader.Options) then
+    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
+
   if not (shWizardBorderStyled in SetupHeader.Options) then begin
     { SetDarkTitleBar also removes seBorder which disables styling of the titlebar and the border.
       Note that removing seBorder in Create causes a small bit of space to the right of bevels for
