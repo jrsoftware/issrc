@@ -12,7 +12,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, RichEdit, ActiveX, Themes;
+  {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
+  StdCtrls, RichEdit, ActiveX;
 
 type
   IRichEditOleCallback = interface(IUnknown)
