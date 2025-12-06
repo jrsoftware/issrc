@@ -7,6 +7,12 @@ unit PathFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   This unit provides some path-related functions.
+
+  The string comparison functions (including PathCompare, PathHasSubstringAt,
+  PathSame, PathStartsWith, PathStrCompare) all ignore case by default, and
+  use a locale-independent "ordinal" comparison, which is important when
+  comparing filenames/paths. Despite the "Path" prefix, however, the functions
+  can be used to compare any kind of text, not just filenames/paths.
 }
 
 interface
@@ -18,7 +24,7 @@ function PathCharIsSlash(const C: Char): Boolean;
 function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
-function PathCompare(const S1, S2: String): Integer;
+function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
@@ -32,6 +38,8 @@ function PathExtractName(const Filename: String): String;
 function PathExtractPath(const Filename: String): String;
 function PathHasInvalidCharacters(const S: String;
   const AllowDriveLetterColon: Boolean): Boolean;
+function PathHasSubstringAt(const S, Substring: String; const Offset: Integer;
+  const IgnoreCase: Boolean = True): Boolean;
 function PathIsRooted(const Filename: String): Boolean;
 function PathLastChar(const S: String): PChar;
 function PathLastDelimiter(const Delimiters, S: string): Integer;
@@ -41,7 +49,11 @@ function PathPathPartLength(const Filename: String;
   const IncludeSlashesAfterPath: Boolean): Integer;
 function PathPos(Ch: Char; const S: String): Integer;
 function PathSame(const S1, S2: String): Boolean;
-function PathStartsWith(const S, AStartsWith: String): Boolean;
+function PathStartsWith(const S, AStartsWith: String;
+  const IgnoreCase: Boolean = True): Boolean;
+function PathStrCompare(const S1: PChar; const S1Length: Integer;
+  const S2: PChar; const S2Length: Integer;
+  const IgnoreCase: Boolean = True): Integer;
 function PathStrNextChar(const S: PChar): PChar;
 function PathStrPrevChar(const Start, Current: PChar): PChar;
 function PathStrScan(const S: PChar; const C: Char): PChar;
@@ -150,10 +162,13 @@ begin
   end;
 end;
 
-function PathCompare(const S1, S2: String): Integer;
-{ Compares two filenames, and returns 0 if they are equal. }
+function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
+{ Compares two strings (typically filenames, but they don't have to be) and
+  returns 0 for "equal", <0 for "less than", or >0 for "greater than".
+  An ordinal comparison is used, ignoring case by default. }
 begin
-  Result := CompareStr(PathLowercase(S1), PathLowercase(S2));
+  Result := PathStrCompare(PChar(S1), Length(S1), PChar(S2), Length(S2),
+    IgnoreCase);
 end;
 
 function PathDrivePartLength(const Filename: String): Integer;
@@ -454,6 +469,27 @@ begin
   Result := False;
 end;
 
+function PathHasSubstringAt(const S, Substring: String; const Offset: Integer;
+  const IgnoreCase: Boolean = True): Boolean;
+{ Returns True if Substring exists in S at the specified zero-based offset
+  from the beginning of S.
+  An ordinal comparison is used, ignoring case by default.
+  Passing an out-of-range Offset value is allowed/safe. False is returned if
+  Offset is negative or if checking for Substring at Offset would go beyond
+  the end of S (partially or fully).
+  If Substring is empty and Offset = Length(S), then True is returned because
+  that is not considered going *beyond* the end of S. }
+begin
+  if Offset < 0 then
+    Exit(False);
+  const SubstringLen = Length(Substring);
+  if Offset > Length(S) - SubstringLen then
+    Exit(False);
+
+  Result := (PathStrCompare(PChar(S) + Offset, SubstringLen, PChar(Substring),
+    SubstringLen, IgnoreCase) = 0);
+end;
+
 function PathLastChar(const S: String): PChar;
 { Returns pointer to last character in the string. Returns nil if the string is
   empty. }
@@ -543,19 +579,34 @@ begin
   Result := (Length(S1) = Length(S2)) and (PathCompare(S1, S2) = 0);
 end;
 
-function PathStartsWith(const S, AStartsWith: String): Boolean;
-{ Returns True if S starts with (or is equal to) AStartsWith. Uses path casing
-  rules. }
-var
-  AStartsWithLen: Integer;
+function PathStartsWith(const S, AStartsWith: String;
+  const IgnoreCase: Boolean = True): Boolean;
+{ Returns True if S starts with (or is equal to) AStartsWith.
+  An ordinal comparison is used, ignoring case by default. }
 begin
-  AStartsWithLen := Length(AStartsWith);
-  if Length(S) = AStartsWithLen then
-    Result := (PathCompare(S, AStartsWith) = 0)
-  else if (Length(S) > AStartsWithLen) and not PathCharIsTrailByte(S, AStartsWithLen+1) then
-    Result := (PathCompare(Copy(S, 1, AStartsWithLen), AStartsWith) = 0)
+  Result := PathHasSubstringAt(S, AStartsWith, 0, IgnoreCase);
+end;
+
+function PathStrCompare(const S1: PChar; const S1Length: Integer;
+  const S2: PChar; const S2Length: Integer;
+  const IgnoreCase: Boolean = True): Integer;
+{ Compares two strings and returns 0 for "equal", <0 for "less than", or
+  >0 for "greater than".
+  An ordinal comparison is used, ignoring case by default.
+  A length of -1 may be passed if a string is null-terminated; in that case,
+  the length is determined automatically. }
+begin
+  const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
+    Ord(IgnoreCase));
+  case CompareResult of
+    0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
+         [GetLastError]);
+    1..3: ;
   else
-    Result := False;
+    raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal result invalid (%d)',
+      [CompareResult]);
+  end;
+  Result := CompareResult - 2;
 end;
 
 function PathStrNextChar(const S: PChar): PChar;
