@@ -33,7 +33,7 @@ uses
   Shared.ConfigIniFile;
 
 type
-  TMRUItemCompareProc = function(const S1, S2: String): Integer;
+  TMRUItemCompareProc = function(const S1, S2: String): Boolean;
 
 procedure ClearMRUList(const MRUList: TStringList; const Section: String);
 var
@@ -76,7 +76,7 @@ var
 begin
   I := 0;
   while I < MRUList.Count do begin
-    if CompareProc(MRUList[I], AItem) = 0 then
+    if CompareProc(MRUList[I], AItem) then
       MRUList.Delete(I)
     else
       Inc(I);
@@ -132,7 +132,7 @@ begin
     { Ignore any exceptions. }
   end;
   try
-    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, PathCompare);
+    ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, PathSame);
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
@@ -159,7 +159,7 @@ begin
     { Ignore any exceptions. }
   end;
   try
-    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, CompareText);
+    ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, SameText);
   except
     { Handle exceptions locally; failure to save the MRU list should not be
       a fatal error. }
