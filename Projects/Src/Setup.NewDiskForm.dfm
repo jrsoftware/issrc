@@ -57,7 +57,7 @@ object NewDiskForm: TNewDiskForm
     TabOrder = 3
     OnClick = BrowseButtonClick
   end
-  object PathEdit: TEdit
+  object PathEdit: TNewPathEdit
     Left = 8
     Top = 96
     Width = 281

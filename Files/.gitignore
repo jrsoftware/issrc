@@ -1,8 +1,10 @@
 *.chm
 *.chw
 *.e32
+*.e64
 *.dll
 *.exe
 /ISCmplr.dll.issig
 /ISPP.dll.issig
 /Setup*.e32.issig
+/Setup*.e64.issig

@@ -21,8 +21,8 @@ uses
 type
   TInputQueryWizardPage = class(TWizardPage)
     private
-      FEdits: TList;
-      FPromptLabels: TList;
+      FEdits: TList<TPasswordEdit>;
+      FPromptLabels: TList<TNewStaticText>;
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
       function GetEdit(Index: Integer): TPasswordEdit;
@@ -64,15 +64,15 @@ type
   TInputDirWizardPage = class(TWizardPage)
     private
       FAppendDir: Boolean;
-      FButtons: TList;
-      FEdits: TList;
+      FButtons: TList<TNewButton>;
+      FEdits: TList<TNewPathEdit>;
       FNewFolderName: String;
-      FPromptLabels: TList;
+      FPromptLabels: TList<TNewStaticText>;
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
       procedure ButtonClick(Sender: TObject);
       function GetButton(Index: Integer): TNewButton;
-      function GetEdit(Index: Integer): TEdit;
+      function GetEdit(Index: Integer): TNewPathEdit;
       function GetPromptLabel(Index: Integer): TNewStaticText;
       function GetValue(Index: Integer): String;
       procedure SetValue(Index: Integer; const Value: String);
@@ -83,7 +83,7 @@ type
       destructor Destroy; override;
       function Add(const APrompt: String): Integer;
       property Buttons[Index: Integer]: TNewButton read GetButton;
-      property Edits[Index: Integer]: TEdit read GetEdit;
+      property Edits[Index: Integer]: TNewPathEdit read GetEdit;
       procedure Initialize(const SubCaption: String; const AppendDir: Boolean;
         const NewFolderName: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
@@ -95,16 +95,16 @@ type
 
   TInputFileWizardPage = class(TWizardPage)
     private
-      FButtons: TList;
-      FEdits: TList;
+      FButtons: TList<TNewButton>;
+      FEdits: TList<TNewPathEdit>;
       FInputFileDefaultExtensions: TStringList;
       FInputFileFilters: TStringList;
-      FPromptLabels: TList;
+      FPromptLabels: TList<TNewStaticText>;
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
       procedure ButtonClick(Sender: TObject);
       function GetButton(Index: Integer): TNewButton;
-      function GetEdit(Index: Integer): TEdit;
+      function GetEdit(Index: Integer): TNewPathEdit;
       function GetPromptLabel(Index: Integer): TNewStaticText;
       function GetValue(Index: Integer): String;
       procedure SetValue(Index: Integer; const Value: String);
@@ -115,7 +115,7 @@ type
       destructor Destroy; override;
       function Add(const APrompt, AFilter, ADefaultExtension: String): Integer;
       property Buttons[Index: Integer]: TNewButton read GetButton;
-      property Edits[Index: Integer]: TEdit read GetEdit;
+      property Edits[Index: Integer]: TNewPathEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
       property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
       property Values[Index: Integer]: String read GetValue write SetValue;
@@ -305,8 +305,8 @@ end;
 constructor TInputQueryWizardPage.Create(AOwner: TComponent);
 begin
   inherited;
-  FEdits := TList.Create;
-  FPromptLabels := TList.Create;
+  FEdits := TList<TPasswordEdit>.Create;
+  FPromptLabels := TList<TNewStaticText>.Create;
 end;
 
 destructor TInputQueryWizardPage.Destroy;
@@ -332,10 +332,8 @@ end;
 
 function TInputQueryWizardPage.Add(const APrompt: String;
   const APassword: Boolean): Integer;
-var
-  PromptLabel: TNewStaticText;
-  Edit: TPasswordEdit;
 begin
+  var PromptLabel: TNewStaticText;
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
     with PromptLabel do begin
@@ -351,7 +349,7 @@ begin
   end else
     PromptLabel := nil;
 
-  Edit := TPasswordEdit.Create(Self);
+  const Edit = TPasswordEdit.Create(Self);
   with Edit do begin
     Password := APassword;
     Top := FY;
@@ -369,12 +367,12 @@ end;
 
 function TInputQueryWizardPage.GetEdit(Index: Integer): TPasswordEdit;
 begin
-  Result := TPasswordEdit(FEdits[Index]);
+  Result := FEdits[Index];
 end;
 
 function TInputQueryWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
 begin
-  Result := TNewStaticText(FPromptLabels[Index]);
+  Result := FPromptLabels[Index];
 end;
 
 function TInputQueryWizardPage.GetValue(Index: Integer): String;
@@ -391,8 +389,6 @@ end;
 
 procedure TInputOptionWizardPage.Initialize(const SubCaption: String;
   const Exclusive, ListBox: Boolean);
-var
-  CaptionYDiff: Integer;
 begin
   FSubCaptionLabel := TNewStaticText.Create(Self);
   with SubCaptionLabel do begin
@@ -403,7 +399,7 @@ begin
     Caption := SubCaption;
   end;
   SetCtlParent(FSubCaptionLabel, Surface);
-  CaptionYDiff := WizardForm.AdjustLabelHeight(SubCaptionLabel);
+  const CaptionYDiff = WizardForm.AdjustLabelHeight(SubCaptionLabel);
 
   FCheckListBox := TNewCheckListBox.Create(Self);
   with FCheckListBox do begin
@@ -439,10 +435,8 @@ begin
 end;
 
 function TInputOptionWizardPage.GetSelectedValueIndex: Integer;
-var
-  I: Integer;
 begin
-  for I := 0 to FCheckListBox.Items.Count-1 do
+  for var I := 0 to FCheckListBox.Items.Count-1 do
     if (FCheckListBox.ItemLevel[I] = 0) and FCheckListBox.Checked[I] then begin
       Result := I;
       Exit;
@@ -456,10 +450,8 @@ begin
 end;
 
 procedure TInputOptionWizardPage.SetSelectedValueIndex(Value: Integer);
-var
-  I: Integer;
 begin
-  for I := 0 to FCheckListBox.Items.Count-1 do
+  for var I := 0 to FCheckListBox.Items.Count-1 do
     if FCheckListBox.ItemLevel[I] = 0 then
       FCheckListBox.Checked[I] := (I = Value);
 end;
@@ -474,9 +466,9 @@ end;
 constructor TInputDirWizardPage.Create(AOwner: TComponent);
 begin
   inherited;
-  FButtons := TList.Create;
-  FEdits := TList.Create;
-  FPromptLabels := TList.Create;
+  FButtons := TList<TNewButton>.Create;
+  FEdits := TList<TNewPathEdit>.Create;
+  FPromptLabels := TList<TNewStaticText>.Create;
 end;
 
 destructor TInputDirWizardPage.Destroy;
@@ -488,27 +480,22 @@ begin
 end;
 
 procedure TInputDirWizardPage.ButtonClick(Sender: TObject);
-var
-  I: Integer;
-  Edit: TEdit;
-  S: String;
 begin
-  I := FButtons.IndexOf(Sender);
-  if I <> -1 then begin
-    Edit := TEdit(FEdits[I]);
-    S := Edit.Text;
-    if ShowSelectFolderDialog(False, FAppendDir, S, FNewFolderName) then
-      Edit.Text := S;
+  if Sender is TNewButton then begin
+    const I = FButtons.IndexOf(Sender as TNewButton);
+    if I <> -1 then begin
+      const Edit = FEdits[I];
+      var S: String := Edit.Text;
+      if ShowSelectFolderDialog(False, FAppendDir, S, FNewFolderName) then
+        Edit.Text := S;
+    end;
   end;
 end;
 
 procedure TInputDirWizardPage.NextButtonClick(var Continue: Boolean);
-var
-  I: Integer;
-  Edit: TEdit;
 begin
-  for I := 0 to FEdits.Count-1 do begin
-    Edit := FEdits[I];
+  for var I := 0 to FEdits.Count-1 do begin
+    const Edit = FEdits[I];
     if not ValidateCustomDirEdit(Edit, True, True, True) then begin
       if WizardForm.Visible then
         Edit.SetFocus;
@@ -538,14 +525,10 @@ begin
 end;
 
 function TInputDirWizardPage.Add(const APrompt: String): Integer;
-var
-  ButtonWidth: Integer;
-  PromptLabel: TNewStaticText;
-  Edit: TEdit;
-  Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
+  const ButtonWidth = WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
+  var PromptLabel: TNewStaticText;
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
     with PromptLabel do begin
@@ -561,18 +544,17 @@ begin
   end else
     PromptLabel := nil;
 
-  Edit := TEdit.Create(Self);
+  const Edit = TNewPathEdit.Create(Self);
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
   end;
   SetCtlParentAtBack(Edit, Surface);
-  TryEnableAutoCompleteFileSystem(Edit.Handle);
 
   if PromptLabel <> nil then
     PromptLabel.FocusControl := Edit;
 
-  Button := TNewButton.Create(Self);
+  const Button = TNewButton.Create(Self);
   with Button do begin
     Left := SurfaceWidth-ButtonWidth;
     Top := Edit.Top-1;
@@ -595,17 +577,17 @@ end;
 
 function TInputDirWizardPage.GetButton(Index: Integer): TNewButton;
 begin
-  Result := TNewButton(FButtons[Index]);
+  Result := FButtons[Index];
 end;
 
-function TInputDirWizardPage.GetEdit(Index: Integer): TEdit;
+function TInputDirWizardPage.GetEdit(Index: Integer): TNewPathEdit;
 begin
-  Result := TEdit(FEdits[Index]);
+  Result := FEdits[Index];
 end;
 
 function TInputDirWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
 begin
-  Result := TNewStaticText(FPromptLabels[Index]);
+  Result := FPromptLabels[Index];
 end;
 
 function TInputDirWizardPage.GetValue(Index: Integer): String;
@@ -623,11 +605,11 @@ end;
 constructor TInputFileWizardPage.Create(AOwner: TComponent);
 begin
   inherited;
-  FButtons := TList.Create;
-  FEdits := TList.Create;
+  FButtons := TList<TNewButton>.Create;
+  FEdits := TList<TNewPathEdit>.Create;
   FInputFileDefaultExtensions := TStringList.Create;
   FInputFileFilters := TStringList.Create;
-  FPromptLabels := TList.Create;
+  FPromptLabels := TList<TNewStaticText>.Create;
 end;
 
 destructor TInputFileWizardPage.Destroy;
@@ -641,22 +623,20 @@ begin
 end;
 
 procedure TInputFileWizardPage.ButtonClick(Sender: TObject);
-var
-  I: Integer;
-  Edit: TEdit;
-  FileName: String;
 begin
-  I := FButtons.IndexOf(Sender);
-  if I <> -1 then begin
-    Edit := TEdit(FEdits[I]);
-    FileName := Edit.Text;
-    if (not IsSaveButton[I] and NewGetOpenFileName(RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]),
-        FileName, PathExtractPath(FileName), FInputFileFilters[I],
-        FInputFileDefaultExtensions[I], Surface.Handle)) or
-       (IsSaveButton[I] and NewGetSaveFileName(RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]),
-        FileName, PathExtractPath(FileName), FInputFileFilters[I],
-        FInputFileDefaultExtensions[I], Surface.Handle)) then
-      Edit.Text := FileName;
+  if Sender is TNewButton then begin
+    const I = FButtons.IndexOf(Sender as TNewButton);
+    if I <> -1 then begin
+      const Edit = FEdits[I];
+      var FileName: String := Edit.Text;
+      if (not IsSaveButton[I] and NewGetOpenFileName(RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]),
+          FileName, PathExtractPath(FileName), FInputFileFilters[I],
+          FInputFileDefaultExtensions[I], Surface.Handle)) or
+         (IsSaveButton[I] and NewGetSaveFileName(RemoveAccelChar(SetupMessages[msgButtonWizardBrowse]),
+          FileName, PathExtractPath(FileName), FInputFileFilters[I],
+          FInputFileDefaultExtensions[I], Surface.Handle)) then
+        Edit.Text := FileName;
+    end;
   end;
 end;
 
@@ -676,14 +656,10 @@ end;
 
 function TInputFileWizardPage.Add(const APrompt, AFilter,
   ADefaultExtension: String): Integer;
-var
-  ButtonWidth: Integer;
-  PromptLabel: TNewStaticText;
-  Edit: TEdit;
-  Button: TNewButton;
 begin
-  ButtonWidth := WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
+  const ButtonWidth = WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
+  var PromptLabel: TNewStaticText;
   if APrompt <> '' then begin
     PromptLabel := TNewStaticText.Create(Self);
     with PromptLabel do begin
@@ -699,18 +675,17 @@ begin
   end else
     PromptLabel := nil;
 
-  Edit := TEdit.Create(Self);
+  const Edit = TNewPathEdit.Create(Self);
   with Edit do begin
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
   end;
   SetCtlParentAtBack(Edit, Surface);
-  TryEnableAutoCompleteFileSystem(Edit.Handle);
 
   if PromptLabel <> nil then
     PromptLabel.FocusControl := Edit;
 
-  Button := TNewButton.Create(Self);
+  const Button = TNewButton.Create(Self);
   with Button do begin
     Left := SurfaceWidth-ButtonWidth;
     Top := Edit.Top-1;
@@ -735,17 +710,17 @@ end;
 
 function TInputFileWizardPage.GetButton(Index: Integer): TNewButton;
 begin
-  Result := TNewButton(FButtons[Index]);
+  Result := FButtons[Index];
 end;
 
-function TInputFileWizardPage.GetEdit(Index: Integer): TEdit;
+function TInputFileWizardPage.GetEdit(Index: Integer): TNewPathEdit;
 begin
-  Result := TEdit(FEdits[Index]);
+  Result := FEdits[Index];
 end;
 
 function TInputFileWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
 begin
-  Result := TNewStaticText(FPromptLabels[Index]);
+  Result := FPromptLabels[Index];
 end;
 
 function TInputFileWizardPage.GetValue(Index: Integer): String;
@@ -791,10 +766,8 @@ end;
 {--- OutputMsgMemo ---}
 
 procedure TOutputMsgMemoWizardPage.Initialize(const SubCaption: String; const Msg: AnsiString);
-var
-  Y: Integer;
 begin
-  Y := 0;
+  var Y := 0;
   if SubCaption <> '' then begin
     FSubCaptionLabel := TNewStaticText.Create(Self);
     with FSubCaptionLabel do begin
@@ -920,12 +893,10 @@ procedure OutputProgressWizardPageMessageBoxCallback(const Flags: LongInt; const
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =
     (tpsNormal, tpsError, tpsPaused);
-var
-  OutputProgressWizardPage: TOutputProgressWizardPage;
-  NewState: TNewProgressBarState;
 begin
-  OutputProgressWizardPage := TOutputProgressWizardPage(Param);
+  const OutputProgressWizardPage = TOutputProgressWizardPage(Param);
 
+  var NewState: TNewProgressBarState;
   if After then
     NewState := npbsNormal
   else if (Flags and MB_ICONSTOP) <> 0 then
@@ -981,14 +952,13 @@ begin
 end;
 
 function TDownloadWizardPage.InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
-var
-  Progress32, ProgressMax32: Integer;
 begin
   if FAbortedByUser then begin
     Log('Need to abort download.');
     Result := False;
   end else begin
     FMsg2Label.Caption := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(BaseName), Url);
+    var Progress32, ProgressMax32: Integer;
     if ProgressMax > MaxInt then begin
       Progress32 := Integer(Round((Progress / ProgressMax) * MaxInt));
       ProgressMax32 := MaxInt;
@@ -1203,8 +1173,6 @@ begin
 end;
 
 function TExtractionWizardPage.InternalOnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
-var
-  Progress32, ProgressMax32: Integer;
 begin
   if FAbortedByUser then begin
     Log('Need to abort extraction.');
@@ -1213,6 +1181,7 @@ begin
     { Unlike TDownloadWizardPage we don't log progress here. This is because 7zMain.c already logs output dirs and names. }
 
     FMsg2Label.Caption := IfThen(FShowArchiveInsteadOfFile, ArchiveName, FileName);
+    var Progress32, ProgressMax32: Integer;
     if ProgressMax > MaxInt then begin
       Progress32 := Integer(Round((Progress / ProgressMax) * MaxInt));
       ProgressMax32 := MaxInt;

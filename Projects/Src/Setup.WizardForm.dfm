@@ -350,7 +350,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             OnClick = DirBrowseButtonClick
           end
-          object FDirEdit: TNewEdit
+          object FDirEdit: TNewPathEdit
             Left = 0
             Top = 68
             Width = 397

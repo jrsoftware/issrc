@@ -106,11 +106,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
       Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
       When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
-      RedirectionGuard status is logged, so you can verify whether the mitigation was active.</li>
+      RedirectionGuard status is logged, so you can verify whether the mitigation was active.
+  </li>
   <li><i>Experimental</i>: Added support for using a 64-bit version of the "Setup Loader" program by setting existing <tt>[Setup]</tt> section directive <tt>UseSetupLdr</tt> to <tt>x64</tt>.<br/>
       Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
       Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
-      The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</li>
+      The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.
   </li>
 </ul>
 
@@ -123,8 +124,19 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
   </ul>
   </li>
+  <li><i>Fix:</i> File and directory controls in Setup should always use left-to-right reading order, even when a right-to-left language is active, but this has not been the case since version 6.5.2.</li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>Added support class <tt>TNewPathEdit</tt>, a <tt>TNewEdit</tt> descendant that always uses left-to-right reading order and provides filesystem autocompletion.<br/>
+        You should use <tt>TNewPathEdit</tt> instead of <tt>TNewEdit</tt> for file and directory controls, but using <tt>TInputFileWizardPage</tt> and <tt>TInputDirWizardPage</tt> instead is still recommended.
+    </li>
+  </ul>
+  </li>
   <li>Other minor improvements.</li>
 </ul>
+
+<details>
+<summary>Show history from <b>6.6.1</b> and earlier</summary>
 
 <p><a name="6.6.1"></a><span class="ver">6.6.1 </span><span class="date">(2025-11-20)</span></p>
 
@@ -286,7 +298,692 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <li>Minor improvements and fixes.</li>
 </ul>
 
-<p><a href="files/is6.5-whatsnew.htm">Inno Setup 6.5 Revision History</a></p>
+<details>
+<summary>Show history from <b>6.5.4</b> and earlier</summary>
+
+<p><a name="6.5.4"></a><span class="ver">6.5.4 </span><span class="date">(2025-09-24)</span></p>
+<ul>
+<li><i>Fix:</i> Pascal Scripting: Using event function <tt>CurInstallProgressChanged</tt> would result in runtime errors.</li>
+</ul>
+
+<p>Using Inno Setup commercially? Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
+
+<p><a name="6.5.3"></a><span class="ver">6.5.3 </span><span class="date">(2025-09-11)</span></p>
+<ul>
+<li><i>Fix:</i> Compiler IDE: The New Script Wizard would generate <tt>[Files]</tt> section entries with random values for the <tt>ExternalSize</tt> parameter.</li>
+</ul>
+
+<p><a name="6.5.2"></a><span class="ver">6.5.2 </span><span class="date">(2025-09-10)</span></p>
+
+<span class="head2">Improved graphics</span>
+<p>It's now possible to use .png files in Setup and Uninstall, and use of transparency has been increased.</p>
+<ul>
+<li>Added support for .png files to <tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.</li>
+<li>Improved support for stretching 32-bit .bmp files with transparency.</li>
+<li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized again using Setup section directives <tt>WizardImageBackColor</tt> and <tt>WizardSmallImageBackColor</tt>, which are no longer obsolete.<br/>
+    The default values of these directives match previously used colors, so the appearance of all images and icons remains unchanged by default.</li>
+<li>Pascal Scripting:
+<ul>
+  <li>Added new <tt>TPngImage</tt> support class.</li>
+  <li>Added new <tt>PngImage</tt> property to support classes <tt>TBitmapButton</tt> and <tt>TBitmapImage</tt>.</li>
+</ul>
+</li>
+</ul>
+<span class="head2">Removed main size limits</span>
+<p>The size limit of 2 GB for a single Setup.exe and for disk slices has been removed.</p>
+<ul>
+<li>The maximum size for a single Setup.exe without disk spanning has increased from almost 2 GB to nearly 4 GB, which is near the maximum Windows supports.<br/>
+    However, disk spanning is still recommended for large executables due to slow startup times imposed by Windows, especially when the executables are digitally signed.</li>
+<li>With disk spanning enabled, the maximum disk slice size has been increased from almost 2 GB to effectively unlimited (9223 PB).<br/>
+    The default disk slice size is still <tt>2100000000</tt>, which is almost 2 GB. To update, you can simply set <tt>[Setup]</tt> section directive <tt>DiskSliceSize</tt> to <tt>max</tt>.</li>
+</ul>
+<span class="head2">Improved downloading and archive extraction</span>
+<ul>
+<li>All download functionality now supports TLS 1.3 when available. Support for TLS 1.0 and 1.1 has been removed on all versions of Windows.</li>
+<li>Archive extraction now supports the RAR5 format. Requires <tt>Setup</tt> section directive <tt>ArchiveExtraction</tt> to be set to <tt>full</tt>.</li>
+<li>Compiler IDE: The New Script Wizard and the <i>Generate [Files] Entries</i> tool now support adding files to be downloaded. They will prompt you if the downloaded file is an archive that should be extracted.</li>
+<li><i>Fix:</i> Using <tt>[Files]</tt> section flags <tt>download</tt> and <tt>extractarchive</tt> on an entry that also has a <tt>Tasks</tt> parameter now works as expected.</li>
+</ul>
+<span class="head2">Other changes</span>
+<ul>
+<li>Compiler IDE:
+<ul>
+  <li>Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
+  <li>Added dark mode support for command line options /cc and /wizard.</li>
+</ul>
+</li>
+<li>Pascal Scripting: Added new <tt>HighContrastActive</tt> and <tt>LogFmt</tt> support functions.</li>
+<li>Minor tweaks and fixes.</li>
+</ul>
+
+<p><a name="6.5.1"></a><span class="ver">6.5.1 </span><span class="date">(2025-08-18)</span></p>
+<ul>
+<li>Downloads are now performed from a secondary thread, just as was first introduced for archive extraction in the previous version. This ensures Setup stays responsive, even if the system fails to report progress.</li>
+<li><i>Fix:</i> Using the /cc command line option of the Compiler IDE to compile a script no longer causes an error.</li>
+<li>Minor tweaks.</li>
+</ul>
+
+<p><a name="6.5.0"></a><span class="ver">6.5.0 </span><span class="date">(2025-08-12)</span></p>
+<span class="head2">Introducing commercial licenses</span>
+<p>Over the years, a number of users have expressed to us a desire to see their organizations support the ongoing development of Inno Setup, but have found that organization policies often make it difficult or impossible to approve a donation. By introducing a commercial license option, we aim to provide a straightforward and familiar way for organizations to contribute to the project's sustainability.</p>
+<p>Additionally, many organizations prefer having official licenses on record for all software they use, as it helps with audits and internal compliance checks.</p>
+<p>Finally, your support through license purchases directly enables us to improve and maintain Inno Setup.</p>
+<p>For these reasons we are introducing commercial licenses. If you or your organization benefit from using Inno Setup in a commercial context, we kindly ask that you purchase a license. Thank you for helping ensure the continued development of this software.</p>
+<p>Licenses can be purchased from our <a href="https://jrsoftware.org/isorder.php">new order page</a>, which includes more questions and answers. All commercial licenses are perpetual and require a single payment. They include two years of updates, major and minor. After this period, your current version will remain licensed and functional as-is.</p>
+<span class="head2">Improved archive extraction</span>
+<p>It's now possible to extract password-protected archives, multi-volume archives, and multiple extra archive formats such as .zip.</p>
+<p>Additionally, the <tt>[Files]</tt> section now supports archive extraction. Writing Pascal Script to extract an archive is no longer necessary.</p>
+<p>All of this is optional and does <i>not</i> increase the size of Setup if not used.</p>
+<ul>
+  <li>Updated <tt>[Setup]</tt> and <tt>[Files]</tt> section:
+  <ul>
+    <li>Added new <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> to specify the method of archive extraction used by new <tt>[Files]</tt> section flag <tt>extractarchive</tt> (see below) and support functions <tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt>:
+      <ul>
+        <li><tt>basic</tt> (default) is the method introduced by Inno Setup 6.4.0. It only supports .7z archives that are not password-protected.</li>
+        <li><tt>enhanced/nopassword</tt> is a new method and internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</li>
+        <li><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</li>
+        <li><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats (.7z, .zip, .rar, and more), although not as many as the original 7z.dll, to reduce its size. Additionally, it supports multi-volume archives.</li>
+      </ul>
+      New documentation topic <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a> has a table summarizing the differences between these methods.
+    </li>
+    <li>Added new <tt>[Files]</tt> section flag <tt>extractarchive</tt> and parameter <tt>ExtractArchivePassword</tt>, intended to enable the seamless integration and extraction of archives.
+      <ul>
+        <li>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the aforementioned <tt>ArchiveExtraction</tt> directive, that must not be set to <tt>basic</tt>.</li>
+        <li>Flag <tt>extractarchive</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. It is usually also combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</li>
+        <li>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</li>
+        <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with same other flags and parameters.</li>
+        <li>Example script:
+          <pre><code class="innosetup"><span class="sec">[Setup]</span>
+<span class="key">ArchiveExtraction</span>=enhanced/nopassword
+
+<span class="sec">[Files]</span>
+<span class="key">Source</span>: "<span class="con">{tmp}</span>\MyProg-ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"</span>; \
+  <span class="key">Flags</span>: external extractarchive recursesubdirs createallsubdirs ignoreversion</code></pre>
+        </li>
+      </ul>
+    </li>
+    <li>Archive extraction now honors the file system redirection state set by 64-bit install mode, entry flags, and support function <tt>EnableFsRedirection</tt>.</li>
+  </ul>
+  </li>
+  <li>Updated Pascal Scripting:
+  <ul>
+    <li>New support function <tt>ExtractArchive</tt> replaces the deprecated <tt>Extract7ZipArchive</tt>. <tt>ExtractArchive</tt> includes an additional parameter to optionally specify a password.</li>
+    <li><tt>ExtractArchive</tt> and <tt>CreateExtractionPage</tt> now overwrite read-only files which already exist in the destination directory without prompting the user. Previously this would cause an extraction error.</li>
+    <li>Added new <tt>MapArchiveExtensions</tt> support function to allow the extraction of archives with custom extensions, such as self-extracting archives.</li>
+    <li>Added new <tt>AddEx</tt> function to support class <tt>TExtractionWizardPage</tt> to add password-protected archives.</li>
+  </ul>
+  </li>
+</ul>
+<span class="head2">Improved file downloads</span>
+<p>The <tt>[Files]</tt> section now supports file downloads. Writing Pascal Script to download a file is no longer necessary and is in fact less efficient since it requires an intermediate temporary file which this new download support doesn't.</p>
+<ul>
+  <li>Updated <tt>[Files]</tt> section:
+  <ul>
+    <li>Added new <tt>[Files]</tt> section flag <tt>download</tt> and parameters <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt>, intended to enable the seamless integration of downloaded files.</li>
+    <li>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</li>
+    <li>Flag <tt>download</tt> must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags. Additionally, the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters must be set.<br/>
+        It can also be combined with the new <tt>issigverify</tt> flag (see below) for efficient and highly secure verification of the download file.<br/>
+        It cannot be combined with the <tt>comparetimestamp</tt>, <tt>recursesubdirs</tt> and <tt>skipifsourcedoesntexist</tt> flags.</li>
+    <li>File download otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of downloaded files and can be combined with same other flags and parameters.</li>
+    <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> step. The archive is then extracted normally during the actual installation process.<br/>
+        In this case, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</li>
+    <li>Example script:
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
+  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ExternalSize</span>: 7_000_000; <span class="key">Flags</span>: external download ignoreversion
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; \
+  <span class="key">DestName</span>: "MyProg.ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ExternalSize</span>: 275; <span class="key">Flags</span>: external download extractarchive ignoreversion</code></pre>
+    </li>
+    <li>Added example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
+  </ul>
+  </li>
+</ul>
+<span class="head2">New signature-verification capability</span>
+<p>Inno Setup now includes an integrated signature-verification capability that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system.</p>
+<p>Any type of file may be signed and verified, and creation of signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
+<p>Note, however, that these signatures cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority.</p>
+<p>A more detailed summary:</p>
+<ul>
+  <li>New <tt>[ISSigKeys]</tt> section:
+  <ul>
+    <li>Added a new optional <tt>[ISSigKeys]</tt> section for defining keys used by the compiler and Setup to verify file signatures.</li>
+    <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, parameter <tt>KeyID</tt> to double-check the key values, and parameter <tt>RuntimeID</tt> for runtime identification of the key.</li>
+    <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
+    <li>Example section:
+      <pre><code class="innosetup"><span class="sec">[ISSigKeys]</span>
+<span class="key">Name</span>: anna; <span class="key">KeyFile</span>: "anna.ispublickey"; <span class="key">Group</span>: exesigner
+<span class="key">Name</span>: ryan; <span class="key">KeyFile</span>: "ryan.ispublickey"; <span class="key">Group</span>: exesigner
+<span class="key">Name</span>: ivan; <span class="key">KeyFile</span>: "ivan.ispublickey"; <span class="key">Group</span>: docsigner
+<span class="com">; max is trusted for both exe and doc signing</span>
+<span class="key">Name</span>: max; <span class="key">KeyFile</span>: "max.ispublickey"; <span class="key">Group</span>: exesigner docsigner
+<span class="com">; the boss also has a key</span>
+<span class="key">Name</span>: bosskey; <span class="key">KeyFile</span>: "boss.ispublickey"</code></pre>
+    </li>
+  </ul>
+  </li>
+  <li>Updated <tt>[Files]</tt> section:
+  <ul>
+    <li>Added a new <tt>issigverify</tt> flag for enforcing cryptographic signature verification of source files using a key from the <tt>[ISSigKeys]</tt> section, enhancing security during both compilation and installation.</li>
+    <li>When used without the <tt>external</tt> flag, verification is performed during compilation, aborting if it fails. When used with the <tt>external</tt> flag, verification occurs during installation, ensuring the integrity of files as they are copied.</li>
+    <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
+    <li>Has little performance impact since verification occurs while source files are being compressed/copied and each file's contents are only read once; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read a second time.</li>
+    <li>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
+    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a> example script for an example.</li>
+    <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
+    <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
+    <li>Example section:
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "MyProg.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; <span class="key">Flags</span>: issigverify 
+<span class="key">Source</span>: "MyProg.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify
+<span class="key">Source</span>: "<span class="con">{src}</span>\Extra\*.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify external; \
+  <span class="key">Excludes</span>: "*.issig"
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; \
+  <span class="key">Flags</span>: issigverify external download ignoreversion; \
+  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">ExternalSize</span>: 7_000_000</code></pre>
+    </li>
+  </ul>
+  </li>
+  <li>New Inno Setup Signature Tool:
+  <ul>
+    <li>Added <tt>ISSigTool.exe</tt>, a new command-line utility designed to sign files using ECDSA P-256 cryptographic signatures.</li>
+    <li>Offers commands to sign and verify files, to export public keys and to generate private keys.</li>
+    <li>Example commands:
+      <pre><code>issigtool --key-file="MyKey.isprivatekey" generate-private-key
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
+issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
+    </li>
+  </ul>
+  </li>
+  <li>Updated documentation:
+  <ul>
+    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection">[ISSigKeys] section</a> topic.</li>
+    <li>Updated <a href="https://jrsoftware.org/ishelp/index.php?topic=filessection">[Files] section</a> topic.</li>
+    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issig">.issig Signatures: Introduction</a> topic.</li>
+    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a> topic.</li>
+  </ul>
+  </li>
+  <li>Other related changes:
+  <ul>
+    <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new [Setup] section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
+    <li>Added new <tt>[Files]</tt> section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
+        Example script:
+      <pre><code class="innosetup"><span class="sec">[Files]</span>
+<span class="key">Source</span>: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; \
+  <span class="key">DestName</span>: "ISCrypt.dll"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
+  <span class="key">Hash</span>: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
+  <span class="key">ExternalSize</span>: 2560; <span class="key">Flags</span>: external download ignoreversion</code></pre>
+    </li>
+    <li>Pascal Scripting:
+      <ul>
+        <li>Added new <tt>ISSigVerify</tt> and <tt>DownloadTemporaryFileWithISSigVerify</tt> support functions.</li>
+        <li>Added new <tt>AddWithISSigVerify</tt> and <tt>AddExWithISSigVerify</tt> functions to support class <tt>TDownloadWizardPage</tt>. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a> for an example.</li>
+      </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+<span class="head2">Other changes</span>
+<ul>
+  <li>Compiler IDE:
+    <ul>
+      <li>The <i>Find in Files</i> result list will now update its line numbers when you add or delete lines.</li>
+      <li>The <i>Highlight occurrences of current word</i> option (which is disabled by default) no longer highlights a section's directive names, parameter names, or Pascal keywords. The <i>Highlight occurrences of current selection</i> option (which is enabled by default) still does.</li>
+      <li>Dark mode is now supported throughout.</li>
+      <li>Improved support for high-contrast themes.</li>
+      <li>Improved support for screen readers.</li>
+    </ul>
+  </li>
+  <li><tt>[Setup]</tt> section directive <tt>Encryption</tt> can now be set to <tt>full</tt>, which will encrypt the entire installation and requires the password to be specified using the /PASSWORD= command line parameter.</li>
+  <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 256.</li>
+  <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
+  <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.</li>
+  <li>ISPP changes:
+    <ul>
+      <li>Added predefined variable <tt>__DIR__</tt>. Returns the directory of the current include file.</li>
+      <li>Renamed predefined variables <tt>__FILE__</tt> to <tt>__FILENAME__</tt> and <tt>ISPPCC_INVOKED</tt> to <tt>ISCC_INVOKED</tt>. The old names still work.</li>
+      <li>Renamed support function <tt>RemoveBackslash</tt> to <tt>RemoveBackslashUnlessRoot</tt>. The old name still works.</li>
+      <li><i>Fix:</i> The return value of support function <tt>ExtractFilePath</tt> did not always include a trailing backslash as intended.</li>
+    </ul>
+  </li>
+  <li>Pascal Scripting changes:
+    <ul>
+      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> for an example.</li>
+      <li>Added new <tt>InitializeBitmapButtonFromIcon</tt> and <tt>GetSHA256OfStream</tt> support functions.</li>
+      <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
+      <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
+    </ul>
+  </li>
+  <li>When available, Setup now retrieves the temporary directory path using the <tt>GetTempPath2</tt> API, which was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016 via monthly updates. When running under the SYSTEM account, <tt>GetTempPath2</tt> returns a private directory (typically <tt>C:\Windows\SystemTemp</tt>), potentially enhancing security. On older versions of Windows or systems that haven't been updated, Setup falls back to the original <tt>GetTempPath</tt> API. (This change adds defense-in-depth; it does not address a known vulnerability.)</li>
+  <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
+  <li>All official translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
+  <li>Inno Setup is now built using Delphi 12.3 Athens instead of Delphi 12.1 Athens. Thanks to Ian Barker from Embarcadero for providing us with a license!</li>
+  <li>Documentation improvements.</li>
+  <li>Minor tweaks.</li>
+</ul>
+
+<p>Some messages have been added and removed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/a1d6aecc">View differences in Default.isl</a>.)</p>
+<ul>
+  <li><b>New messages:</b>
+  <ul>
+    <li>DownloadingLabel2, ExtractingLabel.</li>
+    <li>ArchiveIncorrectPassword, ArchiveIsCorrupted, ArchiveUnsupportedFormat.</li>
+    <li>RetryCancelSelectAction, RetryCancelRetry, RetryCancelCancel.</li>
+    <li>StatusDownloadFiles.</li>
+    <li>SourceVerificationFailed, VerificationSignatureDoesntExist, VerificationSignatureInvalid, VerificationKeyNotFound, VerificationFileNameIncorrect, VerificationFileTagIncorrect, VerificationFileSizeIncorrect, VerificationFileHashIncorrect.</li>
+    <li>ErrorDownloading, ErrorExtracting.</li>
+  </ul>
+  </li>
+  <li><b>Removed messages:</b>
+  <ul>
+    <li>ErrorFileHash1, ErrorFileHash2.</li>
+    <li>DownloadingLabel, ExtractionLabel.</li>
+  </ul>
+  </li>
+</ul>
+
+<p>Note: The official <a href="https://raw.github.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Icelandic.isl">Icelandic</a> translation has been reclassified as unofficial due to the absence of a maintainer.</p>
+
+<details>
+<summary>Show history from <b>6.4.3</b> and earlier</summary>
+
+<p><a name="6.4.3"></a><span class="ver">6.4.3 </span><span class="date">(2025-05-03)</span></p>
+<ul>
+  <li>Compiler IDE change: The editor now restores selections on undo and redo.</li>
+  <li>Inno Setup now includes a new command-line tool, ISSigTool.exe. This tool is designed to sign files using ECDSA P-256 cryptographic signatures. Compil32, ISCC, and ISCmplr use these signatures to verify a number of DLL files before loading them. This is a &quot;technology preview&quot; that is subject to change (e.g., any signatures you create now may have to be recreated when upgrading to the next version).<br />Note: ISSigTool.exe does not replace Microsoft's signtool.exe in any way and is in fact not related to Authenticode Code Signing at all.</li>
+  <li><i>Fix:</i> Autocomplete support for parameter names in the <tt>[Components]</tt> and <tt>[Dirs]</tt> sections was broken since 6.1.1.</li>
+  <li><i>Fix:</i> Pascal Scripting support function <tt>Extract7ZipArchive</tt> which was introduced by 6.4.0 would fail with error 11 on older versions of Windows, at least Windows 8.1 and Windows Server 2016.</li>
+  <li>The maximum width of all task dialogs was increased by about 50%, which helps to keep long paths from being truncated with ellipses. This was done by setting Windows' <tt>TDF_SIZE_TO_CONTENT</tt> flag.</li>
+  <li>Minor tweaks and documentation improvements.</li>
+</ul>
+
+<p><a name="6.4.2"></a><span class="ver">6.4.2 </span><span class="date">(2025-03-12)</span></p>
+<ul>
+  <li>Added <tt>[Setup]</tt> section directive <tt>CloseApplicationsFilterExcludes</tt>.</li>
+  <li>Inno Setup is now built using Delphi 12.1 Athens instead of Delphi 11.3 Alexandria.</li>
+  <li>Inno Setup is now signed using a new code signing certificate.</li>
+</ul>
+
+<p><a name="6.4.1"></a><span class="ver">6.4.1 </span><span class="date">(2025-02-12)</span></p>
+<p><span class="head2">Compiler IDE changes</span></p>
+<ul>
+  <li>Added mouseover tooltips for all Pascal Scripting support functions and class members showing their prototype. Always shows all classes' members instead of just those of the current object's class.</li>
+  <li>Autocompletion lists now use the same font as the editor.</li>
+  <li><i>Fix:</i> When the IDE was started for the first time on a system with a DPI setting over 100%, the editor's initial font size was larger than expected.</li>
+</ul>
+<p><span class="head2">Other changes</span></p>
+<ul>
+  <li>{reg:...} constants can now also embed REG_DWORD-type registry values.</li>
+  <li><i>Fix:</i> In 6.4.0, using &quot;Shift+&quot; in a <tt>HotKey</tt> parameter in the [Icons] section didn't work and required &quot;Shift&quot; instead, so for example &quot;Ctrl+ShiftM&quot; instead of &quot;Ctrl+Shift+M&quot;.</li>
+  <li><i>Fix:</i> In 6.4.0, a custom form shown using <tt>[Code]</tt> didn't have a taskbar button if Setup's wizard was not visible at the time.</li>
+  <li>Added official Arabic translation.</li>
+  <li>Some minor tweaks and improvements.</li>
+</ul>
+
+<p><a name="6.4.0"></a><span class="ver">6.4.0 </span><span class="date">(2025-01-09)</span></p>
+<p><span class="head2">Compiler IDE changes</span></p>
+<p>Updated the Scintilla editor component used by the Compiler IDE to the latest version.</p>
+<p>Multiple selection editing has been improved:</p>
+<ul>
+  <li>Added new <i>Add Next Occurrence</i> menu item to the <i>Edit</i> menu to add the next occurrence of the current word or selected text as an additional selection (Shift+Alt+. or Ctrl+D, see below).</li>
+  <li>Added new <i>Select All Occurrences</i> menu item to the <i>Edit</i> menu to select all occurrences of the current word or selected text (Shift+Alt+; or Ctrl+Shift+L).</li>
+  <li>Added new <i>Select All Find Matches</i> menu item to the <i>Edit</i> menu to select all matches of the last find text (Alt+Enter).<br />Additionally, the <i>Find</i> (Ctrl+F) and <i>Replace</i> (Ctrl+H) dialogs now both support being closed by Alt+Enter to directly select all matches.</li>
+  <li>Added shortcuts to add a cursor or selection up or down (Ctrl+Alt+Up and Ctrl+Alt+Down). For multi-line selections this extends the selection up or down and never shrinks.</li>
+  <li>Added shortcut to add cursors to line ends (Shift+Alt+I). Behaves the same as in Visual Studio Code, so for example does nothing if all selections are empty.</li>
+  <li>Added shortcuts to add a word or line as an additional selection (Ctrl+Double Click and Ctrl+Triple Click or Alt+Double Click and Alt+Triple Click).</li>
+  <li>Added shortcut to remove a selection by clicking it (Ctrl+Click or Alt+Click).</li>
+  <li>Multiple selection now works over Left, Right, Up, Down, Home and End navigation and selection commands.</li>
+  <li>Multiple selection now works over word and line deletion commands, and line end insertion.</li>
+  <li>Multiple selection now works better with Copy and Paste commands.</li>
+  <li>Left, Right, etc. navigation with rectangular selection is now allowed.</li>
+  <li>The Find and Replace dialogs and the tools from the <i>Tools</i> menu which generate script text now all work better with multiple selections present.</li>
+</ul>
+<p>Other editor changes:</p>
+<ul>
+  <li>Added support for Visual Studio Code-style editor shortcuts, like Ctrl+D to Add Next Occurrence, Ctrl+Shift+K to delete a line and Alt+Click to add an additional cursor or remove a selection.<br />To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Keys</i> option in the <i>Editor</i> group to <i>Visual Studio Code</i>.<br />The updated <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic lists all differences with the classic keyboard and mouse shortcuts.</li>
+  <li>Only if Visual Studio Code-style editor shortcuts have been activated: Added shortcuts to copy line down (Shift+Alt+Down) and to indent or unindent lines (Ctrl+] and Ctrl+[).</li>
+  <li>Added parameter hints for all Pascal Scripting support functions for quick reference to the function's parameter names, types, and order. Parameter hints can be invoked manually by pressing Ctrl+Shift+Space or automatically by using the new <i>Invoke parameter hints automatically</i> option which is enabled by default.</li>
+  <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
+  <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the current object's class.</li>
+  <li>Added autocompletion support for all Pascal Scripting event function parameters. Always shows all parameters instead of just those of the current event function.</li>
+  <li>Added autocompletion support for the [Messages] section.</li>
+  <li>Improved autocompletion support for all Flags parameters: now works for multiple flags instead of for the first only.</li>
+  <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
+  <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
+  <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
+  <li>The editor can now be scrolled horizontally instead of vertically by holding the Shift key while rotating the mouse wheel. Horizontal scroll wheels are now also supported.</li>
+  <li>Cut (Ctrl+X or Shift+Delete) and Copy (Ctrl+C or Ctrl+Insert) now cut or copy the entire line if there's no selection, consistent with most other modern editors.</li>
+  <li>Added new shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to toggle line comment (Ctrl+/).</li>
+  <li>Added new shortcut and menu item to the <i>Edit</i> menu to go to matching brace (Ctrl+Shift+\).</li>
+  <li>Moved the <i>Word Wrap</i> option to the <i>View</i> menu and added a shortcut for it (Alt+Z).</li>
+  <li>Added a right-click popup menu to the editor's gutter column for breakpoints.</li>
+  <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
+  <li>Added new <i>Show whitespace</i> option. Disabled by default.</li>
+  <li>Improved brace highlighting.</li>
+  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
+</ul>
+<p>Other Compiler IDE changes:</p>
+<ul>
+  <li>Shortcuts Alt+Left and Alt+Right now always navigate back and forward even if Visual Studio-style menu shortcuts have been activated.<br />Because of this Alt+Right can no longer be used to initiate auto complete, instead the existing Ctrl+Space or Ctrl+I alternatives must be used.</li>
+  <li>Moved the list of recently opened files into a new <i>Open Recent</i> submenu of the <i>Files</i> menu.</li>
+  <li>Added new <i>Use Regular Expressions</i> option to the <i>Edit</i> menu to enable or disable the use of regular expressions for all find and replace operations and added a shortcut for it (Ctrl+Alt+R or Alt+R). Also added a small panel to the statusbar to indicate the current state.</li>
+  <li>The Find and Replace dialogs now support using Shift+Enter to temporarily search in the opposite direction.</li>
+  <li>Added shortcuts to select a tab (Ctrl+1 through Ctrl+9).</li>
+  <li>Added alternative shortcut for the <i>Compile</i> menu item in the <i>Build</i> menu (Shift+F9 or F7).</li>
+  <li>Added shortcut to the <i>Options</i> menu item in the <i>Tools</i> menu (Ctrl+,).</li>
+  <li>Removed the length limitation when entering a Sign Tool command and increased control height.</li>
+  <li>Added a banner which is displayed to each user after each update and links to this revision history.</li>
+  <li>Enabled dark mode support for the menus on Windows 11 Version 24H2 (2024 Update).</li>
+</ul>
+<p><span class="head2">Other changes</span></p>
+<ul>
+  <li>Updated the LZMA SDK used by Inno Setup to the latest version, increasing the speed of LZMA and LZMA2 compression (by 10% in a test with default settings) without changing the compression ratio. Compression memory requirements have increased by about 4%. This also made it possible to add support for extracting 7-Zip archives, see below.</li>
+  <li>Updated the encryption algorithm and key derivation function used by Inno Setup to XChaCha20 and PBKDF2-HMAC-SHA256 respectively, increasing security. This code is built-in: the separate ISCrypt.dll "encryption module" is no longer used and will be automatically deleted when you update.</li>
+  <li>Added <tt>[Setup]</tt> section directive <tt>EncryptionKeyDerivation</tt> to change the number of PBKDF2-HMAC-SHA256 iterations to use from the default of 200000 to another value.</li>
+  <li>Replaced all remaining use of MD5 and SHA-1 hashes with SHA-256 hashes, without removing the MD5 and SHA-1 Pascal Scripting and ISPP support functions.</li>
+  <li>At long last, Setup's wizard window now shows a thumbnail image on its taskbar button, and animates correctly when minimized and restored. As part of this work, support for the long-deprecated <tt>[Setup]</tt> section directive <tt>WindowVisible</tt>, which was used to enable a 1990s-style blue gradient background behind the wizard window, has been dropped. For the same reason Pascal Scripting support object <tt>MainForm</tt> has been removed.</li>
+  <li>The aspect ratio of Setup's large and small wizard images (as specified by <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>) is now maintained when the window is scaled. Previously, depending on the font and font size used, they could have appeared horizontally stretched or squished.</li>
+  <li>The size of the small wizard image area has been extended to 58&times;58 (at standard DPI with the default font). Previous versions used a non-square 55&times;58 size, which made the default image look slightly stretched.</li>
+  <li>When disk spanning is enabled and Setup cannot find the needed disk slice file (e.g., <tt>setup-2.bin</tt>) in the source directory, it no longer automatically searches for it in a directory named <tt>DISKx</tt> one level up, where <tt>x</tt> is the disk number. Though consistent with old installers from the 16-bit era, this behavior wasn't documented.</li>
+  <li>The New Script Wizard now sets <tt>UninstallDisplayIcon</tt> when an .exe is chosen as the main executable file.</li>
+  <li>Merged the Inno Setup Preprocessor documentation into the main documentation instead of being separate.</li>
+  <li>Added a dark mode version of the documentation, automatically used by the Compiler IDE if a dark theme is chosen.</li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Added new <tt>Extract7ZipArchive</tt> support function to extract a 7-Zip archive, based on the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov. See the new <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">help topic</a> for information about its limitations.<br />Added new <tt>CreateExtractionPage</tt> support function to easily show the extraction progress to the user.</li>
+    <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
+    <li>Added new <tt>StringJoin</tt>, <tt>StringSplit</tt>, and <tt>StringSplitEx</tt> support functions.</li>
+    <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>
+    <li>Added new <tt>NewFolderName</tt> property to support class <tt>TInputDirWizardPage</tt> update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
+    <li>Added new <tt>PopupMode</tt> and <tt>PopupParent</tt> properties to support class <tt>TForm</tt>.</li>
+    <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
+    <li>Renamed the <tt>FileCopy</tt> support function to <tt>CopyFile</tt>. The old name is still supported, but it is recommended to update your scripts to the new name and the compiler will issue a warning if you don't.</li>
+    <li>Fixed support function <tt>TStream.CopyFrom</tt> by adding a <tt>BufferSize</tt> parameter which was required but missing. Using <tt>$100000</tt> as the value is recommended.</li>
+    <li>Condensed the logging of DLL function imports.</li>
+    <li>Added new <tt>Debugging</tt> support function.</li>
+  </ul>
+  </li>
+  <li>ISPP change: Added support functions <tt>GetSHA256OfFile</tt>, <tt>GetSHA256OfString</tt>, and <tt>GetSHA256OfUnicodeString</tt>.</li>
+  <li>Inno Setup's Delphi <a href="https://github.com/jrsoftware/issrc" target="_blank">source code</a> has been reorganized to use unit scope names and additionally various units have been renamed for clarity. This makes it a lot easier to get started with working with the Inno Setup source code and making contributions, even with the free <a href="https://www.embarcadero.com/products/delphi/starter/free-download">Delphi Community Edition</a>.</li>
+  <li>Added official Swedish and Tamil translations.</li>
+  <li>Various tweaks and improvements.</li>
+</ul>
+
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Sergii Leonov, John Stevenson, and jogo- for their contributions!</p>
+
+<p>Thanks to Neil Hodgson and Igor Pavlov for their continued work on Scintilla and the LZMA SDK!</p>
+
+<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/d18bab1c9234aa8bba6c8e277121e562724d331c">View differences in Default.isl</a>.)</p>
+<ul>
+  <li><b>New messages:</b>
+  <ul>
+    <li>ExtractionLabel, ButtonStopExtraction, StopExtraction, ErrorExtractionAborted, ErrorExtractionFailed.</li>
+  </ul>
+  </li>
+</ul>
+
+<p>Note: The official Icelandic translation has not yet been updated for these changes.</p>
+
+<details>
+<summary>Show history from <b>6.3.3</b> and earlier</summary>
+
+<p><a name="6.3.3"></a><span class="ver">6.3.3 </span><span class="date">(2024-07-12)</span></p>
+<ul>
+  <li>Improved support for ASLR.</li>
+</ul>
+
+<p><a name="6.3.2"></a><span class="ver">6.3.2 </span><span class="date">(2024-06-28)</span></p>
+<ul>
+  <li>Pascal Scripting change: Fixed support function <tt>TStream.Seek</tt>.</li>
+</ul>
+
+<p><a name="6.3.1"></a><span class="ver">6.3.1 </span><span class="date">(2024-06-10)</span></p>
+<ul>
+  <li>Fixed Compiler IDE startup error on systems with very high DPI.</li>
+</ul>
+
+<p><a name="6.3.0"></a><span class="ver">6.3.0 </span><span class="date">(2024-06-09)</span></p>
+<p><span class="head2">Support for UTF-8 encoded files improved</span></p>
+<ul>
+  <li>Added support for UTF-8 encoded files without a BOM for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
+  <li>Compiler IDE changes:
+  <ul>
+  <li>New script files are now saved as UTF-8 without a BOM by default, 
+bringing the IDE into line with most other text editors. Existing files 
+are still saved as they were until the save encoding is changed manually
+ using the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
+  <li>Added new <i>UTF-8 with BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu to save new files with a BOM anyway.</li>
+  </ul>
+  </li>
+  <li>Pascal Scripting changes:
+  <ul>
+    <li>Support function <tt>LoadStringsFromFile</tt> now also supports UTF-8 encoded files without a BOM.</li>
+    <li>Added new <tt>SaveStringsToUTF8FileWithoutBOM</tt> support function.</li>
+  </ul>
+  </li>
+  <li>ISPP change: preprocessor output saved by <tt>SaveToFile</tt> is now always saved as UTF-8 without a BOM.</li>
+</ul>
+<p><span class="head2">Support for Arm64 systems improved, and related enhancements</span></p>
+<ul>
+  <li>Setup now officially supports the installation of x64 apps on 
+Arm64 Windows 11 systems, which are able to run x64 binaries via 
+emulation. To enable your x64 app installers to run properly on Arm64 
+Windows 11, some minor changes may be needed in your scripts. Most 
+importantly:
+  <ol>
+    <li>In <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt>, change any use of <tt>x64</tt> to <tt>x64compatible</tt>.</li>
+    <li>In <tt>Check</tt> parameters and <tt>[Code]</tt>, change any use of <tt>IsX64</tt> to <tt>IsX64Compatible</tt>.</li>
+    <li>In <tt>[Code]</tt>, if there are any <tt>ProcessorArchitecture = paX64</tt> comparisons, replace them with calls to <tt>IsX64Compatible</tt>.</li>
+  </ol>
+  <div class="limargins">The key difference between <tt>x64</tt>/<tt>IsX64</tt> and the new <tt>x64compatible</tt>/<tt>IsX64Compatible</tt> is that the latter matches both x64 Windows and Arm64 Windows 11.</div>
+  In most cases, <b>you should make the above changes</b>, because otherwise, users on Arm64 systems may not be able to run your installers. For example, an <tt>ArchitecturesAllowed=x64</tt>
+ setting will only allow the installer to run on x64 Windows — not on 
+Arm64 Windows 11. Or, if you ship x86 and x64 versions of your app in 
+the same installer, the 32-bit x86 version may be chosen instead of the 
+expected x64 version when running on Arm64 Windows 11.</li>
+  <li>The <tt>[Setup]</tt> section directives <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> have been enhanced:
+  <ul>
+    <li>Six new architecture identifiers have been introduced. Briefly:
+    <ul>
+      <li><tt>arm32compatible</tt> matches systems capable of running 32-bit Arm binaries.</li>
+      <li><tt>x64compatible</tt> matches systems capable of running x64 binaries.</li>
+      <li><tt>x64os</tt> matches systems running x64 Windows only. (Equivalent to the existing <tt>x64</tt> identifier, which is now deprecated.)</li>
+      <li><tt>x86compatible</tt> matches systems capable of running 32-bit x86 binaries.</li>
+      <li><tt>x86os</tt> matches systems running 32-bit x86 Windows only. (Equivalent to the existing <tt>x86</tt> identifier.)</li>
+      <li><tt>win64</tt> matches systems running 64-bit Windows, regardless of architecture.</li>
+    </ul>
+    See the new <i>Architecture Identifiers</i> <a href="https://jrsoftware.org/ishelp/index.php?topic=archidentifiers">help topic</a> for further details on each.</li>
+    <li>Boolean expressions are now supported. Through use of the <tt>and</tt> operator, for example, it is possible to require two architecture identifiers to match at the same time. See the <tt>ArchitecturesAllowed</tt> <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_architecturesallowed">help topic</a> for usage examples.</li>
+  </ul>
+  </li>
+  <li>The <tt>x64</tt> architecture identifier is now deprecated. If it is used, the compiler will issue a warning and substitute <tt>x64os</tt>, which has the same effect. But as mentioned above, in most cases, <b>scripts should be changed</b> to use <tt>x64compatible</tt> because it matches both x64 Windows and Arm64 Windows 11.</li>
+  <li>The 64-bit example scripts (<tt>64Bit*.iss</tt>) have all been updated to use <tt>x64compatible</tt> as preferred.</li>
+  <li>Certain 64-bit functionality that previously only worked on x64 Windows now works on Arm64 Windows 11 as well. This includes:
+  <ul>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Dirs]</tt> section when running in 64-bit install mode.</li>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Files]</tt> section when running in 64-bit install mode or when the <tt>64bit</tt> flag is used.</li>
+    <li>The <tt>Permissions</tt> parameter of the <tt>[Registry]</tt> section when running in 64-bit install mode or when the value of the <tt>Root</tt> parameter ends in <tt>64</tt>.</li>
+    <li>The <tt>regtypelib</tt> flag of the <tt>[Files]</tt> section when running in 64-bit install mode or when the <tt>64bit</tt> flag is used.</li>
+  </ul>
+  Note that all of the above remains unsupported on Arm64 Windows 10.
+  </li>
+  <li>Setup now logs the machine types supported by the system — that 
+is, what types of EXEs can be executed, either natively or via 
+emulation. For example, when running on an Arm64 Windows 11 system, it 
+logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt>.</li>
+  <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
+  <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all architecture identifiers:
+      <pre>[Code]
+function InitializeSetup: Boolean;
+begin
+  if IsArm32Compatible then Log('IsArm32Compatible');
+  if IsArm64 then Log('IsArm64');
+  if IsX64OS then Log('IsX64OS');
+  if IsX64Compatible then Log('IsX64Compatible');
+  if IsX86 then Log('IsX86');
+  if IsX86OS then Log('IsX86OS');
+  if IsX86Compatible then Log('IsX86Compatible');
+  if IsWin64 then Log('IsWin64');
+  Result := True;
+end;</pre>
+  </li>
+</ul>
+<p><span class="head2">Support for #include files improved</span></p>
+<ul>
+  <li>The Compiler IDE now opens up to 20 #include files in tabs, instead of up to 10.</li>
+  <li>Tabs for opened #include files can now be closed: Added new <i>Close Tab</i> (Ctrl+F4), <i>Reopen Tab</i>, and  <i>Reopen All Tabs</i> menu items to the <i>View</i> menu, also available by right clicking the tab bar.<br>Because of this the shortcut for the <i>Evaluate Constant</i> menu item in the <i>Run</i> menu has been changed from Ctrl+F4 to Ctrl+F7.</li>
+  <li>The selected and mouseover #include file tabs now show close buttons.</li>
+  <li>Added a clickable panel to the Status Bar showing the amount of closed tabs if there are any.</li>
+  <li>Removed flicker (especially visible in dark mode) when switching tabs.</li>
+</ul>
+<p><span class="head2">Support for Windows Vista, Windows Server 2008, and the Itanium architecture removed</span></p>
+<ul>
+  <li><b>OS requirements change:</b> Windows Vista and Windows Server 
+2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are 
+now the minimum supported operating systems. <tt>[Setup]</tt> section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
+  <li>The defunct Itanium architecture is no longer supported. The <tt>ia64</tt> architecture identifier has been removed, and Setup will display the <tt>WindowsVersionNotSupported</tt> error message if it's started on an Itanium system.</li>
+  <li>Removed <tt>[Icons]</tt> section flag <tt>foldershortcut</tt> 
+which was already ignored except when running on Windows Vista or 
+Windows Server 2008, as folder shortcuts do not expand properly on the 
+Start Menu anymore.</li>
+</ul>
+<p><span class="head2">Compiler IDE changes</span></p>
+<ul>
+  <li>Added toolbar buttons and shortcuts to navigate back (Alt+Left) 
+and forward (Alt+Right). Navigating by pressing the mouse X buttons is 
+also supported. A navigation item is added when changing tabs or moving 
+at least 11 lines at once, similar to Visual Studio 2022.<br>Because of 
+this Alt+Right can no longer be used to initiate auto complete, instead 
+the existing Ctrl+Space or new Ctrl+I alternative must be used. To still
+ be able to also use Alt+Right for this activate Visual Studio-style 
+shortcuts, see below.</li>
+  <li>Added support for Visual Studio-style shortcuts (like Ctrl+- to navigate back, Ctrl+B to compile and F5 to run) to the <i>Build</i> and <i>Run</i> menus. To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Key Map</i> option to <i>Visual Studio</i>.</li>
+  <li>Added multiple selection support (Ctrl+Click or Ctrl+Drag). 
+Typing, backspace, delete, undo, redo, copy, and paste all work with 
+multiple selections added this way or via the pre-existing support for 
+performing rectangular block selection (Alt+Shift+Arrow or Alt+Drag).</li>
+  <li>Added a shortcut to revert multiple selections into a single one or a single selection into an empty one (Esc).</li>
+  <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.
+  </li><li>Added dark mode support to the main menu bar on all versions of Windows.
+  </li><li>Added dark mode support to the menus on Windows 10 Version 
+1903 and later up to Windows 11 Version 23H2 which is currently the 
+latest version of Windows 11.
+  </li><li>Updated the icons used by the editor's gutter, including the 
+automatic use of higher quality versions in a widened gutter on higher 
+DPI settings.
+  </li><li>Lines with a breakpoint are now displayed as normal lines 
+with syntax highlighting, instead of as white text on a red background. 
+The editor's gutter still displays an icon on such lines.</li>
+  <li>Breakpoints are now preserved on a per-file basis between sessions.</li>
+  <li>Added new <i>Delete All Breakpoints</i> (Shift+Ctrl+F5) menu item to the <i>Run</i> menu.</li>
+  <li>Added icons to the menus.</li>
+  <li>Added new <i>Highlight occurrences of current selection</i> and <i>Highlight occurrences of current word</i> options. The first is enabled by default and the second is disabled by default.</li>
+  <li>The <i>Allow cursor to move beyond end of lines</i> option ("virtual space") is now disabled by default, consistent with most other editors.</li>
+  <li>When the <i>Allow cursor to move beyond end of lines</i> option is
+ enabled, pressing the left arrow key while the cursor is at the start 
+of a line no longer moves the cursor to the end of the previous line 
+unless the Ctrl key is also pressed, just like in Notepad++, Visual 
+Studio, and RAD Studio.</li>
+  <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
+  <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt>
+ if it detects that the chosen main executable file is 64-bit. The 
+default main executable file is now the 64-bit MyProg-x64.exe example 
+executable instead of 32-bit MyProg.exe.</li>
+  <li>Added new <i>Generate [Registry] Entries</i> (Shift+Ctrl+R) menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
+  <li>Added new <i>Generate [Files] Entries</i> (Shift+Ctrl+I) menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
+  <li>The <i>Generate MsgBox/TaskDialogMsgBox Call</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>)
+ now respects the tab width and tab character settings, indents the 
+generated Pascal script one extra level, and warns if the cursor 
+position is not in the [Code] section.</li>
+  <li>Minor theme color tweaks such as a different background color for the selected text.</li>
+</ul>
+<p><span class="head2">Support for logging improved</span></p>
+<ul>
+  <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
+  <li>Digital signing change: Sign Tool output is now always logged in 
+the Compiler IDE's "Compiler Output" view, making it easier to debug 
+issues. Because of this, sign tools that are console programs will now 
+always run hidden, as their output is being captured and they would 
+display nothing in their window.</li>
+  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> 
+support function. Can be used to log the output of the executed program 
+or batch file to Setup and Uninstall's log, or to receive the output 
+line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
+  <li>ISPP changes:
+    <ul>
+    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's "Compiler Output" view.</li>
+    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to 
+execute a program or batch file and read the first non-empty line from 
+its output which can then be placed or used in the script as shown in 
+the new <i>PowerShell.iss</i> example script.</li>
+    </ul>
+    </li>
+</ul>
+<p><span class="head2">Other changes</span></p>
+<ul>
+  <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
+  <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler to check the original source files for a digital signature before storing them.</li>
+  <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt>
+ folders. It no longer does until the script asks for the folder. Note 
+that scripts running in administrative install mode should not do this 
+because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
+  <li>Changes to further help protect against potential DLL preloading attacks.</li>
+  <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li>
+  <li>ISPP changes:
+    <ul>
+    <li>Added support function <tt>AddQuotes</tt> to add a quote 
+character to the left and right sides of a string if the string contains
+ a space and it didn't have quotes already.</li>
+    <li>Support function <tt>Exec</tt> no longer requires the filename 
+parameter to be quoted if it contains spaces. Additionally it now 
+supports "&gt;" as a filename and now includes special 
+platform-independent support for .bat and .cmd files, both just like for
+ example the <tt>[Run]</tt> section.</li>
+    </ul>
+  </li>  
+  <li>Pascal Scripting changes: 
+    <ul>
+    <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
+    <li>Added support functions <tt>LoadStringFromLockedFile</tt> and <tt>LoadStringsFromLockedFile</tt> to read strings from a file even if it's already opened for writing by another program.</li>
+    <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <i>CodeClasses.iss</i> example script for examples.</li>
+    <li><tt>TWizardForm</tt>: Added new <tt>AdjustLinkLabelHeight</tt> function.</li>
+    <li><tt>TDownloadPage</tt>: Added new <tt>ShowBaseNameInsteadOfUrl</tt> property.</li>
+    <li>It is now possible to write <tt>var S: set of AnsiChar; begin S := ['a', 'b']; end;</tt>. In previous versions this would result in a type mismatch error.
+    </li><li>It is now possible to write <tt>Stream.ReadBuffer(S, Length(S));</tt> when S is of type <tt>AnsiString</tt>. In previous versions this would compile but not work at run time. Same applies to <tt>Read</tt>, <tt>Write</tt>, and <tt>WriteBuffer</tt>: all four functions now accept any type of string.</li>
+    <li>Added example which downloads and unzips a Zip file to the <i>CodeAutomation.iss</i> example script.</li>
+    <li>Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
+    </ul>
+  </li>
+  <li>Improved the icons used by the <i>Select Language</i> dialog and the <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages at 150% DPI and at 200% DPI.</li>
+  <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
+  <li>Added official Korean translation.</li>
+  <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
+  <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <i>Projects\Projects.groupproj</i>
+ project group. This makes it a lot easier to get started with working 
+with the Inno Setup source code and making contributions, even with the 
+free Delphi Community Edition.</li>
+  <li>Minor tweaks and documentation improvements.</li>
+</ul>
+
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Achim Stuy, ser163, Jens Geyer, and Sergii Leonov for their contributions.</p>
+
+<p><a href="https://jrsoftware.org/files/is6.2-whatsnew.htm">Inno Setup 6.2 Revision History</a></p>
+
+</details>
+
+</details>
+
+</details>
+
+</details>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 *.dll
 *.exe
 *.e32
+*.e64
 *.issig
 Setup-*.bin
 Setup.log

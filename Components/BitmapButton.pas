@@ -60,7 +60,7 @@ type
     property Caption;
     property Center: Boolean read FImpl.Center write SetCenter default True;
     property Enabled;
-    property Opacity: Byte read FImpl.Opacity write SetOpacity;
+    property Opacity: Byte read FImpl.Opacity write SetOpacity default 255;
     property ParentShowHint;
     property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;

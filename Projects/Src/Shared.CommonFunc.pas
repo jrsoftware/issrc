@@ -168,7 +168,6 @@ function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
-procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
 function HighContrastActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
@@ -184,6 +183,7 @@ function StrToWnd(const S: String): HWND;
 implementation
 
 uses
+  ShLwApi,
   PathFunc, UnsignedFunc;
 
 { Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
@@ -1584,28 +1584,6 @@ function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 begin
   Result := MoveFileEx(PChar(ExistingFileName), PChar(NewFileName),
     MOVEFILE_REPLACE_EXISTING);
-end;
-
-var
-  SHAutoCompleteInitialized: Boolean;
-  SHAutoCompleteFunc: function(hwndEdit: HWND; dwFlags: dWord): LongInt; stdcall;
-
-procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
-const
-  SHACF_FILESYSTEM = $1;
-var
-  M: HMODULE;
-begin
-  if not SHAutoCompleteInitialized then begin
-    M := SafeLoadLibrary(AddBackslash(GetSystemDir) + 'shlwapi.dll',
-      SEM_NOOPENFILEERRORBOX);
-    if M <> 0 then
-      SHAutoCompleteFunc := GetProcAddress(M, 'SHAutoComplete');
-    SHAutoCompleteInitialized := True;
-  end;
-
-  if Assigned(SHAutoCompleteFunc) then
-    SHAutoCompleteFunc(Wnd, SHACF_FILESYSTEM);
 end;
 
 procedure CreateMutex(const MutexName: String);

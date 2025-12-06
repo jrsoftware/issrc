@@ -45,7 +45,7 @@ type
 implementation
 
 uses
-  Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
+  Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls, BrowseFunc,
   IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
@@ -91,7 +91,7 @@ begin
   MinVerDocBitBtn.OnClick := MinVerDocBitBtnClick;
   MinVerDocBitBtn.Cursor := crHandPoint;
 
-  TryEnableAutoCompleteFileSystem(FileEdit.Handle);
+  SHAutoComplete(FileEdit.Handle, SHACF_FILESYSTEM);
 
   Form.OnAfterMonitorDpiChanged := AfterMonitorDpiChanged;
   UpdateImages;

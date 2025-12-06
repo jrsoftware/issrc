@@ -284,6 +284,7 @@ end;
 procedure RegisterNewCtrls_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddClassN(Cl.FindClass('TEdit'), 'TNewEdit');
+  Cl.AddClassN(Cl.FindClass('TNewEdit'), 'TNewPathEdit');
   Cl.AddClassN(Cl.FindClass('TMemo'), 'TNewMemo');
   Cl.AddClassN(Cl.FindClass('TComboBox'), 'TNewComboBox');
   Cl.AddClassN(Cl.FindClass('TListBox'), 'TNewListBox');

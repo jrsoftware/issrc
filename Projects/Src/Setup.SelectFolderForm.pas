@@ -18,7 +18,7 @@ uses
 type
   TSelectFolderForm = class(TSetupForm)
     BrowseLabel: TNewStaticText;
-    PathEdit: TEdit;
+    PathEdit: TNewPathEdit;
     NewFolderButton: TNewButton;
     OKButton: TNewButton;
     CancelButton: TNewButton;
@@ -41,7 +41,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainFunc,
-  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc, Shared.CommonFunc.Vcl;
+  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
 
@@ -123,7 +123,6 @@ begin
   YDiff := WizardForm.AdjustLabelHeight(BrowseLabel);
   ClientHeight := ClientHeight + YDiff;  { moves buttons down due to their anchors }
   PathEdit.Top := PathEdit.Top + YDiff;
-  TryEnableAutoCompleteFileSystem(PathEdit.Handle);
   FFolderTreeView.Top := FFolderTreeView.Top + YDiff;
   FFolderTreeView.Height := FFolderTreeView.Height - YDiff;
   NewFolderButton.Caption := SetupMessages[msgButtonNewFolder];
