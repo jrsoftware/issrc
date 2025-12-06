@@ -201,6 +201,7 @@ end;
 procedure RegisterNewCtrls_R(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TNewEdit);
+  Cl.Add(TNewPathEdit);
   Cl.Add(TNewMemo);
   Cl.Add(TNewComboBox);
   Cl.Add(TNewListBox);

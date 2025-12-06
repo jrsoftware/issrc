@@ -53,7 +53,7 @@ object SelectFolderForm: TSelectFolderForm
     TabOrder = 2
     OnClick = NewFolderButtonClick
   end
-  object PathEdit: TEdit
+  object PathEdit: TNewPathEdit
     Left = 16
     Top = 36
     Width = 317

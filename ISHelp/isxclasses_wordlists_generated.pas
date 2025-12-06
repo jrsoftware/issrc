@@ -30,15 +30,16 @@ var
     'TInputQueryWizardPage', 'TKeyEvent', 'TKeyPressEvent', 'TLabel', 'TLinkLabel', 'TListBox',
     'TListBoxStyle', 'TMemo', 'TNewButton', 'TNewCheckBox', 'TNewCheckListBox', 'TNewComboBox',
     'TNewEdit', 'TNewLinkLabel', 'TNewListBox', 'TNewMemo', 'TNewNotebook', 'TNewNotebookPage',
-    'TNewProgressBar', 'TNewProgressBarState', 'TNewProgressBarStyle', 'TNewRadioButton',
-    'TNewStaticText', 'TNotifyEvent', 'TObject', 'TOutputMarqueeProgressWizardPage', 'TOutputMsgMemoWizardPage',
-    'TOutputMsgWizardPage', 'TOutputProgressWizardPage', 'TPanel', 'TPanelBevel', 'TPasswordEdit',
-    'TPen', 'TPenMode', 'TPenStyle', 'TPersistent', 'TPngImage', 'TPopupMode', 'TPosition',
-    'TRadioButton', 'TRichEditViewer', 'TScrollingWinControl', 'TScrollStyle', 'TSetupForm',
-    'TShiftState', 'TSizeConstraints', 'TStartMenuFolderTreeView', 'TStream', 'TStringList',
-    'TStrings', 'TStringStream', 'TStyleElement', 'TStyleElements', 'TSysLinkEvent', 'TSysLinkType',
-    'TUIStateForm', 'TUninstallProgressForm', 'TWinControl', 'TWizardForm', 'TWizardPage',
-    'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent', 'TWizardPageShouldSkipEvent'
+    'TNewPathEdit', 'TNewProgressBar', 'TNewProgressBarState', 'TNewProgressBarStyle',
+    'TNewRadioButton', 'TNewStaticText', 'TNotifyEvent', 'TObject', 'TOutputMarqueeProgressWizardPage',
+    'TOutputMsgMemoWizardPage', 'TOutputMsgWizardPage', 'TOutputProgressWizardPage', 'TPanel',
+    'TPanelBevel', 'TPasswordEdit', 'TPen', 'TPenMode', 'TPenStyle', 'TPersistent', 'TPngImage',
+    'TPopupMode', 'TPosition', 'TRadioButton', 'TRichEditViewer', 'TScrollingWinControl',
+    'TScrollStyle', 'TSetupForm', 'TShiftState', 'TSizeConstraints', 'TStartMenuFolderTreeView',
+    'TStream', 'TStringList', 'TStrings', 'TStringStream', 'TStyleElement', 'TStyleElements',
+    'TSysLinkEvent', 'TSysLinkType', 'TUIStateForm', 'TUninstallProgressForm', 'TWinControl',
+    'TWizardForm', 'TWizardPage', 'TWizardPageButtonEvent', 'TWizardPageCancelEvent', 'TWizardPageNotifyEvent',
+    'TWizardPageShouldSkipEvent'
   ];
 
   PascalEnumValues_Isxclasses: array of AnsiString = [

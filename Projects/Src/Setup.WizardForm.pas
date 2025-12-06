@@ -103,7 +103,7 @@ type
     FInstallingPage: TNewNotebookPage;
     FInfoAfterPage: TNewNotebookPage;
     FDiskSpaceLabel: TNewStaticText;
-    FDirEdit: TNewEdit;
+    FDirEdit: TNewPathEdit;
     FGroupEdit: TNewEdit;
     FNoIconsCheck: TNewCheckBox;
     FPasswordLabel: TNewStaticText;
@@ -266,7 +266,7 @@ type
     property InstallingPage: TNewNotebookPage read FInstallingPage;
     property InfoAfterPage: TNewNotebookPage read FInfoAfterPage;
     property DiskSpaceLabel: TNewStaticText read FDiskSpaceLabel;
-    property DirEdit: TNewEdit read FDirEdit;
+    property DirEdit: TNewPathEdit read FDirEdit;
     property GroupEdit: TNewEdit read FGroupEdit;
     property NoIconsCheck: TNewCheckBox read FNoIconsCheck;
     property PasswordLabel: TNewStaticText read FPasswordLabel;
@@ -1014,7 +1014,6 @@ begin
   SelectDirBrowseLabel.Top := SelectDirBrowseLabel.Top + I;
   Inc(I, AdjustLabelHeight(SelectDirBrowseLabel));
   DirEdit.Top := DirEdit.Top + I;
-  TryEnableAutoCompleteFileSystem(DirEdit.Handle);
   DirBrowseButton.Caption := SetupMessages[msgButtonWizardBrowse];
   X := CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
   DirBrowseButton.SetBounds(InnerNotebook.Width - X,

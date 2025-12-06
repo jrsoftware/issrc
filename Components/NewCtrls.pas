@@ -24,6 +24,13 @@ uses
 type
   TNewEdit = class(TEdit);
 
+  TNewPathEdit = class(TNewEdit)
+  protected
+    procedure CreateWnd; override;
+  public
+    constructor Create(AOwner: TComponent); override;
+  end;
+
   TNewMemo = class(TMemo);
 
   TNewComboBox = class(TComboBox);
@@ -66,13 +73,29 @@ procedure Register;
 implementation
 
 uses
-  CommCtrl, Types,
+  CommCtrl, ShLwApi,
+  Types,
   BidiUtils;
 
 procedure Register;
 begin
-  RegisterComponents('JR', [TNewEdit, TNewMemo, TNewComboBox, TNewListBox,
+  RegisterComponents('JR', [TNewEdit, TNewPathEdit, TNewMemo, TNewComboBox, TNewListBox,
     TNewButton, TNewCheckBox, TNewRadioButton]);
+end;
+
+{ TNewPathEdit }
+
+constructor TNewPathEdit.Create(AOwner: TComponent);
+begin
+  inherited;
+  ParentBidiMode := False;
+  BidiMode := bdLeftToRight;
+end;
+
+procedure TNewPathEdit.CreateWnd;
+begin
+  inherited;
+  SHAutoComplete(Handle, SHACF_FILESYSTEM);
 end;
 
 { TNewButton }

@@ -20,7 +20,7 @@ type
     DiskBitmapImage: TBitmapImage;
     SelectDiskLabel: TNewStaticText;
     PathLabel: TNewStaticText;
-    PathEdit: TEdit;
+    PathEdit: TNewPathEdit;
     BrowseButton: TNewButton;
     OKButton: TNewButton;
     CancelButton: TNewButton;
@@ -79,8 +79,6 @@ begin
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
   DiskBitmapImage.InitializeFromStockIcon(SIID_MEDIABLANKCD, clNone, [48, 64]);
-
-  TryEnableAutoCompleteFileSystem(PathEdit.Handle);
 
   SetForeground := True;
 

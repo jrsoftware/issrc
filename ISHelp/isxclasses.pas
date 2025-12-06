@@ -370,6 +370,9 @@ end;
 TNewEdit = class(TEdit)
 end;
 
+TNewPathEdit = class(TNewEdit)
+end;
+
 TCustomMemo = class(TCustomEdit)
   property Lines: TStrings; read write;
 end;
@@ -770,7 +773,7 @@ end;
 TInputDirWizardPage = class(TWizardPage)
   function Add(const APrompt: String): Integer;
   property Buttons[Index: Integer]: TNewButton; read;
-  property Edits[Index: Integer]: TEdit; read;
+  property Edits[Index: Integer]: TNewPathEdit; read;
   property NewFolderName: String; read write;
   property PromptLabels[Index: Integer]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
@@ -780,7 +783,7 @@ end;
 TInputFileWizardPage = class(TWizardPage)
   function Add(const APrompt, AFilter, ADefaultExtension: String): Integer;
   property Buttons[Index: Integer]: TNewButton; read;
-  property Edits[Index: Integer]: TEdit; read;
+  property Edits[Index: Integer]: TNewPathEdit; read;
   property PromptLabels[Index: Integer]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
   property Values[Index: Integer]: String; read write;
@@ -873,7 +876,7 @@ TWizardForm = class(TSetupForm)
   property InstallingPage: TNewNotebookPage; read;
   property InfoAfterPage: TNewNotebookPage; read;
   property DiskSpaceLabel: TNewStaticText; read;
-  property DirEdit: TNewEdit; read;
+  property DirEdit: TNewPathEdit; read;
   property GroupEdit: TNewEdit; read;
   property NoIconsCheck: TNewCheckBox; read;
   property PasswordLabel: TNewStaticText; read;

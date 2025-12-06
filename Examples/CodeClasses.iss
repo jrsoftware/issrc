@@ -117,6 +117,7 @@ var
   Panel: TPanel;
   CheckBox: TNewCheckBox;
   Edit: TNewEdit;
+  PathEdit: TNewPathEdit;
   PasswordEdit: TPasswordEdit;
   Memo: TNewMemo;
   ComboBox: TNewComboBox;
@@ -167,13 +168,20 @@ begin
 
   Edit := TNewEdit.Create(Page);
   Edit.Top := CheckBox.Top + CheckBox.Height + ScaleY(8);
-  Edit.Width := Page.SurfaceWidth div 2 - ScaleX(8);
+  Edit.Width := (Page.SurfaceWidth - 2 * ScaleX(8)) div 3;
   Edit.Text := 'TNewEdit';
   Edit.Parent := Page.Surface;
 
+  PathEdit := TNewPathEdit.Create(Page);
+  PathEdit.Left := Edit.Left + Edit.Width + ScaleX(8);
+  PathEdit.Top := Edit.Top;
+  PathEdit.Width := Edit.Width;
+  PathEdit.Text := ExpandConstant('{sd}\');
+  PathEdit.Parent := Page.Surface;
+
   PasswordEdit := TPasswordEdit.Create(Page);
-  PasswordEdit.Left := Page.SurfaceWidth - Edit.Width;
-  PasswordEdit.Top := CheckBox.Top + CheckBox.Height + ScaleY(8);
+  PasswordEdit.Left := PathEdit.Left + PathEdit.Width + ScaleX(8);
+  PasswordEdit.Top := Edit.Top;
   PasswordEdit.Width := Edit.Width;
   PasswordEdit.Text := 'TPasswordEdit';
   PasswordEdit.Parent := Page.Surface;
