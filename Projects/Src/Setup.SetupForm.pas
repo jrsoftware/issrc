@@ -382,10 +382,10 @@ procedure TSetupForm.CreateWnd;
 
       { Update self. Note that SetupHeader.WizardControlStyling is either wcsAllButButtons
         or wcsOnlyRequired, so for buttons the style must always be disabled. }
-      if Ctl is TButton then
+      if Ctl is TCustomButton then
         Ctl.StyleName := SystemStyleName
       else if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
-        if Ctl is TEdit then
+        if Ctl is TCustomEdit then
           Ctl.StyleName := SystemStyleName;
       end;
     end;
