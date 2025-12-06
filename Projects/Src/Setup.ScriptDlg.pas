@@ -267,7 +267,7 @@ uses
   StrUtils, ISSigFunc, SHA256,
   Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
-  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc,
+  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Setup.SetupForm,
   Compression.SevenZipDLLDecoder;
 
 const
@@ -276,14 +276,6 @@ const
   DefaultBoxBottom = DefaultBoxTop + 205;
 
 {------}
-
-procedure SetCtlParent(const AControl, AParent: TWinControl);
-begin
-  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
-    from scaling the control. Also see TSetupForm.CreateWnd.  }
-  AControl.SetCurrentPPI(AParent.CurrentPPI);
-  AControl.Parent := AParent;
-end;
 
 procedure SetCtlParentAtBack(const AControl, AParent: TWinControl);
 { Like assigning to AControl.Parent, but puts the control at the *bottom* of
@@ -295,7 +287,7 @@ begin
     "OBJ_REORDER" MSAA events don't get sent }
   OldVisible := AControl.Visible;
   AControl.Visible := False;
-  SetCtlParent(AControl, AParent);
+  TSetupForm.SetCtlParent(AControl, AParent);
   AControl.SendToBack;
   AControl.Visible := OldVisible;
 end;
@@ -326,7 +318,7 @@ begin
     WordWrap := True;
     Caption := SubCaption;
   end;
-  SetCtlParent(FSubCaptionLabel, Surface);
+  TSetupForm.SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 end;
 
@@ -398,7 +390,7 @@ begin
     WordWrap := True;
     Caption := SubCaption;
   end;
-  SetCtlParent(FSubCaptionLabel, Surface);
+  TSetupForm.SetCtlParent(FSubCaptionLabel, Surface);
   const CaptionYDiff = WizardForm.AdjustLabelHeight(SubCaptionLabel);
 
   FCheckListBox := TNewCheckListBox.Create(Self);
@@ -517,7 +509,7 @@ begin
     WordWrap := True;
     Caption := SubCaption;
   end;
-  SetCtlParent(FSubCaptionLabel, Surface);
+  TSetupForm.SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 
   FAppendDir := AppendDir;
@@ -650,7 +642,7 @@ begin
     WordWrap := True;
     Caption := SubCaption;
   end;
-  SetCtlParent(FSubCaptionLabel, Surface);
+  TSetupForm.SetCtlParent(FSubCaptionLabel, Surface);
   FY := WizardForm.AdjustLabelHeight(FSubCaptionLabel) + WizardForm.ScalePixelsY(DefaultBoxTop);
 end;
 
@@ -759,7 +751,7 @@ begin
     WordWrap := True;
     Caption := Msg;
   end;
-  SetCtlParent(FMsgLabel, Surface);
+  TSetupForm.SetCtlParent(FMsgLabel, Surface);
   WizardForm.AdjustLabelHeight(MsgLabel);
 end;
 
@@ -777,7 +769,7 @@ begin
       WordWrap := True;
       Caption := SubCaption;
     end;
-    SetCtlParent(FSubCaptionLabel, Surface);
+    TSetupForm.SetCtlParent(FSubCaptionLabel, Surface);
     Inc(Y, WizardForm.ScalePixelsY(DefaultBoxTop) +
       WizardForm.AdjustLabelHeight(FSubCaptionLabel));
   end else
@@ -819,7 +811,7 @@ begin
     Height := WizardForm.StatusLabel.Height;
     WordWrap := WizardForm.StatusLabel.WordWrap;
   end;
-  SetCtlParent(FMsg1Label, Surface);
+  TSetupForm.SetCtlParent(FMsg1Label, Surface);
 
   FMsg2Label := TNewStaticText.Create(Self);
   with FMsg2Label do begin

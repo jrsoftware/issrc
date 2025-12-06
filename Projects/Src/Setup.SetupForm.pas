@@ -34,15 +34,21 @@ uses
 type
   TSetupForm = class(TUIStateForm)
   private
-    FOrigBaseUnitX, FOrigBaseUnitY: Integer;
-    FBaseUnitX, FBaseUnitY: Integer;
-    FRightToLeft: Boolean;
-    FFlipControlsOnShow: Boolean;
-    FCenterOnShow: Boolean;
-    FControlsFlipped: Boolean;
-    FKeepSizeX, FKeepSizeY: Boolean;
-    FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
-    FSetForeground: Boolean;
+    class var
+      FSystemStyleName: String;
+    var
+      FOrigBaseUnitX, FOrigBaseUnitY: Integer;
+      FBaseUnitX, FBaseUnitY: Integer;
+      FRightToLeft: Boolean;
+      FFlipControlsOnShow: Boolean;
+      FCenterOnShow: Boolean;
+      FControlsFlipped: Boolean;
+      FKeepSizeX, FKeepSizeY: Boolean;
+      FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
+      FSetForeground: Boolean;
+    class constructor Create;
+    class function ShouldDisableContolStylesAsNeeded: Boolean;
+    class procedure DisableControlStyleAsNeeded(const Ctl: TControl);
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
@@ -67,6 +73,7 @@ type
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload;
     class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload;
+    class procedure SetCtlParent(const AControl: TControl; const AParent: TWinControl);
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;
     function ShouldSizeX: Boolean;
@@ -200,6 +207,11 @@ begin
 end;
 
 { TSetupForm }
+
+class constructor TSetupForm.Create;
+begin
+  FSystemStyleName := TStyleManager.SystemStyleName;
+end;
 
 constructor TSetupForm.Create(AOwner: TComponent);
 begin
@@ -361,10 +373,28 @@ begin
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
 
+class function TSetupForm.ShouldDisableContolStylesAsNeeded: Boolean;
+begin
+  Result := not IsDarkInstallMode and (SetupHeader.WizardControlStyling <> wcsAll);
+end;
+
+class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
+{ Call ShouldDisableContolStylesAsNeeded first }
+begin
+  { SetupHeader.WizardControlStyling is either wcsAllButButtons or wcsOnlyRequired,
+    so for buttons the style must always be disabled. }
+  if Ctl is TCustomButton then
+    Ctl.StyleName := FSystemStyleName
+  else if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
+    if Ctl is TCustomEdit then
+      Ctl.StyleName := FSystemStyleName;
+  end;
+end;
+
 procedure TSetupForm.CreateWnd;
 
-  procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl; const SystemStyleName: String);
-  { Caller must check SetupHeader.WizardControlStyling <> wcsAll }
+  procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl);
+  { Call ShouldDisableContolStylesAsNeeded first }
   begin
     for var I := 0 to ParentCtl.ControlCount-1 do begin
       const Ctl = ParentCtl.Controls[I];
@@ -377,17 +407,11 @@ procedure TSetupForm.CreateWnd;
         if WinCtl.HandleAllocated then
           InternalError('Unexpected HandleAllocated');
         { Update children }
-        DisableChildControlsStylesAsNeeded(WinCtl, SystemStyleName);
+        DisableChildControlsStylesAsNeeded(WinCtl);
       end;
 
-      { Update self. Note that SetupHeader.WizardControlStyling is either wcsAllButButtons
-        or wcsOnlyRequired, so for buttons the style must always be disabled. }
-      if Ctl is TCustomButton then
-        Ctl.StyleName := SystemStyleName
-      else if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
-        if Ctl is TCustomEdit then
-          Ctl.StyleName := SystemStyleName;
-      end;
+      { Update self }
+      DisableControlStyleAsNeeded(Ctl);
     end;
   end;
 
@@ -416,8 +440,8 @@ begin
     Create: in Create it can't be before inherited since it wouldn't
     yet know about the children, and also not after since the
     handles might be allocated. }
-  if not IsDarkInstallMode and (SetupHeader.WizardControlStyling <> wcsAll) then
-    DisableChildControlsStylesAsNeeded(Self, TStyleManager.SystemStyleName);
+  if ShouldDisableContolStylesAsNeeded then
+    DisableChildControlsStylesAsNeeded(Self);
 
   inherited;
 
@@ -702,6 +726,19 @@ end;
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
   Result := ScalePixelsY(FOrigBaseUnitY, FBaseUnitY, N);
+end;
+
+class procedure TSetupForm.SetCtlParent(const AControl: TControl; const AParent: TWinControl);
+{ To be called when a control is added after the form has already been created }
+begin
+  { Disable style if needed }
+  if ShouldDisableContolStylesAsNeeded then
+    DisableControlStyleAsNeeded(AControl);
+    
+  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
+    from scaling the control. Also see TSetupForm.CreateWnd.  }
+  AControl.SetCurrentPPI(AParent.CurrentPPI);
+  AControl.Parent := AParent;
 end;
 
 function TSetupForm.ShowModal: Integer;

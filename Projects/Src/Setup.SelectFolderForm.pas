@@ -109,8 +109,7 @@ begin
     otherwise the control's width and height get reduced later. Looks like
     a Delphi 11 bug; the problem is seen in IS 6.3 but not 6.2.2. }
   HandleNeeded;
-  FFolderTreeView.SetCurrentPPI(CurrentPPI);
-  FFolderTreeView.Parent := Self;
+  TSetupForm.SetCtlParent(FFolderTreeView, Self);
   PathEdit.BringToFront;     { for MSAA }
   BrowseLabel.BringToFront;  { for MSAA }
   FFolderTreeView.TabOrder := 2;
