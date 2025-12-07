@@ -601,7 +601,7 @@ begin
     Byte(IgnoreCase));
  {$ELSE}
   const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
-    Ord(IgnoreCase));
+    IgnoreCase);
  {$ENDIF}
   case CompareResult of
     0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
