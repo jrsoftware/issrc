@@ -15,7 +15,7 @@ type
   TScriptFuncTableID = (sftScriptDlg, sftNewDiskForm, sftBrowseFunc, sftCommonFuncVcl,
     sftCommonFunc, sftInstall, sftInstFunc, sftInstFuncOle, sftMainFunc, sftMessages,
     sftSystem, sftSysUtils, sftVerInfoFunc, sftWindows, sftActiveX, sftLoggingFunc,
-    sftOther);
+    sftPathFunc, sftOther);
   TScriptTable = array of AnsiString;
 
 var
@@ -271,9 +271,6 @@ initialization
     'function GetCmdTail: String;',
     'function ParamCount: Integer;',
     'function ParamStr(Index: Integer): String;',
-    'function AddBackslash(const S: String): String;',
-    'function RemoveBackslash(const S: String): String;',
-    'function RemoveBackslashUnlessRoot(const S: String): String;',
     'function AddQuotes(const S: String): String;',
     'function RemoveQuotes(const S: String): String;',
     'function GetShortName(const LongName: String): String;',
@@ -293,7 +290,7 @@ initialization
     'function RegQueryMultiStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;',
     'function RegDeleteKeyIncludingSubkeys(const RootKey: Integer; const SubkeyName: String): Boolean;',
     'function RegDeleteKeyIfEmpty(const RootKey: Integer; const SubkeyName: String): Boolean;',
-    //not really in CommonFunc
+    { Not really in CommonFunc }
     'function RegKeyExists(const RootKey: Integer; const SubKeyName: String): Boolean;',
     'function RegDeleteValue(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;',
     'function RegGetSubkeyNames(const RootKey: Integer; const SubKeyName: String; var Names: TArrayOfString): Boolean;',
@@ -313,11 +310,26 @@ initialization
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',
     'function AddPeriod(const S: String): String;',
-    'function CharLength(const S: String; const Index: Integer): Integer;',
     'function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;',
     'function IsWildcard(const Pattern: String): Boolean;',
     'function WildcardMatch(const Text, Pattern: String): Boolean;',
     'function HighContrastActive: Boolean;'
+  ];
+
+  ScriptFuncTables[sftPathFunc] :=
+  [
+    'function AddBackslash(const S: String): String;',
+    'function RemoveBackslash(const S: String): String;',
+    'function RemoveBackslashUnlessRoot(const S: String): String;',
+    { All in PathFunc but with a different name }
+    'function CharLength(const S: String; const Index: Integer): Integer;',
+    'function ExpandFileName(const FileName: String): String;',
+    'function ExtractFileDir(const FileName: String): String;',
+    'function ExtractFileDrive(const FileName: String): String;',
+    'function ExtractFileExt(const FileName: String): String;',
+    'function ExtractFileName(const FileName: String): String;',
+    'function ExtractFilePath(const FileName: String): String;',
+    'function ChangeFileExt(const FileName, Extension: String): String;'
   ];
 
   ScriptFuncTables[sftInstall] :=
@@ -412,7 +424,7 @@ initialization
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;',
-    { Actually access WizardForm.pas }
+    { Actually in Setup.WizardForm }
     'function GetWizardForm: TWizardForm;',
     'function WizardIsComponentSelected(const Components: String): Boolean;',
     'function IsComponentSelected(const Components: String): Boolean;', { old name of WizardIsComponentSelected }
@@ -443,15 +455,7 @@ initialization
     'function TrimRight(const S: String): String;',
     'function GetCurrentDir: String;',
     'function SetCurrentDir(const Dir: String): Boolean;',
-    'function ExpandFileName(const FileName: String): String;',
     'function ExpandUNCFileName(const FileName: String): String;',
-    'function ExtractRelativePath(const BaseName, DestName: String): String;',
-    'function ExtractFileDir(const FileName: String): String;',
-    'function ExtractFileDrive(const FileName: String): String;',
-    'function ExtractFileExt(const FileName: String): String;',
-    'function ExtractFileName(const FileName: String): String;',
-    'function ExtractFilePath(const FileName: String): String;',
-    'function ChangeFileExt(const FileName, Extension: String): String;',
     'function FileSearch(const Name, DirList: String): String;',
     'function RenameFile(const OldName, NewName: String): Boolean;',
     'function DeleteFile(const FileName: String): Boolean;',
@@ -462,7 +466,9 @@ initialization
     'function SameStr(const S1, S2: String): Boolean;',
     'function SameText(const S1, S2: String): Boolean;',
     'function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;',
-    'function SysErrorMessage(ErrorCode: Integer): String;'
+    'function SysErrorMessage(ErrorCode: Integer): String;',
+    { Actually NewExtractRelativePath, and not from SysUtils }
+    'function ExtractRelativePath(const BaseName, DestName: String): String;'
   ];
 
   ScriptFuncTables[sftVerInfoFunc] :=

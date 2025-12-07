@@ -426,18 +426,6 @@ var
       else
         Stack.SetString(PStart, '');
     end);
-    RegisterScriptFunc('ADDBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, AddBackslash(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('REMOVEBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, RemoveBackslash(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('REMOVEBACKSLASHUNLESSROOT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, RemoveBackslashUnlessRoot(Stack.GetString(PStart-1)));
-    end);
     RegisterScriptFunc('ADDQUOTES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, AddQuotes(Stack.GetString(PStart-1)));
@@ -775,10 +763,6 @@ var
     begin
       Stack.SetString(PStart, AddPeriod(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
-    end);
     RegisterScriptFunc('SETNTFSCOMPRESSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetBool(PStart, SetNTFSCompressionRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
@@ -796,6 +780,54 @@ var
     RegisterScriptFunc('HighContrastActive', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetBool(PStart, HighContrastActive);
+    end);
+  end;
+
+  procedure RegisterPathFuncScriptFuncs;
+  begin
+    RegisterScriptFunc('ADDBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, AddBackslash(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('REMOVEBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, RemoveBackslash(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('REMOVEBACKSLASHUNLESSROOT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, RemoveBackslashUnlessRoot(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
+    end);
+    RegisterScriptFunc('EXPANDFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExpand(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('EXTRACTFILEDIR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExtractDir(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('EXTRACTFILEDRIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExtractDrive(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('EXTRACTFILEEXT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExtractExt(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('EXTRACTFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExtractName(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('EXTRACTFILEPATH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathExtractPath(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('CHANGEFILEEXT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathChangeExt(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
   end;
 
@@ -1339,10 +1371,6 @@ var
     begin
       Stack.SetBool(PStart, SetCurrentDir(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('EXPANDFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExpand(Stack.GetString(PStart-1)));
-    end);
     RegisterScriptFunc('EXPANDUNCFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, ExpandUNCFileName(Stack.GetString(PStart-1)));
@@ -1350,30 +1378,6 @@ var
     RegisterScriptFunc('EXTRACTRELATIVEPATH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, NewExtractRelativePath(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
-    end);
-    RegisterScriptFunc('EXTRACTFILEDIR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExtractDir(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('EXTRACTFILEDRIVE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExtractDrive(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('EXTRACTFILEEXT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExtractExt(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('EXTRACTFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExtractName(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('EXTRACTFILEPATH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathExtractPath(Stack.GetString(PStart-1)));
-    end);
-    RegisterScriptFunc('CHANGEFILEEXT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathChangeExt(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('FILESEARCH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1995,6 +1999,7 @@ begin
   RegisterBrowseFuncScriptFuncs;
   RegisterCommonFuncVclScriptFuncs;
   RegisterCommonFuncScriptFuncs;
+  RegisterPathFuncScriptFuncs;
   RegisterInstallScriptFuncs;
   RegisterInstFuncScriptFuncs;
   RegisterInstFuncOleScriptFuncs;

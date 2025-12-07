@@ -1101,30 +1101,7 @@ end;
       <function>
         <name>CharLength</name>
         <prototype>function CharLength(const S: String; const Index: Integer): Integer;</prototype>
-        <description><p>Returns the length in bytes (1 or 2) of the character in the specified string at the specified index.</p></description>
-        <remarks><p>In double-byte character sets (Chinese, Japanese, Korean), most non-ASCII characters occupy two bytes. Note that the second byte of a double-byte character -- known as the "trail byte" -- can be in the same range used by ASCII characters (below 128). Thus, when stepping through a string that may contain double-byte characters, such as a path or filename, care must be taken to not mistake trail bytes for single-byte ASCII characters.</p></remarks>
-        <example><pre>function BackslashToSlash(const S: String): String;
-var
-  I: Integer;
-begin
-  Result := S;
-  I := 1;
-  while I &lt;= Length(Result) do
-  begin
-    if Result[I] = '\' then
-      Result[I] := '/';
-    // Go to the next character. But do not simply increment I by 1.
-    // Increment by CharLength() in case Result[I] is a double-byte character.
-    I := I + CharLength(Result, I);
-  end;
-end;
-
-...
-
-begin
-  // Show path of Common Files with backslashes changed to forward slashes
-  MsgBox(BackslashToSlash(ExpandConstant('{cf}')), mbInformation, MB_OK);
-end;</pre></example>
+        <description><p>Returns the length in characters of the character in the specified string at the specified index, which is currently always 1.</p></description>
       </function>
     </subcategory>
     <subcategory>
