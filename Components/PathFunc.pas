@@ -587,6 +587,13 @@ begin
   Result := PathHasSubstringAt(S, AStartsWith, 0, IgnoreCase);
 end;
 
+{ Use our own CompareStringOrdinal declaration. The one in the Windows unit is
+  "delayload" (yuck), and the bIgnoreCase parameter type differs between
+  Delphi 11 and 12 (BOOL vs. DWORD). }
+function CompareStringOrdinal_static(lpString1: LPCWSTR; cchCount1: Integer;
+  lpString2: LPCWSTR; cchCount2: Integer; bIgnoreCase: BOOL): Integer; stdcall;
+  external kernel32 name 'CompareStringOrdinal';
+
 function PathStrCompare(const S1: PChar; const S1Length: Integer;
   const S2: PChar; const S2Length: Integer;
   const IgnoreCase: Boolean = True): Integer;
@@ -596,13 +603,11 @@ function PathStrCompare(const S1: PChar; const S1Length: Integer;
   A length of -1 may be passed if a string is null-terminated; in that case,
   the length is determined automatically. }
 begin
- {$IF CompilerVersion >= 36.0}
-  const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
-    Byte(IgnoreCase));
- {$ELSE}
-  const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
-    IgnoreCase);
- {$ENDIF}
+  { As documented, CompareStringOrdinal only allows 1 for TRUE in the
+    bIgnoreCase parameter. "BOOL(Byte(IgnoreCase))" ensures we pass 1, not the
+    usual -1 Delphi passes when a Boolean is implicitly converted to BOOL. }
+  const CompareResult = CompareStringOrdinal_static(S1, S1Length, S2, S2Length,
+    BOOL(Byte(IgnoreCase)));
   case CompareResult of
     0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
          [GetLastError]);
