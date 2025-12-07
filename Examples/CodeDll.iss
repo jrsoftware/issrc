@@ -15,12 +15,13 @@ UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
 
 [Files]
+; Install our DLL to {app} so we can access it at uninstall time.
+; Use "Flags: dontcopy noencryption" if you don't need uninstall time access.
+Source: "MyDll.dll"; DestDir: "{app}"
+; Place any regular files here, so *after* all your dontcopy DLL files.
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; Install our DLL to {app} so we can access it at uninstall time.
-; Use "Flags: dontcopy" if you don't need uninstall time access.
-Source: "MyDll.dll"; DestDir: "{app}"
 
 [Code]
 const

@@ -137,7 +137,7 @@ function StringToColor(const S: string): TColor;
 
   function IdentToColor(Ident: string; var Color: Integer): Boolean;
   begin
-    if not Ident.StartsWith('cl') then
+    if not Ident.StartsWith('cl', True) then
       Ident := 'cl' + Ident;
     for var I := Low(Colors) to High(Colors) do
       if SameText(Colors[I].Name, Ident) then begin

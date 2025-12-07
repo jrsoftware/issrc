@@ -637,9 +637,9 @@ external 'A2@MyDll.dll stdcall';
 
 <precode>
 [Files]
-Source: "MyDll.dll"; Flags: dontcopy
-Source: "A.dll"; Flags: dontcopy
-Source: "B.dll"; Flags: dontcopy
+Source: "MyDll.dll"; Flags: dontcopy noencryption
+Source: "A.dll"; Flags: dontcopy noencryption
+Source: "B.dll"; Flags: dontcopy noencryption
 
 [Code]
 procedure MyDllFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);

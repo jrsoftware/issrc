@@ -24,7 +24,7 @@ WizardBackColorDynamicDark=#202020
 ;DialogFontSize=12
 
 [Files]
-Source: compiler:WizClassicSmallImage.bmp; Flags: dontcopy
+Source: compiler:WizClassicSmallImage.bmp; Flags: dontcopy noencryption
 
 [Code]
 procedure ButtonOnClick(Sender: TObject);

@@ -271,7 +271,7 @@ using [7-Zip]:
 
 ```
 cd /d "%BDS%"
-"C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+"%ProgramFiles%\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
   %USERPROFILE%\issrc-build-env.zip ^
   bin\dcc32.exe bin\rlink32.dll bin\lnk*.dll ^
   lib\win32\release\Sys*.dcu lib\win32\release\*.res ^
@@ -291,7 +291,7 @@ cd /d "%BDS%"
   bin\Borland.Build.Tasks.Common.dll bin\Borland.Build.Tasks.Delphi.dll bin\Borland.Build.Tasks.Shared.dll bin\Borland.Globalization.dll ^
   bin\CodeGear.Common.targets bin\CodeGear.Delphi.Targets bin\CodeGear.Group.Targets bin\CodeGear.Profiles.Targets
 cd /d "%BDSCOMMONDIR%"
-"C:\Program Files\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+"%ProgramFiles%\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
   %USERPROFILE%\issrc-build-env.zip ^
   Styles\SlateClassico.vsf ^
   Styles\Windows11_Modern_Dark.vsf ^

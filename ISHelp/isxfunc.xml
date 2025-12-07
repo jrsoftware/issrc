@@ -288,8 +288,8 @@ WizardBackColor=#f3f3f3
 WizardBackColorDynamicDark=#202020
 
 [Files]
-Source: MyImageNormal.png; Flags: dontcopy
-Source: MyImageLarge.png; Flags: dontcopy
+Source: MyImageNormal.png; Flags: dontcopy noencryption
+Source: MyImageLarge.png; Flags: dontcopy noencryption
 
 [Code]
 &lt;event('CurStepChanged')&gt;
@@ -1101,30 +1101,7 @@ end;
       <function>
         <name>CharLength</name>
         <prototype>function CharLength(const S: String; const Index: Integer): Integer;</prototype>
-        <description><p>Returns the length in bytes (1 or 2) of the character in the specified string at the specified index.</p></description>
-        <remarks><p>In double-byte character sets (Chinese, Japanese, Korean), most non-ASCII characters occupy two bytes. Note that the second byte of a double-byte character -- known as the "trail byte" -- can be in the same range used by ASCII characters (below 128). Thus, when stepping through a string that may contain double-byte characters, such as a path or filename, care must be taken to not mistake trail bytes for single-byte ASCII characters.</p></remarks>
-        <example><pre>function BackslashToSlash(const S: String): String;
-var
-  I: Integer;
-begin
-  Result := S;
-  I := 1;
-  while I &lt;= Length(Result) do
-  begin
-    if Result[I] = '\' then
-      Result[I] := '/';
-    // Go to the next character. But do not simply increment I by 1.
-    // Increment by CharLength() in case Result[I] is a double-byte character.
-    I := I + CharLength(Result, I);
-  end;
-end;
-
-...
-
-begin
-  // Show path of Common Files with backslashes changed to forward slashes
-  MsgBox(BackslashToSlash(ExpandConstant('{cf}')), mbInformation, MB_OK);
-end;</pre></example>
+        <description><p>Returns the length in characters of the character in the specified string at the specified index, which is currently always 1.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1837,7 +1814,7 @@ end;</pre></example>
         <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
@@ -1866,11 +1843,11 @@ end;</pre></example>
         <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage.</p>
+        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
         <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy
+Source: "Readme.txt"; Flags: dontcopy noencryption
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 

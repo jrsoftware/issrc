@@ -1739,7 +1739,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with the <tt>isreadme</tt>, <tt>regserver</tt>, <tt>regtypelib</tt>, <tt>restartreplace</tt>, <tt>sharedfile</tt>, or <tt>uninsneveruninstall</tt> flags.</p>
 </flag>
 <flag name="dontcopy">
-<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the [Code] section exclusively and extracted using <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link>.</p>
+<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the [Code] section exclusively and extracted using <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link>, and in that case should be combined with <tt>noencryption</tt>.</p>
 </flag>
 <flag name="dontverifychecksum">
 <p>Prevents Setup from verifying the file checksum after extraction. Use this flag on files you wish to modify while already compiled into Setup.</p>
