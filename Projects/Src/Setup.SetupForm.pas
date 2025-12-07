@@ -17,7 +17,7 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontSize
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
-  -SetupHeader.WizardControlStyling
+  -SetupHeader.WizardLightControlStyling
   -shWizardBorderStyled in SetupHeader.Options
   -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
@@ -375,17 +375,17 @@ end;
 
 class function TSetupForm.ShouldDisableContolStylesAsNeeded: Boolean;
 begin
-  Result := not IsDarkInstallMode and (SetupHeader.WizardControlStyling <> wcsAll);
+  Result := not IsDarkInstallMode and (SetupHeader.WizardLightControlStyling <> wcsAll);
 end;
 
 class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
 { Call ShouldDisableContolStylesAsNeeded first }
 begin
-  { SetupHeader.WizardControlStyling is either wcsAllButButtons or wcsOnlyRequired,
+  { SetupHeader.WizardLightControlStyling is either wcsAllButButtons or wcsOnlyRequired,
     so for buttons the style must always be disabled. }
   if Ctl is TCustomButton then
     Ctl.StyleName := FSystemStyleName
-  else if SetupHeader.WizardControlStyling = wcsOnlyRequired then begin
+  else if SetupHeader.WizardLightControlStyling = wcsOnlyRequired then begin
     if Ctl is TCustomEdit then
       Ctl.StyleName := FSystemStyleName;
   end;

@@ -97,7 +97,7 @@ type
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
   TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);
-  TSetupWizardControlStyling = (wcsAll, wcsAllButButtons, wcsOnlyRequired);
+  TSetupWizardLightControlStyling = (wcsAll, wcsAllButButtons, wcsOnlyRequired);
 const
   SetupProcessorArchitectureNames: array[TSetupProcessorArchitecture] of String =
     ('Unknown', 'x86', 'x64', 'Arm32', 'Arm64');
@@ -139,7 +139,7 @@ type
     WizardImageBackColor, WizardSmallImageBackColor, WizardBackColor: Integer;
     WizardImageBackColorDynamicDark, WizardSmallImageBackColorDynamicDark, WizardBackColorDynamicDark: Integer;
     WizardImageOpacity, WizardBackImageOpacity: Byte;
-    WizardControlStyling: TSetupWizardControlStyling;
+    WizardLightControlStyling: TSetupWizardLightControlStyling;
     ExtraDiskSpaceRequired: Int64;
     SlicesPerDisk: Integer;
     UninstallLogMode: (lmAppend, lmNew, lmOverwrite);
@@ -442,7 +442,7 @@ type
     DialogFontSize, DialogFontBaseScaleWidth, DialogFontBaseScaleHeight: Integer;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardBackColor, WizardBackColorDynamicDark: Integer;
-    WizardControlStyling: TSetupWizardControlStyling;
+    WizardLightControlStyling: TSetupWizardLightControlStyling;
     Flags: TMessagesLangOptionsFlags;
   end;
 

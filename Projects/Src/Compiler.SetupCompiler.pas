@@ -2615,8 +2615,8 @@ var
         2: SetupHeader.WizardDarkStyle := wdsLight;
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
-        5: SetupHeader.WizardControlStyling := wcsAllButButtons;
-        6: SetupHeader.WizardControlStyling := wcsOnlyRequired;
+        5: SetupHeader.WizardLightControlStyling := wcsAllButButtons;
+        6: SetupHeader.WizardLightControlStyling := wcsOnlyRequired;
         7: Include(SetupHeader.Options, shWizardBevelsHidden);
         8: Include(SetupHeader.Options, shWizardBorderStyled);
         9..12: WizardStyleSpecial := Styles[R];
@@ -8033,7 +8033,7 @@ begin
     SetupHeader.WizardBackColor := clNone;
     SetupHeader.WizardBackColorDynamicDark := clNone;
     SetupHeader.WizardBackImageOpacity := 255;
-    SetupHeader.WizardControlStyling := wcsAll;
+    SetupHeader.WizardLightControlStyling := wcsAll;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8240,7 +8240,7 @@ begin
     if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
       if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';
-        SetupHeader.WizardControlStyling := wcsOnlyRequired;
+        SetupHeader.WizardLightControlStyling := wcsOnlyRequired;
         if SetupDirectiveLines[ssWizardBackImageFile] <> 0 then
           Include(SetupHeader.Options, shWizardBevelsHidden);
       end;

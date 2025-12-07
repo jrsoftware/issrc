@@ -445,7 +445,7 @@ begin
   MsgLangOpts.WizardSizePercentY := SetupHeader.WizardSizePercentY;
   MsgLangOpts.WizardBackColor := OrigSetupHeaderWizardBackColor; { See Setup.MainFunc }
   MsgLangOpts.WizardBackColorDynamicDark := SetupHeader.WizardBackColorDynamicDark;
-  MsgLangOpts.WizardControlStyling := SetupHeader.WizardControlStyling;
+  MsgLangOpts.WizardLightControlStyling := SetupHeader.WizardLightControlStyling;
   if shWizardModern in SetupHeader.Options then
     Include(MsgLangOpts.Flags, lfWizardModern);
   if shWizardBorderStyled in SetupHeader.Options then

@@ -861,7 +861,7 @@ begin
     SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
     SetupHeader.WizardBackColor := MessagesLangOptions.WizardBackColor;
     SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
-    SetupHeader.WizardControlStyling := MessagesLangOptions.WizardControlStyling;
+    SetupHeader.WizardLightControlStyling := MessagesLangOptions.WizardLightControlStyling;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));
