@@ -596,8 +596,13 @@ function PathStrCompare(const S1: PChar; const S1Length: Integer;
   A length of -1 may be passed if a string is null-terminated; in that case,
   the length is determined automatically. }
 begin
+ {$IF CompilerVersion >= 36.0}
   const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
-    Byte(Ord(IgnoreCase)));
+    Byte(IgnoreCase));
+ {$ELSE}
+  const CompareResult = CompareStringOrdinal(S1, S1Length, S2, S2Length,
+    Ord(IgnoreCase));
+ {$ENDIF}
   case CompareResult of
     0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
          [GetLastError]);
