@@ -863,23 +863,23 @@ begin
         <description><p>Returns the length of the specified string.</p></description>
       </function>
       <function>
-        <name>Lowercase</name>
-        <prototype>function Lowercase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use AnsiLowercase instead.</p></description>
+        <name>LowerCase</name>
+        <prototype>function LowerCase(S: AnyString): String;</prototype>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use AnsiLowerCase instead.</p></description>
       </function>
       <function>
-        <name>Uppercase</name>
-        <prototype>function Uppercase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use AnsiUppercase instead.</p></description>
+        <name>UpperCase</name>
+        <prototype>function UpperCase(S: AnyString): String;</prototype>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use AnsiUpperCase instead.</p></description>
       </function>
       <function>
-        <name>AnsiLowercase</name>
-        <prototype>function AnsiLowercase(S: AnyString): String;</prototype>
+        <name>AnsiLowerCase</name>
+        <prototype>function AnsiLowerCase(S: AnyString): String;</prototype>
         <description><p>Returns a string that is a copy of the given string converted to lowercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
       </function>
       <function>
-        <name>AnsiUppercase</name>
-        <prototype>function AnsiUppercase(S: AnyString): String;</prototype>
+        <name>AnsiUpperCase</name>
+        <prototype>function AnsiUpperCase(S: AnyString): String;</prototype>
         <description><p>Returns a string that is a copy of the given string converted to uppercase. The conversion uses the current Windows locale. This function supports multi-byte character sets (MBCS).</p></description>
       </function>
       <function>
