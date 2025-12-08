@@ -15,11 +15,15 @@ unit Compiler.SetupCompiler;
   folder to the Delphi Compiler Search path in the project options. Most useful
   when combined with IDE.MainForm's or ISCC's STATICCOMPILER. }
 
+{x$DEFINE TESTRETRIES}
+{ For debugging purposes, remove the 'x' to have it simulate file-in-use errors
+  while outputting Setup }
+
 interface
 
 uses
   Windows, SysUtils, Classes, Generics.Collections,
-  SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes,
+  SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes, Shared.CommonFunc,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
@@ -178,7 +182,7 @@ type
 
     procedure AddStatus(const S: String; const Warning: Boolean = False);
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
-      const Warning: Boolean);
+      const Warning: Boolean = False);
     procedure OnCheckedTrust(CheckedTrust: Boolean);
     class procedure AbortCompile(const Msg: String);
     class procedure AbortCompileParamError(const Msg, ParamName: String);
@@ -311,7 +315,7 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, TrustFunc, ISSigFunc, ECDSA, Shared.CommonFunc, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, ISSigFunc, ECDSA, Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Shared.EncryptionFunc, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives,
 {$IFDEF STATICPREPROC}
@@ -7579,11 +7583,75 @@ var
     CallIdleProc;
   end;
 
-  procedure CopyFileOrAbort(const SourceFile, DestFile: String;
+  type
+    TFileOperation = reference to procedure(out ErrorCode: Cardinal);
+
+  procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean; const Op: TFileOperation);
+  { Op should always raise an exception on failure. If the raised exception is an EFileError, its
+    ErrorCode will be used and the ErrorCode parameter is ignored. }
+  begin
+    var SavedException: TObject := nil;
+    try
+      PerformFileOperationWithRetries({$IFDEF TESTRETRIES} 2 {$ELSE} 4 {$ENDIF}, AlsoRetryOnAlreadyExists,
+        function {Op}: Boolean
+        begin
+          var ErrorCode: Cardinal;
+          try
+            ErrorCode := 0;
+            try
+              {$IFDEF TESTRETRIES}
+              if TStrongRandom.GenerateUInt32 mod 2 = 1 then begin
+                //this also works:
+                //TCustomFile.RaiseError(ERROR_SHARING_VIOLATION);
+                ErrorCode := ERROR_SHARING_VIOLATION;
+                AbortCompile('Simulated sharing violation');
+              end;
+              {$ENDIF}
+              Op(ErrorCode);
+            except on E: EFileError do
+              begin
+                ErrorCode := E.ErrorCode;
+                raise;
+              end;
+            end;
+            Exit(True);
+          except
+            begin
+              SavedException.Free;
+              SavedException := AcquireExceptionObject;
+              { Continued below because calling SetLastError now wouldn't work }
+            end;
+          end;
+          { If ErrorCode is still 0 now that's ok too: PerformFileOperationWithRetries will then
+            simply immediately call the Failed function below, which will raise the saved exception }
+          SetLastError(ErrorCode);
+          Result := False;
+        end,
+        procedure {Failing}(const LastError: Cardinal)
+        begin
+          AddStatusFmt(SCompilerStatusOutputFileInUse, [LastError]);
+          for var I := 0 to 9 do begin
+            Sleep(100);
+            CallIdleProc; { May raise an exception }
+          end;
+        end,
+        procedure {Failed}(const LastError: Cardinal; var TryOnceMore: Boolean)
+        begin
+          if SavedException <> nil then
+            raise SavedException
+          else
+            AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected SavedException value (1)']);
+        end);
+    finally
+      { SavedException will be non-nil if there was a succesful retry. It can also be non-nil if
+        an exception was raised outside Failed. }
+      SavedException.Free;
+    end;
+  end;
+
+  procedure CopyFileOrAbort(const SourceFile, DestFile: String; const AlsoRetryOnAlreadyExists: Boolean;
     const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions;
     const OnCheckedTrust: TProc<Boolean>);
-  var
-    ErrorCode: DWORD;
   begin
     if CheckTrust then begin
       try
@@ -7597,11 +7665,15 @@ var
     if Assigned(OnCheckedTrust) then
       OnCheckedTrust(CheckTrust);
 
-    if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
-      ErrorCode := GetLastError;
-      AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
-        ErrorCode, Win32ErrorString(ErrorCode)]);
-    end;
+    WithRetries(AlsoRetryOnAlreadyExists,
+      procedure(out ErrorCode: Cardinal)
+      begin
+        if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
+          ErrorCode := GetLastError;
+          AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
+            ErrorCode, Win32ErrorString(ErrorCode)]);
+        end;
+      end);
   end;
 
   function InternalSignSetupE32(const Filename: String;
@@ -7753,7 +7825,7 @@ var
       E32Filename := CompilerDir + E32Basename;
       { make a copy and update icons, version info and if needed manifest }
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, not(E32Pf in DisablePrecompiledFileVerifications),
+      CopyFileOrAbort(E32Filename, ConvertFilename, False, not(E32Pf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
       TempFilename := ConvertFilename;
@@ -7761,6 +7833,7 @@ var
         AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [E32Basename]))
       else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
+
       { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
@@ -7768,9 +7841,14 @@ var
       else
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
           PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
+
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
-      ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
+      WithRetries(False,
+        procedure(out ErrorCode: Cardinal)
+        begin
+          ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
+        end);
       try
         UpdateVersionInfo(ConvertFile, TFileVersionNumbers(nil^), VersionInfoProductVersion, VersionInfoCompany,
           '', '', VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
@@ -7778,6 +7856,7 @@ var
       finally
         ConvertFile.Free;
       end;
+
       M := TMemoryFile.Create(ConvertFilename);
       UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
@@ -8667,10 +8746,10 @@ begin
         end
         else begin
           if UseSetupLdr = sl32bit then
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust)
           else
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, True, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust);
           { if there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
