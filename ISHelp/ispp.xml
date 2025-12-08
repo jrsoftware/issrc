@@ -1846,7 +1846,6 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns True if the given strings are identical, with case-sensitivity.</p>
-          <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
 			<topic id="Message">

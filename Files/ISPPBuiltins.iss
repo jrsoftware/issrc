@@ -298,9 +298,6 @@
 #define SameText(str S1, str S2) \
   S1 == S2
 
-#define SameStr(str S1, str S2) \
-  S1 == S2
-
 #define WarnRenamedVersion(str OldName, str NewName) \
   Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + """ instead.")
 
