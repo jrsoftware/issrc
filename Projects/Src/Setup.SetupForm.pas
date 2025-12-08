@@ -34,20 +34,16 @@ uses
 type
   TSetupForm = class(TUIStateForm)
   private
-    class var
-      FSystemStyleName: String;
-    var
-      FOrigBaseUnitX, FOrigBaseUnitY: Integer;
-      FBaseUnitX, FBaseUnitY: Integer;
-      FRightToLeft: Boolean;
-      FFlipControlsOnShow: Boolean;
-      FCenterOnShow: Boolean;
-      FControlsFlipped: Boolean;
-      FKeepSizeX, FKeepSizeY: Boolean;
-      FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
-      FSetForeground: Boolean;
-      FDidDisableChildControlsStylesAsNeeded: Boolean;
-    class constructor Create;
+    FOrigBaseUnitX, FOrigBaseUnitY: Integer;
+    FBaseUnitX, FBaseUnitY: Integer;
+    FRightToLeft: Boolean;
+    FFlipControlsOnShow: Boolean;
+    FCenterOnShow: Boolean;
+    FControlsFlipped: Boolean;
+    FKeepSizeX, FKeepSizeY: Boolean;
+    FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
+    FSetForeground: Boolean;
+    FDidDisableChildControlsStylesAsNeeded: Boolean;
     class function ShouldDisableContolStylesAsNeeded: Boolean;
     class procedure DisableControlStyleAsNeeded(const Ctl: TControl);
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
@@ -208,11 +204,6 @@ begin
 end;
 
 { TSetupForm }
-
-class constructor TSetupForm.Create;
-begin
-  FSystemStyleName := TStyleManager.SystemStyleName;
-end;
 
 constructor TSetupForm.Create(AOwner: TComponent);
 begin
@@ -377,6 +368,10 @@ end;
 class function TSetupForm.ShouldDisableContolStylesAsNeeded: Boolean;
 begin
   Result := not IsDarkInstallMode and (SetupHeader.WizardLightControlStyling <> wcsAll);
+  if Result then begin
+    const LStyle = StyleServices;
+    Result := LStyle.Enabled and not LStyle.IsSystemStyle;
+  end;
 end;
 
 class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
@@ -385,7 +380,7 @@ begin
   { SetupHeader.WizardLightControlStyling is either wcsAllButButtons or wcsOnlyRequired,
     so for buttons the style must always be disabled. }
   if Ctl is TCustomButton then
-    Ctl.StyleName := FSystemStyleName
+    Ctl.StyleName := TStyleManager.SystemStyleName
   else if SetupHeader.WizardLightControlStyling = wcsOnlyRequired then begin
     if (Ctl is TNewCheckListBox) and TNewCheckListBox(Ctl).TransparentIfStyled then begin
       { Requires VCL Styles for transparency, but can be told to use native checkboxes and radiobuttons }
@@ -397,7 +392,7 @@ begin
         (Ctl is TNewNotebook) or (Ctl is TNewNotebookPage) or          { Don't use VCL Styles }
         ((Ctl is TNewStaticText) and TNewStaticText(Ctl).Transparent); { Requires VCL Styles for transparency }
       if not KeepStyle then
-        Ctl.StyleName := FSystemStyleName;
+        Ctl.StyleName := TStyleManager.SystemStyleName;
     end;
   end;
 end;
