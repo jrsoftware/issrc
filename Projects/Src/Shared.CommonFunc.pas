@@ -185,9 +185,9 @@ function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
 function StrToWnd(const S: String): HWND;
-function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean; overload;
-function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean; overload;
 
 implementation
@@ -1730,14 +1730,14 @@ begin
             (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
 end;
 
-function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean;
 { Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
   retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
   failure. It is recommended that Failed throws an exception, rather than expecting the caller to
   inspect the return value. Alternatively, Failed can set DoExit to False to allow an extra retry. }
 begin
-  Result := PerformFileOperationWithRetries(MaxRetries, CheckAlreadyExists,
+  Result := PerformFileOperationWithRetries(MaxRetries, AlsoRetryOnAlreadyExists,
     Op,
     procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
     begin
@@ -1750,7 +1750,7 @@ begin
     Failed);
 end;
 
-function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean;
 { Similar to the other PerformFileOperationWithRetries, but provides fine-grained control to Failing,
   which is now responsible for updating RetriesLeft itself, and can also request an early break. }
@@ -1759,7 +1759,7 @@ begin
   while not Op do begin
     const LastError = GetLastError;
     { Does the error code indicate that it is possibly in use? }
-    if LastErrorIndicatesPossiblyInUse(LastError, CheckAlreadyExists) then begin
+    if LastErrorIndicatesPossiblyInUse(LastError, AlsoRetryOnAlreadyExists) then begin
       var DoBreak := False;
       var DoContinue := False;
       Failing(LastError, RetriesLeft, DoBreak, DoContinue);
