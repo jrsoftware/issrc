@@ -32,10 +32,7 @@ procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.P
 
 procedure TControlParentW(Self: TControl; T: TWinControl);
 begin
-  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
-    from scaling the control. Also see TSetupForm.CreateWnd.  }
-  Self.SetCurrentPPI(T.CurrentPPI);
-  Self.Parent := T;
+  TSetupForm.SetCtlParent(Self, T);
 end;
 
 procedure RegisterControl_R(Cl: TPSRuntimeClassImporter);

@@ -69,6 +69,7 @@ type
     FHotIndex: Integer;
     FDisableItemStateDeletion: Integer;
     FWheelAccum: Integer;
+    FDisableStyledButtons: Boolean;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
@@ -159,6 +160,7 @@ type
     function GetParentOf(Item: Integer): Integer;
     procedure UpdateThreads;
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
+    property DisableStyledButtons: Boolean read FDisableStyledButtons write FDisableStyledButtons;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
     property ItemEnabled[Index: Integer]: Boolean read GetItemEnabled write SetItemEnabled;
     property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFontStyle write SetItemFontStyle;
@@ -877,7 +879,7 @@ begin
         Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
         FCheckWidth, FCheckHeight);
       FlipRect(CheckRect, SavedClientRect, IsRightToLeft);
-      if LStyle <> nil then begin
+      if (LStyle <> nil) and not FDisableStyledButtons then begin
         var Detail: TThemedButton;
         if ItemState.State <> cbGrayed then begin
           if ItemState.ItemType = itCheck then begin

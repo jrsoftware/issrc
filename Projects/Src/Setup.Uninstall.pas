@@ -853,8 +853,6 @@ begin
     LangOptions.DialogFontBaseScaleWidth := MessagesLangOptions.DialogFontBaseScaleWidth;
     LangOptions.DialogFontBaseScaleHeight := MessagesLangOptions.DialogFontBaseScaleHeight;
     LangOptions.RightToLeft := lfRightToLeft in MessagesLangOptions.Flags;
-    if lfWizardLightButtonsUnstyled in MessagesLangOptions.Flags then
-      Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
     if lfWizardBorderStyled in MessagesLangOptions.Flags then
       Include(SetupHeader.Options, shWizardBorderStyled);
     if lfWizardKeepAspectRatio in MessagesLangOptions.Flags then
@@ -863,6 +861,7 @@ begin
     SetupHeader.WizardSizePercentY := MessagesLangOptions.WizardSizePercentY;
     SetupHeader.WizardBackColor := MessagesLangOptions.WizardBackColor;
     SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
+    SetupHeader.WizardLightControlStyling := MessagesLangOptions.WizardLightControlStyling;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
     SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
     SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));

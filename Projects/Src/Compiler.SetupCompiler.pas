@@ -2589,11 +2589,11 @@ var
     Styles: array of PChar = [
       'classic', 'modern',
       'light', 'dark', 'dynamic',
-      'excludelightbuttons',
+      'excludelightbuttons', 'excludelightcontrols',
       'hidebevels',
       'includetitlebar',
       'polar', 'slate', 'windows11', 'zircon'];
-    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5];
+    StylesGroups: array of Integer = [0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 5, 5, 5];
   var
     StylesGroupSeen: array [0..5] of Boolean;
   begin
@@ -2615,10 +2615,11 @@ var
         2: SetupHeader.WizardDarkStyle := wdsLight;
         3: SetupHeader.WizardDarkStyle := wdsDark;
         4: SetupHeader.WizardDarkStyle := wdsDynamic;
-        5: Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
-        6: Include(SetupHeader.Options, shWizardBevelsHidden);
-        7: Include(SetupHeader.Options, shWizardBorderStyled);
-        8..11: WizardStyleSpecial := Styles[R];
+        5: SetupHeader.WizardLightControlStyling := wcsAllButButtons;
+        6: SetupHeader.WizardLightControlStyling := wcsOnlyRequired;
+        7: Include(SetupHeader.Options, shWizardBevelsHidden);
+        8: Include(SetupHeader.Options, shWizardBorderStyled);
+        9..12: WizardStyleSpecial := Styles[R];
       end;
     end;
   end;
@@ -8032,6 +8033,7 @@ begin
     SetupHeader.WizardBackColor := clNone;
     SetupHeader.WizardBackColorDynamicDark := clNone;
     SetupHeader.WizardBackImageOpacity := 255;
+    SetupHeader.WizardLightControlStyling := wcsAll;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8238,7 +8240,7 @@ begin
     if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
       if WizardStyleSpecial = '' then begin
         WizardStyleSpecial := 'windows11';
-        Include(SetupHeader.Options, shWizardLightButtonsUnstyled);
+        SetupHeader.WizardLightControlStyling := wcsOnlyRequired;
         if SetupDirectiveLines[ssWizardBackImageFile] <> 0 then
           Include(SetupHeader.Options, shWizardBevelsHidden);
       end;
