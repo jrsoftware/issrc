@@ -46,6 +46,7 @@ type
       FKeepSizeX, FKeepSizeY: Boolean;
       FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
       FSetForeground: Boolean;
+      FDidDisableChildControlsStylesAsNeeded: Boolean;
     class constructor Create;
     class function ShouldDisableContolStylesAsNeeded: Boolean;
     class procedure DisableControlStyleAsNeeded(const Ctl: TControl);
@@ -103,8 +104,8 @@ function SetFontNameSize(const AFont: TFont; const AName: String;
 implementation
 
 uses
-  Generics.Collections, UITypes, WinXPanels, Themes, StdCtrls,
-  BidiUtils, NewNotebook,
+  Generics.Collections, UITypes, WinXPanels, Themes, StdCtrls, ExtCtrls,
+  BidiUtils, BitmapButton, BitmapImage, NewNotebook, NewStaticText, NewCheckListBox,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   Setup.MainFunc, Setup.InstFunc;
 
@@ -380,13 +381,31 @@ end;
 
 class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
 { Call ShouldDisableContolStylesAsNeeded first }
+
+  function KeepStyle(const Ctl: TControl): Boolean;
+  begin
+    Result := Ctl is TCustomPanel;
+  end;
+
+  function DoesntUseStyle(const Ctl: TControl): Boolean;
+  begin
+    Result := (Ctl is TBitmapButton) or (Ctl is TBitmapImage) or
+              (Ctl is TNewNotebook) or (Ctl is TNewNotebookPage);
+  end;
+
+  function RequireStyle(const Ctl: TControl): Boolean;
+  begin
+    Result := ((Ctl is TNewStaticText) and (TNewStaticText(Ctl).Transparent)) or
+              ((Ctl is TNewCheckListBox) and (TNewCheckListBox(Ctl).TransparentIfStyled));
+  end;
+
 begin
   { SetupHeader.WizardLightControlStyling is either wcsAllButButtons or wcsOnlyRequired,
     so for buttons the style must always be disabled. }
   if Ctl is TCustomButton then
     Ctl.StyleName := FSystemStyleName
   else if SetupHeader.WizardLightControlStyling = wcsOnlyRequired then begin
-    if Ctl is TCustomEdit then
+    if not (KeepStyle(Ctl) or DoesntUseStyle(Ctl) or RequireStyle(Ctl)) then
       Ctl.StyleName := FSystemStyleName;
   end;
 end;
@@ -440,8 +459,11 @@ begin
     Create: in Create it can't be before inherited since it wouldn't
     yet know about the children, and also not after since the
     handles might be allocated. }
-  if ShouldDisableContolStylesAsNeeded then
+  if ShouldDisableContolStylesAsNeeded and not FDidDisableChildControlsStylesAsNeeded then begin
     DisableChildControlsStylesAsNeeded(Self);
+    { Don't need to disable again if the window is recreated }
+    FDidDisableChildControlsStylesAsNeeded := True;
+  end;
 
   inherited;
 
