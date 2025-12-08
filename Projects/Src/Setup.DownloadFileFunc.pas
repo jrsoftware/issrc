@@ -400,6 +400,7 @@ begin
   { Does not disable FS redirection, like everything else working on the temp dir }
 
   { Prepare directory }
+  var DidJustDeleteDestFile := False;
   if NewFileExists(DestFile) then begin
     if Verification.Typ = fvHash then begin
       if SHA256DigestsEqual(GetSHA256OfFile(False, DestFile), Verification.Hash) then begin
@@ -430,6 +431,7 @@ begin
 
     SetFileAttributes(PChar(DestFile), GetFileAttributes(PChar(DestFile)) and not FILE_ATTRIBUTE_READONLY);
     DelayDeleteFile(False, DestFile, 13, 50, 250);
+    DidJustDeleteDestFile := True;
   end else
     ForceDirectories(False, PathExtractPath(DestFile));
 
@@ -480,7 +482,7 @@ begin
 
     { Rename the temporary file to the new name now, with retries if needed }
     const CapturableDestFile = DestFile;
-    PerformFileOperationWithRetries(4, True,
+    PerformFileOperationWithRetries(4, DidJustDeleteDestFile,
       function: Boolean
       begin
         Result := MoveFile(PChar(TempFile), PChar(CapturableDestFile));
