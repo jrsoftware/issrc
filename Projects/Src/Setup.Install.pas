@@ -1194,7 +1194,7 @@ Retry:
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
               DoBreak, DoContinue);
           end,
-          procedure(const LastError: Cardinal; var DoExit: Boolean)
+          procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
           begin
             Win32ErrorMsg('DeleteFile'); { Throws an exception }
           end);
@@ -1222,7 +1222,7 @@ Retry:
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
               DoBreak, DoContinue);
           end,
-          procedure(const LastError: Cardinal; var DoExit: Boolean)
+          procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
           begin
             Win32ErrorMsg('MoveFile'); { Throws an exception }
           end);
@@ -2724,7 +2724,7 @@ begin
       Timer.SleepUntilExpired;
       ProcessEvents;
     end,
-    procedure(const LastError: Cardinal; var DoExit: Boolean)
+    procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
     begin
       const LastOperation = SetupMessages[msgErrorReplacingExistingFile];
       const Failed = AddPeriod(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
@@ -2733,7 +2733,7 @@ begin
       case LoggedTaskDialogMsgBox('',  SetupMessages[msgRetryCancelSelectAction], Text, '',
          mbError, MB_RETRYCANCEL, [SetupMessages[msgRetryCancelRetry], SetupMessages[msgRetryCancelCancel]],
          0, True, IDCANCEL) of
-        IDRETRY: DoExit := False;
+        IDRETRY: TryOnceMore := True;
         IDCANCEL: Abort;
       else
         Log('LoggedTaskDialogMsgBox returned an unexpected value. Assuming Cancel.');

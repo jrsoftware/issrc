@@ -493,7 +493,7 @@ begin
           'Retrying.', [LastError]);
         Sleep(1000);
       end,
-      procedure(const LastError: Cardinal; var DoExit: Boolean)
+      procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
       begin
         Win32ErrorMsg('MoveFile'); { Throws an exception }
       end);

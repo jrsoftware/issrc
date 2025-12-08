@@ -95,7 +95,7 @@ type
   TFileOperation = reference to function: Boolean;
   TFileOperationFailing = reference to procedure(const LastError: Cardinal);
   TFileOperationFailingEx = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean);
-  TFileOperationFailed = reference to procedure(const LastError: Cardinal; var DoExit: Boolean);
+  TFileOperationFailed = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
 
 const
   RegViews64Bit = [rv64Bit];
@@ -1770,9 +1770,9 @@ begin
     end;
     { Some other error occurred, or we ran out of tries }
     SetLastError(LastError);
-    var DoExit := True;
-    Failed(LastError, DoExit);
-    if DoExit then
+    var TryOnceMore := False;
+    Failed(LastError, TryOnceMore);
+    if not TryOnceMore then
       Exit(False);
   end;
   Result := True;
