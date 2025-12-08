@@ -79,7 +79,7 @@ function UnescapeBraces(const S: String): String;
 implementation
 
 uses
-  TrustFunc, Shared.CommonFunc,
+  PathFunc, TrustFunc, Shared.CommonFunc,
   Compression.Base, Compiler.Messages;
 
 type
@@ -137,7 +137,7 @@ function StringToColor(const S: string): TColor;
 
   function IdentToColor(Ident: string; var Color: Integer): Boolean;
   begin
-    if not Ident.StartsWith('cl', True) then
+    if not PathStartsWith(Ident, 'cl') then
       Ident := 'cl' + Ident;
     for var I := Low(Colors) to High(Colors) do
       if SameText(Colors[I].Name, Ident) then begin
