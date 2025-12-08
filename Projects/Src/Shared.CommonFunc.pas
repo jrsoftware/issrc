@@ -91,6 +91,12 @@ type
   end;
 
   TRegView = (rvDefault, rv32Bit, rv64Bit);
+
+  TFileOperation = reference to function: Boolean;
+  TFileOperationFailing = reference to procedure(const LastError: Cardinal);
+  TFileOperationFailingEx = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean);
+  TFileOperationFailed = reference to procedure(const LastError: Cardinal; var DoExit: Boolean);
+
 const
   RegViews64Bit = [rv64Bit];
 
@@ -179,6 +185,10 @@ function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
 function StrToWnd(const S: String): HWND;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+  const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean; overload;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+  const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean; overload;
 
 implementation
 
@@ -1711,6 +1721,61 @@ end;
 function StrToWnd(const S: String): HWND;
 begin
   Result := UInt32(StrToUInt64(S));
+end;
+
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
+end;
+
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+  const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean;
+{ Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
+  retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
+  failure. It is recommended that Failed throws an exception, rather than expecting the caller to
+  inspect the return value. Alternatively, Failed can set DoExit to False to allow an extra retry. }
+begin
+  Result := PerformFileOperationWithRetries(MaxRetries, CheckAlreadyExists,
+    Op,
+    procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+    begin
+      DoContinue := RetriesLeft > 0;
+      if DoContinue then begin
+        Failing(LastError);
+        Dec(RetriesLeft);
+      end;
+    end,
+    Failed);
+end;
+
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const CheckAlreadyExists: Boolean;
+  const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean;
+{ Similar to the other PerformFileOperationWithRetries, but provides fine-grained control to Failing,
+  which is now responsible for updating RetriesLeft itself, and can also request an early break. }
+begin
+  var RetriesLeft := MaxRetries;
+  while not Op do begin
+    const LastError = GetLastError;
+    { Does the error code indicate that it is possibly in use? }
+    if LastErrorIndicatesPossiblyInUse(LastError, CheckAlreadyExists) then begin
+      var DoBreak := False;
+      var DoContinue := False;
+      Failing(LastError, RetriesLeft, DoBreak, DoContinue);
+      if DoBreak then
+        Break
+      else if DoContinue then
+        Continue;
+    end;
+    { Some other error occurred, or we ran out of tries }
+    SetLastError(LastError);
+    var DoExit := True;
+    Failed(LastError, DoExit);
+    if DoExit then
+      Exit(False);
+  end;
+  Result := True;
 end;
 
 { TOneShotTimer }
