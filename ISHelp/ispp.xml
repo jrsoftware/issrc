@@ -955,6 +955,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</p>
+					<p>Note: String comparison operators are case-insensitive, so calling LowerCase on strings before comparing is not necessary.</p>
 				</description>
 			</topic>
 			<topic id="UpperCase">
@@ -1041,7 +1042,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<line></line>
 						<line>#sub ProcessFoundFile</line>
 						<line>&dsp;#define FileName FindGetFileName(FindHandle)</line>
-						<line>&dsp;#if LowerCase(Copy(FileName, 1, 4)) == "ispp"</line>
+						<line>&dsp;#if Copy(FileName, 1, 4) == "ispp"</line>
 						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}\ispp</line>
 						<line>&dsp;#else</line>
 						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}</line>
@@ -1944,6 +1945,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <tt><link href="Defined">Defined</link></tt> function.</p>
 				<p>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</p>
 				<p>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</p>
+				<p>String comparison operators are case-insensitive.</p>
 			</section>
 			<section title="Comments">
 				<p>Comments may be embedded in an expression by using a slash and an asterisk. For example:</p>

@@ -281,7 +281,7 @@
     S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
 
 #define YesNo(str S) \
-  (S = LowerCase(S)) == "yes" || S == "true" || S == "1"
+  S == "yes" || S == "true" || S == "1"
 
 #define IsDirSet(str SetupDirective) \
   YesNo(SetupSetting(SetupDirective))
@@ -296,7 +296,7 @@
   A > B ? A > C ? Int(A) : Int(C) : Int(B)
 
 #define SameText(str S1, str S2) \
-  LowerCase(S1) == LowerCase(S2)
+  S1 == S2
 
 #define SameStr(str S1, str S2) \
   S1 == S2
