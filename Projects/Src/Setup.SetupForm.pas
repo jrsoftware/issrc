@@ -381,32 +381,24 @@ end;
 
 class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
 { Call ShouldDisableContolStylesAsNeeded first }
-
-  function KeepStyle(const Ctl: TControl): Boolean;
-  begin
-    Result := Ctl is TCustomPanel;
-  end;
-
-  function DoesntUseStyle(const Ctl: TControl): Boolean;
-  begin
-    Result := (Ctl is TBitmapButton) or (Ctl is TBitmapImage) or
-              (Ctl is TNewNotebook) or (Ctl is TNewNotebookPage);
-  end;
-
-  function RequireStyle(const Ctl: TControl): Boolean;
-  begin
-    Result := ((Ctl is TNewStaticText) and (TNewStaticText(Ctl).Transparent)) or
-              ((Ctl is TNewCheckListBox) and (TNewCheckListBox(Ctl).TransparentIfStyled));
-  end;
-
 begin
   { SetupHeader.WizardLightControlStyling is either wcsAllButButtons or wcsOnlyRequired,
     so for buttons the style must always be disabled. }
   if Ctl is TCustomButton then
     Ctl.StyleName := FSystemStyleName
   else if SetupHeader.WizardLightControlStyling = wcsOnlyRequired then begin
-    if not (KeepStyle(Ctl) or DoesntUseStyle(Ctl) or RequireStyle(Ctl)) then
-      Ctl.StyleName := FSystemStyleName;
+    if (Ctl is TNewCheckListBox) and TNewCheckListBox(Ctl).TransparentIfStyled then begin
+      { Requires VCL Styles for transparency, but can be told to use native checkboxes and radiobuttons }
+      TNewCheckListBox(Ctl).DisableStyledButtons := True;
+    end else begin
+      const KeepStyle =
+        (Ctl is TCustomPanel) or
+        (Ctl is TBitmapButton) or (Ctl is TBitmapImage) or             { Don't use VCL Styles }
+        (Ctl is TNewNotebook) or (Ctl is TNewNotebookPage) or          { Don't use VCL Styles }
+        ((Ctl is TNewStaticText) and TNewStaticText(Ctl).Transparent); { Requires VCL Styles for transparency }
+      if not KeepStyle then
+        Ctl.StyleName := FSystemStyleName;
+    end;
   end;
 end;
 

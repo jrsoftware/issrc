@@ -5989,7 +5989,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>Also supported are the following modifiers:</p>
 <ul>
 <li><tt>excludelightbuttons</tt>: Disables custom styling of all buttons (including command link buttons, as used in task dialogs) when a light style is active.</li>
-<li><tt>excludelightcontrols</tt>: Disables custom styling of all interactive controls (including buttons) when a light style is active, except when styling is required to achieve transparency.</li>
+<li><tt>excludelightcontrols</tt>: Disables custom styling of all controls (including buttons) when a light style is active, except when styling is required to achieve transparency.</li>
 <li><tt>hidebevels</tt>: Hides all bevels (horizontal lines) across Setup and Uninstall, except those in native system dialogs.</li>
 <li><tt>includetitlebar</tt>: Enables custom styling of both title bars and borders when a custom style (including the built-in custom dark style) is active. By default, the system's native light or dark title bar is used instead.</li>
 </ul>

@@ -53,7 +53,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Custom background colors are also supported by Uninstall.</p>
 <p>These changes are backward compatible: if you do not set any of the new directives, then your installers and uninstallers will look the same as before.</p>
 <ul>
-  <li>Added new <tt>WizardStyle</tt> modifier <tt>excludelightcontrols</tt>. Disables custom styling of all interactive controls (including buttons) when a light style is active, except when styling is required to achieve transparency.</li>
+  <li>Added new <tt>WizardStyle</tt> modifier <tt>excludelightcontrols</tt>. Disables custom styling of all controls (including buttons) when a light style is active, except when styling is required to achieve transparency.</li>
   <li>Added new <tt>WizardStyle</tt> modifier <tt>hidebevels</tt>. Hides all bevels (horizontal lines) across Setup and Uninstall, except those in native system dialogs.</li>
   <li>Added new <tt>[Setup]</tt> section directives <tt>WizardBackColor</tt> and <tt>WizardBackColorDynamicDark</tt> to specify custom background colors to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.<br/>
       If you set this directive but a custom style is not specified by <tt>WizardStyle</tt>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightcontrols</tt>.</li>
