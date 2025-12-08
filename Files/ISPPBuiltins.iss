@@ -235,7 +235,7 @@
       Copy(PathName, 1, Local[1])
 
 #define ExtractFileDir(str PathName) \
-  RemoveBackslash(ExtractFilePath(PathName))
+  RemoveBackslashUnlessRoot(ExtractFilePath(PathName))
 
 #define ExtractFileExt(str PathName) \
   Local[0] = RPos(".", PathName), \
