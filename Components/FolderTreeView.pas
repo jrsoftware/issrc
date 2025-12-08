@@ -407,7 +407,7 @@ begin
 
   { Enable the new Explorer-style look }
   if Assigned(SetWindowTheme) then begin
-    var LStyle := StyleServices;
+    var LStyle := StyleServices(Self);
     if not LStyle.Enabled or LStyle.IsSystemStyle then
      LStyle := nil;
     if (LStyle = nil) or ColorIsBright(LStyle.GetSystemColor(clWindow)) then
