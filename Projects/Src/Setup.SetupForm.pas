@@ -44,7 +44,7 @@ type
     FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     FDidDisableChildControlsStylesAsNeeded: Boolean;
-    class function ShouldDisableContolStylesAsNeeded: Boolean;
+    class function ShouldDisableControlStylesAsNeeded: Boolean;
     class procedure DisableControlStyleAsNeeded(const Ctl: TControl);
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -365,7 +365,7 @@ begin
     Params.ExStyle := Params.ExStyle or (WS_EX_RTLREADING or WS_EX_LEFTSCROLLBAR or WS_EX_RIGHT);
 end;
 
-class function TSetupForm.ShouldDisableContolStylesAsNeeded: Boolean;
+class function TSetupForm.ShouldDisableControlStylesAsNeeded: Boolean;
 begin
   Result := not IsDarkInstallMode and (SetupHeader.WizardLightControlStyling <> wcsAll);
   if Result then begin
@@ -375,7 +375,7 @@ begin
 end;
 
 class procedure TSetupForm.DisableControlStyleAsNeeded(const Ctl: TControl);
-{ Call ShouldDisableContolStylesAsNeeded first }
+{ Call ShouldDisableControlStylesAsNeeded first }
 begin
   { SetupHeader.WizardLightControlStyling is either wcsAllButButtons or wcsOnlyRequired,
     so for buttons the style must always be disabled. }
@@ -400,7 +400,7 @@ end;
 procedure TSetupForm.CreateWnd;
 
   procedure DisableChildControlsStylesAsNeeded(const ParentCtl: TWinControl);
-  { Call ShouldDisableContolStylesAsNeeded first }
+  { Call ShouldDisableControlStylesAsNeeded first }
   begin
     for var I := 0 to ParentCtl.ControlCount-1 do begin
       const Ctl = ParentCtl.Controls[I];
@@ -446,7 +446,7 @@ begin
     Create: in Create it can't be before inherited since it wouldn't
     yet know about the children, and also not after since the
     handles might be allocated. }
-  if ShouldDisableContolStylesAsNeeded and not FDidDisableChildControlsStylesAsNeeded then begin
+  if ShouldDisableControlStylesAsNeeded and not FDidDisableChildControlsStylesAsNeeded then begin
     DisableChildControlsStylesAsNeeded(Self);
     { Don't need to disable again if the window is recreated }
     FDidDisableChildControlsStylesAsNeeded := True;
@@ -741,7 +741,7 @@ class procedure TSetupForm.SetCtlParent(const AControl: TControl; const AParent:
 { To be called when a control is added after the form has already been created }
 begin
   { Disable style if needed }
-  if ShouldDisableContolStylesAsNeeded then
+  if ShouldDisableControlStylesAsNeeded then
     DisableControlStyleAsNeeded(AControl);
     
   { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
