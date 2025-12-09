@@ -7588,8 +7588,8 @@ var
 
   procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean;
     const Filename: String; const Op: TFileOperation);
-  { Op should always raise an exception on failure. If the raised exception is an EFileError, its
-    ErrorCode will be used and the ErrorCode parameter is ignored. }
+  { Op should always raise an exception on failure. If the raised exception is an EFileError or
+    EResUpdateError, its ErrorCode will be used and the ErrorCode parameter is ignored. }
   begin
     var SavedException: TObject := nil;
     try
@@ -7615,11 +7615,17 @@ var
               end;
               {$ENDIF}
               Op(ErrorCode);
-            except on E: EFileError do
-              begin
-                ErrorCode := E.ErrorCode;
-                raise;
-              end;
+            except
+              on E: EFileError do
+                begin
+                  ErrorCode := E.ErrorCode;
+                  raise;
+                end;
+              on E: EResUpdateError do
+                begin
+                  ErrorCode := E.ErrorCode;
+                  raise;
+                end;
             end;
             Exit(True);
           except
@@ -7846,12 +7852,16 @@ var
       else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
       { OnUpdateIconsAndStyle will set proper LineNumber }
-      if SetupIconFilename <> '' then
-        UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
-      else
-        UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
-          PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
+      WithRetries(False, ConvertFilename,
+        procedure(out ErrorCode: Cardinal)
+        begin
+          if SetupIconFilename <> '' then
+            UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+              PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
+          else
+            UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
+              PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
+        end);
 
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
