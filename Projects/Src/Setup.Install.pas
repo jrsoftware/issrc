@@ -512,7 +512,8 @@ end;
 procedure DoHandleFailedDeleteOrMoveFileTry(const CurFile: PSetupFileEntry;
   const DisableFsRedir: Boolean; const Func, TempFile, DestFile: String;
   const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
-  var NeedsRestart, ReplaceOnRestart, DoBreak, DoContinue: Boolean);
+  var NeedsRestart, ReplaceOnRestart: Boolean;
+  var NextAction: TFileOperationFailingNextAction);
 begin
   { Automatically retry. Wait with replace on restart until no
     retries left, unless we already know we're going to restart. }
@@ -524,19 +525,14 @@ begin
     NeedsRestart := True;
     RestartReplace(DisableFsRedir, TempFile, DestFile);
     ReplaceOnRestart := True;
-    DoBreak := True;
-    DoContinue := False;
+    NextAction := naStopAndSucceed;
   end else if RetriesLeft > 0 then begin
     LogFmt('%s: The existing file appears to be in use (%d). ' +
       'Retrying.', [Func, LastError]);
     Dec(RetriesLeft);
     Sleep(1000);
     ProcessEvents;
-    DoBreak := False;
-    DoContinue := True;
-  end else begin
-    DoBreak := False;
-    DoContinue := False;
+    NextAction := naRetry;
   end;
 end;
 
@@ -703,8 +699,7 @@ var
   CurFileLocation: PSetupFileLocationEntry;
   SourceFile, DestFile, TempFile, FontFilename: String;
   DestFileExists, DestFileExistedBefore, CheckedDestFileExistedBefore,
-    TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart, DoBreak,
-    DoContinue: Boolean;
+    TempFileLeftOver, AllowFileToBeDuplicated, ReplaceOnRestart: Boolean;
   Failed: String;
   CurFileVersionInfoValid: Boolean;
   CurFileVersionInfo, ExistingVersionInfo: TFileVersionNumbers;
@@ -1188,11 +1183,10 @@ Retry:
             if not Result and (GetLastError = ERROR_FILE_NOT_FOUND) then
               Result := True; { If the file inexplicably vanished, it's not a problem }
           end,
-          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
             DoHandleFailedDeleteOrMoveFileTry(CurFile, DisableFsRedir, 'DeleteFile', TempFile, DestFile,
-              LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
-              DoBreak, DoContinue);
+              LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart, NextAction);
           end,
           procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
           begin
@@ -1216,11 +1210,10 @@ Retry:
           begin
             Result := MoveFileRedir(DisableFsRedir, TempFile, DestFile);
           end,
-          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+          procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
             DoHandleFailedDeleteOrMoveFileTry(CurFile, DisableFsRedir, 'MoveFile', TempFile, DestFile,
-              LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart,
-              DoBreak, DoContinue);
+              LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart, NextAction);
           end,
           procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
           begin

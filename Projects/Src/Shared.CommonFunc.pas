@@ -92,9 +92,11 @@ type
 
   TRegView = (rvDefault, rv32Bit, rv64Bit);
 
+  TFileOperationFailingNextAction = (naStopAndFail, naStopAndSucceed, naRetry);
+
   TFileOperation = reference to function: Boolean;
   TFileOperationFailing = reference to procedure(const LastError: Cardinal);
-  TFileOperationFailingEx = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean);
+  TFileOperationFailingEx = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction);
   TFileOperationFailed = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
 
 const
@@ -1735,16 +1737,17 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 { Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
   retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
   failure. It is recommended that Failed throws an exception, rather than expecting the caller to
-  inspect the return value. Alternatively, Failed can set DoExit to False to allow an extra retry. }
+  inspect the return value. Alternatively, Failed can set TryOnceMore to True to allow an extra retry.
+  Failing's NextAction defaults to *not* retry, but to stop and fail. }
 begin
   Result := PerformFileOperationWithRetries(MaxRetries, AlsoRetryOnAlreadyExists,
     Op,
-    procedure(const LastError: Cardinal; var RetriesLeft: Integer; var DoBreak, DoContinue: Boolean)
+    procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
     begin
-      DoContinue := RetriesLeft > 0;
-      if DoContinue then begin
+      if RetriesLeft > 0 then begin
         Failing(LastError);
         Dec(RetriesLeft);
+        NextAction := naRetry;
       end;
     end,
     Failed);
@@ -1760,12 +1763,11 @@ begin
     const LastError = GetLastError;
     { Does the error code indicate that it is possibly in use? }
     if LastErrorIndicatesPossiblyInUse(LastError, AlsoRetryOnAlreadyExists) then begin
-      var DoBreak := False;
-      var DoContinue := False;
-      Failing(LastError, RetriesLeft, DoBreak, DoContinue);
-      if DoBreak then
+      var NextAction := naStopAndFail;
+      Failing(LastError, RetriesLeft, NextAction);
+      if NextAction = naStopAndSucceed then
         Break
-      else if DoContinue then
+      else if NextAction = naRetry then
         Continue;
     end;
     { Some other error occurred, or we ran out of tries }
