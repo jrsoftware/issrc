@@ -7354,7 +7354,7 @@ var
             AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected SavedException value']);
         end);
     finally
-      { SavedException will be non-nil if there was a succesful retry. It can also be non-nil if
+      { SavedException will be non-nil if there was a successful retry. It can also be non-nil if
         an exception was raised outside Failed. }
       SavedException.Free;
     end;
