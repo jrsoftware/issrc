@@ -5866,7 +5866,7 @@ end;
 
 procedure TMainForm.StatusBarClick(Sender: TObject);
 begin
-  if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+  if MemosTabSet.Visible and FOptions.OpenIncludedFiles and FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0) then begin
     var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
     var X := StatusBar.ScreenToClient(Point).X;
     var W := 0;
@@ -5890,7 +5890,7 @@ const
 begin
   case Panel.Index of
     spHiddenFilesCount:
-      if MemosTabSet.Visible and (FHiddenFiles.Count > 0) then begin
+      if MemosTabSet.Visible and FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0) then begin
         var RText := Rect;
         if FToolbarThemeData <> 0 then begin
           Dec(RText.Right, RText.Bottom - RText.Top);
