@@ -7642,7 +7642,7 @@ var
             SavedException := nil;
             raise Ex;
           end else
-            AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected SavedException value (1)']);
+            AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected SavedException value']);
         end);
     finally
       { SavedException will be non-nil if there was a succesful retry. It can also be non-nil if
