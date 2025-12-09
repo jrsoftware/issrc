@@ -7586,13 +7586,15 @@ var
   type
     TFileOperation = reference to procedure(out ErrorCode: Cardinal);
 
-  procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean; const Op: TFileOperation);
+  procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean;
+    const Filename: String; const Op: TFileOperation);
   { Op should always raise an exception on failure. If the raised exception is an EFileError, its
     ErrorCode will be used and the ErrorCode parameter is ignored. }
   begin
     var SavedException: TObject := nil;
     try
-      PerformFileOperationWithRetries({$IFDEF TESTRETRIES} 2 {$ELSE} 4 {$ENDIF}, AlsoRetryOnAlreadyExists,
+      {$IFDEF TESTRETRIES} var First := True; {$ENDIF}
+      PerformFileOperationWithRetries(4, AlsoRetryOnAlreadyExists,
         function {Op}: Boolean
         begin
           var ErrorCode: Cardinal;
@@ -7600,11 +7602,16 @@ var
             ErrorCode := 0;
             try
               {$IFDEF TESTRETRIES}
-              if TStrongRandom.GenerateUInt32 mod 2 = 1 then begin
-                //this also works:
-                //TCustomFile.RaiseError(ERROR_SHARING_VIOLATION);
-                ErrorCode := ERROR_SHARING_VIOLATION;
-                AbortCompile('Simulated sharing violation');
+              if First and NewFileExists(Filename) then begin
+                const F = TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
+                TThread.CreateAnonymousThread(
+                  procedure
+                  begin
+                    while TStrongRandom.GenerateUInt32 mod 2 = 1 do
+                      Sleep(900);
+                    F.Free;
+                  end).Start;
+                First := False;
               end;
               {$ENDIF}
               Op(ErrorCode);
@@ -7629,7 +7636,7 @@ var
         end,
         procedure {Failing}(const LastError: Cardinal)
         begin
-          AddStatusFmt(SCompilerStatusOutputFileInUse, [LastError]);
+          AddStatusFmt(SCompilerStatusOutputFileInUse, [LastError, PathExtractName(Filename)]);
           for var I := 0 to 9 do begin
             Sleep(100);
             CallIdleProc; { May raise an exception }
@@ -7667,7 +7674,7 @@ var
     if Assigned(OnCheckedTrust) then
       OnCheckedTrust(CheckTrust);
 
-    WithRetries(AlsoRetryOnAlreadyExists,
+    WithRetries(AlsoRetryOnAlreadyExists, DestFile,
       procedure(out ErrorCode: Cardinal)
       begin
         if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
@@ -7846,7 +7853,7 @@ var
 
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
-      WithRetries(False,
+      WithRetries(False, ConvertFilename,
         procedure(out ErrorCode: Cardinal)
         begin
           ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
@@ -7860,7 +7867,7 @@ var
       end;
 
       var CapturableM: TMemoryFile;
-      WithRetries(False,
+      WithRetries(False, ConvertFilename,
         procedure(out ErrorCode: Cardinal)
         begin
           CapturableM := TMemoryFile.Create(ConvertFilename);
