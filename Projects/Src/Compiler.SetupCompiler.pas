@@ -7637,9 +7637,11 @@ var
         end,
         procedure {Failed}(const LastError: Cardinal; var TryOnceMore: Boolean)
         begin
-          if SavedException <> nil then
-            raise SavedException
-          else
+          if SavedException <> nil then begin
+            const Ex = SavedException;
+            SavedException := nil;
+            raise Ex;
+          end else
             AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected SavedException value (1)']);
         end);
     finally
@@ -7857,7 +7859,13 @@ var
         ConvertFile.Free;
       end;
 
-      M := TMemoryFile.Create(ConvertFilename);
+      var CapturableM: TMemoryFile;
+      WithRetries(False,
+        procedure(out ErrorCode: Cardinal)
+        begin
+          CapturableM := TMemoryFile.Create(ConvertFilename);
+        end);
+      M := CapturableM;
       UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
         SignSetupE32(M);
