@@ -365,7 +365,7 @@ begin
   VNextTab.Enabled := MemosTabSet.Visible and (MemosTabSet.Tabs.Count > 1);
   VPreviousTab.Enabled := VNextTab.Enabled;
   VCloseCurrentTab.Enabled := MemosTabSet.Visible and (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
-  VReopenTab.Visible := MemosTabSet.Visible and (FHiddenFiles.Count > 0);
+  VReopenTab.Visible := MemosTabSet.Visible and FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0);
   if VReopenTab.Visible then
     _UpdateReopenTabMenu(VReopenTab);
   VReopenTabs.Visible := VReopenTab.Visible;
