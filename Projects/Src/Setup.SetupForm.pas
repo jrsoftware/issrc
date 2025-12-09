@@ -627,11 +627,11 @@ begin
     Various things related to positioning and anchoring don't work without this:
     you get positions of child controls back as if there was no anchoring until
     handles are automatically created.
-    
+
     Initially we did this only when sizing the form (for WizardForm it worked if
     done after sizing but for UninstallProgressForm it had be done before sizing,
     for unknown reasons).
-    
+
     For WizardForm's BeveledLabel though, it needs it before the font name/size
     change (again for unknown reasons), otherwise the label will end up in the
     wrong position, even if all we do is changing the font. Setting AutoSize to
@@ -743,7 +743,7 @@ begin
   { Disable style if needed }
   if ShouldDisableControlStylesAsNeeded then
     DisableControlStyleAsNeeded(AControl);
-    
+
   { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
     from scaling the control. Also see TSetupForm.CreateWnd.  }
   AControl.SetCurrentPPI(AParent.CurrentPPI);
