@@ -7658,7 +7658,7 @@ var
     end;
   end;
 
-  procedure CopyFileOrAbort(const SourceFile, DestFile: String; const AlsoRetryOnAlreadyExists: Boolean;
+  procedure CopyFileWithRetriesOrAbort(const SourceFile, DestFile: String; const AlsoRetryOnAlreadyExists: Boolean;
     const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions;
     const OnCheckedTrust: TProc<Boolean>);
   begin
@@ -7832,17 +7832,19 @@ var
         E32Uisf := uisfSetupCustomStyleE32;
       end;
       E32Filename := CompilerDir + E32Basename;
-      { make a copy and update icons, version info and if needed manifest }
+
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, False, not(E32Pf in DisablePrecompiledFileVerifications),
+      CopyFileWithRetriesOrAbort(E32Filename, ConvertFilename, False, not(E32Pf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
+      { If there was a read-only attribute, remove it }
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
+
       TempFilename := ConvertFilename;
+
       if E32Uisf = uisfSetupCustomStyleE32 then
         AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [E32Basename]))
       else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
-
       { OnUpdateIconsAndStyle will set proper LineNumber }
       if SetupIconFilename <> '' then
         UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
@@ -8761,13 +8763,14 @@ begin
         end
         else begin
           if UseSetupLdr = sl32bit then
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
+            CopyFileWithRetriesOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust)
           else
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, True, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
+            CopyFileWithRetriesOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, True, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust);
-          { if there was a read-only attribute, remove it }
+          { If there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
+
           if (SetupIconFilename <> '') or (SetupHeader.WizardDarkStyle <> wdsDynamic) then begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             { OnUpdateIconsAndStyle will set proper LineNumber }
@@ -8777,6 +8780,7 @@ begin
               UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
             LineNumber := 0;
           end;
+
           SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
           try
             UpdateSetupPEHeaderFields(SetupFile, TerminalServicesAware, DEPCompatible, ASLRCompatible);
@@ -8784,6 +8788,7 @@ begin
           finally
             SetupFile.Free;
           end;
+
           CallIdleProc;
 
           { When disk spanning isn't used, place the compressed files inside
