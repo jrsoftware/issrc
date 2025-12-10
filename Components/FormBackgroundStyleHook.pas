@@ -12,9 +12,16 @@ unit FormBackgroundStyleHook;
 interface
 
 uses
-  Vcl.Forms, Vcl.Controls, Vcl.Graphics {$IFDEF VCLSTYLES}, BitmapImage {$ENDIF};
+  Vcl.Forms, Vcl.Controls, Vcl.Graphics {$IFDEF VCLSTYLES}, System.Classes, BitmapImage {$ENDIF};
 
 type
+{$IFDEF VCLSTYLES}
+  TGraphicTargetNotifier = class(TComponent)
+  protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+  end;
+{$ENDIF}
+
   TFormBackgroundStyleHook = class(TFormStyleHook)
 {$IFDEF VCLSTYLES}
   private
@@ -27,9 +34,13 @@ type
     class var FBackColor: TColor;
     class var FCenter: Boolean;
     class var FGraphicTarget: TControl;
+{$IFDEF VCLSTYLES}
+    class var FGraphicTargetNotifier: TGraphicTargetNotifier;
+{$ENDIF}
     class var FOpacity: Byte;
     class var FStretch: Boolean;
     class procedure SetGraphic(Value: TGraphic); static;
+    class procedure SetGraphicTarget(Value: TControl); static;
 {$IFDEF VCLSTYLES}
   protected
     procedure PaintBackground(Canvas: TCanvas); override;
@@ -38,7 +49,7 @@ type
     class property BackColor: TColor write FBackColor;
     class property Center: Boolean write FCenter;
     class property Graphic: TGraphic write SetGraphic;
-    class property GraphicTarget: TControl write FGraphicTarget;
+    class property GraphicTarget: TControl write SetGraphicTarget;
     class property Opacity: Byte write FOpacity;
     class property Stretch: Boolean write FStretch;
   end;
@@ -48,13 +59,23 @@ implementation
 {$IFDEF VCLSTYLES}
 
 uses
-  System.Classes, System.SysUtils;
+  System.SysUtils;
+
+{ TGraphicTargetNotifier }
+
+procedure TGraphicTargetNotifier.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = TFormBackgroundStyleHook.FGraphicTarget) then
+    TFormBackgroundStyleHook.FGraphicTarget := nil;
+end;
 
 { TFormBackgroundStyleHook }
 
 class constructor TFormBackgroundStyleHook.Create;
 begin
   FBackColor := clNone;
+  FGraphicTargetNotifier := TGraphicTargetNotifier.Create(nil);
 end;
 
 class destructor TFormBackgroundStyleHook.Destroy;
@@ -62,6 +83,7 @@ begin
   if FBitmapImageImplInitialized then
     FBitmapImageImpl.DeInit;
   FGraphic.Free;
+  FGraphicTargetNotifier.Free;
 end;
 
 procedure TFormBackgroundStyleHook.PaintBackground(Canvas: TCanvas);
@@ -102,6 +124,17 @@ begin
     FGraphic := TGraphicClass(Value.ClassType).Create;
     FGraphic.Assign(Value);
   end;
+{$ENDIF}
+end;
+
+class procedure TFormBackgroundStyleHook.SetGraphicTarget(Value: TControl);
+begin
+{$IFDEF VCLSTYLES}
+  if FGraphicTarget <> nil then
+    FGraphicTarget.RemoveFreeNotification(FGraphicTargetNotifier);
+  FGraphicTarget := Value;
+  if FGraphicTarget <> nil then
+    FGraphicTarget.FreeNotification(FGraphicTargetNotifier);
 {$ENDIF}
 end;
 
