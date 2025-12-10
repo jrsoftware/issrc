@@ -321,6 +321,12 @@ initialization
     'function AddBackslash(const S: String): String;',
     'function RemoveBackslash(const S: String): String;',
     'function RemoveBackslashUnlessRoot(const S: String): String;',
+    'function PathCombine(const Dir, Filename: String): String;',
+    'function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;',
+    'function PathIsRooted(const Filename: String): Boolean;',
+    'function PathNormalizeSlashes(const S: String): String;',
+    'function PathSame(const S1, S2: String): Boolean;',
+    'function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;',
     { All in PathFunc but with a different name }
     'function CharLength(const S: String; const Index: Integer): Integer;',
     'function ExpandFileName(const FileName: String): String;',

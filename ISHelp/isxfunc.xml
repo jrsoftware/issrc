@@ -1147,6 +1147,37 @@ end;
         <remarks><p>Use of this function is discouraged; use <link topic="isxfunc_RemoveBackslashUnlessRoot">RemoveBackslashUnlessRoot</link> instead when working with file system paths.</p></remarks>
       </function>
       <function>
+        <name>PathCombine</name>
+        <prototype>function PathCombine(const Dir, Filename: String): String;</prototype>
+        <description><p>Combines a directory and file name into a single path. If Filename is empty the result is an empty string. If Filename already starts with a drive letter or slash it is returned unchanged. Otherwise a single backslash is inserted between Dir and Filename when needed.</p></description>
+      </function>
+      <function>
+        <name>PathHasInvalidCharacters</name>
+        <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
+        <description><p>Returns True if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set AllowDriveLetterColon to True when the first character may be a drive letter followed by a colon.</p></description>
+      </function>
+      <function>
+        <name>PathIsRooted</name>
+        <prototype>function PathIsRooted(const Filename: String): Boolean;</prototype>
+        <description><p>Returns True if the specified path begins with a drive letter and colon, or a slash.</p></description>
+      </function>
+      <function>
+        <name>PathNormalizeSlashes</name>
+        <prototype>function PathNormalizeSlashes(const S: String): String;</prototype>
+        <description><p>Returns specified string minus any superfluous slashes, and with any forward slashes
+  converted to backslashes. Does not remove a double backslash at the beginning of the string, since that signifies a UNC path.</p></description>
+      </function>
+      <function>
+        <name>PathSame</name>
+        <prototype>function PathSame(const S1, S2: String): Boolean;</prototype>
+        <description><p>Returns True if the specified strings (typically filenames) are equal. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Ignores case.</p></description>
+      </function>
+      <function>
+        <name>PathStartsWith</name>
+        <prototype>function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
+        <description><p>Returns True if S starts with (or is equal to) AStartsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
+      </function>
+      <function>
         <name>AddPeriod</name>
         <prototype>function AddPeriod(const S: String): String;</prototype>
         <description><p>Returns the specified string with a trailing period added, unless the string is empty or already ends in a period or other punctuation mark.</p></description>
