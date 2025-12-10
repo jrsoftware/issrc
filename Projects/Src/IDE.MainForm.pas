@@ -5866,7 +5866,7 @@ end;
 
 procedure TMainForm.StatusBarClick(Sender: TObject);
 begin
-  if MemosTabSet.Visible and FOptions.OpenIncludedFiles and FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0) then begin
+  if MemosTabSet.Visible and FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0) then begin
     var Point := SmallPointToPoint(TSmallPoint(GetMessagePos()));
     var X := StatusBar.ScreenToClient(Point).X;
     var W := 0;

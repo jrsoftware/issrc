@@ -785,17 +785,41 @@ var
 
   procedure RegisterPathFuncScriptFuncs;
   begin
-    RegisterScriptFunc('ADDBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc('AddBackslash', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, AddBackslash(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('REMOVEBACKSLASH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc('RemoveBackslash', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, RemoveBackslash(Stack.GetString(PStart-1)));
     end);
-    RegisterScriptFunc('REMOVEBACKSLASHUNLESSROOT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc('RemoveBackslashUnlessRoot', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, RemoveBackslashUnlessRoot(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('PathCombine', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathCombine(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+    end);
+    RegisterScriptFunc('PathHasInvalidCharacters', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, PathHasInvalidCharacters(Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
+    end);
+    RegisterScriptFunc('PathIsRooted', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, PathIsRooted(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('PathNormalizeSlashes', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathNormalizeSlashes(Stack.GetString(PStart-1)));
+    end);
+    RegisterScriptFunc('PathSame', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, PathSame(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+    end);
+    RegisterScriptFunc('PathStartsWith', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, PathStartsWith(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
     end);
     RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1705,14 +1729,19 @@ var
         StringList.Free;
       end;
     end);
-    RegisterScriptFunc('WizardSetBackImage', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc('WizardSetBackImage', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       const WizardImages = TWizardImages.Create(False);
       try
         const BackImages = Stack.GetClassArray(PStart);
         for var BackImage in BackImages do
           WizardImages.Add(TGraphic(BackImage));
-        GetWizardForm.SetBackImage(WizardImages, Stack.GetBool(PStart-1) , Stack.GetBool(PStart-2), Byte(Stack.GetInt(PStart-3)), True);
+        var Form: TSetupForm;
+        if IsUninstaller then
+          Form := GetUninstallProgressForm
+        else
+          Form := GetWizardForm;
+        Form.SetBackImage(WizardImages, Stack.GetBool(PStart-1) , Stack.GetBool(PStart-2), Byte(Stack.GetInt(PStart-3)), True);
       finally
         WizardImages.Free;
       end;

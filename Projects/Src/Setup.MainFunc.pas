@@ -242,6 +242,7 @@ function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 
 function IsWindows8: Boolean;
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
 
 implementation
 
@@ -287,6 +288,26 @@ type
   end;
 
 { Misc. functions }
+
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
+var
+  TargetArea, Difference, SmallestDifference, I: Integer;
+begin
+  if WizardImages.Count <> 1 then begin
+    { Find the image with the smallest area difference compared to the target area. }
+    TargetArea := TargetWidth*TargetHeight;
+    SmallestDifference := -1;
+    Result := nil;
+    for I := 0 to WizardImages.Count-1 do begin
+      Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
+      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+        Result := WizardImages[I];
+        SmallestDifference := Difference;
+      end;
+    end;
+  end else
+    Result := WizardImages[0];
+end;
 
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
 begin
@@ -1789,11 +1810,15 @@ var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    if ID = sfUserProgramFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True)
-    else if ID = sfUserCommonFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True)
-    else if ID = sfUserSavedGames then
+    if ID = sfUserProgramFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Windows }
+    end else if ID = sfUserCommonFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Windows }
+    end else if ID = sfUserSavedGames then
       ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);

@@ -95,7 +95,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="key">WizardBackColorDynamicDark</span>=#570c22
 <span class="com">; On wizard pages blend the background image and color together</span>
 <span class="key">WizardBackImageOpacity</span>=150</code></pre></li>
-  <li>Pascal Scripting: Added new support function <tt>WizardSetBackImage</tt> to set, update, or remove the background image at runtime.<br/>
+  <li>Pascal Scripting: Added new support function <tt>WizardSetBackImage</tt> to set, update, or remove the background image at runtime. Can not only be used in Setup, but also in Uninstall.<br/>
       See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for another example.</li>
 </ul>
 
@@ -128,6 +128,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li><i>Fix:</i> File and directory controls in Setup should always use left-to-right reading order, even when a right-to-left language is active, but this has not been the case since version 6.5.2.</li>
   <li>Pascal Scripting:
   <ul>
+    <li>Added support functions <tt>PathCombine</tt>, <tt>PathHasInvalidCharacters</tt>, <tt>PathIsRooted</tt>, <tt>PathNormalizeSlashes</tt>, <tt>PathSame</tt>, and <tt>PathStartsWith</tt> to make path handling easier.</li>
     <li>Added support class <tt>TNewPathEdit</tt>, a <tt>TNewEdit</tt> descendant that always uses left-to-right reading order and provides filesystem autocompletion.<br/>
         You should use <tt>TNewPathEdit</tt> instead of <tt>TNewEdit</tt> for file and directory controls, but using <tt>TInputFileWizardPage</tt> and <tt>TInputDirWizardPage</tt> instead is still recommended.
     </li>

@@ -1737,8 +1737,7 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 { Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
   retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
   failure. It is recommended that Failed throws an exception, rather than expecting the caller to
-  inspect the return value. Alternatively, Failed can set TryOnceMore to True to allow an extra retry.
-  Failing's NextAction defaults to *not* retry, but to stop and fail. }
+  inspect the return value. Alternatively, Failed can set TryOnceMore to True to allow an extra retry. }
 begin
   Result := PerformFileOperationWithRetries(MaxRetries, AlsoRetryOnAlreadyExists,
     Op,
@@ -1756,7 +1755,8 @@ end;
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean;
 { Similar to the other PerformFileOperationWithRetries, but provides fine-grained control to Failing,
-  which is now responsible for updating RetriesLeft itself, and can also request an early break. }
+  which is now responsible for updating RetriesLeft itself, and can also request an early break.
+  Failing's NextAction defaults to *not* retry, but to stop and fail. }
 begin
   var RetriesLeft := MaxRetries;
   while not Op do begin

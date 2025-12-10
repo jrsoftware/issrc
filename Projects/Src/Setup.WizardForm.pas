@@ -238,7 +238,6 @@ type
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
-    procedure SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
     procedure UpdateRunList(const SelectedComponents, SelectedTasks: TStringList);
     function ValidateDirEdit: Boolean;
     function ValidateGroupEdit: Boolean;
@@ -343,7 +342,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Generics.Collections, Themes,
-  PathFunc, RestartManager, SHA256, FormBackgroundStyleHook,
+  PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
@@ -736,26 +735,6 @@ begin
 end;
 
 { TWizardForm }
-
-function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
-var
-  TargetArea, Difference, SmallestDifference, I: Integer;
-begin
-  if WizardImages.Count <> 1 then begin
-    { Find the image with the smallest area difference compared to the target area. }
-    TargetArea := TargetWidth*TargetHeight;
-    SmallestDifference := -1;
-    Result := nil;
-    for I := 0 to WizardImages.Count-1 do begin
-      Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
-      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
-        Result := WizardImages[I];
-        SmallestDifference := Difference;
-      end;
-    end;
-  end else
-    Result := WizardImages[0];
-end;
 
 constructor TWizardForm.Create(AOwner: TComponent);
 { Do all initialization of the wizard form. We're overriding Create instead of
@@ -2349,22 +2328,6 @@ begin
   else
     Flags := MF_GRAYED;
   EnableMenuItem(GetSystemMenu(Handle, False), SC_CLOSE, MF_BYCOMMAND or Flags);
-end;
-
-procedure TWizardForm.SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean;
-  const Opacity: Byte; const Redraw: Boolean);
-begin
-  if not CustomWizardBackground then
-    InternalError('Cannot set a background image at this time: custom wizard background not active');
-  const Graphic = SelectBestImage(BackImages, ClientWidth, ClientHeight);
-  TFormBackgroundStyleHook.Graphic := Graphic;
-  TFormBackgroundStyleHook.GraphicTarget := Self;
-  TFormBackgroundStyleHook.Stretch := Stretch;
-  TFormBackgroundStyleHook.Center := Center;
-  TFormBackgroundStyleHook.Opacity := Opacity;
-  TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
-  if Redraw and HandleAllocated then
-    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_UPDATENOW or RDW_ALLCHILDREN);
 end;
 
 procedure TWizardForm.SetCurPage(const NewPageID: Integer);

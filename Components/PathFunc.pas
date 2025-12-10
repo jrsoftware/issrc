@@ -571,8 +571,8 @@ begin
 end;
 
 function PathSame(const S1, S2: String): Boolean;
-{ Returns True if the specified strings (typically filenames) are equal, using
-  a case-insensitive ordinal comparison.
+{ Returns True if the specified strings (typically filenames) are equal.
+  An ordinal comparison is used, ignoring case.
   Like PathCompare, but faster for checking equality as it returns False
   immediately if the strings are different lengths. }
 begin

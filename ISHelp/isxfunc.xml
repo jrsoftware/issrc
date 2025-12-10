@@ -281,6 +281,7 @@ end;</pre></example>
 <p>See <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> for information about the recommended image size(s).</p>
 <p></p><p><tt>Opacity</tt> specifies the opacity of the image, from <tt>0</tt> (fully transparent) to <tt>255</tt> (fully opaque, so non-transparent).</p>
 <p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <link topic="setup_wizardbackcolor">WizardBackColor</link>, <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>, <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, or <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
+<p>To display a single image for the entire duration of Setup, do not use this function. Instead, set <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> and optionally <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
 </description>
         <example><pre>[Setup]
 WizardStyle=modern dynamic
@@ -288,10 +289,11 @@ WizardBackColor=#f3f3f3
 WizardBackColorDynamicDark=#202020
 
 [Files]
-Source: MyImageNormal.png; Flags: dontcopy noencryption
-Source: MyImageLarge.png; Flags: dontcopy noencryption
+Source: "MyImageNormal.png"; DestDir: "{app}"
+Source: "MyImageLarge.png"; DestDir: "{app}"
 
 [Code]
+; Show an image on the install page only
 &lt;event('CurStepChanged')&gt;
 procedure CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
 var
@@ -314,6 +316,29 @@ begin
   end else if CurStep = ssPostInstall then
     WizardSetBackImage([], True, True, 150);
 end;
+
+; Show an image during uninstall
+&lt;event('InitializeUninstallProgressForm')&gt;
+procedure InitializeUninstallProgressForm_UpdateBackImage;
+var
+  PngImages: TArrayOfGraphic;
+begin
+  try
+    SetLength(PngImages, 2);
+    PngImages[0] := TPngImage.Create;
+    PngImages[1] := TPngImage.Create;
+    try
+      PngImages[0].LoadFromFile(ExpandConstant('{app}\MyImageNormal.png'));
+      PngImages[1].LoadFromFile(ExpandConstant('{app}\MyImageLarge.png'));
+      WizardSetBackImage(PngImages, True, False, 150);
+    finally
+      PngImages[1].Free;
+      PngImages[0].Free;
+    end;
+  except
+    LogFmt('Could not enable background image: %s', [GetExceptionMessage]);
+  end;
+end; 
 
 ; See CodeClasses.iss for another example.</pre></example>
       </function>
@@ -1120,6 +1145,37 @@ end;
         <prototype>function RemoveBackslash(const S: String): String;</prototype>
         <description><p>Returns the specified string with any trailing slashes/backslashes removed.</p></description>
         <remarks><p>Use of this function is discouraged; use <link topic="isxfunc_RemoveBackslashUnlessRoot">RemoveBackslashUnlessRoot</link> instead when working with file system paths.</p></remarks>
+      </function>
+      <function>
+        <name>PathCombine</name>
+        <prototype>function PathCombine(const Dir, Filename: String): String;</prototype>
+        <description><p>Combines a directory and file name into a single path. If Filename is empty the result is an empty string. If Filename already starts with a drive letter or slash it is returned unchanged. Otherwise a single backslash is inserted between Dir and Filename when needed.</p></description>
+      </function>
+      <function>
+        <name>PathHasInvalidCharacters</name>
+        <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
+        <description><p>Returns True if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set AllowDriveLetterColon to True when the first character may be a drive letter followed by a colon.</p></description>
+      </function>
+      <function>
+        <name>PathIsRooted</name>
+        <prototype>function PathIsRooted(const Filename: String): Boolean;</prototype>
+        <description><p>Returns True if the specified path begins with a drive letter and colon, or a slash.</p></description>
+      </function>
+      <function>
+        <name>PathNormalizeSlashes</name>
+        <prototype>function PathNormalizeSlashes(const S: String): String;</prototype>
+        <description><p>Returns specified string minus any superfluous slashes, and with any forward slashes
+  converted to backslashes. Does not remove a double backslash at the beginning of the string, since that signifies a UNC path.</p></description>
+      </function>
+      <function>
+        <name>PathSame</name>
+        <prototype>function PathSame(const S1, S2: String): Boolean;</prototype>
+        <description><p>Returns True if the specified strings (typically filenames) are equal. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Ignores case.</p></description>
+      </function>
+      <function>
+        <name>PathStartsWith</name>
+        <prototype>function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
+        <description><p>Returns True if S starts with (or is equal to) AStartsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
       </function>
       <function>
         <name>AddPeriod</name>
