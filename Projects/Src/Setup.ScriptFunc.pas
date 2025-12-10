@@ -1705,14 +1705,19 @@ var
         StringList.Free;
       end;
     end);
-    RegisterScriptFunc('WizardSetBackImage', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc('WizardSetBackImage', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       const WizardImages = TWizardImages.Create(False);
       try
         const BackImages = Stack.GetClassArray(PStart);
         for var BackImage in BackImages do
           WizardImages.Add(TGraphic(BackImage));
-        GetWizardForm.SetBackImage(WizardImages, Stack.GetBool(PStart-1) , Stack.GetBool(PStart-2), Byte(Stack.GetInt(PStart-3)), True);
+        var Form: TSetupForm;
+        if IsUninstaller then
+          Form := GetUninstallProgressForm
+        else
+          Form := GetWizardForm;
+        Form.SetBackImage(WizardImages, Stack.GetBool(PStart-1) , Stack.GetBool(PStart-2), Byte(Stack.GetInt(PStart-3)), True);
       finally
         WizardImages.Free;
       end;

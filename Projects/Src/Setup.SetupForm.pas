@@ -29,7 +29,8 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm;
+  UIStateForm,
+  Setup.MainFunc;
 
 type
   TSetupForm = class(TUIStateForm)
@@ -73,6 +74,7 @@ type
     class procedure SetCtlParent(const AControl: TControl; const AParent: TWinControl);
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;
+    procedure SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;
     function ShouldSizeX: Boolean;
     function ShouldSizeY: Boolean;
     function ShowModal: Integer; override;
@@ -101,9 +103,9 @@ implementation
 
 uses
   Generics.Collections, UITypes, WinXPanels, Themes, StdCtrls, ExtCtrls,
-  BidiUtils, BitmapButton, BitmapImage, NewNotebook, NewStaticText, NewCheckListBox,
+  BidiUtils, BitmapButton, BitmapImage, NewNotebook, NewStaticText, NewCheckListBox, FormBackgroundStyleHook,
   Shared.Struct, Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  Setup.MainFunc, Setup.InstFunc;
+  Setup.InstFunc;
 
 var
   WM_QueryCancelAutoPlay: UINT;
@@ -735,6 +737,22 @@ end;
 function TSetupForm.ScalePixelsY(const N: Integer): Integer;
 begin
   Result := ScalePixelsY(FOrigBaseUnitY, FBaseUnitY, N);
+end;
+
+procedure TSetupForm.SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean;
+  const Opacity: Byte; const Redraw: Boolean);
+begin
+  if not CustomWizardBackground then
+    InternalError('Cannot set a background image at this time: custom wizard background not active');
+  const Graphic = SelectBestImage(BackImages, ClientWidth, ClientHeight);
+  TFormBackgroundStyleHook.Graphic := Graphic;
+  TFormBackgroundStyleHook.GraphicTarget := Self;
+  TFormBackgroundStyleHook.Stretch := Stretch;
+  TFormBackgroundStyleHook.Center := Center;
+  TFormBackgroundStyleHook.Opacity := Opacity;
+  TNewCheckListBox.ComplexParentBackground := Graphic <> nil;
+  if Redraw and HandleAllocated then
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_UPDATENOW or RDW_ALLCHILDREN);
 end;
 
 class procedure TSetupForm.SetCtlParent(const AControl: TControl; const AParent: TWinControl);
