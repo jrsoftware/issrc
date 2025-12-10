@@ -222,6 +222,9 @@ const
 
 function TBitmapImageImplementation.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
+  { Currently this function always fails on Wine: SHGetStockIconInfo succeeds but simply always
+    returns -1 as iSysImageIndex, which makes ImageList_GetIcon fail }
+
   Result := False;
 
   var SHStockIconInfo: TSHStockIconInfo;
