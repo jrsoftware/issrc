@@ -572,7 +572,13 @@ begin
       if IsDynamicDark then
         StyleName := StyleName + '_DARK';
       var Handle: TStyleManager.TStyleServicesHandle;
-      if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle) then begin
+      if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
+      {$IFDEF DEBUG}
+         or TStyleManager.TryLoadFromResource(HInstance, 'ZIRCON', 'VCLSTYLE', Handle)
+         { Comment the line above to activate WINDOWSPOLARDARK instead of ZIRCON }
+         or TStyleManager.TryLoadFromResource(HInstance, 'WINDOWSPOLARDARK', 'VCLSTYLE', Handle)
+      {$ENDIF }
+      then begin
         TStyleManager.SetStyle(Handle);
         CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
           (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
