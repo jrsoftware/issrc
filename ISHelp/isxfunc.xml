@@ -281,6 +281,7 @@ end;</pre></example>
 <p>See <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> for information about the recommended image size(s).</p>
 <p></p><p><tt>Opacity</tt> specifies the opacity of the image, from <tt>0</tt> (fully transparent) to <tt>255</tt> (fully opaque, so non-transparent).</p>
 <p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <link topic="setup_wizardbackcolor">WizardBackColor</link>, <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>, <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, or <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
+<p>To display a single image for the entire duration of Setup, do not use this function. Instead, set <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> and optionally <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
 </description>
         <example><pre>[Setup]
 WizardStyle=modern dynamic
