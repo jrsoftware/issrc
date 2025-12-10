@@ -1810,11 +1810,15 @@ var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    if ID = sfUserProgramFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True)
-    else if ID = sfUserCommonFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True)
-    else if ID = sfUserSavedGames then
+    if ID = sfUserProgramFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Windows }
+    end else if ID = sfUserCommonFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Windows }
+    end else if ID = sfUserSavedGames then
       ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
