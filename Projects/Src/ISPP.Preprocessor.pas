@@ -873,7 +873,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     FileName := PrependDirName(FileName, FSourcePath);
     if FileExists(FileName) then
     begin
-      Result := GetTempFileName(ExtractFileName(FileName));
+      Result := GetTempFileName(PathExtractName(FileName));
       StatusMsg(SProcessingExternalFile, [FileName]);
       NewOptions := FOptions;
       Preprocessor := TPreprocessor.Create(FCompilerParams, FIdentManager,
@@ -1085,7 +1085,7 @@ end;
 
 function TPreprocessor.CheckFile(const FileName: string): Boolean;
 begin
-  Result := FFileStack.IndexOf(ExpandFileName(FileName)) < 0;
+  Result := FFileStack.IndexOf(PathExpand(FileName)) < 0;
 end;
 
 procedure TPreprocessor.PopFile;
@@ -1095,7 +1095,7 @@ end;
 
 procedure TPreprocessor.PushFile(const FileName: string);
 begin
-  FFileStack.AddObject(ExpandFileName(FileName), TObject(dsPublic));
+  FFileStack.AddObject(PathExpand(FileName), TObject(dsPublic));
 end;
 
 procedure TPreprocessor.CallIdleProc;
@@ -1489,7 +1489,7 @@ begin
   Name := UpperCase(Name);
   if (Name = '__FILENAME__') or (Name = '__FILE__') then
   begin
-    if Value <> nil then MakeStr(Value^, ExtractFileName(FIncludes[FCurrentFile]))
+    if Value <> nil then MakeStr(Value^, PathExtractName(FIncludes[FCurrentFile]))
   end
   else if Name = '__PATHFILENAME__' then
   begin
@@ -1497,7 +1497,7 @@ begin
   end
   else if Name = '__DIR__' then
   begin
-    if Value <> nil then MakeStr(Value^, ExtractFileDir(FIncludes[FCurrentFile]))
+    if Value <> nil then MakeStr(Value^, PathExtractDir(FIncludes[FCurrentFile]))
   end
   else if Name = '__LINE__' then
   begin
@@ -1630,13 +1630,6 @@ procedure TPreprocessor.IncludeFile(FileName: string;
     end;
   end;
 
-  function RemoveSlash(const S: string): string;
-  begin
-    Result := S;
-    if (Length(Result) > 3) and (Result[Length(Result)] = '\') then
-      Delete(Result, Length(Result), 1);
-  end;
-
   function DoSearch(const SearchDirs: String): String;
   var
     FilePart: PChar;
@@ -1675,17 +1668,17 @@ begin
     if not UseIncludePathOnly then
     begin
       for var I := FFileStack.Count - 1 downto 0 do
-        AddToPath(SearchDirs, ExtractFileDir(FFileStack[I]));
+        AddToPath(SearchDirs, PathExtractDir(FFileStack[I]));
       if FIncludes[0] <> '' then
-        AddToPath(SearchDirs, ExtractFileDir(FIncludes[0]));
-      AddToPath(SearchDirs, RemoveSlash(FSourcePath));
+        AddToPath(SearchDirs, PathExtractDir(FIncludes[0]));
+      AddToPath(SearchDirs, RemoveBackslashUnlessRoot(FSourcePath));
     end;
 
     AddToPath(SearchDirs, FIncludePath);
     AddToPath(SearchDirs, GetEnv('INCLUDE'));
 
     if not UseIncludePathOnly then
-      AddToPath(SearchDirs, RemoveSlash(FCompilerPath));
+      AddToPath(SearchDirs, RemoveBackslashUnlessRoot(FCompilerPath));
   end;
 
   FullFileName := DoSearch(SearchDirs);
