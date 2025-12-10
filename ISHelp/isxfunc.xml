@@ -288,10 +288,11 @@ WizardBackColor=#f3f3f3
 WizardBackColorDynamicDark=#202020
 
 [Files]
-Source: MyImageNormal.png; Flags: dontcopy noencryption
-Source: MyImageLarge.png; Flags: dontcopy noencryption
+Source: "MyImageNormal.png"; DestDir: "{app}"
+Source: "MyImageLarge.png"; DestDir: "{app}"
 
 [Code]
+; Show an image on the install page only
 &lt;event('CurStepChanged')&gt;
 procedure CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
 var
@@ -314,6 +315,29 @@ begin
   end else if CurStep = ssPostInstall then
     WizardSetBackImage([], True, True, 150);
 end;
+
+; Show an image during uninstall
+&lt;event('InitializeUninstallProgressForm')&gt;
+procedure InitializeUninstallProgressForm_UpdateBackImage;
+var
+  PngImages: TArrayOfGraphic;
+begin
+  try
+    SetLength(PngImages, 2);
+    PngImages[0] := TPngImage.Create;
+    PngImages[1] := TPngImage.Create;
+    try
+      PngImages[0].LoadFromFile(ExpandConstant('{app}\MyImageNormal.png'));
+      PngImages[1].LoadFromFile(ExpandConstant('{app}\MyImageLarge.png'));
+      WizardSetBackImage(PngImages, True, False, 150);
+    finally
+      PngImages[1].Free;
+      PngImages[0].Free;
+    end;
+  except
+    LogFmt('Could not enable background image: %s', [GetExceptionMessage]);
+  end;
+end; 
 
 ; See CodeClasses.iss for another example.</pre></example>
       </function>
