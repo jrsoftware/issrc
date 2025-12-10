@@ -191,7 +191,7 @@ Source code tips
   `/DETACHEDMSG` command line parameter set. Afterwards copy uninst000.dat and
   uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
   issrc path. Then open the Setup project and set the command line parameters to
-  `/UNINSTMODE "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
+  `/UNINSTMODE /KEEPEXEDATMSG "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
   debugging. Note: each time setup.dat and setup.msg will be deleted if you
   allow the uninstaller to complete so make sure to keep copies.
 

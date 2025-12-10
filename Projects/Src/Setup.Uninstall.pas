@@ -47,7 +47,7 @@ var
   UninstLog: TExtUninstallLog = nil;
   Title: String;
   DidRespawn, SecondPhase: Boolean;
-  EnableLogging, Silent, VerySilent, NoRestart: Boolean;
+  EnableLogging, Silent, VerySilent, NoRestart, KeepExeDatMsgFiles: Boolean;
   LogFilename: String;
   InitialProcessWnd, FirstPhaseWnd, DebugServerWnd: HWND;
   OldWindowProc: Pointer;
@@ -225,19 +225,24 @@ var
 begin
   Log('Deleting Uninstall data files.');
 
-  { Truncate the .dat file to zero bytes just before relinquishing exclusive
-    access to it }
-  try
-    UninstDataFile.Seek(0);
-    UninstDataFile.Truncate;
-  except
-    { ignore any exceptions, just in case }
+  if not KeepExeDatMsgFiles then begin
+    { Truncate the .dat file to zero bytes just before relinquishing exclusive
+      access to it }
+    try
+      UninstDataFile.Seek(0);
+      UninstDataFile.Truncate;
+    except
+      { ignore any exceptions, just in case }
+    end;
   end;
+
   FreeAndNil(UninstDataFile);
 
   { Delete the .dat and .msg files }
-  DeleteFile(UninstDataFilename);
-  DeleteFile(UninstMsgFilename);
+  if not KeepExeDatMsgFiles then begin
+    DeleteFile(UninstDataFilename);
+    DeleteFile(UninstMsgFilename);
+  end;
 
   { Tell the first phase to terminate, then delete its .exe }
   CreateUninstallDoneFile;
@@ -264,7 +269,8 @@ begin
       Sleep(500);
   end;
   UninstallExitCode := 0;
-  DelayDeleteFile(False, UninstExeFilename, 13, 50, 250);
+  if not KeepExeDatMsgFiles then
+    DelayDeleteFile(False, UninstExeFilename, 13, 50, 250);
   if Debugging then
     DebugNotifyUninstExe('');
   { Pre-Windows 2000 Add/Remove Programs will try to bring itself to the
@@ -322,7 +328,8 @@ begin
     else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True;
       DebugServerWnd := StrToWnd(ParamValue);
-    end;
+    end else if SameText(ParamName, '/KEEPEXEDATMSG') then { for debugging }
+      KeepExeDatMsgFiles := True;
     if not ParamIsAutomaticInternal then
       NewParamsForCode.Add(NewParamStr(I));
   end;
