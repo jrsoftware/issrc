@@ -149,28 +149,6 @@ object OptionsForm: TOptionsForm
       TabOrder = 8
     end
   end
-  object GroupBox2: TGroupBox
-    Left = 8
-    Top = 323
-    Width = 281
-    Height = 57
-    Anchors = [akLeft, akBottom]
-    Caption = ' File Associations '
-    TabOrder = 1
-    DesignSize = (
-      281
-      57)
-    object AssocButton: TButton
-      Left = 40
-      Top = 21
-      Width = 201
-      Height = 23
-      Anchors = [akLeft, akBottom]
-      Caption = '&Associate .iss files with this compiler'
-      TabOrder = 0
-      OnClick = AssocButtonClick
-    end
-  end
   object GroupBox3: TGroupBox
     Left = 300
     Top = 8
@@ -178,7 +156,7 @@ object OptionsForm: TOptionsForm
     Height = 372
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
-    TabOrder = 2
+    TabOrder = 1
     object AutoAutoCompleteCheck: TCheckBox
       Left = 8
       Top = 16
@@ -355,7 +333,7 @@ object OptionsForm: TOptionsForm
     end
   end
   object OKButton: TButton
-    Left = 428
+    Left = 420
     Top = 392
     Width = 73
     Height = 23
@@ -363,10 +341,10 @@ object OptionsForm: TOptionsForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 2
   end
   object CancelButton: TButton
-    Left = 508
+    Left = 500
     Top = 392
     Width = 73
     Height = 23
@@ -374,7 +352,17 @@ object OptionsForm: TOptionsForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
+    TabOrder = 3
+  end
+  object AssocButton: TButton
+    Left = 16
+    Top = 392
+    Width = 201
+    Height = 23
+    Anchors = [akLeft, akBottom]
+    Caption = '&Associate .iss files with this compiler'
     TabOrder = 4
+    OnClick = AssocButtonClick
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET

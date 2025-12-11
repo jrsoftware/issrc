@@ -21,7 +21,6 @@ type
     CancelButton: TButton;
     GroupBox1: TGroupBox;
     BackupCheck: TCheckBox;
-    GroupBox2: TGroupBox;
     AssocButton: TButton;
     StartupCheck: TCheckBox;
     WizardCheck: TCheckBox;
