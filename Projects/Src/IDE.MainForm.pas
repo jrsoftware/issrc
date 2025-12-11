@@ -143,6 +143,7 @@ type
     ThemeType: TThemeType;
     ShowPreprocessorOutput: Boolean;
     OpenIncludedFiles: Boolean;
+    OpenIncludedFilesHideNew: Boolean;
     ShowCaretPosition: Boolean;
   end;
 
@@ -861,6 +862,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       FOptions.ShowPreprocessorOutput := Ini.ReadBool('Options', 'ShowPreprocessorOutput', True);
       FOptions.OpenIncludedFiles := Ini.ReadBool('Options', 'OpenIncludedFiles', True);
+      FOptions.OpenIncludedFilesHideNew := Ini.ReadBool('Options', 'OpenIncludedFilesHideNew', False);
       I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
@@ -2032,27 +2034,47 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
-  var
-    IncludedFile: TIncludedFile;
-    I: Integer;
+  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
+    const AutoHideNew: Boolean; const HiddenFiles: TStringList);
   begin
-    IncludedFiles.Clear;
-    if P = nil then
-      Exit;
-    I := 0;
-    while P^ <> #0 do begin
-      if not IsISPPBuiltins(P) then begin
-        IncludedFile := TIncludedFile.Create;
-        IncludedFile.Filename := GetCleanFileNameOfFile(P);
-        IncludedFile.CompilerFileIndex := I;
-        IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-          @IncludedFile.LastWriteTime);
-        IncludedFiles.Add(IncludedFile);
+    if P <> nil then begin
+      var PrevIncludedFiles: TStringList := nil;
+      try
+        if AutoHideNew then begin
+          PrevIncludedFiles := TStringList.Create;
+          for var IncludedFile in IncludedFiles do
+            PrevIncludedFiles.Add(IncludedFile.Filename);
+          PrevIncludedFiles.UseLocale := False;
+          PrevIncludedFiles.Sorted := True; { Just for lookup performance }
+        end;
+
+        IncludedFiles.Clear;
+
+        var I := 0;
+        while P^ <> #0 do begin
+          if not IsISPPBuiltins(P) then begin
+            const IncludedFile = TIncludedFile.Create;
+            IncludedFile.Filename := GetCleanFileNameOfFile(P);
+            IncludedFile.CompilerFileIndex := I;
+            IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
+              @IncludedFile.LastWriteTime);
+            IncludedFiles.Add(IncludedFile);
+
+            if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
+              { This is a new include file we didn't know about yet }
+              if HiddenFiles.IndexOf(IncludedFile.Filename) = -1 then { Should always be True }
+                HiddenFiles.Add(IncludedFile.Filename);
+            end;
+          end;
+
+          Inc(P, StrLen(P) + 1);
+          Inc(I);
+        end;
+      finally
+        PrevIncludedFiles.Free;
       end;
-      Inc(P, StrLen(P) + 1);
-      Inc(I);
-    end;
+    end else
+      IncludedFiles.Clear;
   end;
 
   procedure CleanHiddenFiles(const IncludedFiles: TIncludedFiles; const HiddenFiles: TStringList);
@@ -2125,7 +2147,9 @@ begin
       iscbNotifyPreproc:
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
-          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
+          { Also stores last write time }
+          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
+            Form.FOptions.OpenIncludedFilesHideNew, Form.FHiddenFiles);
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
           Form.BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -3871,6 +3895,7 @@ begin
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
+      Ini.WriteBool('Options', 'OpenIncludedFilesHideNew', FOptions.OpenIncludedFilesHideNew);
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
