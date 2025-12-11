@@ -59,6 +59,7 @@ type
     ShowWhiteSpaceCheck: TCheckBox;
     AutoreloadCheck: TCheckBox;
     UndoAfterReloadCheck: TCheckBox;
+    AutoHideNewIncludedFilesCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);

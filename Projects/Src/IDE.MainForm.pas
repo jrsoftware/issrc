@@ -143,7 +143,7 @@ type
     ThemeType: TThemeType;
     ShowPreprocessorOutput: Boolean;
     OpenIncludedFiles: Boolean;
-    OpenIncludedFilesHideNew: Boolean;
+    AutoHideNewIncludedFiles: Boolean;
     ShowCaretPosition: Boolean;
   end;
 
@@ -862,7 +862,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       FOptions.ShowPreprocessorOutput := Ini.ReadBool('Options', 'ShowPreprocessorOutput', True);
       FOptions.OpenIncludedFiles := Ini.ReadBool('Options', 'OpenIncludedFiles', True);
-      FOptions.OpenIncludedFilesHideNew := Ini.ReadBool('Options', 'OpenIncludedFilesHideNew', False);
+      FOptions.AutoHideNewIncludedFiles := Ini.ReadBool('Options', 'AutoHideNewIncludedFiles', False);
       I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
@@ -2149,7 +2149,7 @@ begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
           { Also stores last write time }
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
-            Form.FOptions.OpenIncludedFilesHideNew, Form.FHiddenFiles);
+            Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
           Form.BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -3808,6 +3808,7 @@ begin
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
     OptionsForm.ShowPreprocessorOutputCheck.Checked := FOptions.ShowPreprocessorOutput;
     OptionsForm.OpenIncludedFilesCheck.Checked := FOptions.OpenIncludedFiles;
+    OptionsForm.AutoHideNewIncludedFilesCheck.Checked := FOptions.AutoHideNewIncludedFiles;
     OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
     OptionsForm.MemoKeyMappingComboBox.ItemIndex := Ord(FOptions.MemoKeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
@@ -3844,6 +3845,7 @@ begin
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     FOptions.ShowPreprocessorOutput := OptionsForm.ShowPreprocessorOutputCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
+    FOptions.AutoHideNewIncludedFiles := OptionsForm.AutoHideNewIncludedFilesCheck.Checked;
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
@@ -3896,7 +3898,7 @@ begin
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
-      Ini.WriteBool('Options', 'OpenIncludedFilesHideNew', FOptions.OpenIncludedFilesHideNew);
+      Ini.WriteBool('Options', 'AutoHideNewIncludedFiles', FOptions.AutoHideNewIncludedFiles);
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
