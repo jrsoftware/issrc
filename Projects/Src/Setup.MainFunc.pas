@@ -3482,6 +3482,8 @@ begin
           {$ENDIF}
           then begin
             TStyleManager.SetStyle(Handle);
+            if not (shWizardBorderStyled in SetupHeader.Options) then
+              TStyleManager.FormBorderStyle := fbsSystemStyle;
             CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
             if CustomWizardBackground then begin
               TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);

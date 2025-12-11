@@ -587,6 +587,8 @@ begin
       {$ENDIF }
       then begin
         TStyleManager.SetStyle(Handle);
+        if not (shWizardBorderStyled in SetupHeader.Options) then
+          TStyleManager.FormBorderStyle := fbsSystemStyle;
         CustomWizardBackground := (SetupHeader.WizardBackColor <> clNone) and
           (SetupHeader.WizardBackColor <> clWindow); { Unlike Setup, Uninstall doesn't support background images which is why this extra check is here }
         if CustomWizardBackground then begin
