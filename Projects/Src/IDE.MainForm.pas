@@ -2841,6 +2841,7 @@ procedure TMainForm.ECopyClick(Sender: TObject);
 begin
   FActiveMemo.CopyToClipboard;
 end;
+
 procedure TMainForm.EPasteClick(Sender: TObject);
 begin
   if not MultipleSelectionPasteFromClipboard(FActiveMemo) then
