@@ -1052,7 +1052,8 @@ begin
   for Memo in FMemos do
     if Memo is TIDEScintFileEdit then
       FFileMemos.Add(TIDEScintFileEdit(Memo));
-  FHiddenFiles := TStringList.Create(dupError, True, True);
+  FHiddenFiles := TStringList.Create(dupError, True, False);
+  FHiddenFiles.UseLocale := False;
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   ActiveControl := FActiveMemo;
