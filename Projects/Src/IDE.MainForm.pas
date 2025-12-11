@@ -691,7 +691,7 @@ uses
 
 const
   { Memos }
-  MaxMemos = 22; { Includes the main and preprocessor output memos }
+  MaxMemos = 52; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   LineStateGrowAmount = 4000;
