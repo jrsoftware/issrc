@@ -12,7 +12,7 @@ unit IDE.SignToolsForm;
 interface
 
 uses
-    Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm;
 
 type
   TSignToolsForm = class(TUIStateForm)

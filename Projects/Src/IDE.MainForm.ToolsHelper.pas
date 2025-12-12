@@ -150,19 +150,18 @@ begin
   try
     SignToolsForm.SignTools := FSignTools;
 
-    if SignToolsForm.ShowModal <> mrOK then
-      Exit;
+    if SignToolsForm.ShowModal = mrOk then begin
+      FSignTools.Assign(SignToolsForm.SignTools);
 
-    FSignTools.Assign(SignToolsForm.SignTools);
-
-    { Save new options }
-    Ini := TConfigIniFile.Create;
-    try
-      Ini.EraseSection('SignTools');
-      for I := 0 to FSignTools.Count-1 do
-        Ini.WriteString('SignTools', 'SignTool' + IntToStr(I), FSignTools[I]);
-    finally
-      Ini.Free;
+      { Save new options }
+      Ini := TConfigIniFile.Create;
+      try
+        Ini.EraseSection('SignTools');
+        for I := 0 to FSignTools.Count-1 do
+          Ini.WriteString('SignTools', 'SignTool' + IntToStr(I), FSignTools[I]);
+      finally
+        Ini.Free;
+      end;
     end;
   finally
     SignToolsForm.Free;
