@@ -325,6 +325,7 @@ type
     UpdateLinkLabel: TLinkLabel;
     UpdatePanelCloseBitBtn: TBitmapButton;
     UpdatePanelDonateBitBtn: TBitmapButton;
+    EGotoFile: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -456,6 +457,7 @@ type
     procedure UpdatePanelCloseBitBtnClick(Sender: TObject);
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
+    procedure EGotoFileClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -5322,7 +5324,9 @@ type
 
 begin
   var KeyMappedMenus := [
+    KMM(FPrint, Ord('P'), [ssCtrl], 0, []), { Also see EGotoFile below }
     KMM(EFindRegEx, Ord('R'), [ssCtrl, ssAlt], Ord('R'), [ssAlt]),
+    KMM(EGotoFile, VK_F12, [ssCtrl], Ord('P'), [ssCtrl]), { Also see FPrint above }
     KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton), { Also FCompileShortCut2 below }
     KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
@@ -5352,12 +5356,14 @@ begin
   SetFakeShortCut(RToggleBreakPoint2, RToggleBreakPoint.ShortCut);
   SetFakeShortCut(RDeleteBreakPoints2, RDeleteBreakPoints.ShortCut);
 
-  { Handle two special cases:
+  { Handle three special cases:
     -The Nav buttons have no corresponding menu item and also no ShortCut property
      so they need special handling
     -Visual Studio and Delphi have separate Compile and Build shortcuts and the
      Compile shortcut is displayed by the menu and is set above but we want to
-     allow the Build shortcuts as well for our single Build/Compile command }
+     allow the Build shortcuts as well for our single Build/Compile command
+    -If Visual Studio Code is selected then Ctrl+F is used for EGotoFile and FPrint
+     becomes shortcut-less }
 
   FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
   FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
@@ -5383,6 +5389,9 @@ begin
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
+
+  if FOptions.KeyMappingType = kmtVisualStudio then
+    FPrint.ShortCut := 0;
 end;
 
 procedure TMainForm.UpdateTheme;
@@ -5872,6 +5881,11 @@ begin
     Done := False;
 
   FBecameIdle := True;
+end;
+
+procedure TMainForm.EGotoFileClick(Sender: TObject);
+begin
+  ;
 end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
