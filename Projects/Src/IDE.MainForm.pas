@@ -3541,7 +3541,7 @@ procedure TMainForm.UpdateImages;
 { Should be called at startup and after DPI changes }
 begin
   var WH := MulDiv(16, CurrentPPI, 96);
-  var Images := ImagesModule.LightToolBarImageCollection;
+  var Images := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark];
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
   UpdatePanelDonateBitBtn.Graphic := Image;
@@ -5431,15 +5431,9 @@ begin
   SetListBoxWindowTheme(DebugCallStackList);
   SetListBoxWindowTheme(FindResultsList);
 
-  if FTheme.Dark then begin
-    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
-    FBuildImageList := ImagesModule.DarkBuildImageList;
-  end else begin
-    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
-    FBuildImageList := ImagesModule.LightBuildImageList;
-  end;
+  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
+  ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
+  FBuildImageList := ImagesModule.BuildImageList[FTheme.Dark];
 
   UpdateThemeData(True);
   UpdateBevel1Visibility;
