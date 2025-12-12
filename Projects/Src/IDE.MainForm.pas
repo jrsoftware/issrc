@@ -210,7 +210,7 @@ type
     BStopCompile: TMenuItem;
     HISPPDoc: TMenuItem;
     N13: TMenuItem;
-    EGoto: TMenuItem;
+    EGotoLine: TMenuItem;
     RTerminate: TMenuItem;
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
@@ -370,7 +370,7 @@ type
     procedure RParametersClick(Sender: TObject);
     procedure POutputListCopyClick(Sender: TObject);
     procedure BStopCompileClick(Sender: TObject);
-    procedure EGotoClick(Sender: TObject);
+    procedure EGotoLineClick(Sender: TObject);
     procedure RTerminateClick(Sender: TObject);
     procedure BMenuClick(Sender: TObject);
     procedure BLowPriorityClick(Sender: TObject);
@@ -5874,7 +5874,7 @@ begin
   FBecameIdle := True;
 end;
 
-procedure TMainForm.EGotoClick(Sender: TObject);
+procedure TMainForm.EGotoLineClick(Sender: TObject);
 var
   S: String;
   L: Integer;
