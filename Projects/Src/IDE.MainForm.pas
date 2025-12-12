@@ -500,7 +500,6 @@ type
     FFirstTabSelectShortCut, FLastTabSelectShortCut: TShortCut;
     FCompileShortCut2: TShortCut;
     FUpdatePanelMessages: TUpdatePanelMessages;
-    FBuildImageList: TImageList;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
     procedure AppOnActivate(Sender: TObject);
@@ -3541,7 +3540,7 @@ procedure TMainForm.UpdateImages;
 { Should be called at startup and after DPI changes }
 begin
   var WH := MulDiv(16, CurrentPPI, 96);
-  var Images := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark];
+  var Images := ImagesModule.ToolbarImageCollection[FTheme.Dark];
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
   UpdatePanelDonateBitBtn.Graphic := Image;
@@ -5433,8 +5432,7 @@ begin
 
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
-  FBuildImageList := ImagesModule.BuildImageList[FTheme.Dark];
-
+  
   UpdateThemeData(True);
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
@@ -5933,7 +5931,7 @@ begin
       end;
     spCompileIcon:
       if FCompiling then begin
-        var BuildImageList := FBuildImageList;
+        var BuildImageList := ImagesModule.BuildImageList[FTheme.Dark];
         ImageList_Draw(BuildImageList.Handle, FBuildAnimationFrame, Canvas.Handle,
           Rect.Left + ((Rect.Right - Rect.Left) - BuildImageList.Width) div 2,
           Rect.Top + ((Rect.Bottom - Rect.Top) - BuildImageList.Height) div 2, ILD_NORMAL);
