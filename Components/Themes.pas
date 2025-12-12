@@ -138,11 +138,15 @@ type
   TSystemHook = (shMenus, shDialogs, shToolTips);
   TSystemHooks = set of TSystemHook;
 
+  TFormBorderStyle = (fbsCurrentStyle, fbsSystemStyle);
+
   TStyleManager = class
     type TStyleServicesHandle = type Pointer;
     class var AutoDiscoverStyleResources: Boolean;
     class var SystemHooks: TSystemHooks;
     class var SystemStyleName: String;
+    class var FormBorderStyle: TFormBorderStyle;
+    class constructor Create;
     class procedure SetStyle(Handle: TStyleServicesHandle);
     class function TryLoadFromResource(Instance: HINST; const ResourceName: string;
       ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
@@ -252,6 +256,11 @@ begin
 end;
 
 { TStyleManager }
+
+class constructor TStyleManager.Create;
+begin
+  FormBorderStyle := fbsSystemStyle;
+end;
 
 class procedure TStyleManager.SetStyle(Handle: TStyleServicesHandle);
 begin

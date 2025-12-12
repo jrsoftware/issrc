@@ -143,7 +143,7 @@ procedure TInputQueryMemoForm.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark].GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin

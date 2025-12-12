@@ -143,6 +143,7 @@ type
     ThemeType: TThemeType;
     ShowPreprocessorOutput: Boolean;
     OpenIncludedFiles: Boolean;
+    AutoHideNewIncludedFiles: Boolean;
     ShowCaretPosition: Boolean;
   end;
 
@@ -691,7 +692,7 @@ uses
 
 const
   { Memos }
-  MaxMemos = 22; { Includes the main and preprocessor output memos }
+  MaxMemos = 52; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   LineStateGrowAmount = 4000;
@@ -861,6 +862,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.GutterLineNumbers := Ini.ReadBool('Options', 'GutterLineNumbers', False);
       FOptions.ShowPreprocessorOutput := Ini.ReadBool('Options', 'ShowPreprocessorOutput', True);
       FOptions.OpenIncludedFiles := Ini.ReadBool('Options', 'OpenIncludedFiles', True);
+      FOptions.AutoHideNewIncludedFiles := Ini.ReadBool('Options', 'AutoHideNewIncludedFiles', False);
       I := Ini.ReadInteger('Options', 'KeyMappingType', Ord(GetDefaultKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TKeyMappingType))) then
         FOptions.KeyMappingType := TKeyMappingType(I);
@@ -1052,7 +1054,8 @@ begin
   for Memo in FMemos do
     if Memo is TIDEScintFileEdit then
       FFileMemos.Add(TIDEScintFileEdit(Memo));
-  FHiddenFiles := TStringList.Create(dupError, True, True);
+  FHiddenFiles := TStringList.Create(dupError, True, False);
+  FHiddenFiles.UseLocale := False;
   FActiveMemo := FMainMemo;
   FActiveMemo.Visible := True;
   ActiveControl := FActiveMemo;
@@ -2031,27 +2034,47 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: Longint): Integer; stdcall;
 
-  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles);
-  var
-    IncludedFile: TIncludedFile;
-    I: Integer;
+  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
+    const AutoHideNew: Boolean; const HiddenFiles: TStringList);
   begin
-    IncludedFiles.Clear;
-    if P = nil then
-      Exit;
-    I := 0;
-    while P^ <> #0 do begin
-      if not IsISPPBuiltins(P) then begin
-        IncludedFile := TIncludedFile.Create;
-        IncludedFile.Filename := GetCleanFileNameOfFile(P);
-        IncludedFile.CompilerFileIndex := I;
-        IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-          @IncludedFile.LastWriteTime);
-        IncludedFiles.Add(IncludedFile);
+    if P <> nil then begin
+      var PrevIncludedFiles: TStringList := nil;
+      try
+        if AutoHideNew then begin
+          PrevIncludedFiles := TStringList.Create;
+          for var IncludedFile in IncludedFiles do
+            PrevIncludedFiles.Add(IncludedFile.Filename);
+          PrevIncludedFiles.UseLocale := False;
+          PrevIncludedFiles.Sorted := True; { Just for lookup performance }
+        end;
+
+        IncludedFiles.Clear;
+
+        var I := 0;
+        while P^ <> #0 do begin
+          if not IsISPPBuiltins(P) then begin
+            const IncludedFile = TIncludedFile.Create;
+            IncludedFile.Filename := GetCleanFileNameOfFile(P);
+            IncludedFile.CompilerFileIndex := I;
+            IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
+              @IncludedFile.LastWriteTime);
+            IncludedFiles.Add(IncludedFile);
+
+            if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
+              { This is a new include file we didn't know about yet }
+              if HiddenFiles.IndexOf(IncludedFile.Filename) = -1 then { Should always be True }
+                HiddenFiles.Add(IncludedFile.Filename);
+            end;
+          end;
+
+          Inc(P, StrLen(P) + 1);
+          Inc(I);
+        end;
+      finally
+        PrevIncludedFiles.Free;
       end;
-      Inc(P, StrLen(P) + 1);
-      Inc(I);
-    end;
+    end else
+      IncludedFiles.Clear;
   end;
 
   procedure CleanHiddenFiles(const IncludedFiles: TIncludedFiles; const HiddenFiles: TStringList);
@@ -2124,7 +2147,9 @@ begin
       iscbNotifyPreproc:
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
-          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles); { Also stores last write time }
+          { Also stores last write time }
+          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
+            Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
           Form.BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -2816,6 +2841,7 @@ procedure TMainForm.ECopyClick(Sender: TObject);
 begin
   FActiveMemo.CopyToClipboard;
 end;
+
 procedure TMainForm.EPasteClick(Sender: TObject);
 begin
   if not MultipleSelectionPasteFromClipboard(FActiveMemo) then
@@ -3515,7 +3541,7 @@ procedure TMainForm.UpdateImages;
 { Should be called at startup and after DPI changes }
 begin
   var WH := MulDiv(16, CurrentPPI, 96);
-  var Images := ImagesModule.LightToolBarImageCollection;
+  var Images := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark];
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
   UpdatePanelDonateBitBtn.Graphic := Image;
@@ -3782,6 +3808,7 @@ begin
     OptionsForm.GutterLineNumbersCheck.Checked := FOptions.GutterLineNumbers;
     OptionsForm.ShowPreprocessorOutputCheck.Checked := FOptions.ShowPreprocessorOutput;
     OptionsForm.OpenIncludedFilesCheck.Checked := FOptions.OpenIncludedFiles;
+    OptionsForm.AutoHideNewIncludedFilesCheck.Checked := FOptions.AutoHideNewIncludedFiles;
     OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
     OptionsForm.MemoKeyMappingComboBox.ItemIndex := Ord(FOptions.MemoKeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
@@ -3818,6 +3845,7 @@ begin
     FOptions.GutterLineNumbers := OptionsForm.GutterLineNumbersCheck.Checked;
     FOptions.ShowPreprocessorOutput := OptionsForm.ShowPreprocessorOutputCheck.Checked;
     FOptions.OpenIncludedFiles := OptionsForm.OpenIncludedFilesCheck.Checked;
+    FOptions.AutoHideNewIncludedFiles := OptionsForm.AutoHideNewIncludedFilesCheck.Checked;
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
@@ -3870,6 +3898,7 @@ begin
       Ini.WriteBool('Options', 'GutterLineNumbers', FOptions.GutterLineNumbers);
       Ini.WriteBool('Options', 'ShowPreprocessorOutput', FOptions.ShowPreprocessorOutput);
       Ini.WriteBool('Options', 'OpenIncludedFiles', FOptions.OpenIncludedFiles);
+      Ini.WriteBool('Options', 'AutoHideNewIncludedFiles', FOptions.AutoHideNewIncludedFiles);
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
@@ -5402,15 +5431,9 @@ begin
   SetListBoxWindowTheme(DebugCallStackList);
   SetListBoxWindowTheme(FindResultsList);
 
-  if FTheme.Dark then begin
-    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.DarkToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.DarkMarkersAndACImageCollection;
-    FBuildImageList := ImagesModule.DarkBuildImageList;
-  end else begin
-    ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.LightToolBarImageCollection;
-    ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.LightMarkersAndACImageCollection;
-    FBuildImageList := ImagesModule.LightBuildImageList;
-  end;
+  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
+  ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
+  FBuildImageList := ImagesModule.BuildImageList[FTheme.Dark];
 
   UpdateThemeData(True);
   UpdateBevel1Visibility;

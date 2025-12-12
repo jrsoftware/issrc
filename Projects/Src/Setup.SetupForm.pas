@@ -18,7 +18,6 @@ unit Setup.SetupForm;
   -LangOptions.DialogFontBaseScaleWidth
   -LangOptions.DialogFontBaseScaleHeight
   -SetupHeader.WizardLightControlStyling
-  -shWizardBorderStyled in SetupHeader.Options
   -shWizardKeepAspectRatio in SetupHeader.Options
   Also requires following globals to be set, but 0 is allowed:
   -SetupHeader.WizardSizePercentX
@@ -436,12 +435,6 @@ procedure TSetupForm.CreateWnd;
   end;
 
 begin
-  { Updating StyleElements causes a RecreateWnd if Handle is allocated
-    which is why we update it before calling inherited. See also
-    related SetDarkTitleBar call below. }
-  if not (shWizardBorderStyled in SetupHeader.Options) then
-    StyleElements := StyleElements - [seBorder];
-
   { DisableChildControlsStylesAsNeeded works both before and after
     calling inherited. But it does require the child controls to have
     no handle allocated, which is why it's in CreateWnd and not in
@@ -460,9 +453,8 @@ begin
     AddToWindowMessageFilterEx(Handle, WM_QueryCancelAutoPlay);
 
   { SetDarkTitleBar requires Handle to be allocated, which is why we
-    we call it after calling inherited. See also related StyleElements
-    update above. }
-  if not (seBorder in StyleElements) then
+    we call it after calling inherited. }
+  if (TStyleManager.FormBorderStyle = fbsSystemStyle) or not (seBorder in StyleElements) then
     SetDarkTitleBar(Self, IsDarkInstallMode);
 
   { We don't use the Scaled property for scaling and this means the CurrentPPI property will not be

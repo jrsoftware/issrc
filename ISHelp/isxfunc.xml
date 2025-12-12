@@ -289,6 +289,9 @@ WizardBackColor=#f3f3f3
 WizardBackColorDynamicDark=#202020
 
 [Files]
+; Replace the DestDir parameters with the following if you do not need the
+; images available during uninstall:
+; Flags: dontcopy noencryption
 Source: "MyImageNormal.png"; DestDir: "{app}"
 Source: "MyImageLarge.png"; DestDir: "{app}"
 

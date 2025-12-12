@@ -67,8 +67,8 @@ implementation
 {$IFEND}
 
 uses
-  DwmApi, Consts, PathFunc,
-  {$IFDEF USETASKDIALOGFORM} CommCtrl, Themes, Setup.TaskDialogForm, {$ENDIF}
+  DwmApi, Consts, PathFunc, Themes,
+  {$IFDEF USETASKDIALOGFORM} CommCtrl, Setup.TaskDialogForm, {$ENDIF}
   {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
   Shared.CommonFunc;
 
@@ -284,7 +284,8 @@ begin
     Unlike this article we check for Windows 10 Version 2004 because that's the first version
     that introduced DWMWA_USE_IMMERSIVE_DARK_MODE as 20 (the now documented value) instead of 19 }
   if CurrentWindowsVersionAtLeast(10, 0, 19041) then begin
-    Form.StyleElements := Form.StyleElements - [seBorder];
+    if TStyleManager.FormBorderStyle = fbsCurrentStyle then
+      Form.StyleElements := Form.StyleElements - [seBorder];
     const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
     var value: BOOL := Dark;
     DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
