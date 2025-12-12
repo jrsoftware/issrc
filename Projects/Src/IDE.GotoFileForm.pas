@@ -23,18 +23,56 @@ type
     procedure FormCreate(Sender: TObject);
     procedure GotoFileListBoxDblClick(Sender: TObject);
     procedure GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure GotoFileEditChange(Sender: TObject);
+  private
+    FFiles: TStrings;
+    procedure SetFiles(Value: TStrings);
+    procedure UpdateGotoFileListBox;
   protected
     procedure CreateWnd; override;
     procedure CreateParams(var Params: TCreateParams); override;
+  public
+    property Files: TStrings write SetFiles;
   end;
 
 implementation
 
 uses
   Windows, Messages,
+  PathFunc,
   IDE.HelperFunc;
 
 {$R *.DFM}
+
+procedure TGotoFileForm.SetFiles(Value: TStrings);
+begin
+  FFiles := Value;
+  UpdateGotoFileListBox;
+end;
+
+procedure TGotoFileForm.UpdateGotoFileListBox;
+
+  function Match(const &File, Value: String): Boolean;
+  begin
+    Result := (Value = '') or (PathStrFind(PChar(&File), Length(&File), PChar(Value), Length(Value)) >= 0);
+  end;
+
+begin
+  GotoFileListBox.Items.BeginUpdate;
+  try
+    GotoFileListBox.Items.Clear;
+    for var I := 0 to FFiles.Count-1 do
+      if Match(FFiles[I], GotoFileEdit.Text) then
+        GotoFileListBox.Items.AddObject(FFiles[I], TObject(I));
+  finally
+    GotoFileListBox.Items.EndUpdate;
+  end;
+
+  if GotoFileListBox.Items.Count > 0 then
+    GotoFileListBox.ItemIndex := 0;
+
+  OKButton.Enabled := GotoFileListBox.ItemIndex >= 0;
+end;
 
 procedure TGotoFileForm.FormCreate(Sender: TObject);
 begin
@@ -54,6 +92,11 @@ procedure TGotoFileForm.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
   Params.ExStyle := Params.ExStyle or WS_EX_DLGMODALFRAME or WS_EX_WINDOWEDGE;
+end;
+
+procedure TGotoFileForm.GotoFileEditChange(Sender: TObject);
+begin
+  UpdateGotoFileListBox;
 end;
 
 procedure TGotoFileForm.GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);

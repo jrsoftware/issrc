@@ -5884,7 +5884,18 @@ procedure TMainForm.EGotoFileClick(Sender: TObject);
 begin
   const GotoFileForm = TGotoFileForm.Create(Application);
   try
-    if GotoFileForm.ShowModal = mrOK then begin
+    const Files = TStringList.Create;
+    try
+      Files.Add(PathExtractName(FMainMemo.Filename));
+      for var IncludedFile in FIncludedFiles do
+        Files.Add(PathExtractName(IncludedFile.Filename));
+      if FPreprocessorOutputMemo.Used then
+        Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
+      GotoFileForm.Files := Files;
+      if GotoFileForm.ShowModal = mrOK then begin
+      end;
+    finally
+      Files.Free;
     end;
   finally
     GotoFileForm.Free;
