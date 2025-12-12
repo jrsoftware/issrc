@@ -104,11 +104,18 @@
         <DCCReference Include="Src\IDE.SignToolsForm.pas">
             <Form>SignToolsForm</Form>
         </DCCReference>
+        <DCCReference Include="Src\IDE.GotoFileForm.pas">
+            <Form>GotoFileForm</Form>
+        </DCCReference>
         <DCCReference Include="Src\IDE.LicenseKeyForm.pas">
             <Form>LicenseKeyForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\IDE.InputQueryComboForm.pas"/>
-        <DCCReference Include="Src\IDE.InputQueryMemoForm.pas"/>
+        <DCCReference Include="Src\IDE.InputQueryComboForm.pas">
+            <Form>InputQueryComboForm</Form>
+        </DCCReference>
+        <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
+           <Form>InputQueryMemoForm</Form>
+        </DCCReference>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>

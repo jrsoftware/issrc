@@ -683,12 +683,11 @@ uses
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
-  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
-  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm,
-  Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm,
-  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm,
-  IDE.MainForm.FinalHelper;
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
+  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
+  IDE.InputQueryComboForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
 
@@ -5885,7 +5884,13 @@ end;
 
 procedure TMainForm.EGotoFileClick(Sender: TObject);
 begin
-  ;
+  const GotoFileForm = TGotoFileForm.Create(Application);
+  try
+    if GotoFileForm.ShowModal = mrOK then begin
+    end;
+  finally
+    GotoFileForm.Free;
+  end;
 end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
