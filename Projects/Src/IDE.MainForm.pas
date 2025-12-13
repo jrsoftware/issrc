@@ -5893,7 +5893,8 @@ begin
       { Buiild file list }
       Files.Add(FMainMemo.Filename);
       for var IncludedFile in FIncludedFiles do
-        Files.Add(IncludedFile.Filename);
+        if IncludedFile.Memo <> nil then
+          Files.Add(IncludedFile.Filename);
       if FPreprocessorOutputMemo.Used then
         Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
 
