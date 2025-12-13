@@ -933,10 +933,11 @@ function RPosFunc(Ext: NativeInt; const Params: IIsppFuncParams;
 
   function RPos(const Substr, S: string): Integer;
   begin
-    for Result := Length(S) - Length(Substr) + 1 downto 1 do
-      if Copy(S, Result, Length(Substr)) = Substr then
-        Exit;
-    Result := 0;
+    if Substr = '' then
+      Exit(Length(S) + 1);
+
+    // string helper returns 1-based index or 0 when not found
+      Result := S.LastIndexOf(Substr);
   end;
 
 begin
@@ -2106,4 +2107,6 @@ initialization
   InitIsWin64;
 
 end.
+
+
 
