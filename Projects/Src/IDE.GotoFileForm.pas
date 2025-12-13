@@ -108,7 +108,8 @@ procedure TGotoFileForm.GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: W
 begin
   if Shift = [] then begin
     if (Key = VK_DOWN) and (Sender = GotoFileEdit) then begin
-      GotoFileListBox.ItemIndex := 0;
+      if GotoFileListBox.Items.Count > 0 then
+        GotoFileListBox.ItemIndex := 0;
       ActiveControl := GotoFileListBox;
       Key := 0;
     end else if (Key = VK_UP) and (GotoFileListBox.ItemIndex <= 0) then begin
