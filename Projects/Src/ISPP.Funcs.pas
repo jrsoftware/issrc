@@ -932,11 +932,22 @@ function RPosFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   function RPos(const Substr, S: string): Integer;
+  var
+    i, SubstrLen, SLen: Integer;
   begin
-    for Result := Length(S) - Length(Substr) + 1 downto 1 do
-      if Copy(S, Result, Length(Substr)) = Substr then
-        Exit;
     Result := 0;
+    SubstrLen := Length(Substr);
+    SLen := Length(S);
+
+    if (SubstrLen = 0) or (SubstrLen > SLen) then
+      Exit;
+
+    for i := SLen - SubstrLen + 1 downto 1 do
+      if Copy(S, i, SubstrLen) = Substr then
+      begin
+        Result := i;
+        Exit;
+      end;
   end;
 
 begin
@@ -2106,4 +2117,5 @@ initialization
   InitIsWin64;
 
 end.
+
 
