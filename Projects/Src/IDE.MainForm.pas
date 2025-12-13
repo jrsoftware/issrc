@@ -325,6 +325,7 @@ type
     UpdateLinkLabel: TLinkLabel;
     UpdatePanelCloseBitBtn: TBitmapButton;
     UpdatePanelDonateBitBtn: TBitmapButton;
+    EGotoFile: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -456,6 +457,7 @@ type
     procedure UpdatePanelCloseBitBtnClick(Sender: TObject);
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
+    procedure EGotoFileClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -681,12 +683,11 @@ uses
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
-  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
-  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm,
-  Shared.ConfigIniFile, Shared.SignToolsFunc, IDE.InputQueryComboForm,
-  Shared.CompilerInt, Shared.LicenseFunc, IDE.LicenseKeyForm,
-  IDE.MainForm.FinalHelper;
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
+  IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
+  IDE.InputQueryComboForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
 
@@ -4174,9 +4175,9 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
         IncludedFile.Memo := FFileMemos[NextMemoIndex];
         try
           if not IncludedFile.Memo.Used or
-            ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
-              not IncludedFile.HasLastWriteTime or
-              (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
+             not PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename) or
+             not IncludedFile.HasLastWriteTime or
+             (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
@@ -4392,7 +4393,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
-        if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+        if PathSame(FindResult.Filename, Memo.Filename) and
            (FindResult.Line >= FirstLine) then begin
           const NewLine = FindResult.Line + Count;
           UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
@@ -4453,7 +4454,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
-        if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+        if PathSame(FindResult.Filename, Memo.Filename) and
            (FindResult.Line >= FirstLine) then begin
           if FindResult.Line < FirstLine + Count then
             FindResultsList.Items.Delete(I)
@@ -5325,7 +5326,9 @@ type
 
 begin
   var KeyMappedMenus := [
+    KMM(FPrint, Ord('P'), [ssCtrl], 0, []), { Also see EGotoFile below }
     KMM(EFindRegEx, Ord('R'), [ssCtrl, ssAlt], Ord('R'), [ssAlt]),
+    KMM(EGotoFile, VK_F12, [ssCtrl], Ord('P'), [ssCtrl]), { Also see FPrint above }
     KMM(BCompile, VK_F9, [ssCtrl], Ord('B'), [ssCtrl], CompileButton), { Also FCompileShortCut2 below }
     KMM(RRun, VK_F9, [], VK_F5, [], RunButton),
     KMM(RRunToCursor, VK_F4, [], VK_F10, [ssCtrl]),
@@ -5355,12 +5358,14 @@ begin
   SetFakeShortCut(RToggleBreakPoint2, RToggleBreakPoint.ShortCut);
   SetFakeShortCut(RDeleteBreakPoints2, RDeleteBreakPoints.ShortCut);
 
-  { Handle two special cases:
+  { Handle three special cases:
     -The Nav buttons have no corresponding menu item and also no ShortCut property
      so they need special handling
     -Visual Studio and Delphi have separate Compile and Build shortcuts and the
      Compile shortcut is displayed by the menu and is set above but we want to
-     allow the Build shortcuts as well for our single Build/Compile command }
+     allow the Build shortcuts as well for our single Build/Compile command
+    -If Visual Studio Code is selected then Ctrl+F is used for EGotoFile and FPrint
+     becomes shortcut-less }
 
   FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
   FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
@@ -5386,6 +5391,9 @@ begin
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
+
+  if FOptions.KeyMappingType = kmtVisualStudio then
+    FPrint.ShortCut := 0;
 end;
 
 procedure TMainForm.UpdateTheme;
@@ -5876,6 +5884,54 @@ begin
   FBecameIdle := True;
 end;
 
+procedure TMainForm.EGotoFileClick(Sender: TObject);
+begin
+  const GotoFileForm = TGotoFileForm.Create(Application);
+  try
+    const Files = TStringList.Create;
+    try
+      { Buiild file list }
+      Files.Add(FMainMemo.Filename);
+      for var IncludedFile in FIncludedFiles do
+        if IncludedFile.Memo <> nil then
+          Files.Add(IncludedFile.Filename);
+      if FPreprocessorOutputMemo.Used then
+        Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
+
+      { Show form }
+      GotoFileForm.Files := Files;
+      if GotoFileForm.ShowModal = mrOK then begin
+        { Go to file }
+        const FileIndex = GotoFileForm.FileIndex;
+        var GotoMemo: TIDEScintEdit := nil;
+        if FileIndex = 0 then
+          GotoMemo := FMainMemo
+        else  if FPreprocessorOutputMemo.Used and (FileIndex = Files.Count-1) then
+          GotoMemo := FPreprocessorOutputMemo
+        else begin
+          const HiddenFileIndex = FHiddenFiles.IndexOf(Files[FileIndex]);
+          if HiddenFileIndex <> -1 then
+            ReopenTabOrTabs(HiddenFileIndex, True) { This activates, so don't set GotoMemo }
+          else begin
+            for var Memo in FFileMemos do begin
+              if Memo.Used and PathSame(Memo.Filename, Files[FileIndex]) then begin
+                GotoMemo := Memo;
+                Break;
+              end;
+            end;
+          end;
+        end;
+        if GotoMemo <> nil then
+          MemosTabSet.TabIndex := MemoToTabIndex(GotoMemo);
+       end;
+    finally
+      Files.Free;
+    end;
+  finally
+    GotoFileForm.Free;
+  end;
+end;
+
 procedure TMainForm.EGotoLineClick(Sender: TObject);
 var
   S: String;
@@ -6246,7 +6302,7 @@ begin
     FindResult := FindResultsList.Items.Objects[I] as TFindResult;
     if FindResult <> nil then begin
       for Memo in FFileMemos do begin
-        if Memo.Used and (PathCompare(Memo.Filename, FindResult.Filename) = 0) then begin
+        if Memo.Used and PathSame(Memo.Filename, FindResult.Filename) then begin
           MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
           Memo.SelectAndEnsureVisible(FindResult.Range);
           ActiveControl := Memo;
