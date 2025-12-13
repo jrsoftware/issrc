@@ -117,6 +117,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <span class="head2">Other changes</span>
 <ul>
+  <li>Added retry mechanisms to the compiler to make the compilation process more robust against temporary file access issues, such as when antivirus software or other processes temporarily lock output files.</li>
   <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</li>
   <li>Compiler IDE:
   <ul>

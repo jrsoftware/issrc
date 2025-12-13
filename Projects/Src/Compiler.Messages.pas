@@ -60,6 +60,7 @@ const
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusUpdatingIconsAndVsf = '   Updating icons and style (%s)';
+  SCompilerStatusOutputFileInUse = '   The output file appears to be in use (%d). Retrying: %s';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusError = 'ERROR:';
   SCompilerStatusWarning = 'Warning: ';
