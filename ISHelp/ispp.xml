@@ -489,7 +489,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Use the &for; directive to get loop behaviour. &for; takes 4 expressions. The first expression (<tt>expr1</tt>) is called "initialization expression," the second expression (<tt>expr2</tt>) "condition," the third expression (<tt>expr3</tt>) "action," and the final expression (<tt>expr4</tt>) "loop body."</p>
+					<p>Use the &for; directive to get loop behaviour. &for; takes 4 expressions. The first expression (<tt>expr1</tt>) is called "initialization expression", the second expression (<tt>expr2</tt>) "condition", the third expression (<tt>expr3</tt>) "action", and the final expression (<tt>expr4</tt>) "loop body".</p>
 					<p>The logic the &for; directive follows is:</p>
 					<p>&dsp;1. The initialization expression is evaluated.</p>
 					<p>&dsp;2. The condition is evaluated. If it evaluates to 0, the loop ends.</p>
@@ -716,7 +716,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Retrieves string from specified file's (first parameter) version information resource.</p>
 					<p>Second parameter is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</p>
-					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)." If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</p>
+					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)". If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</p>
 					<p>The function returns an empty string, if it was unable to retrieve the desired string-value.</p>
 				</description>
 			</topic>
@@ -2034,10 +2034,10 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><code>__FILENAME__</code></td><td><code><b>str</b></code>. Similar to __PATHFILENAME__, but returns only the filename portion.</td></tr>
 					<tr><td><code>__INCLUDE__</code></td><td><code><b>str</b></code>. Returns the current include path (or paths delimited with semicolons) set via <code>#pragma include</code>.</td></tr>
 					<tr><td><code>__LINE__</code></td><td><code><b>int</b></code>. Returns the number of the line in the current file.</td></tr>
-					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
+					<tr><td><code>__OPT_X__</code></td><td><code><b>void</b></code>. Defined if specified option set via <code>#pragma option -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__DIR__</code></td><td><code><b>str</b></code>. Similar to __PATHFILENAME__, but returns only the directory portion, excluding a trailing backslash (unless it is a root directory).</td></tr>
 					<tr><td><code>__PATHFILENAME__</code></td><td><code><b>str</b></code>. Returns the full path of the current include file. Empty string for the root script file.</td></tr>
-					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z." Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
+					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
@@ -2072,7 +2072,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</keywords>
 			<title>Visibility of Identifiers</title>
 			<description header="no">
-				<p>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public," "protected," or "private." To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</p>
+				<p>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public", "protected", or "private". To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</p>
 				<pre>
 					<line>#define public MyVar 12</line>
 					<line>#define protected MyVar 13</line>
@@ -2144,7 +2144,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
     <title>Looping</title>
     <description header="no">
       <p>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</p>
-      <p>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer parameter and which makes the loop "body." After that you declare "outer" loop, which is used for iterating:</p>
+      <p>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer parameter and which makes the loop "body". After that you declare "outer" loop, which is used for iterating:</p>
       <pre> 
         <line>#define LoopBody(int I) Str(I) + "th iteration\n"</line>
         <line></line>
@@ -2173,3 +2173,4 @@ The first group of options (<tt>option</tt>) controls the general options, while
 </topic-->
 	</topic>
 </yasyx>
+
