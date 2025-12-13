@@ -24,8 +24,10 @@ type
     procedure GotoFileListBoxDblClick(Sender: TObject);
     procedure GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure GotoFileEditChange(Sender: TObject);
+    procedure OKButtonClick(Sender: TObject);
   private
     FFiles: TStrings;
+    FFileIndex: Integer;
     procedure SetFiles(Value: TStrings);
     procedure UpdateGotoFileListBox;
   protected
@@ -33,6 +35,7 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     property Files: TStrings write SetFiles;
+    property FileIndex: Integer read FFileIndex;
   end;
 
 implementation
@@ -52,18 +55,20 @@ end;
 
 procedure TGotoFileForm.UpdateGotoFileListBox;
 
-  function Match(const &File, Value: String): Boolean;
+  function Match(const Name, Value: String): Boolean;
   begin
-    Result := (Value = '') or (PathStrFind(PChar(&File), Length(&File), PChar(Value), Length(Value)) >= 0);
+    Result := (Value = '') or (PathStrFind(PChar(Name), Length(Name), PChar(Value), Length(Value)) >= 0);
   end;
 
 begin
   GotoFileListBox.Items.BeginUpdate;
   try
     GotoFileListBox.Items.Clear;
-    for var I := 0 to FFiles.Count-1 do
-      if Match(FFiles[I], GotoFileEdit.Text) then
-        GotoFileListBox.Items.AddObject(FFiles[I], TObject(I));
+    for var I := 0 to FFiles.Count-1 do begin
+      const Name = PathExtractName(FFiles[I]);
+      if Match(Name, GotoFileEdit.Text) then
+        GotoFileListBox.Items.AddObject(Name, TObject(I));
+    end;
   finally
     GotoFileListBox.Items.EndUpdate;
   end;
@@ -117,6 +122,11 @@ procedure TGotoFileForm.GotoFileListBoxDblClick(Sender: TObject);
 begin
   if OKButton.Enabled then
     OKButton.Click;
+end;
+
+procedure TGotoFileForm.OKButtonClick(Sender: TObject);
+begin
+  FFileIndex := Integer(GotoFileListBox.Items.Objects[GotoFileListBox.ItemIndex]);
 end;
 
 end.

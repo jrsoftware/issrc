@@ -27,6 +27,7 @@ object GotoFileForm: TGotoFileForm
     Default = True
     ModalResult = 1
     TabOrder = 1
+    OnClick = OKButtonClick
   end
   object CancelButton: TButton
     Left = 496

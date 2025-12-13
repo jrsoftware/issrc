@@ -4169,9 +4169,9 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
         IncludedFile.Memo := FFileMemos[NextMemoIndex];
         try
           if not IncludedFile.Memo.Used or
-            ((PathCompare(IncludedFile.Memo.Filename, IncludedFile.Filename) <> 0) or
-              not IncludedFile.HasLastWriteTime or
-              (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0)) then begin
+             not PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename) or
+             not IncludedFile.HasLastWriteTime or
+             (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
@@ -4389,7 +4389,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
-        if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+        if PathSame(FindResult.Filename, Memo.Filename) and
            (FindResult.Line >= FirstLine) then begin
           const NewLine = FindResult.Line + Count;
           UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
@@ -4450,7 +4450,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
-        if (PathCompare(FindResult.Filename, Memo.Filename) = 0) and
+        if PathSame(FindResult.Filename, Memo.Filename) and
            (FindResult.Line >= FirstLine) then begin
           if FindResult.Line < FirstLine + Count then
             FindResultsList.Items.Delete(I)
@@ -5886,14 +5886,39 @@ begin
   try
     const Files = TStringList.Create;
     try
-      Files.Add(PathExtractName(FMainMemo.Filename));
+      { Buiild file list }
+      Files.Add(FMainMemo.Filename);
       for var IncludedFile in FIncludedFiles do
-        Files.Add(PathExtractName(IncludedFile.Filename));
+        Files.Add(IncludedFile.Filename);
       if FPreprocessorOutputMemo.Used then
         Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
+
+      { Show form }
       GotoFileForm.Files := Files;
       if GotoFileForm.ShowModal = mrOK then begin
-      end;
+        { Go to file }
+        const FileIndex = GotoFileForm.FileIndex;
+        var GotoMemo: TIDEScintEdit := nil;
+        if FileIndex = 0 then
+          GotoMemo := FMainMemo
+        else  if FPreprocessorOutputMemo.Used and (FileIndex = Files.Count-1) then
+          GotoMemo := FPreprocessorOutputMemo
+        else begin
+          const HiddenFileIndex = FHiddenFiles.IndexOf(Files[FileIndex]);
+          if HiddenFileIndex <> -1 then
+            ReopenTabOrTabs(HiddenFileIndex, True) { This activates, so don't set GotoMemo }
+          else begin
+            for var Memo in FFileMemos do begin
+              if Memo.Used and PathSame(Memo.Filename, Files[FileIndex]) then begin
+                GotoMemo := Memo;
+                Break;
+              end;
+            end;
+          end;
+        end;
+        if GotoMemo <> nil then
+          MemosTabSet.TabIndex := MemoToTabIndex(GotoMemo);
+       end;
     finally
       Files.Free;
     end;
@@ -6272,7 +6297,7 @@ begin
     FindResult := FindResultsList.Items.Objects[I] as TFindResult;
     if FindResult <> nil then begin
       for Memo in FFileMemos do begin
-        if Memo.Used and (PathCompare(Memo.Filename, FindResult.Filename) = 0) then begin
+        if Memo.Used and PathSame(Memo.Filename, FindResult.Filename) then begin
           MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
           Memo.SelectAndEnsureVisible(FindResult.Range);
           ActiveControl := Memo;
