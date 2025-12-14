@@ -30,7 +30,6 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_ImageBase>00800000</DCC_ImageBase>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
@@ -42,11 +41,6 @@
         <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
-        <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
-        <DCC_EXPLICIT_STRING_CAST>false</DCC_EXPLICIT_STRING_CAST>
-        <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
-        <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
-        <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
         <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
