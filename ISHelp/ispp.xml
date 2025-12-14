@@ -860,19 +860,19 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Pos">
 				<title>Pos</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Pos(<b>str</b> 1, <b>str</b> 2)</line></pre>
+					<pre><line><b>int</b> Pos(<b>str</b> SubStr, <b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Searches for a substring (first parameter) in another string (second parameter) and returns an integer value that is the 1-based index of the first character of the substring within the second string. <tt>Pos</tt> is case-sensitive. If the substring is not found, <tt>Pos</tt> returns zero.</p>
+					<p>Searches for SubStr within S and returns the first index of SubStr within S, 1-based. If SubStr is not found, <tt>Pos</tt> returns zero. The <tt>Pos</tt> function is case-sensitive.</p>
 				</description>
 			</topic>
 			<topic id="RPos">
 				<title>RPos</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> RPos(<b>str</b> 1, <b>str</b> 2)</line></pre>
+					<pre><line><b>int</b> RPos(<b>str</b> SubStr, <b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Searches for a substring (first parameter) in another string (second parameter) and returns an integer value that is the 1-based index of the first character of the last occurrence of the substring within the second string. <tt>RPos</tt> is case-sensitive. If the substring is not found, <tt>RPos</tt> returns zero.</p>
+					<p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, <tt>RPos</tt> returns zero. The <tt>RPos</tt> function is case-sensitive.</p>
 				</description>
 			</topic>
 			<topic id="Len">

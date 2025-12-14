@@ -2004,6 +2004,10 @@ var
         Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
       Stack.SetInt(PStart, SysUtils.StrToInt(Hex));
     end);
+    RegisterScriptFunc('RPos', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetInt(PStart, Stack.GetString(PStart-2).LastIndexOf(Stack.GetString(PStart-1)) + 1);
+    end);
   end;
 
   procedure RegisterDelphiFunction(ProcPtr: Pointer; const Name: AnsiString);

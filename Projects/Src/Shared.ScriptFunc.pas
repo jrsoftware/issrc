@@ -577,7 +577,8 @@ initialization
     'function Round(const E: Extended): Int64;',
     'function Trunc(const E: Extended): Int64;',
     'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;',
-    'function StrToColor(const S: String): TColor;'
+    'function StrToColor(const S: String): TColor;',
+    'function RPos(const SubStr, S: String): Integer;'
   ];
 
   {$IFDEF COMPIL32PROJ}
