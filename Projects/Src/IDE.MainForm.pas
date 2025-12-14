@@ -5363,9 +5363,7 @@ begin
      so they need special handling
     -Visual Studio and Delphi have separate Compile and Build shortcuts and the
      Compile shortcut is displayed by the menu and is set above but we want to
-     allow the Build shortcuts as well for our single Build/Compile command
-    -If Visual Studio Code is selected then Ctrl+F is used for EGotoFile and FPrint
-     becomes shortcut-less }
+     allow the Build shortcuts as well for our single Build/Compile command }
 
   FBackNavButtonShortCut := ShortCut(VK_LEFT, [ssAlt]);
   FForwardNavButtonShortCut := ShortCut(VK_RIGHT, [ssAlt]);
@@ -5391,9 +5389,6 @@ begin
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
   ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
-
-  if FOptions.KeyMappingType = kmtVisualStudio then
-    FPrint.ShortCut := 0;
 end;
 
 procedure TMainForm.UpdateTheme;
