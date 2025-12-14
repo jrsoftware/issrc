@@ -5444,7 +5444,7 @@ begin
 
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
-  
+
   UpdateThemeData(True);
   UpdateBevel1Visibility;
   UpdateMarginsAndAutoCompleteIcons;
@@ -5890,7 +5890,7 @@ begin
   try
     const Files = TStringList.Create;
     try
-      { Buiild file list }
+      { Build file list }
       Files.Add(FMainMemo.Filename);
       for var IncludedFile in FIncludedFiles do
         if IncludedFile.Memo <> nil then
@@ -5906,7 +5906,7 @@ begin
         var GotoMemo: TIDEScintEdit := nil;
         if FileIndex = 0 then
           GotoMemo := FMainMemo
-        else  if FPreprocessorOutputMemo.Used and (FileIndex = Files.Count-1) then
+        else if FPreprocessorOutputMemo.Used and (FileIndex = Files.Count-1) then
           GotoMemo := FPreprocessorOutputMemo
         else begin
           const HiddenFileIndex = FHiddenFiles.IndexOf(Files[FileIndex]);
@@ -5923,7 +5923,7 @@ begin
         end;
         if GotoMemo <> nil then
           MemosTabSet.TabIndex := MemoToTabIndex(GotoMemo);
-       end;
+      end;
     finally
       Files.Free;
     end;

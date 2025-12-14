@@ -638,8 +638,8 @@ function PathStrFind(const SSource: PChar; const SSourceLength: Integer;
   A length of -1 may be passed if a string is null-terminated; in that case,
   the length is determined automatically. }
 begin
-  { This not documented for FindStringOrdinal, but like CompareStringOrdinal it
-    only allows 1 for TRUE in the bIgnoreCase parameter. See above. }
+  { This is not documented for FindStringOrdinal, but like CompareStringOrdinal
+    it only allows 1 for TRUE in the bIgnoreCase parameter. See above. }
   const CompareResult = FindStringOrdinal_static(FIND_FROMSTART, SSource, SSourceLength,
     SValue, SValueLength, BOOL(Byte(IgnoreCase)));
   if CompareResult = -1 then begin
@@ -647,7 +647,7 @@ begin
     if LastError <> ERROR_SUCCESS then
       raise Exception.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
         [LastError]);
-  end else if not (CompareResult >= 0) and (CompareResult < SSourceLength) then
+  end else if not ((CompareResult >= 0) and (CompareResult < SSourceLength)) then
     raise Exception.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
       [CompareResult]);
   Result := CompareResult;

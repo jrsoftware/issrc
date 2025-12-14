@@ -114,7 +114,7 @@
             <Form>InputQueryComboForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
-           <Form>InputQueryMemoForm</Form>
+            <Form>InputQueryMemoForm</Form>
         </DCCReference>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
