@@ -930,21 +930,12 @@ end;
 
 function RPosFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-
-  function RPos(const Substr, S: string): Integer;
-  begin
-    for Result := Length(S) - Length(Substr) + 1 downto 1 do
-      if Copy(S, Result, Length(Substr)) = Substr then
-        Exit;
-    Result := 0;
-  end;
-
 begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeInt(ResPtr^, RPos(Get(0).AsStr, Get(1).AsStr));
+      MakeInt(ResPtr^, Get(1).AsStr.LastIndexOf(Get(0).AsStr) + 1);
     end;
   except
     on E: Exception do
@@ -2106,4 +2097,6 @@ initialization
   InitIsWin64;
 
 end.
+
+
 
