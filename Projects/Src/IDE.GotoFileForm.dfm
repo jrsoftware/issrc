@@ -2,7 +2,7 @@ object GotoFileForm: TGotoFileForm
   Left = 330
   Top = 188
   BorderIcons = [biSystemMenu]
-  Caption = 'Goto File'
+  Caption = 'Go to File'
   ClientHeight = 497
   ClientWidth = 577
   Color = clBtnFace
@@ -26,7 +26,7 @@ object GotoFileForm: TGotoFileForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 1
+    TabOrder = 2
     OnClick = OKButtonClick
   end
   object CancelButton: TButton
@@ -38,7 +38,7 @@ object GotoFileForm: TGotoFileForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 3
   end
   object GotoFileListBox: TListBox
     Left = 8
@@ -47,7 +47,7 @@ object GotoFileForm: TGotoFileForm
     Height = 422
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
-    TabOrder = 3
+    TabOrder = 1
     OnDblClick = GotoFileListBoxDblClick
     OnKeyDown = GotoFileEditOrListBoxKeyDown
   end
