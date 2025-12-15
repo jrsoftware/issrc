@@ -533,21 +533,19 @@ var
 
   function Contains(const Substr: string; Sensitive: Boolean): Boolean;
   begin
-  if Sensitive then
-    Result := AnsiPos(Substr, Str) > 0
-  else
-    Result := Pos(LowerCase(Substr), LowerCase(Str)) > 0;
+    if Sensitive then
+      Result := AnsiPos(Substr, Str) > 0
+    else
+      Result := Pos(LowerCase(Substr), LowerCase(Str)) > 0;
   end;
 
   function Meets(const Substr: string; Sensitive: Boolean; Where: Integer): Boolean;
-  var
-    L, SL: Integer;
   begin
     const L := Length(Substr);
     const SL := Length(Str);
 
-  if (Where in [1, 2, 3]) and (L > SL) then
-    Exit(False);
+    if (Where in [1, 2, 3]) and (L > SL) then
+      Exit(False);
 
     case Where of
       1: Result := Compare(Substr, Copy(Str, 1, L), Sensitive);
