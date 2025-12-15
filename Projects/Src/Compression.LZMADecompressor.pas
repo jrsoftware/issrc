@@ -60,6 +60,9 @@ type
 
 implementation
 
+uses
+  UnsignedFunc;
+
 type
   TLZMASRes = type Integer;
 
@@ -120,7 +123,7 @@ procedure IS_Lzma2Dec_Free(var state: TLZMA2InternalDecoderState;
 
 function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
 begin
-  Move(src^, dest^, n);
+  UMove(src^, dest^, n);
   Result := dest;
 end;
 
@@ -162,7 +165,6 @@ end;
 procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 var
   NextOut: PByte;
-  AvailOut: Longint;
   OutBytes, InBytes: Cardinal;
   Code: TLZMASRes;
   DecodeStatus: Integer;
@@ -175,7 +177,7 @@ begin
     FHeaderProcessed := True;
   end;
   NextOut := @Buffer;
-  AvailOut := Count;
+  var AvailOut := Count;
   while AvailOut > 0 do begin
     if (FAvailIn = 0) and not FReachedEnd then begin
       FNextIn := PByte(@FBuffer);
@@ -236,7 +238,7 @@ begin
   var StateSize := IS_LzmaDec_StateSize;
   var DecoderStateSize := SizeOf(FDecoderState);
   if StateSize <> DecoderStateSize then
-    LZMADecompDataError(-StateSize);
+    LZMADecompDataError(-Integer(StateSize));
 
   { Note: IS_LzmaDec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
@@ -286,7 +288,7 @@ begin
   var StateSize := IS_Lzma2Dec_StateSize;
   var DecoderStateSize := SizeOf(FDecoderState);
   if StateSize <> DecoderStateSize then
-    LZMADecompDataError(-StateSize);
+    LZMADecompDataError(-Integer(StateSize));
 
   { Note: IS_Lzma2Dec_Init will re-use already-allocated memory if it can.
     FDecoderState is assumed to be initialized to zero on the first call. }
