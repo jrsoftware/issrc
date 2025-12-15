@@ -543,14 +543,11 @@ var
   var
     L, SL: Integer;
   begin
-    L := Length(Substr);
-    SL := Length(Str);
+    const L := Length(Substr);
+    const SL := Length(Str);
 
-    if (Where in [1, 2, 3]) and (L > SL) then
-    begin
-      Result := False;
-      Exit;
-    end;
+  if (Where in [1, 2, 3]) and (L > SL) then
+    Exit(False);
 
     case Where of
       1: Result := Compare(Substr, Copy(Str, 1, L), Sensitive);
