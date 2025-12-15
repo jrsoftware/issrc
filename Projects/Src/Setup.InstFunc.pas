@@ -96,9 +96,10 @@ procedure AddAttributesToFile(const DisableFsRedir: Boolean; const Filename: Str
 implementation
 
 uses
-  Messages, ShellApi, PathFunc, SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, Setup.RedirFunc, Shared.SetupTypes,
-  Classes, RegStr, Math;
+  Messages, ShellApi, Classes, RegStr, Math,
+  PathFunc, UnsignedFunc,
+  Shared.SetupTypes, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.RedirFunc;
 
 procedure InternalError(const Id: String);
 begin
@@ -398,7 +399,7 @@ begin
   case NewType of
     REG_SZ: begin
         CountStr := IntToStr(Count);
-        RegSetValueEx(K, FilenameP, 0, NewType, PChar(CountStr), (Length(CountStr)+1)*SizeOf(CountStr[1]));
+        RegSetValueEx(K, FilenameP, 0, NewType, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(CountStr[1]));
       end;
     REG_BINARY, REG_DWORD:
       RegSetValueEx(K, FilenameP, 0, NewType, @Count, SizeOf(Count));
@@ -473,7 +474,7 @@ begin
       case CurType of
         REG_SZ: begin
             CountStr := IntToStr(Count);
-            RegSetValueEx(K, PChar(Filename), 0, REG_SZ, PChar(CountStr), (Length(CountStr)+1)*SizeOf(Char));
+            RegSetValueEx(K, PChar(Filename), 0, REG_SZ, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(Char));
           end;
         REG_BINARY, REG_DWORD:
           RegSetValueEx(K, PChar(Filename), 0, CurType, @Count, SizeOf(Count));
@@ -536,12 +537,12 @@ end;
 
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 begin
-  Result := SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 begin
-  Result := SHA256Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA256Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 var
@@ -589,7 +590,7 @@ begin
     if Wait = ewWaitUntilTerminated then begin
       { Wait until the process returns, but still process any messages that
         arrive and read the output if requested. }
-      var WaitMilliseconds := IfThen(OutputReader <> nil, 50, INFINITE);
+      var WaitMilliseconds := Cardinal(IfThen(OutputReader <> nil, 50, INFINITE));
       var WaitResult: DWORD := 0;
       repeat
         { Process any pending messages first because MsgWaitForMultipleObjects
@@ -836,11 +837,11 @@ begin
     if RegOpenKeyExView(rvDefault, HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager',
        0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
       if RegQueryMultiStringValue(K, 'PendingFileRenameOperations', S) then
-        SHA256Update(Context, S[1], Length(S)*SizeOf(S[1]));
+        SHA256Update(Context, S[1], ULength(S)*SizeOf(S[1]));
       { When "PendingFileRenameOperations" is full, it spills over into
         "PendingFileRenameOperations2" }
       if RegQueryMultiStringValue(K, 'PendingFileRenameOperations2', S) then
-        SHA256Update(Context, S[1], Length(S)*SizeOf(S[1]));
+        SHA256Update(Context, S[1], ULength(S)*SizeOf(S[1]));
       RegCloseKey(K);
     end;
   except

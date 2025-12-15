@@ -30,7 +30,7 @@ type
   { Note: This type is also present in Compiler.ScriptFunc.pas }
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-  TMsgBoxCallbackFunc = procedure(const Flags: Integer; const After: Boolean;
+  TMsgBoxCallbackFunc = procedure(const Flags: Cardinal; const After: Boolean;
     const Param: LongInt);
 
   TControlHelper = class helper for TControl
@@ -45,7 +45,7 @@ function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
 procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
-function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer; overload;
+function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer; overload;
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer; overload;
 function MsgBoxFmt(const Text: String; const Args: array of const;
@@ -55,7 +55,7 @@ function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PCh
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
-procedure TriggerMessageBoxCallbackFunc(const Flags: Integer; const After: Boolean);
+procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
@@ -223,7 +223,7 @@ begin
   MessageBoxCallbackParam := AParam;
 end;
 
-procedure TriggerMessageBoxCallbackFunc(const Flags: Integer; const After: Boolean);
+procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 begin
   if Assigned(MessageBoxCallbackFunc) and not MessageBoxCallbackActive then begin
     MessageBoxCallbackActive := True;
@@ -297,7 +297,7 @@ var
   MsgBoxTaskDialogFormActive: Boolean;
 {$ENDIF}
 
-function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
+function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
 
 {$IFDEF USETASKDIALOGFORM}
   procedure DoInternalError(const Msg: String);
@@ -309,7 +309,7 @@ function MsgBox(const Text, Caption: PChar; Flags: Integer): Integer;
     {$ENDIF}
   end;
 
-  procedure MsgBoxFlagsDecode(const Flags: Integer; out Icon: PChar;
+  procedure MsgBoxFlagsDecode(const Flags: Cardinal; out Icon: PChar;
     out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
   begin
     case Flags and MB_ICONMASK of
@@ -382,7 +382,7 @@ begin
           currently we lack the strings needed for the required common buttons. }
         const Typ = (Flags and MB_TYPEMASK);
         const MB_CANCELTRYCONTINUE = $00000006;
-        if (Typ <> MB_ABORTRETRYIGNORE) and (Typ <> MB_CANCELTRYCONTINUE) then begin
+        if (Typ <> Cardinal(MB_ABORTRETRYIGNORE)) and (Typ <> Cardinal(MB_CANCELTRYCONTINUE)) then begin
           const LStyle = TStyleManager.ActiveStyle;
           if not LStyle.IsSystemStyle then begin
             var Icon: PChar;
@@ -471,7 +471,7 @@ begin
       Exit;
     end;
 
-    Result := Application.MessageBox(Text, Caption, Flags);
+    Result := Application.MessageBox(Text, Caption, Integer(Flags));
   finally
     TriggerMessageBoxCallbackFunc(Flags, True);
   end;

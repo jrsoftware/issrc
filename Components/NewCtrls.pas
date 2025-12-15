@@ -75,7 +75,7 @@ implementation
 uses
   CommCtrl, ShLwApi,
   Types,
-  BidiUtils;
+  BidiUtils, UnsignedFunc;
 
 procedure Register;
 begin
@@ -240,15 +240,15 @@ begin
   Inc(DrawRect.Left, 5);
   ACanvas.Font := Control.Font;
   R := DrawRect;
-  TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+  TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
   LStyle.DrawText(ACanvas.Handle, Details, BCaption, R, TextFormat, ACanvas.Font.Color); { R is used directly below for measuring, and later also for the note }
   Result := R.Bottom;
   if Draw then begin
     RSingleLine := DrawRect;
-    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
+    TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
     LStyle.DrawText(ACanvas.Handle, Details, BCaption, RSingleLine, TextFormat, ACanvas.Font.Color); { RSingleLine is used below for the glyphs }
     { Following does not use any DT_CALCRECT results }
-    TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
+    TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK));
     if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
       ACanvas.Font.Color := ThemeTextColor;
     var R2 := DrawRect;
@@ -264,13 +264,13 @@ begin
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
       ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       R := DrawRect;
-      TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+      TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, R, TextFormat, ACanvas.Font.Color);  { R is used directly below for measuring }
       if R.Bottom > Result then
         Result := R.Bottom;
       if Draw then begin
         { Following does not use any DT_CALCRECT results }
-        TextFormat := TTextFormatFlags(Control.DrawTextBiDiModeFlags(DT_LEFT or DT_WORDBREAK));
+        TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK));
         FlipRect(DrawRect, LParentRect, LIsRightToLeft);
         LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect, TextFormat, ACanvas.Font.Color);
       end;

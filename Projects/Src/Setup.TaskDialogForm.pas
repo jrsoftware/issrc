@@ -64,7 +64,7 @@ type
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
-  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
   const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
   const SetForeground: Boolean): Integer;
 
@@ -79,7 +79,7 @@ uses
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
-  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
   const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
   const SetForeground: Boolean): Integer;
 begin
@@ -144,8 +144,8 @@ begin
   InitializeFont(True, True);
 
   const Pad = 10;
-  const PadX = ScalePixelsX(Pad);
-  const PadY = ScalePixelsY(Pad);
+  const PadX = TMarginSize(ScalePixelsX(Pad));
+  const PadY = TMarginSize(ScalePixelsY(Pad));
 
   MainPanel.Padding.Left := PadX;
   MainPanel.Padding.Top := PadY;

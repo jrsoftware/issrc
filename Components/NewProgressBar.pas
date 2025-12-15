@@ -358,7 +358,7 @@ begin
   if LIsMarquee then
     Pos := Control.ScaleValue(cMarqueeSize)
   else
-    Pos := Round(W * GetPercent);
+    Pos := Integer(Round(W * GetPercent));
   FillR := R;
   if Orientation = pbHorizontal then
   begin

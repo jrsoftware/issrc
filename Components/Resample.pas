@@ -66,7 +66,7 @@ begin
         Sum := FixedOne / Sum;
         for J := 0 to Count - 1 do
           with Weights[J] do
-            Weight := Round(Temp * Sum);
+            Weight := Integer(Round(Temp * Sum));
       end else
         Count := 0;
       Src := SrcLine;
@@ -101,9 +101,9 @@ begin
     end;
   with PRGBTriple(Pixel)^ do begin
     //Clamps all channels to values between 0 and 255
-    if R > 0 then if R < 255 shl FixedBits then rgbtRed   := R shr FixedBits else rgbtRed   := 255 else rgbtRed   := 0;
-    if G > 0 then if G < 255 shl FixedBits then rgbtGreen := G shr FixedBits else rgbtGreen := 255 else rgbtGreen := 0;
-    if B > 0 then if B < 255 shl FixedBits then rgbtBlue  := B shr FixedBits else rgbtBlue  := 255 else rgbtBlue  := 0;
+    if R > 0 then if R < 255 shl FixedBits then rgbtRed   := Byte(R shr FixedBits) else rgbtRed   := 255 else rgbtRed   := 0;
+    if G > 0 then if G < 255 shl FixedBits then rgbtGreen := Byte(G shr FixedBits) else rgbtGreen := 255 else rgbtGreen := 0;
+    if B > 0 then if B < 255 shl FixedBits then rgbtBlue  := Byte(B shr FixedBits) else rgbtBlue  := 255 else rgbtBlue  := 0;
   end;
 end;
 
@@ -125,14 +125,14 @@ begin
       Inc(A, rgbReserved * Weight);
     end;
   //Clamps alpha channel to values between 0 and 255
-  if A > 0 then if A < 255 shl FixedBits then AByte := A shr FixedBits else AByte := 255 else AByte := 0;
+  if A > 0 then if A < 255 shl FixedBits then AByte := Byte(A shr FixedBits) else AByte := 255 else AByte := 0;
   with PRGBQuad(Pixel)^ do begin
     rgbReserved := AByte;
     I := AByte shl FixedBits;
     //Clamps other channels to values between 0 and Alpha
-    if R > 0 then if R < I then rgbRed   := R shr FixedBits else rgbRed   := AByte else rgbRed   := 0;
-    if G > 0 then if G < I then rgbGreen := G shr FixedBits else rgbGreen := AByte else rgbGreen := 0;
-    if B > 0 then if B < I then rgbBlue  := B shr FixedBits else rgbBlue  := AByte else rgbBlue  := 0;
+    if R > 0 then if R < I then rgbRed   := Byte(R shr FixedBits) else rgbRed   := AByte else rgbRed   := 0;
+    if G > 0 then if G < I then rgbGreen := Byte(G shr FixedBits) else rgbGreen := AByte else rgbGreen := 0;
+    if B > 0 then if B < I then rgbBlue  := Byte(B shr FixedBits) else rgbBlue  := AByte else rgbBlue  := 0;
   end;
 end;
 
@@ -162,7 +162,7 @@ begin
     end;
     //NOTE: Irreversible change of SrcBitmap pixel format
     SrcBitmap.PixelFormat := PixelFormat;
-    SrcLineSize := WPARAM(SrcBitmap.ScanLine[0]) - WPARAM(SrcBitmap.ScanLine[1]);
+    SrcLineSize := Integer(PByte(SrcBitmap.ScanLine[0]) - PByte(SrcBitmap.ScanLine[1]));
     if SrcLineSize >= 0 then
       SrcBits := SrcBitmap.ScanLine[SrcHeight - 1]
     else begin
@@ -173,7 +173,7 @@ begin
     DstBitmap.AlphaFormat := SrcBitmap.AlphaFormat;
     DstBitmap.Width := DstWidth;
     DstBitmap.Height := DstHeight;
-    DstLineSize := WPARAM(DstBitmap.ScanLine[0]) - WPARAM(DstBitmap.ScanLine[1]);
+    DstLineSize := Integer(PByte(DstBitmap.ScanLine[0]) - PByte(DstBitmap.ScanLine[1]));
     if DstLineSize >= 0 then
       DstBits := DstBitmap.ScanLine[DstHeight - 1]
     else begin

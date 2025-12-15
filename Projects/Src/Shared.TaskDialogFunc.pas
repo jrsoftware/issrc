@@ -45,7 +45,7 @@ end;
 
 function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
-  const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: LongInt;
+  const ShieldButton: Integer; const RightToLeft: Boolean; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
   var ModalResult: Integer; const VerificationText: PChar; const pfVerificationFlagChecked: PBOOL): Boolean;
 var
   Config: TTaskDialogConfig;
@@ -207,7 +207,7 @@ begin
 
   { Go }
   const MessageBoxCaption = GetMessageBoxCaption(PChar(Caption), Typ);
-  const TriggerMessageBoxCallbackFuncFlags = IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0);
+  const TriggerMessageBoxCallbackFuncFlags = Cardinal(IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0));
 
   {$IFDEF USETASKDIALOGFORM}
   const LStyle = TStyleManager.ActiveStyle;

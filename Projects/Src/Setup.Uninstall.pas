@@ -126,7 +126,7 @@ begin
 end;
 
 function LoggedMessageBoxFmt1(const ID: TSetupMessageID; const Arg1: String;
-  const Title: String; const Flags: Integer; const Suppressible: Boolean;
+  const Title: String; const Flags: Cardinal; const Suppressible: Boolean;
   const Default: Integer): Integer;
 begin
   Result := LoggedMsgBox(PChar(FmtSetupMessage1(ID, Arg1)), PChar(Title),

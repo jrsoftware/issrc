@@ -201,7 +201,7 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
   const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
@@ -2660,7 +2660,7 @@ begin
     [GetButtonsText(Buttons)]) + Text);
 end;
 
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Integer;
+function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
   const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
@@ -2981,7 +2981,7 @@ var
     Entries[EntryType].Capacity := Count;
     for I := 0 to Count-1 do begin
       P := AllocMem(Size);
-      SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
+      SECompressedBlockRead(Reader, P^, Cardinal(Size), EntryStrings[EntryType],
         EntryAnsiStrings[EntryType]);
       Entries[EntryType].Add(P);
     end;
@@ -3000,7 +3000,7 @@ var
     Entries[EntryType].Capacity := Count;
     for I := 0 to Count-1 do begin
       P := AllocMem(Size);
-      SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
+      SECompressedBlockRead(Reader, P^, Cardinal(Size), EntryStrings[EntryType],
         EntryAnsiStrings[Entrytype]);
       if (MinVersionOfs = -1) or
          (InstallOnThisVersion(PSetupVersionData(PByte(P) + MinVersionOfs)^,

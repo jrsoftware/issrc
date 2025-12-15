@@ -880,7 +880,7 @@ begin
   ProcessMsgs;
 end;
 
-procedure OutputProgressWizardPageMessageBoxCallback(const Flags: LongInt; const After: Boolean;
+procedure OutputProgressWizardPageMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
   const Param: LongInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =

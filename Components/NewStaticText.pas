@@ -332,7 +332,7 @@ begin
     SetBkMode(Message.ChildDC, Windows.TRANSPARENT);
     StyleServices(Self).DrawParentBackground(Handle, Message.ChildDC, nil, False);
     { Return an empty brush to prevent Windows from overpainting what we just have created. }
-    Message.Result := GetStockObject(NULL_BRUSH);
+    Message.Result := LRESULT(GetStockObject(NULL_BRUSH));
   end
   else
     inherited;

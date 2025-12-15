@@ -28,7 +28,7 @@ type
 procedure SetFilenameLabelText(const S: String; const CallUpdate: Boolean);
 procedure SetStatusLabelText(const S: String;
   const ClearFilenameLabelText: Boolean = True);
-procedure InstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
+procedure InstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
   const Param: LongInt);
 procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
 procedure InitProgressGauge(const InstallFilesSize: Int64);
@@ -96,7 +96,7 @@ begin
     SetFilenameLabelText('', True);
 end;
 
-procedure InstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
+procedure InstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
   const Param: LongInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =

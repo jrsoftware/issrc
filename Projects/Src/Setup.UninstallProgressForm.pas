@@ -72,7 +72,7 @@ uses
 
 { TUninstallProgressForm }
 
-procedure UninstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
+procedure UninstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
   const Param: LongInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =
