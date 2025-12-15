@@ -41,10 +41,12 @@ if /I "%1"=="ishelpgen" (
   echo - ISSigTool.exe
   msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32 /nologo
 ) else (
-  echo - Projects.groupproj
-  rem This emits warning MSB4056, but that's ok since the build doesn't use COM
-  rem Modern MSBuild supports /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not
-  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release /nologo
+  echo - Projects.groupproj - Release build group
+  rem This emits warning MSB4056, but that's ok since the build doesn't use COM. Modern MSBuild supports
+  rem /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not. Additionally Delphi's
+  rem implementation of build groups does not seem to pass through additional parameters, so even with a
+  rem modern MSBuild you cannot suppress the warning. Likewise, using /nologo or /v:q has no effect.
+  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release
 )
 if errorlevel 1 goto failed
 
