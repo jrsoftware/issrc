@@ -19,6 +19,13 @@ type
   TUpdateIconsAndStyleOperation = (uisoIcoFileName, uisoWizardDarkStyle, uisoStyleFileName, uisoStyleFileNameDynamicDark, uisoDone);
   TOnUpdateIconsAndStyle = procedure(const Operation: TUpdateIconsAndStyleOperation) of object;
 
+  EResUpdateError = class(Exception)
+  private
+    FErrorCode: DWORD;
+  public
+    property ErrorCode: DWORD read FErrorCode;
+  end;
+
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function ReadSignatureAndChecksumFields64(const F: TCustomFile;
@@ -464,17 +471,23 @@ begin
   raise Exception.Create('UpdateSetupPEHeaderFields failed');
 end;
 
-procedure ResUpdateError(const Msg: String; const ResourceName: String = '');
+procedure ResUpdateError(const Msg: String; const ResourceName: String = ''; const ErrorCode: DWORD = ERROR_INVALID_DATA);
 begin
+  var S: String;
   if ResourceName <> '' then
-    raise Exception.CreateFmt('Resource %s update error: %s', [ResourceName, Msg])
+    S := Format('Resource %s update error: %s', [ResourceName, Msg])
   else
-    raise Exception.CreateFmt('Resource update error: %s', [Msg]);
+    S := Format('Resource update error: %s', [Msg]);
+
+  const E = EResUpdateError.Create(S);
+  E.FErrorCode := ErrorCode;
+  raise E;
 end;
 
 procedure ResUpdateErrorWithLastError(const Msg: String; const ResourceName: String = '');
 begin
-  ResUpdateError(Msg + ' (' + IntToStr(GetLastError) + ')', ResourceName);
+  const ErrorCode = GetLastError;
+  ResUpdateError(Msg + ' (' + IntToStr(ErrorCode) + ')', ResourceName, ErrorCode);
 end;
 
 procedure UpdateVersionInfo(const F: TCustomFile;
@@ -698,7 +711,7 @@ type
     try
       const N = F.CappedSize;
       if Cardinal(N) > Cardinal($100000) then  { sanity check }
-        ResUpdateError('File is too large');
+        ResUpdateError('File is too large', '', ERROR_INVALID_PARAMETER);
       GetMem(P, N);
       F.ReadBuffer(P^, N);
       Result := N;
@@ -890,7 +903,7 @@ begin
 
       { Ensure the icon is valid }
       if not IsValidIcon(Ico, IcoSize) then
-        ResUpdateError('Icon file is invalid');
+        ResUpdateError('Icon file is invalid', '', ERROR_INVALID_PARAMETER);
     end;
 
     { Update the resources }
