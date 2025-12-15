@@ -821,6 +821,10 @@ var
     begin
       Stack.SetBool(PStart, PathStartsWith(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
     end);
+    RegisterScriptFunc('PathEndsWith', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, PathEndsWith(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
+    end);
     RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));

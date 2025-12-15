@@ -327,6 +327,7 @@ initialization
     'function PathNormalizeSlashes(const S: String): String;',
     'function PathSame(const S1, S2: String): Boolean;',
     'function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;',
+    'function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;',
     { All in PathFunc but with a different name }
     'function CharLength(const S: String; const Index: Integer): Integer;',
     'function ExpandFileName(const FileName: String): String;',

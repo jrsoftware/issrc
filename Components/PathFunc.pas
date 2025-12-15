@@ -8,7 +8,7 @@ unit PathFunc;
 
   This unit provides some path-related functions.
 
-  The string comparison functions (including PathCompare, PathHasSubstringAt,
+  The string comparison functions (including PathCompare, PathEndsWith, PathHasSubstringAt,
   PathSame, PathStartsWith, PathStrCompare) all ignore case by default, and
   use a locale-independent "ordinal" comparison, which is important when
   comparing filenames/paths. Despite the "Path" prefix, however, the functions
