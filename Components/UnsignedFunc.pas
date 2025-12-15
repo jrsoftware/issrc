@@ -14,9 +14,9 @@ interface
 
 { FRAMEWORK_VCL is available as of Delphi 11.1, so define it manually here when we need it, to
   support Delphi 10.4 }
-{$IFDEF SETUPPROJ}
+{$IF Defined(COMPIL32PROJ) or Defined(SETUPPROJ)}
   {$DEFINE FRAMEWORK_VCL}
-{$ENDIF}
+{$IFEND}
 
 uses
   {$IFDEF FRAMEWORK_VCL} Windows, UITypes, Controls, Graphics, {$ENDIF} SysUtils;
