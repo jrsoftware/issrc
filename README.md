@@ -74,7 +74,7 @@ Getting Started
    open Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
-   **ISHelp\ISHelpGen\compile.bat** and **ISHelp\compile.bat** and follow the
+   **compile.bat ishelpgen** and **ISHelp\compile.bat** and follow the
    instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 

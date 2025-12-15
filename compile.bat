@@ -34,7 +34,10 @@ if errorlevel 1 goto failed
 
 set EnvOptionsWarn=false
 
-if "%1"=="issigtool" (
+if /I "%1"=="ishelpgen" (
+  echo - ISHelpGen.exe
+  msbuild.exe ..\ISHelp\ISHelpGen\ISHelpGen.dproj /t:Build /p:Config=Release;Platform=Win64 /nologo
+) else if /I "%1"=="issigtool" (
   echo - ISSigTool.exe
   msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32 /nologo
 ) else (
@@ -50,7 +53,7 @@ if errorlevel 1 goto failed
 
 echo Success!
 
-if "%1"=="issigtool" goto exit
+if not "%1"=="" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed

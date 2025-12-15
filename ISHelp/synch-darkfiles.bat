@@ -11,6 +11,6 @@ copy Staging\images\wizardstyle*.png Staging-dark\images
 
 echo - Synching files done
 
-if "%1"=="nopause" goto :eof
+if /I "%1"=="nopause" goto :eof
 
 pause
