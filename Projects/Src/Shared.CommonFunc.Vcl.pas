@@ -286,7 +286,7 @@ begin
   if CurrentWindowsVersionAtLeast(10, 0, 19041) then begin
     if TStyleManager.FormBorderStyle = fbsCurrentStyle then
       Form.StyleElements := Form.StyleElements - [seBorder];
-    const DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    const DWMWA_USE_IMMERSIVE_DARK_MODE: DWORD = 20;
     var value: BOOL := Dark;
     DwmSetWindowAttribute(Form.Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, @value, SizeOf(value));
   end;

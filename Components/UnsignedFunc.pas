@@ -12,8 +12,14 @@ unit UnsignedFunc;
 
 interface
 
+{ FRAMEWORK_VCL is available as of Delphi 11.1, so define it manually here when we need it, to
+  support Delphi 10.4 }
+{$IFDEF SETUPPROJ}
+  {$DEFINE FRAMEWORK_VCL}
+{$ENDIF}
+
 uses
-  SysUtils;
+  {$IFDEF FRAMEWORK_VCL} Windows, UITypes, Controls, Graphics, {$ENDIF} SysUtils;
 
 function ULength(const S: String): Cardinal; overload; inline;
 function ULength(const S: RawByteString): Cardinal; overload; inline;
@@ -21,6 +27,11 @@ function ULength(const S: WideString): Cardinal; overload; inline;
 function ULength(const S: TBytes): Cardinal; overload; inline;
 procedure UMove(const Source; var Dest; Count: NativeUInt);
 procedure UFillChar(var Dest; Count: NativeUInt; const Value: Integer);
+
+{$IFDEF FRAMEWORK_VCL}
+function UColorToRGB(Color: TColor): TColorRef;
+function UDrawTextBiDiModeFlags(const Control: TControl; const Flags: UINT): UINT;
+{$ENDIF}
 
 implementation
 
@@ -71,5 +82,17 @@ begin
     Inc(DestBuf, SignedCount);
   end;
 end;
+
+{$IFDEF FRAMEWORK_VCL}
+function UColorToRGB(Color: TColor): TColorRef;
+begin
+  Result := TColorRef(ColorToRGB(Color));
+end;
+
+function UDrawTextBiDiModeFlags(const Control: TControl; const Flags: UINT): UINT;
+begin
+  Result := UINT(Control.DrawTextBiDiModeFlags(Integer(Flags)));
+end;
+{$ENDIF}
 
 end.

@@ -151,7 +151,7 @@ implementation
 uses
   ShellAPI, Types, GraphUtil,
   {$IFDEF VCLSTYLES} Vcl.Themes, UITypes, {$ELSE} Themes, {$ENDIF}
-  PathFunc, NewUxTheme;
+  PathFunc, NewUxTheme, UnsignedFunc;
 
 const
   SHPPFW_NONE = $00000000;
@@ -399,8 +399,8 @@ var
 begin
   FDestroyingHandle := False;
   inherited;
-  TreeView_SetBkColor(Handle, ColorToRGB(Color));
-  TreeView_SetTextColor(Handle, ColorToRGB(Font.Color));
+  TreeView_SetBkColor(Handle, UColorToRGB(Color));
+  TreeView_SetTextColor(Handle, UColorToRGB(Font.Color));
   FDirectory := '';
   if csDesigning in ComponentState then
     Exit;
@@ -1229,15 +1229,16 @@ begin
       ScrollPos := SF.nMax;
 
     PrevScrollPos := Mouse.CursorPos.Y;
+    const RoundedScrollPos = Integer(Round(ScrollPos));
     if Control is TCustomFolderTreeView then
     begin
-      PostMessage(Handle, WM_VSCROLL, Integer(SmallPoint(SB_THUMBTRACK, Round(ScrollPos))), 0);
-      SF.nPos := Round(ScrollPos);
-      SF.nTrackPos := Round(ScrollPos);
+      PostMessage(Handle, WM_VSCROLL, Cardinal(SmallPoint(SB_THUMBTRACK, RoundedScrollPos)), 0);
+      SF.nPos := RoundedScrollPos;
+      SF.nTrackPos := RoundedScrollPos;
       SetScrollInfo(Handle, SB_VERT, SF, True);
     end
     else
-      PostMessage(Handle, WM_VSCROLL, Integer(SmallPoint(SB_THUMBPOSITION, Round(ScrollPos))), 0);
+      PostMessage(Handle, WM_VSCROLL, Cardinal(SmallPoint(SB_THUMBPOSITION, RoundedScrollPos)), 0);
     PaintScroll;
     Handled := True;
     Exit;
@@ -1256,15 +1257,16 @@ begin
 
     PrevScrollPos := Mouse.CursorPos.X;
 
+    const RoundedScrollPos = Integer(Round(ScrollPos));
     if Control is TCustomFolderTreeView then
     begin
-      PostMessage(Handle, WM_HSCROLL, Integer(SmallPoint(SB_THUMBTRACK, Round(ScrollPos))), 0);
-      SF.nPos := Round(ScrollPos);
-      SF.nTrackPos := Round(ScrollPos);
+      PostMessage(Handle, WM_HSCROLL, Cardinal(SmallPoint(SB_THUMBTRACK, RoundedScrollPos)), 0);
+      SF.nPos := RoundedScrollPos;
+      SF.nTrackPos := RoundedScrollPos;
       SetScrollInfo(Handle, SB_HORZ, SF, True);
     end
     else
-      PostMessage(Handle, WM_HSCROLL, Integer(SmallPoint(SB_THUMBPOSITION, Round(ScrollPos))), 0);
+      PostMessage(Handle, WM_HSCROLL, Cardinal(SmallPoint(SB_THUMBPOSITION, RoundedScrollPos)), 0);
     PaintScroll;
     Handled := True;
     Exit;

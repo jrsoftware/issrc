@@ -234,7 +234,8 @@ procedure Register;
 implementation
 
 uses
-  NewUxTheme.TmSchema, PathFunc, ActiveX, BidiUtils, UITypes, Types;
+  UITypes, Types, ActiveX,
+  NewUxTheme.TmSchema, PathFunc, BidiUtils, UnsignedFunc;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
@@ -639,15 +640,13 @@ begin
 end;
 
 procedure TNewCheckListBox.CNDrawItem(var Message: TWMDrawItem);
-var
-  L: Integer;
 begin
   with Message.DrawItemStruct^ do
   begin
     { Note: itemID is -1 when there are no items }
     if Integer(itemID) >= 0 then begin
-      L := ItemStates[itemID].Level;
-      if ItemStates[itemID].ItemType <> itGroup then Inc(L);
+      var L := ItemStates[Integer(itemID)].Level;
+      if ItemStates[Integer(itemID)].ItemType <> itGroup then Inc(L);
       rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
       FlipRect(rcItem, ClientRect, IsRightToLeft);
     end;
@@ -681,7 +680,6 @@ end;
 
 procedure TNewCheckListBox.MeasureItem(Index: Integer; var Height: Integer);
 var
-  DrawTextFormat: Integer;
   Rect, SubItemRect: TRect;
   ItemState: TItemState;
   L, SubItemWidth: Integer;
@@ -698,7 +696,7 @@ begin
     Inc(Rect.Left);
 
     if ItemState.SubItem <> '' then begin
-      DrawTextFormat := DrawTextBiDiModeFlags(DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE);
+      const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE);
       SetRectEmpty(SubItemRect);
       DrawText(Canvas.Handle, PChar(ItemState.SubItem), Length(ItemState.SubItem),
         SubItemRect, DrawTextFormat);
@@ -710,10 +708,10 @@ begin
     if not FWantTabs then
       Inc(Rect.Left);
 
-    DrawTextFormat := DT_NOCLIP or DT_CALCRECT or DT_WORDBREAK or DT_WORD_ELLIPSIS;
+    var DrawTextFormat: UINT := DT_NOCLIP or DT_CALCRECT or DT_WORDBREAK or DT_WORD_ELLIPSIS;
     if not FWantTabs or (ItemState.ItemType = itGroup) then
       DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
-    DrawTextFormat := DrawTextBiDiModeFlags(DrawTextFormat);
+    DrawTextFormat := UDrawTextBiDiModeFlags(Self, DrawTextFormat);
 
     S := Items[Index]; { Passing Items[Index] directly into DrawText doesn't work on Unicode build. }
     ItemState.MeasuredHeight := DrawText(Canvas.Handle, PChar(S), Length(S), Rect, DrawTextFormat);
@@ -735,7 +733,7 @@ const
 
 procedure TNewCheckListBox.DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
-  ButtonStates: array [TItemType] of Integer =
+  ButtonStates: array [TItemType] of UINT =
   (
     0,
     DFCS_BUTTONCHECK,
@@ -772,7 +770,7 @@ var
       Result := X;
   end;
 
-  procedure InternalDrawText(const S: string; var R: TRect; Format: Integer;
+  procedure InternalDrawText(const S: string; var R: TRect; Format: UINT;
     Embossed: Boolean);
   begin
     if Embossed then
@@ -791,13 +789,10 @@ var
 
 var
   ItemDisabled: Boolean;
-  uState, I, ThreadPosX, ThreadBottom, ThreadLevel, ItemMiddle,
-    DrawTextFormat: Integer;
+  I, ThreadPosX, ThreadBottom, ThreadLevel, ItemMiddle: Integer;
   CheckRect, SubItemRect, FocusRect: TRect;
   NewTextColor: TColor;
-  OldColor: TColorRef;
   ItemState: TItemState;
-  UIState: DWORD;
   SubItemWidth: Integer;
   PartId, StateId: Integer;
   Size: TSize;
@@ -812,7 +807,7 @@ begin
   FlipRect(Rect, SavedClientRect, IsRightToLeft);
 
   ItemState := ItemStates[Index];
-  UIState := SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
+  const UIState = SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
   ItemDisabled := not Enabled or not ItemState.Enabled;
 
   { Style code below is based on Vcl.StdCtrls' TCustomListBox.CNDrawItem and Vcl.CheckLst's
@@ -905,6 +900,7 @@ begin
         end;
         Brush.Color := SaveColor;
       end else if FThemeData = 0 then begin
+        var uState: UINT;
         case ItemState.State of
           cbChecked: uState := ButtonStates[ItemState.ItemType] or DFCS_CHECKED;
           cbUnchecked: uState := ButtonStates[ItemState.ItemType];
@@ -956,10 +952,10 @@ begin
       FillRect(Rect);
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
     Inc(Rect.Left);
-    OldColor := SetTextColor(Handle, ColorToRGB(NewTextColor));
+    const OldColor = SetTextColor(Handle, UColorToRGB(NewTextColor));
     if ItemState.SubItem <> '' then
     begin
-      DrawTextFormat := DrawTextBiDiModeFlags(DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
+      const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
@@ -978,12 +974,12 @@ begin
     if not FWantTabs then
       Inc(Rect.Left);
     OffsetRect(Rect, 0, (Rect.Bottom - Rect.Top - ItemState.MeasuredHeight) div 2);
-    DrawTextFormat := DT_NOCLIP or DT_WORDBREAK or DT_WORD_ELLIPSIS;
+    var DrawTextFormat: UINT := DT_NOCLIP or DT_WORDBREAK or DT_WORD_ELLIPSIS;
     if not FWantTabs or (ItemState.ItemType = itGroup) then
       DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
     if (UIState and UISF_HIDEACCEL) <> 0 then
       DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
-    DrawTextFormat := DrawTextBiDiModeFlags(DrawTextFormat);
+    DrawTextFormat := UDrawTextBiDiModeFlags(Self, DrawTextFormat);
     Font.Style := ItemState.ItemFontStyle;
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
@@ -1074,7 +1070,7 @@ begin
   if Items.Count > 0 then
   begin
     if ItemLevel[Items.Count - 1] + 1 < ALevel then
-      ALevel := ItemLevel[Items.Count - 1] + 1;
+      ALevel := Byte(ItemLevel[Items.Count - 1] + 1);
   end
   else
     ALevel := 0;
@@ -1757,12 +1753,11 @@ end;
 
 procedure TNewCheckListBox.LBDeleteString(var Message: TMessage);
 var
-  I: Integer;
   ItemState: TItemState;
 begin
   inherited;
   if FDisableItemStateDeletion = 0 then begin
-    I := Message.WParam;
+    const I = Integer(Message.WParam);
     if (I >= 0) and (I < FStateList.Count) then begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
@@ -2006,13 +2001,13 @@ begin
     CN_CTLCOLORMSGBOX..CN_CTLCOLORSTATIC:
       begin
         UpdateColors;
-        SetTextColor(Message.WParam, ColorToRGB(FontColor));
+        SetTextColor(Message.WParam, UColorToRGB(FontColor));
         const Transparent = (Control is TNewCheckListBox) and TNewCheckListBox(Control).TransparentIfStyled;
         if Transparent then begin
           SetBkMode(Message.WParam, Windows.TRANSPARENT);
-          Message.Result := GetStockObject(NULL_BRUSH);
+          Message.Result := LRESULT(GetStockObject(NULL_BRUSH));
         end else begin
-          SetBkColor(Message.WParam, ColorToRGB(Brush.Color));
+          SetBkColor(Message.WParam, UColorToRGB(Brush.Color));
           Message.Result := LRESULT(Brush.Handle);
         end;
         Handled := True;
