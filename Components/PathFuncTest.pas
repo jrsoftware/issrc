@@ -95,6 +95,50 @@ procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
       raise Exception.Create('PathNormalizeSlashes test failed');
   end;
 
+  function CompareResultSign(const Value: Integer): Integer;
+  begin
+    if Value < 0 then
+      Result := -1
+    else if Value > 0 then
+      Result := 1
+    else
+      Result := 0;
+  end;
+
+  procedure TestPathStrCompare(const S1, S2: String;
+    const IgnoreCase: Boolean; const ExpectedSign: Integer;
+    const UseNullTerminatedLengths: Boolean = False);
+  begin
+    var S1Length, S2Length: Integer;
+    if UseNullTerminatedLengths then begin
+      S1Length := -1;
+      S2Length := -1;
+    end else begin
+      S1Length := Length(S1);
+      S2Length := Length(S2);
+    end;
+
+    if CompareResultSign(PathStrCompare(PChar(S1), S1Length, PChar(S2), S2Length, IgnoreCase)) <> ExpectedSign then
+      raise Exception.Create('PathStrCompare test failed');
+  end;
+
+  procedure TestPathStrFind(const Source, Value: String;
+    const IgnoreCase: Boolean; const ExpectedIndex: Integer;
+    const UseNullTerminatedLengths: Boolean = False);
+  begin
+    var SourceLength, ValueLength: Integer;
+    if UseNullTerminatedLengths then begin
+      SourceLength := -1;
+      ValueLength := -1;
+    end else begin
+      SourceLength := Length(Source);
+      ValueLength := Length(Value);
+    end;
+
+    if PathStrFind(PChar(Source), SourceLength, PChar(Value), ValueLength, IgnoreCase) <> ExpectedIndex then
+      raise Exception.Create('PathStrFind test failed');
+  end;
+
 const
   DBChar = #131'\'; { a double-byte character whose 2nd byte happens to be a backslash }
 begin
@@ -278,6 +322,20 @@ begin
   TestPathExpandAndNormalizeSlashes('\\\\\?\C:\Windows', '\\\?\C:\Windows');
   TestPathExpandAndNormalizeSlashes('\\?\\C:\\Windows', '\\?\C:\Windows');
   TestPathExpandAndNormalizeSlashes('\\\?\\C:\\Windows', '\\\?\C:\Windows');
+
+  TestPathStrCompare('Test', 'test', True, 0);
+  TestPathStrCompare('Test', 'test', False, -1);
+  TestPathStrCompare('Test', 'Te', False, 1);
+  TestPathStrCompare('Test', 'Tex', False, -1);
+  TestPathStrCompare('Hello'+#0+'World', 'Hello', False, 0, True);
+
+  TestPathStrFind('abcABC', 'ABC', True, 0);
+  TestPathStrFind('abcABC', 'ABC', False, 3);
+  TestPathStrFind('abcABC', 'AbC', False, -1);
+  TestPathStrFind('abcABC', 'AbC', True, 0);
+  TestPathStrFind('abcABC', 'xyz', True, -1);
+  TestPathStrFind('abc'+#0+'ABC', 'ABC', False, -1, True);
+  TestPathStrFind('abc'+#0+'ABC', 'ABC', False, 4);
 end;
 
 end.
