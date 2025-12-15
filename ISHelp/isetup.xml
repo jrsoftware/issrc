@@ -3576,7 +3576,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
   <td>Toggle overwrite</td><td>Insert</td>
 </tr>
 <tr>
-  <td>Select tab</td><td>Ctrl+1 through Ctrl+9</td>
+  <td>Go to tab</td><td>Ctrl+1 through Ctrl+9</td>
 </tr>
 <tr>
   <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>

@@ -2437,7 +2437,7 @@ end;
 
 procedure TMainForm.ShowOpenMainFileDialog(const Examples: Boolean);
 var
-  InitialDir, FileName: String;
+  InitialDir, Filename: String;
 begin
   if Examples then begin
     InitialDir := PathExtractPath(NewParamStr(0)) + 'Examples';
@@ -2448,8 +2448,30 @@ begin
     Filename := '';
   end;
   if ConfirmCloseFile(True) then
-    if NewGetOpenFileName('', FileName, InitialDir, SCompilerOpenFilter, 'iss', Handle) then
+    if NewGetOpenFileName('', Filename, InitialDir, SCompilerOpenFilter, 'iss', Handle) then begin
+      { Check if user actually wants to open tab for an included file }
+      if FOptions.OpenIncludedFiles then begin
+        for var IncludedFile in FIncludedFiles do begin
+          if PathSame(IncludedFile.Filename, Filename) and
+             (MsgBox('The selected file is an #include file. Go to its tab instead of opening it as the new main file?',
+                SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then begin
+            if IncludedFile.Memo <> nil then begin
+              const HiddenFileIndex = FHiddenFiles.IndexOf(Filename);
+              if HiddenFileIndex <> -1 then
+                ReopenTabOrTabs(HiddenFileIndex, True)
+              else
+                MemosTabSet.TabIndex := MemoToTabIndex(IncludedFile.Memo);
+              Exit;
+            end else { We know about this file but it has no memo because MaxMemos was reached (or there was some error loading the file) }
+              if MsgBox('The selected file is not available as a tab. Opening as the new main file instead.',
+                   SCompilerFormCaption, mbError, MB_OKCANCEL) = IDCANCEL then
+                Exit;
+          end;
+        end;
+      end;
+      { Not an included file, or user said no: open as main file }
       OpenFile(FMainMemo, Filename, False);
+    end;
 end;
 
 procedure TMainForm.FOpenMainFileClick(Sender: TObject);

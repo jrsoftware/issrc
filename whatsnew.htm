@@ -99,6 +99,18 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for another example.</li>
 </ul>
 
+<span class="head2">Compiler IDE improvements</span>
+<p>Autocomplete now cuts <tt>[Setup]</tt> section directive lookup time, and #include tabs are more manageable, even in large projects.</p>
+<ul>
+  <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
+  <li>The Compiler IDE now opens up to 50 #include files in tabs, instead of up to 20.</li>
+  <li>Added a new <i>Keep new #include files closed</i> option, disabled by default.<br/>
+      When enabled, newly discovered #include files during compilation remain closed until you explicitly reopen their tabs via, for example, the <i>View</i> menu.</li>
+  <li>Added new <i>Go to File</i> menu item to the <i>Edit</i> menu to go to a file (Ctrl+F12 or Ctrl+P).</li>
+  <li>When opening a file that is an #include file of the current main file, the IDE now offers to go to its tab instead of opening it as the new main file.</li>
+  <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
+</ul>
+
 <span class="head2">Security improvements</span>
 <p>Updating is recommended, even if you don't plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
 <ul>
@@ -118,15 +130,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="head2">Other changes</span>
 <ul>
   <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</li>
-  <li>Compiler IDE:
-  <ul>
-    <li>Added autocomplete support in the <tt>[Setup]</tt> section for directive values with fixed options, such as all <tt>yes</tt>/<tt>no</tt> directives and others like <tt>WizardStyle</tt>.</li>
-    <li>Ctrl+W now closes the current tab (in addition to Ctrl+F4), consistent with other modern editors. Previously, Ctrl+W was assigned to <i>Target Uninstall</i> in the <i>Run</i> menu, which is now reassigned to Alt+Q.</li>
-    <li>The Compiler IDE now opens up to 50 #include files in tabs, instead of up to 20.</li>
-    <li>Added a new <i>Keep new #include files closed</i> option, disabled by default. When enabled, newly discovered #include files during compilation remain closed until you explicitly reopen their tabs via, for example, the <i>View</i> menu.</li>
-    <li>Added new <i>Go to File</i> menu item to the <i>Edit</i> menu to go to a file (Ctrl+F12 or Ctrl+P).</li>
-  </ul>
-  </li>
   <li><i>Fix:</i> File and directory controls in Setup should always use left-to-right reading order, even when a right-to-left language is active, but this has not been the case since version 6.5.2.</li>
   <li>Pascal Scripting:
   <ul>
