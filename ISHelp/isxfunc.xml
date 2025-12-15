@@ -1186,13 +1186,13 @@ end;
         <name>PathStartsWith</name>
         <prototype>function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
         <description><p>Returns True if S starts with (or is equal to) AStartsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
-        <seealso><p><link topic="isxfunc_PathStartsWith">PathStartsWith</link></p></seealso>
+        <seealso><p><link topic="isxfunc_PathEndsWith">PathEndsWith</link></p></seealso>
       </function>
       <function>
         <name>PathEndsWith</name>
         <prototype>function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
         <description><p>Returns True if S ends with (or is equal to) AEndsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
-        <seealso><p><link topic="isxfunc_PathEndsWith">PathEndsWith</link></p></seealso>
+        <seealso><p><link topic="isxfunc_PathStartsWith">PathStartsWith</link></p></seealso>
       </function>
       <function>
         <name>AddPeriod</name>
