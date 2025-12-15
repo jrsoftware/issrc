@@ -65,7 +65,7 @@
         <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
         <DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30;$(DCC_UsePackage)</DCC_UsePackage>
         <SanitizedProjectName>ISSigTool</SanitizedProjectName>
-        <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_IMPLICIT_INTEGER_CAST_LOSS>true</DCC_IMPLICIT_INTEGER_CAST_LOSS>
@@ -74,9 +74,11 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>

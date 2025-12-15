@@ -38,13 +38,14 @@
         <DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <GenDll>true</GenDll>
         <SanitizedProjectName>ISCmplr</SanitizedProjectName>
-        <DCC_Namespace>System;System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>

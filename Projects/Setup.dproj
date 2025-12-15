@@ -36,7 +36,7 @@
         <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>SETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <SanitizedProjectName>Setup</SanitizedProjectName>
-        <DCC_Namespace>System;System.Win;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
         <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
@@ -45,6 +45,7 @@
         <BT_BuildType>Debug</BT_BuildType>
         <Manifest_File>(None)</Manifest_File>
         <OutputExt>e32</OutputExt>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
