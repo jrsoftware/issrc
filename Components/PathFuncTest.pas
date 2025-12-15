@@ -2,7 +2,7 @@ unit PathFuncTest;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -70,6 +70,22 @@ procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
   begin
     if PathStartsWith(S, AStartsWith) <> ExpectedResult then
       raise Exception.Create('PathStartsWith test failed');
+  end;
+
+  procedure TestPathExpandAndNormalizeSlashes(const S, ExpectedResult: String);
+  begin
+    { PathExpand's work is done by Windows' GetFullPathName, while
+      PathNormalizeSlashes uses our own code. They should produce the same
+      result when the path is fully qualified and has no '.' or '..'
+      components. }
+    var PathExpandResult: String;
+    if (PathExpand(S) <> ExpectedResult) or
+       not PathExpand(S, PathExpandResult) or
+       (PathExpandResult <> ExpectedResult) then
+      raise Exception.Create('PathExpand test failed');
+
+    if PathNormalizeSlashes(S) <> ExpectedResult then
+      raise Exception.Create('PathNormalizeSlashes test failed');
   end;
 
 const
@@ -229,6 +245,21 @@ begin
     TestPathStartsWith('C:'+DBChar, 'c:\', False);
     TestPathStartsWith('C:'+DBChar, 'c:'+DBChar[1], False);
   end;
+
+  TestPathExpandAndNormalizeSlashes('C:\abc\def', 'C:\abc\def');
+  TestPathExpandAndNormalizeSlashes('C:\abc\def\', 'C:\abc\def\');
+  TestPathExpandAndNormalizeSlashes('C:\abc\def\\', 'C:\abc\def\');
+  TestPathExpandAndNormalizeSlashes('C:/abc\def', 'C:\abc\def');
+  TestPathExpandAndNormalizeSlashes('C:\\\abc////def', 'C:\abc\def');
+  { Windows' GetFullPathName doesn't collapse 3+ leading slashes down to 2;
+    instead, it collapses 4+ leading slashes down to 3. (The resulting path
+    doesn't actually work with that extra 3rd slash.) }
+  TestPathExpandAndNormalizeSlashes('\\?\C:\Windows', '\\?\C:\Windows');
+  TestPathExpandAndNormalizeSlashes('\\\?\C:\Windows', '\\\?\C:\Windows');
+  TestPathExpandAndNormalizeSlashes('\\\\?\C:\Windows', '\\\?\C:\Windows');
+  TestPathExpandAndNormalizeSlashes('\\\\\?\C:\Windows', '\\\?\C:\Windows');
+  TestPathExpandAndNormalizeSlashes('\\?\\C:\\Windows', '\\?\C:\Windows');
+  TestPathExpandAndNormalizeSlashes('\\\?\\C:\\Windows', '\\\?\C:\Windows');
 end;
 
 end.

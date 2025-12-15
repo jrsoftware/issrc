@@ -44,7 +44,7 @@ function PathIsRooted(const Filename: String): Boolean;
 function PathLastChar(const S: String): PChar;
 function PathLastDelimiter(const Delimiters, S: string): Integer;
 function PathLowercase(const S: String): String;
-function PathNormalizeSlashes(const S: String): String;
+function PathNormalizeSlashes(S: String): String;
 function PathPathPartLength(const Filename: String;
   const IncludeSlashesAfterPath: Boolean): Integer;
 function PathPos(Ch: Char; const S: String): Integer;
@@ -548,29 +548,34 @@ begin
   Result := 0;
 end;
 
-function PathNormalizeSlashes(const S: String): String;
+function PathNormalizeSlashes(S: String): String;
 { Returns S minus any superfluous slashes, and with any forward slashes
   converted to backslashes. For example, if S is 'C:\\\some//path', it returns
-  'C:\some\path'. Does not remove a double backslash at the beginning of the
-  string, since that signifies a UNC path. }
-var
-  Len, I: Integer;
+  'C:\some\path'.
+  If the string starts with two slashes ('\\') then those two characters are
+  ignored when collapsing repeated slashes. So:
+    \\server\share   -> \\server\share   (unchanged)
+    \\\server\share  -> \\\server\share  (unchanged)
+    \\\\server\share -> \\\server\share  (one backslash removed)
+  Note that paths with 3+ leading slashes don't actually work. But Windows'
+  GetFullPathName function, used by PathExpand, collapses slashes the same
+  way. Best to be consistent. }
 begin
+  const Len = Length(S);
+  var I: Integer;
+  for I := 1 to Len do
+    if S[I] = '/' then
+      S[I] := '\';
+
+  var EndIndex := 2;
+  if (Len >= 2) and (S[1] = '\') and (S[2] = '\') then
+    Inc(EndIndex, 2);
+
+  for I := Len downto EndIndex do
+    if (S[I] = '\') and (S[I-1] = '\') then
+      Delete(S, I, 1);
+
   Result := S;
-  Len := Length(Result);
-  I := 1;
-  while I <= Len do begin
-    if Result[I] = '/' then
-      Result[I] := '\';
-    Inc(I, PathCharLength(Result, I));
-  end;
-  I := 1;
-  while I < Length(Result) do begin
-    if (Result[I] = '\') and (Result[I+1] = '\') and (I > 1) then
-      Delete(Result, I+1, 1)
-    else
-      Inc(I, PathCharLength(Result, I));
-  end;
 end;
 
 function PathSame(const S1, S2: String): Boolean;
