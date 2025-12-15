@@ -28,6 +28,8 @@ function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): In
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
+function PathEndsWith(const S, AEndsWith: String;
+  const IgnoreCase: Boolean = True): Boolean;
 function PathExpand(const Filename: String): String; overload;
 function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean; overload;
 function PathExtensionPos(const Filename: String): Integer;
@@ -301,6 +303,15 @@ begin
       LastCharToKeep := I-1;
     end;
   end;
+end;
+
+function PathEndsWith(const S, AEndsWith: String;
+  const IgnoreCase: Boolean = True): Boolean;
+{ Returns True if S ends with (or is equal to) AEndsWith.
+  An ordinal comparison is used, ignoring case by default. }
+begin
+  Result := PathHasSubstringAt(S, AEndsWith, Length(S) - Length(AEndsWith),
+    IgnoreCase);
 end;
 
 function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean;

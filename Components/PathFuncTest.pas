@@ -72,6 +72,13 @@ procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
       raise Exception.Create('PathStartsWith test failed');
   end;
 
+  procedure TestPathEndsWith(const IgnoreCase: Boolean;
+    const S, AEndsWith: String; const ExpectedResult: Boolean);
+  begin
+    if PathEndsWith(S, AEndsWith, IgnoreCase) <> ExpectedResult then
+      raise Exception.Create('PathEndsWith test failed');
+  end;
+
   procedure TestPathExpandAndNormalizeSlashes(const S, ExpectedResult: String);
   begin
     { PathExpand's work is done by Windows' GetFullPathName, while
@@ -236,6 +243,8 @@ begin
   TestPathCombine('c:\', '\\a\b\c', '\\a\b\c');
   TestPathCombine('c:\', 'ee:x', 'c:\ee:x'); {**}
 
+  TestPathStartsWith('', '', True);
+  TestPathStartsWith('TestingAbc', '', True);
   TestPathStartsWith('C:', 'c:\', False);
   TestPathStartsWith('C:\', 'c:\', True);
   TestPathStartsWith('C:\test', 'c:\', True);
@@ -245,6 +254,15 @@ begin
     TestPathStartsWith('C:'+DBChar, 'c:\', False);
     TestPathStartsWith('C:'+DBChar, 'c:'+DBChar[1], False);
   end;
+
+  TestPathEndsWith(False, '', '', True);
+  TestPathEndsWith(True, '', '', True);
+  TestPathEndsWith(True, 'TestingAbc', '', True);
+  TestPathEndsWith(True, 'TestingAbc', 'gabc', True);
+  TestPathEndsWith(False, 'TestingAbc', 'gabc', False);
+  TestPathEndsWith(True, 'TestingAbc', 'zabc', False);
+  TestPathEndsWith(True, 'TestingAbc', 'testingABC', True);
+  TestPathEndsWith(True, 'TestingAbc', 'xTestingAbc', False);
 
   TestPathExpandAndNormalizeSlashes('C:\abc\def', 'C:\abc\def');
   TestPathExpandAndNormalizeSlashes('C:\abc\def\', 'C:\abc\def\');
