@@ -588,10 +588,14 @@ object MainForm: TMainForm
         Caption = '&Unfold Section'
         OnClick = EFoldOrUnfoldLineClick
       end
-      object EGoto: TMenuItem
+      object EGotoFile: TMenuItem
+        Caption = 'Go to File...'
+        OnClick = EGotoFileClick
+      end
+      object EGotoLine: TMenuItem
         Caption = '&Go to Line...'
         ShortCut = 16455
-        OnClick = EGotoClick
+        OnClick = EGotoLineClick
       end
       object N18: TMenuItem
         Caption = '-'

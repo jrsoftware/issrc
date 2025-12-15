@@ -336,7 +336,8 @@ begin
   EFoldLine.Enabled := MemoHasFocus;
   EUnfoldLine.Visible := EFoldLine.Visible;
   EUnfoldLine.Enabled := EFoldLine.Enabled;
-  EGoto.Enabled := MemoHasFocus;
+  EGotoFile.Enabled := FMainMemo.Filename <> '';
+  EGotoLine.Enabled := MemoHasFocus;
   EToggleLinesComment.Enabled := not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 

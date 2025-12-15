@@ -54,6 +54,9 @@ function PathStartsWith(const S, AStartsWith: String;
 function PathStrCompare(const S1: PChar; const S1Length: Integer;
   const S2: PChar; const S2Length: Integer;
   const IgnoreCase: Boolean = True): Integer;
+function PathStrFind(const SSource: PChar; const SSourceLength: Integer;
+  const SValue: PChar; const SValueLength: Integer;
+  const IgnoreCase: Boolean = True): Integer;
 function PathStrNextChar(const S: PChar): PChar;
 function PathStrPrevChar(const Start, Current: PChar): PChar;
 function PathStrScan(const S: PChar; const C: Char): PChar;
@@ -617,6 +620,37 @@ begin
       [CompareResult]);
   end;
   Result := CompareResult - 2;
+end;
+
+{ Use our own FindStringOrdinal declaration. The one in the Windows unit is
+  "delayload" (yuck). }
+function FindStringOrdinal_static(dwFindStringOrdinalFlags: DWORD;
+  lpStringSource: LPCWSTR; cchSource: Integer;
+  lpStringValue: LPCWSTR; cchValue: Integer; bIgnoreCase: BOOL): Integer; stdcall;
+  external kernel32 name 'FindStringOrdinal';
+
+function PathStrFind(const SSource: PChar; const SSourceLength: Integer;
+  const SValue: PChar; const SValueLength: Integer;
+  const IgnoreCase: Boolean = True): Integer;
+{ Locates a value in a string, starting with the first character of the string.
+  Returns a 0-based index if found, and -1 otherwise.
+  An ordinal comparison is used, ignoring case by default.
+  A length of -1 may be passed if a string is null-terminated; in that case,
+  the length is determined automatically. }
+begin
+  { This is not documented for FindStringOrdinal, but like CompareStringOrdinal
+    it only allows 1 for TRUE in the bIgnoreCase parameter. See above. }
+  const CompareResult = FindStringOrdinal_static(FIND_FROMSTART, SSource, SSourceLength,
+    SValue, SValueLength, BOOL(Byte(IgnoreCase)));
+  if CompareResult = -1 then begin
+    const LastError = GetLastError;
+    if LastError <> ERROR_SUCCESS then
+      raise Exception.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
+        [LastError]);
+  end else if not ((CompareResult >= 0) and (CompareResult < SSourceLength)) then
+    raise Exception.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
+      [CompareResult]);
+  Result := CompareResult;
 end;
 
 function PathStrNextChar(const S: PChar): PChar;

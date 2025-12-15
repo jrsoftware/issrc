@@ -948,7 +948,14 @@ end;</pre></example>
       <function>
         <name>Pos</name>
         <prototype>function Pos(SubStr, S: AnyString): Integer;</prototype>
-        <description><p>Searches for Substr within S and returns an integer value that is the index of the first character of Substr within S.<br />If Substr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
+        <description><p>Searches for SubStr within S and returns the first index of SubStr within S, 1-based. If SubStr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
+        <seealso><p><link topic="isxfunc_RPos">RPos</link></p></seealso>
+      </function>
+      <function>
+        <name>RPos</name>
+        <prototype>function RPos(SubStr, S: String): Integer;</prototype>
+        <description><p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, RPos returns zero. The RPos function is case-sensitive.</p></description>
+        <seealso><p><link topic="isxfunc_Pos">Pos</link></p></seealso>
       </function>
       <function>
         <name>AddQuotes</name>
