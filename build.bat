@@ -30,24 +30,6 @@ cd /d %~dp0
 if "%1"=="setup" goto setup
 if not "%1"=="" goto failed
 
-cd ishelp\ishelpgen
-if errorlevel 1 goto failed
-call .\compile.bat
-if errorlevel 1 goto failed
-cd ..\..
-if errorlevel 1 goto failed
-echo Compiling ISHelpGen done
-pause
-
-cd ishelp
-if errorlevel 1 goto failed
-call .\compile.bat
-if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
-echo Compiling ISetup*.chm done
-pause
-
 call .\compile.bat issigtool
 if errorlevel 1 goto failed
 echo Compiling ISSigTool done
@@ -83,6 +65,15 @@ rem  Sign using user's private key - also see compile.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\SetupCustomStyle.e32 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
+pause
+
+cd ishelp
+if errorlevel 1 goto failed
+call .\compile.bat
+if errorlevel 1 goto failed
+cd ..
+if errorlevel 1 goto failed
+echo Compiling ISetup*.chm done
 pause
 
 :setup

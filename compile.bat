@@ -24,27 +24,7 @@ set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
-set DELPHIXELIB_WIN32=%DELPHIXEROOT%\lib\win32\release
-set DELPHIXELIB_WIN64=%DELPHIXEROOT%\lib\win64\release
-
 rem -------------------------------------------------------------------------
-
-rem  Compile each project separately because it seems Delphi
-rem  carries some settings (e.g. $APPTYPE) between projects
-rem  if multiple projects are specified on the command line.
-
-set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM
-
-set FLAGS=--no-config -Q -B -$L- -$C- -$T+ %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
-set FLAGSCONSOLE=%FLAGS% -CC
-set FLAGSE32=%FLAGS% -TX.e32
-set FLAGSE64=%FLAGS% -TX.e64
-set NAMESPACES=System;System.Win;Winapi
-set DCUDIR_WIN32=Dcu\Win32\Release
-set DCUDIR_WIN64=Dcu\Win64\Release
-
-set ROPSSRC=..\Components\UniPS\Source
-set ROPSDEF=PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS
 
 call "%DELPHIXEROOT%\bin\rsvars.bat"
 if errorlevel 1 goto failed
@@ -52,57 +32,17 @@ if errorlevel 1 goto failed
 cd Projects
 if errorlevel 1 goto failed
 
-if "%1"=="issigtool" goto issigtool
-if not "%1"=="" goto failed
+set EnvOptionsWarn=false
 
-echo - ISPP.dll
-mkdir %DCUDIR_WIN32%\ISPP.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -W+IMPLICIT_INTEGER_CAST_LOSS -W+IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES%  -U"%DELPHIXELIB_WIN32%"  -NU%DCUDIR_WIN32%\ISPP.dpr ISPP.dpr
-if errorlevel 1 goto failed
-
-echo - Compil32.exe
-msbuild.exe Compil32.dproj /t:BuildVersionResource /p:Config=Release;Platform=Win32 /nologo /v:q
-if errorlevel 1 goto failed
-mkdir %DCUDIR_WIN32%\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Compil32.dpr -DCOMPIL32PROJ;VCLSTYLES;%ROPSDEF% Compil32.dpr
-if errorlevel 1 goto failed
-
-echo - ISCC.exe
-mkdir %DCUDIR_WIN32%\ISCC.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -W+IMPLICIT_INTEGER_CAST_LOSS -W+IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\ISCC.dpr -D%ROPSDEF% ISCC.dpr
-if errorlevel 1 goto failed
-
-echo - ISCmplr.dll
-mkdir %DCUDIR_WIN32%\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
-if errorlevel 1 goto failed
-
-echo - SetupLdr.e32
-mkdir %DCUDIR_WIN32%\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -W+IMPLICIT_INTEGER_CAST_LOSS -W+IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
-if errorlevel 1 goto failed
-
-echo - SetupLdr.e64
-mkdir %DCUDIR_WIN64%\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc64.exe" %FLAGSE64% -W+IMPLICIT_INTEGER_CAST_LOSS -W+IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES% -U"%DELPHIXELIB_WIN64%" -NU%DCUDIR_WIN64%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
-if errorlevel 1 goto failed
-
-echo - Setup.e32
-mkdir %DCUDIR_WIN32%\Setup.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
-if errorlevel 1 goto failed
-
-echo - SetupCustomStyle.e32
-msbuild.exe SetupCustomStyle.dproj /t:BuildVersionResource /p:Config=Release;Platform=Win32 /nologo /v:q
-if errorlevel 1 goto failed
-mkdir %DCUDIR_WIN32%\SetupCustomStyle.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB_WIN32%;%ROPSSRC%" -NU%DCUDIR_WIN32%\SetupCustomStyle.dpr -DSETUPPROJ;VCLSTYLES;%ROPSDEF% SetupCustomStyle.dpr
-if errorlevel 1 goto failed
-
-:issigtool
-echo - ISSigTool.exe
-mkdir %DCUDIR_WIN32%\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -W+IMPLICIT_INTEGER_CAST_LOSS -W+IMPLICIT_CONVERSION_LOSS -NS%NAMESPACES% -U"%DELPHIXELIB_WIN32%" -NU%DCUDIR_WIN32%\ISSigTool.dpr ISSigTool.dpr
+if "%1"=="issigtool" (
+  echo - ISSigTool.exe
+  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32 /nologo
+) else (
+  echo - Projects.groupproj
+  rem This emits warning MSB4056, but that's ok since the build doesn't use COM
+  rem Modern MSBuild supports /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not
+  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release /nologo
+)
 if errorlevel 1 goto failed
 
 cd ..
