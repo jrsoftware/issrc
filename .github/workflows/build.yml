@@ -39,7 +39,6 @@ jobs:
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
           "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
-          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
       - name: Build issrc
         run: |
