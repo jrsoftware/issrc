@@ -16,7 +16,7 @@ interface
 
 implementation
 
-{$IFDEF WIN32}
+{$IFNDEF WIN64}
 {$R SetupLdrAndSetup.XPTheme-x86.res}
 {$ELSE}
 {$R SetupLdrAndSetup.XPTheme-x64.res}
