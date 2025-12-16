@@ -299,7 +299,7 @@ begin
       Break
     else begin
       Dec(Left, Res);
-      Inc(Longint(Buffer), Res);
+      Inc(PByte(Buffer), Res);
       { Go to next disk }
       if FOpenedSlice >= FChunkLastSlice then
         { Already on the last slice, so the file must be corrupted... }

@@ -195,11 +195,11 @@ var
   ObjName: String;
   ErrorCode: DWORD;
 begin
-  case RootKey of
-    HKEY_CLASSES_ROOT: ObjName := 'CLASSES_ROOT';
-    HKEY_CURRENT_USER: ObjName := 'CURRENT_USER';
-    HKEY_LOCAL_MACHINE: ObjName := 'MACHINE';
-    HKEY_USERS: ObjName := 'USERS';
+  case UInt32(RootKey) of
+    UInt32(HKEY_CLASSES_ROOT): ObjName := 'CLASSES_ROOT';
+    UInt32(HKEY_CURRENT_USER): ObjName := 'CURRENT_USER';
+    UInt32(HKEY_LOCAL_MACHINE): ObjName := 'MACHINE';
+    UInt32(HKEY_USERS): ObjName := 'USERS';
   else
     { Other root keys are not supported by Get/SetNamedSecurityInfo }
     SetLastError(ERROR_INVALID_PARAMETER);

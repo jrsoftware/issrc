@@ -3220,7 +3220,7 @@ var
   ParamName, ParamValue: String;
   ParamIsAutomaticInternal: Boolean;
   StartParam: Integer;
-  I, N: Integer;
+  I: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;

@@ -48,16 +48,26 @@ type
 var
   State: TSevenZipDecodeState;
 
-{ Compiled by Visual Studio 2022 using compile.bat
-  To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
+{ Compiled by Visual Studio 2022 using compile.bat }
+{$IFNDEF WIN64}
+{ To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
   Note that in a speed test the code produced by bcc32c was about 33% slower }
-{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
+{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x86.obj}
+{$ELSE}
+{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x64.obj}
+{$ENDIF}
+
 {$DEFINE VISUALSTUDIO}
 
-function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
+function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; {$IFNDEF WIN64} cdecl; external name '_IS_7zDec'; {$ELSE} external name 'IS_7zDec'; {$ENDIF}
 
+{$IFNDEF WIN64}
 function __CreateDirectoryW(lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
+{$ELSE}
+function _CreateDirectoryW(lpPathName: LPCWSTR;
+  lpSecurityAttributes: PSecurityAttributes): BOOL;
+{$ENDIF}
 begin
   var ExpandedDir: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
@@ -69,9 +79,15 @@ begin
 end;
 
 { Never actually called but still required by the linker }
+{$IFNDEF WIN64}
 function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
+{$ELSE}
+function _CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
+  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
+  hTemplateFile: THandle): THandle;
+{$ENDIF}
 begin
   { Return an error if we do ever get called which is unwanted because it should
     use CreateFileW and not CreateFileA }
@@ -79,9 +95,15 @@ begin
   SetLastError(ERROR_INVALID_FUNCTION);
 end;
 
+{$IFNDEF WIN64}
 function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
+{$ELSE}
+function _CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
+  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
+  hTemplateFile: THandle): THandle;
+{$ENDIF}
 begin
   { Filenames read from archives aren't validated at all by the SDK's 7zMain.c,
     so we have to handle that ourself. Most importantly, we need to make sure a
@@ -103,24 +125,41 @@ end;
 
 {$IFDEF VISUALSTUDIO}
 
+{$IFNDEF WIN64}
 function __FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
+{$ELSE}
+function _FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL;
+{$ENDIF}
 begin
   Result := FileTimeToLocalFileTime(lpFileTime, lpLocalFileTime);
 end;
 
 { Never actually called but still required by the linker }
+{$IFNDEF WIN64}
 function __GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
+{$ELSE}
+function _GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD;
+{$ENDIF}
 begin
   Result := GetFileSize(hFile, lpFileSizeHigh);
 end;
 
+{$IFNDEF WIN64}
 function __ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
   var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
+{$ELSE}
+function _ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
+  var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL;
+{$ENDIF}
 begin
   Result := ReadFile(hFile, Buffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 end;
 
+{$IFNDEF WIN64}
 function __GetFileAttributesW(lpFileName: LPCWSTR): DWORD; cdecl;
+{$ELSE}
+function _GetFileAttributesW(lpFileName: LPCWSTR): DWORD;
+{$ENDIF}
 begin
   { See above }
   var ExpandedFileName: String;
@@ -132,7 +171,11 @@ begin
   end;
 end;
 
+{$IFNDEF WIN64}
 function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
+{$ELSE}
+function _SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL;
+{$ENDIF}
 begin
   { See above }
   var ExpandedFileName: String;
@@ -144,73 +187,125 @@ begin
   end;
 end;
 
+{$IFNDEF WIN64}
 function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
   lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD; cdecl;
+{$ELSE}
+function _SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
+  lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD;
+{$ENDIF}
 begin
   Result := SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
 end;
 
+{$IFNDEF WIN64}
 function __SetFileTime(hFile: THandle;
   lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL; cdecl;
+{$ELSE}
+function _SetFileTime(hFile: THandle;
+  lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL;
+{$ENDIF}
 begin
   Result := SetFileTime(hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
 end;
 
+{$IFNDEF WIN64}
 function __WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
   var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
+{$ELSE}
+function _WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
+  var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL;
+{$ENDIF}
 begin
   Result := WriteFile(hFile, Buffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 end;
 
+{$IFNDEF WIN64}
 function __CloseHandle(hObject: THandle): BOOL; cdecl;
+{$ELSE}
+function _CloseHandle(hObject: THandle): BOOL;
+{$ENDIF}
 begin
   Result := CloseHandle(hObject);
 end;
 
+{$IFNDEF WIN64}
 function __GetLastError: DWORD; cdecl;
+{$ELSE}
+function _GetLastError: DWORD;
+{$ENDIF}
 begin
   Result := GetLastError;
 end;
 
+{$IFNDEF WIN64}
 function __LocalFree(hMem: HLOCAL): HLOCAL; cdecl;
+{$ELSE}
+function _LocalFree(hMem: HLOCAL): HLOCAL;
+{$ENDIF}
 begin
   Result := LocalFree(hMem);
 end;
 
+{$IFNDEF WIN64}
 function __FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
   lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD; cdecl;
+{$ELSE}
+function _FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
+  lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD;
+{$ENDIF}
 begin
   Result := FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, Arguments);
 end;
 
+{$IFNDEF WIN64}
 function __WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
   lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
   cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer; cdecl;
+{$ELSE}
+function _WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
+  lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
+  cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer;
+{$ENDIF}
 begin
   Result := WideCharToMultiByte(CodePage, dwFlags, lpWideCharStr, cchWideChar, lpMultiByteStr, cchMultiByte, lpDefaultChar, lpUsedDefaultChar);
 end;
 
+{$IFNDEF WIN64}
 //https://github.com/rust-lang/compiler-builtins/issues/403
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
+{$ENDIF}
 {$ELSE}
 procedure __aullrem; stdcall; external 'ntdll.dll' name '_aullrem';
 procedure __aulldiv; stdcall; external 'ntdll.dll' name '_aulldiv';
 {$ENDIF}
 
-function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
+{$IFNDEF WIN64}
+function _memcpy(dest, src: Pointer; n: NativeUInt): Pointer; cdecl;
+{$ELSE}
+function memcpy(dest, src: Pointer; n: NativeUInt): Pointer;
+{$ENDIF}
 begin
   UMove(src^, dest^, n);
   Result := dest;
 end;
 
-function _memset(dest: Pointer; c: Integer; n: Cardinal): Pointer; cdecl;
+{$IFNDEF WIN64}
+function _memset(dest: Pointer; c: Integer; n: NativeUInt): Pointer; cdecl;
+{$ELSE}
+function memset(dest: Pointer; c: Integer; n: NativeUInt): Pointer;
+{$ENDIF}
 begin
   UFillChar(dest^, n, c);
   Result := dest;
 end;
 
+{$IFNDEF WIN64}
 function _malloc(size: NativeUInt): Pointer; cdecl;
+{$ELSE}
+function malloc(size: NativeUInt): Pointer;
+{$ENDIF}
 begin
   if size > NativeUInt(High(NativeInt)) then
     Result := nil
@@ -224,12 +319,20 @@ begin
   end;
 end;
 
+{$IFNDEF WIN64}
 procedure _free(address: Pointer); cdecl;
+{$ELSE}
+procedure free(address: Pointer);
+{$ENDIF}
 begin
   FreeMem(address);
 end;
 
+{$IFNDEF WIN64}
 function _wcscmp(string1, string2: PChar): Integer; cdecl;
+{$ELSE}
+function wcscmp(string1, string2: PChar): Integer;
+{$ENDIF}
 begin
   Result := StrComp(string1, string2);
 end;
@@ -240,7 +343,11 @@ begin
     Setup.LoggingFunc.Log(UTF8ToString(S));
 end;
 
+{$IFNDEF WIN64}
 function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
+{$ELSE}
+function _fputs(str: PAnsiChar; unused: Pointer): Integer;
+{$ENDIF}
 
   function FindNewLine(const S: AnsiString): Integer;
   begin
@@ -269,7 +376,11 @@ begin
   end;
 end;
 
+{$IFNDEF WIN64}
 procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
+{$ELSE}
+procedure ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool);
+{$ENDIF}
 begin
   try
     if Assigned(State.OnExtractionProgress) then

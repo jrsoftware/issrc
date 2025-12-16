@@ -424,8 +424,6 @@ end;
 procedure TUninstallLog.AddReg(const Typ: TUninstallRecTyp;
   const RegView: TRegView; const RootKey: HKEY; const Data: array of String);
 { Adds a new utReg* type entry }
-var
-  ExtraData: Longint;
 begin
   { If RootKey isn't a predefined key, or has unrecognized garbage in the
     high byte (which we use for our own purposes), reject it }
@@ -434,7 +432,7 @@ begin
 
   { ExtraData in a utReg* entry consists of a root key value (HKEY_*)
     OR'ed with flag bits in the high byte }
-  HKEY(ExtraData) := RootKey;
+  var ExtraData := Integer(UInt32(RootKey));
   if RegView in RegViews64Bit then
     ExtraData := ExtraData or utReg_64BitKey;
   Add(Typ, Data, ExtraData);
@@ -1224,7 +1222,7 @@ var
       Inc(BufCount, S);
       if BufCount = SizeOf(Buffer) then
         Flush;
-      Inc(Cardinal(P), S);
+      Inc(PByte(P), S);
       Dec(Size, S);
     end;
   end;
@@ -1359,7 +1357,7 @@ var
       UMove(Buffer[BufPos], P^, S);
       Inc(BufPos, S);
       Dec(BufLeft, S);
-      Inc(Cardinal(P), S);
+      Inc(PByte(P), S);
       Dec(Size, S);
     end;
   end;

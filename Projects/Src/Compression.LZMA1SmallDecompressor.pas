@@ -101,12 +101,12 @@ const
 
 function LzmaMyDecodeProperties(var vs: TLZMAInternalDecoderState;
   vsSize: Integer; const propsData; propsDataSize: Integer;
-  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; {$IFDEF WIN32} cdecl; external name '_LzmaMyDecodeProperties'; {$ELSE} external name 'LzmaMyDecodeProperties'; {$ENDIF}
+  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; {$IFNDEF WIN64} cdecl; external name '_LzmaMyDecodeProperties'; {$ELSE} external name 'LzmaMyDecodeProperties'; {$ENDIF}
 procedure LzmaMyDecoderInit(var vs: TLZMAInternalDecoderState;
-  probsPtr: Pointer; dictionaryPtr: Pointer); {$IFDEF WIN32} cdecl; external name '_LzmaMyDecoderInit'; {$ELSE} external name 'LzmaMyDecoderInit'; {$ENDIF}
+  probsPtr: Pointer; dictionaryPtr: Pointer); {$IFNDEF WIN64} cdecl; external name '_LzmaMyDecoderInit'; {$ELSE} external name 'LzmaMyDecoderInit'; {$ENDIF}
 function LzmaDecode(var vs: TLZMAInternalDecoderState;
   var inCallback: TLzmaInCallback; var outStream; outSize: Cardinal;
-  var outSizeProcessed: Cardinal): Integer; {$IFDEF WIN32} cdecl; external name '_LzmaDecode'; {$ELSE} external name 'LzmaDecode'; {$ENDIF}
+  var outSizeProcessed: Cardinal): Integer; {$IFNDEF WIN64} cdecl; external name '_LzmaDecode'; {$ELSE} external name 'LzmaDecode'; {$ENDIF}
 
 type
   TLZMADecompressorCallbackData = record

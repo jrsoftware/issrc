@@ -708,8 +708,6 @@ var
   DeleteFlags: Longint;
   CurFileDate, ExistingFileDate: TFileTime;
   RegisterRec: PRegisterFilesListRec;
-  RetriesLeft: Integer;
-  LastError: DWORD;
   DestF, SourceF: TFile;
   Flags: TMakeDirFlags;
   Overwrite, PerUserFont: Boolean;

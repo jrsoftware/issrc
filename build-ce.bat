@@ -42,10 +42,12 @@ rem  Verify precompiled binaries which are used during compilation
 rem  Note: Other precompiled binaries are verified by Setup.iss
 call .\issig.bat verify --key-file=def01.ispublickey ^
   Projects\Src\Setup.HelperEXEs.res ^
-  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj ^
+  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x86.obj ^
+  Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x64.obj ^
   Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x86.obj ^
   Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x64.obj ^
-  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj
+  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x86.obj ^
+  Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x64.obj
 if errorlevel 1 goto failed
 echo ISSigTool verify done
 

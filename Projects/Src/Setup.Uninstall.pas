@@ -409,21 +409,21 @@ begin
   const TempDir = CreateTempDir('-uninstall.tmp', IsAdmin);
   const TempFile = AddBackslash(TempDir) + '_unins.tmp';
   try
-  if not CopyFile(PChar(UninstExeFilename), PChar(TempFile), False) then
-    RaiseLastError(SetupMessages[msgLdrCannotCreateTemp]);
-  { Don't want any attribute like read-only transferred }
-  SetFileAttributes(PChar(TempFile), FILE_ATTRIBUTE_NORMAL);
+    if not CopyFile(PChar(UninstExeFilename), PChar(TempFile), False) then
+      RaiseLastError(SetupMessages[msgLdrCannotCreateTemp]);
+    { Don't want any attribute like read-only transferred }
+    SetFileAttributes(PChar(TempFile), FILE_ATTRIBUTE_NORMAL);
 
-  { Create first phase window. This window waits for a WM_KillFirstPhase
-    message from the second phase process, and terminates itself in
-    response. The reason the first phase doesn't just terminate
-    immediately is because the Control Panel Add/Remove applet refreshes
-    its list as soon as the program terminates. So it waits until the
-    uninstallation is complete before terminating. }
-  Wnd := CreateWindowEx(0, 'STATIC', '', 0, 0, 0, 0, 0, HWND_DESKTOP, 0,
-    HInstance, nil);
-  Longint(OldWindowProc) := SetWindowLong(Wnd, GWL_WNDPROC,
-    Longint(@FirstPhaseWindowProc));
+    { Create first phase window. This window waits for a WM_KillFirstPhase
+      message from the second phase process, and terminates itself in
+      response. The reason the first phase doesn't just terminate
+      immediately is because the Control Panel Add/Remove applet refreshes
+      its list as soon as the program terminates. So it waits until the
+      uninstallation is complete before terminating. }
+    Wnd := CreateWindowEx(0, 'STATIC', '', 0, 0, 0, 0, 0, HWND_DESKTOP, 0,
+      HInstance, nil);
+    OldWindowProc := Pointer(SetWindowLong(Wnd, GWL_WNDPROC,
+      NativeInt(@FirstPhaseWindowProc)));
 
     { Execute the copy of itself ("second phase"). The UInt32 cast prevents
       sign extension }
@@ -474,7 +474,7 @@ procedure AssignCustomMessages(AData: Pointer; ADataSize: Cardinal);
       Corrupted;
     UMove(AData^, Buf, Count);
     Dec(ADataSize, Count);
-    Inc(Cardinal(AData), Count);
+    Inc(PByte(AData), Count);
   end;
 
   procedure ReadString(var S: String);

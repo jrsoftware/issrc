@@ -146,7 +146,6 @@ var
   SaveCurDir: String;
   ActiveWindow: HWND;
   WindowList: Pointer;
-  FPUControlWord: Word;
 begin
   StrPLCopy(lpstrFile, FileName, (SizeOf(lpstrFile) div SizeOf(lpstrFile[0])) - 1);
 
@@ -169,10 +168,13 @@ begin
   const SaveHooks = TStyleManager.SystemHooks;
   TStyleManager.SystemHooks := [];
   try
+    {$IFDEF CPUX86}
+    var FPUControlWord: Word;
     asm
       // Avoid FPU control word change in NETRAP.dll, NETAPI32.dll, etc
       FNSTCW  FPUControlWord
     end;
+    {$ENDIF}
     try
       SaveCurDir := GetCurrentDir;
       if GetOpenOrSaveFileNameFunc(ofn) then begin
@@ -189,10 +191,12 @@ begin
         Windows 2000 or XP, but to be safe... }
       SetCurrentDir(SaveCurDir);
     finally
+      {$IFDEF CPUX86}
       asm
         FNCLEX
         FLDCW FPUControlWord
       end;
+      {$ENDIF}
     end;
   finally
     TStyleManager.SystemHooks := SaveHooks;

@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2024 Jordan Russell
+rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -29,7 +29,7 @@ if "%BCCROOT%"=="" goto compilesettingserror
 rem -------------------------------------------------------------------------
 
 echo - Compiling IS7zDec.c
-"%BCCROOT%\bin\bcc32c.exe" -c -O2 -v IS7zDec.c
+"%BCCROOT%\bin\bcc32c.exe" -c -O2 -v IS7zDec.c -o IS7zDec-x86.obj
 if errorlevel 1 goto failed
 
 echo Success!

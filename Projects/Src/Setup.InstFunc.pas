@@ -18,7 +18,7 @@ uses
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
-  TSimpleStringListArray = array[0..($1FFFFFFE + 1) * 4 div SizeOf(Pointer) - 1] of String;
+  TSimpleStringListArray = array[0..$7FFFFFFF div SizeOf(String) - 1] of String;
   TSimpleStringList = class
   private
     FList: PSimpleStringListArray;

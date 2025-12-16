@@ -96,32 +96,40 @@ const
     size the compiler currently allows. }
   MaxDictionarySize = 1024 shl 20;  { 1 GB - same as ssLZMADictionarySize allows in Compile.pas }
 
-{ Compiled by Visual Studio 2022 using compile.bat
-  To enable source debugging recompile using compile-bcc32c.bat
+{ Compiled by Visual Studio 2022 using compile.bat }
+{$IFNDEF WIN64}
+{ To enable source debugging recompile using compile-bcc32c.bat
   Note that in a speed test the code produced by bcc32c was about 33% slower }
-{$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj}
+{$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x86.obj}
+{$ELSE}
+{$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x64.obj}
+{$ENDIF}
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: Cardinal; const props; propsSize: Cardinal;
-  const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name '_IS_LzmaDec_Init';
-function IS_LzmaDec_StateSize: Cardinal; cdecl; external name '_IS_LzmaDec_StateSize';
+  const alloc: TLZMAISzAlloc): TLZMASRes; {$IFNDEF WIN64} cdecl; external name '_IS_LzmaDec_Init'; {$ELSE} external name 'IS_LzmaDec_Init'; {$ENDIF}
+function IS_LzmaDec_StateSize: Cardinal; {$IFNDEF WIN64} cdecl; external name '_IS_LzmaDec_StateSize'; {$ELSE} external name 'IS_LzmaDec_StateSize'; {$ENDIF}
 function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
-  var status: Integer): TLZMASRes; cdecl; external name '_LzmaDec_DecodeToBuf';
+  var status: Integer): TLZMASRes; {$IFNDEF WIN64} cdecl; external name '_LzmaDec_DecodeToBuf'; {$ELSE} external name 'LzmaDec_DecodeToBuf'; {$ENDIF}
 procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
-  const alloc: TLZMAISzAlloc); cdecl; external name '_LzmaDec_Free';
+  const alloc: TLZMAISzAlloc); {$IFNDEF WIN64} cdecl; external name '_LzmaDec_Free'; {$ELSE} external name 'LzmaDec_Free'; {$ENDIF}
 
 function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
-  stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
-  external name '_IS_Lzma2Dec_Init';
-function IS_Lzma2Dec_StateSize: Cardinal; cdecl; external name '_IS_Lzma2Dec_StateSize';
+  stateSize: Cardinal; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; {$IFNDEF WIN64} cdecl;
+  external name '_IS_Lzma2Dec_Init'; {$ELSE} external name 'IS_Lzma2Dec_Init'; {$ENDIF}
+function IS_Lzma2Dec_StateSize: Cardinal; {$IFNDEF WIN64} cdecl; external name '_IS_Lzma2Dec_StateSize'; {$ELSE} external name 'IS_Lzma2Dec_StateSize'; {$ENDIF}
 function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
   var destLen: Cardinal; const src; var srcLen: Cardinal; finishMode: Integer;
-  var status: Integer): TLZMASRes; cdecl; external name '_Lzma2Dec_DecodeToBuf';
+  var status: Integer): TLZMASRes; {$IFNDEF WIN64} cdecl; external name '_Lzma2Dec_DecodeToBuf'; {$ELSE} external name 'Lzma2Dec_DecodeToBuf'; {$ENDIF}
 procedure IS_Lzma2Dec_Free(var state: TLZMA2InternalDecoderState;
-  const alloc: TLZMAISzAlloc); cdecl; external name '_IS_Lzma2Dec_Free';
+  const alloc: TLZMAISzAlloc); {$IFNDEF WIN64} cdecl; external name '_IS_Lzma2Dec_Free'; {$ELSE} external name 'IS_Lzma2Dec_Free'; {$ENDIF}
 
-function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
+{$IFNDEF WIN64}
+function _memcpy(dest, src: Pointer; n: NativeUInt): Pointer; cdecl;
+{$ELSE}
+function memcpy(dest, src: Pointer; n: NativeUInt): Pointer;
+{$ENDIF}
 begin
   UMove(src^, dest^, n);
   Result := dest;

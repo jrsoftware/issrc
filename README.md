@@ -230,13 +230,13 @@ code in the [isscint] repository.
 Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
 stored in a compiled resource file.
 
-**Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj** -
+**Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
 **Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
 
-**Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj** -
+**Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode] directory.
 
 **Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
