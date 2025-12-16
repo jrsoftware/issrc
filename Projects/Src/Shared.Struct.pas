@@ -74,8 +74,8 @@ type
       more than 32 flags is 8 bytes. Once the amount of actual flags reaches
       57, the padding can be removed, as the set will then be naturally
       compatible again between 32-bit and 64-bit builds. Note that this is not
-      necessary for sets with fewer than 32 flags, which is why
-      TSetupHeaderOption is the only set with padding. Also see
+      necessary for sets with fewer than 32 flags, which is why only
+      TSetupHeaderOption and TSetupFileEntry include this padding. Also see
       https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
   TSetupHeaderOptions = packed set of TSetupHeaderOption;
   { ^ Adding more flags adds 1 byte for every 8 flags, in both 32-bit and
@@ -261,6 +261,21 @@ type
     Hash: TSHA256Digest;
     Typ: TSetupFileVerificationType;
   end;
+  TSetupFileEntryOption = (foConfirmOverwrite, foUninsNeverUninstall, foRestartReplace,
+    foDeleteAfterInstall, foRegisterServer, foRegisterTypeLib, foSharedFile,
+    foCompareTimeStamp, foFontIsntTrueType,
+    foSkipIfSourceDoesntExist, foOverwriteReadOnly, foOverwriteSameVersion,
+    foCustomDestName, foOnlyIfDestFileExists, foNoRegError,
+    foUninsRestartDelete, foOnlyIfDoesntExist, foIgnoreVersion,
+    foPromptIfOlder, foDontCopy, foUninsRemoveReadOnly,
+    foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
+    foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
+    fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
+    foUnsetNTFSCompression, foGacInstall, foDownload,
+    foExtractArchive, foUnusedPadding = 56);
+  { ^ See TSetupHeaderOption above}
+  TSetupFileEntryOptions = packed set of TSetupFileEntryOption;
+  { ^ See TSetupHeaderOptions above}
   TSetupFileEntry = packed record
     SourceFilename, DestName, InstallFontName, StrongAssemblyName, Components,
     Tasks, Languages, Check, AfterInstall, BeforeInstall, Excludes,
@@ -271,18 +286,7 @@ type
     Attribs: Integer;
     ExternalSize: Int64;
     PermissionsEntry: Smallint;
-    Options: set of (foConfirmOverwrite, foUninsNeverUninstall, foRestartReplace,
-      foDeleteAfterInstall, foRegisterServer, foRegisterTypeLib, foSharedFile,
-      foCompareTimeStamp, foFontIsntTrueType,
-      foSkipIfSourceDoesntExist, foOverwriteReadOnly, foOverwriteSameVersion,
-      foCustomDestName, foOnlyIfDestFileExists, foNoRegError,
-      foUninsRestartDelete, foOnlyIfDoesntExist, foIgnoreVersion,
-      foPromptIfOlder, foDontCopy, foUninsRemoveReadOnly,
-      foRecurseSubDirsExternal, foReplaceSameVersionIfContentsDiffer,
-      foDontVerifyChecksum, foUninsNoSharedFilePrompt, foCreateAllSubDirs,
-      fo32Bit, fo64Bit, foExternalSizePreset, foSetNTFSCompression,
-      foUnsetNTFSCompression, foGacInstall, foDownload,
-      foExtractArchive);
+    Options: TSetupFileEntryOptions;
     FileType: (ftUserFile, ftUninstExe);
   end;
 const
