@@ -112,7 +112,9 @@ begin
     AnsiString(P^) := AnsiS;
     Inc(PByte(P), SizeOf(Pointer));
   end;
-  R.Read(P^, Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer)));
+  const BytesLeft = Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer));
+  { Unlike Count, BytesLeft should be the same in both 32-bit and 64-bit builds }
+  R.Read(P^, BytesLeft);
 end;
 
 end.
