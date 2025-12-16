@@ -128,9 +128,7 @@ function GetWinDir: String;
 function GetSystemWinDir: String;
 function GetSystemDir: String;
 function GetSysWow64Dir: String;
-{$IFNDEF WIN64}
 function GetSysNativeDir(const IsWin64: Boolean): String;
-{$ENDIF}
 function GetTempDir: String;
 function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
@@ -769,12 +767,11 @@ begin
   end;
 end;
 
-{$IFNDEF WIN64}
-
 function GetSysNativeDir(const IsWin64: Boolean): String;
 { Returns the special Sysnative alias, without trailing backslash.
   Returns '' if there is no Sysnative alias. }
 begin
+{$IFNDEF WIN64}
   { From MSDN: 32-bit applications can access the native system directory by
     substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
     Sysnative as a special alias used to indicate that the file system should
@@ -786,9 +783,11 @@ begin
     Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
   else
     Result := '';
+{$ELSE}
+  raise Exception.Create('GetSysNativeDir not implemented');
+{$ENDIF}
 end;
 
-{$ENDIF}
 
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing

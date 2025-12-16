@@ -83,7 +83,7 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$IFDEF WIN32}
+{$IFNDEF WIN64}
 {$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x86.obj}
 {$ELSE}
 {$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x64.obj}

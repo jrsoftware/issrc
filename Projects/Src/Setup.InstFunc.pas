@@ -18,7 +18,7 @@ uses
 
 type
   PSimpleStringListArray = ^TSimpleStringListArray;
-  TSimpleStringListArray = array[0..$1FFFFFFE] of String;
+  TSimpleStringListArray = array[0..($1FFFFFFE + 1) * 4 div SizeOf(Pointer) - 1] of String;
   TSimpleStringList = class
   private
     FList: PSimpleStringListArray;
@@ -148,15 +148,15 @@ end;
 
 function GetRegRootKeyName(const RootKey: HKEY): String;
 begin
-  case RootKey of
-    HKEY_AUTO: InternalError('GetRegRootKeyName called for HKEY_AUTO');
-    HKEY_CLASSES_ROOT: Result := 'HKEY_CLASSES_ROOT';
-    HKEY_CURRENT_USER: Result := 'HKEY_CURRENT_USER';
-    HKEY_LOCAL_MACHINE: Result := 'HKEY_LOCAL_MACHINE';
-    HKEY_USERS: Result := 'HKEY_USERS';
-    HKEY_PERFORMANCE_DATA: Result := 'HKEY_PERFORMANCE_DATA';
-    HKEY_CURRENT_CONFIG: Result := 'HKEY_CURRENT_CONFIG';
-    HKEY_DYN_DATA: Result := 'HKEY_DYN_DATA';
+  case UInt32(RootKey) of
+    UInt32(HKEY_AUTO): InternalError('GetRegRootKeyName called for HKEY_AUTO');
+    UInt32(HKEY_CLASSES_ROOT): Result := 'HKEY_CLASSES_ROOT';
+    UInt32(HKEY_CURRENT_USER): Result := 'HKEY_CURRENT_USER';
+    UInt32(HKEY_LOCAL_MACHINE): Result := 'HKEY_LOCAL_MACHINE';
+    UInt32(HKEY_USERS): Result := 'HKEY_USERS';
+    UInt32(HKEY_PERFORMANCE_DATA): Result := 'HKEY_PERFORMANCE_DATA';
+    UInt32(HKEY_CURRENT_CONFIG): Result := 'HKEY_CURRENT_CONFIG';
+    UInt32(HKEY_DYN_DATA): Result := 'HKEY_DYN_DATA';
   else
     { unknown - shouldn't get here }
     Result := Format('[%x]', [UInt32(RootKey)]);

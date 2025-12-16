@@ -321,7 +321,7 @@ begin
     Result := nil
   else begin
     Result := FHeapNextFree;
-    Inc(Cardinal(FHeapNextFree), Bytes);
+    Inc(PByte(FHeapNextFree), Bytes);
   end;
 end;
 
