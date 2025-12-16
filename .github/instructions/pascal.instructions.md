@@ -4,9 +4,11 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 # Coding conventions for Pascal source files
 - Always use inline variables instead of pre-declaring them at the start of the function.
 - Prefer inline constants over inline variables, even for run-time values and not just for compile-time constants.
+  Inline constants use `=` as the assignment operator instead of `:=`. For example: const MaxCount = 10;
 - Do not use with statements.
 - If and begin should be on the same line.
 - Else and begin should be on the same line.
+- A Result assignment followed by an Exit statement should be combined into a single statement. For example: Exit(ResultValue);
 - Do not use begin..end for single statement blocks.
 - Do not use Longint or LongWord, use Integer or Cardinal instead.
 - Use two spaces for indentation, not tabs.
