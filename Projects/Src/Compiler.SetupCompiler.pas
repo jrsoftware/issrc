@@ -7284,8 +7284,9 @@ var
 
   procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean;
     const Filename: String; const Op: TFileOperation);
-  { Op should always raise an exception on failure. If the raised exception is an EFileError or
-    EResUpdateError, its ErrorCode will be used and the ErrorCode parameter is ignored. }
+  { Op should always raise an exception on failure, after first setting the ErrorCode
+    parameter. If the raised exception is an EFileError or EResUpdateError, its
+    ErrorCode will be used and the ErrorCode parameter is ignored. }
   begin
     var SavedException: TObject := nil;
     try
