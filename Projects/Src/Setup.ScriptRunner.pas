@@ -463,12 +463,22 @@ begin
   end;
 end;
 
+{$ELSE}
+
+procedure CheckMustExist(const MustExist: Boolean);
+begin
+  if MustExist then
+    ShowError('Unexpected MustExist value');
+end;
+
 {$ENDIF}
 
 procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
 begin
 {$IFNDEF NOCODE}
   InternalRunProcedure(Name, Parameters, False, MustExist);
+{$ELSE}
+  CheckMustExist(MustExist);
 {$ENDIF}
 end;
 
@@ -476,6 +486,8 @@ procedure TScriptRunner.RunProcedures(const Name: AnsiString; const Parameters: 
 begin
 {$IFNDEF NOCODE}
   InternalRunProcedure(Name, Parameters, True, MustExist);
+{$ELSE}
+  CheckMustExist(MustExist);
 {$ENDIF}
 end;
 
@@ -520,14 +532,6 @@ begin
   finally
     ProcNos.Free;
   end;
-end;
-
-{$ELSE}
-
-procedure CheckMustExist(const MustExist: Boolean);
-begin
-  if MustExist then
-    ShowError('Unexpected MustExist value');
 end;
 
 {$ENDIF}
