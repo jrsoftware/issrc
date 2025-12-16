@@ -41,7 +41,7 @@ if errorlevel 1 goto exit
 echo.
 
 echo - Compiling LzmaDecodeInno.c
-cl /c /O2 /D_LZMA_OUT_READ /D_LZMA_IN_CB LzmaDecodeInno.c /FoLzmaDecodeInno.%1.obj
+cl /c /O2 /D_LZMA_OUT_READ /D_LZMA_IN_CB LzmaDecodeInno.c /FoLzmaDecodeInno-%1.obj
 if errorlevel 1 goto failed
 
 echo Success!

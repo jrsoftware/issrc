@@ -233,7 +233,7 @@ stored in a compiled resource file.
 **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec.obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
-**Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno(.x86|.x64).obj** -
+**Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
 
 **Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj** -
