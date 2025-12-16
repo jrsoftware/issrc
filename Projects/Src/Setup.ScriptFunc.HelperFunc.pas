@@ -18,6 +18,8 @@ unit Setup.ScriptFunc.HelperFunc;
 
 interface
 
+{$IFNDEF NOCODE}
+
 uses
   Windows,
   uPSRuntime, MD5, SHA1,
@@ -99,7 +101,11 @@ function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): LongWord;
 
+{$ENDIF}
+
 implementation
+
+{$IFNDEF NOCODE}
 
 uses
   Forms, SysUtils, Graphics,
@@ -727,4 +733,7 @@ end;
 initialization
 finalization
   FreeASMInliners;
+
+{$ENDIF}
+
 end.

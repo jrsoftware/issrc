@@ -11,12 +11,18 @@ unit Setup.ScriptFunc;
 
 interface
 
+{$IFNDEF NOCODE}
+
 uses
   uPSRuntime;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 
+{$ENDIF}
+
 implementation
+
+{$IFNDEF NOCODE}
 
 uses
   Windows,
@@ -2077,4 +2083,7 @@ end;
 initialization
 finalization
   ScriptFuncs.Free;
+
+{$ENDIF}
+
 end.
