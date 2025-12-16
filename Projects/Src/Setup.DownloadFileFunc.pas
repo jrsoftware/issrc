@@ -483,9 +483,11 @@ begin
     { Rename the temporary file to the new name now, with retries if needed }
     const CapturableDestFile = DestFile;
     PerformFileOperationWithRetries(4, DidJustDeleteDestFile,
-      function: Boolean
+      function(out LastError: Cardinal): Boolean
       begin
         Result := MoveFile(PChar(TempFile), PChar(CapturableDestFile));
+        if not Result then
+          LastError := GetLastError;
       end,
       procedure(const LastError: Cardinal)
       begin

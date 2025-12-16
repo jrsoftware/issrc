@@ -7279,63 +7279,48 @@ var
       Inc(Result, DiskClusterSize);
   end;
 
-  type
-    TFileOperation = reference to procedure(out ErrorCode: Cardinal);
-
   procedure WithRetries(const AlsoRetryOnAlreadyExists: Boolean;
-    const Filename: String; const Op: TFileOperation);
-  { Op should always raise an exception on failure, after first setting the ErrorCode
-    parameter. If the raised exception is an EFileError or EResUpdateError, its
-    ErrorCode will be used and the ErrorCode parameter is ignored. }
+    const Filename: String; const Op: TProc);
+  { Op should always raise EFileError or EResUpdateError on failure. }
   begin
     var SavedException: TObject := nil;
     try
       {$IFDEF TESTRETRIES} var First := True; {$ENDIF}
       PerformFileOperationWithRetries(4, AlsoRetryOnAlreadyExists,
-        function {Op}: Boolean
+        function {Op}(out ErrorCode: Cardinal): Boolean
         begin
-          var ErrorCode: Cardinal;
           try
-            ErrorCode := 0;
-            try
-              {$IFDEF TESTRETRIES}
-              if First and NewFileExists(Filename) then begin
-                const F = TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
-                TThread.CreateAnonymousThread(
-                  procedure
-                  begin
-                    while TStrongRandom.GenerateUInt32 mod 2 = 1 do
-                      Sleep(900);
-                    F.Free;
-                  end).Start;
-                First := False;
-              end;
-              {$ENDIF}
-              Op(ErrorCode);
-            except
-              on E: EFileError do
+            {$IFDEF TESTRETRIES}
+            if First and NewFileExists(Filename) then begin
+              const F = TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
+              TThread.CreateAnonymousThread(
+                procedure
                 begin
-                  ErrorCode := E.ErrorCode;
-                  raise;
-                end;
-              on E: EResUpdateError do
-                begin
-                  ErrorCode := E.ErrorCode;
-                  raise;
-                end;
+                  while TStrongRandom.GenerateUInt32 mod 2 = 1 do
+                    Sleep(900);
+                  F.Free;
+                end).Start;
+              First := False;
             end;
-            Exit(True);
+            {$ENDIF}
+            Op;
+            Result := True;
           except
-            begin
-              SavedException.Free;
-              SavedException := AcquireExceptionObject;
-              { Continued below because calling SetLastError now wouldn't work }
-            end;
+            on E: EFileError do
+              begin
+                ErrorCode := E.ErrorCode;
+                SavedException.Free;
+                SavedException := AcquireExceptionObject;
+                Result := False;
+              end;
+            on E: EResUpdateError do
+              begin
+                ErrorCode := E.ErrorCode;
+                SavedException.Free;
+                SavedException := AcquireExceptionObject;
+                Result := False;
+              end;
           end;
-          { If ErrorCode is still 0 now that's ok too: PerformFileOperationWithRetries will then
-            simply immediately call the Failed function below, which will raise the saved exception }
-          SetLastError(ErrorCode);
-          Result := False;
         end,
         procedure {Failing}(const LastError: Cardinal)
         begin
@@ -7486,7 +7471,7 @@ var
     ChunkCompressed := False;  { avoid warning }
     if FirstDestFile <> '' then begin
       WithRetries(False, FirstDestFile,
-        procedure(out ErrorCode: Cardinal)
+        procedure
         begin
           CH := TCompressionHandler.Create(Self, FirstDestFile);
         end);
@@ -7672,7 +7657,7 @@ var
     CallIdleProc;
   end;
 
-  procedure CopyFileWithRetriesOrAbort(const SourceFile, DestFile: String; const AlsoRetryOnAlreadyExists: Boolean;
+  procedure CopyFileOrAbort(const SourceFile, DestFile: String;
     const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions;
     const OnCheckedTrust: TProc<Boolean>);
   begin
@@ -7688,15 +7673,11 @@ var
     if Assigned(OnCheckedTrust) then
       OnCheckedTrust(CheckTrust);
 
-    WithRetries(AlsoRetryOnAlreadyExists, DestFile,
-      procedure(out ErrorCode: Cardinal)
-      begin
-        if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
-          ErrorCode := GetLastError;
-          AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
-            ErrorCode, Win32ErrorString(ErrorCode)]);
-        end;
-      end);
+      if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
+        var ErrorCode := GetLastError;
+        AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
+          ErrorCode, Win32ErrorString(ErrorCode)]);
+      end;
   end;
 
   function InternalSignSetupE32WithRetries(const Filename: String;
@@ -7709,7 +7690,7 @@ var
     HdrChecksum: DWORD;
   begin
     WithRetries(False, Filename,
-      procedure(out ErrorCode: Cardinal)
+      procedure
       begin
         SignedFile := TMemoryFile.Create(Filename);
       end);
@@ -7812,7 +7793,7 @@ var
         end;
         try
           WithRetries(False, Filename,
-            procedure(out ErrorCode: Cardinal)
+            procedure
             begin
               if not MoveFile(PChar(TempFilename), PChar(Filename)) then
                 TFile.RaiseError(GetLastError);
@@ -7857,7 +7838,7 @@ var
       E32Filename := CompilerDir + E32Basename;
 
       ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileWithRetriesOrAbort(E32Filename, ConvertFilename, False, not(E32Pf in DisablePrecompiledFileVerifications),
+      CopyFileOrAbort(E32Filename, ConvertFilename, not(E32Pf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
       { If there was a read-only attribute, remove it }
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
@@ -7870,7 +7851,7 @@ var
         AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
       { OnUpdateIconsAndStyle will set proper LineNumber }
       WithRetries(False, ConvertFilename,
-        procedure(out ErrorCode: Cardinal)
+        procedure
         begin
           if SetupIconFilename <> '' then
             UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
@@ -7883,7 +7864,7 @@ var
       LineNumber := 0;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
       WithRetries(False, ConvertFilename,
-        procedure(out ErrorCode: Cardinal)
+        procedure
         begin
           ConvertFile := TFile.Create(ConvertFilename, fdOpenExisting, faReadWrite, fsNone);
         end);
@@ -7897,7 +7878,7 @@ var
 
       var CapturableM: TMemoryFile;
       WithRetries(False, ConvertFilename,
-        procedure(out ErrorCode: Cardinal)
+        procedure
         begin
           CapturableM := TMemoryFile.Create(ConvertFilename);
         end);
@@ -8761,7 +8742,7 @@ begin
       try
         if UseSetupLdr = slNone then begin
           WithRetries(True, ExeFilename,
-            procedure(out ErrorCode: Cardinal)
+            procedure
             begin
               SetupFile := TFile.Create(ExeFilename, fdCreateAlways, faWrite, fsNone);
             end);
@@ -8794,10 +8775,10 @@ begin
         end
         else begin
           if UseSetupLdr = sl32bit then
-            CopyFileWithRetriesOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, True, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust)
           else
-            CopyFileWithRetriesOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, True, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
+            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
               [cftoTrustAllOnDebug], OnCheckedTrust);
           { If there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
@@ -8806,7 +8787,7 @@ begin
             AddStatus(Format(SCompilerStatusUpdatingIcons, ['Setup.exe']));
             { OnUpdateIconsAndStyle will set proper LineNumber }
             WithRetries(False, ExeFilename,
-              procedure(out ErrorCode: Cardinal)
+              procedure
               begin
                 if SetupIconFilename <> '' then
                   UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle)
@@ -8817,7 +8798,7 @@ begin
           end;
 
           WithRetries(False, ExeFilename,
-            procedure(out ErrorCode: Cardinal)
+            procedure
             begin
               SetupFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
             end);
@@ -8836,7 +8817,7 @@ begin
             CompressFiles(ExeFilename, 0); { Uses WithRetries }
 
           WithRetries(False, ExeFilename,
-            procedure(out ErrorCode: Cardinal)
+            procedure
             begin
               ExeFile := TFile.Create(ExeFilename, fdOpenExisting, faReadWrite, fsNone);
             end);

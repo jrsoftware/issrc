@@ -1177,11 +1177,16 @@ Retry:
       if DestFileExists and (CurFile^.FileType <> ftUninstExe) then begin
         LastOperation := SetupMessages[msgErrorReplacingExistingFile];
         PerformFileOperationWithRetries(4, False,
-          function: Boolean
+          function(out LastError: Cardinal): Boolean
           begin
             Result := DeleteFileRedir(DisableFsRedir, DestFile);
-            if not Result and (GetLastError = ERROR_FILE_NOT_FOUND) then
-              Result := True; { If the file inexplicably vanished, it's not a problem }
+            if not Result then begin
+              LastError := GetLastError;
+              if LastError = ERROR_FILE_NOT_FOUND then begin
+                Result := True; { If the file inexplicably vanished, it's not a problem }
+                LastError := ERROR_SUCCESS;
+              end;
+            end;
           end,
           procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
@@ -1206,9 +1211,11 @@ Retry:
         { Since the DeleteFile above succeeded you would expect the rename to
           also always succeed, but if it doesn't retry anyway. }
         PerformFileOperationWithRetries(4, True,
-          function: Boolean
+          function(out LastError: Cardinal): Boolean
           begin
             Result := MoveFileRedir(DisableFsRedir, TempFile, DestFile);
+            if not Result then
+              LastError := GetLastError;
           end,
           procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
@@ -2705,10 +2712,12 @@ begin
   var Timer: TOneShotTimer;
   const CapturableUninstallTempExeFilename = UninstallTempExeFilename;
   PerformFileOperationWithRetries(4, False,
-    function: Boolean
+    function(out LastError: Cardinal): Boolean
     begin
       Timer.Start(1000);
       Result := MoveFileReplace(CapturableUninstallTempExeFilename, UninstallExeFilename);
+      if not Result then
+        LastError := GetLastError;
     end,
     procedure(const LastError: Cardinal)
     begin

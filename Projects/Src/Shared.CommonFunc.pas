@@ -94,10 +94,10 @@ type
 
   TFileOperationFailingNextAction = (naStopAndFail, naStopAndSucceed, naRetry);
 
-  TFileOperation = reference to function: Boolean;
-  TFileOperationFailing = reference to procedure(const LastError: Cardinal);
-  TFileOperationFailingEx = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction);
-  TFileOperationFailed = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
+  TFileOperationFunc = reference to function(out LastError: Cardinal): Boolean;
+  TFileOperationFailingProc = reference to procedure(const LastError: Cardinal);
+  TFileOperationFailingExProc = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction);
+  TFileOperationFailedProc = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
 
 const
   RegViews64Bit = [rv64Bit];
@@ -188,9 +188,9 @@ function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
 function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
 function StrToWnd(const S: String): HWND;
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
-  const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean; overload;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingProc; const Failed: TFileOperationFailedProc): Boolean; overload;
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
-  const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean; overload;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingExProc; const Failed: TFileOperationFailedProc): Boolean; overload;
 
 implementation
 
@@ -1733,7 +1733,7 @@ begin
 end;
 
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
-  const Op: TFileOperation; const Failing: TFileOperationFailing; const Failed: TFileOperationFailed): Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingProc; const Failed: TFileOperationFailedProc): Boolean;
 { Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
   retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
   failure. It is recommended that Failed throws an exception, rather than expecting the caller to
@@ -1753,14 +1753,14 @@ begin
 end;
 
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
-  const Op: TFileOperation; const Failing: TFileOperationFailingEx; const Failed: TFileOperationFailed): Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingExProc; const Failed: TFileOperationFailedProc): Boolean;
 { Similar to the other PerformFileOperationWithRetries, but provides fine-grained control to Failing,
   which is now responsible for updating RetriesLeft itself, and can also request an early break.
   Failing's NextAction defaults to *not* retry, but to stop and fail. }
 begin
   var RetriesLeft := MaxRetries;
-  while not Op do begin
-    const LastError = GetLastError;
+  var LastError: Cardinal;
+  while not Op(LastError) do begin
     { Does the error code indicate that it is possibly in use? }
     if LastErrorIndicatesPossiblyInUse(LastError, AlsoRetryOnAlreadyExists) then begin
       var NextAction := naStopAndFail;
