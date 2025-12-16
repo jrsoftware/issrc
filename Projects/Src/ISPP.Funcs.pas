@@ -541,8 +541,8 @@ var
 
   function Meets(const Substr: string; Sensitive: Boolean; Where: Integer): Boolean;
   begin
-    const L := Length(Substr);
-    const SL := Length(Str);
+    const L = Length(Substr);
+    const SL = Length(Str);
 
     if (Where in [1, 2, 3]) and (L > SL) then
       Exit(False);
