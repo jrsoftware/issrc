@@ -534,7 +534,7 @@ var
   function Contains(const Substr: string; Sensitive: Boolean): Boolean;
   begin
     if Sensitive then
-      Result := AnsiPos(Substr, Str) > 0
+      Result := Pos(Substr, Str) > 0
     else
       Result := Pos(LowerCase(Substr), LowerCase(Str)) > 0;
   end;
@@ -2097,4 +2097,5 @@ initialization
   InitIsWin64;
 
 end.
+
 
