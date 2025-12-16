@@ -346,7 +346,7 @@ uses
   SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
-  Setup.ScriptDlg, SetupLdrAndSetup.InstFunc, Setup.DownloadFileFunc;
+  Setup.WizardForm.CustomPages, SetupLdrAndSetup.InstFunc, Setup.DownloadFileFunc;
 
 {$R *.DFM}
 

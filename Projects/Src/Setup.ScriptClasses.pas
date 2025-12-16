@@ -26,7 +26,7 @@ uses
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, NewCtrls,
   Shared.SetupTypes, Shared.CommonFunc.Vcl,
-  Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.ScriptDlg, Setup.UninstallProgressForm;
+  Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.WizardForm.CustomPages, Setup.UninstallProgressForm;
 
 procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
 

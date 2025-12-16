@@ -1,4 +1,4 @@
-unit Setup.ScriptDlg;
+unit Setup.WizardForm.CustomPages;
 
 {
   Inno Setup
@@ -14,7 +14,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
   Shared.Struct, Setup.WizardForm, Setup.DownloadFileFunc, Setup.ISSigVerifyFunc,
-  Setup.ScriptFunc.HelperFunc, Compression.SevenZipDecoder,
+  Setup.InstFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   NewCtrls, TaskbarProgressFunc;
 
@@ -267,7 +267,7 @@ uses
   StrUtils, ISSigFunc, SHA256,
   Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
-  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.InstFunc, Setup.SetupForm,
+  Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.SetupForm,
   Compression.SevenZipDLLDecoder;
 
 const

@@ -472,7 +472,7 @@ begin
     the form already have the same CurrentPPI, otherwise VCL will scale the controls. Currently this
     is done in:
     -Setup.ScriptClasses's TControlParentW and TNewNotebookPageNotebook_W
-    -Setup.ScriptDlg's SetCtlParent
+    -Setup.WizardForm.CustomPages's SetCtlParent
     -TWizardForm.AddPage
     To debug/detect scaling add a breakpoint in Vcl.Controls' TWinControl.ChangeScale and set project
     option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }

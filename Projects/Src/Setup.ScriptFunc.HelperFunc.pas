@@ -19,10 +19,10 @@ unit Setup.ScriptFunc.HelperFunc;
 interface
 
 uses
-  Windows, Diagnostics,
+  Windows,
   uPSRuntime, MD5, SHA1,
   Shared.CommonFunc, Shared.FileClass, Setup.MainForm, Setup.WizardForm,
-  Setup.UninstallProgressForm, Setup.DownloadFileFunc, Compression.SevenZipDecoder;
+  Setup.UninstallProgressForm;
 
 type
   { Must keep this in synch with Compiler.ScriptFunc.pas }
@@ -51,25 +51,6 @@ type
     NTPlatform: Boolean;
     ProductType: Byte;
     SuiteMask: Word;
-  end;
-
-  { Makes sure script isn't called crazy often because that would slow the download significantly.
-    Only reports:
-      -At start or finish
-      -If at least 50 ms passed since last report }
-  TProgressThrottler = class
-  private
-    FOnDownloadProgress: TOnDownloadProgress;
-    FOnExtractionProgress: TOnExtractionProgress;
-    FStopWatch: TStopWatch;
-    FLastOkProgress: Int64;
-    function ThrottleOk(const Progress, ProgressMax: Int64): Boolean;
-  public
-    constructor Create(const OnDownloadProgress: TOnDownloadProgress); overload;
-    constructor Create(const OnExtractionProgress: TOnExtractionProgress); overload;
-    procedure Reset;
-    function OnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
-    function OnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
   end;
 
 var
@@ -741,57 +722,6 @@ begin
   for I := 0 to High(ASMInliners) do
     FreeMem(ASMInliners[I]);
   SetLength(ASMInliners, 0);
-end;
-
-{ TProgressThrottler }
-
-constructor TProgressThrottler.Create(const OnDownloadProgress: TOnDownloadProgress);
-begin
-  inherited Create;
-  FOnDownloadProgress := OnDownloadProgress;
-end;
-
-constructor TProgressThrottler.Create(const OnExtractionProgress: TOnExtractionProgress);
-begin
-  inherited Create;
-  FOnExtractionProgress := OnExtractionProgress;
-end;
-
-procedure TProgressThrottler.Reset;
-begin
-  FStopWatch.Stop;
-end;
-
-function TProgressThrottler.ThrottleOk(const Progress, ProgressMax: Int64): Boolean;
-begin
-  if FStopWatch.IsRunning then begin
-    Result := ((Progress = ProgressMax) and (FLastOkProgress <> ProgressMax)) or (FStopWatch.ElapsedMilliseconds >= 50);
-    if Result then
-      FStopWatch.Reset;
-  end else begin
-    Result := True;
-    FStopWatch := TStopwatch.StartNew;
-  end;
-  if Result then
-    FLastOkProgress := Progress;
-end;
-
-function TProgressThrottler.OnDownloadProgress(const Url, BaseName: string; const Progress,
-  ProgressMax: Int64): Boolean;
-begin
-  if Assigned(FOnDownloadProgress) and ThrottleOk(Progress, ProgressMax) then begin
-    Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
-  end else
-    Result := True;
-end;
-
-function TProgressThrottler.OnExtractionProgress(const ArchiveName, FileName: string;
-  const Progress, ProgressMax: Int64): Boolean;
-begin
-  if Assigned(FOnExtractionProgress) and ThrottleOk(Progress, ProgressMax) then
-    Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
-  else
-    Result := True;
 end;
 
 initialization

@@ -23,7 +23,7 @@ uses
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections, Math,
   uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage,
   PSStackHelper, UnsignedFunc,
-  Shared.Struct, Setup.ScriptDlg, Setup.MainFunc, Shared.CommonFunc.Vcl,
+  Shared.Struct, Setup.WizardForm.CustomPages, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc, Setup.RedirFunc,
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
@@ -900,7 +900,7 @@ var
 
       const Throttler = TProgressThrottler.Create(OnDownloadProgress);
       try
-        { Also see Setup.ScriptDlg TDownloadWizardPage.AddExWithISSigVerify }
+        { Also see Setup.WizardForm.CustomPages TDownloadWizardPage.AddExWithISSigVerify }
         if ISSigVerify then
           DownloadTemporaryFile(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, NoVerification, Throttler.OnDownloadProgress, nil);
         Throttler.Reset;

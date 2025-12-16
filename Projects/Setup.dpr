@@ -41,7 +41,7 @@ uses
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   Setup.ScriptRunner in 'Src\Setup.ScriptRunner.pas',
-  Setup.ScriptDlg in 'Src\Setup.ScriptDlg.pas',
+  Setup.WizardForm.CustomPages in 'Src\Setup.WizardForm.CustomPages.pas',
   Setup.ScriptClasses in 'Src\Setup.ScriptClasses.pas',
   Setup.SelectLanguageForm in 'Src\Setup.SelectLanguageForm.pas' {SelectLanguageForm},
   Setup.FileExtractor in 'Src\Setup.FileExtractor.pas',
