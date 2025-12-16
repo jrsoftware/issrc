@@ -351,14 +351,13 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
 const
   SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
 var
-  ErrorCode: Longint;
   K: HKEY;
   Disp, Size, Count, CurType, NewType: DWORD;
   CountStr: String;
   FilenameP: PChar;
 begin
-  ErrorCode := RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
-    REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp);
+  const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
+    REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
     raise Exception.Create(FmtSetupMessage(msgErrorRegOpenKey,
         [GetRegRootKeyName(HKEY_LOCAL_MACHINE), SharedDLLsKey]) + SNewLine2 +
@@ -414,7 +413,6 @@ function DecrementSharedCount(const RegView: TRegView;
 const
   SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
 var
-  ErrorCode: Longint;
   K: HKEY;
   CountRead: Boolean;
   Count, CurType, Size: DWORD;
@@ -422,8 +420,8 @@ var
 begin
   Result := False;
 
-  ErrorCode := RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
-    KEY_QUERY_VALUE or KEY_SET_VALUE, K);
+  const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
+    KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
     Exit;
   if ErrorCode <> ERROR_SUCCESS then
