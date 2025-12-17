@@ -573,7 +573,6 @@ end;
 procedure TWizardForm.CalcCurrentComponentsSpace();
 var
   SelectedComponents: TStringList;
-  I: Integer;
   CurFile: PSetupFileEntry;
 begin
   CurrentComponentsSpace := SetupHeader.ExtraDiskSpaceRequired;
@@ -582,7 +581,7 @@ begin
   GetSelectedComponents(SelectedComponents, False, False);
 
   //we can't simply sum component sizes because of shared files -> add file sizes
-  for I := 0 to Entries[seFile].Count-1 do begin
+  for var I := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][I]);
     if (CurFile.Tasks = '') and (CurFile.Check = '') and {don't count tasks or scripted entries}
        ShouldProcessFileEntry(SelectedComponents, nil, CurFile, True) then begin
@@ -596,7 +595,7 @@ begin
   end;
 
   //don't forget to add extradiskspacerequired values
-  for I := 0 to Entries[seComponent].Count-1 do
+  for var I := 0 to Entries[seComponent].Count-1 do
     with PSetupComponentEntry(Entries[seComponent][I])^ do
       if ListContains(SelectedComponents, Name) then
         Inc(CurrentComponentsSpace, ExtraDiskSpaceRequired);
@@ -817,11 +816,11 @@ begin
     end;
   end else begin
     OuterNotebook.ParentBackground := True;
-    for I := 0 to OuterNotebook.PageCount-1 do
-      OuterNotebook.Pages[I].ParentBackground := True;
+    for var J := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[J].ParentBackground := True;
     InnerNotebook.ParentBackground := True;
-    for I := 0 to InnerNotebook.PageCount-1 do
-      InnerNotebook.Pages[I].ParentBackground := True;
+    for var J := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[J].ParentBackground := True;
   end;
   if shWizardModern in SetupHeader.Options then begin
     if LStyle = nil then begin
@@ -1162,13 +1161,13 @@ begin
   if Entries[seType].Count > 0 then begin
     //first fill list
     TypesCombo.Clear();
-    for I := 0 to Entries[seType].Count-1 do begin
-      TypeEntry := PSetupTypeEntry(Entries[seType][I]);
+    for var J := 0 to Entries[seType].Count-1 do begin
+      TypeEntry := PSetupTypeEntry(Entries[seType][J]);
       TypesCombo.Items.AddObject(ExpandConst(TypeEntry.Description), TObject(TypeEntry));
       { If a setup type was specified on the command line, use it as default }
       if (DefaultSetupTypeIndex = -1) and (InitSetupType <> '') and
          (CompareText(TypeEntry.Name, InitSetupType) = 0) then begin
-        DefaultSetupTypeIndex := I;
+        DefaultSetupTypeIndex := J;
         { If components are specified as well, they should be ignored if the
           setup type is non-custom }
         if not (toIsCustom in TypeEntry.Options) then
@@ -1178,10 +1177,10 @@ begin
     { Use setup type from previous installation if no type was specified on the
       command line (or if the type specified doesn't exist) }
     if (DefaultSetupTypeIndex = -1) and (PrevSetupType <> '') then begin
-      for I := 0 to Entries[seType].Count-1 do begin
-        TypeEntry := PSetupTypeEntry(Entries[seType][I]);
+      for var J := 0 to Entries[seType].Count-1 do begin
+        TypeEntry := PSetupTypeEntry(Entries[seType][J]);
         if CompareText(TypeEntry.Name, PrevSetupType) = 0 then begin
-          DefaultSetupTypeIndex := I;
+          DefaultSetupTypeIndex := J;
           Break;
         end;
       end;
@@ -1197,8 +1196,8 @@ begin
   //first fill list
   ComponentsList.Clear();
   ComponentsList.Flat := shFlatComponentsList in SetupHeader.Options;
-  for I := 0 to Entries[seComponent].Count-1 do begin
-    ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
+  for var J := 0 to Entries[seComponent].Count-1 do begin
+    ComponentEntry := PSetupComponentEntry(Entries[seComponent][J]);
     if coExclusive in ComponentEntry.Options then
       ComponentsList.AddRadioButton(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
         False, not (coFixed in ComponentEntry.Options), TObject(ComponentEntry))
@@ -1212,10 +1211,10 @@ begin
 
   //now assign default components
   if not IgnoreInitComponents and InitComponentsSpecified and HasCustomType then begin
-    for I := 0 to Entries[seType].Count-1 do begin
-      TypeEntry := PSetupTypeEntry(Entries[seType][I]);
+    for var J := 0 to Entries[seType].Count-1 do begin
+      TypeEntry := PSetupTypeEntry(Entries[seType][J]);
       if toIsCustom in TypeEntry.Options then begin
-        TypesCombo.ItemIndex := I;
+        TypesCombo.ItemIndex := J;
         SelectComponentsFromType(TypeEntry.Name, True);
         SelectComponents(InitComponents, nil, True);
         Break;
@@ -1343,10 +1342,8 @@ end;
 function TWizardForm.PageIndexFromID(const ID: Integer): Integer;
 { Given a page ID, returns the index of the page in FPageList. An exception is
   raised if a page with the specified ID is not found. }
-var
-  I: Integer;
 begin
-  for I := 0 to FPageList.Count-1 do begin
+  for var I := 0 to FPageList.Count-1 do begin
     if TWizardPage(FPageList[I]).ID = ID then begin
       Result := I;
       Exit;
@@ -1476,11 +1473,10 @@ procedure TWizardForm.UpdateRunList(const SelectedComponents, SelectedTasks: TSt
 var
   RunEntry: PSetupRunEntry;
   Caption: String;
-  I: Integer;
 begin
   RunList.Items.Clear();
 
-  for I := 0 to Entries[seRun].Count-1 do begin
+  for var I := 0 to Entries[seRun].Count-1 do begin
     RunEntry := PSetupRunEntry(Entries[seRun][I]);
     if (roPostInstall in RunEntry.Options) and ShouldProcessRunEntry(SelectedComponents, SelectedTasks, RunEntry) then begin
       try
@@ -1506,7 +1502,7 @@ procedure TWizardForm.CreateTaskButtons(const SelectedComponents: TStringList);
 var
   SaveSelectedTasks, SaveDeselectedTasks: TStringList;
   LastShownTaskEntry, TaskEntry: PSetupTaskEntry;
-  NextAllowedLevel, I: Integer;
+  NextAllowedLevel: Integer;
   Description, GroupDescription: String;
   LastGroupDescription: String;
 begin
@@ -1523,7 +1519,7 @@ begin
     { Create the task items with their default checked states }
     NextAllowedLevel := 0;
     LastShownTaskEntry := nil;
-    for I := 0 to Entries[seTask].Count-1 do begin
+    for var I := 0 to Entries[seTask].Count-1 do begin
       TaskEntry := PSetupTaskEntry(Entries[seTask][I]);
       if (TaskEntry.Level <= NextAllowedLevel) and
          (InstallOnThisVersion(TaskEntry.MinVersion, TaskEntry.OnlyBelowVersion) = irInstall) and
@@ -1579,7 +1575,7 @@ begin
 
     { Restore the previous checked state of the items we just created }
     if not InitDeselectAllTasks then begin
-      for I := 0 to TasksList.Items.Count-1 do begin
+      for var I := 0 to TasksList.Items.Count-1 do begin
         TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
         if TaskEntry <> nil then begin
           if ListContains(PrevSelectedTasks, TaskEntry.Name) then
@@ -1592,7 +1588,7 @@ begin
 
     { Override previous state with tasks specified on the command line }
     if InitTasks.Count > 0 then begin
-      for I := 0 to TasksList.Items.Count-1 do begin
+      for var I := 0 to TasksList.Items.Count-1 do begin
         TaskEntry := PSetupTaskEntry(TasksList.ItemObject[I]);
         if TaskEntry <> nil then begin
           if ListContains(InitTasks, '*' + TaskEntry.Name) then
@@ -1626,10 +1622,9 @@ end;
 
 procedure TWizardForm.SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);
 var
-  I: Integer;
   ComponentEntry: PSetupComponentEntry;
 begin
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
 
     if not (KeepFixedComponents and (coFixed in ComponentEntry.Options)) then begin
@@ -1699,10 +1694,9 @@ procedure TWizardForm.SelectComponentsFromType(const TypeName: String; const Onl
 var
   ComponentTypes: TStringList;
   ComponentEntry: PSetupComponentEntry;
-  I: Integer;
 begin
   ComponentTypes := TStringList.Create();
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if not OnlySelectFixedComponents or (coFixed in ComponentEntry.Options) then begin
       SetStringsFromCommaString(ComponentTypes, ComponentEntry.Types);
@@ -2784,7 +2778,6 @@ var
   SelectedComponents: TStringList;
   TypeEntry: PSetupTypeEntry;
   Equals: Boolean;
-  I: Integer;
 begin
   //first see if this current selection equals the initial selection
   //if so, reselect the initial setup type
@@ -2798,7 +2791,7 @@ begin
     TypesCombo.ItemIndex := InitialSetupTypeIndex;
   end else begin
     //select a custom type
-    for I := 0 to Entries[seType].Count-1 do begin
+    for var I := 0 to Entries[seType].Count-1 do begin
       TypeEntry := Entries[seType][I];
       if (toIsCustom in TypeEntry.Options) then begin
         TypesCombo.ItemIndex := TypesCombo.Items.IndexOfObject(TObject(TypeEntry));

@@ -105,7 +105,6 @@ function TMainForm.Install: Boolean;
     CheckIfRestartNeeded: Boolean;
     ChecksumBefore, ChecksumAfter: TSHA256Digest;
     WindowDisabler: TWindowDisabler;
-    I: Integer;
     RunEntry: PSetupRunEntry;
   begin
     if Entries[seRun].Count <> 0 then begin
@@ -116,7 +115,7 @@ function TMainForm.Install: Boolean;
       var WizardWasHidden := False;
       WindowDisabler := nil;
       try
-        for I := 0 to Entries[seRun].Count-1 do begin
+        for var I := 0 to Entries[seRun].Count-1 do begin
           RunEntry := PSetupRunEntry(Entries[seRun][I]);
           if not(roPostInstall in RunEntry.Options) and
              ShouldProcessRunEntry(WizardComponents, WizardTasks, RunEntry) then begin

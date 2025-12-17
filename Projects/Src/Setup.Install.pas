@@ -224,7 +224,6 @@ var
   H2: HKEY;
   ErrorCode: Longint;
   Z: String;
-  I: Integer;
   EstimatedSize: Int64;
 begin
   RegView := InstallDefaultRegView;
@@ -342,7 +341,7 @@ begin
     if SetupHeader.UninstallDisplaySize = 0 then begin
       { Estimate the size by taking the size of all files and adding any ExtraDiskSpaceRequired. }
       EstimatedSize := AfterInstallFilesSize + SetupHeader.ExtraDiskSpaceRequired;
-      for I := 0 to Entries[seComponent].Count-1 do begin
+      for var I := 0 to Entries[seComponent].Count-1 do begin
         with PSetupComponentEntry(Entries[seComponent][I])^ do begin
           if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') then
             Inc(EstimatedSize, ExtraDiskSpaceRequired);
@@ -460,7 +459,6 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
   end;
 
 var
-  CurDirNumber: Integer;
   Flags: TMakeDirFlags;
   N: String;
 begin
@@ -468,7 +466,7 @@ begin
   MakeDir(UninstLog, InstallDefaultDisableFsRedir, WizardDirValue, []);
 
   { Create the rest of the directories, if any }
-  for CurDirNumber := 0 to Entries[seDir].Count-1 do
+  for var CurDirNumber := 0 to Entries[seDir].Count-1 do
     with PSetupDirEntry(Entries[seDir][CurDirNumber])^ do begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seDir, CurDirNumber);
@@ -1621,8 +1619,6 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
   end;
 
 var
-  I: Integer;
-  CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
   SourceWildcard: String;
   DisableFsRedir, FoundFiles: Boolean;
@@ -1637,14 +1633,14 @@ begin
   var Excludes: TStringList := nil;
   try
     FileLocationFilenames := TStringList.Create;
-    for I := 0 to Entries[seFileLocation].Count-1 do
+    for var I := 0 to Entries[seFileLocation].Count-1 do
       FileLocationFilenames.Add('');
 
     Excludes := TStringList.Create;
     Excludes.StrictDelimiter := True;
     Excludes.Delimiter := ',';
 
-    for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
+    for var CurFileNumber := 0 to Entries[seFile].Count-1 do begin
       CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
       if ((CurFile^.FileType <> ftUninstExe) or Uninstallable) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
@@ -1902,12 +1898,11 @@ procedure CreateIcons(const UninstLog: TUninstallLog);
   end;
 
 var
-  CurIconNumber: Integer;
   CurIcon: PSetupIconEntry;
   FN: String;
   TACLSID: PGUID;
 begin
-  for CurIconNumber := 0 to Entries[seIcon].Count-1 do begin
+  for var CurIconNumber := 0 to Entries[seIcon].Count-1 do begin
     try
       CurIcon := PSetupIconEntry(Entries[seIcon][CurIconNumber]);
       with CurIcon^ do begin
@@ -1954,12 +1949,11 @@ end;
 
 procedure CreateIniEntries(const UninstLog: TUninstallLog);
 var
-  CurIniNumber: Integer;
   CurIni: PSetupIniEntry;
   IniSection, IniEntry, IniValue, IniFilename, IniDir: String;
   Skip: Boolean;
 begin
-  for CurIniNumber := 0 to Entries[seIni].Count-1 do begin
+  for var CurIniNumber := 0 to Entries[seIni].Count-1 do begin
     CurIni := PSetupIniEntry(Entries[seIni][CurIniNumber]);
     with CurIni^ do begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
@@ -2079,13 +2073,12 @@ var
   ExistingType, NewType, DV: DWORD;
   S: String;
   RV: TRegView;
-  CurRegNumber: Integer;
   NeedToRetry, DidDeleteKey: Boolean;
   ErrorCode: Longint;
   I: Integer;
   AnsiS: AnsiString;
 begin
-  for CurRegNumber := 0 to Entries[seRegistry].Count-1 do begin
+  for var CurRegNumber := 0 to Entries[seRegistry].Count-1 do begin
     with PSetupRegistryEntry(Entries[seRegistry][CurRegNumber])^ do begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seRegistry, CurRegNumber);
@@ -2366,7 +2359,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     F: TTextFileWriter;
     Rec: PRegisterFilesListRec;
     RootKey, H: HKEY;
-    I, J: Integer;
+    J: Integer;
     Disp: DWORD;
     ValueName, Data: String;
     ErrorCode: Longint;
@@ -2403,7 +2396,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         F.WriteLine('');
         F.WriteLine('; List of files to be registered on the next reboot. DO NOT EDIT!');
         F.WriteLine('');
-        for I := 0 to RegisterFilesList.Count-1 do begin
+        for var I := 0 to RegisterFilesList.Count-1 do begin
           Rec := RegisterFilesList[I];
           Data := '[..]' + Rec.Filename;
           Data[2] := Chars[Rec.Is64Bit, Rec.TypeLib];
@@ -2509,11 +2502,9 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     until not NeedToRetry;
   end;
 
-var
-  I: Integer;
 begin
   if not NeedsRestart then
-    for I := 0 to RegisterFilesList.Count-1 do begin
+    for var I := 0 to RegisterFilesList.Count-1 do begin
       with PRegisterFilesListRec(RegisterFilesList[I])^ do
         if not TypeLib then
           RegisterSvr(Is64Bit, Filename, NoErrorMessages)
@@ -2539,18 +2530,15 @@ const
     utDeleteDirOrFiles_Extra or utDeleteDirOrFiles_DeleteFiles or
       utDeleteDirOrFiles_DeleteSubdirsAlso,
     utDeleteDirOrFiles_Extra or utDeleteDirOrFiles_IsDir);
-var
-  I: Integer;
-  Flags: Longint;
 begin
-  for I := Entries[seUninstallDelete].Count-1 downto 0 do
+  for var I := Entries[seUninstallDelete].Count-1 downto 0 do
     { ^ process backwards so the uninstaller will process them in the order
         they appear in the script }
     with PSetupDeleteEntry(Entries[seUninstallDelete][I])^ do
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seUninstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
-        Flags := DefFlags[DeleteType];
+        var Flags := DefFlags[DeleteType];
         if InstallDefaultDisableFsRedir then
           Flags := Flags or utDeleteDirOrFiles_DisableFsRedir;
         UninstLog.Add(utDeleteDirOrFiles, [ExpandConst(Name)], Flags);
@@ -2560,11 +2548,9 @@ end;
 
 procedure RecordUninstallRunEntries(const UninstLog: TUninstallLog);
 var
-  I: Integer;
   RunEntry: PSetupRunEntry;
-  Flags: Longint;
 begin
-  for I := Entries[seUninstallRun].Count-1 downto 0 do begin
+  for var I := Entries[seUninstallRun].Count-1 downto 0 do begin
     { ^ process backwards so the uninstaller will process them in the order
         they appear in the script }
     RunEntry := PSetupRunEntry(Entries[seUninstallRun][I]);
@@ -2572,7 +2558,7 @@ begin
        RunEntry.Tasks, RunEntry.Languages, RunEntry.Check) then begin
       DebugNotifyEntry(seUninstallRun, I);
       NotifyBeforeInstallEntry(RunEntry.BeforeInstall);
-      Flags := 0;
+      var Flags := 0;
       case RunEntry.Wait of
         rwNoWait: Flags := Flags or utRun_NoWait;
         rwWaitUntilIdle: Flags := Flags or utRun_WaitUntilIdle;

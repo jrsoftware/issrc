@@ -120,12 +120,11 @@ end;
 
 procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
 var
-  N: Integer;
   CurFile: PSetupFileEntry;
 begin
   InstallFilesSize := 0;
   AfterInstallFilesSize := InstallFilesSize;
-  for N := 0 to Entries[seFile].Count-1 do begin
+  for var N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
     if ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
       with CurFile^ do begin
@@ -370,13 +369,13 @@ end;
 procedure PackCustomMessagesIntoString(var S: String);
 var
   M: TMemoryStream;
-  Count, I, N: Integer;
+  Count, N: Integer;
 begin
   M := TMemoryStream.Create;
   try
     Count := 0;
     M.WriteBuffer(Count, SizeOf(Count));  { overwritten later }
-    for I := 0 to Entries[seCustomMessage].Count-1 do begin
+    for var I := 0 to Entries[seCustomMessage].Count-1 do begin
       with PSetupCustomMessageEntry(Entries[seCustomMessage][I])^ do begin
         if (LangIndex = -1) or (LangIndex = ActiveLanguage) then begin
           N := Length(Name);
@@ -471,10 +470,8 @@ begin
 end;
 
 procedure ProcessInstallDeleteEntries;
-var
-  I: Integer;
 begin
-  for I := 0 to Entries[seInstallDelete].Count-1 do
+  for var I := 0 to Entries[seInstallDelete].Count-1 do
     with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seInstallDelete, I);
@@ -510,10 +507,8 @@ begin
 end;
 
 procedure ProcessComponentEntries;
-var
-  I: Integer;
 begin
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     with PSetupComponentEntry(Entries[seComponent][I])^ do begin
       if ShouldProcessEntry(WizardComponents, nil, Name, '', Languages, '') and (coRestart in Options) then begin
         NeedsRestart := True;
@@ -524,10 +519,8 @@ begin
 end;
 
 procedure ProcessTasksEntries;
-var
-  I: Integer;
 begin
-  for I := 0 to Entries[seTask].Count-1 do begin
+  for var I := 0 to Entries[seTask].Count-1 do begin
     with PSetupTaskEntry(Entries[seTask][I])^ do begin
       if ShouldProcessEntry(nil, WizardTasks, '', Name, Languages, '') and (toRestart in Options) then begin
         NeedsRestart := True;

@@ -241,14 +241,14 @@ end;
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 var
   DC: HDC;
-  I, W: Integer;
+  W: Integer;
 begin
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
   DC := GetDC(0);
   try
     SelectObject(DC, Font.Handle);
-    for I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
+    for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
       W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
       if Result < W then
         Result := W;

@@ -154,13 +154,11 @@ begin
 end;
 
 function Check(const Code: Integer; const ValidCodes: array of Integer): Integer;
-var
-  I: Integer;
 begin
   if Code = BZ_MEM_ERROR then
     OutOfMemoryError;
   Result := Code;
-  for I := Low(ValidCodes) to High(ValidCodes) do
+  for var I := Low(ValidCodes) to High(ValidCodes) do
     if ValidCodes[I] = Code then
       Exit;
   raise ECompressInternalError.CreateFmt(SBzlibInternalError, [Code]);

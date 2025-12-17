@@ -480,8 +480,6 @@ begin
 end;
 
 destructor TNewCheckListBox.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FAccObjectInstance) then begin
     { Detach from FAccObjectInstance if someone still has a reference to it }
@@ -489,7 +487,7 @@ begin
     FAccObjectInstance := nil;
   end;
   if Assigned(FStateList) then begin
-    for I := FStateList.Count-1 downto 0 do
+    for var I := FStateList.Count-1 downto 0 do
       TItemState(FStateList[I]).Free;
     FStateList.Free;
   end;
@@ -1768,12 +1766,11 @@ end;
 
 procedure TNewCheckListBox.LBResetContent(var Message: TMessage);
 var
-  I: Integer;
   ItemState: TItemState;
 begin
   inherited;
   if FDisableItemStateDeletion = 0 then
-    for I := FStateList.Count-1 downto 0 do begin
+    for var I := FStateList.Count-1 downto 0 do begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;

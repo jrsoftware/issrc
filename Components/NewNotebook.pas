@@ -187,11 +187,9 @@ begin
 end;
 
 destructor TNewNotebook.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FPages) then begin
-    for I := 0 to FPages.Count-1 do
+    for var I := 0 to FPages.Count-1 do
       TNewNotebookPage(FPages[I]).FNotebook := nil;
     FPages.Free;
   end;
@@ -227,18 +225,16 @@ end;
 
 function TNewNotebook.FindNextPage(CurPage: TNewNotebookPage;
   GoForward: Boolean): TNewNotebookPage;
-var
-  I, StartIndex: Integer;
 begin
   if FPages.Count > 0 then begin
-    StartIndex := FPages.IndexOf(CurPage);
+    var StartIndex := FPages.IndexOf(CurPage);
     if StartIndex = -1 then begin
       if GoForward then
         StartIndex := FPages.Count-1
       else
         StartIndex := 0;
     end;
-    I := StartIndex;
+    var I := StartIndex;
     repeat
       if GoForward then begin
         Inc(I);
@@ -258,10 +254,8 @@ begin
 end;
 
 procedure TNewNotebook.GetChildren(Proc: TGetChildProc; Root: TComponent);
-var
-  I: Integer;
 begin
-  for I := 0 to FPages.Count-1 do
+  for var I := 0 to FPages.Count-1 do
     Proc(TNewNotebookPage(FPages[I]));
 end;
 

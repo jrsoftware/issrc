@@ -88,12 +88,12 @@ procedure PutPixel24(const Weights: array of TWeight; Bits, Pixel: Pointer);
 type
   PRGBTriple = ^TRGBTriple;
 var
-  I, R, G, B: Integer;
+  R, G, B: Integer;
 begin
   R := FixedOneHalf;
   G := FixedOneHalf;
   B := FixedOneHalf;
-  for I := 0 to High(Weights) do
+  for var I := 0 to High(Weights) do
     with Weights[I], PRGBTriple(PAnsiChar(Bits) + Offset)^ do begin
       Inc(R, rgbtRed * Weight);
       Inc(G, rgbtGreen * Weight);
@@ -110,14 +110,14 @@ end;
 //Process pixel in BGRA premultiplied alpha format
 procedure PutPixel32P(const Weights: array of TWeight; Bits, Pixel: Pointer);
 var
-  I, R, G, B, A: Integer;
+  R, G, B, A: Integer;
   AByte: Byte;
 begin
   R := FixedOneHalf;
   G := FixedOneHalf;
   B := FixedOneHalf;
   A := FixedOneHalf;
-  for I := 0 to High(Weights) do
+  for var I := 0 to High(Weights) do
     with Weights[I], PRGBQuad(PAnsiChar(Bits) + Offset)^ do begin
       Inc(R, rgbRed * Weight);
       Inc(G, rgbGreen * Weight);
@@ -128,7 +128,7 @@ begin
   if A > 0 then if A < 255 shl FixedBits then AByte := Byte(A shr FixedBits) else AByte := 255 else AByte := 0;
   with PRGBQuad(Pixel)^ do begin
     rgbReserved := AByte;
-    I := AByte shl FixedBits;
+    const I = AByte shl FixedBits;
     //Clamps other channels to values between 0 and Alpha
     if R > 0 then if R < I then rgbRed   := Byte(R shr FixedBits) else rgbRed   := AByte else rgbRed   := 0;
     if G > 0 then if G < I then rgbGreen := Byte(G shr FixedBits) else rgbGreen := AByte else rgbGreen := 0;

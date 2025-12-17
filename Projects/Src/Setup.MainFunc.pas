@@ -291,14 +291,14 @@ type
 
 function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
 var
-  TargetArea, Difference, SmallestDifference, I: Integer;
+  TargetArea, Difference, SmallestDifference: Integer;
 begin
   if WizardImages.Count <> 1 then begin
     { Find the image with the smallest area difference compared to the target area. }
     TargetArea := TargetWidth*TargetHeight;
     SmallestDifference := -1;
     Result := nil;
-    for I := 0 to WizardImages.Count-1 do begin
+    for var I := 0 to WizardImages.Count-1 do begin
       Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
       if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
         Result := WizardImages[I];
@@ -404,13 +404,12 @@ end;
 function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 var
   PrevLang: String;
-  I: Integer;
 begin
   { do not localize or change the following string }
   PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
 
   if PrevLang <> '' then begin
-    for I := 0 to Entries[seLanguage].Count-1 do begin
+    for var I := 0 to Entries[seLanguage].Count-1 do begin
       if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
         Result := I;
         Exit;
@@ -775,11 +774,9 @@ begin
 end;
 
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
-var
-  I: Integer;
 begin
   Result := False;
-  for I := 0 to Entries[seCustomMessage].Count-1 do begin
+  for var I := 0 to Entries[seCustomMessage].Count-1 do begin
     with PSetupCustomMessageEntry(Entries[seCustomMessage][I])^ do begin
       if (CompareText(Name, AName) = 0) and
          ((LangIndex = -1) or (LangIndex = ActiveLanguage)) then begin
@@ -1871,14 +1868,13 @@ function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceReq
 var
   ComponentNameAsList: TStringList;
   FileEntry: PSetupFileEntry;
-  I: Integer;
 begin
   Result := ExtraDiskSpaceRequired;
 
   ComponentNameAsList := TStringList.Create();
   try
     ComponentNameAsList.Add(ComponentName);
-    for I := 0 to Entries[seFile].Count-1 do begin
+    for var I := 0 to Entries[seFile].Count-1 do begin
       FileEntry := PSetupFileEntry(Entries[seFile][I]);
       with FileEntry^ do begin
         if (Components <> '') and
@@ -1900,12 +1896,11 @@ end;
 function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Int64;
 var
   ComponentTypes: TStringList;
-  I: Integer;
 begin
   Result := 0;
   ComponentTypes := TStringList.Create();
 
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     with PSetupComponentEntry(Entries[seComponent][I])^ do begin
       SetStringsFromCommaString(ComponentTypes, Types);
       { For custom types, only count fixed components. Otherwise count all. }
@@ -2046,7 +2041,6 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   end;
 
 var
-  I: Integer;
   CurFile: PSetupFileEntry;
   DisableFsRedir: Boolean;
   SourceWildcard: String;
@@ -2059,7 +2053,7 @@ begin
     Excludes.StrictDelimiter := True;
     Excludes.Delimiter := ',';
 
-    for I := 0 to Entries[seFile].Count-1 do begin
+    for var I := 0 to Entries[seFile].Count-1 do begin
       CurFile := PSetupFileEntry(Entries[seFile][I]);
       if (CurFile^.FileType = ftUserFile) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
@@ -2108,7 +2102,7 @@ begin
   end;
 
   { [InstallDelete] }
-    for I := 0 to Entries[seInstallDelete].Count-1 do
+    for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           case DeleteType of
@@ -2430,7 +2424,6 @@ procedure SetActiveLanguage(const I: Integer);
 { Activates the specified language }
 var
   LangEntry: PSetupLanguageEntry;
-  J: Integer;
 begin
   if ActiveLanguage = I then
     Exit;
@@ -2469,7 +2462,7 @@ begin
   SetMessageBoxCaption(mbCriticalError, PChar(SetupMessages[msgErrorTitle]));
   Application.Title := SetupMessages[msgSetupAppTitle];
 
-  for J := 0 to Entries[seType].Count-1 do begin
+  for var J := 0 to Entries[seType].Count-1 do begin
     with PSetupTypeEntry(Entries[seType][J])^ do begin
       case Typ of
         ttDefaultFull: Description := SetupMessages[msgFullInstallation];
@@ -3220,7 +3213,6 @@ var
   ParamName, ParamValue: String;
   ParamIsAutomaticInternal: Boolean;
   StartParam: Integer;
-  I: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;
@@ -3263,7 +3255,7 @@ begin
   EnableLogging := False;
   WantToSuppressMsgBoxes := False;
   DebugServerWnd := 0;
-  for I := StartParam to NewParamCount do begin
+  for var I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
     if SameText(ParamName, '/Log') then begin
@@ -3673,7 +3665,7 @@ begin
       { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
         allow AppId to include constants but we should still call ExpandConst
         to handle any '{{'. }
-      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      const I = GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
       if I <> -1 then
         SetActiveLanguage(I);
     end;
@@ -3745,7 +3737,7 @@ begin
 
   { Init ISSigAvailableKeys }
   SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
-  for I := 0 to Entries[seISSigKey].Count-1 do begin
+  for var I := 0 to Entries[seISSigKey].Count-1 do begin
     var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][I]);
     ISSigAvailableKeys[I] := TECDSAKey.Create;
     if ISSigImportPublicKey(ISSigAvailableKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
@@ -3822,7 +3814,7 @@ begin
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
-  for I := 0 to Entries[seType].Count-1 do begin
+  for var I := 0 to Entries[seType].Count-1 do begin
     if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).CheckOnce) then begin
       SEFreeRec(Entries[seType][I], EntryStrings[seType], EntryAnsiStrings[seType]);
       { Don't delete it yet so that the entries can be processed sequentially }
@@ -3835,7 +3827,7 @@ begin
   { Remove components }
   NextAllowedLevel := 0;
   LastShownComponentEntry := nil;
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if (ComponentEntry.Level <= NextAllowedLevel) and
        (InstallOnThisVersion(ComponentEntry.MinVersion, ComponentEntry.OnlyBelowVersion) = irInstall) and
@@ -3874,7 +3866,7 @@ begin
 
   { Set misc. variables }
   HasCustomType := False;
-  for I := 0 to Entries[seType].Count-1 do begin
+  for var I := 0 to Entries[seType].Count-1 do begin
     if toIsCustom in PSetupTypeEntry(Entries[seType][I]).Options then begin
       HasCustomType := True;
       Break;
@@ -3901,7 +3893,7 @@ begin
     LExcludes.StrictDelimiter := True;
     LExcludes.Delimiter := ',';
 
-    for I := 0 to Entries[seFile].Count-1 do begin
+    for var I := 0 to Entries[seFile].Count-1 do begin
       with PSetupFileEntry(Entries[seFile][I])^ do begin
         if LocationEntry <> -1 then begin { not an "external" file }
           if Components = '' then { no types or a file that doesn't belong to any component }
@@ -3945,13 +3937,13 @@ begin
     LExcludes.Free;
   end;
 
-  for I := 0 to Entries[seComponent].Count-1 do
+  for var I := 0 to Entries[seComponent].Count-1 do
     with PSetupComponentEntry(Entries[seComponent][I])^ do
       Size := GetSizeOfComponent(Name, ExtraDiskSpaceRequired);
 
   if Entries[seType].Count > 0 then begin
     var MinimumTypeSpace: Int64 := 0;
-    for I := 0 to Entries[seType].Count-1 do begin
+    for var I := 0 to Entries[seType].Count-1 do begin
       with PSetupTypeEntry(Entries[seType][I])^ do begin
         Size := GetSizeOfType(Name, toIsCustom in Options);
         if (I = 0) or (Size < MinimumTypeSpace) then
@@ -3984,8 +3976,6 @@ begin
 end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
-var
-  I: Integer;
 begin
   Log('Deinitializing Setup.');
 
@@ -4008,16 +3998,16 @@ begin
     FreeAndNil(CodeRunner);
   end;
 
-  for I := 0 to DeleteFilesAfterInstallList.Count-1 do
+  for var I := 0 to DeleteFilesAfterInstallList.Count-1 do
     DeleteFileRedir(DeleteFilesAfterInstallList.Objects[I] <> nil,
       DeleteFilesAfterInstallList[I]);
   DeleteFilesAfterInstallList.Clear;
-  for I := DeleteDirsAfterInstallList.Count-1 downto 0 do
+  for var I := DeleteDirsAfterInstallList.Count-1 downto 0 do
     RemoveDirectoryRedir(DeleteDirsAfterInstallList.Objects[I] <> nil,
       DeleteDirsAfterInstallList[I]);
   DeleteDirsAfterInstallList.Clear;
 
-  for I := 0 to Length(ISSigAvailableKeys)-1 do
+  for var I := 0 to Length(ISSigAvailableKeys)-1 do
     ISSigAvailableKeys[I].Free;
 
   FreeFileExtractor;
@@ -4329,14 +4319,13 @@ procedure FreeEntryLists;
 var
   I: TEntryType;
   List: TList;
-  J: Integer;
   P: Pointer;
 begin
   for I := High(I) downto Low(I) do begin
     List := Entries[I];
     if Assigned(List) then begin
       Entries[I] := nil;
-      for J := List.Count-1 downto 0 do begin
+      for var J := List.Count-1 downto 0 do begin
         P := List[J];
         if EntryStrings[I] <> 0 then
           SEFreeRec(P, EntryStrings[I], EntryAnsiStrings[I])

@@ -49,10 +49,8 @@ function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: 
   var ModalResult: Integer; const VerificationText: PChar; const pfVerificationFlagChecked: PBOOL): Boolean;
 var
   Config: TTaskDialogConfig;
-  NButtonLabelsAvailable: Integer;
   ButtonItems: TTaskDialogButtons;
   ButtonItem: TTaskDialogButtonItem;
-  I: Integer;
   ActiveWindow: Windows.HWND;
   WindowList: Pointer;
 begin
@@ -78,11 +76,11 @@ begin
     end;
     ButtonItems := nil;
     try
-      NButtonLabelsAvailable := Length(ButtonLabels);
+      const NButtonLabelsAvailable = Length(ButtonLabels);
       if NButtonLabelsAvailable <> 0 then begin
         ButtonItems := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
         Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
-        for I := 0 to NButtonLabelsAvailable-1 do begin
+        for var I := 0 to NButtonLabelsAvailable-1 do begin
           ButtonItem := TTaskDialogButtonItem(ButtonItems.Add);
           ButtonItem.Caption := ButtonLabels[I];
           ButtonItem.ModalResult := ButtonIDs[I];

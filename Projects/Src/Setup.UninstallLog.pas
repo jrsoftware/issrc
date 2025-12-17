@@ -393,12 +393,12 @@ end;
 procedure TUninstallLog.Add(const Typ: TUninstallRecTyp; const Data: array of String;
   const ExtraData: Longint);
 var
-  I, L: Integer;
+  L: Integer;
   S, X: AnsiString;
   AData: AnsiString;
   NewRec: PUninstallRec;
 begin
-  for I := 0 to High(Data) do begin
+  for var I := 0 to High(Data) do begin
     L := Length(Data[I])*SizeOf(Data[I][1]);
 
     SetLength(X, SizeOf(Byte) + SizeOf(Integer));
@@ -500,12 +500,12 @@ end;
 class function TUninstallLog.ExtractRecData(const Rec: PUninstallRec;
   var Data: array of String): Integer;
 var
-  I, L: Integer;
+  L: Integer;
   X: PByte;
 begin
-  for I := 0 to High(Data) do
+  for var I := 0 to High(Data) do
     Data[I] := '';
-  I := 0;
+  var I := 0;
   X := PByte(@Rec^.Data);
   while I <= High(Data) do begin
     case X^ of

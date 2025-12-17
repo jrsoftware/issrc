@@ -82,13 +82,12 @@ procedure ExtractTemporaryFile(const BaseName: String);
 
 var
   EscapedBaseName: String;
-  CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
 begin
   { We compare BaseName to the filename portion of TSetupFileEntry.DestName
     which has braces escaped, but BaseName does not; escape it to match }
   EscapedBaseName := EscapeBraces(BaseName);
-  for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
+  for var CurFileNumber := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
     if (CurFile^.LocationEntry <> -1) and (CompareText(PathExtractName(CurFile^.DestName), EscapedBaseName) = 0) then begin
       InternalExtractTemporaryFile(BaseName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry], False);
@@ -101,7 +100,6 @@ end;
 function ExtractTemporaryFiles(const Pattern: String): Integer;
 var
   LowerPattern, DestName: String;
-  CurFileNumber: Integer;
   CurFile: PSetupFileEntry;
 begin
   if Length(Pattern) >= MAX_PATH then
@@ -110,7 +108,7 @@ begin
   LowerPattern := PathLowercase(Pattern);
   Result := 0;
 
-  for CurFileNumber := 0 to Entries[seFile].Count-1 do begin
+  for var CurFileNumber := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
     if CurFile^.LocationEntry <> -1 then begin
       { Use ExpandConstEx2 to unescape any braces not in an embedded constant,
