@@ -4264,41 +4264,34 @@ begin
   if ProcessorArchitecture <> paUnknown then
     Include(MachineTypesSupportedBySystem, ProcessorArchitecture);
 
-  { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
-  GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
-  if Assigned(GetMachineTypeAttributesFunc) then begin
-    var MachineTypeAttributes: Integer;
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
-       ((MachineTypeAttributes and UserEnabled) <> 0) then
+  { Check if Arm32 and x86 are supported extra using IsWow64GuestMachineSupported }
+  IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
+  if Assigned(IsWow64GuestMachineSupportedFunc) then begin
+    var MachineIsSupported: BOOL;
+    if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
+       MachineIsSupported then
       Include(MachineTypesSupportedBySystem, paArm32);
     if not (paX86 in MachineTypesSupportedBySystem) and
-       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_I386, MachineTypeAttributes) = S_OK) and
-       ((MachineTypeAttributes and UserEnabled) <> 0) then
+       (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_I386, MachineIsSupported) = S_OK) and
+       MachineIsSupported then
       Include(MachineTypesSupportedBySystem, paX86);
-    if not (paX64 in MachineTypesSupportedBySystem) and
-       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
-       ((MachineTypeAttributes and UserEnabled) <> 0) then
-      Include(MachineTypesSupportedBySystem, paX64);
-  end else begin
-    { Without GetMachineTypeAttributes we can only check if Arm32 and x86 are supported extra
-      using IsWow64GuestMachineSupported }
-    IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
-    if Assigned(IsWow64GuestMachineSupportedFunc) then begin
-      var MachineIsSupported: BOOL;
-      if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
-         MachineIsSupported then
-        Include(MachineTypesSupportedBySystem, paArm32);
-      if not (paX86 in MachineTypesSupportedBySystem) and
-         (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_I386, MachineIsSupported) = S_OK) and
-         MachineIsSupported then
-        Include(MachineTypesSupportedBySystem, paX86);
-    end else if not (paX86 in MachineTypesSupportedBySystem) then begin
-      {$IFDEF WIN64}
-      { Detect x86 support by checking if SysWOW64\kernel32.dll exists }
-      const Dir = GetSysWow64Dir;
-      if (Dir <> '') and NewFileExists(AddBackslash(Dir) + 'kernel32.dll') then
-        Include(MachineTypesSupportedBySystem, paX86);
-      {$ENDIF}
+  end else if not (paX86 in MachineTypesSupportedBySystem) then begin
+    {$IFDEF WIN64}
+    { Detect x86 support by checking if SysWOW64\kernel32.dll exists }
+    const Dir = GetSysWow64Dir;
+    if (Dir <> '') and NewFileExists(AddBackslash(Dir) + 'kernel32.dll') then
+      Include(MachineTypesSupportedBySystem, paX86);
+    {$ENDIF}
+  end;
+
+  if not (paX64 in MachineTypesSupportedBySystem) then begin
+    { On Windows 11 we can check if x64 is supported extra using GetMachineTypeAttributes }
+    GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
+    if Assigned(GetMachineTypeAttributesFunc) then begin
+      var MachineTypeAttributes: Integer;
+      if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
+         ((MachineTypeAttributes and UserEnabled) <> 0) then
+        Include(MachineTypesSupportedBySystem, paX64);
     end;
   end;
 end;
