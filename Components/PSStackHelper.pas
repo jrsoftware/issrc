@@ -53,7 +53,6 @@ type
 
 {$ENDIF}
 
-
 implementation
 
 {$IFNDEF NOCODE}
