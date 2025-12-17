@@ -861,7 +861,7 @@ begin
     FProgressBar.Position := Position;
     FProgressBar.Visible := True;
     SetAppTaskbarProgressState(tpsNormal);
-    SetAppTaskbarProgressValue(Cardinal(Position), Cardinal(Max));
+    SetAppTaskbarProgressValue(UInt64(Position), UInt64(Max));
   end else begin
     if FUseMarqueeStyle then
       FProgressBar.Style := npbstMarquee

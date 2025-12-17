@@ -172,7 +172,7 @@ begin
     WizardForm.ProgressGauge.Position := NewPosition;
     WizardForm.ProgressGauge.Update;
   end;
-  SetAppTaskbarProgressValue(Cardinal(NewPosition), Cardinal(WizardForm.ProgressGauge.Max));
+  SetAppTaskbarProgressValue(UInt64(NewPosition), UInt64(WizardForm.ProgressGauge.Max));
 
   if (CodeRunner <> nil) and CodeRunner.FunctionExists('CurInstallProgressChanged', True) then begin
     try

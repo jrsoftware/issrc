@@ -41,7 +41,7 @@ type
       FParametersAllowed: Boolean;
       FSingleIdentifierMode: Boolean;
       FSilentOrAllowed: Boolean;
-      FTag: LongInt;
+      FTag: NativeInt;
       FText: PChar;
       FTokenId: (tiEOF, tiOpenRound, tiCloseRound, tiComma, tiNot, tiAnd, tiOr, tiIdentifier, tiString, tiInteger, tiBoolean);
       FToken: String;
@@ -60,7 +60,7 @@ type
       property ParametersAllowed: Boolean read FParametersAllowed write FParametersAllowed;
       property SilentOrAllowed: Boolean read FSilentOrAllowed write FSilentOrAllowed;
       property SingleIdentifierMode: Boolean read FSingleIdentifierMode write FSingleIdentifierMode;
-      property Tag: LongInt read FTag write FTag;
+      property Tag: NativeInt read FTag write FTag;
     end;
 
 implementation

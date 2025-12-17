@@ -199,7 +199,7 @@ begin
   NewPos := MulDiv(AProgress, ProgressBar.Max, ARange);
   if ProgressBar.Position <> NewPos then begin
     ProgressBar.Position := NewPos;
-    SetAppTaskbarProgressValue(Cardinal(NewPos), Cardinal(ProgressBar.Max));
+    SetAppTaskbarProgressValue(UInt64(NewPos), UInt64(ProgressBar.Max));
   end;
 end;
 

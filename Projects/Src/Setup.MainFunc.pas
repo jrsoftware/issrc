@@ -590,7 +590,7 @@ begin
 end;
 
 function EvalExpression(const Expression: String;
-  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt = 0): Boolean;
+  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: NativeInt = 0): Boolean;
 var
   SimpleExpression: TSimpleExpression;
 begin
@@ -621,12 +621,12 @@ var
 begin
   if (Components <> '') or (Tasks <> '') or (Languages <> '') or (Check <> '') then begin
     if (Components <> '') and (WizardComponents <> nil) then
-      ProcessComponent := EvalExpression(Components, TDummyClass.EvalComponentOrTaskIdentifier, LongInt(WizardComponents))
+      ProcessComponent := EvalExpression(Components, TDummyClass.EvalComponentOrTaskIdentifier, NativeInt(WizardComponents))
     else
       ProcessComponent := True;
 
     if (Tasks <> '') and (WizardTasks <> nil) then
-      ProcessTask := EvalExpression(Tasks, TDummyClass.EvalComponentOrTaskIdentifier, LongInt(WizardTasks))
+      ProcessTask := EvalExpression(Tasks, TDummyClass.EvalComponentOrTaskIdentifier, NativeInt(WizardTasks))
     else
       ProcessTask := True;
 
