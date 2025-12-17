@@ -548,8 +548,8 @@ var
       Exit(False);
 
     case Where of
-      1: Result := Compare(Substr, Copy(Str, 1, L), Sensitive);
-      2: Result := Compare(Substr, Copy(Str, SL - L + 1, L), Sensitive);
+      1: Result := PathStartsWith(Str, Substr, not Sensitive);
+      2: Result := PathEndsWith(Str, Substr, not Sensitive);
       3: Result := Contains(Substr, Sensitive);
     else
       Result := Compare(Substr, Str, Sensitive);
