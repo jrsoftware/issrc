@@ -2,6 +2,8 @@ unit ASMInline;
 
 interface
 
+{$IFDEF CPUX86}
+
 {ASM Inliner
  Nicholas Sherlock
 
@@ -108,7 +110,11 @@ type
     procedure Mov(reg: TRegister32; mem: TMemoryAddress); overload;
   end;
 
+{$ENDIF}
+
 implementation
+
+{$IFDEF CPUX86}
 
 constructor EOperandSizeMismatch.create;
 begin
@@ -397,6 +403,8 @@ begin
   frelocs.free;
   inherited;
 end;
+
+{$ENDIF}
 
 end.
 
