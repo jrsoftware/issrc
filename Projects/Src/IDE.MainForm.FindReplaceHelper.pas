@@ -83,7 +83,7 @@ begin
   FindDialog.Execute;
   if DoHook then begin
     SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, GetWindowLong(FindDialog.Handle, GWL_WNDPROC));
-    SetWindowLong(FindDialog.Handle, GWL_WNDPROC, IntPtr(@FindReplaceWndProc));
+    SetWindowLongPtr(FindDialog.Handle, GWL_WNDPROC, LONG_PTR(@FindReplaceWndProc));
   end;
 end;
 
