@@ -336,7 +336,8 @@ begin
     WM_COPYDATA:
       begin
         try
-          case TWMCopyData(Message).CopyDataStruct.dwData of
+          const CopyDataMsg = DWORD(TWMCopyData(Message).CopyDataStruct.dwData);
+          case CopyDataMsg of
             CD_SpawnServer_Exec,
             CD_SpawnServer_ShellExec:
               begin
@@ -359,7 +360,8 @@ begin
         Res := SPAWN_MSGRESULT_INVALID_SEQUENCE_NUMBER;
         if Message.LParam = FSequenceNumber then begin
           Res := SPAWN_MSGRESULT_INVALID_QUERY_OPERATION;
-          case Message.WParam of
+          const Operation = Integer(Message.WParam);
+          case Operation of
             SPAWN_QUERY_STATUS:
               Res := SPAWN_MSGRESULT_SUCCESS_BITS or FCallStatus;
             SPAWN_QUERY_RESULTCODE_LO:
@@ -375,7 +377,7 @@ begin
         if Message.WParam = 10000 then
           FNotifyRestartRequested := True
         else if Message.WParam = 10001 then
-          FNotifyNewLanguage := Message.LParam;
+          FNotifyNewLanguage := Integer(Message.LParam);
       end;
   else
     Message.Result := DefWindowProc(FWnd, Message.Msg, Message.WParam,

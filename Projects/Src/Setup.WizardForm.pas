@@ -234,7 +234,7 @@ type
     procedure GroupTreeRename(Sender: TCustomFolderTreeView; var NewName: string; var Accept: Boolean);
     procedure IncTopDecHeight(const AControl: TControl; const Amount: Integer);
     function PageFromID(const ID: Integer): TWizardPage;
-    function PageIndexFromID(const ID: Integer): Integer;
+    function PageIndexFromID(const ID: Integer): NativeInt;
     procedure SetCurPage(const NewPageID: Integer);
     procedure SelectComponents(const ASelectComponents: TStringList); overload;
     procedure SelectTasks(const ASelectTasks: TStringList); overload;
@@ -743,7 +743,7 @@ var
   X, W1, W2: Integer;
   SystemMenu: HMENU;
   P: String;
-  I, DefaultSetupTypeIndex: Integer;
+  I: Integer;
   IgnoreInitComponents: Boolean;
   TypeEntry: PSetupTypeEntry;
   ComponentEntry: PSetupComponentEntry;
@@ -1124,7 +1124,7 @@ begin
     ((SetupHeader.DisableDirPage = dpAuto) and (PrevAppDir <> ''));
   DisableProgramGroupPage := (SetupHeader.DisableProgramGroupPage = dpYes) or
     ((SetupHeader.DisableProgramGroupPage = dpAuto) and (PrevGroup <> ''));
-  DefaultSetupTypeIndex := -1; //assigned later
+  var DefaultSetupTypeIndex: NativeInt := -1; //assigned later
   IgnoreInitComponents := False;
 
   { Assign default user name & organization on User Info page }
@@ -1187,7 +1187,7 @@ begin
     end;
     //now assign default type
     if DefaultSetupTypeIndex <> -1 then
-      TypesCombo.ItemIndex := DefaultSetupTypeIndex
+      TypesCombo.ItemIndex := Integer(DefaultSetupTypeIndex)
     else
       TypesCombo.ItemIndex := 0;
   end;
@@ -1214,7 +1214,7 @@ begin
     for var J := 0 to Entries[seType].Count-1 do begin
       TypeEntry := PSetupTypeEntry(Entries[seType][J]);
       if toIsCustom in TypeEntry.Options then begin
-        TypesCombo.ItemIndex := J;
+        TypesCombo.ItemIndex := Integer(J);
         SelectComponentsFromType(TypeEntry.Name, True);
         SelectComponents(InitComponents, nil, True);
         Break;
@@ -1339,7 +1339,7 @@ begin
   inherited;
 end;
 
-function TWizardForm.PageIndexFromID(const ID: Integer): Integer;
+function TWizardForm.PageIndexFromID(const ID: Integer): NativeInt;
 { Given a page ID, returns the index of the page in FPageList. An exception is
   raised if a page with the specified ID is not found. }
 begin
@@ -1378,10 +1378,8 @@ procedure TWizardForm.AddPage(const APage: TWizardPage; const AfterID: Integer);
 { Adds a new wizard page entry in FPageList, and an associated page in
   InnerNotebook. AfterID specifies where the page should be inserted, or -1
   which inserts the page at the end. }
-var
-  InsertIndex: Integer;
-  NotebookPage: TNewNotebookPage;
 begin
+  var InsertIndex: NativeInt;
   if AfterID <> -1 then
     InsertIndex := PageIndexFromID(AfterID) + 1
   else
@@ -1392,7 +1390,7 @@ begin
   if FNextPageID = 1 then
     FNextPageID := 100;
 
-  NotebookPage := TNewNotebookPage.Create(APage);
+  const NotebookPage = TNewNotebookPage.Create(APage);
   { Set CurrentPPI of the page to the CurrentPPI of the notebook, preventing VCL from scaling
     controls placed on the page. Also see TSetupForm.CreateWnd.  }
   NotebookPage.SetCurrentPPI(InnerNotebook.CurrentPPI);
@@ -1630,22 +1628,22 @@ begin
     if not (KeepFixedComponents and (coFixed in ComponentEntry.Options)) then begin
       if SelectComponents <> nil then begin
         if ListContains(SelectComponents, '*' + ComponentEntry.Name) then begin
-          ComponentsList.CheckItem(I, coCheckWithChildren);
+          ComponentsList.CheckItem(Integer(I), coCheckWithChildren);
           Continue;
         end;
         if ListContains(SelectComponents, ComponentEntry.Name) then begin
-          ComponentsList.Checked[I] := True;
+          ComponentsList.Checked[Integer(I)] := True;
           Continue;
         end;
         if ListContains(SelectComponents, '!' + ComponentEntry.Name) then begin
-          ComponentsList.Checked[I] := False;
+          ComponentsList.Checked[Integer(I)] := False;
           Continue;
         end;
       end;
 
       if DeselectComponents <> nil then begin
         if ListContains(DeselectComponents, ComponentEntry.Name) then
-          ComponentsList.Checked[I] := False;
+          ComponentsList.Checked[Integer(I)] := False;
       end;
     end;
   end;
@@ -1700,7 +1698,7 @@ begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if not OnlySelectFixedComponents or (coFixed in ComponentEntry.Options) then begin
       SetStringsFromCommaString(ComponentTypes, ComponentEntry.Types);
-      ComponentsList.Checked[I] := ListContains(ComponentTypes, TypeName);
+      ComponentsList.Checked[Integer(I)] := ListContains(ComponentTypes, TypeName);
     end;
   end;
   ComponentTypes.Free();
@@ -2273,11 +2271,9 @@ end;
 function TWizardForm.GetPreviousPageID: Integer;
 { Finds ID of previous page (not counting skipped pages), or -1 if there is
   no previous page to return to. }
-var
-  CurPageIndex, I: Integer;
 begin
-  CurPageIndex := PageIndexFromID(CurPageID);
-  for I := CurPageIndex-1 downto 0 do begin
+  var CurPageIndex := PageIndexFromID(CurPageID);
+  for var I := CurPageIndex-1 downto 0 do begin
     Result := TWizardPage(FPageList[I]).ID;
     { Never go back to wpInstalling }
     if Result = wpInstalling then
@@ -2289,13 +2285,9 @@ begin
 end;
 
 procedure TWizardForm.UpdateCurPageButtonState;
-var
-  PageIndex: Integer;
-  Page: TWizardPage;
-  Flags: UINT;
 begin
-  PageIndex := PageIndexFromID(CurPageID);
-  Page := FPageList[PageIndex];
+  var PageIndex := PageIndexFromID(CurPageID);
+  var Page: TWizardPage := FPageList[PageIndex];
 
   if not(psNoButtons in Page.Style) then begin
     BackButton.Visible := (CurPageID <> wpInstalling) and (GetPreviousPageID <> -1);
@@ -2317,6 +2309,7 @@ begin
     CancelButton.Visible := False;
   end;
   { Set the enabled state of the close button to match the Cancel button }
+  var Flags: UINT;
   if CancelButton.CanFocus then
     Flags := 0
   else
@@ -2592,7 +2585,6 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   end;
 
 var
-  PageIndex: Integer;
   Continue: Boolean;
   NewPageID: Integer;
   WizardComponents, WizardTasks: TStringList;
@@ -2623,7 +2615,7 @@ begin
   { Go to the next page, or close wizard if it was on the last page }
   Again:
   NewPageID := CurPageID;
-  PageIndex := PageIndexFromID(NewPageID);
+  var PageIndex := PageIndexFromID(NewPageID);
   repeat
     case NewPageID of
       wpUserInfo: begin

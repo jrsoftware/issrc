@@ -21,8 +21,8 @@ type
   private
     FActivePage: TNewNotebookPage;
     FPages: TList;
-    function GetPage(Index: Integer): TNewNotebookPage;
-    function GetPageCount: Integer;
+    function GetPage(Index: NativeInt): TNewNotebookPage;
+    function GetPageCount: NativeInt;
     procedure InsertPage(Page: TNewNotebookPage);
     procedure RemovePage(Page: TNewNotebookPage);
     procedure SetActivePage(Page: TNewNotebookPage);
@@ -35,8 +35,8 @@ type
     destructor Destroy; override;
     function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage;
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
-    property PageCount: Integer read GetPageCount;
-    property Pages[Index: Integer]: TNewNotebookPage read GetPage;
+    property PageCount: NativeInt read GetPageCount;
+    property Pages[Index: NativeInt]: TNewNotebookPage read GetPage;
   published
     property ActivePage: TNewNotebookPage read FActivePage write SetActivePage;
     property Align;
@@ -69,9 +69,9 @@ type
   TNewNotebookPage = class(TCustomControl)
   private
     FNotebook: TNewNotebook;
-    function GetPageIndex: Integer;
+    function GetPageIndex: NativeInt;
     procedure SetNotebook(ANotebook: TNewNotebook);
-    procedure SetPageIndex(Value: Integer);
+    procedure SetPageIndex(Value: NativeInt);
   protected
     procedure Paint; override;
     procedure ReadState(Reader: TReader); override;
@@ -86,7 +86,7 @@ type
     property Font;
     property Height stored False;
     property Left stored False;
-    property PageIndex: Integer read GetPageIndex write SetPageIndex stored False;
+    property PageIndex: NativeInt read GetPageIndex write SetPageIndex stored False;
     property ParentBackground;
     property ParentColor;
     property ParentFont;
@@ -129,7 +129,7 @@ begin
   inherited;
 end;
 
-function TNewNotebookPage.GetPageIndex: Integer;
+function TNewNotebookPage.GetPageIndex: NativeInt;
 begin
   if Assigned(FNotebook) then
     Result := FNotebook.FPages.IndexOf(Self)
@@ -165,7 +165,7 @@ begin
   end;
 end;
 
-procedure TNewNotebookPage.SetPageIndex(Value: Integer);
+procedure TNewNotebookPage.SetPageIndex(Value: NativeInt);
 begin
   if Assigned(FNotebook) then begin
     if Value >= FNotebook.FPages.Count then
@@ -259,12 +259,12 @@ begin
     Proc(TNewNotebookPage(FPages[I]));
 end;
 
-function TNewNotebook.GetPage(Index: Integer): TNewNotebookPage;
+function TNewNotebook.GetPage(Index: NativeInt): TNewNotebookPage;
 begin
   Result := FPages[Index];
 end;
 
-function TNewNotebook.GetPageCount: Integer;
+function TNewNotebook.GetPageCount: NativeInt;
 begin
   Result := FPages.Count;
 end;

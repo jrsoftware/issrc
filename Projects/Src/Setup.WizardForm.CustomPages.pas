@@ -25,18 +25,18 @@ type
       FPromptLabels: TList<TNewStaticText>;
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
-      function GetEdit(Index: Integer): TPasswordEdit;
-      function GetPromptLabel(Index: Integer): TNewStaticText;
-      function GetValue(Index: Integer): String;
-      procedure SetValue(Index: Integer; const Value: String);
+      function GetEdit(Index: NativeInt): TPasswordEdit;
+      function GetPromptLabel(Index: NativeInt): TNewStaticText;
+      function GetValue(Index: NativeInt): String;
+      procedure SetValue(Index: NativeInt; const Value: String);
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
-      function Add(const APrompt: String; const APassword: Boolean): Integer;
-      property Edits[Index: Integer]: TPasswordEdit read GetEdit;
+      function Add(const APrompt: String; const APassword: Boolean): NativeInt;
+      property Edits[Index: NativeInt]: TPasswordEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
-      property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property Values[Index: Integer]: String read GetValue write SetValue;
+      property PromptLabels[Index: NativeInt]: TNewStaticText read GetPromptLabel;
+      property Values[Index: NativeInt]: String read GetValue write SetValue;
     published
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
@@ -71,23 +71,23 @@ type
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
       procedure ButtonClick(Sender: TObject);
-      function GetButton(Index: Integer): TNewButton;
-      function GetEdit(Index: Integer): TNewPathEdit;
-      function GetPromptLabel(Index: Integer): TNewStaticText;
-      function GetValue(Index: Integer): String;
-      procedure SetValue(Index: Integer; const Value: String);
+      function GetButton(Index: NativeInt): TNewButton;
+      function GetEdit(Index: NativeInt): TNewPathEdit;
+      function GetPromptLabel(Index: NativeInt): TNewStaticText;
+      function GetValue(Index: NativeInt): String;
+      procedure SetValue(Index: NativeInt; const Value: String);
     protected
       procedure NextButtonClick(var Continue: Boolean); override;
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
-      function Add(const APrompt: String): Integer;
-      property Buttons[Index: Integer]: TNewButton read GetButton;
-      property Edits[Index: Integer]: TNewPathEdit read GetEdit;
+      function Add(const APrompt: String): NativeInt;
+      property Buttons[Index: NativeInt]: TNewButton read GetButton;
+      property Edits[Index: NativeInt]: TNewPathEdit read GetEdit;
       procedure Initialize(const SubCaption: String; const AppendDir: Boolean;
         const NewFolderName: String);
-      property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property Values[Index: Integer]: String read GetValue write SetValue;
+      property PromptLabels[Index: NativeInt]: TNewStaticText read GetPromptLabel;
+      property Values[Index: NativeInt]: String read GetValue write SetValue;
     published
       property NewFolderName: String read FNewFolderName write FNewFolderName;
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
@@ -103,23 +103,23 @@ type
       FSubCaptionLabel: TNewStaticText;
       FY: Integer;
       procedure ButtonClick(Sender: TObject);
-      function GetButton(Index: Integer): TNewButton;
-      function GetEdit(Index: Integer): TNewPathEdit;
-      function GetPromptLabel(Index: Integer): TNewStaticText;
-      function GetValue(Index: Integer): String;
-      procedure SetValue(Index: Integer; const Value: String);
-      function GetIsSaveButton(Index: Integer): Boolean;
-      procedure SetIsSaveButton(Index: Integer; const IsSaveButton: Boolean);
+      function GetButton(Index: NativeInt): TNewButton;
+      function GetEdit(Index: NativeInt): TNewPathEdit;
+      function GetPromptLabel(Index: NativeInt): TNewStaticText;
+      function GetValue(Index: NativeInt): String;
+      procedure SetValue(Index: NativeInt; const Value: String);
+      function GetIsSaveButton(Index: NativeInt): Boolean;
+      procedure SetIsSaveButton(Index: NativeInt; const IsSaveButton: Boolean);
     public
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
-      function Add(const APrompt, AFilter, ADefaultExtension: String): Integer;
-      property Buttons[Index: Integer]: TNewButton read GetButton;
-      property Edits[Index: Integer]: TNewPathEdit read GetEdit;
+      function Add(const APrompt, AFilter, ADefaultExtension: String): NativeInt;
+      property Buttons[Index: NativeInt]: TNewButton read GetButton;
+      property Edits[Index: NativeInt]: TNewPathEdit read GetEdit;
       procedure Initialize(const SubCaption: String);
-      property PromptLabels[Index: Integer]: TNewStaticText read GetPromptLabel;
-      property Values[Index: Integer]: String read GetValue write SetValue;
-      property IsSaveButton[Index: Integer]: Boolean read GetIsSaveButton write SetIsSaveButton;
+      property PromptLabels[Index: NativeInt]: TNewStaticText read GetPromptLabel;
+      property Values[Index: NativeInt]: String read GetValue write SetValue;
+      property IsSaveButton[Index: NativeInt]: Boolean read GetIsSaveButton write SetIsSaveButton;
     published
       property SubCaptionLabel: TNewStaticText read FSubCaptionLabel;
   end;
@@ -195,7 +195,7 @@ type
       FLastBaseNameOrUrl: String;
       function DoAdd(const Url, BaseName, RequiredSHA256OfFile: String;
         const UserName, Password: String; const ISSigVerify: Boolean;
-        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeInt): Integer;
+        const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean; const Data: NativeInt): NativeInt;
       procedure AbortButtonClick(Sender: TObject);
       function InternalOnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
       function InternalOnDownloadNoProgress: Boolean;
@@ -205,15 +205,15 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+      function Add(const Url, BaseName, RequiredSHA256OfFile: String): NativeInt;
       function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
-        const AllowedKeysRuntimeIDs: TStringList): Integer;
+        const AllowedKeysRuntimeIDs: TStringList): NativeInt;
       function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-        const Data: NativeInt): Integer;
+        const Data: NativeInt): NativeInt;
       function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
-        const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): Integer; overload;
+        const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): NativeInt; overload;
       function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String;
-        const ISSigAllowedKeys: AnsiString; const Data: NativeInt): Integer; overload;
+        const ISSigAllowedKeys: AnsiString; const Data: NativeInt): NativeInt; overload;
       procedure Clear;
       function Download(const OnDownloadFileCompleted: TDownloadFileCompleted): Int64;
       property OnDownloadProgress: TOnDownloadProgress write FOnDownloadProgress;
@@ -247,8 +247,8 @@ type
       constructor Create(AOwner: TComponent); override;
       destructor Destroy; override;
       procedure Initialize; override;
-      function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
-      function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
+      function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): NativeInt;
+      function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): NativeInt;
       procedure Clear;
       procedure Extract;
       property OnExtractionProgress: TOnExtractionProgress write FOnExtractionProgress;
@@ -323,7 +323,7 @@ begin
 end;
 
 function TInputQueryWizardPage.Add(const APrompt: String;
-  const APassword: Boolean): Integer;
+  const APassword: Boolean): NativeInt;
 begin
   var PromptLabel: TNewStaticText;
   if APrompt <> '' then begin
@@ -357,22 +357,22 @@ begin
   Result := FEdits.Add(Edit);
 end;
 
-function TInputQueryWizardPage.GetEdit(Index: Integer): TPasswordEdit;
+function TInputQueryWizardPage.GetEdit(Index: NativeInt): TPasswordEdit;
 begin
   Result := FEdits[Index];
 end;
 
-function TInputQueryWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
+function TInputQueryWizardPage.GetPromptLabel(Index: NativeInt): TNewStaticText;
 begin
   Result := FPromptLabels[Index];
 end;
 
-function TInputQueryWizardPage.GetValue(Index: Integer): String;
+function TInputQueryWizardPage.GetValue(Index: NativeInt): String;
 begin
   Result := GetEdit(Index).Text;
 end;
 
-procedure TInputQueryWizardPage.SetValue(Index: Integer; const Value: String);
+procedure TInputQueryWizardPage.SetValue(Index: NativeInt; const Value: String);
 begin
   GetEdit(Index).Text := Value;
 end;
@@ -516,7 +516,7 @@ begin
   FNewFolderName := NewFolderName;
 end;
 
-function TInputDirWizardPage.Add(const APrompt: String): Integer;
+function TInputDirWizardPage.Add(const APrompt: String): NativeInt;
 begin
   const ButtonWidth = WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
@@ -567,27 +567,27 @@ begin
   Result := FEdits.Add(Edit);
 end;
 
-function TInputDirWizardPage.GetButton(Index: Integer): TNewButton;
+function TInputDirWizardPage.GetButton(Index: NativeInt): TNewButton;
 begin
   Result := FButtons[Index];
 end;
 
-function TInputDirWizardPage.GetEdit(Index: Integer): TNewPathEdit;
+function TInputDirWizardPage.GetEdit(Index: NativeInt): TNewPathEdit;
 begin
   Result := FEdits[Index];
 end;
 
-function TInputDirWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
+function TInputDirWizardPage.GetPromptLabel(Index: NativeInt): TNewStaticText;
 begin
   Result := FPromptLabels[Index];
 end;
 
-function TInputDirWizardPage.GetValue(Index: Integer): String;
+function TInputDirWizardPage.GetValue(Index: NativeInt): String;
 begin
   Result := GetEdit(Index).Text;
 end;
 
-procedure TInputDirWizardPage.SetValue(Index: Integer; const Value: String);
+procedure TInputDirWizardPage.SetValue(Index: NativeInt; const Value: String);
 begin
   GetEdit(Index).Text := RemoveBackslashUnlessRoot(PathExpand(Value));
 end;
@@ -617,7 +617,9 @@ end;
 procedure TInputFileWizardPage.ButtonClick(Sender: TObject);
 begin
   if Sender is TNewButton then begin
-    const I = FButtons.IndexOf(Sender as TNewButton);
+    { Casting to Integer because TStringList is used below, and TStringList
+      indexes are still Integer in 64-bit (unlike TList, which uses NativeInt) }
+    const I = Integer(FButtons.IndexOf(Sender as TNewButton));
     if I <> -1 then begin
       const Edit = FEdits[I];
       var FileName: String := Edit.Text;
@@ -647,7 +649,7 @@ begin
 end;
 
 function TInputFileWizardPage.Add(const APrompt, AFilter,
-  ADefaultExtension: String): Integer;
+  ADefaultExtension: String): NativeInt;
 begin
   const ButtonWidth = WizardForm.CalculateButtonWidth([SetupMessages[msgButtonWizardBrowse]]);
 
@@ -700,37 +702,37 @@ begin
   Result := FEdits.Add(Edit);
 end;
 
-function TInputFileWizardPage.GetButton(Index: Integer): TNewButton;
+function TInputFileWizardPage.GetButton(Index: NativeInt): TNewButton;
 begin
   Result := FButtons[Index];
 end;
 
-function TInputFileWizardPage.GetEdit(Index: Integer): TNewPathEdit;
+function TInputFileWizardPage.GetEdit(Index: NativeInt): TNewPathEdit;
 begin
   Result := FEdits[Index];
 end;
 
-function TInputFileWizardPage.GetPromptLabel(Index: Integer): TNewStaticText;
+function TInputFileWizardPage.GetPromptLabel(Index: NativeInt): TNewStaticText;
 begin
   Result := FPromptLabels[Index];
 end;
 
-function TInputFileWizardPage.GetValue(Index: Integer): String;
+function TInputFileWizardPage.GetValue(Index: NativeInt): String;
 begin
   Result := GetEdit(Index).Text;
 end;
 
-procedure TInputFileWizardPage.SetValue(Index: Integer; const Value: String);
+procedure TInputFileWizardPage.SetValue(Index: NativeInt; const Value: String);
 begin
   GetEdit(Index).Text := Value;
 end;
 
-function TInputFileWizardPage.GetIsSaveButton(Index: Integer): Boolean;
+function TInputFileWizardPage.GetIsSaveButton(Index: NativeInt): Boolean;
 begin
   Result := GetButton(Index).Tag = 1;
 end;
 
-procedure TInputFileWizardPage.SetIsSaveButton(Index: Integer; const IsSaveButton: Boolean);
+procedure TInputFileWizardPage.SetIsSaveButton(Index: NativeInt; const IsSaveButton: Boolean);
 begin
   if IsSaveButton then
     GetButton(Index).Tag := 1
@@ -1047,7 +1049,7 @@ end;
 
 function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
   const ISSigVerify: Boolean; const ISSigAllowedKeys: AnsiString; const DotISSigEntry: Boolean;
-  const Data: NativeInt): Integer;
+  const Data: NativeInt): NativeInt;
 begin
   if ISSigVerify and DotISSigEntry then
     InternalError('ISSigVerify and DotISSigEntry');
@@ -1081,7 +1083,7 @@ begin
       for var KeyIndex := 0 to Entries[seISSigKey].Count-1 do begin
         var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][KeyIndex]);
         if SameText(ISSigKeyEntry.RuntimeID, RuntimeID) then begin
-          SetISSigAllowedKey(Result, KeyIndex);
+          SetISSigAllowedKey(Result, Integer(KeyIndex));
           Found := True;
           Break;
         end;
@@ -1092,32 +1094,32 @@ begin
   end;
 end;
 
-function TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
+function TDownloadWizardPage.Add(const Url, BaseName, RequiredSHA256OfFile: String): NativeInt;
 begin
   Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, '', '', False, '', False, 0);
 end;
 
 function TDownloadWizardPage.AddWithISSigVerify(const Url, ISSigUrl, BaseName: String;
-  const AllowedKeysRuntimeIDs: TStringList): Integer;
+  const AllowedKeysRuntimeIDs: TStringList): NativeInt;
 begin
   Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, '', '', AllowedKeysRuntimeIDs, 0);
 end;
 
 function TDownloadWizardPage.AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String;
-  const Data: NativeInt): Integer;
+  const Data: NativeInt): NativeInt;
 begin
   Result := DoAdd(Url, BaseName, RequiredSHA256OfFile, UserName, Password, False, '', False, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
-  Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): Integer;
+  Password: String; const AllowedKeysRuntimeIDs: TStringList; const Data: NativeInt): NativeInt;
 begin
   const ISSigAllowedKeys = ConvertAllowedKeysRuntimeIDsToISSigAllowedKeys(AllowedKeysRuntimeIDs);
   Result := AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName, Password, ISSigAllowedKeys, Data);
 end;
 
 function TDownloadWizardPage.AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName,
-  Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeInt): Integer;
+  Password: String; const ISSigAllowedKeys: AnsiString; const Data: NativeInt): NativeInt;
 begin
   { Also see Setup.ScriptFunc DownloadTemporaryFileWithISSigVerify }
   DoAdd(GetISSigUrl(Url, ISSigUrl), BaseName + ISSigExt, '', UserName, Password, False, '', True, 0);
@@ -1256,12 +1258,12 @@ begin
   FProgressBar.Visible := AVisible;
 end;
 
-function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
+function TExtractionWizardPage.Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): NativeInt;
 begin
   Result := AddEx(ArchiveFileName, DestDir, '', FullPaths);
 end;
 
-function TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
+function TExtractionWizardPage.AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): NativeInt;
 begin
   const A = TArchive.Create;
   A.FileName := ArchiveFileName;

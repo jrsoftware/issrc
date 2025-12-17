@@ -330,7 +330,7 @@ begin
     SetLength(Result, NAvailable);
     var NAdded := 0;
     for var KeyIndex := 0 to NAvailable-1 do begin
-      if IsISSigAllowedKey(ISSigAllowedKeys, KeyIndex) then begin
+      if IsISSigAllowedKey(ISSigAllowedKeys, Integer(KeyIndex)) then begin
         Result[NAdded] := ISSigAvailableKeys[KeyIndex];
         Inc(NAdded);
       end;

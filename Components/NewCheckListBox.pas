@@ -1665,7 +1665,7 @@ begin
   if ItemStates[Index].SubItem <> ASubItem then
   begin
     ItemStates[Index].SubItem := ASubItem;
-    OldHeight := SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0);
+    OldHeight := Integer(SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0));
     NewHeight := RemeasureItem(Index);
     R := ItemRect(Index);
     { Scroll subsequent items down or up, if necessary }

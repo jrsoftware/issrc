@@ -420,12 +420,12 @@ end;
 
 function TNewProgressBarStyleHook.GetMax: Integer;
 begin
-  Result := SendMessage(Handle, PBM_GetRange, 0, 0);
+  Result := Integer(SendMessage(Handle, PBM_GetRange, 0, 0));
 end;
 
 function TNewProgressBarStyleHook.GetMin: Integer;
 begin
-  Result := SendMessage(Handle, PBM_GetRange, 1, 0);
+  Result := Integer(SendMessage(Handle, PBM_GetRange, 1, 0));
 end;
 
 function TNewProgressBarStyleHook.GetOrientation: TProgressBarOrientation;
@@ -437,7 +437,7 @@ end;
 
 function TNewProgressBarStyleHook.GetPosition: Integer;
 begin
-  Result := SendMessage(Handle, PBM_GETPOS, 0, 0);
+  Result := Integer(SendMessage(Handle, PBM_GETPOS, 0, 0));
 end;
 
 function TNewProgressBarStyleHook.GetBorderWidth: Integer;

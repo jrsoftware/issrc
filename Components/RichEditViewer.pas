@@ -383,14 +383,12 @@ begin
 end;
 
 procedure TRichEditViewer.CreateWnd;
-var
-  Mask: LongInt;
 begin
   inherited;
   UpdateBackgroundColor;
   if FUseRichEdit then begin
     if RichEditVersion >= 2 then begin
-      Mask := ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
+      const Mask = ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
       SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
       SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
     end;

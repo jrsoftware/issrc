@@ -173,7 +173,7 @@ function CodeRunnerOnDebugIntermediate(const Position: LongInt;
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
 procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
 procedure CreateTempInstallDirAndExtract64BitHelper;
-procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
+procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
 procedure DeleteResidualTempUninstallDirs;
 function ExitSetupMsgBox: Boolean;
@@ -411,7 +411,7 @@ begin
   if PrevLang <> '' then begin
     for var I := 0 to Entries[seLanguage].Count-1 do begin
       if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
-        Result := I;
+        Result := Integer(I);
         Exit;
       end;
     end;
@@ -2311,7 +2311,7 @@ begin
   end;
 end;
 
-procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
+procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 var
   Kind: TDebugEntryKind;
   B: Boolean;

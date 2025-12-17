@@ -231,7 +231,8 @@ begin
           SetForegroundWindow(HWND(Message.WParam));
         end;
       WM_COPYDATA: begin
-          case TWMCopyData(Message).CopyDataStruct.dwData of
+          const CopyDataMsg = DWORD(TWMCopyData(Message).CopyDataStruct.dwData);
+          case CopyDataMsg of
             CD_DebugClient_EvaluateConstantW: begin
                 try
                   SetString(EvaluateExp, PChar(TWMCopyData(Message).CopyDataStruct.lpData),
