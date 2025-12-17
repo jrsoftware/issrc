@@ -59,15 +59,12 @@ var
 
 {$DEFINE VISUALSTUDIO}
 
-function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; {$IFNDEF WIN64} cdecl; external name '_IS_7zDec'; {$ELSE} external name 'IS_7zDec'; {$ENDIF}
+function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name {$IFNDEF WIN64} '_IS_7zDec' {$ELSE} 'IS_7zDec'; {$ENDIF}
 
-{$IFNDEF WIN64}
-function __CreateDirectoryW(lpPathName: LPCWSTR;
+
+function {$IFNDEF WIN64} __CreateDirectoryW {$ELSE} _CreateDirectoryW {$ENDIF}(
+  lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
-{$ELSE}
-function _CreateDirectoryW(lpPathName: LPCWSTR;
-  lpSecurityAttributes: PSecurityAttributes): BOOL;
-{$ENDIF}
 begin
   var ExpandedDir: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
@@ -79,15 +76,10 @@ begin
 end;
 
 { Never actually called but still required by the linker }
-{$IFNDEF WIN64}
-function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
+function {$IFNDEF WIN64} __CreateFileA {$ELSE} _CreateFileA {$ENDIF}(
+  lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
-{$ELSE}
-function _CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
-  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
-  hTemplateFile: THandle): THandle;
-{$ENDIF}
 begin
   { Return an error if we do ever get called which is unwanted because it should
     use CreateFileW and not CreateFileA }
@@ -95,15 +87,10 @@ begin
   SetLastError(ERROR_INVALID_FUNCTION);
 end;
 
-{$IFNDEF WIN64}
-function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
+function {$IFNDEF WIN64} __CreateFileW {$ELSE} _CreateFileW {$ENDIF}(
+  lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
-{$ELSE}
-function _CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
-  lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
-  hTemplateFile: THandle): THandle;
-{$ENDIF}
 begin
   { Filenames read from archives aren't validated at all by the SDK's 7zMain.c,
     so we have to handle that ourself. Most importantly, we need to make sure a
@@ -125,41 +112,28 @@ end;
 
 {$IFDEF VISUALSTUDIO}
 
-{$IFNDEF WIN64}
-function __FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
-{$ELSE}
-function _FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL;
-{$ENDIF}
+function {$IFNDEF WIN64} __FileTimeToLocalFileTime {$ELSE} _FileTimeToLocalFileTime {$ENDIF}(
+  lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
 begin
   Result := FileTimeToLocalFileTime(lpFileTime, lpLocalFileTime);
 end;
 
 { Never actually called but still required by the linker }
-{$IFNDEF WIN64}
-function __GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
-{$ELSE}
-function _GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD;
-{$ENDIF}
+function {$IFNDEF WIN64} __GetFileSize {$ELSE} _GetFileSize {$ENDIF}(
+  hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
 begin
   Result := GetFileSize(hFile, lpFileSizeHigh);
 end;
 
-{$IFNDEF WIN64}
-function __ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
+function {$IFNDEF WIN64} __ReadFile {$ELSE} _ReadFile {$ENDIF}(
+  hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
   var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
-{$ELSE}
-function _ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
-  var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL;
-{$ENDIF}
 begin
   Result := ReadFile(hFile, Buffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 end;
 
-{$IFNDEF WIN64}
-function __GetFileAttributesW(lpFileName: LPCWSTR): DWORD; cdecl;
-{$ELSE}
-function _GetFileAttributesW(lpFileName: LPCWSTR): DWORD;
-{$ENDIF}
+function {$IFNDEF WIN64} __GetFileAttributesW {$ELSE} _GetFileAttributesW {$ENDIF}(
+  lpFileName: LPCWSTR): DWORD; cdecl;
 begin
   { See above }
   var ExpandedFileName: String;
@@ -171,11 +145,8 @@ begin
   end;
 end;
 
-{$IFNDEF WIN64}
-function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
-{$ELSE}
-function _SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL;
-{$ENDIF}
+function {$IFNDEF WIN64} __SetFileAttributesW {$ELSE} _SetFileAttributesW {$ENDIF}(
+  lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
   { See above }
   var ExpandedFileName: String;
@@ -187,86 +158,54 @@ begin
   end;
 end;
 
-{$IFNDEF WIN64}
-function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
+function {$IFNDEF WIN64} __SetFilePointer {$ELSE} _SetFilePointer {$ENDIF}(
+  hFile: THandle; lDistanceToMove: Longint;
   lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD; cdecl;
-{$ELSE}
-function _SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
-  lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD;
-{$ENDIF}
 begin
   Result := SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
 end;
 
-{$IFNDEF WIN64}
-function __SetFileTime(hFile: THandle;
+function {$IFNDEF WIN64} __SetFileTime {$ELSE} _SetFileTime {$ENDIF}(
+  hFile: THandle;
   lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL; cdecl;
-{$ELSE}
-function _SetFileTime(hFile: THandle;
-  lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL;
-{$ENDIF}
 begin
   Result := SetFileTime(hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
 end;
 
-{$IFNDEF WIN64}
-function __WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
+function {$IFNDEF WIN64} __WriteFile {$ELSE} _WriteFile {$ENDIF}(
+  hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
   var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
-{$ELSE}
-function _WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
-  var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL;
-{$ENDIF}
 begin
   Result := WriteFile(hFile, Buffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 end;
 
-{$IFNDEF WIN64}
-function __CloseHandle(hObject: THandle): BOOL; cdecl;
-{$ELSE}
-function _CloseHandle(hObject: THandle): BOOL;
-{$ENDIF}
+function {$IFNDEF WIN64} __CloseHandle {$ELSE} _CloseHandle {$ENDIF}(
+  hObject: THandle): BOOL; cdecl;
 begin
   Result := CloseHandle(hObject);
 end;
 
-{$IFNDEF WIN64}
-function __GetLastError: DWORD; cdecl;
-{$ELSE}
-function _GetLastError: DWORD;
-{$ENDIF}
+function {$IFNDEF WIN64} __GetLastError {$ELSE} _GetLastError {$ENDIF}: DWORD; cdecl;
 begin
   Result := GetLastError;
 end;
 
-{$IFNDEF WIN64}
-function __LocalFree(hMem: HLOCAL): HLOCAL; cdecl;
-{$ELSE}
-function _LocalFree(hMem: HLOCAL): HLOCAL;
-{$ENDIF}
+function {$IFNDEF WIN64} __LocalFree {$ELSE} _LocalFree {$ENDIF}(
+  hMem: HLOCAL): HLOCAL; cdecl;
 begin
   Result := LocalFree(hMem);
 end;
 
-{$IFNDEF WIN64}
-function __FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
+function {$IFNDEF WIN64} __FormatMessageA {$ELSE} _FormatMessageA {$ENDIF}(
+  dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
   lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD; cdecl;
-{$ELSE}
-function _FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
-  lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD;
-{$ENDIF}
 begin
   Result := FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, Arguments);
 end;
 
-{$IFNDEF WIN64}
-function __WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
-  lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
+function {$IFNDEF WIN64} __WideCharToMultiByte {$ELSE} _WideCharToMultiByte {$ENDIF}(
+  CodePage: UINT; dwFlags: DWORD; lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
   cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer; cdecl;
-{$ELSE}
-function _WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
-  lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
-  cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer;
-{$ENDIF}
 begin
   Result := WideCharToMultiByte(CodePage, dwFlags, lpWideCharStr, cchWideChar, lpMultiByteStr, cchMultiByte, lpDefaultChar, lpUsedDefaultChar);
 end;
@@ -281,31 +220,22 @@ procedure __aullrem; stdcall; external 'ntdll.dll' name '_aullrem';
 procedure __aulldiv; stdcall; external 'ntdll.dll' name '_aulldiv';
 {$ENDIF}
 
-{$IFNDEF WIN64}
-function _memcpy(dest, src: Pointer; n: NativeUInt): Pointer; cdecl;
-{$ELSE}
-function memcpy(dest, src: Pointer; n: NativeUInt): Pointer;
-{$ENDIF}
+function {$IFNDEF WIN64} _memcpy {$ELSE} memcpy {$ENDIF}(
+  dest, src: Pointer; n: NativeUInt): Pointer; cdecl;
 begin
   UMove(src^, dest^, n);
   Result := dest;
 end;
 
-{$IFNDEF WIN64}
-function _memset(dest: Pointer; c: Integer; n: NativeUInt): Pointer; cdecl;
-{$ELSE}
-function memset(dest: Pointer; c: Integer; n: NativeUInt): Pointer;
-{$ENDIF}
+function {$IFNDEF WIN64} _memset {$ELSE} memset {$ENDIF}(
+  dest: Pointer; c: Integer; n: NativeUInt): Pointer; cdecl;
 begin
   UFillChar(dest^, n, c);
   Result := dest;
 end;
 
-{$IFNDEF WIN64}
-function _malloc(size: NativeUInt): Pointer; cdecl;
-{$ELSE}
-function malloc(size: NativeUInt): Pointer;
-{$ENDIF}
+function {$IFNDEF WIN64} _malloc {$ELSE} malloc {$ENDIF}(
+  size: NativeUInt): Pointer; cdecl;
 begin
   if size > NativeUInt(High(NativeInt)) then
     Result := nil
@@ -319,20 +249,13 @@ begin
   end;
 end;
 
-{$IFNDEF WIN64}
-procedure _free(address: Pointer); cdecl;
-{$ELSE}
-procedure free(address: Pointer);
-{$ENDIF}
+procedure {$IFNDEF WIN64} _free {$ELSE} free {$ENDIF}(address: Pointer); cdecl;
 begin
   FreeMem(address);
 end;
 
-{$IFNDEF WIN64}
-function _wcscmp(string1, string2: PChar): Integer; cdecl;
-{$ELSE}
-function wcscmp(string1, string2: PChar): Integer;
-{$ENDIF}
+function {$IFNDEF WIN64} _wcscmp {$ELSE} wcscmp {$ENDIF}(
+  string1, string2: PChar): Integer; cdecl;
 begin
   Result := StrComp(string1, string2);
 end;
@@ -343,11 +266,8 @@ begin
     Setup.LoggingFunc.Log(UTF8ToString(S));
 end;
 
-{$IFNDEF WIN64}
-function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
-{$ELSE}
-function _fputs(str: PAnsiChar; unused: Pointer): Integer;
-{$ENDIF}
+function {$IFNDEF WIN64} __fputs {$ELSE} _fputs {$ENDIF}(
+  str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
   function FindNewLine(const S: AnsiString): Integer;
   begin
@@ -376,11 +296,8 @@ begin
   end;
 end;
 
-{$IFNDEF WIN64}
-procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
-{$ELSE}
-procedure ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool);
-{$ENDIF}
+procedure {$IFNDEF WIN64} _ReportProgress {$ELSE} ReportProgress {$ENDIF}(
+  const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
   try
     if Assigned(State.OnExtractionProgress) then
