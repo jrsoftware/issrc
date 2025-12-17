@@ -208,7 +208,7 @@ type
     procedure SelectTasks(const SelectTasks, DeselectTasks: TStringList); overload;
     function ShouldSkipPage(const PageID: Integer): Boolean;
     procedure UpdateComponentSizes;
-    procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
+    procedure UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: NativeInt);
     procedure UpdateCurPageButtonState;
     procedure UpdatePage(const PageID: Integer);
     procedure UpdateSelectTasksPage;
@@ -606,13 +606,13 @@ begin
     msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, CurrentComponentsSpace);
 end;
 
-procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: LongInt);
+procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: NativeInt);
 begin
   const ComponentEntry = PSetupComponentEntry(ComponentsList.ItemObject[Index]);
 
   var ChildrenSize: Int64 := 0;
   if HasChildren then
-    ComponentsList.EnumChildrenOf(Index, UpdateComponentSizesEnum, LongInt(@ChildrenSize));
+    ComponentsList.EnumChildrenOf(Index, UpdateComponentSizesEnum, NativeInt(@ChildrenSize));
   var ComponentSize := ComponentEntry.Size;
   Inc(ComponentSize, ChildrenSize);
   if ComponentsList.Checked[Index] then
@@ -631,7 +631,7 @@ procedure TWizardForm.UpdateComponentSizes();
 begin
   if shShowComponentSizes in SetupHeader.Options then begin
     var Size: Int64 := 0;
-    ComponentsList.EnumChildrenOf(-1, UpdateComponentSizesEnum, LongInt(@Size));
+    ComponentsList.EnumChildrenOf(-1, UpdateComponentSizesEnum, NativeInt(@Size));
   end;
 end;
 

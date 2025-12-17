@@ -45,7 +45,7 @@ type
   end;
 
   TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
-  TEnumChildrenProc = procedure(Index: Integer; HasChildren: Boolean; Ext: Longint) of object;
+  TEnumChildrenProc = procedure(Index: Integer; HasChildren: Boolean; Ext: NativeInt) of object;
 
   TNewCheckListBox = class (TCustomListBox)
   private
@@ -156,7 +156,7 @@ type
     function AddRadioButton(const ACaption, ASubItem: string;
       ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
     function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
-    procedure EnumChildrenOf(Item: Integer; Proc: TEnumChildrenProc; Ext: Longint);
+    procedure EnumChildrenOf(Item: Integer; Proc: TEnumChildrenProc; Ext: NativeInt);
     function GetParentOf(Item: Integer): Integer;
     procedure UpdateThreads;
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
@@ -860,10 +860,10 @@ begin
             if ItemStates[Index].IsLastChild then
               ThreadBottom := ItemMiddle;
             LineDDA(FlipX(ThreadPosX), ItemMiddle, FlipX(ThreadPosX + FCheckWidth div 2 + FOffset),
-              ItemMiddle, @LineDDAProc, Integer(Canvas));
+              ItemMiddle, @LineDDAProc, LPARAM(Canvas));
           end;
           LineDDA(FlipX(ThreadPosX), Rect.Top, FlipX(ThreadPosX), ThreadBottom,
-            @LineDDAProc, Integer(Canvas));
+            @LineDDAProc, LPARAM(Canvas));
         end;
     end;
     { Draw checkmark}
@@ -1031,7 +1031,7 @@ begin
 end;
 
 procedure TNewCheckListBox.EnumChildrenOf(Item: Integer; Proc: TEnumChildrenProc;
-  Ext: Longint);
+  Ext: NativeInt);
 var
   L: Integer;
 begin
