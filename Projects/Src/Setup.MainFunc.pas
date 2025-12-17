@@ -4244,8 +4244,8 @@ begin
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
     - x64: [paX86, paX64]
-      (but not paX86 in a future x64 build of Inno Setup if Windows was installed
-       without support for x86 binaries (which is possible with Windows Server))
+      (but not paX86 if Windows was installed without support for x86 binaries
+       (which is possible with Windows Server))
     - Arm64 Windows 10: [paX86, paArm64, paArm32]
       (Arm32 support detected, not just assumed)
     - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]
@@ -4254,7 +4254,7 @@ begin
   {$IFDEF CPUX86}
   MachineTypesSupportedBySystem := [paX86];
   {$ELSE}
-  {$MESSAGE ERROR 'This needs updating for non-x86 builds'}
+  MachineTypesSupportedBySystem := [paX64];
   {$ENDIF}
 
   if ProcessorArchitecture <> paUnknown then
@@ -4262,25 +4262,34 @@ begin
 
   { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
   GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
-  if Assigned(GetMachineTypeAttributesFunc) then begin
+  if  Assigned(GetMachineTypeAttributesFunc) then begin
     var MachineTypeAttributes: Integer;
     if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
        ((MachineTypeAttributes and UserEnabled) <> 0) then
       Include(MachineTypesSupportedBySystem, paArm32);
+    if not (paX86 in MachineTypesSupportedBySystem) and
+       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_I386, MachineTypeAttributes) = S_OK) and
+       ((MachineTypeAttributes and UserEnabled) <> 0) then
+      Include(MachineTypesSupportedBySystem, paX86);
     if not (paX64 in MachineTypesSupportedBySystem) and
        (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
        ((MachineTypeAttributes and UserEnabled) <> 0) then
       Include(MachineTypesSupportedBySystem, paX64);
   end else begin
-    { Without GetMachineTypeAttributes we can only check if Arm32 is supported extra
+    { Without GetMachineTypeAttributes we can only check if Arm32 and x86 are supported extra
       using IsWow64GuestMachineSupported }
     IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
     if Assigned(IsWow64GuestMachineSupportedFunc) then begin
       var MachineIsSupported: BOOL;
       if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
-          MachineIsSupported then
+         MachineIsSupported then
         Include(MachineTypesSupportedBySystem, paArm32);
-    end;
+      if not (paX86 in MachineTypesSupportedBySystem) and
+         (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_I386, MachineIsSupported) = S_OK) and
+         MachineIsSupported then
+        Include(MachineTypesSupportedBySystem, paX86);
+    end else if not (paX86 in MachineTypesSupportedBySystem) then
+      Include(MachineTypesSupportedBySystem, paX86); { We can only assume x86 binaries are supported }
   end;
 end;
 
