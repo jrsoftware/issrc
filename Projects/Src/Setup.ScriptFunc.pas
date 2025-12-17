@@ -1070,7 +1070,7 @@ var
           { Disable windows so the user can't utilize our UI during the InstExec
             call }
           var WindowDisabler := TWindowDisabler.Create;
-          var ResultCode: Integer;
+          var ResultCode: DWORD;
           try
             Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
               ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
@@ -1104,7 +1104,7 @@ var
         { Disable windows so the user can't utilize our UI during the
           InstShellExec call }
         var WindowDisabler := TWindowDisabler.Create;
-        var ErrorCode: Integer;
+        var ErrorCode: DWORD;
         try
           Stack.SetBool(PStart, InstShellExecEx(RunAsOriginalUser,
             Stack.GetString(PStart-1), Filename, Stack.GetString(PStart-3),

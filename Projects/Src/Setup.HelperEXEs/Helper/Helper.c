@@ -34,7 +34,7 @@
 #endif
 #define REQUEST_REGISTER_TYPE_LIBRARY 4
 
-// These must be kept in synch with Struct.pas:
+// These must be kept in synch with Shared.Struct.pas:
 typedef struct {
 	SID_IDENTIFIER_AUTHORITY Authority;
 	BYTE SubAuthCount;
@@ -45,10 +45,10 @@ typedef struct {
     DWORD AccessMask;
 } TGrantPermissionEntry;
 
-// This value must be kept in synch with Struct.pas:
+// This value must be kept in synch with Shared.Struct.pas:
 #define MAX_GRANT_PERMISSION_ENTRIES 32
 
-// These must be kept in synch with Helper.pas:
+// These must be kept in synch with Setup.Helper.pas:
 typedef struct {
 	DWORD ObjectType;
 	DWORD EntryCount;

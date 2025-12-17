@@ -761,7 +761,7 @@ var
   ShouldDeleteRec, IsTempFile, IsSharedFile, SharedCountDidReachZero: Boolean;
   Filename, Section, Key: String;
   Subkey, ValueName: PChar;
-  P, ErrorCode: Integer;
+  P: Integer;
   RegView: TRegView;
   RootKey, K: HKEY;
   Wait: TExecWait;
@@ -840,6 +840,7 @@ begin
                   try
                     if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
                       OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+                    var ErrorCode: DWORD;
                     if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
                        CurRecData[0], CurRecData[1], CurRecData[2], Wait,
                        ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
@@ -864,6 +865,7 @@ begin
                    FileOrDirExists(CurRecData[0]) then begin
                   if CurRec^.ExtraData and utRun_ShellExecRespectWaitFlags = 0 then
                     Wait := ewNoWait;
+                  var ErrorCode: DWORD;
                   if not InstShellExec(CurRecData[4], CurRecData[0], CurRecData[1], CurRecData[2],
                      Wait, ShowCmd, ProcessMessagesProc, ErrorCode) then begin
                     LogFmt('ShellExecuteEx failed (%d).', [ErrorCode]);
@@ -1049,7 +1051,7 @@ begin
               CrackRegExtraData(CurRec^.ExtraData, RegView, RootKey);
               Subkey := CurRecDataPChar[0];
               LogFmt('Deleting registry key: %s\%s', [GetRegRootKeyName(RootKey), Subkey]);
-              ErrorCode := RegDeleteKeyIncludingSubkeys(RegView, RootKey, Subkey);
+              const ErrorCode = RegDeleteKeyIncludingSubkeys(RegView, RootKey, Subkey);
               if not (ErrorCode in [ERROR_SUCCESS, ERROR_FILE_NOT_FOUND]) then begin
                 LogFmt('Deletion failed (%d).', [ErrorCode]);
                 Result := False;
@@ -1061,7 +1063,7 @@ begin
               ValueName := CurRecDataPChar[1];
               LogFmt('Clearing registry value: %s\%s\%s', [GetRegRootKeyName(RootKey), Subkey, ValueName]);
               if RegOpenKeyExView(RegView, RootKey, Subkey, 0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
-                ErrorCode := RegSetValueEx(K, ValueName, 0, REG_SZ, @NullChar, SizeOf(NullChar));
+                const ErrorCode = RegSetValueEx(K, ValueName, 0, REG_SZ, @NullChar, SizeOf(NullChar));
                 if ErrorCode <> ERROR_SUCCESS then begin
                   LogFmt('RegSetValueEx failed (%d).', [ErrorCode]);
                   Result := False;
@@ -1073,7 +1075,7 @@ begin
               CrackRegExtraData(CurRec^.ExtraData, RegView, RootKey);
               Subkey := CurRecDataPChar[0];
               LogFmt('Deleting empty registry key: %s\%s', [GetRegRootKeyName(RootKey), Subkey]);
-              ErrorCode := RegDeleteKeyIfEmpty(RegView, RootKey, Subkey);
+              const ErrorCode = RegDeleteKeyIfEmpty(RegView, RootKey, Subkey);
               if ErrorCode = ERROR_DIR_NOT_EMPTY then
                 Log('Deletion skipped (not empty).')
               else if not (ErrorCode in [ERROR_SUCCESS, ERROR_FILE_NOT_FOUND]) then begin
@@ -1088,7 +1090,7 @@ begin
               LogFmt('Deleting registry value: %s\%s\%s', [GetRegRootKeyName(RootKey), Subkey, ValueName]);
               if RegOpenKeyExView(RegView, RootKey, Subkey, 0, KEY_QUERY_VALUE or KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
                 if RegValueExists(K, ValueName) then begin
-                  ErrorCode := RegDeleteValue(K, ValueName);
+                  const ErrorCode = RegDeleteValue(K, ValueName);
                   if ErrorCode <> ERROR_SUCCESS then begin
                     LogFmt('RegDeleteValue failed (%d).', [ErrorCode]);
                     Result := False;

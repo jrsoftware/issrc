@@ -4092,7 +4092,6 @@ var
   ExpandedFilename, ExpandedParameters: String;
   Wait: TExecWait;
   DisableFsRedir: Boolean;
-  ErrorCode: Integer;
 begin
   try
     Log('-- Run entry --');
@@ -4125,6 +4124,7 @@ begin
         try
           if GetLogActive and (roLogOutput in RunEntry.Options) then
             OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          var ErrorCode: DWORD;
           if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
              ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
              Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
@@ -4142,6 +4142,7 @@ begin
     end
     else begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or FileOrDirExists(ExpandedFilename) then begin
+        var ErrorCode: DWORD;
         if not InstShellExecEx(RunAsOriginalUser, ExpandConst(RunEntry.Verb),
            ExpandedFilename, ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
            Wait, RunEntry.ShowCmd, ProcessMessagesProc, ErrorCode) then
@@ -4158,9 +4159,8 @@ begin
 end;
 
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-var
-  ErrorCode: Integer;
 begin
+  var ErrorCode: DWORD;
   InstShellExecEx(True, Operation, Filename, Parameters, Directory, ewNoWait, ShowCmd, ProcessMessagesProc, ErrorCode);
 end;
 

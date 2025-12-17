@@ -44,6 +44,7 @@ const
   REQUEST_REGISTER_TYPE_LIBRARY = 4;
 
 type
+  { Must keep in sync with Helper.c }
   TRequestGrantPermissionData = record
     ObjectType: DWORD;
     EntryCount: DWORD;
@@ -410,7 +411,7 @@ begin
     InternalError('HelperGrantPermission: Invalid entry count');
 
   FRequest.GrantPermissionData.ObjectType := AObjectType;
-  FRequest.GrantPermissionData.EntryCount := AEntryCount;
+  FRequest.GrantPermissionData.EntryCount := DWORD(AEntryCount);
   FRequest.GrantPermissionData.Inheritance := AInheritance;
   FillWideCharBuffer(FRequest.GrantPermissionData.ObjectName, AObjectName);
   Move(AEntries, FRequest.GrantPermissionData.Entries,
@@ -440,21 +441,21 @@ begin
   case FResponse.StatusCode of
     1: begin
          { The LoadTypeLib call failed }
-         RaiseOleError('LoadTypeLib', FResponse.ErrorCode);
+         RaiseOleError('LoadTypeLib', HRESULT(FResponse.ErrorCode));
        end;
     2: begin
          { The call to RegisterTypeLib was made; possibly succeeded }
          if (FResponse.ErrorCode <> S_OK) or AUnregister then
-           RaiseOleError('RegisterTypeLib', FResponse.ErrorCode);
+           RaiseOleError('RegisterTypeLib', HRESULT(FResponse.ErrorCode));
        end;
     3: begin
          { The ITypeLib::GetLibAttr call failed }
-         RaiseOleError('ITypeLib::GetLibAttr', FResponse.ErrorCode);
+         RaiseOleError('ITypeLib::GetLibAttr', HRESULT(FResponse.ErrorCode));
        end;
     4: begin
          { The call to UnRegisterTypeLib was made; possibly succeeded }
          if (FResponse.ErrorCode <> S_OK) or not AUnregister then
-           RaiseOleError('UnRegisterTypeLib', FResponse.ErrorCode);
+           RaiseOleError('UnRegisterTypeLib', HRESULT(FResponse.ErrorCode));
        end;
   else
     InternalError('HelperRegisterTypeLibrary: StatusCode invalid');

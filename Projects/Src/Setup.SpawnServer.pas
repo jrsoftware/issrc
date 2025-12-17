@@ -20,7 +20,7 @@ type
     FWnd: HWND;
     FSequenceNumber: Word;
     FCallStatus: Word;
-    FResultCode: Integer;
+    FResultCode: DWORD;
     FNotifyRestartRequested: Boolean;
     FNotifyNewLanguage: Integer;
     function HandleExec(const IsShellExec: Boolean; const ADataPtr: Pointer;
@@ -294,7 +294,7 @@ begin
   if Data.Size <> 0 then Exit;
 
   Inc(FSequenceNumber);
-  FResultCode := -1;
+  FResultCode := DWORD(-1);
   FCallStatus := SPAWN_STATUS_RUNNING;
   try
     SaveCurrentDir := GetCurrentDir;

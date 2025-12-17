@@ -94,11 +94,9 @@ var
 
   procedure SetStringValue(const K: HKEY; const ValueName: PChar;
     const Data: String);
-  var
-    ErrorCode: Longint;
   begin
-    ErrorCode := RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data),
-       (ULength(Data)+1)*SizeOf(Data[1]));
+    const ErrorCode = DWORD(RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data),
+       (ULength(Data)+1)*SizeOf(Data[1])));
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegSetValueEx, RootKey, SubkeyName, ErrorCode);
   end;
@@ -112,11 +110,9 @@ var
 
   procedure SetDWordValue(const K: HKEY; const ValueName: PChar;
     const Data: DWord);
-  var
-    ErrorCode: Longint;
   begin
-    ErrorCode := RegSetValueEx(K, ValueName, 0, REG_DWORD, @Data,
-       SizeOf(Data));
+    const ErrorCode = DWORD(RegSetValueEx(K, ValueName, 0, REG_DWORD, @Data,
+       SizeOf(Data)));
     if ErrorCode <> ERROR_SUCCESS then
       RegError(reRegSetValueEx, RootKey, SubkeyName, ErrorCode);
   end;
@@ -222,7 +218,6 @@ var
 
 var
   H2: HKEY;
-  ErrorCode: Longint;
   Z: String;
   EstimatedSize: Int64;
 begin
@@ -261,8 +256,8 @@ begin
   LogFmt('Creating new uninstall key: %s\%s', [GetRegRootKeyName(RootKey), SubkeyName]);
 
   { Create uninstall key }
-  ErrorCode := RegCreateKeyExView(RegView, RootKey, PChar(SubkeyName),
-    0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, H2, nil);
+  const ErrorCode = DWORD(RegCreateKeyExView(RegView, RootKey, PChar(SubkeyName),
+    0, nil, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nil, H2, nil));
   if ErrorCode <> ERROR_SUCCESS then
     RegError(reRegCreateKeyEx, RootKey, SubkeyName, ErrorCode);
  
@@ -2074,7 +2069,6 @@ var
   S: String;
   RV: TRegView;
   NeedToRetry, DidDeleteKey: Boolean;
-  ErrorCode: Longint;
   I: Integer;
   AnsiS: AnsiString;
 begin
@@ -2143,11 +2137,12 @@ begin
               if PermissionsEntry <> -1 then
                 ApplyPermissions(RV, RK, S, PermissionsEntry);
               { Create or open the key }
+              var ErrorCode: DWORD;
               if not(roDontCreateKey in Options) then begin
                 Log('Creating or opening the key.');
-                ErrorCode := RegCreateKeyExView(RV, RK, PChar(S), 0, nil,
+                ErrorCode := DWORD(RegCreateKeyExView(RV, RK, PChar(S), 0, nil,
                   REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE,
-                  nil, K, @Disp);
+                  nil, K, @Disp));
                 if ErrorCode = ERROR_SUCCESS then begin
                   { Apply permissions again if a new key was created }
                   if (Disp = REG_CREATED_NEW_KEY) and (PermissionsEntry <> -1) then begin
@@ -2163,8 +2158,8 @@ begin
               else begin
                 if Typ <> rtNone then begin
                   Log('Opening the key.');
-                  ErrorCode := RegOpenKeyExView(RV, RK, PChar(S), 0,
-                    KEY_QUERY_VALUE or KEY_SET_VALUE, K);
+                  ErrorCode := DWORD(RegOpenKeyExView(RV, RK, PChar(S), 0,
+                    KEY_QUERY_VALUE or KEY_SET_VALUE, K));
                   if (ErrorCode <> ERROR_SUCCESS) and (ErrorCode <> ERROR_FILE_NOT_FOUND) then
                     if not(roNoError in Options) then
                       RegError(reRegOpenKeyEx, RK, S, ErrorCode);
@@ -2224,24 +2219,24 @@ begin
                           if (V <> '') and (V[Length(V)] <> #0) then
                             V := V + #0;
                         end;
-                        ErrorCode := RegSetValueEx(K, PChar(N), 0, NewType,
-                          PChar(V), (ULength(V)+1)*SizeOf(V[1]));
+                        ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, NewType,
+                          PChar(V), (ULength(V)+1)*SizeOf(V[1])));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
                       end;
                     rtDWord: begin
                         DV := DWORD(StrToInt(ExpandConst(ValueData)));
-                        ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_DWORD,
-                          @DV, SizeOf(DV));
+                        ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, REG_DWORD,
+                          @DV, SizeOf(DV)));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
                       end;
                     rtQWord: begin
                         const QV: UInt64 = StrToUInt64(ExpandConst(ValueData));
-                        ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_QWORD,
-                          @QV, SizeOf(QV));
+                        ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, REG_QWORD,
+                          @QV, SizeOf(QV)));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
@@ -2250,8 +2245,8 @@ begin
                         AnsiS := '';
                         for I := 1 to Length(ValueData) do
                           AnsiS := AnsiS + AnsiChar(Ord(ValueData[I]));
-                        ErrorCode := RegSetValueEx(K, PChar(N), 0, REG_BINARY,
-                          PAnsiChar(AnsiS), ULength(AnsiS));
+                        ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, REG_BINARY,
+                          PAnsiChar(AnsiS), ULength(AnsiS)));
                         if (ErrorCode <> ERROR_SUCCESS) and
                            not(roNoError in Options) then
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
@@ -2362,7 +2357,6 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     J: Integer;
     Disp: DWORD;
     ValueName, Data: String;
-    ErrorCode: Longint;
   begin
     { Create RegSvr program used to register OLE servers & type libraries on
       the next reboot }
@@ -2412,9 +2406,9 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         RootKey := HKEY_LOCAL_MACHINE
       else
         RootKey := HKEY_CURRENT_USER;
-      ErrorCode := RegCreateKeyExView(rvDefault, RootKey, REGSTR_PATH_RUNONCE, 0, nil,
+      var ErrorCode := DWORD(RegCreateKeyExView(rvDefault, RootKey, REGSTR_PATH_RUNONCE, 0, nil,
         REG_OPTION_NON_VOLATILE, KEY_SET_VALUE or KEY_QUERY_VALUE,
-        nil, H, @Disp);
+        nil, H, @Disp));
       if ErrorCode <> ERROR_SUCCESS then
         RegError(reRegCreateKeyEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
       try
@@ -2431,8 +2425,8 @@ procedure RegisterFiles(const RegisterFilesList: TList);
               Data := Data + 'U';  { /REG -> /REGU when not running as admin }
             { Note: RegSvr expects /REG(U) to be the first parameter }
             Data := Data + ' /REGSVRMODE';
-            ErrorCode := RegSetValueEx(H, PChar(ValueName), 0, REG_SZ, PChar(Data),
-              (ULength(Data)+1)*SizeOf(Data[1]));
+            ErrorCode := DWORD(RegSetValueEx(H, PChar(ValueName), 0, REG_SZ, PChar(Data),
+              (ULength(Data)+1)*SizeOf(Data[1])));
             if ErrorCode <> ERROR_SUCCESS then
               RegError(reRegSetValueEx, RootKey, REGSTR_PATH_RUNONCE, ErrorCode);
             Break;

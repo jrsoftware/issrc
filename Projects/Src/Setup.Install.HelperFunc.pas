@@ -54,7 +54,7 @@ function GetLocalTimeAsStr: String;
 procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
-  const KeyName: String; const ErrorCode: Integer);
+  const KeyName: String; const ErrorCode: DWORD);
 procedure WriteMsgData(const F: TFile);
 procedure MarkExeHeader(const F: TFile; const ModeID: Longint);
 procedure ProcessInstallDeleteEntries;
@@ -408,7 +408,7 @@ begin
 end;
 
 procedure RegError(const Func: TRegErrorFunc; const RootKey: HKEY;
-  const KeyName: String; const ErrorCode: Integer);
+  const KeyName: String; const ErrorCode: DWORD);
 const
   ErrorMsgs: array[TRegErrorFunc] of TSetupMessageID =
     (msgErrorRegWriteKey, msgErrorRegCreateKey, msgErrorRegOpenKey);

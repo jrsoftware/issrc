@@ -22,11 +22,11 @@ function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
-  var ResultCode: Integer): Boolean;
+  var ResultCode: DWORD): Boolean;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 
 implementation
 
@@ -88,7 +88,7 @@ begin
 end;
 
 function CallSpawnServer(const CopyDataMsg: DWORD; var M: TMemoryStream;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 var
   CopyDataStruct: TCopyDataStruct;
   MsgResult: LRESULT;
@@ -141,7 +141,7 @@ function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
-  var ResultCode: Integer): Boolean;
+  var ResultCode: DWORD): Boolean;
 var
   M: TMemoryStream;
 begin
@@ -171,7 +171,7 @@ end;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 var
   M: TMemoryStream;
 begin

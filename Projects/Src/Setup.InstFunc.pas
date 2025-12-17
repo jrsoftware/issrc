@@ -89,10 +89,10 @@ procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
-  var ResultCode: Integer): Boolean;
+  var ResultCode: DWORD): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 procedure InternalError(const Id: String);
 procedure InternalErrorFmt(const S: String; const Args: array of const);
 function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
@@ -143,7 +143,7 @@ end;
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 begin
   raise Exception.Create(FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-    [FunctionName, IntToHexStr8(ResultCode), Win32ErrorString(ResultCode)]));
+    [FunctionName, IntToHexStr8(ResultCode), Win32ErrorString(DWORD(ResultCode))]));
 end;
 
 function GetRegRootKeyName(const RootKey: HKEY): String;
@@ -595,7 +595,7 @@ end;
 
 procedure HandleProcessWait(ProcessHandle: THandle; const Wait: TExecWait;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
-  var ResultCode: Integer);
+  var ResultCode: DWORD);
 begin
   try
     if Wait = ewWaitUntilIdle then begin
@@ -629,7 +629,7 @@ begin
     end;
     { Get the exit code. Will be set to STILL_ACTIVE if not yet available }
     if not GetExitCodeProcess(ProcessHandle, DWORD(ResultCode)) then
-      ResultCode := -1;  { just in case }
+      ResultCode := DWORD(-1);  { just in case }
   finally
     CloseHandle(ProcessHandle);
   end;
@@ -638,7 +638,7 @@ end;
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
-  var ResultCode: Integer): Boolean;
+  var ResultCode: DWORD): Boolean;
 var
   CmdLine: String;
   StartupInfo: TStartupInfo;
@@ -674,7 +674,7 @@ begin
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := ShowCmd;
+  StartupInfo.wShowWindow := Word(ShowCmd);
   if WorkingDir = '' then
     WorkingDir := GetSystemDir;
 
@@ -705,7 +705,7 @@ end;
 
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
-  const ProcessMessagesProc: TProcedure; var ResultCode: Integer): Boolean;
+  const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 var
   Info: TShellExecuteInfo;
 begin
