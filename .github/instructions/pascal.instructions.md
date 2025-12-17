@@ -16,6 +16,7 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
+- Be alert for `out` parameters initializing to zero/empty upon function entry, unlike `var` parameters.
 - Code must be compatible with Delphi 10.4 Sydney and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - Code must be compatible with Windows 7 and later.
