@@ -4,6 +4,9 @@ interface
 
 {$IFDEF CPUX86}
 
+{$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
+{$WARN IMPLICIT_CONVERSION_LOSS OFF}
+
 {ASM Inliner
  Nicholas Sherlock
 
