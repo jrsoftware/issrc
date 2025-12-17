@@ -4254,7 +4254,11 @@ begin
   {$IFDEF CPUX86}
   MachineTypesSupportedBySystem := [paX86];
   {$ELSE}
+  {$IFDEF CPUX64}
   MachineTypesSupportedBySystem := [paX64];
+  {$ELSE}
+  {$MESSAGE ERROR 'This needs updating for non-x86/x64 builds'}
+  {$ENDIF}
   {$ENDIF}
 
   if ProcessorArchitecture <> paUnknown then
@@ -4262,7 +4266,7 @@ begin
 
   { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
   GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
-  if  Assigned(GetMachineTypeAttributesFunc) then begin
+  if Assigned(GetMachineTypeAttributesFunc) then begin
     var MachineTypeAttributes: Integer;
     if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
        ((MachineTypeAttributes and UserEnabled) <> 0) then
@@ -4288,8 +4292,14 @@ begin
          (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_I386, MachineIsSupported) = S_OK) and
          MachineIsSupported then
         Include(MachineTypesSupportedBySystem, paX86);
-    end else if not (paX86 in MachineTypesSupportedBySystem) then
-      Include(MachineTypesSupportedBySystem, paX86); { We can only assume x86 binaries are supported }
+    end else if not (paX86 in MachineTypesSupportedBySystem) then begin
+      {$IFDEF WIN64}
+      { Detect x86 support by checking if SysWOW64\kernel32.dll exists }
+      const Dir = GetSysWow64Dir;
+      if (Dir <> '') and NewFileExists(AddBackslash(Dir) + 'kernel32.dll') then
+        Include(MachineTypesSupportedBySystem, paX86);
+      {$ENDIF}
+    end;
   end;
 end;
 
