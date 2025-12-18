@@ -117,23 +117,23 @@ const
 
 function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
   stateSize: NativeUInt; const props; propsSize: Cardinal;
-  const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_Init' {$ELSE} 'IS_LzmaDec_Init'; {$ENDIF}
-function IS_LzmaDec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_StateSize' {$ELSE} 'IS_LzmaDec_StateSize'; {$ENDIF}
+  const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_Init' {$ELSE} 'IS_LzmaDec_Init'{$ENDIF};
+function IS_LzmaDec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_StateSize' {$ELSE} 'IS_LzmaDec_StateSize'{$ENDIF};
 function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
   var destLen: NativeUInt; const src; var srcLen: NativeUInt; finishMode: Integer;
-  var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_LzmaDec_DecodeToBuf' {$ELSE} 'LzmaDec_DecodeToBuf'; {$ENDIF}
+  var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_LzmaDec_DecodeToBuf' {$ELSE} 'LzmaDec_DecodeToBuf'{$ENDIF};
 procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
-  const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_LzmaDec_Free' {$ELSE} 'LzmaDec_Free'; {$ENDIF}
+  const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_LzmaDec_Free' {$ELSE} 'LzmaDec_Free'{$ENDIF};
 
 function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
-  stateSize: NativeUInt; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; {$IFNDEF WIN64} cdecl;
-  external name '_IS_Lzma2Dec_Init'; {$ELSE} external name 'IS_Lzma2Dec_Init'; {$ENDIF}
-function IS_Lzma2Dec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_StateSize' {$ELSE} 'IS_Lzma2Dec_StateSize'; {$ENDIF}
+  stateSize: NativeUInt; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
+  external name {$IFNDEF WIN64} '_IS_Lzma2Dec_Init' {$ELSE} 'IS_Lzma2Dec_Init'{$ENDIF};
+function IS_Lzma2Dec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_StateSize' {$ELSE} 'IS_Lzma2Dec_StateSize'{$ENDIF};
 function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
   var destLen: NativeUInt; const src; var srcLen: NativeUInt; finishMode: Integer;
-  var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_Lzma2Dec_DecodeToBuf' {$ELSE} 'Lzma2Dec_DecodeToBuf'; {$ENDIF}
+  var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_Lzma2Dec_DecodeToBuf' {$ELSE} 'Lzma2Dec_DecodeToBuf'{$ENDIF};
 procedure IS_Lzma2Dec_Free(var state: TLZMA2InternalDecoderState;
-  const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_Free' {$ELSE} 'IS_Lzma2Dec_Free'; {$ENDIF}
+  const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_Free' {$ELSE} 'IS_Lzma2Dec_Free'{$ENDIF};
 
 
 function {$IFNDEF WIN64} _memcpy {$ELSE} memcpy {$ENDIF}(dest, src: Pointer; n: NativeUInt): Pointer; cdecl;

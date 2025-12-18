@@ -59,7 +59,7 @@ var
 
 {$DEFINE VISUALSTUDIO}
 
-function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name {$IFNDEF WIN64} '_IS_7zDec' {$ELSE} 'IS_7zDec'; {$ENDIF}
+function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name {$IFNDEF WIN64} '_IS_7zDec' {$ELSE} 'IS_7zDec' {$ENDIF};
 
 
 function {$IFNDEF WIN64} __CreateDirectoryW {$ELSE} _CreateDirectoryW {$ENDIF}(
