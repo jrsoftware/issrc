@@ -7857,12 +7857,8 @@ var
       WithRetries(False, ConvertFilename,
         procedure
         begin
-          if SetupIconFilename <> '' then
-            UpdateIconsAndStyle(ConvertFileName, EUisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
-              PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
-          else
-            UpdateIconsAndStyle(ConvertFileName, EUisf, '', SetupHeader.WizardDarkStyle,
-              PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
+          UpdateIconsAndStyle(ConvertFileName, EUisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+            PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
         end);
 
       LineNumber := 0;
@@ -8793,10 +8789,7 @@ begin
             WithRetries(False, ExeFilename,
               procedure
               begin
-                if SetupIconFilename <> '' then
-                  UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle)
-                else
-                  UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, '', SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
+               UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
               end);
             LineNumber := 0;
           end;
