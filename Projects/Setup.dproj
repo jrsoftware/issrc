@@ -82,6 +82,8 @@
         <OutputExt>e64</OutputExt>
         <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
         <DCC_Define>NOCODE;$(DCC_Define)</DCC_Define>
+        <DCC_IMPLICIT_INTEGER_CAST_LOSS>true</DCC_IMPLICIT_INTEGER_CAST_LOSS>
+        <DCC_IMPLICIT_CONVERSION_LOSS>true</DCC_IMPLICIT_CONVERSION_LOSS>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
