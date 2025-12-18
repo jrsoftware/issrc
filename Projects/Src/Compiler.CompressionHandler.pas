@@ -272,7 +272,7 @@ begin
     if FSliceBytesLeft = 0 then
       NewSlice('');
     if S > FSliceBytesLeft then
-      S := FSliceBytesLeft;
+      S := Cardinal(FSliceBytesLeft);
 
     if not FChunkEncrypted then
       FDestFile.WriteBuffer(P^, S)

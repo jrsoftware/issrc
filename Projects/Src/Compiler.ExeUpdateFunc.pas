@@ -49,7 +49,8 @@ procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 implementation
 
 uses
-  Math;
+  Math,
+  UnsignedFunc;
 
 const
   IMAGE_NT_SIGNATURE = $00004550;
@@ -446,11 +447,11 @@ begin
             if IsTSAware then
               DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
             else
-              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE;
+              DllChars := Word(DllChars and not IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
             if IsDEPCompatible then
               DllChars := DllChars or IMAGE_DLLCHARACTERISTICS_NX_COMPAT
             else
-              DllChars := DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT;
+              DllChars := Word(DllChars and not IMAGE_DLLCHARACTERISTICS_NX_COMPAT);
             var ASLRFlags: Word := IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE;
             if Header.Machine = IMAGE_FILE_MACHINE_AMD64 then
               ASLRFlags := ASLRFlags or IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA;
@@ -884,7 +885,6 @@ var
   M: HMODULE;
   OldGroupIconDir, NewGroupIconDir: PGroupIconDir;
   I: Integer;
-  NewGroupIconDirSize: LongInt;
 begin
   var Ico: PIcoHeader := nil;
   var Vsf := nil;
@@ -949,7 +949,7 @@ begin
           DeleteIconIfExists(H, M, PChar(ResourceName + '_DARK'));
 
           { Build the new group icon resource }
-          NewGroupIconDirSize := 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
+          const NewGroupIconDirSize: DWORD = 3*SizeOf(Word)+Ico.ItemCount*SizeOf(TGroupIconDirItem);
           GetMem(NewGroupIconDir, NewGroupIconDirSize);
           try
             { Build the new group icon resource }
@@ -958,17 +958,20 @@ begin
             NewGroupIconDir.ItemCount := Ico.ItemCount;
             for I := 0 to NewGroupIconDir.ItemCount-1 do begin
               NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
-              NewGroupIconDir.Items[I].Id := I+100; //start at 100 to avoid overwriting other icons that may exist
+              const Id = I+100; //start at 100 to avoid overwriting other icons that may exist
+              if Id > High(Word) then
+                ResUpdateErrorWithLastError('UpdateResource failed (7)', ResourceName);
+              NewGroupIconDir.Items[I].Id := Word(Id);
             end;
 
             { Update 'MAINICON' }
             for I := 0 to NewGroupIconDir.ItemCount-1 do
               if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (7)', ResourceName);
+                ResUpdateErrorWithLastError('UpdateResource failed (8)', ResourceName);
 
             { Update the icons }
             if not UpdateResource(H, RT_GROUP_ICON, 'MAINICON', 1033, NewGroupIconDir, NewGroupIconDirSize) then
-              ResUpdateErrorWithLastError('UpdateResource failed (8)', ResourceName);
+              ResUpdateErrorWithLastError('UpdateResource failed (9)', ResourceName);
 
             ChangedMainIcon := True;
           finally
@@ -1014,14 +1017,14 @@ begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
               { Add the regular custom style, used by forced light, forced dark and dynamic light }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1', 1033, Vsf, VsfSize) then
-                ResUpdateErrorWithLastError('UpdateResource failed (9)', 'MYSTYLE1');
+                ResUpdateErrorWithLastError('UpdateResource failed (10)', 'MYSTYLE1');
             end;
 
             if VsfDynamicDark <> nil then begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileNameDynamicDark);
               { Add the dark custom style, used by dynamic dark only }
               if not UpdateResource(H, 'VCLSTYLE', 'MYSTYLE1_DARK', 1033, VsfDynamicDark, VsfSizeDynamicDark) then
-                ResUpdateErrorWithLastError('UpdateResource failed (10)', 'MYSTYLE1_DARK');
+                ResUpdateErrorWithLastError('UpdateResource failed (11)', 'MYSTYLE1_DARK');
             end;
 
             { See if we need to keep the built-in dark style }
@@ -1088,7 +1091,7 @@ begin
   { Read the manifest resource into a string }
   SetString(S, nil, SeekToResourceData(F, 24, 1));
   var Offset := F.Position;
-  F.ReadBuffer(S[1], Length(S));
+  F.ReadBuffer(S[1], ULength(S));
 
   { Locate and update the <dependency> tag }
   P := Pos(DependencyStartTag, S);

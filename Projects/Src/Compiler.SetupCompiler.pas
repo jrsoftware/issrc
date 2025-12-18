@@ -51,7 +51,7 @@ type
   TPreLangData = class
   public
     Name: String;
-    LanguageCodePage: Integer;
+    LanguageCodePage: Word;
   end;
 
   TLangData = class
@@ -132,9 +132,9 @@ type
     TimeStampsInUTC: Boolean;
     TimeStampRounding: Integer;
     TouchDateOption: (tdCurrent, tdNone, tdExplicit);
-    TouchDateYear, TouchDateMonth, TouchDateDay: Integer;
+    TouchDateYear, TouchDateMonth, TouchDateDay: Word;
     TouchTimeOption: (ttCurrent, ttNone, ttExplicit);
-    TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Integer;
+    TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Word;
     ArchitecturesAllowedAllowsX86: Boolean;
 
     SetupEncryptionHeader: TSetupEncryptionHeader;
@@ -256,7 +256,7 @@ type
     procedure ReadMessagesFromScriptPre;
     procedure ReadMessagesFromScript;
     function ReadScriptFile(const Filename: String; const UseCache: Boolean;
-      const AnsiConvertCodePage: Cardinal): TScriptFileLines;
+      const AnsiConvertCodePage: Word): TScriptFileLines;
     procedure RenamedConstantCallback(const Cnst, CnstRenamed: String);
     procedure EnumCodeProc(const Line: PChar; const Ext: Integer);
     procedure ReadCode;
@@ -315,7 +315,8 @@ implementation
 
 uses
   Commctrl, TypInfo, AnsiStrings, Math, WideStrUtils,
-  PathFunc, TrustFunc, ISSigFunc, ECDSA, Compiler.Messages, Shared.SetupEntFunc,
+  PathFunc, TrustFunc, ISSigFunc, ECDSA, UnsignedFunc,
+  Compiler.Messages, Shared.SetupEntFunc,
   Shared.FileClass, Shared.EncryptionFunc, Compression.Base, Compression.Zlib, Compression.bzlib,
   Shared.LangOptionsSectionDirectives,
 {$IFDEF STATICPREPROC}
@@ -811,24 +812,24 @@ begin
     if CompressionInProgress then begin
       MillisecondsElapsed := GetTickCount - CompressionStartTick;
       if MillisecondsElapsed >= Cardinal(1000) then begin
-        var X: UInt64 := BytesCompressedSoFar;
+        var X := UInt64(BytesCompressedSoFar);
         X := X * 1000;
         X := X div MillisecondsElapsed;
-        if X <= MaxInt then
-          Data.BytesCompressedPerSecond := X
+        if X <= High(Cardinal) then
+          Data.BytesCompressedPerSecond := Cardinal(X)
         else
-          Data.BytesCompressedPerSecond := Maxint;
+          Data.BytesCompressedPerSecond := High(Cardinal);
         if BytesCompressedSoFar < TotalBytesToCompress then begin
           { Protect against division by zero }
           if Data.BytesCompressedPerSecond <> 0 then begin
-            X := TotalBytesToCompress;
+            X := UInt64(TotalBytesToCompress);
             Dec(X, BytesCompressedSoFar);
             Inc(X, Data.BytesCompressedPerSecond-1);  { round up }
             X := X div Data.BytesCompressedPerSecond;
-            if X <= MaxInt then
-              Data.SecondsRemaining := X
+            if X <= High(Integer) then
+              Data.SecondsRemaining := Integer(X)
             else
-              Data.SecondsRemaining := Maxint;
+              Data.SecondsRemaining := High(Integer);
           end;
         end
         else begin
@@ -849,7 +850,7 @@ type
     MainScript: Boolean;
     InFiles: TStringList;
     OutLines: TScriptFileLines;
-    AnsiConvertCodePage: Cardinal;
+    AnsiConvertCodePage: Word;
     CurInLine: String;
     ErrorSet: Boolean;
     ErrorMsg, ErrorFilename: String;
@@ -1008,7 +1009,7 @@ begin
 end;
 
 function TSetupCompiler.ReadScriptFile(const Filename: String;
-  const UseCache: Boolean; const AnsiConvertCodePage: Cardinal): TScriptFileLines;
+  const UseCache: Boolean; const AnsiConvertCodePage: Word): TScriptFileLines;
 
   function ReadMainScriptLines: TStringList;
   var
@@ -1182,7 +1183,6 @@ var
     PreCodePage = 1252;
   var
     UseCache: Boolean;
-    AnsiConvertCodePage: Cardinal;
     Lines: TScriptFileLines;
     SaveLineFilename, L: String;
     SaveLineNumber, LineIndex, I: Integer;
@@ -1192,7 +1192,7 @@ var
       Filename := PathExpand(PrependSourceDirName(Filename));
 
     UseCache := not (LangSection and LangSectionPre);
-    AnsiConvertCodePage := 0;
+    var AnsiConvertCodePage: Word := 0;
     if LangSection then begin
       { During a Pre pass on an .isl file, use code page 1252 for translation.
         Previously, the system code page was used, but on DBCS that resulted in
@@ -2256,7 +2256,7 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
 var
   Perms, E: AnsiString;
   S: String;
-  PermsCount, P, I: Integer;
+  PermsCount, P: Integer;
   Entry: TGrantPermissionEntry;
   NewPermissionEntry: PSetupPermissionEntry;
 begin
@@ -2285,19 +2285,19 @@ begin
   end
   else begin
     { See if there's already an identical permissions entry }
-    for I := 0 to PermissionEntries.Count-1 do
+    for var I := 0 to PermissionEntries.Count-1 do
       if PSetupPermissionEntry(PermissionEntries[I]).Permissions = Perms then begin
-        PermissionsEntry := I;
+        PermissionsEntry := SmallInt(I);
         Exit;
       end;
     { If not, create a new one }
     PermissionEntries.Expand;
     NewPermissionEntry := AllocMem(SizeOf(NewPermissionEntry^));
     NewPermissionEntry.Permissions := Perms;
-    I := PermissionEntries.Add(NewPermissionEntry);
-    if I > High(PermissionsEntry) then
+    const I = PermissionEntries.Add(NewPermissionEntry);
+    if I > High(SmallInt) then
       AbortCompile(SCompilerPermissionsTooMany);
-    PermissionsEntry := I;
+    PermissionsEntry := SmallInt(I);
   end;
 end;
 
@@ -2307,7 +2307,6 @@ var
   F: TFile;
   Size: Cardinal;
   UnicodeFile, RTFFile: Boolean;
-  AnsiConvertCodePage: Integer;
   S: RawByteString;
   U: String;
 begin
@@ -2328,17 +2327,17 @@ begin
       end;
 
       if not UnicodeFile and not RTFFile and (LangIndex >= 0) then begin
-        AnsiConvertCodePage := TPreLangData(PreLangDataList[LangIndex]).LanguageCodePage;
+        const AnsiConvertCodePage = TPreLangData(PreLangDataList[LangIndex]).LanguageCodePage;
         if AnsiConvertCodePage <> 0 then begin
           AddStatus(Format(SCompilerStatusConvertCodePage , [AnsiConvertCodePage]));
           { Convert the ANSI text to Unicode. }
           SetCodePage(S, AnsiConvertCodePage, False);
           U := String(S);
           { Store the Unicode text in Text with a UTF16 BOM. }
-          Size := Length(U)*SizeOf(U[1]);
+          Size := ULength(U)*SizeOf(U[1]);
           SetLength(Text, Size+2);
           PWord(Pointer(Text))^ := $FEFF;
-          Move(U[1], Text[3], Size);
+          UMove(U[1], Text[3], Size);
         end else
           Text := S;
       end else
@@ -2485,16 +2484,16 @@ var
 
     { Verify that the day is valid for the specified month & year }
     FillChar(ST, SizeOf(ST), 0);
-    ST.wYear := Year;
-    ST.wMonth := Month;
-    ST.wDay := Day;
+    ST.wYear := Word(Year);
+    ST.wMonth := Word(Month);
+    ST.wDay := Word(Day);
     if not SystemTimeToFileTime(ST, FT) then
       Invalid;
 
     TouchDateOption := tdExplicit;
-    TouchDateYear := Year;
-    TouchDateMonth := Month;
-    TouchDateDay := Day;
+    TouchDateYear := Word(Year);
+    TouchDateMonth := Word(Month);
+    TouchDateDay := Word(Day);
   end;
 
   procedure StrToTouchTime(const S: String);
@@ -2531,9 +2530,9 @@ var
     end;
 
     TouchTimeOption := ttExplicit;
-    TouchTimeHour := Hour;
-    TouchTimeMinute := Minute;
-    TouchTimeSecond := Second;
+    TouchTimeHour := Word(Hour);
+    TouchTimeMinute := Word(Minute);
+    TouchTimeSecond := Word(Second);
   end;
 
   function StrToPrivilegesRequiredOverrides(S: String): TSetupPrivilegesRequiredOverrides;
@@ -3016,7 +3015,7 @@ begin
       end;
     ssLZMADictionarySize: begin
         var MaxDictionarySize := 1024 shl 20; //1 GB - same as MaxDictionarySize in LZMADecomp.pas - lower than the LZMA SDK allows (search Lzma2Enc.c for kLzmaMaxHistorySize to see this limit: Cardinal(15 shl 28) = 3.8 GB) because Setup can't allocate that much memory
-        CompressProps.DictionarySize := StrToIntRange(Value, 4, MaxDictionarySize div 1024) * 1024;
+        CompressProps.DictionarySize := Cardinal(StrToIntRange(Value, 4, MaxDictionarySize div 1024) * 1024);
       end;
     ssLZMAMatchFinder: begin
         if CompareText(Value, 'BT') = 0 then
@@ -3358,7 +3357,7 @@ begin
         WizardBackImageFileDynamicDark := Value;
       end;
     ssWizardBackImageOpacity: begin
-        SetupHeader.WizardBackImageOpacity := StrToIntRange(Value, 0, 255);
+        SetupHeader.WizardBackImageOpacity := Byte(StrToIntRange(Value, 0, 255));
       end;
     ssWizardImageAlphaFormat: begin
         if CompareText(Value, 'none') = 0 then
@@ -3405,7 +3404,7 @@ begin
         WizardImageFileDynamicDark := Value;
       end;
     ssWizardImageOpacity: begin
-        SetupHeader.WizardImageOpacity := StrToIntRange(Value, 0, 255);
+        SetupHeader.WizardImageOpacity := Byte(StrToIntRange(Value, 0, 255));
       end;
     ssWizardImageStretch: begin
         SetSetupHeaderOption(shWizardImageStretch);
@@ -3489,7 +3488,7 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
       AbortCompileFmt(SCompilerEntryInvalid2, ['LangOptions', KeyName]);
     end;
 
-    function StrToIntCheck(const S: String): Integer;
+    function StrToWordCheck(const S: String): Word;
     var
       E: Integer;
     begin
@@ -3507,7 +3506,7 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
       lsLanguageCodePage: begin
           if AffectsMultipleLangs then
             AbortCompileFmt(SCompilerCantSpecifyLangOption, [KeyName]);
-          PreLangData.LanguageCodePage := StrToIntCheck(Value);
+          PreLangData.LanguageCodePage := StrToWordCheck(Value);
           if (PreLangData.LanguageCodePage <> 0) and
              not IsValidCodePage(PreLangData.LanguageCodePage) then
             Invalid;
@@ -3569,7 +3568,7 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
           for J := I+1 to I+4 do
             if not CharInSet(UpCase(N[J]), ['0'..'9', 'A'..'F']) then
               Invalid;
-          W := StrToIntCheck('$' + Copy(N, I+1, 4));
+          W := Word(StrToIntCheck('$' + Copy(N, I+1, 4)));
           Inc(I, 6);
         end
         else begin
@@ -4059,13 +4058,11 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
 
     function GetSpecialName(HotKey: Word): string;
     var
-      ScanCode: Integer;
       KeyName: array[0..255] of Char;
     begin
       Result := '';
-      ScanCode := MapVirtualKey(WordRec(HotKey).Lo, 0) shl 16;
-      if ScanCode <> 0 then
-      begin
+      const ScanCode = Integer(MapVirtualKey(WordRec(HotKey).Lo, 0) shl 16);
+      if ScanCode <> 0 then begin
         GetKeyNameText(ScanCode, KeyName, SizeOf(KeyName));
         if (KeyName[1] = #0) and (KeyName[0] <> #0) then
           GetSpecialName := KeyName;
@@ -4132,7 +4129,7 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
     for Key := $08 to $255 do { Copy range from table in HotKeyToText }
       if AnsiCompareText(Text, HotKeyToText(Key)) = 0 then
       begin
-        Result := Key or (Shift shl 8);
+        Result := Word(Key or (Shift shl 8));
         Exit;
       end;
   end;
@@ -4459,13 +4456,13 @@ const
                Inc(N);
                if N > 2 then
                  Invalid;
-               B := (B shl 4) or (Ord(C) - Ord('0'));
+               B := Byte((B shl 4) or (Ord(C) - Ord('0')));
              end;
         'A'..'F': begin
                Inc(N);
                if N > 2 then
                  Invalid;
-               B := (B shl 4) or (10 + Ord(C) - Ord('A'));
+               B := Byte((B shl 4) or (10 + Ord(C) - Ord('A')));
              end;
       else
         Invalid;
@@ -6831,7 +6828,7 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
     FillChar(StartupInfo, SizeOf(StartupInfo), 0);
     StartupInfo.cb := SizeOf(StartupInfo);
     StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow := IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOWNORMAL);
+    StartupInfo.wShowWindow := Word(IfThen(RunMinimized, SW_SHOWMINNOACTIVE, SW_SHOWNORMAL));
 
     var OutputReader := TCreateProcessOutputReader.Create(SignCommandLog, NativeInt(Self));
     try
@@ -7087,10 +7084,10 @@ var
   function WriteSetup0(const F: TFile): Int64;
 
     procedure WriteStream(Stream: TCustomMemoryStream; W: TCompressedBlockWriter);
-    var
-      Size: Longint;
     begin
-      Size := Stream.Size;
+      if Stream.Size > High(Cardinal) then
+        AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected Stream.Size value']);
+      const Size = Cardinal(Stream.Size);
       W.Write(Size, SizeOf(Size));
       W.Write(Stream.Memory^, Size);
     end;

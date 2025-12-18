@@ -2880,15 +2880,16 @@ var
     TBuffer = array[0..8191] of Byte;
   var
     Buf: PBuffer;
-    BytesLeft, Bytes: Longint;
   begin
     New(Buf);
     try
+      var BytesLeft: Cardinal;
       Reader.Read(BytesLeft, SizeOf(BytesLeft));
       while BytesLeft > 0 do begin
-        Bytes := BytesLeft;
-        if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
-        Reader.Read(Buf^, Cardinal(Bytes));
+        var Bytes := BytesLeft;
+        if Bytes > SizeOf(Buf^) then
+          Bytes := SizeOf(Buf^);
+        Reader.Read(Buf^, Bytes);
         if Stream <> nil then
           Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);

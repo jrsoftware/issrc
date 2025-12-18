@@ -584,16 +584,16 @@ function TLZMAWorkerThread.FillBuffer(const AWrite: Boolean;
 { Called from worker thread (or a thread spawned by the worker thread) }
 var
   P: ^Byte;
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   ProcessedSize := 0;
   P := Data;
   while Size <> 0 do begin
-    var LimitedSize: LongInt;
-    if Size > MaxLong then
-      LimitedSize := MaxLong
+    var LimitedSize: Integer;
+    if Size > Cardinal(High(Integer)) then
+      LimitedSize := High(Integer)
     else
-      LimitedSize := Size;
+      LimitedSize := Integer(Size);
     if AWrite then
       Bytes := RingBufferWrite(FShared.OutputBuffer, P^, LimitedSize)
     else begin

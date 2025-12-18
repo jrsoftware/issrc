@@ -70,7 +70,8 @@ type
 implementation
 
 uses
-  PathFunc, Compression.Base;
+  PathFunc, UnsignedFunc,
+  Compression.Base;
 
 { THashStringList }
 
@@ -95,7 +96,7 @@ begin
   LS := PathLowercase(S);
   Pointer(FList[Result].Str) := nil;  { since Grow doesn't zero init }
   FList[Result].Str := S;
-  FList[Result].Hash := GetCRC32(Pointer(LS)^, Length(LS)*SizeOf(LS[1]));
+  FList[Result].Hash := GetCRC32(Pointer(LS)^, ULength(LS)*SizeOf(LS[1]));
   Inc(FCount);
 end;
 
@@ -137,7 +138,7 @@ var
   I: Integer;
 begin
   LS := PathLowercase(S);
-  Hash := GetCRC32(Pointer(LS)^, Length(LS)*SizeOf(LS[1]));
+  Hash := GetCRC32(Pointer(LS)^, ULength(LS)*SizeOf(LS[1]));
   for I := 0 to FCount-1 do
     if (FList[I].Hash = Hash) and (PathLowercase(FList[I].Str) = LS) then begin
       Result := I;
