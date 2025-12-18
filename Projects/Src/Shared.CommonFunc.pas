@@ -771,21 +771,22 @@ function GetSysNativeDir(const IsWin64: Boolean): String;
 { Returns the special Sysnative alias, without trailing backslash.
   Returns '' if there is no Sysnative alias. }
 begin
-{$IFNDEF WIN64}
   { From MSDN: 32-bit applications can access the native system directory by
     substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
     Sysnative as a special alias used to indicate that the file system should
     not redirect the access. ... Note that 64-bit applications cannot use the
-    Sysnative alias as it is a virtual directory not a real one. }
+    Sysnative alias as it is a virtual directory not a real one.
+
+    Note: even though MSDN says 64-bit applications cannot *use* the alias,
+    it is still useful for them to know it, for example to prepare a path
+    to pass to a 32-bit application, or to rewrite Sysnative paths read from
+    an uninstall log created by a 32-bit installer. }
   if IsWin64 then
     { Note: Avoiding GetWinDir here as that might not return the real Windows
       directory under Terminal Services }
     Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
   else
     Result := '';
-{$ELSE}
-  raise Exception.Create('GetSysNativeDir not implemented');
-{$ENDIF}
 end;
 
 

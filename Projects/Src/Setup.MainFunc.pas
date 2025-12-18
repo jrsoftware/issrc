@@ -139,7 +139,7 @@ var
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
+  HasIcons, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
@@ -162,6 +162,14 @@ var
   InstallModeRootKey: HKEY;
 
   CodeRunner: TScriptRunner;
+
+{$IFDEF WIN64}
+const
+  IsWin64 = True;
+{$ELSE}
+var
+  IsWin64: Boolean;
+{$ENDIF}
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
 procedure CodeRunnerOnLog(const S: String);
@@ -2579,6 +2587,8 @@ procedure LogWindowsVersion;
         AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
   end;
 
+const
+  Bits: array [Boolean] of Integer = (32, 64);
 var
   SP: String;
 begin
@@ -2590,10 +2600,7 @@ begin
   LogFmt('Windows version: %u.%u.%u%s', [WindowsVersion shr 24,
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP]);
 
-  var Bits := 32;
-  if IsWin64 then
-    Bits := 64;
-  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits]);
+  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits[IsWin64]]);
   LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
@@ -4172,16 +4179,20 @@ const
   UserEnabled = $1;
 var
   KernelModule: HMODULE;
+{$IFNDEF WIN64}
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+{$ENDIF}
   GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
   IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
-  ProcessMachine, NativeMachine: USHORT;
-  Wow64Process: BOOL;
   SysInfo: TSystemInfo;
 begin
   KernelModule := GetModuleHandle(kernel32);
 
+{$IFDEF WIN64}
+  { Win64 is a constant and always True. We do still need to get the processor
+    architecture, and this is done below. }
+{$ELSE}
   { The system is considered a "Win64" system if all of the following
     conditions are true:
     1. One of the following two is true:
@@ -4197,6 +4208,7 @@ begin
   IsWin64 := False;
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+  var ProcessMachine, NativeMachine: USHORT;
   if Assigned(IsWow64Process2Func) and
      IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) and
      (ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN) then begin
@@ -4210,11 +4222,11 @@ begin
     end;
   end else begin
     IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
+    var Wow64Process: BOOL;
     if Assigned(IsWow64ProcessFunc) and
        IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
        Wow64Process then
-      IsWin64 := True;
-
+{$ENDIF}
     GetNativeSystemInfo(SysInfo);
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
@@ -4223,6 +4235,7 @@ begin
     else
       ProcessorArchitecture := paUnknown;
     end;
+{$IFNDEF WIN64}
   end;
 
   if IsWin64 and
@@ -4230,6 +4243,7 @@ begin
           (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
           (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
     IsWin64 := False;
+{$ENDIF}
 
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
