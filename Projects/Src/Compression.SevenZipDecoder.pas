@@ -300,9 +300,20 @@ procedure {$IFNDEF WIN64} _ReportProgress {$ELSE} ReportProgress {$ENDIF}(
   const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
   try
-    if Assigned(State.OnExtractionProgress) then
-      if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
+    if Assigned(State.OnExtractionProgress) then begin
+      const MaxInt64 = High(Int64);
+      var ReportProgress, ReportProgressMax: Int64;
+      if Progress > MaxInt64 then
+        ReportProgress := MaxInt64
+      else
+        ReportProgress := Int64(Progress);
+      if ProgressMax > MaxInt64 then
+        ReportProgressMax := MaxInt64
+      else
+        ReportProgressMax := Int64(Progressmax);
+      if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, ReportProgress, ReportProgressMax) then
         Abort := True;
+    end;
 
     if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
       Application.ProcessMessages;

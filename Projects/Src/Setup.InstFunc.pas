@@ -370,7 +370,7 @@ const
   SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
 var
   K: HKEY;
-  Disp, Size, Count, CurType, NewType: DWORD;
+  Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
   FilenameP: PChar;
 begin
@@ -382,7 +382,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
   FilenameP := PChar(Filename);
-  Count := 0;
+  var Count := 0;
   NewType := REG_DWORD;
   try
     if RegQueryValueEx(K, FilenameP, nil, @CurType, nil, @Size) = ERROR_SUCCESS then
@@ -409,7 +409,8 @@ begin
   except
     Count := 0;
   end;
-  if Integer(Count) < 0 then Count := 0;  { just in case... }
+  if Count < 0 then
+    Count := 0;  { just in case... }
   if (Count = 0) and AlreadyExisted then
     Inc(Count);
   Inc(Count);
@@ -433,7 +434,7 @@ const
 var
   K: HKEY;
   CountRead: Boolean;
-  Count, CurType, Size: DWORD;
+  CurType, Size: DWORD;
   CountStr: String;
 begin
   Result := False;
@@ -452,7 +453,7 @@ begin
       Exit;
 
     CountRead := False;
-    Count := 0;
+    var Count := 0;
     try
       case CurType of
         REG_SZ:
@@ -482,7 +483,7 @@ begin
       Exit;
 
     Dec(Count);
-    if Integer(Count) <= 0 then begin
+    if Count <= 0 then begin
       Result := True;
       RegDeleteValue(K, PChar(Filename));
     end

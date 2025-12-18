@@ -127,7 +127,7 @@ type
       FInArchive: IInArchive;
       FnumItems: UInt32;
       FLock: TObject;
-      FProgress, FProgressMax: UInt64;
+      FProgress, FProgressMax: Int64;
       FAbort: Boolean;
       FResult: TResult;
   protected
@@ -190,7 +190,7 @@ type
     FDestF: TFile;
     FOnExtractToHandleProgress: TOnExtractToHandleProgress;
     FOnExtractToHandleProgressParam: Int64;
-    FPreviousProgress: UInt64;
+    FPreviousProgress: Int64;
   protected
     { IArchiveExtractCallback }
     function GetStream(index: UInt32; out outStream: ISequentialOutStream;
@@ -492,7 +492,11 @@ begin
   try
     System.TMonitor.Enter(FLock);
     try
-      FProgressMax := total;
+      const MaxInt64 = High(Int64);
+      if total > MaxInt64 then
+        FProgressMax := MaxInt64
+      else
+        FProgressMax := Int64(total);
     finally
       System.TMonitor.Exit(FLock);
     end;
@@ -513,7 +517,11 @@ begin
 
     System.TMonitor.Enter(FLock);
     try
-      FProgress := completeValue^;
+      const MaxInt64 = High(Int64);
+      if completeValue^ > MaxInt64 then
+        FProgress := MaxInt64
+      else
+        FProgress := Int64(completeValue^);
     finally
       System.TMonitor.Exit(FLock);
     end;
@@ -821,7 +829,7 @@ end;
 procedure TArchiveExtractAllCallback.HandleProgress;
 begin
   var CurrentPath: String;
-  var Progress, ProgressMax: UInt64;
+  var Progress, ProgressMax: Int64;
 
   System.TMonitor.Enter(FLock);
   try
@@ -904,7 +912,7 @@ end;
 procedure TArchiveExtractToHandleCallback.HandleProgress;
 begin
   if Assigned(FOnExtractToHandleProgress) then begin
-    var Progress: UInt64;
+    var Progress: Int64;
 
     System.TMonitor.Enter(FLock);
     try

@@ -1084,7 +1084,7 @@ Retry:
             LastOperation := SetupMessages[msgErrorExtracting];
             var MaxProgress := CurProgress;
             Inc(MaxProgress, AExternalSize);
-            ArchiveFindExtract(UInt32(StrToUInt64(SourceFile)), DestF, ExternalProgressProc64, MaxProgress);
+            ArchiveFindExtract(TArchiveFindHandle(StrToUInt64(SourceFile)), DestF, ExternalProgressProc64, MaxProgress);
           end
           else if foDownload in CurFile^.Options then begin
             { Download a file with or without ISSigVerify. Note: estimate of
@@ -1579,7 +1579,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               if IsExcluded(FindData.cFileName, Excludes) then
                 Continue;
 
-              var SourceFile := IntToStr(H);
+              var SourceFile := UIntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
               var Size := FindDataFileSizeToInt64(FindData);
               if Size > ExpectedBytesLeft then begin
