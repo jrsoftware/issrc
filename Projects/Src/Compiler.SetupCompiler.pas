@@ -7680,7 +7680,7 @@ var
       end;
   end;
 
-  function InternalSignSetupE32WithRetries(const Filename: String;
+  function InternalSignSetupMemoryFileWithRetries(const Filename: String;
     var UnsignedFile: TMemoryFile; const UnsignedFileSize: Cardinal;
     const MismatchMessage: String): Boolean;
   var
@@ -7723,7 +7723,7 @@ var
       try
         { Carry checksum over from UnsignedFile to TestFile. We used to just
           zero it in TestFile, but that didn't work if the user modified
-          Setup.e32 with a res-editing tool that sets a non-zero checksum. }  
+          Setup.e?? with a res-editing tool that sets a non-zero checksum. }
         if not ReadSignatureAndChecksumFields(UnsignedFile, DWORD(SignatureAddress),
            DWORD(SignatureSize), HdrChecksum) then
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
@@ -7746,7 +7746,7 @@ var
     Result := True;
   end;
 
-  procedure SignSetupE32(var UnsignedFile: TMemoryFile);
+  procedure SignSetupMemoryFile(var UnsignedFile: TMemoryFile; const EExt: String);
   var
     UnsignedFileSize: Cardinal;
     ModeID: Longint;
@@ -7758,9 +7758,9 @@ var
     UnsignedFile.Seek(SetupExeModeOffset);
     ModeID := SetupExeModeUninstaller;
     UnsignedFile.WriteBuffer(ModeID, SizeOf(ModeID));
-
+    
     if SignTools.Count > 0 then begin
-      Filename := SignedUninstallerDir + 'uninst.e32.tmp';
+      Filename := SignedUninstallerDir + 'uninst' + EExt + '.tmp';
 
       F := TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
       try
@@ -7771,15 +7771,16 @@ var
 
       try
         Sign(Filename); { Has its own retry mechanism }
-        if not InternalSignSetupE32WithRetries(Filename, UnsignedFile, UnsignedFileSize,
+        if not InternalSignSetupMemoryFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
       finally
         DeleteFile(Filename);
       end;
     end else begin
-      Filename := SignedUninstallerDir + Format('uninst-%s-%s.e32', [SetupVersion,
+      const Basename = Format('uninst-%s-%s', [SetupVersion,
         Copy(SHA256DigestToString(SHA256Buf(UnsignedFile.Memory^, UnsignedFileSize)), 1, 10)]);
+      Filename := SignedUninstallerDir + Basename + EExt;
 
       if not NewFileExists(Filename) then begin
         { Create new signed uninstaller file }
@@ -7808,61 +7809,64 @@ var
         AddStatus(Format(SCompilerStatusSignedUninstallerExisting, [Filename]));
       end;
 
-      if not InternalSignSetupE32WithRetries(Filename, UnsignedFile, UnsignedFileSize,
+      if not InternalSignSetupMemoryFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
          SCompilerSignedFileContentsMismatchRetry) then
         AbortCompileFmt(SCompilerSignatureNeeded, [Filename]);
     end;
   end;
 
-  procedure PrepareSetupE32(var M: TMemoryFile);
+  procedure PrepareSetupMemoryFile(var M: TMemoryFile);
   var
-    TempFilename, E32Basename, E32Filename, ConvertFilename: String;
-    E32Pf: TPrecompiledFile;
-    E32Uisf: TUpdateIconsAndStyleFile;
+    TempFilename, ConvertFilename: String;
     ConvertFile: TFile;
   begin
     if (SetupHeader.WizardDarkStyle <> wdsDynamic) and (WizardStyleFileDynamicDark <> '') then
       AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected WizardStyleFileDynamicDark value']);
-  
+
     TempFilename := '';
     try
-      if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
-        E32Basename := 'Setup.e32';
-        E32Pf := pfSetupE32;
-        E32Uisf := uisfSetupE32;
-      end else begin
-        E32Basename := 'SetupCustomStyle.e32';
-        E32Pf := pfSetupCustomStyleE32;
-        E32Uisf := uisfSetupCustomStyleE32;
-      end;
-      E32Filename := CompilerDir + E32Basename;
+      const EExt = '.e32';
+      var EBasename, EFilename: String;
+      var EPf: TPrecompiledFile;
+      var EUisf: TUpdateIconsAndStyleFile;
 
-      ConvertFilename := OutputDir + OutputBaseFilename + '.e32.tmp';
-      CopyFileOrAbort(E32Filename, ConvertFilename, not(E32Pf in DisablePrecompiledFileVerifications),
+      if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
+        EBasename := 'Setup' + EExt;
+        EPf := pfSetupE32;
+        EUisf := uisfSetupE32;
+      end else begin
+        EBasename := 'SetupCustomStyle' + EExt;
+        EPf := pfSetupCustomStyleE32;
+        EUisf := uisfSetupCustomStyleE32;
+      end;
+      EFilename := CompilerDir + EBasename;
+
+      ConvertFilename := OutputDir + OutputBaseFilename + EExt + '.tmp';
+      CopyFileOrAbort(EFilename, ConvertFilename, not(EPf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
       { If there was a read-only attribute, remove it }
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
 
       TempFilename := ConvertFilename;
 
-      if E32Uisf = uisfSetupCustomStyleE32 then
-        AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [E32Basename]))
+      if EUisf = uisfSetupCustomStyleE32 then
+        AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [EBasename]))
       else
-        AddStatus(Format(SCompilerStatusUpdatingIcons, [E32Basename]));
+        AddStatus(Format(SCompilerStatusUpdatingIcons, [EBasename]));
       { OnUpdateIconsAndStyle will set proper LineNumber }
       WithRetries(False, ConvertFilename,
         procedure
         begin
           if SetupIconFilename <> '' then
-            UpdateIconsAndStyle(ConvertFileName, E32Uisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
+            UpdateIconsAndStyle(ConvertFileName, EUisf, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle,
               PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle)
           else
-            UpdateIconsAndStyle(ConvertFileName, E32Uisf, '', SetupHeader.WizardDarkStyle,
+            UpdateIconsAndStyle(ConvertFileName, EUisf, '', SetupHeader.WizardDarkStyle,
               PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
         end);
 
       LineNumber := 0;
-      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [E32Basename]));
+      AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [EBasename]));
       WithRetries(False, ConvertFilename,
         procedure
         begin
@@ -7885,14 +7889,14 @@ var
       M := CapturableM;
       UpdateSetupPEHeaderFields(M, TerminalServicesAware, DEPCompatible, ASLRCompatible);
       if shSignedUninstaller in SetupHeader.Options then
-        SignSetupE32(M);
+        SignSetupMemoryFile(M, EExt);
     finally
       if TempFilename <> '' then
         DeleteFile(TempFilename);
     end;
   end;
 
-  procedure CompressSetupE32(const M: TMemoryFile; const DestF: TFile;
+  procedure CompressSetupMemoryFile(const M: TMemoryFile; const DestF: TFile;
     var UncompressedSize: LongWord; var CRC: Longint);
   { Note: This modifies the contents of M. }
   var
@@ -8029,7 +8033,7 @@ const
   BadFilePathChars = '/*?"<>|';
   BadFileNameChars = BadFilePathChars + ':';
 var
-  SetupE32: TMemoryFile;
+  SetupMemoryFile: TMemoryFile;
   I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
@@ -8054,7 +8058,7 @@ begin
   WizardImagesDynamicDark := nil;
   WizardSmallImagesDynamicDark := nil;
   WizardBackImagesDynamicDark := nil;
-  SetupE32 := nil;
+  SetupMemoryFile := nil;
   DecompressorDLL := nil;
   SevenZipDLL := nil;
 
@@ -8357,7 +8361,7 @@ begin
         WizardStyleFileDynamicDark := BuiltinStyleFile; { Might be cleared again below }
     end;
     if (WizardStyleFileDynamicDark <> '') and (SetupHeader.WizardDarkStyle <> wdsDynamic) then
-      WizardStyleFileDynamicDark := ''; { Avoid unnecessary size increase - also checked for by PrepareSetupE32 }
+      WizardStyleFileDynamicDark := ''; { Avoid unnecessary size increase - also checked for by PrepareSetupMemoryFile }
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
 
@@ -8517,7 +8521,7 @@ begin
     { Prepare Setup executable & signed uninstaller data }
     if Output then begin
       AddStatus(SCompilerStatusPreparingSetupExe);
-      PrepareSetupE32(SetupE32);
+      PrepareSetupMemoryFile(SetupMemoryFile);
     end else
       AddStatus(SCompilerStatusSkippingPreparingSetupExe);
 
@@ -8747,7 +8751,7 @@ begin
               SetupFile := TFile.Create(ExeFilename, fdCreateAlways, faWrite, fsNone);
             end);
           try
-            SetupFile.WriteBuffer(SetupE32.Memory^, SetupE32.CappedSize);
+            SetupFile.WriteBuffer(SetupMemoryFile.Memory^, SetupMemoryFile.CappedSize);
             SizeOfExe := SetupFile.Size;
           finally
             SetupFile.Free;
@@ -8832,7 +8836,7 @@ begin
             SetupLdrOffsetTable.Offset0 := ExeFile.Position;
             SizeOfHeaders := WriteSetup0(ExeFile);
             SetupLdrOffsetTable.OffsetEXE := ExeFile.Position;
-            CompressSetupE32(SetupE32, ExeFile, SetupLdrOffsetTable.UncompressedSizeEXE,
+            CompressSetupMemoryFile(SetupMemoryFile, ExeFile, SetupLdrOffsetTable.UncompressedSizeEXE,
               SetupLdrOffsetTable.CRCEXE);
             SetupLdrOffsetTable.TotalSize := ExeFile.Size;
             if DiskSpanning then begin
@@ -8922,7 +8926,7 @@ begin
     WarningsList.Clear;
     SevenZipDLL.Free;
     DecompressorDLL.Free;
-    SetupE32.Free;
+    SetupMemoryFile.Free;
     WizardBackImagesDynamicDark.Free;
     WizardSmallImagesDynamicDark.Free;
     WizardImagesDynamicDark.Free;
