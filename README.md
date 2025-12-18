@@ -156,7 +156,8 @@ How do the projects link together?
 - Compil32, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
   Shared.Struct.pas. This unit contains various data structures and constants
   shared by the projects. If Shared.Struct.pas is changed, you usually will need
-  to recompile all these projects so that everything is in synch.
+  to recompile all these projects and the required targets using the Release or
+  Debug build group so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular
@@ -166,20 +167,23 @@ Source code tips
 ----------------
 
 - When building the projects in Release mode, it outputs to [Files]. Before
-  running Compil32, ensure that all .issig files are up to date.
+  running Compil32, ensure that all .issig files are up to date. Use the
+  Release build group to ensure all required targets are built.
+
+- You can open the Build Groups pane from the Projects tool window.
 
 - When building the projects in Debug mode, it outputs to [Projects\Bin] and when
   debugging, it will run from within this directory. To prepare this directory
   with some extra files you must run **Projects\Bin\synch-isfiles.bat**. Running
   the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
-- To debug the Setup project, you should first build all projects in Debug
-  mode, then run the Compil32 project and compile the Debug.iss script which
+- To debug the Setup project, you should first build the Debug build group,
+  then run the Compil32 project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
   Delphi debugger.
 
-- To debug the SetupLdr project, build all projects in Debug mode and compile
+- To debug the SetupLdr project, first build the Debug build group and compile
   the Debug.iss script as explained above, except with the `UseSetupLdr=no` line
   set to `yes`. Then open and run the SetupLdr project with a 32-bit or 64-bit
   target (latter does not require using `UseSetupLdr=x64`). It will automatically
