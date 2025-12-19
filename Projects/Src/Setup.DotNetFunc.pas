@@ -2,7 +2,7 @@
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,8 +15,8 @@
   //
   // Uses InnoSetup License
 
-  Also see https://docs.microsoft.com/en-us/dotnet/framework/unmanaged-api/fusion
-           https://docs.microsoft.com/en-us/windows/win32/sbscs/side-by-side-assembly-api
+  Also see https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/fusion
+           https://learn.microsoft.com/en-us/windows/win32/sbscs/side-by-side-assembly-api
 
   IsDotNetInstalled code based on http://www.kynosarges.de/DotNetVersion.html by Cristoph Nahr
   License:
@@ -32,12 +32,12 @@ uses
   Ole2, SysUtils, Windows, Shared.CommonFunc, Shared.DotNetVersion;
 
 type
-  IAssemblyCache = class(Ole2.IUnknown)
-    function UninstallAssembly(dwFlags: Integer; pszAssemblyName: PWideChar; pvReserved: Integer; var pulDisposition: Integer): Integer; virtual; stdcall; abstract;
-    function QueryAssemblyInfo(dwFlags: Integer; pszAssemblyName: PWideChar; pAsmInfo: Integer): Integer; virtual; stdcall; abstract;
-    function CreateAssemblyCacheItem(dwFlags: Integer; pvReserved: Integer; var ppAsmItem: Integer; pszAssemblyName: PWideChar): Integer; virtual; stdcall; abstract;
-    function CreateAssemblyScavenger(var ppAsmScavenger: Pointer): Integer; virtual; stdcall; abstract;
-    function InstallAssembly(dwFlags: Integer; pszManifestFilePath: PWideChar; pvReserved: Integer): Integer; virtual; stdcall; abstract;
+  IAssemblyCache = class(IUnknown)
+    function UninstallAssembly(dwFlags: DWORD; pszAssemblyName: PChar; pRefData: Pointer; var pulDisposition: ULONG): HRESULT; virtual; stdcall; abstract;
+    function QueryAssemblyInfo(dwFlags: DWORD; pszAssemblyName: PChar; pAsmInfo: Pointer): HRESULT; virtual; stdcall; abstract;
+    function CreateAssemblyCacheItem(dwFlags: DWORD; pvReserved: Pointer; var ppAsmItem: Pointer; pszAssemblyName: PChar): HRESULT; virtual; stdcall; abstract;
+    function CreateAssemblyScavenger(var ppUnkReserved: Pointer): HRESULT; virtual; stdcall; abstract;
+    function InstallAssembly(dwFlags: DWORD; pszManifestFilePath: PChar; pRefData: Pointer): HRESULT; virtual; stdcall; abstract;
   end;
 
   TAssemblyCacheInfo = class
@@ -147,13 +147,10 @@ end;
 procedure TAssemblyCacheInfo.InstallAssembly(const FileName: string);
 const
   IASSEMBLYCACHE_INSTALL_FLAG_FORCE_REFRESH = 2;
-var
-  lOleString: PWideChar;
-  OleResult: HRESULT;
 begin
-  lOleString := StringToOleStr(FileName);
+  const lOleString = StringToOleStr(FileName);
   try
-    OleResult := fCache.InstallAssembly(IASSEMBLYCACHE_INSTALL_FLAG_FORCE_REFRESH, lOleString, 0);
+    const OleResult = fCache.InstallAssembly(IASSEMBLYCACHE_INSTALL_FLAG_FORCE_REFRESH, lOleString, nil);
     if Failed(OleResult) then
       RaiseOleError('InstallAssembly', OleResult);
   finally
@@ -163,13 +160,10 @@ end;
 
 procedure TAssemblyCacheInfo.UninstallAssembly(
   const StrongAssemblyName: string);
-var
-  lOleString: PWideChar;
-  OleResult: HRESULT;
 begin
-  lOleString := StringToOleStr(StrongAssemblyName);
+  const lOleString = StringToOleStr(StrongAssemblyName);
   try
-    OleResult := fCache.UninstallAssembly(0, lOleString, 0, Integer(nil^));
+    const OleResult = fCache.UninstallAssembly(0, lOleString, nil, ULONG(nil^));
     if Failed(OleResult) then
       RaiseOleError('UninstallAssembly', OleResult);
   finally
