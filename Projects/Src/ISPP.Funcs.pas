@@ -25,9 +25,14 @@ uses
   MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
   Shared.FileClass, Shared.CommonFunc,
   ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
-  
+
+{$IFDEF WIN64}
+const
+  IsWin64 = True;
+{$ELSE}
 var
   IsWin64: Boolean;
+{$ENDIF}
 
 function PrependPath(const Ext: NativeInt; const Filename: String): String;
 begin
@@ -2061,6 +2066,8 @@ begin
   end;
 end;
 
+{$IFNDEF WIN64}
+
 procedure InitIsWin64;
 var
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
@@ -2075,6 +2082,6 @@ end;
 initialization
   InitIsWin64;
 
+{$ENDIF}
+
 end.
-
-
