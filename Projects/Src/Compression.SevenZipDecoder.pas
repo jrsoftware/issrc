@@ -310,7 +310,7 @@ begin
       if ProgressMax > MaxInt64 then
         ReportProgressMax := MaxInt64
       else
-        ReportProgressMax := Int64(Progressmax);
+        ReportProgressMax := Int64(ProgressMax);
       if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, ReportProgress, ReportProgressMax) then
         Abort := True;
     end;

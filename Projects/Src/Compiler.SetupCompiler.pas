@@ -2691,7 +2691,7 @@ begin
       end;
     ssAppId: begin
         if Value = '' then
-          Invalid; 
+          Invalid;
         SetupHeader.AppId := Value;
       end;
     ssAppModifyPath: begin
@@ -5838,7 +5838,7 @@ begin
       end;
     finally
       { If NewFileEntry is still assigned at this point, either an exception
-        occurred or no files were matched } 
+        occurred or no files were matched }
       SEFreeRec(NewFileEntry, SetupFileEntryStrings, SetupFileEntryAnsiStrings);
     end;
   finally
@@ -6883,10 +6883,10 @@ var
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName, FileNameSequenceFound1);
   Command := FmtCommand(PChar(ACommand), Params, AExeFileName, FileNameSequenceFound2);
-  
+
   if not FileNameSequenceFound1 and not FileNameSequenceFound2 then
     AbortCompileFmt(SCompilerSignToolFileNameSequenceNotFound, [AName]);
-  
+
   for I := 0 to RetryCount do begin
     try
       if (MinimumTimeBetween <> 0) and (LastSignCommandStartTick <> 0) then begin
@@ -7536,7 +7536,7 @@ var
           AddStatus(Format(StatusFilesStoringOrCompressingStrings[floChunkCompressed in FL.Flags],
             [FileLocationEntryFilenames[I]]));
         CallIdleProc;
-        
+
         SourceFile := TFile.Create(FileLocationEntryFilenames[I],
           fdOpenExisting, faRead, fsRead);
         try
@@ -7755,7 +7755,7 @@ var
     UnsignedFile.Seek(SetupExeModeOffset);
     ModeID := SetupExeModeUninstaller;
     UnsignedFile.WriteBuffer(ModeID, SizeOf(ModeID));
-    
+
     if SignTools.Count > 0 then begin
       Filename := SignedUninstallerDir + 'uninst' + EExt + '.tmp';
 
@@ -8559,7 +8559,7 @@ begin
       directives or messages overwrite each other. This means if that for example the first
       messages file does not specify a code page, but the second does, the language will
       automatically use the code page of the second file. And vice versa.
-      
+
       The [CustomMessages] data is stored in a single list for all languages, with each
       entry having a LangIndex property saying to which language it belongs. If a 'double'
       custom message is found, the existing one is removed from the list.
