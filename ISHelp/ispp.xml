@@ -919,12 +919,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<p><tt>FIND_CONTAINS</tt> (3) means that the line must contain (i. e. it also can match, begin, or end with) the search string.</p>
 						<p>Any of the following modifiers may be combined with one of the previous using bitwise OR operator (<tt>|</tt>):</p>
 						<p><tt>FIND_CASESENSITIVE</tt> (4) means that comparison must be case-sensitive.</p>
-						<p><tt>FIND_AND</tt> (0) means that this criterium (the pair of parameters in <tt>Find</tt> function) must be met as well as previous criteria.</p>
-						<p><tt>FIND_OR</tt> (8) means that it is allowed that this criterium is tested even if previous criteria were not met.</p>
+						<p><tt>FIND_AND</tt> (0) means that this criterium (the pair of parameters in <tt>Find</tt> function) must be met as well as previous criteria. Has no effect for the first criterium.</p>
+						<p><tt>FIND_OR</tt> (8) means that it is allowed that this criterium is tested even if previous criteria were not met. Has no effect for the first criterium.</p>
 						<p><tt>FIND_NOT</tt> (16) means that this criterium must not be met.</p>
 						<p><tt>FIND_AND</tt> and <tt>FIND_OR</tt> are mutually exclusive. If both are specified, <tt>FIND_OR</tt> takes precedence.</p>
 						<p>Special flags:</p>
-						<p><tt>FIND_TRIM</tt> (32) means that leading and trailing whitespaces must be stripped off from the line prior to testing it against all the criteria. This flag can only be used in the third parameter of the <tt>Find</tt> function. It is not mutually exclusive with any of the previously mentioned flags.</p>
+						<p><tt>FIND_TRIM</tt> (32) means that leading and trailing whitespaces must be stripped off from the line prior to testing it against all the criteria. This flag can only be used for the first criterium, and has no effect if used for the others. It is not mutually exclusive with any of the previously mentioned flags.</p>
 					</description>
 				</topic>
 			</topic>
