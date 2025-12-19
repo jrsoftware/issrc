@@ -883,7 +883,7 @@ begin
 end;
 
 procedure OutputProgressWizardPageMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
-  const Param: LongInt);
+  const Param: NativeInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =
     (tpsNormal, tpsError, tpsPaused);
@@ -910,7 +910,7 @@ begin
   if WizardForm.CurPageID <> ID then begin
     FSavePageID := WizardForm.CurPageID;
     WizardForm.SetCurPage(ID);
-    SetMessageBoxCallbackFunc(OutputProgressWizardPageMessageBoxCallback, LongInt(Self));
+    SetMessageBoxCallbackFunc(OutputProgressWizardPageMessageBoxCallback, NativeInt(Self));
     ProcessMsgs;
   end;
 end;

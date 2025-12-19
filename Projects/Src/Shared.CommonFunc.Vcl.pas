@@ -31,7 +31,7 @@ type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
   TMsgBoxCallbackFunc = procedure(const Flags: Cardinal; const After: Boolean;
-    const Param: LongInt);
+    const Param: NativeInt);
 
   TControlHelper = class helper for TControl
     procedure SetCurrentPPI(const CurrentPPI: Integer);
@@ -54,7 +54,7 @@ procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
 function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
-procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
+procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
@@ -76,7 +76,7 @@ var
   MessageBoxCaptions: array[TMsgBoxType] of PChar;
   MessageBoxRightToLeft: Boolean;
   MessageBoxCallbackFunc: TMsgBoxCallbackFunc;
-  MessageBoxCallbackParam: LongInt;
+  MessageBoxCallbackParam: NativeInt;
   MessageBoxCallbackActive: Boolean;
 
 function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
@@ -217,7 +217,7 @@ begin
   Result := MessageBoxRightToLeft;
 end;
 
-procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: LongInt);
+procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
 begin
   MessageBoxCallbackFunc := AFunc;
   MessageBoxCallbackParam := AParam;

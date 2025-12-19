@@ -73,7 +73,7 @@ uses
 { TUninstallProgressForm }
 
 procedure UninstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
-  const Param: LongInt);
+  const Param: NativeInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =
     (tpsNormal, tpsError, tpsPaused);
@@ -101,7 +101,7 @@ constructor TUninstallProgressForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
+  SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, NativeInt(Self));
 
   var LStyle := StyleServices(Self);
   if not LStyle.Enabled or LStyle.IsSystemStyle then
