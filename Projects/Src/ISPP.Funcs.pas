@@ -507,118 +507,95 @@ end;
 {Find(<what>[,<contains>[,<what>,<contains>[,<what>[,<contains>]]]])}
 function FindLine(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+
+  type
+    TFindWhere = (fwMatch, fwBegin, fwEnd, fwContains);
+
+  function Meets(const Str, Substr: string; Sensitive: Boolean; Where: TFindWhere): Boolean;
+  begin
+    case Where of
+      fwMatch: Result := PathStrCompare(PChar(Str), Length(Str), PChar(Substr), Length(Substr), not Sensitive) = 0;
+      fwBegin: Result := PathStartsWith(Str, Substr, not Sensitive);
+      fwEnd: Result := PathEndsWith(Str, Substr, not Sensitive);
+      fwContains: Result := PathStrFind(PChar(Str), Length(Str), PChar(Substr), Length(Substr), not Sensitive) <> -1;
+    else
+      raise Exception.Create('FindLine Meets: invalid Where');
+    end;
+  end;
+
 const
   FIND_WHEREMASK  = $01 or $02;
   FIND_SENSITIVE  = $04;
   FIND_OR         = $08;
   FIND_NOT        = $10;
   FIND_TRIM       = $20;
-type
-  TFindWhere = (fwMatch, fwBegin, fwEnd, fwContains);
 var
-  I: Integer;
-  StartFromLine: Integer;
-  Found, MoreFound, Second, Third: Boolean;
-  Flags: array[0..2] of Integer;
   Strs: array[0..2] of string;
-  Str: string;
-
-  function Compare(const S1, S2: string; Sensitive: Boolean): Boolean;
-  begin
-    if Sensitive then
-      Result := SameStr(S1, S2)
-    else
-      Result := SameText(S1, S2);
-  end;
-
-  function Contains(const Substr: string; Sensitive: Boolean): Boolean;
-  begin
-    if Sensitive then
-      Result := Pos(Substr, Str) > 0
-    else
-      Result := Pos(LowerCase(Substr), LowerCase(Str)) > 0;
-  end;
-
-  function Meets(const Substr: string; Sensitive: Boolean; Where: Integer): Boolean;
-  begin
-    const L = Length(Substr);
-    const SL = Length(Str);
-
-    if (Where in [1, 2, 3]) and (L > SL) then
-      Exit(False);
-
-    case Where of
-      1: Result := PathStartsWith(Str, Substr, not Sensitive);
-      2: Result := PathEndsWith(Str, Substr, not Sensitive);
-      3: Result := Contains(Substr, Sensitive);
-    else
-      Result := Compare(Substr, Str, Sensitive);
-    end;
-  end;
-
+  StrCount: Integer;
+  Flags: array[0..2] of Integer;
 begin
   if CheckParams(Params, [evInt, evStr, evInt, evStr, evInt, evStr, evInt], 2, Result) then
   try
+    FillChar(Flags, SizeOf(Flags), 0);
+
     with IInternalFuncParams(Params) do
     begin
-      FillChar(Flags, SizeOf(Flags), 0);
+      var StartFromLine := Get(0).AsInteger;
+      if StartFromLine < 0 then
+        StartFromLine := 0;
+
       Strs[0] := Get(1).AsStr;
-      Second := False;
-      Third := False;
-      if GetCount > 2 then
-      begin
+      StrCount := 1;
+
+      if GetCount > 2 then begin
         Flags[0] := Get(2).AsInteger;
-        if GetCount > 3 then
-        begin
+        if GetCount > 3 then begin
           Strs[1] := Get(3).AsStr;
-          Second := True;
-          if GetCount > 4 then
-          begin
+          Inc(StrCount);
+          if GetCount > 4 then begin
             Flags[1] := Get(4).AsInteger;
-            if GetCount > 5 then
-            begin
+            if GetCount > 5 then begin
               Strs[2] := Get(5).AsStr;
-              Third := True;
-              if GetCount > 6 then Flags[2] := Get(6).AsInteger;
+              Inc(StrCount);
+              if GetCount > 6 then
+                Flags[2] := Get(6).AsInteger;
             end
           end;
         end
       end;
-      StartFromLine := Get(0).AsInteger;
-      if StartFromLine < 0 then StartFromLine := 0;
-      with TStringList(TPreprocessor(Ext).StringList) do
-        for I := StartFromLine to Count - 1 do
-        begin
-          Str := Strings[I];
-          if Flags[0] and FIND_TRIM <> 0 then
-            Str := Trim(Str);
-          Found := Meets(Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
-            Flags[0] and FIND_WHEREMASK) xor (Flags[0] and FIND_NOT <> 0);
 
-          if Second and (((Flags[1] and FIND_OR <> 0{OR}) and not Found) or
-            ((Flags[1] and FIND_OR = 0{AND}) and Found)) then
-          begin
-            MoreFound := Meets(Strs[1], Flags[1] and FIND_SENSITIVE <> 0,
-              Flags[1] and FIND_WHEREMASK) xor (Flags[1] and FIND_NOT <> 0);
+      with TStringList(TPreprocessor(Ext).StringList) do
+        for var I := StartFromLine to Count - 1 do begin
+          var Line := Strings[I];
+          if Flags[0] and FIND_TRIM <> 0 then
+            Line := Trim(Line);
+
+          var Found := Meets(Line, Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
+            TFindWhere(Flags[0] and FIND_WHEREMASK)) xor (Flags[0] and FIND_NOT <> 0);
+
+          if (StrCount > 1) and
+             (((Flags[1] and FIND_OR <> 0{OR}) and not Found) or
+              ((Flags[1] and FIND_OR = 0{AND}) and Found)) then begin
+            const MoreFound = Meets(Line, Strs[1], Flags[1] and FIND_SENSITIVE <> 0,
+              TFindWhere(Flags[1] and FIND_WHEREMASK)) xor (Flags[1] and FIND_NOT <> 0);
             if Flags[1] and FIND_OR <> 0 then
               Found := Found or MoreFound
             else
               Found := Found and MoreFound;
           end;
 
-          if Third and (((Flags[2] and FIND_OR <> 0{OR}) and not Found) or
-            ((Flags[2] and FIND_OR = 0{AND}) and Found)) then
-          begin
-            MoreFound := Meets(Strs[2], Flags[2] and FIND_SENSITIVE <> 0,
-              Flags[2] and FIND_WHEREMASK) xor (Flags[2] and FIND_NOT <> 0);
+          if (StrCount > 2) and
+             (((Flags[2] and FIND_OR <> 0{OR}) and not Found) or
+              ((Flags[2] and FIND_OR = 0{AND}) and Found)) then begin
+            const MoreFound = Meets(Line, Strs[2], Flags[2] and FIND_SENSITIVE <> 0,
+              TFindWhere(Flags[2] and FIND_WHEREMASK)) xor (Flags[2] and FIND_NOT <> 0);
             if Flags[2] and FIND_OR <> 0 then
               Found := Found or MoreFound
             else
               Found := Found and MoreFound;
           end;
 
-          if Found then
-          begin
+          if Found then begin
             MakeInt(ResPtr^, I);
             Exit;
           end;
