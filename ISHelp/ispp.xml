@@ -355,7 +355,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Changes the insertion point. By default, each processed line is added to the end of the &translation;. Using &insert; the point at which the next processed line will be added to the &translation; can be changed. &insert; takes an expression which must evaluate to an integer. The insertion point will be set to this integer.</p>
+					<p>Changes the insertion point. By default, each processed line is appended to the end of the &translation;. Using &insert; the point at which the next processed line will be inserted into the &translation; can be set. &insert; takes an expression which must evaluate to a 0-based line index. If this index is 0, the next processed line is inserted at the beginning of the &translation;. If this index is 1, the next processed line is put in the second position of the &translation;, and so on.</p>
 					<p>The insertion point is also always automatically incremented each time after a line has been added to the &translation;, so that each new line is inserted after the one previously inserted.</p>
 					<p>It is not recommended to use script generating functions (such as <tt><link href="SetSetupSetting">SetSetupSetting</link></tt>) which may insert a line by themselves, thus shifting a part of the &translation; one line down, whereas insertion point is not updated. This may result in different insertion point than expected.</p>
 					<p>The <tt><link href="find">Find</link></tt> function can be used to produce values for the &insert; directive.</p>
@@ -896,15 +896,15 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Find">
 				<title>Find</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Find(<b>int</b> 1, <b>str</b> 2, <b>int</b>? 3, <b>str</b>? 4, <b>int</b>? 5, <b>str</b>? 6, <b>int</b>? 7)</line></pre>
+					<pre><line><b>int</b> Find(<b>int</b> StartLine, <b>str</b> Str1, <b>int</b>? Flags1, <b>str</b>? Str2, <b>int</b>? Flags2, <b>str</b>? Str3, <b>int</b>? Flags3)</line></pre>
 				</section>
 				<description>
-					<p>Intended to be used with &insert; directive: returns the index of the line in the &translation; depending on specified criteria.</p>
-					<p>First parameter denotes the index of the line to start the search from, usually it is set to zero.</p>
-					<p>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the second parameter must be specified, whereas fourth and sixth may be omitted.</p>
-					<p>Third, fifth, and seventh parameters should specify the search flags for each string meaning that third parameter specifies flags for second, fifth for fourth, and seventh for sixth.</p>
-					<p>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <tt>FIND_MATCH | FIND_AND</tt> (i. e. 0) is assumed.</p>
-					<p>Values for third, fifth, and seventh parameters of <tt>Find</tt> function are declared in &builtins;. See <link href="find-flags">Find flags</link> topic for the description of each value.</p>
+					<p>Intended to be used with &insert; directive: returns the 0-based index of the line in the &translation; depending on specified criteria.</p>
+					<p>First parameter denotes the 0-based index of the line to start the search from, usually it is set to zero.</p>
+					<p>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the first string must be specified, whereas the others may be omitted.</p>
+					<p>Third, fifth, and seventh parameters should specify the search flags for each string meaning that first flags parameter specifies flags for the first string, and so on.</p>
+					<p>See <link href="find-flags">Find flags</link> topic for the description of the available search flags.</p>
+					<p>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <tt>FIND_MATCH | FIND_AND</tt> (i. e. 0) is used.</p>
 				</description>
 				<section title="See also">
 					<p>&insert;.</p>
@@ -1626,7 +1626,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the index of the line following the header of the section. This function is intended to be used with &insert; directive.</p>
+					<p>Returns the 0-based index of the line following the header of the section. This function is intended to be used with &insert; directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1638,7 +1638,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the index of the line following last entry of the section. This function is intended to be used with #insert directive.</p>
+					<p>Returns the 0-based index of the line following last entry of the section. This function is intended to be used with #insert directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1650,7 +1650,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the index of the line following either the [Code] section header, or the "program" keyword, if any.</p>
+					<p>Returns the 0-based index of the line following either the [Code] section header, or the "program" keyword, if any.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
