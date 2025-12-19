@@ -54,8 +54,8 @@ type
 
   TPreprocessorCommand = (pcError, pcIf, pcIfDef, pcIfNDef, pcIfExist,
     pcIfNExist, pcElseIf, pcElse, pcEndIf, pcDefine, pcUndef, pcInclude,
-    pcErrorDir, pcPragma, pcLine, pcImport, pcPrint, pcPrintEnv, pcFile,
-    pcExecute, pcGlue, pcEndGlue, pcDim, pcProcedure, pcEndProc, pcEndLoop,
+    pcErrorDir, pcPragma, pcLine, pcImport, pcEmit, pcEnv, pcFile,
+    pcExpr, pcInsert, pcAppend, pcDim, pcSub, pcEndSub, pcEndLoop,
     pcFor, pcReDim);
 
   TDropGarbageProc = procedure(Item: Pointer);
@@ -203,12 +203,12 @@ begin
   end;
   if StrLIComp('echo', P, 4) = 0 then
   begin
-    Result := pcPrint;
+    Result := pcEmit;
     Inc(P, 4)
   end
   else if StrLIComp('call', P, 4) = 0 then
   begin
-    Result := pcExecute;
+    Result := pcExpr;
     Inc(P, 4);
   end
   else
@@ -344,8 +344,8 @@ begin
         begin
           case Command of
             pcError: RaiseError(SUnknownPreprocessorDirective);
-            pcProcedure: RaiseError('Nested procedure declaration not allowed');
-            pcEndProc:
+            pcSub: RaiseError('Nested procedure declaration not allowed');
+            pcEndSub:
               begin
                 S := P;
                 ProcessPreprocCommand(Command, S, P - P1);
@@ -374,7 +374,7 @@ begin
             else
               if State then
                 case Command of
-                  pcPrint, pcPrintEnv:
+                  pcEmit, pcEnv:
                     begin
                       ProcessPreprocCommand(Command, S, DirectiveOffset);
                       VerboseMsg(8, SLineEmitted, [S]);
@@ -506,7 +506,7 @@ begin
       if LineStack.Include then Result := Result + S;
       Command := ParsePreprocCommand(DStart, Char(FOptions.InlineEnd[1]));
       if Command = pcError then
-        Command := pcPrint;
+        Command := pcEmit;
       DEnd := DStart;
       SetString(S, DStart, ScanForInlineEnd(DEnd) - DStart);
 
@@ -524,10 +524,10 @@ begin
       else
         if LineStack.Include then
           case Command of
-            pcInclude, pcGlue..pcEndLoop:
+            pcInclude, pcInsert..pcEndSub:
               RaiseError(Format(SDirectiveCannotBeInline,
                 [PreprocCommands[Command]]));
-            pcPrint, pcPrintEnv, pcFile:
+            pcEmit, pcEnv, pcFile:
               begin
                 ProcessPreprocCommand(Command, S, DStart - LineStart);
                 Result := Result + S;
@@ -927,7 +927,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     end;
   end;
 
-  procedure Glue(LineNo: Integer);
+  procedure BeginInsert(LineNo: Integer);
   begin
     if LineNo > FOutput.Count then
       RaiseError(Format(SInsertLineNoTooBig, [LineNo]));
@@ -935,7 +935,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     VerboseMsg(2, SChangingInsertionPointToLine, [FInsertionPoint]);
   end;
 
-  procedure EndGlue;
+  procedure EndInsert;
   begin
     VerboseMsg(2, SResettingInsertionPoint);
     FInsertionPoint := -1;
@@ -1013,20 +1013,20 @@ begin
           RaiseError(Params.Trim);
         end;
       pcPragma: Pragma(Parser);
-      pcPrint: Params := ToStr(Evaluate).AsStr;
-      pcPrintEnv:
+      pcEmit: Params := ToStr(Evaluate).AsStr;
+      pcEnv:
         begin
           NextTokenExpect([tkIdent]);
           Params := GetEnv(TokenString);
           EndOfExpr;
         end;
       pcFile: Params := DoFile(StrExpr(False));
-      pcExecute: Evaluate;
-      pcGlue: Glue(IntegerExpr(False));
-      pcEndGlue: EndGlue;
+      pcExpr: Evaluate;
+      pcInsert: BeginInsert(IntegerExpr(False));
+      pcAppend: EndInsert;
       pcFor: ParseFor(Parser);
-      pcProcedure: BeginProcDecl(Parser);
-      pcEndProc: EndProcDecl;
+      pcSub: BeginProcDecl(Parser);
+      pcEndSub: EndProcDecl;
     else
       WarningMsg(SDirectiveNotYetSupported, [PreprocCommands[Command]])
     end;
