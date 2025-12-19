@@ -526,33 +526,33 @@ var
   function Compare(const S1, S2: string; Sensitive: Boolean): Boolean;
   begin
     if Sensitive then
-      Result := AnsiCompareStr(S1, S2) = 0
+      Result := SameStr(S1, S2)
     else
-      Result := AnsiCompareText(S1, S2) = 0;
+      Result := SameText(S1, S2);
   end;
 
   function Contains(const Substr: string; Sensitive: Boolean): Boolean;
-  var
-    L, I: Integer;
   begin
-    Result := True;
-    L := Length(Substr);
-    for I := 1 to Length(Str) - L + 1 do
-      if Compare(Substr, Copy(Str, I, L), Sensitive) then Exit;
-    Result := False;
+    if Sensitive then
+      Result := Pos(Substr, Str) > 0
+    else
+      Result := Pos(LowerCase(Substr), LowerCase(Str)) > 0;
   end;
 
   function Meets(const Substr: string; Sensitive: Boolean; Where: Integer): Boolean;
   begin
-    Result := False;
+    const L = Length(Substr);
+    const SL = Length(Str);
+
+    if (Where in [1, 2, 3]) and (L > SL) then
+      Exit(False);
+
     case Where of
-      1: if Length(Substr) <= Length(Str) then
-            Result := Compare(Substr, Copy(Str, 1, Length(Substr)), Sensitive);
-      2: if Length(Substr) <= Length(Str) then
-            Result := Compare(Substr, Copy(Str, Length(Str) - Length(Substr) + 1, Length(Substr)), Sensitive);
-      3: if Length(Substr) <= Length(Str) then
-            Result := Contains(Substr, Sensitive);
-      else Result := Compare(Substr, Str, Sensitive);
+      1: Result := PathStartsWith(Str, Substr, not Sensitive);
+      2: Result := PathEndsWith(Str, Substr, not Sensitive);
+      3: Result := Contains(Substr, Sensitive);
+    else
+      Result := Compare(Substr, Str, Sensitive);
     end;
   end;
 
@@ -2097,4 +2097,5 @@ initialization
   InitIsWin64;
 
 end.
+
 
