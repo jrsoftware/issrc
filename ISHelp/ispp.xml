@@ -899,7 +899,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> Find(<b>int</b> StartLine, <b>str</b> Str1, <b>int</b>? Flags1, <b>str</b>? Str2, <b>int</b>? Flags2, <b>str</b>? Str3, <b>int</b>? Flags3)</line></pre>
 				</section>
 				<description>
-					<p>Intended to be used with &insert; directive: returns the 0-based index of the line in the &translation; depending on specified criteria.</p>
+					<p>Intended to be used with &insert; directive: returns the 0-based index of the first line in the &translation; matching the specified criteria. Return less than 0 if not match was found.</p>
 					<p>First parameter denotes the 0-based index of the line to start the search from, usually it is set to zero.</p>
 					<p>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the first string must be specified, whereas the others may be omitted.</p>
 					<p>Third, fifth, and seventh parameters should specify the search flags for each string meaning that first flags parameter specifies flags for the first string, and so on.</p>
@@ -1626,7 +1626,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following the header of the section. This function is intended to be used with &insert; directive.</p>
+					<p>Returns the 0-based index of the line following the header of the section, or less than 0 if the section was not found. This function is intended to be used with &insert; directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1638,7 +1638,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following last entry of the section. This function is intended to be used with #insert directive.</p>
+					<p>Returns the 0-based index of the line following last entry of the section, or less than 0 if the section was not found. This function is intended to be used with #insert directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1650,7 +1650,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following either the [Code] section header, or the "program" keyword, if any.</p>
+					<p>Returns the 0-based index of the line following either the [Code] section header, or the "program" keyword, if any. Returns less than 0 if neither is found.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
