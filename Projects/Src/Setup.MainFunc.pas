@@ -171,7 +171,6 @@ var
   IsWin64: Boolean;
 {$ENDIF}
 
-function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: LongInt;
@@ -258,7 +257,7 @@ uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.RedirFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, Setup.RedirFunc,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
@@ -335,24 +334,6 @@ end;
 function IsWindows11: Boolean;
 begin
   Result := WindowsVersionAtLeast(10, 0, 22000);
-end;
-
-function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
-begin
-  var NewPath := PathExpand(APath);
-
-  if A64Bit then begin
-    { system32 -> sysnative }
-    if not IsWin64 then
-      InternalError('ApplyPathRedirRules: A64Bit=True but IsWin64=False');
-    NewPath := ReplaceSystemDirWithSysNative(NewPath, IsWin64);
-  end else begin
-    { system32 -> syswow64 rule currently disabled; it's only really needed
-      when the target process is 64-bit. }
-    //NewPath := ReplaceSystemDirWithSysWow64(NewPath);
-  end;
-
-  Result := NewPath;
 end;
 
 function GetUninstallRegKeyBaseName(const ExpandedAppId: String): String;
@@ -1392,6 +1373,7 @@ begin
   WinSystemDir := GetSystemDir;
   WinSysWow64Dir := GetSysWow64Dir;
   WinSysNativeDir := GetSysNativeDir(IsWin64);
+  InitializePathRedir(IsWin64, WinSystemDir, WinSysWow64Dir, WinSysNativeDir);
 
   { Get system drive }
   SystemDrive := GetEnv('SystemDrive');  {don't localize}
