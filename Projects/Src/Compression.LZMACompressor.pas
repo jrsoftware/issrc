@@ -60,9 +60,9 @@ type
     NumThreadGroups: Integer;
   end;
   TLZMACompressorRingBuffer = record
-    Count: Longint;         { updated by reader and writer using InterlockedExchangeAdd only }
-    WriterOffset: Longint;  { accessed only by writer thread }
-    ReaderOffset: Longint;  { accessed only by reader thread }
+    Count: Integer;         { updated by reader and writer using InterlockedExchangeAdd only }
+    WriterOffset: Integer;  { accessed only by writer thread }
+    ReaderOffset: Integer;  { accessed only by reader thread }
     Buf: array[0..$FFFFF] of Byte;
   end;
   PLZMACompressorSharedEvents = ^TLZMACompressorSharedEvents;
@@ -85,12 +85,12 @@ type
   end;
   PLZMACompressorProcessData = ^TLZMACompressorProcessData;
   TLZMACompressorProcessData = record
-    StructSize: LongWord;
+    StructSize: Cardinal;
     ParentProcess: THandle;
     LZMA2: BOOL;
     EncoderProps: TLZMAEncoderProps;
     Events: TLZMACompressorSharedEvents;
-    SharedDataStructSize: LongWord;
+    SharedDataStructSize: Cardinal;
     SharedDataMapping: THandle;
   end;
 
@@ -102,7 +102,7 @@ type
     FWorker: TLZMACompressorCustomWorker;
     FEncodeStarted: Boolean;
     FEncodeFinished: Boolean;
-    FLastInputWriteCount: LongWord;
+    FLastInputWriteCount: Cardinal;
     FLastProgressBytes: Int64;
     FProgressTimer: THandle;
     FProgressTimerSignaled: Boolean;
@@ -335,11 +335,11 @@ begin
 end;
 
 function RingBufferInternalWriteOrRead(var Ring: TLZMACompressorRingBuffer;
-  const AWrite: Boolean; var Offset: Longint; const Data: Pointer;
-  Size: Longint): Longint;
+  const AWrite: Boolean; var Offset: Integer; const Data: Pointer;
+  Size: Integer): Integer;
 var
   P: ^Byte;
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   Result := 0;
   P := Data;
@@ -380,23 +380,23 @@ begin
 end;
 
 function RingBufferRead(var Ring: TLZMACompressorRingBuffer; var Buf;
-  const Size: Longint): Longint;
+  const Size: Integer): Integer;
 begin
   Result := RingBufferInternalWriteOrRead(Ring, False, Ring.ReaderOffset,
     @Buf, Size);
 end;
 
 function RingBufferWrite(var Ring: TLZMACompressorRingBuffer; const Buf;
-  const Size: Longint): Longint;
+  const Size: Integer): Integer;
 begin
   Result := RingBufferInternalWriteOrRead(Ring, True, Ring.WriterOffset,
     @Buf, Size);
 end;
 
 function RingBufferReadToCallback(var Ring: TLZMACompressorRingBuffer;
-  const AWriteProc: TCompressorWriteProc; Size: Longint): Longint;
+  const AWriteProc: TCompressorWriteProc; Size: Integer): Integer;
 var
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   Result := 0;
   while Size > 0 do begin
@@ -1023,7 +1023,7 @@ const
     until we've accumulated a reasonable number of bytes before flushing }
   OptimalFlushSize = $10000;  { can't exceed size of OutputBuffer.Buf }
 var
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   while True do begin
     Bytes := FShared.OutputBuffer.Count;
@@ -1115,8 +1115,8 @@ end;
 procedure TLZMACompressor.DoCompress(const Buffer; Count: Cardinal);
 var
   P: ^Byte;
-  BytesWritten: Longint;
-  InputWriteCount: LongWord;
+  BytesWritten: Integer;
+  InputWriteCount: Cardinal;
 begin
   StartEncode;
 
@@ -1147,7 +1147,7 @@ begin
 
       { Unblock the worker every 64 KB so it doesn't have to wait until the
         entire input buffer is filled to begin/continue compressing. }
-      InputWriteCount := FLastInputWriteCount + LongWord(BytesWritten);
+      InputWriteCount := FLastInputWriteCount + Cardinal(BytesWritten);
       if InputWriteCount shr 16 <> FLastInputWriteCount shr 16 then
         SatisfyWorkerWaitOnInput;
       FLastInputWriteCount := InputWriteCount;

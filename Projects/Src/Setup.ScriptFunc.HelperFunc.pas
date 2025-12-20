@@ -33,9 +33,9 @@ type
   { Must keep this in synch with Compiler.ScriptFunc.pas }
   TFindRec = record
     Name: String;
-    Attributes: LongWord;
-    SizeHigh: LongWord;
-    SizeLow: LongWord;
+    Attributes: Cardinal;
+    SizeHigh: Cardinal;
+    SizeLow: Cardinal;
     CreationTime: TFileTime;
     LastAccessTime: TFileTime;
     LastWriteTime: TFileTime;
@@ -99,7 +99,7 @@ function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
 function SaveStringToFile(const FileName: String; const S: AnsiString; Append: Boolean): Boolean;
 function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): LongWord;
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): Cardinal;
 
 {$ENDIF}
 
@@ -650,7 +650,7 @@ end;
 var
   ASMInliners: array of Pointer;
 
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): LongWord;
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): Cardinal;
 var
   ProcRec: TPSInternalProcRec;
   Method: TMethod;
@@ -709,13 +709,13 @@ begin
 
     Inliner.Push(EAX); //put the retptr back onto the stack
 
-    Inliner.Mov(EAX, LongWord(Method.Data)); //Load the self ptr
+    Inliner.Mov(EAX, Cardinal(Method.Data)); //Load the self ptr
 
     Inliner.Jmp(Method.Code); //jump to the wrapped proc
 
     SetLength(ASMInliners, Length(ASMInliners) + 1);
     ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
-    Result := LongWord(ASMInliners[High(ASMInliners)]);
+    Result := Cardinal(ASMInliners[High(ASMInliners)]);
   finally
     Inliner.Free;
   end;

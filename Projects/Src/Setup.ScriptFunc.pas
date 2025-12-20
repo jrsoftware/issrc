@@ -1874,6 +1874,9 @@ var
     end);
     RegisterScriptFunc('CREATECALLBACK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFNDEF CPUX86}
+      {$MESSAGE ERROR 'This and CreateCallback both need updating for non-x86 builds' }
+      {$ENDIF}
       Stack.SetInt(PStart, CreateCallback(Caller, PPSVariantProcPtr(Stack.Items[PStart-1])));
     end);
     RegisterScriptFunc('ISDOTNETINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)

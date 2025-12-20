@@ -151,7 +151,7 @@ end;
 procedure TLZMA1SmallDecompressor.ProcessHeader;
 var
   Props: array[0..LZMA_PROPERTIES_SIZE-1] of Byte;
-  ProbsSize, DictionarySize: LongWord;
+  ProbsSize, DictionarySize: Cardinal;
   NewHeapSize: Cardinal;
 begin
   { Read header fields }
@@ -164,7 +164,7 @@ begin
   if LzmaMyDecodeProperties(FDecoderState, SizeOf(FDecoderState), Props,
      SizeOf(Props), ProbsSize, DictionarySize) <> LZMA_RESULT_OK then
     LZMADataError(3);
-  if DictionarySize > LongWord(64 shl 20) then
+  if DictionarySize > 64 shl 20 then
     { sanity check: we only use dictionary sizes <= 64 MB }
     LZMADataError(7);
 

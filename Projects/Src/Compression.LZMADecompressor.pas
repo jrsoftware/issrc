@@ -240,14 +240,14 @@ procedure TLZMA1Decompressor.ProcessHeader;
 var
   Props: packed record  { size = LZMA_PROPS_SIZE (5) }
     Misc: Byte;
-    DictionarySize: LongWord;  { little endian, unaligned }  
+    DictionarySize: Cardinal;  { little endian, unaligned }
   end;
 begin
   { Read header fields }
   if ReadProc(Props, SizeOf(Props)) <> SizeOf(Props) then
     LZMADecompDataError(1);
 
-  if Props.DictionarySize > LongWord(MaxDictionarySize) then
+  if Props.DictionarySize > MaxDictionarySize then
     LZMADecompDataError(5);
 
   var StateSize := IS_LzmaDec_StateSize;
@@ -288,7 +288,7 @@ end;
 procedure TLZMA2Decompressor.ProcessHeader;
 
   { Macro from Lzma2Dec.c: }
-  function LZMA2_DIC_SIZE_FROM_PROP(p: LongWord): LongWord;
+  function LZMA2_DIC_SIZE_FROM_PROP(p: Cardinal): Cardinal;
   begin
     Result := (2 or (p and 1)) shl (p div 2 + 11);
   end;
@@ -301,7 +301,7 @@ begin
     LZMADecompDataError(1);
 
   if (Prop >= 40) or
-     (LZMA2_DIC_SIZE_FROM_PROP(Prop) > LongWord(MaxDictionarySize)) then
+     (LZMA2_DIC_SIZE_FROM_PROP(Prop) > MaxDictionarySize) then
     LZMADecompDataError(5);
 
   var StateSize := IS_Lzma2Dec_StateSize;
