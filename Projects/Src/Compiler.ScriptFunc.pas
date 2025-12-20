@@ -51,11 +51,11 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
       ScriptCompiler.AddDelphiFunction(FunctionTable[I]);
   end;
 
-  procedure RegisterConst(const Name: tbtstring; const Value: LongInt);
+  procedure RegisterConst(const Name: tbtstring; const Value: Integer);
   var
     C: TPSConstant;
   begin
-    C := ScriptCompiler.AddConstant(Name, ScriptCompiler.FindType('Longint'));
+    C := ScriptCompiler.AddConstant(Name, ScriptCompiler.FindType('Integer'));
     C.Value.tU32 := Value;
   end;
 
@@ -195,45 +195,45 @@ begin
 
   RegisterConst('HWND_BROADCAST', HWND_BROADCAST);
 
-  RegisterConst('HKEY_AUTO', LongInt(HKEY_AUTO));
-  RegisterConst('HKEY_AUTO_32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_AUTO_64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_CLASSES_ROOT', LongInt(HKEY_CLASSES_ROOT));
-  RegisterConst('HKEY_CLASSES_ROOT_32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CLASSES_ROOT_64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_CURRENT_USER', LongInt(HKEY_CURRENT_USER));
-  RegisterConst('HKEY_CURRENT_USER_32', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CURRENT_USER_64', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_LOCAL_MACHINE', LongInt(HKEY_LOCAL_MACHINE));
-  RegisterConst('HKEY_LOCAL_MACHINE_32', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_LOCAL_MACHINE_64', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_USERS', LongInt(HKEY_USERS));
-  RegisterConst('HKEY_USERS_32', LongInt(HKEY_USERS or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_USERS_64', LongInt(HKEY_USERS or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_PERFORMANCE_DATA', LongInt(HKEY_PERFORMANCE_DATA));
-  RegisterConst('HKEY_CURRENT_CONFIG', LongInt(HKEY_CURRENT_CONFIG));
-  RegisterConst('HKEY_CURRENT_CONFIG_32', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CURRENT_CONFIG_64', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_DYN_DATA', LongInt(HKEY_DYN_DATA));
+  RegisterConst('HKEY_AUTO', Integer(HKEY_AUTO));
+  RegisterConst('HKEY_AUTO_32', Integer(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_AUTO_64', Integer(HKEY_AUTO or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_CLASSES_ROOT', Integer(HKEY_CLASSES_ROOT));
+  RegisterConst('HKEY_CLASSES_ROOT_32', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CLASSES_ROOT_64', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_CURRENT_USER', Integer(HKEY_CURRENT_USER));
+  RegisterConst('HKEY_CURRENT_USER_32', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CURRENT_USER_64', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_LOCAL_MACHINE', Integer(HKEY_LOCAL_MACHINE));
+  RegisterConst('HKEY_LOCAL_MACHINE_32', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_LOCAL_MACHINE_64', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_USERS', Integer(HKEY_USERS));
+  RegisterConst('HKEY_USERS_32', Integer(HKEY_USERS or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_USERS_64', Integer(HKEY_USERS or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_PERFORMANCE_DATA', Integer(HKEY_PERFORMANCE_DATA));
+  RegisterConst('HKEY_CURRENT_CONFIG', Integer(HKEY_CURRENT_CONFIG));
+  RegisterConst('HKEY_CURRENT_CONFIG_32', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CURRENT_CONFIG_64', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_DYN_DATA', Integer(HKEY_DYN_DATA));
 
-  RegisterConst('HKA', LongInt(HKEY_AUTO));
-  RegisterConst('HKA32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
-  RegisterConst('HKA64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCR', LongInt(HKEY_CLASSES_ROOT));
-  RegisterConst('HKCR32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCR64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCU', LongInt(HKEY_CURRENT_USER));
-  RegisterConst('HKCU32', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCU64', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
-  RegisterConst('HKLM', LongInt(HKEY_LOCAL_MACHINE));
-  RegisterConst('HKLM32', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
-  RegisterConst('HKLM64', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
-  RegisterConst('HKU', LongInt(HKEY_USERS));
-  RegisterConst('HKU32', LongInt(HKEY_USERS or CodeRootKeyFlag32Bit));
-  RegisterConst('HKU64', LongInt(HKEY_USERS or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCC', LongInt(HKEY_CURRENT_CONFIG));
-  RegisterConst('HKCC32', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCC64', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
+  RegisterConst('HKA', Integer(HKEY_AUTO));
+  RegisterConst('HKA32', Integer(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKA64', Integer(HKEY_AUTO or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCR', Integer(HKEY_CLASSES_ROOT));
+  RegisterConst('HKCR32', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCR64', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCU', Integer(HKEY_CURRENT_USER));
+  RegisterConst('HKCU32', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCU64', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
+  RegisterConst('HKLM', Integer(HKEY_LOCAL_MACHINE));
+  RegisterConst('HKLM32', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
+  RegisterConst('HKLM64', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
+  RegisterConst('HKU', Integer(HKEY_USERS));
+  RegisterConst('HKU32', Integer(HKEY_USERS or CodeRootKeyFlag32Bit));
+  RegisterConst('HKU64', Integer(HKEY_USERS or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCC', Integer(HKEY_CURRENT_CONFIG));
+  RegisterConst('HKCC32', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCC64', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
 
   RegisterConst('SW_HIDE', SW_HIDE);
   RegisterConst('SW_SHOWNORMAL', SW_SHOWNORMAL);

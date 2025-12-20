@@ -598,14 +598,10 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
 
   procedure SetFileLocationFilename(const LocationEntry: Integer;
     Filename: String);
-  var
-    LowercaseFilename: String;
-    Hash: Longint;
-    I: Integer;
   begin
     Filename := PathExpand(Filename);
-    LowercaseFilename := PathLowercase(Filename);
-    Hash := GetCRC32(LowercaseFilename[1], ULength(LowercaseFilename)*SizeOf(LowercaseFilename[1]));
+    const LowercaseFilename = PathLowercase(Filename);
+    const Hash = GetCRC32(LowercaseFilename[1], ULength(LowercaseFilename)*SizeOf(LowercaseFilename[1]));
     { If Filename was already associated with another LocationEntry,
       disassociate it. If we *don't* do this, then this script won't
       produce the expected result:
@@ -618,8 +614,8 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
       3. It copies file2 to file1, thinking a copy of fileA was still
          stored in file2.
     }
-    for I := 0 to FileLocationFilenames.Count-1 do
-      if (Longint(FileLocationFilenames.Objects[I]) = Hash) and
+    for var I := 0 to FileLocationFilenames.Count-1 do
+      if (Integer(FileLocationFilenames.Objects[I]) = Hash) and
          (PathLowercase(FileLocationFilenames[I]) = LowercaseFilename) then begin
         FileLocationFilenames[I] := '';
         FileLocationFilenames.Objects[I] := nil;

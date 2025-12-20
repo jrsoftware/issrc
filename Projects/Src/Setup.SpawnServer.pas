@@ -79,7 +79,7 @@ var
 begin
   Result := ExtractBytes(Data, SizeOf(Integer), P);
   if Result then
-    Value := Longint(P^);
+    Value := Integer(P^);
 end;
 
 function ExtractString(var Data: TPtrAndSize; var Value: String): Boolean;

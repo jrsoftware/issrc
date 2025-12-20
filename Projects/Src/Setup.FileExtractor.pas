@@ -223,8 +223,6 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     end;
   end;
 
-var
-  TestCompID: TCompID;
 begin
   if FEntered <> 0 then
     InternalError('Cannot call file extractor recursively');
@@ -247,9 +245,10 @@ begin
       OpenSlice(FL.FirstSlice);
 
       FSourceF.Seek(SetupLdrOffset1 + FL.StartOffset);
+      var TestCompID: TCompID;
       if FSourceF.Read(TestCompID, SizeOf(TestCompID)) <> SizeOf(TestCompID) then
         SourceIsCorrupted('Failed to read CompID');
-      if Longint(TestCompID) <> Longint(ZLIBID) then
+      if TestCompID <> ZLIBID then
         SourceIsCorrupted('Invalid CompID');
 
       FChunkFirstSlice := FL.FirstSlice;

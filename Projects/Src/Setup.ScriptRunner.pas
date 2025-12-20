@@ -718,7 +718,7 @@ begin
       end;
     ivtParam:
       begin
-        if Param2 = LongInt(FPSExec.GetCurrentProcNo) then begin
+        if Param2 = Integer(FPSExec.GetCurrentProcNo) then begin
           Result := FPSExec.CurrentProcParams[Param3];
           if Param4 <> '' then
             Result := Result + '.' + Param4;
@@ -728,7 +728,7 @@ begin
       end;
     ivtVariable:
       begin
-        if Param2 = LongInt(FPSExec.GetCurrentProcNo) then begin
+        if Param2 = Integer(FPSExec.GetCurrentProcNo) then begin
           Result := FPSExec.CurrentProcVars[Param3];
           if Param4 <> '' then
             Result := Result + '.' + Param4;

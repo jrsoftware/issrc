@@ -260,7 +260,7 @@ begin
   Result := False;
   if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
     if (DosHeader[0] = Ord('M')) and (DosHeader[1] = Ord('Z')) then begin
-      PEHeaderOffset := PLongint(@DosHeader[60])^;
+      PEHeaderOffset := PInteger(@DosHeader[60])^;
       if PEHeaderOffset > 0 then begin
         F.Seek(PEHeaderOffset);
         if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin

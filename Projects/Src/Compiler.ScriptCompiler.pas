@@ -293,7 +293,7 @@ begin
     Filename := '';
     if Assigned(ScriptCompiler.FOnLineToLineInfo) then
       ScriptCompiler.FOnLineToLineInfo(Line, Filename, Line);
-    ScriptCompiler.FOnUsedVariable(Filename, Line, Col, LongInt(VarType), ProcNo, VarNo, PropData);
+    ScriptCompiler.FOnUsedVariable(Filename, Line, Col, Ord(VarType), ProcNo, VarNo, PropData);
   end;
 end;
 
