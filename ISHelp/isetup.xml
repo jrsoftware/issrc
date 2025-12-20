@@ -6374,7 +6374,7 @@ WizardBackImageOpacity=150</pre></example>
 
 <dt><b>x64compatible</b></dt>
 <dd>
-<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation and also support Arm64EC.</p>
 </dd>
 
 <dt><b>x64os</b></dt>
@@ -6423,7 +6423,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 ; Require two architecture identifier matches at the same time.
 ; - An x64 app installer that includes some 32-bit x86 binaries:
 ArchitecturesAllowed=x64compatible and x86compatible
-; - An Arm64 app installer that includes some x64 binaries:
+; - An Arm64 app installer that includes some x64 or Arm64EC binaries:
 ArchitecturesAllowed=arm64 and x64compatible
 
 ; Only allow installation on systems that <i>aren't</i> x64-compatible.
