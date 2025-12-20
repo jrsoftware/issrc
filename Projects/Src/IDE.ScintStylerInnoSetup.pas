@@ -1974,7 +1974,7 @@ initialization
     SSDV(ssArchiveExtraction, ['enhanced/nopassword', 'enhanced', 'full', 'basic']),
     SSDV(ssCloseApplications, ['force', SYes, SNo]),
     SSDV(ssCompression, GetCompressionValues),
-    SSDV(ssDisablePrecompiledFileVerifications, ['setupe32', 'setupcustomstylee32', 'setupldre32', 'setupldre64', 'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe']),
+    SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma']),
     SSDV(ssEncryption, ['full', SYes, SNo]),
     SSDV(ssInternalCompressLevel, ['none'] + LZMALevels), { We don't list 0 }
     SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),

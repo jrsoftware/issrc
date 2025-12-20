@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc, Shared.Struct;
 
 type
-  TUpdateIconsAndStyleFile = (uisfSetupE32, uisfSetupCustomStyleE32, uisfSetupLdrE32);
+  TUpdateIconsAndStyleFile = (uisfSetup, uisfSetupCustomStyle, uisfSetupLdr);
   TUpdateIconsAndStyleOperation = (uisoIcoFileName, uisoWizardDarkStyle, uisoStyleFileName, uisoStyleFileNameDynamicDark, uisoDone);
   TOnUpdateIconsAndStyle = procedure(const Operation: TUpdateIconsAndStyleOperation) of object;
 
@@ -991,7 +991,7 @@ begin
           end; { Else keep both main icons }
         end;
 
-        if Uisf in [uisfSetupE32, uisfSetupCustomStyleE32] then begin
+        if Uisf in [uisfSetup, uisfSetupCustomStyle] then begin
           const DeleteUninstallIcon = IcoFileName <> '';
           if DeleteUninstallIcon then begin
             TriggerOnUpdateIconsAndStyle(uisoIcoFileName);
@@ -1012,7 +1012,7 @@ begin
               DeleteIconIfExists(H, M, PChar('Z_UNINSTALLICON' + Postfix));
           end;
 
-          if Uisf = uisfSetupCustomStyleE32 then begin
+          if Uisf = uisfSetupCustomStyle then begin
             if Vsf <> nil then begin
               TriggerOnUpdateIconsAndStyle(uisoStyleFileName);
               { Add the regular custom style, used by forced light, forced dark and dynamic light }

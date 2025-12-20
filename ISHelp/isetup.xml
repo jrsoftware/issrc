@@ -4887,11 +4887,11 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="DisablePrecompiledFileVerifications">
-<setupvalid>One or more of the following, separated by spaces:<br/><tt>setupe32</tt><br/><tt>setupcustomstylee32</tt><br/><tt>setupldre32</tt><br/><tt>setupldre64</tt><br/><tt>is7zdll</tt><br/><tt>isbunzipdll</tt><br/><tt>isunzlibdll</tt><br/><tt>islzmaexe</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces:<br/><tt>setup</tt><br/><tt>setupcustomstyle</tt><br/><tt>setupldr</tt><br/><tt>is7z</tt><br/><tt>isbunzip</tt><br/><tt>isunzlib</tt><br/><tt>islzma</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
-<p><tt>islzmaexe</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>. Similarly, <tt>is7z.dll</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>.</p>
+<p><tt>setupldr</tt> applies to both <i>setupldr.e32</i> and <i>setupldr.e64</i>. <tt>is7z</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>. <tt>islzma</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>.</p>
 </body>
 </setuptopic>
 
