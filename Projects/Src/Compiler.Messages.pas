@@ -105,7 +105,7 @@ const
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled to create an installation larger than %d bytes in size for a single Setup.exe, as this approaches the maximum supported by Windows';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
-  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceeding, ensure that the file is neither corrupted nor has been tampered with.';
+  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "DisablePrecompiledFileVerifications". Before proceeding, ensure that the file is neither corrupted nor has been tampered with.';
 
   { [Setup] }
   SCompilerUnknownDirective = 'Unrecognized [%s] section directive "%s"';
