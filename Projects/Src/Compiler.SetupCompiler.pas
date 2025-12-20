@@ -803,8 +803,8 @@ begin
     Data.CompressProgress := 0;
   end
   else begin
-    Data.CompressProgress := Trunc((Comp(BytesCompressedSoFar) * ProgressMax) /
-      Comp(TotalBytesToCompress));
+    Data.CompressProgress := Cardinal(Trunc((Comp(BytesCompressedSoFar) * ProgressMax) /
+      Comp(TotalBytesToCompress)));
     { In case one of the files got bigger since we checked the sizes... }
     if Data.CompressProgress > ProgressMax then
       Data.CompressProgress := ProgressMax;
@@ -7100,8 +7100,8 @@ var
         var RightStream := Right[I];
         if LeftStream.Size <> RightStream.Size then
           Exit(False);
-        if (LeftStream.Size > 0) and
-           not CompareMem(LeftStream.Memory, RightStream.Memory, LeftStream.Size) then
+        if (LeftStream.Size > High(NativeUInt)) or
+           not UCompareMem(LeftStream.Memory, RightStream.Memory, NativeUInt(LeftStream.Size)) then
           Exit(False);
       end;
       Result := True;
@@ -7701,7 +7701,7 @@ var
         { No signature found. Return False to inform the caller that the file
           needs to be signed, but first make sure it isn't somehow corrupted. }
         if (SignedFileSize = UnsignedFileSize) and
-           CompareMem(UnsignedFile.Memory, SignedFile.Memory, UnsignedFileSize) then begin
+           UCompareMem(UnsignedFile.Memory, SignedFile.Memory, UnsignedFileSize) then begin
           Result := False;
           Exit;
         end;
@@ -7725,7 +7725,7 @@ var
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
         if not UpdateSignatureAndChecksumFields(TestFile, 0, 0, HdrChecksum) then
           AbortCompile('UpdateSignatureAndChecksumFields failed');
-        if not CompareMem(UnsignedFile.Memory, TestFile.Memory, UnsignedFileSize) then
+        if not UCompareMem(UnsignedFile.Memory, TestFile.Memory, UnsignedFileSize) then
           AbortCompileFmt(MismatchMessage, [Filename]);
       finally
         TestFile.Free;

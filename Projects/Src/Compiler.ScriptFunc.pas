@@ -56,7 +56,7 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
     C: TPSConstant;
   begin
     C := ScriptCompiler.AddConstant(Name, ScriptCompiler.FindType('Integer'));
-    C.Value.tU32 := Value;
+    C.Value.tS32 := Value;
   end;
 
   procedure RegisterRealEnum(const Name: tbtstring; const TypeInfo: PTypeInfo);

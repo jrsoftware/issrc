@@ -27,6 +27,7 @@ function ULength(const S: WideString): Cardinal; overload; inline;
 function ULength(const S: TBytes): Cardinal; overload; inline;
 procedure UMove(const Source; var Dest; Count: NativeUInt);
 procedure UFillChar(var Dest; Count: NativeUInt; const Value: Integer);
+function UCompareMem(P1, P2: Pointer; Length: NativeUInt): Boolean;
 
 {$IFDEF FRAMEWORK_VCL}
 function UColorToRGB(Color: TColor): TColorRef;
@@ -80,6 +81,23 @@ begin
     FillChar(DestBuf^, SignedCount, Value);
     Dec(Count, SignedCount);
     Inc(DestBuf, SignedCount);
+  end;
+end;
+
+function UCompareMem(P1, P2: Pointer; Length: NativeUInt): Boolean;
+begin
+  Result := True;
+  if P1 <> P2 then begin
+    while Length > 0 do begin
+      var SignedLength := High(NativeInt);
+      if Length < NativeUInt(SignedLength) then
+        SignedLength := NativeInt(Length);
+      if not CompareMem(P1, P2, SignedLength) then
+        Exit(False);
+      Dec(Length, SignedLength);
+      Inc(PByte(P1), SignedLength);
+      Inc(PByte(P2), SignedLength);
+    end;
   end;
 end;
 

@@ -147,7 +147,7 @@ begin
   WrapperData.CallerParams := @Params;
   GetMem(WrapperParams, Params.Size);
   try
-    Move(Params, WrapperParams^, Params.Size);
+    UMove(Params, WrapperParams^, Params.Size);
     WrapperParams.CallbackProc := WrapperCallbackProc;
     WrapperParams.AppData := Integer(@WrapperData);
     if Assigned(Params.CompilerPath) then
