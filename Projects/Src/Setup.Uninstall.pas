@@ -54,7 +54,7 @@ var
 
 procedure ShowExceptionMsg;
 begin
-  { Also see ShowExceptionMsg in Setup.inc }
+  { Also see ShowExceptionMsg in Setup.Start.pas }
   if ExceptObject is EAbort then
     Exit;
   const Msg = GetExceptMessage;
