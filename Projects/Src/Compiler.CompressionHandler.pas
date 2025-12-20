@@ -289,7 +289,7 @@ begin
     end;
 
     Inc(FChunkBytesWritten, S);
-    Inc(Cardinal(P), S);
+    Inc(PByte(P), S);
     Dec(BufSize, S);
     Dec(FSliceBytesLeft, S);
   end;

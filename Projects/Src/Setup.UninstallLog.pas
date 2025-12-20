@@ -369,7 +369,7 @@ begin
     Result := nil;
     Exit;
   end;
-  Result := AllocMem(NativeInt(Cardinal(@PUninstallRec(nil).Data) + DataSize));
+  Result := AllocMem(Cardinal(@PUninstallRec(nil).Data) + DataSize);
   Result.Typ := Typ;
   Result.ExtraData := ExtraData;
   Result.DataSize := DataSize;
@@ -1331,7 +1331,7 @@ var
       Ofs := F.Position;
       Inc(Ofs, CrcHeader.Size);
       if (CrcHeader.Size <> not CrcHeader.NotSize) or
-         (Cardinal(CrcHeader.Size) > Cardinal(SizeOf(Buffer))) or
+         (CrcHeader.Size > SizeOf(Buffer)) or
          (Ofs > EndOffset) then
         Corrupt;
       if F.Read(Buffer, CrcHeader.Size) <> CrcHeader.Size then

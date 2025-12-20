@@ -522,8 +522,8 @@ procedure UpdateVersionInfo(const F: TCustomFile;
 
   procedure BumpToDWordBoundary(var P: Pointer);
   begin
-    if Cardinal(P) and 3 <> 0 then
-      Cardinal(P) := (Cardinal(P) or 3) + 1;
+    if NativeUInt(P) and 3 <> 0 then
+      NativeUInt(P) := (NativeUInt(P) or 3) + 1;
   end;
 
   function QueryValue(P: Pointer; Path: PWideChar; var Buf: Pointer;
@@ -533,7 +533,7 @@ procedure UpdateVersionInfo(const F: TCustomFile;
     ValueLength: Cardinal;
   begin
     Result := False;
-    Cardinal(EndP) := Cardinal(P) + PWord(P)^;
+    EndP := PByte(P) + PWord(P)^;
     Inc(PWord(P));
     ValueLength := PWord(P)^;
     Inc(PWord(P));
@@ -555,13 +555,13 @@ procedure UpdateVersionInfo(const F: TCustomFile;
           Borland's, wrongly set ValueLength to a *character* count on string
           nodes. But since we never try to query for a child of a string node,
           that doesn't matter here. }
-        Inc(Cardinal(P), ValueLength);
+        Inc(PByte(P), ValueLength);
         BumpToDWordBoundary(P);
-        while Cardinal(P) < Cardinal(EndP) do begin
+        while PByte(P) < PByte(EndP) do begin
           Result := QueryValue(P, Path, Buf, BufLen);
           if Result then
             Exit;
-          Inc(Cardinal(P), PWord(P)^);
+          Inc(PByte(P), PWord(P)^);
           BumpToDWordBoundary(P);
         end;
       end;

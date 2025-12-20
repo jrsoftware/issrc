@@ -770,7 +770,7 @@ var
   Rec: PDebugEntry;
   I: Integer;
 begin
-  Cardinal(Rec) := Cardinal(DebugInfo.Memory) + SizeOf(TDebugInfoHeader);
+  PByte(Rec) := PByte(DebugInfo.Memory) + SizeOf(TDebugInfoHeader);
   for I := 0 to DebugEntryCount-1 do begin
     if Rec.Kind = Ord(AKind) then
       Inc(Rec.Index);

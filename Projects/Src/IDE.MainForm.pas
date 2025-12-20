@@ -3210,13 +3210,13 @@ end;
 procedure TMainForm.HShortcutsDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformshortcuts.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_compformshortcuts.htm')));
 end;
 
 procedure TMainForm.HRegExDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_compformregex.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_compformregex.htm')));
 end;
 
 procedure TMainForm.HDocClick(Sender: TObject);
@@ -3253,7 +3253,7 @@ end;
 procedure TMainForm.HISPPDocClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_isppoverview.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_isppoverview.htm')));
 end;
 
 procedure TMainForm.HAboutClick(Sender: TObject);
@@ -5162,7 +5162,7 @@ begin
       end;
     end;
 
-    Inc(Cardinal(DebugInfo), SizeOf(Header^));
+    Inc(PByte(DebugInfo), SizeOf(Header^));
 
     FDebugEntriesCount := Header.DebugEntryCount;
     Size := FDebugEntriesCount * SizeOf(TDebugEntry);
@@ -5170,16 +5170,16 @@ begin
     Move(DebugInfo^, FDebugEntries^, Size);
     for I := 0 to FDebugEntriesCount-1 do
       Dec(FDebugEntries[I].LineNumber);
-    Inc(Cardinal(DebugInfo), Size);
+    Inc(PByte(DebugInfo), Size);
 
     FVariableDebugEntriesCount := Header.VariableDebugEntryCount;
     Size := FVariableDebugEntriesCount * SizeOf(TVariableDebugEntry);
     GetMem(FVariableDebugEntries, Size);
     Move(DebugInfo^, FVariableDebugEntries^, Size);
-    Inc(Cardinal(DebugInfo), Size);
+    Inc(PByte(DebugInfo), Size);
 
     SetString(FCompiledCodeText, PAnsiChar(DebugInfo), Header.CompiledCodeTextLength);
-    Inc(Cardinal(DebugInfo), Header.CompiledCodeTextLength);
+    Inc(PByte(DebugInfo), Header.CompiledCodeTextLength);
 
     SetString(FCompiledCodeDebugInfo, PAnsiChar(DebugInfo), Header.CompiledCodeDebugInfoLength);
 

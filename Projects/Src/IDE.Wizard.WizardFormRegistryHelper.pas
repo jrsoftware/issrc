@@ -127,7 +127,7 @@ end;
 procedure TWizardFormRegistryHelper.MinVerDocBitBtnClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_winvernotes.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_winvernotes.htm')));
 end;
 
 procedure TWizardFormRegistryHelper.AddScript(var Registry: String;

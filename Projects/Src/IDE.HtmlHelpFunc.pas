@@ -2,7 +2,7 @@ unit IDE.HtmlHelpFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,7 @@ const
   HH_KEYWORD_LOOKUP = $000D;
 
 type
-  THtmlHelp = function(hwndCaller: HWND; pszFile: PChar; uCommand: UINT; dwData: DWORD): HWND; stdcall;
+  THtmlHelp = function(hwndCaller: HWND; pszFile: PChar; uCommand: UINT; dwData: DWORD_PTR): HWND; stdcall;
 
   PHH_AKLink = ^THH_AKLink;
   THH_AKLINK = record

@@ -357,8 +357,8 @@ begin
       [FProcessID, BytesRead, FResponse.SequenceNumber, FResponse.StatusCode,
        FResponse.ErrorCode, FResponse.DataSize]);
     {$ENDIF}
-    if (Cardinal(BytesRead) < Cardinal(@TResponseData(nil^).Data)) or
-       (FResponse.DataSize <> Cardinal(BytesRead) - Cardinal(@TResponseData(nil^).Data)) then
+    if (BytesRead < Cardinal(@TResponseData(nil^).Data)) or
+       (FResponse.DataSize <> BytesRead - Cardinal(@TResponseData(nil^).Data)) then
       InternalError('Helper: Response message has wrong size');
     if FResponse.SequenceNumber <> FRequest.SequenceNumber then
       InternalError('Helper: Wrong sequence number');
