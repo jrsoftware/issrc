@@ -215,7 +215,7 @@ Precompiled executables and libraries
 
 The source code contains several precompiled and code-signed executables and libraries:
 
-**Files\is7z.dll**, **Files\is7zxa.dll**, **Files\is7zxr.dll** - Compiled by
+**Files\is7z(-x64).dll**, **Files\is7zxa(-x64).dll**, **Files\is7zxr(-x64).dll** - Compiled by
 Visual Studio 2022 from 7-Zip source code in the [is7z] repository.
 
 **Files\isbunzip.dll**, **Files\isbzip.dll** - Compiled by Visual Studio 2005
