@@ -312,7 +312,8 @@ begin
   { Did bzlib request more memory than we reserved? This shouldn't happen
     unless this unit is used with a different version of bzlib that allocates
     more memory. }
-  if PByte(FHeapNextFree) - PByte(FHeapBase) + Bytes > DecompressorHeapSize then
+  const HeapSize = NativeUInt(PByte(FHeapNextFree) - PByte(FHeapBase)) + Bytes;
+  if HeapSize > DecompressorHeapSize then
     raise ECompressInternalError.Create(SBzlibAllocError);
 
   if VirtualAlloc(FHeapNextFree, Bytes, MEM_COMMIT, PAGE_READWRITE) = nil then
