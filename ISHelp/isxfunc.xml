@@ -1776,6 +1776,29 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>ApplyPathRedirRulesForCurrentProcess</name>
+        <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
+        <description><p>Calls <link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link> function with the current process as the target process.</p></description>
+      </function>
+      <function>
+        <name>ApplyPathRedirRules</name>
+        <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;</prototype>
+        <description><p>Rewrites paths containing System32 to achieve the same effect as disabling/enabling WOW64 file system redirection, without actually changing the redirection state. Additionally, rewrites paths containing Sysnative for 64-bit target processes to ensure access to 64-bit System32.</p>
+<p>Before rewriting, the path is expanded and converted to a super (extended-length) path.</p>
+<p>Does not rewrite paths that do not contain System32 or Sysnative. Also does not rewrite when the system is running a 32-bit version of Windows.</p>
+<p>Path expansion and conversion to a super path always occur.</p></description>
+        <remarks><p>Does not rewrite for certain combinations, such as 64-bit System32 for a 64-bit target process, because no rewriting (or redirection) is needed for the target process to access the intended path. The following table lists all combinations for which rewriting has an effect, and the result:</p>
+        <table><tr><td>A64Bit</td><td>APath</td><td>ATargetProcess64Bit</td><td>Result</td></tr>
+<tr><td>True</td><td>System32</td><td>False</td><td>Sysnative</td></tr>
+<tr><td>True</td><td>Sysnative</td><td>True</td><td>System32</td></tr>
+<tr><td>False</td><td>System32</td><td>True</td><td>SysWOW64</td></tr>
+<tr><td>False</td><td>Sysnative</td><td>True</td><td>System32</td></tr>
+</table>
+<p>A super path (also called an extended-length path) is a Windows path with the special \\?\ (or \\?\UNC\ for UNC shares) prefix.</p></remarks>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link><br />
+<link topic="isxfunc_ExpandFileName">ExpandFileName</link></p></seealso>
+      </function>
+      <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>

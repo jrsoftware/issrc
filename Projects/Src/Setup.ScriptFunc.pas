@@ -37,7 +37,7 @@ uses
   Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
   Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
-  Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc;
+  Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc, Setup.PathRedir;
 
 type
   TScriptFunc = reference to procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer);
@@ -2017,6 +2017,14 @@ var
     RegisterScriptFunc('RPos', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetInt(PStart, Stack.GetString(PStart-2).LastIndexOf(Stack.GetString(PStart-1)) + 1);
+    end);
+    RegisterScriptFunc('ApplyPathRedirRulesForCurrentProcess', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
+    end);
+    RegisterScriptFunc('ApplyPathRedirRules', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
     end);
   end;
 

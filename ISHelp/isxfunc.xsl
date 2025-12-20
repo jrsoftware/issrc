@@ -145,6 +145,15 @@
 <xsl:template match="li">
 <li><xsl:apply-templates/></li></xsl:template>
 
+<xsl:template match="table">
+<table><xsl:apply-templates/></table></xsl:template>
+
+<xsl:template match="tr">
+<tr><xsl:apply-templates/></tr></xsl:template>
+
+<xsl:template match="td">
+<td><xsl:apply-templates/></td></xsl:template>
+
 <xsl:template match="br">
 <br />
 </xsl:template>

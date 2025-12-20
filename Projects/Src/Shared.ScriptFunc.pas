@@ -579,7 +579,9 @@ initialization
     'function Trunc(const E: Extended): Int64;',
     'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;',
     'function StrToColor(const S: String): TColor;',
-    'function RPos(const SubStr, S: String): Integer;'
+    'function RPos(const SubStr, S: String): Integer;',
+    'function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;',
+    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;'
   ];
 
   {$IFDEF COMPIL32PROJ}
