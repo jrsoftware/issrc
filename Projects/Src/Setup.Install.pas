@@ -420,6 +420,17 @@ begin
   end;
 end;
 
+procedure ApplyNTFSCompression(const DisableFsRedir: Boolean;
+  const Filename: String; const FilenameIsDirectory, Compress: Boolean);
+const
+  SSet: array [Boolean] of String = ('Setting', 'Unsetting');
+  SFileDir: array [Boolean] of String = ('file', 'directory');
+begin
+  LogFmt('%s NTFS compression on %s: %s', [SSet[Compress], SFileDir[FilenameIsDirectory], Filename]);
+  if not SetNTFSCompressionRedir(DisableFsRedir, Filename, Compress) then
+    LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
+end;
+
 procedure CreateDirs(const UninstLog: TUninstallLog);
 { Creates the application's directories }
 
@@ -440,17 +451,6 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
          Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
         LogFmt('Failed to set permissions on directory (%d).', [GetLastError]);
     end;
-  end;
-
-  procedure ApplyNTFSCompression(const DisableFsRedir: Boolean;
-    const Filename: String; const Compress: Boolean);
-  begin
-    if Compress then
-      LogFmt('Setting NTFS compression on directory: %s', [Filename])
-    else
-      LogFmt('Unsetting NTFS compression on directory: %s', [Filename]);
-    if not SetNTFSCompressionRedir(DisableFsRedir, Filename, Compress) then
-      LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
   end;
 
 var
@@ -475,7 +475,7 @@ begin
         AddAttributesToFile(InstallDefaultDisableFsRedir, N, Attribs);
         ApplyPermissions(InstallDefaultDisableFsRedir, N, PermissionsEntry);
         if (doSetNTFSCompression in Options) or (doUnsetNTFSCompression in Options) then
-          ApplyNTFSCompression(InstallDefaultDisableFsRedir, N, doSetNTFSCompression in Options);
+          ApplyNTFSCompression(InstallDefaultDisableFsRedir, N, True, doSetNTFSCompression in Options);
         NotifyAfterInstallEntry(AfterInstall);
       end;
     end;
@@ -649,17 +649,6 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
           LogFmt('Failed to set permissions on file (%d).', [GetLastError]);
       end;
     end;
-  end;
-
-  procedure ApplyNTFSCompression(const DisableFsRedir: Boolean;
-    const Filename: String; const Compress: Boolean);
-  begin
-    if Compress then
-      LogFmt('Setting NTFS compression on file: %s', [Filename])
-    else
-      LogFmt('Unsetting NTFS compression on file: %s', [Filename]);
-    if not SetNTFSCompressionRedir(DisableFsRedir, Filename, Compress) then
-      LogFmt('Failed to set NTFS compression state (%d).', [GetLastError]);
   end;
 
   function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
@@ -1342,9 +1331,9 @@ Retry:
       if (foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options) then begin
         LastOperation := '';
         if TempFile <> '' then
-          ApplyNTFSCompression(DisableFsRedir, TempFile, foSetNTFSCompression in CurFile^.Options)
+          ApplyNTFSCompression(DisableFsRedir, TempFile, False, foSetNTFSCompression in CurFile^.Options)
         else
-          ApplyNTFSCompression(DisableFsRedir, DestFile, foSetNTFSCompression in CurFile^.Options);
+          ApplyNTFSCompression(DisableFsRedir, DestFile, False, foSetNTFSCompression in CurFile^.Options);
       end;
 
       { Install into GAC (even if the file wasn't replaced) }
