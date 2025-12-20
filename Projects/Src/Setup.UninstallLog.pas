@@ -515,12 +515,12 @@ begin
          end;
       $FD: begin
            Inc(X);
-           L := Word(Pointer(X)^);
+           L := PWord(X)^;
            Inc(X, SizeOf(Word));
          end;
       $FE: begin
            Inc(X);
-           L := Integer(Pointer(X)^);
+           L := PInteger(X)^;
            Inc(X, SizeOf(Integer));
          end;
       $FF: Break;
