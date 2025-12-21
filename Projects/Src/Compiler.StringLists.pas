@@ -54,16 +54,16 @@ type
   TScriptFileLines = class
   private
     FLines: TList;
-    function Get(Index: Integer): PScriptFileLine;
-    function GetCount: Integer;
+    function Get(Index: NativeInt): PScriptFileLine;
+    function GetCount: NativeInt;
     function GetText: String;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(const LineFilename: String; const LineNumber: Integer;
       const LineText: String);
-    property Count: Integer read GetCount;
-    property Lines[Index: Integer]: PScriptFileLine read Get; default;
+    property Count: NativeInt read GetCount;
+    property Lines[Index: NativeInt]: PScriptFileLine read Get; default;
     property Text: String read GetText;
   end;
 
@@ -156,11 +156,9 @@ begin
 end;
 
 destructor TScriptFileLines.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FLines) then begin
-    for I := FLines.Count-1 downto 0 do
+    for var I := FLines.Count-1 downto 0 do
       Dispose(PScriptFileLine(FLines[I]));
     FLines.Free;
   end;
@@ -194,31 +192,31 @@ begin
   FLines.Add(L);
 end;
 
-function TScriptFileLines.Get(Index: Integer): PScriptFileLine;
+function TScriptFileLines.Get(Index: NativeInt): PScriptFileLine;
 begin
   Result := PScriptFileLine(FLines[Index]);
 end;
 
-function TScriptFileLines.GetCount: Integer;
+function TScriptFileLines.GetCount: NativeInt;
 begin
   Result := FLines.Count;
 end;
 
 function TScriptFileLines.GetText: String;
 var
-  I, L, Size, Count: Integer;
+  L, Size: Integer;
   P: PChar;
   S, LB: string;
 begin
-  Count := GetCount;
+  const Count = GetCount;
   Size := 0;
   LB := sLineBreak;
-  for I := 0 to Count-1 do
+  for var I := 0 to Count-1 do
     Inc(Size, Length(Get(I).LineText) + Length(LB));
   Dec(Size, Length(LB));
   SetString(Result, nil, Size);
   P := Pointer(Result);
-  for I := 0 to Count-1 do begin
+  for var I := 0 to Count-1 do begin
     S := Get(I).LineText;
     L := Length(S);
     if L <> 0 then begin

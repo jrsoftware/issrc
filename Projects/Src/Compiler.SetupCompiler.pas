@@ -446,8 +446,6 @@ begin
 end;
 
 destructor TSetupCompiler.Destroy;
-var
-  I: Integer;
 begin
   CodeCompiler.Free;
   CodeText.Free;
@@ -456,7 +454,7 @@ begin
   SignToolsParams.Free;
   SignTools.Free;
   if Assigned(SignToolList) then begin
-    for I := 0 to SignToolList.Count-1 do
+    for var I := 0 to SignToolList.Count-1 do
       TSignTool(SignToolList[I]).Free;
     SignToolList.Free;
   end;
@@ -549,16 +547,14 @@ begin
 end;
 
 function TSetupCompiler.CreateWizardImagesFromResources(const AResourceNamesPrefixes, AResourceNamesPostfixes: array of String; const ADark: Boolean): TWizardImages;
-var
-  I, J: Integer;
 begin
   var ADarkPostfix := '';
   if ADark then
    ADarkPostfix := '_Dark';
   Result := TWizardImages.Create;
   try
-    for I := 0 to Length(AResourceNamesPrefixes)-1 do
-      for J := 0 to Length(AResourceNamesPostfixes)-1 do
+    for var I := 0 to Length(AResourceNamesPrefixes)-1 do
+      for var J := 0 to Length(AResourceNamesPostfixes)-1 do
         Result.Add(TResourceStream.Create(HInstance, AResourceNamesPrefixes[I]+AResourceNamesPostfixes[J]+ADarkPostfix, RT_RCDATA));
   except
     Result.Free;
@@ -1185,7 +1181,7 @@ var
     UseCache: Boolean;
     Lines: TScriptFileLines;
     SaveLineFilename, L: String;
-    SaveLineNumber, LineIndex, I: Integer;
+    SaveLineNumber, I: Integer;
     Line: PScriptFileLine;
   begin
     if Filename <> '' then
@@ -1214,7 +1210,7 @@ var
       SaveLineFilename := LineFilename;
       SaveLineNumber := LineNumber;
 
-      for LineIndex := 0 to Lines.Count-1 do begin
+      for var LineIndex := 0 to Lines.Count-1 do begin
         Line := Lines[LineIndex];
         LineFilename := Line.LineFilename;
         LineNumber := Line.LineNumber;
@@ -1275,12 +1271,10 @@ procedure TSetupCompiler.ExtractParameters(S: PChar;
   const ParamInfo: array of TParamInfo; var ParamValues: array of TParamValue);
 
   function GetParamIndex(const AName: String): Integer;
-  var
-    I: Integer;
   begin
-    for I := 0 to High(ParamInfo) do
+    for var I := 0 to High(ParamInfo) do
       if CompareText(ParamInfo[I].Name, AName) = 0 then begin
-        Result := I;
+        Result := Integer(I);
         if ParamValues[I].Found then
           AbortCompileParamError(SCompilerParamDuplicated, ParamInfo[I].Name);
         ParamValues[I].Found := True;
@@ -1292,10 +1286,10 @@ procedure TSetupCompiler.ExtractParameters(S: PChar;
   end;
 
 var
-  I, ParamIndex: Integer;
+  ParamIndex: Integer;
   ParamName, Data: String;
 begin
-  for I := 0 to High(ParamValues) do begin
+  for var I := 0 to High(ParamValues) do begin
     ParamValues[I].Found := False;
     ParamValues[I].Data := '';
   end;
@@ -1352,7 +1346,7 @@ begin
   end;
 
   { Check for missing required parameters }
-  for I := 0 to High(ParamInfo) do begin
+  for var I := 0 to High(ParamInfo) do begin
     if (piRequired in ParamInfo[I].Flags) and
        not ParamValues[I].Found then
       AbortCompileParamError(SCompilerParamNotSpecified, ParamInfo[I].Name);
@@ -1818,7 +1812,6 @@ function TSetupCompiler.EvalCheckOrInstallIdentifier(Sender: TSimpleExpression;
 var
   IsCheck: Boolean;
   Decl: String;
-  I: Integer;
 begin
   IsCheck := Boolean(Sender.Tag);
 
@@ -1827,7 +1820,7 @@ begin
   else
     Decl := '0';
 
-  for I := Low(Parameters) to High(Parameters) do begin
+  for var I := Low(Parameters) to High(Parameters) do begin
     if Parameters[I].VType = vtUnicodeString then
       Decl := Decl + ' @String'
     else if Parameters[I].VType = vtInteger then
@@ -1882,7 +1875,6 @@ end;
 
 function ExtractFlag(var S: String; const FlagStrs: array of PChar): Integer;
 var
-  I: Integer;
   F: String;
 begin
   F := ExtractStr(S, ' ');
@@ -1892,16 +1884,15 @@ begin
   end;
 
   Result := -1;
-  for I := 0 to High(FlagStrs) do
+  for var I := 0 to High(FlagStrs) do
     if StrIComp(FlagStrs[I], PChar(F)) = 0 then begin
-      Result := I;
+      Result := Integer(I);
       Break;
     end;
 end;
 
 function ExtractType(var S: String; const TypeEntries: TList): Integer;
 var
-  I: Integer;
   F: String;
 begin
   F := ExtractStr(S, ' ');
@@ -1912,15 +1903,15 @@ begin
 
   Result := -1;
   if TypeEntries.Count <> 0 then begin
-    for I := 0 to TypeEntries.Count-1 do
+    for var I := 0 to TypeEntries.Count-1 do
       if CompareText(PSetupTypeEntry(TypeEntries[I]).Name, F) = 0 then begin
-        Result := I;
+        Result := Integer(I);
         Break;
       end;
   end else begin
-    for I := 0 to High(DefaultTypeEntryNames) do
+    for var I := 0 to High(DefaultTypeEntryNames) do
       if StrIComp(DefaultTypeEntryNames[I], PChar(F)) = 0 then begin
-        Result := I;
+        Result := Integer(I);
         Break;
       end;
   end;
@@ -2033,10 +2024,9 @@ function TSetupCompiler.EvalComponentIdentifier(Sender: TSimpleExpression; const
 var
   Found: Boolean;
   ComponentEntry: PSetupComponentEntry;
-  I: Integer;
 begin
   Found := False;
-  for I := 0 to ComponentEntries.Count-1 do begin
+  for var I := 0 to ComponentEntries.Count-1 do begin
     ComponentEntry := PSetupComponentEntry(ComponentEntries[I]);
     if CompareText(ComponentEntry.Name, Name) = 0 then begin
       ComponentEntry.Used := True;
@@ -2055,10 +2045,9 @@ function TSetupCompiler.EvalTaskIdentifier(Sender: TSimpleExpression; const Name
 var
   Found: Boolean;
   TaskEntry: PSetupTaskEntry;
-  I: Integer;
 begin
   Found := False;
-  for I := 0 to TaskEntries.Count-1 do begin
+  for var I := 0 to TaskEntries.Count-1 do begin
     TaskEntry := PSetupTaskEntry(TaskEntries[I]);
     if CompareText(TaskEntry.Name, Name) = 0 then begin
       TaskEntry.Used := True;
@@ -2075,9 +2064,8 @@ function TSetupCompiler.EvalLanguageIdentifier(Sender: TSimpleExpression; const 
   const Parameters: array of const): Boolean;
 var
   LanguageEntry: PSetupLanguageEntry;
-  I: Integer;
 begin
-  for I := 0 to LanguageEntries.Count-1 do begin
+  for var I := 0 to LanguageEntries.Count-1 do begin
     LanguageEntry := PSetupLanguageEntry(LanguageEntries[I]);
     if CompareText(LanguageEntry.Name, Name) = 0 then begin
       Result := True; { Result doesn't matter }
@@ -2242,10 +2230,8 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
   end;
 
   procedure GetAccessMaskFromName(const AName: String; var AAccessMask: DWORD);
-  var
-    I: Integer;
   begin
-    for I := Low(AccessMasks) to High(AccessMasks) do
+    for var I := Low(AccessMasks) to High(AccessMasks) do
       if CompareText(AName, AccessMasks[I].Name) = 0 then begin
         AAccessMask := AccessMasks[I].Mask;
         Exit;
@@ -3438,22 +3424,20 @@ end;
 
 function TSetupCompiler.FindLangEntryIndexByName(const AName: String;
   const Pre: Boolean): Integer;
-var
-  I: Integer;
 begin
   if Pre then begin
-    for I := 0 to PreLangDataList.Count-1 do begin
+    for var I := 0 to PreLangDataList.Count-1 do begin
       if TPreLangData(PreLangDataList[I]).Name = AName then begin
-        Result := I;
+        Result := Integer(I);
         Exit;
       end;
     end;
     AbortCompileFmt(SCompilerUnknownLanguage, [AName]);
   end;
 
-  for I := 0 to LanguageEntries.Count-1 do begin
+  for var I := 0 to LanguageEntries.Count-1 do begin
     if PSetupLanguageEntry(LanguageEntries[I]).Name = AName then begin
-      Result := I;
+      Result := Integer(I);
       Exit;
     end;
   end;
@@ -3462,12 +3446,10 @@ begin
 end;
 
 function TSetupCompiler.FindSignToolIndexByName(const AName: String): Integer;
-var
-  I: Integer;
 begin
-  for I := 0 to SignToolList.Count-1 do begin
+  for var I := 0 to SignToolList.Count-1 do begin
     if TSignTool(SignToolList[I]).Name = AName then begin
-      Result := I;
+      Result := Integer(I);
       Exit;
     end;
   end;
@@ -3515,12 +3497,12 @@ procedure TSetupCompiler.EnumLangOptionsPreProc(const Line: PChar; const Ext: In
 
 var
   KeyName, Value: String;
-  I, LangIndex: Integer;
+  LangIndex: Integer;
 begin
   SeparateDirective(Line, KeyName, Value);
   LangIndex := ExtractLangIndex(Self, KeyName, Ext, True);
   if LangIndex = -1 then begin
-    for I := 0 to PreLangDataList.Count-1 do
+    for var I := 0 to PreLangDataList.Count-1 do
       ApplyToLangEntryPre(KeyName, Value, TPreLangData(PreLangDataList[I]),
         PreLangDataList.Count > 1);
   end else
@@ -3640,12 +3622,12 @@ procedure TSetupCompiler.EnumLangOptionsProc(const Line: PChar; const Ext: Integ
 
 var
   KeyName, Value: String;
-  I, LangIndex: Integer;
+  LangIndex: Integer;
 begin
   SeparateDirective(Line, KeyName, Value);
   LangIndex := ExtractLangIndex(Self, KeyName, Ext, False);
   if LangIndex = -1 then begin
-    for I := 0 to LanguageEntries.Count-1 do
+    for var I := 0 to LanguageEntries.Count-1 do
       ApplyToLangEntry(KeyName, Value, PSetupLanguageEntry(LanguageEntries[I])^,
         LanguageEntries.Count > 1);
   end else
@@ -3655,10 +3637,8 @@ end;
 procedure TSetupCompiler.EnumTypesProc(const Line: PChar; const Ext: Integer);
 
   function IsCustomTypeAlreadyDefined: Boolean;
-  var
-    I: Integer;
   begin
-    for I := 0 to TypeEntries.Count-1 do
+    for var I := 0 to TypeEntries.Count-1 do
       if toIsCustom in PSetupTypeEntry(TypeEntries[I]).Options then begin
         Result := True;
         Exit;
@@ -4036,7 +4016,7 @@ begin
     SEFreeRec(NewDirEntry, SetupDirEntryStrings, SetupDirEntryAnsiStrings);
     raise;
   end;
-  WriteDebugEntry(deDir, DirEntries.Count);
+  WriteDebugEntry(deDir, Integer(DirEntries.Count));
   DirEntries.Add(NewDirEntry);
 end;
 
@@ -4280,7 +4260,7 @@ begin
     SEFreeRec(NewIconEntry, SetupIconEntryStrings, SetupIconEntryAnsiStrings);
     raise;
   end;
-  WriteDebugEntry(deIcon, IconEntries.Count);
+  WriteDebugEntry(deIcon, Integer(IconEntries.Count));
   IconEntries.Add(NewIconEntry);
 end;
 
@@ -4379,7 +4359,7 @@ begin
     SEFreeRec(NewIniEntry, SetupIniEntryStrings, SetupIniEntryAnsiStrings);
     raise;
   end;
-  WriteDebugEntry(deIni, IniEntries.Count);
+  WriteDebugEntry(deIni, Integer(IniEntries.Count));
   IniEntries.Add(NewIniEntry);
 end;
 
@@ -4542,18 +4522,18 @@ begin
         end;
       end;
       if S = 'HKA' then
-        RootKey := HKEY_AUTO
+        RootKey := UInt32(HKEY_AUTO)
       else if S = 'HKCR' then
-        RootKey := HKEY_CLASSES_ROOT
+        RootKey := UInt32(HKEY_CLASSES_ROOT)
       else if S = 'HKCU' then begin
         UsedUserAreas.Add(S);
-        RootKey := HKEY_CURRENT_USER;
+        RootKey := UInt32(HKEY_CURRENT_USER);
       end else if S = 'HKLM' then
-        RootKey := HKEY_LOCAL_MACHINE
+        RootKey := UInt32(HKEY_LOCAL_MACHINE)
       else if S = 'HKU' then
-        RootKey := HKEY_USERS
+        RootKey := UInt32(HKEY_USERS)
       else if S = 'HKCC' then
-        RootKey := HKEY_CURRENT_CONFIG
+        RootKey := UInt32(HKEY_CURRENT_CONFIG)
       else
         AbortCompileParamError(SCompilerParamInvalid2, ParamRegistryRoot);
 
@@ -4654,7 +4634,7 @@ begin
     SEFreeRec(NewRegistryEntry, SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
     raise;
   end;
-  WriteDebugEntry(deRegistry, RegistryEntries.Count);
+  WriteDebugEntry(deRegistry, Integer(RegistryEntries.Count));
   RegistryEntries.Add(NewRegistryEntry);
 end;
 
@@ -4726,11 +4706,11 @@ begin
     raise;
   end;
   if Ext = 0 then begin
-    WriteDebugEntry(deInstallDelete, InstallDeleteEntries.Count);
+    WriteDebugEntry(deInstallDelete, Integer(InstallDeleteEntries.Count));
     InstallDeleteEntries.Add(NewDeleteEntry);
   end
   else begin
-    WriteDebugEntry(deUninstallDelete, UninstallDeleteEntries.Count);
+    WriteDebugEntry(deUninstallDelete, Integer(UninstallDeleteEntries.Count));
     UninstallDeleteEntries.Add(NewDeleteEntry);
   end;
 end;
@@ -5069,8 +5049,8 @@ type
     OldFileListCount, OldDirListCount: Integer;
   begin
     SearchFullPath := SearchBaseDir + SearchSubDir + SearchWildcard;
-    OldFileListCount := FileList.Count;
-    OldDirListCount := DirList.Count;
+    OldFileListCount := Integer(FileList.Count);
+    OldDirListCount := Integer(DirList.Count);
 
     H := FindFirstFile(PChar(SearchFullPath), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -5152,10 +5132,9 @@ type
     FileListRec: PFileListRec;
     CheckName: String;
     SourceFile: String;
-    I, J: Integer;
     NewRunEntry: PSetupRunEntry;
   begin
-    for I := 0 to FileList.Count-1 do begin
+    for var I := 0 to FileList.Count-1 do begin
       FileListRec := FileList[I];
 
       if NewFileEntry = nil then begin
@@ -5193,7 +5172,7 @@ type
         if not DontMergeDuplicateFiles then begin
           { See if the source filename is already in the list of files to
             be compressed. If so, merge it. }
-          J := FileLocationEntryFilenames.CaseInsensitiveIndexOf(SourceFile);
+          const J = FileLocationEntryFilenames.CaseInsensitiveIndexOf(SourceFile);
           if J <> -1 then begin
             NewFileLocationEntry := FileLocationEntries[J];
             NewFileLocationEntryExtraInfo := FileLocationEntryExtraInfos[J];
@@ -5207,7 +5186,7 @@ type
           FileLocationEntries.Add(NewFileLocationEntry);
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
           FileLocationEntryFilenames.Add(SourceFile);
-          NewFileEntry^.LocationEntry := FileLocationEntries.Count-1;
+          NewFileEntry^.LocationEntry := Integer(FileLocationEntries.Count-1);
           if NewFileEntry^.FileType = ftUninstExe then
             Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
           Inc(TotalBytesToCompress, FileListRec.Size);
@@ -5306,7 +5285,7 @@ type
         ShiftDebugEntryIndexes(deRun);  { because we inserted at the front }
       end;
 
-      WriteDebugEntry(deFile, FileEntries.Count);
+      WriteDebugEntry(deFile, Integer(FileEntries.Count));
       FileEntries.Expand;
       PrevFileEntry := NewFileEntry;
       { nil before adding so there's no chance it could ever be double-freed }
@@ -5399,7 +5378,6 @@ type
     DirListRec: PDirListRec;
     NewDirEntry: PSetupDirEntry;
     BaseFileEntry: PSetupFileEntry;
-    I: Integer;
   begin
     if NewFileEntry <> nil then
       { If NewFileEntry is still assigned it means ProcessFileList didn't
@@ -5409,7 +5387,7 @@ type
       BaseFileEntry := PrevFileEntry;
 
     if not(foDontCopy in BaseFileEntry.Options) then begin
-      for I := 0 to DirList.Count-1 do begin
+      for var I := 0 to DirList.Count-1 do begin
         DirListRec := DirList[I];
 
         NewDirEntry := AllocMem(Sizeof(TSetupDirEntry));
@@ -5434,7 +5412,6 @@ type
 var
   FileList, DirList: TList;
   SortFilesByExtension, SortFilesByName: Boolean;
-  I: Integer;
 begin
   CallIdleProc;
 
@@ -5636,7 +5613,7 @@ begin
                    var ISSigKeyEntryExtraInfo := PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[KeyIndex]);
                    if SameText(ISSigKeyEntryExtraInfo.Name, KeyNameOrGroupName) or
                       ISSigKeyEntryExtraInfo.HasGroupName(KeyNameOrGroupName) then begin
-                     SetISSigAllowedKey(Verification.ISSigAllowedKeys, KeyIndex);
+                     SetISSigAllowedKey(Verification.ISSigAllowedKeys, Integer(KeyIndex));
                      FoundKey := True;
                    end;
                  end;
@@ -5802,7 +5779,7 @@ begin
         if not ExternalFile then begin
           BuildFileList(PathExtractPath(SourceWildcard), '', PathExtractName(SourceWildcard), FileList, DirList, foCreateAllSubDirs in NewFileEntry.Options);
           if FileList.Count > 1 then
-            SortFileList(FileList, 0, FileList.Count-1, SortFilesByExtension, SortFilesByName);
+            SortFileList(FileList, 0, Integer(FileList.Count-1), SortFilesByExtension, SortFilesByName);
         end else
           AddToFileList(FileList, SourceWildcard, 0);
 
@@ -5828,10 +5805,10 @@ begin
           end;
         end;
       finally
-        for I := DirList.Count-1 downto 0 do
+        for var I := DirList.Count-1 downto 0 do
           Dispose(PDirListRec(DirList[I]));
         DirList.Free();
-        for I := FileList.Count-1 downto 0 do
+        for var I := FileList.Count-1 downto 0 do
           Dispose(PFileListRec(FileList[I]));
         FileList.Free();
       end;
@@ -6060,11 +6037,11 @@ begin
     raise;
   end;
   if Ext = 0 then begin
-    WriteDebugEntry(deRun, RunEntries.Count);
+    WriteDebugEntry(deRun, Integer(RunEntries.Count));
     RunEntries.Add(NewRunEntry)
   end
   else begin
-    WriteDebugEntry(deUninstallRun, UninstallRunEntries.Count);
+    WriteDebugEntry(deUninstallRun, Integer(UninstallRunEntries.Count));
     UninstallRunEntries.Add(NewRunEntry);
   end;
 end;
@@ -6112,7 +6089,7 @@ begin
   end;
   PreLangDataList.Add(NewPreLangData);
 
-  ReadMessagesFromFilesPre(Filename, PreLangDataList.Count-1);
+  ReadMessagesFromFilesPre(Filename, Integer(PreLangDataList.Count-1));
 end;
 
 procedure TSetupCompiler.EnumLanguagesProc(const Line: PChar; const Ext: Integer);
@@ -6144,21 +6121,21 @@ begin
     { LicenseFile }
     if (Values[paLicenseFile].Data <> '') then begin
       AddStatus(Format(SCompilerStatusReadingInFile, [Values[paLicenseFile].Data]));
-      ReadTextFile(PrependSourceDirName(Values[paLicenseFile].Data), LanguageEntries.Count,
+      ReadTextFile(PrependSourceDirName(Values[paLicenseFile].Data), Integer(LanguageEntries.Count),
         NewLanguageEntry.LicenseText);
     end;
 
     { InfoBeforeFile }
     if (Values[paInfoBeforeFile].Data <> '') then begin
       AddStatus(Format(SCompilerStatusReadingInFile, [Values[paInfoBeforeFile].Data]));
-      ReadTextFile(PrependSourceDirName(Values[paInfoBeforeFile].Data), LanguageEntries.Count,
+      ReadTextFile(PrependSourceDirName(Values[paInfoBeforeFile].Data), Integer(LanguageEntries.Count),
         NewLanguageEntry.InfoBeforeText);
     end;
 
     { InfoAfterFile }
     if (Values[paInfoAfterFile].Data <> '') then begin
       AddStatus(Format(SCompilerStatusReadingInFile, [Values[paInfoAfterFile].Data]));
-      ReadTextFile(PrependSourceDirName(Values[paInfoAfterFile].Data), LanguageEntries.Count,
+      ReadTextFile(PrependSourceDirName(Values[paInfoAfterFile].Data), Integer(LanguageEntries.Count),
         NewLanguageEntry.InfoAfterText);
     end;
   except
@@ -6169,13 +6146,13 @@ begin
   LanguageEntries.Add(NewLanguageEntry);
   LangDataList.Add(NewLangData);
 
-  ReadMessagesFromFiles(Filename, LanguageEntries.Count-1);
+  ReadMessagesFromFiles(Filename, Integer(LanguageEntries.Count-1));
 end;
 
 procedure TSetupCompiler.EnumMessagesProc(const Line: PChar; const Ext: Integer);
 var
   P, P2: PChar;
-  I, ID, LangIndex: Integer;
+  ID, LangIndex: Integer;
   N, M: String;
 begin
   P := StrScan(Line, '=');
@@ -6216,7 +6193,7 @@ begin
     DefaultLangData.MessagesDefined[TSetupMessageID(ID)] := True;
   end
   else begin
-    for I := 0 to LangDataList.Count-1 do begin
+    for var I := 0 to LangDataList.Count-1 do begin
       if (LangIndex <> -1) and (I <> LangIndex) then
         Continue;
       TLangData(LangDataList[I]).Messages[TSetupMessageID(ID)] := M;
@@ -6251,7 +6228,6 @@ var
   P: PChar;
   LangIndex: Integer;
   N: String;
-  I: Integer;
   ExistingCustomMessageEntry, NewCustomMessageEntry: PSetupCustomMessageEntry;
 begin
   P := StrScan(Line, '=');
@@ -6269,7 +6245,7 @@ begin
       AbortCompile(SCompilerCustomMessageBadName);
 
     { Delete existing entries}
-    for I := CustomMessageEntries.Count-1 downto 0 do begin
+    for var I := CustomMessageEntries.Count-1 downto 0 do begin
       ExistingCustomMessageEntry := CustomMessageEntries[I];
       if (CompareText(ExistingCustomMessageEntry.Name, N) = 0) and
          ((LangIndex = -1) or (ExistingCustomMessageEntry.LangIndex = LangIndex)) then begin
@@ -6294,17 +6270,16 @@ procedure TSetupCompiler.CheckCustomMessageDefinitions;
 { Checks 'language completeness' of custom message constants }
 var
   MissingLang, Found: Boolean;
-  I, J, K: Integer;
   CustomMessage1, CustomMessage2: PSetupCustomMessageEntry;
 begin
-  for I := 0 to CustomMessageEntries.Count-1 do begin
+  for var I := 0 to CustomMessageEntries.Count-1 do begin
     CustomMessage1 := PSetupCustomMessageEntry(CustomMessageEntries[I]);
     if CustomMessage1.LangIndex <> -1 then begin
       MissingLang := False;
-      for J := 0 to LanguageEntries.Count-1 do begin
+      for var J := 0 to LanguageEntries.Count-1 do begin
         { Check whether the outer custom message name exists for this language }
         Found := False;
-        for K := 0 to CustomMessageEntries.Count-1 do begin
+        for var K := 0 to CustomMessageEntries.Count-1 do begin
           CustomMessage2 := PSetupCustomMessageEntry(CustomMessageEntries[K]);
           if CompareText(CustomMessage1.Name, CustomMessage2.Name) = 0 then begin
             if (CustomMessage2.LangIndex = -1) or (CustomMessage2.LangIndex = J) then begin
@@ -6339,12 +6314,11 @@ var
   LineInfo: TLineInfo;
   Found: Boolean;
   S: String;
-  I, J: Integer;
 begin
-  for I := 0 to ExpectedCustomMessageNames.Count-1 do begin
+  for var I := 0 to ExpectedCustomMessageNames.Count-1 do begin
     Found := False;
     S := ExpectedCustomMessageNames[I];
-    for J := 0 to CustomMessageEntries.Count-1 do begin
+    for var J := 0 to CustomMessageEntries.Count-1 do begin
       if CompareText(PSetupCustomMessageEntry(CustomMessageEntries[J]).Name, S) = 0 then begin
         Found := True;
         Break;
@@ -6462,7 +6436,7 @@ procedure TSetupCompiler.ReadMessagesFromScriptPre;
     end;
     PreLangDataList.Add(NewPreLangData);
 
-    ReadMessagesFromFilesPre(DefaultIsl, PreLangDataList.Count-1);
+    ReadMessagesFromFilesPre(DefaultIsl, Integer(PreLangDataList.Count-1));
   end;
 
 begin
@@ -6501,7 +6475,7 @@ procedure TSetupCompiler.ReadMessagesFromScript;
     LanguageEntries.Add(NewLanguageEntry);
     LangDataList.Add(NewLangData);
 
-    ReadMessagesFromFiles(DefaultIsl, LanguageEntries.Count-1);
+    ReadMessagesFromFiles(DefaultIsl, Integer(LanguageEntries.Count-1));
   end;
 
   function IsOptional(const MessageID: TSetupMessageID): Boolean;
@@ -6510,9 +6484,7 @@ procedure TSetupCompiler.ReadMessagesFromScript;
   end;
 
 var
-  I: Integer;
   LangData: TLangData;
-  J: TSetupMessageID;
 begin
   { If there were no [Languages] entries, take this opportunity to create a
     default language }
@@ -6531,9 +6503,9 @@ begin
   CallIdleProc;
 
   { Check for missing messages }
-  for I := 0 to LanguageEntries.Count-1 do begin
+  for var I := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[I];
-    for J := Low(LangData.Messages) to High(LangData.Messages) do
+    for var J := Low(LangData.Messages) to High(LangData.Messages) do
       if not LangData.MessagesDefined[J] and not IsOptional(J) then begin
         { Use the message from Default.isl }
         if MissingMessagesWarning and not (J in [msgHelpTextNote, msgTranslatorNote]) then
@@ -6558,13 +6530,12 @@ type
     MsgData: array[0..0] of Byte;
   end;
 var
-  L: Integer;
   LangData: TLangData;
   M: TMemoryStream;
   I: TSetupMessageID;
   Header: TMessagesHeader;
 begin
-  for L := 0 to LanguageEntries.Count-1 do begin
+  for var L := 0 to LanguageEntries.Count-1 do begin
     LangData := LangDataList[L];
 
     M := TMemoryStream.Create;
@@ -7039,20 +7010,16 @@ procedure TSetupCompiler.Compile;
   end;
 
   procedure ClearPreLangDataList;
-  var
-    I: Integer;
   begin
-    for I := PreLangDataList.Count-1 downto 0 do begin
+    for var I := PreLangDataList.Count-1 downto 0 do begin
       TPreLangData(PreLangDataList[I]).Free;
       PreLangDataList.Delete(I);
     end;
   end;
 
   procedure ClearLangDataList;
-  var
-    I: Integer;
   begin
-    for I := LangDataList.Count-1 downto 0 do begin
+    for var I := LangDataList.Count-1 downto 0 do begin
       TLangData(LangDataList[I]).Free;
       LangDataList.Delete(I);
     end;
@@ -7128,7 +7095,7 @@ var
           Count := -1;
           W.Write(Count, SizeOf(Integer));
         end else begin
-          Count := WizardImages.Count;
+          Count := Integer(WizardImages.Count);
           W.Write(Count, SizeOf(Integer));
           for var I := 0 to Count-1 do
             WriteStream(WizardImages[I], W);
@@ -7140,7 +7107,6 @@ var
     end;
 
   var
-    J: Integer;
     W: TCompressedBlockWriter;
   begin
     const StartPosition = F.Position;
@@ -7151,23 +7117,23 @@ var
     F.WriteBuffer(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC));
     F.WriteBuffer(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader));
 
-    SetupHeader.NumLanguageEntries := LanguageEntries.Count;
-    SetupHeader.NumCustomMessageEntries := CustomMessageEntries.Count;
-    SetupHeader.NumPermissionEntries := PermissionEntries.Count;
-    SetupHeader.NumTypeEntries := TypeEntries.Count;
-    SetupHeader.NumComponentEntries := ComponentEntries.Count;
-    SetupHeader.NumTaskEntries := TaskEntries.Count;
-    SetupHeader.NumDirEntries := DirEntries.Count;
-    SetupHeader.NumISSigKeyEntries := ISSigKeyEntries.Count;
-    SetupHeader.NumFileEntries := FileEntries.Count;
-    SetupHeader.NumFileLocationEntries := FileLocationEntries.Count;
-    SetupHeader.NumIconEntries := IconEntries.Count;
-    SetupHeader.NumIniEntries := IniEntries.Count;
-    SetupHeader.NumRegistryEntries := RegistryEntries.Count;
-    SetupHeader.NumInstallDeleteEntries := InstallDeleteEntries.Count;
-    SetupHeader.NumUninstallDeleteEntries := UninstallDeleteEntries.Count;
-    SetupHeader.NumRunEntries := RunEntries.Count;
-    SetupHeader.NumUninstallRunEntries := UninstallRunEntries.Count;
+    SetupHeader.NumLanguageEntries := Integer(LanguageEntries.Count);
+    SetupHeader.NumCustomMessageEntries := Integer(CustomMessageEntries.Count);
+    SetupHeader.NumPermissionEntries := Integer(PermissionEntries.Count);
+    SetupHeader.NumTypeEntries := Integer(TypeEntries.Count);
+    SetupHeader.NumComponentEntries := Integer(ComponentEntries.Count);
+    SetupHeader.NumTaskEntries := Integer(TaskEntries.Count);
+    SetupHeader.NumDirEntries := Integer(DirEntries.Count);
+    SetupHeader.NumISSigKeyEntries := Integer(ISSigKeyEntries.Count);
+    SetupHeader.NumFileEntries := Integer(FileEntries.Count);
+    SetupHeader.NumFileLocationEntries := Integer(FileLocationEntries.Count);
+    SetupHeader.NumIconEntries := Integer(IconEntries.Count);
+    SetupHeader.NumIniEntries := Integer(IniEntries.Count);
+    SetupHeader.NumRegistryEntries := Integer(RegistryEntries.Count);
+    SetupHeader.NumInstallDeleteEntries := Integer(InstallDeleteEntries.Count);
+    SetupHeader.NumUninstallDeleteEntries := Integer(UninstallDeleteEntries.Count);
+    SetupHeader.NumRunEntries := Integer(RunEntries.Count);
+    SetupHeader.NumUninstallRunEntries := Integer(UninstallRunEntries.Count);
     SetupHeader.LicenseText := LicenseText;
     SetupHeader.InfoBeforeText := InfoBeforeText;
     SetupHeader.InfoAfterText := InfoAfterText;
@@ -7182,52 +7148,52 @@ var
       SECompressedBlockWrite(W, SetupHeader, SizeOf(SetupHeader),
         SetupHeaderStrings, SetupHeaderAnsiStrings);
 
-      for J := 0 to LanguageEntries.Count-1 do
+      for var J := 0 to LanguageEntries.Count-1 do
         SECompressedBlockWrite(W, LanguageEntries[J]^, SizeOf(TSetupLanguageEntry),
           SetupLanguageEntryStrings, SetupLanguageEntryAnsiStrings);
-      for J := 0 to CustomMessageEntries.Count-1 do
+      for var J := 0 to CustomMessageEntries.Count-1 do
         SECompressedBlockWrite(W, CustomMessageEntries[J]^, SizeOf(TSetupCustomMessageEntry),
           SetupCustomMessageEntryStrings, SetupCustomMessageEntryAnsiStrings);
-      for J := 0 to PermissionEntries.Count-1 do
+      for var J := 0 to PermissionEntries.Count-1 do
         SECompressedBlockWrite(W, PermissionEntries[J]^, SizeOf(TSetupPermissionEntry),
           SetupPermissionEntryStrings, SetupPermissionEntryAnsiStrings);
-      for J := 0 to TypeEntries.Count-1 do
+      for var J := 0 to TypeEntries.Count-1 do
         SECompressedBlockWrite(W, TypeEntries[J]^, SizeOf(TSetupTypeEntry),
           SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
-      for J := 0 to ComponentEntries.Count-1 do
+      for var J := 0 to ComponentEntries.Count-1 do
         SECompressedBlockWrite(W, ComponentEntries[J]^, SizeOf(TSetupComponentEntry),
           SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
-      for J := 0 to TaskEntries.Count-1 do
+      for var J := 0 to TaskEntries.Count-1 do
         SECompressedBlockWrite(W, TaskEntries[J]^, SizeOf(TSetupTaskEntry),
           SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
-      for J := 0 to DirEntries.Count-1 do
+      for var J := 0 to DirEntries.Count-1 do
         SECompressedBlockWrite(W, DirEntries[J]^, SizeOf(TSetupDirEntry),
           SetupDirEntryStrings, SetupDirEntryAnsiStrings);
-      for J := 0 to ISSigKeyEntries.Count-1 do
+      for var J := 0 to ISSigKeyEntries.Count-1 do
         SECompressedBlockWrite(W, ISSigKeyEntries[J]^, SizeOf(TSetupISSigKeyEntry),
           SetupISSigKeyEntryStrings, SetupISSigKeyEntryAnsiStrings);
-      for J := 0 to FileEntries.Count-1 do
+      for var J := 0 to FileEntries.Count-1 do
         SECompressedBlockWrite(W, FileEntries[J]^, SizeOf(TSetupFileEntry),
           SetupFileEntryStrings, SetupFileEntryAnsiStrings);
-      for J := 0 to IconEntries.Count-1 do
+      for var J := 0 to IconEntries.Count-1 do
         SECompressedBlockWrite(W, IconEntries[J]^, SizeOf(TSetupIconEntry),
           SetupIconEntryStrings, SetupIconEntryAnsiStrings);
-      for J := 0 to IniEntries.Count-1 do
+      for var J := 0 to IniEntries.Count-1 do
         SECompressedBlockWrite(W, IniEntries[J]^, SizeOf(TSetupIniEntry),
           SetupIniEntryStrings, SetupIniEntryAnsiStrings);
-      for J := 0 to RegistryEntries.Count-1 do
+      for var J := 0 to RegistryEntries.Count-1 do
         SECompressedBlockWrite(W, RegistryEntries[J]^, SizeOf(TSetupRegistryEntry),
           SetupRegistryEntryStrings, SetupRegistryEntryAnsiStrings);
-      for J := 0 to InstallDeleteEntries.Count-1 do
+      for var J := 0 to InstallDeleteEntries.Count-1 do
         SECompressedBlockWrite(W, InstallDeleteEntries[J]^, SizeOf(TSetupDeleteEntry),
           SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-      for J := 0 to UninstallDeleteEntries.Count-1 do
+      for var J := 0 to UninstallDeleteEntries.Count-1 do
         SECompressedBlockWrite(W, UninstallDeleteEntries[J]^, SizeOf(TSetupDeleteEntry),
           SetupDeleteEntryStrings, SetupDeleteEntryAnsiStrings);
-      for J := 0 to RunEntries.Count-1 do
+      for var J := 0 to RunEntries.Count-1 do
         SECompressedBlockWrite(W, RunEntries[J]^, SizeOf(TSetupRunEntry),
           SetupRunEntryStrings, SetupRunEntryAnsiStrings);
-      for J := 0 to UninstallRunEntries.Count-1 do
+      for var J := 0 to UninstallRunEntries.Count-1 do
         SECompressedBlockWrite(W, UninstallRunEntries[J]^, SizeOf(TSetupRunEntry),
           SetupRunEntryStrings, SetupRunEntryAnsiStrings);
 
@@ -7257,7 +7223,7 @@ var
     try
       if SetupEncryptionHeader.EncryptionUse = euFull then
         W.InitEncryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
-      for J := 0 to FileLocationEntries.Count-1 do
+      for var J := 0 to FileLocationEntries.Count-1 do
         W.Write(FileLocationEntries[J]^, SizeOf(TSetupFileLocationEntry));
       W.Finish;
     finally
@@ -7457,7 +7423,6 @@ var
   var
     CH: TCompressionHandler;
     ChunkCompressed: Boolean;
-    I: Integer;
     FL: PSetupFileLocationEntry;
     FLExtraInfo: PFileLocationEntryExtraInfo;
     FT: TFileTime;
@@ -7486,10 +7451,10 @@ var
     end else
       CH := TCompressionHandler.Create(Self, '');
     SetLength(ISSigAvailableKeys, ISSigKeyEntries.Count);
-    for I := 0 to ISSigKeyEntries.Count-1 do
+    for var I := 0 to ISSigKeyEntries.Count-1 do
       ISSigAvailableKeys[I] := nil;
     try
-      for I := 0 to ISSigKeyEntries.Count-1 do begin
+      for var I := 0 to ISSigKeyEntries.Count-1 do begin
         const ISSigKeyEntry = PSetupISSigKeyEntry(ISSigKeyEntries[I]);
         ISSigAvailableKeys[I] := TECDSAKey.Create;
         try
@@ -7507,15 +7472,16 @@ var
       CompressionStartTick := GetTickCount;
       CompressionInProgress := True;
 
-      for I := 0 to FileLocationEntries.Count-1 do begin
+      for var I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         FLExtraInfo := FileLocationEntryExtraInfos[I];
+        const FileLocationEntryFilename = FileLocationEntryFilenames[Integer(I)];
 
         if FLExtraInfo.Sign <> fsNoSetting then begin
           var SignatureFound := False;
           if FLExtraInfo.Sign in [fsOnce, fsCheck] then begin
             { Check the file for a signature }
-            SourceFile := TFile.Create(FileLocationEntryFilenames[I],
+            SourceFile := TFile.Create(FileLocationEntryFilename,
               fdOpenExisting, faRead, fsRead);
             try
               if ReadSignatureAndChecksumFields(SourceFile, SignatureAddress,
@@ -7529,26 +7495,26 @@ var
           end;
 
           if (FLExtraInfo.Sign = fsYes) or ((FLExtraInfo.Sign = fsOnce) and not SignatureFound) then begin
-            AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilenames[I]]));
-            Sign(FileLocationEntryFilenames[I]);
+            AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilename]));
+            Sign(FileLocationEntryFilename);
             CallIdleProc;
           end else if FLExtraInfo.Sign = fsOnce then
-            AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilenames[I]]))
+            AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilename]))
           else if (FLExtraInfo.Sign = fsCheck) and not SignatureFound then
-            AbortCompileFmt(SCompilerSourceFileNotSigned, [FileLocationEntryFilenames[I]]);
+            AbortCompileFmt(SCompilerSourceFileNotSigned, [FileLocationEntryFilename]);
         end;
 
         if floVersionInfoValid in FL.Flags then
           AddStatus(Format(StatusFilesStoringOrCompressingVersionStrings[floChunkCompressed in FL.Flags],
-            [FileLocationEntryFilenames[I],
+            [FileLocationEntryFilename,
              LongRec(FL.FileVersionMS).Hi, LongRec(FL.FileVersionMS).Lo,
              LongRec(FL.FileVersionLS).Hi, LongRec(FL.FileVersionLS).Lo]))
         else
           AddStatus(Format(StatusFilesStoringOrCompressingStrings[floChunkCompressed in FL.Flags],
-            [FileLocationEntryFilenames[I]]));
+            [FileLocationEntryFilename]));
         CallIdleProc;
 
-        SourceFile := TFile.Create(FileLocationEntryFilenames[I],
+        SourceFile := TFile.Create(FileLocationEntryFilename,
           fdOpenExisting, faRead, fsRead);
         try
           var ExpectedFileHash: TSHA256Digest;
@@ -7560,7 +7526,7 @@ var
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
             var ExpectedFileName: String;
             var ExpectedFileSize: Int64;
-            if not ISSigVerifySignature(FileLocationEntryFilenames[I],
+            if not ISSigVerifySignature(FileLocationEntryFilename,
               GetISSigAllowedKeys(ISSigAvailableKeys, FLExtraInfo.Verification.ISSigAllowedKeys),
               ExpectedFileName, ExpectedFileSize, ExpectedFileHash, FLExtraInfo.ISSigKeyUsedID,
               nil,
@@ -7581,10 +7547,10 @@ var
               end
             ) then
               AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ISSigVerifySignature result']);
-            if (ExpectedFileName <> '') and not PathSame(PathExtractName(FileLocationEntryFilenames[I]), ExpectedFileName) then
-              VerificationError(veFileNameIncorrect, FileLocationEntryFilenames[I]);
+            if (ExpectedFileName <> '') and not PathSame(PathExtractName(FileLocationEntryFilename), ExpectedFileName) then
+              VerificationError(veFileNameIncorrect, FileLocationEntryFilename);
             if SourceFile.Size <> ExpectedFileSize then
-              VerificationError(veFileSizeIncorrect, FileLocationEntryFilenames[I]);
+              VerificationError(veFileSizeIncorrect, FileLocationEntryFilename);
             { ExpectedFileHash checked below after compression }
           end;
 
@@ -7598,7 +7564,7 @@ var
                (floSolidBreak in FLExtraInfo.Flags) or
                (ChunkCompressed <> (floChunkCompressed in FL.Flags)) or
                (CH.ChunkEncrypted <> (floChunkEncrypted in FL.Flags)) then
-              FinalizeChunk(CH, I-1);
+              FinalizeChunk(CH, Integer(I-1));
           end;
           { Start a new chunk if needed }
           if not CH.ChunkStarted then begin
@@ -7642,7 +7608,7 @@ var
 
           if FLExtraInfo.Verification.Typ <> fvNone then begin
             if not SHA256DigestsEqual(FL.SHA256Sum, ExpectedFileHash) then
-              VerificationError(veFileHashIncorrect, FileLocationEntryFilenames[I]);
+              VerificationError(veFileHashIncorrect, FileLocationEntryFilename);
             AddStatus(SCompilerStatusVerified);
           end;
         finally
@@ -7650,12 +7616,12 @@ var
         end;
       end;
       { Finalize the last chunk }
-      FinalizeChunk(CH, FileLocationEntries.Count-1);
+      FinalizeChunk(CH, Integer(FileLocationEntries.Count-1));
 
       CH.Finish;
     finally
       CompressionInProgress := False;
-      for I := 0 to Length(ISSigAvailableKeys)-1 do
+      for var I := 0 to Length(ISSigAvailableKeys)-1 do
         ISSigAvailableKeys[I].Free;
       CH.Free;
     end;
@@ -7976,7 +7942,6 @@ var
     FL: PSetupFileLocationEntry;
     FLExtraInfo: PFileLocationEntryExtraInfo;
     S: String;
-    I: Integer;
   begin
     F := TTextFileWriter.Create(PrependDirName(OutputManifestFile, OutputDir),
       fdCreateAlways, faWrite, fsRead);
@@ -7988,10 +7953,11 @@ var
         'ISSigKeyID';
       F.WriteLine(S);
 
-      for I := 0 to FileLocationEntries.Count-1 do begin
+      for var I := 0 to FileLocationEntries.Count-1 do begin
         FL := FileLocationEntries[I];
         FLExtraInfo := FileLocationEntryExtraInfos[I];
-        S := IntToStr(I) + #9 + FileLocationEntryFilenames[I] + #9 +
+        const FileLocationEntryFilename = FileLocationEntryFilenames[Integer(I)];
+        S := IntToStr(I) + #9 + FileLocationEntryFilename + #9 +
           FileTimeToString(FL.TimeStamp, floTimeStampInUTC in FL.Flags) + #9;
         if floVersionInfoValid in FL.Flags then
           S := S + Format('%u.%u.%u.%u', [FL.FileVersionMS shr 16,
@@ -8038,7 +8004,6 @@ const
   BadFileNameChars = BadFilePathChars + ':';
 var
   SetupMemoryFile: TMemoryFile;
-  I: Integer;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
   PrivilegesRequiredValue: String;
@@ -8915,7 +8880,7 @@ begin
 
     { Done }
     AddStatus('');
-    for I := 0 to WarningsList.Count-1 do
+    for var I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I], True);
     EmbedCompilerCopyrightString;
   finally
@@ -8950,11 +8915,11 @@ begin
     ClearSEList(RunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     ClearSEList(UninstallRunEntries, SetupRunEntryStrings, SetupRunEntryAnsiStrings);
     FileLocationEntryFilenames.Clear;
-    for I := FileLocationEntryExtraInfos.Count-1 downto 0 do begin
+    for var I := FileLocationEntryExtraInfos.Count-1 downto 0 do begin
       Dispose(PFileLocationEntryExtraInfo(FileLocationEntryExtraInfos[I]));
       FileLocationEntryExtraInfos.Delete(I);
     end;
-    for I := ISSigKeyEntryExtraInfos.Count-1 downto 0 do begin
+    for var I := ISSigKeyEntryExtraInfos.Count-1 downto 0 do begin
       Dispose(PISSigKeyEntryExtraInfo(ISSigKeyEntryExtraInfos[I]));
       ISSigKeyEntryExtraInfos.Delete(I);
     end;

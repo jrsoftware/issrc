@@ -75,11 +75,9 @@ begin
 end;
 
 destructor TCompressionHandler.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FCachedCompressors) then begin
-    for I := FCachedCompressors.Count-1 downto 0 do
+    for var I := FCachedCompressors.Count-1 downto 0 do
       TCustomCompressor(FCachedCompressors[I]).Free;
     FreeAndNil(FCachedCompressors);
   end;
@@ -166,14 +164,13 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
 
   procedure SelectCompressor;
   var
-    I: Integer;
     C: TCustomCompressor;
   begin
     { No current compressor, or changing compressor classes? }
     if (FCompressor = nil) or (FCompressor.ClassType <> ACompressorClass) then begin
       FCompressor := nil;
       { Search cache for requested class }
-      for I := FCachedCompressors.Count-1 downto 0 do begin
+      for var I := FCachedCompressors.Count-1 downto 0 do begin
         C := FCachedCompressors[I];
         if C.ClassType = ACompressorClass then begin
           FCompressor := C;

@@ -33,8 +33,8 @@ type
       FOnUsedVariable: TScriptCompilerOnUsedVariable;
       FOnError: TScriptCompilerOnError;
       FOnWarning: TScriptCompilerOnWarning;
-      function FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
-      function GetExportCount: Integer;
+      function FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
+      function GetExportCount: NativeInt;
       procedure PSPositionToLineCol(Position: Cardinal; var Line, Col: Integer);
       procedure TriggerWarning(const Position: Cardinal; const WarningType, WarningMessage: String);
     public
@@ -43,7 +43,7 @@ type
       procedure AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: Integer);
       function CheckExports: Boolean;
       function Compile(const ScriptText: String; var CompiledScriptText, CompiledScriptDebugInfo: tbtString): Boolean;
-      property ExportCount: Integer read GetExportCount;
+      property ExportCount: NativeInt read GetExportCount;
       function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
       function IsObsoleteFunction(const Name: String): String;
@@ -107,7 +107,6 @@ var
   AttrValue: String;
   ScriptExport: TScriptExport;
   B: Boolean;
-  I: Integer;
 begin
   ScriptCompiler := TScriptCompiler(Sender.ID);
   if CompareText(String(Attr.AType.Name), ScriptCompiler.FNamingAttribute) = 0 then begin
@@ -127,7 +126,7 @@ begin
         Result := False;
       end else begin
         AttrValue := String(GetString(Attr.Values[0], B));
-        I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
+        var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
         if I <> -1 then begin
           { The name from the attribute and the function prototype are both ok. }
           ScriptExport := ScriptCompiler.FExports[I];
@@ -201,7 +200,6 @@ function PSPascalCompilerOnExportCheck(Sender: TPSPascalCompiler; Proc: TPSInter
 var
   ScriptCompiler: TScriptCompiler;
   ScriptExport: TScriptExport;
-  I: Integer;
 begin
   ScriptCompiler := TScriptCompiler(Sender.ID);
 
@@ -210,7 +208,7 @@ begin
   { Try and see if the function name matches an export and if so,
     see if one of the prototypes for that name matches. }
 
-  I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
+  var I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
   if I <> -1 then begin
     { The function name is a match and the function prototype is ok. }    
     ScriptExport := ScriptCompiler.FExports[I];
@@ -229,7 +227,6 @@ function PSPascalCompilerOnBeforeOutput(Sender: TPSPascalCompiler): Boolean;
 var
   ScriptCompiler: TScriptCompiler;
   ScriptExport: TScriptExport;
-  I: Integer;
   Decl: TPSParametersDecl;
   Msg: String;
 begin
@@ -239,7 +236,7 @@ begin
   { Try and see if required but non found exports match any built in function
     names and if so, see if the prototypes also match }
 
-  for I := 0 to ScriptCompiler.FExports.Count-1 do begin
+  for var I := 0 to ScriptCompiler.FExports.Count-1 do begin
     ScriptExport := ScriptCompiler.FExports[I];
     if ScriptExport.Required and not ScriptExport.Exported then begin
       Decl := Sender.UseExternalProc(tbtstring(ScriptExport.Name));
@@ -317,12 +314,10 @@ begin
 end;
 
 destructor TScriptCompiler.Destroy;
-var
-  I: Integer;
 begin
   FFunctionsFound.Free();
   FUsedLines.Free();
-  for I := 0 to FExports.Count-1 do
+  for var I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Free();
   FExports.Free();
   FObsoleteFunctionWarnings.Free();
@@ -375,9 +370,8 @@ end;
 procedure TScriptCompiler.AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
 var
   ScriptExport: TScriptExport;
-  I: Integer;
 begin
-  I := FindExport(Name, Decl, -1);
+  var I := FindExport(Name, Decl, -1);
   if I <> -1 then begin
     ScriptExport := FExports[I];
     if Required and not ScriptExport.Required then begin
@@ -401,12 +395,11 @@ begin
   FExports.Add(ScriptExport);
 end;
 
-function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
+function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
 var
   ScriptExport: TScriptExport;
-  I: Integer;
 begin
-  for I := 0 to FExports.Count-1 do begin
+  for var I := 0 to FExports.Count-1 do begin
     ScriptExport := FExports[I];
     if ((Name = '') or (CompareText(ScriptExport.Name, Name) = 0)) and
        ((Decl = '') or (CompareText(ScriptExport.Decl, Decl) = 0)) and
@@ -421,11 +414,10 @@ end;
 function TScriptCompiler.CheckExports: Boolean;
 var
   ScriptExport: TScriptExport;
-  I: Integer;
   Msg: String;
 begin
   Result := True;
-  for I := 0 to FExports.Count-1 do begin
+  for var I := 0 to FExports.Count-1 do begin
     ScriptExport := FExports[I];
     if ScriptExport.Required and not ScriptExport.Exported then begin
       if Assigned(FOnError) then begin
@@ -447,13 +439,12 @@ var
   PSPascalCompiler: TPSPascalCompiler;
   L, Line, Col: LongInt;
   Filename, Msg: String;
-  I: Integer;
 begin
   Result := False;
 
   FScriptText := Utf8Encode(ScriptText);
 
-  for I := 0 to FExports.Count-1 do
+  for var I := 0 to FExports.Count-1 do
     TScriptExport(FExports[I]).Exported := False;
   FFunctionsFound.Clear;
 
@@ -529,9 +520,8 @@ end;
 function TScriptCompiler.ExportFound(const Name: String): Boolean;
 var
   ScriptExport: TScriptExport;
-  I: Integer;
 begin
-  for I := 0 to FExports.Count-1 do begin
+  for var I := 0 to FExports.Count-1 do begin
     ScriptExport := FExports[I];
     if CompareText(ScriptExport.Name, Name) = 0 then begin
       Result := ScriptExport.Exported;
@@ -555,7 +545,7 @@ begin
   end;
 end;
 
-function TScriptCompiler.GetExportCount: Integer;
+function TScriptCompiler.GetExportCount: NativeInt;
 begin
   Result := FExports.Count;
 end;

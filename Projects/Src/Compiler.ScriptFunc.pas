@@ -44,10 +44,8 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
   end;
 
   procedure RegisterDelphiFunctionTable(const FunctionTable: array of tbtstring);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
+    for var I := Low(FunctionTable) to High(FunctionTable) do
       ScriptCompiler.AddDelphiFunction(FunctionTable[I]);
   end;
 
