@@ -6940,6 +6940,12 @@ end;
 
 procedure TSetupCompiler.Compile;
 
+  procedure EmbedCompilerCopyrightString;
+  asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2025 Jordan Russell, '
+                db 'Portions Copyright (C) 2000-2025 Martijn Laan',0; @1: end;
+  { Note: Removing or modifying the copyright text is a violation of the
+    Inno Setup license agreement; see LICENSE.TXT. }
+
   procedure InitDebugInfo;
   var
     Header: TDebugInfoHeader;
@@ -8911,10 +8917,7 @@ begin
     AddStatus('');
     for I := 0 to WarningsList.Count-1 do
       AddStatus(SCompilerStatusWarning + WarningsList[I], True);
-    asm jmp @1; db 0,'Inno Setup Compiler, Copyright (C) 1997-2025 Jordan Russell, '
-                  db 'Portions Copyright (C) 2000-2025 Martijn Laan',0; @1: end;
-    { Note: Removing or modifying the copyright text is a violation of the
-      Inno Setup license agreement; see LICENSE.TXT. }
+    EmbedCompilerCopyrightString;
   finally
     { Free / clear all the data }
     CallPreprocessorCleanupProc;
