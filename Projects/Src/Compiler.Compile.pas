@@ -84,7 +84,9 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
     Data.OutputExeFilename := PChar(SetupCompiler.GetExeFilename);
     var DebugInfo := SetupCompiler.GetDebugInfo;
     Data.DebugInfo := DebugInfo.Memory;
-    Data.DebugInfoSize := DebugInfo.Size;
+    if DebugInfo.Size > High(Cardinal) then
+      raise Exception.Create('Unexpected DebugInfo.Size value');
+    Data.DebugInfoSize := Cardinal(DebugInfo.Size);
     Params.CallbackProc(iscbNotifySuccess, Data, Params.AppData);
   end;
 

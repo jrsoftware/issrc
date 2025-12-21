@@ -260,10 +260,10 @@ type
     procedure RenamedConstantCallback(const Cnst, CnstRenamed: String);
     procedure EnumCodeProc(const Line: PChar; const Ext: Integer);
     procedure ReadCode;
-    procedure CodeCompilerOnLineToLineInfo(const Line: LongInt; var Filename: String; var FileLine: LongInt);
-    procedure CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean);
-    procedure CodeCompilerOnUsedVariable(const Filename: String; const Line, Col, Param1, Param2, Param3: LongInt; const Param4: AnsiString);
-    procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: LongInt);
+    procedure CodeCompilerOnLineToLineInfo(const Line: Integer; var Filename: String; var FileLine: Integer);
+    procedure CodeCompilerOnUsedLine(const Filename: String; const Line: Integer; const Position: Cardinal; const IsProcExit: Boolean);
+    procedure CodeCompilerOnUsedVariable(const Filename: String; const Line, Col, Param1, Param2, Param3: Integer; const Param4: AnsiString);
+    procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: Integer);
     procedure CodeCompilerOnWarning(const Msg: String);
     procedure CompileCode;
     function FilenameToFileIndex(const AFileName: String): Integer;
@@ -6576,10 +6576,12 @@ begin
         M.WriteBuffer(PChar(LangData.Messages[I])^, (Length(LangData.Messages[I]) + 1) * SizeOf(LangData.Messages[I][1]));
 
       Header.NumMessages := Ord(High(LangData.Messages)) - Ord(Low(LangData.Messages)) + 1;
-      Header.TotalSize := M.Size;
+      if M.Size > High(Cardinal) then
+        AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected M.Size value']);
+      Header.TotalSize := Cardinal(M.Size);
       Header.NotTotalSize := not Header.TotalSize;
       Header.CRCMessages := GetCRC32(PMessagesDataStructure(M.Memory).MsgData,
-        M.Size - (SizeOf(MessagesHdrID) + SizeOf(Header)));
+        Header.TotalSize - (SizeOf(MessagesHdrID) + SizeOf(Header)));
       PMessagesDataStructure(M.Memory).Header := Header;
 
       SetString(PSetupLanguageEntry(LanguageEntries[L]).Data, PAnsiChar(M.Memory),
@@ -6619,7 +6621,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean);
+procedure TSetupCompiler.CodeCompilerOnUsedLine(const Filename: String; const Line: Integer; const Position: Cardinal; const IsProcExit: Boolean);
 var
   OldLineFilename: String;
   OldLineNumber: Integer;

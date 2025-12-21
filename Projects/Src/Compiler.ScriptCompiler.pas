@@ -2,7 +2,7 @@ unit Compiler.ScriptCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,10 +15,10 @@ uses
   Classes, Generics.Collections, uPSUtils;
 
 type
-  TScriptCompilerOnLineToLineInfo = procedure(const Line: LongInt; var Filename: String; var FileLine: LongInt) of object;
-  TScriptCompilerOnUsedLine = procedure(const Filename: String; const Line, Position: LongInt; const IsProcExit: Boolean) of object;
-  TScriptCompilerOnUsedVariable = procedure(const Filename: String; const Line, Col, Param1, Param2, Param3: LongInt; const Param4: AnsiString) of object;
-  TScriptCompilerOnError = procedure(const Msg: String; const ErrorFilename: String; const ErrorLine: LongInt) of object;
+  TScriptCompilerOnLineToLineInfo = procedure(const Line: Integer; var Filename: String; var FileLine: Integer) of object;
+  TScriptCompilerOnUsedLine = procedure(const Filename: String; const Line: Integer; const Position: Cardinal; const IsProcExit: Boolean) of object;
+  TScriptCompilerOnUsedVariable = procedure(const Filename: String; const Line, Col, Param1, Param2, Param3: Integer; const Param4: AnsiString) of object;
+  TScriptCompilerOnError = procedure(const Msg: String; const ErrorFilename: String; const ErrorLine: Integer) of object;
   TScriptCompilerOnWarning = procedure(const Msg: String) of object;
 
   TScriptCompiler = class
@@ -35,12 +35,12 @@ type
       FOnWarning: TScriptCompilerOnWarning;
       function FindExport(const Name, Decl: String; const IgnoreIndex: Integer): Integer;
       function GetExportCount: Integer;
-      procedure PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
-      procedure TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
+      procedure PSPositionToLineCol(Position: Cardinal; var Line, Col: Integer);
+      procedure TriggerWarning(const Position: Cardinal; const WarningType, WarningMessage: String);
     public
       constructor Create;
       destructor Destroy; override;
-      procedure AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: LongInt);
+      procedure AddExport(const Name, Decl: String; const AllowNamingAttribute, Required: Boolean; const RequiredFilename: String; const RequiredLine: Integer);
       function CheckExports: Boolean;
       function Compile(const ScriptText: String; var CompiledScriptText, CompiledScriptDebugInfo: tbtString): Boolean;
       property ExportCount: Integer read GetExportCount;
@@ -60,6 +60,7 @@ implementation
 uses
   SysUtils, Generics.Defaults,
   uPSCompiler, uPSC_dll,
+  UnsignedFunc,
   Compiler.ScriptClasses, Compiler.ScriptFunc;
 
 type
@@ -258,18 +259,15 @@ begin
 end;
 
 function PSPascalCompilerOnWriteLine2(Sender: TPSPascalCompiler; Position: Cardinal; IsProcExit: Boolean): Boolean;
-var
-  ScriptCompiler: TScriptCompiler;
-  Filename: String;
-  Line, Col: LongInt;
 begin
-  ScriptCompiler := Sender.ID;
+  const ScriptCompiler: TScriptCompiler = Sender.ID;
 
   if Assigned(ScriptCompiler.FOnUsedLine) then begin
+    var Line, Col: Integer;
     ScriptCompiler.PSPositionToLineCol(Position, Line, Col);
     if ScriptCompiler.FUsedLines.IndexOf(Pointer(Line)) = -1 then begin
       ScriptCompiler.FUsedLines.Add(Pointer(Line));
-      Filename := '';
+      var Filename := '';
       if Assigned(ScriptCompiler.FOnLineToLineInfo) then
         ScriptCompiler.FOnLineToLineInfo(Line, Filename, Line);
       ScriptCompiler.FOnUsedLine(Filename, Line, Position, IsProcExit);
@@ -280,20 +278,17 @@ begin
     Result := True;
 end;
 
-procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Longint; ProcNo, Position: Cardinal; const PropData: tbtstring);
-var
-  ScriptCompiler: TScriptCompiler;
-  Filename: String;
-  Line, Col: LongInt;
+procedure PSPascalCompilerOnUseVariable(Sender: TPSPascalCompiler; VarType: TPSVariableType; VarNo: Integer; ProcNo, Position: Cardinal; const PropData: tbtstring);
 begin
-  ScriptCompiler := Sender.ID;
+  const ScriptCompiler: TScriptCompiler = Sender.ID;
 
   if Assigned(ScriptCompiler.FOnUsedVariable) then begin
+    var Line, Col: Integer;
     ScriptCompiler.PSPositionToLineCol(Position, Line, Col);
-    Filename := '';
+    var Filename := '';
     if Assigned(ScriptCompiler.FOnLineToLineInfo) then
       ScriptCompiler.FOnLineToLineInfo(Line, Filename, Line);
-    ScriptCompiler.FOnUsedVariable(Filename, Line, Col, Ord(VarType), ProcNo, VarNo, PropData);
+    ScriptCompiler.FOnUsedVariable(Filename, Line, Col, Ord(VarType), Integer(ProcNo), VarNo, PropData);
   end;
 end;
 
@@ -333,13 +328,11 @@ begin
   FObsoleteFunctionWarnings.Free();
 end;
 
-procedure TScriptCompiler.PSPositionToLineCol(Position: LongInt; var Line, Col: LongInt);
+procedure TScriptCompiler.PSPositionToLineCol(Position: Cardinal; var Line, Col: Integer);
 
-  function FindNewLine(const S: AnsiString; const Start: Integer): Integer;
-  var
-    I: Integer;
+  function FindNewLine(const S: AnsiString; const Start: Cardinal): Cardinal;
   begin
-    for I := Start to Length(S) do
+    for var I := Start to ULength(S) do
       if S[I] = #10 then begin
         Result := I - Start + 1;
         Exit;
@@ -347,14 +340,12 @@ procedure TScriptCompiler.PSPositionToLineCol(Position: LongInt; var Line, Col: 
     Result := 0;
   end;
 
-var
-  LineStartPosition, LineLength: LongInt;
 begin
   Inc(Position);
 
   Line := 1;
-  LineStartPosition := 1;
-  LineLength := FindNewLine(FScriptText, LineStartPosition);
+  var LineStartPosition: Cardinal := 1;
+  var LineLength := FindNewLine(FScriptText, LineStartPosition);
 
   while (LineLength <> 0) and (Position > LineLength) do begin
     Inc(Line);
@@ -364,20 +355,17 @@ begin
   end;
 
   { Convert Position from the UTF8 encoded ANSI string index to a UTF-16 string index }
-  Position := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
-  Col := Position;
+  Col := Length(UTF8ToString(Copy(FScriptText, LineStartPosition, Position - 1))) + 1;
 end;
 
-procedure TScriptCompiler.TriggerWarning(const Position: LongInt; const WarningType, WarningMessage: String);
-var
-  Line, Col: LongInt;
-  Filename, Msg: String;
+procedure TScriptCompiler.TriggerWarning(const Position: Cardinal; const WarningType, WarningMessage: String);
 begin
+  var Line, Col: Integer;
   PSPositionToLineCol(Position, Line, Col);
-  Filename := '';
+  var Filename := '';
   if Assigned(FOnLineToLineInfo) then
     FOnLineToLineInfo(Line, Filename, Line);
-  Msg := '';
+  var Msg := '';
   if Filename <> '' then
     Msg := Msg + Filename + ', ';
   Msg := Msg + Format('Line %d, Column %d: [%s] %s', [Line, Col, WarningType, WarningMessage]);

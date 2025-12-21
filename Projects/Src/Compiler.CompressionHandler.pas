@@ -48,7 +48,7 @@ type
       const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
       const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
     procedure ProgressProc(BytesProcessed: Cardinal);
-    function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
+    function ReserveBytesOnSlice(const Bytes: Int64): Boolean;
     procedure WriteProc(const Buf; BufSize: Cardinal);
     property ChunkBytesRead: Int64 read FChunkBytesRead;
     property ChunkBytesWritten: Int64 read FChunkBytesWritten;
@@ -150,7 +150,7 @@ begin
   end;
 end;
 
-function TCompressionHandler.ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
+function TCompressionHandler.ReserveBytesOnSlice(const Bytes: Int64): Boolean;
 begin
   if FSliceBytesLeft >= Bytes then begin
     Dec(FSliceBytesLeft, Bytes);
