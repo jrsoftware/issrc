@@ -45,6 +45,7 @@ if not exist "%ISSIGTOOL_KEY_FILE%" (
 if /I "%1"=="embed" goto embed
 if /I "%1"=="sign" goto signorverify
 if /I "%1"=="verify" goto signorverify
+echo Defaulting to embed
 if not "%1"=="" goto failed
 
 :embed
