@@ -99,7 +99,7 @@ type
   end;
 
   TCompilerCallbackProc = function(Code: Integer;
-    var Data: TCompilerCallbackData; AppData: Longint): Integer; stdcall;
+    var Data: TCompilerCallbackData; AppData: NativeInt): Integer; stdcall;
 
   PCompileScriptParamsEx = ^TCompileScriptParamsEx;
   TCompileScriptParamsEx = record
@@ -115,7 +115,7 @@ type
     CallbackProc: TCompilerCallbackProc;
                           { [in] The callback procedure which the compiler calls
                             to read the script and for status notification. }
-    AppData: Longint;     { [in] Application-defined. AppData is passed to the
+    AppData: NativeInt;   { [in] Application-defined. AppData is passed to the
                             callback function. }
     Options: PChar;       { [in] Additional options. Each option is a
                             null-terminated string, and the final option is
@@ -150,7 +150,7 @@ type
     CompilerPath: PChar;
     SourcePath: PChar;
     CallbackProc: TCompilerCallbackProc;
-    AppData: Longint;
+    AppData: NativeInt;
   end;
 
   PCompilerVersionInfo = ^TCompilerVersionInfo;

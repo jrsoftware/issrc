@@ -78,7 +78,7 @@ type
 
 { Does not support iscbNotifyPreproc }
 function WrapperCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
-  AppData: Longint): Integer;
+  AppData: NativeInt): Integer;
 stdcall;
 var
   WrapperData: PWrapperData;
@@ -149,7 +149,7 @@ begin
   try
     UMove(Params, WrapperParams^, Params.Size);
     WrapperParams.CallbackProc := WrapperCallbackProc;
-    WrapperParams.AppData := Integer(@WrapperData);
+    WrapperParams.AppData := NativeInt(@WrapperData);
     if Assigned(Params.CompilerPath) then
       WrapperParams.CompilerPath := PWideChar(String(PAnsiChar(Params.CompilerPath)));
     if Assigned(Params.SourcePath) then

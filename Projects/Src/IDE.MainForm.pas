@@ -2033,7 +2033,7 @@ type
   end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
-  AppData: Longint): Integer; stdcall;
+  AppData: NativeInt): Integer; stdcall;
 
   procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
     const AutoHideNew: Boolean; const HiddenFiles: TStringList);
@@ -2287,7 +2287,7 @@ begin
     Params.CompilerPath := nil;
     Params.SourcePath := PChar(SourcePath);
     Params.CallbackProc := CompilerCallbackProc;
-    Pointer(Params.AppData) := @AppData;
+    Params.AppData := NativeInt(@AppData);
     Options := '';
     for I := 0 to FSignTools.Count-1 do
       Options := Options + AddSignToolParam(FSignTools[I]);

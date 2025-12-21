@@ -648,16 +648,16 @@ begin
   end;
 end;
 
-function EnumLangsFunc(hModule: Cardinal; lpType, lpName: PAnsiChar; wLanguage: Word; lParam: Integer): BOOL; stdcall;
+function EnumLangsFunc(M: HMODULE; lpType, lpName: PAnsiChar; wLanguage: Word; lParam: IntPtr): BOOL; stdcall;
 begin
   PWord(lParam)^ := wLanguage;
   Result := False;
 end;
 
-function GetResourceLanguage(hModule: Cardinal; lpType, lpName: PChar; var wLanguage: Word): Boolean;
+function GetResourceLanguage(M: HMODULE; lpType, lpName: PChar; var wLanguage: Word): Boolean;
 begin
   wLanguage := 0;
-  EnumResourceLanguages(hModule, lpType, lpName, @EnumLangsFunc, Integer(@wLanguage));
+  EnumResourceLanguages(M, lpType, lpName, @EnumLangsFunc, IntPtr(@wLanguage));
   Result := True;
 end;
 

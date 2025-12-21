@@ -281,7 +281,7 @@ type
       const AFilename: String; const ASigFilename: String = '');
     procedure OnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
   public
-    AppData: Longint;
+    AppData: NativeInt;
     CallbackProc: TCompilerCallbackProc;
     CompilerDir, SourceDir, OriginalSourceDir: String;
     constructor Create(AOwner: TComponent);
