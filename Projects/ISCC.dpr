@@ -216,7 +216,7 @@ begin
 end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
-  AppData: Longint): Integer; stdcall;
+  AppData: NativeInt): Integer; stdcall;
 
   procedure PrintProgress(Progress: String);
   var
