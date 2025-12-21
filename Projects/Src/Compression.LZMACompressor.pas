@@ -412,7 +412,7 @@ begin
       Buf content is read below (otherwise the content could be stale) }
     MemoryBarrier;
 
-    AWriteProc(Ring.Buf[Ring.ReaderOffset], Bytes);
+    AWriteProc(Ring.Buf[Ring.ReaderOffset], Cardinal(Bytes));
     InterlockedExchangeAdd(Ring.Count, -Bytes);  { full barrier }
     if Ring.ReaderOffset + Bytes = SizeOf(Ring.Buf) then
       Ring.ReaderOffset := 0
@@ -1120,6 +1120,9 @@ var
 begin
   StartEncode;
 
+  if Count > Cardinal(High(Integer)) then { Because of the cast below }
+    LZMAInternalError('Compress: Unexpected Count value');
+
   P := @Buffer;
   while Count > 0 do begin
     if FEncodeFinished then begin
@@ -1132,7 +1135,7 @@ begin
     { Note that the progress updates that come in every ~100 ms also serve to
       keep the output buffer flushed well before it fills up. }
     FlushOutputBuffer(True);
-    BytesWritten := RingBufferWrite(FShared.InputBuffer, P^, Count);
+    BytesWritten := RingBufferWrite(FShared.InputBuffer, P^, Integer(Count)); { Also see check above }
     if BytesWritten = 0 then begin
       { Input buffer full; unblock worker Read }
       SatisfyWorkerWaitOnInput;

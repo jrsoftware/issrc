@@ -114,7 +114,7 @@ type
     PreLangDataList, LangDataList: TList;
     SignToolList: TList;
     SignTools, SignToolsParams: TStringList;
-    SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Integer;
+    SignToolRetryCount, SignToolRetryDelay, SignToolMinimumTimeBetween: Cardinal;
     SignToolRunMinimized: Boolean;
     LastSignCommandStartTick: DWORD;
 
@@ -271,7 +271,7 @@ type
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
-    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
+    procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Cardinal; const RunMinimized: Boolean);
     procedure WriteDebugEntry(Kind: TDebugEntryKind; Index: Integer; StepOutMarker: Boolean = False);
     procedure WriteCompiledCodeText(const CompiledCodeText: Ansistring);
     procedure WriteCompiledCodeDebugInfo(const CompiledCodeDebugInfo: AnsiString);
@@ -3165,19 +3165,19 @@ begin
         I := StrToIntDef(Value, -1);
         if I < 0 then
           Invalid;
-        SignToolMinimumTimeBetween := I;
+        SignToolMinimumTimeBetween := Cardinal(I);
       end;
     ssSignToolRetryCount: begin
         I := StrToIntDef(Value, -1);
         if I < 0 then
           Invalid;
-        SignToolRetryCount := I;
+        SignToolRetryCount := Cardinal(I);
       end;
     ssSignToolRetryDelay: begin
         I := StrToIntDef(Value, -1);
         if I < 0 then
           Invalid;
-        SignToolRetryDelay := I;
+        SignToolRetryDelay := Cardinal(I);
       end;
     ssSignToolRunMinimized: begin
         SignToolRunMinimized := StrToBool(Value);
@@ -6631,7 +6631,9 @@ begin
   try
     LineFilename := Filename;
     LineNumber := Line;
-    WriteDebugEntry(deCodeLine, Position, IsProcExit);
+    if Position > Cardinal(High(Integer)) then
+      AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected Position value']);
+    WriteDebugEntry(deCodeLine, Integer(Position), IsProcExit);
   finally
     LineFilename := OldLineFilename;
     LineNumber := OldLineNumber;
@@ -6768,7 +6770,7 @@ begin
   end;
 end;
 
-procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Integer; const RunMinimized: Boolean);
+procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Cardinal; const RunMinimized: Boolean);
 
   function FmtCommand(S: PChar; const AParams, AFileName: String; var AFileNameSequenceFound: Boolean): String;
   var
@@ -6878,8 +6880,6 @@ procedure TSetupCompiler.SignCommand(const AName, ACommand, AParams, AExeFilenam
 
 var
   Params, Command: String;
-  MinimumTimeBetweenDelay: Integer;
-  I: Integer;
   FileNameSequenceFound1, FileNameSequenceFound2: Boolean;
 begin
   Params := FmtCommand(PChar(AParams), '', AExeFileName, FileNameSequenceFound1);
@@ -6888,11 +6888,15 @@ begin
   if not FileNameSequenceFound1 and not FileNameSequenceFound2 then
     AbortCompileFmt(SCompilerSignToolFileNameSequenceNotFound, [AName]);
 
-  for I := 0 to RetryCount do begin
+  for var I := 0 to RetryCount do begin
     try
+      var MinimumTimeBetweenDelay: Cardinal;
+      const CurrentTick = GetTickCount;
       if (MinimumTimeBetween <> 0) and (LastSignCommandStartTick <> 0) then begin
-        MinimumTimeBetweenDelay := MinimumTimeBetween - Integer(GetTickCount - LastSignCommandStartTick);
-        if MinimumTimeBetweenDelay < 0 then
+        const TickDelta = Cardinal(CurrentTick - LastSignCommandStartTick);
+        if TickDelta < MinimumTimeBetween then
+          MinimumTimeBetweenDelay := MinimumTimeBetween - TickDelta
+        else
           MinimumTimeBetweenDelay := 0;
       end else
         MinimumTimeBetweenDelay := 0;
