@@ -966,7 +966,7 @@ begin
 
             { Update 'MAINICON' }
             for I := 0 to NewGroupIconDir.ItemCount-1 do
-              if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(DWORD(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
+              if not UpdateResource(H, RT_ICON, MakeIntResource(NewGroupIconDir.Items[I].Id), 1033, Pointer(PByte(Ico) + Ico.Items[I].Offset), Ico.Items[I].Header.ImageSize) then
                 ResUpdateErrorWithLastError('UpdateResource failed (8)', ResourceName);
 
             { Update the icons }

@@ -1413,7 +1413,7 @@ begin
         KLink.cbStruct := SizeOf(KLink);
         KLink.pszKeywords := PChar(S);
         KLink.fIndexOnFail := True;
-        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD(@KLink));
+        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD_PTR(@KLink));
       end;
     end;
   end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin

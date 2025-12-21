@@ -7512,10 +7512,10 @@ var
             SourceFile := TFile.Create(FileLocationEntryFilenames[I],
               fdOpenExisting, faRead, fsRead);
             try
-              if ReadSignatureAndChecksumFields(SourceFile, DWORD(SignatureAddress),
-                   DWORD(SignatureSize), HdrChecksum) or
-                 ReadSignatureAndChecksumFields64(SourceFile, DWORD(SignatureAddress),
-                   DWORD(SignatureSize), HdrChecksum) then
+              if ReadSignatureAndChecksumFields(SourceFile, SignatureAddress,
+                   SignatureSize, HdrChecksum) or
+                 ReadSignatureAndChecksumFields64(SourceFile, SignatureAddress,
+                   SignatureSize, HdrChecksum) then
                 SignatureFound := SignatureSize <> 0;
             finally
               SourceFile.Free;
@@ -7700,8 +7700,8 @@ var
       SignedFileSize := SignedFile.CappedSize;
 
       { Check the file for a signature }
-      if not ReadSignatureAndChecksumFields(SignedFile, DWORD(SignatureAddress),
-         DWORD(SignatureSize), HdrChecksum) then
+      if not ReadSignatureAndChecksumFields(SignedFile, SignatureAddress,
+         SignatureSize, HdrChecksum) then
         AbortCompile('ReadSignatureAndChecksumFields failed');
       if SignatureAddress = 0 then begin
         { No signature found. Return False to inform the caller that the file
@@ -7726,8 +7726,8 @@ var
         { Carry checksum over from UnsignedFile to TestFile. We used to just
           zero it in TestFile, but that didn't work if the user modified
           Setup.e?? with a res-editing tool that sets a non-zero checksum. }
-        if not ReadSignatureAndChecksumFields(UnsignedFile, DWORD(SignatureAddress),
-           DWORD(SignatureSize), HdrChecksum) then
+        if not ReadSignatureAndChecksumFields(UnsignedFile, SignatureAddress,
+           SignatureSize, HdrChecksum) then
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
         if not UpdateSignatureAndChecksumFields(TestFile, 0, 0, HdrChecksum) then
           AbortCompile('UpdateSignatureAndChecksumFields failed');
