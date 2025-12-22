@@ -6,4 +6,10 @@
     <LocalDebuggerCommandArguments>Debug.iss</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(ISSRCROOT)\Projects\Bin</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommand>$(ISSRCROOT)\Projects\Bin\Compil32.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>Debug.iss</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(ISSRCROOT)\Projects\Bin</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
 </Project>

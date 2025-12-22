@@ -618,10 +618,11 @@ procedure TSetupCompiler.InitLZMADLL;
 begin
   if LZMAInitialized then
     Exit;
-  var Filename := CompilerDir + 'islzma.dll';
+  const DllName = {$IFDEF WIN64} 'islzma-x64.dll' {$ELSE} 'islzma.dll' {$ENDIF};
+  var Filename := CompilerDir + DllName;
   var M := LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not LZMAInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in islzma.dll');
+    AbortCompile('Failed to get address of functions in ' + DllName);
   LZMAInitialized := True;
 end;
 
@@ -2727,12 +2728,12 @@ begin
       end;
     ssArchiveExtraction: begin
         Value := LowerCase(Trim(Value));
-        if Value = 'enhanced/nopassword' then begin
-          SetupHeader.SevenZipLibraryName := 'is7zxr.dll'
-        end else if Value = 'enhanced' then begin
-          SetupHeader.SevenZipLibraryName := 'is7zxa.dll'
-        end else if Value = 'full' then
-          SetupHeader.SevenZipLibraryName := 'is7z.dll'
+        if Value = 'enhanced/nopassword' then
+          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7zxr-x64.dll' {$ELSE} 'is7zxr.dll' {$ENDIF}
+        else if Value = 'enhanced' then
+          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7zxa-x64.dll' {$ELSE} 'is7zxa.dll' {$ENDIF}
+        else if Value = 'full' then
+          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7z-x64.dll' {$ELSE} 'is7z.dll' {$ENDIF}
         else if Value <> 'basic' then
           Invalid;
       end;

@@ -1,0 +1,8 @@
+format issig-v2
+file-name "islzma-x64.dll"
+file-size 166544
+file-hash dcbcc895d2cc3c4b14dbced1efd4a7e0ef75a5a1ea0cce0212af11f32de3cac7
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 8e168d3548c25888c78a3425e917050cfead54ad88b37df813cae673c379c55e
+sig-s ebf3550874293146190114b7406f396376385d0f919aecf69b023ada8a495736
