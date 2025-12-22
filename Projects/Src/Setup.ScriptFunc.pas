@@ -1588,6 +1588,9 @@ var
     end);
     RegisterScriptFunc('FINDWINDOWBYCLASSNAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFNDEF CPUX86}
+      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for FindWindowByWindowName' }
+      {$ENDIF}
       Stack.SetInt(PStart, FindWindow(PChar(Stack.GetString(PStart-1)), nil));
     end);
     RegisterScriptFunc('FINDWINDOWBYWINDOWNAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
@@ -1596,6 +1599,9 @@ var
     end);
     RegisterScriptFunc('SENDMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFNDEF CPUX86}
+      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for PostMessage, SendNotifyMessage and *Broadcast*' }
+      {$ENDIF}
       Stack.SetInt(PStart, SendMessage(Stack.GetInt(PStart-1), Stack.GetInt(PStart-2), Stack.GetInt(PStart-3), Stack.GetInt(PStart-4)));
     end);
     RegisterScriptFunc('POSTMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
@@ -1624,6 +1630,9 @@ var
     end);
     RegisterScriptFunc('LOADDLL', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFNDEF CPUX86}
+      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for CallDllProc and FreeDll' }
+      {$ENDIF}
       var DllHandle := SafeLoadLibrary(Stack.GetString(PStart-1), SEM_NOOPENFILEERRORBOX);
       if DllHandle <> 0 then
         Stack.SetInt(PStart-2, 0)
