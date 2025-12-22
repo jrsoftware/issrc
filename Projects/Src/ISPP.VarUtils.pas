@@ -22,7 +22,6 @@ procedure CopyExpVar(Src: TIsppVariant; var Dest: TIsppVariant);
 procedure MakeInt(var Op: TIsppVariant; Value: Int64);
 procedure MakeStr(var Op: TIsppVariant; const Value: string);
 procedure MakeBool(var Op: TIsppVariant; Value: Boolean);
-function TryStrToInt(Str: string; var Int: Integer): Boolean;
 function ToInt(Op: TIsppVariant): TIsppVariant;
 function ToStr(Op: TIsppVariant): TIsppVariant;
 
@@ -84,25 +83,12 @@ begin
   MakeInt(Op, Int64(Value));
 end;
 
-function TryStrToInt(Str: string; var Int: Integer): Boolean;
-var
-  Err: Integer;
-begin
-  if (Length(Str) > 2) and (Str[1] = '0') and ((Str[2] = 'x') or
-    (Str[2] = 'X')) then
-    Str := '$' + Copy(Str, 3, MaxInt);
-  Val(Str, Int, Err);
-  Result := Err = 0
-end;
-
 function ToInt(Op: TIsppVariant): TIsppVariant;
-var
-  I: Integer;
 begin
   MakeRValue(Op);
-  I := 0;
+  var I: Int64 := 0;
   if Op.Typ = evStr then
-    if (Op.AsStr = '') or TryStrToInt(Op.AsStr, I) then
+    if (Op.AsStr = '') or TryStrToInt64(Op.AsStr, I) then
       MakeInt(Result, I)
     else
       raise EConvertError.CreateFmt('Cannot convert "%s" to integer', [Op.AsStr])
