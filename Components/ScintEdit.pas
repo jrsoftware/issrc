@@ -249,10 +249,10 @@ type
       const Command: TScintCommand); overload;
     procedure BeginUndoAction;
     procedure BraceMatch;
-    function Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint; overload;
-    function Call(Msg: Cardinal; WParam: Longint; LParam: Longint; out WarnStatus: Integer): Longint; overload;
-    function Call(Msg: Cardinal; WParam: Longint; const LParamStr: TScintRawString): Longint; overload;
-    function Call(Msg: Cardinal; WParam: Longint; const LParamStr: TScintRawString; out WarnStatus: Integer): Longint; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM; out WarnStatus: Integer): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT; overload;
     procedure CancelAutoComplete;
     procedure CancelAutoCompleteAndCallTip;
     procedure CancelCallTip;
@@ -689,14 +689,14 @@ begin
   end;
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint): Longint;
+function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParam, Dummy);
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: Longint; LParam: Longint;
-  out WarnStatus: Integer): Longint;
+function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM;
+  out WarnStatus: Integer): LRESULT;
 begin
   HandleNeeded;
   if FDirectPtr = nil then
@@ -717,15 +717,15 @@ begin
   WarnStatus := ErrorStatus;
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
-  const LParamStr: TScintRawString): Longint;
+function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
+  const LParamStr: TScintRawString): LRESULT;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParamStr, Dummy);
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: Longint;
-  const LParamStr: TScintRawString; out WarnStatus: Integer): Longint;
+function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
+  const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT;
 begin
   Result := Call(Msg, WParam, LPARAM(PAnsiChar(LParamStr)), WarnStatus);
 end;
