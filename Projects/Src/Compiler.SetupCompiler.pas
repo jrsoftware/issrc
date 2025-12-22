@@ -8679,14 +8679,19 @@ begin
     end;
 
     { Read decompressor DLL. Must be done after [Files] is parsed, since
-      SetupHeader.CompressMethod isn't set until then }
+      SetupHeader.CompressMethod isn't set until then: SetupHeader.CompressMethod
+      is only set when there's actually a file to compress. }
     case SetupHeader.CompressMethod of
       cmZip: begin
+          if SetupArchitecture = sa64bit then
+            AbortCompileFmt(SCompilerEntryValueUnsupported2, ['Setup', 'SetupArchitecture', 'x64', 'zip']);
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll',
             not(pfIsunzlib in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
       cmBzip: begin
+          if SetupArchitecture = sa64bit then
+            AbortCompileFmt(SCompilerEntryValueUnsupported2, ['Setup', 'SetupArchitecture', 'x64', 'bzip']);
           AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll',
             not(pfIsbunzip in DisablePrecompiledFileVerifications), OnCheckedTrust);
