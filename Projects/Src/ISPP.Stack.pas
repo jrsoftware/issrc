@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -12,7 +12,8 @@ unit ISPP.Stack;
 
 interface
 
-uses Classes;
+uses
+  Classes, Generics.Collections;
 
 type
 
@@ -20,30 +21,30 @@ type
 
 { TOrdered class }
 
-  TOrderedList = class(TObject)
+  TOrderedList<T> = class(TObject)
   private
-    FList: TList;
+    FList: TList<T>;
   protected
-    procedure PushItem(AItem: Pointer); virtual; abstract;
-    function PopItem: Pointer; virtual;
-    function PeekItem: Pointer; virtual;
-    property List: TList read FList;
+    procedure PushItem(AItem: T); virtual; abstract;
+    function PopItem: T; virtual;
+    function PeekItem: T; virtual;
+    property List: TList<T> read FList;
   public
     constructor Create;
     destructor Destroy; override;
 
     function Count: Integer;
     function AtLeast(ACount: Integer): Boolean;
-    procedure Push(AItem: Pointer);
-    function Pop: Pointer;
-    function Peek: Pointer;
+    procedure Push(AItem: T);
+    function Pop: T;
+    function Peek: T;
   end;
 
 { TStack class }
 
-  TStack = class(TOrderedList)
+  TStack<T> = class(TOrderedList<T>)
   protected
-    procedure PushItem(AItem: Pointer); override;
+    procedure PushItem(AItem: T); override;
   end;
 
 
@@ -54,49 +55,49 @@ uses
 
 { TOrderedList }
 
-function TOrderedList.AtLeast(ACount: integer): boolean;
+function TOrderedList<T>.AtLeast(ACount: integer): boolean;
 begin
   Result := List.Count >= ACount;
 end;
 
-function TOrderedList.Peek: Pointer;
+function TOrderedList<T>.Peek: T;
 begin
   Result := PeekItem;
 end;
 
-function TOrderedList.Pop: Pointer;
+function TOrderedList<T>.Pop: T;
 begin
   Result := PopItem;
 end;
 
-procedure TOrderedList.Push(AItem: Pointer);
+procedure TOrderedList<T>.Push(AItem: T);
 begin
   PushItem(AItem);
 end;
 
-function TOrderedList.Count: Integer;
+function TOrderedList<T>.Count: Integer;
 begin
   Result := List.Count;
 end;
 
-constructor TOrderedList.Create;
+constructor TOrderedList<T>.Create;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TList<T>.Create;
 end;
 
-destructor TOrderedList.Destroy;
+destructor TOrderedList<T>.Destroy;
 begin
   List.Free;
   inherited Destroy;
 end;
 
-function TOrderedList.PeekItem: Pointer;
+function TOrderedList<T>.PeekItem: T;
 begin
   Result := List[List.Count-1];
 end;
 
-function TOrderedList.PopItem: Pointer;
+function TOrderedList<T>.PopItem: T;
 begin
   Result := PeekItem;
   List.Delete(List.Count-1);
@@ -104,7 +105,7 @@ end;
 
 { TStack }
 
-procedure TStack.PushItem(AItem: Pointer);
+procedure TStack<T>.PushItem(AItem: T);
 begin
   List.Add(AItem);
 end;

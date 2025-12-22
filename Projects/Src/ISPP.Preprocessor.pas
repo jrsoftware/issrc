@@ -33,7 +33,7 @@ type
 
   TConditionalVerboseMsg = (cvmIf, cvmElif, cvmElse, cvmEndif);
 
-  TConditionalTranslationStack = class(TStack)
+  TConditionalTranslationStack = class(TStack<TConditionalBlockInfo>)
   private
     FPreproc: TPreprocessor;
     FCache: Boolean;
@@ -1193,7 +1193,7 @@ begin
   A.BlockState := Eval;
   A.Fired := Eval;
   A.HadElse := False;
-  PushItem(Pointer(A));
+  PushItem(A);
   FCacheValid := False;
   VerboseMsg(cvmIf, Eval);
 end;
@@ -1281,13 +1281,13 @@ end;
 
 function TConditionalTranslationStack.Last: TConditionalBlockInfo;
 begin
-  Result := TConditionalBlockInfo(NativeInt(List.Last));
+  Result := List.Last;
 end;
 
 procedure TConditionalTranslationStack.UpdateLast(
   const Value: TConditionalBlockInfo);
 begin
-  List[List.Count - 1] := Pointer(Value);
+  List[List.Count - 1] := Value;
 end;
 
 procedure TConditionalTranslationStack.VerboseMsg(

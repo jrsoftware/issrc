@@ -49,7 +49,7 @@ end;
 
 type
 
-  TPreprocessorFlowStack = class(TStack)
+  TPreprocessorFlowStack = class(TStack<TPreprocessor>)
   private
     FReference: Pointer;
     FTempFiles: TStringList;
