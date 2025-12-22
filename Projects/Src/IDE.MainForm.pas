@@ -1344,7 +1344,7 @@ begin
 
     { First get the list of controls to toggle between }
     var Controls: TArray<TWinControl> := [FActiveMemo];
-    var NControls := Length(Controls);
+    var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }
     if StatusPanel.Visible then begin
       var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
