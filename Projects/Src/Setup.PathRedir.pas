@@ -81,7 +81,7 @@ end;
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
 begin
-  Result := ApplyPathRedirRules(A64Bit, APath, CurrentProcess64Bit);
+  Result := ApplyPathRedirRules(A64Bit, APath, IsCurrentProcess64Bit);
 end;
 
 function ConvertToSuperPath(var Path: String): Boolean;

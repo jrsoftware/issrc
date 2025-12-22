@@ -172,7 +172,7 @@ var
 {$ENDIF}
 
 const
-  CurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
+  IsCurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
 
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
@@ -2555,7 +2555,7 @@ procedure LogSetupVersion;
 const
   Bits: array [Boolean] of Integer = (32, 64);
 begin
-  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion, Bits[CurrentProcess64Bit]]);
+  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion, Bits[IsCurrentProcess64Bit]]);
 end;
 
 procedure LogWindowsVersion;
@@ -2602,8 +2602,6 @@ begin
     Log('User privileges: Power User')
   else
     Log('User privileges: None');
-
-  LogFmt('Setup architecture: %d', [Bits[CurrentProcess64Bit]]);
 end;
 
 function GetMessageBoxResultText(const AResult: Integer): String;
