@@ -171,6 +171,9 @@ var
   IsWin64: Boolean;
 {$ENDIF}
 
+const
+  CurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
+
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: LongInt;
@@ -216,6 +219,7 @@ function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
   const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
   const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
+procedure LogSetupVersion;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
@@ -2547,6 +2551,13 @@ begin
     LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
 end;
 
+procedure LogSetupVersion;
+const
+  Bits: array [Boolean] of Integer = (32, 64);
+begin
+  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion, Bits[CurrentProcess64Bit]]);
+end;
+
 procedure LogWindowsVersion;
 
   function ArchitecturesToStr(const Architectures: TSetupProcessorArchitectures;
@@ -2591,6 +2602,8 @@ begin
     Log('User privileges: Power User')
   else
     Log('User privileges: None');
+
+  LogFmt('Setup architecture: %d', [Bits[CurrentProcess64Bit]]);
 end;
 
 function GetMessageBoxResultText(const AResult: Integer): String;
@@ -3530,7 +3543,7 @@ begin
             end;
           end;
         end;
-        Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
+        LogSetupVersion;
         Log('Original Setup EXE: ' + SetupLdrOriginalFilename);
         Log('Setup command line: ' + GetCmdTail);
         LogCompatibilityMode;

@@ -27,7 +27,8 @@ procedure InitializePathRedir(const AWindows64Bit: Boolean;
 implementation
 
 uses
-  PathFunc, Setup.InstFunc;
+  PathFunc,
+  Setup.MainFunc, Setup.InstFunc;
 
 type
   TPathRedir = class
@@ -79,8 +80,6 @@ begin
 end;
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
-const
-  CurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
 begin
   Result := ApplyPathRedirRules(A64Bit, APath, CurrentProcess64Bit);
 end;

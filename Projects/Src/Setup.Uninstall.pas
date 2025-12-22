@@ -545,7 +545,7 @@ begin
         end;
       end;
     end;
-    Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
+    LogSetupVersion;
     Log('Original Uninstall EXE: ' + UninstExeFilename);
     Log('Uninstall DAT: ' + UninstDataFilename);
     LogFmt('Current Uninstall EXE: %s', [NewParamStr(0)]);
