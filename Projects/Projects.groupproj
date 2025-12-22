@@ -275,7 +275,7 @@
         <BuildGroupProject Include="ISPP.dproj">
             <ProjectGuid>{7BEFDB9E-3F9B-4206-BAC1-B332E573D3F8}</ProjectGuid>
             <Configurations>Debug</Configurations>
-            <Platforms>Win32</Platforms>
+            <Platforms>Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="SetupCustomStyle.dproj">

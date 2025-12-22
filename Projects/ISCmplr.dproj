@@ -101,15 +101,14 @@
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_ExeOutput>Bin</DCC_ExeOutput>
+        <Debugger_HostApplication>Bin\Compil32.exe</Debugger_HostApplication>
         <Debugger_RunParams>Debug.iss</Debugger_RunParams>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
-        <Debugger_HostApplication>Bin\Compil32.exe</Debugger_HostApplication>
         <DCC_DcuOutput>Dcu\Win32\Debug\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <Debugger_HostApplication>Bin\Compil64.exe</Debugger_HostApplication>
         <DCC_DcuOutput>Dcu\Win64\Debug\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <ItemGroup>
