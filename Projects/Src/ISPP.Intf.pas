@@ -48,8 +48,8 @@ type
   end;
 
   IIsppFuncParams = interface
-    function Get(Index: Integer): IIsppFuncParam; stdcall;
-    function GetCount: Integer; stdcall;
+    function Get(Index: NativeInt): IIsppFuncParam; stdcall;
+    function GetCount: NativeInt; stdcall;
   end;
 
   TIsppFuncResult = record

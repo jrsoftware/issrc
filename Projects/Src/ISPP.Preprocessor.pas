@@ -1202,11 +1202,9 @@ procedure TConditionalTranslationStack.ElseIfInstruction(Eval: Boolean);
 var
   A: TConditionalBlockInfo;
 begin
-  if AtLeast(1) then
-  begin
+  if AtLeast(1) then begin
     A := Last;
-    with A do
-    begin
+    with A do begin
       if HadElse then FPreproc.RaiseError(SElifAfterElse);
       BlockState := not Fired and Eval;
       Fired := Fired or Eval;
@@ -1214,8 +1212,7 @@ begin
     end;
     UpdateLast(A);
     VerboseMsg(cvmElif, Eval);
-  end
-  else
+  end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
 
@@ -1223,11 +1220,9 @@ procedure TConditionalTranslationStack.ElseInstruction;
 var
   A: TConditionalBlockInfo;
 begin
-  if AtLeast(1) then
-  begin
+  if AtLeast(1) then begin
     A := Last;
-    with A do
-    begin
+    with A do begin
       if HadElse then FPreproc.RaiseError(SDoubleElse);
       BlockState := not Fired;
       Fired := True;
@@ -1236,38 +1231,32 @@ begin
     end;
     UpdateLast(A);
     VerboseMsg(cvmElse, False);
-  end
-  else
+  end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
 
 procedure TConditionalTranslationStack.EndIfInstruction;
 begin
-  if AtLeast(1) then
-  begin
+  if AtLeast(1) then begin
     PopItem;
     FCacheValid := False;
     VerboseMsg(cvmEndif, False);
-  end
-  else
+  end else
     FPreproc.RaiseError(SEndifWithoutIf);
 end;
 
 function TConditionalTranslationStack.Include: Boolean;
-var
-  I: Integer;
 begin
   if FCacheValid then
     Result := FCache
-  else
-  begin
+  else begin
     FCacheValid := True;
-    if Count > 0 then
-    begin
+    if Count > 0 then begin
       Result := False;
       FCache := False;
-      for I := Count - 1 downto 0 do
-        if not TConditionalBlockInfo(List[I]).BlockState then Exit;
+      for var I := Count - 1 downto 0 do
+        if not TConditionalBlockInfo(List[I]).BlockState then
+          Exit;
     end;
     Result := True;
     FCache := True;
@@ -1276,7 +1265,8 @@ end;
 
 procedure TConditionalTranslationStack.Resolved;
 begin
-  if Count > 0 then FPreproc.RaiseError(SEndifExpected);
+  if Count > 0 then
+    FPreproc.RaiseError(SEndifExpected);
 end;
 
 function TConditionalTranslationStack.Last: TConditionalBlockInfo;
@@ -1536,7 +1526,8 @@ end;
 procedure TPreprocessor.CollectGarbage(Item: Pointer;
   Proc: TDropGarbageProc);
 begin
-  if (Item = nil) or (@Proc = nil) then Exit;
+  if (Item = nil) or (@Proc = nil) then
+    Exit;
   if FGarbageCollection = nil then
     FGarbageCollection := TList.Create;
   FGarbageCollection.Add(Item);
@@ -1544,30 +1535,27 @@ begin
 end;
 
 procedure TPreprocessor.UncollectGarbage(Item: Pointer);
-var
-  I: Integer;
 begin
-  if FGarbageCollection = nil then Exit;
-  for I := 0 to FGarbageCollection.Count div 2 - 1 do
-    if FGarbageCollection.Items[I * 2] = Item then
-    begin
+  if FGarbageCollection = nil then
+    Exit;
+  for var I := 0 to FGarbageCollection.Count div 2 - 1 do
+    if FGarbageCollection.Items[I * 2] = Item then begin
       FGarbageCollection.Items[I * 2] := nil;
       FGarbageCollection.Items[I * 2 + 1] := nil;
     end;
   FGarbageCollection.Pack;
-  if FGarbageCollection.Count = 0 then FreeAndNil(FGarbageCollection);
+  if FGarbageCollection.Count = 0 then
+    FreeAndNil(FGarbageCollection);
 end;
 
 procedure TPreprocessor.DropGarbage;
 var
-  I: Integer;
   Proc: TDropGarbageProc;
   Item: Pointer;
 begin
   if FGarbageCollection <> nil then
   try
-    for I := 0 to FGarbageCollection.Count div 2 - 1 do
-    begin
+    for var I := 0 to FGarbageCollection.Count div 2 - 1 do begin
       Item := FGarbageCollection.Items[I * 2];
       Proc := FGarbageCollection.Items[I * 2 + 1];
       try

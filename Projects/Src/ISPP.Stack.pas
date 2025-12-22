@@ -33,8 +33,8 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    function Count: Integer;
-    function AtLeast(ACount: Integer): Boolean;
+    function Count: NativeInt;
+    function AtLeast(ACount: NativeInt): Boolean;
     procedure Push(AItem: T);
     function Pop: T;
     function Peek: T;
@@ -55,7 +55,7 @@ uses
 
 { TOrderedList }
 
-function TOrderedList<T>.AtLeast(ACount: integer): boolean;
+function TOrderedList<T>.AtLeast(ACount: NativeInt): boolean;
 begin
   Result := List.Count >= ACount;
 end;
@@ -75,7 +75,7 @@ begin
   PushItem(AItem);
 end;
 
-function TOrderedList<T>.Count: Integer;
+function TOrderedList<T>.Count: NativeInt;
 begin
   Result := List.Count;
 end;
