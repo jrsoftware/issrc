@@ -2256,6 +2256,7 @@ begin
 
   DestroyDebugInfo;
   OldActiveMemo := FActiveMemo;
+  AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
   try
     FBuildAnimationFrame := 0;
