@@ -136,7 +136,6 @@ type
     TouchDateYear, TouchDateMonth, TouchDateDay: Word;
     TouchTimeOption: (ttCurrent, ttNone, ttExplicit);
     TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Word;
-    ArchitecturesAllowedAllowsX86: Boolean;
 
     SetupEncryptionHeader: TSetupEncryptionHeader;
     SetupHeader: TSetupHeader;
@@ -247,9 +246,9 @@ type
       const Parameters: array of const): Boolean;
     function EvalLanguageIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
-    function ProcessExpressionParameter(const ParamName,
+    procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-      SlashConvert: Boolean; var ProcessedParamData: String; const DefaultResult: Boolean = False): Boolean;
+      SlashConvert: Boolean; var ProcessedParamData: String);
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
@@ -2014,7 +2013,7 @@ begin
     if Name = ArchIdentifier then begin
       if ArchIdentifier = 'x64' then
         WarningsList.Add(Format(SCompilerArchitectureIdentifierDeprecatedWarning, ['x64', 'x64os', 'x64compatible']));
-      Exit(Name.StartsWith('x86')); { For the ArchitecturesAllowedAllowsX86 check. In other cases the result doesn't matter. }
+      Exit(True); { Result doesn't matter }
     end;
   end;
 
@@ -2078,14 +2077,13 @@ begin
   raise Exception.CreateFmt(SCompilerParamUnknownLanguage, [ParamCommonLanguages]);
 end;
 
-function TSetupCompiler.ProcessExpressionParameter(const ParamName,
+procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
   ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-  SlashConvert: Boolean; var ProcessedParamData: String; const DefaultResult: Boolean): Boolean;
+  SlashConvert: Boolean; var ProcessedParamData: String);
 var
   SimpleExpression: TSimpleExpression;
 begin
   ProcessedParamData := Trim(ParamData);
-  Result := DefaultResult;
 
   if ProcessedParamData <> '' then begin
     if SlashConvert then
@@ -2101,7 +2099,7 @@ begin
         SimpleExpression.SilentOrAllowed := True;
         SimpleExpression.SingleIdentifierMode := False;
         SimpleExpression.ParametersAllowed := False;
-        Result := SimpleExpression.Eval;
+        SimpleExpression.Eval;
       finally
         SimpleExpression.Free;
       end;
@@ -2720,9 +2718,8 @@ begin
         SetupHeader.AppVersion := Value;
       end;
     ssArchitecturesAllowed: begin
-        ArchitecturesAllowedAllowsX86 :=
           ProcessExpressionParameter(KeyName, LowerCase(Value),
-            EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed, True);
+            EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed);
       end;
     ssArchitecturesInstallIn64BitMode: begin
         ProcessExpressionParameter(KeyName, LowerCase(Value),
@@ -8122,7 +8119,6 @@ begin
     SetupHeader.WizardSizePercentX := 120;
     SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
     SetupHeader.WizardImageOpacity := 255;
-    ArchitecturesAllowedAllowsX86 := True;
     SetupHeader.WizardBackColor := clNone;
     SetupHeader.WizardBackColorDynamicDark := clNone;
     SetupHeader.WizardBackImageOpacity := 255;
@@ -8288,14 +8284,6 @@ begin
     if (SetupLdrArchitecture = slaNone) and
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
-    if ((SetupArchitecture = sa64bit) or (SetupLdrArchitecture = sla64bit)) and ArchitecturesAllowedAllowsX86 then begin
-      LineNumber := SetupDirectiveLines[ssArchitecturesAllowed];
-      if (LineNumber = 0) and (SetupArchitecture = sa64bit) then
-        LineNumber := SetupDirectiveLines[ssSetupArchitecture];
-      if LineNumber = 0 then
-        LineNumber := SetupDirectiveLines[ssUseSetupLdr];
-      AbortCompile(SCompilerSetupLdrX64MustExcludeX86);
-    end;
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUninstallable];

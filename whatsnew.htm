@@ -129,7 +129,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li><i>Experimental</i>: Added support for using a 64-bit version of the "Setup Loader" program by setting existing <tt>[Setup]</tt> section directive <tt>UseSetupLdr</tt> to <tt>x64</tt>.<br/>
       Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
       Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
-      The downside is that your installer will no longer load on systems running x86 Windows, and you must set <tt>ArchitecturesAllowed</tt> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.
+      The downside is that your installer will no longer load on systems running x86 Windows.
   </li>
 </ul>
 
