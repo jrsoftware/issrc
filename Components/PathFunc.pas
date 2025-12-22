@@ -25,6 +25,7 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
+function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
@@ -174,6 +175,42 @@ function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): In
 begin
   Result := PathStrCompare(PChar(S1), Length(S1), PChar(S2), Length(S2),
     IgnoreCase);
+end;
+
+function PathConvertSuperToNormal(const Filename: String): String;
+{ Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
+  new path. If the path cannot be converted, then Filename is returned
+  unchanged.
+  Reasons why a path cannot be converted include:
+  - The path doesn't start with "\\?\" (i.e., it's already in normal form)
+  - The prefix isn't followed by a drive letter and colon, or "UNC\".
+    ("\\?\GLOBALROOT\" isn't supported.)
+  - The path contains forward slashes or unnecessarily repeated backslashes.
+    This function doesn't support them.
+  Examples of conversions:
+    \\?\C:               -> C:\
+    \\?\C:\              -> C:\
+    \\?\C:\xxx           -> C:\xxx
+    \\?\UNC\server\share -> \\server\share
+}
+begin
+  if PathStartsWith(Filename, '\\?\UNC\') then
+    Exit('\\' + Copy(Filename, 9, Maxint));
+
+  const Len = Length(Filename);
+  if (Len >= 6) and PathStartsWith(Filename, '\\?\') and
+     CharInSet(UpCase(Filename[5]), ['A'..'Z']) and
+     (Filename[6] = ':') then begin
+    { "\\?\C:\" or "\\?\C:\xxx" }
+    if (Len >= 7) and (Filename[7] = '\') then
+      Exit(Copy(Filename, 5, Maxint));
+    { "\\?\C:" -- in this case we need to append "\" so the result is "C:\" }
+    if Len = 6 then
+      Exit(Copy(Filename, 5, Maxint) + '\');
+    { "\\?\C:xxx" -- not valid, can't convert }
+  end;
+
+  Result := Filename;
 end;
 
 function PathDrivePartLength(const Filename: String): Integer;
