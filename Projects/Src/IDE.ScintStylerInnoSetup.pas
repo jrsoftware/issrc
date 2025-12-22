@@ -1983,6 +1983,7 @@ initialization
     SSDV(ssLZMAUseSeparateProcess, ['x86', SYes, SNo]),
     SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
     SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
+    SSDV(ssSetupArchitecture, ['x86', 'x64']),
     SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
     SSDV(ssUseSetupLdr, ['x86', 'x64', SYes, SNo]),
     SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),

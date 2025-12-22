@@ -114,6 +114,7 @@ type
     ssReserveBytes,
     ssRestartApplications,
     ssRestartIfNeededByRun,
+    ssSetupArchitecture,
     ssSetupIconFile,
     ssSetupLogging,
     ssSetupMutex,

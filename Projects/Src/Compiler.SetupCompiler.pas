@@ -72,7 +72,8 @@ type
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
 
-  TSetupLdr = (slNone, sl32bit, sl64bit);
+  TSetupArchitecture = (sa32bit, sa64bit);
+  TSetupLdrArchitecture = (slaNone, sla32bit, sla64bit);
 
   TSetupCompiler = class
   private
@@ -141,7 +142,8 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
-    UseSetupLdr: TSetupLdr;
+    SetupArchitecture: TSetupArchitecture;
+    SetupLdrArchitecture: TSetupLdrArchitecture;
     DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
     DiskSliceSize: Int64;
     DiskClusterSize, SlicesPerDisk, ReserveBytes: Longint;
@@ -2728,12 +2730,13 @@ begin
       end;
     ssArchiveExtraction: begin
         Value := LowerCase(Trim(Value));
+        { Names completed to is7z.dll etc later }
         if Value = 'enhanced/nopassword' then
-          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7zxr-x64.dll' {$ELSE} 'is7zxr.dll' {$ENDIF}
+          SetupHeader.SevenZipLibraryName := '7zxr'
         else if Value = 'enhanced' then
-          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7zxa-x64.dll' {$ELSE} 'is7zxa.dll' {$ENDIF}
+          SetupHeader.SevenZipLibraryName := '7zxa'
         else if Value = 'full' then
-          SetupHeader.SevenZipLibraryName := {$IFDEF WIN64} 'is7z-x64.dll' {$ELSE} 'is7z.dll' {$ENDIF}
+          SetupHeader.SevenZipLibraryName := '7z'
         else if Value <> 'basic' then
           Invalid;
       end;
@@ -3100,6 +3103,14 @@ begin
     ssRestartIfNeededByRun: begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
       end;
+    ssSetupArchitecture: begin
+      {$IFDEF DEBUG} if SameText(Value, 'x64') then
+        SetupArchitecture := sa64bit
+      else {$ENDIF} if SameText(Value, 'x86') then
+        SetupArchitecture := sa32bit
+      else
+        Invalid;
+    end;
     ssSetupIconFile: begin
         SetupIconFilename := Value;
       end;
@@ -3276,11 +3287,11 @@ begin
       end;
     ssUseSetupLdr: begin
         if SameText(Value, 'x64') then
-          UseSetupLdr := sl64bit
+          SetupLdrArchitecture := sla64bit
         else if SameText(Value, 'x86') or StrToBool(Value) then
-          UseSetupLdr := sl32bit
+          SetupLdrArchitecture := sla32bit
         else
-          UseSetupLdr := slNone;
+          SetupLdrArchitecture := slaNone;
       end;
     ssUserInfoPage: begin
         SetSetupHeaderOption(shUserInfoPage);
@@ -7206,7 +7217,7 @@ var
       WriteWizardImages(WizardBackImagesDynamicDark, W, WizardBackImages);
       if SetupHeader.CompressMethod in [cmZip, cmBzip] then
         WriteStream(DecompressorDLL, W);
-      if SetupHeader.SevenZipLibraryName <> '' then
+      if SevenZipDLL <> nil then
         WriteStream(SevenZipDLL, W);
 
       W.Finish;
@@ -7800,10 +7811,14 @@ var
 
     TempFilename := '';
     try
-      const EExt = '.e32';
-      var EBasename, EFilename: String;
+      var EExt, EBasename, EFilename: String;
       var EPf: TPrecompiledFile;
       var EUisf: TUpdateIconsAndStyleFile;
+
+      if SetupArchitecture = sa32bit then
+        EExt := '.e32'
+      else
+        EExt := '.e64';
 
       if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
         EBasename := 'Setup' + EExt;
@@ -8061,7 +8076,7 @@ begin
     end;
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
-    UseSetupLdr := sl32bit;
+    SetupArchitecture := sa32bit;
     TerminalServicesAware := True;
     DEPCompatible := True;
     ASLRCompatible := True;
@@ -8118,6 +8133,12 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
+    if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
+      if SetupArchitecture = sa32bit then
+        SetupLdrArchitecture := sla32bit
+      else
+        SetupLdrArchitecture := sla64bit;
+    end;
     if SetupDirectiveLines[ssAppName] = 0 then
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'AppName']);
     if (SetupHeader.AppVerName = '') and (SetupHeader.AppVersion = '') then
@@ -8264,11 +8285,13 @@ begin
     end;
     if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
-    if (UseSetupLdr = slNone) and
+    if (SetupLdrArchitecture = slaNone) and
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
-    if (UseSetupLdr = sl64bit) and ArchitecturesAllowedAllowsX86 then begin
+    if ((SetupArchitecture = sa64bit) or (SetupLdrArchitecture = sla64bit)) and ArchitecturesAllowedAllowsX86 then begin
       LineNumber := SetupDirectiveLines[ssArchitecturesAllowed];
+      if (LineNumber = 0) and (SetupArchitecture = sa64bit) then
+        LineNumber := SetupDirectiveLines[ssSetupArchitecture];
       if LineNumber = 0 then
         LineNumber := SetupDirectiveLines[ssUseSetupLdr];
       AbortCompile(SCompilerSetupLdrX64MustExcludeX86);
@@ -8684,6 +8707,12 @@ begin
 
     { Read 7-Zip DLL }
     if SetupHeader.SevenZipLibraryName <> '' then begin
+      var NameExtension: String;
+      if SetupArchitecture = sa64bit then
+        NameExtension := '-x64'
+      else
+        NameExtension := '';
+      SetupHeader.SevenZipLibraryName := Format('is%s%s.dll', [SetupHeader.SevenZipLibraryName, NameExtension]);
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
       SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName,
         not(pfIs7z in DisablePrecompiledFileVerifications), OnCheckedTrust);
@@ -8714,7 +8743,7 @@ begin
       AddStatus(SCompilerStatusCreateSetupFiles);
       ExeFilename := OutputDir + OutputBaseFilename + '.exe';
       try
-        if UseSetupLdr = slNone then begin
+        if SetupLdrArchitecture = slaNone then begin
           WithRetries(True, ExeFilename,
             procedure
             begin
@@ -8749,7 +8778,7 @@ begin
         end
         else begin
           var EExt: String;
-          if UseSetupLdr = sl32bit then
+          if SetupLdrArchitecture = sla32bit then
             EExt := '.e32'
           else
             EExt := '.e64';
@@ -8840,7 +8869,7 @@ begin
               True);
 
             { Update manifest if needed }
-            if UseSetupLdr <> slNone then begin
+            if SetupLdrArchitecture <> slaNone then begin
               AddStatus(Format(SCompilerStatusUpdatingManifest, ['Setup.exe']));
               PreventCOMCTL32Sideloading(ExeFile);
             end;
