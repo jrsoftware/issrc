@@ -98,7 +98,11 @@ uses
 {$R *.res}
 
 {$R Res\Compil32.docicon.res}
-{$R Res\Compil32.manifest.res}
+{$IFNDEF WIN64}
+{$R Res\Compil32-x86.manifest.res}
+{$ELSE}
+{$R Res\Compil32-x64.manifest.res}
+{$ENDIF}
 {$R Res\Compil32.versionandicon.res}
 
 procedure SetAppUserModelID;
