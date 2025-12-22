@@ -892,6 +892,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Saves &curtrans; to the specified file.</p>
 				</description>
+				<section title="Example">
+					<pre>
+						<line>#expr SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss")</line>
+					</pre>
+				</section>
 			</topic>
 			<topic id="Find">
 				<title>Find</title>
