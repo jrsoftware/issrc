@@ -227,7 +227,7 @@ from the zlib-dll directory in the [iscompress] repository.
 **Files\islzma(-x64).dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 
-**Files\isscint.dll** - Compiled by Visual Studio 2022 from Scintilla source
+**Files\isscint(-x64).dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the [isscint] repository.
 
 **Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -

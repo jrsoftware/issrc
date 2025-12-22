@@ -1,0 +1,8 @@
+format issig-v2
+file-name "isscint-x64.dll"
+file-size 1022096
+file-hash 3c9d5aacc55fec8bcf8b4a48a146eb4bd4e8798ad3af6ae1a479916525ef708f
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r b1544b0a1ac0b734ff900e7e844c751c55c5fa00b075e3fd79dbc07519a7d219
+sig-s f23b1be2d62a4e7a03490bb15e60b994a267d2178d2d518c6032087703f676b9
