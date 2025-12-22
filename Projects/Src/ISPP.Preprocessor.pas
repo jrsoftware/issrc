@@ -89,7 +89,7 @@ type
     procedure DropGarbage;
     function ProcessInlineDirectives(P: PChar): string;
     function ProcessPreprocCommand(Command: TPreprocessorCommand;
-      var Params: string; ParamsOffset: Integer): Boolean;
+      var Params: string; ParamsOffset: NativeInt): Boolean;
     procedure PushFile(const FileName: string);
     procedure PopFile;
     function CheckFile(const FileName: string): Boolean;
@@ -320,7 +320,6 @@ var
   IncludeLine: Boolean;
   P, P1: PChar;
   Command: TPreprocessorCommand;
-  DirectiveOffset: Integer;
   State: Boolean;
   S, S1: string;
 begin
@@ -358,7 +357,7 @@ begin
         else
         begin
           State := FStack.Include;
-          DirectiveOffset := P - P1;
+          const DirectiveOffset = P - P1;
           //S := Copy(LineRead, DirectiveOffset + 1, MaxInt);
           S := P;
           case Command of
@@ -568,7 +567,7 @@ type
   TParserAccess = class(TParser);
 
 function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
-  var Params: string; ParamsOffset: Integer): Boolean;
+  var Params: string; ParamsOffset: NativeInt): Boolean;
 
   function ParseScope(Parser: TParser; ExpectedTokens: TTokenKinds = [tkIdent]): TDefineScope;
   const
@@ -668,7 +667,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           P := FExpr;
           MacroExprPos.FileIndex := FCurrentFile;
           MacroExprPos.Line := FCurrentLine;
-          MacroExprPos.Column := (FExpr - Start) + ParamsOffset;
+          MacroExprPos.Column := Integer((FExpr - Start) + ParamsOffset);
           while P^ <> #0 do Inc(P);
           SetString(AExpr, FExpr, P - FExpr);
           AExpr := Trim(AExpr);

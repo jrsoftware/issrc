@@ -43,35 +43,29 @@ end;
 
 function CheckParams(const Params: IIsppFuncParams;
   Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult): Boolean;
-var
-  I: Integer;
 begin
   FillChar(Error, SizeOf(TIsppFuncResult), 0);
   Result := False;
-  if Params.GetCount < Minimum then
-  begin
+  if Params.GetCount < Minimum then begin
     Error.ErrParam := Minimum;
     Error.Error := ISPPFUNC_INSUFARGS;
     Exit;
-  end
-  else if Params.GetCount > (High(Types) + 1) then
-  begin
-    Error.ErrParam := High(Types) + 1;
+  end else if Params.GetCount > High(Types) + 1 then begin
+    Error.ErrParam := Integer(High(Types)) + 1;
     Error.Error := ISPPFUNC_MANYARGS;
     Exit;
-  end
-  else
+  end else
     with IInternalFuncParams(Params) do
-      for I := 0 to Params.GetCount - 1 do
+      for var I := 0 to Params.GetCount - 1 do
       begin
-        if (Types[I] = evSpecial) or (Get(I)^.Typ = evNull) then Continue;
-        if Types[I] <> Get(I)^.Typ then
-        begin
+        if (Types[I] = evSpecial) or (Get(I)^.Typ = evNull) then
+          Continue;
+        if Types[I] <> Get(I)^.Typ then begin
           if Types[I] = evStr then
             Error.Error := ISPPFUNC_STRWANTED
           else
             Error.Error := ISPPFUNC_INTWANTED;
-          Error.ErrParam := I;
+          Error.ErrParam := Integer(I);
           Exit;
         end;
       end;

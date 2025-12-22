@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -90,7 +90,7 @@ type
     function InternalNextToken: TTokenKind;
   protected
     FExpr: PChar;
-    FExprOffset: Integer;
+    FExprOffset: NativeInt;
     procedure EndOfExpr;
     procedure Error(const Message: string);
     procedure ErrorFmt(const Message: string; Args: array of const);
@@ -548,7 +548,7 @@ procedure TCTokenizer.Error(const Message: string);
 begin
   var E := EParsingError.Create(Message);
   if FExprOffset <> -1 then
-    E.Position := FExprOffset + (FExpr - FExprStart) + 1;
+    E.Position := Integer(FExprOffset + FExpr - FExprStart) + 1;
   raise E;
 end;
 

@@ -741,18 +741,16 @@ procedure TIdentManager.DefineMacro(const Name, Expression: string;
   Params: array of TIsppMacroParam; Scope: TDefineScope);
 var
   P: PMacro;
-  ArrSize: Integer;
 begin
   if Scope = dsAny then Scope := dsPublic;
   Delete(Name, Scope);
-  ArrSize := SizeOf(TIsppMacroParam) * (Length(Params));
 
   for var I := 1 to High(Params) do
     for var J := 0 to I - 1 do
       if CompareText(Params[I].Name, Params[J].Name) = 0 then
         raise EIdentError.CreateFmt(SRedeclaredIdentifier, [Params[I].Name]);
 
-  P := AllocMem(SizeOf(TMacro) + ArrSize);
+  P := AllocMem(SizeOf(TMacro) + SizeOf(TIsppMacroParam) * Length(Params));
   try
     P^.Name := Name;
     P^.Hash := MakeHash(Name);
@@ -762,7 +760,7 @@ begin
     P^.Expression := Expression;
     P^.DeclPos := ExprPos;
     P^.ParserOptions := ParserOptions;
-    P^.ParamCount := Length(Params);
+    P^.ParamCount := Integer(Length(Params));
     for var I := 0 to High(Params) do
       P^.Params[I] := Params[I];
     FVarMan.Add(P);
@@ -907,7 +905,7 @@ begin
           else
               if IsProtected or (LocalLevel <> FLocalLevel) then Continue;
           end;
-      Result := I;
+      Result := Integer(I);
       Exit
     end;
 end;

@@ -35,7 +35,7 @@ type
     function Sequentional(DoEval: Boolean): TIsppVariant;
   public
     constructor Create(const IdentMan: IIdentManager; const Expression: string;
-      Offset: Integer; Options: PIsppParserOptions);
+      Offset: NativeInt; Options: PIsppParserOptions);
     function Evaluate: TIsppVariant;
     function Expr(const StopOnComma: Boolean; const DoMakeRValue: Boolean = False): TIsppVariant;
     function IntExpr(const StopOnComma: Boolean): Int64;
@@ -43,16 +43,16 @@ type
     function StrExpr(const StopOnComma: Boolean): string;
   end;
 
-function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
-function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): string;
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Int64;
+function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): TIsppVariant;
+function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): string;
+function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
 
 implementation
 
 uses
   SysUtils, ISPP.Sessions, ISPP.Consts, ISPP.VarUtils;
 
-function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): TIsppVariant;
+function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): TIsppVariant;
 begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
@@ -62,7 +62,7 @@ begin
   end;
 end;
 
-function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): string;
+function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): string;
 begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
@@ -73,7 +73,7 @@ begin
   end;
 end;
 
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: Integer; Options: PIsppParserOptions): Int64;
+function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
 begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
@@ -87,7 +87,7 @@ end;
 { TParser }
 
 constructor TParser.Create(const IdentMan: IIdentManager;
-  const Expression: string; Offset: Integer; Options: PIsppParserOptions);
+  const Expression: string; Offset: NativeInt; Options: PIsppParserOptions);
 begin
   inherited Create(Expression, not (optPascalStrings in Options^.Options));
   FExprOffset := Offset;
