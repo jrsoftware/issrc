@@ -1297,7 +1297,7 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
   procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
-    var NControls: Integer);
+    var NControls: NativeInt);
   begin
     Inc(NControls);
     SetLength(Controls, NControls);
