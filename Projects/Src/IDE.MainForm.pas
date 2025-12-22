@@ -2552,7 +2552,6 @@ var
   PrintStyler: TInnoSetupStyler;
   OldStyler: TScintCustomStyler;
   PrintTheme, OldTheme: TTheme;
-  PrintMemo: TIDEScintEdit;
   HeaderMemo: TIDEScintFileEdit;
   FileTitle, S: String;
   pdlg: TPrintDlg;
