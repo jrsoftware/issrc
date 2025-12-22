@@ -1055,7 +1055,8 @@ function TInnoSetupStyler.GetSetupSectionDirectiveValueIsMultiValue(
   SetupSectionDirective: TSetupSectionDirective): Boolean;
 { "MultiValue" means a directive like WizardStyle which accepts a space separated list of values }
 begin
-  Result := SetupSectionDirective in [ssDisablePrecompiledFileVerifications,
+  Result := SetupSectionDirective in [ssArchitecturesAllowed,
+    ssArchitecturesInstallIn64BitMode, ssDisablePrecompiledFileVerifications,
     ssPrivilegesRequiredOverridesAllowed, ssWizardStyle];
 end;
 
