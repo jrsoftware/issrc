@@ -7698,7 +7698,7 @@ var
       try
         { Carry checksum over from UnsignedFile to TestFile. We used to just
           zero it in TestFile, but that didn't work if the user modified
-          Setup.e?? with a res-editing tool that sets a non-zero checksum. }
+          Setup.e32/64 with a res-editing tool that sets a non-zero checksum. }
         if not ReadSignatureAndChecksumFields(UnsignedFile, SignatureAddress,
            SignatureSize, HdrChecksum) then
           AbortCompile('ReadSignatureAndChecksumFields failed (2)');
@@ -8796,7 +8796,7 @@ begin
           try
             ExeFile.SeekToEnd;
 
-            { Move the data from Setup.e?? into the Setup.exe, and write
+            { Move the data from Setup.e32/64 into the Setup.exe, and write
               header data }
             var SetupLdrOffsetTable := Default(TSetupLdrOffsetTable);
             SetupLdrOffsetTable.ID := SetupLdrOffsetTableID;

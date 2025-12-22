@@ -419,9 +419,9 @@ type
     ID: array[1..12] of AnsiChar;   { = SetupLdrOffsetTableID }
     Version: UInt32;                { = SetupLdrOffsetTableVersion }
     TotalSize: Int64;               { Minimum expected size of setup.exe }
-    OffsetEXE: Int64;               { Offset of compressed setup.e32 }
-    UncompressedSizeEXE: UInt32;    { Size of setup.e32 before compression }
-    CRCEXE: Int32;                  { CRC of setup.e32 before compression }
+    OffsetEXE: Int64;               { Offset of compressed setup.e32/64 }
+    UncompressedSizeEXE: UInt32;    { Size of setup.e32/64 before compression }
+    CRCEXE: Int32;                  { CRC of setup.e32/64 before compression }
     Offset0: Int64;                 { Offset of embedded setup-0.bin data }
     Offset1: Int64;                 { Offset of embedded setup-1.bin data,
                                       or 0 when DiskSpanning=yes }

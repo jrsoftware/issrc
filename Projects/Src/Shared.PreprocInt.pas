@@ -61,7 +61,7 @@ type
                                      Normally, this is the directory containing
                                      the script file. }
     CompilerPath: PChar;           { [in] The "compiler:" directory. This is
-                                     the directory which contains the *.e32
+                                     the directory which contains the *.e32/64
                                      files. }
     Options: PChar;                { [in] The 'ISPP:'-prefixed options that
                                      were passed to the compiler in

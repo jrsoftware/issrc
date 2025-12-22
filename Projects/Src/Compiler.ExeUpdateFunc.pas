@@ -1041,7 +1041,7 @@ begin
               { Forced dark with a custom style: delete the built-in dark style
                 Or, dynamic with a custom dark style: same
                 Or, forced light with or without a custom style: same
-                Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32 at the moment so won't get here }
+                Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32/64 at the moment so won't get here }
               DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK');
             end;
 

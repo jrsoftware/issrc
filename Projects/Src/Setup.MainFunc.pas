@@ -3437,8 +3437,8 @@ begin
         { Apply style - also see Setup.Uninstall's RunSecondPhase
           Must be ordered after ActivateDefaultLanguage since TTaskDialogForm
           and its parent TSetupForm use LangOptions and SetupMessages.
-          Note: when debugging Setup.e32 or SetupCustomStyle.e32 it will see the default resources,
-          instead of the ones prepared by the compiler. This is because the .e32 is started, and
+          Note: when debugging Setup.e32/64 or SetupCustomStyle.e32/64 it will see the default resources,
+          instead of the ones prepared by the compiler. This is because the .e32/64 is started, and
           not the .exe prepared by the compiler. This is not noticable except for the VCL style
           resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
           it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
