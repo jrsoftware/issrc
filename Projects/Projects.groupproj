@@ -245,7 +245,7 @@
         <BuildGroupProject Include="Compil32.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Debug</Configurations>
-            <Platforms>Win32</Platforms>
+            <Platforms>Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="ISCmplr.dproj">
