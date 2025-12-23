@@ -4087,16 +4087,46 @@ begin
   end;
 end;
 
-procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
-var
-  RunAsOriginalUser: Boolean;
-  ExpandedFilename, ExpandedParameters: String;
-  Wait: TExecWait;
-  DisableFsRedir: Boolean;
+procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
+  var AFilename, AWorkingDir: String);
 begin
+  { Note: When RunEntry64Bit=True, the resulting paths are always "64-bit
+    target process" paths. They use System32, not Sysnative, so in a 32-bit
+    Setup process they are only usable when FS redirection is disabled. }
+
+  if PathIsRooted(AFilename) then
+    AFilename := PathConvertSuperToNormal(ApplyPathRedirRules(
+      RunEntry64Bit, AFilename, RunEntry64Bit or IsCurrentProcess64Bit));
+
+  if AWorkingDir <> '' then
+    AWorkingDir := PathConvertSuperToNormal(ApplyPathRedirRules(
+      RunEntry64Bit, AWorkingDir, RunEntry64Bit or IsCurrentProcess64Bit));
+end;
+
+procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
+begin
+  { On 32-bit Setup, when the [Run] entry is 64-bit, we unfortunately cannot
+    use Sysnative and must disable WOW64 FS redirection instead, because:
+    - CreateProcess expects WorkingDir to exist in the current process,
+      otherwise it fails.
+      If we pass a Sysnative path, CreateProcess succeeds but the spawned
+      64-bit process literally uses Sysnative for its current directory (it
+      isn't changed to System32), which doesn't work because Sysnative is
+      only supported in 32-bit processes.
+      If we pass a System32 path, CreateProcess may fail because FS
+      redirection causes it to check for the directory under SysWOW64, not
+      the native System32.
+    - When a Sysnative path is passed, calling GetModuleFileName(NULL)
+      inside the 64-bit process returns a System32 path, but GetCommandLine
+      still returns a Sysnative path. That *might* break a program that
+      strictly checks its argv[0].
+    - If Filename lacks a path, and FS redirection isn't disabled, then
+      CreateProcess will search for the file in SysWOW64, not the native
+      System32. }
+
   try
     Log('-- Run entry --');
-    RunAsOriginalUser := (roRunAsOriginalUser in RunEntry.Options);
+    const RunAsOriginalUser = (roRunAsOriginalUser in RunEntry.Options);
     if RunAsOriginalUser then
       Log('Run as: Original user')
     else
@@ -4105,29 +4135,38 @@ begin
       Log('Type: Exec')
     else
       Log('Type: ShellExec');
-    ExpandedFilename := ExpandConst(RunEntry.Name);
-    Log('Filename: ' + ExpandedFilename);
-    ExpandedParameters := ExpandConst(RunEntry.Parameters);
-    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
-      Log('Parameters: ' + ExpandedParameters);
 
-    Wait := ewWaitUntilTerminated;
+    const RunEntry64Bit = ShouldDisableFsRedirForRunEntry(RunEntry);
+    var ExpandedFilename := ExpandConst(RunEntry.Name);
+    const ExpandedParameters = ExpandConst(RunEntry.Parameters);
+    var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
+
+    const ExpandedFilenameBeforeRedir = ExpandedFilename;
+    if not(roShellExec in RunEntry.Options) then
+      ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
+
+    LogFmt('Filename: %s', [ExpandedFilename]);
+    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
+      LogFmt('Parameters: %s', [ExpandedParameters]);
+    if ExpandedWorkingDir <> '' then
+      LogFmt('Working directory: %s', [ExpandedWorkingDir]);
+
+    var Wait := ewWaitUntilTerminated;
     case RunEntry.Wait of
       rwNoWait: Wait := ewNoWait;
       rwWaitUntilIdle: Wait := ewWaitUntilIdle;
     end;
 
     if not(roShellExec in RunEntry.Options) then begin
-      DisableFsRedir := ShouldDisableFsRedirForRunEntry(RunEntry);
       if not(roSkipIfDoesntExist in RunEntry.Options) or
-         NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
+         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir)) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
           if GetLogActive and (roLogOutput in RunEntry.Options) then
             OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
           var ErrorCode: DWORD;
-          if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
-             ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
+          if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
+             ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
              Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
             raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
               SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
@@ -4145,7 +4184,7 @@ begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or FileOrDirExists(ExpandedFilename) then begin
         var ErrorCode: DWORD;
         if not InstShellExecEx(RunAsOriginalUser, ExpandConst(RunEntry.Verb),
-           ExpandedFilename, ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
+           ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
            Wait, RunEntry.ShowCmd, ProcessMessagesProc, ErrorCode) then
           raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
             SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
