@@ -11,19 +11,13 @@ unit Setup.ScriptClasses;
 
 interface
 
-{$IFNDEF NOCODE}
-
 uses
   uPSRuntime;
 
 function ScriptClassesLibraryRegister_R(ScriptInterpreter: TPSExec): TPSRuntimeClassImporter;
 procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 
-{$ENDIF}
-
 implementation
-
-{$IFNDEF NOCODE}
 
 uses
   Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls,
@@ -538,7 +532,5 @@ begin
   SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('WIZARDFORM')), WizardForm);
   SetVariantToClass(ScriptInterpreter.GetVarNo(ScriptInterpreter.GetVar('UNINSTALLPROGRESSFORM')), UninstallProgressForm);
 end;
-
-{$ENDIF}
 
 end.

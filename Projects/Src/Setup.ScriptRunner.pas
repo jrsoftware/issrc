@@ -11,10 +11,8 @@ unit Setup.ScriptRunner;
 
 interface
 
-{$IFNDEF NOCODE}
 uses
   uPSRuntime, uPSDebugger, uPSUtils;
-{$ENDIF}
 
 type
   TScriptRunnerOnLog = procedure(const S: String);
@@ -29,17 +27,14 @@ type
   TScriptRunner = class
     private
       FNamingAttribute: String;
-{$IFNDEF NOCODE}
       FPSExec: TPSDebugExec;
       FClassImporter: TPSRuntimeClassImporter;
-{$ENDIF}
       FOnLog: TScriptRunnerOnLog;
       FOnLogFmt: TScriptRunnerOnLogFmt;
       FOnDllImport: TScriptRunnerOnDllImport;
       FOnDebug: TScriptRunnerOnDebug;
       FOnDebugIntermediate: TScriptRunnerOnDebugIntermediate;
       FOnException: TScriptRunnerOnException;
-{$IFNDEF NOCODE}
       function GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
       procedure InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
       function InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
@@ -50,12 +45,9 @@ type
       procedure RaisePSExecException;
       procedure SetPSExecParameters(const Parameters: array of Const; Params: TPSList);
       procedure SetPSExecReturnValue(Params: TPSList; BaseType: TPSBaseType; var Res: PPSVariant);
-{$ENDIF}
     public
-{$IFNDEF NOCODE}
       constructor Create;
       destructor Destroy; override;
-{$ENDIF}
       procedure LoadScript(const CompiledScriptText, CompiledScriptDebugInfo: AnsiString);
       function FunctionExists(const Name: AnsiString; const CheckNamingAttribute: Boolean): Boolean;
       procedure RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
@@ -80,16 +72,10 @@ type
 implementation
 
 uses
-{$IFNDEF NOCODE}
   Windows,
   Forms, SysUtils,
   uPSR_dll,
   Setup.ScriptClasses, Setup.ScriptFunc;
-{$ELSE}
-  SysUtils;
-{$ENDIF}
-
-{$IFNDEF NOCODE}
 
 {---}
 
@@ -114,14 +100,10 @@ begin
     FOnLogFmt(S, Args);
 end;
 
-{$ENDIF}
-
 procedure ShowError(const Error: String);
 begin
   raise Exception.Create(Error);
 end;
-
-{$IFNDEF NOCODE}
 
 procedure ShowPSExecError(const Error: TPSError);
 begin
@@ -351,11 +333,8 @@ begin
   FClassImporter.Free();
 end;
 
-{$ENDIF}
-
 procedure TScriptRunner.LoadScript(const CompiledScriptText, CompiledScriptDebugInfo: AnsiString);
 begin
-{$IFNDEF NOCODE}
   if FPSExec.LoadData(CompiledScriptText) then begin
     FPSExec.DebugEnabled := CompiledScriptDebugInfo <> '';
     if FPSExec.DebugEnabled then
@@ -367,10 +346,7 @@ begin
       our own: }
     raise Exception.Create('TScriptRunner.LoadScript failed');
   end;
-{$ENDIF}
 end;
-
-{$IFNDEF NOCODE}
 
 function TScriptRunner.GetProcNos(const Name: AnsiString; const CheckNamingAttribute: Boolean; const ProcNos: TPSList): Integer;
 var
@@ -410,18 +386,10 @@ begin
   end;
 end;
 
-{$ENDIF}
-
 function TScriptRunner.FunctionExists(const Name: AnsiString; const CheckNamingAttribute: Boolean): Boolean;
 begin
-{$IFNDEF NOCODE}
   Result := GetProcNos(Name, CheckNamingAttribute, nil) <> 0;
-{$ELSE}
-  Result := False;
-{$ENDIF}
 end;
-
-{$IFNDEF NOCODE}
 
 procedure WriteBackParameters(const Parameters: array of Const; const Params: TPSList);
 var
@@ -463,35 +431,15 @@ begin
   end;
 end;
 
-{$ELSE}
-
-procedure CheckMustExist(const MustExist: Boolean);
-begin
-  if MustExist then
-    ShowError('Unexpected MustExist value');
-end;
-
-{$ENDIF}
-
 procedure TScriptRunner.RunProcedure(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
 begin
-{$IFNDEF NOCODE}
   InternalRunProcedure(Name, Parameters, False, MustExist);
-{$ELSE}
-  CheckMustExist(MustExist);
-{$ENDIF}
 end;
 
 procedure TScriptRunner.RunProcedures(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean);
 begin
-{$IFNDEF NOCODE}
   InternalRunProcedure(Name, Parameters, True, MustExist);
-{$ELSE}
-  CheckMustExist(MustExist);
-{$ENDIF}
 end;
-
-{$IFNDEF NOCODE}
 
 function TScriptRunner.InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
 var
@@ -534,29 +482,15 @@ begin
   end;
 end;
 
-{$ENDIF}
-
 function TScriptRunner.RunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist, Default: Boolean): Boolean;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunBooleanFunction(Name, Parameters, False, bcNone, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
 
 function TScriptRunner.RunBooleanFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunBooleanFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
-
-{$IFNDEF NOCODE}
 
 function TScriptRunner.InternalRunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: Integer): Integer;
 var
@@ -598,29 +532,15 @@ begin
   end;
 end;
 
-{$ENDIF}
-
 function TScriptRunner.RunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: Integer): Integer;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunIntegerFunction(Name, Parameters, False, bcNone, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
 
 function TScriptRunner.RunIntegerFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: Integer): Integer;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunIntegerFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
-
-{$IFNDEF NOCODE}
 
 function TScriptRunner.InternalRunStringFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: String): String;
 var
@@ -643,7 +563,7 @@ begin
           SetPSExecReturnValue(Params, btUnicodeString, Res);
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
           WriteBackParameters(Parameters, Params);
-
+          
           RaisePSExecException;
           Result := PPSVariantUString(Res).Data;
           if (Result <> '') and (BreakCondition = bcNonEmpty) then
@@ -662,31 +582,17 @@ begin
   end;
 end;
 
-{$ENDIF}
-
 function TScriptRunner.RunStringFunction(const Name: AnsiString; const Parameters: array of Const; const MustExist: Boolean; const Default: String): String;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunStringFunction(Name, Parameters, False, bcNone, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
 
 function TScriptRunner.RunStringFunctions(const Name: AnsiString; const Parameters: array of Const; const BreakCondition: TBreakCondition; const MustExist: Boolean; Default: String): String;
 begin
-{$IFNDEF NOCODE}
   Result := InternalRunStringFunction(Name, Parameters, True, BreakCondition, MustExist, Default);
-{$ELSE}
-  CheckMustExist(MustExist);
-  Result := Default;
-{$ENDIF}
 end;
 
 function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongInt; const Param4: AnsiString): String;
-
-{$IFNDEF NOCODE}
 
   function VariantToString(const p: TPSVariantIFC; const ClassProperties: AnsiString): String;
   begin
@@ -704,10 +610,7 @@ function TScriptRunner.EvaluateUsedVariable(const Param1, Param2, Param3: LongIn
       Result := PSVariantToString(p, ClassProperties);
   end;
 
-{$ENDIF}
-
 begin
-{$IFNDEF NOCODE}
   case TPSVariableType(Param1) of
     ivtGlobal:
       begin
@@ -737,18 +640,11 @@ begin
           Result := '';
       end;
   end;
-{$ELSE}
-  Result := '';
-{$ENDIF}
 end;
 
 function TScriptRunner.GetCallStack(var CallStackCount: Cardinal): String;
 begin
-{$IFNDEF NOCODE}
   Result := FPSExec.GetCallStack(CallStackCount);
-{$ELSE}
-  Result := '';
-{$ENDIF}
 end;
 
 end.

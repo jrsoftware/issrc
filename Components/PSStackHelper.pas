@@ -11,8 +11,6 @@ unit PSStackHelper;
 
 interface
 
-{$IFNDEF NOCODE}
-
 uses
   Classes,
   uPSRuntime;
@@ -51,11 +49,7 @@ type
     procedure SetInt(const ItemNo: Longint; const Data: Integer; const FieldNo: Longint = -1);
   end;
 
-{$ENDIF}
-
 implementation
-
-{$IFNDEF NOCODE}
 
 function TPSStackHelper.GetArray(const ItemNo, FieldNo: Longint;
   out N: Integer): TPSVariantIFC;
@@ -180,7 +174,5 @@ begin
   end else
     inherited SetInt(ItemNo, Data)
 end;
-
-{$ENDIF}
 
 end.

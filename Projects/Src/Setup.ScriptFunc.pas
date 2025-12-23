@@ -11,18 +11,12 @@ unit Setup.ScriptFunc;
 
 interface
 
-{$IFNDEF NOCODE}
-
 uses
   uPSRuntime;
 
 procedure ScriptFuncLibraryRegister_R(ScriptInterpreter: TPSExec);
 
-{$ENDIF}
-
 implementation
-
-{$IFNDEF NOCODE}
 
 uses
   Windows,
@@ -1589,7 +1583,7 @@ var
     RegisterScriptFunc('FINDWINDOWBYCLASSNAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       {$IFNDEF CPUX86}
-      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for FindWindowByWindowName' }
+      {$MESSAGE WARN 'Needs updating for non-x86 builds, same for FindWindowByWindowName' }
       {$ENDIF}
       Stack.SetInt(PStart, FindWindow(PChar(Stack.GetString(PStart-1)), nil));
     end);
@@ -1600,7 +1594,7 @@ var
     RegisterScriptFunc('SENDMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       {$IFNDEF CPUX86}
-      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for PostMessage, SendNotifyMessage and *Broadcast*' }
+      {$MESSAGE WARN 'Needs updating for non-x86 builds, same for PostMessage, SendNotifyMessage and *Broadcast*' }
       {$ENDIF}
       Stack.SetInt(PStart, SendMessage(Stack.GetInt(PStart-1), Stack.GetInt(PStart-2), Stack.GetInt(PStart-3), Stack.GetInt(PStart-4)));
     end);
@@ -1631,7 +1625,7 @@ var
     RegisterScriptFunc('LOADDLL', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       {$IFNDEF CPUX86}
-      {$MESSAGE ERROR 'Needs updating for non-x86 builds, same for CallDllProc and FreeDll' }
+      {$MESSAGE WARN 'Needs updating for non-x86 builds, same for CallDllProc and FreeDll' }
       {$ENDIF}
       var DllHandle := SafeLoadLibrary(Stack.GetString(PStart-1), SEM_NOOPENFILEERRORBOX);
       if DllHandle <> 0 then
@@ -1884,9 +1878,10 @@ var
     RegisterScriptFunc('CREATECALLBACK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       {$IFNDEF CPUX86}
-      {$MESSAGE ERROR 'This and CreateCallback both need updating for non-x86 builds' }
-      {$ENDIF}
+      {$MESSAGE WARN 'This and CreateCallback both need updating for non-x86 builds' }
+      {$ELSE}
       Stack.SetInt(PStart, CreateCallback(Caller, PPSVariantProcPtr(Stack.Items[PStart-1])));
+      {$ENDIF}
     end);
     RegisterScriptFunc('ISDOTNETINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -2095,7 +2090,4 @@ end;
 initialization
 finalization
   ScriptFuncs.Free;
-
-{$ENDIF}
-
 end.

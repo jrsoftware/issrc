@@ -18,8 +18,6 @@ unit Setup.ScriptFunc.HelperFunc;
 
 interface
 
-{$IFNDEF NOCODE}
-
 uses
   Windows,
   uPSRuntime, MD5, SHA1,
@@ -99,17 +97,15 @@ function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
 function SaveStringToFile(const FileName: String; const S: AnsiString; Append: Boolean): Boolean;
 function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
+{$IFDEF CPUX86}
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): Cardinal;
-
 {$ENDIF}
 
 implementation
 
-{$IFNDEF NOCODE}
-
 uses
   Forms, SysUtils, Graphics,
-  uPSUtils, PathFunc, ASMInline, PSStackHelper, UnsignedFunc,
+  uPSUtils, PathFunc, {$IFDEF CPUX86} ASMInline, {$ENDIF} PSStackHelper, UnsignedFunc,
   Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
@@ -646,6 +642,8 @@ begin
     Result := False;
   end;
 end;
+
+{$IFDEF CPUX86}
 
 var
   ASMInliners: array of Pointer;
