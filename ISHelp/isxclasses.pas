@@ -491,20 +491,20 @@ end;
 
 TSysLinkType = (sltURL, sltID);
 
-TSysLinkEvent = procedure(Sender: TObject; const Link: string; LinkType: TSysLinkType);
-
 TCustomLinkLabel = class(TWinControl)
   property Alignment: TAlignment; read write;
   property AutoSize: Boolean; read write;
   property UseVisualStyle: Boolean; read write;
-  property OnLinkClick: TSysLinkEvent; read write;
 end;
+
+TSysLinkEvent = procedure(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 
 TLinkLabel = class(TCustomLinkLabel)
   property Anchors: TAnchors; read write;
   property Caption: String; read write;
   property Color: TColor; read write;
   property Font: TFont; read write;
+  property OnLinkClick: TSysLinkEvent; read write;
 end;
 
 TNewLinkLabel = class(TLinkLabel)
