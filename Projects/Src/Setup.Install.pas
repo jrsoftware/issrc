@@ -73,7 +73,7 @@ begin
   { Record [Code] even if empty to 'overwrite' old versions }
   UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
     LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion or Integer($80000000));
+    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion {$IFDEF WIN64} or Integer($80000000) {$ENDIF});
 end;
 
 procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;

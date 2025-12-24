@@ -51,7 +51,7 @@ const
   utUserDefined          = $01;
   utStartInstall         = $10;
   utEndInstall           = $11;
-  utCompiledCode         = $20; { SetupBinVersion or-ed with $80000000 as ExtraData }
+  utCompiledCode         = $20; { SetupBinVersion as ExtraData, or-ed with $80000000 on Win64 }
   utRun                  = $80;
   utDeleteDirOrFiles     = $81;
   utDeleteFile           = $82;
