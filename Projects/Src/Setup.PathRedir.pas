@@ -17,10 +17,11 @@ interface
 uses
   Windows, SysUtils;
 
-function ApplyPathRedirRules(const A64Bit: Boolean;
-  const APath: String): String; overload;
-function ApplyPathRedirRules(const A64Bit: Boolean;
-  const APath: String; const ATargetProcess64Bit: Boolean): String; overload;
+type
+  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit);
+
+function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
+  const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
 
@@ -28,7 +29,7 @@ implementation
 
 uses
   PathFunc,
-  Setup.MainFunc, Setup.InstFunc;
+  Setup.InstFunc;
 
 type
   TPathRedir = class
@@ -39,7 +40,7 @@ type
     constructor Create(const AWindows64Bit: Boolean;
       const ASystem32Path, ASysWow64Path, ASysNativePath: String);
     function ApplyRules(const A64Bit: Boolean; const APath: String;
-      const ATargetProcess64Bit: Boolean): String;
+      const ATargetProcess: TPathRedirTargetProcess): String;
   end;
 
 var
@@ -59,7 +60,7 @@ begin
 end;
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
-  const ATargetProcess64Bit: Boolean): String;
+  const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
 begin
   while True do begin
     const CurCount = PathRedirActiveUseCount;
@@ -72,16 +73,11 @@ begin
   try
     if PathRedirInstance = nil then
       InternalError('PathRedir: Not initialized');
-    Result := PathRedirInstance.ApplyRules(A64Bit, APath, ATargetProcess64Bit);
+    Result := PathRedirInstance.ApplyRules(A64Bit, APath, ATargetProcess);
   finally
     MemoryBarrier;
     AtomicDecrement(PathRedirActiveUseCount);
   end;
-end;
-
-function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String): String;
-begin
-  Result := ApplyPathRedirRules(A64Bit, APath, IsCurrentProcess64Bit);
 end;
 
 function ConvertToSuperPath(var Path: String): Boolean;
@@ -139,7 +135,7 @@ begin
 end;
 
 function TPathRedir.ApplyRules(const A64Bit: Boolean; const APath: String;
-  const ATargetProcess64Bit: Boolean): String;
+  const ATargetProcess: TPathRedirTargetProcess): String;
 
   procedure SubstitutePath(var Path: String; const FromDir, ToDir: String);
   begin
@@ -172,20 +168,24 @@ begin
 
   if FWindows64Bit then begin
     { Running on 64-bit Windows }
+    const TargetProcess64Bit =
+      {$IFDEF WIN64} (ATargetProcess = tpCurrent) or {$ENDIF}
+      (ATargetProcess = tpNativeBit);
+
     if A64Bit then begin
       { System32 -> Sysnative: When path is 64-bit and process is 32-bit. }
-      if not ATargetProcess64Bit then
+      if not TargetProcess64Bit then
         SubstitutePath(NewPath, FSystem32Path, FSysNativePath);
     end else begin
       { System32 -> SysWOW64: When path is 32-bit and process is 64-bit.
         In the future, this may be done for 32-bit processes as well. }
-      if ATargetProcess64Bit then
+      if TargetProcess64Bit then
         SubstitutePath(NewPath, FSystem32Path, FSysWow64Path);
     end;
 
     { Sysnative -> System32: When process is 64-bit, regardless of path
       bitness (because the Sysnative alias never works in 64-bit processes). }
-    if ATargetProcess64Bit then
+    if TargetProcess64Bit then
       SubstitutePath(NewPath, FSysNativePath, FSystem32Path);
   end else begin
     { Running on 32-bit Windows; no substitutions are made }

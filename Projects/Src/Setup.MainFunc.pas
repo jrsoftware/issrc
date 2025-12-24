@@ -4090,17 +4090,21 @@ end;
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
 begin
-  { Note: When RunEntry64Bit=True, the resulting paths are always "64-bit
+  { Note: When RunEntry64Bit=True, the resulting paths are always "native-bit
     target process" paths. They use System32, not Sysnative, so in a 32-bit
     Setup process they are only usable when FS redirection is disabled. }
 
+  var TargetProcess := tpCurrent;
+  if RunEntry64Bit then
+    TargetProcess := tpNativeBit;
+
   if PathIsRooted(AFilename) then
     AFilename := PathConvertSuperToNormal(ApplyPathRedirRules(
-      RunEntry64Bit, AFilename, RunEntry64Bit or IsCurrentProcess64Bit));
+      RunEntry64Bit, AFilename, TargetProcess));
 
   if AWorkingDir <> '' then
     AWorkingDir := PathConvertSuperToNormal(ApplyPathRedirRules(
-      RunEntry64Bit, AWorkingDir, RunEntry64Bit or IsCurrentProcess64Bit));
+      RunEntry64Bit, AWorkingDir, TargetProcess));
 end;
 
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
