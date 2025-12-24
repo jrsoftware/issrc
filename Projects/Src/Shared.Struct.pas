@@ -35,7 +35,8 @@ const
     unrecognizable by the standard Inno Setup. }
   SetupID: TSetupID = 'Inno Setup Setup Data (6.7.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
-    ('Inno Setup Uninstall Log (b)', 'Inno Setup Uninstall Log (b) 64-bit');
+    ('Inno Setup Uninstall Log (b)',
+     'Inno Setup Uninstall Log (b) 64-bit'); { '64-bit' refers to 64-bit install mode }
   MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!670';
   ZLIBID: TCompID = 'zlb'#26;
