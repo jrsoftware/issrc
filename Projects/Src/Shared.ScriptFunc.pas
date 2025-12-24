@@ -560,7 +560,7 @@ initialization
     'function SaveStringsToUTF8FileWithoutBOM(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;',
     'function EnableFsRedirection(const Enable: Boolean): Boolean;',
     'function GetUninstallProgressForm: TUninstallProgressForm;',
-    'function CreateCallback(Method: AnyMethod): Longword;',
+    'function CreateCallback(Method: AnyMethod): NativeInt;',
     'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;',
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',

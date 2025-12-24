@@ -2,7 +2,7 @@ unit Compiler.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,8 +14,8 @@ interface
 uses
   Generics.Collections, uPSCompiler, uPSUtils;
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
-  ObsoleteFunctionWarnings: TDictionary<String, String>);
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler; const ExecIs64Bit: Boolean;
+  const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
 implementation
 
@@ -29,8 +29,8 @@ uses
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
-  ObsoleteFunctionWarnings: TDictionary<String, String>);
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler; const ExecIs64Bit: Boolean;
+  const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
   procedure RegisterType(const Name, Value: tbtstring);
   begin
@@ -89,7 +89,13 @@ begin
   { Note: In a native 64-bit build, these must be expanded to 64 bits }
   RegisterType('DWORD_PTR', 'LongWord');
   RegisterType('UINT_PTR', 'LongWord');
-  RegisterType('INT_PTR', 'Longint');
+
+  if ExecIs64Bit then
+    RegisterType('NativeInt', 'Int64')
+  else
+    RegisterType('NativeInt', 'Integer');
+
+  RegisterType('INT_PTR', 'NativeInt');
 
   RegisterType('TFileTime',
     'record' +

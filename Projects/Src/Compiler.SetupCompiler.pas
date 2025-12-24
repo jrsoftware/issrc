@@ -8722,6 +8722,7 @@ begin
     CheckCustomMessageReferences;
 
     { Compile CodeText }
+    CodeCompiler.ExecIs64Bit := SetupArchitecture = sa64bit;
     CompileCode;
     CallIdleProc;
 

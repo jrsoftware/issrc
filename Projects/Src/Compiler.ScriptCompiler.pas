@@ -23,6 +23,7 @@ type
 
   TScriptCompiler = class
     private
+      FExecIs64Bit: Boolean;
       FNamingAttribute: String;
       FObsoleteFunctionWarnings: TDictionary<String, String>;
       FExports, FUsedLines: TList;
@@ -47,6 +48,7 @@ type
       function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
       function IsObsoleteFunction(const Name: String): String;
+      property ExecIs64Bit: Boolean write FExecIs64Bit;
       property NamingAttribute: String write FNamingAttribute;
       property OnLineToLineInfo: TScriptCompilerOnLineToLineInfo write FOnLineToLineInfo;
       property OnUsedLine: TScriptCompilerOnUsedLine write FOnUsedLine;
@@ -176,7 +178,8 @@ begin
     RegisterDll_Compiletime(Sender);
     Sender.OnExternalProc := PSPascalCompilerOnExternalProc;
     ScriptClassesLibraryRegister_C(Sender);
-    ScriptFuncLibraryRegister_C(Sender, TScriptCompiler(Sender.ID).FObsoleteFunctionWarnings);
+    const ScriptCompiler = TScriptCompiler(Sender.ID);
+    ScriptFuncLibraryRegister_C(Sender, ScriptCompiler.FExecIs64Bit, ScriptCompiler.FObsoleteFunctionWarnings);
     NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
     if NamingAttribute <> '' then begin
       with Sender.AddAttributeType do begin

@@ -456,7 +456,7 @@ const
     'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
     'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64',
     'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
-    'TVariantArray',
+    'TVariantArray', 'NativeInt',
     //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
     'TVarType',
     //undocumented: TIFException

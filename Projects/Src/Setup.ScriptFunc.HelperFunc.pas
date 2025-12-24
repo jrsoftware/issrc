@@ -97,15 +97,13 @@ function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
 function SaveStringToFile(const FileName: String; const S: AnsiString; Append: Boolean): Boolean;
 function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
-{$IFDEF CPUX86}
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): Cardinal;
-{$ENDIF}
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 
 implementation
 
 uses
   Forms, SysUtils, Graphics,
-  uPSUtils, PathFunc, {$IFDEF CPUX86} ASMInline, {$ENDIF} PSStackHelper, UnsignedFunc,
+  uPSUtils, PathFunc, ASMInline, PSStackHelper, UnsignedFunc,
   Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
@@ -643,28 +641,20 @@ begin
   end;
 end;
 
-{$IFDEF CPUX86}
-
 var
   ASMInliners: array of Pointer;
 
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): Cardinal;
-var
-  ProcRec: TPSInternalProcRec;
-  Method: TMethod;
-  Inliner: TASMInline;
-  ParamCount, SwapFirst, SwapLast: Integer;
-  S: tbtstring;
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 begin
   { ProcNo 0 means nil was passed by the script }
   if P.ProcNo = 0 then
     InternalError('Invalid Method value');
 
   { Calculate parameter count of our proc, will need this later. }
-  ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
-  S := ProcRec.ExportDecl;
+  const ProcRec = Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
+  var S := ProcRec.ExportDecl;
   GRFW(S);
-  ParamCount := 0;
+  var ParamCount := 0;
   while S <> '' do begin
     Inc(ParamCount);
     GRFW(S);
@@ -673,7 +663,7 @@ begin
   { Turn our proc into a callable TMethod - its Code will point to
     ROPS' MyAllMethodsHandler and its Data to a record identifying our proc.
     When called, MyAllMethodsHandler will use the record to call our proc. }
-  Method := MkMethod(Caller, P.ProcNo);
+  const Method = MkMethod(Caller, P.ProcNo);
 
   { Wrap our TMethod with a dynamically generated stdcall callback which will
     do two things:
@@ -683,12 +673,13 @@ begin
     Based on InnoCallback by Sherlock Software, see
     http://www.sherlocksoftware.org/page.php?id=54 and
     https://github.com/thenickdude/InnoCallback. }
-  Inliner := TASMInline.create;
+  const Inliner = TASMInline.create;
   try
+{$IFDEF CPUX86}
     Inliner.Pop(EAX); //get the retptr off the stack
 
-    SwapFirst := 2;
-    SwapLast := ParamCount-1;
+    var SwapFirst := 2;
+    var SwapLast := ParamCount-1;
 
     //Reverse the order of parameters from param3 onwards in the stack
     while SwapLast > SwapFirst do begin
@@ -710,10 +701,57 @@ begin
     Inliner.Mov(EAX, Cardinal(Method.Data)); //Load the self ptr
 
     Inliner.Jmp(Method.Code); //jump to the wrapped proc
+{$ELSE}
+    { RCX, RDX, R8, R9 carry the first 4 params and 32 bytes of shadow space
+      belong to the caller. ROPS' MyAllMethodsHandler expects RCX=Self/Data,
+      RDX/R8/R9=param1..param3 and the rest packed on the stack. }
+
+    { Keep values for later }
+    Inliner.MovRegReg(R11, RCX);
+    Inliner.MovRegReg(R10, RDX);
+    Inliner.MovRegReg(RAX, R8);
+    Inliner.MovRegReg(RDX, R9);
+
+    { Make our own shadow space + spill area to re-stack params for ROPS. }
+    var ExtraParams := ParamCount - 3;
+    if ExtraParams < 0 then
+      ExtraParams := 0;
+    var FrameSize := 32 + ExtraParams * SizeOf(Pointer);
+    if (FrameSize and $F) = 0 then
+      Inc(FrameSize, 8); { keep RSP 16-byte aligned at call site }
+    Inliner.SubRsp(FrameSize);
+
+    if ParamCount >= 4 then
+      Inliner.MovMemRSPReg(32, RDX); { param4: top of shadow space }
+
+    { Copy remaining params (5+) from the caller's stack into our spill
+      area so they follow shadow space, matching the order ROPS expects. }
+    if ParamCount > 4 then
+      for var I := 0 to ParamCount - 5 do begin
+        const SrcOffset = FrameSize + 40 + I * SizeOf(Pointer);
+        const DestOffset = 32 + (I + 1) * SizeOf(Pointer);
+        Inliner.MovRegMemRSP(RDX, SrcOffset);
+        Inliner.MovMemRSPReg(DestOffset, RDX);
+      end;
+
+    { Put the original params back in the order MyAllMethodsHandler wants. }
+    Inliner.MovRegImm64(RCX, NativeUInt(Method.Data)); { Self/Data }
+    Inliner.MovRegReg(RDX, R11); { param1 }
+    if ParamCount >= 2 then
+      Inliner.MovRegReg(R8, R10); { param2 }
+    if ParamCount >= 3 then
+      Inliner.MovRegReg(R9, RAX); { param3 }
+
+    Inliner.MovRegImm64(R10, NativeUInt(Method.Code));
+    Inliner.CallReg(R10); { Call the wrapped proc }
+
+    Inliner.AddRsp(FrameSize);
+    Inliner.Ret;
+{$ENDIF}
 
     SetLength(ASMInliners, Length(ASMInliners) + 1);
     ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
-    Result := Cardinal(ASMInliners[High(ASMInliners)]);
+    Result := NativeInt(ASMInliners[High(ASMInliners)]);
   finally
     Inliner.Free;
   end;
@@ -731,7 +769,5 @@ end;
 initialization
 finalization
   FreeASMInliners;
-
-{$ENDIF}
 
 end.

@@ -39,6 +39,7 @@ type
     function GetChar(const ItemNo: Longint): Char;
     function GetClassArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfObject;
     function GetIntArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfInteger;
+    function GetNativeInt(const ItemNo: Longint): NativeInt;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
     function GetUInt32(const ItemNo: Longint): UInt32;
@@ -47,6 +48,8 @@ type
     procedure SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint = -1); overload;
     procedure SetArray(const ItemNo: Longint; const Data: TStrings; const FieldNo: Longint = -1); overload;
     procedure SetInt(const ItemNo: Longint; const Data: Integer; const FieldNo: Longint = -1);
+    procedure SetInt64(const ItemNo: Longint; const Data: Int64; const FieldNo: Longint = -1);
+    procedure SetNativeInt(const ItemNo: Longint; const Data: NativeInt; const FieldNo: Longint = -1);
   end;
 
 implementation
@@ -96,6 +99,15 @@ begin
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetInt(PSGetArrayField(Arr, I));
+end;
+
+function TPSStackHelper.GetNativeInt(const ItemNo: Longint): NativeInt;
+begin
+{$IFNDEF WIN64}
+  Result := GetInt(ItemNo);
+{$ELSE}
+  Result := GetInt64(ItemNo);
+{$ENDIF}
 end;
 
 function TPSStackHelper.GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
@@ -173,6 +185,26 @@ begin
     VNSetInt(PSVariantIFC, Data);
   end else
     inherited SetInt(ItemNo, Data)
+end;
+
+procedure TPSStackHelper.SetInt64(const ItemNo: Longint; const Data: Int64;
+  const FieldNo: Longint);
+begin
+  if FieldNo >= 0 then begin
+    var PSVariantIFC := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo);
+    VNSetInt64(PSVariantIFC, Data);
+  end else
+    inherited SetInt64(ItemNo, Data)
+end;
+
+procedure TPSStackHelper.SetNativeInt(const ItemNo: Longint; const Data: NativeInt;
+  const FieldNo: Longint);
+begin
+{$IFNDEF WIN64}
+  SetInt(ItemNo, Data, FieldNo);
+{$ELSE}
+  SetInt64(ItemNo, Data, FieldNo);
+{$ENDIF}
 end;
 
 end.

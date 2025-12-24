@@ -77,16 +77,16 @@ end;
 
 // The following shows how to use callbacks.
 
-function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
+function SetTimer(hWnd, nIDEvent: NativeInt; uElapse: Cardinal; lpTimerFunc: NativeInt): NativeInt;
 external 'SetTimer@user32.dll stdcall';
 
-function KillTimer(hWnd, nIDEvent: Longword): Bool;
+function KillTimer(hWnd, nIDEvent: NativeInt): Bool;
 external 'KillTimer@user32.dll stdcall';
 
 var
   TimerID, TimerCount: Integer;
 
-procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
+procedure MyTimerProc(Arg1: NativeInt; Arg2: Cardinal; Arg3: NativeInt; Arg4: Cardinal);
 begin
   if WizardForm <> nil then begin
     Inc(TimerCount);
