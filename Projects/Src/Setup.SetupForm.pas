@@ -492,7 +492,7 @@ begin
   if FCenterOnShow then begin
     FCenterOnShow := False;
     { Center }
-    if ACenterInsideControl then
+    if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
       CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
     else
       Center;

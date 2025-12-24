@@ -67,7 +67,7 @@ type
 
   TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
 
-  TPrecompiledFile = (pfSetupE32, pfSetupCustomStyleE32, pfSetupLdrE32, pfSetupLdrE64, pfIs7zDll, pfIsbunzipDll, pfIsunzlibDll, pfIslzmaExe);
+  TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma);
   TPrecompiledFiles = set of TPrecompiledFile;
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
@@ -135,7 +135,6 @@ type
     TouchDateYear, TouchDateMonth, TouchDateDay: Word;
     TouchTimeOption: (ttCurrent, ttNone, ttExplicit);
     TouchTimeHour, TouchTimeMinute, TouchTimeSecond: Word;
-    ArchitecturesAllowedAllowsX86: Boolean;
 
     SetupEncryptionHeader: TSetupEncryptionHeader;
     SetupHeader: TSetupHeader;
@@ -245,9 +244,9 @@ type
       const Parameters: array of const): Boolean;
     function EvalLanguageIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
-    function ProcessExpressionParameter(const ParamName,
+    procedure ProcessExpressionParameter(const ParamName,
       ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-      SlashConvert: Boolean; var ProcessedParamData: String; const DefaultResult: Boolean = False): Boolean;
+      SlashConvert: Boolean; var ProcessedParamData: String);
     procedure ProcessWildcardsParameter(const ParamData: String;
       const AWildcards: TStringList; const TooLongMsg: String);
     procedure ReadDefaultMessages;
@@ -2020,7 +2019,7 @@ begin
     if Name = ArchIdentifier then begin
       if ArchIdentifier = 'x64' then
         WarningsList.Add(Format(SCompilerArchitectureIdentifierDeprecatedWarning, ['x64', 'x64os', 'x64compatible']));
-      Exit(Name.StartsWith('x86')); { For the ArchitecturesAllowedAllowsX86 check. In other cases the result doesn't matter. }
+      Exit(True); { Result doesn't matter }
     end;
   end;
 
@@ -2087,14 +2086,13 @@ begin
   raise Exception.CreateFmt(SCompilerParamUnknownLanguage, [ParamCommonLanguages]);
 end;
 
-function TSetupCompiler.ProcessExpressionParameter(const ParamName,
+procedure TSetupCompiler.ProcessExpressionParameter(const ParamName,
   ParamData: String; OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier;
-  SlashConvert: Boolean; var ProcessedParamData: String; const DefaultResult: Boolean): Boolean;
+  SlashConvert: Boolean; var ProcessedParamData: String);
 var
   SimpleExpression: TSimpleExpression;
 begin
   ProcessedParamData := Trim(ParamData);
-  Result := DefaultResult;
 
   if ProcessedParamData <> '' then begin
     if SlashConvert then
@@ -2110,7 +2108,7 @@ begin
         SimpleExpression.SilentOrAllowed := True;
         SimpleExpression.SingleIdentifierMode := False;
         SimpleExpression.ParametersAllowed := False;
-        Result := SimpleExpression.Eval;
+        SimpleExpression.Eval;
       finally
         SimpleExpression.Free;
       end;
@@ -2551,22 +2549,21 @@ var
 
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
-    PrecompiledFiles: array of PChar = ['setupe32', 'setupcustomstylee32', 'setupldre32', 'setupldre64',
-      'is7zdll', 'isbunzipdll', 'isunzlibdll', 'islzmaexe'];
+    PrecompiledFiles: array of PChar = ['setup', 'setupcustomstyle', 'setupldr',
+      'is7z', 'isbunzip', 'isunzlib', 'islzma'];
   begin
     Result := [];
     while True do
       case ExtractFlag(S, PrecompiledFiles) of
         -2: Break;
         -1: Invalid;
-        0: Include(Result, pfSetupE32);
-        1: Include(Result, pfSetupCustomStyleE32);
-        2: Include(Result, pfSetupLdrE32);
-        3: Include(Result, pfSetupLdrE64);
-        4: Include(Result, pfIs7zDll);
-        5: Include(Result, pfIsbunzipDll);
-        6: Include(Result, pfIsunzlibDll);
-        7: Include(Result, pfIslzmaExe);
+        0: Include(Result, pfSetup);
+        1: Include(Result, pfSetupCustomStyle);
+        2: Include(Result, pfSetupLdr);
+        3: Include(Result, pfIs7z);
+        4: Include(Result, pfIsbunzip);
+        5: Include(Result, pfIsunzlib);
+        6: Include(Result, pfIslzma);
       end;
   end;
 
@@ -2732,9 +2729,8 @@ begin
         SetupHeader.AppVersion := Value;
       end;
     ssArchitecturesAllowed: begin
-        ArchitecturesAllowedAllowsX86 :=
           ProcessExpressionParameter(KeyName, LowerCase(Value),
-            EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed, True);
+            EvalArchitectureIdentifier, False, SetupHeader.ArchitecturesAllowed);
       end;
     ssArchitecturesInstallIn64BitMode: begin
         ProcessExpressionParameter(KeyName, LowerCase(Value),
@@ -2901,7 +2897,7 @@ begin
       end;
     ssDisablePrecompiledFileVerifications: begin
       DisablePrecompiledFileVerifications := StrToPrecompiledFiles(Value);
-      CompressProps.WorkerProcessCheckTrust := not (pfIslzmaExe in DisablePrecompiledFileVerifications);
+      CompressProps.WorkerProcessCheckTrust := not (pfIslzma in DisablePrecompiledFileVerifications);
     end;
     ssDisableProgramGroupPage: begin
         if CompareText(Value, 'auto') = 0 then
@@ -7829,12 +7825,12 @@ var
 
       if (SetupHeader.WizardDarkStyle = wdsLight) and (WizardStyleFile = '') then begin
         EBasename := 'Setup' + EExt;
-        EPf := pfSetupE32;
-        EUisf := uisfSetupE32;
+        EPf := pfSetup;
+        EUisf := uisfSetup;
       end else begin
         EBasename := 'SetupCustomStyle' + EExt;
-        EPf := pfSetupCustomStyleE32;
-        EUisf := uisfSetupCustomStyleE32;
+        EPf := pfSetupCustomStyle;
+        EUisf := uisfSetupCustomStyle;
       end;
       EFilename := CompilerDir + EBasename;
 
@@ -7846,7 +7842,7 @@ var
 
       TempFilename := ConvertFilename;
 
-      if EUisf = uisfSetupCustomStyleE32 then
+      if EUisf = uisfSetupCustomStyle then
         AddStatus(Format(SCompilerStatusUpdatingIconsAndVsf, [EBasename]))
       else
         AddStatus(Format(SCompilerStatusUpdatingIcons, [EBasename]));
@@ -8130,7 +8126,6 @@ begin
     SetupHeader.WizardSizePercentX := 120;
     SetupHeader.WizardSizePercentY := SetupHeader.WizardSizePercentX;
     SetupHeader.WizardImageOpacity := 255;
-    ArchitecturesAllowedAllowsX86 := True;
     SetupHeader.WizardBackColor := clNone;
     SetupHeader.WizardBackColorDynamicDark := clNone;
     SetupHeader.WizardBackImageOpacity := 255;
@@ -8290,12 +8285,6 @@ begin
     if (UseSetupLdr = slNone) and
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
-    if (UseSetupLdr = sl64bit) and ArchitecturesAllowedAllowsX86 then begin
-      LineNumber := SetupDirectiveLines[ssArchitecturesAllowed];
-      if LineNumber = 0 then
-        LineNumber := SetupDirectiveLines[ssUseSetupLdr];
-      AbortCompile(SCompilerSetupLdrX64MustExcludeX86);
-    end;
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUninstallable];
@@ -8696,12 +8685,12 @@ begin
       cmZip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll',
-            not(pfIsunzlibDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
+            not(pfIsunzlib in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
       cmBzip: begin
           AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll',
-            not(pfIsbunzipDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
+            not(pfIsbunzip in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
     end;
 
@@ -8709,7 +8698,7 @@ begin
     if SetupHeader.SevenZipLibraryName <> '' then begin
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
       SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName,
-        not(pfIs7zDll in DisablePrecompiledFileVerifications), OnCheckedTrust);
+        not(pfIs7z in DisablePrecompiledFileVerifications), OnCheckedTrust);
     end;
 
     { Add default types if necessary }
@@ -8771,12 +8760,13 @@ begin
           end;
         end
         else begin
+          var EExt: String;
           if UseSetupLdr = sl32bit then
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e32', ExeFilename, not(pfSetupLdrE32 in DisablePrecompiledFileVerifications),
-              [cftoTrustAllOnDebug], OnCheckedTrust)
+            EExt := '.e32'
           else
-            CopyFileOrAbort(CompilerDir + 'SetupLdr.e64', ExeFilename, not(pfSetupLdrE64 in DisablePrecompiledFileVerifications),
-              [cftoTrustAllOnDebug], OnCheckedTrust);
+            EExt := '.e64';
+          CopyFileOrAbort(CompilerDir + 'SetupLdr' + EExt, ExeFilename, not(pfSetupLdr in DisablePrecompiledFileVerifications),
+            [cftoTrustAllOnDebug], OnCheckedTrust);
           { If there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
 
@@ -8786,7 +8776,7 @@ begin
             WithRetries(False, ExeFilename,
               procedure
               begin
-               UpdateIconsAndStyle(ExeFilename, uisfSetupLdrE32, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
+               UpdateIconsAndStyle(ExeFilename, uisfSetupLdr, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
               end);
             LineNumber := 0;
           end;

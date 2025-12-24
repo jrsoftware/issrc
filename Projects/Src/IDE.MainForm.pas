@@ -2256,6 +2256,7 @@ begin
 
   DestroyDebugInfo;
   OldActiveMemo := FActiveMemo;
+  AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
   try
     FBuildAnimationFrame := 0;
@@ -2552,7 +2553,6 @@ var
   PrintStyler: TInnoSetupStyler;
   OldStyler: TScintCustomStyler;
   PrintTheme, OldTheme: TTheme;
-  PrintMemo: TIDEScintEdit;
   HeaderMemo: TIDEScintFileEdit;
   FileTitle, S: String;
   pdlg: TPrintDlg;

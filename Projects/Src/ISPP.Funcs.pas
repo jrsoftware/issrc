@@ -564,42 +564,44 @@ begin
         end
       end;
 
-      with TStringList(TPreprocessor(Ext).StringList) do
-        for var I := StartFromLine to Count - 1 do begin
-          var Line := Strings[I];
-          if Flags[0] and FIND_TRIM <> 0 then
-            Line := Trim(Line);
+      const Lines = TPreprocessor(Ext).StringList;
 
-          var Found := Meets(Line, Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
-            TFindWhere(Flags[0] and FIND_WHEREMASK)) xor (Flags[0] and FIND_NOT <> 0);
+      for var I := StartFromLine to Lines.Count-1 do begin
+        var Line := Lines[I];
+        if Flags[0] and FIND_TRIM <> 0 then
+          Line := Trim(Line);
 
-          if (StrCount > 1) and
-             (((Flags[1] and FIND_OR <> 0{OR}) and not Found) or
-              ((Flags[1] and FIND_OR = 0{AND}) and Found)) then begin
-            const MoreFound = Meets(Line, Strs[1], Flags[1] and FIND_SENSITIVE <> 0,
-              TFindWhere(Flags[1] and FIND_WHEREMASK)) xor (Flags[1] and FIND_NOT <> 0);
-            if Flags[1] and FIND_OR <> 0 then
-              Found := Found or MoreFound
-            else
-              Found := Found and MoreFound;
-          end;
+        var Found := Meets(Line, Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
+          TFindWhere(Flags[0] and FIND_WHEREMASK)) xor (Flags[0] and FIND_NOT <> 0);
 
-          if (StrCount > 2) and
-             (((Flags[2] and FIND_OR <> 0{OR}) and not Found) or
-              ((Flags[2] and FIND_OR = 0{AND}) and Found)) then begin
-            const MoreFound = Meets(Line, Strs[2], Flags[2] and FIND_SENSITIVE <> 0,
-              TFindWhere(Flags[2] and FIND_WHEREMASK)) xor (Flags[2] and FIND_NOT <> 0);
-            if Flags[2] and FIND_OR <> 0 then
-              Found := Found or MoreFound
-            else
-              Found := Found and MoreFound;
-          end;
-
-          if Found then begin
-            MakeInt(ResPtr^, I);
-            Exit;
-          end;
+        if (StrCount > 1) and
+           (((Flags[1] and FIND_OR <> 0{OR}) and not Found) or
+            ((Flags[1] and FIND_OR = 0{AND}) and Found)) then begin
+          const MoreFound = Meets(Line, Strs[1], Flags[1] and FIND_SENSITIVE <> 0,
+            TFindWhere(Flags[1] and FIND_WHEREMASK)) xor (Flags[1] and FIND_NOT <> 0);
+          if Flags[1] and FIND_OR <> 0 then
+            Found := Found or MoreFound
+          else
+            Found := Found and MoreFound;
         end;
+
+        if (StrCount > 2) and
+           (((Flags[2] and FIND_OR <> 0{OR}) and not Found) or
+            ((Flags[2] and FIND_OR = 0{AND}) and Found)) then begin
+          const MoreFound = Meets(Line, Strs[2], Flags[2] and FIND_SENSITIVE <> 0,
+            TFindWhere(Flags[2] and FIND_WHEREMASK)) xor (Flags[2] and FIND_NOT <> 0);
+          if Flags[2] and FIND_OR <> 0 then
+            Found := Found or MoreFound
+          else
+            Found := Found and MoreFound;
+        end;
+
+        if Found then begin
+          MakeInt(ResPtr^, I);
+          Exit;
+        end;
+      end;
+
       MakeInt(ResPtr^, -2);
     end;
   except

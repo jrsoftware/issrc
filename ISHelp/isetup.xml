@@ -2987,27 +2987,26 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p>
 <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p>
 <p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
+<ul>
+<li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
+<li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
+<li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
+<li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li>
+<li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
+<li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
+<li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
+<li>Unicode Pascal Scripting notes:
   <ul>
-  <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
-  <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
-  <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
-  <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li>
-  <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
-  <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
-  <li>Existing installations of your programs done by non Unicode installers can be freely updated by Unicode installers, and vice versa.</li>
-  <li>Unicode Pascal Scripting notes:
-    <ul>
-    <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar'.</li>
-    <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-    <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
-    <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
-    <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
-    <li>Added new <tt>TStringStream</tt> class.</li>
-    <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API call or change the parameters from 'String' or 'PChar' to 'AnsiString'. The 'AnsiString' approach will make your [Code] compatible with both the Unicode and the non Unicode version.</li>
-    </ul>
-  </li>
+  <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li>
+  <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
+  <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
+  <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
+  <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
+  <li>Added new <tt>TStringStream</tt> class.</li>
+  <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API calls and use 'String' parameters, or keep the 'A' ANSI API calls and start using 'AnsiString' parameters.</li>
   </ul>
-<p>Note: Unicode Inno Setup can only create Unicode installers and likewise the non Unicode version can only create non Unicode installers. If you want to be able to create both Unicode and non Unicode installers on one computer, you have to install both versions of Inno Setup into different folders.</p>
+</li>
+</ul>
 
 </body>
 </topic>
@@ -4552,7 +4551,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
-<p><i>Note:</i> Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary. Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit. The downside is that your installer will no longer load on systems running x86 Windows, and you must set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to exclude those systems, for example by using <tt>ArchitecturesAllowed=not x86</tt>.</p>
+<p><i>Note:</i> Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary. Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
@@ -4888,11 +4887,11 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 </setuptopic>
 
 <setuptopic directive="DisablePrecompiledFileVerifications">
-<setupvalid>One or more of the following, separated by spaces:<br/><tt>setupe32</tt><br/><tt>setupcustomstylee32</tt><br/><tt>setupldre32</tt><br/><tt>setupldre64</tt><br/><tt>is7zdll</tt><br/><tt>isbunzipdll</tt><br/><tt>isunzlibdll</tt><br/><tt>islzmaexe</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces:<br/><tt>setup</tt><br/><tt>setupcustomstyle</tt><br/><tt>setupldr</tt><br/><tt>is7z</tt><br/><tt>isbunzip</tt><br/><tt>isunzlib</tt><br/><tt>islzma</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
-<p><tt>islzmaexe</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>. Similarly, <tt>is7z.dll</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>.</p>
+<p><tt>setupldr</tt> applies to both <i>setupldr.e32</i> and <i>setupldr.e64</i>. <tt>is7z</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>. <tt>islzma</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>.</p>
 </body>
 </setuptopic>
 
@@ -6375,7 +6374,7 @@ WizardBackImageOpacity=150</pre></example>
 
 <dt><b>x64compatible</b></dt>
 <dd>
-<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+<p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation and also support Arm64EC.</p>
 </dd>
 
 <dt><b>x64os</b></dt>
@@ -6424,7 +6423,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 ; Require two architecture identifier matches at the same time.
 ; - An x64 app installer that includes some 32-bit x86 binaries:
 ArchitecturesAllowed=x64compatible and x86compatible
-; - An Arm64 app installer that includes some x64 binaries:
+; - An Arm64 app installer that includes some x64 or Arm64EC binaries:
 ArchitecturesAllowed=arm64 and x64compatible
 
 ; Only allow installation on systems that <i>aren't</i> x64-compatible.

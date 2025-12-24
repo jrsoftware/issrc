@@ -4182,19 +4182,20 @@ var
   KernelModule: HMODULE;
 {$IFNDEF WIN64}
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
-  IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
 {$ENDIF}
+  IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
   GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
   IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
   SysInfo: TSystemInfo;
 begin
   KernelModule := GetModuleHandle(kernel32);
 
-{$IFDEF WIN64}
-  { Win64 is a constant and always True. We do still need to get the processor
-    architecture, and this is done below. }
-{$ELSE}
-  { The system is considered a "Win64" system if all of the following
+  { 64-bit build:
+    IsWin64 is a constant and always True. We do still need to get the
+    processor architecture, and this is done below.
+
+    32-bit build:
+    The system is considered a "Win64" system if all of the following
     conditions are true:
     1. One of the following two is true:
        a. IsWow64Process2 is available, and returns True for the current process.
@@ -4206,14 +4207,19 @@ begin
     The system does not have to be one of the known 64-bit architectures
     to be considered a "Win64" system. }
 
+  {$IFNDEF WIN64}
   IsWin64 := False;
+  {$ENDIF}
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
   var ProcessMachine, NativeMachine: USHORT;
   if Assigned(IsWow64Process2Func) and
-     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) and
-     (ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN) then begin
-    IsWin64 := True;
+     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then begin
+    {$IFNDEF WIN64}
+    if ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN then
+      IsWin64 := True;
+    {$ENDIF}
+
     case NativeMachine of
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
@@ -4222,12 +4228,15 @@ begin
       ProcessorArchitecture := paUnknown;
     end;
   end else begin
+    {$IFNDEF WIN64}
     IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
     var Wow64Process: BOOL;
     if Assigned(IsWow64ProcessFunc) and
        IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
        Wow64Process then
-{$ENDIF}
+      IsWin64 := True;
+    {$ENDIF}
+
     GetNativeSystemInfo(SysInfo);
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
@@ -4236,15 +4245,15 @@ begin
     else
       ProcessorArchitecture := paUnknown;
     end;
-{$IFNDEF WIN64}
   end;
 
+  {$IFNDEF WIN64}
   if IsWin64 and
      not (AreFsRedirectionFunctionsAvailable and
           (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
           (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
     IsWin64 := False;
-{$ENDIF}
+  {$ENDIF}
 
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
