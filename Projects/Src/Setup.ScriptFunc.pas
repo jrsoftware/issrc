@@ -118,7 +118,7 @@ var
     end);
     RegisterScriptFunc('PageIndexFromID', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetInt(PStart, GetWizardForm.PageIndexFromID(Stack.GetInt(PStart-1)));
+      Stack.SetNativeInt(PStart, GetWizardForm.PageIndexFromID(Stack.GetInt(PStart-1)));
     end);
     RegisterScriptFunc('CreateCustomPage', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1073,7 +1073,7 @@ var
           finally
             WindowDisabler.Free;
           end;
-          Stack.SetInt(PStart-6, ResultCode);
+          Stack.SetInt(PStart-6, Integer(ResultCode));
           if OrgName = 'ExecAndCaptureOutput' then begin
             { Set the three TExecOutput fields }
             Stack.SetArray(PStart-7, OutputReader.CaptureOutList, 0);
@@ -1107,7 +1107,7 @@ var
         finally
           WindowDisabler.Free;
         end;
-        Stack.SetInt(PStart-7, ErrorCode);
+        Stack.SetInt(PStart-7, Integer(ErrorCode));
       end else begin
         Stack.SetBool(PStart, False);
         Stack.SetInt(PStart-7, ERROR_ACCESS_DENIED);
@@ -1239,7 +1239,7 @@ var
         Suppressible := True;
         Default := Stack.GetInt(PStart-4);
       end;
-      Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Stack.GetInt(PStart-3), Suppressible, Default));
+      Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Cardinal(Stack.GetInt(PStart-3)), Suppressible, Default));
     end);
     RegisterScriptFunc(['TaskDialogMsgBox', 'SuppressibleTaskDialogMsgBox'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1253,7 +1253,7 @@ var
         Default := Stack.GetInt(PStart-7);
       end;
       var ButtonLabels := Stack.GetStringArray(PStart-5);
-      Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Stack.GetInt(PStart-4), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
+      Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Cardinal(Stack.GetInt(PStart-4)), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
     end);
     RegisterScriptFunc('ISWIN64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1336,7 +1336,7 @@ var
       try
         var F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
         try
-          Stack.SetInt(PStart-2, F.CappedSize);
+          Stack.SetInt(PStart-2, Integer(F.CappedSize)); { Even though CappedSize returns Cardinal, it's capped at High(Int32) }
           Stack.SetBool(PStart, True);
         finally
           F.Free;
@@ -1361,7 +1361,7 @@ var
     end);
     RegisterScriptFunc('SET8087CW', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Set8087CW(Stack.GetInt(PStart));
+      Set8087CW(Word(Stack.GetInt(PStart)));
     end);
     RegisterScriptFunc('GET8087CW', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1466,7 +1466,7 @@ var
     end);
     RegisterScriptFunc('SYSERRORMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, Win32ErrorString(Stack.GetInt(PStart-1)));
+      Stack.SetString(PStart, Win32ErrorString(Stack.GetUInt(PStart-1)));
     end);
   end;
 
@@ -1476,8 +1476,8 @@ var
     begin
       var VersionNumbers: TFileVersionNumbers;
       if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
-        Stack.SetInt(PStart-2, VersionNumbers.MS);
-        Stack.SetInt(PStart-3, VersionNumbers.LS);
+        Stack.SetUInt(PStart-2, VersionNumbers.MS);
+        Stack.SetUInt(PStart-3, VersionNumbers.LS);
         Stack.SetBool(PStart, True);
       end else
         Stack.SetBool(PStart, False);
@@ -1537,16 +1537,16 @@ var
     RegisterScriptFunc('UNPACKVERSIONNUMBERS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
-      VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+      VersionNumbers.MS := UInt32(UInt64(Stack.GetInt64(PStart)) shr 32);
+      VersionNumbers.LS := UInt32(UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF);
       Stack.SetUInt(PStart-1, VersionNumbers.MS);
       Stack.SetUInt(PStart-2, VersionNumbers.LS);
     end);
     RegisterScriptFunc('UNPACKVERSIONCOMPONENTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      VersionNumbers.MS := UInt64(Stack.GetInt64(PStart)) shr 32;
-      VersionNumbers.LS := UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF;
+      VersionNumbers.MS := UInt32(UInt64(Stack.GetInt64(PStart)) shr 32);
+      VersionNumbers.LS := UInt32(UInt64(Stack.GetInt64(PStart)) and $FFFFFFFF);
       Stack.SetUInt(PStart-1, VersionNumbers.MS shr 16);
       Stack.SetUInt(PStart-2, VersionNumbers.MS and $FFFF);
       Stack.SetUInt(PStart-3, VersionNumbers.LS shr 16);
@@ -1555,8 +1555,8 @@ var
     RegisterScriptFunc('VERSIONTOSTR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      VersionNumbers.MS := UInt64(Stack.GetInt64(PStart-1)) shr 32;
-      VersionNumbers.LS := UInt64(Stack.GetInt64(PStart-1)) and $FFFFFFFF;
+      VersionNumbers.MS := UInt32(UInt64(Stack.GetInt64(PStart-1)) shr 32);
+      VersionNumbers.LS := UInt32(UInt64(Stack.GetInt64(PStart-1)) and $FFFFFFFF);
       Stack.SetString(PStart, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
         VersionNumbers.MS and $FFFF, VersionNumbers.LS shr 16, VersionNumbers.LS and $FFFF]));
     end);
@@ -1578,7 +1578,7 @@ var
   begin
     RegisterScriptFunc('SLEEP', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Sleep(Stack.GetInt(PStart));
+      Sleep(Stack.GetUInt(PStart));
     end);
     RegisterScriptFunc('FINDWINDOWBYCLASSNAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1655,13 +1655,13 @@ var
     RegisterScriptFunc('OEMTOCHARBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
-      OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
+      OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
     RegisterScriptFunc('CHARTOOEMBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
-      CharToOemBuffA(PAnsiChar(S), PAnsiChar(S), Length(S));
+      CharToOemBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
   end;
@@ -1822,7 +1822,7 @@ var
     end);
     RegisterScriptFunc('SETPREVIOUSDATA', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, SetCodePreviousData(Stack.GetInt(PStart-1), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
+      Stack.SetBool(PStart, SetCodePreviousData(HKEY(UInt32(Stack.GetInt(PStart-1))), Stack.GetString(PStart-2), Stack.GetString(PStart-3)));
     end);
     RegisterScriptFunc('LOADSTRINGFROMFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

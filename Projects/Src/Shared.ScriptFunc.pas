@@ -217,7 +217,7 @@ initialization
   ScriptFuncTables[sftScriptDlg] :=
   [
     'function PageFromID(const ID: Integer): TWizardPage;',
-    'function PageIndexFromID(const ID: Integer): Integer;',
+    'function PageIndexFromID(const ID: Integer): NativeInt;',
     'function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;',
     'function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;',
     'function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;',
@@ -473,7 +473,7 @@ initialization
     'function SameStr(const S1, S2: String): Boolean;',
     'function SameText(const S1, S2: String): Boolean;',
     'function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;',
-    'function SysErrorMessage(ErrorCode: Integer): String;',
+    'function SysErrorMessage(ErrorCode: Cardinal): String;',
     { Actually NewExtractRelativePath, and not from SysUtils }
     'function ExtractRelativePath(const BaseName, DestName: String): String;'
   ];
@@ -496,7 +496,7 @@ initialization
 
   ScriptFuncTables[sftWindows] :=
   [
-    'procedure Sleep(const Milliseconds: LongInt);',
+    'procedure Sleep(const Milliseconds: Cardinal);',
     'function FindWindowByClassName(const ClassName: String): HWND;',
     'function FindWindowByWindowName(const WindowName: String): HWND;',
     'function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): LongInt;',

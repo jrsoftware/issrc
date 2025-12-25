@@ -1406,7 +1406,7 @@ end;
     <subcategory>
       <function>
         <name>SysErrorMessage</name>
-        <prototype>function SysErrorMessage(ErrorCode: Integer): String;</prototype>
+        <prototype>function SysErrorMessage(ErrorCode: Cardinal): String;</prototype>
         <description><p>Returns a localized error message string that corresponds to the given operating system error code.</p></description>
         <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
@@ -2947,7 +2947,7 @@ end;</pre></example>
       </function>
       <function>
         <name>PageIndexFromID</name>
-        <prototype>function PageIndexFromID(const ID: Integer): Integer;</prototype>
+        <prototype>function PageIndexFromID(const ID: Integer): NativeInt;</prototype>
         <description><p>Given a page ID, returns an position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
         <example><pre>function ShouldSkipPage(PageID: Integer): Boolean;
 begin
@@ -3363,7 +3363,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>Sleep</name>
-        <prototype>procedure Sleep(const Milliseconds: LongInt);</prototype>
+        <prototype>procedure Sleep(const Milliseconds: Cardinal);</prototype>
         <description><p>Suspends the execution of Setup or Uninstall for a specified interval.</p></description>
       </function>
       <function>
