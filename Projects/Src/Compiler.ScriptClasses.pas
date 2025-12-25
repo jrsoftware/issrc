@@ -308,8 +308,8 @@ begin
   begin
     RegisterMethod('function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage');
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    RegisterProperty('PageCount', 'Integer', iptr);
-    RegisterProperty('Pages', 'TNewNotebookPage Integer', iptr);
+    RegisterProperty('PageCount', 'NativeInt', iptr);
+    RegisterProperty('Pages', 'TNewNotebookPage NativeInt', iptr);
     RegisterProperty('ActivePage', 'TNewNotebookPage', iptrw);
   end;
 end;
@@ -494,11 +494,11 @@ procedure RegisterInputQueryWizardPage_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(Cl.FindClass('TWizardPage'),'TInputQueryWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt: String; const APassword: Boolean): Integer');
-    RegisterProperty('Edits', 'TPasswordEdit Integer', iptr);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterMethod('function Add(const APrompt: String; const APassword: Boolean): NativeInt');
+    RegisterProperty('Edits', 'TPasswordEdit NativeInt', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
   end;
 end;
 
@@ -519,13 +519,13 @@ procedure RegisterInputDirWizardPage_C(CL: TPSPascalCompiler);
 begin
   with CL.AddClassN(CL.FindClass('TWizardPage'),'TInputDirWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt: String): Integer');
-    RegisterProperty('Buttons', 'TNewButton Integer', iptr);
-    RegisterProperty('Edits', 'TEdit Integer', iptr);
+    RegisterMethod('function Add(const APrompt: String): NativeInt');
+    RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
+    RegisterProperty('Edits', 'TEdit NativeInt', iptr);
     RegisterProperty('NewFolderName', 'String', iptrw);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
   end;
 end;
 
@@ -533,13 +533,13 @@ procedure RegisterInputFileWizardPage_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(Cl.FindClass('TWizardPage'),'TInputFileWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt, AFilter, ADefaultExtension: String): Integer');
-    RegisterProperty('Buttons', 'TNewButton Integer', iptr);
-    RegisterProperty('Edits', 'TEdit Integer', iptr);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterMethod('function Add(const APrompt, AFilter, ADefaultExtension: String): NativeInt');
+    RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
+    RegisterProperty('Edits', 'TEdit NativeInt', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
-    RegisterProperty('IsSaveButton', 'Boolean Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
+    RegisterProperty('IsSaveButton', 'Boolean NativeInt', iptrw);
   end;
 end;
 

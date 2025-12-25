@@ -214,8 +214,8 @@ begin
   end;
 end;
 
-procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: Integer); begin T := Self.Pages[t1]; end;
-procedure TNewNotebookPageCount_R(Self: TNewNotebook; var T: Integer); begin T := Self.PageCount; end;
+procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: NativeInt); begin T := Self.Pages[t1]; end;
+procedure TNewNotebookPageCount_R(Self: TNewNotebook; var T: NativeInt); begin T := Self.PageCount; end;
 
 procedure RegisterNewNotebook_R(CL: TPSRuntimeClassImporter);
 begin
@@ -281,10 +281,10 @@ begin
   Cl.Add(TWizardPage);
 end;
 
-procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputQueryWizardPagePromptLabels_R(Self: TInputQueryWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputQueryWizardPageValues_R(Self: TInputQueryWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
-procedure TInputQueryWizardPageValues_W(Self: TInputQueryWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
+procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputQueryWizardPagePromptLabels_R(Self: TInputQueryWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputQueryWizardPageValues_R(Self: TInputQueryWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
+procedure TInputQueryWizardPageValues_W(Self: TInputQueryWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
 
 procedure RegisterInputQueryWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -313,11 +313,11 @@ begin
   end;
 end;
 
-procedure TInputDirWizardPageButtons_R(Self: TInputDirWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
-procedure TInputDirWizardPageEdits_R(Self: TInputDirWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputDirWizardPagePromptLabels_R(Self: TInputDirWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputDirWizardPageValues_W(Self: TInputDirWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
-procedure TInputDirWizardPageValues_R(Self: TInputDirWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
+procedure TInputDirWizardPageButtons_R(Self: TInputDirWizardPage; var T: TNewButton; const t1: NativeInt); begin T := Self.Buttons[t1]; end;
+procedure TInputDirWizardPageEdits_R(Self: TInputDirWizardPage; var T: TEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputDirWizardPagePromptLabels_R(Self: TInputDirWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputDirWizardPageValues_W(Self: TInputDirWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
+procedure TInputDirWizardPageValues_R(Self: TInputDirWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
 
 procedure RegisterInputDirWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -331,13 +331,13 @@ begin
   end;
 end;
 
-procedure TInputFileWizardPageButtons_R(Self: TInputFileWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
-procedure TInputFileWizardPagePromptLabels_R(Self: TInputFileWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputFileWizardPageEdits_R(Self: TInputFileWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputFileWizardPageValues_W(Self: TInputFileWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
-procedure TInputFileWizardPageValues_R(Self: TInputFileWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
-procedure TInputFileWizardPageIsSaveButton_W(Self: TInputFileWizardPage; const T: Boolean; const t1: Integer); begin Self.IsSaveButton[t1] := T; end;
-procedure TInputFileWizardPageIsSaveButton_R(Self: TInputFileWizardPage; var T: Boolean; const t1: Integer); begin T := Self.IsSaveButton[t1]; end;
+procedure TInputFileWizardPageButtons_R(Self: TInputFileWizardPage; var T: TNewButton; const t1: NativeInt); begin T := Self.Buttons[t1]; end;
+procedure TInputFileWizardPagePromptLabels_R(Self: TInputFileWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputFileWizardPageEdits_R(Self: TInputFileWizardPage; var T: TEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputFileWizardPageValues_W(Self: TInputFileWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
+procedure TInputFileWizardPageValues_R(Self: TInputFileWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
+procedure TInputFileWizardPageIsSaveButton_W(Self: TInputFileWizardPage; const T: Boolean; const t1: NativeInt); begin Self.IsSaveButton[t1] := T; end;
+procedure TInputFileWizardPageIsSaveButton_R(Self: TInputFileWizardPage; var T: Boolean; const t1: NativeInt); begin T := Self.IsSaveButton[t1]; end;
 
 procedure RegisterInputFileWizardPage_R(CL: TPSRuntimeClassImporter);
 begin

@@ -720,8 +720,8 @@ end;
 TNewNotebook = class(TWinControl)
   function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage;
   property Anchors: TAnchors; read write;
-  property PageCount: Integer; read write;
-  property Pages[Index: Integer]: TNewNotebookPage; read;
+  property PageCount: NativeInt; read write;
+  property Pages[Index: NativeInt]: TNewNotebookPage; read;
   property ActivePage: TNewNotebookPage; read write;
 end;
 
@@ -754,11 +754,11 @@ TWizardPage = class(TComponent)
 end;
 
 TInputQueryWizardPage = class(TWizardPage)
-  function Add(const APrompt: String; const APassword: Boolean): Integer;
-  property Edits[Index: Integer]: TPasswordEdit; read;
-  property PromptLabels[Index: Integer]: TNewStaticText; read;
+  function Add(const APrompt: String; const APassword: Boolean): NativeInt;
+  property Edits[Index: NativeInt]: TPasswordEdit; read;
+  property PromptLabels[Index: NativeInt]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
-  property Values[Index: Integer]: String; read write;
+  property Values[Index: NativeInt]: String; read write;
 end;
 
 TInputOptionWizardPage = class(TWizardPage)
@@ -771,23 +771,23 @@ TInputOptionWizardPage = class(TWizardPage)
 end;
 
 TInputDirWizardPage = class(TWizardPage)
-  function Add(const APrompt: String): Integer;
-  property Buttons[Index: Integer]: TNewButton; read;
-  property Edits[Index: Integer]: TNewPathEdit; read;
+  function Add(const APrompt: String): NativeInt;
+  property Buttons[Index: NativeInt]: TNewButton; read;
+  property Edits[Index: NativeInt]: TNewPathEdit; read;
   property NewFolderName: String; read write;
-  property PromptLabels[Index: Integer]: TNewStaticText; read;
+  property PromptLabels[Index: NativeInt]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
-  property Values[Index: Integer]: String; read write;
+  property Values[Index: NativeInt]: String; read write;
 end;
 
 TInputFileWizardPage = class(TWizardPage)
-  function Add(const APrompt, AFilter, ADefaultExtension: String): Integer;
-  property Buttons[Index: Integer]: TNewButton; read;
-  property Edits[Index: Integer]: TNewPathEdit; read;
-  property PromptLabels[Index: Integer]: TNewStaticText; read;
+  function Add(const APrompt, AFilter, ADefaultExtension: String): NativeInt;
+  property Buttons[Index: NativeInt]: TNewButton; read;
+  property Edits[Index: NativeInt]: TNewPathEdit; read;
+  property PromptLabels[Index: NativeInt]: TNewStaticText; read;
   property SubCaptionLabel: TNewStaticText; read;
-  property Values[Index: Integer]: String; read write;
-  property IsSaveButton[Index: Integer]: Boolean; read write;
+  property Values[Index: NativeInt]: String; read write;
+  property IsSaveButton[Index: NativeInt]: Boolean; read write;
 end;
 
 TOutputMsgWizardPage = class(TWizardPage)
