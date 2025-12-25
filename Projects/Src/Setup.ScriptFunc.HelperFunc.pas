@@ -259,7 +259,7 @@ procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
 begin
   if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
     { Change HKA to HKLM or HKCU, keeping our special flag bits. }
-    CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or InstallModeRootKey;
+    CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or UInt32(InstallModeRootKey);
   end else begin
     { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
       open keys because they might have our special flag bits set.
@@ -758,10 +758,8 @@ begin
 end;
 
 procedure FreeASMInliners;
-var
-  I: Integer;
 begin
-  for I := 0 to High(ASMInliners) do
+  for var I := 0 to High(ASMInliners) do
     FreeMem(ASMInliners[I]);
   SetLength(ASMInliners, 0);
 end;

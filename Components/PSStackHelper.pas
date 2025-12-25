@@ -163,7 +163,7 @@ end;
 
 procedure TPSStackHelper.SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint);
 begin
-  var N := System.Length(Data);
+  var N := Integer(System.Length(Data));
   var Arr := SetArray(ItemNo, FieldNo, N);
   for var I := 0 to N-1 do
     VNSetString(PSGetArrayField(Arr, I), Data[I]);

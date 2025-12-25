@@ -403,10 +403,8 @@ begin
 end;
 
 procedure TASMInline.WriteREX(const W, R, X, B: Boolean);
-var
-  Prefix: Byte;
 begin
-  Prefix := $40;
+  var Prefix: Byte := $40;
   if W then
     Inc(Prefix, $08);
   if R then
@@ -419,46 +417,38 @@ begin
 end;
 
 procedure TASMInline.MovRegReg(const Dest, Src: TRegister64);
-var
-  DestCode, SrcCode: Byte;
 begin
-  DestCode := RegCode(Dest);
-  SrcCode := RegCode(Src);
+  const DestCode = RegCode(Dest);
+  const SrcCode = RegCode(Src);
   WriteREX(True, SrcCode >= 8, False, DestCode >= 8);
   WriteByte($89);
-  WriteByte($C0 or ((SrcCode and 7) shl 3) or (DestCode and 7));
+  WriteByte(Byte($C0 or ((SrcCode and 7) shl 3) or (DestCode and 7)));
 end;
 
 procedure TASMInline.MovRegImm64(const Dest: TRegister64; const Value: UInt64);
-var
-  DestCode: Byte;
 begin
-  DestCode := RegCode(Dest);
+  const DestCode = RegCode(Dest);
   WriteREX(True, False, False, DestCode >= 8);
-  WriteByte($B8 + (DestCode and 7));
+  WriteByte(Byte($B8 + (DestCode and 7)));
   WriteUInt64(Value);
 end;
 
 procedure TASMInline.MovRegMemRSP(const Dest: TRegister64; const Disp: Integer);
-var
-  DestCode: Byte;
 begin
-  DestCode := RegCode(Dest);
+  const DestCode = RegCode(Dest);
   WriteREX(True, DestCode >= 8, False, False);
   WriteByte($8B);
-  WriteByte($84 or ((DestCode and 7) shl 3));
+  WriteByte(Byte($84 or ((DestCode and 7) shl 3)));
   WriteByte($24);
   WriteInteger(Disp);
 end;
 
 procedure TASMInline.MovMemRSPReg(const Disp: Integer; const Src: TRegister64);
-var
-  SrcCode: Byte;
 begin
-  SrcCode := RegCode(Src);
+  const SrcCode = RegCode(Src);
   WriteREX(True, SrcCode >= 8, False, False);
   WriteByte($89);
-  WriteByte($84 or ((SrcCode and 7) shl 3));
+  WriteByte(Byte($84 or ((SrcCode and 7) shl 3)));
   WriteByte($24);
   WriteInteger(Disp);
 end;
@@ -480,13 +470,11 @@ begin
 end;
 
 procedure TASMInline.CallReg(const Reg: TRegister64);
-var
-  RegValue: Byte;
 begin
-  RegValue := RegCode(Reg);
+  const RegValue = RegCode(Reg);
   WriteREX(False, False, False, RegValue >= 8);
   WriteByte($FF);
-  WriteByte($D0 + (RegValue and 7));
+  WriteByte(Byte($D0 + (RegValue and 7)));
 end;
 
 procedure TASMInline.Ret;
@@ -497,22 +485,23 @@ end;
 {$ENDIF}
 
 function TASMInline.SaveAsMemory: Pointer;
-var
-  buf: Pointer;
-  oldprotect: Cardinal;
 begin
-  GetMem(buf, size);
-  VirtualProtect(buf, Size, PAGE_EXECUTE_READWRITE, oldprotect);
+  var Buf: Pointer;
+  GetMem(Buf, Size);
+  var OldProtect: Cardinal;
+  VirtualProtect(Buf, SIZE_T(Size), PAGE_EXECUTE_READWRITE, OldProtect);
 {$IFDEF CPUX86}
-  Relocate(buf);
+  Relocate(Buf);
 {$ENDIF}
-  Move(fbuffer.memory^, buf^, size);
-  result := buf;
+  Move(FBuffer.memory^, Buf^, Size);
+  Result := Buf;
 end;
 
 function TASMInline.Size: Integer;
 begin
-  Result := FBuffer.Size;
+  if FBuffer.Size > High(Integer) then
+    raise Exception.Create('Unexpected Size value');
+  Result := Integer(FBuffer.Size);
 end;
 
 procedure TASMInline.WriteByte(const B: Byte);

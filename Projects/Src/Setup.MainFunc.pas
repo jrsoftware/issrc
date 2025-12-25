@@ -176,12 +176,12 @@ const
 
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
-function CodeRunnerOnDebug(const Position: LongInt;
+function CodeRunnerOnDebug(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
-function CodeRunnerOnDebugIntermediate(const Position: LongInt;
+function CodeRunnerOnDebugIntermediate(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
-procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
+procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Cardinal);
 procedure CreateTempInstallDirAndExtract64BitHelper;
 procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
@@ -2396,22 +2396,22 @@ begin
     DllName := ExpandConst(DllName);
 end;
 
-function CodeRunnerOnDebug(const Position: LongInt;
+function CodeRunnerOnDebug(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotify(deCodeLine, Position, ContinueStepOver, CodeRunner.GetCallStack);
+  Result := DebugNotify(deCodeLine, Integer(Position), ContinueStepOver, CodeRunner.GetCallStack);
 end;
 
-function CodeRunnerOnDebugIntermediate(const Position: LongInt;
+function CodeRunnerOnDebugIntermediate(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotifyIntermediate(deCodeLine, Position, ContinueStepOver);
+  Result := DebugNotifyIntermediate(deCodeLine, Integer(Position), ContinueStepOver);
 end;
 
-procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
+procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Cardinal);
 begin
   if Debugging then
-    DebugNotifyException(String(Exception), deCodeLine, Position);
+    DebugNotifyException(String(Exception), deCodeLine, Integer(Position));
 end;
 
 procedure SetActiveLanguage(const I: Integer);
@@ -2876,13 +2876,13 @@ var
   begin
     New(Buf);
     try
-      var BytesLeft: Cardinal;
+      var BytesLeft: Integer;
       Reader.Read(BytesLeft, SizeOf(BytesLeft));
       while BytesLeft > 0 do begin
         var Bytes := BytesLeft;
         if Bytes > SizeOf(Buf^) then
           Bytes := SizeOf(Buf^);
-        Reader.Read(Buf^, Bytes);
+        Reader.Read(Buf^, Cardinal(Bytes));
         if Stream <> nil then
           Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);

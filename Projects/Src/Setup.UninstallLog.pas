@@ -369,7 +369,7 @@ begin
     Result := nil;
     Exit;
   end;
-  Result := AllocMem(Cardinal(@PUninstallRec(nil).Data) + DataSize);
+  Result := AllocMem(NativeInt(Cardinal(@PUninstallRec(nil).Data) + DataSize));
   Result.Typ := Typ;
   Result.ExtraData := ExtraData;
   Result.DataSize := DataSize;
