@@ -52,7 +52,18 @@ uses
   ISSigFunc in '..\Components\ISSigFunc.pas',
   StringScanner in '..\Components\StringScanner.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
-  UnsignedFunc in '..\Components\UnsignedFunc.pas';
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  uPSC_classes in '..\Components\UniPs\Source\uPSC_classes.pas',
+  uPSC_comobj in '..\Components\UniPs\Source\uPSC_comobj.pas',
+  uPSC_controls in '..\Components\UniPs\Source\uPSC_controls.pas',
+  uPSC_dll in '..\Components\UniPs\Source\uPSC_dll.pas',
+  uPSC_extctrls in '..\Components\UniPs\Source\uPSC_extctrls.pas',
+  uPSC_forms in '..\Components\UniPs\Source\uPSC_forms.pas',
+  uPSC_graphics in '..\Components\UniPs\Source\uPSC_graphics.pas',
+  uPSC_std in '..\Components\UniPs\Source\uPSC_std.pas',
+  uPSC_stdctrls in '..\Components\UniPs\Source\uPSC_stdctrls.pas',
+  uPSCompiler in '..\Components\UniPs\Source\uPSCompiler.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

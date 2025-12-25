@@ -62,7 +62,6 @@
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Define>PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <GenDll>true</GenDll>
@@ -157,6 +156,17 @@
         <DCCReference Include="..\Components\StringScanner.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_classes.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_comobj.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_controls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_dll.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_extctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_forms.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_graphics.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_std.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSC_stdctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSCompiler.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

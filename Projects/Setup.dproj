@@ -71,7 +71,6 @@
         <DCC_IMPLICIT_CONVERSION_LOSS>true</DCC_IMPLICIT_CONVERSION_LOSS>
         <DCC_COMBINING_SIGNED_UNSIGNED64>true</DCC_COMBINING_SIGNED_UNSIGNED64>
         <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
-        <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
@@ -224,7 +223,18 @@
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="..\Components\Themes.pas"/>
         <DCCReference Include="..\Components\FormBackgroundStyleHook.pas"/>
-        <None Include="Src\Setup.inc"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSDebugger.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_classes.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_comobj.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_controls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_dll.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_extctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_forms.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_graphics.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_std.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_stdctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSRuntime.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

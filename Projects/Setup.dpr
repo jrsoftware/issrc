@@ -109,7 +109,19 @@ uses
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
   Themes in '..\Components\Themes.pas',
-  FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas';
+  FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas',
+  uPSDebugger in '..\Components\UniPs\Source\uPSDebugger.pas',
+  uPSR_classes in '..\Components\UniPs\Source\uPSR_classes.pas',
+  uPSR_comobj in '..\Components\UniPs\Source\uPSR_comobj.pas',
+  uPSR_controls in '..\Components\UniPs\Source\uPSR_controls.pas',
+  uPSR_dll in '..\Components\UniPs\Source\uPSR_dll.pas',
+  uPSR_extctrls in '..\Components\UniPs\Source\uPSR_extctrls.pas',
+  uPSR_forms in '..\Components\UniPs\Source\uPSR_forms.pas',
+  uPSR_graphics in '..\Components\UniPs\Source\uPSR_graphics.pas',
+  uPSR_std in '..\Components\UniPs\Source\uPSR_std.pas',
+  uPSR_stdctrls in '..\Components\UniPs\Source\uPSR_stdctrls.pas',
+  uPSRuntime in '..\Components\UniPs\Source\uPSRuntime.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas';
 
 begin
   { Don't remove, see SetupCustomStyle.dpr }
