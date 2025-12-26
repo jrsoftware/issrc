@@ -179,7 +179,7 @@ begin
     Sender.OnExternalProc := PSPascalCompilerOnExternalProc;
     ScriptClassesLibraryRegister_C(Sender);
     const ScriptCompiler = TScriptCompiler(Sender.ID);
-    ScriptFuncLibraryRegister_C(Sender, ScriptCompiler.FExecIs64Bit, ScriptCompiler.FObsoleteFunctionWarnings);
+    ScriptFuncLibraryRegister_C(Sender, ScriptCompiler.FObsoleteFunctionWarnings);
     NamingAttribute := TScriptCompiler(Sender.ID).FNamingAttribute;
     if NamingAttribute <> '' then begin
       with Sender.AddAttributeType do begin
@@ -452,7 +452,6 @@ begin
   FFunctionsFound.Clear;
 
   PSPascalCompiler := TPSPascalCompiler.Create();
-
   try
     PSPascalCompiler.ID := Self;
     PSPascalCompiler.AllowNoBegin := True;
@@ -462,6 +461,7 @@ begin
     PSPascalCompiler.UTF8Decode := True;
     PSPascalCompiler.AttributesOpenTokenID := CSTI_Less;
     PSPascalCompiler.AttributesCloseTokenID := CSTI_Greater;
+    PSPascalCompiler.ExecIs64Bit := FExecIs64Bit;
 
     PSPascalCompiler.OnUses := PSPascalCompilerOnUses;
     PSPascalCompiler.OnExportCheck := PSPascalCompilerOnExportCheck;

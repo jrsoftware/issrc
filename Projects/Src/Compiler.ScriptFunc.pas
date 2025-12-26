@@ -14,7 +14,7 @@ interface
 uses
   Generics.Collections, uPSCompiler, uPSUtils;
 
-procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler; const ExecIs64Bit: Boolean;
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler;
   const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
 implementation
@@ -29,7 +29,7 @@ uses
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler; const ExecIs64Bit: Boolean;
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler;
   const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
   procedure RegisterType(const Name, Value: tbtstring);
@@ -86,14 +86,6 @@ begin
   RegisterType('DWORD', 'Cardinal');
   RegisterType('UINT', 'Cardinal');
   RegisterType('BOOL', 'LongBool');
-
-  if ExecIs64Bit then begin
-    RegisterType('NativeInt', 'Int64');
-    RegisterType('NativeUInt', 'UInt64');
-  end else begin
-    RegisterType('NativeInt', 'Integer');
-    RegisterType('NativeUInt', 'Cardinal');
-  end;
 
   RegisterType('INT_PTR', 'NativeInt');
   RegisterType('DWORD_PTR', 'NativeUInt');
