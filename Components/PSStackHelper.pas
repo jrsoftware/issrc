@@ -42,7 +42,6 @@ type
     function GetNativeInt(const ItemNo: Longint): NativeInt;
     function GetProc(const ItemNo: Longint; const Exec: TPSExec): TMethod;
     function GetStringArray(const ItemNo: Longint; const FieldNo: Longint = -1): TArrayOfString;
-    function GetUInt32(const ItemNo: Longint): UInt32;
     function InitArrayBuilder(const ItemNo: LongInt; const FieldNo: Longint = -1): TArrayBuilder;
     function InitArrayEnumerator(const ItemNo: LongInt; const FieldNo: Longint = -1): TArrayEnumerator;
     procedure SetArray(const ItemNo: Longint; const Data: TArray<String>; const FieldNo: Longint = -1); overload;
@@ -124,11 +123,6 @@ begin
   SetLength(Result, N);
   for var I := 0 to N-1 do
     Result[I] := VNGetString(PSGetArrayField(Arr, I));
-end;
-
-function TPSStackHelper.GetUInt32(const ItemNo: Longint): UInt32;
-begin
-  Result := UInt32(GetInt(ItemNo));
 end;
 
 function TPSStackHelper.InitArrayBuilder(const ItemNo, FieldNo: Longint): TArrayBuilder;
