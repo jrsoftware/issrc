@@ -726,13 +726,14 @@ begin
 
     { Copy remaining params (5+) from the caller's stack into our spill
       area so they follow shadow space, matching the order ROPS expects. }
-    if ParamCount > 4 then
+    if ParamCount > 4 then begin
       for var I := 0 to ParamCount - 5 do begin
-        const SrcOffset = FrameSize + 40 + I * SizeOf(Pointer);
-        const DestOffset = 32 + (I + 1) * SizeOf(Pointer);
+        const SrcOffset = FrameSize + 40 + I * SizeOf(Pointer); { 40 = return address (8) + caller shadow space (32) }
+        const DestOffset = 32 + (I + 1) * SizeOf(Pointer); { 32 = callee shadow space, + 1 to skip param4 }
         Inliner.MovRegMemRSP(RDX, SrcOffset);
         Inliner.MovMemRSPReg(DestOffset, RDX);
       end;
+    end;
 
     { Put the original params back in the order MyAllMethodsHandler wants. }
     Inliner.MovRegImm64(RCX, NativeUInt(Method.Data)); { Self/Data }
