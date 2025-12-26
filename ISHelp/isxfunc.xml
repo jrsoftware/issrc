@@ -745,37 +745,37 @@ end;</pre></example>
       </function>
       <function>
         <name>SendMessage</name>
-        <prototype>function SendMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): LongInt;</prototype>
+        <prototype>function SendMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): LRESULT;</prototype>
         <description><p>Sends the specified message to the specified window. Does not return until the window procedure has processed the message.</p></description>
       </function>
       <function>
         <name>PostMessage</name>
-        <prototype>function PostMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;</prototype>
+        <prototype>function PostMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
         <description><p>Posts the specified message to the specified window, returning immediately. Returns True if successful.</p></description>
       </function>
       <function>
         <name>SendNotifyMessage</name>
-        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg, WParam, LParam: LongInt): Boolean;</prototype>
+        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
         <description><p>Sends the specified message to the specified window without waiting for the message to be processed by the destination window procedure. Returns True if successful.</p></description>
       </function>
       <function>
         <name>RegisterWindowMessage</name>
-        <prototype>function RegisterWindowMessage(const Name: String): LongInt;</prototype>
+        <prototype>function RegisterWindowMessage(const Name: String): Cardinal;</prototype>
         <description><p>The RegisterWindowMessage function defines a new window message that is guaranteed to be unique throughout the system. The returned message value can be used when calling the SendBroadcastMessage or PostBroadcastMessage function.</p></description>
       </function>
       <function>
         <name>SendBroadcastMessage</name>
-        <prototype>function SendBroadcastMessage(const Msg, WParam, LParam: LongInt): LongInt;</prototype>
+        <prototype>function SendBroadcastMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): LRESULT;</prototype>
         <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedure have processed the message.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>PostBroadcastMessage</name>
-        <prototype>function PostBroadcastMessage(const Msg, WParam, LParam: LongInt): Boolean;</prototype>
+        <prototype>function PostBroadcastMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
         <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>SendBroadcastNotifyMessage</name>
-        <prototype>function SendBroadcastNotifyMessage(const Msg, WParam, LParam: LongInt): Boolean;</prototype>
+        <prototype>function SendBroadcastNotifyMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
       </function>
     </subcategory>
     <subcategory>
@@ -3426,20 +3426,20 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>LoadDLL</name>
-        <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): LongInt;</prototype>
+        <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): HMODULE;</prototype>
         <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
-        <prototype>function CallDLLProc(const DLLHandle: LongInt; const ProcName: String; const Param1, Param2: LongInt; var Result: LongInt): Boolean;</prototype>
+        <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
         <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True is the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two 4 byte integer parameters and return a 4 byte integer result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>FreeDLL</name>
-        <prototype>function FreeDLL(const DLLHandle: LongInt): Boolean;</prototype>
+        <prototype>function FreeDLL(const DLLHandle: HMODULE): Boolean;</prototype>
         <description><p>Unloads a DLL specified using the DLL handle returned by LoadDLL.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>

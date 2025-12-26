@@ -451,7 +451,7 @@ const
   ];
 
   PascalTypes: array of AnsiString = [
-    { ROPS }
+    { ROPS - should not ScriptClasses types, see below }
     'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
     'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
     'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64', 'UInt64',
@@ -465,7 +465,7 @@ const
     'TSetupProcessorArchitecture', 'TDotNetVersion',
     { ScriptFunc's non real enums and other types - also see PascalEnumValues below }
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'TArrayOfGraphic',
-    'DWORD', 'UINT', 'BOOL', 'DWORD_PTR', 'UINT_PTR', 'INT_PTR', 'TFileTime',
+    'DWORD', 'UINT', 'BOOL', 'INT_PTR', 'DWORD_PTR', 'UINT_PTR', 'LRESULT', 'HMODULE', 'TFileTime',
     'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog'
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }

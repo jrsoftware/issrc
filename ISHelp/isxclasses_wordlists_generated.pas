@@ -15,10 +15,10 @@ var
   ];
 
   PascalTypes_Isxclasses: array of AnsiString = [
-    'HBITMAP', 'TAlign', 'TAlignment', 'TAlphaFormat', 'TAnchorKind', 'TAnchors', 'TBevel',
-    'TBevelKind', 'TBevelShape', 'TBevelStyle', 'TBevelWidth', 'TBitmap', 'TBitmapButton',
-    'TBitmapImage', 'TBorderIcon', 'TBorderIcons', 'TBorderStyle', 'TBorderWidth', 'TBrush',
-    'TBrushStyle', 'TButton', 'TButtonControl', 'TButtonStyle', 'TCanvas', 'TCheckBox',
+    'HBITMAP', 'HDC', 'HFONT', 'HWND', 'TAlign', 'TAlignment', 'TAlphaFormat', 'TAnchorKind',
+    'TAnchors', 'TBevel', 'TBevelKind', 'TBevelShape', 'TBevelStyle', 'TBevelWidth', 'TBitmap',
+    'TBitmapButton', 'TBitmapImage', 'TBorderIcon', 'TBorderIcons', 'TBorderStyle', 'TBorderWidth',
+    'TBrush', 'TBrushStyle', 'TButton', 'TButtonControl', 'TButtonStyle', 'TCanvas', 'TCheckBox',
     'TCheckBoxState', 'TCheckItemOperation', 'TCloseAction', 'TCloseEvent', 'TCloseQueryEvent',
     'TColor', 'TComboBox', 'TComboBoxStyle', 'TComponent', 'TConstraintSize', 'TControl',
     'TCursor', 'TCustomCheckBox', 'TCustomComboBox', 'TCustomControl', 'TCustomEdit', 'TCustomFolderTreeView',
@@ -26,7 +26,7 @@ var
     'TDownloadWizardPage', 'TDuplicates', 'TEdit', 'TEditCharCase', 'TEShiftState', 'TExtractionWizardPage',
     'TFileStream', 'TFolderRenameEvent', 'TFolderTreeView', 'TFont', 'TFontStyle', 'TFontStyles',
     'TForm', 'TFormBorderStyle', 'TFormStyle', 'TGraphic', 'TGraphicControl', 'TGraphicsObject',
-    'THandleStream', 'TInputDirWizardPage', 'TInputFileWizardPage', 'TInputOptionWizardPage',
+    'THandle', 'THandleStream', 'TInputDirWizardPage', 'TInputFileWizardPage', 'TInputOptionWizardPage',
     'TInputQueryWizardPage', 'TKeyEvent', 'TKeyPressEvent', 'TLabel', 'TLinkLabel', 'TListBox',
     'TListBoxStyle', 'TMemo', 'TNewButton', 'TNewCheckBox', 'TNewCheckListBox', 'TNewComboBox',
     'TNewEdit', 'TNewLinkLabel', 'TNewListBox', 'TNewMemo', 'TNewNotebook', 'TNewNotebookPage',
@@ -77,16 +77,16 @@ var
   ];
 
   PascalMembers_Isxclasses: TScriptTable = [
-    'constructor Create(AHandle: Integer);',
+    'constructor Create(AHandle: THandle);',
     'constructor Create(AOwner: TComponent);',
     'constructor Create(AString: String);',
     'constructor Create(Filename: String; Mode: Word);',
     'constructor Create;',
     'constructor CreateNew(AOwner: TComponent);',
     'function Add(ACaption: String): Integer;',
-    'function Add(APrompt, AFilter, ADefaultExtension: String): Integer;',
-    'function Add(APrompt: String): Integer;',
-    'function Add(APrompt: String; APassword: Boolean): Integer;',
+    'function Add(APrompt, AFilter, ADefaultExtension: String): NativeInt;',
+    'function Add(APrompt: String): NativeInt;',
+    'function Add(APrompt: String; APassword: Boolean): NativeInt;',
     'function Add(ArchiveFileName, DestDir: String; FullPaths: Boolean): Integer;',
     'function Add(S: String): Integer;',
     'function Add(Url, BaseName, RequiredSHA256OfFile: String): Integer;',

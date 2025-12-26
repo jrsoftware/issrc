@@ -91,6 +91,9 @@ begin
   RegisterType('DWORD_PTR', 'NativeUInt');
   RegisterType('UINT_PTR', 'NativeUInt');
 
+  RegisterType('LRESULT', 'NativeInt');
+  RegisterType('HMODULE', 'NativeUInt');
+
   RegisterType('TFileTime',
     'record' +
     '  dwLowDateTime: DWORD;' +
