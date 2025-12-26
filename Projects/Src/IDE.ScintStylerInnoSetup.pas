@@ -454,7 +454,7 @@ const
     { ROPS }
     'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
     'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
-    'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64',
+    'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64', 'UInt64',
     'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
     'TVariantArray', 'NativeInt',
     //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
