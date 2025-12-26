@@ -83,19 +83,21 @@ begin
   RegisterType('TArrayOfInteger', 'array of Integer');
   RegisterType('TArrayOfGraphic', 'array of TGraphic');
 
-  RegisterType('DWORD', 'LongWord');
-  RegisterType('UINT', 'LongWord');
+  RegisterType('DWORD', 'Cardinal');
+  RegisterType('UINT', 'Cardinal');
   RegisterType('BOOL', 'LongBool');
-  { Note: In a native 64-bit build, these must be expanded to 64 bits }
-  RegisterType('DWORD_PTR', 'LongWord');
-  RegisterType('UINT_PTR', 'LongWord');
 
-  if ExecIs64Bit then
-    RegisterType('NativeInt', 'Int64')
-  else
+  if ExecIs64Bit then begin
+    RegisterType('NativeInt', 'Int64');
+    RegisterType('NativeUInt', 'UInt64');
+  end else begin
     RegisterType('NativeInt', 'Integer');
+    RegisterType('NativeUInt', 'Cardinal');
+  end;
 
   RegisterType('INT_PTR', 'NativeInt');
+  RegisterType('DWORD_PTR', 'NativeUInt');
+  RegisterType('UINT_PTR', 'NativeUInt');
 
   RegisterType('TFileTime',
     'record' +
