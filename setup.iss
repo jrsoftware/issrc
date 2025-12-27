@@ -84,33 +84,10 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked; Chec
 Name: fileassoc; Description: "{cm:AssocFileExtension,Inno Setup,.iss}"; Check: not PortableCheck
 
 [InstallDelete]
-; Remove old ISPP files
-Type: files; Name: "{app}\ISCmplr.dls"
-Type: files; Name: "{app}\Builtins.iss"
-Type: files; Name: "{app}\ISPP.chm"
 ; Remove desktop icon if needed
 Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon; Check: not PortableCheck
-; Remove old FAQ file
-Type: files; Name: "{app}\isfaq.htm"
-; Remove old .islu files
-Type: files; Name: "{app}\Languages\*.islu"
 ; Remove translations in case any got demoted
 Type: files; Name: "{app}\Languages\*.isl"
-; Remove old ispack files
-Type: files; Name: "{app}\Ispack-setup.exe"
-Type: files; Name: "{app}\Examples\Setup.iss"
-Type: files; Name: "{app}\Examples\Setup.ico"
-Type: files; Name: "{app}\Examples\IsDonateAndMail.iss"
-Type: files; Name: "{app}\Examples\IsDonate.bmp"
-Type: files; Name: "{app}\Examples\IsMail.bmp"
-Type: files; Name: "{app}\Examples\IsPortable.iss"
-; Removed old/renamed wizard images
-Type: files; Name: "{app}\WizModernImage.bmp"
-Type: files; Name: "{app}\WizModernImage-IS.bmp"
-Type: files; Name: "{app}\WizModernSmallImage.bmp"
-Type: files; Name: "{app}\WizModernSmallImage-IS.bmp"
-; Remove old ISCrypt.dll
-Type: files; Name: "{app}\ISCrypt.dll"
 
 #include "setup.allowedpublickeys.iss"
 
