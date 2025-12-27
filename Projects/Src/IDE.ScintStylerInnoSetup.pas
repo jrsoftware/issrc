@@ -467,8 +467,10 @@ const
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'TArrayOfGraphic',
     'DWORD', 'UINT', 'BOOL', 'INT_PTR', 'DWORD_PTR', 'UINT_PTR', 'LRESULT', 'HMODULE', 'TFileTime',
     'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog'
-    { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated }
+    'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog',
+    { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated +
+      also the following from USPC_comobj.pas }
+    'HResult', 'TGUID', 'TCLSID', 'TIID' 
   ];
 
   PascalEnumValues: array of AnsiString = [
