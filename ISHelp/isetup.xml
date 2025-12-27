@@ -3005,6 +3005,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
     <!-- <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li> -->
     <!-- <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li> -->
     <!-- <li>Added new <tt>TStringStream</tt> class.</li> -->
+    <li>You cannot load/use 32-bit DLLs in 64-bit Inno Setup, because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). You can, however, always launch both 32-bit and 64-bit EXEs. Use the <tt>Exec</tt> function or the [Run] section to do that.</li>
   </ul>
 </li>
 </ul>
@@ -3305,7 +3306,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="64-bit install mode" />
 <body>
 
-<p>Because Inno Setup is a 32-bit application, there are some limitations to be aware of when utilizing its 64-bit installation features:</p>
+<p><link topic="setup_setuparchitecture">When Setup is a 32-bit x86 application</link>, there are some limitations to be aware of when utilizing its 64-bit installation features:</p>
 
 <ul>
 
@@ -3326,8 +3327,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 </table>
 <p>Additionally, no VCL classes are capable of disabling file system redirection. For example, you cannot call the <tt>LoadFromFile</tt> method of <tt>TBitmap</tt> to load a bitmap file from the 64-bit System directory.</p>
 </li>
-
-<li>You cannot load/use 64-bit DLLs in the [Code] section, because Windows does not allow 32-bit processes to load 64-bit DLLs (and vice versa). A 32-bit process can, however, launch 64-bit EXEs. Use the <tt>Exec</tt> function or the [Run] section to do that.</li>
 
 </ul>
 
@@ -4581,12 +4580,12 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <setuptopic directive="UseSetupLdr">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link> or <tt>x86</tt> or <tt>x64</tt></setupvalid>
-<setupdefault><tt>yes</tt></setupdefault>
+<setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
-<p><i>Note:</i> Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary. Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, the 64-bit loader has high-entropy ASLR enabled, and it no longer uses the WOW64 emulation layer. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.</p>
+<p>Matches the value of <link topic="setup_setuparchitecture">SetupArchitecture</link> by default.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
@@ -6419,6 +6418,7 @@ WizardBackImageOpacity=150</pre></example>
 <dt><b>x64compatible</b></dt>
 <dd>
 <p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation and also support Arm64EC.</p>
+<p>Always matches if Setup itself is built as a 64-bit x64 binary, see <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p>
 </dd>
 
 <dt><b>x64os</b></dt>
@@ -6432,7 +6432,7 @@ WizardBackImageOpacity=150</pre></example>
 <dt><b>x86compatible</b></dt>
 <dd>
 <p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
-<p>Given that Setup itself is currently always built as a 32-bit x86 binary, this always matches.</p>
+<p>Always matches if Setup itself is built as a 32-bit x86 binary, see <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p>
 </dd>
 
 <dt><b>x86os</b></dt>
@@ -6456,7 +6456,6 @@ WizardBackImageOpacity=150</pre></example>
 <keyword value="Arm64" />
 <setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
 Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
-<!-- The default is actually an empty string, but in a 32-bit x86 build that's equivalent to x86compatible -->
 <setupdefault><tt>x86compatible</tt></setupdefault>
 <body>
 <p>Specifies which architectures Setup is allowed to run on. If none of the specified architecture identifiers match the current system, Setup will display an error message (<tt>WindowsVersionNotSupported</tt>) and exit.</p>
