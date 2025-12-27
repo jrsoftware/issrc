@@ -386,8 +386,8 @@ procedure ProcessCommandLine;
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 6 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+    WriteStdOut('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('https://www.innosetup.com');
