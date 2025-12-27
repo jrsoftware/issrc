@@ -13,6 +13,8 @@ DisableProgramGroupPage=yes
 DisableWelcomePage=no
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
+; Uncomment the following line to use a 64-bit DLL
+; SetupArchitecture=x64
 
 [Files]
 ; Install our DLL to {app} so we can access it at uninstall time.
@@ -28,26 +30,26 @@ const
   MB_ICONINFORMATION = $40;
 
 // Importing a Unicode Windows API function.
-function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
+function MessageBox(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal): Integer;
 external 'MessageBoxW@user32.dll stdcall';
 
 // Importing an ANSI custom DLL function, first for Setup, then for uninstall.
-procedure MyDllFuncSetup(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure MyDllFuncSetup(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall setuponly';
 
-procedure MyDllFuncUninstall(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure MyDllFuncUninstall(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'MyDllFunc@{app}\MyDll.dll stdcall uninstallonly';
 
 // Importing an ANSI function for a DLL which might not exist at runtime.
-procedure DelayLoadedFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure DelayLoadedFunc(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
 external 'DllFunc@DllWhichMightNotExist.dll stdcall delayload';
 
 function NextButtonClick(CurPage: Integer): Boolean;
 var
-  hWnd: Integer;
+  hWnd: HWND;
 begin
   if CurPage = wpWelcome then begin
-    hWnd := StrToInt(ExpandConstant('{wizardhwnd}'));
+    hWnd := StrToInt64(ExpandConstant('{wizardhwnd}'));
 
     MessageBox(hWnd, 'Hello from Windows API function', 'MessageBoxA', MB_OK or MB_ICONINFORMATION);
 
@@ -77,16 +79,17 @@ end;
 
 // The following shows how to use callbacks.
 
-function SetTimer(hWnd, nIDEvent: NativeInt; uElapse: Cardinal; lpTimerFunc: NativeInt): NativeInt;
+function SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
 external 'SetTimer@user32.dll stdcall';
 
-function KillTimer(hWnd, nIDEvent: NativeInt): Bool;
+function KillTimer(hWnd: HWND; nIDEvent: UINT_PTR): BOOL;
 external 'KillTimer@user32.dll stdcall';
 
 var
-  TimerID, TimerCount: Integer;
+  TimerID: UINT_PTR;
+  TimerCount: Integer;
 
-procedure MyTimerProc(Arg1: NativeInt; Arg2: Cardinal; Arg3: NativeInt; Arg4: Cardinal);
+procedure MyTimerProc(Arg1: HWND; Arg2: UINT; Arg3: UINT_PTR; Arg4: DWORD);
 begin
   if WizardForm <> nil then begin
     Inc(TimerCount);
