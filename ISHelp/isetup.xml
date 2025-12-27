@@ -6739,8 +6739,9 @@ SignTool=byparam format c:
 </setuptopic>
 
 <setuptopic directive="LZMADictionarySize">
-<setupvalid><tt>4</tt> through <tt>131072</tt> (by default)<br />
-<tt>4</tt> through <tt>1048576</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)</setupvalid>
+<setupvalid><link topic="64bit">32-bit compiler</link>: <tt>4</tt> through <tt>131072</tt> (by default)<br />
+<tt>4</tt> through <tt>1048576</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)<br />
+<link topic="64bit">64-bit compiler</link>: <tt>4</tt> through <tt>1048576</tt></setupvalid>
 <setupdefault><tt>32</tt> if the <link topic="setup_compression">LZMA compression level</link> is set to <tt>fast</tt><br />
 <tt>2048</tt> if the LZMA compression level is set to <tt>normal</tt><br />
 <tt>8192</tt> if the LZMA compression level is set to <tt>max</tt><br />
@@ -6749,7 +6750,7 @@ SignTool=byparam format c:
 <body>
 <p>Controls the dictionary size used by the LZMA and LZMA2 compressors, in kilobytes. A larger dictionary size can provide a better compression ratio at the expense of compression speed and memory requirements.</p>
 <p>Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</p>
-<p>If an "Out of memory" error is seen after increasing the dictionary size, <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
+<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen after increasing the dictionary size, <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_lzmablocksize">LZMABlockSize</link></p>
 </body>
@@ -6776,7 +6777,7 @@ SignTool=byparam format c:
 <indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<link topic="setup_lzmablocksize">LZMABlockSize</link> * 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <link topic="setup_compressionthreads">CompressionThreads</link>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
-<p>If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
+<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_lzmablocksize">LZMABlockSize</link></p>
 </body>
@@ -6860,6 +6861,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>Controls whether LZMA compression is performed inside the main compiler process or in a separate process.</p>
+<p>This directive is ignored if the <link topic="64bit">64-bit compiler</link> is being used. Otherwise:</p>
 <p>Using a separate process for LZMA compression allows the compressor to allocate larger amounts of memory, which makes it possible for higher <link topic="setup_lzmadictionarysize">LZMADictionarySize</link> and <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link> settings to be used. Additionally, on 64-bit Windows (x64), a small increase in compression speed may be observed.</p>
 <p>On 64-bit Windows (x64), there are no limitations on the amount of memory the compressor may use, as it runs inside a native 64-bit process. On 32-bit Windows, however, due to address space constraints, typically only about 1.5 GB is available for use by the compressor.</p>
 <p>A value of <tt>yes</tt> enables the use of a 64-bit process on 64-bit Windows (x64), and a 32-bit process on 32-bit Windows.</p>

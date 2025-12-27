@@ -41,9 +41,11 @@ type
     NumFastBytes: Integer;
     NumThreads: Integer;
     NumThreadGroups: Integer;
+    {$IFNDEF WIN64}
     WorkerProcessCheckTrust: Boolean;
     WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
+    {$ENDIF}
     constructor Create;
   end;
 
@@ -902,9 +904,11 @@ begin
   EncProps.NumFastBytes := numFastBytes[CompressionLevel];
   EncProps.NumThreads := -1;
 
+  {$IFNDEF WIN64}
   var WorkerProcessCheckTrust := False;
   var WorkerProcessOnCheckedTrust: TProc<Boolean> := nil;
   var WorkerProcessFilename := '';
+  {$ENDIF}
 
   if ACompressorProps is TLZMACompressorProps then begin
     Props := (ACompressorProps as TLZMACompressorProps);
@@ -922,13 +926,16 @@ begin
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
     EncProps.NumThreadGroups := Props.NumThreadGroups;
+    {$IFNDEF WIN64}
     WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
     WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
+    {$ENDIF}
   end;
 
   EncProps.NumHashBytes := numHashBytes[EncProps.BTMode = 1];
 
+  {$IFNDEF WIN64}
   if WorkerProcessFilename <> '' then begin
     const LZMAWorker = TLZMAWorkerProcess.Create(@FEvents);
     FWorker := LZMAWorker;
@@ -936,7 +943,7 @@ begin
     LZMAWorker.OnCheckedTrust := WorkerProcessOnCheckedTrust;
     LZMAWorker.ExeFilename := WorkerProcessFilename;
   end
-  else begin
+  else {$ENDIF} begin
     if not LZMADLLInitialized then
       LZMAInternalError('LZMA DLL functions not initialized');
     FWorker := TLZMAWorkerThread.Create(@FEvents);

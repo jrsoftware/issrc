@@ -6,6 +6,8 @@
 ; Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
 
+; #define x64
+
 #include "isdonateandmail.iss"
 
 #include "isportable.iss"
@@ -38,6 +40,11 @@ TouchTime=00:00
 #ifdef SIGNTOOL
 SignTool=issigntool256
 SignedUninstaller=yes
+#endif
+#ifdef x64
+SetupArchitecture=x64
+#else
+SetupArchitecture=x86
 #endif
 
 #sub ProcessFoundLanguagesFile
@@ -138,10 +145,12 @@ Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify
 Source: "files\isbunzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+#ifndef x64
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma64.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+#endif
 Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch

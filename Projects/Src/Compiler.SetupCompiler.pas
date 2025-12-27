@@ -224,7 +224,9 @@ type
       var ParamValues: array of TParamValue);
     function FindLangEntryIndexByName(const AName: String; const Pre: Boolean): Integer;
     function FindSignToolIndexByName(const AName: String): Integer;
+    {$IFNDEF WIN64}
     function GetLZMAExeFilename(const Allow64Bit: Boolean): String;
+    {$ENDIF}
     procedure InitBzipDLL;
     procedure InitPreLangData(const APreLangData: TPreLangData);
     procedure InitLanguageEntry(var ALanguageEntry: TSetupLanguageEntry);
@@ -667,6 +669,8 @@ begin
   Result := LineNumber;
 end;
 
+{$IFNDEF WIN64}
+
 function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
 const
   PROCESSOR_ARCHITECTURE_AMD64 = 9;
@@ -688,6 +692,8 @@ begin
   end;
   Result := CompilerDir + ExeFilenames[UseX64Exe];
 end;
+
+{$ENDIF}
 
 function TSetupCompiler.GetOutputBaseFileName: String;
 begin
@@ -2887,7 +2893,11 @@ begin
       end;
     ssDisablePrecompiledFileVerifications: begin
       DisablePrecompiledFileVerifications := StrToPrecompiledFiles(Value);
+      {$IFNDEF WIN64}
       CompressProps.WorkerProcessCheckTrust := not (pfIslzma in DisablePrecompiledFileVerifications);
+      {$ELSE}
+      WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName + '=islma']));
+      {$ENDIF}
     end;
     ssDisableProgramGroupPage: begin
         if CompareText(Value, 'auto') = 0 then
@@ -3019,12 +3029,16 @@ begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
       end;
     ssLZMAUseSeparateProcess: begin
+        {$IFNDEF WIN64}
         if CompareText(Value, 'x86') = 0 then
           CompressProps.WorkerProcessFilename := GetLZMAExeFilename(False)
         else if StrToBool(Value) then
           CompressProps.WorkerProcessFilename := GetLZMAExeFilename(True)
         else
           CompressProps.WorkerProcessFilename := '';
+        {$ELSE}
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
+        {$ENDIF}
       end;
     ssMergeDuplicateFiles: begin
         DontMergeDuplicateFiles := not StrToBool(Value);
@@ -7440,10 +7454,12 @@ var
     HdrChecksum, ErrorCode: DWORD;
     ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
+    {$IFNDEF WIN64}
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
       AddStatus(Format('   Using separate process for LZMA compression (%s)',
         [PathExtractName(CompressProps.WorkerProcessFilename)]));
+    {$ENDIF}
 
     if TimeStampsInUTC then
       GetSystemTime(CurrentTime)
@@ -8071,8 +8087,10 @@ begin
       if ActiveProcessorGroupCount > 1 then
         CompressProps.NumThreadGroups := ActiveProcessorGroupCount;
     end;
+    {$IFNDEF WIN64}
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
+    {$ENDIF}
     SetupArchitecture := sa32bit;
     TerminalServicesAware := True;
     DEPCompatible := True;
