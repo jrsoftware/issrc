@@ -377,7 +377,7 @@ const
   ];
 
   PascalConstants: array of AnsiString = [
-    { ROPS }
+    { ROPS - should not include ScriptClasses constants, see below }
     'varEmpty', 'varNull', 'varSmallInt', 'varInteger', 'varSingle', 'varDouble',
     'varCurrency', 'varDate', 'varOleStr', 'varDispatch', 'varError', 'varBoolean',
     'varVariant', 'varUnknown', 'varShortInt', 'varByte', 'varWord', 'varLongWord',
@@ -451,7 +451,7 @@ const
   ];
 
   PascalTypes: array of AnsiString = [
-    { ROPS - should not ScriptClasses types, see below }
+    { ROPS - should not include ScriptClasses types, see below }
     'Byte', 'Boolean', 'LongBool', 'WordBool', 'ByteBool', 'AnsiChar', 'Char',
     'WideChar', 'WideString', 'UnicodeString', 'AnsiString', 'String', 'ShortInt',
     'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64', 'UInt64',
