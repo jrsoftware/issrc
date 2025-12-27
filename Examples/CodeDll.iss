@@ -4,6 +4,9 @@
 ; at runtime and how to perform direct callbacks from these functions to functions
 ; in the script.
 
+; Remove the following line to use 32-bit DLLs
+#define x64
+
 [Setup]
 AppName=My Program
 AppVersion=1.5
@@ -13,13 +16,20 @@ DisableProgramGroupPage=yes
 DisableWelcomePage=no
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-; Uncomment the following line to use a 64-bit DLL
-; SetupArchitecture=x64
+#ifdef x64
+SetupArchitecture=x64
+#else
+SetupArchitecture=x86
+#endif
 
 [Files]
 ; Install our DLL to {app} so we can access it at uninstall time.
 ; Use "Flags: dontcopy noencryption" if you don't need uninstall time access.
+#ifdef x64
+Source: "MyDll-x64.dll"; DestDir: "{app}"; DestName: "MyDll.dll"
+#else
 Source: "MyDll.dll"; DestDir: "{app}"
+#endif
 ; Place any regular files here, so *after* all your dontcopy DLL files.
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
@@ -29,19 +39,19 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 const
   MB_ICONINFORMATION = $40;
 
-// Importing a Unicode Windows API function.
+// Importing a Windows API function.
 function MessageBox(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal): Integer;
 external 'MessageBoxW@user32.dll stdcall';
 
-// Importing an ANSI custom DLL function, first for Setup, then for uninstall.
-procedure MyDllFuncSetup(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
+// Importing a custom DLL function, first for Setup, then for uninstall.
+procedure MyDllFuncSetup(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall setuponly';
 
-procedure MyDllFuncUninstall(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure MyDllFuncUninstall(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'MyDllFunc@{app}\MyDll.dll stdcall uninstallonly';
 
-// Importing an ANSI function for a DLL which might not exist at runtime.
-procedure DelayLoadedFunc(hWnd: HWND; lpText, lpCaption: AnsiString; uType: Cardinal);
+// Importing a function for a DLL which might not exist at runtime.
+procedure DelayLoadedFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'DllFunc@DllWhichMightNotExist.dll stdcall delayload';
 
 function NextButtonClick(CurPage: Integer): Boolean;

@@ -169,6 +169,7 @@ Source: "Examples\ISPPExample1License.txt"; DestDir: "{app}\Examples"; Flags: ig
 Source: "Examples\License.txt"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\Languages.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyDll.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
+Source: "Examples\MyDll-x64.dll"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
 Source: "Examples\MyProg.chm"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\MyProg.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch
 Source: "Examples\MyProg-Arm64.exe"; DestDir: "{app}\Examples"; Flags: ignoreversion issigverify signcheck touch

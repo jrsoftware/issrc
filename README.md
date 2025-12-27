@@ -243,8 +243,9 @@ Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDeco
 **Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode] directory.
 
-**Examples\MyProg.exe**, **Examples\MyProg-x64.exe**, **Examples\MyProg-Arm64.exe** -
-Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
+**Examples\MyDll(-x64).dll** - Compiled by Delphi 12.3 Athens from the [Examples\MyDll\Delphi] directory.
+
+**Examples\MyProg(-x64|-Arm64).exe** - Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
 
 Each precompiled file is accompanied by an .issig signature file, and can be
 verified using Inno Setup Signature Tool and [this public key file].
@@ -347,6 +348,7 @@ any artifacts. It uses workflow **build2.yml**.
 [Files]: <Files>
 [Projects\Src\Compression.LZMACompressor\islzma]: <Projects/Src/Compression.LZMACompressor/islzma>
 [Projects\Src\Setup.HelperEXEs\Helper]: <Projects/Src/Setup.HelperEXEs/Helper>
+[Examples\MyDll]: <Examples/MyDll/Delphi>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
 [Projects\Src\Compil32]: <Projects/Src/Compil32>

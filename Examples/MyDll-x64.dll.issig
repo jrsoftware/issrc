@@ -1,0 +1,8 @@
+format issig-v2
+file-name "MyDll-x64.dll"
+file-size 101008
+file-hash 5947c5d51c56de8b38a0af58256e391a00adcaf01d80198f26af55dcfda2a755
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 78280db055932e7e6e608121e85d41dcd4e33b1de174d946eac769c1e559a88d
+sig-s 4573521d3ac15fe682ded504b49f285eb9a40c6f5419ebed64219ffea2e4b26c
