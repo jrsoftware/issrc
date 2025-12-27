@@ -53,7 +53,7 @@
 <link topic="scriptfunctions">Support Functions Reference</link><br/>
 <link topic="scriptclasses">Support Classes Reference</link><br/>
 <link topic="scriptpages">Using Custom Wizard Pages</link><br/>
-<link topic="scriptdll">Using DLLs and .NET assemblies</link><br/>
+<link topic="scriptdll">Using DLL files</link><br/>
 <link topic="scriptautomation">Using COM Automation objects</link><br/>
 <link topic="scriptdebug">Run-time debugger</link>
 </p>
@@ -570,17 +570,16 @@ end;
 
 
 
-<topic name="scriptdll" title="Pascal Scripting: Using DLLs and .NET assemblies">
-<keyword value="Pascal Scripting: Using DLLs and .NET assemblies" />
-<keyword value="DLLs" />
-<keyword value=".NET assemblies" />
+<topic name="scriptdll" title="Pascal Scripting: Using DLL files">
+<keyword value="Pascal Scripting: Using DLL files" />
+<keyword value="DLL files" />
 <body>
 
-<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs. Additionally .NET assemblies can be called.</p>
+<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
 
 <p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
-<p>The "Examples" subdirectory also contains three custom DLL example projects, one for Microsoft Visual C++, one for Microsoft Visual C# and one for Borland Delphi. The C# example shows how to make your .NET assemblies callable by the Pascal script.</p>
+<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Borland Delphi.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
@@ -596,11 +595,11 @@ function A(B: Integer): Integer;
 external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; &lt;options&gt;';
 </precode>
 
-<p>The first form specifies that the DLL function should be called using default calling convention, which is 'stdcall'. All standard Win32 API functions use 'stdcall' just like most custom DLL functions.</p>
+<p>The first form specifies that the DLL function uses the default calling convention.</p>
 
-<p>The second form specifies that the DLL function should be called using a special calling convention. Valid calling conventions are: 'stdcall' (the default), 'cdecl', 'pascal' and 'register'.</p>
+<p>The second form specifies that the DLL function uses a specific calling convention. Valid calling conventions are: 'stdcall' (default), 'cdecl', 'pascal', and 'register'. All standard 32-bit Win32 API functions use 'stdcall', as do many custom 32-bit DLL functions. For 64-bit Win32 API functions and custom DLL files, the calling convention may still be specified, but is ignored since all 64-bit functions always use the same calling convention.</p>
 
-<p>The third form specifies additional one or more options for loading the DLL, separated by spaces:</p>
+<p>The third form specifies one or more additional options for loading the DLL, separated by spaces:</p>
 
 <indent>
 <flaglist>

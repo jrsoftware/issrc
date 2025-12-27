@@ -52,7 +52,7 @@
     <contentstopic title="Support Functions Reference" topic="scriptfunctions" />
     <contentstopic title="Support Classes Reference" topic="scriptclasses" />
     <contentstopic title="Using Custom Wizard Pages" topic="scriptpages" />
-    <contentstopic title="Using DLLs and .NET assemblies" topic="scriptdll" />
+    <contentstopic title="Using DLL files" topic="scriptdll" />
     <contentstopic title="Using COM Automation objects" topic="scriptautomation" />
     <contentstopic title="Run-time debugger" topic="scriptdebug" />
   </contentsheading>
