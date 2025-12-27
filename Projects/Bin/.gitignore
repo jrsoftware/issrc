@@ -3,5 +3,6 @@
 *.e32
 *.e64
 *.issig
+*.rsm
 Setup-*.bin
 Setup.log
