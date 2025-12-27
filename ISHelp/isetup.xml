@@ -2985,13 +2985,16 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <keyword value="64-bit Inno Setup" />
 <body>
 
-<p><b>64-bit installers:</b></p>
+<p>Inno Setup 7 introduced 64-bit compilers and installers, with backward compatibility.</p>
+
+<p><b>64-bit Installers:</b></p>
 
 <p>Starting with Inno Setup 7 installers can be built as 64-bit x64 applications, instead of 32-bit x86 applications, by setting <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt>.</p>
 <p>Key features of 64-bit installers are having high-entropy ASLR enabled by default, and no longer using the WOW64 emulation layer. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
 <p>For the most part 64-bit and 32-bit installers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the most important differences and capabilities:</p>
 <ul>
 <li>Compression methods <tt>zip</tt> and <tt>bzip</tt> are not supported by 64-bit Setup. Use <tt>lzma2</tt> instead</li>
+<li>32-bit installers still support <link topic="32vs64bitinstalls">64-bit install mode</link>. Likewise, 64-bit installers support <link topic="32vs64bitinstalls">64-bit install mode</link>.</li>
 <li>Existing installations of your programs done by 32-bit installers can be freely updated by 64-bit installers, and vice versa.</li>
 <li>64-bit Pascal Scripting notes:
   <ul>
@@ -3268,7 +3271,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <p>How do the two modes of installation differ? Primarily, the differences lie in where things are installed by default.</p>
 
-<p>In 32-bit install mode:</p>
+<p><b>32-bit install mode</b></p>
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 32-bit System directory by default.</li>
@@ -3283,7 +3286,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The Uninstall key is created in the 32-bit view of the registry.</li>
 </ul>
 
-<p>In 64-bit install mode:</p>
+<p>Both 32-bit and 64-bit installers support 32-bit install mode, see <link topic="64bit">64-bit Inno Setup</link>.</p>
+
+<p><b>64-bit install mode</b></p>
 
 <ul>
 <li>The System32 path returned by the <tt>{sys}</tt> constant maps to the 64-bit System directory by default when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections. This is because Setup/Uninstall temporarily disables <extlink href="http://msdn.microsoft.com/en-us/library/aa384187.aspx">WOW64 file system redirection</extlink> when files/directories are accessed by those sections. Elsewhere, System32 and <tt>{sys}</tt> map to the 32-bit System directory, as is normal in a 32-bit process.</li>
@@ -3297,6 +3302,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The <tt>sharedfile</tt> flag of the [Files] section updates the "SharedDLLs" key in the 64-bit view of the registry by default.</li>
 <li>The Uninstall key is created in the 64-bit view of the registry.</li>
 </ul>
+
+<p>Both 32-bit and 64-bit installers support 64-bit install mode, see <link topic="64bit">64-bit Inno Setup</link>.</p>
 
 </body>
 </topic>
