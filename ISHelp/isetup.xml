@@ -2994,7 +2994,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p>For the most part 64-bit and 32-bit installers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the most important differences and capabilities:</p>
 <ul>
 <li>The maximum dictionary size allowed for compression methods <tt>lzma</tt> and <tt>lzma2</tt> is 3.8 GB instead of 1 GB when compressing files for a 64-bit installer. Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</li>
-<li>32-bit installers still support <link topic="32vs64bitinstalls">64-bit install mode</link>. Likewise, 64-bit installers support <link topic="32vs64bitinstalls">64-bit install mode</link>.</li>
+<li>32-bit installers still support <link topic="32vs64bitinstalls">64-bit install mode</link>. Likewise, 64-bit installers still support <link topic="32vs64bitinstalls">32-bit install mode</link>.</li>
 <li>Existing installations of your programs done by 32-bit installers can be freely updated by 64-bit installers, and vice versa.</li>
 <li>64-bit Pascal Scripting notes:
   <ul>
