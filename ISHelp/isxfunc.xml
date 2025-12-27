@@ -811,13 +811,13 @@ end;</pre></example>
         <name>CreateCallback</name>
         <prototype>function CreateCallback(Method: AnyMethod): Longword;</prototype>
         <description><p>Allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p></description>
-        <example><pre>function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
+        <example><pre>function SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
 external 'SetTimer@user32.dll stdcall';
 
 var
   TimerCount: Integer;
 
-procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
+procedure MyTimerProc(Arg1: HWND; Arg2: UINT; Arg3: UINT_PTR; Arg4: DWORD);
 begin
   Inc(TimerCount);
   WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount);
