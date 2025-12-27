@@ -1,2 +1,6 @@
 *.dsk
 *.res
+*.dproj.local
+*.identcache
+Win32/
+Win64/
