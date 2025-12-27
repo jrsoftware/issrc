@@ -2985,29 +2985,31 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <keyword value="64-bit Inno Setup" />
 <body>
 
-<!-- <p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p> -->
-<!-- <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p> -->
-<!-- <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p> -->
-<p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
+<p><b>64-bit installers:</b></p>
+
+<p>Starting with Inno Setup 7 installers can be built as 64-bit x64 applications, instead of 32-bit x86 applications, by setting <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt>.</p>
+<p>Key features of 64-bit installers are having high-entropy ASLR enabled by default, and no longer using the WOW64 emulation layer. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
+<p>For the most part 64-bit and 32-bit installers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
 <ul>
-<!-- <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li> -->
-<!-- <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li> -->
-<!-- <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li> -->
-<!-- <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li> -->
-<!-- <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li> -->
-<!-- <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li> -->
+<li>Compression methods <tt>zip</tt> and <tt>bzip</tt> are not supported by 64-bit Setup. Use <tt>lzma2</tt> instead</li>
 <li>Existing installations of your programs done by 32-bit installers can be freely updated by 64-bit installers, and vice versa.</li>
 <li>64-bit Pascal Scripting notes:
   <ul>
-    <!-- <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li> -->
-    <!-- <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li> -->
-    <!-- <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li> -->
-    <!-- <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li> -->
-    <!-- <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li> -->
-    <!-- <li>Added new <tt>TStringStream</tt> class.</li> -->
-    <li>You cannot load/use 32-bit DLLs in 64-bit Inno Setup, because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). You can, however, always launch both 32-bit and 64-bit EXEs. Use the <tt>Exec</tt> function or the [Run] section to do that.</li>
+  <li>You cannot load/use 32-bit DLLs in 64-bit Setup, because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). You can, however, always launch both 32-bit and 64-bit EXEs. Use the <tt>Exec</tt> function or the [Run] section to do that.</li>
+  <li>Types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 64-bit instead of 32-bit, as are all types derived from those, such as <tt>HWND</tt>.</li>
   </ul>
 </li>
+</ul>
+
+<p><b>64-bit Compiler IDE and ISCC:</b></p>
+
+<p>Starting with Inno Setup 7 the entire compiler toolchain (such as the Compiler IDE and ISCC.exe) is also available as 64-bit x64 applications, instead of 32-bit x86 applications, by installing 64-bit Inno Setup.</p>
+<p>Key features of 64-bit compilers are faster LZMA compression and access to higher dictionary sizes.</p>
+<p>If you don't remember which version of Inno Setup 7 you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "32-bit" you are running 32-bit Inno Setup. Otherwise you are running 64-bit Inno Setup.</p>
+<p>For the most part the 64-bit and 32-bit compilers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
+<ul>
+<li>The [Setup] directive <tt>LZMAUseSeparateProcess</tt> is ignored by 64-bit compilers, because they don't need it.</li>
+<li>The 64-bit compilers can still generate 32-bit installers (and in fact do so by default), and likewise the 32-bit compilers can still generate 64-bit installers.</li>
 </ul>
 
 </body>
@@ -6386,8 +6388,9 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><tt>x86</tt>, <tt>x64</tt></setupvalid>
 <setupdefault><tt>x86</tt></setupdefault>
 <body>
-<p><b>See also:</b><br/>
-<link topic="64bit">64-bit Inno Setup</link></p>
+<p>When using <tt>x86</tt> (the default), a 32-bit version of Setup is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Otherwise, when using <tt>x64</tt>, a 64-bit version of Setup is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+<p>For more information, see <link topic="64bit">64-bit Inno Setup</link>.</p>
 </body>
 </setuptopic>
 
