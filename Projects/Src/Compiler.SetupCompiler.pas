@@ -3007,11 +3007,19 @@ begin
         CompressProps.Algorithm := StrToIntRange(Value, 0, 1);
       end;
     ssLZMABlockSize: begin
-        CompressProps.BlockSize := StrToIntRange(Value, 1024, 262144) * 1024; //search Lzma2Enc.c for kMaxSize to see this limit: 262144*1024==1<<28
+        { Search Lzma2Enc.c for kMaxSize to see this limit: 262144*1024==1<<28 }
+        CompressProps.BlockSize := StrToIntRange(Value, 1024, 262144) * 1024;
       end;
     ssLZMADictionarySize: begin
-        var MaxDictionarySize := 1024 shl 20; //1 GB - same as MaxDictionarySize in LZMADecomp.pas - lower than the LZMA SDK allows (search Lzma2Enc.c for kLzmaMaxHistorySize to see this limit: Cardinal(15 shl 28) = 3.8 GB) because Setup can't allocate that much memory
-        CompressProps.DictionarySize := Cardinal(StrToIntRange(Value, 4, MaxDictionarySize div 1024) * 1024);
+        { 64-bit limit is 3.8 GB, which is most the LZMA SDK allows: search Lzma2Enc.c for
+          kLzmaMaxHistorySize to see this limit: 15 << 28 = 3.8 GB. Same as MaxDictionarySize
+          in Compression.LZMADecompressor.pas.
+          32-bit limit is checked once SetupArchitecture is known. }
+        const MaxDictionarySize64 = Cardinal(15) shl 28;
+        const MaxDictionarySize64KB = MaxDictionarySize64 div 1024;
+        if MaxDictionarySize64KB > Cardinal(High(Integer)) then
+          AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected MaxDictionarySize64KB value']);
+        CompressProps.DictionarySize := Cardinal(StrToIntRange(Value, 4, Integer(MaxDictionarySize64KB)) * 1024);
       end;
     ssLZMAMatchFinder: begin
         if CompareText(Value, 'BT') = 0 then
@@ -8152,6 +8160,15 @@ begin
         SetupLdrArchitecture := sla32bit
       else
         SetupLdrArchitecture := sla64bit;
+    end;
+    if SetupArchitecture = sa32bit then begin
+      { 1.0 GB - lower than the LZMA SDK allows because Setup can't allocate that much memory.
+        Same as MaxDictionarySize in Compression.LZMADecompressor.pas. }
+      const MaxDictionarySize32 = 1024 shl 20;
+      if CompressProps.DictionarySize > MaxDictionarySize32 then begin
+        LineNumber := SetupDirectiveLines[ssLZMADictionarySize];
+        AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'LZMADictionarySize']);
+      end;
     end;
     if SetupDirectiveLines[ssAppName] = 0 then
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'AppName']);

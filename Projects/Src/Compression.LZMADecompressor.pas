@@ -103,8 +103,13 @@ const
 
   { To ensure we don't allocate inordinate amounts of memory in the event a
     stream's header is corrupted, we limit the dictionary size to the maximum
-    size the compiler currently allows. }
-  MaxDictionarySize = 1024 shl 20;  { 1 GB - same as ssLZMADictionarySize allows in Compile.pas }
+    size the compiler currently allows, so same as ssLZMADictionarySize allows
+    in Compiler.SetupCompiler.pas. }
+  {$IFDEF WIN64}
+  MaxDictionarySize = Cardinal(15) shl 28;
+  {$ELSE}
+  MaxDictionarySize = 1024 shl 20;
+  {$ENDIF}
 
 { Compiled by Visual Studio 2022 using compile.bat }
 {$IFNDEF WIN64}

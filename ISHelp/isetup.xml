@@ -2990,10 +2990,11 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p><b>64-bit Installers:</b></p>
 
 <p>Starting with Inno Setup 7 installers can be built as 64-bit x64 applications, instead of 32-bit x86 applications, by setting <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt>.</p>
-<p>Key features of 64-bit installers are having high-entropy ASLR enabled by default, and no longer using the WOW64 emulation layer. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
+<p>Key features of 64-bit installers are access to higher LZMA and LZMA2 dictionary sizes, having high-entropy ASLR enabled by default, and no longer using the WOW64 emulation layer. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
 <p>For the most part 64-bit and 32-bit installers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the most important differences and capabilities:</p>
 <ul>
-<li>Compression methods <tt>zip</tt> and <tt>bzip</tt> are not supported by 64-bit Setup. Use <tt>lzma2</tt> instead</li>
+<li>The maximum dictionary size allowed for compression methods <tt>lzma</tt> and <tt>lzma2</tt> is 3.8 GB instead of 1 GB when compressing files for a 64-bit installer. Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</li>
+<li>Compression methods <tt>zip</tt> and <tt>bzip</tt> are not supported when compressing files for a 64-bit installer. Use <tt>lzma</tt> or <tt>lzma2</tt> instead</li>
 <li>32-bit installers still support <link topic="32vs64bitinstalls">64-bit install mode</link>. Likewise, 64-bit installers support <link topic="32vs64bitinstalls">64-bit install mode</link>.</li>
 <li>Existing installations of your programs done by 32-bit installers can be freely updated by 64-bit installers, and vice versa.</li>
 <li>64-bit Pascal Scripting notes:
@@ -3007,7 +3008,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p><b>64-bit Compiler IDE and ISCC:</b></p>
 
 <p>Starting with Inno Setup 7 the entire compiler toolchain (such as the Compiler IDE and ISCC.exe) is also available as 64-bit x64 applications, instead of 32-bit x86 applications, by installing 64-bit Inno Setup.</p>
-<p>Key features of 64-bit compilers are faster LZMA compression and access to higher dictionary sizes.</p>
+<p>Key feature of 64-bit compilers is faster LZMA compression.</p>
 <p>If you don't remember which version of Inno Setup 7 you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "32-bit" you are running 32-bit Inno Setup. Otherwise you are running 64-bit Inno Setup.</p>
 <p>For the most part the 64-bit and 32-bit compilers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the most important differences and capabilities:</p>
 <ul>
@@ -6741,7 +6742,7 @@ SignTool=byparam format c:
 <setuptopic directive="LZMADictionarySize">
 <setupvalid><link topic="64bit">32-bit compiler</link>: <tt>4</tt> through <tt>131072</tt> (by default)<br />
 <tt>4</tt> through <tt>1048576</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)<br />
-<link topic="64bit">64-bit compiler</link>: <tt>4</tt> through <tt>1048576</tt></setupvalid>
+<link topic="64bit">64-bit compiler</link>: <tt>4</tt> through <tt>3932160</tt></setupvalid>
 <setupdefault><tt>32</tt> if the <link topic="setup_compression">LZMA compression level</link> is set to <tt>fast</tt><br />
 <tt>2048</tt> if the LZMA compression level is set to <tt>normal</tt><br />
 <tt>8192</tt> if the LZMA compression level is set to <tt>max</tt><br />
