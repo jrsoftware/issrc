@@ -72,6 +72,7 @@
   <contentsheading title="Other Information">
     <contentstopic title="Purchase Inno Setup" topic="purchase" />
     <contentstopic title="Donate to Inno Setup" topic="donate" />
+    <contentstopic title="64-bit Inno Setup" topic="64bit" />
     <contentstopic title="Unicode Inno Setup" topic="unicode" />
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
@@ -1099,6 +1100,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_redirectionguard">RedirectionGuard</link></li>
 <li><link topic="setup_restartapplications">RestartApplications</link></li>
 <li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
+<li><link topic="setup_setuparchitecture">SetupArchitecture</link></li>
 <li><link topic="setup_setuplogging">SetupLogging</link></li>
 <li><link topic="setup_setupmutex">SetupMutex</link></li>
 <li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
@@ -2973,6 +2975,39 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <body>
 
 <p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+
+</body>
+</topic>
+
+
+
+<topic name="64bit" title="64-bit Inno Setup">
+<keyword value="64-bit Inno Setup" />
+<body>
+
+<!-- <p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p> -->
+<!-- <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p> -->
+<!-- <p>If you don't remember which version you installed, click the "Inno Setup Compiler" shortcut created in the Start Menu. If the version number displayed in its title bar says "(a)" you are running Non Unicode Inno Setup. Otherwise you are running Unicode Inno Setup.</p> -->
+<p>For the most part the two versions are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the primary differences:</p>
+<ul>
+<!-- <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li> -->
+<!-- <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li> -->
+<!-- <li>Any [Messages] and [CustomMessages] entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li> -->
+<!-- <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li> -->
+<!-- <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li> -->
+<!-- <li>The [Setup] directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li> -->
+<li>Existing installations of your programs done by 32-bit installers can be freely updated by 64-bit installers, and vice versa.</li>
+<li>64-bit Pascal Scripting notes:
+  <ul>
+    <!-- <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li> -->
+    <!-- <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li> -->
+    <!-- <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li> -->
+    <!-- <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li> -->
+    <!-- <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li> -->
+    <!-- <li>Added new <tt>TStringStream</tt> class.</li> -->
+  </ul>
+</li>
+</ul>
 
 </body>
 </topic>
@@ -6345,6 +6380,15 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>When this directive is set, the compiler will create a manifest file detailing information about the files compiled into Setup. The file will be created in the <link topic="setup_outputdir">output directory</link> unless a path is included.</p>
 <example><pre>OutputManifestFile=Setup-Manifest.txt</pre></example>
+</body>
+</setuptopic>
+
+<setuptopic directive="SetupArchitecture">
+<setupvalid><tt>x86</tt>, <tt>x64</tt></setupvalid>
+<setupdefault><tt>x86</tt></setupdefault>
+<body>
+<p><b>See also:</b><br/>
+<link topic="64bit">64-bit Inno Setup</link></p>
 </body>
 </setuptopic>
 
