@@ -93,6 +93,8 @@ begin
 
   RegisterType('LRESULT', 'NativeInt');
   RegisterType('HMODULE', 'NativeUInt');
+  RegisterType('WPARAM', 'NativeUInt');
+  RegisterType('LPARAM', 'NativeInt');
 
   RegisterType('TFileTime',
     'record' +

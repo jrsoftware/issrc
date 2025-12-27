@@ -465,8 +465,8 @@ const
     'TSetupProcessorArchitecture', 'TDotNetVersion',
     { ScriptFunc's non real enums and other types - also see PascalEnumValues below }
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'TArrayOfGraphic',
-    'DWORD', 'UINT', 'BOOL', 'INT_PTR', 'DWORD_PTR', 'UINT_PTR', 'LRESULT', 'HMODULE', 'TFileTime',
-    'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
+    'DWORD', 'UINT', 'BOOL', 'INT_PTR', 'DWORD_PTR', 'UINT_PTR', 'LRESULT', 'HMODULE', 'WPARAM', 'LPARAM',
+    'TFileTime', 'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
     'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog',
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated +
       also the following from USPC_comobj.pas }

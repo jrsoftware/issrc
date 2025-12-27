@@ -745,17 +745,17 @@ end;</pre></example>
       </function>
       <function>
         <name>SendMessage</name>
-        <prototype>function SendMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): LRESULT;</prototype>
+        <prototype>function SendMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): LRESULT;</prototype>
         <description><p>Sends the specified message to the specified window. Does not return until the window procedure has processed the message.</p></description>
       </function>
       <function>
         <name>PostMessage</name>
-        <prototype>function PostMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
+        <prototype>function PostMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): Boolean;</prototype>
         <description><p>Posts the specified message to the specified window, returning immediately. Returns True if successful.</p></description>
       </function>
       <function>
         <name>SendNotifyMessage</name>
-        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
+        <prototype>function SendNotifyMessage(const Wnd: HWND; const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): Boolean;</prototype>
         <description><p>Sends the specified message to the specified window without waiting for the message to be processed by the destination window procedure. Returns True if successful.</p></description>
       </function>
       <function>
@@ -765,17 +765,17 @@ end;</pre></example>
       </function>
       <function>
         <name>SendBroadcastMessage</name>
-        <prototype>function SendBroadcastMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): LRESULT;</prototype>
+        <prototype>function SendBroadcastMessage(const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): LRESULT;</prototype>
         <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedure have processed the message.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>PostBroadcastMessage</name>
-        <prototype>function PostBroadcastMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
+        <prototype>function PostBroadcastMessage(const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): Boolean;</prototype>
         <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
       </function>
       <function>
         <name>SendBroadcastNotifyMessage</name>
-        <prototype>function SendBroadcastNotifyMessage(const Msg: Cardinal; const WParam: NativeUInt; const LParam: NativeInt): Boolean;</prototype>
+        <prototype>function SendBroadcastNotifyMessage(const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): Boolean;</prototype>
       </function>
     </subcategory>
     <subcategory>
