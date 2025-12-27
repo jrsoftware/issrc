@@ -2896,7 +2896,8 @@ begin
       {$IFNDEF WIN64}
       CompressProps.WorkerProcessCheckTrust := not (pfIslzma in DisablePrecompiledFileVerifications);
       {$ELSE}
-      WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName + '=islma']));
+      if pfIslzma in DisablePrecompiledFileVerifications then
+        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName + '=islzma']));
       {$ENDIF}
     end;
     ssDisableProgramGroupPage: begin
