@@ -12,8 +12,8 @@
 
 [Setup]
 AppName=Inno Setup
-AppId={code:GetAppId|Inno Setup 6}
-AppVersion=6.7.0-dev
+AppId={code:GetAppId|Inno Setup 7}
+AppVersion=7.0.0-dev
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -22,8 +22,8 @@ VersionInfoCopyright=Copyright (C) 1997-2025 Jordan Russell. Portions Copyright 
 AppMutex=InnoSetupCompilerAppMutex,Global\InnoSetupCompilerAppMutex
 SetupMutex=InnoSetupCompilerSetupMutex,Global\InnoSetupCompilerSetupMutex
 WizardStyle=modern dynamic
-DefaultDirName={code:GetDefaultDirName|Inno Setup 6}
-DefaultGroupName=Inno Setup 6
+DefaultDirName={code:GetDefaultDirName|Inno Setup 7}
+DefaultGroupName=Inno Setup 7
 PrivilegesRequiredOverridesAllowed=commandline
 AllowNoIcons=yes
 Compression=lzma2/max
@@ -220,13 +220,13 @@ Type: files; Name: "{app}\isfaq.url"
 
 [Icons]
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
-Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"
+Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Documentation (Dark)"; Filename: "{app}\ISetup-dark.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.6"; Tasks: desktopicon
+Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7"; Tasks: desktopicon
 
 [Run]
 ; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed

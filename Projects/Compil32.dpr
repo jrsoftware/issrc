@@ -115,7 +115,7 @@ begin
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
-    Func('JR.InnoSetup.IDE.6');
+    Func('JR.InnoSetup.IDE.7');
 end;
 
 procedure RegisterApplicationRestart;
