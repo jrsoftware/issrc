@@ -392,7 +392,7 @@ begin
     { The UInt32 cast prevents sign extension }
     RespawnSelfElevated(UninstExeFilename,
       Format('/INITPROCWND=$%x ', [UInt32(Application.Handle)]) + GetCmdTail,
-      UninstallExitCode);
+      nil, UninstallExitCode);
     Result := True;
   end;
 end;

@@ -27,6 +27,8 @@ function InstShellExecEx(const RunAsOriginalUser: Boolean;
   const Verb, Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
   const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
+function IsSpawnServerPresent: Boolean;
+function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
 
 implementation
 
@@ -202,6 +204,17 @@ procedure InitializeSpawnClient(const AServerWnd: HWND);
 begin
   SpawnServerWnd := AServerWnd;
   SpawnServerPresent := True;
+end;
+
+function IsSpawnServerPresent: Boolean;
+begin
+  Result := SpawnServerPresent;
+end;
+
+function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
+begin
+  Result := PostMessage(SpawnServerWnd, WM_SpawnServer_ExitNow, AExitCode,
+    SPAWN_EXITNOW_LPARAM_MAGIC);
 end;
 
 end.

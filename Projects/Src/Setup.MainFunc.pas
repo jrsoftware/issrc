@@ -71,8 +71,8 @@ var
   SetupLdrMode: Boolean;
   SetupLdrOriginalFilename: String;
   SetupLdrOffset0, SetupLdrOffset1: Int64;
-  SetupNotifyWndPresent: Boolean;
-  SetupNotifyWnd: HWND;
+  SetupLdrWnd: HWND;
+  SetupFirstProcessWnd: HWND;
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
@@ -2480,11 +2480,11 @@ begin
     end;
   end;
 
-  { Tell the first instance to change its language too. (It's possible for
-    the first instance to display messages after Setup terminates, e.g. if it
+  { Tell SetupLdr to change its language too. (It's possible for
+    SetupLdr to display messages after Setup terminates, e.g. if it
     fails to restart the computer.) }
-  if SetupNotifyWndPresent then
-    SendNotifyMessage(SetupNotifyWnd, WM_USER + 150, 10001, I);
+  if SetupLdrMode then
+    SendNotifyMessage(SetupLdrWnd, WM_USER + 150, 10001, I);
 end;
 
 function GetLanguageEntryProc(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
@@ -2729,27 +2729,21 @@ procedure RespawnSetupElevated(const AParams: String);
 var
   Cancelled: Boolean;
   Server: TSpawnServer;
-  ParamNotifyWnd: HWND;
   RespawnResults: record
     ExitCode: Integer;
-    NotifyRestartRequested: Boolean;
-    NotifyNewLanguage: Integer;
   end;
 begin
   Cancelled := False;
   try
     Server := TSpawnServer.Create;
     try
-      if SetupNotifyWndPresent then
-        ParamNotifyWnd := SetupNotifyWnd
-      else
-        ParamNotifyWnd := Server.Wnd;
+      var FirstWnd := SetupLdrWnd;
+      if not SetupLdrMode then
+        FirstWnd := Server.Wnd;
       { The UInt32 casts prevent sign extension }
       RespawnSelfElevated(SetupLdrOriginalFilename,
-        Format('/SPAWNWND=$%x /NOTIFYWND=$%x ', [UInt32(Server.Wnd), UInt32(ParamNotifyWnd)]) +
-        AParams, RespawnResults.ExitCode);
-      RespawnResults.NotifyRestartRequested := Server.NotifyRestartRequested;
-      RespawnResults.NotifyNewLanguage := Server.NotifyNewLanguage;
+        Format('/SPAWNWND=$%x /FIRSTWND=$%x ', [UInt32(Server.Wnd), UInt32(FirstWnd)]) +
+        AParams, Server, RespawnResults.ExitCode);
     finally
       Server.Free;
     end;
@@ -2762,24 +2756,6 @@ begin
   end;
   if Cancelled then
     Halt(ecCancelledBeforeInstall);
-
-  if not SetupNotifyWndPresent then begin
-    { In the UseSetupLdr=no case, there is no notify window handle to pass to
-      RespawnSelfElevated, so it hosts one itself. Process the results. }
-    try
-      if (RespawnResults.NotifyNewLanguage >= 0) and
-         (RespawnResults.NotifyNewLanguage < Entries[seLanguage].Count) then
-        SetActiveLanguage(RespawnResults.NotifyNewLanguage);
-      if RespawnResults.NotifyRestartRequested then begin
-        { Note: Depending on the OS, this may not return if successful }
-        RestartComputerFromThisProcess;
-      end;
-    except
-      { In the unlikely event that something above raises an exception, handle
-        it here so the right exit code will still be returned below }
-      Application.HandleException(nil);
-    end;
-  end;
 
   System.ExitCode := RespawnResults.ExitCode;
   Halt;
@@ -3247,8 +3223,7 @@ begin
   if SameText(ParamName, '/SL5=') then begin
     StartParam := 2;
     SetupLdrMode := True;
-    SetupNotifyWnd := HWND(ExtractInt64(ParamValue));
-    SetupNotifyWndPresent := True;
+    SetupLdrWnd := UInt32(ExtractInt64(ParamValue));
     SetupLdrOffset0 := ExtractInt64(ParamValue);
     SetupLdrOffset1 := ExtractInt64(ParamValue);
     SetupLdrOriginalFilename := ParamValue;
@@ -3335,11 +3310,9 @@ begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       IsRespawnedProcess := True;
       InitializeSpawnClient(StrToWnd(ParamValue));
-    end else if SameText(ParamName, '/NOTIFYWND=') then begin
+    end else if SameText(ParamName, '/FIRSTWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
-      { /NOTIFYWND= takes precedence over any previously set SetupNotifyWnd }
-      SetupNotifyWnd := StrToWnd(ParamValue);
-      SetupNotifyWndPresent := True;
+      SetupFirstProcessWnd := StrToWnd(ParamValue);
     end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
     else if SameText(ParamName, '/DEBUGWND=') then begin
@@ -3984,6 +3957,54 @@ begin
 end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
+
+  procedure StopNonElevatedSetupProcesses;
+  begin
+    var ProcessHandle: THandle := 0;
+    try
+      { The "first process" is usually the non-elevated SetupLdr process, but
+        if UseSetupLdr=no, it's the non-elevated Setup process. }
+      var PID: DWORD;
+      if GetWindowThreadProcessId(SetupFirstProcessWnd, PID) = 0 then
+        LogWithLastError('Failed to get PID of first process.')
+      else begin
+        ProcessHandle := OpenProcess(SYNCHRONIZE, False, PID);
+        if ProcessHandle = 0 then
+          LogWithLastError('Failed to open handle to first process.');
+      end;
+
+      { Tell the non-elevated Setup process (which hosts the spawn server) to
+        exit now, instead of waiting for its child process to terminate. Once
+        it does, the non-elevated SetupLdr process (if UseSetupLdr=yes) will
+        also exit. }
+      LogFmt('Instructing parent Setup process to exit with exit code %d.',
+        [SetupExitCode]);
+      if not StopSpawnServerProcess(DWORD(SetupExitCode)) then
+        LogWithLastError('Failed to send message.');
+
+      Log('Waiting for first process to exit.');
+      if ProcessHandle <> 0 then begin
+        const WaitResult = WaitForSingleObject(ProcessHandle, 5000);
+        case WaitResult of
+          WAIT_OBJECT_0: Log('Wait successful.');
+          WAIT_TIMEOUT: Log('Wait timed out.');
+          WAIT_FAILED: LogWithLastError('Wait failed.');
+        else
+          Log('Wait result invalid.');
+        end;
+      end else begin
+        { Shouldn't get here normally. Since we don't know if the first
+          process is running or not, only give it 2 seconds to exit (shorter
+          than the wait timeout above). }
+        Log('Unable to wait; sleeping instead.');
+        Sleep(2000);
+      end;
+    finally
+      if ProcessHandle <> 0 then
+        CloseHandle(ProcessHandle);
+    end;
+  end;
+
 begin
   Log('Deinitializing Setup.');
 
@@ -4050,11 +4071,28 @@ begin
   ShutdownBlockReasonDestroy(Application.Handle);
 
   if RestartSystem then begin
+    { On Windows Server, by default, a process can only initiate a restart if
+      it has the Administrators group in its access token. So we have to
+      initiate the restart from one of our elevated processes. But first, we
+      need to stop the non-elevated processes to ensure they don't try to
+      block the shutdown, and also to keep them from being terminated
+      uncleanly by Windows (which could leave behind temporary files).
+
+      Note, however, that if the installer never requested elevation (e.g.,
+      because PrivilegesRequired=lowest is set) and also wasn't started using
+      "Run as administrator", then the restart will fail on Windows Server for
+      standard user accounts and admin accounts that have UAC enabled (by
+      default, UAC is disabled on the built-in Administrator account). }
+    if IsSpawnServerPresent then begin
+      Log('Need to stop other Setup processes before restarting Windows.');
+      StopNonElevatedSetupProcesses;
+    end;
+
     Log('Restarting Windows.');
-    if SetupNotifyWndPresent then begin
-      { Send a special message back to the first instance telling it to
+    if SetupLdrMode then begin
+      { Send a special message back to SetupLdr telling it to
         restart the system after Setup returns }
-      SendNotifyMessage(SetupNotifyWnd, WM_USER + 150, 10000, 0);
+      SendNotifyMessage(SetupLdrWnd, WM_USER + 150, 10000, 0);
     end
     else begin
       { There is no other instance, so initiate the restart ourself.

@@ -21,16 +21,14 @@ type
     FSequenceNumber: Word;
     FCallStatus: Word;
     FResultCode: DWORD;
-    FNotifyRestartRequested: Boolean;
-    FNotifyNewLanguage: Integer;
+    FExitNowRequested: Boolean;
+    FExitNowExitCode: DWORD;
     function HandleExec(const IsShellExec: Boolean; const ADataPtr: Pointer;
       const ADataSize: Cardinal): LRESULT;
     procedure WndProc(var Message: TMessage);
   public
     constructor Create;
     destructor Destroy; override;
-    property NotifyNewLanguage: Integer read FNotifyNewLanguage;
-    property NotifyRestartRequested: Boolean read FNotifyRestartRequested;
     property Wnd: HWND read FWnd;
   end;
 
@@ -38,7 +36,7 @@ procedure EnterSpawnServerDebugMode;
 function NeedToRespawnSelfElevated(const ARequireAdministrator,
   AEmulateHighestAvailable: Boolean): Boolean;
 procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  var AExitCode: Integer);
+  const ASpawnServer: TSpawnServer; var AExitCode: Integer);
 
 implementation
 
@@ -157,7 +155,7 @@ end;
 {$ENDIF}
 
 procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  var AExitCode: Integer);
+  const ASpawnServer: TSpawnServer; var AExitCode: Integer);
 { Spawns a new process using the "runas" verb.
   Notes:
   1. Despite the function's name, the spawned process may not actually be
@@ -201,6 +199,10 @@ begin
   try
     repeat
       ProcessMessagesProc;
+      if Assigned(ASpawnServer) and ASpawnServer.FExitNowRequested then begin
+        DWORD(AExitCode) := ASpawnServer.FExitNowExitCode;
+        Exit;
+      end;
       WaitResult := MsgWaitForMultipleObjects(1, Info.hProcess, False,
         INFINITE, QS_ALLINPUT);
     until WaitResult <> WAIT_OBJECT_0+1;
@@ -247,7 +249,6 @@ end;
 constructor TSpawnServer.Create;
 begin
   inherited;
-  FNotifyNewLanguage := -1;
   FWnd := AllocateHWnd(WndProc);
   if FWnd = 0 then
     RaiseFunctionFailedError('AllocateHWnd');
@@ -372,12 +373,15 @@ begin
         end;
         Message.Result := Res;
       end;
-    WM_USER + 150: begin
-        { Got a SetupNotifyWnd message. (See similar handling in SetupLdr.dpr) }
-        if Message.WParam = 10000 then
-          FNotifyRestartRequested := True
-        else if Message.WParam = 10001 then
-          FNotifyNewLanguage := Integer(Message.LParam);
+    WM_SpawnServer_ExitNow:
+      begin
+        { Because this message is posted (not sent), RespawnSelfElevated's
+          message loop will have to break out of a wait state to process it.
+          After we return, the message loop checks FExitNowRequested. }
+        if Message.LParam = SPAWN_EXITNOW_LPARAM_MAGIC then begin
+          FExitNowExitCode := DWORD(Message.WParam);
+          FExitNowRequested := True;
+        end;
       end;
   else
     Message.Result := DefWindowProc(FWnd, Message.Msg, Message.WParam,
