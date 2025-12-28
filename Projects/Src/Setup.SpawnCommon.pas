@@ -2,7 +2,7 @@ unit Setup.SpawnCommon;
 
 {
   Inno Setup
-  Copyright (C) 1997-2007 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -17,6 +17,7 @@ uses
 const
   { Spawn client -> spawn server messages }
   WM_SpawnServer_Query = WM_USER + $1550;
+  WM_SpawnServer_ExitNow = WM_USER + $1551;
 
   { Spawn client -> spawn server WM_COPYDATA messages }
   CD_SpawnServer_Exec      = $4A73E9C0;
@@ -46,6 +47,9 @@ const
   SPAWN_STATUS_RUNNING        = 2;
   SPAWN_STATUS_RETURNED_TRUE  = 3;
   SPAWN_STATUS_RETURNED_FALSE = 4;
+
+  { lParam value passed in WM_SpawnServer_ExitNow message }
+  SPAWN_EXITNOW_LPARAM_MAGIC = $5B1C6AF9;
 
 implementation
 

@@ -146,6 +146,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="head2">Other changes</span>
 <ul>
   <li>Added retry mechanisms to the compiler to make the compilation process more robust against temporary file access issues, such as when antivirus software or other processes temporarily lock output files.</li>
+  <li><i>Fix:</i> On Windows Server, when an installer attempted to restart the computer, an "unable to restart the computer" error message may have been seen. This was due to the restart being initiated from a non-elevated process, which Windows Server does not allow by default. The restart is now initiated from an elevated process, resolving the issue, provided that the installer requests elevation. If <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt> instead of <tt>admin</tt>, then none of Setup's processes are elevated (unless the installer was started using "Run as administrator"), and the error message may still be seen.</li>
   <li><tt>[Setup]</tt> section directives such as <tt>WizardImageBackColor</tt> and <tt>WizardBackColor</tt> now also accept color names like <tt>white</tt> and <tt>black</tt>, in addition to <tt>clWhite</tt>, <tt>clBlack</tt>, <tt>#ffffff</tt>, and <tt>#000000</tt>.</li>
   <li><i>Fix:</i> File and directory controls in Setup should always use left-to-right reading order, even when a right-to-left language is active, but this has not been the case since version 6.5.2.</li>
   <li>Pascal Scripting:
