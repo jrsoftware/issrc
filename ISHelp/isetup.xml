@@ -2990,7 +2990,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p><b>64-bit Installers:</b></p>
 
 <p>Starting with Inno Setup 7 installers can be built as 64-bit x64 applications, instead of 32-bit x86 applications, by setting <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt>.</p>
-<p>Key features of 64-bit installers are access to higher LZMA and LZMA2 dictionary sizes, having high-entropy ASLR enabled by default, and no longer using the WOW64 emulation layer. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
+<p>Key features of 64-bit installers are access to higher LZMA and LZMA2 dictionary sizes, and having high-entropy ASLR enabled by default. Additionally, they can be used to satisfy policy or third-party requirements that mandate 64-bit installers.</p>
 <p>For the most part 64-bit and 32-bit installers are used identically, and any differences between them are noted throughout the help file. However, the following overview lists the most important differences and capabilities:</p>
 <ul>
 <li>The maximum dictionary size allowed for compression methods <tt>lzma</tt> and <tt>lzma2</tt> is 3.8 GB instead of 1 GB when compressing files for a 64-bit installer. Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</li>

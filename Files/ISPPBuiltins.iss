@@ -71,6 +71,11 @@
 #define HKEY_LOCAL_MACHINE_64   0x82000002UL
 #define HKEY_USERS_64           0x82000003UL
 #define HKEY_CURRENT_CONFIG_64  0x82000005UL
+#define HKEY_CLASSES_ROOT_32    0x84000000UL
+#define HKEY_CURRENT_USER_32    0x84000001UL
+#define HKEY_LOCAL_MACHINE_32   0x84000002UL
+#define HKEY_USERS_32           0x84000003UL
+#define HKEY_CURRENT_CONFIG_32  0x84000005UL
 
 #define HKCR               HKEY_CLASSES_ROOT
 #define HKCU               HKEY_CURRENT_USER
@@ -82,6 +87,11 @@
 #define HKLM64             HKEY_LOCAL_MACHINE_64
 #define HKU64              HKEY_USERS_64
 #define HKCC64             HKEY_CURRENT_CONFIG_64
+#define HKCR32             HKEY_CLASSES_ROOT_32
+#define HKCU32             HKEY_CURRENT_USER_32
+#define HKLM32             HKEY_LOCAL_MACHINE_32
+#define HKU32              HKEY_USERS_32
+#define HKCC32             HKEY_CURRENT_CONFIG_32
 
 // Exec constants
 

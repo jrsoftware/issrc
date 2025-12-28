@@ -16,9 +16,6 @@ interface
 uses
   Windows, SysUtils, Classes;
 
-const
-  KEY_WOW64_64KEY = $0100;
-
 type
   TOneShotTimer = record
   private
@@ -994,8 +991,12 @@ function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar
   lpSecurityAttributes: PSecurityAttributes; var phkResult: HKEY;
   lpdwDisposition: PDWORD): Longint;
 begin
-  if RegView = rv64Bit then
-    samDesired := samDesired or KEY_WOW64_64KEY;
+  case RegView of
+    rv64Bit:
+      samDesired := samDesired or KEY_WOW64_64KEY;
+    rv32Bit:
+      samDesired := samDesired or KEY_WOW64_32KEY;
+  end;
   Result := RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions,
     samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 end;
@@ -1003,8 +1004,12 @@ end;
 function RegOpenKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   ulOptions: DWORD; samDesired: REGSAM; var phkResult: HKEY): Longint;
 begin
-  if RegView = rv64Bit then
-    samDesired := samDesired or KEY_WOW64_64KEY;
+  case RegView of
+    rv64Bit:
+      samDesired := samDesired or KEY_WOW64_64KEY;
+    rv32Bit:
+      samDesired := samDesired or KEY_WOW64_32KEY;
+  end;
   Result := RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 end;
 
@@ -1015,14 +1020,14 @@ var
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY;
   const Name: PChar): Longint;
 begin
-  if RegView <> rv64Bit then
+  if RegView <> {$IFDEF WIN64} rv32Bit {$ELSE} rv64Bit {$ENDIF} then
     Result := RegDeleteKey(Key, Name)
   else begin
     if not Assigned(RegDeleteKeyExFunc) then
       RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
           'RegDeleteKeyExW');
     if Assigned(RegDeleteKeyExFunc) then
-      Result := RegDeleteKeyExFunc(Key, Name, KEY_WOW64_64KEY, 0)
+      Result := RegDeleteKeyExFunc(Key, Name, {$IFDEF WIN64} KEY_WOW64_32KEY {$ELSE} KEY_WOW64_64KEY {$ENDIF}, 0)
     else
       Result := ERROR_PROC_NOT_FOUND;
   end;

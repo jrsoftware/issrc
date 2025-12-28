@@ -247,9 +247,10 @@ function ReadReg(Ext: NativeInt; const Params: IIsppFuncParams;
 const
   ISPPRootKeyFlagMask  = $7F000000;
   ISPPRootKeyFlag64Bit = $02000000;
+  ISPPRootKeyFlag32Bit = $04000000;
   ISPPRootKeyValidFlags = ISPPRootKeyFlag64Bit;
 
-  procedure CrackISPPRootKey(const ISPPRootKey: Int64; var RegView64: Boolean;
+  procedure CrackISPPRootKey(const ISPPRootKey: Int64; var RegView64, RegView32: Boolean;
     var RootKey: HKEY);
   begin
     { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
@@ -259,30 +260,29 @@ const
        ((ISPPRootKey and ISPPRootKeyFlagMask) and not ISPPRootKeyValidFlags <> 0) then
       raise Exception.Create('Invalid root key value');
 
-    if ISPPRootKey and ISPPRootKeyFlag64Bit <> 0 then begin
-      if not IsWin64 then
-        raise Exception.Create('Cannot access 64-bit registry keys on this version of Windows');
-      RegView64 := True
-    end
-    else
-      RegView64 := False;
+    RegView64 := ISPPRootKey and ISPPRootKeyFlag64Bit <> 0;
+    if RegView64 and not IsWin64 then
+      raise Exception.Create('Cannot access 64-bit registry keys on this version of Windows');
+    RegView32 := ISPPRootKey and ISPPRootKeyFlag32Bit <> 0;
     RootKey := HKEY(ISPPRootKey and not ISPPRootKeyFlagMask);
   end;
 
 var
   Name: string;
   Default: TIsppVariant;
-  RegView64: Boolean;
+  RegView32, RegView64: Boolean;
   ARootKey: HKEY;
   AAccess: Cardinal;
 begin
   if CheckParams(Params, [evInt, evStr, evStr, evSpecial], 2, Result) then
   try
     with IInternalFuncParams(Params) do begin
-      CrackISPPRootKey(Get(0).AsInt64, RegView64, ARootKey);
+      CrackISPPRootKey(Get(0).AsInt64, RegView64, RegView32, ARootKey);
       AAccess := KEY_QUERY_VALUE;
       if RegView64 then
-        AAccess := AAccess or KEY_WOW64_64KEY;
+        AAccess := AAccess or KEY_WOW64_64KEY
+      else if RegView32 then
+        AAccess := AAccess or KEY_WOW64_32KEY;
       with TRegistry.Create(AAccess) do
       try
         RootKey := ARootKey;
