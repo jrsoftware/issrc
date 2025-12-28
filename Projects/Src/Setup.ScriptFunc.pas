@@ -1280,6 +1280,10 @@ var
       var ArchitectureIdentifier := LowerCase(Copy(String(OrgName), 3, MaxInt));
       Stack.SetBool(PStart, EvalArchitectureIdentifier(ArchitectureIdentifier));
     end);
+    RegisterScriptFunc(['IsCurrentProcess64Bit'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, IsCurrentProcess64Bit);
+    end);
     RegisterScriptFunc('CUSTOMMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetString(PStart, CustomMessage(Stack.GetString(PStart-1)));

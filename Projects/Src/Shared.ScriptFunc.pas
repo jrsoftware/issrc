@@ -428,6 +428,7 @@ initialization
     'function IsX86: Boolean;',
     'function IsX86OS: Boolean;',
     'function IsX86Compatible: Boolean;',
+    'function IsCurrentProcess64Bit: Boolean;',
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
     'function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;',

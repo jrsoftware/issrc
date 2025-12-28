@@ -639,6 +639,11 @@ end;</pre></example>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
 <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
+      <function>
+        <name>IsCurrentProcess64Bit</name>
+        <prototype>function IsCurrentProcess64Bit: Boolean;</prototype>
+        <description><p>Returns True if Setup is built as a 64-bit x64 application, as specified by <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p></description>
+      </function>
     </subcategory>
     <subcategory>
       <function>
