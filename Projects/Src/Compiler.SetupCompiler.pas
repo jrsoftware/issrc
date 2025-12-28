@@ -599,10 +599,11 @@ procedure TSetupCompiler.InitZipDLL;
 begin
   if ZipInitialized then
     Exit;
-  var Filename := CompilerDir + 'iszlib.dll';
-  var M := LoadCompilerDLL(Filename, []);
+  const DllName = {$IFDEF WIN64} 'iszlib-x64.dll' {$ELSE} 'iszlib.dll' {$ENDIF};
+  const Filename = CompilerDir + DllName;
+  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not ZlibInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in iszlib.dll');
+    AbortCompile('Failed to get address of functions in ' + DllName);
   ZipInitialized := True;
 end;
 
@@ -610,10 +611,11 @@ procedure TSetupCompiler.InitBzipDLL;
 begin
   if BzipInitialized then
     Exit;
-  var Filename := CompilerDir + 'isbzip.dll';
-  var M := LoadCompilerDLL(Filename, []);
+  const DllName = {$IFDEF WIN64} 'isbzip-x64.dll' {$ELSE} 'isbzip.dll' {$ENDIF};
+  const Filename = CompilerDir + DllName;
+  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not BZInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in isbzip.dll');
+    AbortCompile('Failed to get address of functions in ' + DllName);
   BzipInitialized := True;
 end;
 
@@ -622,8 +624,8 @@ begin
   if LZMAInitialized then
     Exit;
   const DllName = {$IFDEF WIN64} 'islzma-x64.dll' {$ELSE} 'islzma.dll' {$ENDIF};
-  var Filename := CompilerDir + DllName;
-  var M := LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
+  const Filename = CompilerDir + DllName;
+  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in ' + DllName);
   LZMAInitialized := True;
@@ -8714,34 +8716,33 @@ begin
         'PrivilegesRequired', PrivilegesRequiredValue, UsedUserAreas.CommaText]));
     end;
 
+    var DllNameExtension: String;
+    if SetupArchitecture = sa64bit then
+      DllNameExtension := '-x64'
+    else
+      DllNameExtension := '';
+
     { Read decompressor DLL. Must be done after [Files] is parsed, since
       SetupHeader.CompressMethod isn't set until then: SetupHeader.CompressMethod
       is only set when there's actually a file to compress. }
     case SetupHeader.CompressMethod of
       cmZip: begin
-          if SetupArchitecture = sa64bit then
-            AbortCompileFmt(SCompilerEntryValueUnsupported2, ['Setup', 'SetupArchitecture', 'x64', 'zip']);
-          AddStatus(Format(SCompilerStatusReadingFile, ['isunzlib.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isunzlib.dll',
+          const DllName = Format('isunzlib%s.dll', [DllNameExtension]);
+          AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
             not(pfIsunzlib in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
       cmBzip: begin
-          if SetupArchitecture = sa64bit then
-            AbortCompileFmt(SCompilerEntryValueUnsupported2, ['Setup', 'SetupArchitecture', 'x64', 'bzip']);
-          AddStatus(Format(SCompilerStatusReadingFile, ['isbunzip.dll']));
-          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + 'isbunzip.dll',
+          const DllName = Format('isbunzip%s.dll', [DllNameExtension]);
+          AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
             not(pfIsbunzip in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
     end;
 
     { Read 7-Zip DLL }
     if SetupHeader.SevenZipLibraryName <> '' then begin
-      var NameExtension: String;
-      if SetupArchitecture = sa64bit then
-        NameExtension := '-x64'
-      else
-        NameExtension := '';
-      SetupHeader.SevenZipLibraryName := Format('is%s%s.dll', [SetupHeader.SevenZipLibraryName, NameExtension]);
+      SetupHeader.SevenZipLibraryName := Format('is%s%s.dll', [SetupHeader.SevenZipLibraryName, DllNameExtension]);
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));
       SevenZipDLL := CreateMemoryStreamFromFile(CompilerDir + SetupHeader.SevenZipLibraryName,
         not(pfIs7z in DisablePrecompiledFileVerifications), OnCheckedTrust);

@@ -2,7 +2,7 @@ unit Compression.Zlib;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,7 +20,7 @@ function ZlibInitDecompressFunctions(Module: HMODULE): Boolean;
 type
   TZAlloc = function(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
   TZFree = procedure(AppData, Block: Pointer); stdcall;
-  TZStreamRec = packed record
+  TZStreamRec = record
     next_in: Pointer;     { next input byte }
     avail_in: Cardinal;   { number of bytes available at next_in }
     total_in: Cardinal;   { total nb of input bytes read so far }
@@ -79,7 +79,7 @@ const
   SZlibDataError = 'zlib: Compressed data is corrupted';
   SZlibInternalError = 'zlib: Internal error. Code %d';
 
-  ZLIB_VERSION = '1.2.1';  { Do not change this! }
+  ZLIB_VERSION = '1.2.3';  { Do not change this! }
 
   Z_NO_FLUSH      = 0;
   Z_PARTIAL_FLUSH = 1;

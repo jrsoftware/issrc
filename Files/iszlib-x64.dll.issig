@@ -1,0 +1,8 @@
+format issig-v2
+file-name "iszlib-x64.dll"
+file-size 35984
+file-hash 3837f0eb147adafc334b3e2fa47a718e3287c349a75c9da571c2a9616a9f7cc9
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r eac9f31526454872c9734833959ae2fb1728276d466caa536bb549b9d20a6f4f
+sig-s 4e297846fabced2150b54b5eb8ad7b84bf1d798c7264e946c39ad4e4e0c33ed5
