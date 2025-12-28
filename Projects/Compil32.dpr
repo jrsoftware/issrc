@@ -163,7 +163,7 @@ procedure CreateMutexes;
   to 4.0 TSE don't have a global name space and don't support the 'Global\'
   prefix). }
 const
-  MutexName = 'InnoSetupCompilerAppMutex';
+  MutexName = 'InnoSetupCompilerAppMutex7';
 begin
   CreateMutex(MutexName);
   CreateMutex('Global\' + MutexName); { don't localize }
