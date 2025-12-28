@@ -4514,7 +4514,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>DRON: Code for the improved image stretching (5.6).</li>
 
-<li>Sherlock Software: Most of the code for the <tt>CreateCallback</tt> support function (6.0).</li>
+<li>Sherlock Software: Most of the x86 code for the <tt>CreateCallback</tt> support function (6.0).</li>
 
 <li>Vizit0r: Code for the "Debug Call Stack" view (6.0.3).</li>
 
