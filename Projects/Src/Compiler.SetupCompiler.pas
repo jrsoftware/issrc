@@ -3126,9 +3126,9 @@ begin
         SetSetupHeaderOption(shRestartIfNeededByRun);
       end;
     ssSetupArchitecture: begin
-      {$IFDEF DEBUG} if SameText(Value, 'x64') then
+      if SameText(Value, 'x64') then
         SetupArchitecture := sa64bit
-      else {$ENDIF} if SameText(Value, 'x86') then
+      else if SameText(Value, 'x86') then
         SetupArchitecture := sa32bit
       else
         Invalid;
