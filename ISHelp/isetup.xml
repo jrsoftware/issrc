@@ -5047,7 +5047,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
 <tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
 <tr><td><tt>ultra</tt></td><td>32 MB</td><td>374 MB</td></tr>
-<tr><td><tt>ultra64</tt> (best)</td><td>64 MB</td><td>742 MB</td></tr>
+<tr><td><tt>ultra64</tt></td><td>64 MB</td><td>742 MB</td></tr>
 <tr><td></td><td>128 MB</td><td>1.44 GB</td></tr>
 <tr><td></td><td>256 MB</td><td>2.88 GB</td></tr>
 <tr><td></td><td>512 MB</td><td>5.76 GB</td></tr>
