@@ -219,7 +219,7 @@ end;
 
 constructor EPreprocError.Create(Preproc: TPreprocessor; const Msg: string);
 begin
-  inherited Create(Msg + '.');
+  inherited Create(AddPeriod(Msg));
   FileName := Preproc.GetFileName(-1);
   LineNumber := Preproc.GetLineNumber(-1);
 end;

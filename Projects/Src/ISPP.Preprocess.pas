@@ -292,7 +292,7 @@ begin
     begin
       Params.ErrorProc(Params.CompilerData,
         PChar(Format('Unexpected exception of class %s in ISPP.' +
-        #13#10#13#10'%s.', [E.ClassName, E.Message])), nil, 0, 0);
+        #13#10#13#10'%s', [E.ClassName, AddPeriod(E.Message)])), nil, 0, 0);
       Result := ispePreprocessError;
     end;
   end;
