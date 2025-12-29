@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -126,15 +126,12 @@ begin
 end;
 
 procedure HSVtoRGB(const H, S: Double; const V: Integer; var R, G, B: Integer);
-var
-  I, P, Q, T: Integer;
-  F: Double;
 begin
-  I := Trunc(H / 60);
-  F := Frac(H / 60);
-  P := Round(V * (1.0 - S));
-  Q := Round(V * (1.0 - S * F));
-  T := Round(V * (1.0 - S * (1.0 - F)));
+  const I = Integer(Trunc(H / 60));
+  const F = Frac(H / 60);
+  const P = Integer(Round(V * (1.0 - S)));
+  const Q = Integer(Round(V * (1.0 - S * F)));
+  const T = Integer(Round(V * (1.0 - S * (1.0 - F))));
   case I of
     0: begin R := V; G := t; B := p; end;
     1: begin R := q; G := V; B := p; end;
@@ -148,7 +145,7 @@ begin
   end;
 end;
 
-function LightenColor(const Color: TColorRef; const Amount: Integer): TColorRef;
+function LightenColor(const Color: Integer; const Amount: Integer): TColor;
 var
   H, S: Double;
   V, R, G, B: Integer;

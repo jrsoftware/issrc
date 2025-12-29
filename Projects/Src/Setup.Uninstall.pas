@@ -422,7 +422,7 @@ begin
       uninstallation is complete before terminating. }
     Wnd := CreateWindowEx(0, 'STATIC', '', 0, 0, 0, 0, 0, HWND_DESKTOP, 0,
       HInstance, nil);
-    LONG_PTR(OldWindowProc) := SetWindowLongPtr(Wnd, GWL_WNDPROC,
+    LONG_PTR(OldWindowProc) := SetWindowLongPtr(Wnd, GWLP_WNDPROC,
       LONG_PTR(@FirstPhaseWindowProc));
 
     { Execute the copy of itself ("second phase"). The UInt32 cast prevents

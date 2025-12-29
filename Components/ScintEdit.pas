@@ -104,10 +104,10 @@ type
     FAutoCompleteFontSize: Integer;
     FAutoCompleteStyle: Integer;
     FChangeHistory: TScintChangeHistory;
-    FCodePage: Integer;
+    FCodePage: Word;
     FDirectPtr: Pointer;
     FDirectStatusFunction: SciFnDirectStatus;
-    FEffectiveCodePage: Integer;
+    FEffectiveCodePage: Word;
     FEffectiveCodePageDBCS: Boolean;
     FFillSelectionToEdge: Boolean;
     FFoldLevelNumbersOrLineState: Boolean;
@@ -177,7 +177,7 @@ type
     procedure SetAcceptDroppedFiles(const Value: Boolean);
     procedure SetAutoCompleteFontName(const Value: String);
     procedure SetAutoCompleteFontSize(const Value: Integer);
-    procedure SetCodePage(const Value: Integer);
+    procedure SetCodePage(const Value: Word);
     procedure SetCaretColumn(const Value: Integer);
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
@@ -249,9 +249,13 @@ type
       const Command: TScintCommand); overload;
     procedure BeginUndoAction;
     procedure BraceMatch;
+    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): LRESULT; overload;
     function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM; out WarnStatus: Integer): LRESULT; overload;
     function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM; out WarnStatus: Integer): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString): LRESULT; overload;
     function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT; overload;
     function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT; overload;
     procedure CancelAutoComplete;
     procedure CancelAutoCompleteAndCallTip;
@@ -386,7 +390,7 @@ type
     property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
-    property EffectiveCodePage: Integer read FEffectiveCodePage;
+    property EffectiveCodePage: Word read FEffectiveCodePage;
     property FoldFlags: TScintFoldFlags write SetFoldFlags;
     property InsertMode: Boolean read GetInsertMode;
     property LineEndings: TScintLineEndings read GetLineEndings;
@@ -426,7 +430,7 @@ type
     property AutoCompleteFontSize: Integer read FAutoCompleteFontSize
       write SetAutoCompleteFontSize default 0;
     property ChangeHistory: TScintChangeHistory read FChangeHistory write SetChangeHistory default schDisabled;
-    property CodePage: Integer read FCodePage write SetCodePage default CP_UTF8;
+    property CodePage: Word read FCodePage write SetCodePage default CP_UTF8;
     property Color;
     property FillSelectionToEdge: Boolean read FFillSelectionToEdge write SetFillSelectionToEdge
       default False;
@@ -689,10 +693,22 @@ begin
   end;
 end;
 
+function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): LRESULT;
+begin
+  var Dummy: Integer;
+  Result := Call(Msg, NativeUInt(WParam), LParam, Dummy);
+end;
+
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParam, Dummy);
+end;
+
+function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM;
+  out WarnStatus: Integer): LRESULT;
+begin
+  Result := Call(Msg, NativeUInt(WParam), LParam, WarnStatus);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM;
@@ -717,11 +733,24 @@ begin
   WarnStatus := ErrorStatus;
 end;
 
+function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt;
+  const LParamStr: TScintRawString): LRESULT;
+begin
+  var Dummy: Integer;
+  Result := Call(Msg, NativeUInt(WParam), LParamStr, Dummy);
+end;
+
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
   const LParamStr: TScintRawString): LRESULT;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParamStr, Dummy);
+end;
+
+function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt;
+  const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT;
+begin
+  Result := Call(Msg, NativeUInt(WParam), LPARAM(PAnsiChar(LParamStr)), WarnStatus);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
@@ -1432,7 +1461,7 @@ end;
 
 function TScintEdit.GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
 begin
-  Result := Call(SCI_GETSTYLEAT, Pos, 0);
+  Result := TScintStyleNumber(Call(SCI_GETSTYLEAT, Pos, 0));
 end;
 
 function TScintEdit.GetTarget: TScintRange;
@@ -1842,7 +1871,7 @@ begin
   end;
 end;
 
-procedure TScintEdit.SetCodePage(const Value: Integer);
+procedure TScintEdit.SetCodePage(const Value: Word);
 begin
   if FCodePage <> Value then begin
     FCodePage := Value;
@@ -2231,13 +2260,13 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
         for var CurI := 2 to N do begin
           var CurValue := Indicator in TScintStyleByteIndicatorNumbers(Byte(Ord(FStyler.FStyleStr[CurI]) shr StyleNumberBits));
           if CurValue <> PrevValue then begin
-            SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+CurI-1, Ord(Indicator)+INDICATOR_CONTAINER, PrevValue);
+            SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+CurI-1, TScintIndicatorNumber(Ord(Indicator)+INDICATOR_CONTAINER), PrevValue);
             HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
             PrevI := CurI;
             PrevValue := CurValue;
           end;
         end;
-        SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+N, Ord(Indicator)+INDICATOR_CONTAINER, PrevValue);
+        SetIndicators(StartStylingPos+PrevI-1, StartStylingPos+N, TScintIndicatorNumber(Ord(Indicator)+INDICATOR_CONTAINER), PrevValue);
         HadStyleByteIndicators := HadStyleByteIndicators or PrevValue;
       end;
 
@@ -2392,16 +2421,14 @@ procedure TScintEdit.UpdateCodePage;
     end;
   end;
 
-var
-  CP: Integer;
 begin
   if HandleAllocated then begin
     { To Scintilla, code page 0 does not mean the current ANSI code page, but
       an unspecified single byte code page. So that DBCS support is properly
       enabled when running on a DBCS ANSI code page, replace 0 with GetACP. }
-    CP := FCodePage;
+    var CP := FCodePage;
     if CP = 0 then
-      CP := GetACP;
+      CP := Word(GetACP);
     Call(SCI_SETCODEPAGE, CP, 0);
 
     { Scintilla ignores attempts to set a code page it has no special support
@@ -2411,7 +2438,7 @@ begin
     if Call(SCI_GETCODEPAGE, 0, 0) <> CP then
       Call(SCI_SETCODEPAGE, 0, 0);
 
-    FEffectiveCodePage := Call(SCI_GETCODEPAGE, 0, 0);
+    FEffectiveCodePage := Word(Call(SCI_GETCODEPAGE, 0, 0));
     FEffectiveCodePageDBCS := (FEffectiveCodePage <> 0) and
       (FEffectiveCodePage <> SC_CP_UTF8);
     InitLeadBytes;
@@ -2594,7 +2621,6 @@ end;
 procedure TScintEdit.WMDropFiles(var Message: TWMDropFiles);
 var
   FileList: TStringList;
-  NumFiles, I: Integer;
   Filename: array[0..MAX_PATH-1] of Char;
   P: TPoint;
 begin
@@ -2602,8 +2628,8 @@ begin
   try
     if FAcceptDroppedFiles and Assigned(FOnDropFiles) then begin
       FileList := TStringList.Create;
-      NumFiles := DragQueryFile(Message.Drop, UINT(-1), nil, 0);
-      for I := 0 to NumFiles-1 do
+      const NumFiles = DragQueryFile(Message.Drop, UINT(-1), nil, 0);
+      for var I := 0 to NumFiles-1 do
         if DragQueryFile(Message.Drop, I, Filename,
            SizeOf(Filename) div SizeOf(Filename[0])) <> 0 then
           FileList.Add(Filename);
@@ -2792,7 +2818,7 @@ end;
 
 procedure TScintEditStrings.SetText(Text: PChar);
 begin
-  FEdit.SetRawText(FEdit.ConvertPCharToRawString(Text, StrLen(Text)));
+  FEdit.SetRawText(FEdit.ConvertPCharToRawString(Text, Integer(StrLen(Text))));
 end;
 
 procedure TScintEditStrings.SetTextStr(const Value: String);
@@ -2990,7 +3016,7 @@ begin
   if ABitmap.PixelFormat <> pf24bit then
     TScintEdit.Error('Invalid PixelFormat');
 
-  var Colors := TDictionary<Integer, TPair<Char, String>>.Create; { RGB -> Code & WebColor }
+  var Colors := TDictionary<TColorRef, TPair<Char, String>>.Create; { RGB -> Code & WebColor }
   try
     { Build colors list }
     for var Y := 0 to ABitmap.Height-1 do begin
@@ -3001,7 +3027,7 @@ begin
           var ColorCodeIndex := Colors.Count+1;
           if ColorCodeIndex > Length(ColorCodes) then
             TScintEdit.Error('Too many colors');
-          Colors.Add(Color, TPair<Char, String>.Create(ColorCodes[ColorCodeIndex], RGBToWebColorStr(Color)))
+          Colors.Add(Color, TPair<Char, String>.Create(ColorCodes[ColorCodeIndex], RGBToWebColorStr(Integer(Color))))
         end;
       end;
     end;

@@ -17,7 +17,9 @@ procedure UnregisterISSFileAssociation(const Conditional: Boolean);
 implementation
 
 uses
-  Windows, SysUtils, PathFunc, ShlObj, Shared.CommonFunc.Vcl, Shared.CommonFunc;
+  Windows, SysUtils, ShlObj,
+  PathFunc, UnsignedFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc;
   
 function GetRootkey: HKEY;
 begin
@@ -34,7 +36,7 @@ function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUser
 
   procedure SetKeyValue(const Rootkey: HKEY; const Subkey, ValueName: PChar; const Data: String);
 
-    procedure Check(const Res: Longint);
+    procedure Check(const Res: DWORD);
     begin
       if Res <> ERROR_SUCCESS then
         raise Exception.CreateFmt('Error creating file association:'#13#10'%d - %s',
@@ -45,10 +47,10 @@ function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUser
     K: HKEY;
     Disp: DWORD;
   begin
-    Check(RegCreateKeyExView(rvDefault, Rootkey, Subkey, 0, nil, 0, KEY_SET_VALUE,
-      nil, K, @Disp));
+    Check(DWORD(RegCreateKeyExView(rvDefault, Rootkey, Subkey, 0, nil, 0, KEY_SET_VALUE,
+      nil, K, @Disp)));
     try
-      Check(RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data), (Length(Data)+1)*SizeOf(Data[1])));
+      Check(DWORD(RegSetValueEx(K, ValueName, 0, REG_SZ, PChar(Data), (ULength(Data)+1)*SizeOf(Data[1]))));
     finally
       RegCloseKey(K);
     end;

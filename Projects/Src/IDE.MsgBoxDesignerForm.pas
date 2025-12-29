@@ -770,7 +770,7 @@ end;
 procedure TMsgBoxDesignerForm.MBDButtonPreviewClick(Sender: TObject);
 begin
   { default value }
-  var Buttons := MB_OK;
+  var Buttons: Cardinal := MB_OK;
   var Typ := mbInformation;
 
   { icon and caption set }

@@ -173,7 +173,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
     var idx := 0;
     while i <= HexStr.Length do
     begin
-      UTF16LEBytes[idx] := StrToInt('$' + HexStr[i] + HexStr[i + 1]);
+      UTF16LEBytes[idx] := Byte(StrToInt('$' + HexStr[i] + HexStr[i + 1]));
       i := i + 2;
       idx := idx + 1;
     end;

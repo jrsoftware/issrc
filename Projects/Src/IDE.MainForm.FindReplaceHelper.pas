@@ -82,8 +82,8 @@ begin
   var DoHook := FindDialog.Handle = 0;
   FindDialog.Execute;
   if DoHook then begin
-    SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, GetWindowLongPtr(FindDialog.Handle, GWL_WNDPROC));
-    SetWindowLongPtr(FindDialog.Handle, GWL_WNDPROC, LONG_PTR(@FindReplaceWndProc));
+    SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, THandle(GetWindowLongPtr(FindDialog.Handle, GWLP_WNDPROC)));
+    SetWindowLongPtr(FindDialog.Handle, GWLP_WNDPROC, LONG_PTR(@FindReplaceWndProc));
   end;
 end;
 

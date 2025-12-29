@@ -29,7 +29,7 @@ type
     function FGetModern: Boolean;
     function FGetColor(Color: TThemeColor): TColor;
   public
-    property Colors[Color: TThemeColor]: TCOlor read FGetColor;
+    property Colors[Color: TThemeColor]: TColor read FGetColor;
     property Dark: Boolean read FGetDark;
     property Modern: Boolean read FGetModern;
     property Typ: TThemeType read FType write FType;
@@ -130,7 +130,7 @@ begin
   Result := Colors[FType, Color];
   if Result > 0 then begin { Same check as ColorToRGB }
     { Not a system color so change RGB to BGR as Delphi requires }
-    Result := RGB(GetBValue(Result), GetGValue(Result), GetRValue(Result));
+    Result := TColor(RGB(GetBValue(DWORD(Result)), GetGValue(DWORD(Result)), GetRValue(DWORD(Result))));
   end;
 end;
 

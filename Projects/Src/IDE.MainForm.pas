@@ -681,7 +681,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
@@ -872,7 +872,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(I);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
-      FMainMemo.Font.Charset := Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
+      FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
       FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0); { MemoZoom will zoom the other memos }
       for Memo in FMemos do
         if Memo <> FMainMemo then
@@ -995,7 +995,7 @@ begin
       Setting it to True makes all text (regular and link) to get the COLOR_HOTLIGHT color. }
     UpdateLinkLabel.UseVisualStyle := True;
     { COLOR_WINDOW is documented as the associated background color of COLOR_HOTLIGHT }
-    UpdatePanel.Color := GetSysColor(COLOR_WINDOW);
+    UpdatePanel.Color := clWindow;
   end;
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -1769,7 +1769,7 @@ procedure TMainForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
     const Size = Stream.Size - Stream.Position;
     var Buffer: TBytes;
     SetLength(Buffer, Size);
-    Stream.Read(Buffer, 0, Size);
+    Stream.Read64(Buffer, 0, Size);
     var BufferEncoding := Encoding;
     const PreambleSize = TEncoding.GetBufferEncoding(Buffer, BufferEncoding, TEncoding.Default);
     Result := BufferEncoding.GetString(Buffer, PreambleSize, Length(Buffer) - PreambleSize);
@@ -2161,7 +2161,7 @@ begin
           OutputExe := Data.OutputExeFilename;
           if Form.FCompilerVersion.BinVersion >= $3000001 then begin
             DebugInfo := AllocMem(Data.DebugInfoSize);
-            Move(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
+            UMove(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
         end;
@@ -2758,8 +2758,8 @@ begin
       if printPage then begin
         StartPage(hdc);
 
-        SetTextColor(hdc, PrintTheme.Colors[tcFore]);
-        SetBkColor(hdc, PrintTheme.Colors[tcBack]);
+        SetTextColor(hdc, TColorRef(ColorToRGB(PrintTheme.Colors[tcFore])));
+        SetBkColor(hdc, TColorRef(ColorToRGB(PrintTheme.Colors[tcBack])));
         SelectObject(hdc, fontHeader);
         ta := SetTextAlign(hdc, TA_BOTTOM);
         rcw := Rect(frPrint.rc.left, frPrint.rc.top - headerLineHeight - headerLineHeight div 2,
@@ -2782,8 +2782,8 @@ begin
       lengthPrinted := FActiveMemo.FormatRange(printPage, @frPrint);
 
       if printPage then begin
-        SetTextColor(hdc, PrintTheme.Colors[tcFore]);
-        SetBkColor(hdc, PrintTheme.Colors[tcBack]);
+        SetTextColor(hdc, TColorRef(ColorToRGB(PrintTheme.Colors[tcFore])));
+        SetBkColor(hdc, TColorRef(ColorToRGB(PrintTheme.Colors[tcBack])));
         SelectObject(hdc, fontFooter);
         ta := SetTextAlign(hdc, TA_TOP);
         rcw := Rect(frPrint.rc.left, frPrint.rc.bottom + footerLineHeight div 2,
@@ -3295,7 +3295,8 @@ begin
       Application.HandleException(Self);
     end;
   finally
-    Halt(Code);
+    System.ExitCode := Code;
+    Halt;
   end;
 end;
 
@@ -3312,7 +3313,8 @@ begin
       Application.HandleException(Self);
     end;
   finally
-    Halt(Code);
+    System.ExitCode := Code;
+    Halt;
   end;
 end;
 
@@ -5168,7 +5170,7 @@ begin
     FDebugEntriesCount := Header.DebugEntryCount;
     Size := FDebugEntriesCount * SizeOf(TDebugEntry);
     GetMem(FDebugEntries, Size);
-    Move(DebugInfo^, FDebugEntries^, Size);
+    UMove(DebugInfo^, FDebugEntries^, Size);
     for I := 0 to FDebugEntriesCount-1 do
       Dec(FDebugEntries[I].LineNumber);
     Inc(PByte(DebugInfo), Size);
@@ -5176,7 +5178,7 @@ begin
     FVariableDebugEntriesCount := Header.VariableDebugEntryCount;
     Size := FVariableDebugEntriesCount * SizeOf(TVariableDebugEntry);
     GetMem(FVariableDebugEntries, Size);
-    Move(DebugInfo^, FVariableDebugEntries^, Size);
+    UMove(DebugInfo^, FVariableDebugEntries^, Size);
     Inc(PByte(DebugInfo), Size);
 
     SetString(FCompiledCodeText, PAnsiChar(DebugInfo), Header.CompiledCodeTextLength);
@@ -6504,7 +6506,7 @@ begin
     AMemo.DeleteAllMarkersOnLine(Line);
 
   if NewMarker <> -1 then
-    AMemo.AddMarker(Line, NewMarker);
+    AMemo.AddMarker(Line, TScintMarkerNumber(NewMarker));
 
   if StepLine then
     AMemo.AddMarker(Line, mlmStep)

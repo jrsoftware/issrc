@@ -1073,7 +1073,7 @@ type
   PUAHMenu = ^TUAHMenu;
 
   UAHMENUITEM = record
-    iPosition: Integer; // 0-based position of menu item in menubar
+    iPosition: Cardinal; // 0-based position of menu item in menubar
 	  //UAHMENUITEMMETRICS umim;
 	  //UAHMENUPOPUPMETRICS umpm;
   end;

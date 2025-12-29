@@ -966,7 +966,7 @@ end;
 
 procedure TInnoSetupStyler.CommitStyle(const Style: TInnoSetupStylerStyle);
 begin
-  inherited CommitStyle(Ord(Style));
+  inherited CommitStyle(TScintStyleNumber(Ord(Style)));
 end;
 
 procedure TInnoSetupStyler.CommitStyleSq(const Style: TInnoSetupStylerStyle;

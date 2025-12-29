@@ -33,7 +33,7 @@ implementation
 
 uses
   Windows,
-  Classes,
+  Classes, Graphics,
   ModernColors;
 
 procedure TMainFormUAHHelper.UAHDrawMenu(const UAHMenu: PUAHMenu);
@@ -85,7 +85,7 @@ begin
   var opts: TDTTOpts;
   opts.dwSize := SizeOf(opts);
   opts.dwFlags := DTT_TEXTCOLOR;
-  opts.crText := FTheme.Colors[TextColor];
+  opts.crText := TColorRef(ColorToRGB(FTheme.Colors[TextColor]));
 
   var Brush: HBrush;
   { ODS_HOTLIGHT can be set when the menu is inactive so we check Inactive as well. }
@@ -95,7 +95,7 @@ begin
     Brush := FMenuDarkBackgroundBrush.Handle;
 
   FillRect(UAHDrawMenuItem.um.hdc, UAHDrawMenuItem.dis.rcItem, Brush);
-  DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, MenuItemInfo.cch, dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
+  DrawThemeTextEx(FMenuThemeData, UAHDrawMenuItem.um.hdc, MENU_BARITEM, MBI_NORMAL, MenuItemInfo.dwTypeData, Integer(MenuItemInfo.cch), dwFlags, @UAHDrawMenuItem.dis.rcItem, opts);
 end;
 
 { Should be removed if the main menu ever gets removed }

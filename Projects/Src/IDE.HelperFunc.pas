@@ -69,7 +69,7 @@ function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
   const ReadFromFileFilename: String; const NotReadFromFileMemo: TScintEdit): Integer;
-function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+function CreateBitmapInfo(const Width, Height: Integer; const BitCount: Word): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
 
@@ -158,7 +158,7 @@ begin
   if WindowColor then begin
     Result := FormTheme.Colors[tcBack]; { This is white if not dark mode }
     if Result = clWhite then
-      Result := GetSysColor(COLOR_WINDOW); { For high contrast themes }
+      Result := clWindow; { For high contrast themes }
 	end else
     Result := FormTheme.Colors[tcToolBack]; { This is gray/btnface if not dark mode }
 end;
@@ -448,7 +448,7 @@ begin
       const TempSize = 64; { Same as Vcl.Touch.Keyboard.pas }
       var TempStr: String;
       SetLength(TempStr, TempSize);
-      ZeroMemory(@TempStr[1], TempSize * SizeOf(Char));
+      ZeroMemory(@TempStr[1], Cardinal(TempSize) * SizeOf(Char));
       var Size := ToUnicode(Key, ScanCode, KeyboardState, @TempStr[1], TempSize, 0);
       if Size = -1 then begin
         { This was a dead key, now stored in TempStr. Add space to get the dead
@@ -753,7 +753,7 @@ begin
   Result := -1;
 end;
 
-function CreateBitmapInfo(const Width, Height, BitCount: Integer): TBitmapInfo;
+function CreateBitmapInfo(const Width, Height: Integer; const BitCount: Word): TBitmapInfo;
 begin
   ZeroMemory(@Result, SizeOf(Result));
   Result.bmiHeader.biSize := SizeOf(Result.bmiHeader);

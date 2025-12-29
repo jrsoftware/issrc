@@ -2,7 +2,7 @@ unit DropListBox;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -95,12 +95,11 @@ end;
 procedure TDropListBox.WMDropFiles(var Msg: TWMDropFiles);
 var
   FileName: array[0..MAX_PATH] of Char;
-  I, FileCount: Integer;
 begin
   try
     if Assigned(FOnDropFile) then begin
-      FileCount := DragQueryFile(Msg.Drop, $FFFFFFFF, nil, 0);
-      for I := 0 to FileCount-1 do
+      const FileCount = DragQueryFile(Msg.Drop, $FFFFFFFF, nil, 0);
+      for var I := 0 to FileCount-1 do
         if DragQueryFile(Msg.Drop, I, FileName, SizeOf(FileName)) > 0 then
           FOnDropFile(Self, FileName);
     end;

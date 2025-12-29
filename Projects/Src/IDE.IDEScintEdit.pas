@@ -55,7 +55,7 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
-  TIDEScintIndicatorNumber = 0..minMax;
+  TIDEScintIndicatorNumber = Low(TScintIndicatorNumber)..minMax;
 
  { Keymaps - Note: Scintilla's default keymap is the same or at least nearly
    the same as Visual Studio's }
