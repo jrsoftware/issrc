@@ -941,42 +941,6 @@ begin
 end;
 
 procedure TWizardForm.GenerateScript;
-
-  function Is64BitPEImage(const Filename: String): Boolean;
-  { Returns True if the specified file is a non-32-bit PE image, False
-    otherwise. }
-  var
-    F: TFile;
-    DosHeader: packed record
-      Sig: array[0..1] of AnsiChar;
-      Other: array[0..57] of Byte;
-      PEHeaderOffset: LongWord;
-    end;
-    PESigAndHeader: packed record
-      Sig: DWORD;
-      Header: TImageFileHeader;
-      OptHeaderMagic: Word;
-    end;
-  begin
-    Result := False;
-    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
-    try
-      if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-        if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-           (DosHeader.PEHeaderOffset <> 0) then begin
-          F.Seek(DosHeader.PEHeaderOffset);
-          if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
-            if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
-               (PESigAndHeader.OptHeaderMagic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
-              Result := True;
-          end;
-        end;
-      end;
-    finally
-      F.Free;
-    end;
-  end;
-
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   I: Integer;
