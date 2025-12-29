@@ -1533,7 +1533,7 @@ begin
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' '#$2013' ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' 32-bit' {$ENDIF} +
+    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} +
     ' '#$2013' ' + GetLicenseeDescription;
   if FCompiling then
     NewCaption := NewCaption + '  [Compiling]'

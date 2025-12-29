@@ -115,7 +115,7 @@ begin
   Func := GetProcAddress(GetModuleHandle('shell32.dll'),
     'SetCurrentProcessExplicitAppUserModelID');
   if Assigned(Func) then
-    Func('JR.InnoSetup.IDE.7');
+    Func('JR.InnoSetup.IDE.7' {$IFDEF WIN64} + '-x64' {$ENDIF});
 end;
 
 procedure RegisterApplicationRestart;
@@ -163,7 +163,7 @@ procedure CreateMutexes;
   to 4.0 TSE don't have a global name space and don't support the 'Global\'
   prefix). }
 const
-  MutexName = 'InnoSetupCompilerAppMutex7';
+  MutexName = 'InnoSetupCompilerAppMutex7' {$IFDEF WIN64} + '-x64' {$ENDIF};
 begin
   CreateMutex(MutexName);
   CreateMutex('Global\' + MutexName); { don't localize }

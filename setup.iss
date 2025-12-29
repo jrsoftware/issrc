@@ -8,24 +8,48 @@
 
 ; #define x64
 
+#ifdef x64
+  #define arch "x64"
+  #define dasharch "-" + arch
+  #define spacebit ""
+#else
+  #define arch "x86"
+  #define dasharch ""
+  #define spacebit " (32-bit)"
+#endif
+
+#define AppId "Inno Setup 7"
+
 #include "isdonateandmail.iss"
 
 #include "isportable.iss"
 
+[Code]
+function GetExtendedAppId(ForceExtension: String): String;
+begin
+  Result := '{#AppId}';
+  if '{#spacebit}' <> '' then begin
+    { DefaultDirName: extend if installing to userpf, since there's no distinct userpf32 vs userpf64
+      DefaultGroupName: always extend to not mess up side-by-side installation } 
+    if (ForceExtension = '1') or not IsAdminInstallMode then
+      Result := Result + '{#spacebit}';
+  end;
+end;
+
 [Setup]
 AppName=Inno Setup
-AppId={code:GetAppId|Inno Setup 7}
-AppVersion=7.0.0-dev
+AppId={code:GetAppId|{#AppId}}
+AppVersion=7.0.0-dev{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
 AppUpdatesURL=https://www.innosetup.com/
 VersionInfoCopyright=Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.
-AppMutex=InnoSetupCompilerAppMutex7,Global\InnoSetupCompilerAppMutex7
-SetupMutex=InnoSetupCompilerSetupMutex7,Global\InnoSetupCompilerSetupMutex7
+AppMutex=InnoSetupCompilerAppMutex7{#dasharch},Global\InnoSetupCompilerAppMutex7{#dasharch}
+SetupMutex=InnoSetupCompilerSetupMutex7{#dasharch},Global\InnoSetupCompilerSetupMutex7{#dasharch}
 WizardStyle=modern dynamic
-DefaultDirName={code:GetDefaultDirName|Inno Setup 7}
-DefaultGroupName=Inno Setup 7
+DefaultDirName={code:GetDefaultDirName|{code:GetExtendedAppId|0}}
+DefaultGroupName={code:GetExtendedAppId|1}
 PrivilegesRequiredOverridesAllowed=commandline
 AllowNoIcons=yes
 Compression=lzma2/max
@@ -41,11 +65,7 @@ TouchTime=00:00
 SignTool=issigntool256
 SignedUninstaller=yes
 #endif
-#ifdef x64
-SetupArchitecture=x64
-#else
-SetupArchitecture=x86
-#endif
+SetupArchitecture={#arch}
 
 #sub ProcessFoundLanguagesFile
   #define FileName FindGetFileName(FindHandle)
@@ -109,8 +129,8 @@ Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "files\isscint.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isscint.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
 Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -129,22 +149,22 @@ Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touc
 Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7z.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7z.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7zxa.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7zxa.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7zxr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7zxr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\iszlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\iszlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isunzlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isbzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isbzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isbunzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\islzma.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\islzma.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7z{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7z{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxa{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxa{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxr{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxr{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\iszlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\iszlib{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isunzlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isunzlib{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isbzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isbunzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbunzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\islzma{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #ifndef x64
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -204,13 +224,13 @@ Type: files; Name: "{app}\isfaq.url"
 
 [Icons]
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
-Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7"
+Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Documentation (Dark)"; Filename: "{app}\ISetup-dark.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7"; Tasks: desktopicon
+Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"; Tasks: desktopicon
 
 [Run]
 ; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
