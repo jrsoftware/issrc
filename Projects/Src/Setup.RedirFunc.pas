@@ -20,8 +20,10 @@ uses
 
 type
   TPreviousFsRedirectionState = record
+    {$IFNDEF WIN64}
     DidDisable: Boolean;
     OldValue: Pointer;
+    {$ENDIF}
   end;
 
 function AreFsRedirectionFunctionsAvailable: Boolean;
@@ -109,14 +111,16 @@ implementation
 uses
   Shared.CommonFunc, PathFunc;
 
+{$IFNDEF WIN64}
 var
   Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
   Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
   FsRedirectionFunctionsAvailable: Boolean;
+{$ENDIF}
 
 function AreFsRedirectionFunctionsAvailable: Boolean;
 begin
-  Result := FsRedirectionFunctionsAvailable;
+  Result := {$IFNDEF WIN64} FsRedirectionFunctionsAvailable {$ELSE} False {$ENDIF};
 end;
 
 function DisableFsRedirectionIf(const Disable: Boolean;
@@ -129,6 +133,7 @@ function DisableFsRedirectionIf(const Disable: Boolean;
   Returns True if successful, False if not. For extended error information when
   False is returned, call GetLastError. }
 begin
+  {$IFNDEF WIN64}
   PreviousState.DidDisable := False;
   if not Disable then
     Result := True
@@ -148,6 +153,9 @@ begin
       Result := False;
     end;
   end;
+  {$ELSE}
+  Result := True;
+  {$ENDIF}
 end;
 
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
@@ -155,8 +163,10 @@ procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState)
   DisableFsRedirectionIf. There is no indication of failure (which is
   extremely unlikely). }
 begin
+  {$IFNDEF WIN64}
   if PreviousState.DidDisable then
     Wow64RevertWow64FsRedirectionFunc(PreviousState.OldValue);
+  {$ENDIF}
 end;
 
 { *Redir functions }
@@ -595,12 +605,14 @@ begin
 end;
 
 initialization
+  {$IFNDEF WIN64}
   Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
     'Wow64DisableWow64FsRedirection');
   Wow64RevertWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
     'Wow64RevertWow64FsRedirection');
   FsRedirectionFunctionsAvailable := Assigned(Wow64DisableWow64FsRedirectionFunc) and
     Assigned(Wow64RevertWow64FsRedirectionFunc);
+  {$ENDIF}
 
   { For GetVersionNumbersRedir: Pre-load shell32.dll since GetFileVersionInfo
     and GetFileVersionInfoSize will try to load it when reading version info
