@@ -136,8 +136,12 @@ Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify 
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\Setup.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\Setup.e64"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
+Source: "files\Setup.e64.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupCustomStyle.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\SetupCustomStyle.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\SetupCustomStyle.e64"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
+Source: "files\SetupCustomStyle.e64.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\SetupLdr.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e64"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
