@@ -126,9 +126,8 @@ begin
   IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
-  MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';
-  MSGText.SelStart := Integer(MSGText.Perform(EM_LINEINDEX, 0, 0));
-  MSGText.SelLength := Length(MSGText.Lines[0]);
+  MSGText.Text := '<Enter your text here...>';
+  MSGText.SelectAll;
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;
   cb_IDRETRY.Enabled := False;
