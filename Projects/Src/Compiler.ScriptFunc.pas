@@ -92,6 +92,7 @@ begin
   RegisterType('UINT_PTR', 'NativeUInt');
 
   RegisterType('LRESULT', 'NativeInt');
+  RegisterType('HKEY', 'NativeUInt');
   RegisterType('HMODULE', 'NativeUInt');
   RegisterType('WPARAM', 'NativeUInt');
   RegisterType('LPARAM', 'NativeInt');

@@ -2439,7 +2439,7 @@ end;</pre>
     <subcategory>
       <function>
         <name>RegKeyExists</name>
-        <prototype>function RegKeyExists(const RootKey: Integer; const SubKeyName: String): Boolean;</prototype>
+        <prototype>function RegKeyExists(const RootKey: HKEY; const SubKeyName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key exists.</p></description>
         <example><pre>begin
   if RegKeyExists(HKEY_AUTO, 'Software\Jordan Russell\Inno Setup') then
@@ -2450,7 +2450,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegValueExists</name>
-        <prototype>function RegValueExists(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;</prototype>
+        <prototype>function RegValueExists(const RootKey: HKEY; const SubKeyName, ValueName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key and value exist.</p></description>
         <example><pre>begin
   if RegValueExists(HKEY_CURRENT_USER, 'Console', 'WindowSize') then
@@ -2463,7 +2463,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>RegGetSubkeyNames</name>
-        <prototype>function RegGetSubkeyNames(const RootKey: Integer; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
+        <prototype>function RegGetSubkeyNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
         <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
@@ -2481,7 +2481,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegGetValueNames</name>
-        <prototype>function RegGetValueNames(const RootKey: Integer; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
+        <prototype>function RegGetValueNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
         <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
         <example><pre>var
   Names: TArrayOfString;
@@ -2501,7 +2501,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>RegQueryStringValue</name>
-        <prototype>function RegQueryStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
+        <prototype>function RegQueryStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
         <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
         <example><pre>var
   Country: String;
@@ -2516,13 +2516,13 @@ end;</pre></example>
       </function>
       <function>
         <name>RegQueryMultiStringValue</name>
-        <prototype>function RegQueryMultiStringValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
+        <prototype>function RegQueryMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
         <description><p>Queries the specified REG_MULTI_SZ-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
       </function>
       <function>
         <name>RegQueryDWordValue</name>
-        <prototype>function RegQueryDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
+        <prototype>function RegQueryDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
         <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in ResultDWord. Returns True if successful. When False is returned, ResultDWord is unmodified.</p></description>
         <example><pre>var
   HistoryBufferSize: Cardinal;
@@ -2538,14 +2538,14 @@ end;</pre></example>
       </function>
       <function>
         <name>RegQueryBinaryValue</name>
-        <prototype>function RegQueryBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
+        <prototype>function RegQueryBinaryValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
         <description><p>Queries the specified registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>RegWriteStringValue</name>
-        <prototype>function RegWriteStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <prototype>function RegWriteStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
         <example><pre>begin
@@ -2555,7 +2555,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegWriteExpandStringValue</name>
-        <prototype>function RegWriteExpandStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <prototype>function RegWriteExpandStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
   RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
@@ -2564,7 +2564,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegWriteMultiStringValue</name>
-        <prototype>function RegWriteMultiStringValue(const RootKey: Integer; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
+        <prototype>function RegWriteMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
         <example><pre>begin
@@ -2574,7 +2574,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegWriteDWordValue</name>
-        <prototype>function RegWriteDWordValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
+        <prototype>function RegWriteDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
         <description><p>Writes the specified REG_DWORD-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
   RegWriteDWordValue(HKEY_AUTO, 'Software\My Company\My Program',
@@ -2583,7 +2583,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RegWriteBinaryValue</name>
-        <prototype>function RegWriteBinaryValue(const RootKey: Integer; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
+        <prototype>function RegWriteBinaryValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
         <description><p>Writes the specified REG_BINARY-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
   RegWriteBinaryValue(HKEY_AUTO, 'Software\My Company\My Program',
@@ -2594,17 +2594,17 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>RegDeleteKeyIncludingSubkeys</name>
-        <prototype>function RegDeleteKeyIncludingSubkeys(const RootKey: Integer; const SubkeyName: String): Boolean;</prototype>
+        <prototype>function RegDeleteKeyIncludingSubkeys(const RootKey: HKEY; const SubkeyName: String): Boolean;</prototype>
         <description><p>Deletes the specified key and all subkeys. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>RegDeleteKeyIfEmpty</name>
-        <prototype>function RegDeleteKeyIfEmpty(const RootKey: Integer; const SubkeyName: String): Boolean;</prototype>
+        <prototype>function RegDeleteKeyIfEmpty(const RootKey: HKEY; const SubkeyName: String): Boolean;</prototype>
         <description><p>Deletes the specified subkey if it has no subkeys or values. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>RegDeleteValue</name>
-        <prototype>function RegDeleteValue(const RootKey: Integer; const SubKeyName, ValueName: String): Boolean;</prototype>
+        <prototype>function RegDeleteValue(const RootKey: HKEY; const SubKeyName, ValueName: String): Boolean;</prototype>
         <description><p>Deletes the specified value. Returns True if successful, False otherwise.</p></description>
       </function>
     </subcategory>
