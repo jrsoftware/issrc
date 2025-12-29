@@ -57,7 +57,7 @@ procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut); overload;
 procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
-procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
+procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
@@ -550,7 +550,7 @@ begin
   end;
 end;
 
-procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Cardinal);
+procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
 var
   ST: TSystemTime;
   LineNumber: Cardinal;
@@ -577,7 +577,7 @@ var
         end;
       alpCountdown:
         begin
-          Insert(Format('[%.2d]   ', [PrefixParam-LineNumber]), S, 1);
+          Insert(Format('[%.2d]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
         end;
     end;
     try

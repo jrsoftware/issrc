@@ -66,6 +66,7 @@ type
     function Within(const ARange: TScintRange): Boolean;
   end;
   TScintRangeList = class(TList<TScintRange>)
+    function Count: Integer;
     function Overlaps(const ARange: TScintRange;
       var AOverlappingRange: TScintRange): Boolean;
   end;
@@ -74,7 +75,9 @@ type
     constructor Create(const ACaretPos, AAnchorPos: Integer);
     function Range: TScintRange;
   end;
-  TScintCaretAndAnchorList = class(TList<TScintCaretAndAnchor>);
+  TScintCaretAndAnchorList = class(TList<TScintCaretAndAnchor>)
+    function Count: Integer;
+  end;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
   TScintRectangle = record
@@ -249,14 +252,14 @@ type
       const Command: TScintCommand); overload;
     procedure BeginUndoAction;
     procedure BraceMatch;
-    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM; out WarnStatus: Integer): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM; out WarnStatus: Integer): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT; overload;
-    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): Integer; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): Integer; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM; out WarnStatus: Integer): Integer; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM; out WarnStatus: Integer): Integer; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString): Integer; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString): Integer; overload;
+    function Call(Msg: Cardinal; WParam: NativeInt; const LParamStr: TScintRawString; out WarnStatus: Integer): Integer; overload;
+    function Call(Msg: Cardinal; WParam: WPARAM; const LParamStr: TScintRawString; out WarnStatus: Integer): Integer; overload;
     procedure CancelAutoComplete;
     procedure CancelAutoCompleteAndCallTip;
     procedure CancelCallTip;
@@ -693,26 +696,26 @@ begin
   end;
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): LRESULT;
+function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM): Integer;
 begin
   var Dummy: Integer;
   Result := Call(Msg, NativeUInt(WParam), LParam, Dummy);
 end;
 
-function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): LRESULT;
+function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM): Integer;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParam, Dummy);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt; LParam: LPARAM;
-  out WarnStatus: Integer): LRESULT;
+  out WarnStatus: Integer): Integer;
 begin
   Result := Call(Msg, NativeUInt(WParam), LParam, WarnStatus);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM;
-  out WarnStatus: Integer): LRESULT;
+  out WarnStatus: Integer): Integer;
 begin
   HandleNeeded;
   if FDirectPtr = nil then
@@ -720,7 +723,7 @@ begin
   if not Assigned(FDirectStatusFunction) then
     Error('Call: FDirectStatusFunction is nil');
   var ErrorStatus: Integer;
-  Result := FDirectStatusFunction(FDirectPtr, Msg, WParam, LParam, ErrorStatus);
+  Result := Integer(FDirectStatusFunction(FDirectPtr, Msg, WParam, LParam, ErrorStatus));
 
   if ErrorStatus <> 0 then begin
     var Dummy: Integer;
@@ -734,27 +737,27 @@ begin
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt;
-  const LParamStr: TScintRawString): LRESULT;
+  const LParamStr: TScintRawString): Integer;
 begin
   var Dummy: Integer;
   Result := Call(Msg, NativeUInt(WParam), LParamStr, Dummy);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
-  const LParamStr: TScintRawString): LRESULT;
+  const LParamStr: TScintRawString): Integer;
 begin
   var Dummy: Integer;
   Result := Call(Msg, WParam, LParamStr, Dummy);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: NativeInt;
-  const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT;
+  const LParamStr: TScintRawString; out WarnStatus: Integer): Integer;
 begin
   Result := Call(Msg, NativeUInt(WParam), LPARAM(PAnsiChar(LParamStr)), WarnStatus);
 end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM;
-  const LParamStr: TScintRawString; out WarnStatus: Integer): LRESULT;
+  const LParamStr: TScintRawString; out WarnStatus: Integer): Integer;
 begin
   Result := Call(Msg, WParam, LPARAM(PAnsiChar(LParamStr)), WarnStatus);
 end;
@@ -1571,20 +1574,20 @@ begin
     SCN_MARGINCLICK:
       begin
         if Assigned(FOnMarginClick) then
-          FOnMarginClick(Self, N.margin, GetLineFromPosition(N.position));
+          FOnMarginClick(Self, N.margin, GetLineFromPosition(Integer(N.position)));
       end;
     SCN_MARGINRIGHTCLICK:
       begin
         if Assigned(FOnMarginRightClick) then
-          FOnMarginRightClick(Self, N.margin, GetLineFromPosition(N.position));
+          FOnMarginRightClick(Self, N.margin, GetLineFromPosition(Integer(N.position)));
       end;
     SCN_MODIFIED:
       begin
         { CreateWnd limits SCN_MODIFIED to INSERTTEXT and DELETETEXT }
         if N.modificationType and SC_MOD_INSERTTEXT <> 0 then
-          Change(True, N.position, N.length, N.linesAdded)
+          Change(True, Integer(N.position), Integer(N.length), Integer(N.linesAdded))
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
-          Change(False, N.position, N.length, N.linesAdded);
+          Change(False, Integer(N.position), Integer(N.length), Integer(N.linesAdded));
 
         if (N.linesAdded > 0) and FLineNumbers then
           UpdateLineNumbersWidth;
@@ -1595,7 +1598,7 @@ begin
         if Assigned(FOnModifiedChange) then
           FOnModifiedChange(Self);
       end;
-    SCN_STYLENEEDED: StyleNeeded(N.position);
+    SCN_STYLENEEDED: StyleNeeded(Integer(N.position));
     SCN_UPDATEUI:
       begin
         if Assigned(FOnUpdateUI) then
@@ -3088,6 +3091,11 @@ end;
 
 { TScintRangeList }
 
+function TScintRangeList.Count: Integer;
+begin
+  Result := Integer(inherited Count);
+end;
+
 function TScintRangeList.Overlaps(const ARange: TScintRange;
   var AOverlappingRange: TScintRange): Boolean;
 begin
@@ -3117,6 +3125,13 @@ begin
     Result.StartPos := AnchorPos;
     Result.EndPos := CaretPos;
   end;
+end;
+
+{ TScintCaretAndAnchorList }
+
+function TScintCaretAndAnchorList.Count: Integer;
+begin
+  Result := Integer(inherited Count);
 end;
 
 end.

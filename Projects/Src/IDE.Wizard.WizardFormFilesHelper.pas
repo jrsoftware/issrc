@@ -25,7 +25,7 @@ type
       FEditButton: TButton;
       FRemoveButton: TButton;
       function AddWizardFile(const Source: String; const Options: TWizardFileOptions): PWizardFile;
-      function GetWizardFilesCount: Integer;
+      function GetWizardFilesCount: NativeInt;
       procedure UpdateWizardFiles;
       procedure UpdateWizardFilesButtons;
       procedure FilesListBoxClick(Sender: TObject);
@@ -43,7 +43,7 @@ type
       destructor Destroy; override;
       procedure AddScript(var Files: String); overload;
       procedure AddScript(var Files: String; out HasExtractArchive: Boolean); overload;
-      property FilesCount: Integer read GetWizardFilesCount;
+      property FilesCount: NativeInt read GetWizardFilesCount;
   end;
 
 implementation
@@ -105,7 +105,7 @@ begin
   Result := WizardFile;
 end;
 
-function TWizardFormFilesHelper.GetWizardFilesCount: Integer;
+function TWizardFormFilesHelper.GetWizardFilesCount: NativeInt;
 begin
   Result := FWizardFiles.Count;
 end;
@@ -113,11 +113,10 @@ end;
 procedure TWizardFormFilesHelper.UpdateWizardFiles;
 var
   WizardFile: PWizardFile;
-  I: Integer;
 begin
   FFilesListBox.Items.BeginUpdate;
   FFilesListBox.Items.Clear;
-  for I := 0 to FWizardFiles.Count-1 do begin
+  for var I := 0 to FWizardFiles.Count-1 do begin
     WizardFile := FWizardFiles[i];
     FFilesListBox.Items.Add(WizardFile.Source);
   end;
@@ -263,11 +262,10 @@ end;
 procedure TWizardFormFilesHelper.AddScript(var Files: String; out HasExtractArchive: Boolean);
 var
   WizardFile: PWizardFile;
-  I: Integer;
 begin
   var AddedVerificationNote := False;
 
-  for I := 0 to FWizardFiles.Count-1 do begin
+  for var I := 0 to FWizardFiles.Count-1 do begin
     WizardFile := FWizardFiles[I];
 
     if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin

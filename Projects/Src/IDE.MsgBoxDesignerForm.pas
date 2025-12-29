@@ -127,7 +127,7 @@ begin
 
   cb_Suppressible.Checked := True;
   MSGText.Lines[MSGText.CaretPos.Y] := '<Enter your text here...>';
-  MSGText.SelStart := MSGText.Perform(EM_LINEINDEX, 0, 0);
+  MSGText.SelStart := Integer(MSGText.Perform(EM_LINEINDEX, 0, 0));
   MSGText.SelLength := Length(MSGText.Lines[0]);
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;

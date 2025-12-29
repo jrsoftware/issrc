@@ -94,7 +94,7 @@ end;
 
 procedure TMainFormNavigationHelper.HandleNavigationAppCommand(var Message: TMessage);
 begin
-  var Command := GET_APPCOMMAND_LPARAM(Message.LParam);
+  var Command := GET_APPCOMMAND_LPARAM(Integer(Message.LParam));
 
   if Command = APPCOMMAND_BROWSER_BACKWARD then begin
     if BackNavButton.Enabled then
@@ -129,7 +129,7 @@ end;
 procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
 
   procedure AddNavItemToMenu(const NavItem: TIDEScintEditNavItem; const Checked: Boolean;
-    const ClicksNeeded: Integer; const Menu: TMenuItem);
+    const ClicksNeeded: NativeInt; const Menu: TMenuItem);
   begin
     if NavItem.Line >= NavItem.Memo.Lines.Count then
       raise Exception.Create('NavItem.Line >= NavItem.Memo.Lines.Count');

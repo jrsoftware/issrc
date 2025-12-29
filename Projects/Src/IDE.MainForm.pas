@@ -482,7 +482,7 @@ type
     FRunParameters: String;
     FLastEvaluateConstantText: String;
     FSavePriorityClass: DWORD;
-    FBuildAnimationFrame: Cardinal;
+    FBuildAnimationFrame: Integer;
     FLastAnimationTick: DWORD;
     FProgress, FProgressMax: Cardinal;
     FTaskbarProgressValue: Cardinal;
@@ -971,7 +971,6 @@ constructor TMainForm.Create(AOwner: TComponent);
   end;
 
 var
-  I: Integer;
   NewItem: TMenuItem;
   PopupMenu: TPopupMenu;
   Memo: TIDEScintEdit;
@@ -1049,7 +1048,7 @@ begin
   FMemos.Add(FMainMemo);
   FPreprocessorOutputMemo := InitializeNonFileMemo(TIDEScintEdit.Create(Self), PopupMenu);
   FMemos.Add(FPreprocessorOutputMemo);
-  for I := FMemos.Count to MaxMemos-1 do
+  for var I := FMemos.Count to MaxMemos-1 do
     FMemos.Add(InitializeFileMemo(TIDEScintFileEdit.Create(Self), PopupMenu));
   FFileMemos := TList<TIDEScintFileEdit>.Create;
   for Memo in FMemos do
@@ -1092,7 +1091,7 @@ begin
   Application.OnIdle := AppOnIdle;
 
   FMRUMainFilesList := TStringList.Create;
-  for I := 0 to High(FMRUMainFilesMenuItems) do begin
+  for var I := 0 to High(FMRUMainFilesMenuItems) do begin
     NewItem := TMenuItem.Create(Self);
     NewItem.OnClick := FMRUClick;
     FRecent.Insert(I, NewItem);
@@ -1763,16 +1762,22 @@ procedure TMainForm.OpenFile(AMemo: TIDEScintFileEdit; AFilename: String;
       Result := nil;
   end;
 
-  { Same as TStrings.LoadFromStream, except that it returns the loaded string }
+  { Same as TStrings.LoadFromStream, except that it returns the loaded string and that
+    it caps the size same as GetStreamSaveEncoding }
   function LoadFromStream(const Stream: TStream; const Encoding: TEncoding): String;
   begin
-    const Size = Stream.Size - Stream.Position;
+    const SizeLeft = Stream.Size - Stream.Position;
+    var CappedSize: Integer;
+    if SizeLeft > High(Integer) then
+      CappedSize := High(Integer)
+    else
+      CappedSize := Integer(SizeLeft);
     var Buffer: TBytes;
-    SetLength(Buffer, Size);
-    Stream.Read64(Buffer, 0, Size);
+    SetLength(Buffer, CappedSize);
+    Stream.Read(Buffer, 0, CappedSize);
     var BufferEncoding := Encoding;
     const PreambleSize = TEncoding.GetBufferEncoding(Buffer, BufferEncoding, TEncoding.Default);
-    Result := BufferEncoding.GetString(Buffer, PreambleSize, Length(Buffer) - PreambleSize);
+    Result := BufferEncoding.GetString(Buffer, PreambleSize, CappedSize - PreambleSize);
   end;
 
   type
@@ -2012,7 +2017,7 @@ end;
 procedure TMainForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
 begin
   DebugCallStackList.Clear;
-  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, FCallStackCount-1);
+  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(FCallStackCount-1));
   DebugCallStackList.Items.Insert(0, '*** [Code] Call Stack');
   DebugCallStackList.Update;
 end;
@@ -2160,7 +2165,11 @@ begin
         begin
           OutputExe := Data.OutputExeFilename;
           if Form.FCompilerVersion.BinVersion >= $3000001 then begin
-            DebugInfo := AllocMem(Data.DebugInfoSize);
+            {$IFNDEF WIN64}
+            if Data.DebugInfoSize > Cardinal(High(Integer)) then
+              raise Exception.Create('Unexpected Data.DebugInfoSize value');
+            {$ENDIF}
+            DebugInfo := AllocMem(NativeInt(Data.DebugInfoSize));
             UMove(Data.DebugInfo^, DebugInfo^, Data.DebugInfoSize);
           end else
             DebugInfo := nil;
@@ -3016,7 +3025,7 @@ end;
 
 procedure TMainForm.ReopenTabClick(Sender: TObject);
 begin
-  ReopenTabOrTabs((Sender as TMenuItem).Tag, True);
+  ReopenTabOrTabs(Integer((Sender as TMenuItem).Tag), True);
 end;
 
 procedure TMainForm.VReopenTabsClick(Sender: TObject);
@@ -3949,7 +3958,7 @@ begin
       raise Exception.Create('not FPreprocessorOutputMemo.Used');
     Result := MemosTabSet.Tabs.Count-1 { Last tab displays the preprocessor output memo }
   end else begin
-    Result := FFileMemos.IndexOf(AMemo as TIDEScintFileEdit); { Other tabs display include files which start second tab }
+    Result := Integer(FFileMemos.IndexOf(AMemo as TIDEScintFileEdit)); { Other tabs display include files which start second tab }
 
    { Filter memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
@@ -4750,8 +4759,7 @@ begin
            Line, GetCodeColumnFromPosition(VarOrFuncRange.StartPos), DebugEntry) then begin
         var Output: String;
         case EvaluateVariableEntry(DebugEntry, Output) of
-          1: HintStr := Output;
-          2: HintStr := Output;
+          1, 2: HintStr := Output;
         else
           HintStr := 'Unknown error';
         end;
@@ -4836,7 +4844,7 @@ end;
 
 procedure TMainForm.WMDebuggerQueryVersion(var Message: TMessage);
 begin
-  Message.Result := FCompilerVersion.BinVersion;
+  Message.Result := LRESULT(FCompilerVersion.BinVersion);
 end;
 
 procedure TMainForm.WMDebuggerHello(var Message: TMessage);
@@ -4930,7 +4938,7 @@ var
   DebugEntry: PDebugEntry;
   LineNumber: Integer;
 begin
-  GetMemoAndDebugEntryFromMessage(Message.WParam, Message.LParam, Memo, DebugEntry);
+  GetMemoAndDebugEntryFromMessage(Integer(Message.WParam), Integer(Message.LParam), Memo, DebugEntry);
   if (Memo = nil) or (DebugEntry = nil) then
     Exit;
 
@@ -4991,7 +4999,7 @@ var
   S: String;
 begin
   if FOptions.PauseOnDebuggerExceptions then begin
-    GetMemoAndDebugEntryFromMessage(Message.WParam, Message.LParam, Memo, DebugEntry);
+    GetMemoAndDebugEntryFromMessage(Integer(Message.WParam), Integer(Message.LParam), Memo, DebugEntry);
 
     if DebugEntry <> nil then
       LineNumber := DebugEntry.LineNumber
@@ -5030,14 +5038,13 @@ end;
 
 procedure TMainForm.WMDebuggerCallStackCount(var Message: TMessage);
 begin
-  FCallStackCount := Message.WParam;
+  FCallStackCount := Cardinal(Message.WParam);
 end;
 
 procedure TMainForm.WMCopyData(var Message: TWMCopyData);
-var
-  S: String;
 begin
-  case Message.CopyDataStruct.dwData of
+  const CopyDataMsg = DWORD(Message.CopyDataStruct.dwData);
+  case CopyDataMsg of
     CD_Debugger_ReplyW: begin
         FReplyString := '';
         SetString(FReplyString, PChar(Message.CopyDataStruct.lpData),
@@ -5055,6 +5062,7 @@ begin
         Message.Result := 1;
       end;
     CD_Debugger_LogMessageW: begin
+        var S: String;
         SetString(S, PChar(Message.CopyDataStruct.lpData),
           Message.CopyDataStruct.cbData div SizeOf(Char));
         DebugLogMessage(S);
@@ -5064,6 +5072,7 @@ begin
         { Paranoia: Store it in a local variable first. That way, if there's
           a problem reading the string FTempDir will be left unmodified.
           Gotta be extra careful when storing a path we'll be deleting. }
+        var S: String;
         SetString(S, PChar(Message.CopyDataStruct.lpData),
           Message.CopyDataStruct.cbData div SizeOf(Char));
         { Extreme paranoia: If there are any embedded nulls, discard it. }
@@ -5073,6 +5082,7 @@ begin
         Message.Result := 1;
       end;
     CD_Debugger_CallStackW: begin
+        var S: String;
         SetString(S, PChar(Message.CopyDataStruct.lpData),
           Message.CopyDataStruct.cbData div SizeOf(Char));
         DebugShowCallStack(S, FCallStackCount);
@@ -5145,7 +5155,6 @@ procedure TMainForm.ParseDebugInfo(DebugInfo: Pointer);
 var
   Header: PDebugInfoHeader;
   Memo: TIDEScintFileEdit;
-  Size: Cardinal;
   I: Integer;
 begin
   DestroyDebugInfo;
@@ -5168,9 +5177,9 @@ begin
     Inc(PByte(DebugInfo), SizeOf(Header^));
 
     FDebugEntriesCount := Header.DebugEntryCount;
-    Size := FDebugEntriesCount * SizeOf(TDebugEntry);
+    var Size := FDebugEntriesCount * SizeOf(TDebugEntry);
     GetMem(FDebugEntries, Size);
-    UMove(DebugInfo^, FDebugEntries^, Size);
+    Move(DebugInfo^, FDebugEntries^, Size);
     for I := 0 to FDebugEntriesCount-1 do
       Dec(FDebugEntries[I].LineNumber);
     Inc(PByte(DebugInfo), Size);
@@ -5178,7 +5187,7 @@ begin
     FVariableDebugEntriesCount := Header.VariableDebugEntryCount;
     Size := FVariableDebugEntriesCount * SizeOf(TVariableDebugEntry);
     GetMem(FVariableDebugEntries, Size);
-    UMove(DebugInfo^, FVariableDebugEntries^, Size);
+    Move(DebugInfo^, FVariableDebugEntries^, Size);
     Inc(PByte(DebugInfo), Size);
 
     SetString(FCompiledCodeText, PAnsiChar(DebugInfo), Header.CompiledCodeTextLength);
@@ -5670,7 +5679,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
       end;
       { Tell it to continue }
       SendNotifyMessage(FDebugClientWnd, WM_DebugClient_Continue,
-        Ord(AStepMode = smStepOver), 0);
+        WPARAM(Ord(AStepMode = smStepOver)), 0);
     end;
   end;
 
@@ -5690,8 +5699,8 @@ function TMainForm.EvaluateConstant(const S: String;
 begin
   { This is about evaluating constants like 'app' and not [Code] variables }
   FReplyString := '';
-  Result := SendCopyDataMessageStr(FDebugClientWnd, Handle,
-    CD_DebugClient_EvaluateConstantW, S);
+  Result := Integer(SendCopyDataMessageStr(FDebugClientWnd, Handle,
+    CD_DebugClient_EvaluateConstantW, S));
   if Result > 0 then
     Output := FReplyString;
 end;
@@ -5700,8 +5709,8 @@ function TMainForm.EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
   out Output: String): Integer;
 begin
   FReplyString := '';
-  Result := SendCopyDataMessage(FDebugClientWnd, Handle, CD_DebugClient_EvaluateVariableEntry,
-    DebugEntry, SizeOf(DebugEntry^));
+  Result := Integer(SendCopyDataMessage(FDebugClientWnd, Handle, CD_DebugClient_EvaluateVariableEntry,
+    DebugEntry, SizeOf(DebugEntry^)));
   if Result > 0 then
     Output := FReplyString;
 end;
@@ -6033,7 +6042,7 @@ begin
           LStyle.DrawElement(Canvas.Handle, Details, R);
           InflateRect(R, -1, -1);
           const W = R.Width;
-          const Pos = Round(W * (FProgress / FProgressMax));
+          const Pos = Integer(Round(W * (FProgress / FProgressMax)));
           var FillR := R;
           FillR.Right := FillR.Left + Pos;
           Details := LStyle.GetElementDetails(tpChunk);
@@ -6046,8 +6055,8 @@ begin
           InflateRect(R, -1, -1);
           { Filled part }
           var SaveRight := R.Right;
-          R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
-            FProgressMax);
+          R.Right := R.Left + Integer(MulDivInt64(FProgress, R.Right - R.Left,
+            FProgressMax));
           Canvas.Brush.Color := clHighlight;
           Canvas.FillRect(R);
           { Unfilled part }
@@ -6068,8 +6077,8 @@ begin
           var CR := R;
           if (Win32MajorVersion = 10) and (Win32MinorVersion = 0) then
             Inc(CR.Left);  { does this need to be DPI-scaled? }
-          R.Right := R.Left + MulDiv(FProgress, R.Right - R.Left,
-            FProgressMax);
+          R.Right := R.Left + Integer(MulDivInt64(FProgress, R.Right - R.Left,
+            FProgressMax));
           DrawThemeBackground(FProgressThemeData, Canvas.Handle,
             PP_FILL, PBFS_NORMAL, R, @CR);
         end;
@@ -6419,10 +6428,9 @@ end;
 procedure TMainForm.ToggleBreakPoint(Line: Integer);
 var
   Memo: TIDEScintFileEdit;
-  I: Integer;
 begin
   Memo := FActiveMemo as TIDEScintFileEdit;
-  I := Memo.BreakPoints.IndexOf(Line);
+  const I = Memo.BreakPoints.IndexOf(Line);
   if I = -1 then
     Memo.BreakPoints.Add(Line)
   else

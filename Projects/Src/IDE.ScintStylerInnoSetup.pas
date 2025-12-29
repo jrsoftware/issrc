@@ -1024,7 +1024,7 @@ function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean
 begin
   var ScriptFunctions: TFunctionDefinitions;
   if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then begin
-    Count := Length(ScriptFunctions);
+    Count := Integer(Length(ScriptFunctions));
     var ResultIndex := Index;
     if ResultIndex >= Count then
       ResultIndex := Count-1;
@@ -1451,7 +1451,7 @@ procedure TInnoSetupStyler.HandleParameterSection(
 var
   ParamsSpecified: set of 0..31;
   S: TScintRawString;
-  I, ParamValueIndex, BraceLevel: Integer;
+  ParamValueIndex, BraceLevel: Integer;
   NamePresent, ValidName, DuplicateName, ColonPresent: Boolean;
 begin
   ParamsSpecified := [];
@@ -1464,7 +1464,7 @@ begin
     NamePresent := (S <> '');
     ValidName := False;
     DuplicateName := False;
-    for I := Low(ValidParameters) to High(ValidParameters) do
+    for var I := Low(ValidParameters) to High(ValidParameters) do
       if SameRawText(S, ValidParameters[I]) then begin
         ValidName := True;
         DuplicateName := (I in ParamsSpecified);
