@@ -8172,6 +8172,11 @@ begin
         LineNumber := SetupDirectiveLines[ssLZMADictionarySize];
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'LZMADictionarySize']);
       end;
+    end else begin
+      if SetupDirectiveLines[ssArchitecturesAllowed] = 0 then
+        SetupHeader.ArchitecturesAllowed := 'x64compatible';
+      if SetupDirectiveLines[ssArchitecturesInstallIn64BitMode] = 0 then
+        SetupHeader.ArchitecturesInstallIn64BitMode := 'x64compatible';
     end;
     if SetupDirectiveLines[ssAppName] = 0 then
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'AppName']);

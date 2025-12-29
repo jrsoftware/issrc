@@ -6466,10 +6466,11 @@ WizardBackImageOpacity=150</pre></example>
 <keyword value="Arm64" />
 <setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
 Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
-<setupdefault><tt>x86compatible</tt></setupdefault>
+<setupdefault><link topic="setup_setuparchitecture">32-bit Setup</link>: <tt>x86compatible</tt><br/>
+<link topic="setup_setuparchitecture">64-bit Setup</link>: <tt>x64compatible</tt></setupdefault>
 <body>
 <p>Specifies which architectures Setup is allowed to run on. If none of the specified architecture identifiers match the current system, Setup will display an error message (<tt>WindowsVersionNotSupported</tt>) and exit.</p>
-<p>If your application's binaries are all 32-bit, then there is normally no need to set this directive; the default value of <tt>x86compatible</tt> is correct. If your application's binaries are built for the x64 or Arm64 architectures, you should set this directive to either <tt>x64compatible</tt> or <tt>arm64</tt> respectively.</p>
+<p>If your application's binaries are all 32-bit and you're using <link topic="setup_setuparchitecture">32-bit Setup</link>, then there is normally no need to set this directive; the default value of <tt>x86compatible</tt> is correct. If your application's binaries are built for the x64 or Arm64 architectures, you should set this directive to either <tt>x64compatible</tt> or <tt>arm64</tt> respectively.</p>
 <p>If you are installing device drivers, then the proper setting is <tt>x86os</tt>, <tt>x64os</tt>, or <tt>arm64</tt>, depending on the architecture of the drivers.</p>
 <examples>
 <pre>
@@ -6512,13 +6513,14 @@ ArchitecturesAllowed=win64
 <keyword value="Arm64" />
 <setupvalid>A space separated list of <link topic="archidentifiers">architecture identifiers</link>.<br />
 Or, a boolean expression containing <link topic="archidentifiers">architecture identifiers</link>. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</setupvalid>
-<setupdefault><i>(blank)</i></setupdefault>
+<setupdefault><link topic="setup_setuparchitecture">32-bit Setup</link>: <i>(blank)</i><br/>
+<link topic="setup_setuparchitecture">64-bit Setup</link>: <tt>x64compatible</tt></setupdefault>
 <body>
-<p>Specifies the architectures on which Setup should enable <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is not specified or is blank, Setup will always use <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
+<p>Specifies the architectures on which Setup should enable <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is set to a blank value, Setup will always use <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
 <p>Generally, 64-bit install mode should only be enabled on installers that ship 64-bit binaries (x64 or Arm64).</p>
 <p>Since 64-bit install mode is only supported on systems running 64-bit Windows, the specified expression must never match systems running 32-bit Windows. So, for example, don't set this directive to a value like <tt>x86compatible</tt>, since that <i>will</i> match systems running 32-bit Windows. If the expression does indeed match a system running 32-bit Windows, Setup will display an error message and exit.</p>
 <p>Be sure you have read the <link topic="64bitlimitations">64-bit Installation Limitations</link> topic before setting this directive.</p>
-<p>If your application runs only on 64-bit architectures, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<p>If your application runs only on 64-bit architectures and you're using <link topic="setup_setuparchitecture">32-bit Setup</link>, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <example>
 <pre>
 ; Only allow the installer to run on x64-compatible systems,
