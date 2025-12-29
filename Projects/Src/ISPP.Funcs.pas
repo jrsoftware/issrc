@@ -1988,6 +1988,24 @@ begin
   end;
 end;
 
+function Is64BitPEImageFunc(Ext: NativeInt; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+begin
+  if CheckParams(Params, [evStr], 1, Result) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      MakeBool(ResPtr^, Is64BitPEImage(Get(0).AsStr));
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL
+    end;
+  end;
+end;
+
 procedure RegisterFunctions(Preproc: TPreprocessor);
 begin
   with Preproc do
@@ -2057,7 +2075,8 @@ begin
     RegisterFunction('Warning', WarningFunc, -1);
     RegisterFunction('Error', ErrorFunc, -1);
     RegisterFunction('AddQuotes', AddQuotesFunc, -1);
-    RegisterFunction('SameStr', SameStrFunc, -1)
+    RegisterFunction('SameStr', SameStrFunc, -1);
+    RegisterFunction('Is64BitPEImage', Is64BitPEImageFunc, -1);
   end;
 end;
 

@@ -1164,8 +1164,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> SaveStringToFile(<b>str</b> Filename, <b>str</b> S, <b>int</b>? Append, <b>int</b>? UTF8)</line></pre>
 				</section>
 				<description>
-          <p>Saves the specified string to the specified file. If Append is True or ommitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is True or ommitted, the string will be saved with UTF8 encoding instead of ASCII encoding. Returns True if successful, or False otherwise.</p>
-          <p>This function does not automatically write a line break before or after the string. If Append is True or ommitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before and/or after your string.</p>
+          <p>Saves the specified string to the specified file. If Append is non-zero or ommitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is non-zero or ommitted, the string will be saved with UTF8 encoding instead of ASCII encoding. Returns non-zero if successful, or zero otherwise.</p>
+          <p>This function does not automatically write a line break before or after the string. If Append is non-zero or ommitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before and/or after your string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1536,7 +1536,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Compares the packed versions Version1 and Version2 and returns True if they are equal.</p>
+					<p>Compares the packed versions Version1 and Version2 and returns non-zero if they are equal.</p>
 				</description>
 			</topic>
 			<topic id="UnpackVersionNumbers">
@@ -1793,7 +1793,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns nonzero value if given string is "yes", "true" or "1". Intended to be used with the <tt><link href="SetupSetting">SetupSetting</link></tt> function.</p>
+					<p>Returns non-zero if given string is "yes", "true" or "1". Intended to be used with the <tt><link href="SetupSetting">SetupSetting</link></tt> function.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1838,7 +1838,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns True if the given strings are identical, ignoring case.</p>
+					<p>Returns non-zero if the given strings are identical, ignoring case.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1850,7 +1850,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns True if the given strings are identical, with case-sensitivity.</p>
+					<p>Returns non-zero if the given strings are identical, with case-sensitivity.</p>
 				</description>
 			</topic>
 			<topic id="Message">
@@ -1895,6 +1895,17 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Adds a quote (&quot;) character to the left and right sides of the string if the string contains a space and it didn't have quotes already. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
+				</description>
+			</topic>
+			<topic id="Is64BitPEImage">
+				<title>Is64BitPEImage</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> Is64BitPEImage(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns non-zero if the specified file is a non-32-bit PE image, zero otherwise.</p>
 				</description>
 			</topic>
 		</topic>
