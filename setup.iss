@@ -21,7 +21,7 @@
 #define CheckArch(str Filename) \
  Local[0] = Is64BitPEImage(AddBackslash(SourcePath) + Filename) != 0, \
  Local[1] = (arch == "x64") != 0, \
- (Local[0] != Local[1]) ? Error(ExtractFilename(Filename) + " has incorrect architecture. " + arch + " required") : Filename
+ (Local[0] != Local[1]) ? Error(ExtractFilename(Filename) + " has incorrect architecture. " + arch + " required.") : Filename
 //
 #define AppId "Inno Setup 7"
 //
