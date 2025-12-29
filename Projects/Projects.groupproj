@@ -129,7 +129,7 @@
         <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
-    <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+    <ItemGroup Condition="'$(BuildGroup)'=='Release32'">
         <BuildGroupProject Include="Compil32.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Release</Configurations>
@@ -185,7 +185,63 @@
             <Enabled>True</Enabled>
         </BuildGroupProject>
     </ItemGroup>
-    <ItemGroup Condition="'$(BuildGroup)'=='Debug'">
+    <ItemGroup Condition="'$(BuildGroup)'=='Release64'">
+        <BuildGroupProject Include="Compil32.dproj">
+            <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISCmplr.dproj">
+            <ProjectGuid>{25CA0A66-07DC-4224-9252-EBFFA7D81558}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="SetupLdr.dproj">
+            <ProjectGuid>{4259E59E-2263-4FE8-8E6C-BFCBC7A6C66D}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Setup.dproj">
+            <ProjectGuid>{BB7C6F6A-AC62-46BB-A790-0CF4A74B649E}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISSigTool.dproj">
+            <ProjectGuid>{484EE7D9-65D0-44DA-B807-9FC874733A64}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISPP.dproj">
+            <ProjectGuid>{7BEFDB9E-3F9B-4206-BAC1-B332E573D3F8}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="SetupCustomStyle.dproj">
+            <ProjectGuid>{F15ECAFB-E2DE-42BA-A3E6-7F9C0F24F560}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISCC.dproj">
+            <ProjectGuid>{CB865E8F-FE9C-46FD-90B0-AB3BDBD1C906}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\ISHelp\ISHelpGen\ISHelpGen.dproj">
+            <ProjectGuid>{058C4E22-A1B3-4C10-9062-05B58D9E9747}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Debug32'">
         <BuildGroupProject Include="Compil32.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Debug</Configurations>
@@ -241,7 +297,7 @@
             <Enabled>True</Enabled>
         </BuildGroupProject>
     </ItemGroup>
-    <ItemGroup Condition="'$(BuildGroup)'=='Debug 64'">
+    <ItemGroup Condition="'$(BuildGroup)'=='Debug64'">
         <BuildGroupProject Include="Compil32.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Debug</Configurations>

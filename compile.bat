@@ -34,19 +34,21 @@ if errorlevel 1 goto failed
 
 set EnvOptionsWarn=false
 
+set Bits=32
+
 if /I "%1"=="ishelpgen" (
   echo - ISHelpGen.exe
   msbuild.exe ..\ISHelp\ISHelpGen\ISHelpGen.dproj /t:Build /p:Config=Release;Platform=Win64 /nologo
 ) else if /I "%1"=="issigtool" (
   echo - ISSigTool.exe
-  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win32 /nologo
+  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
 ) else (
   echo - Projects.groupproj - Release build group
   rem This emits warning MSB4056, but that's ok since the build doesn't use COM. Modern MSBuild supports
   rem /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not. Additionally Delphi's
   rem implementation of build groups does not seem to pass through additional parameters, so even with a
   rem modern MSBuild you cannot suppress the warning. Likewise, using /nologo or /v:q has no effect.
-  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release
+  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release%Bits%
 )
 if errorlevel 1 goto failed
 

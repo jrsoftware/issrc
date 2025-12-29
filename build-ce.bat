@@ -62,14 +62,16 @@ call :deletefile files\iscc.exe
 call :deletefile files\iscmplr.dll
 call :deletefile files\ispp.dll
 call :deletefile files\setup.e32
+call :deletefile files\setup.e64
 call :deletefile files\setupcustomstyle.e32
+call :deletefile files\setupcustomstyle.e64
 call :deletefile files\setupldr.e32
 call :deletefile files\setupldr.e64
 call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build the Release build group
+echo Now open Projects\Projects.groupproj and build the Release32 build group
 echo You can open the Build Groups pane from the Projects tool window
 
 echo - Waiting for files...
@@ -78,7 +80,9 @@ call :waitforfile files\iscc.exe
 call :waitforfile files\iscmplr.dll
 call :waitforfile files\ispp.dll
 call :waitforfile files\setup.e32
+call :waitforfile files\setup.e64
 call :waitforfile files\setupcustomstyle.e32
+call :waitforfile files\setupcustomstyle.e64
 call :waitforfile files\setupldr.e32
 call :waitforfile files\setupldr.e64
 call :waitforfile files\issigtool.exe
