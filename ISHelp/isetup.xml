@@ -5052,7 +5052,11 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <tr><td></td><td>256 MB</td><td>2.88 GB</td></tr>
 <tr><td></td><td>512 MB</td><td>5.76 GB</td></tr>
 <tr><td></td><td>1 GB</td><td>11.51 GB</td></tr>
+<tr><td></td><td>2 GB</td><td>23.01 GB</td></tr>
+<tr><td></td><td>3 GB</td><td>34.51 GB</td></tr>
+<tr><td></td><td>3.8 GB</td><td>43.13 GB</td></tr>
 </table>
+<p>Dictionary sizes larger than 1 GB are only supported by <link topic="setup_setuparchitecture">64-bit Setup</link>.</p>
 <p>The compression memory requirements are approximately 60% of the above when <link topic="setup_lzmamatchfinder">LZMAMatchFinder</link> is set to <tt>HC</tt> at the expense of compression ratio.</p>
 </indent>
 <p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc., up to 1048576) and the midway points between them (6, 12, 24, etc., up to 786432). For instance, a dictionary size of 524289 (512 MB + 1 byte) has the same memory requirements as one of 786432 (768 MB).</p>
