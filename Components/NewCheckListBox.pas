@@ -1947,7 +1947,9 @@ end;
 
 procedure TNewCheckListBox.WMGetObject(var Message: TMessage);
 begin
-  if (Message.LParam = Integer(OBJID_CLIENT)) and InitializeOleAcc then begin
+  { Per docs, lParam must be casted to DWORD (32 bits) because it may be
+    sign-extended in a 64-bit process }
+  if (DWORD(Message.LParam) = OBJID_CLIENT) and InitializeOleAcc then begin
     if FAccObjectInstance = nil then begin
       try
         FAccObjectInstance := TAccObject.Create(Self);
