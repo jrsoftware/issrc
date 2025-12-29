@@ -7,7 +7,7 @@
 ; For conditions of distribution and use, see LICENSE.TXT.
 
 ; #define x64
-
+//
 #ifdef x64
   #define arch "x64"
   #define dasharch "-" + arch
@@ -17,9 +17,14 @@
   #define dasharch ""
   #define spacebit " (32-bit)"
 #endif
-
+//
+#define CheckArch(str Filename) \
+ Local[0] = Is64BitPEImage(AddBackslash(SourcePath) + Filename) != 0, \
+ Local[1] = (arch == "x64") != 0, \
+ (Local[0] != Local[1]) ? Error(ExtractFilename(Filename) + " has incorrect architecture. " + arch + " required") : Filename
+//
 #define AppId "Inno Setup 7"
-
+//
 #include "isdonateandmail.iss"
 
 #include "isportable.iss"
@@ -128,11 +133,11 @@ Type: files; Name: "{app}\Languages\*.isl"
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\Compil32.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "{#CheckArch("files\Compil32.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISCC.exe"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
-Source: "files\ISCmplr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
+Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\Setup.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -175,10 +180,10 @@ Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma64.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 #endif
-Source: "files\ISPP.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISSigTool.exe"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "{#CheckArch("files\ISSigTool.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "Examples\64Bit.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64BitTwoArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
