@@ -120,7 +120,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="head2">Security improvements</span>
 <p>Updating is recommended, even if you don't plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
 <ul>
-  <li>Setup and Uninstall now always try to enable <a href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">Windows RedirectionGuard</a> by default.<br/>
+  <li>Setup and Uninstall now always try to enable <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">Windows RedirectionGuard</a> by default.<br/>
       This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
       Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
       When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
