@@ -158,6 +158,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, and the 64-bit loader has high-entropy ASLR enabled. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
       The downside is that your installer will no longer load on systems running x86 Windows.
   </li>
+  <li>If Inno Setup is not already installed, the installer will again prompt you to choose the installation mode (all users or current user only) using a suppressible dialog. Since version 6.1.1, this choice was only available via the '/ALLUSERS' and '/CURRENTUSER' command-line parameters.</li>
   <li>Other minor improvements.</li>
 </ul>
 
