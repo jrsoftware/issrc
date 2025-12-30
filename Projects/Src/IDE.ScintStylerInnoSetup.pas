@@ -548,9 +548,12 @@ const
     ssRestartApplications, ssRestartIfNeededByRun, ssSetupLogging, ssShowComponentSizes,
     ssShowTasksTreeLines, ssSignedUninstaller, ssSignToolRunMinimized, ssSolidCompression,
     ssTerminalServicesAware, ssTimeStampsInUTC, ssUpdateUninstallLogAppName, ssUninstallLogging,
-    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousAppDir, ssUsePreviousGroup,
-    ssUsePreviousLanguage, ssUsePreviousPrivileges, ssUsePreviousSetupType, ssUsePreviousTasks,
-    ssUsePreviousUserInfo, ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
+    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousLanguage, ssUsePreviousPrivileges,
+    ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
+
+  SetupSectionDirectivesYesNoOrScripted = [ssChangesAssociations, ssChangesEnvironment,
+    ssCreateUninstallRegKey, ssUninstallable, ssUsePreviousAppDir, ssUsePreviousGroup,
+    ssUsePreviousSetupType, ssUsePreviousTasks, ssUsePreviousUserInfo];
 
   SetupSectionDirectivesAutoYesNo = [
     ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
@@ -1067,7 +1070,8 @@ function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
 begin
   if SetupSectionDirective in SetupSectionDirectivesAutoYesNo then
     Result := FSetupSectionDirectiveValueAutoYesNoWordList
-  else if SetupSectionDirective in SetupSectionDirectivesYesNo then
+  else if (SetupSectionDirective in SetupSectionDirectivesYesNo) or
+          (SetupSectionDirective in SetupSectionDirectivesYesNoOrScripted) then
     Result := FSetupSectionDirectiveValueYesNoWordList
   else
     Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
