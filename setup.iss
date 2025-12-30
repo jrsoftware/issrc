@@ -34,9 +34,9 @@ function GetExtendedAppId(ForceExtension: String): String;
 begin
   Result := '{#AppId}';
   if '{#spacebit}' <> '' then begin
-    { DefaultDirName: extend if installing to userpf, since there's no distinct userpf32 vs userpf64
+    { DefaultDirName: extend if installing to userpf or autodesktop, since those have no distinct 32-bit/64-bit versions
       DefaultGroupName: always extend to not mess up side-by-side installation } 
-    if (ForceExtension = '1') or not IsAdminInstallMode then
+    if (ForceExtension = '1') or not IsAdminInstallMode or PortableCheck then
       Result := Result + '{#spacebit}';
   end;
 end;
