@@ -5525,7 +5525,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="UsePreviousAppDir">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the directory of the previous installation as the default directory presented to the user in the wizard.</p>
@@ -5534,7 +5534,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="UsePreviousGroup">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the Start Menu folder name of the previous installation as the default Start Menu folder name presented to the user in the wizard. Additionally, if <tt>AllowNoIcons</tt> is set to <tt>yes</tt>, the <i>Don't create a Start Menu folder</i> setting from the previous installation will be restored.</p>
@@ -5566,7 +5566,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="UsePreviousSetupType">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the setup type and component settings of the previous installation as the default settings presented to the user in the wizard.</p>
@@ -5575,7 +5575,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="UsePreviousTasks">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the task settings of the previous installation as the default settings presented to the user in the wizard.</p>
@@ -5584,7 +5584,7 @@ DiskSliceSize=736000000
 </setuptopic>
 
 <setuptopic directive="UsePreviousUserInfo">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the name, organization and serial number entered previously as the default settings presented to the user on the <i>User Information</i> wizard page.</p>
