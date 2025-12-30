@@ -1,17 +1,14 @@
 // -- IsPortable.iss --
 // Include file with support functions for portable mode
 //
+[Setup]
+UsePreviousAppDir=not PortableCheck
+Uninstallable=not PortableCheck
+
 [Code]
 function PortableCheck: Boolean;
 begin
   Result := ExpandConstant('{param:portable|0}') = '1';
-end;
-
-function GetAppId(Param: String): String;
-begin
-  Result := Param;
-  if PortableCheck then
-    Result := Result + ' Portable';
 end;
 
 function GetDefaultDirName(Param: String): String;

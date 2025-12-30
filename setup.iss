@@ -43,7 +43,7 @@ end;
 
 [Setup]
 AppName=Inno Setup
-AppId={code:GetAppId|{#AppId}}
+AppId={#AppId}
 AppVersion=7.0.0-dev{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
@@ -55,11 +55,10 @@ SetupMutex=InnoSetupCompilerSetupMutex7{#dasharch},Global\InnoSetupCompilerSetup
 WizardStyle=modern dynamic
 DefaultDirName={code:GetDefaultDirName|{code:GetExtendedAppId|0}}
 DefaultGroupName={code:GetExtendedAppId|1}
-PrivilegesRequiredOverridesAllowed=commandline
+PrivilegesRequiredOverridesAllowed=dialog
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
-Uninstallable=not PortableCheck
 UninstallDisplayIcon={app}\Compil32.exe
 UsePreviousLanguage=no
 LicenseFile=license.txt
