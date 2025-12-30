@@ -1417,27 +1417,27 @@ begin
        0, KEY_QUERY_VALUE, H) = ERROR_SUCCESS then begin
       try
         { do not localize or change the following strings }
-        if shUsePreviousAppDir in SetupHeader.Options then
+        if EvalDirectiveCheck(SetupHeader.UsePreviousAppDir) then
           RegQueryStringValue(H, 'Inno Setup: App Path', FPrevAppDir);
-        if shUsePreviousGroup in SetupHeader.Options then begin
+        if EvalDirectiveCheck(SetupHeader.UsePreviousGroup) then begin
           RegQueryStringValue(H, 'Inno Setup: Icon Group', PrevGroup);
           if RegValueExists(H, 'Inno Setup: No Icons') then
             PrevNoIcons := True;
         end;
-        if shUsePreviousSetupType in SetupHeader.Options then begin
+        if EvalDirectiveCheck(SetupHeader.UsePreviousSetupType) then begin
           RegQueryStringValue(H, 'Inno Setup: Setup Type', PrevSetupType);
           if RegQueryStringValue(H, 'Inno Setup: Selected Components', S) then
             SetStringsFromCommaString(PrevSelectedComponents, S);
           if RegQueryStringValue(H, 'Inno Setup: Deselected Components', S) then
             SetStringsFromCommaString(PrevDeselectedComponents, S);
         end;
-        if shUsePreviousTasks in SetupHeader.Options then begin
+        if EvalDirectiveCheck(SetupHeader.UsePreviousTasks) then begin
           if RegQueryStringValue(H, 'Inno Setup: Selected Tasks', S) then
             SetStringsFromCommaString(PrevSelectedTasks, S);
           if RegQueryStringValue(H, 'Inno Setup: Deselected Tasks', S) then
             SetStringsFromCommaString(PrevDeselectedTasks, S);
         end;
-        if shUsePreviousUserInfo in SetupHeader.Options then begin
+        if EvalDirectiveCheck(SetupHeader.UsePreviousUserInfo) then begin
           RegQueryStringValue(H, 'Inno Setup: User Info: Name', PrevUserInfoName);
           RegQueryStringValue(H, 'Inno Setup: User Info: Organization', PrevUserInfoOrg);
           RegQueryStringValue(H, 'Inno Setup: User Info: Serial', PrevUserInfoSerial);

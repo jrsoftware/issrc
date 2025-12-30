@@ -3281,7 +3281,7 @@ begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
     ssUsePreviousAppDir: begin
-        SetSetupHeaderOption(shUsePreviousAppDir);
+        SetupHeader.UsePreviousAppDir := Value;
       end;
     ssNotRecognizedMessagesWarning: begin
         NotRecognizedMessagesWarning := StrToBool(Value);
@@ -3290,7 +3290,7 @@ begin
         UsedUserAreasWarning := StrToBool(Value);
       end;
     ssUsePreviousGroup: begin
-        SetSetupHeaderOption(shUsePreviousGroup);
+       SetupHeader.UsePreviousGroup := Value;
       end;
     ssUsePreviousLanguage: begin
         SetSetupHeaderOption(shUsePreviousLanguage);
@@ -3299,13 +3299,13 @@ begin
         SetSetupHeaderOption(shUsePreviousPrivileges);
       end;
     ssUsePreviousSetupType: begin
-        SetSetupHeaderOption(shUsePreviousSetupType);
+        SetupHeader.UsePreviousSetupType := Value;
       end;
     ssUsePreviousTasks: begin
-        SetSetupHeaderOption(shUsePreviousTasks);
+        SetupHeader.UsePreviousTasks := Value;
       end;
     ssUsePreviousUserInfo: begin
-        SetSetupHeaderOption(shUsePreviousUserInfo);
+        SetupHeader.UsePreviousUserInfo := Value;
       end;
     ssUseSetupLdr: begin
         if SameText(Value, 'x64') then
@@ -8117,10 +8117,9 @@ begin
     SetupHeader.MinVersion.NTVersion := $06010000;
     SetupHeader.MinVersion.NTServicePack := $100;
     SetupHeader.Options := [shDisableStartupPrompt, shCreateAppDir,
-      shUsePreviousAppDir, shUsePreviousGroup,
-      shUsePreviousSetupType, shAlwaysShowComponentsList, shFlatComponentsList,
-      shShowComponentSizes, shUsePreviousTasks, shUpdateUninstallLogAppName,
-      shAllowUNCPath, shUsePreviousUserInfo, shRestartIfNeededByRun,
+      shAlwaysShowComponentsList, shFlatComponentsList,
+      shShowComponentSizes, shUpdateUninstallLogAppName,
+      shAllowUNCPath, shRestartIfNeededByRun,
       shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
       shAppendDefaultGroupName, shUsePreviousLanguage, shCloseApplications,
       shRestartApplications, shAllowNetworkDrive, shDisableWelcomePage,
@@ -8133,6 +8132,11 @@ begin
     SetupHeader.DisableProgramGroupPage := dpAuto;
     SetupHeader.CreateUninstallRegKey := 'yes';
     SetupHeader.Uninstallable := 'yes';
+    SetupHeader.UsePreviousAppDir := 'yes';
+    SetupHeader.UsePreviousGroup := 'yes';
+    SetupHeader.UsePreviousSetupType := 'yes';
+    SetupHeader.UsePreviousTasks := 'yes';
+    SetupHeader.UsePreviousUserInfo := 'yes';
     SetupHeader.ChangesEnvironment := 'no';
     SetupHeader.ChangesAssociations := 'no';
     DefaultDialogFontName := 'Segoe UI';
@@ -8331,6 +8335,16 @@ begin
     CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUninstallable];
     CheckCheckOrInstall('Uninstallable', SetupHeader.Uninstallable, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssUsePreviousAppDir];
+    CheckCheckOrInstall('UsePreviousAppDir', SetupHeader.UsePreviousAppDir, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssUsePreviousGroup];
+    CheckCheckOrInstall('UsePreviousGroup', SetupHeader.UsePreviousGroup, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssUsePreviousSetupType];
+    CheckCheckOrInstall('UsePreviousSetupType', SetupHeader.UsePreviousSetupType, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssUsePreviousTasks];
+    CheckCheckOrInstall('UsePreviousTasks', SetupHeader.UsePreviousTasks, cikDirectiveCheck);
+    LineNumber := SetupDirectiveLines[ssUsePreviousUserInfo];
+    CheckCheckOrInstall('UsePreviousUserInfo', SetupHeader.UsePreviousUserInfo, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesEnvironment];
     CheckCheckOrInstall('ChangesEnvironment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesAssociations];

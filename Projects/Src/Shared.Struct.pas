@@ -53,13 +53,11 @@ type
   end;
   TSetupHeaderOption = (shDisableStartupPrompt, shCreateAppDir,
     shAllowNoIcons, shAlwaysRestart, shAlwaysUsePersonalGroup,
-    shEnableDirDoesntExistWarning,
-    shPassword, shAllowRootDirectory, shDisableFinishedPage, shUsePreviousAppDir,
-    shUsePreviousGroup, shUpdateUninstallLogAppName,
-    shUsePreviousSetupType, shDisableReadyMemo, shAlwaysShowComponentsList,
-    shFlatComponentsList, shShowComponentSizes, shUsePreviousTasks,
+    shEnableDirDoesntExistWarning, shPassword, shAllowRootDirectory,
+    shDisableFinishedPage, shUpdateUninstallLogAppName, shDisableReadyMemo,
+    shAlwaysShowComponentsList, shFlatComponentsList, shShowComponentSizes,
     shDisableReadyPage, shAlwaysShowDirOnReadyPage, shAlwaysShowGroupOnReadyPage,
-    shAllowUNCPath, shUserInfoPage, shUsePreviousUserInfo,
+    shAllowUNCPath, shUserInfoPage,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
     shAppendDefaultGroupName, shSetupLogging,
@@ -114,7 +112,7 @@ type
   end;
 
 const
-  SetupHeaderStrings = 34;
+  SetupHeaderStrings = 39;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
@@ -126,7 +124,8 @@ type
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
       SetupMutex, ChangesEnvironment, ChangesAssociations,
       ArchitecturesAllowed, ArchitecturesInstallIn64BitMode, CloseApplicationsFilterExcludes,
-      SevenZipLibraryName: String;
+      SevenZipLibraryName, UsePreviousAppDir, UsePreviousGroup, UsePreviousSetupType,
+      UsePreviousTasks, UsePreviousUserInfo: String;
     LicenseText, InfoBeforeText, InfoAfterText, CompiledCodeText: AnsiString;
     NumLanguageEntries, NumCustomMessageEntries, NumPermissionEntries,
       NumTypeEntries, NumComponentEntries, NumTaskEntries, NumDirEntries,
