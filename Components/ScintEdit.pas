@@ -716,12 +716,27 @@ end;
 
 function TScintEdit.Call(Msg: Cardinal; WParam: WPARAM; LParam: LPARAM;
   out WarnStatus: Integer): Integer;
+
+  {$IFDEF DEBUG}
+  function MsgReturnsPointer: Boolean;
+  begin
+    Result :=
+      (Msg = SCI_GETDIRECTFUNCTION) or (Msg = SCI_GETDIRECTSTATUSFUNCTION) or (Msg = SCI_GETDIRECTPOINTER) or
+      (Msg = SCI_GETCHARACTERPOINTER) or (Msg = SCI_GETRANGEPOINTER) or (Msg = SCI_GETDOCPOINTER) or
+      (Msg = SCI_CREATEDOCUMENT) or (Msg = SCI_CREATELOADER) or (Msg = SCI_PRIVATELEXERCALL);
+  end;
+  {$ENDIF}
+
 begin
   HandleNeeded;
   if FDirectPtr = nil then
     Error('Call: FDirectPtr is nil');
   if not Assigned(FDirectStatusFunction) then
     Error('Call: FDirectStatusFunction is nil');
+  {$IFDEF DEBUG}
+  if MsgReturnsPointer then
+    Error('Call: Use SendMessage');
+  {$ENDIF}
   var ErrorStatus: Integer;
   Result := Integer(FDirectStatusFunction(FDirectPtr, Msg, WParam, LParam, ErrorStatus));
 
