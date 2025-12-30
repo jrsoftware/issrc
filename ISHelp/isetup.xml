@@ -4918,11 +4918,13 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This directive lets you disable Setup and Uninstall always trying to enable Windows RedirectionGuard.</p>
-<p>This mitigation blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.</p>
-<p>Can also be disabled or enabled using Setup and Uninstall command line parameters /NOREDIRECTIONGUARD and /REDIRECTIONGUARD.</p>
-<p>When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.</p>
-<p>RedirectionGuard status is logged, so you can verify whether the mitigation was active.</p>
+<p>Controls whether Setup attempts to enable Windows' RedirectionGuard mitigation on its own process. Uninstall also enables RedirectionGuard for its process if it was successfully enabled during the most recent installation of the application.</p>
+<p>The <extlink href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">RedirectionGuard mitigation</extlink>, available on Windows 11 and Windows 10 22H2, blocks traversal of NTFS junctions and symbolic links created by unprivileged users (or any non-elevated processes).</p>
+<p>RedirectionGuard is particularly of benefit to installers that read or write files in locations that are writable by unprivileged users, such as <tt>{commonappdata}</tt>. Without RedirectionGuard, if an installer is known to access <tt>{commonappdata}\YourApp</tt>, an unprivileged user could create a junction at that location to redirect all traversals of <tt>{commonappdata}\YourApp</tt> to some other arbitrarily-chosen path. When the installer runs, the junction could trick the installer into creating or modifying files in a directory that the unprivileged user cannot access themselves. This could potentially allow the unprivileged user to escalate their privileges on the system.</p>
+<p>Note that this setting only affects Setup/Uninstall's own process. It is not inherited by any child processes, nor does it enable RedirectionGuard for the application that is installed. Applications that access files in locations writable by unprivileged users should consider enabling RedirectionGuard on their own process, or checking for the reparse point attribute (<tt>FILE_ATTRIBUTE_REPARSE_POINT</tt>) on directories/files that are accessed.</p>
+<p>When RedirectionGuard blocks access to a path, any error message shown will typically include the error code 448. If it turns out that a blocked junction was actually created for some non-malicious purpose, then the recommended course of action is to delete and recreate the junction with administrative privileges (by running <tt>MKLINK</tt> from an elevated Command Prompt).</p>
+<p>Setup and Uninstall both support <tt>/NOREDIRECTIONGUARD</tt> and <tt>/REDIRECTIONGUARD</tt> parameters to override this setting from the command line.</p>
+<p>RedirectionGuard status is logged, so you can verify whether the mitigation was active during installation/uninstallation.</p>
 <p><b>See also:</b><br/>
 <link topic="setupcmdline">Setup Command Line Parameters</link><br/>
 <link topic="uninstcmdline">Uninstaller Command Line Parameters</link></p>
