@@ -3,3 +3,4 @@ compilesettings.bat
 *.dproj.local
 *.identcache
 *.exe
+*.rsm
