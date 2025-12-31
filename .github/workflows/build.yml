@@ -101,8 +101,8 @@ jobs:
           test $? = 0 &&
           ps -W &&
           ./Procmon.exe -AcceptEula -WaitForIdle &&
-          ./Output/innosetup-$ver.exe //verysilent //dir=InnoSetup //noicons \
-            //tasks= //portable=1 &&
+          ./Output/innosetup-$ver.exe //verysilent //suppressmsgboxes //dir=InnoSetup //noicons \
+            //tasks= //portable=1 //currentuser &&
           test -x InnoSetup/ISCC.exe &&
           ./Procmon.exe -Terminate -Quiet &&
           powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
