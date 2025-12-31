@@ -57,7 +57,7 @@ if errorlevel 1 goto failed
 echo ISSigTool embed done
 
 echo.
-call :deletefile files\compil32.exe
+call :deletefile files\iside.exe
 call :deletefile files\iscc.exe
 call :deletefile files\iscmplr.dll
 call :deletefile files\ispp.dll
@@ -75,7 +75,7 @@ echo Now open Projects\Projects.groupproj and build the Release32 build group
 echo You can open the Build Groups pane from the Projects tool window
 
 echo - Waiting for files...
-call :waitforfile files\compil32.exe
+call :waitforfile files\iside.exe
 call :waitforfile files\iscc.exe
 call :waitforfile files\iscmplr.dll
 call :waitforfile files\ispp.dll

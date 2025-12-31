@@ -14,7 +14,7 @@ interface
 
 { FRAMEWORK_VCL is available as of Delphi 11.1, so define it manually here when we need it, to
   support Delphi 10.4 }
-{$IF Defined(COMPIL32PROJ) or Defined(SETUPPROJ)}
+{$IF Defined(ISIDEPROJ) or Defined(SETUPPROJ)}
   {$DEFINE FRAMEWORK_VCL}
 {$IFEND}
 

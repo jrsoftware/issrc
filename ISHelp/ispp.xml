@@ -339,7 +339,7 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#expr <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + "Preprocessed.iss"), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + "Compil32.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")</line>
+						<line>#expr <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + "Preprocessed.iss"), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + "ISIDE.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")</line>
 					</pre>
 				</section>
 				<section title="See also">

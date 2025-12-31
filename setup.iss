@@ -59,7 +59,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
-UninstallDisplayIcon={app}\Compil32.exe
+UninstallDisplayIcon={app}\ISIDE.exe
 UsePreviousLanguage=no
 LicenseFile=license.txt
 TimeStampsInUTC=yes
@@ -132,7 +132,7 @@ Type: files; Name: "{app}\Languages\*.isl"
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\Compil32.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
+Source: "{#CheckArch("files\ISIDE.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
@@ -232,19 +232,19 @@ Type: files; Name: "{app}\isfaq.url"
 
 [Icons]
 ; All these will be automatically skipped on portable mode, either because of NoIconsCheck being checked, or because of the desktopicon task being removed
-Name: "{group}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"
+Name: "{group}\Inno Setup Compiler"; Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"
 Name: "{group}\Inno Setup Documentation"; Filename: "{app}\ISetup.chm"
 Name: "{group}\Inno Setup Documentation (Dark)"; Filename: "{app}\ISetup-dark.chm"
 Name: "{group}\Inno Setup Example Scripts"; Filename: "{app}\Examples\"
 Name: "{group}\Inno Setup FAQ"; Filename: "{app}\isfaq.url"
 Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
-Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"; Tasks: desktopicon
+Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"; Tasks: desktopicon
 
 [Run]
 ; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
-Filename: "{app}\Compil32.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
-Filename: "{app}\Compil32.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\ISIDE.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
+Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 ; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
-Filename: "{app}\Compil32.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
+Filename: "{app}\ISIDE.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"

@@ -6,7 +6,7 @@ unit Shared.ScriptFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Script support functions (listings - used by Compil32, ISCmplr, and Setup)
+  Script support functions (listings - used by ISIDE, ISCmplr, and Setup)
 }
 
 interface
@@ -32,9 +32,9 @@ var
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
 
-{$IFDEF COMPIL32PROJ}
+{$IFDEF ISIDEPROJ}
 
-  { These are just for Compil32 and should not be used by ISCmplr or Setup because
+  { These are just for ISIDE and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
     TPSExec.RegisterStandardProc and RegisterDll_Compiletime and RegisterDLLRuntimeEx }
   ROPSScriptFuncTable: TScriptTable =
@@ -188,7 +188,7 @@ begin
   Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
 
-{$IFDEF COMPIL32PROJ}
+{$IFDEF ISIDEPROJ}
 {$IFDEF DEBUG}
 function IsCleanScriptFunc(const ScriptFunc: AnsiString): Boolean;
 begin
@@ -583,7 +583,7 @@ initialization
     'function RPos(const SubStr, S: String): Integer;'
   ];
 
-  {$IFDEF COMPIL32PROJ}
+  {$IFDEF ISIDEPROJ}
   {$IFDEF DEBUG}
   for var ScriptFuncTable in ScriptFuncTables do
     CheckIsCleanScriptFuncTable(ScriptFuncTable);

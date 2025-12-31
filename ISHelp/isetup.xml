@@ -3680,7 +3680,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <topic name="compilercmdline" title="Command Line Compiler Execution">
 <keyword value="Command Line Compiler Execution" />
 <keyword value="command line parameters" />
-<keyword value="compil32" />
+<keyword value="ISIDE" />
 <keyword value="ISCC" />
 <body>
 
@@ -3721,8 +3721,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Alternatively, scripts can also be compiled by the Compiler IDE from the command line. Command line usage is as follows:</p>
 
 <indent>
-<p>compil32 /cc <i>&lt;script name&gt;</i></p>
-<example>compil32 /cc "c:\isetup\samples\my script.iss"</example>
+<p>iside /cc <i>&lt;script name&gt;</i></p>
+<example>iside /cc "c:\isetup\samples\my script.iss"</example>
 </indent>
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
@@ -3734,8 +3734,8 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>The Setup Script Wizard can be started from the command line. Command line usage is as follows:</p>
 
 <indent>
-<p>compil32 /wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></p>
-<example>compil32 /wizard "MyProg Script Wizard" "c:\temp.iss"</example>
+<p>iside /wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></p>
+<example>iside /wizard "MyProg Script Wizard" "c:\temp.iss"</example>
 </indent>
 
 <p>As shown in the example above, wizard names and filenames that include spaces must be enclosed in quotes.</p>

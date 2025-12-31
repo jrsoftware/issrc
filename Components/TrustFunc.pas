@@ -8,7 +8,7 @@ unit TrustFunc;
 
   Trust support functions using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
 
-  In Inno Setup these functions are only used by Compil32, ISCC, and ISCmplr. Verification of
+  In Inno Setup these functions are only used by ISIDE, ISCC, and ISCmplr. Verification of
   the user's files by ISCmplr and Setup is done by calling ISSigFunc directly and uses the
   user's key texts.
 }

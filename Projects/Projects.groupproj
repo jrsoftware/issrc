@@ -3,7 +3,7 @@
         <ProjectGuid>{C0278F77-1554-45D9-B1E9-69FB923E8771}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Compil32.dproj">
+        <Projects Include="ISIDE.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="ISCC.dproj">
@@ -38,14 +38,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="Compil32">
-        <MSBuild Projects="Compil32.dproj"/>
+    <Target Name="ISIDE">
+        <MSBuild Projects="ISIDE.dproj"/>
     </Target>
-    <Target Name="Compil32:Clean">
-        <MSBuild Projects="Compil32.dproj" Targets="Clean"/>
+    <Target Name="ISIDE:Clean">
+        <MSBuild Projects="ISIDE.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Compil32:Make">
-        <MSBuild Projects="Compil32.dproj" Targets="Make"/>
+    <Target Name="ISIDE:Make">
+        <MSBuild Projects="ISIDE.dproj" Targets="Make"/>
     </Target>
     <Target Name="ISCC">
         <MSBuild Projects="ISCC.dproj"/>
@@ -120,17 +120,17 @@
         <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Compil32;ISCC;ISCmplr;ISPP;Setup;SetupCustomStyle;SetupLdr;ISSigTool;ISHelpGen"/>
+        <CallTarget Targets="ISIDE;ISCC;ISCmplr;ISPP;Setup;SetupCustomStyle;SetupLdr;ISSigTool;ISHelpGen"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Compil32:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupCustomStyle:Clean;SetupLdr:Clean;ISSigTool:Clean;ISHelpGen:Clean"/>
+        <CallTarget Targets="ISIDE:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupCustomStyle:Clean;SetupLdr:Clean;ISSigTool:Clean;ISHelpGen:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Compil32:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
+        <CallTarget Targets="ISIDE:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
     <ItemGroup Condition="'$(BuildGroup)'=='Release32'">
-        <BuildGroupProject Include="Compil32.dproj">
+        <BuildGroupProject Include="ISIDE.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Release</Configurations>
             <Platforms>Win32</Platforms>
@@ -186,7 +186,7 @@
         </BuildGroupProject>
     </ItemGroup>
     <ItemGroup Condition="'$(BuildGroup)'=='Release64'">
-        <BuildGroupProject Include="Compil32.dproj">
+        <BuildGroupProject Include="ISIDE.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Release</Configurations>
             <Platforms>Win64</Platforms>
@@ -242,7 +242,7 @@
         </BuildGroupProject>
     </ItemGroup>
     <ItemGroup Condition="'$(BuildGroup)'=='Debug32'">
-        <BuildGroupProject Include="Compil32.dproj">
+        <BuildGroupProject Include="ISIDE.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Debug</Configurations>
             <Platforms>Win32</Platforms>
@@ -298,7 +298,7 @@
         </BuildGroupProject>
     </ItemGroup>
     <ItemGroup Condition="'$(BuildGroup)'=='Debug64'">
-        <BuildGroupProject Include="Compil32.dproj">
+        <BuildGroupProject Include="ISIDE.dproj">
             <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
             <Configurations>Debug</Configurations>
             <Platforms>Win64</Platforms>

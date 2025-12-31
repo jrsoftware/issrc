@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{AA47247E-6E7B-4A22-8740-FB9041C2F93B}</ProjectGuid>
-        <MainSource>Compil32.dpr</MainSource>
+        <MainSource>ISIDE.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
@@ -9,7 +9,7 @@
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.3</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <ProjectName Condition="'$(ProjectName)'==''">Compil32</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">ISIDE</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -63,8 +63,8 @@
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
         <DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30;$(DCC_UsePackage)</DCC_UsePackage>
-        <DCC_Define>COMPIL32PROJ;VCLSTYLES;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
-        <SanitizedProjectName>Compil32</SanitizedProjectName>
+        <DCC_Define>ISIDEPROJ;VCLSTYLES;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
+        <SanitizedProjectName>ISIDE</SanitizedProjectName>
         <DCC_Namespace>System;Vcl;Vcl.Imaging;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
@@ -237,7 +237,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">Compil32.dpr</Source>
+                    <Source Name="MainSource">ISIDE.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>

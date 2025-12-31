@@ -97,7 +97,7 @@ directory.
 - PasswordEdit
 - RichEditViewer
 
-If you intend to view or modify the Compil32 project's forms, you must
+If you intend to view or modify the ISIDE project's forms, you must
 additionally install the following components.
 
 - DropListBox
@@ -119,16 +119,16 @@ Overview
 
 Inno Setup consists of eight projects:
 
-**Compil32** - This is the GUI front-end for the compiler, also known as
-the Compiler IDE. Compil32 does not do the actual compilation itself; it
+**ISIDE** - This is the GUI front-end for the compiler, also known as
+the Compiler IDE. ISIDE does not do the actual compilation itself; it
 relegates it to ISCmplr.dll. If the ISCmplr project is changed, you
-normally don't need to recompile Compil32 since it's essentially a text
+normally don't need to recompile ISIDE since it's essentially a text
 editor, and is not affected by internal changes to the compiler.
 
 **ISCC** - This is the command-line front-end to the compiler. Like
-Compil32, it depends on ISCmplr.dll to do the actual compiling.
+ISIDE, it depends on ISCmplr.dll to do the actual compiling.
 
-**ISCmplr** - This is a DLL which is loaded by Compil32 and ISCC to compile
+**ISCmplr** - This is a DLL which is loaded by ISIDE and ISCC to compile
 scripts. The actual compiler code is in Compiler.SetupCompiler.pas. See
 Shared.CompInt.pas for the various structures and function declarations used
 to interface to the DLL.
@@ -146,14 +146,14 @@ Setup program into the user's TEMP directory and runs it from there. It also
 displays the "This will install..." and /HELP message boxes.
 
 **ISSigTool** - This is a command-line utility which can be used to sign and verify
-any of your files. Compil32, ISCC, and ISCmplr use these signatures to verify the
+any of your files. ISIDE, ISCC, and ISCmplr use these signatures to verify the
 authenticity of a number of DLL, E32 and EXE files before loading them. Note: this
 utility does not replace Microsoft's signtool.exe in any way and is in fact not
 related to Authenticode Code Signing at all.
 
 How do the projects link together?
 
-- Compil32, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
+- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
   Shared.Struct.pas. This unit contains various data structures and constants
   shared by the projects. If Shared.Struct.pas is changed, you usually will need
   to recompile all these projects and the required targets using the Release or
@@ -167,7 +167,7 @@ Source code tips
 ----------------
 
 - When building the projects in Release mode, it outputs to [Files]. Before
-  running Compil32, ensure that all .issig files are up to date. Use the
+  running ISIDE, ensure that all .issig files are up to date. Use the
   Release build group to ensure all required targets are built.
 
 - You can open the Build Groups pane from the Projects tool window.
@@ -178,7 +178,7 @@ Source code tips
   the aforementioned **build.bat** or **build-ce.bat** first is not necessary.
 
 - To debug the Setup project, you should first build the Debug build group,
-  then run the Compil32 project and compile the Debug.iss script which
+  then run the ISIDE project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
   Delphi debugger.
@@ -189,7 +189,7 @@ Source code tips
   target (latter does not require using `UseSetupLdr=x64`). It will automatically
   set a special debug-only `/SELFFILENAME=Setup.exe` command line parameter,
   which will cause it to load and run the Setup.exe you just compiled using
-  Compil32, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
+  ISIDE, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
 
 - To debug the uninstaller first run Setup.exe to completion with the
   `/DETACHEDMSG` command line parameter set. Afterwards copy uninst000.dat and
@@ -203,7 +203,7 @@ Source code tips
   because they dynamically scale themselves at run-time by calling a function
   named InitializeFont.
 
-- A note for those curious: Compil32 creates single exe Setups by first creating
+- A note for those curious: ISIDE creates single exe Setups by first creating
   the Setup.exe as usual, then concatenating the Setup.0 and Setup-1.bin to the
   end of the Setup.exe, and finally modifying an internal data block in Setup.exe
   so it knows it's in "single exe" form.
@@ -351,7 +351,7 @@ any artifacts. It uses workflow **build2.yml**.
 [Examples\MyDll]: <Examples/MyDll/Delphi>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
-[Projects\Src\Compil32]: <Projects/Src/Compil32>
+[Projects\Src\ISIDE]: <Projects/Src/ISIDE>
 [Projects\Src\Compression.LZMADecompressor\Lzma2Decode]: <Projects/Src/Compression.LZMADecompressor/Lzma2Decode>
 [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode]: <Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode>
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>

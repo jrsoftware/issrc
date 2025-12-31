@@ -1,5 +1,5 @@
 ; -- Debug.iss --
-; Opened when you run the Compil32 project in Debug mode from the Delphi IDE
+; Opened when you run the ISIDE project in Debug mode from the Delphi IDE
 ; Same for ISCmplr, ISCC, and ISPP and for any of the islzma projects
 ; Use it to test the compiler or Setup or the uninstaller
 ; The Setup project enables logging to Setup.log when you run it

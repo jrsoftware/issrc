@@ -20,13 +20,13 @@ const
   { Compiler-specific messages }
   SCompilerCommandLineHelp3 = 'Command line usage:' + SNewLine +
     SNewLine +
-    'compil32 /cc <script file>' + SNewLine +
-    'compil32 /wizard <wizard name> <script file>' + SNewLine +
+    'iside /cc <script file>' + SNewLine +
+    'iside /wizard <wizard name> <script file>' + SNewLine +
     SNewLine +
     'Examples:' + SNewLine +
-    'compil32 /cc c:\isetup\sample32\sample1.iss' + SNewLine +
-    'compil32 /cc "C:\Inno Setup\Sample32\My script.iss"' + SNewLine +
-    'compil32 /wizard "My Script Wizard" c:\temp.iss';
+    'iside /cc c:\isetup\sample32\sample1.iss' + SNewLine +
+    'iside /cc "C:\Inno Setup\Sample32\My script.iss"' + SNewLine +
+    'iside /wizard "My Script Wizard" c:\temp.iss';
 
   { Compiler form labels }
   SCompilerFormCaption = 'Inno Setup Compiler';

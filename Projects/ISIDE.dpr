@@ -1,4 +1,4 @@
-program Compil32;
+program ISIDE;
 
 {
   Inno Setup
@@ -97,13 +97,13 @@ uses
 
 {$R *.res}
 
-{$R Res\Compil32.docicon.res}
+{$R Res\ISIDE.docicon.res}
 {$IFNDEF WIN64}
-{$R Res\Compil32-x86.manifest.res}
+{$R Res\ISIDE-x86.manifest.res}
 {$ELSE}
-{$R Res\Compil32-x64.manifest.res}
+{$R Res\ISIDE-x64.manifest.res}
 {$ENDIF}
-{$R Res\Compil32.versionandicon.res}
+{$R Res\ISIDE.versionandicon.res}
 
 procedure SetAppUserModelID;
 var
