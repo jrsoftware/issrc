@@ -13,7 +13,8 @@ cd /d %~dp0
 
 if "%1"=="x86" goto archfound
 if "%1"=="x64" goto archfound
-echo Architecture parameter is missing or invalid. Must be "x86" or "x64".
+if "%1"=="arm64" goto archfound
+echo Architecture parameter is missing or invalid. Must be "x86" or "x64" or "arm64".
 goto failed2
 :archfound
 
@@ -35,8 +36,8 @@ rem -------------------------------------------------------------------------
 set __VSCMD_ARG_NO_LOGO=1
 set VSCMD_SKIP_SENDTELEMETRY=1
 
-echo - Calling VsDevCmd.bat -arch=%1
-call "%VSTOOLSROOT%\VsDevCmd.bat" -arch=%1
+echo - Calling VsDevCmd.bat -arch=%1 -host_arch=x64
+call "%VSTOOLSROOT%\VsDevCmd.bat" -arch=%1 -host_arch=x64
 if errorlevel 1 goto exit
 echo.
 
