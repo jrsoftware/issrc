@@ -3290,7 +3290,7 @@ begin
         UsedUserAreasWarning := StrToBool(Value);
       end;
     ssUsePreviousGroup: begin
-       SetupHeader.UsePreviousGroup := Value;
+        SetupHeader.UsePreviousGroup := Value;
       end;
     ssUsePreviousLanguage: begin
         SetSetupHeaderOption(shUsePreviousLanguage);
