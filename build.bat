@@ -30,7 +30,7 @@ cd /d %~dp0
 if /I "%1"=="setup" goto setup
 if not "%1"=="" goto failed
 
-call .\compile.bat issigtool
+call .\compile.bat x64 issigtool
 if errorlevel 1 goto failed
 echo Compiling ISSigTool done
 

@@ -5,7 +5,7 @@ rem  Copyright (C) 1997-2025 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
-rem  Batch file to prepare a release
+rem  Batch file to prepare a release of 64-bit Inno Setup
 rem
 rem  Calls setup-sign.bat if it exists to create a signed build, otherwise creates setup.exe without signing
 rem  Signed builds also require a setup-presign.bat to exist which should sign all files passed to it
@@ -31,7 +31,7 @@ if not "%1"=="" goto failed
 
 if not exist files\issigtool.exe (
   echo Missing ISSigTool
-  echo Now open Projects\Projects.groupproj and build the ISSigTool project and its Win32 target in Release mode
+  echo Now open Projects\Projects.groupproj and build the ISSigTool project and its Win64 target in Release mode
 
   echo - Waiting for file...
   call :waitforfile files\issigtool.exe
@@ -71,7 +71,7 @@ call :deletefile files\issigtool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
-echo Now open Projects\Projects.groupproj and build the Release32 build group
+echo Now open Projects\Projects.groupproj and build the Release64 build group
 echo You can open the Build Groups pane from the Projects tool window
 
 echo - Waiting for files...
@@ -117,9 +117,9 @@ pause
 :setup
 echo - Setup.exe
 if exist .\setup-sign.bat (
-  call .\setup-sign.bat
+  call .\setup-sign.bat /Dx64
 ) else (
-  files\iscc setup.iss
+  files\iscc setup.iss /Dx64
 )
 if errorlevel 1 goto failed
 echo - Renaming files

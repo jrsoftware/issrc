@@ -69,12 +69,13 @@ Getting Started
    Otherwise: To build all files in Release mode run **build.bat** and follow
    the instructions.
 
-   To just compile Inno Setup in Release mode run **compile.bat** and follow
-   the instructions. This batch file cannot be used with the Community Edition,
-   open Projects\Projects.groupproj instead.
+   To just compile 64-bit Inno Setup in Release mode run **compile.bat x64**
+   and follow the instructions. Run **compile.bat x86** for 32-bit Inno Setup.
+   These batch files cannot be used with the Community Edition, open
+   Projects\Projects.groupproj instead.
 
    To just compile the Inno Setup help file and its web version run
-   **compile.bat ishelpgen** and **ISHelp\compile.bat** and follow the
+   **compile.bat x64 ishelpgen** and **ISHelp\compile.bat** and follow the
    instructions. The former batch file cannot be used with the
    Community Edition, open Projects\Projects.groupproj instead.
 

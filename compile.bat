@@ -11,6 +11,12 @@ setlocal
 
 cd /d %~dp0
 
+if "%1"=="x86" goto archfound
+if "%1"=="x64" goto archfound
+echo Architecture parameter is missing or invalid. Must be "x86" or "x64".
+goto failed2
+:archfound
+
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
 echo compilesettings.bat is missing or incomplete. It needs to contain
@@ -34,12 +40,12 @@ if errorlevel 1 goto failed
 
 set EnvOptionsWarn=false
 
-set Bits=32
+if "%1"=="x64" ( set Bits=64 ) else ( set Bits=32 )
 
-if /I "%1"=="ishelpgen" (
+if /I "%2"=="ishelpgen" (
   echo - ISHelpGen.exe
   msbuild.exe ..\ISHelp\ISHelpGen\ISHelpGen.dproj /t:Build /p:Config=Release;Platform=Win64 /nologo
-) else if /I "%1"=="issigtool" (
+) else if /I "%2"=="issigtool" (
   echo - ISSigTool.exe
   msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
 ) else (
@@ -57,7 +63,7 @@ if errorlevel 1 goto failed
 
 echo Success!
 
-if not "%1"=="" goto exit
+if not "%2"=="" goto exit
 rem  Sign using user's private key - will be overwritten if called by build.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
