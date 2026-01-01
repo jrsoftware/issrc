@@ -27,6 +27,7 @@ UseSetupLdr=no
 OutputDir={#CompilerPath}
 OutputBaseFilename=Setup
 PrivilegesRequired=lowest
+SetupArchitecture=x64
 
 ; This makes a task dialog show at startup
 ; UsePreviousPrivileges=no
