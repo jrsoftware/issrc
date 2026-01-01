@@ -14,7 +14,7 @@ rem  This batch files does the following things:
 rem  -Compile ISHelpGen
 rem  -Compile ISetup*.chm
 rem  -Compile Inno Setup including ISSigTool
-rem  -Create Inno Setup installer
+rem  -Create 32-bit and 64-bit Inno Setup installers
 rem
 rem  Once done the installer can be found in Output
 
@@ -26,9 +26,6 @@ echo Building Inno Setup %VER%...
 echo.
 
 cd /d %~dp0
-
-if /I "%1"=="setup" goto setup
-if not "%1"=="" goto failed
 
 call .\compile.bat x64 issigtool
 if errorlevel 1 goto failed
@@ -52,9 +49,42 @@ call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
 
+call .\compile.bat x64 ishelpgen
+if errorlevel 1 goto failed
+echo Compiling ISHelpGen done
+
+cd ishelp
+if errorlevel 1 goto failed
 call .\compile.bat
 if errorlevel 1 goto failed
-echo Compiling Inno Setup done
+cd ..
+if errorlevel 1 goto failed
+echo Compiling ISetup*.chm done
+pause
+
+call :build x86
+
+echo Cleaning output of previous build
+del Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
+if errorlevel 1 goto failed
+del Files\ISIDE.exe Files\ISCC.exe Files\ISSigTool.exe
+if errorlevel 1 goto failed
+
+call :build x64
+
+echo All done!
+pause
+exit /b 0
+
+:failed
+echo *** FAILED ***
+pause
+exit /b 1
+
+:build
+call .\compile.bat %~1
+if errorlevel 1 goto failed
+echo Compiling %~1 Inno Setup done
 
 if exist .\setup-presign.bat (
   echo - Presigning
@@ -66,44 +96,28 @@ if exist .\setup-presign.bat (
 rem  Sign using user's private key - also see compile.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
-echo ISSigTool sign done
-pause
-
-cd ishelp
-if errorlevel 1 goto failed
-call .\compile.bat
-if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
-echo Compiling ISetup*.chm done
-pause
+echo ISSigTool sign %~1 done
 
 :setup
-echo - Setup.exe
+echo - %~1 Setup.exe
 if exist .\setup-sign.bat (
-  call .\setup-sign.bat
+  call .\setup-sign.bat /D%~1
 ) else (
-  files\iscc setup.iss
+  files\iscc setup.iss /D%~1
 )
 if errorlevel 1 goto failed
-echo - Renaming files
+echo - Renaming %~1 files
 cd output
 if errorlevel 1 goto failed
-move /y mysetup.exe innosetup-%VER%.exe
+move /y mysetup.exe innosetup-%VER%-%~1.exe
 if errorlevel 1 goto failed
 cd ..
 if errorlevel 1 goto failed
-echo Creating Inno Setup installer done
-call .\issig.bat sign output\innosetup-%VER%.exe
+echo Creating %~1 Inno Setup installer done
+call .\issig.bat sign output\innosetup-%VER%-%~1.exe
 if errorlevel 1 goto failed
-powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%.exe).Hash.ToLower()"
+
+powershell.exe -NoProfile -Command "Write-Host -NoNewline 'SHA256 hash: '; (Get-FileHash -Algorithm SHA256 -Path output\innosetup-%VER%-%~1.exe).Hash.ToLower()"
 rem ignoring error here
 
-echo All done!
-pause
-exit /b 0
-
-:failed
-echo *** FAILED ***
-pause
-exit /b 1
+exit /b

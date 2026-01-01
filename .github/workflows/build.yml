@@ -56,7 +56,7 @@ jobs:
       - name: Upload Files/
         uses: actions/upload-artifact@v4
         with:
-          name: Files
+          name: Files-x64
           path: Files/
       - name: Upload Output/
         uses: actions/upload-artifact@v4
@@ -84,13 +84,13 @@ jobs:
         run: |
           set -x &&
           ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
-          mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
-          cat innosetup-$ver.manifest &&
-          mkdir -p Output/innosetup-$ver.exe.Local &&
-          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver.exe.Local/ &&
-          mkdir Output/innosetup-$ver.en-US &&
-          mkdir Output/innosetup-$ver.en &&
-          mkdir Output/innosetup-$ver.ENU &&
+          mt '-inputresource:Output\innosetup-'$ver-x86.exe -out:innosetup-$ver-x86.manifest &&
+          cat innosetup-$ver-x86.manifest &&
+          mkdir -p Output/innosetup-$ver-x86.exe.Local &&
+          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver-x86.exe.Local/ &&
+          mkdir Output/innosetup-$ver-x86.en-US &&
+          mkdir Output/innosetup-$ver-x86.en &&
+          mkdir Output/innosetup-$ver-x86.ENU &&
           mkdir -p trace &&
           echo "$ver" >trace/ver &&
           curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip &&
@@ -101,7 +101,7 @@ jobs:
           test $? = 0 &&
           ps -W &&
           ./Procmon.exe -AcceptEula -WaitForIdle &&
-          ./Output/innosetup-$ver.exe //verysilent //suppressmsgboxes //dir=InnoSetup //noicons \
+          ./Output/innosetup-$ver-x86.exe //verysilent //suppressmsgboxes //dir=InnoSetup //noicons \
             //tasks= //portable=1 //currentuser &&
           test -x InnoSetup/ISCC.exe &&
           ./Procmon.exe -Terminate -Quiet &&
@@ -119,7 +119,7 @@ jobs:
           set -x &&
           curdir="$(cygpath -aw Output | sed 's/\\/&&/g')" &&
           ver="$(sed 's/\./\\&/g' <trace/ver)" &&
-          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' \
+          sed -ne '/"'$curdir'\\innosetup-'$ver'-x86\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' \
             -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\)"/d' -e '/"'$curdir'\\/p' \
             trace/procmon.csv >trace/filtered.csv &&
           if test -s trace/filtered.csv

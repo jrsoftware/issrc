@@ -13,7 +13,7 @@ rem
 rem  This batch files does the following things:
 rem  -Ask the user to compile Inno Setup including ISSigTool and ISHelpGen after clearing output first
 rem  -Compile ISetup*.chm
-rem  -Create Inno Setup installer
+rem  -Create 64-bit Inno Setup installer
 rem
 rem  Once done the installer can be found in Output
 
@@ -55,6 +55,24 @@ rem  Embed user's public key into sources
 call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
+
+if not exist files\ishelpgen.exe (
+  echo Missing ISHelpGen
+  echo Now open Projects\Projects.groupproj and build the ISHelpGen project and its Win64 target in Release mode
+
+  echo - Waiting for file...
+  call :waitforfile files\ishelpgen.exe
+  echo Compiling ISHelpGen done
+)
+
+cd ishelp
+if errorlevel 1 goto failed
+call .\compile.bat
+if errorlevel 1 goto failed
+cd ..
+if errorlevel 1 goto failed
+echo Compiling ISetup*.chm done
+pause
 
 echo.
 call :deletefile files\iside.exe
@@ -103,16 +121,6 @@ rem  Sign using user's private key - also see compile.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
 echo ISSigTool sign done
-pause
-
-cd ishelp
-if errorlevel 1 goto failed
-call .\compile.bat
-if errorlevel 1 goto failed
-cd ..
-if errorlevel 1 goto failed
-echo Compiling ISetup*.chm done
-pause
 
 :setup
 echo - Setup.exe
