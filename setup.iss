@@ -130,14 +130,28 @@ Type: files; Name: "{app}\Languages\*.isl"
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "{#CheckArch("files\ISIDE.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
 Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\iszlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\iszlib{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isbzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\islzma{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+#ifndef x64
+Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma64.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+#endif
+Source: "{#CheckArch("files\ISSigTool.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\Setup.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\Setup.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Setup.e64"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
@@ -150,6 +164,29 @@ Source: "files\SetupLdr.e32"; DestDir: "{app}"; Flags: ignoreversion issigverify
 Source: "files\SetupLdr.e32.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\SetupLdr.e64"; DestDir: "{app}"; Flags: ignoreversion issigverify touch
 Source: "files\SetupLdr.e64.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7z.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7z.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7z-x64.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7z-x64.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxa.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxa.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxa-x64.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxa-x64.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxr.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\is7zxr-x64.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\is7zxr-x64.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isunzlib.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isunzlib.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isunzlib-x64.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isunzlib-x64.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isbunzip.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbunzip.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\isbunzip-x64.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\isbunzip-x64.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "files\ISetup-dark.chm"; DestDir: "{app}"; Flags: ignoreversion touch
+Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Default.isl"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\Languages\*.isl"; DestDir: "{app}\Languages"; Flags: ignoreversion touch
 Source: "files\SetupClassicIcon.ico"; DestDir: "{app}"; Flags: ignoreversion touch
@@ -157,33 +194,6 @@ Source: "files\WizClassicImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touc
 Source: "files\WizClassicImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\WizClassicSmallImage-IS.bmp"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7z{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7z{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7zxa{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7zxa{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\is7zxr{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\is7zxr{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\iszlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\iszlib{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isunzlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isunzlib{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isbzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isbzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\isbunzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\isbunzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\islzma{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\islzma{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-#ifndef x64
-Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
-Source: "files\islzma64.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-#endif
-Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
-Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\ISSigTool.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
-Source: "whatsnew.htm"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "Examples\64Bit.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64BitTwoArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
 Source: "Examples\64BitThreeArch.iss"; DestDir: "{app}\Examples"; Flags: ignoreversion touch
