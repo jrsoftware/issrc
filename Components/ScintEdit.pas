@@ -2,7 +2,7 @@ unit ScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -2647,10 +2647,11 @@ begin
     if FAcceptDroppedFiles and Assigned(FOnDropFiles) then begin
       FileList := TStringList.Create;
       const NumFiles = DragQueryFile(Message.Drop, UINT(-1), nil, 0);
-      for var I := 0 to NumFiles-1 do
-        if DragQueryFile(Message.Drop, I, Filename,
-           SizeOf(Filename) div SizeOf(Filename[0])) <> 0 then
-          FileList.Add(Filename);
+      if NumFiles > 0 then
+        for var I := 0 to NumFiles-1 do
+          if DragQueryFile(Message.Drop, I, Filename,
+             SizeOf(Filename) div SizeOf(Filename[0])) > 0 then
+            FileList.Add(Filename);
 
       if FileList.Count > 0 then begin
         if not DragQueryPoint(Message.Drop, P) then begin
