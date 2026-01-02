@@ -50,19 +50,64 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><a name="7.0.0"></a><span class="ver">7.0.0-dev </span><span class="date">(?)</span></p>
 
-<p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
-
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
 
+<p>We are proud to announce Inno Setup 7, which includes a 64-bit edition, as well as a 32-bit edition.</p>
+
+<p>Both editions of Inno Setup 7 can build either 32-bit or 64-bit installers, and they can be installed side by side, and they can coexist alongside Inno Setup 6.</p>
+
+<p>This work would not have been possible without the support provided through the purchase of commercial licenses. <b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
+
+<span class="head2">64-bit Installers</span>
+
+<p>Set new <tt>[Setup]</tt> section directive <tt>SetupArchitecture</tt> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
+
+<p>Key benefits and differences:</p>
 <ul>
-  <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
-  <li>Pascal Scripting:
+<li>64-bit installers allow a maximum dictionary size for compression methods <tt>lzma</tt> and <tt>lzma2</tt> of 3.8 GB instead of 1 GB. Review the memory requirements listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_compression">Compression help topic</a> before using large dictionary sizes.</li>
+<li>64-bit installers have high-entropy ASLR enabled by default. This can help satisfy organizational policies or third-party requirements that mandate 64-bit executables.</li>
+<li>64-bit installers fully support <a href="https://jrsoftware.org/ishelp/index.php?topic=32vs64bitinstalls">32-bit install mode</a>. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <tt>ArchitecturesInstallIn64BitMode</tt> to a blank value to override the new default.</li>
+<li>Existing installations made by 32-bit installers can be updated by 64-bit installers without issue, and vice versa.</li>
+<li>64-bit Pascal Scripting notes:
   <ul>
-    <li>Added support function <tt>IsCurrentProcess64Bit</tt>.</li>
-    <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
+  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
+  <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 32-bit, while in 64-bit installers they are 64-bit. The same is true for all types derived from them, such as <tt>HWND</tt>.</li>
+  <li>Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></i> demonstrates how to support both 32-bit and 64-bit installers from a single script.</li>
   </ul>
-  <li>Other minor improvements.</li>
+</li>
 </ul>
+
+<span class="head2">64-bit Compiler IDE and ISCC</span>
+
+<p>Install the 64-bit edition of Inno Setup 7 to run 64-bit versions of the Compiler IDE and ISCC. Both editions read the same scripts and defaults, and either can generate 32-bit or 64-bit installers.</p>
+
+<p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
+
+<p>Using the 64-bit edition is recommended.</p>
+
+<p>Key benefits and differences:</p>
+<ul>
+<li>The <tt>[Setup]</tt> directive <tt>LZMAUseSeparateProcess</tt> is ignored by 64-bit compilers, because 64-bit processes can directly allocate more memory, eliminating the need for an out-of-process compressor.</li>
+<li>64-bit compilers generally achieve faster LZMA compression while maintaining full compatibility with existing scripts.</li>
+<li>Either edition can generate installers of either architecture: 32-bit compilers can build 64-bit installers, and vice versa.</li>
+<li>Both editions can be installed side by side and share examples and help files.</li>
+</ul>
+
+<span class="head2">Other changes</span>
+
+<p>Additionally, the following changes have been made in both editions:</p>
+
+<ul>
+<li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
+<li>Pascal Scripting:
+<ul>
+  <li>Added support function <tt>IsCurrentProcess64Bit</tt>.</li>
+  <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
+</ul>
+</li>
+<li>Other minor improvements.</li>
+</ul>
+
 
 </details>
 <details>
