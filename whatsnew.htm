@@ -19,7 +19,7 @@
     tt, pre      { font: calc(13rem/16)/calc(21rem/16) monospace; color: inherit; background-color: var(--code-bg-color) }
     tt           { padding: 2px 4px; border-radius: 4px }
     pre          { line-height: normal; padding: 10px; border-radius: 6px; overflow-x: auto }
-    li, div.limargins { margin-block: calc(5rem/16) }
+    li, li > p, div.limargins { margin-block: calc(5rem/16) }
     div.bluehead { text-align: center; color: white; background-color: hsl(206, 100%, 30%); padding: 5px; font-weight: bold; line-height: normal }
     details      { margin-block: 1em }
     summary      { font-size: calc(20rem/16); font-weight: bold; color: inherit; background-color: var(--code-bg-color);
@@ -120,11 +120,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="head2">Security improvements</span>
 <p>Updating is recommended, even if you don't plan to use the other enhancements right away. We continually add extra checks to make your installers safer and more reliable. In this version:</p>
 <ul>
-  <li>Setup and Uninstall now always try to enable <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">Windows RedirectionGuard</a> by default.<br/>
-      This mitigation, currently available only on Windows 11, blocks traversal of NTFS junctions created by non-admin users, to prevent path redirection vulnerabilities when privileged installers touch attacker-controlled directories.<br/>
-      Can be disabled by setting new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt> to <tt>no</tt>, and can also be disabled or enabled using new Setup and Uninstall command line parameters '/NOREDIRECTIONGUARD' and '/REDIRECTIONGUARD'.<br/>
-      When no command line parameter is specified, Uninstall enables or disables RedirectionGuard based on the latest install.<br/>
-      RedirectionGuard status is logged, so you can verify whether the mitigation was active.
+  <li><p>Setup and Uninstall now attempt to enable Windows' RedirectionGuard mitigation on their own processes by default. This mitigation, available on Windows 11 and Windows 10 22H2, blocks traversal of NTFS junctions and symbolic links created by unprivileged users (or any non-elevated processes), providing protection against path redirection attacks that could lead to privilege escalation.</p>
+      <p>For further details, refer to the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">help topic</a> for the new <tt>[Setup]</tt> section directive <tt>RedirectionGuard</tt>, which controls whether RedirectionGuard should be enabled. New command line parameters <tt>/NOREDIRECTIONGUARD</tt> and <tt>/REDIRECTIONGUARD</tt> are also supported, which override the <tt>RedirectionGuard</tt> setting.</p>
   </li>
 </ul>
 
