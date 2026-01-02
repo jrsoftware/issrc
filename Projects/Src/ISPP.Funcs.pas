@@ -245,10 +245,11 @@ end;
 function ReadReg(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 const
+  { These are based on CodeRootKey* from Shared.SetupTypes }
   ISPPRootKeyFlagMask  = $7F000000;
+  ISPPRootKeyFlag32Bit = $01000000;
   ISPPRootKeyFlag64Bit = $02000000;
-  ISPPRootKeyFlag32Bit = $04000000;
-  ISPPRootKeyValidFlags = ISPPRootKeyFlag64Bit;
+  ISPPRootKeyValidFlags = ISPPRootKeyFlag32Bit or ISPPRootKeyFlag64Bit;
 
   procedure CrackISPPRootKey(const ISPPRootKey: Int64; var RegView64, RegView32: Boolean;
     var RootKey: HKEY);
