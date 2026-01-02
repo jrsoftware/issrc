@@ -2,7 +2,7 @@ unit Compiler.ExeUpdateFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,8 +27,6 @@ type
   end;
 
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
-  var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
-function ReadSignatureAndChecksumFields64(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 function SeekToResourceData(const F: TCustomFile; const ResType, ResId: Cardinal): Cardinal;
 function UpdateSignatureAndChecksumFields(const F: TCustomFile;
@@ -213,36 +211,29 @@ begin
   end;
 end;
 
-function SeekToAndReadPEOptionalHeader(const F: TCustomFile;
-  var OptHeader: TImageOptionalHeader; var OptHeaderOffset: Int64): Boolean;
-var
-  Header: TImageFileHeader;
-begin
-  Result := False;
-  if SeekToPEHeader(F) then begin
-    if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = SizeOf(OptHeader)) then begin
-      OptHeaderOffset := F.Position;
-      if F.Read(OptHeader, SizeOf(OptHeader)) = SizeOf(OptHeader) then
-        if OptHeader.Magic = IMAGE_NT_OPTIONAL_HDR32_MAGIC then
-          Result := True;
-    end;
-  end;
-end;
+type
+  TOptionalHeader = (ohNone, oh32, oh64);
 
-function SeekToAndReadPEOptionalHeader64(const F: TCustomFile;
-  var OptHeader: TImageOptionalHeader64; var OptHeaderOffset: Int64): Boolean;
-var
-  Header: TImageFileHeader;
+function SeekToAndReadPEOptionalHeader(const F: TCustomFile;
+  var OptHeader32: TImageOptionalHeader; var OptHeader64: TImageOptionalHeader64;
+  var OptHeaderOffset: Int64): TOptionalHeader;
 begin
-  Result := False;
+  Result := ohNone;
   if SeekToPEHeader(F) then begin
+    var Header: TImageFileHeader;
     if (F.Read(Header, SizeOf(Header)) = SizeOf(Header)) and
-       (Header.SizeOfOptionalHeader = SizeOf(OptHeader)) then begin
+       ((Header.SizeOfOptionalHeader = SizeOf(OptHeader32)) or
+        (Header.SizeOfOptionalHeader = SizeOf(OptHeader64))) then begin
       OptHeaderOffset := F.Position;
-      if F.Read(OptHeader, SizeOf(OptHeader)) = SizeOf(OptHeader) then
-        if OptHeader.Magic = IMAGE_NT_OPTIONAL_HDR64_MAGIC then
-          Result := True;
+      if Header.SizeOfOptionalHeader = SizeOf(OptHeader32) then begin
+        if (F.Read(OptHeader32, SizeOf(OptHeader32)) = SizeOf(OptHeader32)) and
+           (OptHeader32.Magic = IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
+          Result := oh32;
+      end else begin
+        if (F.Read(OptHeader64, SizeOf(OptHeader64)) = SizeOf(OptHeader64)) and
+           (OptHeader64.Magic = IMAGE_NT_OPTIONAL_HDR64_MAGIC) then
+          Result := oh64;
+      end;
     end;
   end;
 end;
@@ -372,50 +363,49 @@ end;
 function ReadSignatureAndChecksumFields(const F: TCustomFile;
   var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 { Reads the signature and checksum fields in the specified file's header.
-  If the file is not a valid PE32 executable, False is returned. }
-var
-  OptHeader: TImageOptionalHeader;
-  OptHeaderOffset: Int64;
+  If the file is not a valid PE32 or PE32+ executable, False is returned. }
 begin
-  Result := SeekToAndReadPEOptionalHeader(F, OptHeader, OptHeaderOffset);
+  var OptHeader32: TImageOptionalHeader;
+  var OptHeader64: TImageOptionalHeader64;
+  var OptHeaderOffset: Int64;
+  const OptHeader = SeekToAndReadPEOptionalHeader(F, OptHeader32, OptHeader64, OptHeaderOffset);
+  Result := OptHeader <> ohNone;
   if Result then begin
-    ASignatureAddress := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
-    ASignatureSize := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
-    AChecksum := OptHeader.CheckSum;
-  end;
-end;
-
-function ReadSignatureAndChecksumFields64(const F: TCustomFile;
-  var ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
-{ Reads the signature and checksum fields in the specified file's header.
-  If the file is not a valid PE32+ executable, False is returned. }
-var
-  OptHeader: TImageOptionalHeader64;
-  OptHeaderOffset: Int64;
-begin
-  Result := SeekToAndReadPEOptionalHeader64(F, OptHeader, OptHeaderOffset);
-  if Result then begin
-    ASignatureAddress := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
-    ASignatureSize := OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
-    AChecksum := OptHeader.CheckSum;
+    if OptHeader = oh32 then begin
+      ASignatureAddress := OptHeader32.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
+      ASignatureSize := OptHeader32.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
+      AChecksum := OptHeader32.CheckSum;
+    end else begin
+      ASignatureAddress := OptHeader64.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress;
+      ASignatureSize := OptHeader64.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size;
+      AChecksum := OptHeader64.CheckSum;
+    end;
   end;
 end;
 
 function UpdateSignatureAndChecksumFields(const F: TCustomFile;
   const ASignatureAddress, ASignatureSize, AChecksum: DWORD): Boolean;
 { Sets the signature and checksum fields in the specified file's header.
-  If the file is not a valid PE32 executable, False is returned. }
-var
-  OptHeader: TImageOptionalHeader;
-  OptHeaderOffset: Int64;
+  If the file is not a valid PE32 or PE32+ executable, False is returned. }
 begin
-  Result := SeekToAndReadPEOptionalHeader(F, OptHeader, OptHeaderOffset);
+  var OptHeader32: TImageOptionalHeader;
+  var OptHeader64: TImageOptionalHeader64;
+  var OptHeaderOffset: Int64;
+  const OptHeader = SeekToAndReadPEOptionalHeader(F, OptHeader32, OptHeader64, OptHeaderOffset);
+  Result := OptHeader <> ohNone;
   if Result then begin
-    OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress := ASignatureAddress;
-    OptHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size := ASignatureSize;
-    OptHeader.CheckSum := AChecksum;
     F.Seek(OptHeaderOffset);
-    F.WriteBuffer(OptHeader, SizeOf(OptHeader));
+    if OptHeader = oh32 then begin
+      OptHeader32.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress := ASignatureAddress;
+      OptHeader32.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size := ASignatureSize;
+      OptHeader32.CheckSum := AChecksum;
+      F.WriteBuffer(OptHeader32, SizeOf(OptHeader32));
+    end else begin
+      OptHeader64.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress := ASignatureAddress;
+      OptHeader64.DataDirectory[IMAGE_DIRECTORY_ENTRY_SECURITY].Size := ASignatureSize;
+      OptHeader64.CheckSum := AChecksum;
+      F.WriteBuffer(OptHeader64, SizeOf(OptHeader64));
+    end;
   end;
 end;
 

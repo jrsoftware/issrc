@@ -2,7 +2,7 @@ unit Compiler.SetupCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -7521,8 +7521,6 @@ var
               fdOpenExisting, faRead, fsRead);
             try
               if ReadSignatureAndChecksumFields(SourceFile, SignatureAddress,
-                   SignatureSize, HdrChecksum) or
-                 ReadSignatureAndChecksumFields64(SourceFile, SignatureAddress,
                    SignatureSize, HdrChecksum) then
                 SignatureFound := SignatureSize <> 0;
             finally
@@ -7690,9 +7688,10 @@ var
       end;
   end;
 
-  function InternalSignSetupMemoryFileWithRetries(const Filename: String;
+  function InternalCopySignatureFromFileWithRetries(const Filename: String;
     var UnsignedFile: TMemoryFile; const UnsignedFileSize: Cardinal;
     const MismatchMessage: String): Boolean;
+  { Applies existing signature of file Filename to memory file UnsignedFile }
   var
     SignedFile, TestFile, OldFile: TMemoryFile;
     SignedFileSize: Cardinal;
@@ -7781,7 +7780,7 @@ var
 
       try
         Sign(Filename); { Has its own retry mechanism }
-        if not InternalSignSetupMemoryFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
+        if not InternalCopySignatureFromFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
            SCompilerSignedFileContentsMismatch) then
           AbortCompile(SCompilerSignToolSucceededButNoSignature);
       finally
@@ -7819,7 +7818,7 @@ var
         AddStatus(Format(SCompilerStatusSignedUninstallerExisting, [Filename]));
       end;
 
-      if not InternalSignSetupMemoryFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
+      if not InternalCopySignatureFromFileWithRetries(Filename, UnsignedFile, UnsignedFileSize,
          SCompilerSignedFileContentsMismatchRetry) then
         AbortCompileFmt(SCompilerSignatureNeeded, [Filename]);
     end;
