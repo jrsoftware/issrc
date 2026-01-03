@@ -360,7 +360,7 @@ function IntToKBStr(const I: Int64): String;
 var
   X: Extended;
 begin
-  X := Comp(I) / 1024;
+  X := I / 1024;
   if Frac(X) > 0 then
     X := Int(X) + 1;  { always round up }
   Result := Format('%.0n', [X]);
@@ -370,7 +370,7 @@ function IntToMBStr(const I: Int64): String;
 var
   X: Extended;
 begin
-  X := (Comp(I) / 1048576) * 10; { * 10 to include a decimal }
+  X := (I / 1048576) * 10; { * 10 to include a decimal }
   if Frac(X) > 0 then
     X := Int(X) + 1;  { always round up }
   X := X / 10;
@@ -381,7 +381,7 @@ function IntToGBStr(const I: Int64): String;
 var
   X: Extended;
 begin
-  X := (Comp(I) / 1073741824) * 100; { * 100 to include 2 decimals }
+  X := (I / 1073741824) * 100; { * 100 to include 2 decimals }
   if Frac(X) > 0 then
     X := Int(X) + 1;  { always round up }
   X := X / 100;

@@ -810,7 +810,7 @@ begin
   end
   else begin
     Data.CompressProgress := Cardinal(Trunc((Comp(BytesCompressedSoFar) * ProgressMax) /
-      Comp(TotalBytesToCompress)));
+      TotalBytesToCompress));
     { In case one of the files got bigger since we checked the sizes... }
     if Data.CompressProgress > ProgressMax then
       Data.CompressProgress := ProgressMax;
