@@ -15,93 +15,6 @@ OutputDir=userdocs:Inno Setup Examples Output
 
 [Code]
 
-{--- SQLDMO ---}
-
-const
-  SQLServerName = 'localhost';
-  SQLDMOGrowth_MB = 0;
-
-procedure SQLDMOButtonOnClick(Sender: TObject);
-var
-  SQLServer, Database, DBFile, LogFile: Variant;
-  IDColumn, NameColumn, Table: Variant;
-begin
-  if MsgBox('Setup will now connect to Microsoft SQL Server ''' + SQLServerName + ''' via a trusted connection and create a database. Do you want to continue?', mbInformation, mb_YesNo) = idNo then
-    Exit;
-
-  { Create the main SQLDMO COM Automation object }
-
-  try
-    SQLServer := CreateOleObject('SQLDMO.SQLServer');
-  except
-    RaiseException('Please install Microsoft SQL server connectivity tools first.'#13#13'(Error ''' + GetExceptionMessage + ''' occurred)');
-  end;
-
-  { Connect to the Microsoft SQL Server }
-
-  SQLServer.LoginSecure := True;
-  SQLServer.Connect(SQLServerName);
-  
-  MsgBox('Connected to Microsoft SQL Server ''' + SQLServerName + '''.', mbInformation, mb_Ok);
-
-  { Setup a database }
-
-  Database := CreateOleObject('SQLDMO.Database');
-  Database.Name := 'Inno Setup';
-  
-  DBFile := CreateOleObject('SQLDMO.DBFile');
-  DBFile.Name := 'ISData1';
-  DBFile.PhysicalName := 'c:\program files\microsoft sql server\mssql\data\IS.mdf';
-  DBFile.PrimaryFile := True;
-  DBFile.FileGrowthType := SQLDMOGrowth_MB;
-  DBFile.FileGrowth := 1;
-
-  Database.FileGroups.Item('PRIMARY').DBFiles.Add(DBFile);
-
-  LogFile := CreateOleObject('SQLDMO.LogFile');
-  LogFile.Name := 'ISLog1';
-  LogFile.PhysicalName := 'c:\program files\microsoft sql server\mssql\data\IS.ldf';
-
-  Database.TransactionLog.LogFiles.Add(LogFile);
-  
-  { Add the database }
-
-  SQLServer.Databases.Add(Database);
-
-  MsgBox('Added database ''' + Database.Name + '''.', mbInformation, mb_Ok);
-
-  { Setup some columns }
-
-  IDColumn := CreateOleObject('SQLDMO.Column');
-  IDColumn.Name := 'id';
-  IDColumn.Datatype := 'int';
-  IDColumn.Identity := True;
-  IDColumn.IdentityIncrement := 1;
-  IDColumn.IdentitySeed := 1;
-  IDColumn.AllowNulls := False;
-
-  NameColumn := CreateOleObject('SQLDMO.Column');
-  NameColumn.Name := 'name';
-  NameColumn.Datatype := 'varchar';
-  NameColumn.Length := '64';
-  NameColumn.AllowNulls := False;
-  
-  { Setup a table }
-
-  Table := CreateOleObject('SQLDMO.Table');
-  Table.Name := 'authors';
-  Table.FileGroup := 'PRIMARY';
-  
-  { Add the columns and the table }
-  
-  Table.Columns.Add(IDColumn);
-  Table.Columns.Add(NameColumn);
-
-  Database.Tables.Add(Table);
-
-  MsgBox('Added table ''' + Table.Name + '''.', mbInformation, mb_Ok);
-end;
-
 {--- IIS ---}
 
 const
@@ -341,8 +254,6 @@ begin
 
   TopInc := WizardForm.CancelButton.Height + ScaleY(8);
 
-  CreateButton(Left, Top, '&SQLDMO...', @SQLDMOButtonOnClick);
-  Top := Top + TopInc;
   CreateButton(Left, Top, '&Firewall...', @FirewallButtonOnClick);
   Top := Top + TopInc;
   CreateButton(Left, Top, '&IIS...', @IISButtonOnClick);
