@@ -222,7 +222,7 @@ var
   EstimatedSize: Int64;
 begin
   RegView := InstallDefaultRegView;
-  RegViewIs64Bit := RegView = rv64Bit;
+  RegViewIs64Bit := RegView in RegViews64Bit;
   if RegViewIs64Bit then
     OppositeRegView := rv32Bit
   else

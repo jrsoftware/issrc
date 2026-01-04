@@ -97,7 +97,7 @@ type
   TFileOperationFailedProc = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
 
 const
-  RegViews64Bit = [rv64Bit];
+  RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
 function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
@@ -988,17 +988,22 @@ begin
   Result := RegQueryValueEx(H, Name, nil, nil, nil, nil) = ERROR_SUCCESS;
 end;
 
+function RegViewToWowKeyFlag(const RegView: TRegView): REGSAM;
+begin
+  case RegView of
+    rv32Bit: Result := KEY_WOW64_32KEY;
+    rv64Bit: Result := KEY_WOW64_64KEY;
+  else
+    Result := 0;
+  end;
+end;
+
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   Reserved: DWORD; lpClass: PChar; dwOptions: DWORD; samDesired: REGSAM;
   lpSecurityAttributes: PSecurityAttributes; var phkResult: HKEY;
   lpdwDisposition: PDWORD): Longint;
 begin
-  case RegView of
-    rv64Bit:
-      samDesired := samDesired or KEY_WOW64_64KEY;
-    rv32Bit:
-      samDesired := samDesired or KEY_WOW64_32KEY;
-  end;
+  samDesired := samDesired or RegViewToWowKeyFlag(RegView);
   Result := RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions,
     samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 end;
@@ -1006,33 +1011,18 @@ end;
 function RegOpenKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   ulOptions: DWORD; samDesired: REGSAM; var phkResult: HKEY): Longint;
 begin
-  case RegView of
-    rv64Bit:
-      samDesired := samDesired or KEY_WOW64_64KEY;
-    rv32Bit:
-      samDesired := samDesired or KEY_WOW64_32KEY;
-  end;
+  samDesired := samDesired or RegViewToWowKeyFlag(RegView);
   Result := RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 end;
 
-var
-  RegDeleteKeyExFunc: function(hKey: HKEY;
-    lpSubKey: PWideChar; samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+function RegDeleteKeyEx_static(hKey: HKEY; lpSubKey: LPCWSTR;
+  samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+  external advapi32 name 'RegDeleteKeyExW';
 
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY;
   const Name: PChar): Longint;
 begin
-  if RegView <> {$IFDEF WIN64} rv32Bit {$ELSE} rv64Bit {$ENDIF} then
-    Result := RegDeleteKey(Key, Name)
-  else begin
-    if not Assigned(RegDeleteKeyExFunc) then
-      RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
-          'RegDeleteKeyExW');
-    if Assigned(RegDeleteKeyExFunc) then
-      Result := RegDeleteKeyExFunc(Key, Name, {$IFDEF WIN64} KEY_WOW64_32KEY {$ELSE} KEY_WOW64_64KEY {$ENDIF}, 0)
-    else
-      Result := ERROR_PROC_NOT_FOUND;
-  end;
+  Result := RegDeleteKeyEx_static(Key, Name, RegViewToWowKeyFlag(RegView), 0);
 end;
 
 function RegDeleteKeyIncludingSubkeys(const RegView: TRegView; const Key: HKEY;
